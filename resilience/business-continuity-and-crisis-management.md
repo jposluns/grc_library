@@ -14,7 +14,7 @@
 | **Classification** | Public – Open Access |
 | **Category** | Business Continuity / Crisis Management |
 | **Review Frequency** | Annual or following major incident or organizational change |
-| **Repository Path** | /plans/business-continuity-and-crisis-management |
+| **Repository Path** | /resilience/business-continuity-and-crisis-management.md |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
 ---
