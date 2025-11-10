@@ -24,7 +24,7 @@ The Library serves as the definitive source of governance truth:
 | Chief Operating Officer (COO) | Enables operational resilience, process standardization, and cross-departmental accountability. |
 | Chief Technology Officer (CTO) | Ensures technology, data, and AI initiatives operate under a compliant and ethically governed framework. |
 | Chief Information Officer (CIO) | Acts as the executive steward of governance maturity, digital trust, and certification readiness. |
-| Chief Information Security Officer (CISO) | Oversees information and cyber-security programs, ensuring compliance with ISO 27001 and related frameworks. |
+| Chief Information Security Officer (CISO) | Oversees security and information governance programs across cyber, data, and operational domains, ensuring alignment with applicable global frameworks and regulations. |
 | Chief Security Officer (CSO-Physical) | Oversees all physical, personnel, and facility security programs, ensuring integration with digital security, safety, and business continuity controls. |
 | Chief Risk Officer (CRO) | Oversees enterprise risk strategy, appetite, and integration across all functions. |
 | Chief Compliance Officer (CCO) | Maintains the compliance management system and reports on compliance performance. |
