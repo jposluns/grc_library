@@ -14,7 +14,7 @@
 | **Classification** | Public – Open Access |
 | **Category** | Business Continuity / Testing and Assurance |
 | **Review Frequency** | Annual or following a major change or incident |
-| **Repository Path** | /resilience/procedure-continuity-and-recovery-testing |
+| **Repository Path** | /resilience/procedure-continuity-and-recovery-testing.md |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
 ---
