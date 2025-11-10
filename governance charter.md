@@ -1,5 +1,24 @@
 # Governance Charter
 
+## Metadata
+
+| Field | Details |
+|-------|----------|
+| **Document Title** | Governance Charter |
+| **Document Type** | Charter |
+| **Version** | 0.1 |
+| **Date** |  |
+| **Document Owner** | Chief Information Officer (CIO) |
+| **Approving Authority** | Chief Executive Officer (CEO) |
+| **Related Documents** | Policy: Governance and Risk Management; Policy: Compliance, Audit, and CAPA Management; Digital Trust Performance Framework; Cross-Framework Compliance Matrix; Global Regulatory Mapping Register |
+| **Classification** | **Public – Open Access** |
+| **Category** | Governance |
+| **Review Frequency** | Annual |
+| **Repository Path** | /charters/governance-charter |
+| **Confidentiality** | **None (Public Domain, CC0 License)** |
+
+---
+
 ## Document Control
 
 | Version | Date | Author | Change History |
@@ -14,6 +33,9 @@
 |-------|------|---------------|
 | Chief Information Officer (CIO) |  |  |
 | Chief Information Security Officer (CISO) |  |  |
+| Chief Compliance Officer (CCO) |  |  |
+| Chief Legal Officer / General Counsel (CLO/GC) |  |  |
+| Chief Risk Officer (CRO) |  |  |
 | Chief Technology Officer (CTO) |  |  |
 | Chief Sustainability Officer (CSO) |  |  |
 
@@ -34,7 +56,7 @@ This Charter supersedes all subordinate instruments and ensures consistent align
 - Applies to all business units, subsidiaries, departments, and third-party engagements within the organization.  
 - Governs the creation, maintenance, and retirement of all governance artefacts, including frameworks, policies, standards, procedures, guidelines, and registers.  
 - Applies to all personnel contributing to the authoring, review, or approval of governance artefacts.  
-- Governs integration of meta-governance artefacts covering architecture, compliance mapping, regulatory alignment, and digital trust performance.  
+- Governs integration of meta-governance artefacts covering architecture, compliance mapping, regulatory alignment, and digital-trust performance.  
 - Adheres to the classification model defined in the Data Classification and Handling Standard.  
 - Encompasses trade-security-governed operations aligned with globally recognized supply-chain programs such as WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalent frameworks.
 
@@ -48,7 +70,7 @@ All employees, contractors, and third-party partners participating in or subject
 
 ## Governance Principles
 
-Governance ensures responsible stewardship, fairness, transparency, resilience, and accountability while promoting compliance with ethical, human rights, and environmental standards.
+Governance ensures responsible stewardship, fairness, transparency, resilience, and accountability while promoting compliance with ethical, human-rights, and environmental standards.
 
 ### Core Principles
 
@@ -73,11 +95,28 @@ Governance ensures responsible stewardship, fairness, transparency, resilience, 
 
 ---
 
+## Governance Structure and Oversight
+
+| Role | Description |
+|------|--------------|
+| **Chief Executive Officer (CEO)** | Ultimate accountability for governance effectiveness and ethical leadership. |
+| **Chief Information Officer (CIO)** | Executive sponsor and authoritative owner of the GRC Library. |
+| **Chief Information Security Officer (CISO)** | Oversees information-security governance, risk posture, and resilience. |
+| **Chief Compliance Officer (CCO)** | Maintains the compliance-management system and monitors regulatory conformance. |
+| **Chief Legal Officer / General Counsel (CLO/GC)** | Provides legal oversight, contract governance, and regulatory interpretation. |
+| **Chief Risk Officer (CRO)** | Directs enterprise-risk management and appetite-setting activities. |
+| **Chief Technology Officer (CTO)** | Oversees technology architecture, AI governance, and innovation alignment. |
+| **Chief Sustainability Officer (CSO)** | Integrates ESG and responsible-technology practices. |
+| **Chief Human Resources Officer (CHRO)** | Oversees ethics, training, and workforce-governance programs. |
+| **Enterprise Risk Committee (ERC)** | Provides executive oversight for enterprise risk, audit, and compliance results. |
+
+---
+
 ## Change Management for Governance Instruments
 
 - All governance artefacts follow the organizational change-management process.  
 - Version control and archival of superseded versions are mandatory for audit traceability.  
-- Each update must identify parent and dependent documents per the Document Architecture and Interrelationship Framework.
+- Each update must identify its parent and dependent documents per the **Document Architecture and Interrelationship Framework**.
 
 ---
 
@@ -112,26 +151,22 @@ Lifecycle definitions and dependency relationships are maintained in the **Docum
 ## Implementation and Monitoring
 
 Approved artefacts must be implemented by accountable leaders, who ensure training, adoption, and demonstrable compliance.  
-Monitoring is performed through audits, metrics, and maturity assessments defined in the **GRC Metrics and Digital Trust Performance Framework**.  
-All deviations follow the Exception Process.
+Monitoring is performed through audits, metrics, and maturity assessments defined in the **Digital Trust Performance Framework**.  
+All deviations follow the **Exception and Risk Acceptance Management Policy**.
 
 ---
 
-## Exception Process
+## Exception Management Integration
 
-1. **Submission:** Employees may submit an exception request through the governance portal.  
-2. **Evaluation:** Each request must include business justification, risk level, duration, and compensating controls.  
-3. **Approval:**  
-   - Temporary (< 90 days): CIO approval.  
-   - Extended or high risk: CIO and CISO approval with Legal review.  
-4. **Tracking:** All exceptions are logged, assigned expiry dates, and reviewed periodically.
+All exceptions to governance artefacts, standards, or controls must be processed through the **Exception and Risk Acceptance Management Policy** and recorded in the enterprise exception register.  
+Aggregated exception metrics are reported quarterly to the **Enterprise Risk Committee** and **Audit Committee**.
 
 ---
 
 ## Governance Review and Continuous Improvement
 
 - Governance effectiveness is reviewed annually and upon regulatory or strategic change.  
-- Audit findings and lessons learned feed the Continuous Improvement Register.  
+- Audit findings and lessons learned feed the **Continuous Improvement Register**.  
 - Non-substantive edits may be made without CIO re-approval but must be logged for audit traceability.
 
 ---
@@ -142,23 +177,23 @@ Comprehensive cross-references are maintained in:
 
 - **Cross-Framework Compliance Matrix**  
 - **Global Regulatory Mapping Register**  
-- **GRC Metrics and Digital Trust Performance Framework**
+- **Digital Trust Performance Framework**
 
 ### Key Framework References
 
 | Framework | Relevant Charter Sections | Coverage Summary |
 |------------|----------------------------|------------------|
-| ISO 31000 | Purpose; Governance Principles | Risk-management integration. |
-| ISO/IEC 27001 & 27014 | Governance Hierarchy; Change Management | ISMS governance and accountability. |
-| ISO/IEC 42001 | Purpose; Definitions; Review Cycle | AI management system governance. |
-| ISO 37301 | Implementation and Monitoring | Compliance management system. |
-| ISO 9001 | Development and Approval | Quality and version control. |
-| COBIT 2025 | Governance Principles; Review Cycle | Governance design and digital trust assurance. |
-| Cloud Security Alliance (CSA) | Implementation and Monitoring | Cloud and AI control alignment. |
-| NIST CSF 2.0 / SP 800-37 | Governance Principles; Risk Lifecycle | Risk management and authorization model. |
-| ISO/IEC 30173 | Definitions; Scope | Digital Twin and simulation governance. |
-| NIST SP 800-208 | Definitions; Scope | Post-Quantum Cryptography readiness. |
-| Trade and Supply Chain Programs | Scope; Appendix A | WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (U.S.), AEO (EU), and equivalents for trade-security governance. |
+| **ISO 31000** | Purpose; Governance Principles | Enterprise-risk-management integration. |
+| **ISO/IEC 27001 & 27014** | Governance Hierarchy; Change Management | ISMS governance and accountability. |
+| **ISO/IEC 42001** | Purpose; Definitions; Review Cycle | AI-management-system governance. |
+| **ISO 37301** | Implementation and Monitoring | Compliance-management system. |
+| **ISO 9001** | Development and Approval | Quality and version control. |
+| **COBIT 2025** | Governance Principles; Review Cycle | Governance design and digital-trust assurance. |
+| **Cloud Security Alliance (CSA)** | Implementation and Monitoring | Cloud and AI control alignment. |
+| **NIST CSF 2.0 / SP 800-37** | Governance Principles; Risk Lifecycle | Risk-management and authorization model. |
+| **ISO/IEC 30173** | Definitions; Scope | Digital-twin and simulation governance. |
+| **NIST SP 800-208** | Definitions; Scope | Post-quantum-cryptography readiness. |
+| **Trade and Supply Chain Programs** | Scope; Appendix A | WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (U.S.), AEO (EU), and equivalent trade-security frameworks. |
 
 ---
 
