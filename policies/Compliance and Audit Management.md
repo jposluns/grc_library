@@ -1,5 +1,24 @@
 # Policy: Compliance, Audit, and CAPA Management
 
+## Metadata
+
+| Field | Details |
+|-------|----------|
+| **Document Title** | Policy: Compliance, Audit, and CAPA Management |
+| **Document Type** | Policy |
+| **Version** | 0.1 |
+| **Date** |  |
+| **Document Owner** | Chief Compliance Officer (CCO) |
+| **Approving Authority** | Chief Information Officer (CIO) |
+| **Related Documents** | Internal Audit Standard; Corrective and Preventive Action Procedure (CAPA); Data Retention and Recovery Standard; Digital Trust Performance Framework |
+| **Classification** | **Public – Open Access** |
+| **Category** | Governance / Risk / Compliance |
+| **Review Frequency** | Annual or as required by regulatory or framework changes |
+| **Repository Path** | /policies/compliance-audit-and-capa-management |
+| **Confidentiality** | **None (Public Domain, CC0 License)** |
+
+---
+
 ## Document Control
 
 | Version | Date | Author | Change History |
@@ -14,8 +33,8 @@
 |-------|------|---------------|
 | Chief Information Officer (CIO) |  |  |
 | Chief Information Security Officer (CISO) |  |  |
-| Director of Compliance or Legal Counsel |  |  |
-| Director of IT Service Delivery |  |  |
+| Chief Compliance Officer (CCO) |  |  |
+| Director of IT |  |  |
 
 ---
 
@@ -23,15 +42,15 @@
 
 This policy defines the governance framework for compliance assurance, internal audit, and corrective and preventive action (CAPA) across the organization.  
 
-It consolidates prior compliance, audit, and CAPA policies into one unified governance instrument, ensuring consistent oversight of legal, regulatory, contractual, and ethical obligations; verification of control effectiveness; and continual improvement through audit findings and remediation cycles.  
+It consolidates previous compliance, audit, and CAPA policies into one unified governance instrument, ensuring consistent oversight of legal, regulatory, contractual, and ethical obligations; verification of control effectiveness; and continual improvement through audit findings and remediation cycles.  
 
-The policy aligns with ISO 37301:2021 (Compliance Management Systems), ISO 19011:2018 (Auditing Guidelines), COBIT 2025 MEA01 (Monitor, Evaluate, and Assess Performance and Conformance), Cloud Security Alliance (CSA) frameworks, NIST SP 800-53 Rev 5 CA family, and regulatory expectations under the EU AI Act, Canada’s AIDA, and U.S. Executive Order 14110 on Safe, Secure, and Trustworthy AI.
+The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO 19011:2018** (Auditing Guidelines), **COBIT 2025 MEA01** (Monitor, Evaluate, and Assess Performance and Conformance), **Cloud Security Alliance (CSA)** frameworks, **NIST SP 800-53 Rev 5 CA** family, and regulatory expectations under the **EU AI Act**, **Canada’s AIDA**, and **U.S. Executive Order 14110** on Safe, Secure, and Trustworthy AI.
 
 ---
 
 ## Scope
 
-- Applies to all organizational entities, regions, and subsidiaries under operational control, including trade-security-governed logistics operations.  
+- Applies to all organizational entities, regions, and subsidiaries under operational control, including trade-security-governed operations.  
 - Covers all compliance and audit activities including regulatory and legal reviews, internal and supplier audits, certification audits, AI system audits, and CAPA tracking.  
 - Applies to all employees, management, and third parties involved in regulated processes, data handling, customs documentation, or AI deployments supporting trade and logistics operations.  
 
@@ -45,12 +64,12 @@ The policy aligns with ISO 37301:2021 (Compliance Management Systems), ISO 19011
 
 ### 2. Compliance Function
 2.1 The Chief Compliance Officer (CCO) maintains the compliance management system (CMS) aligned with ISO 37301 Clauses 5–10.  
-2.2 The CCO reports on compliance risk, breaches, and mitigation measures quarterly to the Executive Committee.
+2.2 The CCO reports quarterly on compliance risk, breaches, and mitigation measures to the Executive Committee.
 
 ### 3. Internal Audit Function
 3.1 Internal Audit operates independently under the authority of the Audit Committee.  
 3.2 Audits are risk-based and prioritized through the annual audit plan.  
-3.3 Scope covers information security, privacy, financial, operational, AI, and supplier domains.
+3.3 Audit scope covers information security, privacy, financial, operational, AI, and supplier domains.
 
 ### 4. Corrective and Preventive Action (CAPA)
 4.1 Process owners are accountable for defining, implementing, and closing CAPAs within agreed timelines.  
@@ -59,9 +78,9 @@ The policy aligns with ISO 37301:2021 (Compliance Management Systems), ISO 19011
 ### 5. AI and Trade Compliance Oversight
 5.1 The AI Governance Council ensures compliance with AI-related laws, standards, and ethical principles.  
 5.2 Documentation and audit trails shall demonstrate conformity to frameworks such as the EU AI Act, AIDA, and OECD AI Principles.  
-5.3 Regional trade compliance officers coordinate with the Chief Compliance Officer and Internal Audit to ensure that trade and logistics activities comply with recognized global supply-chain security programs, including WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalent frameworks.  
-5.4 Audit scope for trade-compliance operations includes verification of cargo integrity, personnel screening, and customs documentation accuracy.  
-5.5 Findings related to trade compliance are reported quarterly to the Enterprise Risk Committee and the Board Audit and Risk Committee.
+5.3 Regional trade compliance officers coordinate with the CCO and Internal Audit to ensure adherence to recognized global supply-chain programs, including **WCO SAFE**, **ISO 28000**, **BASC**, **PIP (Canada)**, **CTPAT (United States)**, **AEO (European Union)**, and equivalent frameworks.  
+5.4 Audit scope for trade compliance includes verification of cargo integrity, personnel screening, and customs documentation accuracy.  
+5.5 Findings related to trade compliance are reported quarterly to the **Enterprise Risk Committee** and **Board Audit and Risk Committee**.
 
 ---
 
@@ -76,7 +95,7 @@ The policy aligns with ISO 37301:2021 (Compliance Management Systems), ISO 19011
 2.1 Annual audit plans shall be risk-based, approved by the Audit Committee, and include IT, operational, supplier, AI, and trade-compliance audits.  
 2.2 Audit criteria shall follow ISO 19011 principles of integrity, independence, evidence-based assessment, and risk orientation.  
 2.3 Each audit shall document objective evidence, findings, severity, and recommendations.  
-2.4 Audit evidence, process documentation, and system-specific procedures shall be maintained under the IT Operations Documentation Framework to ensure that testing and assurance activities align to governance artefacts.
+2.4 Audit evidence, process documentation, and system-specific procedures shall be maintained under the IT Operations Documentation Framework to ensure testing and assurance activities remain aligned to governance artefacts.
 
 ### 3. Audit Independence and Objectivity
 3.1 Internal Audit shall remain functionally independent and report directly to the Board Audit Committee.  
@@ -86,21 +105,21 @@ The policy aligns with ISO 37301:2021 (Compliance Management Systems), ISO 19011
 4.1 All audit findings shall be classified as critical, major, or minor nonconformities.  
 4.2 CAPAs shall include root cause analysis, defined actions, responsible parties, target dates, and verification evidence.  
 4.3 CAPA effectiveness shall be validated by Internal Audit or Compliance within 90 days of implementation.  
-4.4 Findings involving trade-compliance frameworks must be verified by the applicable compliance officer and reported to the appropriate program authority if required.
+4.4 Findings involving trade-compliance frameworks must be verified by the applicable compliance officer and reported to the relevant program authority when required.
 
 ### 5. Algorithmic and AI Compliance Auditing
 5.1 AI systems shall undergo algorithmic audits for transparency, bias, robustness, and ethical compliance.  
 5.2 AI audit trails shall include datasets, models, parameters, evaluation metrics, and risk classification per ISO 23894 and NIST AI RMF.  
-5.3 [Unverified] Automated monitoring may use algorithmic compliance checks and control validation scripts integrated with audit workflows.
+5.3 [Unverified] Automated monitoring may use algorithmic compliance checks and validation scripts integrated with audit workflows.
 
 ### 6. Reporting and Escalation
 6.1 Audit results shall be reported to management within 15 business days of closure.  
 6.2 Material compliance breaches must be escalated to the CCO and Audit Committee within two business days.  
-6.3 Quarterly dashboards shall summarize findings, CAPA status, and metrics.
+6.3 Quarterly dashboards shall summarize findings, CAPA status, and key metrics.
 
 ### 7. Records and Retention
 7.1 All audit reports, evidence, and CAPA records shall be retained for at least seven years.  
-7.2 Records shall be stored securely in compliance with data protection and evidentiary requirements.
+7.2 Records shall be securely stored in compliance with data protection and evidentiary requirements.
 
 ### 8. Continual Improvement
 8.1 Audit methodologies shall be reviewed annually per ISO 19011 Clause 10 and COBIT MEA01.  
@@ -111,23 +130,23 @@ The policy aligns with ISO 37301:2021 (Compliance Management Systems), ISO 19011
 
 ## References and Framework Alignment
 
-- ISO 37301:2021 Compliance Management Systems  
-- ISO 19011:2018 Guidelines for Auditing  
-- COBIT 2025 MEA01 Monitor, Evaluate, and Assess Performance and Conformance  
-- Cloud Security Alliance (CSA) frameworks (GOV, AUD, AICM)  
-- NIST SP 800-53 Rev 5 CA (Assessment and Authorization) family  
-- OECD AI Principles (accountability, transparency, human oversight)  
-- EU AI Act Articles 9–16 (Risk, Quality, and Post-Market Monitoring)  
-- Canada Artificial Intelligence and Data Act (AIDA)  
-- U.S. Executive Order 14110 on Safe, Secure, and Trustworthy AI  
-- [Unverified] Draft 2026 ISO 37301 Revision – Algorithmic compliance and automation integration  
-- Trade and Supply Chain Programs: WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (U.S.), AEO (EU), and equivalents
+- **ISO 37301:2021** Compliance Management Systems  
+- **ISO 19011:2018** Guidelines for Auditing  
+- **COBIT 2025 MEA01** Monitor, Evaluate, and Assess Performance and Conformance  
+- **Cloud Security Alliance (CSA)** frameworks (GOV, AUD, AICM)  
+- **NIST SP 800-53 Rev 5 CA** family (Assessment and Authorization)  
+- **OECD AI Principles** (Accountability, Transparency, Human Oversight)  
+- **EU AI Act** Articles 9–16 (Risk, Quality, and Post-Market Monitoring)  
+- **Canada Artificial Intelligence and Data Act (AIDA)**  
+- **U.S. Executive Order 14110** on Safe, Secure, and Trustworthy AI  
+- [Unverified] **Draft 2026 ISO 37301 Revision** – Algorithmic Compliance and Automation Integration  
+- **Trade and Supply Chain Programs:** WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (U.S.), AEO (EU), and equivalents  
 
 ---
 
 ## Compliance Mapping Table
 
-| Control area | ISO 37301 | ISO 19011 | COBIT 2025 | CSA | NIST | Legal / Regulatory | Trade and Supply Chain Programs |
+| Control Area | ISO 37301 | ISO 19011 | COBIT 2025 | CSA | NIST | Legal / Regulatory | Trade and Supply Chain Programs |
 |---------------|------------|------------|-------------|------|-------|--------------------|--------------------------------|
 | Compliance governance | Clauses 5–6 Leadership | Clause 5 Governance | MEA01.01 Establish governance | GOV 01–03 | NIST CSF Govern | GDPR, CPPA | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO |
 | Compliance risk and obligations register | Clauses 6–7 Planning | N/A | APO12 linkage | GOV 04 | NIST RMF Prepare | Multi-jurisdiction | WCO SAFE equivalence |
