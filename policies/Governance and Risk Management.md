@@ -1,5 +1,24 @@
 # Policy: Governance and Risk Management
 
+## Metadata
+
+| Field | Details |
+|-------|----------|
+| **Document Title** | Policy: Governance and Risk Management |
+| **Document Type** | Policy |
+| **Version** | 0.1 |
+| **Date** |  |
+| **Document Owner** | Chief Risk Officer (CRO) |
+| **Approving Authority** | Chief Information Officer (CIO) |
+| **Related Documents** | Risk Management Standard; Risk Register Procedure; Third Party Risk Standard; Business Continuity and Disaster Recovery Standard; Privacy Impact Assessment Procedure; AI Security and Risk Standard; Logging and Monitoring Standard |
+| **Classification** | **Public – Open Access** |
+| **Category** | Governance / Risk |
+| **Review Frequency** | Annual or as required by regulatory or framework changes |
+| **Repository Path** | /policies/governance-and-risk-management |
+| **Confidentiality** | **None (Public Domain, CC0 License)** |
+
+---
+
 ## Document Control
 
 | Version | Date | Author | Change History |
@@ -22,7 +41,7 @@
 
 This policy establishes the governance and risk management framework, principles, roles, and control requirements that guide consistent identification, assessment, treatment, monitoring, and reporting of risk across the organization.  
 
-It aligns with ISO 31000 Clause 5 Framework and Clause 6 Process, COBIT 2025 APO12 Manage Risk, Cloud Security Alliance (CSA) frameworks, NIST SP 800-39, ISO 23894 for AI risk, and the NIST AI RMF [Unverified 1.1]. It integrates risk, compliance, privacy, security, resilience, ethics, and sustainability across business, technology, data, and AI systems.
+It aligns with ISO 31000 Clause 5 Framework and Clause 6 Process, COBIT 2025 APO12 Manage Risk, Cloud Security Alliance (CSA) frameworks, NIST SP 800 39, ISO 23894 for AI risk, and the NIST AI RMF [Unverified 1.1]. It integrates risk, compliance, privacy, security, resilience, ethics, and sustainability across business, technology, data, and AI systems.
 
 ---
 
@@ -32,7 +51,7 @@ It aligns with ISO 31000 Clause 5 Framework and Clause 6 Process, COBIT 2025 APO
 - Covers strategic, operational, financial, compliance, information security, privacy, safety, environmental, AI, and supply chain risks across on premise, cloud, multi cloud, edge, and supplier hosted services.  
 - Applies to employees, contractors, suppliers, and partners who process organizational or regulated data or operate systems on behalf of the organization.  
 - Includes all information types, with specific treatment for regulated and sensitive data such as manifests, customs documentation, datasets, prompts, embeddings, models, and AI agents.  
-- Encompasses trade-security and supply-chain risk management aligned with globally recognized programs including WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalent frameworks.
+- Encompasses trade security and supply chain risk management aligned with globally recognized programs including WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalent frameworks.
 
 ---
 
@@ -51,7 +70,7 @@ It aligns with ISO 31000 Clause 5 Framework and Clause 6 Process, COBIT 2025 APO
 Each material risk is assigned an executive sponsor and an operational owner with defined accountability and decision rights.
 
 ### 4. AI Risk Accountability
-The AI Governance Council approves AI risk appetite statements and exceptions for high-risk AI uses aligned to ISO 23894 and the NIST AI RMF Govern function.
+The AI Governance Council approves AI risk appetite statements and exceptions for high risk AI uses aligned to ISO 23894 and the NIST AI RMF Govern function.
 
 ### 5. Committee Structure and Cadence
 5.1 Enterprise Risk Committee meets quarterly for top risks, appetite, and emerging risk review.  
@@ -85,23 +104,23 @@ Standardized risk metrics and key risk indicators are reported at least monthly,
 
 ### 5. Third Party and Supply Chain Risk
 5.1 Suppliers shall undergo risk assessment, due diligence, contract controls, and ongoing monitoring aligned to COBIT APO10 and Cloud Security Alliance guidance.  
-5.2 Supply chain and trade-security risk management shall align with WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalent frameworks.  
+5.2 Supply chain and trade security risk management shall align with WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalent frameworks.  
 5.3 Cloud services shall be assessed for jurisdiction, residency, resilience, and shared responsibility clarity.
 
 ### 6. Business Continuity and Resilience
 Business impact analysis, continuity strategies, disaster recovery, and crisis communications are mandatory for critical services per COBIT DSS04 and Cloud Security Alliance guidance.
 
 ### 7. Privacy and Data Protection
-Privacy by design shall be embedded in processes and AI systems, with cross-border transfer assessments for GDPR, CPPA, PIPL, LGPD, and CBPR 2.0 where applicable.
+Privacy by design shall be embedded in processes and AI systems, with cross border transfer assessments for GDPR, CPPA, PIPL, LGPD, and CBPR 2.0 where applicable.
 
 ### 8. Monitoring, Metrics, and Assurance
 8.1 KRIs and control performance indicators shall be defined, baselined, and reviewed at least quarterly.  
 8.2 Independent testing by Internal Audit shall verify design and operating effectiveness of key controls per COBIT MEA01.  
-8.3 AI systems shall undergo pre-deployment evaluations and post-deployment monitoring for accuracy, robustness, safety, and fairness.
+8.3 AI systems shall undergo pre deployment evaluations and post deployment monitoring for accuracy, robustness, safety, and fairness.
 
 ### 9. Issue and Exception Management
 9.1 Risk issues and control deficiencies shall have tracked remediation plans and due dates.  
-9.2 Formal risk acceptance is required where residual risk exceeds tolerance, with time-bound exceptions and executive approval.
+9.2 Formal risk acceptance is required where residual risk exceeds tolerance, with time bound exceptions and executive approval.
 
 ### 10. Reporting and Disclosure
 10.1 Material risk changes shall be escalated within two business days.  
@@ -121,7 +140,7 @@ Privacy by design shall be embedded in processes and AI systems, with cross-bord
 - ISO 27001 and ISO 27002 Control Families and Mappings  
 - COBIT 2025 APO12 Manage Risk, APO10 Manage Suppliers, MEA01 Monitor Evaluate and Assess Performance and Conformance, DSS04 Manage Continuity  
 - Cloud Security Alliance (CSA) frameworks  
-- NIST SP 800-39 Managing Information Security Risk  
+- NIST SP 800 39 Managing Information Security Risk  
 - NIST AI RMF Govern, Map, Measure, Manage [Unverified 1.1]  
 - OECD AI Principles Transparency, Robustness, Accountability  
 - Legal and Regulatory: GDPR, CPPA, PIPL, LGPD, CBPR 2.0  
@@ -132,8 +151,8 @@ Privacy by design shall be embedded in processes and AI systems, with cross-bord
 
 ## Compliance Mapping Table
 
-| Control Area | ISO 31000 | ISO 23894 | NIST SP 800-39 | NIST AI RMF | COBIT 2025 | CSA Frameworks | Legal / Regulatory | Trade and Supply Chain Programs |
-|---------------|------------|------------|----------------|--------------|--------------|----------------|--------------------|--------------------------------|
+| Control Area | ISO 31000 | ISO 23894 | NIST SP 800 39 | NIST AI RMF | COBIT 2025 | CSA Frameworks | Legal / Regulatory | Trade and Supply Chain Programs |
+|---------------|------------|-----------|----------------|-------------|-------------|----------------|--------------------|--------------------------------|
 | Risk framework and governance | Clause 5 Framework | 5 Governance | Organization wide RMF | Govern | APO12.01 Define risk context | CCM GRM, CSA guidance | Corporate governance charters | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO |
 | Risk identification and analysis | Clause 6 Identify Analyse | 6.2 Identification 6.3 Analysis | Tasks 1 and 2 | Map and Measure | APO12.03 Assess risk | CSA GRM | GDPR Art 25, CPPA | WCO SAFE equivalence |
 | Risk appetite and tolerance | 5.4 Integration 5.6 Evaluation | 5 Governance | Org risk strategy | Govern | APO12.02 Define risk appetite | CSA GRM | Board approved appetite statements | WCO SAFE equivalence |
