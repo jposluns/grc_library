@@ -2,7 +2,8 @@
 
 ## Strategic Purpose
 
-The Organizational GRC Documentation Library is the foundation of the organization’s Governance, Risk, and Compliance Management System (GRCMS).  
+The Organizational GRC Documentation Library is the foundation of the organization’s Governance, Risk, and Compliance Management System (GRCMS).
+
 It unifies every policy, framework, standard, and procedure under a single ISO-aligned structure, ensuring that governance, security, privacy, and ethical innovation are managed consistently across all organizational contexts.
 
 The Library serves as the definitive source of governance truth:
