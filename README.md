@@ -38,7 +38,7 @@ The Library serves as the definitive source of governance truth:
 
 ## Strategic Outcomes and Organizational Value
 
-- **Unified Governance:** Establishes one consistent, globally recognized governance system aligned with ISO, COBIT, CSA CCM, and NIST frameworks.  
+- **Unified Governance:** Establishes one consistent, globally recognized governance system aligned with ISO, COBIT, CSA, and NIST frameworks.  
 - **Certification Readiness:** Maintains readiness for ISO 27001, 27701, 42001, 37301, 50001, and related audits.  
 - **Regulatory Assurance:** Provides evidence of compliance with GDPR, CPPA, AI Act, AIDA, NIS 2, LGPD, and other laws.  
 - **Operational Resilience:** Strengthens reliability, continuity, and data protection across operations.  
