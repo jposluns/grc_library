@@ -1,13 +1,13 @@
-# GRC Documentation Library
+# Organizational GRC Documentation Library
 
 ## Strategic Purpose
 
-The Enterprise GRC Documentation Library is the foundation of the organization’s Governance, Risk, and Compliance Management System (GRCMS).  
-It unifies every policy, framework, standard, and procedure under a single ISO-aligned structure, ensuring that governance, security, privacy, and ethical innovation are managed consistently across the enterprise.
+The Organizational GRC Documentation Library is the foundation of the organization’s Governance, Risk, and Compliance Management System (GRCMS).  
+It unifies every policy, framework, standard, and procedure under a single ISO-aligned structure, ensuring that governance, security, privacy, and ethical innovation are managed consistently across all organizational contexts.
 
 The Library serves as the definitive source of governance truth:
 
-- Enables executive decision-making with confidence that all policies and controls are traceable, auditable, and compliant.  
+- Enables leadership decision-making with confidence that all policies and controls are traceable, auditable, and compliant.  
 - Provides the assurance infrastructure required for certification, regulatory compliance, and stakeholder trust.  
 - Integrates AI, sustainability, privacy, and digital trust principles into every layer of governance, reflecting modern regulatory and ethical expectations.
 
@@ -19,7 +19,7 @@ The Library serves as the definitive source of governance truth:
 |----------------|------------------------|
 | Chief Executive Officer (CEO) | Demonstrates accountable, transparent, and ethical governance across technology and business operations. |
 | Chief Financial Officer (CFO) | Confirms compliance and audit readiness for financial integrity, regulatory filings, and risk disclosures. |
-| Chief Administrative Officer (CAO) | Provides enterprise-wide governance consistency supporting HR, legal, and corporate reporting. |
+| Chief Administrative Officer (CAO) | Provides organization-wide governance consistency supporting HR, legal, and corporate reporting. |
 | Chief Operating Officer (COO) | Enables operational resilience, process standardization, and cross-departmental accountability. |
 | Chief Technology Officer (CTO) | Ensures technology, data, and AI initiatives operate under a compliant and ethically governed framework. |
 | Chief Information Officer (CIO) | Acts as the executive steward of governance maturity, digital trust, and certification readiness. |
@@ -53,7 +53,7 @@ The GRC Library consists of structured artefacts organized as follows:
 | Range | Category | Purpose |
 |--------|-----------|----------|
 | 0 | Governance Charter | Defines authority, hierarchy, and oversight. |
-| 1–19 | Core Governance | Enterprise risk, compliance, performance, sustainability, and ethics. |
+| 1–19 | Core Governance | Organizational risk, compliance, performance, sustainability, and ethics. |
 | 20 | Master Index | Centralized classification and reference register. |
 | 21–60 | Operational and Compliance Standards | Detailed procedures and controls for risk, audit, security, and privacy. |
 | 61–69 | Future Readiness | Quantum security, AI certification, digital twin, and ESG ethics frameworks. |
@@ -83,7 +83,7 @@ Cross-framework mappings are maintained in the **Cross-Framework Compliance Matr
 | Chief Information Officer (CIO) | Executive sponsor and authoritative owner of the GRC Library. |
 | Chief Information Security Officer (CISO) | Oversees information security and acts as GRC approving authority. |
 | Chief Technology Officer (CTO) | Chairs the AI Governance Council and oversees responsible AI assurance. |
-| Enterprise Risk Committee (ERC) | Provides executive oversight for enterprise risk and audit results. |
+| Enterprise Risk Committee (ERC) | Provides executive oversight for organizational risk and audit results. |
 | Chief Sustainability Officer (CSO) | Leads ESG and responsible technology integration. |
 
 ---
@@ -94,14 +94,14 @@ Cross-framework mappings are maintained in the **Cross-Framework Compliance Matr
 - **Classification:** Public Read / Restricted Edit  
 - **Access:** Read access is unrestricted for all individuals and organizations.  
   Edit and contribution rights are reserved for authorized governance custodians.  
-- **Review Frequency:** Annual or upon regulatory or technological change
+- **Review Frequency:** Annual or upon regulatory or technological change  
 
 ---
 
 ## Statement of Authority
 
-All documents within the Enterprise GRC Documentation Library (2026 Edition) are approved under the authority of the Chief Information Officer (CIO) and governed by the Governance Charter.  
-They form the foundation of the organization’s Integrated Governance, Risk, and Compliance Management System (GRCMS) and represent the single authoritative reference for governance, compliance, and certification activities across the enterprise.
+All documents within the Organizational GRC Documentation Library (2026 Edition) are approved under the authority of the Chief Information Officer (CIO) and governed by the Governance Charter.  
+They form the foundation of the organization’s Integrated Governance, Risk, and Compliance Management System (GRCMS) and represent the single authoritative reference for governance, compliance, and certification activities across all organizational types.
 
 ---
 
