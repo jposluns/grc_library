@@ -134,15 +134,15 @@ Aligned with:
 
 ## Related Standards and Procedures
 
-- Standard: Business Continuity & Disaster Recovery (Document 28)  
-- Procedure: Business Impact Analysis (Document 30)  
+- Standard: Business Continuity & Disaster Recovery 
+- Procedure: Business Impact Analysis  
 - Procedure: Continuity & Recovery Testing and Exercising  
 - SOP: Backup and Recovery – Azure Site Recovery  
 - Plan: Crisis Communication  
-- Procedure: Incident Response (Document 31)  
-- Procedure: Security Incident Reporting and Escalation (Document 55)  
-- Procedure: Data Protection and Privacy Breach Response (Document 60)  
-- Digital Trust Performance Framework (Document 73)
+- Procedure: Incident Response
+- Procedure: Security Incident Reporting and Escalation
+- Procedure: Data Protection and Privacy Breach Response 
+- Digital Trust Performance Framework
 
 ---
 
