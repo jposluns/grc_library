@@ -14,7 +14,7 @@
 | **Classification** | Public – Open Access |
 | **Category** | Governance / Resilience |
 | **Review Frequency** | Annual or after major business, regulatory, or technology change |
-| **Repository Path** | /frameworks/business-continuity-and-resilience |
+| **Repository Path** | /resilience/framework-business-continuity-and-resilience.md |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
 ---
