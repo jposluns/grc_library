@@ -1,16 +1,16 @@
-# Organizational GRC Documentation Library
+# Governance, Risk, and Compliance (GRC) Documentation Library
 
 ## Strategic Purpose
 
-The Organizational GRC Documentation Library is the foundation of the organization’s Governance, Risk, and Compliance Management System (GRCMS).  
+The Governance, Risk, and Compliance (GRC) Documentation Library is the foundation of the organization’s Governance, Risk, and Compliance Management System (GRCMS).  
 
-It unifies every policy, framework, standard, and procedure under a single ISO-aligned structure, ensuring that governance, security, privacy, and ethical innovation are managed consistently across all organizational contexts.
+It unifies every policy, framework, standard, procedure, guideline, and plan under a single ISO-aligned structure, ensuring that governance, security, privacy, and ethical innovation are managed consistently across all organizational contexts.
 
 The Library serves as the definitive source of governance truth:
 
 - Enables leadership decision-making with confidence that all policies and controls are traceable, auditable, and compliant.  
 - Provides the assurance infrastructure required for certification, regulatory compliance, and stakeholder trust.  
-- Integrates AI, sustainability, privacy, and digital trust principles into every layer of governance, reflecting modern regulatory and ethical expectations.
+- Integrates AI, sustainability, privacy, and digital-trust principles into every layer of governance, reflecting modern regulatory and ethical expectations.
 
 ---
 
@@ -24,15 +24,36 @@ The Library serves as the definitive source of governance truth:
 | Chief Operating Officer (COO) | Enables operational resilience, process standardization, and cross-departmental accountability. |
 | Chief Technology Officer (CTO) | Ensures technology, data, and AI initiatives operate under a compliant and ethically governed framework. |
 | Chief Information Officer (CIO) | Acts as the executive steward of governance maturity, digital trust, and certification readiness. |
+| Chief Information Security Officer (CISO) | Oversees information and cyber-security programs, ensuring compliance with ISO 27001 and related frameworks. |
+| Chief Security Officer (CSO-Physical) | Oversees all physical, personnel, and facility security programs, ensuring integration with digital security, safety, and business continuity controls. |
+| Chief Risk Officer (CRO) | Oversees enterprise risk strategy, appetite, and integration across all functions. |
+| Chief Compliance Officer (CCO) | Maintains the compliance management system and reports on compliance performance. |
+| Chief Data Officer (CDO) | Ensures responsible data governance, quality, and lifecycle management. |
+| Chief Privacy Officer (CPO) | Oversees privacy protection, cross-border data transfers, and privacy impact assessments. |
+| Chief Legal Officer / General Counsel (CLO/GC) | Provides legal oversight, contract governance, and interpretation of regulatory requirements. |
+| Chief Human Resources Officer (CHRO) | Ensures ethical conduct, inclusion, and workforce governance across the enterprise. |
+| Chief Sustainability Officer (CSO) | Leads ESG, environmental, and responsible-technology integration. |
+| Chief Strategy Officer (CSO-Strategy) | Directs strategic transformation and long-term governance initiatives. |
+| Chief AI Officer / Head of AI Governance | Oversees AI governance, certification readiness, and algorithmic assurance. |
 
 ---
 
-## How the Library Should Be Used
+## How the Library Is Structured
 
-**Reference:** Executives, managers, and auditors rely on it as the single authoritative repository for all governance artefacts.  
-**Alignment:** Business and technology decisions must align with applicable GRC documents as identified in the Master Index.  
-**Assurance:** Audit, certification, and regulatory teams use it to demonstrate control coverage, policy hierarchy, and evidence traceability.  
-**Improvement:** The GRC Program Office integrates feedback, lessons learned, and performance metrics into continual governance improvement cycles.
+The GRC Library is organized into clearly defined directories rather than numbered documents. Each directory represents a document type and contains thematically aligned artefacts.
+
+| Directory | Description |
+|------------|-------------|
+| **/charters** | Foundational governance documents defining authority, oversight, and control hierarchy. |
+| **/frameworks** | Strategic frameworks describing governance structures, integrations, and assurance models. |
+| **/policies** | Executive directives establishing mandatory intent and principles. |
+| **/standards** | Control baselines and measurable requirements implementing policies. |
+| **/procedures** | Operational instructions defining step-by-step implementation of standards. |
+| **/plans** | Governance, continuity, incident response, and recovery plans defining organizational preparedness and resilience. |
+| **/guidelines** | Advisory materials and regional supplements supporting policy and standard adoption. |
+| **/registers** | Indexes, mappings, and metrics repositories ensuring traceability and compliance evidence. |
+
+This structure replaces legacy numerical references and supports modular, scalable governance within GitHub and other version-controlled repositories.
 
 ---
 
@@ -47,31 +68,17 @@ The Library serves as the definitive source of governance truth:
 
 ---
 
-## Framework Composition
-
-The GRC Library consists of structured artefacts organized as follows:
-
-| Range | Category | Purpose |
-|--------|-----------|----------|
-| 0 | Governance Charter | Defines authority, hierarchy, and oversight. |
-| 1–19 | Core Governance | Organizational risk, compliance, performance, sustainability, and ethics. |
-| 20 | Master Index | Centralized classification and reference register. |
-| 21–60 | Operational and Compliance Standards | Detailed procedures and controls for risk, audit, security, and privacy. |
-| 61–69 | Future Readiness | Quantum security, AI certification, digital twin, and ESG ethics frameworks. |
-| 70–73 | Meta-Governance | Architecture, framework mapping, regulatory alignment, and metrics. |
-
----
-
 ## Alignment with Global Standards and Frameworks
 
 The Library provides comprehensive cross-framework coverage across the following reference models:
 
 **ISO / IEC:** 31000, 27001, 27002, 27014, 27034, 27701, 37301, 42001, 50001, 9001, 26000, 30173  
 **COBIT 2025:** APO, BAI, DSS, MEA, and APO14 (AI Governance)  
-**Cloud Security Alliance (CSA):** Comprehensive alignment with CCM, AICM, and STAR program frameworks  
+**Cloud Security Alliance (CSA):** Alignment with CCM, AICM, and STAR program frameworks  
 **NIST Frameworks:** CSF 2.0; SP 800-37, 40r4, 61r2, 63B/63C, 207, 208, and AI RMF 1.1  
 **OECD 2026:** AI and Digital Security Principles  
 **Regulatory Laws:** GDPR, CPPA, AIDA, AI Act, NIS 2, LGPD, PIPL, PDPA, CBPR 2.0, and UN SDGs  
+**Trade and Supply Chain Programs:** WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalent frameworks  
 
 Cross-framework mappings are maintained in the **Cross-Framework Compliance Matrix** and **Global Regulatory Mapping Register**.
 
@@ -81,17 +88,28 @@ Cross-framework mappings are maintained in the **Cross-Framework Compliance Matr
 
 | Role | Description |
 |------|--------------|
+| Chief Executive Officer (CEO) | Ultimate accountability for governance effectiveness and ethical leadership. |
 | Chief Information Officer (CIO) | Executive sponsor and authoritative owner of the GRC Library. |
-| Chief Information Security Officer (CISO) | Oversees information security and acts as GRC approving authority. |
-| Chief Technology Officer (CTO) | Chairs the AI Governance Council and oversees responsible AI assurance. |
-| Enterprise Risk Committee (ERC) | Provides executive oversight for organizational risk and audit results. |
-| Chief Sustainability Officer (CSO) | Leads ESG and responsible technology integration. |
+| Chief Information Security Officer (CISO) | Oversees information and cyber-security programs, ensuring compliance with ISO 27001 and NIST CSF. |
+| **Chief Security Officer (CSO-Physical)** | Oversees all physical, personnel, and facility security programs, ensuring integration with digital security and business continuity. |
+| Chief Technology Officer (CTO) | Chairs the AI Governance Council and oversees responsible-AI assurance. |
+| Chief Risk Officer (CRO) | Leads enterprise risk management and ensures integration across business functions. |
+| Chief Compliance Officer (CCO) | Maintains the compliance management system and monitors performance. |
+| Chief Data Officer (CDO) | Governs data ethics, stewardship, and lifecycle quality. |
+| Chief Privacy Officer (CPO) | Ensures compliance with privacy and data-protection laws. |
+| Chief Legal Officer / General Counsel (CLO/GC) | Provides legal and contractual oversight for governance policies. |
+| Chief Human Resources Officer (CHRO) | Oversees people-governance, ethics, and workforce compliance. |
+| Chief Sustainability Officer (CSO) | Integrates ESG and responsible-technology practices. |
+| Chief Financial Officer (CFO) | Aligns governance with financial integrity and disclosure requirements. |
+| Chief Strategy Officer (CSO-Strategy) | Directs long-term strategic governance and transformation. |
+| Chief AI Officer / Head of AI Governance | Manages AI governance frameworks, model assurance, and certification readiness. |
+| Enterprise Risk Committee (ERC) | Provides executive oversight for enterprise risk and audit results. |
 
 ---
 
 ## Custody, Access, and Maintenance
 
-- **Authoritative Repository:** Internal GRC Portal and Public GitHub Repository  
+- **Authoritative Repository:** Public GitHub Repository  
 - **Classification:** Public Read / Restricted Edit  
 - **Access:** Read access is unrestricted for all individuals and organizations.  
   Edit and contribution rights are reserved for authorized governance custodians.  
@@ -101,7 +119,7 @@ Cross-framework mappings are maintained in the **Cross-Framework Compliance Matr
 
 ## Statement of Authority
 
-All documents within the Organizational GRC Documentation Library (2026 Edition) are approved under the authority of the Chief Information Officer (CIO) and governed by the Governance Charter.  
+All documents within the GRC Documentation Library (2026 Edition) are approved under the authority of the Chief Information Officer (CIO) and governed by the Governance Charter.  
 They form the foundation of the organization’s Integrated Governance, Risk, and Compliance Management System (GRCMS) and represent the single authoritative reference for governance, compliance, and certification activities across all organizational types.
 
 ---
@@ -112,8 +130,18 @@ They form the foundation of the organization’s Integrated Governance, Risk, an
 |-------|------|---------------|
 | Chief Information Officer (CIO) |  |  |
 | Chief Information Security Officer (CISO) |  |  |
+| **Chief Security Officer (CSO-Physical)** |  |  |
 | Chief Technology Officer (CTO) |  |  |
+| Chief Risk Officer (CRO) |  |  |
+| Chief Compliance Officer (CCO) |  |  |
+| Chief Data Officer (CDO) |  |  |
+| Chief Privacy Officer (CPO) |  |  |
+| Chief Legal Officer / General Counsel (CLO/GC) |  |  |
+| Chief Human Resources Officer (CHRO) |  |  |
 | Chief Sustainability Officer (CSO) |  |  |
+| Chief Financial Officer (CFO) |  |  |
+| Chief Strategy Officer (CSO-Strategy) |  |  |
+| Chief AI Officer / Head of AI Governance |  |  |
 
 ---
 
@@ -121,19 +149,21 @@ They form the foundation of the organization’s Integrated Governance, Risk, an
 
 | Version | Date | Author | Change History |
 |----------|------|---------|----------------|
-| 0.1 |  |  | Initial Draft |
+| 0.1 |  |  | Finalized executive oversight roles, repository structure, and physical-security governance integration |
 
 ---
 
 ## License
 
-This repository is dedicated to the public domain under the [Creative Commons CC0 1.0 Universal (Public Domain Dedication)](https://creativecommons.org/publicdomain/zero/1.0/) license. No rights reserved. You may use, modify, or redistribute these materials freely.
+This repository is dedicated to the public domain under the [Creative Commons CC0 1.0 Universal (Public Domain Dedication)](https://creativecommons.org/publicdomain/zero/1.0/) license.  
+No rights reserved. You may use, modify, or redistribute these materials freely.
 
 ---
 
 ### Acknowledgment
 
-Created, consolidated, and maintained by **Jeff Posluns** as part of an open GRC documentation initiative. Thanks to all contributors and AI systems whose synthesis of global standards helped make this collection possible.
+Created, consolidated, and maintained by **Jeff Posluns** as part of an open GRC documentation initiative.  
+Thanks to all contributors and AI systems whose synthesis of global standards helped make this collection possible.
 
 ---
 
