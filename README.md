@@ -1,4 +1,4 @@
-# Enterprise GRC Documentation Library
+# GRC Documentation Library
 
 ## Strategic Purpose
 
