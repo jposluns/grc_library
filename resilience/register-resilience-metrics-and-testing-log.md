@@ -140,11 +140,9 @@ Improvement items remain open until verified through subsequent testing or indep
 
 ## Definitions
 
+Key terms and acronyms used in this document are defined in the **Resilience Terms and Definitions Register**, which provides standardized terminology for all Business Continuity, Disaster Recovery, and Crisis Management artefacts.
+
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
-
----
-
-> **Note:** This file is published as an open-access template under CC0. Completed versions containing internal metrics or test evidence must be classified **Restricted – Internal Use Only**.
 
 ---
 
