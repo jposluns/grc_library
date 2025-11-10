@@ -14,7 +14,7 @@
 | **Classification** | Public – Open Access |
 | **Category** | Governance / Business Continuity |
 | **Review Frequency** | Annual or following significant business, regulatory, or system change |
-| **Repository Path** | /policies/business-continuity-and-disaster-recovery |
+| **Repository Path** | /resilience/policy-business-continuity-and-disaster-recovery.md |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
 ---
