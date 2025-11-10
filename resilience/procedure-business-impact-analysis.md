@@ -14,7 +14,7 @@
 | **Classification** | Public – Open Access |
 | **Category** | Business Continuity / Risk Assessment |
 | **Review Frequency** | Annual or following major organizational or technological change |
-| **Repository Path** | /resilience/procedure-business-impact-analysis |
+| **Repository Path** | /resilience/procedure-business-impact-analysis.md |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
 ---
