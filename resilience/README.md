@@ -1,6 +1,7 @@
 # Business Continuity, Disaster Recovery, and Crisis Management Document Set  
 
-This directory contains all artefacts supporting the organization's Business Continuity, Disaster Recovery, and Crisis Management ecosystem.  
+This directory contains all artefacts supporting the organization's Business Continuity, Disaster Recovery, and Crisis Management ecosystem.
+
 Each file adheres to ISO 22301, ISO 27031, ISO 22361, COBIT 2025 DSS04/DSS05, NIST SP 800-34r1, and CSA CCM v5 BCR controls, and aligns under the unified **Resilience Management Framework**.
 
 ---
