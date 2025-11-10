@@ -14,7 +14,7 @@
 | **Classification** | Public – Open Access |
 | **Category** | Crisis Management / Communication |
 | **Review Frequency** | Annual or following a significant incident |
-| **Repository Path** | /resilience/plan-crisis-communication |
+| **Repository Path** | /resilience/plan-crisis-communication.md |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
 ---
