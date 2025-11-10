@@ -14,7 +14,7 @@
 | **Classification** | Controlled – Internal Use |
 | **Category** | IT Operations / Business Continuity |
 | **Review Frequency** | Annual or following major infrastructure change |
-| **Repository Path** | /plans/backup-and-recovery-asr-sop |
+| **Repository Path** | /resilience/sop-backup-and-recovery-asr-for-vmware.md |
 | **Confidentiality** | **None (Public Domain, CC0 License)** |
 
 ---
