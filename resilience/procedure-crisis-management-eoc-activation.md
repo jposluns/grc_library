@@ -14,7 +14,7 @@
 | **Classification** | Public – Open Access |
 | **Category** | Crisis Management / Operational Response |
 | **Review Frequency** | Annual or following major incident or exercise |
-| **Repository Path** | /resilience/procedure-crisis-management-eoc-activation |
+| **Repository Path** | /resilience/procedure-crisis-management-eoc-activation.md |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
 ---
