@@ -162,6 +162,8 @@ Aligned with:
 
 ## Definitions
 
+Key terms and acronyms used in this document are defined in the **Resilience Terms and Definitions Register**, which provides standardized terminology for all Business Continuity, Disaster Recovery, and Crisis Management artefacts.
+
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
 ---
