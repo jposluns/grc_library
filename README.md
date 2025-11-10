@@ -2,7 +2,7 @@
 
 ## Strategic Purpose
 
-The Organizational GRC Documentation Library is the foundation of the organization’s Governance, Risk, and Compliance Management System (GRCMS).
+The Organizational GRC Documentation Library is the foundation of the organization’s Governance, Risk, and Compliance Management System (GRCMS).  
 
 It unifies every policy, framework, standard, and procedure under a single ISO-aligned structure, ensuring that governance, security, privacy, and ethical innovation are managed consistently across all organizational contexts.
 
@@ -38,7 +38,7 @@ The Library serves as the definitive source of governance truth:
 
 ## Strategic Outcomes and Organizational Value
 
-- **Unified Governance:** Establishes one consistent, globally recognized governance system aligned with ISO, COBIT, CSA, and NIST frameworks.  
+- **Unified Governance:** Establishes one consistent, globally recognized governance system aligned with ISO, COBIT, Cloud Security Alliance (CSA), and NIST frameworks.  
 - **Certification Readiness:** Maintains readiness for ISO 27001, 27701, 42001, 37301, 50001, and related audits.  
 - **Regulatory Assurance:** Provides evidence of compliance with GDPR, CPPA, AI Act, AIDA, NIS 2, LGPD, and other laws.  
 - **Operational Resilience:** Strengthens reliability, continuity, and data protection across operations.  
@@ -68,7 +68,7 @@ The Library provides comprehensive cross-framework coverage across the following
 
 **ISO / IEC:** 31000, 27001, 27002, 27014, 27034, 27701, 37301, 42001, 50001, 9001, 26000, 30173  
 **COBIT 2025:** APO, BAI, DSS, MEA, and APO14 (AI Governance)  
-**CSA Cloud Controls Matrix v5:** Full coverage across all 17 domains  
+**Cloud Security Alliance (CSA):** Comprehensive alignment with CCM, AICM, and STAR program frameworks  
 **NIST Frameworks:** CSF 2.0; SP 800-37, 40r4, 61r2, 63B/63C, 207, 208, and AI RMF 1.1  
 **OECD 2026:** AI and Digital Security Principles  
 **Regulatory Laws:** GDPR, CPPA, AIDA, AI Act, NIS 2, LGPD, PIPL, PDPA, CBPR 2.0, and UN SDGs  
