@@ -215,6 +215,8 @@ Aligned with **ISO 22361**, **ISO 22301**, **COBIT 2025 DSS04.05**, **NIST SP 80
 
 ## Definitions
 
+Key terms and acronyms used in this document are defined in the **Resilience Terms and Definitions Register**, which provides standardized terminology for all Business Continuity, Disaster Recovery, and Crisis Management artefacts.
+
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
 ---
