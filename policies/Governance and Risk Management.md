@@ -11,11 +11,11 @@
 | **Document Owner** | Chief Risk Officer (CRO) |
 | **Approving Authority** | Chief Information Officer (CIO) |
 | **Related Documents** | Risk Management Standard; Risk Register Procedure; Third Party Risk Standard; Business Continuity and Disaster Recovery Standard; Privacy Impact Assessment Procedure; AI Security and Risk Standard; Logging and Monitoring Standard |
-| **Classification** | **Public – Open Access** |
+| **Classification** | Public – Open Access |
 | **Category** | Governance / Risk |
 | **Review Frequency** | Annual or as required by regulatory or framework changes |
 | **Repository Path** | /policies/governance-and-risk-management |
-| **Confidentiality** | **None (Public Domain, CC0 License)** |
+| **Confidentiality** | None (Public Domain, CC0 License) |
 
 ---
 
