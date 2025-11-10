@@ -33,7 +33,8 @@
 |-------|------|---------------|
 | Chief Information Officer (CIO) |  |  |
 | Chief Information Security Officer (CISO) |  |  |
-| Director of Compliance or Legal Counsel |  |  |
+| Chief Compliance Officer (CCO) |  |  |
+| Chief Legal Officer / General Counsel (CLO/GC) |  |  |
 
 ---
 
