@@ -44,14 +44,14 @@ The GRC Library is organized into clearly defined directories rather than number
 
 | Directory | Description |
 |------------|-------------|
-| **/charters** | Foundational governance documents defining authority, oversight, and control hierarchy. |
-| **/frameworks** | Strategic frameworks describing governance structures, integrations, and assurance models. |
-| **/policies** | Executive directives establishing mandatory intent and principles. |
-| **/standards** | Control baselines and measurable requirements implementing policies. |
-| **/procedures** | Operational instructions defining step-by-step implementation of standards. |
-| **/plans** | Governance, continuity, incident response, and recovery plans defining organizational preparedness and resilience. |
-| **/guidelines** | Advisory materials and regional supplements supporting policy and standard adoption. |
-| **/registers** | Indexes, mappings, and metrics repositories ensuring traceability and compliance evidence. |
+| **/charter** | Foundational governance documents defining authority, oversight, and control hierarchy. |
+| **/framework** | Strategic frameworks describing governance structures, integrations, and assurance models. |
+| **/policy** | Executive directives establishing mandatory intent and principles. |
+| **/standard** | Control baselines and measurable requirements implementing policies. |
+| **/procedure** | Operational instructions defining step-by-step implementation of standards. |
+| **/plan** | Governance, continuity, incident response, and recovery plans defining organizational preparedness and resilience. |
+| **/guideline** | Advisory materials and regional supplements supporting policy and standard adoption. |
+| **/register** | Indexes, mappings, and metrics repositories ensuring traceability and compliance evidence. |
 
 This structure replaces legacy numerical references and supports modular, scalable governance within GitHub and other version-controlled repositories.
 
