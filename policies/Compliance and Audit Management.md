@@ -31,7 +31,7 @@ The policy aligns with ISO 37301:2021 (Compliance Management Systems), ISO 19011
 
 ## Scope
 
-- Applies to all organizational entities, regions, and subsidiaries under operational control, including BASC-certified and trade-security-governed logistics operations in Latin America.  
+- Applies to all organizational entities, regions, and subsidiaries under operational control, including trade-security-governed logistics operations.  
 - Covers all compliance and audit activities including regulatory and legal reviews, internal and supplier audits, certification audits, AI system audits, and CAPA tracking.  
 - Applies to all employees, management, and third parties involved in regulated processes, data handling, customs documentation, or AI deployments supporting trade and logistics operations.  
 
@@ -59,9 +59,9 @@ The policy aligns with ISO 37301:2021 (Compliance Management Systems), ISO 19011
 ### 5. AI and Trade Compliance Oversight
 5.1 The AI Governance Council ensures compliance with AI-related laws, standards, and ethical principles.  
 5.2 Documentation and audit trails shall demonstrate conformity to frameworks such as the EU AI Act, AIDA, and OECD AI Principles.  
-5.3 Regional BASC Compliance Officers coordinate with the Chief Compliance Officer and Internal Audit to ensure that trade and logistics activities comply with BASC International Standard (v6 2023) and WCO SAFE Framework requirements.  
-5.4 Audit scope for Latin American operations includes verification of cargo integrity, personnel screening, and customs documentation accuracy.  
-5.5 Findings related to BASC compliance are reported quarterly to the Enterprise Risk Committee and the Board Audit and Risk Committee.
+5.3 Regional trade compliance officers coordinate with the Chief Compliance Officer and Internal Audit to ensure that trade and logistics activities comply with recognized global supply-chain security programs, including WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalent frameworks.  
+5.4 Audit scope for trade-compliance operations includes verification of cargo integrity, personnel screening, and customs documentation accuracy.  
+5.5 Findings related to trade compliance are reported quarterly to the Enterprise Risk Committee and the Board Audit and Risk Committee.
 
 ---
 
@@ -73,7 +73,7 @@ The policy aligns with ISO 37301:2021 (Compliance Management Systems), ISO 19011
 1.3 Compliance performance indicators shall be reviewed quarterly and escalated where thresholds are breached.
 
 ### 2. Audit Planning and Execution
-2.1 Annual audit plans shall be risk-based, approved by the Audit Committee, and include IT, operational, supplier, AI, and BASC trade compliance audits.  
+2.1 Annual audit plans shall be risk-based, approved by the Audit Committee, and include IT, operational, supplier, AI, and trade-compliance audits.  
 2.2 Audit criteria shall follow ISO 19011 principles of integrity, independence, evidence-based assessment, and risk orientation.  
 2.3 Each audit shall document objective evidence, findings, severity, and recommendations.  
 2.4 Audit evidence, process documentation, and system-specific procedures shall be maintained under the IT Operations Documentation Framework to ensure that testing and assurance activities align to governance artefacts.
@@ -86,7 +86,7 @@ The policy aligns with ISO 37301:2021 (Compliance Management Systems), ISO 19011
 4.1 All audit findings shall be classified as critical, major, or minor nonconformities.  
 4.2 CAPAs shall include root cause analysis, defined actions, responsible parties, target dates, and verification evidence.  
 4.3 CAPA effectiveness shall be validated by Internal Audit or Compliance within 90 days of implementation.  
-4.4 Findings involving BASC requirements must be verified by the Regional BASC Compliance Officer, with closure reported to the relevant BASC National Chapter where required.
+4.4 Findings involving trade-compliance frameworks must be verified by the applicable compliance officer and reported to the appropriate program authority if required.
 
 ### 5. Algorithmic and AI Compliance Auditing
 5.1 AI systems shall undergo algorithmic audits for transparency, bias, robustness, and ethical compliance.  
@@ -109,18 +109,6 @@ The policy aligns with ISO 37301:2021 (Compliance Management Systems), ISO 19011
 
 ---
 
-## Related Standards and Procedures
-
-- Compliance Management Standard (ISO 37301 aligned)  
-- Internal Audit Standard and Audit Planning Procedure  
-- Corrective and Preventive Action Procedure (CAPA)  
-- AI Audit Procedure and Algorithmic Compliance Checklist  
-- Data Governance and Privacy Impact Procedure  
-- Supplier Audit and Due Diligence Procedure  
-- Logging and Monitoring Standard (evidence source linkage)
-
----
-
 ## References and Framework Alignment
 
 - ISO 37301:2021 Compliance Management Systems  
@@ -133,35 +121,21 @@ The policy aligns with ISO 37301:2021 (Compliance Management Systems), ISO 19011
 - Canada Artificial Intelligence and Data Act (AIDA)  
 - U.S. Executive Order 14110 on Safe, Secure, and Trustworthy AI  
 - [Unverified] Draft 2026 ISO 37301 Revision – Algorithmic compliance and automation integration  
-- BASC International Standard (v6 2023) – Trade and Customs Compliance Governance  
-- WCO SAFE Framework (2021) – Authorized Economic Operator and Supply Chain Security  
-- ISO 28000:2022 – Security and Resilience in the Supply Chain
-
----
-
-## 2026 Update Summary
-
-- Integrate algorithmic compliance monitoring and automated audit trail analysis aligned to the 2026 ISO 37301 revision [Unverified].  
-- Introduce AI Act readiness toolkit with evidence templates and harmonized logs.  
-- Extend CAPA automation with dashboards and predictive remediation alerts.  
-- Incorporate digital trust metrics per COBIT 2025 MEA01.  
-- Embed regulatory change automation and model documentation for AI systems.
+- Trade and Supply Chain Programs: WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (U.S.), AEO (EU), and equivalents
 
 ---
 
 ## Compliance Mapping Table
 
-| Control area | ISO 37301 | ISO 19011 | COBIT 2025 | CSA | NIST | Legal / Regulatory | ISO 28000 | WCO SAFE | BASC |
-|---------------|------------|------------|-------------|------|-------|--------------------|------------|-----------|------|
-| Compliance governance | Clauses 5–6 Leadership | Clause 5 Governance | MEA01.01 Establish governance | GOV 01–03 | NIST CSF Govern | GDPR, CPPA | Clause 4, Clause 5 | AEO governance | Program governance and oversight |
-| Compliance risk and obligations register | Clauses 6–7 Planning | N/A | APO12 linkage | GOV 04 | NIST RMF Prepare | Multi-jurisdiction | Clause 6 Planning | SAFE Pillar one | Trade obligations register |
-| Audit planning and execution | Clauses 8–9 Operation | Clauses 6–9 | MEA01.02 Conduct assessments | AUD 01–04 | NIST SP 800-53 CA-2, CA-5 | Industry and AI Act | Clause 8 Operations | AEO audit criteria | BASC audit verification |
-| Findings and CAPA | Clause 10 Improvement | Clause 10 Improvement | MEA01.05 Review and report | GOV 05, AUD 05 | NIST CA-7, IR-4 | CAPA regulations | Clause 10 Improvement | Corrective actions | CAPA tracking |
-| AI audit and algorithmic monitoring | [Adopted in CMS] | [Guidance] | MEA01.06 Automated assurance | AIS 01–03 | NIST AI RMF Measure | EU AI Act, AIDA | N/A | N/A | N/A |
-| Reporting and disclosure | Clause 9 Performance evaluation | Clause 6 Reporting | MEA01.04 Report results | GOV 06 | NIST CSF Communicate | All jurisdictions | Clause 9 Reporting | Customs communications | Chapter notifications |
-| Supplier and trade compliance auditing | Clauses 8–9 | Clauses 6–9 | BAI05.02 Manage supplier performance | STA 05 | NIST SP 800-161r2 SCRM | Trade and customs laws | Clause 8 Operations | SAFE cargo security verification | BASC cargo integrity audits |
-
-**Note:** [Unverified] denotes areas requiring validation against future ISO 37301 and AI Act final publications.
+| Control area | ISO 37301 | ISO 19011 | COBIT 2025 | CSA | NIST | Legal / Regulatory | Trade and Supply Chain Programs |
+|---------------|------------|------------|-------------|------|-------|--------------------|--------------------------------|
+| Compliance governance | Clauses 5–6 Leadership | Clause 5 Governance | MEA01.01 Establish governance | GOV 01–03 | NIST CSF Govern | GDPR, CPPA | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO |
+| Compliance risk and obligations register | Clauses 6–7 Planning | N/A | APO12 linkage | GOV 04 | NIST RMF Prepare | Multi-jurisdiction | WCO SAFE equivalence |
+| Audit planning and execution | Clauses 8–9 Operation | Clauses 6–9 | MEA01.02 Conduct assessments | AUD 01–04 | NIST SP 800-53 CA-2, CA-5 | AI Act, sectoral laws | WCO SAFE equivalence |
+| Findings and CAPA | Clause 10 Improvement | Clause 10 Improvement | MEA01.05 Review and report | GOV 05, AUD 05 | NIST CA-7, IR-4 | CAPA regulations | WCO SAFE equivalence |
+| AI audit and algorithmic monitoring | [Adopted in CMS] | [Guidance] | MEA01.06 Automated assurance | AIS 01–03 | NIST AI RMF Measure | EU AI Act, AIDA | Not applicable |
+| Reporting and disclosure | Clause 9 Performance evaluation | Clause 6 Reporting | MEA01.04 Report results | GOV 06 | NIST CSF Communicate | All jurisdictions | WCO SAFE equivalence |
+| Supplier and trade compliance auditing | Clauses 8–9 | Clauses 6–9 | BAI05.02 Manage supplier performance | STA 05 | NIST SP 800-161r2 SCRM | Trade and customs laws | WCO SAFE equivalence |
 
 ---
 
