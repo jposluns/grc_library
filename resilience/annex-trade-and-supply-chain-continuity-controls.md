@@ -41,27 +41,27 @@
 
 ## Purpose
 
-This annex defines the controls and requirements for maintaining trade-security and supply-chain continuity under globally recognized programs, including **BASC**, **WCO SAFE**, **ISO 28000**, **PIP (Canada)**, and **Authorized Economic Operator (AEO)** frameworks.  
+This annex defines the controls and requirements for maintaining trade-security and supply-chain continuity under globally recognized programs, including **BASC**, **WCO SAFE**, **ISO 28000**, **PIP (Canada)**, **CTPAT (United States)**, **NEEC (Mexico)**, **OEA (Brazil)**, and **AEO/AEO-S (European Union and United Kingdom)**.  
 It ensures that customs, logistics, and supplier-managed processes remain secure, traceable, and operational during disruptions.
 
 ---
 
 ## Scope
 
-- Applies to all logistics operations, customs transactions, and third-party providers participating in international trade activities.  
-- Includes inbound, outbound, and trans-shipment movements managed through corporate and regional systems.  
-- Covers supply-chain partners, warehouses, carriers, brokers, and service providers that handle trade or customs-regulated data.  
-- Incorporates the compliance principles of **BASC**, **PIP**, **AEO**, and **WCO SAFE** to enable recognition and interoperability across customs jurisdictions.  
-- Integrates with the enterprise Business Continuity and Disaster Recovery governance structure.
+- Applies to all logistics operations, customs transactions, and third-party providers involved in global trade.  
+- Encompasses inbound, outbound, and trans-shipment logistics in all operational regions.  
+- Incorporates the standards of **BASC**, **PIP**, **CTPAT**, **NEEC**, **OEA**, and **AEO/AEO-S** for international interoperability.  
+- Recognizes mutual-recognition arrangements across **Asia-Pacific**, **Middle East**, **Africa**, and **Oceania**, including the **Australian Trusted Trader (ATT)**, **UAE AEO**, **Saudi Customs AEO**, and **EAC AEO Program**.  
+- Integrates with enterprise continuity governance and risk-management programs.
 
 ---
 
 ## Objectives
 
-1. Ensure operational continuity of logistics, customs, and trade-data systems during disruptions.  
-2. Maintain compliance with global trade-security frameworks (BASC, PIP, AEO, WCO SAFE).  
-3. Reduce risk of cargo compromise, data loss, or customs delays during emergencies.  
-4. Demonstrate continuous readiness for internal and external audits by recognized trade programs.  
+1. Maintain uninterrupted trade operations during disruptions and emergencies.  
+2. Demonstrate compliance with all recognized international customs and trade-security frameworks.  
+3. Reduce risk of cargo compromise, customs delay, and data loss across the logistics chain.  
+4. Support audit readiness for multi-region customs programs and certification renewals.
 
 ---
 
@@ -69,51 +69,51 @@ It ensures that customs, logistics, and supplier-managed processes remain secure
 
 | Domain | Control Requirement | Framework Alignment |
 |---------|--------------------|--------------------|
-| **1. Trade-Security Governance** | Maintain documented policies defining trade-security responsibilities, escalation paths, and audit procedures. | BASC §1, ISO 28000 §4, COBIT DSS04.01, PIP §3 |
-| **2. Cargo Integrity and Inspection** | Verify cargo integrity at each transfer point; implement random inspections and tamper-evident seals. | BASC §6.1, PIP §5.3, WCO SAFE Pillar II |
-| **3. Personnel Screening and Access Control** | Conduct background checks for all personnel accessing cargo, customs data, or secure zones. | BASC §5.1, ISO 28000 §7, PIP §4.2 |
-| **4. Data Protection and Customs Information Security** | Encrypt trade and customs data in transit and at rest; maintain audit trails for modifications. | WCO SAFE §5.3, ISO 27001 A.8, BASC §6.3, PIP §6.2 |
-| **5. Supplier and Partner Assurance** | Assess all logistics partners for compliance with BASC, PIP, or equivalent programs; include continuity clauses in contracts. | BASC §7.2, PIP §8.1, COBIT APO10 |
-| **6. Customs Communication and Notification** | Establish procedures for notifying customs authorities of disruptions or breaches within 24 hours. | BASC §6.4, WCO SAFE Pillar III, PIP §7.3 |
-| **7. Physical Facility Security** | Maintain perimeter controls, CCTV, visitor logs, and access verification per BASC, PIP, and ISO 28000. | BASC §5.2, ISO 28000 §8.2, PIP §5.1 |
-| **8. Incident and Breach Response** | Integrate trade-incident handling with Security Incident Reporting & Escalation procedures. | BASC §6.5, ISO 22301 §8, PIP §6.4, COBIT DSS02 |
-| **9. Continuity of Trade Operations** | Identify critical trade systems and establish alternate communication or customs-submission methods during outages. | ISO 22301 §8.3, BASC §6.6, PIP §9.1 |
-| **10. Training and Awareness** | Conduct annual trade-security and PIP/BASC awareness training for all relevant personnel. | BASC §4.1, ISO 28000 §7.3, PIP §10.2 |
-| **11. Supply-Chain Risk Assessment** | Perform risk assessments for suppliers, routes, and ports; maintain risk register and mitigation actions. | ISO 31000 §6, ISO 28000 §6.1, PIP §2.4 |
-| **12. Customs Data Recovery and Validation** | Back up customs and shipment records daily; validate restoration through continuity testing. | BASC §6.7, COBIT DSS04.03, PIP §6.6 |
-| **13. Cross-Border Collaboration** | Cooperate with customs, trade partners, and security authorities in Canada, the U.S., and internationally. | WCO SAFE Pillar III, PIP §9.4, AEO §3.4 |
-| **14. Metrics and Reporting** | Track key indicators such as shipment timeliness, security incidents, and audit scores. | ISO 22301 §9, COBIT MEA01, PIP §11.1 |
+| **1. Trade-Security Governance** | Maintain documented trade-security and continuity policies aligned with BASC, PIP, and CTPAT. | BASC §1, ISO 28000 §4, PIP §3, CTPAT §5.1 |
+| **2. Cargo Integrity and Inspection** | Verify cargo integrity at transfer points using tamper-evident seals and BASC/CTPAT inspection standards. | BASC §6.1, PIP §5.3, CTPAT §6.1, WCO SAFE Pillar II |
+| **3. Personnel Screening and Access Control** | Conduct background checks and access control consistent with BASC, PIP, and NEEC. | BASC §5.1, ISO 28000 §7, PIP §4.2, NEEC §3.4 |
+| **4. Data Protection and Customs Information Security** | Secure customs data with encryption, restricted access, and traceable logs. | WCO SAFE §5.3, ISO 27001 A.8, BASC §6.3, PIP §6.2 |
+| **5. Supplier and Partner Assurance** | Validate partners against PIP, NEEC, OEA, or equivalent AEO certifications; include continuity clauses in contracts. | BASC §7.2, PIP §8.1, NEEC §6.1, COBIT APO10 |
+| **6. Customs Communication and Notification** | Notify customs authorities within 24 hours of trade disruption, breach, or major deviation. | BASC §6.4, WCO SAFE Pillar III, PIP §7.3, CTPAT §7.2 |
+| **7. Physical Facility Security** | Maintain perimeter defenses, CCTV, access logs, and lighting per BASC, PIP, and ISO 28000. | BASC §5.2, ISO 28000 §8.2, PIP §5.1, NEEC §4.1 |
+| **8. Incident and Breach Response** | Integrate trade incidents with Security Incident Reporting & Escalation and Crisis Management procedures. | BASC §6.5, ISO 22301 §8, PIP §6.4, CTPAT §6.3 |
+| **9. Continuity of Trade Operations** | Establish alternate carriers, ports, and customs brokers; test backup communication with customs. | ISO 22301 §8.3, BASC §6.6, PIP §9.1, OEA §3.4 |
+| **10. Training and Awareness** | Conduct annual training on trade-security and customs continuity, including BASC, PIP, and CTPAT expectations. | BASC §4.1, ISO 28000 §7.3, PIP §10.2 |
+| **11. Supply-Chain Risk Assessment** | Assess route, supplier, and regional risks; maintain risk register with mitigation measures. | ISO 31000 §6, ISO 28000 §6.1, PIP §2.4, NEEC §5.1 |
+| **12. Customs Data Recovery and Validation** | Backup customs and cargo records daily; validate recovery through continuity exercises. | BASC §6.7, COBIT DSS04.03, PIP §6.6, CTPAT §9.2 |
+| **13. Cross-Border Collaboration** | Support mutual recognition and coordination across AEO, ATT, OEA, and EAC programs. | WCO SAFE Pillar III, PIP §9.4, CTPAT §8.1, ATT §5.3 |
+| **14. Metrics and Reporting** | Track compliance audit results, cargo incidents, and customs-communication KPIs. | ISO 22301 §9, COBIT MEA01, PIP §11.1, BASC §8.1 |
 
 ---
 
 ## Integration with Business Continuity and Disaster Recovery
 
-- Trade and supply-chain continuity must be embedded within departmental and enterprise BCPs.  
-- Systems supporting customs declarations, cargo tracking, and trade-finance must be classified as **Tier 1 critical assets** during continuity planning.  
-- BASC, PIP, and WCO SAFE audit results feed into Business Impact Analyses and Continuity Testing programs.  
-- Emergency logistics processes (alternate ports, backup carriers, redundant brokers) must be reviewed and tested annually.  
+- Trade, customs, and logistics continuity must be integrated within enterprise BCP and DR frameworks.  
+- Customs platforms, cargo-tracking systems, and logistics APIs are classified as **Tier 1 critical systems** for recovery prioritization.  
+- BASC, PIP, CTPAT, and NEEC audit results must inform Business Impact Analyses and continuity-test design.  
+- Alternate logistics routing, bonded warehouse operations, and emergency customs workflows must be reviewed annually.
 
 ---
 
 ## Reporting and Oversight
 
-- **Chief Risk Officer (CRO)** and **Regional BASC/PIP Compliance Officers** oversee trade-continuity controls.  
-- Quarterly reports to the **Enterprise Risk Committee (ERC)** must include:  
-  - BASC, PIP, and customs-audit results with open actions.  
-  - Trade-system recovery test results.  
-  - Partner compliance metrics and corrective actions.  
-  - Supply-chain risk-register updates.  
+- The **Chief Risk Officer (CRO)**, supported by **Regional BASC, PIP, and NEEC Compliance Officers**, oversees trade-continuity implementation.  
+- Quarterly reports submitted to the **Enterprise Risk Committee (ERC)** include:  
+  - BASC, PIP, CTPAT, and customs audit summaries with open items.  
+  - Results of data recovery, system testing, and partner verification.  
+  - Trends in trade incidents and preventive controls.  
+  - Supply-chain risk-register updates and mitigations.
 
 ---
 
 ## Continuous Improvement
 
-Trade and supply-chain incidents, audits, and continuity tests must be reviewed and tracked through:  
+Trade and supply-chain incidents, audit findings, and test outcomes feed into improvement programs via:  
 - The Corrective and Preventive Action Procedure  
 - The Continuous Improvement Register Procedure  
 - The Digital Trust Performance Framework  
 
-Actions remain open until validated as effective through testing or audit closure.
+Corrective actions remain open until validated as effective by audit or test confirmation.
 
 ---
 
@@ -121,15 +121,21 @@ Actions remain open until validated as effective through testing or audit closur
 
 | Framework | Reference | Objective |
 |------------|------------|-----------|
-| **BASC International Standard v6 (2023)** | Trade and Customs Security | Defines trade-security and logistics continuity controls. |
-| **PIP (Canada) – Partners in Protection Program** | Trade-Chain Security Guidelines | Establishes Canadian customs compliance and supply-chain resilience requirements. |
-| **WCO SAFE Framework (2021)** | Authorized Economic Operator Security Framework | Provides global standards for secure international trade. |
-| **ISO 28000:2022** | Supply-Chain Security and Resilience | Specifies requirements for managing supply-chain security. |
-| **ISO 22301:2019** | Business Continuity Management Systems | Ensures continuity of trade and logistics operations. |
-| **COBIT 2025** | DSS04 – Manage Continuity | Integrates supply-chain resilience within enterprise governance. |
-| **CSA CCM v5** | BCR-06 – Supply-Chain Resilience | Aligns cloud and logistics continuity with organizational resilience. |
-| **AEO (EU and Global)** | Authorized Economic Operator Program | Establishes security and compliance expectations for trusted traders. |
-| **OECD 2026 Digital Security Principles** | Principle 7 – Resilient Digital Economy | Supports transparency and collaboration across international supply chains. |
+| **BASC International Standard v6 (2023)** | Trade and Customs Security | Defines global trade-security and continuity requirements. |
+| **PIP (Canada) – Partners in Protection Program** | Trade-Chain Security Guidelines | Establishes Canadian customs-security and continuity standards. |
+| **CTPAT (United States)** | Customs Trade Partnership Against Terrorism | Defines U.S. supply-chain security and mutual recognition with PIP and BASC. |
+| **NEEC (Mexico)** | Nuevo Esquema de Empresas Certificadas | Defines Mexican customs and logistics certification standards aligned with WCO SAFE. |
+| **OEA (Brazil / MERCOSUR)** | Operador Econômico Autorizado | Establishes South American trade-security and continuity controls. |
+| **AEO / AEO-S (EU & UK)** | Authorized Economic Operator – Security & Safety | Provides EU/UK customs-compliance standards aligned with WCO SAFE. |
+| **WCO SAFE Framework (2021)** | Authorized Economic Operator Security Framework | Global standard for secure and resilient international trade. |
+| **ISO 28000:2022** | Supply-Chain Security and Resilience | Provides requirements for secure and continuous supply-chain operations. |
+| **ISO 22301:2019** | Business Continuity Management Systems | Integrates supply-chain continuity into organizational resilience. |
+| **COBIT 2025** | DSS04 – Manage Continuity | Embeds trade-continuity assurance into enterprise governance. |
+| **CSA CCM v5** | BCR-06 – Supply-Chain Resilience | Defines control expectations for logistics and cloud-supply environments. |
+| **ATT (Australia)** | Australian Trusted Trader | Establishes secure and compliant supply-chain standards for Oceania. |
+| **UAE / Saudi AEO Programs** | Regional AEO Mutual Recognition | Defines Middle East trade-security alignment under WCO SAFE. |
+| **EAC AEO Program (East Africa)** | East African Community Authorized Economic Operator Program | Regional framework for trade-security and customs resilience. |
+| **OECD 2026 Digital Security Principles** | Principle 7 – Resilient Digital Economy | Promotes transparency and cross-border cooperation in digital trade. |
 
 ---
 
