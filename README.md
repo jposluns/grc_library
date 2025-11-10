@@ -127,15 +127,13 @@ They form the foundation of the organization’s Integrated Governance, Risk, an
 
 ## License
 
-This repository is dedicated to the public domain under the [Creative Commons CC0 1.0 Universal (Public Domain Dedication)](https://creativecommons.org/publicdomain/zero/1.0/) license.  
-No rights reserved. You may use, modify, or redistribute these materials freely.
+This repository is dedicated to the public domain under the [Creative Commons CC0 1.0 Universal (Public Domain Dedication)](https://creativecommons.org/publicdomain/zero/1.0/) license. No rights reserved. You may use, modify, or redistribute these materials freely.
 
 ---
 
 ### Acknowledgment
 
-Created, consolidated, and maintained by **Jeff Posluns** as part of an open GRC documentation initiative.  
-Thanks to all contributors and AI systems whose synthesis of global standards helped make this collection possible.
+Created, consolidated, and maintained by **Jeff Posluns** as part of an open GRC documentation initiative. Thanks to all contributors and AI systems whose synthesis of global standards helped make this collection possible.
 
 ---
 
