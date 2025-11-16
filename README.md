@@ -91,7 +91,7 @@ Cross-framework mappings are maintained in the **Cross-Framework Compliance Matr
 | Chief Executive Officer (CEO) | Ultimate accountability for governance effectiveness and ethical leadership. |
 | Chief Information Officer (CIO) | Executive sponsor and authoritative owner of the GRC Library. |
 | Chief Information Security Officer (CISO) | Oversees information and cyber-security programs, ensuring compliance with ISO 27001 and NIST CSF. |
-| **Chief Security Officer (CSO-Physical)** | Oversees all physical, personnel, and facility security programs, ensuring integration with digital security and business continuity. |
+| Chief Security Officer (CSO-Physical) | Oversees all physical, personnel, and facility security programs, ensuring integration with digital security and business continuity. |
 | Chief Technology Officer (CTO) | Chairs the AI Governance Council and oversees responsible-AI assurance. |
 | Chief Risk Officer (CRO) | Leads enterprise risk management and ensures integration across business functions. |
 | Chief Compliance Officer (CCO) | Maintains the compliance management system and monitors performance. |
