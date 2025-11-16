@@ -18,7 +18,6 @@ All terminology is standardized in the Key Terms and Definitions Register, locat
 
 # Directory Structure
 
-/ai
 framework-ai-governance.md
 framework-ai-system-audit-and-certification.md
 framework-ai-in-model-risk.md
