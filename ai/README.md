@@ -18,16 +18,17 @@ All terminology is standardized in the Key Terms and Definitions Register, locat
 
 # Directory Structure
 
-framework-ai-governance.md
-framework-ai-system-audit-and-certification.md
-framework-ai-in-model-risk.md
-standard-ai-in-model-risk.md
-mapping-ai-in-model-risk.md
-standard-ai-lifecycle-governance.md
-policy-responsible-ai.md
-guidance-ai-usage-and-safety.md
-procedure-ai-incident-handling.md
-readme.md (this file)
+    /ai
+    framework-ai-governance.md
+    framework-ai-system-audit-and-certification.md
+    framework-ai-in-model-risk.md
+    standard-ai-in-model-risk.md
+    mapping-ai-in-model-risk.md
+    standard-ai-lifecycle-governance.md
+    policy-responsible-ai.md
+    guidance-ai-usage-and-safety.md
+    procedure-ai-incident-handling.md
+    readme.md (this file)
 
 ---
 
