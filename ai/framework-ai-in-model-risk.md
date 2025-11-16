@@ -222,7 +222,7 @@ Verifies adherence to standards, evidence completeness, and lifecycle integrity.
 
 # Definitions
 
-Key terms and acronyms used in this document are defined in the **register key terms and definitions md**, located at the top level of the GRC library.
+Key terms and acronyms used in this document are defined in the **Key Terms and Definitions Register**.
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
