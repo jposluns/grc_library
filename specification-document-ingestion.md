@@ -1,177 +1,185 @@
-GRC LIBRARY CC ZERO INGESTION AND TRANSFORMATION SPECIFICATION
-VERSION 1.1.0
+# GRC Library CC Zero Ingestion and Transformation Specification  
+Version 1.1.1
 
-PURPOSE
-This specification defines how content is ingested, normalized, improved, and transformed into CC Zero licensed governance documents for the public GRC library. It establishes authoritative rules for interpreting pasted content, determining its document type, transforming it into the approved structure, naming it, placing it in the correct directory, and identifying repository updates. This specification overrides the Master Project Specification for all CC0 document creation, formatting, metadata, and placement operations.
+## 1. Purpose
 
-SCOPE
-This specification applies to all pasted content that is to be:
-1. Integrated into the CC Zero GRC library.
-2. Converted into a CC0 governance document using the canonical metadata block.
-3. Normalized for clarity, consistency, and alignment with recognized standards.
-4. Positioned in the correct directory based on type and domain.
-5. Evaluated for overlap or conflict with existing repository documents.
-6. Assessed for required updates to registers, matrices, mapping files, or indices.
+This specification defines authoritative rules for ingesting, transforming, normalizing, and producing CC Zero licensed governance documents for the public GRC Library. It ensures consistent structure, terminology, formatting, metadata, naming conventions, and directory placement. This specification overrides all other project specifications when producing CC0 governance outputs.
 
-The output always consists of:
-1. A CC Zero licensed Markdown document inside a single fenced code block.
-2. A repository update register outside the code block.
+## 2. Scope
 
-This specification governs CC0 outputs exclusively. Internal governance versions are produced only when explicitly requested.
+This specification applies to all user-submitted content intended to be transformed into CC0 governance documents, including policies, standards, procedures, frameworks, plans, guidelines, registers, matrices, checklists, specifications, and charters.
 
-REFERENCE FRAMEWORKS AND ALIGNMENT EXPECTATIONS
-All transformations must align with recognized frameworks including:
-1. ISO and IEC standards: 27001, 27701, 42001, 22301, 31000, 9001 and related.
-2. NIST frameworks: Cybersecurity Framework 2.0, NIST AI RMF, and the 800 series.
-3. COBIT 2025 governance and management objectives.
-4. CSA Cloud Controls Matrix v5.
-5. Global regulatory obligations represented in library registers: privacy, cybersecurity, AI governance, ESG, and supply chain integrity.
+It governs:
+1. Document type determination.  
+2. Canonical filename construction.  
+3. Directory placement.  
+4. Canonical metadata block formatting and values.  
+5. Content normalization.  
+6. Removal of internal references or identifiers.  
+7. Production of CC0-ready Markdown.  
+8. Generation of repository update registers.  
+9. Identification and extraction of reusable annexes or matrices.
 
-The assistant must not invent regulatory requirements or unsupported mappings.
+Internal governance versions are produced only when explicitly requested.
 
-DIRECTORY STRUCTURE
-All CC0 documents must be placed into either the core directory or one of the defined domain directories.
+## 3. Reference Frameworks and Alignment
 
-CORE DIRECTORY
-Used for documents that are not domain specific.
+Transformations must align with:
+1. ISO and IEC standards including 27001, 27002, 27701, 42001, 22301, 31000, 9001, and 23894.  
+2. NIST Cybersecurity Framework 2.0, NIST AI RMF, and NIST SP 800 series.  
+3. COBIT 2025 governance and management objectives.  
+4. CSA Cloud Controls Matrix v5.  
+5. Global regulatory obligations reflected in library registers.  
+6. AI governance and safety frameworks.  
+7. Supply chain security frameworks including WCO SAFE, ISO 28000, BASC, PIP, CTPAT, and AEO.
 
-/core
+No regulatory requirements may be invented or implied without reference support.
 
-TOPIC DIRECTORIES
-Used for domain-focused material with multiple document types.
-/ai
-/resilience
-/privacy
-/supplier
+## 4. Directory Structure
 
-Directory rules:
-1. Place documents in a topic directory only if content primarily relates to that domain.
-2. Otherwise place in /core.
-3. No subdirectories may be created under /core or any topic directory without explicit user instruction.
+Documents must be placed in one of the following directories:
 
-DOCUMENT TYPE CLASSIFICATION
-Each pasted document must be assigned one of the following types:
-Policy
-Framework
-Standard
-Procedure
-Plan
-Guideline
-Register
-Matrix
-Checklist
-Specification
-Charter
+- /core  
+- /ai  
+- /resilience  
+- /privacy  
+- /supplier
 
-The document type determines the filename prefix.
+Rules:
+1. Use topic directories only when the document primarily belongs to that domain.  
+2. All other documents go in /core.  
+3. No new directories may be created without explicit user instruction.  
+4. Reusable annexes or matrices must be separate CC0 documents stored in the appropriate domain directory.
 
-FILENAME RULES
-All filenames must follow the structure:
+## 5. Document Type Classification
 
-document-type dash canonical-name dot md
+Each document must be classified as exactly one of the following types, which determines the filename prefix:
+
+Policy, Framework, Standard, Procedure, Plan, Guideline, Register, Matrix, Checklist, Specification, Charter.
+
+## 6. Filename Rules
+
+Filenames must follow:
+
+document-type-canonical-name.md
+
+Canonical-name rules:
+1. Lowercase only.  
+2. Spaces replaced with single hyphens.  
+3. All punctuation removed.  
+4. Ampersands replaced with "and".  
+5. No duplicate or trailing hyphens.  
+6. Stop words are not removed.
 
 Examples:
-policy-enterprise-access-control.md
-framework-governance-charter.md
-standard-logging-and-monitoring.md
-procedure-identity-management.md
-register-document-index-and-classification.md
+- policy-enterprise-access-control.md  
+- standard-ai-lifecycle-governance.md  
 
-Canonical name rules:
-1. All lowercase letters.
-2. Spaces become a single hyphen.
-3. All punctuation removed.
-4. Ampersand becomes “and”.
-5. No leading or trailing hyphens.
-6. No duplicate hyphens.
-7. Stop words are not removed.
+## 7. Metadata Block Requirements
 
-METADATA BLOCK REQUIREMENTS
-Every document must begin with this metadata block:
+Every CC0 document must begin with the following metadata block, in this exact order and format:
 
-Document Title
-Document Type
-Version
-Date
-Owner
-Approving Authority
-Related Documents
-Classification
-Category
-Review Frequency
-Repository Path
-Confidentiality
+1. Document Title  
+2. Document Type  
+3. Version  
+4. Date  
+5. Owner  
+6. Approving Authority  
+7. Related Documents  
+8. Classification  
+9. Category  
+10. Review Frequency  
+11. Repository Path  
+12. Confidentiality
 
-Metadata rules:
-1. Version must always be 0.0.1 for initial creation.
-2. Only minor version increments occur on substantive content changes (not formatting or grammar).
-3. Document Title must match the canonical name in a readable form.
-4. Owner must be a role (not a person).
-5. Approving Authority must use generic roles such as Chief Compliance Officer or Chief Legal Officer.
-6. Related Documents must be listed by canonical name and filename, not numbers.
-7. Classification defaults to Public unless the user requires Higher Classification.
-8. Repository Path must reflect the directory and filename.
-9. Dates use year space month space day format.
-10. No internal metadata, confidentiality labels, authors, or revision histories may appear.
+Rules:
+1. Initial version is always 0.0.1.  
+2. Only minor version increments occur for substantive updates.  
+3. Document Title must be readable and must not include the document type.  
+4. Owner must be a role, not an individual.  
+5. Approving Authority must be one generic role (e.g., Chief Compliance Officer).  
+6. Related Documents must list titles and filenames, one per line.  
+7. Classification must be one of: Public, Internal, Restricted (default: Public).  
+8. Review Frequency must be a discrete interval such as "Annual".  
+9. Repository Path must reflect the directory and canonical filename.  
+10. Confidentiality must match the classification.  
+11. Tables are not permitted in metadata.  
+12. No author names, approval tables, or revision histories are permitted.
 
-CONTENT NORMALIZATION RULES
+## 8. Content Normalization Rules
+
 The assistant must:
-1. Remove document control tables, numbering, author fields, and employer identifiers.
-2. Rewrite text for clarity, consistency, and alignment with referenced frameworks.
-3. Remove placeholders and remove organization-specific language.
-4. Remove references to document numbers.
-5. Maintain a precise governance tone.
-6. Use standard hyphenated grammar in sentences; hyphens in filenames only.
-7. Avoid en and em dashes entirely.
-8. Ensure all content is globally reusable and suitable for CC0.
+1. Remove document control tables, revision histories, approval records, author names, or employer identifiers.  
+2. Remove internal numbering such as document IDs or references to internal frameworks.  
+3. Rewrite content to be globally reusable, jurisdiction-neutral, and organization-agnostic.  
+4. Replace organization-specific roles with standardized governance roles.  
+5. Remove placeholders and incomplete sections.  
+6. Avoid en and em dashes.  
+7. Preserve unverified references but label them “[Unverified]”.  
+8. Align AI content with ISO 23894 and NIST AI RMF.  
+9. Align supply chain references with global, vendor-neutral frameworks.
 
-CANONICAL DOCUMENT STRUCTURE
-All CC0 documents must follow this order:
+## 9. Canonical CC0 Document Structure
+
+All CC0 documents must follow this structure and ordering:
 
 1. Metadata Block  
 2. Purpose  
 3. Scope  
-4. Objectives (if applicable)  
+4. Objectives (optional but recommended)  
 5. Governance and Accountability  
-6. Policy or Control Statements or Methodology or Procedures  
+6. Policy or Control Statements / Methodology / Procedures  
 7. Roles and Responsibilities  
 8. Monitoring, Metrics, and Reporting  
 9. Continuous Improvement  
-10. References and Framework Alignment  
+10. References and Framework Alignment
 
-COMPARATIVE ANALYSIS WORKFLOW
-If a document with the same canonical name exists:
-1. Compare pasted content to the existing repository version.
-2. Identify alignment, deltas, gaps, regressions, and improvements.
-3. Recommend whether to replace, merge, or retain the existing document.
-4. Identify sections requiring updates.
-5. Await user approval before replacing or updating.
+Rules:
+1. Document Control and Approval sections are not included in CC0 documents.  
+2. Definitions sections must be minimal; new terms must be added to global registers.  
+3. Mapping tables or matrices must not be embedded directly.
 
-REPOSITORY UPDATE REGISTER RULES
-Every transformation must include a repository update register listing:
-1. Files requiring updates (mandatory or recommended).
-2. Any new registers, matrices, or supporting documents required.
-3. Any new topics requiring directory expansion.
-4. Any required additions to the key terms and definitions register.
+## 10. Rules for Matrices and Annexes
 
-NEW SUPPORTING DOCUMENT WORKFLOW
-If a transformation indicates a new register, mapping table, annex, or index is required:
-1. Identify it explicitly in the repository update register.
-2. Provide a recommended name and filename.
-3. Provide a brief description of the document’s purpose.
-4. Ask whether the user wants it created next.
+1. Any reusable matrix, mapping table, or annex must be extracted into a separate CC0 file.  
+2. The parent document must reference the matrix through Related Documents and within body text where relevant.  
+3. Matrix documents must use the “Matrix” document type and follow all metadata and filename rules.  
+4. Annexes are not embedded in CC0 documents and must be published as standalone documents.  
+5. When users provide embedded matrices, the assistant must extract them, create standalone matrix files, and reference them in the repository update register.
 
-TERMS AND DEFINITIONS HANDLING
-1. Reference the register key-terms-and-definitions.md file for shared terminology.
-2. Define terms locally only when needed for clarity.
-3. Identify any needed new terms in the repository update register.
+## 11. Comparative Analysis Workflow
 
-FINAL OUTPUT RULES
-1. Provide exactly one fenced code block for the complete CC0 document.
-2. The repository update register must appear outside the code block.
-3. No commentary or explanation may appear inside the document’s code block.
-4. All content must comply with CC0 licensing rules.
-5. Filename and directory placement rules must be strictly followed.
-6. No operational, meta, or failure audit data may appear in CC0 outputs.
+When a document with the same canonical filename already exists:
+1. Compare new content with the existing file.  
+2. Identify improvements, regressions, gaps, and conflicts.  
+3. Recommend whether to replace, merge, or retain the existing document.  
+4. Summarize differences clearly.  
+5. Await explicit approval before modifying existing content.
 
-END OF INGESTION AND TRANSFORMATION SPECIFICATION
+## 12. Repository Update Register Rules
+
+Each ingestion must include a repository update register that identifies:
+1. Newly created files.  
+2. Files requiring updates.  
+3. Required new matrices, registers, or supporting documents.  
+4. Required additions to the key terms and definitions register.  
+5. Recommended new documents or expansions.  
+6. Any potential impacts to existing files.
+
+The repository update register appears after the CC0 document and is not inside the code block.
+
+## 13. Terms and Definitions Handling
+
+1. The authoritative source is key-terms-and-definitions.md.  
+2. Local Definitions sections are permitted only when necessary.  
+3. New terms must be added to the repository update register.  
+4. Role definitions may reference a role-authority-register.md if present.  
+5. All definitions must be globally neutral.
+
+## 14. Final Output Rules
+
+1. The CC0 document must be delivered in exactly one fenced code block.  
+2. No commentary or operational notes may appear inside the code block.  
+3. Document must comply with directory and filename rules.  
+4. Repository update register follows the code block.  
+5. No meta-operational, system, or audit data may appear in CC0 outputs.
