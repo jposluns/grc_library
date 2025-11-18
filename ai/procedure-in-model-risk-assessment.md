@@ -1,14 +1,24 @@
 Document Title: In Model Risk Assessment Procedure
+
 Document Type: Procedure
+
 Version: 0.0.1
+
 Date: 2025 11 18
+
 Owner: Compliance Officer
+
 Approving Authority: Chief Compliance Officer
 Related Documents: in-model-risk-framework (framework-in-model-risk.md); in-model-risk-standard (standard-in-model-risk.md); ai-governance-framework (framework-ai-governance.md); ai-system-audit-and-certification-framework (framework-ai-system-audit-and-certification.md); ai-lifecycle-governance-standard (standard-ai-lifecycle-governance.md)
+
 Classification: Public
+
 Category: Artificial Intelligence
+
 Review Frequency: Annual
+
 Repository Path: /ai/procedure-in-model-risk-assessment.md
+
 Confidentiality: Public
 
 # Purpose
