@@ -1,174 +1,294 @@
-# Governance, Risk, and Compliance (GRC) Documentation Library
+# Governance, Risk, and Compliance (GRC) Documentation Library  
+**Version:** 1.0.2  
+**Date:** 2025 11 18  
+**Classification:** Public  
+**Confidentiality:** Public (CC0)  
 
-## Strategic Purpose
-
-The Governance, Risk, and Compliance (GRC) Documentation Library is the foundation of the organization’s Governance, Risk, and Compliance Management System (GRCMS).  
-
-It unifies every policy, framework, standard, procedure, guideline, and plan under a single ISO-aligned structure, ensuring that governance, security, privacy, and ethical innovation are managed consistently across all organizational contexts.
-
-The Library serves as the definitive source of governance truth:
-
-- Enables leadership decision-making with confidence that all policies and controls are traceable, auditable, and compliant.  
-- Provides the assurance infrastructure required for certification, regulatory compliance, and stakeholder trust.  
-- Integrates AI, sustainability, privacy, and digital-trust principles into every layer of governance, reflecting modern regulatory and ethical expectations.
-
-
-
-## Value to Executive Leadership
-
-| Executive Role | Key Interest and Value |
-|----------------|------------------------|
-| Chief Executive Officer (CEO) | Demonstrates accountable, transparent, and ethical governance across technology and business operations. |
-| Chief Financial Officer (CFO) | Confirms compliance and audit readiness for financial integrity, regulatory filings, and risk disclosures. |
-| Chief Administrative Officer (CAO) | Provides organization-wide governance consistency supporting HR, legal, and corporate reporting. |
-| Chief Operating Officer (COO) | Enables operational resilience, process standardization, and cross-departmental accountability. |
-| Chief Technology Officer (CTO) | Ensures technology, data, and AI initiatives operate under a compliant and ethically governed framework. |
-| Chief Information Officer (CIO) | Acts as the executive steward of governance maturity, digital trust, and certification readiness. |
-| Chief Information Security Officer (CISO) | Oversees security and information governance programs across cyber, data, and operational domains, ensuring alignment with applicable global frameworks and regulations. |
-| Chief Security Officer (CSO-Physical) | Oversees all physical, personnel, and facility security programs, ensuring integration with digital security, safety, and business continuity controls. |
-| Chief Risk Officer (CRO) | Oversees enterprise risk strategy, appetite, and integration across all functions. |
-| Chief Compliance Officer (CCO) | Maintains the compliance management system and reports on compliance performance. |
-| Chief Data Officer (CDO) | Ensures responsible data governance, quality, and lifecycle management. |
-| Chief Privacy Officer (CPO) | Oversees privacy protection, cross-border data transfers, and privacy impact assessments. |
-| Chief Legal Officer / General Counsel (CLO/GC) | Provides legal oversight, contract governance, and interpretation of regulatory requirements. |
-| Chief Human Resources Officer (CHRO) | Ensures ethical conduct, inclusion, and workforce governance across the enterprise. |
-| Chief Sustainability Officer (CSO) | Leads ESG, environmental, and responsible-technology integration. |
-| Chief Strategy Officer (CSO-Strategy) | Directs strategic transformation and long-term governance initiatives. |
-| Chief AI Officer / Head of AI Governance | Oversees AI governance, certification readiness, and algorithmic assurance. |
-
-
-
-## How the Library Is Structured
-
-The GRC Library is organized into clearly defined directories rather than numbered documents. Each directory represents a document type and contains thematically aligned artefacts.
-
-| Directory | Description |
-|------------|-------------|
-| **/charter** | Foundational governance documents defining authority, oversight, and control hierarchy. |
-| **/framework** | Strategic frameworks describing governance structures, integrations, and assurance models. |
-| **/policy** | Executive directives establishing mandatory intent and principles. |
-| **/standard** | Control baselines and measurable requirements implementing policies. |
-| **/procedure** | Operational instructions defining step-by-step implementation of standards. |
-| **/plan** | Governance, continuity, incident response, and recovery plans defining organizational preparedness and resilience. |
-| **/guideline** | Advisory materials and regional supplements supporting policy and standard adoption. |
-| **/register** | Indexes, mappings, and metrics repositories ensuring traceability and compliance evidence. |
-
-This structure replaces legacy numerical references and supports modular, scalable governance within GitHub and other version-controlled repositories.
-
-
-
-## Strategic Outcomes and Organizational Value
-
-- **Unified Governance:** Establishes one consistent, globally recognized governance system aligned with ISO, COBIT, Cloud Security Alliance (CSA), and NIST frameworks.  
-- **Certification Readiness:** Maintains readiness for ISO 27001, 27701, 42001, 37301, 50001, and related audits.  
-- **Regulatory Assurance:** Provides evidence of compliance with GDPR, CPPA, AI Act, AIDA, NIS 2, LGPD, and other laws.  
-- **Operational Resilience:** Strengthens reliability, continuity, and data protection across operations.  
-- **Ethical Innovation:** Embeds ESG, sustainability, and responsible AI governance into every technology domain.  
-- **Digital Trust:** Measures and improves transparency, accountability, and integrity using the Digital Trust Performance Framework.
-
-
-
-## Alignment with Global Standards and Frameworks
-
-The Library provides comprehensive cross-framework coverage across the following reference models:
-
-**ISO / IEC:** 31000, 27001, 27002, 27014, 27034, 27701, 37301, 42001, 50001, 9001, 26000, 30173  
-**COBIT 2025:** APO, BAI, DSS, MEA, and APO14 (AI Governance)  
-**Cloud Security Alliance (CSA):** Alignment with CCM, AICM, and STAR program frameworks  
-**NIST Frameworks:** CSF 2.0; SP 800-37, 40r4, 61r2, 63B/63C, 207, 208, and AI RMF 1.1  
-**OECD 2026:** AI and Digital Security Principles  
-**Regulatory Laws:** GDPR, CPPA, AIDA, AI Act, NIS 2, LGPD, PIPL, PDPA, CBPR 2.0, and UN SDGs  
-**Trade and Supply Chain Programs:** WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalent frameworks  
-
-Cross-framework mappings are maintained in the **Cross-Framework Compliance Matrix** and **Global Regulatory Mapping Register**.
-
-
-
-## Governance Structure and Oversight
-
-| Role | Description |
-|------|--------------|
-| Chief Executive Officer (CEO) | Ultimate accountability for governance effectiveness and ethical leadership. |
-| Chief Information Officer (CIO) | Executive sponsor and authoritative owner of the GRC Library. |
-| Chief Information Security Officer (CISO) | Oversees information and cyber-security programs, ensuring compliance with ISO 27001 and NIST CSF. |
-| Chief Security Officer (CSO-Physical) | Oversees all physical, personnel, and facility security programs, ensuring integration with digital security and business continuity. |
-| Chief Technology Officer (CTO) | Chairs the AI Governance Council and oversees responsible-AI assurance. |
-| Chief Risk Officer (CRO) | Leads enterprise risk management and ensures integration across business functions. |
-| Chief Compliance Officer (CCO) | Maintains the compliance management system and monitors performance. |
-| Chief Data Officer (CDO) | Governs data ethics, stewardship, and lifecycle quality. |
-| Chief Privacy Officer (CPO) | Ensures compliance with privacy and data-protection laws. |
-| Chief Legal Officer / General Counsel (CLO/GC) | Provides legal and contractual oversight for governance policies. |
-| Chief Human Resources Officer (CHRO) | Oversees people-governance, ethics, and workforce compliance. |
-| Chief Sustainability Officer (CSO) | Integrates ESG and responsible-technology practices. |
-| Chief Financial Officer (CFO) | Aligns governance with financial integrity and disclosure requirements. |
-| Chief Strategy Officer (CSO-Strategy) | Directs long-term strategic governance and transformation. |
-| Chief AI Officer / Head of AI Governance | Manages AI governance frameworks, model assurance, and certification readiness. |
-| Enterprise Risk Committee (ERC) | Provides executive oversight for enterprise risk and audit results. |
-
-
-
-## Custody, Access, and Maintenance
-
-- **Authoritative Repository:** Public GitHub Repository  
-- **Classification:** Public Read / Restricted Edit  
-- **Access:** Read access is unrestricted for all individuals and organizations.  
-  Edit and contribution rights are reserved for authorized governance custodians.  
-- **Review Frequency:** Annual or upon regulatory or technological change  
-
-
-
-## Statement of Authority
-
-All documents within the GRC Documentation Library (2026 Edition) are approved under the authority of the Chief Information Officer (CIO) and governed by the Governance Charter.  
-They form the foundation of the organization’s Integrated Governance, Risk, and Compliance Management System (GRCMS) and represent the single authoritative reference for governance, compliance, and certification activities across all organizational types.
-
-
-
-## Approval
-
-| Role | Name | Approval Date |
-|-------|------|---------------|
-| Chief Information Officer (CIO) |  |  |
-| Chief Information Security Officer (CISO) |  |  |
-| Chief Security Officer (CSO-Physical) |  |  |
-| Chief Technology Officer (CTO) |  |  |
-| Chief Risk Officer (CRO) |  |  |
-| Chief Compliance Officer (CCO) |  |  |
-| Chief Data Officer (CDO) |  |  |
-| Chief Privacy Officer (CPO) |  |  |
-| Chief Legal Officer / General Counsel (CLO/GC) |  |  |
-| Chief Human Resources Officer (CHRO) |  |  |
-| Chief Sustainability Officer (CSO) |  |  |
-| Chief Financial Officer (CFO) |  |  |
-| Chief Strategy Officer (CSO-Strategy) |  |  |
-| Chief AI Officer / Head of AI Governance |  |  |
-
-
+---
 
 ## Document Control
 
-| Version | Date | Author | Change History |
-|----------|------|---------|----------------|
-| 0.1 |  |  | Finalized executive oversight roles, repository structure, and physical-security governance integration |
+| Version | Date       | Change History |
+|---------|------------|----------------|
+| 1.0.0   | 2025 11 14 | Initial creation of the public GRC Library README. |
+| 1.0.1   | 2025 11 16 | Updated structure and governance language; introduced public CC0 positioning and clarified cross-framework intent. |
+| 1.0.2   | 2025 11 18 | Aligned with Ingestion Specification v1.1.2, corrected directory model (/core plus domain directories), added Template as a document type, defined maintainer governance model, contributor guidance, and maintainer acknowledgments. |
 
+---
 
+## Purpose
+
+The Governance, Risk, and Compliance (GRC) Documentation Library is a public-domain, CC0-licensed governance system designed for global reuse, adaptation, and integration into any organization’s governance model.
+
+It provides a unified, standards-aligned structure for policies, frameworks, standards, procedures, guidelines, templates, plans, registers, matrices, and specifications across key governance domains, including:
+
+- Artificial intelligence governance and model risk.  
+- Cybersecurity and information security.  
+- Privacy and data protection.  
+- Enterprise risk, compliance, and governance.  
+- Operational resilience, business continuity, and disaster recovery.  
+- Supplier, third-party, and trade-security governance.
+
+The Library functions as an authoritative reference architecture for organizations seeking:
+
+- Certification readiness against ISO, NIST, COBIT, CSA, and related frameworks.  
+- Harmonized governance practices across business, technology, security, privacy, and AI.  
+- Demonstrable compliance with global legal and regulatory requirements.  
+- A blueprint for responsible innovation, digital trust, and ethical technology adoption.
+
+The repository is organization-agnostic by design and supports adoption by public, private, and non-profit entities.
+
+---
+
+## Strategic Value
+
+The Library delivers globally reusable governance artefacts that:
+
+1. Establish a coherent structure compatible with ISO 27001, 27701, 42001, 22301, 37301, 9001, and related standards.  
+2. Embed responsible-AI governance and in-model risk management across the full AI lifecycle.  
+3. Support alignment with NIST CSF 2.0, NIST AI RMF, and COBIT 2025 governance and management objectives.  
+4. Provide cross-framework mappings and regulatory coverage across major jurisdictions.  
+5. Strengthen operational and cyber resilience through consistent continuity and crisis-governance elements.  
+6. Enable transparent, auditable, and trustworthy governance controls and evidence.  
+7. Serve as a ready-made starting point for internal governance programs, education, and audits.
+
+Organizations may adopt the Library as-is, adapt it, or integrate it with existing internal documentation.
+
+---
+
+## Repository Structure
+
+Documents are organized by topic domain, not by document type. This domain-based model is mandated by the GRC Library CC Zero Ingestion and Transformation Specification v1.1.2.
+
+Repository directories:
+
+    /core       → Enterprise-wide governance applicable across all domains.
+    /ai         → AI governance, model risk, lifecycle, interpretability, and assurance.
+    /resilience → Business continuity, disaster recovery, crisis management, and resilience.
+    /privacy    → Privacy governance, data protection, impact assessment, and cross-border considerations.
+    /supplier   → Supplier governance, third-party risk, trade-security, and supply-chain integrity.
+
+All CC0 documents are placed in one of these directories based on primary domain. No additional subdirectories are used without explicit specification updates.
+
+---
+
+## Document Types and Filenames
+
+Allowed document types (as defined in Ingestion Specification v1.1.2):
+
+- Charter  
+- Framework  
+- Policy  
+- Standard  
+- Procedure  
+- Plan  
+- Guideline  
+- Register  
+- Matrix  
+- Specification  
+- Template  
+
+Each document’s type is expressed via its filename prefix:
+
+- policy-enterprise-access-control.md  
+- framework-governance-charter.md  
+- standard-logging-and-monitoring.md  
+- procedure-in-model-risk-assessment.md  
+- template-model-card.md  
+- matrix-in-model-risk-control-to-lifecycle-mapping.md  
+
+Filename rules:
+
+1. All lowercase letters.  
+2. Words separated by single hyphens.  
+3. Punctuation removed; ampersand becomes “and”.  
+4. No leading, trailing, or duplicate hyphens.  
+5. Stop words are not removed.
+
+Document type determines filename prefix; **directory placement always follows the topic domain**.
+
+---
+
+## Canonical Metadata Requirements
+
+Every CC0 document in the Library must begin with the canonical metadata block as defined in the ingestion specification. At a minimum, each document includes:
+
+- Document Title  
+- Document Type  
+- Version (0.0.1 on initial creation)  
+- Date (year month day)  
+- Owner (role, not person)  
+- Approving Authority (role-based, not person-specific)  
+- Related Documents (canonical names and filenames)  
+- Classification (Public)  
+- Category (domain classification)  
+- Review Frequency  
+- Repository Path (directory plus filename)  
+- Confidentiality (Public)
+
+Additional constraints:
+
+- All new documents start at version 0.0.1.  
+- Only substantive content changes increment the version; formatting and metadata corrections do not.  
+- Owners and approvers are generic roles (for example, Chief Compliance Officer) to support global reuse.  
+- No organization identifiers, personal names, or internal document numbers are included in CC0 content.
+
+---
+
+## Core Registers and Matrices
+
+To enable traceability, cross-framework alignment, and governance completeness, the Library maintains key register and matrix documents, including (non-exhaustive):
+
+- key-terms-and-definitions.md  
+- document-index-and-classification.md  
+- cross-framework-compliance-matrix.md  
+- global-regulatory-mapping-register.md  
+- digital-trust-performance-metrics-register.md  
+- role-authority-register.md  
+- in-model-risk-control-to-lifecycle-mapping.md  
+
+New registers or matrices are created only when required by the ingestion process or by domain completeness rules.
+
+---
+
+## Contributor Guidance
+
+As a public CC0 repository, all contributions must adhere to the following principles:
+
+1. **Follow the Ingestion Specification v1.1.2.**  
+   - Use required metadata blocks and canonical filenames.  
+   - Place documents in the appropriate domain directory.  
+
+2. **Keep content globally reusable.**  
+   - Do not reference specific organizations, proprietary tools, or confidential information.  
+   - Use role-based titles instead of named individuals.
+
+3. **Maintain CC0 compatibility.**  
+   - All contributions are dedicated to the public domain under CC0 1.0.  
+   - Contributors must not introduce license-incompatible content.
+
+4. **Use pull requests for all changes.**  
+   - Include a short description of the purpose, scope, and standard alignment.  
+   - Describe any required new registers, matrices, or supporting documents.  
+
+5. **Respect structural integrity.**  
+   - Do not alter directory structure or ingestion rules without maintainer review.  
+   - Keep document types and filenames consistent with this README and the ingestion specification.
+
+A CONTRIBUTING.md document may further specify contribution expectations and review workflows.
+
+---
+
+## Maintainer Governance Model
+
+This repository is maintained by the **GRC Library Maintainer Community**, which operates under a transparent, role-based governance model.
+
+### Maintainer Community
+
+The Maintainer Community:
+
+- Oversees the ingestion pipeline and quality controls.  
+- Maintains and evolves the Ingestion Specification.  
+- Reviews and approves material changes to frameworks, standards, and other foundational documents.  
+- Ensures that all content remains CC0-compliant and organization-neutral.
+
+### Moderator Recognition
+
+The following moderators are acknowledged for their foundational work, synthesis, and stewardship of the GRC Library project:
+
+- Jeff Posluns  
+- Benoit Dicaire  
+- Brian Adams  
+- Nathan Alexander  
+
+Their efforts have significantly contributed to the structure, rigor, and global utility of this repository.
+
+### Role of Adopting Organizations
+
+Organizations that adopt this Library internally should:
+
+- Assign suitable internal owners and approvers (for example, CIO, CISO, CRO, CCO, or Director of GRC).  
+- Map internal roles to the generic roles defined in the Library.  
+- Maintain internal, organization-specific versions separately from the public CC0 repository when necessary.
+
+The public repository does not prescribe internal role structures; it provides a flexible, standards-aligned baseline.
+
+---
+
+## Alignment with Global Standards and Frameworks
+
+The Library is designed to align with and map to major global standards and frameworks, including:
+
+### ISO / IEC
+
+- ISO 31000 (Risk Management)  
+- ISO/IEC 27001, 27002, 27014 (Information Security Management and Governance)  
+- ISO/IEC 27701 (Privacy Information Management)  
+- ISO/IEC 22301 (Business Continuity)  
+- ISO 37301 (Compliance Management)  
+- ISO/IEC 42001 and ISO/IEC 23894 (AI Governance and AI Risk)  
+- ISO 9001, 26000, 50001, 30173, and related standards where applicable.
+
+### NIST
+
+- NIST Cybersecurity Framework (CSF) 2.0  
+- NIST SP 800-37, 800-39, 800-53, 800-61, 800-63, 800-207, 800-208  
+- NIST AI Risk Management Framework (AI RMF 1.1)
+
+### COBIT 2025
+
+- APO, BAI, DSS, MEA, EDM domains  
+- Digital trust, governance, and assurance principles.
+
+### Cloud Security Alliance
+
+- Cloud Controls Matrix (CCM v5)  
+- AICM and STAR program references  
+- AI-related AIS controls for model governance.
+
+### Regulatory and Legal Regimes
+
+- GDPR, CPPA, LGPD, PIPL, NIS 2, CCPA/CPRA, PDPA, CBPR 2.0  
+- Emerging AI and digital regulations such as the EU AI Act and AIDA where alignment can be maintained without embedding jurisdiction-specific legal advice.
+
+### Trade and Supply Chain Programs
+
+- WCO SAFE  
+- ISO 28000  
+- BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalent frameworks.
+
+Cross-framework alignment is reflected in dedicated matrix and register documents within the Library.
+
+---
+
+## Custody, Access, and Maintenance
+
+- **Repository Classification:** Public.  
+- **License:** Creative Commons CC0 1.0 Universal (public domain dedication).  
+- **Read Access:** Unrestricted.  
+- **Change Management:** Contributions via pull requests, reviewed by maintainers.  
+- **Review Frequency:** At least annually and upon major framework or regulatory changes.  
+- **Maintenance Authority:** GRC Library Maintainer Community.
+
+---
 
 ## License
 
-This repository is dedicated to the public domain under the [Creative Commons CC0 1.0 Universal (Public Domain Dedication)](https://creativecommons.org/publicdomain/zero/1.0/) license. No rights reserved. You may use, modify, or redistribute these materials freely.
+This repository is dedicated to the public domain under the **Creative Commons CC0 1.0 Universal** license.
 
+You may copy, modify, distribute, and use the content, including for commercial purposes, without asking permission. Attribution is appreciated but not required.
 
-
-### Acknowledgment
-
-Created, consolidated, and maintained by **Jeff Posluns** as part of an open GRC documentation initiative. Thanks to all contributors and AI systems whose synthesis of global standards helped make this collection possible.
-
-
+---
 
 ## Definitions
 
-Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
+For shared terminology, role descriptions, and common abbreviations, please refer to:
 
+- key-terms-and-definitions.md  
+- role-authority-register.md  
 
+These registers help keep language consistent across all documents in the Library.
+
+---
 
 **End of Document**
