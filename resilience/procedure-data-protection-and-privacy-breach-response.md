@@ -17,7 +17,7 @@
 | **Repository Path** | /resilience/procedure-data-protection-and-privacy-breach-response.md |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -37,14 +37,14 @@
 | Chief Legal Officer / General Counsel (CLO/GC) |  |  |
 | Data Protection Officer (DPO) / Privacy Officer |  |  |
 
----
+
 
 ## Purpose
 
 This procedure defines the end-to-end process for identifying, containing, reporting, investigating, and remediating data-protection or privacy breaches involving personal, confidential, or regulated information.  
 It ensures compliance with international privacy laws, cybersecurity regulations, and trade-security obligations.
 
----
+
 
 ## Scope
 
@@ -56,7 +56,7 @@ It ensures compliance with international privacy laws, cybersecurity regulations
   - AI datasets and model-training data containing personal information.  
 - Applies across all regions, systems, and subsidiaries.
 
----
+
 
 ## Objectives
 
@@ -65,7 +65,7 @@ It ensures compliance with international privacy laws, cybersecurity regulations
 3. Preserve evidence for legal, regulatory, and forensic purposes.  
 4. Maintain public trust and organizational accountability.
 
----
+
 
 ## Breach Classification
 
@@ -78,7 +78,7 @@ It ensures compliance with international privacy laws, cybersecurity regulations
 
 AI model or dataset exposures follow this procedure and the AI Governance Framework for transparency verification.
 
----
+
 
 ## Detection and Containment
 
@@ -93,7 +93,7 @@ AI model or dataset exposures follow this procedure and the AI Governance Framew
 3. **Communication**  
    - The CISO informs the CIO, CRO, and Legal once initial containment is complete.  
 
----
+
 
 ## Assessment and Impact Analysis
 
@@ -107,7 +107,7 @@ AI model or dataset exposures follow this procedure and the AI Governance Framew
    - Affected customs documentation or cargo data.  
    - Potential trade-compliance or customs-reporting impact.
 
----
+
 
 ## Notification Requirements
 
@@ -127,7 +127,7 @@ All notifications must include:
 
 Legal review and approval are mandatory before sending any external notice.
 
----
+
 
 ## Investigation and Documentation
 
@@ -138,7 +138,7 @@ Legal review and approval are mandatory before sending any external notice.
 5. **Breach Investigation Report (BIR)** – Completed within 10 business days of closure, summarizing findings and recommendations.  
 6. All materials stored securely in the governance repository for a minimum of 7 years.
 
----
+
 
 ## Corrective and Preventive Actions
 
@@ -147,7 +147,7 @@ Legal review and approval are mandatory before sending any external notice.
 - Effectiveness is verified during the next audit or exercise.  
 - BASC-specific corrective actions require validation by the Regional BASC Officer.
 
----
+
 
 ## Post-Breach Review
 
@@ -159,7 +159,7 @@ Legal review and approval are mandatory before sending any external notice.
   - Recommend improvements to training, systems, or third-party oversight.  
 - Summary results are presented to the **Enterprise Risk Committee**.
 
----
+
 
 ## Metrics and Reporting
 
@@ -173,7 +173,7 @@ Legal review and approval are mandatory before sending any external notice.
 
 Quarterly privacy-incident metrics are reviewed by the Enterprise Risk Committee and Internal Audit.
 
----
+
 
 ## Continuous Improvement
 
@@ -184,7 +184,7 @@ Lessons learned and audit findings feed into:
 
 Actions remain open until validated as effective through subsequent testing or audit verification.
 
----
+
 
 ## References and Framework Alignment
 
@@ -202,7 +202,7 @@ Actions remain open until validated as effective through subsequent testing or a
 | **WCO SAFE Framework (2021)** | Authorized Economic Operator Security Requirements | Ensures supply-chain data security and cooperation. |
 | **ISO 28000:2022** | Supply-Chain Security and Resilience | Integrates physical and data-security continuity. |
 
----
+
 
 ## Definitions
 
@@ -210,6 +210,6 @@ Key terms and acronyms used in this document are defined in the **Resilience Ter
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**

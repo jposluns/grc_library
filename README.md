@@ -12,7 +12,7 @@ The Library serves as the definitive source of governance truth:
 - Provides the assurance infrastructure required for certification, regulatory compliance, and stakeholder trust.  
 - Integrates AI, sustainability, privacy, and digital-trust principles into every layer of governance, reflecting modern regulatory and ethical expectations.
 
----
+
 
 ## Value to Executive Leadership
 
@@ -36,7 +36,7 @@ The Library serves as the definitive source of governance truth:
 | Chief Strategy Officer (CSO-Strategy) | Directs strategic transformation and long-term governance initiatives. |
 | Chief AI Officer / Head of AI Governance | Oversees AI governance, certification readiness, and algorithmic assurance. |
 
----
+
 
 ## How the Library Is Structured
 
@@ -55,7 +55,7 @@ The GRC Library is organized into clearly defined directories rather than number
 
 This structure replaces legacy numerical references and supports modular, scalable governance within GitHub and other version-controlled repositories.
 
----
+
 
 ## Strategic Outcomes and Organizational Value
 
@@ -66,7 +66,7 @@ This structure replaces legacy numerical references and supports modular, scalab
 - **Ethical Innovation:** Embeds ESG, sustainability, and responsible AI governance into every technology domain.  
 - **Digital Trust:** Measures and improves transparency, accountability, and integrity using the Digital Trust Performance Framework.
 
----
+
 
 ## Alignment with Global Standards and Frameworks
 
@@ -82,7 +82,7 @@ The Library provides comprehensive cross-framework coverage across the following
 
 Cross-framework mappings are maintained in the **Cross-Framework Compliance Matrix** and **Global Regulatory Mapping Register**.
 
----
+
 
 ## Governance Structure and Oversight
 
@@ -105,7 +105,7 @@ Cross-framework mappings are maintained in the **Cross-Framework Compliance Matr
 | Chief AI Officer / Head of AI Governance | Manages AI governance frameworks, model assurance, and certification readiness. |
 | Enterprise Risk Committee (ERC) | Provides executive oversight for enterprise risk and audit results. |
 
----
+
 
 ## Custody, Access, and Maintenance
 
@@ -115,14 +115,14 @@ Cross-framework mappings are maintained in the **Cross-Framework Compliance Matr
   Edit and contribution rights are reserved for authorized governance custodians.  
 - **Review Frequency:** Annual or upon regulatory or technological change  
 
----
+
 
 ## Statement of Authority
 
 All documents within the GRC Documentation Library (2026 Edition) are approved under the authority of the Chief Information Officer (CIO) and governed by the Governance Charter.  
 They form the foundation of the organization’s Integrated Governance, Risk, and Compliance Management System (GRCMS) and represent the single authoritative reference for governance, compliance, and certification activities across all organizational types.
 
----
+
 
 ## Approval
 
@@ -143,7 +143,7 @@ They form the foundation of the organization’s Integrated Governance, Risk, an
 | Chief Strategy Officer (CSO-Strategy) |  |  |
 | Chief AI Officer / Head of AI Governance |  |  |
 
----
+
 
 ## Document Control
 
@@ -151,24 +151,24 @@ They form the foundation of the organization’s Integrated Governance, Risk, an
 |----------|------|---------|----------------|
 | 0.1 |  |  | Finalized executive oversight roles, repository structure, and physical-security governance integration |
 
----
+
 
 ## License
 
 This repository is dedicated to the public domain under the [Creative Commons CC0 1.0 Universal (Public Domain Dedication)](https://creativecommons.org/publicdomain/zero/1.0/) license. No rights reserved. You may use, modify, or redistribute these materials freely.
 
----
+
 
 ### Acknowledgment
 
 Created, consolidated, and maintained by **Jeff Posluns** as part of an open GRC documentation initiative. Thanks to all contributors and AI systems whose synthesis of global standards helped make this collection possible.
 
----
+
 
 ## Definitions
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**

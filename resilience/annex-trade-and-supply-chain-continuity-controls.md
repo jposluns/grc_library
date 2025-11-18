@@ -17,7 +17,7 @@
 | **Repository Path** | /resilience/annex-trade-and-supply-chain-continuity-controls.md |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -37,14 +37,14 @@
 | Chief Compliance Officer (CCO) |  |  |
 | Chief Legal Officer / General Counsel (CLO/GC) |  |  |
 
----
+
 
 ## Purpose
 
 This annex defines the controls and requirements for maintaining trade-security and supply-chain continuity under globally recognized programs, including **BASC**, **WCO SAFE**, **ISO 28000**, **PIP (Canada)**, **CTPAT (United States)**, **NEEC (Mexico)**, **OEA (Brazil)**, and **AEO/AEO-S (European Union and United Kingdom)**.  
 It ensures that customs, logistics, and supplier-managed processes remain secure, traceable, and operational during disruptions.
 
----
+
 
 ## Scope
 
@@ -54,7 +54,7 @@ It ensures that customs, logistics, and supplier-managed processes remain secure
 - Recognizes mutual-recognition arrangements across **Asia-Pacific**, **Middle East**, **Africa**, and **Oceania**, including the **Australian Trusted Trader (ATT)**, **UAE AEO**, **Saudi Customs AEO**, and **EAC AEO Program**.  
 - Integrates with enterprise continuity governance and risk-management programs.
 
----
+
 
 ## Objectives
 
@@ -63,7 +63,7 @@ It ensures that customs, logistics, and supplier-managed processes remain secure
 3. Reduce risk of cargo compromise, customs delay, and data loss across the logistics chain.  
 4. Support audit readiness for multi-region customs programs and certification renewals.
 
----
+
 
 ## Control Domains
 
@@ -84,7 +84,7 @@ It ensures that customs, logistics, and supplier-managed processes remain secure
 | **13. Cross-Border Collaboration** | Support mutual recognition and coordination across AEO, ATT, OEA, and EAC programs. | WCO SAFE Pillar III, PIP §9.4, CTPAT §8.1, ATT §5.3 |
 | **14. Metrics and Reporting** | Track compliance audit results, cargo incidents, and customs-communication KPIs. | ISO 22301 §9, COBIT MEA01, PIP §11.1, BASC §8.1 |
 
----
+
 
 ## Integration with Business Continuity and Disaster Recovery
 
@@ -93,7 +93,7 @@ It ensures that customs, logistics, and supplier-managed processes remain secure
 - BASC, PIP, CTPAT, and NEEC audit results must inform Business Impact Analyses and continuity-test design.  
 - Alternate logistics routing, bonded warehouse operations, and emergency customs workflows must be reviewed annually.
 
----
+
 
 ## Reporting and Oversight
 
@@ -104,7 +104,7 @@ It ensures that customs, logistics, and supplier-managed processes remain secure
   - Trends in trade incidents and preventive controls.  
   - Supply-chain risk-register updates and mitigations.
 
----
+
 
 ## Continuous Improvement
 
@@ -115,7 +115,7 @@ Trade and supply-chain incidents, audit findings, and test outcomes feed into im
 
 Corrective actions remain open until validated as effective by audit or test confirmation.
 
----
+
 
 ## References and Framework Alignment
 
@@ -137,7 +137,7 @@ Corrective actions remain open until validated as effective by audit or test con
 | **EAC AEO Program (East Africa)** | East African Community Authorized Economic Operator Program | Regional framework for trade-security and customs resilience. |
 | **OECD 2026 Digital Security Principles** | Principle 7 – Resilient Digital Economy | Promotes transparency and cross-border cooperation in digital trade. |
 
----
+
 
 ## Definitions
 
@@ -145,6 +145,6 @@ Key terms and acronyms used in this document are defined in the **Resilience Ter
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**

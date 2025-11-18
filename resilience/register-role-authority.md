@@ -17,7 +17,7 @@
 | **Repository Path** | /resilience/register-role-authority.md |
 | **Confidentiality** | Public reference register under CC0 for open reuse. |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -38,14 +38,14 @@
 | Chief Compliance Officer (CCO) |  |  |
 | Chief Legal Officer / General Counsel (CLO/GC) |  |  |
 
----
+
 
 ## Purpose
 
 This register defines organizational roles, authorities, and decision-making responsibilities related to **Business Continuity, Disaster Recovery, and Crisis Management** within the Resilience domain.  
 It ensures that accountability, approval rights, and escalation paths are clearly defined and consistently applied across all artefacts.
 
----
+
 
 ## Role Authority Matrix
 
@@ -71,7 +71,7 @@ It ensures that accountability, approval rights, and escalation paths are clearl
 | **Human Resources Director** | Manages staff welfare, communication, and resource reallocation during continuity or crisis events. | Approves employee notification and welfare procedures. | ISO 22361 §7, ISO 45001 |
 | **Legal & Regulatory Liaison** | Manages coordination with external regulators, authorities, and auditors during incidents or compliance audits. | Acts as liaison for reporting and audit-verification activities. | COBIT APO12, ISO 22361 |
 
----
+
 
 ## Delegation and Escalation Rules
 
@@ -80,7 +80,7 @@ It ensures that accountability, approval rights, and escalation paths are clearl
 3. Legal and compliance matters must always be reviewed by **CLO/GC** and **CCO** before external disclosure.  
 4. Authority limits are reviewed annually or after major organizational change.
 
----
+
 
 ## Governance and Audit Reference
 
@@ -91,7 +91,7 @@ It ensures that accountability, approval rights, and escalation paths are clearl
 - **COBIT 2025** – EDM01 (Governance), APO01 (Frameworks), APO07 (Human Resource Management)  
 - **CSA CCM v5** – GOV-01 (Governance), SEF-01 (Security & Resilience Oversight)  
 
----
+
 
 ## Maintenance and Review
 
@@ -99,6 +99,6 @@ It ensures that accountability, approval rights, and escalation paths are clearl
 - Updates must be approved by the **CIO** and confirmed by the **Enterprise Risk Committee (ERC)**.  
 - Version-controlled copies are maintained within the Resilience governance repository.
 
----
+
 
 **End of Document**

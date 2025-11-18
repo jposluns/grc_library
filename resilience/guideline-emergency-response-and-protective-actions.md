@@ -17,7 +17,7 @@
 | **Repository Path** | /resilience/guideline-emergency-response-and-protective-actions.md |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -37,14 +37,14 @@
 | Chief Legal Officer / General Counsel (CLO/GC) |  |  |
 | Chief Compliance Officer (CCO) |  |  |
 
----
+
 
 ## Purpose
 
 This guideline provides direction for protecting personnel, assets, and facilities during emergencies or disruptive events.  
 It defines protective actions, communication procedures, and response coordination to ensure life safety and business continuity until the Crisis Management Team (CMT) assumes control.
 
----
+
 
 ## Scope
 
@@ -53,7 +53,7 @@ It defines protective actions, communication procedures, and response coordinati
 - Supports all employees, contractors, and visitors present at any organizational site.  
 - Extends to regional offices, logistics hubs, and remote staff when operating under company supervision.
 
----
+
 
 ## Objectives
 
@@ -62,7 +62,7 @@ It defines protective actions, communication procedures, and response coordinati
 3. Establish consistent communication and accountability.  
 4. Support transition from emergency response to continuity or crisis management operations.
 
----
+
 
 ## Emergency Response Principles
 
@@ -72,7 +72,7 @@ It defines protective actions, communication procedures, and response coordinati
 - **Continuous communication** keeps leadership informed while avoiding confusion or rumor.  
 - **Preparedness through training** ensures confidence and coordinated actions under stress.
 
----
+
 
 ## Types of Emergencies and Immediate Actions
 
@@ -85,7 +85,7 @@ It defines protective actions, communication procedures, and response coordinati
 | **Chemical or Environmental Hazard** | Hazardous material spill, gas leak, or contamination | Evacuate area, avoid contact, alert security, and follow spill containment protocol. |
 | **Power or System Outage** | Utility failure or prolonged outage | Remain calm, follow backup power protocols, await instructions from facility management or IT. |
 
----
+
 
 ## Roles and Responsibilities
 
@@ -99,7 +99,7 @@ It defines protective actions, communication procedures, and response coordinati
 | **Communications Director** | Issues approved internal messages per the Crisis Communication Plan. |
 | **Human Resources** | Tracks employee status and supports post-incident welfare needs. |
 
----
+
 
 ## Evacuation and Shelter Procedures
 
@@ -120,7 +120,7 @@ It defines protective actions, communication procedures, and response coordinati
    - Secure doors, silence devices, remain quiet and out of sight.  
    - Await instruction from law enforcement or Security Officer.  
 
----
+
 
 ## Communication and Notification
 
@@ -129,7 +129,7 @@ It defines protective actions, communication procedures, and response coordinati
 - Security notifies the CISO, CIO, and CRO within one hour for any event requiring CMT consideration.  
 - External communications (media, public, or regulators) are managed solely by the Communications Director or CEO as defined in the **Crisis Communication Plan**.
 
----
+
 
 ## Emergency Equipment and Supplies
 
@@ -141,7 +141,7 @@ It defines protective actions, communication procedures, and response coordinati
   - Personal protective equipment (PPE) relevant to site operations.  
 - Facility Managers inspect and replenish supplies quarterly.
 
----
+
 
 ## Training and Drills
 
@@ -150,7 +150,7 @@ It defines protective actions, communication procedures, and response coordinati
 - **Evaluation**: Document drill performance, timing, participation rate, and lessons learned.  
 - **Improvement**: Findings are entered into the improvement tracking process for resolution and re-testing.
 
----
+
 
 ## Post-Emergency Actions
 
@@ -160,7 +160,7 @@ It defines protective actions, communication procedures, and response coordinati
 4. Provide counselling or support services for affected staff if required.  
 5. Resume operations once authorized by the Crisis Management Team and facility management.
 
----
+
 
 ## Continuous Improvement
 
@@ -171,7 +171,7 @@ All emergency drills, real events, and reviews contribute to improvement process
 
 Actions remain open until validated and confirmed effective.
 
----
+
 
 ## References and Framework Alignment
 
@@ -184,7 +184,7 @@ Actions remain open until validated and confirmed effective.
 | **CSA CCM v5** | BCR-05 – Physical and Environmental Security | Establishes requirements for physical safety and facility protection. |
 | **BASC International Standard v6 (2023)** | Section 6 – Trade and Logistics Security | Governs site safety, cargo integrity, and customs coordination. |
 
----
+
 
 ## Definitions
 
@@ -192,6 +192,6 @@ Key terms and acronyms used in this document are defined in the **Resilience Ter
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**

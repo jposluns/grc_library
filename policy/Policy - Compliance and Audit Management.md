@@ -17,7 +17,7 @@
 | **Repository Path** | /policies/compliance-audit-and-capa-management |
 | **Confidentiality** | **None (Public Domain, CC0 License)** |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -36,7 +36,7 @@
 | Chief Compliance Officer (CCO) |  |  |
 | Director of IT |  |  |
 
----
+
 
 ## Purpose
 
@@ -46,7 +46,7 @@ It consolidates previous compliance, audit, and CAPA policies into one unified g
 
 The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO 19011:2018** (Auditing Guidelines), **COBIT 2025 MEA01** (Monitor, Evaluate, and Assess Performance and Conformance), **Cloud Security Alliance (CSA)** frameworks, **NIST SP 800-53 Rev 5 CA** family, and regulatory expectations under the **EU AI Act**, **Canada’s AIDA**, and **U.S. Executive Order 14110** on Safe, Secure, and Trustworthy AI.
 
----
+
 
 ## Scope
 
@@ -54,7 +54,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 - Covers all compliance and audit activities including regulatory and legal reviews, internal and supplier audits, certification audits, AI system audits, and CAPA tracking.  
 - Applies to all employees, management, and third parties involved in regulated processes, data handling, customs documentation, or AI deployments supporting trade and logistics operations.  
 
----
+
 
 ## Governance and Accountability
 
@@ -82,7 +82,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 5.4 Audit scope for trade compliance includes verification of cargo integrity, personnel screening, and customs documentation accuracy.  
 5.5 Findings related to trade compliance are reported quarterly to the **Enterprise Risk Committee** and **Board Audit and Risk Committee**.
 
----
+
 
 ## Policy and Control Statements
 
@@ -126,7 +126,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 8.2 Lessons learned and regulatory updates shall inform training, control enhancement, and risk recalibration.  
 8.3 Digital trust and algorithmic assurance metrics shall be integrated in accordance with COBIT 2025 MEA01.
 
----
+
 
 ## References and Framework Alignment
 
@@ -142,7 +142,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 - [Unverified] **Draft 2026 ISO 37301 Revision** – Algorithmic Compliance and Automation Integration  
 - **Trade and Supply Chain Programs:** WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (U.S.), AEO (EU), and equivalents  
 
----
+
 
 ## Compliance Mapping Table
 
@@ -156,12 +156,12 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 | Reporting and disclosure | Clause 9 Performance evaluation | Clause 6 Reporting | MEA01.04 Report results | GOV 06 | NIST CSF Communicate | All jurisdictions | WCO SAFE equivalence |
 | Supplier and trade compliance auditing | Clauses 8–9 | Clauses 6–9 | BAI05.02 Manage supplier performance | STA 05 | NIST SP 800-161r2 SCRM | Trade and customs laws | WCO SAFE equivalence |
 
----
+
 
 ## Definitions
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**

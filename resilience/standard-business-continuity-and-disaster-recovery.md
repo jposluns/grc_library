@@ -17,7 +17,7 @@
 | **Repository Path** | /resilience/standard-business-continuity-and-disaster-recovery.md |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -38,7 +38,7 @@
 | Chief Legal Officer / General Counsel (CLO/GC) |  |  |
 | Chief Technology Officer (CTO) |  |  |
 
----
+
 
 ## Purpose
 
@@ -48,7 +48,7 @@ It ensures that critical business and IT services can be sustained or recovered 
 Aligned with:  
 **ISO 22301:2019**, **ISO 27031:2011**, **COBIT 2025 DSS04/DSS05**, **NIST SP 800-34r1**, **CSA CCM v5 BCR**, and **EU NIS 2 Directive (2023)**.
 
----
+
 
 ## Scope
 
@@ -57,7 +57,7 @@ Aligned with:
 - Includes resilience for AI systems, hybrid workloads, and trade or supply-chain operations governed by WCO SAFE, ISO 28000, and BASC.  
 - Encompasses enterprise and departmental continuity processes to ensure unified BC/DR governance.
 
----
+
 
 ## Governance and Accountability
 
@@ -72,7 +72,7 @@ Aligned with:
 | **Enterprise Risk Committee (ERC)** | Reviews testing results, approves risk exceptions, and monitors overall readiness. |
 | **Internal Audit** | Validates test documentation and reviews BC/DR control effectiveness. |
 
----
+
 
 ## Standard Requirements
 
@@ -92,7 +92,7 @@ Aligned with:
 - Communication and escalation processes  
 - Alternate facilities or cloud regions  
 
----
+
 
 ### 2. Business Impact Analysis (BIA)
 2.1 Each business unit shall perform a BIA at least annually.  
@@ -103,7 +103,7 @@ Aligned with:
 2.3 The BCM consolidates results to establish enterprise RTO and RPO benchmarks.  
 2.4 Results must be reviewed and approved by the CIO and CRO.
 
----
+
 
 ### 3. Business Continuity Plans (BCP)
 3.1 Each department must maintain a BCP that includes:  
@@ -114,7 +114,7 @@ Aligned with:
 3.2 BCPs must be accessible offline and stored securely in the GRC repository.  
 3.3 Plans shall be updated following major organizational or technology changes.
 
----
+
 
 ### 4. Disaster Recovery Plans (DRP)
 4.1 IT Infrastructure and Operations shall maintain DRPs for all critical systems.  
@@ -131,7 +131,7 @@ Aligned with:
 | **Testing Frequency** | At least annually for Tier 1 systems |
 | **Redundancy** | Dual-region or multi-cloud replication for critical workloads |
 
----
+
 
 ### 5. AI System Resilience
 5.1 AI and ML systems must maintain recovery documentation that includes:  
@@ -140,7 +140,7 @@ Aligned with:
 - Validation procedures to confirm post-recovery accuracy and fairness metrics  
 5.2 AI continuity testing must occur annually and results reviewed by the CTO and AI Governance Council.  
 
----
+
 
 ### 6. Notification and Escalation
 6.1 Major incidents impacting continuity or recovery must follow the **Security Incident Reporting & Escalation Procedure (Document 55)**.  
@@ -150,7 +150,7 @@ Aligned with:
 - Tier 3 (Non-Critical): Record and review weekly.  
 6.3 Regulatory notifications shall follow EU NIS 2 and applicable laws.
 
----
+
 
 ### 7. Testing and Validation
 7.1 Testing validates that BC/DR plans remain current, complete, and effective.  
@@ -164,7 +164,7 @@ Aligned with:
 - Lessons learned and corrective actions  
 7.4 Test results shall be reviewed by the CIO and ERC, and archived in the BC/DR repository.
 
----
+
 
 ### 8. Maintenance and Continuous Improvement
 8.1 All plans must be reviewed annually and after major incidents or infrastructure changes.  
@@ -174,7 +174,7 @@ Aligned with:
 - **Digital Trust Performance Framework (Document 73)**  
 8.3 Maturity levels will be assessed annually using COBIT DSS04 control objectives.
 
----
+
 
 ### 9. Performance Metrics
 - **RTO Achievement Rate (%)**  
@@ -186,7 +186,7 @@ Aligned with:
 
 Reports must be submitted quarterly to the Enterprise Risk Committee.
 
----
+
 
 ## Related Standards and Procedures
 
@@ -201,7 +201,7 @@ Reports must be submitted quarterly to the Enterprise Risk Committee.
 - CAPA Procedure  
 - Continuous Improvement Register Procedure  
 
----
+
 
 ## References and Framework Alignment
 
@@ -216,7 +216,7 @@ Reports must be submitted quarterly to the Enterprise Risk Committee.
 | **BASC International Standard v6 (2023)** | Section 6 | Trade and logistics continuity. |
 | **ISO 28000:2022** | Clauses 8–9 | Supply-chain security and resilience. |
 
----
+
 
 ## Definitions
 
@@ -224,6 +224,6 @@ Key terms and acronyms used in this document are defined in the **Resilience Ter
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**

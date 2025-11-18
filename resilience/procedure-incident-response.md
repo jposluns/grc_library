@@ -17,7 +17,7 @@
 | **Repository Path** | /resilience/procedure-incident-response.md |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -37,14 +37,14 @@
 | Chief Compliance Officer (CCO) |  |  |
 | Chief Legal Officer / General Counsel (CLO/GC) |  |  |
 
----
+
 
 ## Purpose
 
 This procedure defines the lifecycle, roles, and escalation process for identifying, containing, eradicating, and recovering from information-security, privacy, and operational incidents.  
 It ensures consistent response and alignment with enterprise business-continuity and legal obligations.
 
----
+
 
 ## Scope
 
@@ -53,7 +53,7 @@ It ensures consistent response and alignment with enterprise business-continuity
 - Covers systems, networks, endpoints, cloud services, and AI environments.  
 - Integrates with business continuity, crisis management, and communication procedures.
 
----
+
 
 ## Objectives
 
@@ -63,7 +63,7 @@ It ensures consistent response and alignment with enterprise business-continuity
 4. Restore normal operations securely and validate system integrity.  
 5. Capture lessons learned and strengthen preventive controls.
 
----
+
 
 ## Incident Response Lifecycle
 
@@ -78,7 +78,7 @@ Incident response follows six defined phases consistent with ISO/IEC 27035 and N
 | **Recovery** | Safely restore systems and operations. | Rebuild environments, verify data integrity, monitor post-recovery. |
 | **Post-Incident Review** | Document lessons learned and improve controls. | Conduct RCA, log CAPA actions, update playbooks. |
 
----
+
 
 ## Roles and Responsibilities
 
@@ -93,7 +93,7 @@ Incident response follows six defined phases consistent with ISO/IEC 27035 and N
 | **AI Governance Council Representative** | Reviews AI-related incidents for technical and ethical implications. |
 | **Internal Audit** | Verifies documentation completeness and alignment with frameworks. |
 
----
+
 
 ## Incident Classification and Escalation
 
@@ -106,7 +106,7 @@ Incident response follows six defined phases consistent with ISO/IEC 27035 and N
 | **3 – High** | Major service disruption or confirmed data breach. | Ransomware affecting core systems. | CISO → CIO → CMT activation. |
 | **4 – Critical** | Enterprise-wide or regulatory crisis. | Large-scale data loss or public exposure. | CIO → CEO + CMT full activation. |
 
----
+
 
 ## Detection and Analysis
 
@@ -116,7 +116,7 @@ Incident response follows six defined phases consistent with ISO/IEC 27035 and N
 4. AI-assisted detection tools correlate events across logs and endpoints to identify multi-vector attacks.  
 5. The CISO validates incident severity before escalation to the CIO and CRO.
 
----
+
 
 ## Containment
 
@@ -127,7 +127,7 @@ Incident response follows six defined phases consistent with ISO/IEC 27035 and N
 - Evidence collection follows chain-of-custody protocols overseen by Legal.  
 - All containment steps are documented in the Incident Log.
 
----
+
 
 ## Eradication
 
@@ -136,7 +136,7 @@ Incident response follows six defined phases consistent with ISO/IEC 27035 and N
 - For AI systems, verify that datasets and models are uncompromised and retrained if necessary.  
 - Retain forensic images for at least 12 months for potential investigation.
 
----
+
 
 ## Recovery
 
@@ -145,7 +145,7 @@ Incident response follows six defined phases consistent with ISO/IEC 27035 and N
 - Validate restored environments through integrity checks, user acceptance testing, and post-restoration scans.  
 - Obtain formal “Return to Normal Operations” approval from the CISO and CIO.
 
----
+
 
 ## Post-Incident Review
 
@@ -154,7 +154,7 @@ Incident response follows six defined phases consistent with ISO/IEC 27035 and N
 - Findings are recorded in corrective-action and improvement tracking processes.  
 - Lessons learned inform training updates, policy revisions, and preventive controls.
 
----
+
 
 ## Reporting and Metrics
 
@@ -166,7 +166,7 @@ Incident response follows six defined phases consistent with ISO/IEC 27035 and N
 | **Recurring Incident Reduction** | % reduction year-over-year. | ≥ 10 % |
 | **Reporting Compliance** | % of regulatory notifications submitted within required timelines. | 100 % |
 
----
+
 
 ## Communication and Coordination
 
@@ -175,7 +175,7 @@ Incident response follows six defined phases consistent with ISO/IEC 27035 and N
 - Only authorized executives may issue statements to clients, media, or regulators.  
 - The Incident Log tracks all communications for transparency and audit readiness.
 
----
+
 
 ## Continuous Improvement
 
@@ -186,7 +186,7 @@ Lessons learned, root causes, and recommendations are documented and tracked thr
 
 Actions remain open until validated as effective through subsequent review or testing.
 
----
+
 
 ## References and Framework Alignment
 
@@ -198,7 +198,7 @@ Actions remain open until validated as effective through subsequent review or te
 | **CSA CCM v5** | SEF-03 – Incident Management and Response | Establishes cloud-security response governance. |
 | **EU NIS 2 Directive (2023)** | Articles 23–28 | Defines incident-notification thresholds for critical entities. |
 
----
+
 
 ## Definitions
 
@@ -206,6 +206,6 @@ Key terms and acronyms used in this document are defined in the **Resilience Ter
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**

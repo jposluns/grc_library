@@ -17,7 +17,7 @@
 | **Repository Path** | /resilience/sop-backup-and-recovery-asr-for-vmware.md |
 | **Confidentiality** | **None (Public Domain, CC0 License)** |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -37,7 +37,7 @@
 | Chief Security Officer (CSO-Physical) |  |  |
 | Chief Risk Officer (CRO) |  |  |
 
----
+
 
 ## Purpose
 
@@ -45,7 +45,7 @@ To define the process for replication, backup, validation, and recovery of produ
 
 This SOP ensures that business-critical systems are resilient, recoverable, and tested according to enterprise continuity requirements and applicable standards (ISO 22301, ISO 27031, COBIT DSS04, NIST SP 800-34r1, and CSA CCM v5 BCR).
 
----
+
 
 ## Scope
 
@@ -53,7 +53,7 @@ This SOP applies to all production virtual machines running on VMware vSphere th
 It covers Azure Site Recovery (ASR) configuration, replication, monitoring, and restoration procedures, including SQL database point-in-time recovery.  
 It also defines ongoing testing, documentation, and compliance verification to ensure disaster-readiness.
 
----
+
 
 ## 1. Roles and Responsibilities
 
@@ -65,7 +65,7 @@ It also defines ongoing testing, documentation, and compliance verification to e
 | **Service Desk** | Logs all incidents, triggers escalation to IT and Infrastructure during an outage or restore request, and maintains communication with end users. |
 | **Director of IT Service Delivery** | Provides oversight, ensures quarterly testing, and validates audit documentation for compliance and assurance reviews. |
 
----
+
 
 ## 2. Replication and Backup Requirements
 
@@ -79,7 +79,7 @@ It also defines ongoing testing, documentation, and compliance verification to e
 | **Testing Frequency** | Quarterly non-disruptive failover test |
 | **Retention Policy** | Per Data Retention and Recovery Standard (minimum 30 days for SQL, 7 years for audit records) |
 
----
+
 
 ## 3. Azure Site Recovery Configuration Overview
 
@@ -94,7 +94,7 @@ It also defines ongoing testing, documentation, and compliance verification to e
 9. Ensure **encryption at rest and in transit** is enabled.  
 10. Archive configuration exports monthly for audit traceability.
 
----
+
 
 ## 4. SQL Point-in-Time Recovery Configuration
 
@@ -109,7 +109,7 @@ It also defines ongoing testing, documentation, and compliance verification to e
 6. Use **RA-GZRS storage** for redundancy and geographic durability.  
 7. Document restore paths, storage accounts, and encryption keys in the Backup Inventory Register.
 
----
+
 
 ## 5. Failover Procedure (Disaster Recovery Event)
 
@@ -128,7 +128,7 @@ It also defines ongoing testing, documentation, and compliance verification to e
    - Record recovery point, event ID, and total recovery time in the Disaster Recovery Log.  
    - Submit a post-incident report to the CIO and Enterprise Risk Committee within five business days.
 
----
+
 
 ## 6. SQL Point-in-Time Restore Procedure
 
@@ -140,7 +140,7 @@ It also defines ongoing testing, documentation, and compliance verification to e
 6. Complete recovery with RECOVERY, run `DBCC CHECKDB`, and confirm service connectivity.  
 7. Record procedure, timestamp, and validation outcome in the Backup and Recovery Register.
 
----
+
 
 ## 7. Test Failover Procedure (Quarterly)
 
@@ -155,7 +155,7 @@ It also defines ongoing testing, documentation, and compliance verification to e
 5. Perform cleanup of test resources.  
 6. Submit report to IT and Risk Management for review.
 
----
+
 
 ## 8. Monitoring and Reporting
 
@@ -166,7 +166,7 @@ It also defines ongoing testing, documentation, and compliance verification to e
 - Provide quarterly performance reports to the **Enterprise Risk Committee (ERC)** and **CIO**.  
 - Maintain dashboards and evidence in the **Digital Trust Performance Framework** workspace.
 
----
+
 
 ## 9. Post-Event Review and Continuous Improvement
 
@@ -175,7 +175,7 @@ It also defines ongoing testing, documentation, and compliance verification to e
 - Log all improvement actions in the **Continuous Improvement Register**.  
 - Deliver an annual resilience and recovery training workshop for infrastructure and DBA teams.
 
----
+
 
 ## 10. Compliance and Framework Alignment
 
@@ -189,7 +189,7 @@ It also defines ongoing testing, documentation, and compliance verification to e
 | **CSA CCM v5** | BCR, AIS | Cloud and application resilience controls. |
 | **Trade and Supply Chain Programs** | WCO SAFE, ISO 28000, PIP, CTPAT, AEO | Physical security and continuity compliance alignment. |
 
----
+
 
 ## Definitions
 
@@ -197,6 +197,6 @@ Key terms and acronyms used in this document are defined in the **Resilience Ter
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**

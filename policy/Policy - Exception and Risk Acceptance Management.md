@@ -17,7 +17,7 @@
 | **Repository Path** | /policies/exception-and-risk-acceptance-management |
 | **Confidentiality** | **None (Public Domain, CC0 License)** |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -36,7 +36,7 @@
 | Chief Compliance Officer (CCO) |  |  |
 | Chief Legal Officer / General Counsel (CLO/GC) |  |  |
 
----
+
 
 ## Purpose
 
@@ -44,7 +44,7 @@ This policy defines the organization-wide process for managing security, risk, c
 
 Its purpose is to ensure that all deviations from policy, control, or standard requirements are risk assessed, time bound, approved at the appropriate authority level, and tracked to closure. The policy aligns with **ISO/IEC 27001:2022 Annex A.5.36 Policy on Exceptions**, **COBIT 2025 APO12.06 Respond to Risk**, **Cloud Security Alliance (CSA)** guidance (CCM v5 GRM-12 Exception Management), and **NIST SP 800-37 Revision 2 RMF Step 6 Authorize the System**.
 
----
+
 
 ## Scope
 
@@ -53,7 +53,7 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 - Includes control configuration baselines, temporary use of unapproved technology, or processes that could affect data integrity or regulated operations.  
 - Encompasses trade-security programs under a unified reference model. **Trade and Supply Chain Programs** include WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalent frameworks.
 
----
+
 
 ## Governance and Accountability
 
@@ -77,7 +77,7 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 | **Internal Audit** | Reviews open exceptions, closure evidence, and process adherence. Reports systemic deficiencies and recurring patterns to the Audit Committee. |
 | **AI Governance Council** | Reviews exceptions involving AI systems, datasets, or model governance to ensure alignment with ISO 23894 and NIST AI RMF. Escalates high-risk AI exceptions to the Board Risk Committee. |
 
----
+
 
 ## Policy and Control Statements
 
@@ -122,7 +122,7 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 8.1 Exception metrics shall be reviewed quarterly for trends, repeat occurrences, and systemic control weaknesses.  
 8.2 Lessons learned shall inform control redesign and updates to the risk management framework.
 
----
+
 
 ## References and Framework Alignment
 
@@ -135,7 +135,7 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 - **OECD AI Principles** Accountability and Transparency  
 - **Trade and Supply Chain Programs:** WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalents  
 
----
+
 
 ## Compliance Mapping Table
 
@@ -148,12 +148,12 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 | Closure and validation | Annex A.5.36 | DSS04 | CCM GRM-12 | SP 800-37 Step 6 | Regulatory evidence requirements | WCO SAFE equivalence |
 | Machine-readable registry | [Draft 2026 Reference] | APO12.06 | CCM GRM-12 | [Unverified] | Future automation compliance | WCO SAFE equivalence |
 
----
+
 
 ## Definitions
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**

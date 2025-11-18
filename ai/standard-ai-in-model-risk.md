@@ -17,7 +17,7 @@
 | **Repository Path** | /ai/standard-ai-in-model-risk.md |
 | **Confidentiality** | Internal Use Only |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -39,7 +39,7 @@
 | Chief Technology Officer (CTO) |  |  |
 | Chair, AI Governance Council |  |  |
 
----
+
 
 # Purpose
 
@@ -49,7 +49,7 @@ It operationalizes the In Model Risk Framework by establishing enforceable expec
 
 This standard supports compliance with ISO 42001, ISO 23894, ISO 24028, NIST AI RMF, COBIT 2025, and CSA CCM v5.
 
----
+
 
 # Scope
 
@@ -58,13 +58,13 @@ This standard supports compliance with ISO 42001, ISO 23894, ISO 24028, NIST AI 
 - Applies across the entire AI lifecycle, from problem definition through archival and decommissioning.  
 - Applies to production systems, pilots, experimental systems used for business insight, and embedded AI functionalities in enterprise platforms.
 
----
+
 
 # Mandatory Controls
 
 The following controls are mandatory and must be implemented for every AI and ML system governed by this standard.
 
----
+
 
 # 1 Interpretability Controls
 
@@ -90,7 +90,7 @@ Reports must include:
 ## 1.4 Mechanistic Interpretability for High Risk Models
 High risk models must include deeper interpretability analysis, such as neuron activation review or causal tracing, consistent with available tooling and platform capabilities.
 
----
+
 
 # 2 Adversarial Evaluation Controls
 
@@ -113,7 +113,7 @@ All findings must be documented and remediated or formally risk accepted.
 ## 2.4 Out of Distribution Evaluation
 Models must be evaluated against out of distribution inputs to ensure stable behavior and detect unsafe generalization patterns.
 
----
+
 
 # 3 Goal Alignment and Behavioral Controls
 
@@ -129,7 +129,7 @@ Deployed models must include drift detection mechanisms that monitor:
 
 Alerts must be logged and escalated.
 
----
+
 
 # 4 Data and Training Controls
 
@@ -142,7 +142,7 @@ Datasets must be evaluated for the presence of sensitive attributes and potentia
 ## 4.3 Provenance and Lineage Requirement
 All data used in model training must include provenance documentation and lineage tracking through the lifecycle.
 
----
+
 
 # 5 Lifecycle Governance Controls
 
@@ -170,7 +170,7 @@ Models cannot be deployed until approved by:
 ## 5.4 Documentation Integrity
 All lifecycle documentation must be stored in an immutable repository with version control.
 
----
+
 
 # 6 Monitoring and Re Evaluation Controls
 
@@ -191,7 +191,7 @@ All models must undergo full re evaluation at least annually or following:
 ## 6.3 Incident Response Integration
 Model failures, anomalous events, or adversarial findings must trigger incident response procedures and be logged in the enterprise risk system.
 
----
+
 
 # 7 Documentation and Evidence Requirements
 
@@ -209,7 +209,7 @@ The following artefacts must be created and maintained:
 
 All evidence must be retained for the full lifecycle of the model and archived according to the AI Lifecycle Governance Standard.
 
----
+
 
 # Roles and Responsibilities
 
@@ -228,7 +228,7 @@ Conducts adversarial testing and manages related security and safety risks.
 ## Internal Audit
 Verifies that mandatory controls and documentation have been implemented and maintained.
 
----
+
 
 ## Definitions
 
@@ -236,6 +236,6 @@ Key terms and acronyms used in this document are defined in the **Key Terms and 
 
 Definitions of organizational roles and authorities are provided in the **Role Authority Register**.
 
----
+
 
 **End of Document**

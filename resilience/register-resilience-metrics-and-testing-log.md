@@ -17,7 +17,7 @@
 | **Repository Path** | /resilience/register-resilience-metrics-and-testing-log.md |
 | **Confidentiality** | This template is open for public reference under CC0. Completed versions containing test results or internal metrics must be classified **Restricted – Internal Use Only** and stored securely. |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -36,14 +36,14 @@
 | Chief Information Security Officer (CISO) |  |  |
 | Business Continuity Manager (BCM) |  |  |
 
----
+
 
 ## Purpose
 
 This register provides a standardized template for tracking resilience performance metrics, continuity test results, and corrective actions.  
 It ensures evidence of compliance with enterprise continuity objectives, international standards, and audit requirements.
 
----
+
 
 ## Scope
 
@@ -52,7 +52,7 @@ It ensures evidence of compliance with enterprise continuity objectives, interna
 - Provides traceability for enterprise RTO/RPO metrics and corrective actions.  
 - Completed logs must be securely stored and reviewed quarterly by the **Enterprise Risk Committee (ERC)**.
 
----
+
 
 ## Instructions for Use
 
@@ -62,7 +62,7 @@ It ensures evidence of compliance with enterprise continuity objectives, interna
 4. Identify improvement actions and track their closure.  
 5. Archive annual summaries in the Digital Trust Performance Framework repository.
 
----
+
 
 ## Section 1 – Summary of Exercises and Tests
 
@@ -71,7 +71,7 @@ It ensures evidence of compliance with enterprise continuity objectives, interna
 |  |  |  |  |  |  |  |  |  |  |  |  |  |
 |  |  |  |  |  |  |  |  |  |  |  |  |  |
 
----
+
 
 ## Section 2 – Key Performance Metrics
 
@@ -84,7 +84,7 @@ It ensures evidence of compliance with enterprise continuity objectives, interna
 | **Awareness** | % of staff completing BC/DR training | (Completions ÷ Eligible Staff) × 100 | 100% |  |  |  |
 | **Improvement** | % of corrective actions closed within SLA | (Closed CAPAs ÷ Total CAPAs) × 100 | ≥90% |  |  |  |
 
----
+
 
 ## Section 3 – Corrective and Preventive Actions (CAPA)
 
@@ -93,7 +93,7 @@ It ensures evidence of compliance with enterprise continuity objectives, interna
 |  |  |  |  |  |  |  |  |  |
 |  |  |  |  |  |  |  |  |  |
 
----
+
 
 ## Section 4 – Quarterly Review Summary
 
@@ -104,7 +104,7 @@ It ensures evidence of compliance with enterprise continuity objectives, interna
 | Q3 | Jul–Sep |  |  |  |  |  |
 | Q4 | Oct–Dec |  |  |  |  |  |
 
----
+
 
 ## Maintenance and Reporting
 
@@ -113,7 +113,7 @@ It ensures evidence of compliance with enterprise continuity objectives, interna
 - Quarterly summaries are reviewed by the **CIO**, **CRO**, and **Enterprise Risk Committee (ERC)**.  
 - Completed logs are archived with test evidence and reports.  
 
----
+
 
 ## Continuous Improvement
 
@@ -124,7 +124,7 @@ Trends and gaps identified in this register feed into:
 
 Improvement items remain open until verified through subsequent testing or independent audit review.
 
----
+
 
 ## References and Framework Alignment
 
@@ -136,7 +136,7 @@ Improvement items remain open until verified through subsequent testing or indep
 | **CSA CCM v5** | BCR-04 – Business Continuity Testing and Reporting | Establishes continuity testing and result tracking requirements. |
 | **NIST SP 800-34r1** | Chapters 4–5 | Provides contingency testing and validation practices. |
 
----
+
 
 ## Definitions
 
@@ -144,6 +144,6 @@ Key terms and acronyms used in this document are defined in the **Resilience Ter
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**

@@ -17,7 +17,7 @@
 | **Repository Path** | /resilience/framework-business-continuity-and-resilience.md |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -39,14 +39,14 @@
 | Chief Risk Officer (CRO) |  |  |
 | Chief Technology Officer (CTO) |  |  |
 
----
+
 
 ## Purpose
 
 This framework establishes the enterprise-wide structure for business continuity, disaster recovery, and organizational resilience.  
 It defines governance, oversight, and integration across all continuity and recovery components, ensuring that critical operations, systems, and data remain available during and after a disruption.
 
----
+
 
 ## Scope
 
@@ -54,7 +54,7 @@ It defines governance, oversight, and integration across all continuity and reco
 - Covers business continuity, disaster recovery, crisis management, and resilience planning for physical, cyber, and AI-enabled operations.  
 - Encompasses trade and supply-chain continuity aligned with WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), and AEO (European Union).  
 
----
+
 
 ## Framework Objectives
 
@@ -64,7 +64,7 @@ It defines governance, oversight, and integration across all continuity and reco
 4. **Compliance Assurance** – Maintain conformity with ISO 22301, ISO 27031, COBIT 2025, NIST 800-34r1, and CSA CCM v5.  
 5. **Continuous Improvement** – Embed review, testing, and refinement cycles across all business functions.  
 
----
+
 
 ## Governance Structure
 
@@ -79,7 +79,7 @@ It defines governance, oversight, and integration across all continuity and reco
 | **Business Continuity Manager (BCM)** | Administers BCMS lifecycle. | Coordinates BIA, continuity plans, and testing. |
 | **Enterprise Risk Committee (ERC)** | Provides executive oversight and risk alignment. | Reviews metrics, approves reports, and tracks improvements. |
 
----
+
 
 ## Framework Composition
 
@@ -92,7 +92,7 @@ It defines governance, oversight, and integration across all continuity and reco
 | 5 | **Guidelines & Templates** | Emergency Response Guideline; Departmental Continuity Template | ISO 22320; ISO 45001 |
 | 6 | **Registers & Metrics** | EOC Directory; Resilience Metrics Register | COBIT MEA01; ISO 22301 Clause 9 |
 
----
+
 
 ## Framework Principles
 
@@ -103,7 +103,7 @@ It defines governance, oversight, and integration across all continuity and reco
 5. **Trade-Security Alignment** – Incorporates BASC and customs-compliance obligations.  
 6. **Automation and AI Resilience (2026 Forward)** – Embeds predictive analytics and AI-assisted continuity testing.  
 
----
+
 
 ## Business Continuity Management System (BCMS) Lifecycle
 
@@ -114,7 +114,7 @@ It defines governance, oversight, and integration across all continuity and reco
 | **Check** | Test, monitor, and review performance against objectives. | Test Reports; Audit Logs; Performance Metrics. |
 | **Act** | Apply lessons learned and continuous improvement. | CAPA Records; Continuous Improvement Register. |
 
----
+
 
 ## Integration with Other Frameworks
 
@@ -124,7 +124,7 @@ It defines governance, oversight, and integration across all continuity and reco
 - **AI Resilience:** Incorporates ISO/IEC 27090 controls for AI continuity.  
 - **Trade & Supply Chain:** Aligns with WCO SAFE, ISO 28000, and BASC v6.  
 
----
+
 
 ## Monitoring, Metrics, and Performance
 
@@ -136,7 +136,7 @@ It defines governance, oversight, and integration across all continuity and reco
   - Incident recurrence reduction ratio  
 - **Reporting:** Quarterly to the Enterprise Risk Committee and annually to executive leadership.  
 
----
+
 
 ## Continuous Improvement
 
@@ -147,7 +147,7 @@ Lessons learned from incidents, tests, and audits feed into:
 
 Maturity is measured annually against COBIT MEA01 and ISO 22301 Clause 10.
 
----
+
 
 ## Compliance and Framework Alignment
 
@@ -161,7 +161,7 @@ Maturity is measured annually against COBIT MEA01 and ISO 22301 Clause 10.
 | OECD 2026 Principles | 2, 5, 7 | Organizational resilience and digital security governance. |
 | Trade & Supply Chain | WCO SAFE, ISO 28000, BASC v6 | Customs and logistics continuity alignment. |
 
----
+
 
 ## Definitions
 
@@ -169,6 +169,6 @@ Key terms and acronyms used in this document are defined in the **Resilience Ter
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**

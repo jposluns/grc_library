@@ -17,7 +17,7 @@
 | **Repository Path** | /resilience/register-eoc-contact-directory.md |
 | **Confidentiality** | This template is open for public reference under CC0. When completed with actual contact data, it must be reclassified as **Restricted – Internal Use Only** and stored securely. |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -36,14 +36,14 @@
 | Chief Security Officer (Physical) |  |  |
 | Business Continuity Manager (BCM) |  |  |
 
----
+
 
 ## Purpose
 
 This register provides the structure and format for maintaining a complete Emergency Operations Center (EOC) Contact Directory.  
 It ensures that contact details for Crisis Management Team (CMT) members, executive leadership, and critical partners are available and validated for immediate use during a crisis or business-continuity event.
 
----
+
 
 ## Scope
 
@@ -52,7 +52,7 @@ It ensures that contact details for Crisis Management Team (CMT) members, execut
 - Stored securely in the restricted GRC repository and mirrored in the secure communication platform (Teams or Confluence restricted workspace).  
 - Accessible only to authorized continuity and executive personnel.
 
----
+
 
 ## Instructions for Use
 
@@ -62,7 +62,7 @@ It ensures that contact details for Crisis Management Team (CMT) members, execut
 4. Ensure personal information complies with applicable privacy laws (GDPR, CPPA, etc.).  
 5. Distribute securely using approved internal channels only.
 
----
+
 
 ## Section 1 – Crisis Management Team (CMT)
 
@@ -79,7 +79,7 @@ It ensures that contact details for Crisis Management Team (CMT) members, execut
 | HR Lead |  |  |  |  |  |  |  |
 | AI Governance Council Representative |  |  |  |  |  |  |  |
 
----
+
 
 ## Section 2 – Emergency Response and Facility Contacts
 
@@ -91,7 +91,7 @@ It ensures that contact details for Crisis Management Team (CMT) members, execut
 | Warehouse A |  |  |  |  |  |  |
 | Warehouse B |  |  |  |  |  |  |
 
----
+
 
 ## Section 3 – Regulatory and Public Authorities
 
@@ -107,7 +107,7 @@ It ensures that contact details for Crisis Management Team (CMT) members, execut
 | NEEC Liaison (Mexico) |  |  |  |  | Mexico |  |
 | OEA Liaison (Brazil / MERCOSUR) |  |  |  |  | South America |  |
 
----
+
 
 ## Section 4 – Critical Vendors and Partners
 
@@ -120,7 +120,7 @@ It ensures that contact details for Crisis Management Team (CMT) members, execut
 | Security Vendor | Physical Security |  |  |  |  |  |
 | Legal Advisor | Regulatory Support |  |  |  |  |  |
 
----
+
 
 ## Section 5 – Testing and Validation Log
 
@@ -129,7 +129,7 @@ It ensures that contact details for Crisis Management Team (CMT) members, execut
 |  |  |  |  |  |  |
 |  |  |  |  |  |  |
 
----
+
 
 ## Maintenance and Confidentiality
 
@@ -138,7 +138,7 @@ It ensures that contact details for Crisis Management Team (CMT) members, execut
 - The register is stored on restricted, access-controlled systems; copies must not be distributed externally.  
 - When shared for audit or testing purposes, personal details may be anonymized to comply with privacy regulations.
 
----
+
 
 ## Continuous Improvement
 
@@ -149,7 +149,7 @@ All lessons learned from tests, drills, or activations feed into:
 
 Actions remain open until validated during the next contact-verification cycle.
 
----
+
 
 ## References and Framework Alignment
 
@@ -160,7 +160,7 @@ Actions remain open until validated during the next contact-verification cycle.
 | **COBIT 2025** | DSS04 – Manage Continuity | Integrates communication and command structures into governance. |
 | **CSA CCM v5** | BCR-01 / BCR-05 | Ensures operational resilience and physical-security contact management. |
 
----
+
 
 ## Definitions
 
@@ -168,6 +168,6 @@ Key terms and acronyms used in this document are defined in the **Resilience Ter
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**

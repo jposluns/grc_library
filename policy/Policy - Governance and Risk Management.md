@@ -17,7 +17,7 @@
 | **Repository Path** | /policies/governance-and-risk-management |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -36,7 +36,7 @@
 | Chief Compliance Officer (CCO) |  |  |
 | Chief Legal Officer / General Counsel (CLO/GC) |  |  |
 
----
+
 
 ## Purpose
 
@@ -44,7 +44,7 @@ This policy establishes the governance and risk management framework, principles
 
 It aligns with ISO 31000 Clause 5 Framework and Clause 6 Process, COBIT 2025 APO12 Manage Risk, Cloud Security Alliance (CSA) frameworks, NIST SP 800 39, ISO 23894 for AI risk, and the NIST AI RMF [Unverified 1.1]. It integrates risk, compliance, privacy, security, resilience, ethics, and sustainability across business, technology, data, and AI systems.
 
----
+
 
 ## Scope
 
@@ -54,7 +54,7 @@ It aligns with ISO 31000 Clause 5 Framework and Clause 6 Process, COBIT 2025 APO
 - Includes all information types, with specific treatment for regulated and sensitive data such as manifests, customs documentation, datasets, prompts, embeddings, models, and AI agents.  
 - Encompasses trade security and supply chain risk management aligned with globally recognized programs including WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalent frameworks.
 
----
+
 
 ## Governance and Accountability
 
@@ -81,7 +81,7 @@ The AI Governance Council approves AI risk appetite statements and exceptions fo
 ### 6. Reporting
 Standardized risk metrics and key risk indicators are reported at least monthly, with threshold alerts to executive stakeholders.
 
----
+
 
 ## Policy and Control Statements
 
@@ -132,7 +132,7 @@ Privacy by design shall be embedded in processes and AI systems, with cross bord
 11.2 Lessons learned from incidents, near misses, and audits shall feed back into policies and controls.  
 11.3 Digital trust indicators shall be used to measure outcomes and maturity per COBIT 2025 guidance.
 
----
+
 
 ## References and Framework Alignment
 
@@ -148,7 +148,7 @@ Privacy by design shall be embedded in processes and AI systems, with cross bord
 - [Unverified] Draft 2026 Reference: ISO 27090 series AI security controls for future readiness  
 - Trade and Supply Chain Programs: WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (U.S.), AEO (EU), and equivalents
 
----
+
 
 ## Compliance Mapping Table
 
@@ -164,12 +164,12 @@ Privacy by design shall be embedded in processes and AI systems, with cross bord
 | Business continuity and resilience | 5.2 Leadership | N/A | Org resilience context | Manage | DSS04 Manage Continuity | CSA BCR | Local continuity regulations | WCO SAFE equivalence |
 | Exception and acceptance | Clause 6 Treat decision | 6.4 Acceptance criteria | Risk response acceptance | Govern | APO12.07 Risk acceptance | CSA GRM | Documented approvals and durations | WCO SAFE equivalence |
 
----
+
 
 ## Definitions
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**

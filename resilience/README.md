@@ -4,7 +4,7 @@ This directory contains all artefacts supporting the organization's Business Con
 
 Each file adheres to ISO 22301, ISO 27031, ISO 22361, COBIT 2025 DSS04/DSS05, NIST SP 800-34r1, and CSA CCM v5 BCR controls, and aligns under the unified **Resilience Management Framework**.
 
----
+
 
 ## Framework
 
@@ -12,7 +12,7 @@ Each file adheres to ISO 22301, ISO 27031, ISO 22361, COBIT 2025 DSS04/DSS05, NI
 Defines the enterprise structure for business continuity, disaster recovery, and crisis management governance.  
 Establishes oversight roles, control relationships, framework references (ISO 22301, COBIT DSS04, CSA BCR), and integration points across all continuity and resilience documents.
 
----
+
 
 ## Policy
 
@@ -20,7 +20,7 @@ Establishes oversight roles, control relationships, framework references (ISO 22
 Sets executive intent, objectives, and regulatory alignment for continuity and disaster recovery.  
 Defines leadership accountability, governance principles, and high-level commitments for maintaining operational resilience and compliance with ISO 22301 and COBIT DSS04.
 
----
+
 
 ## Standard
 
@@ -28,7 +28,7 @@ Defines leadership accountability, governance principles, and high-level commitm
 Specifies the mandatory control, testing, and validation requirements for BC and DR capabilities.  
 Defines structure, maintenance expectations, testing frequency, RTO/RPO baselines, and integration with AI service resilience and trade-security programs.
 
----
+
 
 ## Plans
 
@@ -40,7 +40,7 @@ Outlines activation criteria, recovery phases, Crisis Management Team (CMT) stru
 Outlines communication strategies, approval workflows, and stakeholder notification requirements during a crisis.  
 Includes message templates, regulatory notification guidance, and public, customer, and media-response coordination processes.
 
----
+
 
 ## Procedures
 
@@ -68,7 +68,7 @@ Establishes severity levels, regulatory notification timelines (GDPR, NIS 2), an
 Defines the process for managing privacy and personal-data breaches.  
 Specifies containment, investigation, notification, and remediation workflows for GDPR, CPPA, LGPD, PIPL, and BASC trade-data incidents.
 
----
+
 
 ## SOP
 
@@ -76,7 +76,7 @@ Specifies containment, investigation, notification, and remediation workflows fo
 Provides detailed technical procedures for replication, backup, and recovery of production VMware workloads using Azure Site Recovery (ASR).  
 Includes configuration steps, SQL point-in-time restore procedures, and validation checklists.
 
----
+
 
 ## Guidelines
 
@@ -88,7 +88,7 @@ Aligns with ISO 22320 and ISO 45001 for occupational safety and emergency prepar
 Provides a standardized format for departments to document their local business-continuity and recovery plans.  
 Includes process prioritization tables, contact roles, and recovery procedures aligned to enterprise BCMS controls.
 
----
+
 
 ## Annex
 
@@ -96,7 +96,7 @@ Includes process prioritization tables, contact roles, and recovery procedures a
 Consolidates all BASC, WCO SAFE, ISO 28000, and AEO program requirements into a unified mapping.  
 Defines trade-security continuity controls, customs-notification protocols, and logistics-system recovery requirements.
 
----
+
 
 ## Registers
 
@@ -108,7 +108,7 @@ Accessible only to authorized leadership and EOC staff during activation.
 Central repository for continuity and recovery performance metrics.  
 Tracks RTO/RPO compliance, incident response KPIs, testing outcomes, and improvement actions to support enterprise assurance and audit reporting.
 
----
+
 
 ### Framework Alignment Summary
 
@@ -121,6 +121,6 @@ This resilience domain supports compliance with:
 - **CSA CCM v5** BCR and AIS Domains – Business Continuity and Application Resilience  
 - **OECD 2026 Digital Security Principles** – Organizational Resilience and Governance  
 
----
+
 
 **End of README**

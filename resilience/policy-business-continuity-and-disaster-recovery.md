@@ -17,7 +17,7 @@
 | **Repository Path** | /resilience/policy-business-continuity-and-disaster-recovery.md |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -38,7 +38,7 @@
 | Chief Legal Officer / General Counsel (CLO/GC) |  |  |
 | Chief Technology Officer (CTO) |  |  |
 
----
+
 
 ## Purpose
 
@@ -48,7 +48,7 @@ It defines roles, responsibilities, and requirements to maintain resilience, pro
 Aligned with:  
 **ISO 22301:2019**, **ISO 27031:2011**, **COBIT 2025 DSS04**, **NIST SP 800-34r1**, **CSA CCM v5 BCR**, and **EU NIS 2 Directive**.
 
----
+
 
 ## Scope
 
@@ -57,7 +57,7 @@ Aligned with:
 - Includes AI-enabled systems, hybrid cloud infrastructure, and trade or supply-chain operations governed under BASC, WCO SAFE, and ISO 28000.  
 - Applies to all employees, contractors, and partners involved in maintaining or restoring business and IT operations.  
 
----
+
 
 ## Policy Objectives
 
@@ -68,7 +68,7 @@ Aligned with:
 5. Integrate resilience across all technology, operational, AI, and trade-security domains.  
 6. Continuously test, review, and improve continuity and recovery capabilities.  
 
----
+
 
 ## Governance and Accountability
 
@@ -84,7 +84,7 @@ Aligned with:
 | **Chief Legal Officer / General Counsel (CLO/GC)** | Validates contractual and regulatory obligations during recovery. |
 | **Enterprise Risk Committee (ERC)** | Reviews continuity performance, approves risk acceptance, and monitors resilience metrics. |
 
----
+
 
 ## Policy Statements
 
@@ -130,7 +130,7 @@ Aligned with:
 8.2 The BCMS shall undergo an annual review incorporating lessons learned, audit results, and emerging risk analysis.  
 8.3 Improvement actions shall be documented in the Continuous Improvement Register and validated through follow-up testing.
 
----
+
 
 ## Related Standards and Procedures
 
@@ -144,7 +144,7 @@ Aligned with:
 - Procedure: Data Protection and Privacy Breach Response 
 - Digital Trust Performance Framework
 
----
+
 
 ## References and Framework Alignment
 
@@ -158,7 +158,7 @@ Aligned with:
 - **BASC International Standard v6 (2023)** – Trade and Customs Continuity Requirements  
 - **WCO SAFE Framework (2021)** – Authorized Economic Operator and Supply-Chain Security  
 
----
+
 
 ## Definitions
 
@@ -166,6 +166,6 @@ Key terms and acronyms used in this document are defined in the **Resilience Ter
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**

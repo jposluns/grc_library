@@ -17,7 +17,7 @@
 | **Repository Path** | /resilience/definitions-resilience-terms.md |
 | **Confidentiality** | Public reference glossary under CC0 for open reuse. |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -36,14 +36,14 @@
 | Chief Information Security Officer (CISO) |  |  |
 | Business Continuity Manager (BCM) |  |  |
 
----
+
 
 ## Purpose
 
 This register provides standardized definitions and acronyms for all Resilience-related artefacts, including business continuity, disaster recovery, crisis management, and trade-supply continuity.  
 It ensures consistent terminology and traceability across all governance, operational, and compliance documentation.
 
----
+
 
 ## Definitions and Acronyms
 
@@ -113,7 +113,7 @@ It ensures consistent terminology and traceability across all governance, operat
 | **Trade and Supply-Chain Continuity** | The ability of logistics, customs, and supply partners to sustain operations during disruption. |
 | **WCO SAFE (World Customs Organization SAFE Framework)** | Global standard for customs cooperation, trade-security, and AEO mutual recognition. |
 
----
+
 
 ## Usage
 
@@ -122,6 +122,6 @@ It ensures consistent terminology and traceability across all governance, operat
 - Updates must occur annually or when new frameworks, programs, or standards are added to the Resilience domain.  
 - Any new acronym or standard appearing in a Resilience artefact must be added here before publication.
 
----
+
 
 **End of Document**

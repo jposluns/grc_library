@@ -17,7 +17,7 @@
 | **Repository Path** | /resilience/procedure-security-incident-reporting-and-escalation.md |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -37,14 +37,14 @@
 | Chief Compliance Officer (CCO) |  |  |
 | Chief Legal Officer / General Counsel (CLO/GC) |  |  |
 
----
+
 
 ## Purpose
 
 This procedure defines the process for reporting, escalating, and analyzing information-security incidents that could impact the confidentiality, integrity, or availability of organizational, customer, or regulated data.  
 It ensures that incidents are promptly identified, triaged, and resolved in compliance with applicable standards and regulatory obligations.
 
----
+
 
 ## Scope
 
@@ -56,7 +56,7 @@ It ensures that incidents are promptly identified, triaged, and resolved in comp
   - AI platforms or automated decision systems.  
   - Physical assets linked to digital operations.  
 
----
+
 
 ## Objectives
 
@@ -65,7 +65,7 @@ It ensures that incidents are promptly identified, triaged, and resolved in comp
 3. Meet regulatory and contractual notification requirements (GDPR, NIS 2, BASC).  
 4. Maintain audit-ready documentation of all reported events and actions taken.
 
----
+
 
 ## Governance and Accountability
 
@@ -80,7 +80,7 @@ It ensures that incidents are promptly identified, triaged, and resolved in comp
 | **Enterprise Risk Committee (ERC)** | Reviews quarterly incident trends and governance outcomes. |
 | **Internal Audit** | Validates incident reporting completeness and control effectiveness. |
 
----
+
 
 ## Incident Reporting Channels
 
@@ -91,7 +91,7 @@ It ensures that incidents are promptly identified, triaged, and resolved in comp
 2. SOC analysts acknowledge receipt within **30 minutes** of submission.  
 3. Anonymous reporting is permitted for ethical or insider-threat incidents.
 
----
+
 
 ## Classification and Severity
 
@@ -104,7 +104,7 @@ It ensures that incidents are promptly identified, triaged, and resolved in comp
 
 **BASC trade or customs incidents** must also be tagged *BASC-Critical* and reported to the **Regional BASC Compliance Officer** within two hours of detection.
 
----
+
 
 ## Escalation and Notification Workflow
 
@@ -122,7 +122,7 @@ It ensures that incidents are promptly identified, triaged, and resolved in comp
    - All notifications logged in the Security Incident Register.  
    - Evidence preserved for audit and potential investigation.
 
----
+
 
 ## Containment, Eradication, and Recovery
 
@@ -131,7 +131,7 @@ It ensures that incidents are promptly identified, triaged, and resolved in comp
 - Post-containment, the CISO validates that all affected systems are restored and verified clean.  
 - Recovery progress and final system validation must be documented before closure.
 
----
+
 
 ## Documentation Requirements
 
@@ -145,7 +145,7 @@ Each incident record must include:
 
 Incident records are retained for a minimum of seven years in the governance repository.
 
----
+
 
 ## Metrics and Reporting
 
@@ -159,7 +159,7 @@ Incident records are retained for a minimum of seven years in the governance rep
 
 Quarterly incident trend reports are reviewed by the Enterprise Risk Committee.
 
----
+
 
 ## Continuous Improvement
 
@@ -170,7 +170,7 @@ Lessons learned, audit findings, and trend analyses feed into:
 
 Corrective actions remain open until validated as effective through subsequent incident or exercise review.
 
----
+
 
 ## References and Framework Alignment
 
@@ -184,7 +184,7 @@ Corrective actions remain open until validated as effective through subsequent i
 | **BASC International Standard (v6 2023)** | Trade & Customs Security | Defines customs incident reporting and oversight. |
 | **ISO 28000:2022** | Supply-Chain Security and Resilience | Integrates physical and digital incident reporting. |
 
----
+
 
 ## Definitions
 
@@ -192,6 +192,6 @@ Key terms and acronyms used in this document are defined in the **Resilience Ter
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**

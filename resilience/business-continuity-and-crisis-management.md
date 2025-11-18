@@ -17,7 +17,7 @@
 | **Repository Path** | /resilience/business-continuity-and-crisis-management.md |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -39,7 +39,7 @@
 | Chief Technology Officer (CTO) |  |  |
 | Chief Security Officer (Physical) |  |  |
 
----
+
 
 ## Purpose
 
@@ -48,7 +48,7 @@ It establishes activation criteria, command structure, communication flows, and 
 
 Aligned with **ISO 22301**, **ISO 22361**, **ISO 27031**, **COBIT 2025 DSS04**, **NIST SP 800-34 r1**, and **CSA CCM v5 BCR**.
 
----
+
 
 ## Scope
 
@@ -57,7 +57,7 @@ Aligned with **ISO 22301**, **ISO 22361**, **ISO 27031**, **COBIT 2025 DSS04**, 
 - Includes cyber, AI, and trade-security disruptions governed under WCO SAFE, BASC v6, ISO 28000, and EU NIS 2.  
 - Integrates with departmental BCPs, DRPs, the Crisis Communication Plan, and the Backup and Recovery SOP.
 
----
+
 
 ## Objectives
 
@@ -67,7 +67,7 @@ Aligned with **ISO 22301**, **ISO 22361**, **ISO 27031**, **COBIT 2025 DSS04**, 
 4. Maintain clear, factual, and authorized communication.  
 5. Capture lessons learned and continually enhance resilience capabilities.
 
----
+
 
 ## Activation and Crisis Declaration
 
@@ -90,7 +90,7 @@ Activation occurs when one or more of the following apply:
 The CIO, CRO, or CEO may declare a crisis after consultation with the CISO and Business Continuity Manager (BCM).  
 Upon declaration, the **CMT** and **EOC** are immediately activated.
 
----
+
 
 ## Crisis Management Team (CMT)
 
@@ -108,7 +108,7 @@ Upon declaration, the **CMT** and **EOC** are immediately activated.
 | **Human Resources** | Manages employee safety and staff communications. |
 | **AI Governance Council Representative** | Oversees AI system risk and model recovery ethics. |
 
----
+
 
 ## Emergency Operations Center (EOC)
 
@@ -117,7 +117,7 @@ Upon declaration, the **CMT** and **EOC** are immediately activated.
 - Maintains decision logs and status dashboards.  
 - Physical EOC sites remain available for loss-of-connectivity scenarios.
 
----
+
 
 ## Response Phases
 
@@ -129,7 +129,7 @@ Upon declaration, the **CMT** and **EOC** are immediately activated.
 | Restore | Return to normal operations and hand off to owners. | Service restoration approval. |
 | Review | Capture lessons learned and update plans. | After-action report and improvement records. |
 
----
+
 
 ## Incident Response Workflow (Integration)
 
@@ -141,7 +141,7 @@ Upon declaration, the **CMT** and **EOC** are immediately activated.
 6. Monitor status until full recovery.  
 7. Conduct post-incident review and record outcomes.
 
----
+
 
 ## Communication and Stakeholder Management
 
@@ -150,7 +150,7 @@ Upon declaration, the **CMT** and **EOC** are immediately activated.
 - Only authorized Corporate Communications staff may engage media or public channels.  
 - Daily situation reports distributed to executive leadership while CMT is active.
 
----
+
 
 ## Recovery Objectives
 
@@ -161,7 +161,7 @@ Upon declaration, the **CMT** and **EOC** are immediately activated.
 | **3 – Important** | Limited outage acceptable. | ≤ 24 h | ≤ 4 h | Departmental apps. |
 | **4 – Non-Critical** | Minimal impact if unavailable. | ≤ 72 h | ≤ 12 h | Training and support systems. |
 
----
+
 
 ## Testing and Exercising
 
@@ -170,7 +170,7 @@ Upon declaration, the **CMT** and **EOC** are immediately activated.
 - **Annual Full Recovery Tests** – end-to-end failover and business resumption.  
 - Test results and lessons learned are logged in the Continuous Improvement Register and reviewed by the Enterprise Risk Committee.
 
----
+
 
 ## Post-Incident Review
 
@@ -179,7 +179,7 @@ Upon declaration, the **CMT** and **EOC** are immediately activated.
 - Review includes root-cause analysis, performance against RTO/RPO, communication effectiveness, and improvement recommendations.  
 - Reports archived within the Digital Trust Performance Framework.
 
----
+
 
 ## Metrics and Performance Monitoring
 
@@ -192,7 +192,7 @@ Key metrics include:
 
 Quarterly reports are submitted to the Enterprise Risk Committee for review and tracking.
 
----
+
 
 ## Continuous Improvement
 
@@ -206,7 +206,7 @@ Improvement activities shall align with:
 
 Actions remain open until validated as effective through follow-up testing or management review.
 
----
+
 
 ## References and Framework Alignment
 
@@ -220,7 +220,7 @@ Actions remain open until validated as effective through follow-up testing or ma
 | **CSA CCM v5** | BCR, AIS Domains | Cloud and application resilience controls. |
 | **Trade and Supply-Chain Programs** | WCO SAFE, ISO 28000, BASC v6 | Trade-security and customs continuity alignment. |
 
----
+
 
 ## Definitions
 
@@ -228,6 +228,6 @@ Key terms and acronyms used in this document are defined in the **Resilience Ter
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**

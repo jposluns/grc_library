@@ -17,7 +17,7 @@
 | **Repository Path** | /resilience/procedure-continuity-and-recovery-testing.md |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -37,14 +37,14 @@
 | Chief Compliance Officer (CCO) |  |  |
 | Chief Legal Officer / General Counsel (CLO/GC) |  |  |
 
----
+
 
 ## Purpose
 
 This procedure defines the methodology for planning, executing, and documenting continuity and recovery testing and exercises.  
 It ensures that all Business Continuity and Disaster Recovery capabilities are validated, measurable, and continually improved to support enterprise resilience.
 
----
+
 
 ## Scope
 
@@ -53,7 +53,7 @@ It ensures that all Business Continuity and Disaster Recovery capabilities are v
 - Includes technology failovers, crisis simulations, tabletop exercises, and integrated organizational tests.  
 - Applies to internal teams, third-party service providers, and partners who participate in continuity testing activities.
 
----
+
 
 ## Objectives
 
@@ -62,7 +62,7 @@ It ensures that all Business Continuity and Disaster Recovery capabilities are v
 3. Identify weaknesses and improvement opportunities.  
 4. Maintain audit-ready records demonstrating ISO 22301 and COBIT DSS04 compliance.
 
----
+
 
 ## Test Types
 
@@ -74,7 +74,7 @@ It ensures that all Business Continuity and Disaster Recovery capabilities are v
 | **Crisis Communication Drill** | Messaging and approval workflow validation. | Annual | Communications Director |
 | **Integrated Enterprise Exercise** | Multi-department test combining BC, DR, and crisis management. | Every 2 years | CIO / CRO / ERC |
 
----
+
 
 ## Test Planning
 
@@ -91,7 +91,7 @@ It ensures that all Business Continuity and Disaster Recovery capabilities are v
    - Each exercise plan is reviewed and approved by the CIO and CRO prior to execution.  
    - Tests that may affect production systems require written change-control authorization.
 
----
+
 
 ## Execution
 
@@ -104,7 +104,7 @@ It ensures that all Business Continuity and Disaster Recovery capabilities are v
 3. Capture quantitative metrics (e.g., recovery times, data-integrity validation, communication latency).  
 4. Ensure that testing activities do not compromise operational systems or data integrity.
 
----
+
 
 ## Evaluation and Reporting
 
@@ -124,7 +124,7 @@ It ensures that all Business Continuity and Disaster Recovery capabilities are v
 
 All records are stored in the governance repository and retained for a minimum of seven years.
 
----
+
 
 ## Performance Metrics
 
@@ -136,7 +136,7 @@ All records are stored in the governance repository and retained for a minimum o
 | **Improvement Closure Rate** | % of corrective actions closed within 90 days. | ≥ 90% |
 | **Testing Coverage** | % of Tier-1/Tier-2 functions tested annually. | 100% |
 
----
+
 
 ## Roles and Responsibilities
 
@@ -150,7 +150,7 @@ All records are stored in the governance repository and retained for a minimum o
 | **Department Heads** | Ensure staff participation and local plan validation. |
 | **Enterprise Risk Committee (ERC)** | Reviews results, tracks trends, and ensures continual improvement. |
 
----
+
 
 ## Continuous Improvement
 
@@ -161,7 +161,7 @@ Findings, gaps, and lessons learned from each exercise must be documented and tr
 
 Improvements remain open until retested and confirmed effective.
 
----
+
 
 ## References and Framework Alignment
 
@@ -173,7 +173,7 @@ Improvements remain open until retested and confirmed effective.
 | **NIST SP 800-34r1** | Chapters 4–5 | Define contingency testing and validation best practices. |
 | **CSA CCM v5** | BCR-03, BCR-04 | Establish business-continuity testing and operational-resilience assurance. |
 
----
+
 
 ## Definitions
 
@@ -181,6 +181,6 @@ Key terms and acronyms used in this document are defined in the **Resilience Ter
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**

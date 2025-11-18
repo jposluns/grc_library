@@ -17,7 +17,7 @@
 | **Repository Path** | /ai/framework-ai-in-model-risk.md |
 | **Confidentiality** | Internal Use Only |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -39,7 +39,7 @@
 | Chief Technology Officer (CTO) |  |  |
 | Chair, AI Governance Council |  |  |
 
----
+
 
 # Purpose
 
@@ -51,7 +51,7 @@ This framework provides conceptual structure only. Mandatory requirements are de
 
 Aligned with ISO 42001, ISO 23894, ISO 24028, NIST AI RMF, COBIT 2025, and CSA CCM v5.
 
----
+
 
 # Scope
 
@@ -60,7 +60,7 @@ Aligned with ISO 42001, ISO 23894, ISO 24028, NIST AI RMF, COBIT 2025, and CSA C
 - Applies across the entire AI lifecycle including design, data preparation, development, training, validation, deployment, monitoring, and retirement.  
 - Applies to production systems, internal tooling, pilot deployments, and external vendor supplied models that affect business decisions or automated actions.
 
----
+
 
 # Objectives
 
@@ -71,7 +71,7 @@ Aligned with ISO 42001, ISO 23894, ISO 24028, NIST AI RMF, COBIT 2025, and CSA C
 5. Support responsible, fair, and traceable internal model behaviour.  
 6. Enable consistent oversight by the AI Governance Council and related risk committees.
 
----
+
 
 # In Model Risk Domains
 
@@ -97,7 +97,7 @@ Risk associated with reliance on unstable, spurious, or non causal features or p
 ## 7 Lifecycle Governance Risk
 Risk arising from incomplete documentation, missing version control, insufficient evaluation evidence, or inadequate monitoring of live model performance.
 
----
+
 
 # Interpretability Framework
 
@@ -128,7 +128,7 @@ Methods include:
 
 Used to detect deceptive patterns, unsafe reasoning, or emergent misalignment.
 
----
+
 
 # Adversarial Evaluation Framework
 
@@ -150,7 +150,7 @@ Evaluation against data or contexts outside the training environment to measure 
 ## 4 Long Horizon Reasoning Stress Tests
 For LLMs, tests evaluating consistency, safety, and alignment over extended multi step reasoning sequences.
 
----
+
 
 # Lifecycle Integration
 
@@ -182,7 +182,7 @@ In model risk assessment must be embedded at each lifecycle phase:
 - evidence refresh  
 - retirement and archival checks
 
----
+
 
 # Evidence and Documentation Requirements
 
@@ -199,7 +199,7 @@ The following artefacts support in model risk assurance:
 - approval records  
 - residual risk statements  
 
----
+
 
 # Governance and Roles
 
@@ -218,7 +218,7 @@ Evaluates adversarial and safety risks and manages related incidents.
 ## Internal Audit
 Verifies adherence to standards, evidence completeness, and lifecycle integrity.
 
----
+
 
 # Definitions
 
@@ -226,6 +226,6 @@ Key terms and acronyms used in this document are defined in the **Key Terms and 
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**

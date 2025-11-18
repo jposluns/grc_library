@@ -14,7 +14,7 @@ All AI materials follow:
 
 All terminology is standardized in the Key Terms and Definitions Register, located at the root of the GRC library.
 
----
+
 
 # Directory Structure
 
@@ -30,13 +30,13 @@ All terminology is standardized in the Key Terms and Definitions Register, locat
     procedure-ai-incident-handling.md
     readme.md (this file)
 
----
+
 
 # Document Catalogue
 
 The following list provides a high level overview of all AI artefacts and their intent.
 
----
+
 
 ## Frameworks
 
@@ -49,7 +49,7 @@ Establishes the audit, assurance, and certification structure for AI systems, in
 framework-ai-in-model-risk.md  
 Defines in model risk domains, interpretability structures, adversarial evaluation methods, and lifecycle integration expectations.
 
----
+
 
 ## Standards
 
@@ -59,14 +59,14 @@ Mandatory controls and evidence requirements for interpretability, robustness, a
 standard-ai-lifecycle-governance.md  
 Defines requirements for model registration, approval, monitoring, retraining, documentation, and retirement across all AI lifecycle phases.
 
----
+
 
 ## Policies
 
 policy-responsible-ai.md  
 Defines enterprise obligations for ethical, lawful, and transparent AI usage, including fairness, accuracy, safety, and human oversight requirements.
 
----
+
 
 ## Procedures and Guidelines
 
@@ -76,14 +76,14 @@ Procedures for detection, escalation, containment, and remediation of AI related
 guidance-ai-usage-and-safety.md  
 Provides advisory recommendations for staff using AI tools, assistants, development platforms, and generative systems.
 
----
+
 
 ## Mappings
 
 mapping-ai-in-model-risk.md  
 Maps the In Model Risk Framework and Standard to ISO, NIST, COBIT, and CSA CCM requirements for auditability and compliance traceability.
 
----
+
 
 # How to Use This Directory
 
@@ -93,7 +93,7 @@ Maps the In Model Risk Framework and Standard to ISO, NIST, COBIT, and CSA CCM r
 4. Implement procedures for operationalization, incident handling, and day to day governance.
 5. Use mappings to support audits, certifications, and external assurance activities.
 
----
+
 
 ## Definitions
 
@@ -101,6 +101,6 @@ Key terms and acronyms used in this document are defined in the Key Terms and De
 
 Definitions of organizational roles and authorities are provided in the Role Authority Register.
 
----
+
 
 End of Document

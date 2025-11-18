@@ -17,7 +17,7 @@
 | **Repository Path** | /resilience/procedure-business-impact-analysis.md |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -37,14 +37,14 @@
 | Chief Compliance Officer (CCO) |  |  |
 | Chief Legal Officer / General Counsel (CLO/GC) |  |  |
 
----
+
 
 ## Purpose
 
 This procedure defines the methodology for performing Business Impact Analyses (BIAs) to identify, evaluate, and prioritize critical business processes and dependencies.  
 It ensures that recovery objectives (RTO/RPO) and continuity strategies are based on accurate, repeatable, and data-driven assessments.
 
----
+
 
 ## Scope
 
@@ -52,7 +52,7 @@ It ensures that recovery objectives (RTO/RPO) and continuity strategies are base
 - Includes dependencies on personnel, facilities, information systems, suppliers, and AI or automation services.  
 - Covers both enterprise-level and departmental BIAs that feed into the organization’s Business Continuity and Disaster Recovery planning cycle.
 
----
+
 
 ## Objectives
 
@@ -61,7 +61,7 @@ It ensures that recovery objectives (RTO/RPO) and continuity strategies are base
 3. Determine Recovery Time Objectives (RTOs) and Recovery Point Objectives (RPOs).  
 4. Provide data to support continuity planning, risk assessments, and testing priorities.
 
----
+
 
 ## Methodology
 
@@ -115,7 +115,7 @@ The BIA process follows six sequential phases:
      - Aggregate risk and recovery metrics  
      - Recommendations for continuity improvements.  
 
----
+
 
 ## Roles and Responsibilities
 
@@ -128,7 +128,7 @@ The BIA process follows six sequential phases:
 | **ERC** | Validate outcomes, approve recovery objectives, and monitor follow-up actions. |
 | **Internal Audit** | Verify that BIAs are updated, approved, and integrated into continuity planning. |
 
----
+
 
 ## Review and Update
 
@@ -136,7 +136,7 @@ The BIA process follows six sequential phases:
 - Each update must be documented, version-controlled, and stored in the governance repository.  
 - Lessons learned from exercises or incidents feed into corrective-action and improvement processes.
 
----
+
 
 ## Continuous Improvement
 
@@ -147,7 +147,7 @@ Insights, gaps, and recommendations identified through BIAs must be tracked and 
 
 Actions remain open until verified as effective through testing or subsequent assessment.
 
----
+
 
 ## References and Framework Alignment
 
@@ -159,7 +159,7 @@ Actions remain open until verified as effective through testing or subsequent as
 | **NIST SP 800-34 Rev 1** | Chapter 3 | Defines contingency-planning inputs and business process analysis. |
 | **CSA CCM v5** | GOV-08 – Business Resilience Governance | Establishes governance controls for continuity and resilience. |
 
----
+
 
 ## Definitions
 
@@ -167,6 +167,6 @@ Key terms and acronyms used in this document are defined in the **Resilience Ter
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**

@@ -17,7 +17,7 @@
 | **Repository Path** | /resilience/procedure-crisis-management-eoc-activation.md |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -38,14 +38,14 @@
 | Chief Legal Officer / General Counsel (CLO/GC) |  |  |
 | Chief Security Officer (Physical) |  |  |
 
----
+
 
 ## Purpose
 
 This procedure defines the activation, operation, and deactivation process of the **Crisis Management Team (CMT)** and the **Emergency Operations Center (EOC)**.  
 It ensures structured command, coordination, and communication during enterprise-level incidents and crises.
 
----
+
 
 ## Scope
 
@@ -53,7 +53,7 @@ It ensures structured command, coordination, and communication during enterprise
 - Covers activation and management of both virtual and physical EOCs.  
 - Applies to all departments, regions, and partner organizations participating in crisis management, continuity, or recovery activities.  
 
----
+
 
 ## Objectives
 
@@ -62,7 +62,7 @@ It ensures structured command, coordination, and communication during enterprise
 3. Establish command, control, and communication protocols that support rapid, coordinated decision-making.  
 4. Ensure documentation, auditability, and traceability of all crisis actions.  
 
----
+
 
 ## Activation Triggers
 
@@ -74,7 +74,7 @@ Crisis management and EOC activation may occur under any of the following condit
 - Physical security or life-safety threats require coordinated emergency management.  
 - External agencies (regulators, law enforcement, customs) request unified command engagement.
 
----
+
 
 ## Activation Process
 
@@ -110,7 +110,7 @@ Crisis management and EOC activation may occur under any of the following condit
    - Assignment of roles and tasking for next operational period.  
 3. The BCM records all actions, owners, and due times in the EOC Action Log.
 
----
+
 
 ## Crisis Management Structure
 
@@ -127,7 +127,7 @@ Crisis management and EOC activation may occur under any of the following condit
 | **HR Lead** | Handles staffing, welfare, and internal communications. |
 | **AI Governance Council Representative** | Advises on AI-related risk or ethics issues. |
 
----
+
 
 ## Operating Rhythm
 
@@ -138,7 +138,7 @@ Crisis management and EOC activation may occur under any of the following condit
 | **Daily** | Executive briefing and external communications review. | Daily Summary Report. |
 | **Post-Event** | After-Action Review within 10 business days. | Lessons-Learned Report; Improvement Actions. |
 
----
+
 
 ## Communication Protocols
 
@@ -150,7 +150,7 @@ Crisis management and EOC activation may occur under any of the following condit
    - Sender and recipient.  
    - Content summary and approval reference.
 
----
+
 
 ## Documentation Requirements
 
@@ -164,7 +164,7 @@ During activation, the BCM ensures maintenance of:
 
 All records are retained within the governance repository for a minimum of seven years.
 
----
+
 
 ## Deactivation Process
 
@@ -176,7 +176,7 @@ All records are retained within the governance repository for a minimum of seven
 3. The final SitRep and AAR are distributed to the ERC and archived.  
 4. Identified improvement actions are entered into the corrective-action and improvement tracking processes.
 
----
+
 
 ## Training and Exercising
 
@@ -187,7 +187,7 @@ All records are retained within the governance repository for a minimum of seven
   - Communication and documentation accuracy.  
 - Performance metrics and lessons learned feed into improvement tracking for ERC review.
 
----
+
 
 ## Continuous Improvement
 
@@ -199,7 +199,7 @@ Findings and improvement actions from each activation or exercise must be docume
 
 Actions remain open until verified as effective through re-testing or management validation.
 
----
+
 
 ## References and Framework Alignment
 
@@ -212,7 +212,7 @@ Actions remain open until verified as effective through re-testing or management
 | **COBIT 2025** | DSS04, DSS05 | Manage continuity, availability, and security services. |
 | **CSA CCM v5** | BCR-01, BCR-02 | Business continuity and resilience governance. |
 
----
+
 
 ## Definitions
 
@@ -220,6 +220,6 @@ Key terms and acronyms used in this document are defined in the **Resilience Ter
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**

@@ -17,7 +17,7 @@
 | **Repository Path** | /ai/mapping-ai-in-model-risk.md |
 | **Confidentiality** | Internal Use Only |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -39,7 +39,7 @@
 | Chief Technology Officer (CTO) |  |  |
 | Chair, AI Governance Council |  |  |
 
----
+
 
 # Purpose
 
@@ -55,7 +55,7 @@ Mapped frameworks include:
 - COBIT 2025  
 - CSA CCM v5  
 
----
+
 
 # Scope
 
@@ -71,7 +71,7 @@ Mappings cover:
 - evidence expectations  
 - monitoring and incident management  
 
----
+
 
 # Mapping Overview Table
 
@@ -96,7 +96,7 @@ Mappings cover:
 | Periodic re evaluation | 6.7.1 | 10.2 | 7.6 | Manage 3.6 | MEA01.02 | GRM 03 |
 | Incident integration | 6.6.3 | 10.3 | 7.6.3 | Manage 3.4 | DSS02.02 | SEF 04 |
 
----
+
 
 # Framework Alignment Notes
 
@@ -118,7 +118,7 @@ Control objectives map directly to governance, assurance, and monitoring element
 ### CSA CCM v5  
 Mappings align with AIS, SEF, LOG, DSI, and GRM control areas governing AI, security, logging, data handling, and risk management.
 
----
+
 
 ## Definitions
 
@@ -126,6 +126,6 @@ Key terms and acronyms used in this document are defined in the **Key Terms and 
 
 Definitions of organizational roles and authorities are provided in the **Role Authority Register**.
 
----
+
 
 **End of Document**

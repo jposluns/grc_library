@@ -17,7 +17,7 @@
 | **Repository Path** | /charters/governance-charter |
 | **Confidentiality** | **None (Public Domain, CC0 License)** |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -39,7 +39,7 @@
 | Chief Technology Officer (CTO) |  |  |
 | Chief Sustainability Officer (CSO) |  |  |
 
----
+
 
 ## Purpose
 
@@ -49,7 +49,7 @@ It establishes the authority model governing frameworks, policies, standards, an
 
 This Charter supersedes all subordinate instruments and ensures consistent alignment with organizational strategy, legal obligations, and international standards including ISO, NIST, COBIT 2025, and Cloud Security Alliance (CSA) frameworks.
 
----
+
 
 ## Scope
 
@@ -60,13 +60,13 @@ This Charter supersedes all subordinate instruments and ensures consistent align
 - Adheres to the classification model defined in the Data Classification and Handling Standard.  
 - Encompasses trade-security-governed operations aligned with globally recognized supply-chain programs such as WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalent frameworks.
 
----
+
 
 ## Audience
 
 All employees, contractors, and third-party partners participating in or subject to the Governance, Risk, and Compliance (GRC) Program.
 
----
+
 
 ## Governance Principles
 
@@ -79,7 +79,7 @@ Governance ensures responsible stewardship, fairness, transparency, resilience, 
 - **Continuous Improvement:** Practices are periodically reviewed to reflect evolving technologies, regulations, and priorities.  
 - **Digital Trust:** Governance reinforces trust through transparency, accountability, resilience, and ethical technology use, consistent with COBIT 2025 Digital Trust Indicators.
 
----
+
 
 ## Governance Hierarchy
 
@@ -93,7 +93,7 @@ Governance ensures responsible stewardship, fairness, transparency, resilience, 
 | 6 | Guidelines / Annexes | Offer advisory methods or regional requirements. |
 | 7 | Registers / Matrices | Consolidate mappings, metrics, and assurance evidence. |
 
----
+
 
 ## Governance Structure and Oversight
 
@@ -110,7 +110,7 @@ Governance ensures responsible stewardship, fairness, transparency, resilience, 
 | **Chief Human Resources Officer (CHRO)** | Oversees ethics, training, and workforce-governance programs. |
 | **Enterprise Risk Committee (ERC)** | Provides executive oversight for enterprise risk, audit, and compliance results. |
 
----
+
 
 ## Change Management for Governance Instruments
 
@@ -118,7 +118,7 @@ Governance ensures responsible stewardship, fairness, transparency, resilience, 
 - Version control and archival of superseded versions are mandatory for audit traceability.  
 - Each update must identify its parent and dependent documents per the **Document Architecture and Interrelationship Framework**.
 
----
+
 
 ## Review Cycle
 
@@ -134,7 +134,7 @@ Governance ensures responsible stewardship, fairness, transparency, resilience, 
 
 During interim periods prior to the appointment of a Director of GRC, the CISO retains delegated approval authority for standards, procedures, and frameworks while the CIO remains accountable.
 
----
+
 
 ## Development and Approval Process
 
@@ -146,7 +146,7 @@ All governance artefacts are developed and maintained through a controlled lifec
 
 Lifecycle definitions and dependency relationships are maintained in the **Document Architecture and Interrelationship Framework**.
 
----
+
 
 ## Implementation and Monitoring
 
@@ -154,14 +154,14 @@ Approved artefacts must be implemented by accountable leaders, who ensure traini
 Monitoring is performed through audits, metrics, and maturity assessments defined in the **Digital Trust Performance Framework**.  
 All deviations follow the **Exception and Risk Acceptance Management Policy**.
 
----
+
 
 ## Exception Management Integration
 
 All exceptions to governance artefacts, standards, or controls must be processed through the **Exception and Risk Acceptance Management Policy** and recorded in the enterprise exception register.  
 Aggregated exception metrics are reported quarterly to the **Enterprise Risk Committee** and **Audit Committee**.
 
----
+
 
 ## Governance Review and Continuous Improvement
 
@@ -169,7 +169,7 @@ Aggregated exception metrics are reported quarterly to the **Enterprise Risk Com
 - Audit findings and lessons learned feed the **Continuous Improvement Register**.  
 - Non-substantive edits may be made without CIO re-approval but must be logged for audit traceability.
 
----
+
 
 ## Appendix A – Framework and Regulatory Mapping
 
@@ -195,12 +195,12 @@ Comprehensive cross-references are maintained in:
 | **NIST SP 800-208** | Definitions; Scope | Post-quantum-cryptography readiness. |
 | **Trade and Supply Chain Programs** | Scope; Appendix A | WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (U.S.), AEO (EU), and equivalent trade-security frameworks. |
 
----
+
 
 ## Definitions
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**

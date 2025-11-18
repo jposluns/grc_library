@@ -17,7 +17,7 @@
 | **Repository Path** | /resilience/guideline-departmental-continuity-plan-template.md |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -37,14 +37,14 @@
 | Chief Compliance Officer (CCO) |  |  |
 | Chief Legal Officer / General Counsel (CLO/GC) |  |  |
 
----
+
 
 ## Purpose
 
 This template provides a standardized format for departments to develop, maintain, and test their local continuity and recovery plans.  
 It ensures consistency, traceability, and alignment with enterprise-wide continuity and resilience governance.
 
----
+
 
 ## Scope
 
@@ -52,7 +52,7 @@ It ensures consistency, traceability, and alignment with enterprise-wide continu
 - Used to document departmental Business Continuity Plans (BCPs) based on results from the Business Impact Analysis.  
 - Supports readiness for audits, certification, and testing exercises under the Business Continuity & Resilience Framework.
 
----
+
 
 ## Objectives
 
@@ -61,14 +61,14 @@ It ensures consistency, traceability, and alignment with enterprise-wide continu
 3. Align departmental continuity documentation with enterprise RTO/RPO objectives.  
 4. Facilitate consistent testing, maintenance, and review across all business units.
 
----
+
 
 ## Instructions for Use
 
 Each department must complete all sections below and maintain its continuity plan as a living document.  
 The Business Continuity Manager reviews all submissions annually and after any significant operational change.
 
----
+
 
 ## Departmental Continuity Plan Template
 
@@ -82,7 +82,7 @@ The Business Continuity Manager reviews all submissions annually and after any s
 | **Primary Location(s)** |  |
 | **Number of Staff** |  |
 
----
+
 
 ### 2. Key Contacts
 
@@ -94,7 +94,7 @@ The Business Continuity Manager reviews all submissions annually and after any s
 | IT / System Liaison |  |  |  |  |
 | Vendor / Supplier Contact |  |  |  |  |
 
----
+
 
 ### 3. Critical Processes and Priorities
 
@@ -104,7 +104,7 @@ The Business Continuity Manager reviews all submissions annually and after any s
 
 Departments should list all critical processes ranked by operational priority according to the BIA results.
 
----
+
 
 ### 4. Resource Requirements
 
@@ -117,7 +117,7 @@ Departments should list all critical processes ranked by operational priority ac
 | Communications Tools |  |  |  |
 | Vendors / Third Parties |  |  |  |
 
----
+
 
 ### 5. Recovery Procedures
 
@@ -139,7 +139,7 @@ Departments should list all critical processes ranked by operational priority ac
    - Resume standard operations once stability confirmed.  
    - Conduct a departmental debrief and submit incident summary.
 
----
+
 
 ### 6. Communication Plan
 
@@ -151,7 +151,7 @@ Departments should list all critical processes ranked by operational priority ac
 
 All messaging follows the **Crisis Communication Plan** and **Crisis Management & EOC Activation Procedure**.
 
----
+
 
 ### 7. Alternate Site and Remote Work Procedures
 
@@ -161,7 +161,7 @@ All messaging follows the **Crisis Communication Plan** and **Crisis Management 
 | Alternate Facility | Pre-approved backup location | Extended outage (>48h) | Facilities Manager |
 | Hot Site / Cloud Failover | System recovery environment | Critical IT service outage | CIO / IT Operations |
 
----
+
 
 ### 8. Testing and Review
 
@@ -169,7 +169,7 @@ All messaging follows the **Crisis Communication Plan** and **Crisis Management 
 - Results, findings, and updates must be documented and shared with the Business Continuity Manager.  
 - Metrics tracked include RTO achievement, participation, and closure of improvement actions.
 
----
+
 
 ### 9. Post-Incident Review
 
@@ -178,7 +178,7 @@ All messaging follows the **Crisis Communication Plan** and **Crisis Management 
 - Submit report to the BCM and Enterprise Risk Committee.  
 - Identify improvements and integrate them into the next version of this plan.
 
----
+
 
 ### 10. Approvals and Sign-Off
 
@@ -188,7 +188,7 @@ All messaging follows the **Crisis Communication Plan** and **Crisis Management 
 | Business Continuity Manager |  |  |  |  |
 | CIO / CRO |  |  |  |  |
 
----
+
 
 ## Continuous Improvement
 
@@ -199,7 +199,7 @@ All departmental BCP updates, tests, and lessons learned must be tracked through
 
 Improvement actions remain open until validated during the next testing cycle.
 
----
+
 
 ## References and Framework Alignment
 
@@ -211,7 +211,7 @@ Improvement actions remain open until validated during the next testing cycle.
 | **CSA CCM v5** | BCR-01, BCR-03 | Establishes continuity documentation and testing structure. |
 | **NIST SP 800-34r1** | Chapters 3–5 | Provides recovery planning guidance for IT and business functions. |
 
----
+
 
 ## Definitions
 
@@ -219,6 +219,6 @@ Key terms and acronyms used in this document are defined in the **Resilience Ter
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**

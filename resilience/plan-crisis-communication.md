@@ -17,7 +17,7 @@
 | **Repository Path** | /resilience/plan-crisis-communication.md |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
----
+
 
 ## Document Control
 
@@ -25,7 +25,7 @@
 |----------|------|---------|----------------|
 | 0.1 |  |  | Initial Draft |
 
----
+
 
 ## Approval
 
@@ -38,7 +38,7 @@
 | Chief Legal Officer / General Counsel (CLO/GC) |  |  |
 | Corporate Communications Director |  |  |
 
----
+
 
 ## Purpose
 
@@ -47,7 +47,7 @@ It ensures that information is accurate, timely, and consistent to protect the o
 
 Aligned with **ISO 22361**, **ISO 22301**, **COBIT 2025 DSS04.05**, **NIST SP 800-34r1**, and **CSA CCM v5 GOV-08**.
 
----
+
 
 ## Scope
 
@@ -61,7 +61,7 @@ Aligned with **ISO 22361**, **ISO 22301**, **COBIT 2025 DSS04.05**, **NIST SP 80
 - Applies to all employees, contractors, and third parties involved in incident response or business-continuity communications.  
 - Covers both internal and external communications, including regulatory notifications, client advisories, and media responses.  
 
----
+
 
 ## Objectives
 
@@ -71,7 +71,7 @@ Aligned with **ISO 22361**, **ISO 22301**, **COBIT 2025 DSS04.05**, **NIST SP 80
 4. Prevent misinformation and unauthorized disclosure.  
 5. Support employee awareness and confidence throughout the crisis.
 
----
+
 
 ## Governance and Accountability
 
@@ -87,7 +87,7 @@ Aligned with **ISO 22361**, **ISO 22301**, **COBIT 2025 DSS04.05**, **NIST SP 80
 | **Human Resources** | Manages internal messaging, employee welfare, and staffing communications. |
 | **Enterprise Risk Committee (ERC)** | Reviews communication performance and lessons learned post-incident. |
 
----
+
 
 ## Crisis Definition and Activation
 
@@ -104,7 +104,7 @@ Aligned with **ISO 22361**, **ISO 22301**, **COBIT 2025 DSS04.05**, **NIST SP 80
 - The **Crisis Communication Team (CCT)** is convened, including representatives from IT, Legal, HR, and Communications.  
 - The **Business Continuity Manager** initiates the communication tree and schedules the first coordination meeting within 60 minutes of declaration.  
 
----
+
 
 ## Communication Channels
 
@@ -117,7 +117,7 @@ Aligned with **ISO 22361**, **ISO 22301**, **COBIT 2025 DSS04.05**, **NIST SP 80
 | Public / Media | Press Release, Website Update | Social Media (LinkedIn, X) | Corporate Communications |
 | Suppliers / Partners | Direct Outreach, Supplier Portal | Email / Support Channels | Procurement |
 
----
+
 
 ## Message Development and Approval Workflow
 
@@ -135,7 +135,7 @@ Aligned with **ISO 22361**, **ISO 22301**, **COBIT 2025 DSS04.05**, **NIST SP 80
 3. **Documentation**  
    - All messages and approvals are logged within the Crisis Communication Register or incident management portal for audit traceability.
 
----
+
 
 ## Message Objectives and Content Guidance
 
@@ -150,7 +150,7 @@ Aligned with **ISO 22361**, **ISO 22301**, **COBIT 2025 DSS04.05**, **NIST SP 80
 - Avoid assigning blame prior to investigation.  
 - Identify a responsible contact for inquiries.  
 
----
+
 
 ## Regulatory and Stakeholder Notifications
 
@@ -158,7 +158,7 @@ Aligned with **ISO 22361**, **ISO 22301**, **COBIT 2025 DSS04.05**, **NIST SP 80
 - **Privacy Officer or DPO** coordinates all personal-data breach communications.  
 - **BASC or trade-related events** require coordination with compliance officers for customs or regulatory liaison.  
 
----
+
 
 ## Media and Public Communications
 
@@ -167,7 +167,7 @@ Aligned with **ISO 22361**, **ISO 22301**, **COBIT 2025 DSS04.05**, **NIST SP 80
 - Social-media channels are actively monitored for misinformation or unauthorized content during crises.  
 - All external communications must undergo legal review and executive approval prior to release.
 
----
+
 
 ## AI-Enabled Communication Tools (Future Capability)
 
@@ -175,7 +175,7 @@ Aligned with **ISO 22361**, **ISO 22301**, **COBIT 2025 DSS04.05**, **NIST SP 80
 - All AI-generated outputs must undergo human review and legal approval prior to distribution.  
 - The **AI Governance Council** will periodically review AI-generated messages for accuracy, bias, and ethical compliance.
 
----
+
 
 ## Testing and Validation
 
@@ -187,7 +187,7 @@ Aligned with **ISO 22361**, **ISO 22301**, **COBIT 2025 DSS04.05**, **NIST SP 80
   - Effectiveness of communication tools and templates.  
 - Test results, gaps, and improvements are recorded in the improvement tracking processes for review by the **Enterprise Risk Committee**.
 
----
+
 
 ## Maintenance and Review
 
@@ -198,7 +198,7 @@ Aligned with **ISO 22361**, **ISO 22301**, **COBIT 2025 DSS04.05**, **NIST SP 80
   - Lessons learned from incidents, audits, and exercises.  
 - Revised versions are approved by the Enterprise Risk Committee and archived in the governance repository.
 
----
+
 
 ## References and Framework Alignment
 
@@ -211,7 +211,7 @@ Aligned with **ISO 22361**, **ISO 22301**, **COBIT 2025 DSS04.05**, **NIST SP 80
 | **CSA CCM v5** | GOV-08 – Business Resilience and Governance | Aligns communication practices with cloud and operational resilience. |
 | **EU NIS 2 Directive (2023)** | Incident Notification and Public-Disclosure Requirements | Defines legal thresholds and timeframes for notification. |
 
----
+
 
 ## Definitions
 
@@ -219,6 +219,6 @@ Key terms and acronyms used in this document are defined in the **Resilience Ter
 
 Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
----
+
 
 **End of Document**
