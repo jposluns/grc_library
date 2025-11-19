@@ -12,7 +12,7 @@
 | Classification      | Public – CC0                                                   |
 | Category            | Meta-Governance                                                |
 | Review Frequency    | Annual or on material process change                           |
-| Repository Path     | /core/ingestion-specification.md                               |
+| Repository Path     | /specification-ingestion.md                                    |
 | Confidentiality     | Public (CC0 License)                                           |
 
 ---
