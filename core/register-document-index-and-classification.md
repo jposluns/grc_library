@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register
 **Document Type:** Register
-**Version:** 0.0.1
+**Version:** 0.0.2
 **Date:** 2026 05 26
 **Owner:** Governance Library Maintainer
 **Approving Authority:** Governance Library Maintainer
@@ -40,7 +40,13 @@ All active repository documents should be Public.
 
 | Domain | Type | Title | Repository Path | Owner Role | Review Frequency | Primary Alignment Families |
 | --- | --- | --- | --- | --- | --- | --- |
-| Core | Charter | Governance Library Charter | `core/charter-governance-library.md` | Governance Library Maintainer | Annual | ISO governance, risk, compliance, security, privacy, AI, and assurance families |
+| Core | Charter | Governance Library Charter | `core/charter-governance-library.md` | Governance Library Maintainer | Annual | Governance authority, document lifecycle, licence boundary |
+| Core | Policy | Enterprise Governance and Risk Management Policy | `core/policy-enterprise-governance-and-risk-management.md` | Chief Risk Officer | Annual | Enterprise risk, governance accountability, risk treatment |
+| Core | Standard | Enterprise Risk Management Standard | `core/standard-enterprise-risk-management.md` | Chief Risk Officer | Annual | Risk taxonomy, assessment, treatment, reporting |
+| Core | Procedure | Risk Register Procedure | `core/procedure-risk-register.md` | Chief Risk Officer | Annual | Risk register, treatment tracking, risk evidence |
+| Core | Procedure | Risk Acceptance Procedure | `core/procedure-risk-acceptance.md` | Chief Risk Officer | Annual | Residual risk, acceptance authority, compensating controls |
+| Core | Policy | Exception Management Policy | `core/policy-exception-management.md` | Chief Risk Officer | Annual | Exceptions, deviations, compensating controls, expiry |
+| Core | Policy | Compliance and Audit Management Policy | `core/policy-compliance-and-audit-management.md` | Chief Compliance Officer | Annual | Compliance, audit, control testing, corrective action |
 | Core | Register | Document Index and Classification Register | `core/register-document-index-and-classification.md` | Governance Library Maintainer | Annual | Document control, classification, traceability |
 | Core | Framework | Document Architecture and Interrelationship Framework | `core/framework-document-architecture-and-interrelationship.md` | Governance Library Maintainer | Annual | Governance hierarchy, audit traceability, policy architecture |
 | Core | Register | Key Terms and Definitions Register | `core/register-key-terms-and-definitions.md` | Governance Library Maintainer | Annual | Cross-domain terminology |
@@ -48,6 +54,10 @@ All active repository documents should be Public.
 | Core | Matrix | Cross-Framework Alignment Matrix | `core/matrix-cross-framework-alignment.md` | Control Framework Maintainer | 6 to 12 months | ISO, NIST, COBIT, CCM, AICM, OWASP, MITRE ATLAS |
 | Core | Register | Global Regulatory Applicability Register | `core/register-global-regulatory-applicability.md` | Compliance Maintainer | 6 to 12 months | Privacy, cybersecurity, AI, resilience, supplier, trade, and sector regimes |
 | Core | Register | Digital Trust and Assurance Metrics Register | `core/register-digital-trust-and-assurance-metrics.md` | Assurance Metrics Maintainer | 6 to 12 months | Governance metrics, control performance, assurance evidence |
+| Security | Policy | Information Security Policy | `security/policy-information-security.md` | Chief Information Security Officer | Annual | Information security, control governance, incident readiness |
+| Security | Policy | Identity and Access Management Policy | `security/policy-identity-and-access-management.md` | Chief Information Security Officer | Annual | Identity, authentication, authorization, privileged access |
+| Security | Standard | Logging and Monitoring Standard | `security/standard-logging-and-monitoring.md` | Chief Information Security Officer | Annual | Logging, monitoring, alerting, security evidence |
+| Security | Standard | Data Classification and Handling Standard | `security/standard-data-classification-and-handling.md` | Chief Data Officer | Annual | Data classification, handling, retention, AI data governance |
 | AI | Framework | AI Governance and Risk Framework | `ai/framework-ai-governance-and-risk.md` | AI Governance Maintainer | 6 to 12 months | AI management, AI risk, data security, model assurance |
 | AI | Standard | AI Security and Risk Standard | `ai/standard-ai-security-and-risk.md` | AI Security Maintainer | 6 to 12 months | AI threat management, data lifecycle security, model risk |
 | AI | Procedure | AI System Impact Assessment Procedure | `ai/procedure-ai-system-impact-assessment.md` | AI Risk Maintainer | 6 to 12 months | AI impact, privacy, security, human oversight, supplier risk |
@@ -55,6 +65,22 @@ All active repository documents should be Public.
 | Resilience | Framework | Business Continuity and Resilience Framework | `resilience/framework-business-continuity-and-resilience.md` | Resilience Maintainer | Annual or after major incident | Continuity, disaster recovery, crisis governance |
 | Privacy | Policy | Privacy and Data Governance Policy | `privacy/policy-privacy-and-data-governance.md` | Privacy Maintainer | 6 to 12 months | Data protection, privacy impact, transfer risk, retention |
 | Supplier | Framework | Supplier and Cloud Governance Framework | `supplier/framework-supplier-and-cloud-governance.md` | Supplier Risk Maintainer | 6 to 12 months | Third-party risk, cloud assurance, supply-chain integrity |
+
+---
+
+## Expansion Backlog
+
+The following document families are planned for expansion as original CC0 content:
+
+- Control testing and audit planning procedures.
+- Corrective and preventive action procedure.
+- Privacy impact, transfer, breach response, and data subject rights procedures.
+- Secure development, change management, vulnerability management, software lifecycle, and quality assurance standards.
+- Incident response, security incident reporting, network communications, encryption, and key lifecycle documents.
+- Business continuity policy, continuity testing, crisis communication, departmental continuity templates, and resilience registers.
+- Supplier due diligence, supplier audit, supplier security and privacy assurance, and third-party risk standard.
+- AI compliance, AI evaluation, AI model lifecycle, AI testing, AI audit, AI transparency, and algorithmic compliance documents.
+- Post-quantum cryptography, digital twin, sustainability, human capital, and trade/supply-chain governance documents.
 
 ---
 
@@ -67,6 +93,7 @@ All active repository documents should be Public.
 5. Documents informed by external sources must comply with `NOTICE.md`.
 6. Regulatory alignment must not be interpreted as compliance or legal advice.
 7. Framework alignment must not reproduce restricted third-party source text.
+8. Archived or superseded source documents may inform structure but must not be treated as authoritative current content.
 
 ---
 
