@@ -1,6 +1,6 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Version:** 1.1.0
+**Version:** 1.1.1
 **Date:** 2026 05 26
 **Classification:** Public
 **Confidentiality:** Public
@@ -16,6 +16,7 @@
 | 1.0.1 | 2025 11 16 | Updated structure and governance language. |
 | 1.0.2 | 2025 11 18 | Introduced domain directories, canonical metadata, contribution rules, and role-based governance. |
 | 1.1.0 | 2026 05 26 | Removed organization and person identifiers, clarified CC0 compatibility, added third-party reference boundaries, and aligned the library to a generic authoritative documentation model. |
+| 1.1.1 | 2026 05 26 | Added information security as a primary repository domain and clarified the live corpus expansion model. |
 
 ---
 
@@ -28,8 +29,9 @@ The library is designed to be adopted, adapted, or extended by any organization 
 The repository provides reusable artefacts across the following domains:
 
 - Enterprise governance, risk, compliance, audit, and assurance.
-- Information security, privacy, data protection, and secure engineering.
-- Artificial intelligence governance, data security, model risk, and assurance.
+- Information security, identity, access, logging, data classification, incident response, and secure engineering.
+- Privacy, data protection, retention, breach response, and data subject rights.
+- Artificial intelligence governance, data security, model risk, lifecycle control, and assurance.
 - Business continuity, crisis management, disaster recovery, and operational resilience.
 - Supplier, third-party, cloud, and supply-chain governance.
 - Cross-framework mapping, regulatory applicability analysis, and metrics.
@@ -62,6 +64,7 @@ Documents are organized by primary governance domain.
 
 ```text
 /core        Enterprise-wide governance, document architecture, roles, registers, mappings, and metrics.
+/security    Information security, identity, access, logging, incident response, data classification, and secure operations.
 /ai          Artificial intelligence governance, data security, model risk, system assurance, and lifecycle controls.
 /resilience  Business continuity, disaster recovery, crisis management, resilience testing, and recovery governance.
 /privacy     Privacy governance, data protection, transfer assessment, breach response, and data subject rights.
@@ -75,6 +78,8 @@ Examples:
 - `core/charter-governance-library.md`
 - `core/register-document-index-and-classification.md`
 - `core/framework-document-architecture-and-interrelationship.md`
+- `security/policy-information-security.md`
+- `security/standard-logging-and-monitoring.md`
 - `ai/framework-ai-governance-and-risk.md`
 - `ai/standard-ai-security-and-risk.md`
 - `resilience/framework-business-continuity-and-resilience.md`
@@ -127,11 +132,17 @@ Owners and approving authorities must be role-based, not person-specific. Docume
 
 ## Core Reference Set
 
-The initial authoritative set is organized around these foundational artefacts:
+The current authoritative starter set is organized around these foundational artefacts:
 
 | Domain | Artefact |
 | --- | --- |
 | Core | Governance Library Charter |
+| Core | Enterprise Governance and Risk Management Policy |
+| Core | Enterprise Risk Management Standard |
+| Core | Risk Register Procedure |
+| Core | Risk Acceptance Procedure |
+| Core | Exception Management Policy |
+| Core | Compliance and Audit Management Policy |
 | Core | Document Index and Classification Register |
 | Core | Document Architecture and Interrelationship Framework |
 | Core | Key Terms and Definitions Register |
@@ -139,6 +150,10 @@ The initial authoritative set is organized around these foundational artefacts:
 | Core | Cross-Framework Alignment Matrix |
 | Core | Global Regulatory Applicability Register |
 | Core | Digital Trust and Assurance Metrics Register |
+| Security | Information Security Policy |
+| Security | Identity and Access Management Policy |
+| Security | Logging and Monitoring Standard |
+| Security | Data Classification and Handling Standard |
 | AI | AI Governance and Risk Framework |
 | AI | AI Security and Risk Standard |
 | AI | AI System Impact Assessment Procedure |
