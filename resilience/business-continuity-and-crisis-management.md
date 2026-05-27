@@ -1,233 +1,125 @@
-# Plan: Business Continuity & Crisis Management
+# Business Continuity and Crisis Management Plan
 
-## Metadata
+**Document Title:** Business Continuity and Crisis Management Plan
+**Document Type:** Plan
+**Version:** 0.0.1
+**Date:** 2026 05 26
+**Owner:** Resilience Owner
+**Approving Authority:** Executive Management
+**Related Documents:** `resilience/framework-business-continuity-and-resilience.md`, `resilience/policy-business-continuity-and-disaster-recovery.md`, `resilience/standard-business-continuity-and-disaster-recovery.md`, `resilience/procedure-crisis-management-eoc-activation.md`, `resilience/plan-crisis-communication.md`, `resilience/procedure-business-impact-analysis.md`, `resilience/procedure-continuity-and-recovery-testing.md`
+**Classification:** Public
+**Category:** Resilience
+**Review Frequency:** Annual and upon material incident, service, supplier, facility, or recovery strategy change
+**Repository Path:** `resilience/business-continuity-and-crisis-management.md`
+**Confidentiality:** Public
+**Licence:** CC0 1.0 Universal
 
-| Field | Details |
-|-------|----------|
-| **Document Title** | Business Continuity & Crisis Management Plan |
-| **Document Type** | Plan |
-| **Version** | 0.1 |
-| **Date** |  |
-| **Document Owner** | Chief Information Officer (CIO) |
-| **Approving Authority** | Chief Risk Officer (CRO) |
-| **Related Documents** | Framework: Business Continuity & Resilience; Policy: Business Continuity and Disaster Recovery; Standard: Business Continuity & Disaster Recovery; Procedure: Crisis Management & EOC Activation; Plan: Crisis Communication; Procedure: Business Impact Analysis; Procedure: Incident Response; SOP: Backup and Recovery (ASR); Digital Trust Performance Framework |
-| **Classification** | Public – Open Access |
-| **Category** | Business Continuity / Crisis Management |
-| **Review Frequency** | Annual or following major incident or organizational change |
-| **Repository Path** | /resilience/business-continuity-and-crisis-management.md |
-| **Confidentiality** | None (Public Domain, CC0 License) |
-
-
-
-## Document Control
-
-| Version | Date | Author | Change History |
-|----------|------|---------|----------------|
-| 0.1 |  |  | Initial Draft |
-
-
-
-## Approval
-
-| Role | Name | Approval Date |
-|-------|------|---------------|
-| Chief Information Officer (CIO) |  |  |
-| Chief Risk Officer (CRO) |  |  |
-| Chief Information Security Officer (CISO) |  |  |
-| Chief Compliance Officer (CCO) |  |  |
-| Chief Legal Officer / General Counsel (CLO/GC) |  |  |
-| Chief Technology Officer (CTO) |  |  |
-| Chief Security Officer (Physical) |  |  |
-
-
+---
 
 ## Purpose
 
-This plan defines operational procedures for maintaining critical business functions and managing crises that disrupt operations, technology, or personnel.  
-It establishes activation criteria, command structure, communication flows, and restoration activities required to resume normal business operations efficiently and safely.
+This plan defines an organization-neutral structure for maintaining critical business functions and managing crises that disrupt operations, technology, facilities, suppliers, data, AI systems, or personnel availability.
 
-Aligned with **ISO 22301**, **ISO 22361**, **ISO 27031**, **COBIT 2025 DSS04**, **NIST SP 800-34 r1**, and **CSA CCM v5 BCR**.
+It establishes activation criteria, command structure, communication flow, recovery coordination, evidence expectations, and return-to-normal decision points.
 
-
+---
 
 ## Scope
 
-- Applies to all business units, information systems, physical facilities, and third-party services supporting critical operations.  
-- Covers both **business continuity** (maintaining operations) and **crisis management** (strategic command and communications).  
-- Includes cyber, AI, and trade-security disruptions governed under WCO SAFE, BASC v6, ISO 28000, and EU NIS 2.  
-- Integrates with departmental BCPs, DRPs, the Crisis Communication Plan, and the Backup and Recovery SOP.
+This plan applies to business processes, information systems, cloud services, facilities, supplier services, data platforms, AI systems, workforce dependencies, and operational capabilities that may require continuity or crisis coordination.
 
+It covers:
 
+- Business continuity activation.
+- Crisis management activation.
+- Recovery coordination.
+- Internal and external communications.
+- Supplier and cloud dependency failure.
+- Cybersecurity or privacy incidents affecting continuity.
+- AI service degradation or unsafe system behaviour.
+- Facility, workforce, safety, and physical disruption.
+- Documentation and lessons learned.
+
+---
 
 ## Objectives
 
-1. Protect life, assets, and information during any disruptive event.  
-2. Ensure timely activation of continuity and crisis-management procedures.  
-3. Restore essential services within approved RTO and RPO thresholds.  
-4. Maintain clear, factual, and authorized communication.  
-5. Capture lessons learned and continually enhance resilience capabilities.
+1. Protect life, safety, data, systems, and critical services during disruptive events.
+2. Activate continuity and crisis management processes at defined thresholds.
+3. Restore critical services within approved recovery objectives where feasible.
+4. Maintain factual, authorized, and auditable communication.
+5. Coordinate business, technology, supplier, legal, privacy, security, and executive response.
+6. Preserve evidence required for incident, audit, insurance, legal, regulatory, and improvement processes.
+7. Capture lessons learned and track corrective actions.
 
+---
 
+## Activation Criteria
 
-## Activation and Crisis Declaration
+Activation should be considered when one or more conditions exist:
 
-### 1 Criteria for Activation
-Activation occurs when one or more of the following apply:
-- Loss of critical systems or data beyond established RTOs.  
-- Disruption affecting multiple departments or customers.  
-- Confirmed security, safety, or infrastructure event requiring executive coordination.  
-- Any incident with legal, reputational, or regulatory exposure.
+- Loss of a critical service beyond approved tolerance.
+- Data loss, data corruption, or inability to restore required records.
+- Cybersecurity, privacy, supplier, cloud, AI, facility, or workforce event requiring coordinated response.
+- Disruption affecting customers, employees, suppliers, regulated activities, or critical operations.
+- Event requiring executive communication or legal, regulatory, contractual, or public response.
+- Recovery activity requiring prioritization across business functions.
 
-### 2 Crisis Levels
+---
 
-| Level | Description | Response |
-|--------|--------------|-----------|
-| **Level 1 – Operational Incident** | Localized or minor disruption. | Handled by local management; logged for review. |
-| **Level 2 – Major Incident** | Multi-department or customer-impacting event. | Activate Business Continuity Team (BCT). |
-| **Level 3 – Crisis** | Enterprise-wide impact or regulatory concern. | Activate Crisis Management Team (CMT) and Emergency Operations Center (EOC). |
+## Crisis Management Structure
 
-### 3 Declaration Authority
-The CIO, CRO, or CEO may declare a crisis after consultation with the CISO and Business Continuity Manager (BCM).  
-Upon declaration, the **CMT** and **EOC** are immediately activated.
+| Role | Accountability |
+| --- | --- |
+| Executive Sponsor | Approves major decisions, risk acceptance, external positioning, and resource prioritization. |
+| Crisis Manager | Coordinates response structure, cadence, action tracking, and escalation. |
+| Operations Lead | Coordinates affected business functions and continuity workarounds. |
+| Technology Lead | Coordinates technology recovery, infrastructure, applications, identity, data, and service restoration. |
+| Security Lead | Coordinates security investigation, containment, threat response, and evidence preservation. |
+| Privacy Lead | Coordinates privacy assessment, data subject impact, and breach response where applicable. |
+| Legal and Compliance Lead | Coordinates legal interpretation, contractual obligations, regulatory positioning, and privilege considerations. |
+| Communications Lead | Coordinates approved internal and external messaging. |
+| Supplier Lead | Coordinates third-party provider escalation, evidence, restoration commitments, and exit considerations. |
+| Resilience Recorder | Maintains action log, decision log, status record, and evidence index. |
 
-
-
-## Crisis Management Team (CMT)
-
-| Role | Core Responsibilities |
-|------|-----------------------|
-| **CIO (Incident Commander)** | Authorizes activation and resource allocation. |
-| **CRO (Deputy Commander)** | Oversees risk implications and executive liaison. |
-| **CISO** | Leads cyber and ICT continuity actions. |
-| **CCO** | Monitors regulatory and certification compliance. |
-| **CLO/GC** | Manages legal and contractual obligations and notifications. |
-| **CTO** | Ensures technical restoration of infrastructure and applications. |
-| **CSO (Physical)** | Directs facility security and life-safety response. |
-| **BCM** | Coordinates plan execution and documentation. |
-| **Communications Director** | Leads public and internal messaging per Crisis Communication Plan. |
-| **Human Resources** | Manages employee safety and staff communications. |
-| **AI Governance Council Representative** | Oversees AI system risk and model recovery ethics. |
-
-
-
-## Emergency Operations Center (EOC)
-
-- Operates virtually through Teams and the Confluence GRC workspace.  
-- Houses workstreams for technology, business, communications, and logistics.  
-- Maintains decision logs and status dashboards.  
-- Physical EOC sites remain available for loss-of-connectivity scenarios.
-
-
+---
 
 ## Response Phases
 
-| Phase | Purpose | Key Deliverables |
-|--------|----------|------------------|
-| Respond | Ensure safety and stabilize the situation. | Safety confirmations; incident log. |
-| Resume | Restore minimum critical operations. | Initial recovery status report. |
-| Recover | Rebuild and validate core processes and systems. | Restoration checklist. |
-| Restore | Return to normal operations and hand off to owners. | Service restoration approval. |
-| Review | Capture lessons learned and update plans. | After-action report and improvement records. |
+| Phase | Activities | Outputs |
+| --- | --- | --- |
+| Detection and Triage | Confirm event, scope, impact, affected services, immediate safety or security concerns, and activation threshold. | Triage record, activation decision. |
+| Activation | Assign roles, initiate communication cadence, open action log, define objectives, and preserve evidence. | Activation record, meeting cadence, action log. |
+| Stabilization | Contain harm, maintain critical services, initiate workarounds, engage suppliers, and prioritize recovery. | Stabilization plan, supplier escalation, workaround record. |
+| Recovery | Restore services, validate data, confirm control state, remove workarounds, and monitor for recurrence. | Recovery record, validation evidence. |
+| Return to Normal | Confirm business acceptance, close crisis cadence, hand over remediation, and communicate closure. | Closure decision, residual risk record. |
+| Post-Incident Review | Review effectiveness, failures, communications, evidence, supplier performance, and corrective actions. | Lessons learned, corrective action plan. |
 
+---
 
+## Evidence Requirements
 
-## Incident Response Workflow (Integration)
+Maintain records for:
 
-1. Detect and verify disruption.  
-2. Notify CIO/CRO and BCM.  
-3. Declare crisis and activate CMT/EOC.  
-4. Contain impact and initiate continuity actions.  
-5. Coordinate with Crisis Communication Team for updates.  
-6. Monitor status until full recovery.  
-7. Conduct post-incident review and record outcomes.
+- Activation decision.
+- Role assignments.
+- Action log.
+- Decision log.
+- Status updates.
+- Recovery objectives and actual recovery outcomes.
+- Supplier communications.
+- Customer, regulator, or public communications where applicable.
+- Legal and compliance decisions where applicable.
+- Data restoration validation.
+- AI system disablement, fallback, or validation where applicable.
+- Corrective actions and closure approvals.
 
+---
 
+## Limitations
 
-## Communication and Stakeholder Management
+This plan is a public-domain template. It does not define an adopting organization's actual crisis team, contact details, recovery objectives, customer obligations, legal obligations, or supplier commitments.
 
-- All communications follow the Crisis Communication Plan approval matrix.  
-- Regulatory notifications (e.g., GDPR 72 h, NIS 2 24 h) handled by Legal and CCO.  
-- Only authorized Corporate Communications staff may engage media or public channels.  
-- Daily situation reports distributed to executive leadership while CMT is active.
-
-
-
-## Recovery Objectives
-
-| Tier | Description | Target RTO | Target RPO | Example Systems |
-|------|--------------|-------------|-------------|----------------|
-| **1 – Critical** | Mission-essential services. | ≤ 4 h | ≤ 15 min | ERP, logistics, customs, core AI. |
-| **2 – Essential** | Short outage tolerable. | ≤ 12 h | ≤ 1 h | CRM, finance, HRIS. |
-| **3 – Important** | Limited outage acceptable. | ≤ 24 h | ≤ 4 h | Departmental apps. |
-| **4 – Non-Critical** | Minimal impact if unavailable. | ≤ 72 h | ≤ 12 h | Training and support systems. |
-
-
-
-## Testing and Exercising
-
-- **Quarterly Tabletop Exercises** – scenario discussion with key teams.  
-- **Semi-Annual Simulations** – component recovery validation.  
-- **Annual Full Recovery Tests** – end-to-end failover and business resumption.  
-- Test results and lessons learned are logged in the Continuous Improvement Register and reviewed by the Enterprise Risk Committee.
-
-
-
-## Post-Incident Review
-
-- Conducted within 10 business days after recovery.  
-- Led by the CRO and CIO with CISO, CCO, and BCM participation.  
-- Review includes root-cause analysis, performance against RTO/RPO, communication effectiveness, and improvement recommendations.  
-- Reports archived within the Digital Trust Performance Framework.
-
-
-
-## Metrics and Performance Monitoring
-
-Key metrics include:
-- RTO/RPO achievement rate  
-- Mean Time to Recover (MTTR)  
-- Plan-update compliance rate  
-- Exercise success rate  
-- CAPA closure percentage  
-
-Quarterly reports are submitted to the Enterprise Risk Committee for review and tracking.
-
-
-
-## Continuous Improvement
-
-Lessons learned from incidents, tests, and audits must be evaluated to identify enhancement opportunities.  
-All corrective and preventive actions are recorded and tracked through the established governance processes.  
-
-Improvement activities shall align with:
-- The Corrective and Preventive Action Procedure  
-- The Continuous Improvement Register Procedure  
-- The Digital Trust Performance Framework  
-
-Actions remain open until validated as effective through follow-up testing or management review.
-
-
-
-## References and Framework Alignment
-
-| Framework | Reference | Objective |
-|------------|------------|-----------|
-| **ISO 22301:2019** | Clauses 8–10 | Implement and maintain BCMS operational plans. |
-| **ISO 22361:2022** | Sections 4–9 | Define crisis-management structure and leadership. |
-| **ISO 27031:2011** | Clause 7 | Integrate ICT continuity and resilience. |
-| **COBIT 2025** | DSS04, DSS05 | Manage continuity and availability of services. |
-| **NIST SP 800-34 Rev 1** | Ch. 3–5 | Contingency planning and recovery structure. |
-| **CSA CCM v5** | BCR, AIS Domains | Cloud and application resilience controls. |
-| **Trade and Supply-Chain Programs** | WCO SAFE, ISO 28000, BASC v6 | Trade-security and customs continuity alignment. |
-
-
-
-## Definitions
-
-Key terms and acronyms used in this document are defined in the **Resilience Terms and Definitions Register**, which provides standardized terminology for all Business Continuity, Disaster Recovery, and Crisis Management artefacts.
-
-Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
-
-
+---
 
 **End of Document**
