@@ -1,171 +1,110 @@
-Document Title
-In Model Risk Framework
+# AI Model Risk Framework
 
-Document Type
-Framework
-
-Version
-0.0.1
-
-Date
-2025 November 18
-
-Owner
-Chief Compliance Officer
-
-Approving Authority
-Chief Legal Officer
-
-Related Documents
-AI Governance Framework (framework-ai-governance.md)
-AI System Audit and Certification Framework (framework-ai-system-audit-and-certification.md)
-AI Lifecycle Governance Standard (standard-ai-lifecycle-governance.md)
-In Model Risk Standard (standard-in-model-risk.md)
-Responsible AI Policy (policy-responsible-ai.md)
-
-Classification
-Internal
-
-Category
-Artificial Intelligence
-
-Review Frequency
-Annual
-
-Repository Path
-/ai/framework-in-model-risk.md
-
-Confidentiality
-Internal
+**Document Title:** AI Model Risk Framework
+**Document Type:** Framework
+**Version:** 0.0.1
+**Date:** 2026 05 26
+**Owner:** AI Governance Maintainer
+**Approving Authority:** Governance Library Maintainer
+**Related Documents:** `ai/framework-ai-governance-and-risk.md`, `ai/standard-ai-in-model-risk.md`, `ai/procedure-in-model-risk-assessment.md`, `ai/matrix-in-model-risk-control-to-lifecycle-mapping.md`, `ai/template-model-card.md`, `ai/template-system-card.md`
+**Classification:** Public
+**Category:** AI Governance
+**Review Frequency:** 6 to 12 months and upon material model, data, threat, regulatory, or assurance change
+**Repository Path:** `ai/framework-in-model-risk.md`
+**Confidentiality:** Public
+**Licence:** CC0 1.0 Universal
 
 ---
 
 ## Purpose
 
-This framework establishes the enterprise model for identifying, evaluating, and mitigating in model risk across artificial intelligence, machine learning, and large language model systems. It defines interpretability, representation, robustness, lifecycle, and governance expectations necessary to ensure that internal model behaviour remains transparent, reliable, fair, and aligned with enterprise governance obligations.
+This framework defines an organization-neutral model for identifying, assessing, treating, monitoring, and evidencing risks arising from AI model behaviour, data representation, robustness, interpretability, lifecycle control, and deployment context.
 
-The framework provides conceptual structure. Mandatory requirements are defined in the In Model Risk Standard. It aligns with ISO 42001, ISO 23894, ISO 24028, NIST AI RMF, COBIT 2025, and CSA CCM v5.
+The framework treats data as the primary risk surface. Model behaviour is governed through controls over data provenance, lineage, training or tuning data, retrieval sources, prompts, inference inputs, monitoring records, retention, deletion, and lifecycle evidence.
+
+---
 
 ## Scope
 
-This framework applies to all AI and machine learning systems created, acquired, or deployed within the organization, including predictive, generative, classification, regression, reinforcement learning, embedding-based, and hybrid architectures.
+This framework applies to predictive models, classification models, generative models, retrieval-augmented systems, embedding models, decision-support models, fine-tuned models, externally supplied models, and AI systems that materially influence business, security, legal, operational, customer, employee, or public outcomes.
 
-It covers all lifecycle phases including design, data preparation, development, training, validation, deployment, monitoring, and retirement. It applies to production systems, internal tooling, pilot deployments, and vendor-supplied AI models influencing business decisions or automated actions.
+It applies across design, data preparation, development, training, validation, deployment, monitoring, material change, incident response, re-evaluation, and retirement.
 
-## Objectives
+---
 
-1. Define enterprise-wide domains of in model risk.  
-2. Establish consistent interpretability and representation analysis expectations.  
-3. Provide a uniform adversarial evaluation structure.  
-4. Strengthen lifecycle governance and documentation requirements.  
-5. Support responsible, fair, and transparent internal model behaviour.  
-6. Enable consistent oversight by the AI Governance Council and related committees.
+## Model Risk Domains
 
-## In Model Risk Domains
+| Domain | Risk Description |
+| --- | --- |
+| Interpretability Risk | Model behaviour, influencing inputs, decision logic, or output drivers cannot be sufficiently examined for the system's risk level. |
+| Representation Risk | Embeddings, latent variables, labels, features, or hidden states encode unstable, biased, sensitive, misleading, or unauthorized patterns. |
+| Data Provenance Risk | Training, tuning, retrieval, evaluation, or inference data lacks documented origin, rights, lineage, quality, or permitted-use basis. |
+| Adversarial Robustness Risk | Inputs, prompts, documents, perturbations, or tool outputs can cause unsafe, unintended, unauthorized, or misleading behaviour. |
+| Generalization Risk | Model performance degrades outside the conditions represented in training, evaluation, or operational monitoring. |
+| Alignment and Objective Risk | Outputs or behaviours diverge from approved purpose, constraints, user expectations, legal requirements, or operating boundaries. |
+| Drift Risk | Data, behaviour, performance, usage, or threat conditions change after deployment without adequate detection or response. |
+| Lifecycle Governance Risk | Documentation, ownership, approval, evidence, monitoring, incident response, change control, or retirement controls are incomplete. |
+| Supplier Model Risk | Externally supplied models or platforms limit visibility into data use, retention, evaluation, security, monitoring, or deletion. |
 
-### Interpretability and Explainability Risk
-Risk where internal reasoning, decision pathways, or influencing inputs cannot be examined or validated, including both local and global interpretability concerns.
+---
 
-### Representation Risk
-Risk that embeddings, latent variables, or hidden states encode biased, harmful, or unstable patterns.
+## Lifecycle Control Model
 
-### Adversarial Robustness Risk
-Risk that malicious prompts, inputs, or perturbations cause unintended or unsafe behaviour.
+| Lifecycle Stage | Model Risk Focus | Evidence Class |
+| --- | --- | --- |
+| Design | Intended use, prohibited use, risk tier, oversight, and evaluation strategy. | Use case record, model risk classification. |
+| Data Preparation | Provenance, lineage, classification, quality, representativeness, rights, retention, and deletion. | Data documentation, lineage record, rights review. |
+| Development | Model architecture, features, embeddings, prompts, retrieval design, and tool boundaries. | Development record, architecture record, threat model. |
+| Validation | Performance, robustness, interpretability, bias, misuse, security, privacy, and failure modes. | Validation report, adversarial evaluation, model card. |
+| Deployment | Approval, access, logging, monitoring, human oversight, supplier controls, and rollback. | Deployment approval, system card, monitoring plan. |
+| Monitoring | Drift, leakage, prompt injection, unsafe tool use, anomalies, incidents, and control exceptions. | Monitoring records, incident records, exception register. |
+| Re-evaluation | Periodic or trigger-based review of risk, control effectiveness, data, suppliers, and evidence. | Re-evaluation report, residual risk decision. |
+| Retirement | Access removal, model endpoint removal, data retention, deletion, archive, and supplier confirmation. | Retirement checklist, deletion or retention attestation. |
 
-### Generalization and Out-of-Distribution Risk
-Risk that model behaviour becomes unreliable when encountering data or contexts not represented in training.
+---
 
-### Goal Alignment and Behavioral Drift Risk
-Risk that internal model behaviours drift from intended objectives or ethical constraints.
+## Evaluation Requirements
 
-### Dependence and Fragility Risk
-Risk arising from reliance on unstable or noncausal features that reduce reliability or fairness.
+Model risk evaluation should be proportionate to risk and may include:
 
-### Lifecycle Governance Risk
-Risk arising from incomplete documentation, insufficient evaluation evidence, or inadequate monitoring.
+- Interpretability and explainability review.
+- Feature attribution review.
+- Representation and embedding analysis.
+- Sensitive attribute and proxy review.
+- Adversarial testing.
+- Prompt injection and indirect prompt injection testing.
+- Data poisoning review.
+- Model inversion and membership inference exposure assessment.
+- Training, tuning, retrieval, and inference data leakage testing.
+- Out-of-distribution testing.
+- Drift monitoring.
+- Human oversight review.
+- Supplier assurance review.
 
-## Interpretability Framework
+---
 
-### Feature Attribution Methods
-Techniques that identify how inputs influence predictions, such as SHAP, Integrated Gradients, and LIME.
+## Governance Requirements
 
-### Representation and Embedding Analysis
-Analysis of vectors, latent spaces, and clustering patterns using approaches including activation clustering, layer-wise relevance propagation, and concept activation vectors.
+Each model or model-enabled system should have:
 
-### Mechanistic Interpretability
-Inspection of internal computational pathways using methods such as neuron activation analysis, causal tracing, and internal circuit mapping.
+- Assigned owner.
+- Approved purpose.
+- Risk tier.
+- Data provenance and lineage record.
+- Model card or equivalent documentation.
+- System card or equivalent deployment context documentation where applicable.
+- Evaluation evidence.
+- Monitoring requirements.
+- Incident response linkage.
+- Exception and residual risk record where applicable.
+- Retirement and deletion requirements.
 
-## Adversarial Evaluation Framework
+---
 
-### Gradient and Perturbation Tests
-Minimal-input-change tests used to identify brittleness and sensitivity.
+## Limitations
 
-### Structured Red Teaming
-Targeted evaluations that attempt to exploit weaknesses, including prompt conflict, chain-of-thought derailment, goal hijacking, counterfactual stress, and misdirection attempts.
+This framework is a CC0 public-domain baseline. It does not reproduce external framework text and does not establish legal compliance, certification, model safety, or operating effectiveness. Adopting organizations must validate requirements against their own AI systems, data categories, suppliers, jurisdictions, sectors, and risk appetite.
 
-### Out-of-Distribution Testing
-Evaluations using data or contexts outside the training distribution.
+---
 
-### Long-Horizon Reasoning Stress Tests
-Testing for consistent, safe reasoning over extended multi-step sequences, particularly for LLMs.
-
-## Lifecycle Integration
-
-### Design
-Define expectations, interpretability requirements, and alignment with ethical and regulatory constraints.
-
-### Development
-Perform embedding checks, adversarial evaluations, and document internal design decisions.
-
-### Pre-Deployment
-Conduct red team evaluations, validate fairness and robustness, and produce model and system cards.
-
-### Deployment
-Establish performance thresholds, implement drift detection, and configure logging and monitoring.
-
-### Post-Deployment
-Perform periodic evaluations, incident reviews, evidence refresh, and archival or retirement checks.
-
-## Evidence and Documentation Requirements
-
-Required artefacts include:
-
-- model cards  
-- system cards  
-- interpretability reports  
-- adversarial evaluation summaries  
-- representation audits  
-- training data documentation  
-- evaluation datasets and scripts  
-- lifecycle decision logs  
-- approval records  
-- residual risk statements  
-
-## Roles and Responsibilities
-
-### Model Owner
-Maintains documentation, testing, evaluation evidence, and risk management activities.
-
-### AI Governance Council
-Provides oversight and ensures alignment with enterprise policy and regulatory frameworks.
-
-### Compliance and Legal
-Validates adherence to applicable AI legislation, standards, and regulatory requirements.
-
-### Security and Risk Management
-Assesses adversarial and safety risks and manages related incidents.
-
-### Internal Audit
-Verifies adherence to standards and completeness of lifecycle evidence.
-
-## References and Framework Alignment
-
-- ISO 42001 AI Management Systems  
-- ISO 23894 AI Risk Management  
-- ISO 24028 AI Trustworthiness  
-- NIST AI RMF  
-- COBIT 2025  
-- CSA CCM v5  
-- AI Governance Framework  
-- AI System Audit and Certification Framework  
-- AI Lifecycle Governance Standard
+**End of Document**
