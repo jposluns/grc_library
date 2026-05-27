@@ -1,6 +1,6 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Version:** 1.1.1
+**Version:** 1.1.2
 **Date:** 2026 05 26
 **Classification:** Public
 **Confidentiality:** Public
@@ -17,6 +17,7 @@
 | 1.0.2 | 2025 11 18 | Introduced domain directories, canonical metadata, contribution rules, and role-based governance. |
 | 1.1.0 | 2026 05 26 | Removed organization and person identifiers, clarified CC0 compatibility, added third-party reference boundaries, and aligned the library to a generic authoritative documentation model. |
 | 1.1.1 | 2026 05 26 | Added information security as a primary repository domain and clarified the live corpus expansion model. |
+| 1.1.2 | 2026 05 26 | Updated canonical AI model risk and backup recovery path references after repository-wide normalization. |
 
 ---
 
@@ -82,7 +83,9 @@ Examples:
 - `security/standard-logging-and-monitoring.md`
 - `ai/framework-ai-governance-and-risk.md`
 - `ai/standard-ai-security-and-risk.md`
+- `ai/framework-ai-model-risk.md`
 - `resilience/framework-business-continuity-and-resilience.md`
+- `resilience/procedure-backup-and-recovery.md`
 - `privacy/policy-privacy-and-data-governance.md`
 - `supplier/framework-supplier-and-cloud-governance.md`
 
@@ -105,6 +108,7 @@ The library uses the following artefact types:
 | Matrix | Maps relationships among controls, risks, obligations, frameworks, lifecycle stages, and evidence. |
 | Specification | Defines technical or structural requirements for artefact creation, data fields, interfaces, or evidence. |
 | Template | Provides reusable forms, logs, assessments, or evidence structures. |
+| Annex | Provides supplementary domain-specific guidance that remains subordinate to the parent framework, policy, or standard. |
 
 ---
 
@@ -156,9 +160,17 @@ The current authoritative starter set is organized around these foundational art
 | Security | Data Classification and Handling Standard |
 | AI | AI Governance and Risk Framework |
 | AI | AI Security and Risk Standard |
+| AI | AI Model Risk Framework |
+| AI | AI Model Risk Standard |
 | AI | AI System Impact Assessment Procedure |
+| AI | AI Model Risk Assessment Procedure |
 | AI | AI System Register Template |
+| AI | Model Card Template |
+| AI | System Card Template |
+| AI | AI Model Risk Control to Lifecycle Mapping Matrix |
 | Resilience | Business Continuity and Resilience Framework |
+| Resilience | Business Continuity and Disaster Recovery Policy |
+| Resilience | Backup and Recovery Procedure |
 | Privacy | Privacy and Data Governance Policy |
 | Supplier | Supplier and Cloud Governance Framework |
 
