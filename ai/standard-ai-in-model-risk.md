@@ -1,215 +1,113 @@
-Document Title
-In Model Risk Standard
+# AI Model Risk Standard
 
-Document Type
-Standard
-
-Version
-0.0.1
-
-Date
-2025 November 18
-
-Owner
-Chief Compliance Officer
-
-Approving Authority
-Chief Legal Officer
-
-Related Documents
-In Model Risk Framework (framework-in-model-risk.md)
-AI Governance Framework (framework-ai-governance.md)
-AI System Audit and Certification Framework (framework-ai-system-audit-and-certification.md)
-AI Lifecycle Governance Standard (standard-ai-lifecycle-governance.md)
-
-Classification
-Internal
-
-Category
-Artificial Intelligence
-
-Review Frequency
-Annual
-
-Repository Path
-/ai/standard-in-model-risk.md
-
-Confidentiality
-Public
+**Document Title:** AI Model Risk Standard
+**Document Type:** Standard
+**Version:** 0.0.1
+**Date:** 2026 05 26
+**Owner:** AI Governance Maintainer
+**Approving Authority:** Governance Library Maintainer
+**Related Documents:** `ai/framework-in-model-risk.md`, `ai/standard-ai-security-and-risk.md`, `ai/procedure-in-model-risk-assessment.md`, `ai/template-model-card.md`, `ai/template-system-card.md`
+**Classification:** Public
+**Category:** AI Governance
+**Review Frequency:** 6 to 12 months and upon material model, data, threat, regulatory, or assurance change
+**Repository Path:** `ai/standard-ai-in-model-risk.md`
+**Confidentiality:** Public
+**Licence:** CC0 1.0 Universal
 
 ---
 
 ## Purpose
 
-This standard defines mandatory requirements, controls, and evidence obligations for assessing and managing in model risk across artificial intelligence, machine learning, and large language model systems. It operationalizes the In Model Risk Framework through enforceable expectations for interpretability, robustness, alignment, lifecycle governance, and documentation.
+This standard defines minimum requirements for assessing and managing AI model risk. It operationalizes the AI Model Risk Framework through enforceable expectations for data provenance, interpretability, representation, robustness, alignment, monitoring, documentation, approval, and retirement.
 
-This standard supports alignment with ISO 42001, ISO 23894, ISO 24028, NIST AI RMF, COBIT 2025, and CSA CCM v5.
+---
 
-## Scope
+## Applicability
 
-This standard applies to all AI and machine learning models that affect business decisions, automated workflows, or external outputs. It applies to internally developed models, vendor-supplied models, open-source models, and fine-tuned models. Requirements apply across all lifecycle phases, from problem definition through archival and decommissioning, and to production systems, pilots, and embedded AI functionalities.
+This standard applies to models and model-enabled systems that materially affect business, security, privacy, legal, operational, financial, customer, employee, or public outcomes.
 
-## Objectives
+It applies to internally developed models, externally supplied models, fine-tuned models, embedded models, retrieval-augmented systems, generative systems, predictive systems, and models used through external services.
 
-1. Establish enforceable controls for interpretability, robustness, alignment, and lifecycle governance.  
-2. Ensure consistent and reliable internal model behaviour across AI systems.  
-3. Define evidence and documentation required to maintain auditability.  
-4. Support safe, ethical, and transparent deployment of AI capabilities.
+---
 
-## Mandatory Controls
+## Requirements
 
-### 1 Interpretability Controls
+### 1. Model Inventory and Ownership
 
-#### 1.1 Interpretability Baseline
-All AI models must maintain a documented interpretability profile proportional to risk category.
+1. Each model or model-enabled system must be recorded in an AI system or model inventory.
+2. Each model must have an assigned owner, data owner, control owner, and supplier owner where applicable.
+3. Each model must have an approved purpose, prohibited use conditions, risk tier, lifecycle status, and review date.
 
-#### 1.2 Feature Attribution Evidence
-Models must generate attribution evidence using at least one approved technique such as SHAP, Integrated Gradients, or LIME. Evidence must be attached to the model card and refreshed during retraining.
+### 2. Data Provenance and Lineage
 
-#### 1.3 Representation and Embedding Analysis
-Models using embeddings or latent variables must undergo structured representation analysis including:
+1. Training, tuning, retrieval, evaluation, monitoring, and inference data must have documented provenance and permitted-use basis.
+2. Data lineage must identify source, transformation, storage, access, retention, deletion, and supplier handling where applicable.
+3. Sensitive, personal, regulated, confidential, or restricted data must not be used unless authorized, assessed, and controlled.
+4. Data poisoning, evaluation contamination, unauthorized secondary use, and training data leakage must be considered during assessment.
 
-- embedding cluster visualization  
-- sensitive attribute correlation review  
-- summary of semantic or fairness-related risks
+### 3. Interpretability and Documentation
 
-#### 1.4 Mechanistic Interpretability for High-Risk Models
-High-risk models must include advanced interpretability analysis such as neuron activation review or causal tracing.
+1. Interpretability expectations must be proportionate to model risk and use context.
+2. High-impact models must maintain evidence explaining material output drivers, limitations, assumptions, and known failure conditions.
+3. Model cards or equivalent documentation must describe purpose, data, risk tier, evaluation results, limitations, intended use, prohibited use, monitoring, and approval status.
+4. System cards or equivalent deployment-context documentation must describe integrations, users, data flows, access controls, tool access, logging, supplier dependencies, and human oversight.
 
-### 2 Adversarial Evaluation Controls
+### 4. Representation and Bias Review
 
-#### 2.1 Adversarial Test Suite
-All models must undergo adversarial testing using a documented evaluation suite appropriate to architecture and risk level.
+1. Models using embeddings, features, labels, or latent representations must be assessed for unstable, sensitive, biased, or unauthorized patterns proportionate to risk.
+2. Sensitive attribute and proxy risk must be reviewed where model outputs can materially affect individuals, groups, access, eligibility, pricing, safety, employment, finance, or regulated decisions.
+3. Findings must be remediated, controlled, or accepted through documented risk governance.
 
-#### 2.2 Gradient and Perturbation Testing
-Models must be evaluated using minimal perturbation techniques to detect brittleness and sensitivity.
+### 5. Robustness and Adversarial Testing
 
-#### 2.3 Red Team Evaluation
-High-risk and enterprise-impact models must undergo structured red team evaluations including:
+Model testing must address, proportionate to risk:
 
-- prompt conflict  
-- chain-of-thought disruption  
-- misdirection attempts  
-- counterfactual reversal tests  
-- malicious input exposure  
+- Prompt injection.
+- Indirect prompt injection.
+- Data poisoning.
+- Model inversion.
+- Membership inference.
+- Training data leakage.
+- Retrieval leakage.
+- Unsafe tool use.
+- Out-of-distribution behaviour.
+- Input perturbation sensitivity.
+- Unauthorized model or data extraction.
 
-Findings must be documented, remediated, or formally risk accepted.
+### 6. Alignment and Human Oversight
 
-#### 2.4 Out-of-Distribution Evaluation
-Models must be tested against out-of-distribution inputs to verify stable and safe generalization.
+1. Model outputs and behaviours must be assessed against approved purpose, operating constraints, user expectations, and risk tolerance.
+2. Human oversight must be defined where outputs may affect rights, access, eligibility, employment, finance, safety, security, legal exposure, or critical operations.
+3. Reviewers must have authority and information sufficient to challenge, override, reject, or escalate model outputs.
 
-### 3 Goal Alignment and Behavioral Controls
+### 7. Monitoring and Re-evaluation
 
-#### 3.1 Alignment Validation
-All models must be evaluated to ensure alignment with intended purpose, ethical guidelines, and enterprise governance principles.
+1. Deployed models must have monitoring proportionate to risk.
+2. Monitoring should address performance, drift, misuse, leakage, prompt injection attempts, anomalous retrieval, unsafe tool activity, incidents, and control exceptions.
+3. Re-evaluation must occur at defined cadence and upon material change to model, data, supplier, deployment context, threat pattern, or legal or regulatory context.
 
-#### 3.2 Behavioral Drift Monitoring
-Deployed models must include drift monitoring mechanisms assessing:
+### 8. Incident and Exception Management
 
-- output anomalies  
-- internal distribution shifts  
-- alignment deviations  
-- unusual behaviour indicators  
+1. Model-related incidents must be managed through incident response.
+2. Exceptions must record owner, scope, risk, rationale, compensating controls, expiry, and approval.
+3. Critical or high-impact unresolved model risks must not proceed without explicit residual risk acceptance by the appropriate accountable authority.
 
-Alerts must be logged and escalated.
+### 9. Retirement and Deletion
 
-### 4 Data and Training Controls
+Retirement must address model endpoint removal, access removal, service account removal, data retention, retrieval store deletion, prompt and output log handling, evaluation artefact retention, supplier deletion confirmation, and inventory status update.
 
-#### 4.1 Training Data Documentation
-All training data, sources, and transformations must be fully documented.
+---
 
-#### 4.2 Sensitive Attribute Review
-Datasets must be reviewed for sensitive attributes and associated correlation risks.
+## Evidence Requirements
 
-#### 4.3 Provenance and Lineage
-All training data must include provenance and lineage documentation and be traceable throughout the lifecycle.
+Evidence should include inventory entry, model card, system card where applicable, data provenance record, lineage record, evaluation report, adversarial test summary, access review, monitoring plan, incident records, exception records, approval record, and retirement or deletion record.
 
-### 5 Lifecycle Governance Controls
+---
 
-#### 5.1 Model Card Requirement
-Each model must include a complete model card before deployment summarizing:
+## Limitations
 
-- purpose  
-- architecture  
-- training sources  
-- evaluation results  
-- interpretability findings  
-- adversarial evaluation summaries  
-- limitations  
-- risk statements  
+This standard is original CC0 content. It does not reproduce external control text and does not establish compliance, certification, safety, or assurance by itself. Adopting organizations must validate applicability and operating effectiveness.
 
-#### 5.2 System Card Requirement
-Models embedded within broader systems must include a system card that describes system-level risks, dependencies, and interactions.
+---
 
-#### 5.3 Deployment Approval
-Models may only be deployed following approval from:
-
-- Model Owner  
-- AI Governance Council  
-- Compliance and Legal  
-- Security (adversarial review)
-
-#### 5.4 Documentation Integrity
-All lifecycle documentation must be maintained in an immutable repository with version control.
-
-### 6 Monitoring and Re-Evaluation Controls
-
-#### 6.1 Continuous Monitoring
-Models must be continuously monitored for drift, degradation, anomalous behaviour, and adversarial indicators.
-
-#### 6.2 Periodic Re-Evaluation
-All models must undergo full re-evaluation at least annually or when triggered by:
-
-- major architectural changes  
-- retraining events  
-- data pipeline modifications  
-- material incidents  
-
-#### 6.3 Incident Response Integration
-Model anomalies or adversarial events must trigger established incident response processes and be logged in the enterprise risk system.
-
-### 7 Documentation and Evidence Requirements
-
-The following artefacts must be created and maintained:
-
-- model card  
-- system card  
-- interpretability report  
-- adversarial testing report  
-- representation and embedding analysis  
-- drift monitoring logs  
-- approval and change logs  
-- retraining and evaluation summaries  
-- residual risk acceptance statements  
-
-Evidence must be retained for the full lifecycle and archived according to the AI Lifecycle Governance Standard.
-
-## Roles and Responsibilities
-
-### Model Owner
-Ensures control compliance and maintains complete documentation.
-
-### AI Governance Council
-Provides oversight, evaluates exceptions, and assures alignment with enterprise AI governance expectations.
-
-### Compliance and Legal
-Validates adherence to applicable laws, regulations, and standards.
-
-### Security and Risk Management
-Conducts adversarial testing and manages safety-related risks.
-
-### Internal Audit
-Verifies control enforcement and completeness of documentation and evidence.
-
-## References and Framework Alignment
-
-- In Model Risk Framework  
-- AI Governance Framework  
-- AI System Audit and Certification Framework  
-- AI Lifecycle Governance Standard  
-- ISO 42001  
-- ISO 23894  
-- ISO 24028  
-- NIST AI RMF  
-- COBIT 2025  
-- CSA CCM v5
+**End of Document**
