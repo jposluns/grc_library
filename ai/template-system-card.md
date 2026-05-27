@@ -1,192 +1,174 @@
-Document Title
-System Card Template
-
-Document Type
-Template
-
-Version
-0.0.1
-
-Date
-2025 November 18
-
-Owner
-Chief Compliance Officer
-
-Approving Authority
-Chief Compliance Officer
-
-Related Documents
-In Model Risk Framework (framework-in-model-risk.md)
-In Model Risk Standard (standard-in-model-risk.md)
-AI Lifecycle Governance Standard (standard-ai-lifecycle-governance.md)
-In Model Risk Assessment Procedure (procedure-in-model-risk-assessment.md)
-Model Card Template (template-model-card.md)
-
-Classification
-Public
-
-Category
-Artificial Intelligence
-
-Review Frequency
-Annual
-
-Repository Path
-/ai/template-system-card.md
-
-Confidentiality
-Public
-
-# Purpose
-
-This template defines the required structure for documenting risks, interactions, dependencies, and operational controls for AI systems that incorporate one or more machine learning or artificial intelligence models. A system card provides holistic visibility into end-to-end AI system behaviour and supports governance, safety, risk evaluation, and auditability across the full system lifecycle.
-
-# Scope
-
-This template applies to all enterprise systems containing embedded AI or ML components, including vendor-supplied platforms, internally developed systems, hybrid pipelines, multi-model architectures, and systems integrating external APIs. A system card must be completed prior to deployment and updated following significant system, data, or model changes.
-
 # System Card Template
 
-## 1 System Overview
+**Document Title:** System Card Template
+**Document Type:** Template
+**Version:** 0.0.1
+**Date:** 2026 05 26
+**Owner:** AI Governance Maintainer
+**Approving Authority:** Governance Library Maintainer
+**Related Documents:** `ai/framework-ai-governance-and-risk.md`, `ai/framework-in-model-risk.md`, `ai/template-model-card.md`, `ai/template-ai-system-register.md`, `ai/procedure-ai-system-impact-assessment.md`
+**Classification:** Public
+**Category:** AI Governance
+**Review Frequency:** 6 to 12 months and upon material AI system, supplier, data, architecture, or control change
+**Repository Path:** `ai/template-system-card.md`
+**Confidentiality:** Public
+**Licence:** CC0 1.0 Universal
 
-System Name  
-System Identifier  
-Version  
-System Owner  
-Business Unit  
-Primary System Purpose  
-System Boundaries and Scope  
-Deployment Environment (cloud, on premise, edge, hybrid, vendor hosted)  
+---
 
-## 2 System Architecture
+## Purpose
 
-High Level Architecture Diagram Reference  
-System Components  
-Integrated Models (list each with model identifiers)  
-Data Pipelines and Flows  
-External Dependencies and APIs  
-Upstream and Downstream System Interactions  
-Security Architecture Summary  
+This template provides a reusable structure for documenting an AI system that includes one or more models, retrieval sources, tools, integrations, workflows, suppliers, or user-facing capabilities.
 
-## 3 Functional Description
+Do not populate the public repository version with real system names, people names, supplier names, customer names, URLs, internal identifiers, evidence locations, architecture diagrams, or operational details.
 
-System Functions and Capabilities  
-Decision or Automation Points  
-End User Interactions  
-Operational Use Cases  
-Workflow Integration  
+---
 
-## 4 Embedded AI Models
+## System Card Fields
 
-Model Inventory Summary  
-Purpose of Each Embedded Model  
-Role of Each Model in System Behaviour  
-Model Dependency Graph  
-Model-Specific Risk Ratings  
-Links to Model Cards  
+### 1. System Overview
 
-## 5 Data Lifecycle
+| Field | Entry |
+| --- | --- |
+| System Identifier |  |
+| System Name |  |
+| System Version |  |
+| System Owner Role |  |
+| Data Owner Role |  |
+| Control Owner Role |  |
+| Supplier Owner Role |  |
+| Lifecycle Status | Proposed, pilot, production, suspended, retired. |
+| Approved Purpose |  |
+| Prohibited Uses |  |
+| Risk Tier | Low, moderate, high, critical. |
 
-Data Inputs  
-Data Outputs  
-Data Transformations  
-Data Storage Locations  
-Sensitive Attributes Present  
-Provenance and Lineage Summary  
-Data Retention and Deletion Requirements  
+### 2. System Boundary
 
-## 6 Evaluation and Testing Summary
+| Field | Entry |
+| --- | --- |
+| User Population |  |
+| Business Process |  |
+| Deployment Model | Internal, external service, cloud-hosted, embedded platform, API, local, hybrid. |
+| System Components |  |
+| Integrated Models |  |
+| Retrieval Sources |  |
+| Tool or Action Access |  |
+| Upstream Dependencies |  |
+| Downstream Dependencies |  |
+| Supplier Dependencies |  |
 
-Functional Testing  
-System-Level Performance Metrics  
-Scenario and Stress Testing  
-Adversarial System-Level Testing Results  
-Human Factors Testing (if applicable)  
-Safety and Resilience Evaluations  
-Validation of Inter-Model Interactions  
+### 3. Data Lifecycle
 
-## 7 Alignment and Safety Controls
+| Field | Entry |
+| --- | --- |
+| Data Inputs |  |
+| Data Outputs |  |
+| Data Transformations |  |
+| Prompt Data Categories |  |
+| Retrieval Data Categories |  |
+| Inference Data Categories |  |
+| Monitoring Data Categories |  |
+| Data Provenance |  |
+| Data Lineage |  |
+| Data Retention |  |
+| Enforceable Deletion Method |  |
+| Supplier Data Handling |  |
 
-Intended Purpose Alignment  
-Ethical and Policy Alignment Review  
-Safeguards and Guardrails  
-Content Safety Controls (if applicable)  
-User Safety and Abuse Prevention Measures  
-Compliance With Enterprise Ethical Guidelines  
+### 4. Security and Access Controls
 
-## 8 System Risks and Controls
+| Field | Entry |
+| --- | --- |
+| Authentication Method |  |
+| Authorization Model |  |
+| Privileged Access |  |
+| Service Accounts or Workload Identities |  |
+| API Keys, Tokens, or Secrets |  |
+| Logging and Monitoring |  |
+| Encryption and Key Management |  |
+| Network or Exposure Boundary |  |
+| Tool Permission Boundary |  |
 
-System-Level Risk Identification  
-Interdependency Risks  
-Data Flow Risks  
-Operational Risks  
-Security Risks  
-Model Interaction Risks  
-Mitigation Controls Implemented  
-Residual Risks  
+### 5. AI Risk and Testing
 
-## 9 Monitoring and Operational Controls
+| Field | Entry |
+| --- | --- |
+| Prompt Injection Testing |  |
+| Indirect Prompt Injection Testing |  |
+| Data Poisoning Review |  |
+| Model Inversion Review |  |
+| Membership Inference Review |  |
+| Retrieval Leakage Review |  |
+| Unsafe Tool Use Review |  |
+| Output Quality and Failure Modes |  |
+| Human Oversight Testing |  |
+| Resilience or Fallback Testing |  |
 
-System Monitoring Requirements  
-Model Monitoring Integration  
-Drift Detection Coverage  
-Alert Thresholds  
-Logging Requirements  
-Incident Indicators  
-Performance Degradation Criteria  
-Escalation and Notification Procedures  
+### 6. Human Oversight and Decision Impact
 
-## 10 Deployment and Change Management
+| Field | Entry |
+| --- | --- |
+| Decision Impact |  |
+| Human Review Point |  |
+| Override Authority |  |
+| Escalation Path |  |
+| User Disclosure Requirement |  |
+| Output Verification Requirement |  |
 
-Deployment Prerequisites  
-Change Management Requirements  
-Rollback and Contingency Plans  
-Documentation Requirements for Changes  
-System Approval Workflow  
-Dependencies on External Vendors  
+### 7. Supplier and External Service Review
 
-## 11 Governance and Approvals
+| Field | Entry |
+| --- | --- |
+| Supplier Role |  |
+| Data Residency |  |
+| Training or Improvement Use |  |
+| Retention Commitments |  |
+| Subprocessor Exposure |  |
+| Incident Notification |  |
+| Deletion and Export Capability |  |
+| Exit Support |  |
 
-System Owner Approval  
-Compliance Review  
-Legal Review  
-Security Review  
-AI Governance Review  
-Final Approval Authority  
+### 8. Monitoring, Incident, and Change Control
 
-## 12 Evidence Repository Index
+| Field | Entry |
+| --- | --- |
+| Monitoring Method |  |
+| Incident Indicators |  |
+| Escalation Criteria |  |
+| Change Triggers |  |
+| Reassessment Triggers |  |
+| Exception References |  |
+| Corrective Action References |  |
 
-Evidence Location References  
-Architecture diagrams  
-Model cards  
-Evaluation datasets  
-Test results  
-Adversarial testing reports  
-Monitoring configuration  
-Version history  
-Lifecycle decision logs  
-Change records  
+### 9. Approval and Review
 
-# Monitoring, Metrics, and Reporting
+| Field | Entry |
+| --- | --- |
+| Impact Assessment Status | Not started, in progress, approved, approved with conditions, rejected, retired. |
+| Approval Authority Role |  |
+| Approval Decision | Approved, approved with conditions, pilot only, deferred, rejected, retired. |
+| Approval Date |  |
+| Next Review Date |  |
+| Residual Risk Summary |  |
 
-System cards must be reviewed during re evaluation cycles and updated as part of model or system retraining events.  
-Annual summaries should highlight system behaviour, findings, incidents, and maturity indicators.  
-All changes must be recorded in the repository with version control.
+### 10. Retirement and Decommissioning
 
-# Continuous Improvement
+| Field | Entry |
+| --- | --- |
+| Retirement Trigger |  |
+| Access Removal |  |
+| Integration Removal |  |
+| Model Endpoint Removal |  |
+| Retrieval Store Deletion |  |
+| Log Retention Decision |  |
+| Supplier Deletion Confirmation |  |
+| Final Status |  |
 
-System card improvements should be proposed based on lessons learned, incidents, or updated standards.  
-Non substantive edits may be made without reapproval but must be logged in the continuous improvement register.
+---
 
-# References and Framework Alignment
+## Use Notes
 
-In Model Risk Framework  
-In Model Risk Standard  
-AI Lifecycle Governance Standard  
-ISO 42001  
-ISO 23894  
-ISO 24028  
-NIST AI RMF  
-CSA CCM v5  
-COBIT 2025
+A system card documents deployment context and system-level risk. Model-level details should be recorded in model cards and linked by internal reference in adopting organizations.
+
+---
+
+**End of Document**
