@@ -6,11 +6,11 @@
 **Date:** 2026 05 26
 **Owner:** Assurance Metrics Maintainer
 **Approving Authority:** Governance Library Maintainer
-**Related Documents:** `core/charter-governance-library.md`, `core/matrix-cross-framework-alignment.md`, `resilience/framework-business-continuity-and-resilience.md`, `ai/framework-ai-governance-and-risk.md`
+**Related Documents:** `governance/charter-governance-library.md`, `governance/matrix-cross-framework-alignment.md`, `resilience/framework-business-continuity-and-resilience.md`, `ai/framework-ai-governance-and-risk.md`
 **Classification:** Public
 **Category:** Core Governance
 **Review Frequency:** 6 to 12 months and upon material assurance model change
-**Repository Path:** `core/register-digital-trust-and-assurance-metrics.md`
+**Repository Path:** `governance/register-digital-trust-and-assurance-metrics.md`
 **Confidentiality:** Public
 **Licence:** CC0 1.0 Universal
 

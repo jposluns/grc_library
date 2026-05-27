@@ -6,11 +6,11 @@
 **Date:** 2026 05 26
 **Owner:** Supplier Risk Maintainer
 **Approving Authority:** Governance Library Maintainer
-**Related Documents:** `supplier/framework-supplier-and-cloud-governance.md`, `resilience/framework-business-continuity-and-resilience.md`, `resilience/policy-business-continuity-and-disaster-recovery.md`, `resilience/standard-business-continuity-and-disaster-recovery.md`, `resilience/procedure-business-impact-analysis.md`, `resilience/procedure-continuity-and-recovery-testing.md`
+**Related Documents:** `supply-chain/framework-supplier-and-cloud-governance.md`, `resilience/framework-business-continuity-and-resilience.md`, `resilience/policy-business-continuity-and-disaster-recovery.md`, `resilience/standard-business-continuity-and-disaster-recovery.md`, `resilience/procedure-business-impact-analysis.md`, `resilience/procedure-continuity-and-recovery-testing.md`
 **Classification:** Public
 **Category:** Resilience
 **Review Frequency:** Annual and upon material supplier, trade, regulatory, route, service, or resilience change
-**Repository Path:** `resilience/annex-trade-and-supply-chain-continuity-controls.md`
+**Repository Path:** `supply-chain/annex-trade-and-supply-chain-continuity-controls.md`
 **Confidentiality:** Public
 **Licence:** CC0 1.0 Universal
 

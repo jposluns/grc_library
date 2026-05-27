@@ -6,7 +6,7 @@
 **Date:** 2026 05 26
 **Owner:** Chief Data Officer
 **Approving Authority:** Governance Library Maintainer
-**Related Documents:** `privacy/policy-privacy-and-data-governance.md`, `security/policy-information-security.md`, `ai/standard-ai-security-and-risk.md`, `core/register-global-regulatory-applicability.md`
+**Related Documents:** `privacy/policy-privacy-and-data-governance.md`, `security/policy-information-security.md`, `ai/standard-ai-security-and-risk.md`, `compliance/register-global-regulatory-applicability.md`
 **Classification:** Public
 **Category:** Information Security
 **Review Frequency:** Annual and upon material data, privacy, AI, or regulatory change

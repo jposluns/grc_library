@@ -10,11 +10,11 @@
 | **Date** |  |
 | **Document Owner** | Chief Information Security Officer (CISO) |
 | **Approving Authority** | Chief Information Officer (CIO) |
-| **Related Documents** | Governance Charter; Policy: Governance and Risk Management; Policy: Compliance, Audit, and CAPA Management; Risk Acceptance Procedure; Exception Register Specification; Digital Trust Performance Framework |
+| **Related Documents** | Governance Library Charter; Policy: Governance and Risk Management; Policy: Compliance, Audit, and CAPA Management; Risk Acceptance Procedure; Exception Register Specification; Digital Trust Performance Framework |
 | **Classification** | **Public – Open Access** |
 | **Category** | Governance / Risk / Security |
 | **Review Frequency** | Annual or after major regulatory or architectural change |
-| **Repository Path** | /policies/exception-and-risk-acceptance-management |
+| **Repository Path** | `governance/policy-exception-and-risk-acceptance-management.md` |
 | **Confidentiality** | **None (Public Domain, CC0 License)** |
 
 
@@ -93,7 +93,7 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 - **Medium risk:** CIO or delegate.  
 - **High or critical risk:** Executive Committee or Board Risk Committee.  
 - **Trade and customs-related exceptions:** applicable compliance officer co-approval and ERC notification.  
-2.3 Exceptions exceeding the organization’s defined risk appetite or those impacting trade or customs operations require explicit acceptance by executive authority and validation against trade and supply-chain programs.
+2.3 Exceptions exceeding the organization's defined risk appetite or those impacting trade or customs operations require explicit acceptance by executive authority and validation against trade and supply-chain programs.
 
 ### 3. Duration and Renewal
 3.1 Exceptions shall be time-bound and should not exceed 180 days unless renewed with justification.  
@@ -133,7 +133,7 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 - **NIST SP 800-37 Rev 2** RMF Step 6 Authorize the System; **NIST SP 800-53 Rev 5** CA-6 Authorization  
 - **NIST AI RMF 1.1** Govern Function [Unverified]  
 - **OECD AI Principles** Accountability and Transparency  
-- **Trade and Supply Chain Programs:** WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalents  
+- **Trade and Supply Chain Programs:** WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalents
 
 
 

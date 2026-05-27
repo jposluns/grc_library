@@ -14,7 +14,7 @@
 | **Classification** | Public – Open Access |
 | **Category** | Governance / Risk |
 | **Review Frequency** | Annual or as required by regulatory or framework changes |
-| **Repository Path** | /policies/governance-and-risk-management |
+| **Repository Path** | `governance/policy-governance-and-risk-management.md` |
 | **Confidentiality** | None (Public Domain, CC0 License) |
 
 

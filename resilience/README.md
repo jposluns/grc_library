@@ -6,7 +6,7 @@
 **Date:** 2026 05 26
 **Owner:** Resilience Maintainer
 **Approving Authority:** Governance Library Maintainer
-**Related Documents:** `README.md`, `core/register-document-index-and-classification.md`, `resilience/framework-business-continuity-and-resilience.md`
+**Related Documents:** `README.md`, `governance/register-document-index-and-classification.md`, `resilience/framework-business-continuity-and-resilience.md`
 **Classification:** Public
 **Category:** Resilience
 **Review Frequency:** Annual and upon material continuity, crisis, recovery, supplier, or regulatory change
@@ -40,7 +40,7 @@ This directory contains organization-neutral business continuity, disaster recov
 | Procedure | Backup and Recovery Procedure | `resilience/procedure-backup-and-recovery.md` |
 | Guideline | Emergency Response and Protective Actions Guideline | `resilience/guideline-emergency-response-and-protective-actions.md` |
 | Template | Departmental Continuity Plan Template | `resilience/guideline-departmental-continuity-plan-template.md` |
-| Annex | Trade and Supply-Chain Continuity Controls Annex | `resilience/annex-trade-and-supply-chain-continuity-controls.md` |
+| Annex | Trade and Supply-Chain Continuity Controls Annex | `supply-chain/annex-trade-and-supply-chain-continuity-controls.md` |
 | Template | Resilience Metrics and Testing Log Template | `resilience/register-resilience-metrics-and-testing-log.md` |
 | Register | Resilience Terms and Definitions Register | `resilience/register-resilience-terms-and-definitions.md` |
 | Template | Emergency Operations Contact Directory Template | `resilience/register-eoc-contact-directory.md` |

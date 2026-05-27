@@ -6,7 +6,7 @@
 **Date:** 2026 05 26
 **Owner:** Chief Information Security Officer
 **Approving Authority:** Governance Library Maintainer
-**Related Documents:** `security/policy-information-security.md`, `security/procedure-incident-response.md`, `core/register-digital-trust-and-assurance-metrics.md`, `ai/standard-ai-security-and-risk.md`
+**Related Documents:** `security/policy-information-security.md`, `security/procedure-incident-response.md`, `governance/register-digital-trust-and-assurance-metrics.md`, `ai/standard-ai-security-and-risk.md`
 **Classification:** Public
 **Category:** Information Security
 **Review Frequency:** Annual and upon material architecture, threat, or regulatory change

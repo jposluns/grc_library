@@ -6,7 +6,7 @@
 **Date:** 2026 05 26
 **Owner:** Privacy Maintainer
 **Approving Authority:** Governance Library Maintainer
-**Related Documents:** `core/register-global-regulatory-applicability.md`, `ai/framework-ai-governance-and-risk.md`, `supplier/framework-supplier-and-cloud-governance.md`
+**Related Documents:** `compliance/register-global-regulatory-applicability.md`, `ai/framework-ai-governance-and-risk.md`, `supply-chain/framework-supplier-and-cloud-governance.md`
 **Classification:** Public
 **Category:** Privacy
 **Review Frequency:** 6 to 12 months and upon material privacy, data protection, or regulatory change

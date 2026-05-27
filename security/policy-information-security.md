@@ -6,7 +6,7 @@
 **Date:** 2026 05 26
 **Owner:** Chief Information Security Officer
 **Approving Authority:** Executive Management
-**Related Documents:** `security/standard-logging-and-monitoring.md`, `security/policy-identity-and-access-management.md`, `security/standard-data-classification-and-handling.md`, `security/procedure-incident-response.md`, `core/policy-enterprise-governance-and-risk-management.md`
+**Related Documents:** `security/standard-logging-and-monitoring.md`, `security/policy-identity-and-access-management.md`, `security/standard-data-classification-and-handling.md`, `security/procedure-incident-response.md`, `governance/policy-governance-and-risk-management.md`
 **Classification:** Public
 **Category:** Information Security
 **Review Frequency:** Annual and upon material threat, architecture, or regulatory change

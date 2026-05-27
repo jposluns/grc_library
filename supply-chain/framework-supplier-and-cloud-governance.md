@@ -6,11 +6,11 @@
 **Date:** 2026 05 26
 **Owner:** Supplier Risk Maintainer
 **Approving Authority:** Governance Library Maintainer
-**Related Documents:** `core/register-global-regulatory-applicability.md`, `core/matrix-cross-framework-alignment.md`, `privacy/policy-privacy-and-data-governance.md`, `ai/framework-ai-governance-and-risk.md`, `resilience/framework-business-continuity-and-resilience.md`
+**Related Documents:** `compliance/register-global-regulatory-applicability.md`, `governance/matrix-cross-framework-alignment.md`, `privacy/policy-privacy-and-data-governance.md`, `ai/framework-ai-governance-and-risk.md`, `resilience/framework-business-continuity-and-resilience.md`
 **Classification:** Public
 **Category:** Supplier Governance
 **Review Frequency:** 6 to 12 months and upon material supplier, service, data, contract, or regulatory change
-**Repository Path:** `supplier/framework-supplier-and-cloud-governance.md`
+**Repository Path:** `supply-chain/framework-supplier-and-cloud-governance.md`
 **Confidentiality:** Public
 **Licence:** CC0 1.0 Universal
 

@@ -6,11 +6,11 @@
 **Date:** 2026 05 26
 **Owner:** Compliance Maintainer
 **Approving Authority:** Governance Library Maintainer
-**Related Documents:** `core/charter-governance-library.md`, `core/matrix-cross-framework-alignment.md`, `privacy/policy-privacy-and-data-governance.md`, `ai/framework-ai-governance-and-risk.md`
+**Related Documents:** `governance/charter-governance-library.md`, `governance/matrix-cross-framework-alignment.md`, `privacy/policy-privacy-and-data-governance.md`, `ai/framework-ai-governance-and-risk.md`
 **Classification:** Public
 **Category:** Core Governance
 **Review Frequency:** 6 to 12 months and upon material regulatory change
-**Repository Path:** `core/register-global-regulatory-applicability.md`
+**Repository Path:** `compliance/register-global-regulatory-applicability.md`
 **Confidentiality:** Public
 **Licence:** CC0 1.0 Universal
 

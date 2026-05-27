@@ -6,11 +6,11 @@
 **Date:** 2026 05 26
 **Owner:** Governance Library Maintainer
 **Approving Authority:** Governance Library Maintainer
-**Related Documents:** `core/charter-governance-library.md`, `core/register-document-index-and-classification.md`, `core/register-role-authority.md`
+**Related Documents:** `governance/charter-governance-library.md`, `governance/register-document-index-and-classification.md`, `governance/register-role-authority.md`
 **Classification:** Public
 **Category:** Core Governance
 **Review Frequency:** Annual and upon material repository structure change
-**Repository Path:** `core/framework-document-architecture-and-interrelationship.md`
+**Repository Path:** `governance/framework-document-architecture-and-interrelationship.md`
 **Confidentiality:** Public
 **Licence:** CC0 1.0 Universal
 
@@ -26,7 +26,7 @@ The framework provides a reusable architecture for organizations that need a coh
 
 ## Scope
 
-This framework applies to all repository documents in the `core`, `ai`, `resilience`, `privacy`, and `supplier` domains.
+This framework applies to all repository documents in the `governance`, `risk`, `compliance`, `security`, `ai`, `operations`, `resilience`, `privacy`, `supply-chain`, and `dev-security` domains.
 
 It governs:
 
@@ -74,13 +74,18 @@ It governs:
 
 | Source Domain | Dependent Domain | Typical Dependency |
 | --- | --- | --- |
-| Core | All domains | Charter, document control, role authority, definitions, classification, metrics. |
+| Governance | All domains | Charter, document control, role authority, definitions, classification, metrics. |
+| Risk | Governance | Risk appetite, exception acceptance, enterprise risk reporting. |
+| Compliance | Governance, Risk | Obligations register, audit evidence, CAPA linkage to risk register. |
 | AI | Privacy | Personal data, training data, inference data, sensitive attributes, data subject rights. |
-| AI | Supplier | External model providers, cloud-hosted inference, managed platforms, third-party datasets. |
+| AI | Supply Chain | External model providers, cloud-hosted inference, managed platforms, third-party datasets. |
 | AI | Resilience | Model service continuity, dependency failure, recovery objectives, emergency shutdown, degraded mode. |
-| Privacy | Supplier | Processor/subprocessor due diligence, transfer assessment, breach notification, deletion assurance. |
-| Supplier | Resilience | External dependency concentration, recovery commitments, exit plans, supply-chain continuity. |
-| Resilience | Core | Metrics, exceptions, risk register updates, governance review. |
+| AI | Dev Security | AI-specific developer security requirements, LLM security rules, agent security patterns. |
+| Privacy | Supply Chain | Processor/subprocessor due diligence, transfer assessment, breach notification, deletion assurance. |
+| Supply Chain | Resilience | External dependency concentration, recovery commitments, exit plans, supply-chain continuity. |
+| Operations | Security | Infrastructure security standards, monitoring requirements, change control alignment. |
+| Dev Security | Security | Secure development policy alignment, code-level control requirements. |
+| Resilience | Governance | Metrics, exceptions, risk register updates, governance review. |
 
 ---
 

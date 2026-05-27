@@ -6,7 +6,7 @@
 **Date:** 2026 05 26
 **Owner:** AI Risk Maintainer
 **Approving Authority:** Governance Library Maintainer
-**Related Documents:** `ai/framework-ai-governance-and-risk.md`, `ai/standard-ai-security-and-risk.md`, `ai/template-ai-system-register.md`, `privacy/policy-privacy-and-data-governance.md`, `supplier/framework-supplier-and-cloud-governance.md`
+**Related Documents:** `ai/framework-ai-governance-and-risk.md`, `ai/standard-ai-security-and-risk.md`, `ai/template-ai-system-register.md`, `privacy/policy-privacy-and-data-governance.md`, `supply-chain/framework-supplier-and-cloud-governance.md`
 **Classification:** Public
 **Category:** AI Governance
 **Review Frequency:** 6 to 12 months and upon material AI risk or regulatory change

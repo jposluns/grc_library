@@ -6,7 +6,7 @@
 **Date:** 2026 05 26
 **Owner:** Information Security Maintainer
 **Approving Authority:** Governance Library Maintainer
-**Related Documents:** `README.md`, `core/register-document-index-and-classification.md`, `security/policy-information-security.md`
+**Related Documents:** `README.md`, `governance/register-document-index-and-classification.md`, `security/policy-information-security.md`
 **Classification:** Public
 **Category:** Information Security
 **Review Frequency:** Annual and upon material security, threat, architecture, or regulatory change

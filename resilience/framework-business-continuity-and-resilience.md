@@ -6,7 +6,7 @@
 **Date:** 2026 05 26
 **Owner:** Resilience Maintainer
 **Approving Authority:** Governance Library Maintainer
-**Related Documents:** `core/charter-governance-library.md`, `core/register-digital-trust-and-assurance-metrics.md`, `supplier/framework-supplier-and-cloud-governance.md`, `ai/framework-ai-governance-and-risk.md`
+**Related Documents:** `governance/charter-governance-library.md`, `governance/register-digital-trust-and-assurance-metrics.md`, `supply-chain/framework-supplier-and-cloud-governance.md`, `ai/framework-ai-governance-and-risk.md`
 **Classification:** Public
 **Category:** Resilience
 **Review Frequency:** Annual and upon material incident, service change, supplier change, or recovery strategy change

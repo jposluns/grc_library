@@ -6,11 +6,11 @@
 **Date:** 2026 05 26
 **Owner:** Governance Library Maintainer
 **Approving Authority:** Governance Library Maintainer
-**Related Documents:** `core/register-document-index-and-classification.md`, `core/framework-document-architecture-and-interrelationship.md`, `NOTICE.md`
+**Related Documents:** `governance/register-document-index-and-classification.md`, `governance/framework-document-architecture-and-interrelationship.md`, `NOTICE.md`
 **Classification:** Public
 **Category:** Core Governance
 **Review Frequency:** Annual and upon material framework, regulatory, or licence change
-**Repository Path:** `core/charter-governance-library.md`
+**Repository Path:** `governance/charter-governance-library.md`
 **Confidentiality:** Public
 **Licence:** CC0 1.0 Universal
 

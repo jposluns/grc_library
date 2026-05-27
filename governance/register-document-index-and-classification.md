@@ -6,11 +6,11 @@
 **Date:** 2026 05 26
 **Owner:** Governance Library Maintainer
 **Approving Authority:** Governance Library Maintainer
-**Related Documents:** `core/charter-governance-library.md`, `core/framework-document-architecture-and-interrelationship.md`, `NOTICE.md`
+**Related Documents:** `governance/charter-governance-library.md`, `governance/framework-document-architecture-and-interrelationship.md`, `NOTICE.md`
 **Classification:** Public
 **Category:** Core Governance
 **Review Frequency:** Annual and upon material repository structure change
-**Repository Path:** `core/register-document-index-and-classification.md`
+**Repository Path:** `governance/register-document-index-and-classification.md`
 **Confidentiality:** Public
 **Licence:** CC0 1.0 Universal
 
@@ -40,20 +40,20 @@ All active repository documents should be Public.
 
 | Domain | Type | Title | Repository Path | Owner Role | Review Frequency | Primary Alignment Families |
 | --- | --- | --- | --- | --- | --- | --- |
-| Core | Charter | Governance Library Charter | `core/charter-governance-library.md` | Governance Library Maintainer | Annual | Governance authority, document lifecycle, licence boundary |
-| Core | Policy | Enterprise Governance and Risk Management Policy | `core/policy-enterprise-governance-and-risk-management.md` | Chief Risk Officer | Annual | Enterprise risk, governance accountability, risk treatment |
-| Core | Standard | Enterprise Risk Management Standard | `core/standard-enterprise-risk-management.md` | Chief Risk Officer | Annual | Risk taxonomy, assessment, treatment, reporting |
-| Core | Procedure | Risk Register Procedure | `core/procedure-risk-register.md` | Chief Risk Officer | Annual | Risk register, treatment tracking, risk evidence |
-| Core | Procedure | Risk Acceptance Procedure | `core/procedure-risk-acceptance.md` | Chief Risk Officer | Annual | Residual risk, acceptance authority, compensating controls |
-| Core | Policy | Exception Management Policy | `core/policy-exception-management.md` | Chief Risk Officer | Annual | Exceptions, deviations, compensating controls, expiry |
-| Core | Policy | Compliance and Audit Management Policy | `core/policy-compliance-and-audit-management.md` | Chief Compliance Officer | Annual | Compliance, audit, control testing, corrective action |
-| Core | Register | Document Index and Classification Register | `core/register-document-index-and-classification.md` | Governance Library Maintainer | Annual | Document control, classification, traceability |
-| Core | Framework | Document Architecture and Interrelationship Framework | `core/framework-document-architecture-and-interrelationship.md` | Governance Library Maintainer | Annual | Governance hierarchy, audit traceability, policy architecture |
-| Core | Register | Key Terms and Definitions Register | `core/register-key-terms-and-definitions.md` | Governance Library Maintainer | Annual | Cross-domain terminology |
-| Core | Register | Role Authority Register | `core/register-role-authority.md` | Governance Library Maintainer | Annual | Accountability, RACI, approval authority |
-| Core | Matrix | Cross-Framework Alignment Matrix | `core/matrix-cross-framework-alignment.md` | Control Framework Maintainer | 6 to 12 months | ISO, NIST, COBIT, CCM, AICM, OWASP, MITRE ATLAS |
-| Core | Register | Global Regulatory Applicability Register | `core/register-global-regulatory-applicability.md` | Compliance Maintainer | 6 to 12 months | Privacy, cybersecurity, AI, resilience, supplier, trade, and sector regimes |
-| Core | Register | Digital Trust and Assurance Metrics Register | `core/register-digital-trust-and-assurance-metrics.md` | Assurance Metrics Maintainer | 6 to 12 months | Governance metrics, control performance, assurance evidence |
+| Core | Charter | Governance Library Charter | `governance/charter-governance-library.md` | Governance Library Maintainer | Annual | Governance authority, document lifecycle, licence boundary |
+| Core | Policy | Enterprise Governance and Risk Management Policy | `governance/policy-governance-and-risk-management.md` | Chief Risk Officer | Annual | Enterprise risk, governance accountability, risk treatment |
+| Core | Standard | Enterprise Risk Management Standard | `risk/standard-enterprise-risk-management.md` | Chief Risk Officer | Annual | Risk taxonomy, assessment, treatment, reporting |
+| Core | Procedure | Risk Register Procedure | `risk/procedure-risk-register.md` | Chief Risk Officer | Annual | Risk register, treatment tracking, risk evidence |
+| Core | Procedure | Risk Acceptance Procedure | `risk/procedure-risk-acceptance.md` | Chief Risk Officer | Annual | Residual risk, acceptance authority, compensating controls |
+| Core | Policy | Exception Management Policy | `governance/policy-exception-and-risk-acceptance-management.md` | Chief Risk Officer | Annual | Exceptions, deviations, compensating controls, expiry |
+| Core | Policy | Compliance and Audit Management Policy | `compliance/policy-compliance-and-audit-management.md` | Chief Compliance Officer | Annual | Compliance, audit, control testing, corrective action |
+| Core | Register | Document Index and Classification Register | `governance/register-document-index-and-classification.md` | Governance Library Maintainer | Annual | Document control, classification, traceability |
+| Core | Framework | Document Architecture and Interrelationship Framework | `governance/framework-document-architecture-and-interrelationship.md` | Governance Library Maintainer | Annual | Governance hierarchy, audit traceability, policy architecture |
+| Core | Register | Key Terms and Definitions Register | `governance/register-key-terms-and-definitions.md` | Governance Library Maintainer | Annual | Cross-domain terminology |
+| Core | Register | Role Authority Register | `governance/register-role-authority.md` | Governance Library Maintainer | Annual | Accountability, RACI, approval authority |
+| Core | Matrix | Cross-Framework Alignment Matrix | `governance/matrix-cross-framework-alignment.md` | Control Framework Maintainer | 6 to 12 months | ISO, NIST, COBIT, CCM, AICM, OWASP, MITRE ATLAS |
+| Core | Register | Global Regulatory Applicability Register | `compliance/register-global-regulatory-applicability.md` | Compliance Maintainer | 6 to 12 months | Privacy, cybersecurity, AI, resilience, supplier, trade, and sector regimes |
+| Core | Register | Digital Trust and Assurance Metrics Register | `governance/register-digital-trust-and-assurance-metrics.md` | Assurance Metrics Maintainer | 6 to 12 months | Governance metrics, control performance, assurance evidence |
 | Security | Policy | Information Security Policy | `security/policy-information-security.md` | Chief Information Security Officer | Annual | Information security, control governance, incident readiness |
 | Security | Policy | Identity and Access Management Policy | `security/policy-identity-and-access-management.md` | Chief Information Security Officer | Annual | Identity, authentication, authorization, privileged access |
 | Security | Standard | Logging and Monitoring Standard | `security/standard-logging-and-monitoring.md` | Chief Information Security Officer | Annual | Logging, monitoring, alerting, security evidence |
@@ -83,12 +83,12 @@ All active repository documents should be Public.
 | Resilience | Procedure | Backup and Recovery Procedure | `resilience/procedure-backup-and-recovery.md` | Resilience Owner | Annual | Backup, recovery validation, restoration evidence |
 | Resilience | Guideline | Emergency Response and Protective Actions Guideline | `resilience/guideline-emergency-response-and-protective-actions.md` | Resilience Owner | Annual | Protective actions, emergency response, transition to crisis governance |
 | Resilience | Template | Departmental Continuity Plan Template | `resilience/guideline-departmental-continuity-plan-template.md` | Resilience Owner | Annual | Continuity planning, dependencies, restoration evidence |
-| Resilience | Annex | Trade and Supply-Chain Continuity Controls Annex | `resilience/annex-trade-and-supply-chain-continuity-controls.md` | Supplier Risk Maintainer | Annual | Trade continuity, supplier dependencies, customs data continuity |
+| Resilience | Annex | Trade and Supply-Chain Continuity Controls Annex | `supply-chain/annex-trade-and-supply-chain-continuity-controls.md` | Supplier Risk Maintainer | Annual | Trade continuity, supplier dependencies, customs data continuity |
 | Resilience | Template | Resilience Metrics and Testing Log Template | `resilience/register-resilience-metrics-and-testing-log.md` | Resilience Owner | Annual | Resilience metrics, testing log, corrective action tracking |
 | Resilience | Register | Resilience Terms and Definitions Register | `resilience/register-resilience-terms-and-definitions.md` | Resilience Owner | Annual | Resilience terminology and definitions |
 | Resilience | Template | Emergency Operations Contact Directory Template | `resilience/register-eoc-contact-directory.md` | Resilience Owner | Annual | Emergency contact structure, restricted completed records |
 | Privacy | Policy | Privacy and Data Governance Policy | `privacy/policy-privacy-and-data-governance.md` | Privacy Maintainer | 6 to 12 months | Data protection, privacy impact, transfer risk, retention |
-| Supplier | Framework | Supplier and Cloud Governance Framework | `supplier/framework-supplier-and-cloud-governance.md` | Supplier Risk Maintainer | 6 to 12 months | Third-party risk, cloud assurance, supply-chain integrity |
+| Supplier | Framework | Supplier and Cloud Governance Framework | `supply-chain/framework-supplier-and-cloud-governance.md` | Supplier Risk Maintainer | 6 to 12 months | Third-party risk, cloud assurance, supply-chain integrity |
 
 ---
 

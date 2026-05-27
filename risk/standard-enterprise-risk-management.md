@@ -6,11 +6,11 @@
 **Date:** 2026 05 26
 **Owner:** Chief Risk Officer
 **Approving Authority:** Executive Management
-**Related Documents:** `core/policy-enterprise-governance-and-risk-management.md`, `core/procedure-risk-register.md`, `core/procedure-risk-acceptance.md`, `core/policy-exception-management.md`
+**Related Documents:** `governance/policy-governance-and-risk-management.md`, `risk/procedure-risk-register.md`, `risk/procedure-risk-acceptance.md`, `governance/policy-exception-and-risk-acceptance-management.md`
 **Classification:** Public
 **Category:** Core Governance
 **Review Frequency:** Annual and upon material risk methodology change
-**Repository Path:** `core/standard-enterprise-risk-management.md`
+**Repository Path:** `risk/standard-enterprise-risk-management.md`
 **Confidentiality:** Public
 **Licence:** CC0 1.0 Universal
 

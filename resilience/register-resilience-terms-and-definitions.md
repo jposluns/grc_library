@@ -6,7 +6,7 @@
 **Date:** 2026 05 26
 **Owner:** Resilience Owner
 **Approving Authority:** Governance Library Maintainer
-**Related Documents:** `resilience/README.md`, `resilience/framework-business-continuity-and-resilience.md`, `core/register-key-terms-and-definitions.md`, `core/register-role-authority.md`
+**Related Documents:** `resilience/README.md`, `resilience/framework-business-continuity-and-resilience.md`, `governance/register-key-terms-and-definitions.md`, `governance/register-role-authority.md`
 **Classification:** Public
 **Category:** Resilience
 **Review Frequency:** Annual and upon material resilience terminology, framework, or regulatory change
@@ -81,7 +81,7 @@ This register does not reproduce definitions from external standards, laws, trad
 2. Definitions must remain organization-neutral.
 3. Do not copy definitions from external standards, laws, or programme materials unless confirmed CC0-compatible.
 4. New resilience terms should be added when they materially improve consistency across documents.
-5. Role definitions should remain in `core/register-role-authority.md` unless a resilience-specific role definition is required.
+5. Role definitions should remain in `governance/register-role-authority.md` unless a resilience-specific role definition is required.
 
 ---
 

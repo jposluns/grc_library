@@ -6,11 +6,11 @@
 **Date:** 2026 05 26
 **Owner:** Governance Library Maintainer
 **Approving Authority:** Governance Library Maintainer
-**Related Documents:** `core/charter-governance-library.md`, `core/framework-document-architecture-and-interrelationship.md`
+**Related Documents:** `governance/charter-governance-library.md`, `governance/framework-document-architecture-and-interrelationship.md`
 **Classification:** Public
 **Category:** Core Governance
 **Review Frequency:** Annual
-**Repository Path:** `core/register-role-authority.md`
+**Repository Path:** `governance/register-role-authority.md`
 **Confidentiality:** Public
 **Licence:** CC0 1.0 Universal
 

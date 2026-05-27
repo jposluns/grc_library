@@ -6,7 +6,7 @@
 **Date:** 2026 05 26
 **Owner:** AI Security Maintainer
 **Approving Authority:** Governance Library Maintainer
-**Related Documents:** `ai/framework-ai-governance-and-risk.md`, `ai/procedure-ai-system-impact-assessment.md`, `ai/template-ai-system-register.md`, `privacy/policy-privacy-and-data-governance.md`, `supplier/framework-supplier-and-cloud-governance.md`
+**Related Documents:** `ai/framework-ai-governance-and-risk.md`, `ai/procedure-ai-system-impact-assessment.md`, `ai/template-ai-system-register.md`, `privacy/policy-privacy-and-data-governance.md`, `supply-chain/framework-supplier-and-cloud-governance.md`
 **Classification:** Public
 **Category:** AI Governance
 **Review Frequency:** 6 to 12 months and upon material AI threat, framework, or regulatory change

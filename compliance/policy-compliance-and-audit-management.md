@@ -14,7 +14,7 @@
 | **Classification** | **Public – Open Access** |
 | **Category** | Governance / Risk / Compliance |
 | **Review Frequency** | Annual or as required by regulatory or framework changes |
-| **Repository Path** | /policies/compliance-audit-and-capa-management |
+| **Repository Path** | `compliance/policy-compliance-and-audit-management.md` |
 | **Confidentiality** | **None (Public Domain, CC0 License)** |
 
 
@@ -44,7 +44,7 @@ This policy defines the governance framework for compliance assurance, internal 
 
 It consolidates previous compliance, audit, and CAPA policies into one unified governance instrument, ensuring consistent oversight of legal, regulatory, contractual, and ethical obligations; verification of control effectiveness; and continual improvement through audit findings and remediation cycles.  
 
-The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO 19011:2018** (Auditing Guidelines), **COBIT 2025 MEA01** (Monitor, Evaluate, and Assess Performance and Conformance), **Cloud Security Alliance (CSA)** frameworks, **NIST SP 800-53 Rev 5 CA** family, and regulatory expectations under the **EU AI Act**, **Canada’s AIDA**, and **U.S. Executive Order 14110** on Safe, Secure, and Trustworthy AI.
+The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO 19011:2018** (Auditing Guidelines), **COBIT 2025 MEA01** (Monitor, Evaluate, and Assess Performance and Conformance), **Cloud Security Alliance (CSA)** frameworks, **NIST SP 800-53 Rev 5 CA** family, and regulatory expectations under the **EU AI Act**, **Canada's AIDA**, and **U.S. Executive Order 14110** on Safe, Secure, and Trustworthy AI.
 
 
 
@@ -140,7 +140,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 - **Canada Artificial Intelligence and Data Act (AIDA)**  
 - **U.S. Executive Order 14110** on Safe, Secure, and Trustworthy AI  
 - [Unverified] **Draft 2026 ISO 37301 Revision** – Algorithmic Compliance and Automation Integration  
-- **Trade and Supply Chain Programs:** WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (U.S.), AEO (EU), and equivalents  
+- **Trade and Supply Chain Programs:** WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (U.S.), AEO (EU), and equivalents
 
 
 

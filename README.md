@@ -1,7 +1,7 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Version:** 1.1.2
-**Date:** 2026 05 26
+**Version:** 1.2.0
+**Date:** 2026-05-27
 **Classification:** Public
 **Confidentiality:** Public
 **Licence:** CC0 1.0 Universal
@@ -17,7 +17,8 @@
 | 1.0.2 | 2025 11 18 | Introduced domain directories, canonical metadata, contribution rules, and role-based governance. |
 | 1.1.0 | 2026 05 26 | Removed organization and person identifiers, clarified CC0 compatibility, added third-party reference boundaries, and aligned the library to a generic authoritative documentation model. |
 | 1.1.1 | 2026 05 26 | Added information security as a primary repository domain and clarified the live corpus expansion model. |
-| 1.1.2 | 2026 05 26 | Updated canonical AI model risk and backup recovery path references after repository-wide normalization. |
+| 1.1.2 | 2026-05-26 | Updated canonical AI model risk and backup recovery path references after repository-wide normalization. |
+| 1.2.0 | 2026-05-27 | Restructured repository: dissolved /core/ into /governance/, /risk/, /compliance/; dissolved /policy/ into /governance/ and /compliance/ with richer canonical documents; renamed /supplier/ to /supply-chain/ with broader scope including trade continuity; added /operations/ for production and infrastructure security; added /dev-security/ for developer security standards and draggable Claude Code rule files; moved trade and supply-chain continuity annex from /resilience/ to /supply-chain/. |
 
 ---
 
@@ -64,30 +65,58 @@ See `NOTICE.md` for repository rules governing external reference materials.
 Documents are organized by primary governance domain.
 
 ```text
-/core        Enterprise-wide governance, document architecture, roles, registers, mappings, and metrics.
-/security    Information security, identity, access, logging, incident response, data classification, and secure operations.
-/ai          Artificial intelligence governance, data security, model risk, system assurance, and lifecycle controls.
-/resilience  Business continuity, disaster recovery, crisis management, resilience testing, and recovery governance.
-/privacy     Privacy governance, data protection, transfer assessment, breach response, and data subject rights.
-/supplier    Supplier governance, third-party risk, cloud assurance, supply-chain controls, and external dependency management.
+/governance     Enterprise authority: library charter, document architecture, cross-framework alignment,
+                role authority, terminology, metrics, and governance and risk management policies.
+
+/risk           Enterprise risk management: standard, risk register procedure, and risk acceptance procedure.
+
+/compliance     Compliance management, audit governance, CAPA, regulatory applicability register,
+                and trade compliance programme references (CTPAT, BASC, PIP, AEO, AEO-S, WCO SAFE, ISO 28000).
+
+/security       Information security governance: policies, identity, access, logging, data classification,
+                cryptography, personnel security, and secure operations.
+
+/ai             Artificial intelligence governance: frameworks, risk standards, model risk, lifecycle
+                controls, impact assessment, and AI-specific assurance artefacts.
+
+/operations     Production and infrastructure security: network and cloud configuration standards,
+                physical security, change management, SIEM operations, patch management, and endpoint controls.
+
+/resilience     Business continuity, disaster recovery, crisis management, resilience testing,
+                and recovery governance.
+
+/privacy        Privacy governance, data protection, transfer assessment, breach response, and
+                data subject rights.
+
+/supply-chain   Supplier governance, third-party risk, cloud assurance, supply-chain security,
+                and trade continuity programme controls.
+
+/dev-security   Developer and DevOps security: standards, quick reference, compliance gap register,
+                and claude-rules/ subdirectory of draggable CLAUDE.md rule files for AI coding sessions.
 ```
 
 Documents use lowercase filenames, single hyphen separators, and a document type prefix.
 
 Examples:
 
-- `core/charter-governance-library.md`
-- `core/register-document-index-and-classification.md`
-- `core/framework-document-architecture-and-interrelationship.md`
+- `governance/charter-governance-library.md`
+- `governance/register-document-index-and-classification.md`
+- `governance/framework-document-architecture-and-interrelationship.md`
+- `governance/policy-governance-and-risk-management.md`
+- `risk/standard-enterprise-risk-management.md`
+- `compliance/policy-compliance-and-audit-management.md`
 - `security/policy-information-security.md`
 - `security/standard-logging-and-monitoring.md`
 - `ai/framework-ai-governance-and-risk.md`
 - `ai/standard-ai-security-and-risk.md`
 - `ai/framework-ai-model-risk.md`
+- `operations/standard-production-security-requirements.md`
 - `resilience/framework-business-continuity-and-resilience.md`
 - `resilience/procedure-backup-and-recovery.md`
 - `privacy/policy-privacy-and-data-governance.md`
-- `supplier/framework-supplier-and-cloud-governance.md`
+- `supply-chain/framework-supplier-and-cloud-governance.md`
+- `dev-security/standard-developer-security-requirements.md`
+- `dev-security/claude-rules/CLAUDE.md`
 
 ---
 
@@ -140,20 +169,20 @@ The current authoritative starter set is organized around these foundational art
 
 | Domain | Artefact |
 | --- | --- |
-| Core | Governance Library Charter |
-| Core | Enterprise Governance and Risk Management Policy |
-| Core | Enterprise Risk Management Standard |
-| Core | Risk Register Procedure |
-| Core | Risk Acceptance Procedure |
-| Core | Exception Management Policy |
-| Core | Compliance and Audit Management Policy |
-| Core | Document Index and Classification Register |
-| Core | Document Architecture and Interrelationship Framework |
-| Core | Key Terms and Definitions Register |
-| Core | Role Authority Register |
-| Core | Cross-Framework Alignment Matrix |
-| Core | Global Regulatory Applicability Register |
-| Core | Digital Trust and Assurance Metrics Register |
+| Governance | Governance Library Charter |
+| Governance | Document Architecture and Interrelationship Framework |
+| Governance | Governance and Risk Management Policy |
+| Governance | Exception and Risk Acceptance Management Policy |
+| Governance | Cross-Framework Alignment Matrix |
+| Governance | Document Index and Classification Register |
+| Governance | Key Terms and Definitions Register |
+| Governance | Role Authority Register |
+| Governance | Digital Trust and Assurance Metrics Register |
+| Risk | Enterprise Risk Management Standard |
+| Risk | Risk Register Procedure |
+| Risk | Risk Acceptance Procedure |
+| Compliance | Compliance, Audit, and CAPA Management Policy |
+| Compliance | Global Regulatory Applicability Register |
 | Security | Information Security Policy |
 | Security | Identity and Access Management Policy |
 | Security | Logging and Monitoring Standard |
@@ -172,13 +201,14 @@ The current authoritative starter set is organized around these foundational art
 | Resilience | Business Continuity and Disaster Recovery Policy |
 | Resilience | Backup and Recovery Procedure |
 | Privacy | Privacy and Data Governance Policy |
-| Supplier | Supplier and Cloud Governance Framework |
+| Supply Chain | Supplier and Cloud Governance Framework |
+| Supply Chain | Trade and Supply-Chain Continuity Controls Annex |
 
 ---
 
 ## Framework Alignment Model
 
-The library may align to recognized framework families, including ISO management system standards, NIST cybersecurity and artificial intelligence guidance, COBIT governance concepts, CCM, AICM, STAR-style assurance models, OWASP LLM risk categories, MITRE ATLAS, and jurisdiction-specific laws or regulations.
+The library aligns to recognized framework families including ISO management system standards, NIST cybersecurity and artificial intelligence guidance, COBIT governance concepts, CCM, AICM, STAR-style assurance models, OWASP projects (Top 10, LLM Top 10, ASVS, SAMM, Cheat Sheet Series), MITRE ATLAS, MITRE ATT&CK, and jurisdiction-specific laws or regulations.
 
 Mappings must distinguish between:
 
@@ -198,6 +228,8 @@ Mappings must not imply certification, compliance, conformity, regulatory approv
 AI governance documents in this repository treat data as the primary risk surface. The lifecycle must address collection, annotation, storage, processing, training, retrieval, inference, monitoring, retention, deletion, and decommissioning.
 
 The AI domain explicitly considers prompt injection, data poisoning, model inversion, membership inference, training data leakage, retrieval leakage, insecure tool use, shadow AI, provenance failure, lineage gaps, retention failure, and unenforceable deletion.
+
+The developer security domain (`/dev-security/`) addresses AI coding assistant security through draggable rule files that enforce security requirements directly in AI-assisted development sessions.
 
 ---
 

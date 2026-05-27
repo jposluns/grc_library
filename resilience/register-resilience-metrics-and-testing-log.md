@@ -6,7 +6,7 @@
 **Date:** 2026 05 26
 **Owner:** Resilience Owner
 **Approving Authority:** Governance Library Maintainer
-**Related Documents:** `resilience/framework-business-continuity-and-resilience.md`, `resilience/standard-business-continuity-and-disaster-recovery.md`, `resilience/procedure-continuity-and-recovery-testing.md`, `resilience/policy-business-continuity-and-disaster-recovery.md`, `core/register-digital-trust-and-assurance-metrics.md`
+**Related Documents:** `resilience/framework-business-continuity-and-resilience.md`, `resilience/standard-business-continuity-and-disaster-recovery.md`, `resilience/procedure-continuity-and-recovery-testing.md`, `resilience/policy-business-continuity-and-disaster-recovery.md`, `governance/register-digital-trust-and-assurance-metrics.md`
 **Classification:** Public
 **Category:** Resilience
 **Review Frequency:** Annual and upon material resilience, testing, metric, service, supplier, or regulatory change
