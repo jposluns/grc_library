@@ -24,7 +24,9 @@ This directory contains production and infrastructure security standards, proced
 
 ## Active Documents
 
-*No documents yet — expansion in progress.*
+| Type | Title | Path |
+| --- | --- | --- |
+| Standard | Production Security Requirements | `operations/standard-production-security-requirements.md` |
 
 ---
 
@@ -48,7 +50,8 @@ The operations domain covers:
 
 ## Planned Expansion
 
-- Standard: Production Security Requirements  
+- ~~Standard: Production Security Requirements~~ *(active)*
+
 - Standard: Network Security and Segmentation  
 - Standard: Cloud Security Configuration Baseline  
 - Standard: Physical Security of IT Infrastructure  

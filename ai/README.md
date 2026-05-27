@@ -39,6 +39,9 @@ AI documents in this repository treat data as the primary risk surface. They add
 | Template | Model Card Template | `ai/template-model-card.md` |
 | Template | System Card Template | `ai/template-system-card.md` |
 | Guideline | Adversarial Evaluation Suite Development Guideline | `ai/guideline-adversarial-evaluation-suite-development.md` |
+| Standard | AI and Agentic Development Security Standard | `ai/standard-ai-and-agentic-development-security.md` |
+| Guide | AI Security Technical Implementation Guide | `ai/guide-ai-security-technical-implementation.md` |
+| Guide | AI Adversarial Test Reference | `ai/guide-ai-adversarial-test-reference.md` |
 
 ---
 
