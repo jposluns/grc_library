@@ -2,7 +2,7 @@
 
 **Document Title:** Resilience Domain README
 **Document Type:** Register
-**Version:** 0.0.1
+**Version:** 0.0.2
 **Date:** 2026 05 26
 **Owner:** Resilience Maintainer
 **Approving Authority:** Governance Library Maintainer
@@ -37,12 +37,12 @@ This directory contains organization-neutral business continuity, disaster recov
 | Procedure | Incident Response Procedure | `resilience/procedure-incident-response.md` |
 | Procedure | Security Incident Reporting and Escalation Procedure | `resilience/procedure-security-incident-reporting-and-escalation.md` |
 | Procedure | Data Protection and Privacy Breach Response Procedure | `resilience/procedure-data-protection-and-privacy-breach-response.md` |
-| Procedure | Backup and Recovery Procedure | `resilience/sop-backup-and-recovery-asr-for-vmware.md` |
+| Procedure | Backup and Recovery Procedure | `resilience/procedure-backup-and-recovery.md` |
 | Guideline | Emergency Response and Protective Actions Guideline | `resilience/guideline-emergency-response-and-protective-actions.md` |
-| Guideline | Departmental Continuity Plan Template | `resilience/guideline-departmental-continuity-plan-template.md` |
-| Annex | Trade and Supply-Chain Continuity Controls | `resilience/annex-trade-and-supply-chain-continuity-controls.md` |
-| Register | Resilience Metrics and Testing Log | `resilience/register-resilience-metrics-and-testing-log.md` |
-| Register | Resilience Terms and Definitions | `resilience/register-resilience-terms-and-definitions.md` |
+| Template | Departmental Continuity Plan Template | `resilience/guideline-departmental-continuity-plan-template.md` |
+| Annex | Trade and Supply-Chain Continuity Controls Annex | `resilience/annex-trade-and-supply-chain-continuity-controls.md` |
+| Template | Resilience Metrics and Testing Log Template | `resilience/register-resilience-metrics-and-testing-log.md` |
+| Register | Resilience Terms and Definitions Register | `resilience/register-resilience-terms-and-definitions.md` |
 | Template | Emergency Operations Contact Directory Template | `resilience/register-eoc-contact-directory.md` |
 
 ---
