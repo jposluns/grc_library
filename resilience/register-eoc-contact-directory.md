@@ -1,173 +1,76 @@
-# Register: EOC Contact Directory Template
+# Emergency Operations Contact Directory Template
 
-## Metadata
+**Document Title:** Emergency Operations Contact Directory Template
+**Document Type:** Template
+**Version:** 0.0.1
+**Date:** 2026 05 26
+**Owner:** Resilience Owner
+**Approving Authority:** Governance Library Maintainer
+**Related Documents:** `resilience/framework-business-continuity-and-resilience.md`, `resilience/business-continuity-and-crisis-management.md`, `resilience/procedure-crisis-management-eoc-activation.md`, `resilience/plan-crisis-communication.md`
+**Classification:** Public
+**Category:** Resilience
+**Review Frequency:** Annual and upon material role, service, facility, supplier, or emergency response change
+**Repository Path:** `resilience/register-eoc-contact-directory.md`
+**Confidentiality:** Public template only. Completed contact directories must be treated as restricted internal records by adopting organizations.
+**Licence:** CC0 1.0 Universal
 
-| Field | Details |
-|-------|----------|
-| **Document Title** | EOC Contact Directory Template |
-| **Document Type** | Register |
-| **Version** | 0.1 |
-| **Date** |  |
-| **Document Owner** | Business Continuity Manager (BCM) |
-| **Approving Authority** | Chief Information Officer (CIO) |
-| **Related Documents** | Framework: Business Continuity & Resilience; Plan: Business Continuity & Crisis Management; Procedure: Crisis Management & EOC Activation; Plan: Crisis Communication; Guideline: Emergency Response & Protective Actions |
-| **Classification** | Public – Open Access |
-| **Category** | Business Continuity / Crisis Management |
-| **Review Frequency** | Quarterly or following personnel or role change |
-| **Repository Path** | /resilience/register-eoc-contact-directory.md |
-| **Confidentiality** | This template is open for public reference under CC0. When completed with actual contact data, it must be reclassified as **Restricted – Internal Use Only** and stored securely. |
-
-
-
-## Document Control
-
-| Version | Date | Author | Change History |
-|----------|------|---------|----------------|
-| 0.1 |  |  | Initial Draft |
-
-
-
-## Approval
-
-| Role | Name | Approval Date |
-|-------|------|---------------|
-| Chief Information Officer (CIO) |  |  |
-| Chief Risk Officer (CRO) |  |  |
-| Chief Security Officer (Physical) |  |  |
-| Business Continuity Manager (BCM) |  |  |
-
-
+---
 
 ## Purpose
 
-This register provides the structure and format for maintaining a complete Emergency Operations Center (EOC) Contact Directory.  
-It ensures that contact details for Crisis Management Team (CMT) members, executive leadership, and critical partners are available and validated for immediate use during a crisis or business-continuity event.
+This template defines a reusable structure for maintaining emergency operations contact information. It must not be populated with real names, phone numbers, email addresses, locations, suppliers, regulators, or internal escalation details in this public repository.
 
-
+---
 
 ## Scope
 
-- Maintained by the **Business Continuity Manager (BCM)** and updated quarterly.  
-- Covers internal EOC staff, Crisis Management Team members, alternate contacts, and key external partners (regulators, emergency services, critical vendors).  
-- Stored securely in the restricted GRC repository and mirrored in the secure communication platform (Teams or Confluence restricted workspace).  
-- Accessible only to authorized continuity and executive personnel.
+The template can be adapted for crisis management, emergency operations, continuity response, incident coordination, facility response, supplier escalation, legal and compliance escalation, privacy response, security response, and executive communications.
 
+---
 
+## Use Requirements
 
-## Instructions for Use
+1. Completed contact directories must be stored in a restricted internal location.
+2. Personal contact data must be collected and retained only under documented authority.
+3. Contact records must be reviewed at a defined cadence and after role, supplier, facility, or service changes.
+4. Access must be limited to personnel with continuity, crisis, security, legal, privacy, supplier, or executive response responsibilities.
+5. Distribution must occur through approved secure channels.
+6. Public CC0 versions must remain blank and must not include real contact data.
 
-1. Populate each table below with the most current information.  
-2. Validate accuracy through semi-annual call-tree or contact-verification exercises.  
-3. Update the record date and version number after each revision.  
-4. Ensure personal information complies with applicable privacy laws (GDPR, CPPA, etc.).  
-5. Distribute securely using approved internal channels only.
+---
 
+## Contact Directory Fields
 
+| Field | Description |
+| --- | --- |
+| Role or Function | Generic role responsible for a response function. |
+| Primary Contact | Internal record field for name or role holder. Leave blank in public versions. |
+| Alternate Contact | Internal record field for alternate. Leave blank in public versions. |
+| Responsibility | Response responsibility or decision authority. |
+| Communication Channel | Approved internal method for contact. Do not populate in public versions. |
+| Availability Window | Expected response availability or escalation threshold. |
+| Escalation Path | Next role or function for unresolved contact. |
+| Review Date | Date contact information was last validated. |
+| Record Owner | Role accountable for maintaining the contact entry. |
 
-## Section 1 – Crisis Management Team (CMT)
+---
 
-| Role / Function | Name | Title | Office Phone | Mobile Phone | Email | Alternate Contact | Location / Time Zone |
-|-----------------|------|-------|---------------|--------------|--------|-------------------|----------------------|
-| Incident Commander (CIO) |  |  |  |  |  |  |  |
-| Deputy Commander (CRO) |  |  |  |  |  |  |  |
-| CISO |  |  |  |  |  |  |  |
-| CCO |  |  |  |  |  |  |  |
-| CLO/GC |  |  |  |  |  |  |  |
-| CSO (Physical) |  |  |  |  |  |  |  |
-| Communications Director |  |  |  |  |  |  |  |
-| Business Continuity Manager |  |  |  |  |  |  |  |
-| HR Lead |  |  |  |  |  |  |  |
-| AI Governance Council Representative |  |  |  |  |  |  |  |
+## Example Blank Table
 
+| Role or Function | Primary Contact | Alternate Contact | Responsibility | Communication Channel | Availability Window | Escalation Path | Review Date | Record Owner |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Crisis Manager |  |  | Coordinates crisis response cadence and action tracking. |  |  | Executive Sponsor |  | Resilience Owner |
+| Technology Recovery Lead |  |  | Coordinates technology recovery and restoration validation. |  |  | Crisis Manager |  | Technology Owner |
+| Security Response Lead |  |  | Coordinates security containment, investigation, and evidence preservation. |  |  | Crisis Manager |  | Security Owner |
+| Privacy Response Lead |  |  | Coordinates personal data impact assessment and breach response. |  |  | Legal and Compliance Lead |  | Privacy Owner |
+| Supplier Escalation Lead |  |  | Coordinates third-party provider escalation and recovery commitments. |  |  | Crisis Manager |  | Supplier Owner |
 
+---
 
-## Section 2 – Emergency Response and Facility Contacts
+## Privacy and Security Notes
 
-| Facility / Site | Facility Manager | Phone | Mobile | Email | Alternate Manager | Region / Time Zone |
-|------------------|-----------------|--------|---------|--------|------------------|-------------------|
-| Head Office |  |  |  |  |  |  |
-| Data Center 1 |  |  |  |  |  |  |
-| Data Center 2 |  |  |  |  |  |  |
-| Warehouse A |  |  |  |  |  |  |
-| Warehouse B |  |  |  |  |  |  |
+A completed contact directory is likely to contain personal data, emergency contact details, supplier escalation paths, and sensitive operational dependencies. It should not be published under CC0 once populated. Adopting organizations should classify completed versions according to internal data classification and privacy requirements.
 
-
-
-## Section 3 – Regulatory and Public Authorities
-
-| Agency / Authority | Primary Contact | Title | Phone | Email | Jurisdiction | Notes |
-|--------------------|----------------|-------|--------|--------|---------------|-------|
-| Local Emergency Services |  |  |  |  | City / Region |  |
-| National Cyber Response Center |  |  |  |  | Country |  |
-| Customs Authority |  |  |  |  | Country / Port |  |
-| BASC Regional Office |  |  |  |  | Region |  |
-| PIP Compliance Office (Canada) |  |  |  |  | Canada |  |
-| CTPAT Coordinator (United States) |  |  |  |  | U.S. |  |
-| AEO Authority (EU / UK) |  |  |  |  | Europe / UK |  |
-| NEEC Liaison (Mexico) |  |  |  |  | Mexico |  |
-| OEA Liaison (Brazil / MERCOSUR) |  |  |  |  | South America |  |
-
-
-
-## Section 4 – Critical Vendors and Partners
-
-| Vendor / Partner | Service Provided | Primary Contact | Phone | Email | Contract Owner | Notes |
-|------------------|------------------|-----------------|--------|--------|----------------|-------|
-| Data Center Provider | Hosting / Recovery |  |  |  |  |  |
-| Telecom Carrier | Communications |  |  |  |  |  |
-| Cloud Service Provider | Infrastructure / SaaS |  |  |  |  |  |
-| Logistics Partner | Cargo Handling / Freight |  |  |  |  |  |
-| Security Vendor | Physical Security |  |  |  |  |  |
-| Legal Advisor | Regulatory Support |  |  |  |  |  |
-
-
-
-## Section 5 – Testing and Validation Log
-
-| Date of Verification | Method (Email / Call Drill / Exercise) | Verified By | % Response Rate | Issues / Updates Identified | Corrective Actions Required |
-|----------------------|-----------------------------------------|--------------|-----------------|-----------------------------|-----------------------------|
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
-
-
-
-## Maintenance and Confidentiality
-
-- The BCM reviews this register quarterly and after any personnel or organizational change.  
-- All updates must be approved by the CIO and CSO (Physical).  
-- The register is stored on restricted, access-controlled systems; copies must not be distributed externally.  
-- When shared for audit or testing purposes, personal details may be anonymized to comply with privacy regulations.
-
-
-
-## Continuous Improvement
-
-All lessons learned from tests, drills, or activations feed into:  
-- The Corrective and Preventive Action Procedure  
-- The Continuous Improvement Register Procedure  
-- The Digital Trust Performance Framework  
-
-Actions remain open until validated during the next contact-verification cycle.
-
-
-
-## References and Framework Alignment
-
-| Framework | Reference | Objective |
-|------------|------------|-----------|
-| **ISO 22320:2018** | Emergency Management – Incident Response Requirements | Defines structured command, control, and communication. |
-| **ISO 22361:2022** | Crisis Management – Guidelines for Strategic Capability | Establishes governance and escalation for crisis response. |
-| **COBIT 2025** | DSS04 – Manage Continuity | Integrates communication and command structures into governance. |
-| **CSA CCM v5** | BCR-01 / BCR-05 | Ensures operational resilience and physical-security contact management. |
-
-
-
-## Definitions
-
-Key terms and acronyms used in this document are defined in the **Resilience Terms and Definitions Register**, which provides standardized terminology for all Business Continuity, Disaster Recovery, and Crisis Management artefacts.
-
-Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
-
-
+---
 
 **End of Document**
