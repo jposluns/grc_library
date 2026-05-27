@@ -1,126 +1,62 @@
-# Business Continuity, Disaster Recovery, and Crisis Management Document Set  
+# Resilience Domain
 
-This directory contains all artefacts supporting the organization's Business Continuity, Disaster Recovery, and Crisis Management ecosystem.
+**Document Title:** Resilience Domain README
+**Document Type:** Register
+**Version:** 0.0.1
+**Date:** 2026 05 26
+**Owner:** Resilience Maintainer
+**Approving Authority:** Governance Library Maintainer
+**Related Documents:** `README.md`, `core/register-document-index-and-classification.md`, `resilience/framework-business-continuity-and-resilience.md`
+**Classification:** Public
+**Category:** Resilience
+**Review Frequency:** Annual and upon material continuity, crisis, recovery, supplier, or regulatory change
+**Repository Path:** `resilience/README.md`
+**Confidentiality:** Public
+**Licence:** CC0 1.0 Universal
 
-Each file adheres to ISO 22301, ISO 27031, ISO 22361, COBIT 2025 DSS04/DSS05, NIST SP 800-34r1, and CSA CCM v5 BCR controls, and aligns under the unified **Resilience Management Framework**.
+---
 
+## Purpose
 
+This directory contains organization-neutral business continuity, disaster recovery, crisis management, incident coordination, emergency response, resilience testing, and recovery governance artefacts released under CC0 1.0 Universal.
 
-## Framework
+---
 
-**Framework – Business Continuity & Resilience Framework**  
-Defines the enterprise structure for business continuity, disaster recovery, and crisis management governance.  
-Establishes oversight roles, control relationships, framework references (ISO 22301, COBIT DSS04, CSA BCR), and integration points across all continuity and resilience documents.
+## Active Documents
 
+| Type | Title | Path |
+| --- | --- | --- |
+| Framework | Business Continuity and Resilience Framework | `resilience/framework-business-continuity-and-resilience.md` |
+| Policy | Business Continuity and Disaster Recovery Policy | `resilience/policy-business-continuity-and-disaster-recovery.md` |
+| Standard | Business Continuity and Disaster Recovery Standard | `resilience/standard-business-continuity-and-disaster-recovery.md` |
+| Plan | Business Continuity and Crisis Management Plan | `resilience/business-continuity-and-crisis-management.md` |
+| Plan | Crisis Communication Plan | `resilience/plan-crisis-communication.md` |
+| Procedure | Crisis Management and Emergency Operations Activation Procedure | `resilience/procedure-crisis-management-eoc-activation.md` |
+| Procedure | Business Impact Analysis Procedure | `resilience/procedure-business-impact-analysis.md` |
+| Procedure | Continuity and Recovery Testing Procedure | `resilience/procedure-continuity-and-recovery-testing.md` |
+| Procedure | Incident Response Procedure | `resilience/procedure-incident-response.md` |
+| Procedure | Security Incident Reporting and Escalation Procedure | `resilience/procedure-security-incident-reporting-and-escalation.md` |
+| Procedure | Data Protection and Privacy Breach Response Procedure | `resilience/procedure-data-protection-and-privacy-breach-response.md` |
+| Procedure | Backup and Recovery Procedure | `resilience/sop-backup-and-recovery-asr-for-vmware.md` |
+| Guideline | Emergency Response and Protective Actions Guideline | `resilience/guideline-emergency-response-and-protective-actions.md` |
+| Guideline | Departmental Continuity Plan Template | `resilience/guideline-departmental-continuity-plan-template.md` |
+| Annex | Trade and Supply-Chain Continuity Controls | `resilience/annex-trade-and-supply-chain-continuity-controls.md` |
+| Register | Resilience Metrics and Testing Log | `resilience/register-resilience-metrics-and-testing-log.md` |
+| Register | Resilience Terms and Definitions | `resilience/register-resilience-terms-and-definitions.md` |
+| Template | Emergency Operations Contact Directory Template | `resilience/register-eoc-contact-directory.md` |
 
+---
 
-## Policy
+## Domain Coverage
 
-**Policy – Business Continuity and Disaster Recovery Policy**  
-Sets executive intent, objectives, and regulatory alignment for continuity and disaster recovery.  
-Defines leadership accountability, governance principles, and high-level commitments for maintaining operational resilience and compliance with ISO 22301 and COBIT DSS04.
+Resilience documents should address business impact analysis, recovery objectives, continuity planning, disaster recovery, crisis communications, emergency response, supplier resilience, cloud service dependency, AI system dependency, data restoration, recovery testing, corrective action, and residual risk acceptance.
 
+---
 
+## Licence Boundary
 
-## Standard
+Completed crisis contact directories, internal recovery runbooks, infrastructure diagrams, supplier escalation paths, system-specific recovery steps, incident records, and audit evidence must not be published in this directory. Public CC0 content must remain generic, role-based, and non-identifying.
 
-**Standard – Business Continuity & Disaster Recovery Standard**  
-Specifies the mandatory control, testing, and validation requirements for BC and DR capabilities.  
-Defines structure, maintenance expectations, testing frequency, RTO/RPO baselines, and integration with AI service resilience and trade-security programs.
+---
 
-
-
-## Plans
-
-**Plan – Business Continuity & Crisis Management Plan**  
-Provides the detailed operational plan for responding to disruptions and managing crises.  
-Outlines activation criteria, recovery phases, Crisis Management Team (CMT) structure, escalation paths, communication flow, and step-by-step restoration procedures.
-
-**Plan – Crisis Communication Plan**  
-Outlines communication strategies, approval workflows, and stakeholder notification requirements during a crisis.  
-Includes message templates, regulatory notification guidance, and public, customer, and media-response coordination processes.
-
-
-
-## Procedures
-
-**Procedure – Crisis Management & EOC Activation Procedure**  
-Defines the step-by-step activation process for the Crisis Management Team (CMT) and Emergency Operations Center (EOC).  
-Details decision thresholds, meeting cadence, documentation requirements, and recovery hand-off coordination.
-
-**Procedure – Business Impact Analysis (BIA) Procedure**  
-Describes the methodology for identifying critical processes, dependencies, and recovery priorities.  
-Provides scoring models for impact levels, dependency mapping, and AI system criticality. Forms the basis for RTO/RPO setting and continuity prioritization.
-
-**Procedure – Continuity & Recovery Testing and Exercising**  
-Establishes how continuity and disaster recovery tests are planned, executed, documented, and reviewed.  
-Defines testing types (tabletop, simulation, full recovery), evidence collection, success criteria, and integration with corrective-action and improvement processes.
-
-**Procedure – Incident Response Procedure**  
-Defines the end-to-end information-security and operational-incident response lifecycle.  
-Covers preparation, detection, containment, eradication, recovery, and post-incident review in line with ISO 27035 and NIST SP 800-61r2.
-
-**Procedure – Security Incident Reporting & Escalation**  
-Outlines reporting and escalation requirements for cybersecurity, privacy, and trade-security incidents.  
-Establishes severity levels, regulatory notification timelines (GDPR, NIS 2), and BASC integration with customs-authority reporting.
-
-**Procedure – Data Protection & Privacy Breach Response**  
-Defines the process for managing privacy and personal-data breaches.  
-Specifies containment, investigation, notification, and remediation workflows for GDPR, CPPA, LGPD, PIPL, and BASC trade-data incidents.
-
-
-
-## SOP
-
-**SOP – Backup and Recovery (Azure Site Recovery)**  
-Provides detailed technical procedures for replication, backup, and recovery of production VMware workloads using Azure Site Recovery (ASR).  
-Includes configuration steps, SQL point-in-time restore procedures, and validation checklists.
-
-
-
-## Guidelines
-
-**Guideline – Emergency Response & Protective Actions**  
-Establishes life-safety and site-level emergency actions for evacuation, shelter-in-place, and physical incident response.  
-Aligns with ISO 22320 and ISO 45001 for occupational safety and emergency preparedness.
-
-**Guideline – Departmental Continuity Plan Template**  
-Provides a standardized format for departments to document their local business-continuity and recovery plans.  
-Includes process prioritization tables, contact roles, and recovery procedures aligned to enterprise BCMS controls.
-
-
-
-## Annex
-
-**Annex – Trade and Supply-Chain Continuity Controls**  
-Consolidates all BASC, WCO SAFE, ISO 28000, and AEO program requirements into a unified mapping.  
-Defines trade-security continuity controls, customs-notification protocols, and logistics-system recovery requirements.
-
-
-
-## Registers
-
-**Register – EOC Contact Directory (Restricted)**  
-Maintains restricted internal contact details for Crisis Management Team members, external partners, regulators, and emergency services.  
-Accessible only to authorized leadership and EOC staff during activation.
-
-**Register – Resilience Metrics & Testing Log**  
-Central repository for continuity and recovery performance metrics.  
-Tracks RTO/RPO compliance, incident response KPIs, testing outcomes, and improvement actions to support enterprise assurance and audit reporting.
-
-
-
-### Framework Alignment Summary
-
-This resilience domain supports compliance with:  
-- **ISO 22301:2019** Security and Resilience – Business Continuity Management Systems  
-- **ISO 22361:2022** Crisis Management – Guidelines for a Strategic Capability  
-- **ISO 27031:2011** ICT Readiness for Business Continuity  
-- **COBIT 2025** DSS04/DSS05 – Manage Continuity and Security Services  
-- **NIST SP 800-34r1** Contingency Planning for Federal Information Systems  
-- **CSA CCM v5** BCR and AIS Domains – Business Continuity and Application Resilience  
-- **OECD 2026 Digital Security Principles** – Organizational Resilience and Governance  
-
-
-
-**End of README**
+**End of Document**
