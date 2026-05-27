@@ -1,224 +1,111 @@
-# Plan: Crisis Communication
+# Crisis Communication Plan
 
-## Metadata
+**Document Title:** Crisis Communication Plan
+**Document Type:** Plan
+**Version:** 0.0.1
+**Date:** 2026 05 26
+**Owner:** Communications Owner
+**Approving Authority:** Executive Management
+**Related Documents:** `resilience/business-continuity-and-crisis-management.md`, `resilience/procedure-crisis-management-eoc-activation.md`, `resilience/procedure-incident-response.md`, `resilience/procedure-security-incident-reporting-and-escalation.md`, `resilience/procedure-data-protection-and-privacy-breach-response.md`
+**Classification:** Public
+**Category:** Resilience
+**Review Frequency:** Annual and upon material incident, communication, legal, regulatory, supplier, or operational change
+**Repository Path:** `resilience/plan-crisis-communication.md`
+**Confidentiality:** Public
+**Licence:** CC0 1.0 Universal
 
-| Field | Details |
-|-------|----------|
-| **Document Title** | Crisis Communication Plan |
-| **Document Type** | Plan |
-| **Version** | 0.1 |
-| **Date** |  |
-| **Document Owner** | Corporate Communications Director |
-| **Approving Authority** | Chief Information Officer (CIO) |
-| **Related Documents** | Plan: Business Continuity & Crisis Management; Procedure: Crisis Management & EOC Activation; Framework: Business Continuity & Resilience; Policy: Business Continuity and Disaster Recovery; Procedure: Incident Response; Procedure: Security Incident Reporting & Escalation; Procedure: Data Protection & Privacy Breach Response |
-| **Classification** | Public – Open Access |
-| **Category** | Crisis Management / Communication |
-| **Review Frequency** | Annual or following a significant incident |
-| **Repository Path** | /resilience/plan-crisis-communication.md |
-| **Confidentiality** | None (Public Domain, CC0 License) |
-
-
-
-## Document Control
-
-| Version | Date | Author | Change History |
-|----------|------|---------|----------------|
-| 0.1 |  |  | Initial Draft |
-
-
-
-## Approval
-
-| Role | Name | Approval Date |
-|-------|------|---------------|
-| Chief Information Officer (CIO) |  |  |
-| Chief Risk Officer (CRO) |  |  |
-| Chief Information Security Officer (CISO) |  |  |
-| Chief Compliance Officer (CCO) |  |  |
-| Chief Legal Officer / General Counsel (CLO/GC) |  |  |
-| Corporate Communications Director |  |  |
-
-
+---
 
 ## Purpose
 
-This plan defines the communication strategy, roles, approval process, and notification protocols to be used during incidents, disruptions, or crises that may affect operations, customers, employees, or the public.  
-It ensures that information is accurate, timely, and consistent to protect the organization's reputation, maintain stakeholder confidence, and support coordinated crisis response.
+This plan defines a reusable structure for preparing, approving, issuing, tracking, and closing communications during incidents, disruptions, breaches, crises, supplier failures, AI system events, or other material events requiring coordinated messaging.
 
-Aligned with **ISO 22361**, **ISO 22301**, **COBIT 2025 DSS04.05**, **NIST SP 800-34r1**, and **CSA CCM v5 GOV-08**.
-
-
+---
 
 ## Scope
 
-- Applies to all incidents meeting the definition of a **crisis**, including:  
-  - Cyber or data-breach events.  
-  - Natural disasters or facility outages.  
-  - Supply-chain or logistics failures impacting customers.  
-  - AI or system malfunctions with reputational or regulatory impact.  
-  - Legal, ethical, or reputational issues with public consequences.  
+This plan applies to internal communications, customer communications, supplier communications, regulator communications, employee communications, public statements, media responses, and executive updates during crisis or incident response.
 
-- Applies to all employees, contractors, and third parties involved in incident response or business-continuity communications.  
-- Covers both internal and external communications, including regulatory notifications, client advisories, and media responses.  
+---
 
+## Communication Principles
 
+1. Communications must be factual, authorized, timely, and consistent with known evidence.
+2. Legal, privacy, compliance, security, supplier, and executive review must occur where required by impact or obligation.
+3. Statements must avoid speculation, unsupported attribution, unnecessary technical detail, and disclosure of restricted evidence.
+4. Communications must distinguish confirmed facts, current assessment, open investigation items, and planned updates.
+5. AI-related communications must address data exposure, system behaviour, human oversight, model or supplier involvement, and remediation status where relevant.
+6. Public CC0 templates must not include real contact lists, customer names, supplier names, regulator contact details, incident facts, or approved message drafts from a specific organization.
 
-## Objectives
+---
 
-1. Deliver timely, accurate, and authorized information to stakeholders.  
-2. Maintain transparency while meeting legal and regulatory obligations.  
-3. Protect the organization's reputation and stakeholder trust.  
-4. Prevent misinformation and unauthorized disclosure.  
-5. Support employee awareness and confidence throughout the crisis.
+## Roles
 
+| Role | Accountability |
+| --- | --- |
+| Communications Owner | Coordinates message drafting, approval workflow, distribution tracking, and message log maintenance. |
+| Crisis Manager | Confirms communication cadence, priorities, and decision context. |
+| Security Owner | Provides validated security facts and technical impact statements. |
+| Privacy Owner | Provides privacy, personal data, and breach assessment input. |
+| Legal and Compliance Owner | Reviews legal, regulatory, contractual, privilege, and notification implications. |
+| Supplier Owner | Coordinates supplier-provided facts, commitments, and customer-facing supplier statements. |
+| Executive Sponsor | Approves material external communications where required. |
+| Record Owner | Maintains message log, approval record, and evidence references. |
 
+---
 
-## Governance and Accountability
+## Procedure
 
-| Role | Responsibility |
-|------|----------------|
-| **CIO** | Authorizes crisis declaration and communication activation. |
-| **CISO** | Provides technical incident details; ensures data-breach messages meet legal requirements. |
-| **Corporate Communications Director** | Leads message drafting, approval coordination, and media dissemination. |
-| **Chief Legal Officer / General Counsel** | Approves external statements and coordinates regulatory submissions. |
-| **CEO / Executive Leadership** | Approves public statements for crises with strategic or reputational impact. |
-| **Business Continuity Manager (BCM)** | Coordinates notifications, contact lists, and message logs. |
-| **AI Governance Council Representative** | Reviews AI-related communication content for transparency and ethics. |
-| **Human Resources** | Manages internal messaging, employee welfare, and staffing communications. |
-| **Enterprise Risk Committee (ERC)** | Reviews communication performance and lessons learned post-incident. |
+### Step 1: Determine Communication Need
 
+Assess audience, impact, obligations, timing, facts available, approval requirements, and risks from delayed, incomplete, or premature communication.
 
+### Step 2: Define Audience
 
-## Crisis Definition and Activation
+Classify audiences such as employees, customers, suppliers, regulators, insurers, law enforcement, governing body, public, media, or affected individuals.
 
-### 1 Severity Levels
+### Step 3: Prepare Message
 
-| Level | Definition | Response |
-|--------|-------------|-----------|
-| **Level 1 – Operational Incident** | Localized issue with limited business impact. | Managed internally; no external messaging. |
-| **Level 2 – Major Incident** | Affects multiple departments or customers; possible public visibility. | Activate Crisis Communication Team; internal alerting. |
-| **Level 3 – Crisis** | Enterprise-wide, reputational, or regulatory event requiring external messaging. | Full communication activation and executive oversight. |
+Draft message content using confirmed facts, known impact, actions underway, contact path, next update timing, and limitations. Avoid internal system names, personal names, unverified cause, exploit details, and sensitive operational information unless explicitly approved.
 
-### 2 Activation Process
-- The CIO or CISO declares a crisis after assessing scope and potential impact.  
-- The **Crisis Communication Team (CCT)** is convened, including representatives from IT, Legal, HR, and Communications.  
-- The **Business Continuity Manager** initiates the communication tree and schedules the first coordination meeting within 60 minutes of declaration.  
+### Step 4: Review and Approve
 
+Route messages for review by communications, legal, privacy, security, compliance, supplier, executive, or other accountable roles according to impact and audience.
 
+### Step 5: Distribute
 
-## Communication Channels
+Distribute through approved channels. Record time, audience, channel, version, approver, sender role, and follow-up commitment.
 
-| Audience | Primary Channel | Backup Channel | Responsible Function |
-|-----------|----------------|----------------|----------------------|
-| Employees | Teams, Email, SMS | Intranet, Phone tree | HR / BCM |
-| Executives / Board | Teams, Secure Email | Phone or in-person | CIO |
-| Customers | Email Bulletins, Client Portal | Website, Press Release | Corporate Communications |
-| Regulators | Official Correspondence via Legal | Encrypted Email or Portal | Legal / CISO |
-| Public / Media | Press Release, Website Update | Social Media (LinkedIn, X) | Corporate Communications |
-| Suppliers / Partners | Direct Outreach, Supplier Portal | Email / Support Channels | Procurement |
+### Step 6: Update
 
+Issue updates when facts materially change, recovery milestones occur, obligations require update, or a stated update interval arrives.
 
+### Step 7: Close
 
-## Message Development and Approval Workflow
+Close crisis communications when normal communication ownership resumes, all required notifications are complete, public or customer updates are closed, and the message log is archived internally.
 
-1. **Initial Notification**  
-   - Initiated by the BCM or Communications Director following crisis declaration.  
-   - Sent to CIO, CISO, Legal, CEO, and ERC.  
-   - Includes summary, impact, containment status, and next actions.
+---
 
-2. **Approval Hierarchy**  
-   - **Internal messages:** Approved by CIO or CISO.  
-   - **Client notifications:** Approved jointly by CIO, Legal, and Corporate Communications.  
-   - **Regulatory submissions:** Approved by Legal and CISO.  
-   - **Public statements:** Approved by CEO and Legal.
+## Minimum Message Log Fields
 
-3. **Documentation**  
-   - All messages and approvals are logged within the Crisis Communication Register or incident management portal for audit traceability.
+| Field | Description |
+| --- | --- |
+| Message ID | Internal identifier. |
+| Audience | Audience category. |
+| Purpose | Notification, status update, action request, closure, correction, or regulatory response. |
+| Content Summary | Non-sensitive summary of message. |
+| Approval Roles | Roles approving release. |
+| Release Channel | Internal channel, customer channel, regulator channel, public channel, or other. |
+| Release Time | Date and time released. |
+| Follow-Up Required | Yes, no, or pending. |
+| Evidence Reference | Internal record reference for adopting organizations. |
 
+---
 
+## Limitations
 
-## Message Objectives and Content Guidance
+This plan is a public-domain baseline. Adopting organizations must define actual approval thresholds, legal notification requirements, regulatory timelines, customer commitments, media process, contact lists, and message templates internally.
 
-| Phase | Objective | Required Content |
-|--------|------------|------------------|
-| **Initial Statement** | Acknowledge incident, confirm response activation. | Facts known, steps underway, timing of next update. |
-| **Follow-Up** | Provide situational updates and mitigation progress. | Updated impact status, remediation actions, stakeholder assurance. |
-| **Resolution** | Confirm restoration and closure. | Root cause, corrective measures, appreciation message. |
-
-**All messages must:**  
-- Be factual, concise, and free of speculation.  
-- Avoid assigning blame prior to investigation.  
-- Identify a responsible contact for inquiries.  
-
-
-
-## Regulatory and Stakeholder Notifications
-
-- **Legal and CISO** ensure compliance with timelines and jurisdictional requirements (GDPR 72-hour, NIS 2 24-hour, CPPA 72-hour, etc.).  
-- **Privacy Officer or DPO** coordinates all personal-data breach communications.  
-- **BASC or trade-related events** require coordination with compliance officers for customs or regulatory liaison.  
-
-
-
-## Media and Public Communications
-
-- All media requests are managed by **Corporate Communications**.  
-- Employees must not make statements on behalf of the organization without written authorization.  
-- Social-media channels are actively monitored for misinformation or unauthorized content during crises.  
-- All external communications must undergo legal review and executive approval prior to release.
-
-
-
-## AI-Enabled Communication Tools (Future Capability)
-
-- Authorized AI summarization tools may assist with drafting situation reports, customer updates, or regulatory disclosures.  
-- All AI-generated outputs must undergo human review and legal approval prior to distribution.  
-- The **AI Governance Council** will periodically review AI-generated messages for accuracy, bias, and ethical compliance.
-
-
-
-## Testing and Validation
-
-- The Crisis Communication Plan will be exercised at least annually as part of the broader continuity and recovery testing program.  
-- Each test will assess:  
-  - Notification accuracy and timeliness.  
-  - Message approval turnaround.  
-  - Integration with business-continuity and incident-response processes.  
-  - Effectiveness of communication tools and templates.  
-- Test results, gaps, and improvements are recorded in the improvement tracking processes for review by the **Enterprise Risk Committee**.
-
-
-
-## Maintenance and Review
-
-- The Corporate Communications Director, CIO, and CISO will review this plan annually.  
-- Updates must reflect:  
-  - Changes to organizational structure or responsibilities.  
-  - New regulatory or industry communication requirements.  
-  - Lessons learned from incidents, audits, and exercises.  
-- Revised versions are approved by the Enterprise Risk Committee and archived in the governance repository.
-
-
-
-## References and Framework Alignment
-
-| Framework | Reference | Objective |
-|------------|------------|-----------|
-| **ISO 22361:2022** | Crisis Management – Guidelines for a Strategic Capability | Defines leadership, communication, and stakeholder engagement. |
-| **ISO 22301:2019** | Security and Resilience – Business Continuity Management Systems | Ensures communication alignment within BCMS. |
-| **NIST SP 800-34r1** | Contingency Planning Guide for Information Systems | Establishes notification and communication within incident response. |
-| **COBIT 2025** | DSS04.05 – Manage Communications During Incidents | Provides communication control objectives and monitoring guidance. |
-| **CSA CCM v5** | GOV-08 – Business Resilience and Governance | Aligns communication practices with cloud and operational resilience. |
-| **EU NIS 2 Directive (2023)** | Incident Notification and Public-Disclosure Requirements | Defines legal thresholds and timeframes for notification. |
-
-
-
-## Definitions
-
-Key terms and acronyms used in this document are defined in the **Resilience Terms and Definitions Register**, which provides standardized terminology for all Business Continuity, Disaster Recovery, and Crisis Management artefacts.
-
-Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
-
-
+---
 
 **End of Document**
