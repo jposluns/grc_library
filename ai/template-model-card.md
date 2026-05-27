@@ -1,176 +1,156 @@
-Document Title
-Model Card Template
-
-Document Type
-Template
-
-Version
-0.0.1
-
-Date
-2025 November 18
-
-Owner
-Chief Compliance Officer
-
-Approving Authority
-Chief Compliance Officer
-
-Related Documents
-In Model Risk Framework (framework-in-model-risk.md)
-In Model Risk Standard (standard-in-model-risk.md)
-AI Lifecycle Governance Standard (standard-ai-lifecycle-governance.md)
-In Model Risk Assessment Procedure (procedure-in-model-risk-assessment.md)
-
-Classification
-Public
-
-Category
-Artificial Intelligence
-
-Review Frequency
-Annual
-
-Repository Path
-/ai/template-model-card.md
-
-Confidentiality
-Public
-
-# Purpose
-
-This template provides the standardized structure for documenting artificial intelligence and machine learning models. It ensures consistent evaluation evidence, interpretability reporting, adversarial testing summaries, lifecycle metadata, monitoring details, and risk information across all enterprise AI systems.
-
-# Scope
-
-This template applies to all AI and ML models developed, acquired, integrated, or deployed by the organization. The model card must be completed prior to deployment, updated after each retraining event, and retained for the full lifecycle of the model.
-
 # Model Card Template
 
-## 1 Model Overview
+**Document Title:** Model Card Template
+**Document Type:** Template
+**Version:** 0.0.1
+**Date:** 2026 05 26
+**Owner:** AI Governance Maintainer
+**Approving Authority:** Governance Library Maintainer
+**Related Documents:** `ai/framework-in-model-risk.md`, `ai/standard-ai-in-model-risk.md`, `ai/procedure-in-model-risk-assessment.md`, `ai/template-system-card.md`, `ai/template-ai-system-register.md`
+**Classification:** Public
+**Category:** AI Governance
+**Review Frequency:** 6 to 12 months and upon material AI governance, model risk, or documentation change
+**Repository Path:** `ai/template-model-card.md`
+**Confidentiality:** Public
+**Licence:** CC0 1.0 Universal
 
-Model Name  
-Model Identifier  
-Model Version  
-Model Owner  
-Business Unit  
-Primary Use Case  
-Intended Purpose  
-Model Type (classification, regression, LLM, embedding model, reinforcement learning, etc.)  
-Deployment Environment (cloud, on premise, edge, vendor hosted)  
+---
 
-## 2 Functional Description
+## Purpose
 
-High Level Description  
-Inputs  
-Outputs  
-Decision Impact  
-Supported Workflows or Systems  
-Dependencies and External Services  
+This template provides a reusable structure for documenting an AI model. It records purpose, ownership, data provenance, evaluation results, limitations, model risk, monitoring, approval, retention, and retirement information.
 
-## 3 Architecture Summary
+Do not populate the public repository version with real model names, system names, people names, supplier names, customer names, datasets, internal identifiers, URLs, evidence locations, or operational details.
 
-Model Architecture  
-Training Data Overview  
-Feature Summary  
-Embedding Details (if applicable)  
+---
 
-## 4 Training and Evaluation
+## Model Card Fields
 
-Training Process Summary  
-Data Sources  
-Data Transformations  
-Evaluation Datasets  
-Performance Metrics (accuracy, F1, recall, etc.)  
-Validation Approach (cross validation, holdout, etc.)  
-Fairness Metrics  
-Stress and Scenario Tests  
+### 1. Model Overview
 
-## 5 Interpretability Findings
+| Field | Entry |
+| --- | --- |
+| Model Identifier |  |
+| Model Name |  |
+| Model Version |  |
+| Model Owner Role |  |
+| Data Owner Role |  |
+| Control Owner Role |  |
+| Supplier Owner Role |  |
+| Lifecycle Status | Proposed, pilot, production, suspended, retired. |
+| Approved Purpose |  |
+| Prohibited Uses |  |
+| Risk Tier | Low, moderate, high, critical. |
 
-Interpretability Method(s) Used (SHAP, LIME, Integrated Gradients, etc.)  
-Key Insights  
-Highlighted Features  
-Bias or Disparity Indicators  
-Representation Analysis Summary  
-Known Model Limitations  
+### 2. Functional Description
 
-## 6 Adversarial and Robustness Testing
+| Field | Entry |
+| --- | --- |
+| Model Type | Classification, prediction, generation, embedding, retrieval, ranking, optimization, agentic support, or other. |
+| Inputs |  |
+| Outputs |  |
+| Output Consumers |  |
+| Decision Impact |  |
+| Human Oversight |  |
+| Deployment Context | Internal, external service, cloud-hosted, embedded platform, API, local, hybrid. |
 
-Adversarial Test Suite Used  
-Gradient and Perturbation Results  
-Red Team Evaluation Summary  
-Out of Distribution Test Results  
-Robustness Observations  
-Identified Vulnerabilities  
+### 3. Data Provenance and Lineage
 
-## 7 Alignment and Behavioural Analysis
+| Field | Entry |
+| --- | --- |
+| Training Data Sources |  |
+| Tuning Data Sources |  |
+| Retrieval Sources |  |
+| Evaluation Data Sources |  |
+| Inference Data Categories |  |
+| Data Classification |  |
+| Permitted Use Basis |  |
+| Data Lineage Summary |  |
+| Retention Requirements |  |
+| Deletion Method |  |
+| Supplier Data Handling |  |
 
-Intended Purpose Alignment  
-Ethical and Policy Alignment Review  
-Behavioural Drift Risk  
-Long Horizon Reasoning Observations (if applicable)  
+### 4. Evaluation Summary
 
-## 8 Model Risk Rating
+| Field | Entry |
+| --- | --- |
+| Evaluation Objective |  |
+| Evaluation Data |  |
+| Performance Measures |  |
+| Failure Modes |  |
+| Known Limitations |  |
+| Sensitive Attribute or Proxy Review |  |
+| Out-of-Distribution Results |  |
+| Robustness Results |  |
 
-Risk Category  
-Rationale  
+### 5. Interpretability and Representation
 
-## 9 Monitoring and Controls
+| Field | Entry |
+| --- | --- |
+| Interpretability Method |  |
+| Material Output Drivers |  |
+| Representation Analysis |  |
+| Bias or Disparity Indicators |  |
+| Review Limitations |  |
 
-Drift Detection Mechanisms  
-Alert Thresholds  
-Logging Configuration  
-Continuous Monitoring Requirements  
-Human in the Loop Requirements  
+### 6. Adversarial and Security Testing
 
-## 10 Residual Risk Statements
+| Field | Entry |
+| --- | --- |
+| Prompt Injection Exposure |  |
+| Indirect Prompt Injection Exposure |  |
+| Data Poisoning Exposure |  |
+| Model Inversion Exposure |  |
+| Membership Inference Exposure |  |
+| Retrieval Leakage Exposure |  |
+| Unsafe Tool Use Exposure |  |
+| Training Data Leakage Exposure |  |
+| Adversarial Test Summary |  |
+| Remediation or Acceptance |  |
 
-Identified Residual Risks  
-Mitigation Actions  
-Accepted Risks  
-Approval References  
+### 7. Monitoring and Operations
 
-## 11 Governance and Approvals
+| Field | Entry |
+| --- | --- |
+| Monitoring Method |  |
+| Drift Indicators |  |
+| Misuse Indicators |  |
+| Leakage Indicators |  |
+| Alert Thresholds |  |
+| Incident Response Linkage |  |
+| Review Cadence |  |
 
-Model Owner Approval  
-Compliance Review  
-Legal Review  
-Security Review  
-AI Governance Review  
-Final Approval Authority  
+### 8. Risk and Approval
 
-## 12 Evidence Repository Index
+| Field | Entry |
+| --- | --- |
+| Residual Risks |  |
+| Compensating Controls |  |
+| Exceptions |  |
+| Approval Authority Role |  |
+| Approval Decision | Approved, approved with conditions, pilot only, deferred, rejected, retired. |
+| Approval Date |  |
+| Next Review Date |  |
 
-Evidence Location References  
-Interpretability report  
-Adversarial testing report  
-Representation analysis  
-Evaluation datasets  
-Training documentation  
-Monitoring configuration  
-Version history  
-Lifecycle decision logs  
+### 9. Retirement and Deletion
 
-# Monitoring, Metrics, and Reporting
+| Field | Entry |
+| --- | --- |
+| Retirement Trigger |  |
+| Access Removal |  |
+| Endpoint Removal |  |
+| Data Retention Decision |  |
+| Retrieval Store Deletion |  |
+| Log Retention Decision |  |
+| Supplier Deletion Confirmation |  |
+| Final Status |  |
 
-Model cards must be reviewed during periodic re evaluation cycles.  
-Repository version control must track changes to each card.  
-Annual summaries should identify trends, findings, and maturity indicators.
+---
 
-# Continuous Improvement
+## Use Notes
 
-Proposed improvements to this template must be recorded in the continuous improvement register.  
-Non substantive refinements may be made without reapproval but must be logged.
+A model card documents model-level risk and evidence. A system card documents deployment context, integrations, users, workflows, tools, and system-level controls. Both may be required for high-risk or externally integrated AI systems.
 
-# References and Framework Alignment
+---
 
-In Model Risk Framework  
-In Model Risk Standard  
-AI Lifecycle Governance Standard  
-ISO 42001  
-ISO 23894  
-ISO 24028  
-NIST AI RMF  
-CSA CCM v5  
-COBIT 2025
+**End of Document**
