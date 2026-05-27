@@ -1,361 +1,256 @@
 # GRC Library CC0 Ingestion and Transformation Specification
 
-| Field               | Value                                                          |
-|---------------------|----------------------------------------------------------------|
-| Document Title      | GRC Library CC0 Ingestion and Transformation Specification     |
-| Document Type       | Specification                                                  |
-| Version             | 1.1.3                                                          |
-| Date                | 2025-11-18                                                     |
-| Document Owner      | Chief Compliance Officer                                       |
-| Approving Authority | Chief Risk Officer                                             |
-| Related Documents   | framework-grc-document-architecture-and-interrelationships.md; master-project-specification.md |
-| Classification      | Public – CC0                                                   |
-| Category            | Meta-Governance                                                |
-| Review Frequency    | Annual or on material process change                           |
-| Repository Path     | /specification-ingestion.md                                    |
-| Confidentiality     | Public (CC0 License)                                           |
+**Document Title:** GRC Library CC0 Ingestion and Transformation Specification
+**Document Type:** Specification
+**Version:** 1.2.0
+**Date:** 2026 05 26
+**Owner:** Governance Library Maintainer
+**Approving Authority:** Governance Library Maintainer
+**Related Documents:** `README.md`, `NOTICE.md`, `core/charter-governance-library.md`, `core/register-document-index-and-classification.md`, `core/framework-document-architecture-and-interrelationship.md`
+**Classification:** Public
+**Category:** Core Governance
+**Review Frequency:** Annual and upon material repository, licence, or source-framework change
+**Repository Path:** `specification-ingestion.md`
+**Confidentiality:** Public
+**Licence:** CC0 1.0 Universal
 
 ---
 
-## 1. Purpose
+## Purpose
 
-This specification defines how content is ingested, normalized, improved, and transformed into CC0-licensed governance documents for the public GRC Library.
+This specification defines how source material is converted into organization-neutral, CC0-compatible governance documents for the public GRC Documentation Library.
 
-It establishes authoritative rules for:
-- Interpreting pasted content.  
-- Determining document type and canonical filename.  
-- Selecting the correct directory.  
-- Constructing the metadata table.  
-- Normalizing structure and language.  
-- Handling matrices and registers.  
-- Formatting ingestion outputs as a single, copy-pastable snippet.  
+It establishes rules for:
 
-This specification overrides any other project guidance for: CC0 document creation, formatting, metadata, directory placement, and ingestion-output structure.
-
----
-
-## 2. Scope
-
-This specification applies to all content that is to be:
-
-1. Integrated into the CC0 GRC Library.  
-2. Converted into a CC0 governance document using the canonical metadata table.  
-3. Normalized for clarity, consistency, and alignment with recognized standards.  
-4. Positioned in the correct directory based on type and domain.  
-5. Evaluated for overlap or conflict with existing repository documents.  
-6. Assessed for required updates to registers, matrices, mapping files, or indices.  
-
-The ingestion engine must apply this specification to every “ingest the following” instruction unless explicitly told otherwise.
+- Assessing source material for licence compatibility.
+- Removing identifying and organization-specific information.
+- Selecting document type and canonical filename.
+- Selecting repository domain.
+- Applying metadata and document structure.
+- Separating legal obligation, regulatory interpretation, industry practice, contractual requirement, and architectural recommendation.
+- Avoiding verbatim reproduction of restrictively licensed source material.
+- Updating indexes, registers, matrices, and related artefacts.
 
 ---
 
-## 3. Reference Frameworks
+## Scope
 
-All transformations must align with the intent and terminology of:
+This specification applies to all content added to, modified in, or synthesized for this repository.
 
-1. ISO and IEC standards: 27001, 27701, 42001, 22301, 31000, 9001 and related.  
-2. NIST frameworks: Cybersecurity Framework 2.0, NIST AI RMF, and relevant 800 series publications.  
-3. COBIT 2025 governance and management objectives.  
-4. CSA Cloud Controls Matrix v5.  
-5. Global regulatory obligations represented in library registers: privacy, cybersecurity, AI governance, ESG, and supply chain integrity.
-
-The ingestion engine must not invent regulatory requirements or unsupported mappings. Any unverified reference must be clearly indicated in the source content and preserved as “Unverified” only if the user supplied it.
+It applies to source material from internal documents, public standards, control frameworks, legal or regulatory references, audit guidance, questionnaires, implementation guides, metrics catalogues, and user-provided drafts.
 
 ---
 
-## 4. Directory Structure
+## Licence Compatibility Rules
 
-All CC0 documents must be placed into either the core directory or one of the defined domain directories.
+All original repository content is released under CC0 1.0 Universal.
 
-### 4.1 Core Directory
+Before source material is used, determine whether it is compatible with CC0 republication. Where licence terms are restrictive, uncertain, proprietary, all-rights-reserved, noncommercial, no-derivatives, no-redistribution, or otherwise incompatible with CC0, the source may be used only for non-verbatim reference.
 
-Used for documents that are not domain-specific or that provide cross-domain meta-governance.
+Do not copy into this repository:
 
-- /core  
+- Third-party control statements.
+- Questionnaire text or answer options.
+- Implementation guidance.
+- Audit guidance.
+- Metrics catalogue text.
+- Tables reconstructed from restrictively licensed sources.
+- Proprietary examples.
+- Organization-specific evidence.
+
+Permitted use includes independent synthesis, framework name references, high-level domain alignment, original commentary, evidence category mapping, and non-verbatim applicability analysis.
+
+---
+
+## Identification and Sanitization Rules
+
+Repository content must not include:
+
+- Real company names.
+- Real people names.
+- Email addresses.
+- Phone numbers.
+- Physical addresses.
+- Tenant IDs.
+- Domain names.
+- IP addresses.
+- Customer names.
+- Supplier names.
+- Contract references.
+- Internal system names.
+- Incident-specific details.
+- Audit evidence.
+- Screenshots or exports from internal systems.
+
+Replace organization-specific details with generic roles, generic system categories, generic data classes, generic supplier classes, and generic evidence classes.
+
+---
+
+## Repository Domains
+
+Documents must be placed in the domain that best reflects their primary governance purpose.
+
+```text
+/core        Cross-domain governance, risk, compliance, audit, mappings, registers, role authority, document architecture, and metrics.
+/security    Information security, identity, access, logging, incident response, data classification, secure engineering, and secure operations.
+/ai          AI governance, AI security, model risk, AI lifecycle, AI documentation, AI assurance, AI testing, and AI data security.
+/privacy     Privacy governance, data protection, transfer assessment, breach response, records retention, and data subject rights.
+/resilience  Business continuity, disaster recovery, crisis management, resilience testing, emergency response, and recovery governance.
+/supplier    Supplier, third-party, cloud, external dependency, supply-chain, and service-provider governance.
+```
+
+---
+
+## Filename Rules
+
+Filenames must:
+
+1. Use lowercase letters.
+2. Use single hyphens between words.
+3. Remove punctuation.
+4. Replace ampersands with `and`.
+5. Start with the document type prefix.
+6. Avoid duplicate, trailing, or leading hyphens.
+7. Avoid organization-specific product, vendor, system, or service names.
 
 Examples:
-- Ingestion specification.  
-- Document architecture framework.  
-- Cross-framework compliance matrices.  
-- Global regulatory mapping registers.
 
-### 4.2 Topic Directories
-
-Used for domain-focused material containing multiple document types.
-
-- /ai  
-- /resilience  
-- /privacy  
-- /supplier  
-- /networking  
-
-Rules:
-
-1. Place documents in a topic directory only if content primarily relates to that domain.  
-2. Otherwise place the document in /core.  
-3. No subdirectories may be created under /core or any topic directory without explicit user instruction.  
-4. When the user explicitly authorizes a new top-level domain directory, this specification must be updated to include it.
+- `policy-information-security.md`
+- `standard-logging-and-monitoring.md`
+- `procedure-risk-register.md`
+- `framework-ai-governance-and-risk.md`
+- `template-ai-system-register.md`
+- `matrix-cross-framework-alignment.md`
 
 ---
 
-## 5. Document Type Classification
+## Document Types
 
-Each pasted document must be assigned one of the following types:
+Allowed document types are:
 
-- Policy  
-- Framework  
-- Standard  
-- Procedure  
-- Plan  
-- Guideline  
-- Register  
-- Matrix  
-- Checklist  
-- Specification  
-- Charter  
-- Template  
-- Annex  
+- Charter
+- Framework
+- Policy
+- Standard
+- Procedure
+- Plan
+- Guideline
+- Register
+- Matrix
+- Specification
+- Template
+- Annex
 
-The document type determines:
-- The filename prefix.  
-- The expected level of governance abstraction.  
-- The canonical section structure.
-
-If the type is ambiguous, the ingestion engine must select the closest match based on purpose and content and, if necessary, ask the user to confirm.
+Do not use `SOP` as the document type. Convert it to Procedure, Standard, or Plan based on content.
 
 ---
 
-## 6. Filename Rules
+## Canonical Metadata
 
-All filenames must follow this structure:
+Every document must start with this metadata pattern:
 
-- document-type + hyphen + canonical-name + .md  
+```markdown
+# Document Title
 
-Example:
-- policy-governance-and-risk-management.md  
-- framework-grc-document-architecture-and-interrelationships.md  
-- standard-networking-and-communications.md  
+**Document Title:** Document Title
+**Document Type:** Policy
+**Version:** 0.0.1
+**Date:** 2026 05 26
+**Owner:** Role Name
+**Approving Authority:** Role Name
+**Related Documents:** `path/file.md`, `path/file.md`
+**Classification:** Public
+**Category:** Domain Name
+**Review Frequency:** Annual and upon material change
+**Repository Path:** `domain/file-name.md`
+**Confidentiality:** Public
+**Licence:** CC0 1.0 Universal
+```
 
-### 6.1 Canonical Name Rules
-
-1. All lowercase letters.  
-2. Spaces become a single hyphen.  
-3. All punctuation removed.  
-4. Ampersand becomes “and”.  
-5. No leading or trailing hyphens.  
-6. No duplicate hyphens.  
-7. Stop words are not removed.  
-8. No version numbers or dates in filenames.
-
-The ingestion engine must derive the canonical name from the Document Title, normalize it, and use it consistently in the metadata table and repository path.
-
----
-
-## 7. Metadata Table Requirements
-
-Every document must begin with:
-
-1. An H1 title line (e.g., “# Policy: Governance and Risk Management”).  
-2. A metadata table immediately below the title.
-
-### 7.1 Mandatory Metadata Fields
-
-The metadata table must contain at least the following fields:
-
-- Document Title  
-- Document Type  
-- Version  
-- Date  
-- Document Owner  
-- Approving Authority  
-- Related Documents  
-- Classification  
-- Category  
-- Review Frequency  
-- Repository Path  
-- Confidentiality  
-
-Field names must appear exactly as above.
-
-### 7.2 Metadata Table Format
-
-1. The metadata must be a single Markdown table with “Field” and “Value” columns.  
-2. Document Owner and Approving Authority must be roles, not personal names.  
-3. Related Documents must list canonical names and filenames, separated by semicolons or commas.  
-4. Classification defaults to “Public – CC0” unless the user explicitly directs otherwise.  
-5. Confidentiality must be “Public (CC0 License)” for all library documents, unless the user has authorized a higher classification.
-
-No narrative text may appear between the H1 title and the metadata table.
+Metadata must use role names only and must not use named individuals.
 
 ---
 
-## 8. Content Normalization Rules
+## Required Structural Pattern
 
-The ingestion engine must:
+After metadata, documents should use this structure unless the document type requires a different structure:
 
-1. Remove document control tables, numbering, author fields, and employer identifiers.  
-2. Remove or generalize organization-specific names and labels.  
-3. Rewrite text for clarity, consistency, and alignment with referenced frameworks while preserving meaning.  
-4. Remove references to proprietary document numbers (e.g., “Document 36”) and replace them with canonical filenames where possible.  
-5. Use American English consistently.  
-6. Maintain a precise governance tone.  
-7. Avoid en and em dashes; use simple hyphenation.  
-8. Ensure all content is globally reusable and suitable for CC0.
+1. Purpose.
+2. Scope or Applicability.
+3. Requirements, Policy Statements, Procedure, or Framework Components.
+4. Evidence Requirements.
+5. Limitations.
+6. Maintenance or Review Requirements.
+7. End of Document marker.
 
-If removal of organization-specific data would materially change meaning, the engine must generalize instead of deleting.
+Documents must use `---` to separate major sections and must end with:
 
----
-
-## 9. Canonical Document Structure
-
-Unless otherwise specified by the user, all CC0 documents must follow this order:
-
-1. H1 Title  
-2. Metadata Table  
-3. Purpose  
-4. Scope  
-5. Objectives (if applicable)  
-6. Governance and Accountability (for governance artefacts)  
-7. Policy or Control Statements or Methodology or Procedures (as appropriate for the type)  
-8. Roles and Responsibilities (if not covered in Governance section)  
-9. Monitoring, Metrics, and Reporting  
-10. Continuous Improvement  
-11. References and Framework Alignment  
-12. Definitions (if required)  
-13. A closing marker: “**End of Document**”
-
-Where a document type does not logically require every section (e.g., a short Template or Checklist), the ingestion engine may omit non-applicable sections, but Purpose and Scope must always be present.
+```markdown
+**End of Document**
+```
 
 ---
 
-## 10. Matrix and Table Construction Rules
+## Language Requirements
 
-This section governs any document whose primary role is mapping, cross-referencing, or tabular evidence presentation (Registers and Matrices in particular).
+Documents must use precise, organization-neutral language. They must avoid vendor-marketing language, unsupported maturity claims, and statements implying compliance, certification, regulatory approval, or operating effectiveness without implementation evidence.
 
-### 10.1 Block Matrix Pattern (Mandatory for Large Matrices)
+Use Oxford English with `-ize` forms where applicable.
 
-To preserve readability and render correctly in GitHub:
-
-1. Large multi-framework or multi-jurisdiction matrices must be organized into “blocks” by regulation, framework, or domain.  
-2. Each block must be under a distinct heading (e.g., “## GDPR (EU 2016/679)”).  
-3. Each block must use tables with no more than 4 columns.  
-4. Where more columns are logically needed, they must be split into multiple tables (e.g., “Mapped Documents”, “Primary Obligations”, “Framework References”).  
-5. No nested tables are permitted.  
-6. Tables must avoid excessive width that causes horizontal scrolling.
-
-### 10.2 Prohibited Matrix Patterns
-
-The ingestion engine must avoid:
-
-1. Single mega-tables spanning many frameworks, jurisdictions, or domains.  
-2. Tables with more than 4 columns unless the user explicitly requests otherwise.  
-3. Complex row-spanning or column-spanning layouts that will not render well in Markdown.  
-4. Tables designed only for Confluence or word-processor layouts.
+Do not state that a document ensures compliance. State that it provides a baseline, structure, evidence class, or control model that adopting organizations must validate.
 
 ---
 
-## 11. Primordial Code-Fence Enforcement Rule
+## Regulatory and Framework Mapping Rules
 
-This rule governs how the ingestion engine produces CC0 documents back to the user.
+Mappings must classify each statement as one of:
 
-1. Every ingestion output must contain one and only one fenced code block containing the complete CC0 document.  
-2. The fenced code block must be declared with a Markdown language hint (e.g., “markdown”).  
-3. No other fenced code blocks may appear anywhere in the response.  
-4. Inside the fenced code block there must be only the canonical CC0 document content.  
-5. Repository update information, explanations, or commentary must appear outside the fenced block.  
-6. The ingestion engine must self-validate that:  
-   - The fenced block is syntactically complete.  
-   - The document starts with an H1 and a metadata table.  
-   - The document ends with “**End of Document**”.  
+- Legal obligation.
+- Regulatory interpretation.
+- Contractual requirement.
+- Industry practice.
+- Architectural recommendation.
+- Evidence category.
 
-If any of these checks fail, the ingestion engine must correct the output before sending it.
-
-This rule is primordial and overrides any other formatting guidance.
+Mappings must include applicability conditions where jurisdiction, sector, processing role, deployment model, data residency, data category, or contractual obligation materially affects interpretation.
 
 ---
 
-## 12. Comparative Analysis Workflow
+## AI Content Rules
 
-If a document with the same canonical filename already exists in the repository:
+AI documents must treat data as the primary risk surface and must address relevant lifecycle stages:
 
-1. The ingestion engine must not overwrite it automatically.  
-2. The engine must perform a comparative analysis between the existing document and the newly ingested content.  
-3. The engine must identify:  
-   - Alignment and common sections.  
-   - Deltas, gaps, and improvements.  
-   - Potential regressions or losses of detail.  
-4. The engine must recommend whether to:  
-   - Replace the existing document.  
-   - Merge content.  
-   - Retain the existing document as-is.  
-5. The engine must clearly request user approval before any replacement.
+- Collection.
+- Annotation.
+- Storage.
+- Processing.
+- Training.
+- Retrieval.
+- Inference.
+- Monitoring.
+- Retention.
+- Deletion.
+- Decommissioning.
 
-Only after explicit user confirmation may the engine propose a replacement file or merged version.
-
----
-
-## 13. Repository Update Register Rules
-
-Every ingestion response must include a repository update register outside the main code block.
-
-The register must list:
-
-1. Files requiring updates (mandatory or recommended).  
-2. Any new registers, matrices, or supporting documents required.  
-3. Any new topics requiring directory expansion.  
-4. Any required additions to the key terms and definitions register.  
-
-The register must be concise and structured so that it can be easily transcribed into a change log or task list.
+AI documents must explicitly consider prompt injection, indirect prompt injection, data poisoning, model inversion, membership inference, training data leakage, retrieval leakage, unsafe tool use, shadow AI, provenance, lineage, retention, and enforceable deletion where relevant.
 
 ---
 
-## 14. New Supporting Document Workflow
+## Quality Gate
 
-If a transformation indicates that a new register, mapping table, annex, template, checklist, or index is required, the ingestion engine must:
+Before committing a document, validate that:
 
-1. Identify it explicitly in the repository update register.  
-2. Provide a recommended document title and canonical filename.  
-3. Provide a brief description of the document’s purpose and domain.  
-4. Ask whether the user wants that supporting document created next.
-
-The engine must not auto-generate supporting documents unless the user instructs it to do so.
-
----
-
-## 15. Terms and Definitions Handling
-
-1. The GRC Library must maintain a central register key-terms-and-definitions.md.  
-2. Documents must reference the central register for shared terminology rather than defining common terms locally.  
-3. Local definitions should be used only when needed for clarity or when a term is used in a specialized way.  
-4. Any new terms identified during ingestion must be captured in the repository update register as candidates for inclusion in the central register.
+1. Metadata is complete and follows the canonical pattern.
+2. Repository path matches actual file path.
+3. Licence is CC0 1.0 Universal.
+4. No prohibited identifiers are present.
+5. No restrictively licensed third-party text is copied.
+6. Roles are generic and role-based.
+7. Classification is Public.
+8. Framework and regulatory statements are scoped and not overstated.
+9. Related documents are updated where required.
+10. Index register is updated for new active documents.
 
 ---
-
-## 16. Final Output Rules
-
-Every ingestion operation must produce:
-
-1. A single fenced code block containing the complete CC0 document, ready for direct copy and paste into the repository.  
-2. A repository update register outside the code block.  
-
-Inside the CC0 document:
-
-- No meta operational data.  
-- No failure audit data.  
-- No system or assistant context.  
-- No prose explanations of the ingestion process.
-
-All CC0 documents must be fully usable by a human reader and automation tooling without editing.
-
----
-
-## 17. Change History
-
-| Version | Date       | Summary                                                          |
-|---------|------------|------------------------------------------------------------------|
-| 1.1.3   | 2025-11-18 | Added metadata-table requirement, block-matrix rules, and primordial code-fence enforcement; reorganized structure. |
-| 1.1.2   | 2025-11-17 | Added Template as allowed document type; clarified directory rules. |
-| 1.1.1   | 2025-11-16 | Harmonized metadata fields and canonical filename rules.         |
-| 1.1.0   | 2025-11-15 | Initial ingestion specification for CC0 GRC Library.            |
 
 **End of Document**
