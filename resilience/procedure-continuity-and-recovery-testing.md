@@ -1,186 +1,106 @@
-# Procedure: Continuity & Recovery Testing and Exercising
+# Continuity and Recovery Testing Procedure
 
-## Metadata
+**Document Title:** Continuity and Recovery Testing Procedure
+**Document Type:** Procedure
+**Version:** 0.0.1
+**Date:** 2026 05 26
+**Owner:** Resilience Owner
+**Approving Authority:** Governance Library Maintainer
+**Related Documents:** `resilience/framework-business-continuity-and-resilience.md`, `resilience/policy-business-continuity-and-disaster-recovery.md`, `resilience/standard-business-continuity-and-disaster-recovery.md`, `resilience/procedure-business-impact-analysis.md`, `resilience/business-continuity-and-crisis-management.md`
+**Classification:** Public
+**Category:** Resilience
+**Review Frequency:** Annual and upon material continuity, recovery, supplier, system, data, or AI change
+**Repository Path:** `resilience/procedure-continuity-and-recovery-testing.md`
+**Confidentiality:** Public
+**Licence:** CC0 1.0 Universal
 
-| Field | Details |
-|-------|----------|
-| **Document Title** | Continuity & Recovery Testing and Exercising Procedure |
-| **Document Type** | Procedure |
-| **Version** | 0.1 |
-| **Date** |  |
-| **Document Owner** | Business Continuity Manager (BCM) |
-| **Approving Authority** | Chief Information Officer (CIO) |
-| **Related Documents** | Framework: Business Continuity & Resilience; Policy: Business Continuity and Disaster Recovery; Standard: Business Continuity & Disaster Recovery; Plan: Business Continuity & Crisis Management; Plan: Crisis Communication; Procedure: Business Impact Analysis; Procedure: Crisis Management & EOC Activation |
-| **Classification** | Public – Open Access |
-| **Category** | Business Continuity / Testing and Assurance |
-| **Review Frequency** | Annual or following a major change or incident |
-| **Repository Path** | /resilience/procedure-continuity-and-recovery-testing.md |
-| **Confidentiality** | None (Public Domain, CC0 License) |
-
-
-
-## Document Control
-
-| Version | Date | Author | Change History |
-|----------|------|---------|----------------|
-| 0.1 |  |  | Initial Draft |
-
-
-
-## Approval
-
-| Role | Name | Approval Date |
-|-------|------|---------------|
-| Chief Information Officer (CIO) |  |  |
-| Chief Risk Officer (CRO) |  |  |
-| Chief Information Security Officer (CISO) |  |  |
-| Chief Compliance Officer (CCO) |  |  |
-| Chief Legal Officer / General Counsel (CLO/GC) |  |  |
-
-
+---
 
 ## Purpose
 
-This procedure defines the methodology for planning, executing, and documenting continuity and recovery testing and exercises.  
-It ensures that all Business Continuity and Disaster Recovery capabilities are validated, measurable, and continually improved to support enterprise resilience.
+This procedure defines a reusable method for planning, executing, documenting, evaluating, and improving continuity and recovery tests.
 
-
+---
 
 ## Scope
 
-- Applies to all business units, IT systems, and critical processes identified through the Business Impact Analysis.  
-- Covers the scheduling, execution, evaluation, and reporting of all continuity and disaster-recovery exercises.  
-- Includes technology failovers, crisis simulations, tabletop exercises, and integrated organizational tests.  
-- Applies to internal teams, third-party service providers, and partners who participate in continuity testing activities.
+This procedure applies to critical processes, systems, data stores, suppliers, facilities, workforce dependencies, cloud services, AI systems, communication channels, and recovery capabilities identified through business impact analysis or risk assessment.
 
-
-
-## Objectives
-
-1. Validate that continuity and recovery plans perform as designed and meet defined RTO/RPO targets.  
-2. Confirm staff readiness, communication efficiency, and procedural accuracy.  
-3. Identify weaknesses and improvement opportunities.  
-4. Maintain audit-ready records demonstrating ISO 22301 and COBIT DSS04 compliance.
-
-
+---
 
 ## Test Types
 
-| Type | Description | Frequency | Owner |
-|------|--------------|------------|-------|
-| **Tabletop Exercise** | Discussion-based scenario review of roles, procedures, and communication. | Quarterly | BCM / Department Heads |
-| **Simulation Test** | Partial functional test of components (e.g., backup restoration, system failover). | Semi-annual | IT Operations / CISO |
-| **Full Recovery Test** | End-to-end execution of recovery processes for critical systems or sites. | Annual | CIO / BCM |
-| **Crisis Communication Drill** | Messaging and approval workflow validation. | Annual | Communications Director |
-| **Integrated Enterprise Exercise** | Multi-department test combining BC, DR, and crisis management. | Every 2 years | CIO / CRO / ERC |
+| Type | Purpose |
+| --- | --- |
+| Tabletop Exercise | Reviews roles, decisions, assumptions, communication, and escalation through scenario discussion. |
+| Walkthrough | Reviews plan steps, dependencies, evidence, and readiness without executing recovery. |
+| Technical Restoration Test | Restores data, systems, configurations, or services in a controlled environment. |
+| Communications Test | Validates contact paths, message approval, escalation, and status reporting. |
+| Supplier Escalation Test | Validates supplier notification, response, evidence, and recovery commitments. |
+| Failover or Recovery Test | Exercises service recovery, alternate processing, or recovery site capability. |
+| AI Resilience Test | Validates AI service fallback, retrieval store recovery, emergency disablement, monitoring, and data restoration. |
 
+---
 
+## Procedure
 
-## Test Planning
+### Step 1: Define Test Scope
 
-1. **Annual Test Schedule**  
-   - The BCM develops the schedule each Q4 for the following calendar year.  
-   - Schedule must cover all Tier-1 and Tier-2 processes at least once per year.
+Identify the service, process, supplier, system, data set, AI system, facility, or scenario being tested. Define objectives, assumptions, participants by role, and exclusions.
 
-2. **Test Design**  
-   - Define objectives, scope, roles, and success criteria.  
-   - Prepare scripts or scenarios simulating realistic events (cyber incident, facility outage, data loss, etc.).  
-   - Include communication and escalation workflows as applicable.
+### Step 2: Define Success Criteria
 
-3. **Approval**  
-   - Each exercise plan is reviewed and approved by the CIO and CRO prior to execution.  
-   - Tests that may affect production systems require written change-control authorization.
+Define measurable criteria including recovery time, recovery point, minimum service level, data integrity, security control restoration, communication timing, supplier response, and business acceptance.
 
+### Step 3: Prepare Test Plan
 
+Document scenario, schedule, roles, evidence requirements, communication plan, rollback method, safety constraints, privacy considerations, and approval to execute.
 
-## Execution
+### Step 4: Execute Test
 
-1. Conduct exercise according to approved plan and timeline.  
-2. Maintain control logs including:  
-   - Start/end times  
-   - Participants and observers  
-   - Steps executed  
-   - Anomalies or deviations  
-3. Capture quantitative metrics (e.g., recovery times, data-integrity validation, communication latency).  
-4. Ensure that testing activities do not compromise operational systems or data integrity.
+Perform the test according to the approved plan. Record actions, timing, decisions, deviations, failures, manual workarounds, supplier responses, and observed control issues.
 
+### Step 5: Validate Results
 
+Validate whether success criteria were met. Confirm recovered data, restored services, access control, logging, monitoring, integrations, AI system behaviour, and business acceptance.
 
-## Evaluation and Reporting
+### Step 6: Record Findings
 
-| Activity | Deliverable | Owner |
-|-----------|-------------|-------|
-| Immediate debrief | Verbal summary of performance and key findings. | Test Facilitator |
-| Written Test Report | Detailed record of results, metrics, and issues. | BCM |
-| Review Meeting | Validation of corrective actions and lessons learned. | CIO / CRO / ERC |
-| Final Approval | Endorsement of test closure and improvement plan. | CIO |
+Classify findings by severity, owner, corrective action, target date, dependency, and residual risk.
 
-**Each Test Report must include:**
-- Objectives and success criteria.  
-- Participants and roles.  
-- Observed performance vs. targets.  
-- Identified issues, root causes, and corrective actions.  
-- Recommendations for improvement.  
+### Step 7: Report and Approve
 
-All records are stored in the governance repository and retained for a minimum of seven years.
+Prepare a test report with scope, results, evidence, limitations, failed assumptions, corrective actions, residual risk, and approval or acceptance.
 
+### Step 8: Track Improvement
 
+Track corrective actions to closure. Update continuity plans, recovery plans, supplier records, BIA outputs, risk records, and recovery objectives where required.
 
-## Performance Metrics
+---
 
-| Metric | Description | Target |
-|---------|--------------|--------|
-| **RTO Achievement Rate** | % of systems recovered within RTO. | ≥ 95% |
-| **RPO Compliance Rate** | % of systems meeting RPO thresholds. | ≥ 95% |
-| **Exercise Completion Rate** | % of scheduled exercises completed on time. | 100% |
-| **Improvement Closure Rate** | % of corrective actions closed within 90 days. | ≥ 90% |
-| **Testing Coverage** | % of Tier-1/Tier-2 functions tested annually. | 100% |
+## Required Test Record
 
+| Field | Description |
+| --- | --- |
+| Test ID | Unique internal identifier. |
+| Test Type | Tabletop, walkthrough, restoration, communications, supplier, failover, AI resilience, or other. |
+| Scope | Service, process, data set, supplier, system, or scenario tested. |
+| Objectives | Expected outcomes. |
+| Success Criteria | Measurable criteria for success. |
+| Participants by Role | Roles involved in test execution or observation. |
+| Actual Recovery Time | Actual time to restore acceptable operation. |
+| Actual Recovery Point | Actual point to which data was restored. |
+| Issues Identified | Gaps, failures, or limitations found. |
+| Corrective Actions | Required remediation and owner. |
+| Approval | Role accepting result or residual risk. |
+| Evidence Location | Internal evidence reference for adopting organizations. |
 
+---
 
-## Roles and Responsibilities
+## Evidence Requirements
 
-| Role | Responsibilities |
-|------|------------------|
-| **Business Continuity Manager (BCM)** | Develops test plan, coordinates exercises, records outcomes, and reports to leadership. |
-| **CIO / CRO** | Approve annual testing program and ensure resource allocation. |
-| **CISO** | Oversees cybersecurity and data-protection aspects of testing. |
-| **IT Operations** | Executes recovery tests and validates infrastructure readiness. |
-| **Communications Director** | Tests internal/external messaging workflows. |
-| **Department Heads** | Ensure staff participation and local plan validation. |
-| **Enterprise Risk Committee (ERC)** | Reviews results, tracks trends, and ensures continual improvement. |
+Maintain test plans, execution records, screenshots or logs where appropriate for internal use, validation results, communications records, supplier evidence, corrective action logs, and approval records. Public CC0 templates must not include internal screenshots, system names, supplier names, contact details, or operational evidence.
 
-
-
-## Continuous Improvement
-
-Findings, gaps, and lessons learned from each exercise must be documented and tracked through:
-- The Corrective and Preventive Action Procedure  
-- The Continuous Improvement Register Procedure  
-- The Digital Trust Performance Framework  
-
-Improvements remain open until retested and confirmed effective.
-
-
-
-## References and Framework Alignment
-
-| Framework | Reference | Objective |
-|------------|------------|-----------|
-| **ISO 22301:2019** | Clauses 8–10 | Establish, implement, and evaluate BCMS performance. |
-| **ISO 22398:2013** | Clauses 5–9 | Provide guidance for developing and conducting exercises. |
-| **COBIT 2025** | DSS04, DSS05 | Ensure continuity and security services are tested and improved. |
-| **NIST SP 800-34r1** | Chapters 4–5 | Define contingency testing and validation best practices. |
-| **CSA CCM v5** | BCR-03, BCR-04 | Establish business-continuity testing and operational-resilience assurance. |
-
-
-
-## Definitions
-
-Key terms and acronyms used in this document are defined in the **Resilience Terms and Definitions Register**, which provides standardized terminology for all Business Continuity, Disaster Recovery, and Crisis Management artefacts.
-
-Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
-
-
+---
 
 **End of Document**
