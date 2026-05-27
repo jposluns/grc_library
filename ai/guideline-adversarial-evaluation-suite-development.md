@@ -1,233 +1,112 @@
-Document Title
-Adversarial Evaluation Suite Development Guideline
+# Adversarial Evaluation Suite Development Guideline
 
-Document Type
-Guideline
+**Document Title:** Adversarial Evaluation Suite Development Guideline
+**Document Type:** Guideline
+**Version:** 0.0.1
+**Date:** 2026 05 26
+**Owner:** AI Security Maintainer
+**Approving Authority:** Governance Library Maintainer
+**Related Documents:** `ai/framework-in-model-risk.md`, `ai/standard-ai-in-model-risk.md`, `ai/procedure-in-model-risk-assessment.md`, `ai/standard-ai-security-and-risk.md`, `ai/template-model-card.md`, `ai/template-system-card.md`
+**Classification:** Public
+**Category:** AI Governance
+**Review Frequency:** 6 to 12 months and upon material AI threat, model, data, supplier, or assurance change
+**Repository Path:** `ai/guideline-adversarial-evaluation-suite-development.md`
+**Confidentiality:** Public
+**Licence:** CC0 1.0 Universal
 
-Version
-0.0.1
+---
 
-Date
-2025 November 18
+## Purpose
 
-Owner
-Chief Information Security Officer
+This guideline provides an organization-neutral method for developing adversarial evaluation suites for AI models and AI systems. It supports repeatable testing for misuse resistance, data leakage, prompt injection, unsafe tool use, robustness, and lifecycle assurance.
 
-Approving Authority
-Chief Information Security Officer
+---
 
-Related Documents
-In Model Risk Framework (framework-in-model-risk.md)
-In Model Risk Standard (standard-in-model-risk.md)
-AI Lifecycle Governance Standard (standard-ai-lifecycle-governance.md)
-In Model Risk Assessment Procedure (procedure-in-model-risk-assessment.md)
-Model Card Template (template-model-card.md)
-System Card Template (template-system-card.md)
+## Scope
 
-Classification
-Public
+This guideline applies to predictive models, generative models, retrieval-augmented systems, embedding systems, AI agents, external model services, and AI-enabled workflows requiring adversarial or misuse-oriented evaluation.
 
-Category
-Artificial Intelligence
+---
 
-Review Frequency
-Annual
+## Development Method
 
-Repository Path
-/ai/guideline-adversarial-evaluation-suite-development.md
+### 1. Define Evaluation Objectives
 
-Confidentiality
-Public
+Define the evaluation purpose, model or system scope, approved use, prohibited use, risk tier, users, data classes, deployment model, and required evidence.
 
-# Purpose
+### 2. Identify Attack Surfaces
 
-This guideline provides a structured method for developing adversarial evaluation suites used to test artificial intelligence and machine learning models.  
-It enables consistent, transparent, and repeatable adversarial testing aligned to enterprise governance, safety, interpretability, and lifecycle requirements.
+Assess attack surfaces including prompts, retrieved content, uploaded files, APIs, plugins, tools, code execution, browser content, email, documents, connectors, retrieval stores, model endpoints, logs, and supplier-operated services.
 
-# Scope
+### 3. Define Threat Scenarios
 
-This guideline applies to all AI and ML models subject to adversarial evaluation under the In Model Risk Framework and In Model Risk Standard.  
-It applies to predictive, generative, reinforcement learning, embedding based, and hybrid systems across all lifecycle phases.
+Threat scenarios should consider:
 
-# Objectives
+- Prompt injection.
+- Indirect prompt injection.
+- Data poisoning.
+- Training data leakage.
+- Retrieval leakage.
+- Model inversion.
+- Membership inference.
+- Unsafe tool invocation.
+- Unauthorized data extraction.
+- Out-of-distribution behaviour.
+- Evaluation data contamination.
+- Excessive agency or automation.
+- Cross-user or cross-tenant data exposure.
+- Supplier control failure.
 
-1. Provide a clear and repeatable methodology for developing adversarial evaluation suites.  
-2. Ensure testing reflects enterprise risk appetite, regulatory expectations, and model risk categories.  
-3. Support robust, safe, and trustworthy model behaviour across operational environments.  
-4. Enable integration of adversarial evidence within model cards, system cards, and lifecycle documentation.
+### 4. Build Test Cases
 
-# Adversarial Evaluation Suite Development Method
+Each test case should define objective, target control, input design, expected safe behaviour, failure condition, evidence to capture, severity criteria, and remediation path.
 
-## 1 Define Evaluation Goals
+### 5. Protect Test Data
 
-Identify:  
-- model type and purpose  
-- risk category  
-- expected behaviours  
-- safety or fairness constraints  
-- attack surfaces  
-- regulatory or enterprise obligations  
+Adversarial evaluation must not use real personal data, confidential data, customer data, supplier data, credentials, secrets, production tokens, or internal incident details in public templates or reusable test examples.
 
-Define test intentions (e.g., robustness, safety, misuse resistance, semantic stability).
+### 6. Execute and Record Results
 
-## 2 Identify Threat Scenarios
+Record results with sufficient detail for review without exposing sensitive prompts, system prompts, internal data, credentials, or exploit details that should remain restricted.
 
-Document adversarial scenarios relevant to the model’s architecture and use case, including:  
-- perturbation attacks  
-- input manipulation  
-- prompt conflict  
-- chain of thought disruption  
-- misdirection  
-- counterfactual pressure  
-- harmful semantic attempts  
-- distribution shift challenges  
+### 7. Determine Residual Risk
 
-Threat scenarios must align with model risk domains.
+Classify findings, assign owners, define mitigation, determine compensating controls, and record whether residual risk is accepted, deferred, or blocking.
 
-## 3 Select Adversarial Techniques
+### 8. Update Governance Artefacts
 
-Select methods suited to the architecture:
+Update model cards, system cards, impact assessments, risk registers, monitoring requirements, supplier reviews, and incident playbooks where findings indicate control gaps.
 
-### Gradient and Perturbation Methods  
-Useful for models sensitive to minimal feature changes.
+---
 
-### Structured Red Teaming  
-Designed to stress reasoning, intent, contextual consistency, and safety.
+## Minimum Test Case Fields
 
-### Out of Distribution Challenges  
-Used to measure robustness and generalization boundaries.
+| Field | Description |
+| --- | --- |
+| Test ID | Unique internal identifier. |
+| Threat Scenario | Threat or failure mode being evaluated. |
+| Target Boundary | Model, retrieval, prompt, tool, data, access, supplier, or workflow boundary. |
+| Test Objective | What the test is intended to determine. |
+| Input Class | General class of input without sensitive details. |
+| Expected Safe Behaviour | Required safe outcome. |
+| Failure Condition | Behaviour that constitutes a failure. |
+| Evidence Captured | Logs, output sample, decision record, monitoring signal, or reviewer notes. |
+| Severity | Low, moderate, high, or critical. |
+| Remediation | Required control or design change. |
+| Retest Requirement | Whether retest is required before approval. |
 
-### Long Horizon Reasoning Tests  
-For models using extended or chained reasoning.
+---
 
-## 4 Develop Test Cases
+## Evidence Requirements
 
-Each test case must include:  
-- test objective  
-- input design  
-- expected safe behaviour  
-- risk factors  
-- metrics for success or failure  
-- escalation criteria  
+Maintain evaluation plan, test case inventory, execution summary, findings, remediation record, residual risk decision, approval record, and update log for affected model or system documentation.
 
-Test cases must be traceable to threats and governance controls.
+---
 
-## 5 Build Evaluation Datasets
+## Limitations
 
-Datasets may include:
+This guideline is a public-domain baseline. Adopting organizations must define specific technical methods, tooling, restricted test prompts, evidence repositories, legal review triggers, and disclosure controls internally.
 
-- curated adversarial samples  
-- synthetic perturbations  
-- red team prompts  
-- misdirection and conflict inputs  
-- out of distribution scenarios  
-- multi step reasoning paths  
-- internal stress patterns  
+---
 
-Datasets must be version controlled and linked to lineage metadata.
-
-## 6 Define Metrics and Thresholds
-
-Metrics may include:  
-- failure rate  
-- robustness score  
-- misdirection rate  
-- unsafe output rate  
-- semantic instability score  
-- drift indicators  
-- interpretability variance  
-
-Thresholds must be defined by risk category and stakeholder expectations.
-
-## 7 Execute Evaluations
-
-Tests must be run in controlled conditions:  
-- repeatable execution  
-- consistent configuration  
-- isolation from production systems  
-- logging of all inputs and outputs  
-
-All test runs must be documented.
-
-## 8 Document Results
-
-Results must include:  
-- observed behaviour  
-- failure modes  
-- unsafe or anomalous patterns  
-- traceability to model internals  
-- recommended mitigations  
-- required approval or risk acceptance  
-
-Evidence integrates into model cards, system cards, and lifecycle logs.
-
-## 9 Improve Test Coverage
-
-Review gaps:  
-- untested domains  
-- new risk patterns  
-- new model capabilities  
-- emerging adversarial methods  
-- regulatory expectations  
-
-Testing should evolve as the model matures or changes.
-
-## 10 Integrate With Lifecycle Governance
-
-Adversarial evaluation suites must be updated during:  
-- retraining  
-- architecture modification  
-- pipeline change  
-- incident postmortems  
-- annual re evaluation  
-
-Lifecycle governance requires version control of all test artefacts.
-
-# Roles and Responsibilities
-
-## Security and Risk Management  
-Develops and maintains adversarial evaluation suites and conducts red team testing.
-
-## Model Owner  
-Ensures adversarial testing is completed and integrated into the model’s documentation.
-
-## AI Governance Council  
-Reviews high risk findings and determines alignment with enterprise expectations.
-
-## Compliance and Legal  
-Validates adherence to regulatory safety, fairness, and transparency requirements.
-
-## Internal Audit  
-Verifies that adversarial evaluation suites meet governance and lifecycle obligations.
-
-# Monitoring, Metrics, and Reporting
-
-Adversarial evaluation metrics, testing outcomes, and trend analyses must be reviewed:  
-- during each model re evaluation  
-- during periodic monitoring cycles  
-- following incidents or anomalies  
-
-All changes and findings must be logged in the continuous improvement register.
-
-# Continuous Improvement
-
-Adversarial evaluation suites must be updated to reflect:  
-- new attack techniques  
-- updated standards and regulations  
-- emergent model behaviours  
-- operational lessons learned  
-- audit and incident findings  
-
-Non substantive edits may be made without reapproval but must be logged.
-
-# References and Framework Alignment
-
-In Model Risk Framework  
-In Model Risk Standard  
-AI Lifecycle Governance Standard  
-ISO 42001  
-ISO 23894  
-ISO 24028  
-NIST AI RMF  
-CSA CCM v5  
-COBIT 2025
+**End of Document**
