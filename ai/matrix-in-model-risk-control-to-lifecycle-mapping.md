@@ -1,129 +1,66 @@
-Document Title
-In Model Risk Control-to-Lifecycle Mapping Matrix
+# AI Model Risk Control to Lifecycle Mapping Matrix
 
-Document Type
-Matrix
+**Document Title:** AI Model Risk Control to Lifecycle Mapping Matrix
+**Document Type:** Matrix
+**Version:** 0.0.1
+**Date:** 2026 05 26
+**Owner:** AI Governance Maintainer
+**Approving Authority:** Governance Library Maintainer
+**Related Documents:** `ai/framework-in-model-risk.md`, `ai/standard-ai-in-model-risk.md`, `ai/procedure-in-model-risk-assessment.md`, `ai/template-model-card.md`, `ai/template-system-card.md`, `ai/guideline-adversarial-evaluation-suite-development.md`
+**Classification:** Public
+**Category:** AI Governance
+**Review Frequency:** 6 to 12 months and upon material model, data, framework, threat, or assurance change
+**Repository Path:** `ai/matrix-in-model-risk-control-to-lifecycle-mapping.md`
+**Confidentiality:** Public
+**Licence:** CC0 1.0 Universal
 
-Version
-0.0.1
+---
 
-Date
-2025 November 18
+## Purpose
 
-Owner
-Chief Risk Officer
+This matrix maps AI model risk control areas to lifecycle stages and evidence classes. It consolidates model risk mapping into a single original CC0 artefact without reproducing third-party framework control text.
 
-Approving Authority
-Chief Information Security Officer
+---
 
-Related Documents
-In Model Risk Framework (framework-in-model-risk.md)
-In Model Risk Standard (standard-in-model-risk.md)
-AI Lifecycle Governance Standard (standard-ai-lifecycle-governance.md)
-In Model Risk Assessment Procedure (procedure-in-model-risk-assessment.md)
-Model Card Template (template-model-card.md)
-System Card Template (template-system-card.md)
-Adversarial Evaluation Suite Development Guideline (guideline-adversarial-evaluation-suite-development.md)
+## Lifecycle Mapping
 
-Classification
-Public
+| Control Area | Design | Data Preparation | Development | Validation | Deployment | Monitoring | Re-evaluation | Retirement | Evidence Class |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Approved purpose and prohibited use | Required | Review | Review | Validate | Approve | Monitor | Review | Archive | Use case record, approval record. |
+| Data provenance and permitted use | Define | Required | Review | Validate | Approve | Monitor | Review | Retain or delete | Data provenance record, rights review. |
+| Data lineage | Define | Required | Required | Validate | Approve | Monitor | Review | Retain or delete | Data lineage record. |
+| Data classification | Define | Required | Review | Validate | Approve | Monitor | Review | Retain or delete | Classification record. |
+| Interpretability expectations | Define | Review | Develop | Validate | Approve | Monitor | Review | Archive | Model card, interpretability evidence. |
+| Representation and bias review | Define | Required | Review | Validate | Approve | Monitor | Review | Archive | Representation analysis, bias review. |
+| Adversarial robustness | Define | Review | Develop | Required | Approve | Monitor | Re-test | Archive | Adversarial evaluation summary. |
+| Prompt injection testing | Define | Review | Develop | Required | Approve | Monitor | Re-test | Retire controls | Test result, threat model. |
+| Data poisoning review | Define | Required | Review | Validate | Approve | Monitor | Review | Retain or delete | Data quality and contamination review. |
+| Model inversion and membership inference exposure | Define | Review | Review | Validate | Approve | Monitor | Re-test | Archive | Privacy and security test summary. |
+| Retrieval leakage control | Define | Required | Develop | Validate | Approve | Monitor | Review | Delete stores where applicable | Retrieval permission review. |
+| Unsafe tool use control | Define | Review | Develop | Validate | Approve | Monitor | Review | Revoke access | Tool permission review. |
+| Human oversight | Define | Review | Design | Validate | Approve | Monitor | Review | Archive | Oversight model, escalation procedure. |
+| Monitoring and drift detection | Define | Review | Develop | Validate | Approve | Required | Review | Archive | Monitoring plan, drift records. |
+| Incident response linkage | Define | Review | Review | Validate | Approve | Required | Review | Archive | Incident playbook link, incident record. |
+| Supplier model governance | Define | Required | Review | Validate | Approve | Monitor | Review | Exit or delete | Supplier assessment, contract controls. |
+| Retirement and deletion | Define | Review | Review | Validate | Approve | Monitor | Review | Required | Retirement checklist, deletion attestation. |
 
-Category
-Artificial Intelligence
+---
 
-Review Frequency
-Annual
+## Framework Alignment Notes
 
-Repository Path
-/ai/matrix-in-model-risk-control-to-lifecycle-mapping.md
+External framework alignment should be recorded at a high level using framework names, domains, and evidence categories only. Do not reproduce third-party control statements, questionnaire text, implementation guidance, audit guidance, or metrics catalogues unless the material is confirmed CC0-compatible.
 
-Confidentiality
-Public
+Suggested alignment families include AI management, AI risk management, information security, privacy, cloud controls, adversarial AI, LLM risk, secure engineering, supplier governance, and operational resilience.
 
-# Purpose
+---
 
-This matrix establishes a unified mapping between the controls defined in the In Model Risk Framework and the mandatory requirements outlined in the In Model Risk Standard.  
-The matrix aligns each control to applicable lifecycle phases defined in the AI Lifecycle Governance Standard and supports auditability, system assurance, and traceability of risk treatments.
+## Maintenance Rules
 
-# Scope
+1. Add new control areas only where they materially improve lifecycle traceability.
+2. Keep evidence classes generic and organization-neutral.
+3. Do not use this matrix to imply certification, compliance, or operating effectiveness.
+4. Update related AI model risk documents when lifecycle stages or control areas change.
 
-This matrix applies to all AI and ML models covered by enterprise AI governance, regardless of platform, architecture, risk category, or deployment environment.  
-It is used by model owners, evaluators, auditors, and governance committees to assess coverage, completeness, and lifecycle integration of in model risk controls.
+---
 
-# Matrix: In Model Risk Controls Mapped to Lifecycle Phases
-
-## Lifecycle Phases
-Design  
-Development  
-Pre Deployment  
-Deployment  
-Monitoring  
-Re Evaluation  
-Retirement  
-
-## Control Mapping Table
-
-| Control Area | Control Reference | Design | Development | Pre Deployment | Deployment | Monitoring | Re Evaluation | Retirement |
-|--------------|------------------|--------|-------------|----------------|------------|------------|---------------|------------|
-| Interpretability baseline | Standard 1.1 | ✔ | ✔ | ✔ | – | ✔ | ✔ | – |
-| Feature attribution evidence | Standard 1.2 | – | ✔ | ✔ | – | ✔ | ✔ | – |
-| Representation and embedding analysis | Standard 1.3 | – | ✔ | ✔ | – | ✔ | ✔ | – |
-| Mechanistic interpretability (high risk) | Standard 1.4 | – | ✔ | ✔ | – | ✔ | ✔ | – |
-| Adversarial test suite requirement | Standard 2.1 | ✔ | ✔ | ✔ | – | ✔ | ✔ | – |
-| Gradient and perturbation tests | Standard 2.2 | – | ✔ | ✔ | – | ✔ | ✔ | – |
-| Red team evaluation | Standard 2.3 | – | ✔ | ✔ | – | ✔ | ✔ | – |
-| Out of distribution evaluation | Standard 2.4 | – | ✔ | ✔ | – | ✔ | ✔ | – |
-| Alignment validation | Standard 3.1 | ✔ | ✔ | ✔ | – | ✔ | ✔ | – |
-| Behavioral drift monitoring | Standard 3.2 | – | – | – | ✔ | ✔ | ✔ | – |
-| Training data documentation | Standard 4.1 | ✔ | ✔ | ✔ | – | – | ✔ | – |
-| Sensitive attribute review | Standard 4.2 | ✔ | ✔ | ✔ | – | – | ✔ | – |
-| Data provenance and lineage | Standard 4.3 | ✔ | ✔ | ✔ | – | ✔ | ✔ | ✔ |
-| Model card requirement | Standard 5.1 | – | ✔ | ✔ | – | ✔ | ✔ | ✔ |
-| System card requirement | Standard 5.2 | – | ✔ | ✔ | – | ✔ | ✔ | ✔ |
-| Deployment approval | Standard 5.3 | – | – | ✔ | ✔ | – | ✔ | – |
-| Documentation integrity | Standard 5.4 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ |
-| Continuous monitoring | Standard 6.1 | – | – | – | ✔ | ✔ | ✔ | – |
-| Periodic re evaluation | Standard 6.2 | – | – | – | – | ✔ | ✔ | – |
-| Incident response integration | Standard 6.3 | – | – | ✔ | ✔ | ✔ | ✔ | – |
-| Interpretability report | Standard 7 | – | ✔ | ✔ | – | ✔ | ✔ | ✔ |
-| Adversarial testing report | Standard 7 | – | ✔ | ✔ | – | ✔ | ✔ | ✔ |
-| Representation and embedding analysis report | Standard 7 | ✔ | ✔ | ✔ | – | ✔ | ✔ | ✔ |
-| Drift monitoring logs | Standard 7 | – | – | – | ✔ | ✔ | ✔ | ✔ |
-| Residual risk acceptance statements | Standard 7 | – | – | ✔ | ✔ | ✔ | ✔ | ✔ |
-
-# Interpretation Notes
-
-- A checkmark (✔) indicates the control must be executed or validated during that lifecycle phase.  
-- A dash (–) indicates the control does not apply in that lifecycle phase.  
-- Controls that appear in multiple phases require updated evidence each time.  
-- All evidence must be stored in an immutable repository with version control.  
-- Residual risk statements must be reviewed during every re evaluation cycle.
-
-# Monitoring, Metrics, and Reporting
-
-The matrix is used as an audit checkpoint during lifecycle reviews and quality assurance processes.  
-Lifecycle coverage metrics must be:  
-- monitored continuously,  
-- reviewed during re evaluation,  
-- and summarized annually for governance committees.
-
-# Continuous Improvement
-
-This matrix must be updated when:  
-- new control requirements are introduced,  
-- an AI lifecycle phase changes,  
-- new adversarial or interpretability techniques emerge,  
-- regulatory obligations evolve,  
-- significant incidents yield new evaluation criteria.
-
-# References and Framework Alignment
-
-In Model Risk Framework  
-In Model Risk Standard  
-AI Lifecycle Governance Standard  
-ISO 42001  
-ISO 23894  
-ISO 24028  
-NIST AI RMF  
-CSA CCM v5  
-COBIT 2025
+**End of Document**
