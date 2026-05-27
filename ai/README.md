@@ -2,11 +2,11 @@
 
 **Document Title:** AI Governance Domain README
 **Document Type:** Register
-**Version:** 0.0.1
+**Version:** 0.0.2
 **Date:** 2026 05 26
 **Owner:** AI Governance Maintainer
 **Approving Authority:** Governance Library Maintainer
-**Related Documents:** `README.md`, `core/register-document-index-and-classification.md`, `ai/framework-ai-governance-and-risk.md`, `ai/standard-ai-security-and-risk.md`
+**Related Documents:** `README.md`, `core/register-document-index-and-classification.md`, `ai/framework-ai-governance-and-risk.md`, `ai/standard-ai-security-and-risk.md`, `ai/framework-ai-model-risk.md`
 **Classification:** Public
 **Category:** AI Governance
 **Review Frequency:** 6 to 12 months and upon material AI governance change
@@ -32,10 +32,10 @@ AI documents in this repository treat data as the primary risk surface. They add
 | Standard | AI Security and Risk Standard | `ai/standard-ai-security-and-risk.md` |
 | Procedure | AI System Impact Assessment Procedure | `ai/procedure-ai-system-impact-assessment.md` |
 | Template | AI System Register Template | `ai/template-ai-system-register.md` |
-| Framework | In-Model Risk Framework | `ai/framework-in-model-risk.md` |
-| Standard | AI In-Model Risk Standard | `ai/standard-ai-in-model-risk.md` |
-| Procedure | In-Model Risk Assessment Procedure | `ai/procedure-in-model-risk-assessment.md` |
-| Matrix | In-Model Risk Control to Lifecycle Mapping | `ai/matrix-in-model-risk-control-to-lifecycle-mapping.md` |
+| Framework | AI Model Risk Framework | `ai/framework-ai-model-risk.md` |
+| Standard | AI Model Risk Standard | `ai/standard-ai-model-risk.md` |
+| Procedure | AI Model Risk Assessment Procedure | `ai/procedure-ai-model-risk-assessment.md` |
+| Matrix | AI Model Risk Control to Lifecycle Mapping | `ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md` |
 | Template | Model Card Template | `ai/template-model-card.md` |
 | Template | System Card Template | `ai/template-system-card.md` |
 | Guideline | Adversarial Evaluation Suite Development Guideline | `ai/guideline-adversarial-evaluation-suite-development.md` |
