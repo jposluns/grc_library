@@ -1,0 +1,179 @@
+# OWASP Top 10 and ASVS Alignment Rules
+
+These rules map OWASP Top 10 (2021) risks to specific coding requirements. For each risk, the concrete prohibition and required pattern are listed.
+
+---
+
+## A01 — Broken Access Control
+
+**What goes wrong**: Application trusts client-supplied data (user ID, role, tenant) to make authorization decisions without server-side verification.
+
+**Required pattern**:
+- Enforce authorization server-side on **every request** — never rely on client claims
+- Verify the authenticated user's identity against the requested resource on every operation
+- Default deny — deny unless explicitly authorized
+- Implement RBAC at the API layer, not only at the UI layer
+- Insecure direct object references: validate that the ID in the request belongs to the authenticated user before acting on it
+
+**Prohibited patterns**:
+```
+# Prohibited — trusting user-supplied role
+if request.params['role'] == 'admin': allow()
+
+# Prohibited — no ownership check
+GET /api/documents/{id}   # Returns document for any authenticated user, regardless of ownership
+```
+
+---
+
+## A02 — Cryptographic Failures
+
+See `core/cryptography.md` for full requirements. Key rules:
+- No plaintext storage of sensitive data (passwords, payment data, credentials)
+- No deprecated algorithms (MD5, SHA-1, DES, RC4)
+- No hardcoded keys or IVs
+- TLS 1.2 minimum on all connections transmitting sensitive data
+- Password hashing: Argon2id or bcrypt only
+
+---
+
+## A03 — Injection
+
+See `core/input-validation.md` for full requirements. Key rules:
+- Parameterized queries only — no string concatenation for SQL, LDAP, XPath
+- Reject invalid input — do not sanitize and continue
+- Context-aware output encoding for all output contexts
+- Never pass user input to shell commands without allowlist validation
+
+---
+
+## A04 — Insecure Design
+
+**Required pattern**:
+- Threat model every new feature that handles Confidential data, authentication, or external integrations
+- Apply defense-in-depth — multiple independent security controls, not a single gate
+- Design for failure securely — when a component fails, it should fail closed, not open
+
+**Prohibited patterns**:
+- "We'll add security later" — security controls must be in the design, not retrofitted
+- Single-point authentication where one bypass path circumvents all controls
+- Trust-on-first-use without subsequent verification
+
+---
+
+## A05 — Security Misconfiguration
+
+**Required pattern**:
+- Disable or remove all default accounts, default passwords, and example configurations before deployment
+- Remove development features, debug endpoints, and diagnostic interfaces before production
+- Error responses must not reveal software version, stack trace, or system configuration
+- Keep all software and libraries updated — run SCA in CI/CD
+
+**Prohibited patterns**:
+- Default administrative credentials left unchanged
+- Directory listing enabled on web server
+- Verbose error messages revealing stack traces to external callers
+- CORS wildcard in production (`Access-Control-Allow-Origin: *`)
+
+---
+
+## A06 — Vulnerable and Outdated Components
+
+**Required pattern**:
+- SCA (Software Composition Analysis) scan on every build
+- Fail the build on Critical CVEs; High CVEs require tracked remediation within 14 days
+- Verify dependency names exist in approved registries before installing (AI-suggested packages can be hallucinated)
+- SBOM generated for every production release
+
+**Prohibited patterns**:
+- Using a library with a known Critical CVE
+- Installing packages from unverified sources
+- Floating version pins (e.g., `>=1.0`) in production — use pinned versions
+
+---
+
+## A07 — Identification and Authentication Failures
+
+See `core/authentication.md` for full requirements. Key rules:
+- MFA mandatory — no bypass paths
+- Session tokens: 128-bit entropy minimum; expire on logout; never in URLs
+- Brute-force protection on all authentication endpoints
+- Generic error messages for authentication failures
+
+---
+
+## A08 — Software and Data Integrity Failures
+
+**Required pattern**:
+- Verify signatures or checksums on downloaded packages and build artefacts
+- Use lockfiles (package-lock.json, requirements.txt with pinned versions, Gemfile.lock) committed to source control
+- CI/CD pipelines must not be modifiable without source control review
+- SBOM maintained for all production software
+
+**Prohibited patterns**:
+- Installing dependencies without a lockfile
+- Unsigned build artefacts deployed to production
+- CI/CD pipeline definitions that can be modified without code review
+
+---
+
+## A09 — Security Logging and Monitoring Failures
+
+**Required pattern**:
+- Log: all authentication events; authorization failures; all access to Confidential/Restricted data; significant configuration changes; all API calls with caller, endpoint, response code, timestamp
+- Forward all logs to SIEM — not only to local files
+- Test that alerts fire for critical events
+
+**Prohibited patterns**:
+- No logging on authentication failures
+- Logging passwords, tokens, or PII
+- Logs that are modifiable by the actor who generated them
+
+---
+
+## A10 — Server-Side Request Forgery (SSRF)
+
+**Required pattern**:
+- Validate all URL inputs against an allowlist of permitted domains or IP ranges before making outbound requests
+- Block requests to internal IP ranges (10.x.x.x, 172.16.x.x, 192.168.x.x, 169.254.x.x, 127.x.x.x)
+- Do not follow redirects automatically when the redirect destination is user-controlled
+- Use a separate egress network policy to block outbound requests to internal services from web-facing applications
+
+**Prohibited patterns**:
+```python
+# Prohibited — fetching user-supplied URL without validation
+url = request.params['callback_url']
+requests.get(url)  # SSRF risk
+```
+
+---
+
+## OWASP ASVS Quick Reference by Level
+
+| ASVS Area | Level 1 (Minimum) | Level 2 (Standard) | Level 3 (Advanced) |
+| --- | --- | --- | --- |
+| V2 Authentication | MFA, basic session management | Phishing-resistant MFA, credential management | Full authn assurance, hardware key |
+| V3 Session | Basic invalidation | Absolute timeout, rotation | Full session assurance |
+| V5 Validation | Input type checking | Schema validation, reject invalid | Full allowlist validation |
+| V6 Cryptography | Approved algorithms | Key management | HSM, formal key lifecycle |
+| V9 Communication | TLS required | TLS 1.2+, cert validation | TLS 1.3, cert pinning |
+| V13 API | Auth on all endpoints | Full schema validation | Rate limit, API versioning |
+
+Default target: ASVS Level 2 for all applications handling Confidential or Restricted data.
+
+---
+
+## Framework Alignment
+
+| OWASP Risk | ISO 27001 | NIST SSDF | CSA CCM |
+| --- | --- | --- | --- |
+| A01 Access Control | A.5.15–5.18 | PW.6 | IAM-04–05 |
+| A02 Cryptography | A.8.24 | PW.7 | CEK-01–21 |
+| A03 Injection | A.8.28 | PW.6 | AIS-02 |
+| A04 Insecure Design | A.8.25–8.27 | PW.1–PW.4 | AIS-01 |
+| A05 Misconfiguration | A.8.9 | PW.9 | CCC-07 |
+| A06 Outdated Components | A.8.8 | PO.5, PW.4 | TVM-06 |
+| A07 Auth Failures | A.5.17 | — | IAM-13–15 |
+| A08 Integrity | A.8.27 | DS.2 | CCC-04–05 |
+| A09 Logging | A.8.15–8.16 | RV.1 | LOG-01–13 |
+| A10 SSRF | A.8.28 | PW.6 | AIS-02 |
