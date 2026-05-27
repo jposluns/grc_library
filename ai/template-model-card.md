@@ -2,11 +2,11 @@
 
 **Document Title:** Model Card Template
 **Document Type:** Template
-**Version:** 0.0.1
+**Version:** 0.0.2
 **Date:** 2026 05 26
 **Owner:** AI Governance Maintainer
 **Approving Authority:** Governance Library Maintainer
-**Related Documents:** `ai/framework-in-model-risk.md`, `ai/standard-ai-in-model-risk.md`, `ai/procedure-in-model-risk-assessment.md`, `ai/template-system-card.md`, `ai/template-ai-system-register.md`
+**Related Documents:** `ai/framework-ai-model-risk.md`, `ai/standard-ai-model-risk.md`, `ai/procedure-ai-model-risk-assessment.md`, `ai/template-system-card.md`, `ai/template-ai-system-register.md`
 **Classification:** Public
 **Category:** AI Governance
 **Review Frequency:** 6 to 12 months and upon material AI governance, model risk, or documentation change
