@@ -1,6 +1,6 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Version:** 1.5.0 
+**Version:** 1.5.1 
 **Date:** 2026-05-28 
 **Classification:** Public 
 **Confidentiality:** Public 
@@ -24,7 +24,7 @@ The repository provides reusable artefacts across the following domains:
 - Supplier, third-party, cloud, and supply-chain governance.
 - Cross-framework mapping, regulatory applicability analysis, and metrics.
 
-The library currently contains approximately **215 documents** across 10 governance domains. Automated counts will replace this approximation in a future repository release.
+The library currently contains approximately **240 documents** across 11 governance domains. Automated counts will replace this approximation in a future repository release.
 
 ---
 
@@ -95,6 +95,9 @@ Documents are organized by primary governance domain.
 
 /dev-security   Developer and DevOps security: standards, quick reference, compliance gap register,
                 and claude-rules/ subdirectory of draggable CLAUDE.md rule files for AI coding sessions.
+
+/architecture   Enterprise architecture practice: framework, decision records, reference architectures,
+                technology radar, architecture review, API design, data architecture, and integration architecture.
 ```
 
 Repository infrastructure directories (not used for governance artefacts):
