@@ -2,7 +2,7 @@
 
 **Document Title:** Security Incident Response Procedure 
 **Document Type:** Procedure 
-**Version:** 1.3.1 
+**Version:** 1.3.2 
 **Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -45,11 +45,12 @@ This procedure applies to:
 | **Chief Information Officer (CIO)** | Notified immediately for P1 incidents. Provides executive oversight and approves communications to affected customers, partners, and regulators. |
 | **Security Operations Centre (SOC)** | Operates SIEM and endpoint monitoring. Performs initial triage, severity classification, and evidence preservation. Executes containment and eradication steps under Incident Commander direction. Maintains timestamped logs of all IR actions. |
 | **IT Operations** | Supports containment and recovery activities. Executes technical remediation steps as directed by the Incident Commander. |
-| **Legal Counsel** | Advises on regulatory notification obligations (GDPR, CPPA, PIPL, BASC). Provides guidance on evidence preservation, litigation hold, and third-party disclosure. |
+| **Legal Counsel** | Advises on regulatory notification obligations (for example, GDPR, CPPA, PIPL; plus sector-programme regulatory obligations such as BASC where the organisation participates). Provides guidance on evidence preservation, litigation hold, and third-party disclosure. |
 | **IR Partner** | External incident response partner engaged by the CISO for P1 incidents. Contact details are maintained in the operational state register. |
 | **Privacy Lead / Acting DPO** | Assesses privacy impact of incidents involving personal data. Coordinates regulatory breach notifications under GDPR, CPPA, and PIPL. |
-| **Regional BASC Compliance Officer** | Notified for any incident affecting trade, customs, or cargo systems. Coordinates BASC-specific reporting and corrective actions. |
 | **All Employees** | Responsible for immediately reporting any suspected security incident to the SOC or security operations team. No silent remediation is permitted. |
+
+Sector-conditional roles (for example, a BASC Regional Compliance Officer who is notified for any incident affecting trade, customs, or cargo systems and coordinates sector-programme reporting and corrective actions) apply where the organisation participates in a covered sector programme; see [`sectors/`](../sectors/).
 
 ### 2.2 Incident commander authority
 
@@ -171,7 +172,8 @@ Once the scope of compromise is confirmed, the SOC and IT Operations shall:
 | **CPPA (Canada)** | Confirmed breach of personal information with real risk of significant harm | As soon as feasible (72-hour target) | CIO (acting DPO) to Privacy Commissioner of Canada |
 | **Quebec Law 25** | Confirmed breach of personal information with serious risk of injury | 72 hours to Commission d'accès à l'information | CIO (acting DPO) |
 | **PIPL (China)** | Confirmed breach of personal data of China data subjects | Immediately / without delay | CISO / Privacy Lead to relevant authority |
-| **BASC** | Trade, cargo, or customs anomaly meeting breach threshold | Within 2 hours of detection | Regional BASC Compliance Officer to BASC national chapter |
+
+Sector-programme notification obligations (for example, BASC requirements for trade, cargo, or customs anomalies meeting the BASC breach threshold) apply where the organisation participates in a covered sector programme. The relevant sector annex states the trigger, timeframe, and notification path; see [`sectors/`](../sectors/).
 
 ### 6.2 GDPR and CPPA notification process
 
@@ -180,9 +182,9 @@ Once the scope of compromise is confirmed, the SOC and IT Operations shall:
 3. The CIO (acting DPO) submits the regulatory notification and retains a copy in the incident record.
 4. If notification cannot be completed within the regulatory window, the delay must be documented with reasons, and partial information submitted where permitted.
 
-### 6.3 BASC trade and customs anomalies
+### 6.3 Sector-programme anomalies
 
-Any incident involving anomalous activity in cargo, customs, or trade systems, including unauthorized access to shipment data, tampering with customs records, or suspected cargo integrity compromise, triggers the incident response process with a 2-hour initial response SLA. The Regional BASC Compliance Officer is notified immediately and participates in triage. BASC incident documentation is maintained separately in the BASC Continuous Improvement Register.
+Where the organisation participates in a sector programme that defines elevated-trigger anomaly categories (for example, BASC for cargo, customs, or trade systems with a 2-hour initial response SLA for unauthorized access to shipment data, tampering with customs records, or suspected cargo integrity compromise), the corresponding sector annex states the triage timeframe, the sector-conditional role notified, and the supplementary documentation maintained. See [`sectors/`](../sectors/).
 
 ### 6.4 Notification confidentiality
 

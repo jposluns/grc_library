@@ -4,6 +4,45 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 19.4 (2026-05-28): Standards-currency and BASC-residue cleanup
+
+Phase 19 sub-phase 4. Three findings from the exhaustive re-audit: an obsolete ISO 42006 status reference; a guideline document containing 11 normative `must` statements that belong in a standard, not a guideline; and additional baseline `Regional BASC Compliance Officer` references that Phase 12.3 and Phase 19.1 had not reached.
+
+### M-1: ISO/IEC 42006 status correction
+
+- `ai/framework-ai-system-audit-certification.md` (1.0.0 → 1.0.1): the framework cited "ISO/IEC 42006 (draft 2024)" in its framework alignment table and "the ISO/IEC 42006 draft AI audit requirements" in its Purpose. The standard was published in 2025; references updated to "ISO/IEC 42006:2025".
+
+A separate concern was flagged but not silently corrected: several documents (notably `procedure-ai-evaluation.md`, `standard-ai-testing-validation-and-documentation.md`, multiple register-document-index rows, `procedure-privacy-impact-and-cross-border-transfer.md`, and `policy-acceptance-into-service.md`) cite "ISO 42006" with the topic attribution "AI Impact Assessment". ISO/IEC 42006:2025 is the standard for bodies providing audit and certification of AI management systems; the AI-impact-assessment standard is ISO/IEC 42005:2025. Whether to retain the existing citations or correct them to ISO 42005 is left for the user's review in a subsequent pass — the topic-attribution correction is materially distinct from a status update.
+
+### M-2: AI coding assistant guideline `must` → `should`
+
+- `dev-security/guideline-ai-coding-assistant-security.md` (1.0.0 → 1.0.1): 11 normative `must` statements softened to `should` so the document language matches its Guideline doctype. The substantive content (security rules loaded before generating code; tool access scoped to the minimum necessary; no standing write access to production; no direct push to main without human review; agentic sessions logged; destructive actions require human confirmation) is retained — only the modal verb is changed. Adopters who wish to enforce these requirements upgrade the document to a Standard or Policy in their own copy of the library.
+
+### M-3: BASC baseline residue cleanup
+
+Phase 12.3 moved BASC to a sector overlay, and Phase 19.1 closed four files. The exhaustive re-audit found 13 additional documents that still treated `Regional BASC Compliance Officer` as a baseline role or that retained dedicated BASC sections. Phase 19.4 cleans those:
+
+- `governance/framework-metrics-monitoring-and-performance-reporting.md` (1.0.0 → 1.0.1)
+- `governance/framework-continuous-assurance-and-improvement.md` (1.0.0 → 1.0.1)
+- `compliance/policy-legal-and-regulatory-compliance.md` (1.0.0 → 1.0.1)
+- `supply-chain/procedure-supplier-audit.md` (1.0.1 → 1.0.2)
+- `operations/procedure-media-handling-and-transport.md` (1.3.0 → 1.3.1)
+- `operations/procedure-security-monitoring-and-alert-management.md` (1.3.0 → 1.3.1)
+- `privacy/procedure-data-protection-and-privacy-breach-response.md` (1.4.0 → 1.4.1)
+- `security/sop-incident-escalation-matrix.md` (1.2.0 → 1.2.1)
+- `security/framework-cryptographic-key-lifecycle.md` (1.0.0 → 1.0.1)
+- `security/standard-logging-and-monitoring.md` (1.4.0 → 1.4.1)
+- `security/policy-network-communications-security.md` (1.0.0 → 1.1.0): had a dedicated `BASC trade-network security controls` section with multiple programme-specific requirements; replaced with a `Sector-programme network security overlays` section that defers to `sectors/`. Minor version bump because the change replaced a numbered section.
+- `security/procedure-security-incident-response.md` (1.3.1 → 1.3.2)
+- `security/policy-encryption-and-key-management.md` (1.3.0 → 1.3.1)
+- `security/standard-data-classification-and-handling.md` (1.3.0 → 1.3.1): the dedicated `BASC and regional trade data handling` section was generalised to `Sector-programme data handling overlays` with deference to `sectors/`.
+
+### Result
+
+Across the four post-12.3 cleanup phases (12.3 initial, 19.1, 19.4), the BASC overlay is now consistently positioned: BASC appears as a named example of a sector programme in the running text, never as a baseline role, scoping assumption, or unconditional framework requirement. Where the user's organisation participates in BASC, the `sectors/basc/` annex remains the authoritative source for the additional controls, roles, and timeframes.
+
+Taxonomy and portal regenerated. All ten audits clean.
+
 ## Phase 19.3 (2026-05-28): Role authority register completions
 
 Phase 19 sub-phase 3. Two high-severity findings from the exhaustive re-audit: documents named "AI Security Maintainer" as Owner or Approving Authority on 10+ files but the role had no definition in the authoritative register (it was only suppressed via a linter exemption); documents named "Board Risk Committee" and "Enterprise Risk Committee (ERC)" as approval bodies but the register had no entry for either.

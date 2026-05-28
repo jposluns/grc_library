@@ -2,8 +2,8 @@
 
 **Document Title:** Continuous Assurance and Improvement Framework 
 **Document Type:** Framework 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** GRC Programme Manager 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](../compliance/procedure-audit-planning.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md) 
@@ -43,7 +43,8 @@ It ensures that ongoing monitoring, evaluation, and improvement activities are c
 | **Internal Audit** | Performs independent verification of framework execution and effectiveness. |
 | **AI Governance Council (AIGC)** | Monitors AI maturity, ethics performance, and digital trust indicators. |
 | **Enterprise Risk Committee (ERC)** | Reviews assurance outcomes and approves improvement initiatives. |
-| **Regional BASC Compliance Officers** | Ensure that trade, customs, and supply-chain assurance compliance. |
+
+Sector-conditional roles (for example, a BASC Regional Compliance Officer for trade, customs, and supply-chain assurance) apply where the organisation participates in a covered sector programme; see [`sectors/`](../sectors/).
 
 ---
 
@@ -130,14 +131,11 @@ Performance data from all assurance activities feed into the Governance Performa
 
 ---
 
-## 6. BASC and regional integration
+## 6. Sector-programme integration
 
-6.1 This framework embeds BASC International Standard governance cycles for trade operations:
-- Security and trade integrity reviews.
-- Personnel vetting and cargo inspection compliance.
-- Customs documentation and audit traceability.
+6.1 Where the organisation participates in a sector programme (for example, BASC for trade and logistics, CTPAT for US trade, AEO for EU trade), the corresponding sector annex defines additional assurance cycles. Sector-programme assurance is incorporated into the calendar in section 4 alongside enterprise assurance. See [`sectors/`](../sectors/).
 
-6.2 Regional BASC Compliance Officers maintain BASC Trade Assurance Logs and ensure that dual reporting to national chapters and the ERC.
+6.2 Sector-conditional roles (for example, a BASC Regional Compliance Officer where the relevant sector annex defines that role) maintain the sector-programme assurance logs and ensure that dual reporting to the sector body and the ERC follows the annex's cadence and channels.
 
 ---
 

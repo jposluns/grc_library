@@ -2,8 +2,8 @@
 
 **Document Title:** AI Coding Assistant Security Guideline 
 **Document Type:** Guideline 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/claude-rules/README.md`](claude-rules/README.md), [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) 
@@ -20,7 +20,7 @@
 
 This guideline defines requirements and best practices for the secure use of AI coding assistants, tools such as Claude Code, GitHub Copilot, Cursor, Windsurf, and equivalent products, within the software development lifecycle.
 
-AI coding assistants introduce distinct risks that differ from conventional development tooling: they generate code that must be reviewed for correctness and security; they may access, transmit, or retain code and data from the development environment; they can be manipulated through prompt injection; and they may hallucinate package names, APIs, or library versions that do not exist. This guideline addresses those risks while enabling productive use.
+AI coding assistants introduce distinct risks that differ from conventional development tooling: they generate code that should be reviewed for correctness and security; they may access, transmit, or retain code and data from the development environment; they can be manipulated through prompt injection; and they may hallucinate package names, APIs, or library versions that do not exist. This guideline addresses those risks while enabling productive use.
 
 ---
 
@@ -37,9 +37,9 @@ Does not apply to personal experimentation on personal devices with no connectio
 
 ## Approved tools and authorization
 
-The organisation maintains an approved list of AI coding assistants. Developers must use only approved tools for work on organisational systems. Using an unapproved AI coding assistant with organisational code, data, or credentials is a policy violation requiring a formal exception.
+The organisation maintains an approved list of AI coding assistants. Developers should use only approved tools for work on organisational systems. Using an unapproved AI coding assistant with organisational code, data, or credentials is a policy violation requiring a formal exception.
 
-When evaluating a new AI coding assistant for approval, the assessment must cover:
+When evaluating a new AI coding assistant for approval, the assessment should cover:
 - Data handling and retention: what code and context is sent to external APIs; whether the provider retains prompts or completions; applicable data processing agreements.
 - Authentication and access scope: what organisational systems the tool can access.
 - Security rule configuration: whether the tool accepts binding security constraints (CLAUDE.md, rules files, or equivalent).
@@ -51,7 +51,7 @@ When evaluating a new AI coding assistant for approval, the assessment must cove
 
 ### Load security rules before using an AI coding assistant
 
-All AI coding assistant sessions working on organisational code must have security rules loaded before generating or reviewing code. The organisation's security rules are maintained in `dev-security/claude-rules/`.
+All AI coding assistant sessions working on organisational code should have security rules loaded before generating or reviewing code. The organisation's security rules are maintained in `dev-security/claude-rules/`.
 
 **For Claude Code:**
 1. Copy [`dev-security/claude-rules/CLAUDE.md`](claude-rules/CLAUDE.md) to the project root. Claude Code reads this file automatically at session start.
@@ -98,7 +98,7 @@ When using AI coding assistants that send prompts to external APIs:
 
 ## Code review requirements for AI-generated code
 
-AI-generated code is not automatically correct or secure. It must be reviewed with the same scrutiny applied to human-written code, plus additional checks for AI-specific failure modes.
+AI-generated code is not automatically correct or secure. It should be reviewed with the same scrutiny applied to human-written code, plus additional checks for AI-specific failure modes.
 
 ### Mandatory review checklist for AI-generated code
 
@@ -137,7 +137,7 @@ The following uses of AI coding assistants are prohibited without explicit CIO/C
 
 ## Prompt injection awareness
 
-Developers using AI coding assistants must be aware that prompt injection can be introduced through:
+Developers using AI coding assistants should be aware that prompt injection can be introduced through:
 
 - **Documents and code comments**: adversarial instructions embedded in code comments, documentation, or dependency changelogs that the assistant reads.
 - **Test data and fixtures**: malicious instructions in test input files or database fixtures.
@@ -152,11 +152,11 @@ If an AI coding assistant behaves unexpectedly, generates code that seems design
 
 AI coding assistants operating in agentic mode (autonomous multi-step task execution with tool access) carry higher risk than single-turn interactions. Additional requirements apply:
 
-- The AI must not have standing write access to production systems.
-- The AI must not commit and push directly to the main or release branch without human review.
-- Tool access must be scoped to the minimum necessary for the task.
-- Agentic sessions must be logged (all tool calls, files read, files written, commands executed).
-- Before any destructive action (delete, overwrite, force push), the agent must request explicit human confirmation.
+- The AI should not have standing write access to production systems.
+- The AI should not commit and push directly to the main or release branch without human review.
+- Tool access should be scoped to the minimum necessary for the task.
+- Agentic sessions should be logged (all tool calls, files read, files written, commands executed).
+- Before any destructive action (delete, overwrite, force push), the agent should request explicit human confirmation.
 
 For detailed agentic security requirements, see [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) and [`dev-security/claude-rules/ai/agent-security.md`](claude-rules/ai/agent-security.md).
 

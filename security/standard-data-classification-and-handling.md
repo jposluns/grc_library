@@ -2,8 +2,8 @@
 
 **Document Title:** Data Classification and Handling Standard 
 **Document Type:** Standard 
-**Version:** 1.3.0 
-**Date:** 2026-05-27 
+**Version:** 1.3.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md) 
@@ -43,7 +43,8 @@ To ensure that consistent handling of information according to its sensitivity, 
 | IT Operations / Cloud Administrators | Implement and maintain automated labelling, DLP, and encryption solutions. |
 | Privacy Officer | Ensures that alignment with privacy and data protection laws. |
 | AI Governance Council | Oversees classification and protection of AI datasets and model data. |
-| Regional Compliance Officers (BASC) | Ensure that classification of customs, trade, and cargo data meets BASC confidentiality standards. |
+
+Sector-conditional roles (for example, a BASC Regional Compliance Officer who ensures that classification of customs, trade, and cargo data meets BASC confidentiality standards) apply where the organisation participates in a covered sector programme; see [`sectors/`](../sectors/).
 
 ---
 
@@ -120,13 +121,9 @@ Encryption keys must be managed under the Encryption and Key Management Policy.
 
 ---
 
-## 6. BASC and regional trade data handling
+## 6. Sector-programme data handling overlays
 
-6.1 For Latin American operations, BASC requirements apply to all customs, cargo, and personnel data:
-- Classified as Restricted unless explicitly downgraded by the Regional Compliance Officer.
-- Must be stored in systems with validated access logging and encryption controls.
-- Physical copies (manifests, customs declarations) must be locked and logged.
-6.2 Any unauthorized disclosure of BASC-regulated data constitutes a Critical Incident under the Incident Response Procedure.
+Where the organisation participates in a sector programme that imposes additional handling requirements on programme-specific data (for example, BASC for customs, cargo, and personnel data classified as Restricted by default; healthcare regulation for PHI; financial-services regulation for payment-card or fraud data), the corresponding sector annex states the additional classification, storage, physical-copy, and incident-treatment requirements. See [`sectors/`](../sectors/).
 
 ---
 

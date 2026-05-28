@@ -2,8 +2,8 @@
 
 **Document Title:** Metrics, Monitoring and Performance Reporting Framework 
 **Document Type:** Framework 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** GRC Programme Manager 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md), [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md) 
@@ -40,8 +40,8 @@ This framework defines the governance metrics, Key Risk Indicators (KRIs), Key P
 
 | Cadence | Domains |
 | --- | --- |
-| **Monthly** | Cybersecurity, AI governance, and BASC logistics KPIs |
-| **Quarterly** | Audit and CAPA performance indicators; Regional BASC Compliance Officers submit quarterly trade-security performance summaries to the CISO and ERC |
+| **Monthly** | Cybersecurity and AI governance KPIs; sector-programme KPIs (for example, BASC logistics) where the organisation participates in a covered programme |
+| **Quarterly** | Audit and CAPA performance indicators; sector-conditional roles (for example, a BASC Regional Compliance Officer where the sector annex defines that role) submit quarterly sector-programme performance summaries to the CISO and ERC |
 | **Annual** | Enterprise risk and digital trust maturity evaluations |
 
 ---
@@ -65,7 +65,7 @@ Poorly defined metrics without these fields must not be published in governance 
 | Report | Audience | Frequency |
 | --- | --- | --- |
 | Cybersecurity KPI Report | CISO, Security Operations | Monthly |
-| BASC Trade Security Report | CISO, Regional BASC Compliance Officers, ERC | Quarterly |
+| Sector-Programme Report (for example, BASC Trade Security where the organisation participates) | CISO, sector-conditional role per the relevant annex, ERC | Quarterly |
 | AI Governance KPI Report | AI Governance Council, CISO | Quarterly |
 | Audit and CAPA Performance Report | Chief Compliance Officer, Internal Audit, ERC | Quarterly |
 | Annual Digital Trust and Maturity Report | ERC, Board Audit and Risk Committee | Annual |

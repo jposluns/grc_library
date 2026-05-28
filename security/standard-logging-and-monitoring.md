@@ -2,7 +2,7 @@
 
 **Document Title:** Logging and Monitoring Standard 
 **Document Type:** Standard 
-**Version:** 1.4.0 
+**Version:** 1.4.1 
 **Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -54,7 +54,8 @@ Where an event is genuinely dual-purpose, the producer service emits the securit
 - The Security Operations Center (SOC) manages log collection, storage, correlation, and alerting.
 - The CIO ensures that integration with enterprise infrastructure and business systems.
 - System owners and third-party service providers are responsible for compliant logging configurations.
-- Regional BASC Compliance Officers oversee logging for BASC-certified logistics and customs systems, with trade-security logs capturing cargo inspection results, customs-transaction records, and personnel screening activities.
+
+Sector-conditional roles (for example, a BASC Regional Compliance Officer who oversees logging for BASC-certified logistics and customs systems, with trade-security logs capturing cargo inspection results, customs-transaction records, and personnel screening activities) apply where the organisation participates in a covered sector programme; see [`sectors/`](../sectors/).
 
 ---
 
@@ -116,7 +117,7 @@ Where an event is genuinely dual-purpose, the producer service emits the securit
 
 8.1 SOC analysts shall review critical event logs daily.
 8.2 Weekly reviews shall validate that correlation rules, thresholds, and data normalization remain effective.
-8.3 Findings must feed into the risk register and continual improvement cycle. BASC-related log anomalies shall be reported to Regional BASC Compliance Officers for trade-security audit follow-up.
+8.3 Findings must feed into the risk register and continual improvement cycle. Sector-programme log anomalies (for example, BASC-related log anomalies where the organisation participates in BASC) shall be reported to the sector-conditional role defined by the relevant sector annex for sector-programme audit follow-up; see [`sectors/`](../sectors/).
 
 ### 9. Automation and AI integration
 
