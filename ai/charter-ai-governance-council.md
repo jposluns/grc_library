@@ -2,8 +2,8 @@
 
 **Document Title:** AI Governance Council Charter 
 **Document Type:** Charter 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.1.0 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Chief Information Officer 
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md) 
@@ -13,10 +13,6 @@
 **Repository Path:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md) 
 **Confidentiality:** Public 
 **License:** CC0 1.0 Universal 
-
----
-
-> **Note:** The AI Governance Council is in formation. Named role appointments are pending. Composition reflects target-state governance. Full council operationalization is targeted for Q3 2026.
 
 ---
 
@@ -55,18 +51,23 @@ The AIGC has authority to:
 
 ## Composition
 
-| Role | Position |
+| Role | Seat |
 | --- | --- |
-| **Chair** | Chief Information Officer (acting) |
-| **CISO Representative** | Vacant |
-| **Chief Technology Officer** | Vacant |
-| **Privacy Officer / DPO** | Standing member |
-| **Legal Counsel** | Standing member |
-| **Risk Representative** | GRC Programme Manager |
-| **Business Domain Representative** | Rotating: appointed by ERC |
-| **Independent External Adviser** | Pending appointment |
+| **Chair** | Chief Information Security Officer |
+| **Deputy Chair** | Chief Information Officer |
+| **Member** | Chief Technology Officer |
+| **Member** | Chief Financial Officer |
+| **Member** | Chief Human Resources Officer |
+| **Member** | General Counsel |
+| **Member** | Chief Privacy Officer (or Data Protection Officer) |
+| **Member** | Chief Risk Officer |
+| **Secretariat** | AI Governance Lead (per the role authority register) |
+| **Member** | Business Domain Representative (rotating; appointed by the Enterprise Risk Committee) |
+| **Standing observer** | Independent External Adviser (appointed for a defined term) |
 
-Quorum requires attendance of the Chair plus at least three standing members.
+The council is an active body. Where any member seat is unfilled at a given time, the responsibilities of that seat are exercised by the role's direct delegate or by an acting appointee designated by the Chair. The Chair confirms each meeting's roster at the start of the meeting.
+
+Quorum requires attendance of the Chair (or Deputy Chair) plus at least four members. Decisions are recorded with the date, attendees, and the decision rationale.
 
 ---
 
