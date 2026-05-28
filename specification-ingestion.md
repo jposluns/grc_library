@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library CC0 Ingestion and Transformation Specification 
 **Document Type:** Specification 
-**Version:** 1.3.0 
-**Date:** 2026-05-27 
+**Version:** 1.4.0 
+**Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md) 
@@ -156,8 +156,11 @@ Allowed document types are:
 - Policy
 - Standard
 - Procedure
+- SOP
 - Plan
+- Roadmap
 - Guideline
+- Guide
 - Register
 - Matrix
 - Specification
@@ -165,7 +168,13 @@ Allowed document types are:
 - Annex
 - Checklist
 
-Do not use `SOP` as the document type. Convert it to Procedure, Standard, or Plan based on content.
+### Type selection guidance
+
+- Procedure versus SOP: a Procedure is a multi-actor or cross-functional workflow that coordinates several roles. An SOP is a single-actor or narrow team sequence with explicit step ownership for one repeatable task.
+- Plan versus Roadmap: a Plan is event-triggered or schedule-bound coordination such as incident, recovery, migration, or communication. A Roadmap is a multi-phase forward strategy tied to a strategic outcome with phased milestones and dependencies.
+- Guideline versus Guide: a Guideline is advisory interpretation of a policy or standard requirement and reads as governance commentary. A Guide is technical reference material organised for adoption such as patterns, examples, configuration models, or implementation walkthroughs.
+
+The canonical filename prefix must match the Document Type field. Filenames use lowercase: `sop-`, `roadmap-`, and `guide-` are valid prefixes for the corresponding types.
 
 ---
 
@@ -367,6 +376,10 @@ Apply all substitutions below before producing any output. Substitution is case-
 ### Terms to preserve without substitution
 
 The following are public standards, frameworks, regulatory citations, and programme names that must not be substituted: ISO, NIST, COBIT, CSA CCM, BASC, WCO, ISO 28000, GDPR, PIPEDA, AIDA, CPPA, PIPL, LGPD, Quebec Law 25, UK GDPR, EU AI Act, FIDO2, MITRE ATT&CK, OWASP, PTES, OSCP, CREST, CVSS, CTPAT, PIP, AEO, AEO-S, HMRC, NEEC, OEA, DORA, NIS 2, PCI DSS, HIPAA, HITECH, SOX, FedRAMP, SLSA, FAIR, VEX, SBOM, HL7, FHIR, IEC 62443, IMO, ICAO, TSA, and all other recognized public regulatory, standards, or programme acronyms.
+
+### Named open-source projects
+
+Open-source projects whose canonical name includes a vendor parent (for example PyRIT, originating from a vendor) may be referenced by the project name alone, without the vendor parent, qualified by an explanatory phrase such as "open-source AI red team automation framework". Do not retain the vendor name in body text. Vendor-only proprietary products remain subject to the sanitization substitution table above.
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Information Security Domain README 
 **Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.1.0 
+**Date:** 2026-05-28 
 **Owner:** Information Security Maintainer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](policy-information-security.md) 
@@ -50,8 +50,8 @@ This directory contains organization-neutral information security governance art
 | Procedure | Cryptographic Key Operations Procedure | [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md) |
 | Procedure | Identity Management Procedure | [`security/procedure-identity-management.md`](procedure-identity-management.md) |
 | Procedure | Security Disciplinary Process Procedure | [`security/procedure-security-disciplinary-process.md`](procedure-security-disciplinary-process.md) |
-| SoP | Incident Escalation Matrix | [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md) |
-| SoP | Security Ticket Reporting Scheme | [`security/sop-security-ticket-reporting-scheme.md`](sop-security-ticket-reporting-scheme.md) |
+| SOP | Incident Escalation Matrix | [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md) |
+| SOP | Security Ticket Reporting Scheme | [`security/sop-security-ticket-reporting-scheme.md`](sop-security-ticket-reporting-scheme.md) |
 | Roadmap | Post-Quantum Cryptography Readiness Roadmap | [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md) |
 
 ---

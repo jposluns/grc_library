@@ -6,7 +6,7 @@
 **Date:** 2026-05-27 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/procedure-incident-response.md`](../security/procedure-incident-response.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/annex-regional-privacy-requirements.md`](annex-regional-privacy-requirements.md) 
+**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/procedure-incident-response.md`](../security/procedure-incident-response.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md) 
 **Classification:** Public 
 **Category:** Privacy 
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 

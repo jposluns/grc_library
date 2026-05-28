@@ -1,7 +1,7 @@
 # Master Project Specification
 
-**Version:** 1.1.0 
-**Date:** 2026-05-27 
+**Version:** 1.2.0 
+**Date:** 2026-05-28 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Chief Risk Officer 
 **Classification:** Public 
@@ -125,8 +125,11 @@ Allowed types:
 - Policy
 - Standard
 - Procedure
+- SOP
 - Plan
+- Roadmap
 - Guideline
+- Guide
 - Register
 - Matrix
 - Specification
@@ -134,7 +137,13 @@ Allowed types:
 - Annex
 - Checklist
 
-No additional types may be created without approval. Do not use `SOP` as a document type; convert to Procedure, Standard, or Plan.
+No additional types may be created without approval.
+
+### 4.4 Type selection guidance
+
+- Procedure versus SOP: a Procedure is a multi-actor or cross-functional workflow that coordinates several roles. An SOP is a single-actor or narrow team sequence with explicit step ownership for one repeatable task.
+- Plan versus Roadmap: a Plan is event-triggered or schedule-bound coordination such as incident, recovery, migration, or communication. A Roadmap is a multi-phase forward strategy tied to a strategic outcome with phased milestones and dependencies.
+- Guideline versus Guide: a Guideline is advisory interpretation of a policy or standard requirement and reads as governance commentary. A Guide is technical reference material organised for adoption such as patterns, examples, configuration models, or implementation walkthroughs.
 
 ---
 

@@ -1,12 +1,12 @@
 # AI Security Technical Implementation Guide
 
 **Document Title:** AI Security Technical Implementation Guide 
-**Document Type:** Guideline 
-**Version:** 1.1.0 
-**Date:** 2026-05-27 
+**Document Type:** Guide 
+**Version:** 1.2.0 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** 
+**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) 
 **Classification:** Public 
 **Category:** AI Governance 
 **Review Frequency:** Annual and upon material AI framework or regulatory change 
@@ -618,7 +618,7 @@ The KQL examples above use a log analytics query language. Adapt to your SIEM's 
 - **OWASP LLM Top 10**: Primary threat taxonomy used throughout this guide
 - **MITRE ATLAS**: Adversarial ML threat catalogue
 - **NVIDIA Garak**: LLM vulnerability scanner (open source)
-- **Microsoft PyRIT**: AI red team automation framework (open source)
+- **PyRIT**: open-source AI red team automation framework
 - **promptfoo**: Prompt testing and evaluation framework (open source)
 - **NIST AI RMF**: AI risk management framework
 - **OWASP GenAI Security Project**: genai.owasp.org

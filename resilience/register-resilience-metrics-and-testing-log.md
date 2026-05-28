@@ -1,9 +1,9 @@
-# Resilience Metrics and Testing Log Template
+# Resilience Metrics and Testing Log Register
 
-**Document Title:** Resilience Metrics and Testing Log Template 
-**Document Type:** Template 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Document Title:** Resilience Metrics and Testing Log Register 
+**Document Type:** Register 
+**Version:** 1.1.0 
+**Date:** 2026-05-28 
 **Owner:** Resilience Owner 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md) 

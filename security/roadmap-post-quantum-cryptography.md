@@ -1,9 +1,9 @@
-# Post-Quantum Cryptography Readiness Plan
+# Post-Quantum Cryptography Readiness Roadmap
 
-**Document Title:** Post-Quantum Cryptography Readiness Plan 
-**Document Type:** Plan 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Document Title:** Post-Quantum Cryptography Readiness Roadmap 
+**Document Type:** Roadmap 
+**Version:** 1.1.0 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Chief Information Officer 
 **Related Documents:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md) 

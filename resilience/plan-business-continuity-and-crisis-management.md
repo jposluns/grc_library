@@ -2,15 +2,15 @@
 
 **Document Title:** Business Continuity and Crisis Management Plan 
 **Document Type:** Plan 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.1.0 
+**Date:** 2026-05-28 
 **Owner:** Resilience Owner 
 **Approving Authority:** Executive Management 
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-crisis-management-eoc-activation.md`](procedure-crisis-management-eoc-activation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`resilience/procedure-backup-and-recovery.md`](procedure-backup-and-recovery.md), [`resilience/register-resilience-metrics-and-testing-log.md`](register-resilience-metrics-and-testing-log.md) 
 **Classification:** Public 
 **Category:** Resilience 
 **Review Frequency:** Annual and upon material incident, service, supplier, facility, or recovery strategy change 
-**Repository Path:** [`resilience/business-continuity-and-crisis-management.md`](business-continuity-and-crisis-management.md) 
+**Repository Path:** [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md) 
 **Confidentiality:** Public 
 **License:** CC0 1.0 Universal 
 

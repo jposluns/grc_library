@@ -1,12 +1,12 @@
 # AI Adversarial Test Reference
 
 **Document Title:** AI Adversarial Test Reference 
-**Document Type:** Guideline 
-**Version:** 1.1.0 
-**Date:** 2026-05-27 
+**Document Type:** Guide 
+**Version:** 1.2.0 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** 
+**Related Documents:** [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md) 
 **Classification:** Public 
 **Category:** AI Governance 
 **Review Frequency:** Annual and upon material AI framework or regulatory change 
@@ -114,7 +114,7 @@ Red team engagements for AI systems must cover:
 
 ### Tooling
 
-**Microsoft PyRIT** must be used for automated multi-turn attack simulation and AI-assisted attack generation.
+**PyRIT (open-source AI red team automation framework)** must be used for automated multi-turn attack simulation and AI-assisted attack generation.
 
 **NVIDIA Garak** must be used for LLM-specific vulnerability scanning. Minimum probe categories: injection, jailbreak.dan, leakage.BaseLeak, base64.Base64Injection, continuation.ContinueSlurPrompt.
 
@@ -174,7 +174,7 @@ Relevant directories:
 | OWASP GenAI Security Project | Ongoing AI security guidance and test case updates |
 | MITRE ATLAS | Adversarial machine learning threat catalogue |
 | NVIDIA Garak | Open-source LLM vulnerability scanner |
-| Microsoft PyRIT | Open-source AI red team automation framework |
+| PyRIT | Open-source AI red team automation framework |
 | promptfoo | Open-source prompt testing and evaluation |
 | TikiTribe claude-secure-coding-rules | AI security rule files and test patterns |
 | NIST AI RMF | AI risk management framework |
