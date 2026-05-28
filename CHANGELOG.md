@@ -4,6 +4,55 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 16 (2026-05-28): CCM v4.1 domain code corrections
+
+Resolves four CCM domain-code findings surfaced by the Phase 15 citation deep-dive. The Phase 12.1 corrective pass fixed the version string ("CSA CCM v5" → "CSA CCM v4.1") but did not migrate the v3-era domain codes that CSA renamed during the v3 → v4 transition. Three documents also used a domain code (TIM) that has never existed in any CCM version.
+
+### Domain code corrections
+
+Primary CSA sources (Cloud Controls Matrix and CAIQ v4.1 artifact; CCM v4.1 transition blog; CSF Tools CCM v4 reference) confirm the CCM v4.1 has exactly 17 domains: AIS, AAC, BCR, CCC, CEK, DCS, DSP, GRC, HRS, IAM, IPY, IVS, LOG, SEF, STA, TVM, UEM. The library used four codes that do not appear in this list:
+
+| Stale code | Corrected to | Rationale |
+| --- | --- | --- |
+| GRM (Governance and Risk Management) | GRC (Governance, Risk, Compliance) | Renamed in v3 → v4 transition |
+| EKM (Encryption and Key Management) | CEK (Cryptography, Encryption, Key Management) | Renamed and broadened in v3 → v4 transition |
+| END (Endpoint Security) | UEM (Universal Endpoint Management) | Renamed and re-scoped in v3 → v4 transition |
+| TIM (Threat Intelligence Management) | TVM (Threat and Vulnerability Management) | TIM never existed in any CCM version; threat intelligence is part of TVM |
+
+### Replacements applied
+
+25 replacements across 10 files. Specific numeric controls (GRM-12 → GRC-12, EKM-01 → CEK-01, etc.) substituted where the v3 control numbering plausibly maps to the v4 domain code with the same numeric sequence. TIM references — for which no number mapping is sound because the domain did not exist — rewritten to generic TVM domain references rather than swapping the prefix.
+
+Affected files: `governance/policy-exception-and-risk-acceptance-management.md`, `governance/register-document-index-and-classification.md`, `risk/procedure-risk-assessment-methodology.md`, `security/policy-encryption-and-key-management.md`, `security/procedure-cryptographic-key-operations.md`, `security/procedure-key-escrow-and-recovery.md`, `security/framework-cryptographic-key-lifecycle.md`, `operations/standard-certificate-authority-management.md`, `operations/procedure-threat-intelligence-and-siem-operations.md`, plus the framework alignment annotations on a small number of other files.
+
+### Citation denylist extended
+
+`tools/lint-citations.py` extended with four new denylist entries (`CCM GRM`, `CCM EKM`, `CCM END`, `CCM TIM`) so the v3-era codes cannot be reintroduced silently.
+
+### Not corrected (verified accurate)
+
+- **CSA AICM v1.0.3**: confirmed real by CSA's official AICM artifact page. The Phase 15 audit flagged this as suspect; primary-source verification confirms the patch version is current. No change.
+- **SEF-01 to SEF-10**: source evidence is ambiguous (some sources say 8 SEF controls, others say 10). Leaving the library's SEF-01 to SEF-10 reference unchanged pending unambiguous primary-source confirmation.
+
+Taxonomy, portal, and maturity scorecard regenerated.
+
+## Phase 15 (2026-05-28): Minimum-viable governance structure guideline
+
+Resolves the forum-proliferation audit finding by adding a new adopter-facing guideline that shows how the library's 13+ named forums can be implemented at three maturity tiers (minimum viable, mid-market, enterprise / regulated). The library's individual documents continue to reference the formal forum names; this guideline shows the consolidation patterns that preserve the responsibilities for smaller adopters.
+
+### New document
+
+- `governance/guideline-minimum-viable-governance-structure.md` (v0.0.1): three-tier structure (Tier 1: 2-3 forums; Tier 2: 4-6 forums; Tier 3: 8-12 forums) mapping the library's formal forum names to consolidated bodies. Per-tier consolidation table, seat-name mapping by role group (senior executive, AI sub-roles, ownership, maintainer), and mapping-document worked example.
+
+### Registry updates
+
+- `governance/README.md` (v1.1.0 → v1.2.0): new guideline added to active documents.
+- `governance/register-document-index-and-classification.md` (v1.22.0 → v1.23.0): new row added.
+
+Taxonomy, portal, and maturity scorecard regenerated.
+
+A separate (in-flight) citation verification deep-dive is running for items 7.1-7.4 of the next-passes list; any resulting corrections will be applied in a future phase.
+
 ## Phase 14 (2026-05-28): Provisional-draft and ownership cleanup
 
 Resolves three lingering status-uncertainty items and tightens AIGC ownership clarity.

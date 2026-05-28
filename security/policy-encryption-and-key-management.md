@@ -207,7 +207,7 @@ Lessons learned from incidents or audits feed into the continual improvement cyc
 |---|---|
 | ISO/IEC 27002:2022 | §§8.24 to 8.28: Cryptographic Controls |
 | COBIT 2019 | DSS05.03: Protect Against Data Leakage |
-| CSA CCM v4.1 | EKM-01: Encryption and Key Management |
+| CSA CCM v4.1 | CEK-01: Encryption and Key Management |
 | NIST SP 800-57 | Key Management Guidelines |
 | NIST SP 800-208 | Post-Quantum Cryptography Readiness |
 | PCI DSS v4.0 | Requirement 3: Encryption and Key Management |

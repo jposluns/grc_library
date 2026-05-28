@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This policy establishes the enterprise governance and risk management framework, principles, roles, and control requirements that guide consistent identification, assessment, treatment, monitoring, and reporting of risk across the organization. It is aligned with ISO 31000 Clauses 5 and 6, COBIT 2019 APO12, CSA CCM v4.1 GRM domain, NIST SP 800-39, ISO 23894 for AI risk, and the NIST AI RMF. The policy integrates risk, compliance, privacy, security, resilience, ethics, and sustainability across business, technology, data, and AI systems.
+This policy establishes the enterprise governance and risk management framework, principles, roles, and control requirements that guide consistent identification, assessment, treatment, monitoring, and reporting of risk across the organization. It is aligned with ISO 31000 Clauses 5 and 6, COBIT 2019 APO12, CSA CCM v4.1 GRC domain, NIST SP 800-39, ISO 23894 for AI risk, and the NIST AI RMF. The policy integrates risk, compliance, privacy, security, resilience, ethics, and sustainability across business, technology, data, and AI systems.
 
 ---
 
