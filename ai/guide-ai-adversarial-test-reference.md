@@ -2,7 +2,7 @@
 
 **Document Title:** AI Adversarial Test Reference 
 **Document Type:** Guide 
-**Version:** 1.2.2 
+**Version:** 1.3.0 
 **Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -119,6 +119,19 @@ Red team engagements for AI systems must cover:
 **NVIDIA Garak** must be used for LLM-specific vulnerability scanning. Minimum probe categories: injection, jailbreak.dan, leakage.BaseLeak, base64.Base64Injection, continuation.ContinueSlurPrompt.
 
 **Manual testing** by a qualified practitioner is required in addition to automated tooling.
+
+### Tool acceptance criteria
+
+Each named tool above is referenced because it is currently the most capable open-source option in its category. Tool choice is not fixed; the criteria below define what any replacement must satisfy.
+
+| Tool | Purpose | Expected output artefact | Integration point | Success criterion | Escalation if the tool fails |
+| --- | --- | --- | --- | --- | --- |
+| PyRIT | Automated multi-turn attack simulation and AI-assisted attack generation against the AI system under test | Attack log per scenario (prompts, responses, success or failure verdicts) plus a summary report | Run before each release gate; run weekly against production for high-risk systems | At least 95% of the declared attack scenarios executed without harness error; baseline pass rate maintained or improved from the prior release | Red team escalates to the AI Security Maintainer; release gate is held until either coverage is restored or a documented exception is approved |
+| Garak (or equivalent LLM vulnerability scanner) | Static and probe-based scanning of an LLM endpoint for known weakness categories | JSON report listing probe identifier, severity, and pass or fail | Pre-release and weekly | All Critical and High probe failures triaged within five business days; no Critical regression from the prior release | AI Security Maintainer escalates; the system either remediates or accepts the risk with documented compensating controls |
+| promptfoo | Prompt regression and behavioural evaluation across model versions | YAML or JSON test report with per-test pass or fail and aggregated metrics | Every pull request that touches prompts; every release gate | Regression threshold (e.g. at most 2% degradation on any tracked metric) is not breached | Pipeline blocks merge; AI Security Maintainer approves the exception or remediation |
+| Manual red team practitioner | Human-driven adversarial testing including social-engineering-style multi-turn attacks not covered by automation | Red team report following the format in §B2.4 | At least annually and before any release of a Tier 1 AI system | Findings produced with severity classifications, reproducible steps, and remediation recommendations | If practitioner availability blocks the engagement, AI Security Maintainer engages an external red team partner or formally accepts the risk in the AI risk register |
+
+Replacing any of these tools requires AI Security Maintainer approval, a documented evaluation against the criteria above, and an updated entry in the security architecture registry.
 
 ### Finding severity classification
 

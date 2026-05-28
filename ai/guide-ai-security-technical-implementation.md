@@ -2,7 +2,7 @@
 
 **Document Title:** AI Security Technical Implementation Guide 
 **Document Type:** Guide 
-**Version:** 1.2.1 
+**Version:** 1.3.0 
 **Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -623,6 +623,23 @@ The KQL examples above use a log analytics query language. Adapt to your SIEM's 
 - **NIST AI RMF**: AI risk management framework
 - **OWASP GenAI Security Project**: genai.owasp.org
 
+---
 
+## A7. Tool acceptance criteria
+
+The tools referenced in the code examples above are illustrative; the requirements they implement are normative. When evaluating or replacing a tool, apply the criteria below. Each row defines the acceptance bar a tool in that category must meet before it replaces an incumbent in the CI/CD pipeline.
+
+| Tool category | Purpose | Expected output artefact | Integration point | Success criterion | Escalation if the tool fails |
+| --- | --- | --- | --- | --- | --- |
+| SAST with AI security rules (e.g. Semgrep with an AI ruleset) | Static analysis of source code for AI-specific anti-patterns (prompts in code, unguarded LLM output flows, unsafe tool wiring) | SARIF report annotated by rule identifier with file, line, and severity | Pull request gate; nightly full-repository scan | All Critical and High findings either remediated or accepted with documented exception before merge; full-scan baseline tracked | Pipeline blocks merge; AI Security Maintainer reviews; rule false-positive backlog tracked separately |
+| Prompt regression and behavioural evaluation (e.g. promptfoo) | Detects regression in safety properties of prompts across model versions and prompt changes | Per-test pass or fail with diff against baseline; aggregated metrics (accuracy, refusal rate, hallucination rate, latency) | Every pull request that touches prompts; every release gate | Regression threshold not breached on any tracked metric; new tests added when new behaviour is introduced | Pipeline blocks merge; AI Security Maintainer approves remediation or formally accepts the regression |
+| LLM vulnerability scanner (e.g. NVIDIA Garak) | Probe-based scanning of an LLM endpoint for known weakness categories | JSON report of probe identifier, severity, pass or fail, response excerpt | Pre-release gate; weekly against production endpoints | No Critical regression from the prior release; High findings triaged within five business days | AI Security Maintainer escalates; the system either remediates or accepts the risk with documented compensating controls |
+| AI red team automation framework (e.g. PyRIT) | Automated multi-turn adversarial testing | Attack log per scenario plus summary report | Before each release gate for Tier 1 systems; weekly for production Tier 1 systems | At least 95% of declared scenarios executed without harness error; baseline pass rate maintained | AI Security Maintainer holds the release gate until coverage is restored or an exception is approved |
+| Cloud policy guardrails (e.g. cloud-native policy engine for AI services) | Prevents AI services from being exposed publicly without explicit approval | Policy violation report; admission rejection at deploy time | Continuous in the cloud control plane | Zero policy violations in production; new public AI endpoints reviewed and approved by AI Security Maintainer before exposure | Cloud security operations escalates; the unapproved exposure is reverted within the incident response window |
+| Monitoring and detection (SIEM or AI-aware detection platform) | Detects runtime AI security events (prompt injection patterns, unusual tool invocation, exfiltration patterns) | Alert in the SIEM with severity, source, and detection rule reference | Continuous; alerts route via the security operations procedure | All Critical alerts triaged within the SLA in the incident response procedure; detection rule coverage reviewed quarterly | SOC escalates per the incident escalation matrix |
+
+Tool replacement requires AI Security Maintainer approval, a documented evaluation against the criteria above, migration of historical findings, and an update to the security architecture registry.
+
+---
 
 **End of Document**
