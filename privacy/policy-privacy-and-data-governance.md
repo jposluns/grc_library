@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This policy defines principles, governance structure, and control framework for managing personal data and organizational information assets across all jurisdictions. It consolidates Privacy Policy, Data Governance Policy, Data Quality Policy, and Records Management Policy into a unified global standard. It ensures that compliance with applicable data protection laws, upholds data accuracy and integrity, and governs ethical use of information including AI training datasets.
+This policy defines principles, governance structure, and control framework for managing personal data and organizational information assets across all jurisdictions. It consolidates Privacy Policy, Data Governance Policy, Data Quality Policy, and Records Management Policy into a unified global standard. It supports the organization's compliance with applicable data protection laws, upholds data accuracy and integrity, and governs ethical use of information including AI training datasets.
 
 **Applicable Frameworks:** ISO/IEC 27701:2019 PIMS, ISO 8000-8 Data Quality Principles, EU GDPR, EU Data Act (2026), Canada CPPA, APEC CBPR 2.0, China PIPL, CSA CCM v4.1 domains PRI and DSP.
 
@@ -39,7 +39,7 @@ This policy defines principles, governance structure, and control framework for 
 
 1. The **Chief Information Officer (CIO)** serves as the accountable executive for global data governance and assumes all responsibilities normally assigned to the Data Protection Officer (DPO) until that role is appointed.
 2. The **Chief Information Security Officer (CISO)** ensures that security controls protect data confidentiality, integrity, and availability.
-3. The CIO, in the capacity of acting DPO, represents the organization before regulatory authorities and ensures that compliance with applicable privacy laws.
+3. The CIO, in the capacity of acting DPO, represents the organization before regulatory authorities and oversees the organization's compliance with applicable privacy laws.
 4. **Regional Data Stewards and Privacy Leads** ensure that compliance with local data protection laws (EU GDPR, CPPA, PIPL, LGPD, etc.).
 
 ### Governance committees

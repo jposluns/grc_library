@@ -4,6 +4,47 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 12.10 (2026-05-28): Editorial and terminology consolidation
+
+Resolves the remaining medium and low-severity findings from the comprehensive audit. Closes the corrective campaign at Phase 12.
+
+### Term definitions added
+
+- `governance/register-key-terms-and-definitions.md` (v1.0.0 → v1.1.0): 18 new term definitions added to close terminology drift:
+  - AI lexicon: AI Agent, AI Capability, AI Service, AI System (refined), Foundation Model, Model — each formally distinguished so the reader can determine whether a ChatGPT API integration is an AI system, an AI service, a capability, or an agent.
+  - Approval verbs: Approve, Audit, Authorize, Monitor, Review — each formally distinguished against the others.
+  - Event vs Incident: Event = observation; Incident = triaged event meeting criteria.
+  - Risk Appetite vs Risk Tolerance: Appetite = strategic/board statement; Tolerance = operational threshold.
+  - Log: distinguished from Monitor, Audit, Review.
+  - Supplier / Third Party / Vendor: defined with explicit canonical-preference note (library prefers "supplier" as the general term; "third party" reserved for legal-contractual contexts; "vendor" reserved for technology-supplier contexts).
+
+### "Ensures compliance" phrasing replaced
+
+`governance/register-data-retention-schedule.md`, `compliance/policy-compliance-and-audit-management.md`, `privacy/policy-privacy-and-data-governance.md` (two instances): "ensures that compliance" replaced with "supports the organization's compliance" / "oversees compliance" so the library does not overclaim a guarantee CC0 baseline content cannot deliver.
+
+### MASVS terminology clarification
+
+`dev-security/standard-mobile-application-security.md`: a note added clarifying that MASVS v2 reorganised operational test groupings into MAS Testing Profiles in MASTG; the L1/L2/R concepts remain as verification-level shorthand used by this standard.
+
+### RFC 7807 ↔ RFC 9457
+
+`architecture/standard-api-design.md`: RFC 7807 reference annotated with the note that RFC 9457 supersedes it; both are listed in the framework alignment table.
+
+### "Widely adopted" claims date-stamped
+
+`privacy/jurisdictions/annex-privacy-united-states.md`: "voluntary, widely adopted" → "voluntary; broadly adopted in US enterprise practice as of 2026".
+`privacy/jurisdictions/annex-privacy-singapore.md`: same pattern applied to the PDPC Model Governance Framework reference.
+
+### AI-assistance transparency note
+
+`CONTRIBUTING.md`: new "AI-assisted authorship" section declaring that a substantial portion of the library was authored with AI assistance and then human-reviewed. Contributors are reminded that they remain accountable for content, that framework citations must be verified against primary sources (the citation linter prevents known-hallucination reintroduction but does not substitute for new-citation verification), and that organisation-neutrality must be preserved.
+
+### Supplier Risk Maintainer role formalised
+
+`governance/register-role-authority.md`: "Supplier Risk Maintainer" added as a role distinct from "Supplier Owner" (the latter is per-supplier; the former maintains the cross-supplier governance content). Resolves the audit finding that "Supplier Risk Maintainer" was used as a metadata owner in supply-chain documents without being defined in the role authority register.
+
+Taxonomy, portal, and maturity scorecard regenerated.
+
 ## Phase 12.9 (2026-05-28): AI procedure realism
 
 Resolves six AI realism findings from the comprehensive audit. The AI domain now reads as more operationally honest about what is enforceable, what is best-effort, and what the procedure mechanics actually look like.

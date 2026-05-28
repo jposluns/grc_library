@@ -56,7 +56,7 @@ The United States does not have a single comprehensive federal privacy law. Obli
 - The CPPA is developing regulations on ADMT. Draft regulations would require opt-out rights for ADMT used for significant decisions (employment, credit, health, housing, education) and for certain profiling.
 - Cybersecurity audits and risk assessments required before processing presenting significant privacy risks, including ADMT use.
 
-### NIST AI RMF (voluntary, widely adopted)
+### NIST AI RMF (voluntary; broadly adopted in US enterprise practice as of 2026)
 
 - **Govern:** Establish accountability, policies, and processes for responsible AI.
 - **Map:** Identify and categorize AI risks in context.
