@@ -113,7 +113,7 @@ All approved software must be registered in the Asset Inventory Register. Invent
 - Responsible owner (role title).
 - Last review date and next review date.
 
-Unauthorised software detected via automated compliance tools must be removed or quarantined within 24 hours of detection.
+Unauthorized software detected via automated compliance tools must be removed or quarantined within 24 hours of detection.
 
 ---
 
