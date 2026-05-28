@@ -2,8 +2,8 @@
 
 **Document Title:** Document Architecture and Interrelationship Framework 
 **Document Type:** Framework 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.1.0 
+**Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-role-authority.md`](register-role-authority.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md), [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md) 
@@ -48,12 +48,18 @@ It governs:
 | 2 | Framework | Defines domain operating model. | Derived from charter. | Scope, lifecycle, domain roles, integration points. |
 | 3 | Policy | States binding intent. | Derived from charter or framework. | Mandatory principles and governance commitments. |
 | 4 | Standard | Defines measurable requirements. | Implements one or more policies. | Control baselines and acceptance criteria. |
-| 5 | Procedure | Defines execution steps. | Implements a standard or policy. | Workflow, inputs, outputs, approvals, records. |
-| 6 | Plan | Defines coordinated response or recovery actions. | Implements resilience, incident, migration, or continuity requirements. | Activation criteria, roles, communications, recovery actions. |
-| 7 | Guideline | Provides advisory implementation detail. | Interprets policy or standard requirements. | Options, examples, interpretation support. |
-| 8 | Register | Records authoritative structured data. | Supports frameworks, policies, standards, and procedures. | Inventory, obligation, risk, exception, evidence, or metric records. |
-| 9 | Matrix | Maps relationships. | Supports assurance and traceability. | Control, risk, obligation, evidence, and lifecycle mapping. |
-| 10 | Template | Provides reusable record format. | Supports procedures, plans, or registers. | Forms, logs, assessments, questionnaires, and evidence capture structures. |
+| 5 | Procedure | Defines multi-actor or cross-functional execution steps. | Implements a standard or policy. | Workflow, inputs, outputs, approvals, records. |
+| 6 | SOP | Defines a single-actor or narrow team sequence for one repeatable task. | Implements a procedure, standard, or policy at task level. | Task steps, owner, inputs, outputs, evidence. |
+| 7 | Plan | Defines coordinated response or recovery actions. | Implements resilience, incident, migration, or continuity requirements. | Activation criteria, roles, communications, recovery actions. |
+| 8 | Roadmap | Defines a multi-phase forward strategy tied to a strategic outcome. | Derived from a policy, framework, or charter that sets the strategic direction. | Phased milestones, dependencies, decision points, target state. |
+| 9 | Guideline | Provides advisory implementation detail. | Interprets policy or standard requirements. | Options, examples, interpretation support. |
+| 10 | Guide | Provides technical reference material organised for adoption. | Supports a policy, standard, or guideline with reference patterns. | Patterns, examples, configuration models, implementation walkthroughs. |
+| 11 | Register | Records authoritative structured data. | Supports frameworks, policies, standards, and procedures. | Inventory, obligation, risk, exception, evidence, or metric records. |
+| 12 | Matrix | Maps relationships. | Supports assurance and traceability. | Control, risk, obligation, evidence, and lifecycle mapping. |
+| 13 | Specification | Defines technical or structural requirements. | Supports artefact creation, interface definition, or evidence structure. | Field definitions, schema, structural rules, acceptance criteria. |
+| 14 | Template | Provides reusable record format. | Supports procedures, plans, or registers. | Forms, logs, assessments, questionnaires, and evidence capture structures. |
+| 15 | Annex | Provides supplementary domain-specific guidance. | Subordinate to a parent framework, policy, or standard. | Jurisdiction, sector, or regime overlay content. |
+| 16 | Checklist | Provides a structured verification list. | Supports a procedure, standard, or gate review. | Verification items, completion criteria, sign-off evidence. |
 
 ---
 
@@ -63,10 +69,17 @@ It governs:
 2. Every policy must identify the framework or charter that authorizes it.
 3. Every standard must identify at least one parent policy.
 4. Every procedure must identify the standard or policy that it implements.
-5. Every plan must identify the event, condition, or lifecycle stage that activates it.
-6. Every register must identify the process or control family that maintains it.
-7. Every matrix must identify each mapped source and target class.
-8. Every template must identify the record, evidence, or workflow it captures.
+5. Every SOP must identify the procedure, standard, or policy whose task it operationalises.
+6. Every plan must identify the event, condition, or lifecycle stage that activates it.
+7. Every roadmap must identify the policy, framework, or charter that sets its strategic outcome.
+8. Every guideline must identify the policy or standard requirement it interprets.
+9. Every guide must identify the policy, standard, or guideline whose adoption it supports.
+10. Every register must identify the process or control family that maintains it.
+11. Every matrix must identify each mapped source and target class.
+12. Every specification must identify the artefact class, interface, or evidence structure it governs.
+13. Every template must identify the record, evidence, or workflow it captures.
+14. Every annex must identify the parent framework, policy, or standard to which it is subordinate.
+15. Every checklist must identify the procedure, standard, or gate it verifies.
 
 ---
 

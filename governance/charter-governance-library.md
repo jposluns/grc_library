@@ -2,8 +2,8 @@
 
 **Document Title:** Governance Library Charter 
 **Document Type:** Charter 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.1.0 
+**Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`governance/policy-digital-twin-and-simulation-governance.md`](policy-digital-twin-and-simulation-governance.md) 
@@ -60,12 +60,18 @@ It governs:
 | 2 | Framework | Defines domain structure, scope, lifecycle, and integration points. |
 | 3 | Policy | States mandatory governance intent and principles. |
 | 4 | Standard | Defines measurable control requirements and baselines. |
-| 5 | Procedure | Defines repeatable operational steps. |
-| 6 | Plan | Defines coordinated incident, continuity, recovery, migration, or response actions. |
-| 7 | Guideline | Provides advisory implementation interpretation. |
-| 8 | Register | Records authoritative metadata, obligations, risks, assets, systems, exceptions, or evidence. |
-| 9 | Matrix | Maps relationships among controls, risks, obligations, frameworks, lifecycle stages, and evidence. |
-| 10 | Template | Provides reusable forms, logs, assessments, or evidence structures. |
+| 5 | Procedure | Defines repeatable multi-actor or cross-functional operational steps. |
+| 6 | SOP | Defines a single-actor or narrow team sequence with explicit step ownership for one repeatable task. |
+| 7 | Plan | Defines coordinated incident, continuity, recovery, migration, or response actions. |
+| 8 | Roadmap | Defines a multi-phase forward strategy tied to a strategic outcome with phased milestones and dependencies. |
+| 9 | Guideline | Provides advisory implementation interpretation of a policy or standard requirement. |
+| 10 | Guide | Provides technical reference material organised for adoption such as patterns, examples, configuration models, or implementation walkthroughs. |
+| 11 | Register | Records authoritative metadata, obligations, risks, assets, systems, exceptions, or evidence. |
+| 12 | Matrix | Maps relationships among controls, risks, obligations, frameworks, lifecycle stages, and evidence. |
+| 13 | Specification | Defines technical or structural requirements for artefact creation, data fields, interfaces, or evidence. |
+| 14 | Template | Provides reusable forms, logs, assessments, or evidence structures. |
+| 15 | Annex | Provides supplementary domain-specific guidance that remains subordinate to the parent framework, policy, or standard. |
+| 16 | Checklist | Provides a structured verification list for a specific process or gate. |
 
 ---
 

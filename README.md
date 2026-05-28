@@ -1,7 +1,7 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Version:** 1.3.0 
-**Date:** 2026-05-27 
+**Version:** 1.4.0 
+**Date:** 2026-05-28 
 **Classification:** Public 
 **Confidentiality:** Public 
 **License:** CC0 1.0 Universal 
@@ -146,15 +146,24 @@ The library uses the following artefact types:
 | Framework | Defines domain scope, governance model, lifecycle, and integration points. |
 | Policy | States binding governance intent and mandatory principles. |
 | Standard | Defines measurable control requirements and baselines. |
-| Procedure | Defines repeatable operational steps for implementing a standard or policy. |
+| Procedure | Defines repeatable multi-actor or cross-functional operational steps for implementing a standard or policy. |
+| SOP | Defines a single-actor or narrow team sequence with explicit step ownership for one repeatable task. |
 | Plan | Defines coordinated actions for continuity, crisis, incident, recovery, or migration events. |
-| Guideline | Provides advisory interpretation or implementation options. |
+| Roadmap | Defines a multi-phase forward strategy tied to a strategic outcome with phased milestones and dependencies. |
+| Guideline | Provides advisory interpretation of a policy or standard requirement. |
+| Guide | Provides technical reference material organised for adoption such as patterns, examples, configuration models, or implementation walkthroughs. |
 | Checklist | Provides a structured verification list for a specific process or gate. |
 | Register | Records authoritative metadata, ownership, risks, obligations, assets, systems, exceptions, metrics, or evidence. |
 | Matrix | Maps relationships among controls, risks, obligations, frameworks, lifecycle stages, and evidence. |
 | Specification | Defines technical or structural requirements for artefact creation, data fields, interfaces, or evidence. |
 | Template | Provides reusable forms, logs, assessments, or evidence structures. |
 | Annex | Provides supplementary domain-specific guidance that remains subordinate to the parent framework, policy, or standard. |
+
+Type selection notes:
+
+- Procedure versus SOP: a Procedure coordinates several roles. An SOP is a single-actor or narrow team sequence for one repeatable task.
+- Plan versus Roadmap: a Plan is event-triggered or schedule-bound coordination. A Roadmap is a multi-phase forward strategy tied to a strategic outcome.
+- Guideline versus Guide: a Guideline is advisory interpretation. A Guide is technical reference material organised for adoption.
 
 ---
 
