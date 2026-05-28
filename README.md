@@ -1,10 +1,10 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Version:** 1.3.0  
-**Date:** 2026-05-27  
-**Classification:** Public  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Version:** 1.3.0 
+**Date:** 2026-05-27 
+**Classification:** Public 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -30,7 +30,7 @@ The library currently contains **197 documents** across 10 governance domains.
 
 ## How to Use
 
-1. **Browse the document index.** [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) is the primary navigation point — it lists every document with its type, domain, status, and related artefacts.
+1. **Browse the document index.** [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) is the primary navigation point: it lists every document with its type, domain, status, and related artefacts.
 
 2. **Identify the documents relevant to your programme.** Start with the Core Reference Set below, then expand into domain-specific standards and procedures.
 

@@ -1,18 +1,18 @@
 # GRC Library CC0 Ingestion and Transformation Specification
 
-**Document Title:** GRC Library CC0 Ingestion and Transformation Specification  
-**Document Type:** Specification  
-**Version:** 1.3.0  
-**Date:** 2026-05-27  
-**Owner:** Governance Library Maintainer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)  
-**Classification:** Public  
-**Category:** Core Governance  
-**Review Frequency:** Annual and upon material repository, licence, or source-framework change  
-**Repository Path:** [`specification-ingestion.md`](specification-ingestion.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** GRC Library CC0 Ingestion and Transformation Specification 
+**Document Type:** Specification 
+**Version:** 1.3.0 
+**Date:** 2026-05-27 
+**Owner:** Governance Library Maintainer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md) 
+**Classification:** Public 
+**Category:** Core Governance 
+**Review Frequency:** Annual and upon material repository, licence, or source-framework change 
+**Repository Path:** [`specification-ingestion.md`](specification-ingestion.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -235,7 +235,7 @@ Documents must use precise, organization-neutral language. They must avoid vendo
 
 Use Oxford English with `-ize` forms where applicable.
 
-Do not state that a document ensures compliance. State that it provides a baseline, structure, evidence class, or control model that adopting organizations must validate.
+Do not state that a document ensures that compliance. State that it provides a baseline, structure, evidence class, or control model that adopting organizations must validate.
 
 ---
 
@@ -292,7 +292,7 @@ Before committing a document, validate that:
 
 ---
 
-## Appendix A — Sanitization Substitution Table
+## Appendix A: Sanitization Substitution Table
 
 Apply all substitutions below before producing any output. Substitution is case-insensitive. Apply the longer or more specific form first where multiple entries could match.
 
@@ -300,7 +300,7 @@ Apply all substitutions below before producing any output. Substitution is case-
 
 | Source Term | Replacement |
 |---|---|
-| Traffic Tech | the organisation |
+| Traffic Tech | the organization |
 | Mississauga data centre | primary data centre |
 | MissDC | primary data centre |
 | Greenfield | infrastructure programme |
@@ -355,8 +355,8 @@ Apply all substitutions below before producing any output. Substitution is case-
 |---|---|
 | Any named specific security incident | a prior security incident |
 | CS109236765 or any case reference number | omit |
-| TT-REG-001 | omit — highly confidential; do not publish |
-| TT-REG-002 | omit — highly confidential; do not publish |
+| TT-REG-001 | omit: highly confidential; do not publish |
+| TT-REG-002 | omit: highly confidential; do not publish |
 
 ### Personal Names
 

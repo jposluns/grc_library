@@ -1,20 +1,20 @@
 # Master Project Specification
 
-**Version:** 1.1.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Compliance Officer  
-**Approving Authority:** Chief Risk Officer  
-**Classification:** Public  
-**Category:** Meta-Governance  
-**Review Frequency:** Annual and upon material repository structure, governance, or licence change  
-**Repository Path:** [`specification-master-project.md`](specification-master-project.md)  
-**Confidentiality:** Public  
+**Version:** 1.1.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Compliance Officer 
+**Approving Authority:** Chief Risk Officer 
+**Classification:** Public 
+**Category:** Meta-Governance 
+**Review Frequency:** Annual and upon material repository structure, governance, or licence change 
+**Repository Path:** [`specification-master-project.md`](specification-master-project.md) 
+**Confidentiality:** Public 
 
 ---
 
 ## Purpose
 
-This specification governs all behaviour, processing, reasoning constraints, file generation, directory placement, and structural rules used by the AI within this project. It defines authoritative requirements for output consistency, safety, determinism, formatting, and governance alignment. All subordinate specifications — including the Ingestion Specification — operate under this Master Project Specification unless explicitly delegated otherwise.
+This specification governs all behaviour, processing, reasoning constraints, file generation, directory placement, and structural rules used by the AI within this project. It defines authoritative requirements for output consistency, safety, determinism, formatting, and governance alignment. All subordinate specifications, including the Ingestion Specification, operate under this Master Project Specification unless explicitly delegated otherwise.
 
 ---
 
@@ -63,7 +63,7 @@ The AI must:
 
 ## 3. Document Output Rule
 
-When producing governance documents in a chat or interactive interface, each document must be contained inside exactly one fenced code block. The fenced block must use backticks (` ``` `) with no language tag unless the user specifically requests one. Nothing may appear inside the fence except the document itself. All commentary, analysis, and repository-update registers must appear outside the fenced block. Multi-document outputs require user approval — one document per output.
+When producing governance documents in a chat or interactive interface, each document must be contained inside exactly one fenced code block. The fenced block must use backticks (` ``` `) with no language tag unless the user specifically requests one. Nothing may appear inside the fence except the document itself. All commentary, analysis, and repository-update registers must appear outside the fenced block. Multi-document outputs require user approval: one document per output.
 
 When working in a git repository via direct file tooling (read, write, edit operations), documents are written directly to files. The code fence rule does not apply to direct file operations.
 
@@ -186,68 +186,68 @@ When referencing standards and frameworks, the AI must only reference publicly r
 
 ### Information Security and Risk
 
-- ISO/IEC 27001:2022 — Information security management systems
-- ISO/IEC 27002:2022 — Information security controls
-- ISO/IEC 27701:2019 — Privacy information management
-- ISO/IEC 42001:2023 — AI management systems
-- ISO/IEC 23894:2023 — AI risk management guidance
-- ISO/IEC 22301:2019 — Business continuity management
-- ISO 31000:2018 — Risk management
-- ISO 9001:2015 — Quality management
-- NIST CSF 2.0 — Cybersecurity Framework
-- NIST SP 800-53 Rev 5 — Security and privacy controls
-- NIST SP 800-37 — Risk Management Framework
-- NIST SP 800-218 — Secure Software Development Framework (SSDF)
-- NIST AI RMF — AI Risk Management Framework
-- COBIT 2019 / COBIT 2025 — IT governance and management
-- CSA CCM v4 — Cloud Controls Matrix
-- CIS Benchmarks — Configuration security baselines
-- MITRE ATT&CK — Adversarial tactics and techniques
-- MITRE ATLAS — Adversarial ML threat landscape
+- ISO/IEC 27001:2022: Information security management systems
+- ISO/IEC 27002:2022: Information security controls
+- ISO/IEC 27701:2019: Privacy information management
+- ISO/IEC 42001:2023: AI management systems
+- ISO/IEC 23894:2023: AI risk management guidance
+- ISO/IEC 22301:2019: Business continuity management
+- ISO 31000:2018: Risk management
+- ISO 9001:2015: Quality management
+- NIST CSF 2.0: Cybersecurity Framework
+- NIST SP 800-53 Rev 5: Security and privacy controls
+- NIST SP 800-37: Risk Management Framework
+- NIST SP 800-218: Secure Software Development Framework (SSDF)
+- NIST AI RMF: AI Risk Management Framework
+- COBIT 2019 / COBIT 2025: IT governance and management
+- CSA CCM v4: Cloud Controls Matrix
+- CIS Benchmarks: Configuration security baselines
+- MITRE ATT&CK: Adversarial tactics and techniques
+- MITRE ATLAS: Adversarial ML threat landscape
 
 ### Privacy and Data Protection
 
-- GDPR — General Data Protection Regulation (EU)
-- UK GDPR — United Kingdom General Data Protection Regulation
-- PIPEDA / CPPA — Canadian privacy legislation
-- AIDA — Artificial Intelligence and Data Act (Canada)
-- PIPL — Personal Information Protection Law (China)
-- LGPD — Lei Geral de Proteção de Dados (Brazil)
-- Quebec Law 25 — Act respecting the protection of personal information
+- GDPR: General Data Protection Regulation (EU)
+- UK GDPR: United Kingdom General Data Protection Regulation
+- PIPEDA / CPPA: Canadian privacy legislation
+- AIDA: Artificial Intelligence and Data Act (Canada)
+- PIPL: Personal Information Protection Law (China)
+- LGPD: Lei Geral de Proteção de Dados (Brazil)
+- Quebec Law 25: Act respecting the protection of personal information
 
 ### AI and Emerging Technology
 
-- EU AI Act — Regulation on Artificial Intelligence
-- OWASP LLM Top 10 — Large Language Model application risks
-- OWASP Top 10 — Web application security risks
-- OWASP ASVS — Application Security Verification Standard
+- EU AI Act: Regulation on Artificial Intelligence
+- OWASP LLM Top 10: Large Language Model application risks
+- OWASP Top 10: Web application security risks
+- OWASP ASVS: Application Security Verification Standard
 
 ### Trade Compliance and Supply Chain
 
-- CTPAT — Customs-Trade Partnership Against Terrorism (US CBP)
-- AEO — Authorised Economic Operator (EU)
-- AEO-S — Authorised Economic Operator — Security and Safety (UK HMRC)
-- PIP — Partners in Protection (Canada CBSA)
-- BASC — Business Alliance for Secure Commerce
-- NEEC — Nuevo Esquema de Empresas Certificadas (Mexico)
-- OEA — Operador Económico Autorizado (Brazil)
+- CTPAT: Customs-Trade Partnership Against Terrorism (US CBP)
+- AEO: Authorized Economic Operator (EU)
+- AEO-S, Authorized Economic Operator, Security and Safety (UK HMRC)
+- PIP: Partners in Protection (Canada CBSA)
+- BASC: Business Alliance for Secure Commerce
+- NEEC: Nuevo Esquema de Empresas Certificadas (Mexico)
+- OEA: Operador Económico Autorizado (Brazil)
 - WCO SAFE Framework of Standards
-- ISO 28000 — Supply chain security management systems
+- ISO 28000: Supply chain security management systems
 
 ### Resilience and Operational Technology
 
-- IEC 62443 — Industrial cybersecurity
-- DORA — Digital Operational Resilience Act (EU)
-- NIS 2 Directive — Network and Information Security (EU)
-- SLSA — Supply-chain Levels for Software Artifacts
+- IEC 62443: Industrial cybersecurity
+- DORA: Digital Operational Resilience Act (EU)
+- NIS 2 Directive: Network and Information Security (EU)
+- SLSA: Supply-chain Levels for Software Artifacts
 
 ### Financial and Sector-Specific
 
-- PCI DSS v4.0 — Payment card industry data security standard
-- HIPAA — Health Insurance Portability and Accountability Act (US)
-- SOX — Sarbanes-Oxley Act (US)
-- FedRAMP — Federal Risk and Authorization Management Program (US)
-- OSFI B-13 — Technology and Cyber Risk Management (Canada)
+- PCI DSS v4.0: Payment card industry data security standard
+- HIPAA: Health Insurance Portability and Accountability Act (US)
+- SOX: Sarbanes-Oxley Act (US)
+- FedRAMP: Federal Risk and Authorization Management Program (US)
+- OSFI B-13: Technology and Cyber Risk Management (Canada)
 
 References must be accurate and must not be invented. Do not reference frameworks not appearing in this list without explicit user confirmation that the framework is applicable.
 
@@ -257,16 +257,16 @@ References must be accurate and must not be invented. Do not reference framework
 
 1. All content must be normalized to CC0-compatible language unless the user requests internal versioning.
 2. Documents must adhere to the canonical structure:
-   - Metadata
-   - Purpose
-   - Scope
-   - Objectives (if applicable)
-   - Governance and Accountability
-   - Policy, Controls, Methods, or Procedures
-   - Roles and Responsibilities
-   - Monitoring, Metrics, and Reporting
-   - Continuous Improvement
-   - References and Framework Alignment
+ - Metadata
+ - Purpose
+ - Scope
+ - Objectives (if applicable)
+ - Governance and Accountability
+ - Policy, Controls, Methods, or Procedures
+ - Roles and Responsibilities
+ - Monitoring, Metrics, and Reporting
+ - Continuous Improvement
+ - References and Framework Alignment
 3. User intent always prevails over automatic restructuring if conflict arises.
 
 ---
