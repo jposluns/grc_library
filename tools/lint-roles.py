@@ -36,7 +36,6 @@ EXTRA_KNOWN_ROLES = {
     "Risk Maintainer",                # alias used by some risk docs
     "Security Architecture Maintainer",  # alias used by dev-security
     "Supplier Risk Maintainer",       # defined in Phase 12.10
-    "AI Security Maintainer",         # referenced in AI access standard
     "GRC Programme Manager",          # referenced in continuous-improvement
     "Information Security Maintainer",  # security domain maintainer
     "AI Governance Maintainer (split into AI Governance Approver, AI Data Steward, AI System Inventory Keeper)",

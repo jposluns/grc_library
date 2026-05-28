@@ -4,6 +4,21 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 19.3 (2026-05-28): Role authority register completions
+
+Phase 19 sub-phase 3. Two high-severity findings from the exhaustive re-audit: documents named "AI Security Maintainer" as Owner or Approving Authority on 10+ files but the role had no definition in the authoritative register (it was only suppressed via a linter exemption); documents named "Board Risk Committee" and "Enterprise Risk Committee (ERC)" as approval bodies but the register had no entry for either.
+
+### Changes
+
+- `governance/register-role-authority.md` (1.2.0 → 1.3.0): added three new authority-register entries — AI Security Maintainer (with explicit demarcation from CISO and AI Governance Approver), Board Risk Committee (board-level risk-appetite oversight, with consolidation pointer to the minimum-viable governance guideline), and Enterprise Risk Committee / ERC (executive-level forum delegated by the Board Risk Committee).
+- `tools/lint-roles.py`: removed the AI Security Maintainer linter exemption because the role is now in the register itself; known-role count rose from 40 to 42.
+
+### Result
+
+The library's authoritative role definitions now match its actual role usage. Linter exemptions no longer mask undefined roles. Adopters reading the role authority register get the complete set of roles the library references, with explicit demarcation where roles could be confused.
+
+Taxonomy and portal regenerated. All ten audits clean.
+
 ## Phase 19.2 (2026-05-28): Sanitisation residue cleanup
 
 Phase 19 sub-phase 2. Three findings from the exhaustive re-audit involved content that revealed the original drafting organisation's specific operating context where a CC0-licensed reusable template should use generic placeholder phrasing.

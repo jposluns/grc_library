@@ -2,8 +2,8 @@
 
 **Document Title:** Role Authority Register 
 **Document Type:** Register 
-**Version:** 1.2.0 
-**Date:** 2026-05-27 
+**Version:** 1.3.0 
+**Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md) 
@@ -28,6 +28,8 @@ This register defines generic governance roles used across the GRC Documentation
 | --- | --- | --- |
 | Governing Body | Oversight of enterprise risk, compliance, security, privacy, resilience, and technology governance. | Charters, risk appetite, major risk acceptance. |
 | Board of Directors | The organisation's board (or equivalent governing body where the term applies). Specific board-level approvals such as risk appetite statements and material policy adoption. | Board-approved risk appetite, board-reviewed material exceptions. |
+| Board Risk Committee | Board-level subcommittee accountable for risk-appetite oversight, material-risk acceptance, and consolidated enterprise risk reporting. In organisations without a discrete Board Risk Committee, the full board or audit committee exercises this authority (see [`governance/guideline-minimum-viable-governance-structure.md`](guideline-minimum-viable-governance-structure.md) for consolidation patterns). | Risk appetite approval, material exception approval, escalated high-risk AI exception approval. |
+| Enterprise Risk Committee (ERC) | Executive-level forum accountable for enterprise risk oversight delegated by the Board Risk Committee, cross-domain risk co-ordination, KRI trend review, and risk-reporting integrity. Meets at least quarterly. | Risk methodology adoption, cross-domain risk decisions, recommendations to the Board Risk Committee. |
 | Executive Management | Executive accountability for policy adoption, resourcing, and operating effectiveness. | Enterprise policies, material exceptions, strategic risk decisions. |
 | Chief Information Officer | Information and technology governance, architecture, operational technology risk, and digital stewardship. | Technology policies, service governance, architecture exceptions. |
 | Chief Technology Officer | Engineering, architecture, technology selection, development practice, and platform direction. | Architecture standards, technology radar, engineering exceptions. |
@@ -54,6 +56,7 @@ This register defines generic governance roles used across the GRC Documentation
 | Communications Owner | Ownership of crisis-communication and incident-communication content and channels. | Communications plans, customer notifications, post-incident communications. |
 | IT Operations Lead | Day-to-day IT operations leadership including incident response, change execution, and operations governance. | Operations procedures, operational exceptions, runbook approval. |
 | AI Risk Maintainer | Maintenance of AI-specific risk artefacts (AI risk register, AI risk methodology annex, AI impact assessment templates). | AI risk register updates, AI methodology updates. |
+| AI Security Maintainer | Maintenance of AI-specific security artefacts (AI red-team report templates, AI vendor security questionnaire, AI dataset datasheets, MCP server register, AI access and agent permissions standard, AI incident response plan, AI inference cost governance standard, model registry, AI adversarial evaluation suite). Distinct from the CISO (organisation-wide security) and the AI Governance Approver (AI policy approval); this role maintains the cross-AI security governance content. | AI security artefact updates; AI security content consistency. |
 | Assurance Metrics Maintainer | Maintenance of digital trust and assurance metrics registers. | Metrics catalogue updates. |
 | Control Framework Maintainer | Maintenance of the cross-framework alignment matrix and the reverse framework control crosswalk. | Cross-framework matrix updates, control mapping updates. |
 | Document Owner | Maintenance of a governance document, metadata, review cycle, and related artefacts. | Minor document updates, review records. |
