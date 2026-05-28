@@ -69,8 +69,8 @@ _47 documents._
 | [security/standard-data-classification-and-handling.md](../security/standard-data-classification-and-handling.md) | Data Classification and Handling Standard | Standard | 1.3.0 | 2026-05-27 |
 | [security/standard-data-loss-prevention.md](../security/standard-data-loss-prevention.md) | Data Loss Prevention Standard | Standard | 1.3.0 | 2026-05-27 |
 | [security/standard-logging-and-monitoring.md](../security/standard-logging-and-monitoring.md) | Logging and Monitoring Standard | Standard | 1.3.0 | 2026-05-27 |
-| [specification-ingestion.md](../specification-ingestion.md) | GRC Library CC0 Ingestion and Transformation Specification | Specification | 1.4.1 | 2026-05-28 |
-| [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.2.2 | 2026-05-28 |
+| [specification-ingestion.md](../specification-ingestion.md) | GRC Library CC0 Ingestion and Transformation Specification | Specification | 1.4.2 | 2026-05-28 |
+| [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.2.3 | 2026-05-28 |
 | [supply-chain/standard-supplier-security-and-privacy-assurance.md](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | Supplier Security and Privacy Assurance Standard | Standard | 1.1.0 | 2026-05-28 |
 
 ---

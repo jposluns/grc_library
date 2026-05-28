@@ -1,6 +1,6 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Version:** 1.4.2 
+**Version:** 1.5.0 
 **Date:** 2026-05-28 
 **Classification:** Public 
 **Confidentiality:** Public 
@@ -24,7 +24,7 @@ The repository provides reusable artefacts across the following domains:
 - Supplier, third-party, cloud, and supply-chain governance.
 - Cross-framework mapping, regulatory applicability analysis, and metrics.
 
-The library currently contains approximately **200 documents** across 10 governance domains. Automated counts will replace this approximation in a future repository release.
+The library currently contains approximately **215 documents** across 10 governance domains. Automated counts will replace this approximation in a future repository release.
 
 ---
 
@@ -95,6 +95,19 @@ Documents are organized by primary governance domain.
 
 /dev-security   Developer and DevOps security: standards, quick reference, compliance gap register,
                 and claude-rules/ subdirectory of draggable CLAUDE.md rule files for AI coding sessions.
+```
+
+Repository infrastructure directories (not used for governance artefacts):
+
+```text
+/tools          Stdlib-only Python audit scripts: metadata, language, links, structural index,
+                taxonomy generator, adopter portal generator.
+/docs           Adopter-facing documentation that is not a governance artefact: adopter guide,
+                worked example, auto-generated portal, auto-generated maturity scorecard.
+/.github        GitHub Actions workflow that runs the four audits on push to main and on every
+                pull request.
+/taxonomy.yml   Auto-generated machine-readable registry of every active artefact's canonical
+                metadata. Regenerated from document metadata by tools/build-taxonomy.py.
 ```
 
 Documents use lowercase filenames, single hyphen separators, and a document type prefix.
@@ -244,6 +257,9 @@ The current authoritative starter set is organized around these foundational art
 | Resilience | Business Continuity and Disaster Recovery Policy |
 | Resilience | Backup and Recovery Procedure |
 | Privacy | Privacy and Data Governance Policy |
+| Privacy | Record of Processing Activities Template |
+| Privacy | Privacy Notice Template |
+| Privacy | Data Subject Access Request Workflow Template |
 | Supply Chain | Supplier and Cloud Governance Framework |
 | Supply Chain | Trade and Supply-Chain Continuity Controls Annex |
 
