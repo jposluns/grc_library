@@ -1,18 +1,18 @@
 # Risk Domain
 
-**Document Title:** Risk Domain README  
-**Document Type:** Register  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Risk Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md)  
-**Classification:** Public  
-**Category:** Risk Management  
-**Review Frequency:** Annual and upon material risk methodology change  
-**Repository Path:** [`risk/README.md`](README.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Risk Domain README 
+**Document Type:** Register 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Risk Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md) 
+**Classification:** Public 
+**Category:** Risk Management 
+**Review Frequency:** Annual and upon material risk methodology change 
+**Repository Path:** [`risk/README.md`](README.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 

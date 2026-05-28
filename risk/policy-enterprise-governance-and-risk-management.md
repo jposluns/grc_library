@@ -1,32 +1,32 @@
 # Enterprise Governance and Risk Management Policy
 
-**Document Title:** Enterprise Governance and Risk Management Policy  
-**Document Type:** Policy  
-**Version:** 1.3.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)  
-**Classification:** Public  
-**Category:** Risk Management  
-**Review Frequency:** Annual or as required by regulatory or framework changes  
-**Repository Path:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Enterprise Governance and Risk Management Policy 
+**Document Type:** Policy 
+**Version:** 1.3.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) 
+**Classification:** Public 
+**Category:** Risk Management 
+**Review Frequency:** Annual or as required by regulatory or framework changes 
+**Repository Path:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## 1. Purpose
 
-This policy establishes the enterprise governance and risk management framework, principles, roles, and control requirements that guide consistent identification, assessment, treatment, monitoring, and reporting of risk across the organisation. It is aligned with ISO 31000 Clauses 5 and 6, COBIT 2025 APO12, CSA CCM v5 GRM domain, NIST SP 800-39, ISO 23894 for AI risk, and the NIST AI RMF. The policy integrates risk, compliance, privacy, security, resilience, ethics, and sustainability across business, technology, data, and AI systems.
+This policy establishes the enterprise governance and risk management framework, principles, roles, and control requirements that guide consistent identification, assessment, treatment, monitoring, and reporting of risk across the organization. It is aligned with ISO 31000 Clauses 5 and 6, COBIT 2025 APO12, CSA CCM v5 GRM domain, NIST SP 800-39, ISO 23894 for AI risk, and the NIST AI RMF. The policy integrates risk, compliance, privacy, security, resilience, ethics, and sustainability across business, technology, data, and AI systems.
 
 ---
 
 ## 2. Scope
 
-1. This policy applies to all business units, regions, subsidiaries, and joint ventures where the organisation has operational control, including BASC-certified logistics operations in Latin America (Colombia, Mexico, Peru, and Chile).
+1. This policy applies to all business units, regions, subsidiaries, and joint ventures where the organization has operational control, including BASC-certified logistics operations in Latin America (Colombia, Mexico, Peru, and Chile).
 2. It covers strategic, operational, financial, compliance, information security, privacy, safety, environmental, AI, and supply-chain risks across on-premises, cloud, multi-cloud, edge, and supplier-hosted services.
-3. It applies to all employees, contractors, suppliers, and partners who process organisational or trade data, handle cargo, or operate customs-facing systems.
+3. It applies to all employees, contractors, suppliers, and partners who process organizational or trade data, handle cargo, or operate customs-facing systems.
 
 ---
 
@@ -39,12 +39,12 @@ This policy establishes the enterprise governance and risk management framework,
 | AI Governance Council (AIGC) | Approves AI risk appetite statements and exceptions for high-risk AI uses per ISO 23894 and NIST AI RMF Govern function; meets monthly. |
 | Chief Information Officer | Accountable for the enterprise risk management framework. |
 | Chief Information Security Officer | Responsible for information security, privacy, and AI risk integration. |
-| Second Line — GRC Function | Sets policy; consolidates risk reporting across the organisation. |
-| Third Line — Internal Audit | Provides independent assurance on governance and control effectiveness. |
+| Second Line: GRC Function | Sets policy; consolidates risk reporting across the organization. |
+| Third Line: Internal Audit | Provides independent assurance on governance and control effectiveness. |
 | Executive Sponsors | Each material risk category is assigned an executive sponsor. |
 | Operational Risk Owners | Manage day-to-day risk identification, control execution, and residual exposure reporting. |
 
-The organisation operates the **Three Lines Model**:
+The organization operates the **Three Lines Model**:
 
 - **First Line:** Business units and process owners own and manage risk within their domains.
 - **Second Line:** The GRC function sets policy, frameworks, and consolidated reporting.
@@ -56,7 +56,7 @@ The organisation operates the **Three Lines Model**:
 
 ### 4.1 Risk Framework
 
-The organisation shall maintain a standard risk management framework aligned to ISO 31000 with a common taxonomy, scoring criteria, and risk registers used consistently across all units and regions.
+The organization shall maintain a standard risk management framework aligned to ISO 31000 with a common taxonomy, scoring criteria, and risk registers used consistently across all units and regions.
 
 ### 4.2 Risk Identification
 
@@ -113,7 +113,7 @@ Consolidated enterprise risk reporting shall be presented to executive leadershi
 
 ## 6. Related Documents
 
-- Enterprise Risk Management Standard — methodology, taxonomy, and scoring
+- Enterprise Risk Management Standard: methodology, taxonomy, and scoring
 - Risk Register Procedure
 - Third-Party Risk Standard and Due Diligence Procedure
 - Business Continuity and Disaster Recovery Standard
@@ -127,7 +127,7 @@ Consolidated enterprise risk reporting shall be presented to executive leadershi
 
 | Framework | Relevant Clauses or Functions |
 |---|---|
-| ISO 31000:2018 | Clause 5 — Framework; Clause 6 — Process |
+| ISO 31000:2018 | Clause 5, Framework; Clause 6, Process |
 | ISO 23894:2023 | AI Risk Management |
 | ISO/IEC 42001:2023 | AI Management System |
 | COBIT 2025 | APO12 Manage Risk; APO10 Manage Suppliers; MEA01; DSS04 |
@@ -157,7 +157,7 @@ Non-compliance with this policy may result in disciplinary action up to and incl
 
 ## 10. Licence
 
-This document is released under the **CC0 1.0 Universal** public domain dedication. To the extent possible under law, the organisation waives all copyright and related rights to this document.
+This document is released under the **CC0 1.0 Universal** public domain dedication. To the extent possible under law, the organization waives all copyright and related rights to this document.
 
 ---
 

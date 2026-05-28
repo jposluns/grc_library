@@ -1,18 +1,18 @@
 # Third-Party and Supply Chain Risk Standard
 
-**Document Title:** Third-Party and Supply Chain Risk Standard  
-**Document Type:** Standard  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Risk Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`supply-chain/standard-third-party-risk.md`](../supply-chain/standard-third-party-risk.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md)  
-**Classification:** Public  
-**Category:** Risk Management — Third-Party and Supply Chain  
-**Review Frequency:** Annual and upon material supply chain change, significant third-party incident, or regulatory update  
-**Repository Path:** [`risk/standard-third-party-and-supply-chain-risk.md`](standard-third-party-and-supply-chain-risk.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Third-Party and Supply Chain Risk Standard 
+**Document Type:** Standard 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Risk Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`supply-chain/standard-third-party-risk.md`](../supply-chain/standard-third-party-risk.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md) 
+**Classification:** Public 
+**Category:** Risk Management: Third-Party and Supply Chain 
+**Review Frequency:** Annual and upon material supply chain change, significant third-party incident, or regulatory update 
+**Repository Path:** [`risk/standard-third-party-and-supply-chain-risk.md`](standard-third-party-and-supply-chain-risk.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -44,10 +44,10 @@ All third-party relationships must be classified into one of the following tiers
 
 | Tier | Classification | Criteria | Review Frequency |
 |---|---|---|---|
-| **Tier 1 — Critical** | Single point of failure; direct access to sensitive data or critical systems; regulatory or trade compliance dependency; revenue impact if unavailable | Processes personal data at scale; sole-source provider; no contractual substitute; CTPAT / AEO-S / BASC dependency | Quarterly |
-| **Tier 2 — High** | Significant operational dependency; access to systems or data; material revenue or compliance impact if unavailable | Provides important but substitutable services; processes limited personal data; available alternatives exist | Semi-annually |
-| **Tier 3 — Moderate** | Indirect operational dependency; limited data access; manageable impact if unavailable | Commercial relationships without system integration; standard commoditised services | Annually |
-| **Tier 4 — Low** | Minimal operational dependency; no data access; low impact if relationship ends | Transactional suppliers; easily substituted; no integration | At renewal or every 2 years |
+| **Tier 1: Critical** | Single point of failure; direct access to sensitive data or critical systems; regulatory or trade compliance dependency; revenue impact if unavailable | Processes personal data at scale; sole-source provider; no contractual substitute; CTPAT / AEO-S / BASC dependency | Quarterly |
+| **Tier 2: High** | Significant operational dependency; access to systems or data; material revenue or compliance impact if unavailable | Provides important but substitutable services; processes limited personal data; available alternatives exist | Semi-annually |
+| **Tier 3: Moderate** | Indirect operational dependency; limited data access; manageable impact if unavailable | Commercial relationships without system integration; standard commoditized services | Annually |
+| **Tier 4: Low** | Minimal operational dependency; no data access; low impact if relationship ends | Transactional suppliers; easily substituted; no integration | At renewal or every 2 years |
 
 ---
 
@@ -76,7 +76,7 @@ Third-party risks are scored using the same 5×5 likelihood × impact matrix as 
 
 In addition to inherent and residual scores, third-party risk assessments must capture:
 - **Concentration risk:** Degree to which multiple critical dependencies converge on a single supplier or geographic region
-- **Fourth-party risk:** Key sub-dependencies of the third party that could cascade to the organisation
+- **Fourth-party risk:** Key sub-dependencies of the third party that could cascade to the organization
 - **Substitutability:** Estimated time and cost to replace the supplier if the relationship fails
 
 ### 3. Risk Register Integration
@@ -113,7 +113,7 @@ Continuous or periodic monitoring activities for critical and high-tier third pa
 |---|---|---|---|
 | Financial health check | Quarterly | Semi-annually | Credit reports; financial statements |
 | Security posture review | Quarterly | Semi-annually | Updated questionnaire; security ratings service |
-| Incident and breach notification review | Ongoing — trigger-based | Ongoing — trigger-based | Incident reports; threat intelligence |
+| Incident and breach notification review | Ongoing, trigger-based | Ongoing, trigger-based | Incident reports; threat intelligence |
 | Trade compliance status verification | Annually; on renewal | Annually | CBP/HMRC/CBSA verification portals |
 | Contractual obligation compliance | Quarterly | Semi-annually | SLA reporting; invoice review |
 | Fourth-party (sub-contractor) monitoring | Semi-annually | Annually | Sub-contractor disclosure; spot checks |
@@ -151,18 +151,18 @@ Reference: [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](
 
 ### Supplier Security Incident Response
 
-When a Tier 1 or Tier 2 supplier experiences a security incident or data breach that may affect the organisation:
+When a Tier 1 or Tier 2 supplier experiences a security incident or data breach that may affect the organization:
 
-1. Require the supplier to notify the organisation within the contractually defined notification window
+1. Require the supplier to notify the organization within the contractually defined notification window
 2. Initiate the supplier incident assessment within 4 hours of notification
-3. Evaluate whether the incident triggers the organisation's own incident response obligations (regulatory notification, customer notification)
-4. Escalate to the enterprise incident response team if the incident affects the organisation's systems or data — follow [`resilience/procedure-incident-response.md`](../resilience/procedure-incident-response.md)
+3. Evaluate whether the incident triggers the organization's own incident response obligations (regulatory notification, customer notification)
+4. Escalate to the enterprise incident response team if the incident affects the organization's systems or data: follow [`resilience/procedure-incident-response.md`](../resilience/procedure-incident-response.md)
 5. Document the incident in the supplier's risk record; reassess residual risk rating
-6. Initiate a CAPA if the incident reveals systemic control gaps — [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)
+6. Initiate a CAPA if the incident reveals systemic control gaps: [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)
 
 ### Supplier Exit Triggered by Incident or Performance Failure
 
-Where an incident or performance failure necessitates terminating a supplier relationship, initiate the supplier exit procedure — [`supply-chain/procedure-supplier-exit-and-data-return.md`](../supply-chain/procedure-supplier-exit-and-data-return.md).
+Where an incident or performance failure necessitates terminating a supplier relationship, initiate the supplier exit procedure: [`supply-chain/procedure-supplier-exit-and-data-return.md`](../supply-chain/procedure-supplier-exit-and-data-return.md).
 
 ---
 
@@ -182,13 +182,13 @@ Where an incident or performance failure necessitates terminating a supplier rel
 
 | Framework | Relevant Section |
 |---|---|
-| ISO 27001:2022 | A.5.19 – A.5.22 Information security in supplier relationships |
+| ISO 27001:2022 | A.5.19 to A.5.22 Information security in supplier relationships |
 | ISO 28000 | Supply chain security management; risk and threat assessment |
 | NIST SP 800-53 Rev 5 | SA-9 External System Services; SR Supply Chain Risk Management |
 | NIST CSF 2.0 | GV.SC Supply Chain Risk Management; ID.SC Supply Chain Cybersecurity |
-| WCO SAFE Framework | Pillar 2 — Customs-to-Business partnerships; supply chain security standards |
+| WCO SAFE Framework | Pillar 2: Customs-to-Business partnerships; supply chain security standards |
 | CTPAT | Business Partner Requirements; IT security requirements for partners |
-| AEO-S (UK) | Criterion 1(e) — Practical standards of competence including partner management |
+| AEO-S (UK) | Criterion 1(e): Practical standards of competence including partner management |
 
 ---
 

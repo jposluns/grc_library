@@ -1,30 +1,30 @@
 # Risk Assessment Methodology Procedure
 
-**Document Title:** Risk Assessment Methodology Procedure  
-**Document Type:** Procedure  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** GRC Programme Manager  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md)  
-**Classification:** Public  
-**Category:** Risk  
-**Review Frequency:** Annual and upon material risk framework or regulatory change  
-**Repository Path:** [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Risk Assessment Methodology Procedure 
+**Document Type:** Procedure 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** GRC Programme Manager 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md) 
+**Classification:** Public 
+**Category:** Risk 
+**Review Frequency:** Annual and upon material risk framework or regulatory change 
+**Repository Path:** [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This procedure defines the methodology for conducting risk assessments across all organisational domains including information security, privacy, AI, business continuity, supply chain, and operational risk. It establishes a consistent approach for identifying, analysing, evaluating, and treating risks, aligned with ISO 31000:2018 and ISO/IEC 27005:2022.
+This procedure defines the methodology for conducting risk assessments across all organizational domains including information security, privacy, AI, business continuity, supply chain, and operational risk. It establishes a consistent approach for identifying, analyzing, evaluating, and treating risks, aligned with ISO 31000:2018 and ISO/IEC 27005:2022.
 
 ---
 
 ## Scope
 
-Applies to all risk assessments conducted within the organisation including: annual enterprise risk assessments, project and change risk assessments, third-party risk assessments, AI impact and risk assessments, and ad-hoc risk assessments triggered by incidents or material changes.
+Applies to all risk assessments conducted within the organization including: annual enterprise risk assessments, project and change risk assessments, third-party risk assessments, AI impact and risk assessments, and ad-hoc risk assessments triggered by incidents or material changes.
 
 ---
 
@@ -118,12 +118,12 @@ Residual risk score = Inherent risk × (1 − Control effectiveness factor)
 
 | Residual Risk Score | Rating | Action Required |
 | --- | --- | --- |
-| 1–4 | Low | Accept; monitor annually |
-| 5–9 | Medium | Treat or formally accept with documented rationale |
-| 10–16 | High | Treat; corrective action required within 90 days |
-| 17–25 | Critical | Treat immediately; escalate to ERC within 5 business days |
+| 1 to 4 | Low | Accept; monitor annually |
+| 5 to 9 | Medium | Treat or formally accept with documented rationale |
+| 10 to 16 | High | Treat; corrective action required within 90 days |
+| 17 to 25 | Critical | Treat immediately; escalate to ERC within 5 business days |
 
-5.2 Risks above the organisation's risk tolerance require a treatment plan or formal risk acceptance.
+5.2 Risks above the organization's risk tolerance require a treatment plan or formal risk acceptance.
 
 ---
 
@@ -148,7 +148,7 @@ Residual risk score = Inherent risk × (1 − Control effectiveness factor)
 
 ## 7. Risk Register
 
-7.1 All identified risks are recorded in the organisational Risk Register.
+7.1 All identified risks are recorded in the organizational Risk Register.
 
 7.2 The Risk Register includes: Risk ID, description, risk owner, inherent risk score, current controls, residual risk score, treatment status, and review date.
 
@@ -173,11 +173,11 @@ Residual risk score = Inherent risk × (1 − Control effectiveness factor)
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO 31000:2018 | Risk Management — Guidelines | Enterprise risk assessment framework |
+| ISO 31000:2018 | Risk Management: Guidelines | Enterprise risk assessment framework |
 | ISO/IEC 27005:2022 | Information Security Risk Management | Information security risk methodology |
-| ISO/IEC 42001:2023 | §6 — Planning (AI risk) | AI risk assessment integration |
+| ISO/IEC 42001:2023 | §6: Planning (AI risk) | AI risk assessment integration |
 | NIST SP 800-30r1 | Guide for Conducting Risk Assessments | Risk assessment methodology |
-| COBIT 2025 | APO12 — Manage Risk | Enterprise risk governance |
+| COBIT 2025 | APO12: Manage Risk | Enterprise risk governance |
 | CSA CCM v5 | GRM-01 through GRM-11 | Cloud risk management |
 
 ---

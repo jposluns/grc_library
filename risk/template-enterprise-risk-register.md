@@ -1,24 +1,24 @@
 # Enterprise Risk Register Template
 
-**Document Title:** Enterprise Risk Register Template  
-**Document Type:** Register  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Risk Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md)  
-**Classification:** Public  
-**Category:** Risk Management  
-**Review Frequency:** Quarterly review of register entries; annual template review  
-**Repository Path:** [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Enterprise Risk Register Template 
+**Document Type:** Register 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Risk Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md) 
+**Classification:** Public 
+**Category:** Risk Management 
+**Review Frequency:** Quarterly review of register entries; annual template review 
+**Repository Path:** [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This template defines the schema, field definitions, population guidance, and governance requirements for the organisation's enterprise risk register. The register is the primary instrument for tracking identified risks, their assessment scores, treatment plans, residual risk, and monitoring obligations across all risk categories.
+This template defines the schema, field definitions, population guidance, and governance requirements for the organization's enterprise risk register. The register is the primary instrument for tracking identified risks, their assessment scores, treatment plans, residual risk, and monitoring obligations across all risk categories.
 
 ---
 
@@ -46,7 +46,7 @@ Each risk entry in the register captures the following fields.
 | **Threat / Event** | The event or scenario that could cause harm | Ransomware encryption of critical systems |
 | **Root Cause / Vulnerability** | Underlying condition enabling the risk | Insufficient network segmentation; delayed patching cycle |
 | **Affected Assets / Processes** | Systems, processes, or data at risk | Logistics management system; customs declarations platform |
-| **Triggering Conditions** | Circumstances under which risk may materialise | Successful phishing leading to credential theft; unpatched vulnerability exploited |
+| **Triggering Conditions** | Circumstances under which risk may materialize | Successful phishing leading to credential theft; unpatched vulnerability exploited |
 
 ### Inherent Risk Assessment
 
@@ -56,8 +56,8 @@ Assessed before any controls are applied, based on the likelihood × impact matr
 |---|---|---|
 | **Inherent Likelihood** | 1 (Rare) to 5 (Almost Certain) | |
 | **Inherent Impact** | 1 (Negligible) to 5 (Critical) | |
-| **Inherent Risk Score** | Likelihood × Impact (1–25) | |
-| **Inherent Risk Rating** | Low (1–4) / Medium (5–9) / High (10–16) / Critical (17–25) | |
+| **Inherent Risk Score** | Likelihood × Impact (1 to 25) | |
+| **Inherent Risk Rating** | Low (1 to 4) / Medium (5 to 9) / High (10 to 16) / Critical (17 to 25) | |
 
 ### Current Controls
 
@@ -75,9 +75,9 @@ Assessed after existing controls are applied.
 |---|---|---|
 | **Residual Likelihood** | 1 (Rare) to 5 (Almost Certain) | |
 | **Residual Impact** | 1 (Negligible) to 5 (Critical) | |
-| **Residual Risk Score** | Likelihood × Impact (1–25) | |
+| **Residual Risk Score** | Likelihood × Impact (1 to 25) | |
 | **Residual Risk Rating** | Low / Medium / High / Critical | |
-| **Within Risk Appetite?** | Yes / No / Borderline — compare against [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md) | |
+| **Within Risk Appetite?** | Yes / No / Borderline: compare against [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md) | |
 
 ### Treatment
 
@@ -122,9 +122,9 @@ If residual risk is not within appetite and is being formally accepted, complete
 | **Strategic** | Risks to strategic objectives, market position, or stakeholder confidence |
 | **Operational** | Risks to day-to-day operational processes, service delivery, or productivity |
 | **Cybersecurity** | Threats to information assets, systems, and data from malicious actors or technical failure |
-| **Privacy** | Risks arising from processing personal data — regulatory non-compliance, data breach, misuse |
-| **AI** | Risks from development, deployment, or use of AI systems — bias, transparency, security, regulatory |
-| **Supplier** | Risks from third-party and supply chain dependencies — failure, security breach, non-compliance |
+| **Privacy** | Risks arising from processing personal data: regulatory non-compliance, data breach, misuse |
+| **AI** | Risks from development, deployment, or use of AI systems: bias, transparency, security, regulatory |
+| **Supplier** | Risks from third-party and supply chain dependencies: failure, security breach, non-compliance |
 | **Resilience** | Risks to business continuity, disaster recovery, and crisis management capability |
 | **Financial** | Risks to financial performance, liquidity, or financial reporting integrity |
 | **Legal and Regulatory** | Risks from non-compliance with applicable laws, regulations, and standards |
@@ -152,7 +152,7 @@ The full 5×5 matrix is defined in [`risk/procedure-risk-assessment-methodology.
 
 | Obligation | Frequency | Responsibility |
 |---|---|---|
-| New risk identification and entry | Ongoing — trigger-based | Risk owners; Risk Manager |
+| New risk identification and entry | Ongoing: trigger-based | Risk owners; Risk Manager |
 | Quarterly status update for all open risks | Quarterly | Risk owners |
 | Full register review for treatment progress | Quarterly | Chief Risk Officer |
 | Board / Risk Committee reporting pack | Quarterly | Chief Risk Officer |

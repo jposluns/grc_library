@@ -1,18 +1,18 @@
 # Risk Register Procedure
 
-**Document Title:** Risk Register Procedure  
-**Document Type:** Procedure  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Chief Risk Officer  
-**Approving Authority:** Executive Management  
-**Related Documents:** [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/annex-ai-risk-methodology.md`](annex-ai-risk-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md)  
-**Classification:** Public  
-**Category:** Core Governance  
-**Review Frequency:** Annual and upon material risk process change  
-**Repository Path:** [`risk/procedure-risk-register.md`](procedure-risk-register.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Risk Register Procedure 
+**Document Type:** Procedure 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Chief Risk Officer 
+**Approving Authority:** Executive Management 
+**Related Documents:** [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/annex-ai-risk-methodology.md`](annex-ai-risk-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md) 
+**Classification:** Public 
+**Category:** Core Governance 
+**Review Frequency:** Annual and upon material risk process change 
+**Repository Path:** [`risk/procedure-risk-register.md`](procedure-risk-register.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 

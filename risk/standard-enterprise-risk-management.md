@@ -1,30 +1,30 @@
 # Enterprise Risk Management Standard
 
-**Document Title:** Enterprise Risk Management Standard  
-**Document Type:** Standard  
-**Version:** 1.3.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md)  
-**Classification:** Public  
-**Category:** Risk Management  
-**Review Frequency:** Annual or as required by regulatory or framework changes  
-**Repository Path:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Enterprise Risk Management Standard 
+**Document Type:** Standard 
+**Version:** 1.3.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md) 
+**Classification:** Public 
+**Category:** Risk Management 
+**Review Frequency:** Annual or as required by regulatory or framework changes 
+**Repository Path:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## 1. Purpose
 
-This standard defines the enterprise-wide risk management framework, taxonomy, and scoring methodology that guide the identification, evaluation, treatment, and monitoring of risks across all business units and functions. It ensures risk management practices are consistent, measurable, and traceable, aligned with ISO 31000, COBIT 2025 APO12, and CSA CCM v5 GRM-01.
+This standard defines the enterprise-wide risk management framework, taxonomy, and scoring methodology that guide the identification, evaluation, treatment, and monitoring of risks across all business units and functions. It ensures that risk management practices are consistent, measurable, and traceable, aligned with ISO 31000, COBIT 2025 APO12, and CSA CCM v5 GRM-01.
 
 ---
 
 ## 2. Scope
 
-1. This standard applies to all business, operational, financial, security, privacy, AI, and technology risks managed within the organisation and its subsidiaries, including BASC-certified logistics operations in Latin America (Colombia, Mexico, Peru, and Chile).
+1. This standard applies to all business, operational, financial, security, privacy, AI, and technology risks managed within the organization and its subsidiaries, including BASC-certified logistics operations in Latin America (Colombia, Mexico, Peru, and Chile).
 2. It covers both strategic and operational risk management activities across enterprise, project, and system levels.
 3. It applies to all employees, contractors, and third parties responsible for risk identification, analysis, reporting, or control execution.
 
@@ -35,9 +35,9 @@ This standard defines the enterprise-wide risk management framework, taxonomy, a
 | Role | Responsibility |
 |---|---|
 | Chief Information Officer | Accountable for the overall enterprise risk management framework and its alignment with strategic objectives. |
-| Chief Information Security Officer | Responsible for managing information security, privacy, and AI-related risks; ensures integration into the risk register. |
+| Chief Information Security Officer | Responsible for managing information security, privacy, and AI-related risks; ensures that integration into the risk register. |
 | Enterprise Risk Committee (ERC) | Oversees risk appetite, tolerance, and periodic risk reporting; meets quarterly. |
-| Risk Manager / Compliance Officer | Administers risk registers and scoring models; facilitates risk assessments across the organisation. |
+| Risk Manager / Compliance Officer | Administers risk registers and scoring models; facilitates risk assessments across the organization. |
 | Process and System Owners | Identify risks within their domains, implement controls, and report residual exposures. |
 | Internal Audit | Provides independent assurance on risk governance and control effectiveness. |
 
@@ -45,7 +45,7 @@ This standard defines the enterprise-wide risk management framework, taxonomy, a
 
 ## 4. Risk Taxonomy
 
-The organisation maintains the following risk taxonomy. Each category contains subcategories used to classify risks consistently in the risk register.
+The organization maintains the following risk taxonomy. Each category contains subcategories used to classify risks consistently in the risk register.
 
 | Category | Example Subcategories |
 |---|---|
@@ -78,16 +78,16 @@ Each material risk assessment must record:
 
 ### 5.2 Scoring Matrix
 
-Risk scores are calculated as **Likelihood (1–5) × Impact (1–5) = Risk Score (1–25)**.
+Risk scores are calculated as **Likelihood (1 to 5) × Impact (1 to 5) = Risk Score (1 to 25)**.
 
 #### Likelihood Scale
 
 | Score | Label | Description |
 |---|---|---|
 | 1 | Rare | May occur only in exceptional circumstances (less than once in 10 years) |
-| 2 | Unlikely | Could occur at some time (once in 5–10 years) |
-| 3 | Possible | Might occur at some time (once in 2–5 years) |
-| 4 | Likely | Will probably occur in most circumstances (once in 1–2 years) |
+| 2 | Unlikely | Could occur at some time (once in 5 to 10 years) |
+| 3 | Possible | Might occur at some time (once in 2 to 5 years) |
+| 4 | Likely | Will probably occur in most circumstances (once in 1 to 2 years) |
 | 5 | Almost Certain | Expected to occur in most circumstances (more than once per year) |
 
 #### Impact Scale
@@ -114,10 +114,10 @@ Risk scores are calculated as **Likelihood (1–5) × Impact (1–5) = Risk Scor
 
 | Score Range | Rating | Required Response |
 |---|---|---|
-| 1–5 | Low | Monitor only; review annually |
-| 6–10 | Moderate | Treat and monitor; review quarterly |
-| 11–15 | High | Mitigate or transfer; assign owner; review monthly |
-| 16–25 | Critical | Immediate action required; ERC oversight; escalate to executive leadership |
+| 1 to 5 | Low | Monitor only; review annually |
+| 6 to 10 | Moderate | Treat and monitor; review quarterly |
+| 11 to 15 | High | Mitigate or transfer; assign owner; review monthly |
+| 16 to 25 | Critical | Immediate action required; ERC oversight; escalate to executive leadership |
 
 ---
 
@@ -149,13 +149,13 @@ Each risk register entry must include the following fields.
 | Category | Taxonomy category (see Section 4) |
 | Subcategory | Taxonomy subcategory |
 | Risk Statement | Cause → event → impact description |
-| Likelihood (Inherent) | Score 1–5 |
-| Impact (Inherent) | Score 1–5 |
+| Likelihood (Inherent) | Score 1 to 5 |
+| Impact (Inherent) | Score 1 to 5 |
 | Inherent Risk Score | Likelihood × Impact |
 | Existing Controls | Description of current controls |
 | Control Effectiveness | Assessed as Strong / Adequate / Weak / Untested |
-| Likelihood (Residual) | Score 1–5 |
-| Impact (Residual) | Score 1–5 |
+| Likelihood (Residual) | Score 1 to 5 |
+| Impact (Residual) | Score 1 to 5 |
 | Residual Risk Score | Likelihood × Impact |
 | Treatment Option | Avoid / Mitigate / Transfer / Accept / Exploit |
 | Treatment Actions | Specific steps with owner and target date |
@@ -185,8 +185,8 @@ When the AI Flag is set to Yes, the following additional fields are required:
 ### 8.1 Monitoring Cadence
 
 - Departmental risk reviews are conducted quarterly by process and system owners.
-- AI risk trends (bias recurrence, model drift, ethical deviations) are monitored on an ongoing basis and summarised quarterly.
-- Critical risks (score 16–25) are reviewed monthly by the risk owner and reported to the ERC.
+- AI risk trends (bias recurrence, model drift, ethical deviations) are monitored on an ongoing basis and summarized quarterly.
+- Critical risks (score 16 to 25) are reviewed monthly by the risk owner and reported to the ERC.
 
 ### 8.2 Reporting
 
@@ -218,7 +218,7 @@ Required evidence for audit and assurance purposes includes, but is not limited 
 
 | Framework | Relevant Reference |
 |---|---|
-| ISO 31000:2018 | Risk Management — Guidelines (full framework) |
+| ISO 31000:2018 | Risk Management: Guidelines (full framework) |
 | ISO/IEC 23894:2023 | AI Risk Management |
 | ISO/IEC 42001:2023 | AI Management System |
 | COBIT 2025 | APO12 Manage Risk; APO10 Manage Suppliers; MEA01 |
@@ -236,7 +236,7 @@ Required evidence for audit and assurance purposes includes, but is not limited 
 
 ## 11. Licence
 
-This document is released under the **CC0 1.0 Universal** public domain dedication. To the extent possible under law, the organisation waives all copyright and related rights to this document.
+This document is released under the **CC0 1.0 Universal** public domain dedication. To the extent possible under law, the organization waives all copyright and related rights to this document.
 
 ---
 

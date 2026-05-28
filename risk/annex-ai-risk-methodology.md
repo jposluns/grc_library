@@ -1,30 +1,30 @@
 # AI-Specific Risk Methodology Annex
 
-**Document Title:** AI-Specific Risk Methodology Annex  
-**Document Type:** Annex  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Risk Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](../ai/procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-audit.md`](../ai/procedure-ai-audit.md), [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md)  
-**Classification:** Public  
-**Category:** Risk Management — AI  
-**Review Frequency:** Annual and upon material AI regulatory change or significant AI incident  
-**Repository Path:** [`risk/annex-ai-risk-methodology.md`](annex-ai-risk-methodology.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** AI-Specific Risk Methodology Annex 
+**Document Type:** Annex 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Risk Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](../ai/procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-audit.md`](../ai/procedure-ai-audit.md), [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md) 
+**Classification:** Public 
+**Category:** Risk Management: AI 
+**Review Frequency:** Annual and upon material AI regulatory change or significant AI incident 
+**Repository Path:** [`risk/annex-ai-risk-methodology.md`](annex-ai-risk-methodology.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This annex extends the enterprise risk assessment methodology in [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md) with AI-specific risk dimensions, assessment criteria, and treatment guidance. It supports consistent identification, scoring, and management of risks arising from the development, deployment, and use of AI systems across the organisation.
+This annex extends the enterprise risk assessment methodology in [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md) with AI-specific risk dimensions, assessment criteria, and treatment guidance. It supports consistent identification, scoring, and management of risks arising from the development, deployment, and use of AI systems across the organization.
 
 ---
 
 ## AI Risk Taxonomy
 
-AI risks span multiple enterprise risk categories. This annex organises them into seven AI-specific risk clusters that map to the broader enterprise risk register categories.
+AI risks span multiple enterprise risk categories. This annex organizes them into seven AI-specific risk clusters that map to the broader enterprise risk register categories.
 
 | AI Risk Cluster | Maps to ERM Category | Description |
 |---|---|---|
@@ -44,10 +44,10 @@ Before applying the risk assessment methodology, each AI system must be assigned
 
 | Risk Tier | EU AI Act Classification | Criteria | Required Controls |
 |---|---|---|---|
-| **Tier 1 — Unacceptable** | Prohibited | Biometric mass surveillance; social scoring; subliminal manipulation; exploitation of vulnerability | Not permitted for deployment — must be blocked at governance gate |
-| **Tier 2 — High Risk** | High-risk (Annex III) | Systems in critical infrastructure, employment, education, credit, insurance, law enforcement, border management, AI in legal proceedings | Full pre-deployment assessment; human oversight mandatory; AIGC approval required; ongoing monitoring |
-| **Tier 3 — Limited Risk** | Transparency obligation | Chatbots; deepfakes; emotion recognition; biometric categorisation — transparency disclosure required | User disclosure; documentation; quarterly review |
-| **Tier 4 — Minimal Risk** | Minimal or no obligation | AI with low impact on safety or fundamental rights; internal automation tools | Standard testing; annual review |
+| **Tier 1, Unacceptable** | Prohibited | Biometric mass surveillance; social scoring; subliminal manipulation; exploitation of vulnerability | Not permitted for deployment, must be blocked at governance gate |
+| **Tier 2: High Risk** | High-risk (Annex III) | Systems in critical infrastructure, employment, education, credit, insurance, law enforcement, border management, AI in legal proceedings | Full pre-deployment assessment; human oversight mandatory; AIGC approval required; ongoing monitoring |
+| **Tier 3, Limited Risk** | Transparency obligation | Chatbots; deepfakes; emotion recognition; biometric categorization, transparency disclosure required | User disclosure; documentation; quarterly review |
+| **Tier 4: Minimal Risk** | Minimal or no obligation | AI with low impact on safety or fundamental rights; internal automation tools | Standard testing; annual review |
 
 Tier classification must be documented in the AI system's model card ([`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md)) and in the AI Risk Register ([`ai/register-ai-risk.md`](../ai/register-ai-risk.md)).
 
@@ -57,7 +57,7 @@ Tier classification must be documented in the AI system's model card ([`ai/frame
 
 In addition to the standard 5×5 likelihood × impact matrix, AI system risk assessments must evaluate the following AI-specific dimensions.
 
-### Dimension 1 — Decision Autonomy and Human Oversight
+### Dimension 1: Decision Autonomy and Human Oversight
 
 | Level | Description | Risk Modifier |
 |---|---|---|
@@ -66,16 +66,16 @@ In addition to the standard 5×5 likelihood × impact matrix, AI system risk ass
 | **Human-on-the-loop** | AI acts autonomously; human can intervene after action | +2 to impact for high-stakes decisions |
 | **Fully autonomous** | AI acts without human oversight | +3 to both; requires Tier 2 minimum classification |
 
-### Dimension 2 — Affected Population Scale
+### Dimension 2: Affected Population Scale
 
 | Scale | Criterion | Risk Modifier |
 |---|---|---|
 | **Internal only** | AI decisions affect only internal staff | No modifier |
 | **Limited external** | AI decisions affect fewer than 1,000 individuals annually | No modifier |
-| **Moderate external** | AI decisions affect 1,000–100,000 individuals annually | +1 to impact |
+| **Moderate external** | AI decisions affect 1,000 to 100,000 individuals annually | +1 to impact |
 | **Large-scale external** | AI decisions affect more than 100,000 individuals | +2 to impact |
 
-### Dimension 3 — Decision Reversibility
+### Dimension 3: Decision Reversibility
 
 | Reversibility | Description | Risk Modifier |
 |---|---|---|
@@ -84,13 +84,13 @@ In addition to the standard 5×5 likelihood × impact matrix, AI system risk ass
 | **Difficult to reverse** | AI decisions have lasting consequences (e.g., credit denial, employment action, fraud flag) | +2 to impact |
 | **Irreversible** | AI decisions cannot be undone (e.g., physical actions, data deletion) | +3 to impact |
 
-### Dimension 4 — Data Sensitivity
+### Dimension 4: Data Sensitivity
 
 | Sensitivity | Description | Risk Modifier |
 |---|---|---|
 | **Non-personal** | Training and inference data contains no personal data | No modifier |
-| **Personal — general** | Training or inference uses general personal data | +1 to likelihood of privacy risk |
-| **Personal — special category** | Training or inference uses health, biometric, or other special category data | +2 to likelihood and impact |
+| **Personal: general** | Training or inference uses general personal data | +1 to likelihood of privacy risk |
+| **Personal: special category** | Training or inference uses health, biometric, or other special category data | +2 to likelihood and impact |
 | **Confidential business** | Training uses confidential commercial data | +1 to likelihood of leakage risk |
 
 ---
