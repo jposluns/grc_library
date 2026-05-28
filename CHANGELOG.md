@@ -4,6 +4,32 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 14 (2026-05-28): Provisional-draft and ownership cleanup
+
+Resolves three lingering status-uncertainty items and tightens AIGC ownership clarity.
+
+### Provisional-draft banners removed
+
+Three documents previously carried "Document Status: Provisional" banners with "Target formal review: Q3 2026" framing. The banners over-claimed uncertainty against the library's posture (every active document is intended as public-domain reference baseline). Removed; the substantive Limitations sections in each document remain.
+
+- `resilience/plan-it-disaster-recovery.md` (v1.0.0 → v1.1.0): banner removed.
+- `supply-chain/standard-cloud-exit-and-data-portability.md` (v1.0.0 → v1.1.0): banner removed.
+- `security/sop-incident-escalation-matrix.md` (v1.1.0 → v1.2.0): banner removed.
+
+### AIGC ownership reconciliation
+
+`ai/charter-ai-governance-council.md` (v1.1.0 → v1.2.0): new "Roles outside the council that report into it" sub-section in the Composition section. Documents how the three Phase 12.8 sub-roles (AI Governance Approver, AI Data Steward, AI System Inventory Keeper) report into the council via the AI Governance Lead secretariat. Charter administrative ownership (CIO), governance decisions (Council), and per-system approvals (Approver under delegated council authority) are explicitly disambiguated.
+
+### Material change cross-references
+
+Three operational triggers that say "material change" without specifying thresholds now point at the authoritative thresholds table:
+
+- `ai/charter-ai-governance-council.md` §1: "Review material changes to deployed AI models" → cross-references the Material change thresholds table in the AI governance framework.
+- `ai/standard-ai-security-and-risk.md` §6.1: "AI systems must be tested before release and after material change" → same cross-reference.
+- `ai/procedure-ai-evaluation.md` Step 5: "Rejected systems require material changes and full re-evaluation" → same cross-reference.
+
+Taxonomy, portal, and maturity scorecard regenerated.
+
 ## Phase 13 (2026-05-28): Tooling hardening — two new linters and full audit-suite wire-up
 
 Resolves the audit blind-spots that allowed the Phase 12 defect set to accrete: the linter suite now catches the patterns Phase 12 had to fix manually. The audit suite grows from 8 to 10 audits, all wired into pre-commit and CI.

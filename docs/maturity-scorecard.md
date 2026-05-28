@@ -17,15 +17,15 @@ This classification is a heuristic derived from semver; it does not reflect audi
 
 ---
 
-_Summary as of last regeneration: Mature: 55, Baseline: 140, Draft: 70, Unknown: 0._
+_Summary as of last regeneration: Mature: 57, Baseline: 138, Draft: 70, Unknown: 0._
 
 ## Mature
 
-_55 documents._
+_57 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
-| [ai/charter-ai-governance-council.md](../ai/charter-ai-governance-council.md) | AI Governance Council Charter | Charter | 1.1.0 | 2026-05-28 |
+| [ai/charter-ai-governance-council.md](../ai/charter-ai-governance-council.md) | AI Governance Council Charter | Charter | 1.2.0 | 2026-05-28 |
 | [ai/framework-ai-governance-and-risk.md](../ai/framework-ai-governance-and-risk.md) | AI Governance and Risk Framework | Framework | 1.1.0 | 2026-05-27 |
 | [ai/guide-ai-adversarial-test-reference.md](../ai/guide-ai-adversarial-test-reference.md) | AI Adversarial Test Reference | Guide | 1.3.0 | 2026-05-28 |
 | [ai/guide-ai-security-technical-implementation.md](../ai/guide-ai-security-technical-implementation.md) | AI Security Technical Implementation Guide | Guide | 1.3.1 | 2026-05-28 |
@@ -37,7 +37,7 @@ _55 documents._
 | [governance/matrix-cross-framework-alignment.md](../governance/matrix-cross-framework-alignment.md) | Cross-Framework Alignment Matrix | Matrix | 1.1.1 | 2026-05-28 |
 | [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.22.0 | 2026-05-28 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.0 | 2026-05-28 |
-| [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.1.0 | 2026-05-27 |
+| [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.2.0 | 2026-05-27 |
 | [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.3.0 | 2026-05-27 |
 | [operations/procedure-change-management-and-configuration-control.md](../operations/procedure-change-management-and-configuration-control.md) | Change Management and Configuration Control Procedure | Procedure | 1.3.0 | 2026-05-27 |
 | [operations/procedure-endpoint-management-and-device-compliance.md](../operations/procedure-endpoint-management-and-device-compliance.md) | Endpoint Management and Device Compliance Procedure | Procedure | 1.3.0 | 2026-05-27 |
@@ -55,6 +55,7 @@ _55 documents._
 | [privacy/procedure-data-subject-rights-management.md](../privacy/procedure-data-subject-rights-management.md) | Data Subject Rights Management Procedure | Procedure | 1.3.0 | 2026-05-27 |
 | [privacy/procedure-privacy-impact-and-cross-border-transfer.md](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | Privacy Impact and Cross-Border Transfer Procedure | Procedure | 1.3.1 | 2026-05-28 |
 | [resilience/plan-business-continuity-and-crisis-management.md](../resilience/plan-business-continuity-and-crisis-management.md) | Business Continuity and Crisis Management Plan | Plan | 1.1.0 | 2026-05-28 |
+| [resilience/plan-it-disaster-recovery.md](../resilience/plan-it-disaster-recovery.md) | IT Disaster Recovery Plan | Plan | 1.1.0 | 2026-05-27 |
 | [resilience/procedure-cross-domain-incident-coordination.md](../resilience/procedure-cross-domain-incident-coordination.md) | Cross-Domain Incident Coordination Procedure | Procedure | 1.1.0 | 2026-05-28 |
 | [resilience/register-eoc-contact-directory.md](../resilience/register-eoc-contact-directory.md) | Emergency Operations Contact Directory Register | Register | 1.1.0 | 2026-05-28 |
 | [resilience/register-resilience-metrics-and-testing-log.md](../resilience/register-resilience-metrics-and-testing-log.md) | Resilience Metrics and Testing Log Register | Register | 1.1.0 | 2026-05-28 |
@@ -72,20 +73,21 @@ _55 documents._
 | [security/procedure-security-incident-response.md](../security/procedure-security-incident-response.md) | Security Incident Response Procedure | Procedure | 1.3.1 | 2026-05-28 |
 | [security/procedure-vulnerability-management.md](../security/procedure-vulnerability-management.md) | Vulnerability Management Procedure | Procedure | 1.3.0 | 2026-05-27 |
 | [security/roadmap-post-quantum-cryptography.md](../security/roadmap-post-quantum-cryptography.md) | Post-Quantum Cryptography Readiness Roadmap | Roadmap | 1.1.1 | 2026-05-28 |
-| [security/sop-incident-escalation-matrix.md](../security/sop-incident-escalation-matrix.md) | Incident Escalation Matrix | SOP | 1.1.0 | 2026-05-28 |
+| [security/sop-incident-escalation-matrix.md](../security/sop-incident-escalation-matrix.md) | Incident Escalation Matrix | SOP | 1.2.0 | 2026-05-28 |
 | [security/sop-security-ticket-reporting-scheme.md](../security/sop-security-ticket-reporting-scheme.md) | Security Ticket Reporting Scheme | SOP | 1.1.0 | 2026-05-28 |
 | [security/standard-data-classification-and-handling.md](../security/standard-data-classification-and-handling.md) | Data Classification and Handling Standard | Standard | 1.3.0 | 2026-05-27 |
 | [security/standard-data-loss-prevention.md](../security/standard-data-loss-prevention.md) | Data Loss Prevention Standard | Standard | 1.3.0 | 2026-05-27 |
 | [security/standard-logging-and-monitoring.md](../security/standard-logging-and-monitoring.md) | Logging and Monitoring Standard | Standard | 1.4.0 | 2026-05-28 |
 | [specification-ingestion.md](../specification-ingestion.md) | GRC Library CC0 Ingestion and Transformation Specification | Specification | 1.4.2 | 2026-05-28 |
 | [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.2.5 | 2026-05-28 |
+| [supply-chain/standard-cloud-exit-and-data-portability.md](../supply-chain/standard-cloud-exit-and-data-portability.md) | Cloud Exit and Data Portability Standard | Standard | 1.1.0 | 2026-05-27 |
 | [supply-chain/standard-supplier-security-and-privacy-assurance.md](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | Supplier Security and Privacy Assurance Standard | Standard | 1.1.0 | 2026-05-28 |
 
 ---
 
 ## Baseline
 
-_140 documents._
+_138 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
@@ -183,7 +185,6 @@ _140 documents._
 | [resilience/framework-business-continuity-and-resilience.md](../resilience/framework-business-continuity-and-resilience.md) | Business Continuity and Resilience Framework | Framework | 1.0.0 | 2026-05-27 |
 | [resilience/guideline-emergency-response-and-protective-actions.md](../resilience/guideline-emergency-response-and-protective-actions.md) | Emergency Response and Protective Actions Guideline | Guideline | 1.0.0 | 2026-05-27 |
 | [resilience/plan-crisis-communication.md](../resilience/plan-crisis-communication.md) | Crisis Communication Plan | Plan | 1.0.1 | 2026-05-28 |
-| [resilience/plan-it-disaster-recovery.md](../resilience/plan-it-disaster-recovery.md) | IT Disaster Recovery Plan | Plan | 1.0.0 | 2026-05-27 |
 | [resilience/policy-business-continuity-and-disaster-recovery.md](../resilience/policy-business-continuity-and-disaster-recovery.md) | Business Continuity and Disaster Recovery Policy | Policy | 1.0.0 | 2026-05-27 |
 | [resilience/procedure-backup-and-recovery.md](../resilience/procedure-backup-and-recovery.md) | Backup and Recovery Procedure | Procedure | 1.0.0 | 2026-05-27 |
 | [resilience/procedure-business-impact-analysis.md](../resilience/procedure-business-impact-analysis.md) | Business Impact Analysis Procedure | Procedure | 1.0.1 | 2026-05-28 |
@@ -227,7 +228,6 @@ _140 documents._
 | [supply-chain/register-ctpat-full-msc-controls.md](../supply-chain/register-ctpat-full-msc-controls.md) | CTPAT Full Minimum Security Criteria Controls Register | Register | 1.0.1 | 2026-05-28 |
 | [supply-chain/register-subprocessor-template.md](../supply-chain/register-subprocessor-template.md) | Subprocessor Register Template | Register | 1.0.0 | 2026-05-27 |
 | [supply-chain/register-supplier-risk-template.md](../supply-chain/register-supplier-risk-template.md) | Supplier Risk Register Template | Register | 1.0.0 | 2026-05-27 |
-| [supply-chain/standard-cloud-exit-and-data-portability.md](../supply-chain/standard-cloud-exit-and-data-portability.md) | Cloud Exit and Data Portability Standard | Standard | 1.0.0 | 2026-05-27 |
 | [supply-chain/template-supplier-security-questionnaire.md](../supply-chain/template-supplier-security-questionnaire.md) | Supplier Security Questionnaire | Template | 1.0.0 | 2026-05-27 |
 
 ---

@@ -2,7 +2,7 @@
 
 **Document Title:** Cloud Exit and Data Portability Standard 
 **Document Type:** Standard 
-**Version:** 1.0.0 
+**Version:** 1.1.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Chief Information Officer 
@@ -13,10 +13,6 @@
 **Repository Path:** [`supply-chain/standard-cloud-exit-and-data-portability.md`](standard-cloud-exit-and-data-portability.md) 
 **Confidentiality:** Public 
 **License:** CC0 1.0 Universal 
-
----
-
-> **Document Status: Provisional:** This document is a provisional draft added to the GRC library in May 2026. Content is based on standard frameworks and best-practice assumptions. It has not yet been reviewed or formally approved by all stakeholders. Target formal review: Q3 2026.
 
 ---
 
