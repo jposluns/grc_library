@@ -12,13 +12,13 @@
 **Review Frequency:** Annual and upon material platform or regulatory change 
 **Repository Path:** [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 This procedure defines the operational processes for ingesting logs, triaging SIEM alerts, managing automated incident tickets, escalating to incident response, maintaining detection rules, and reporting security monitoring metrics.
 
 ---
 
-## 1. Purpose and Scope
+## 1. Purpose and scope
 
 ### 1.1 Purpose
 
@@ -48,7 +48,7 @@ Effective security monitoring reduces mean time to detect (MTTD) threats, ensure
 
 ---
 
-## 3. Log Ingestion and Normalization
+## 3. Log ingestion and normalization
 
 ### 3.1 Ingestion SLA
 
@@ -56,15 +56,15 @@ All log sources must forward events to the SIEM within 60 seconds of generation 
 
 IT Operations monitors the log ingestion pipeline daily. Any log source that ceases forwarding logs for more than 10 minutes during business hours triggers an automated alert to both IT Operations and the SOC. Failure of a critical log source (identity infrastructure, endpoint protection, firewall, backup) to forward for more than 30 minutes is treated as a P2 incident.
 
-### 3.2 Time Synchronization
+### 3.2 Time synchronization
 
 All log sources must synchronize to approved enterprise NTP servers. Clock drift exceeding ±1 minute from the enterprise NTP source triggers an automated corrective synchronization request and an alert to IT Operations. Accurate timestamps are essential for correlation and forensic admissibility. Events with timestamps deviating more than ±5 minutes are flagged in the SIEM with a data-quality annotation pending investigation.
 
-### 3.3 Integrity Verification
+### 3.3 Integrity verification
 
 Logs from critical systems must be verified for integrity using SHA-256 cryptographic hashing at the point of collection. Hash values are stored separately from log content. Any mismatch between the stored hash and the received log content is treated as a potential tampering event and escalated immediately to the CISO and SOC lead.
 
-### 3.4 Log Normalization
+### 3.4 Log normalization
 
 The SIEM normalizes all ingested logs to a common event schema to enable consistent correlation across heterogeneous log sources. The normalization pipeline:
 
@@ -75,13 +75,13 @@ The SIEM normalizes all ingested logs to a common event schema to enable consist
 
 Normalization rule coverage is reviewed monthly by Security Engineering. Sources with persistent normalization failures are flagged for pipeline remediation.
 
-### 3.5 Log Source Inventory
+### 3.5 Log source inventory
 
 Security Engineering maintains a SIEM log source inventory that records, for each source: source name and type; connection method; log format and volume; last successful ingestion timestamp; and normalization pipeline version. The inventory is reconciled against the asset register quarterly. Any production asset not present in the log source inventory is raised as a compliance finding.
 
 ---
 
-## 4. SIEM Alert Rule Catalogue
+## 4. SIEM alert rule catalogue
 
 The following alert categories must be configured, tested, and active before any system is promoted to production, as required by the Production Security Requirements Standard §3.1. Each rule must have an assigned severity, a defined triage SLA, and an owner in Security Engineering responsible for ongoing tuning.
 
@@ -107,7 +107,7 @@ The following alert categories must be configured, tested, and active before any
 
 All rules in the catalogue are tested for correct alerting before production deployment and after any SIEM configuration change. Test results are documented and retained as evidence.
 
-### 4.1 Rule Severity Definitions
+### 4.1 Rule severity definitions
 
 | Severity | Definition |
 | --- | --- |
@@ -118,9 +118,9 @@ All rules in the catalogue are tested for correct alerting before production dep
 
 ---
 
-## 5. Alert Triage Workflow
+## 5. Alert triage workflow
 
-### 5.1 Triage SLAs
+### 5.1 Triage slas
 
 | Severity | Time to Initial Triage | Time to Disposition |
 | --- | --- | --- |
@@ -131,7 +131,7 @@ All rules in the catalogue are tested for correct alerting before production dep
 
 Triage SLA timers start from the moment the SIEM generates the alert, not from the moment a SOC analyst first views it. Automated alerting to the on-call analyst begins the SLA clock.
 
-### 5.2 Triage Steps
+### 5.2 Triage steps
 
 For each alert, the triaging SOC analyst must:
 
@@ -147,13 +147,13 @@ For each alert, the triaging SOC analyst must:
 
 No alert may be closed without a documented disposition. Bulk-closing alerts without individual review is prohibited.
 
-### 5.3 After-Hours Coverage
+### 5.3 After-hours coverage
 
 Critical and High severity alerts must be triaged within SLA at all times, including outside standard business hours. The SOC maintains an on-call rotation for after-hours response. On-call contacts are maintained in the operational state register. If the on-call analyst cannot be reached within 10 minutes of an automated page for a Critical alert, the SOC lead is paged automatically.
 
 ---
 
-## 6. Automated Ticket Creation
+## 6. Automated ticket creation
 
 All Critical severity alerts must generate an automated incident ticket in the ITSM platform at the moment the SIEM creates the alert. Automated ticket creation must:
 
@@ -168,9 +168,9 @@ High severity alerts generate automated tickets with P2 priority. Medium and Low
 
 ---
 
-## 7. Escalation Paths
+## 7. Escalation paths
 
-### 7.1 Escalation to Incident Response
+### 7.1 Escalation to incident response
 
 Any alert triaged as a confirmed true positive indicating active compromise, data exfiltration, unauthorised privileged access, or a threat to system availability must be immediately escalated to the Incident Response Procedure. The SOC analyst:
 
@@ -181,7 +181,7 @@ Any alert triaged as a confirmed true positive indicating active compromise, dat
 
 The CISO is notified immediately for any P1 incident declaration arising from a SIEM alert.
 
-### 7.2 P1 Escalation Decision
+### 7.2 P1 escalation decision
 
 A SIEM alert triggers P1 incident declaration when any of the following indicators are present:
 
@@ -193,19 +193,19 @@ A SIEM alert triggers P1 incident declaration when any of the following indicato
 
 In the absence of a clear indicator, the SOC lead escalates ambiguous high-severity situations to the CISO for declaration decision.
 
-### 7.3 BASC Anomaly Escalation
+### 7.3 BASC anomaly escalation
 
 SIEM alerts tagged with the BASC scope indicator that are triaged as true positives involving unauthorised access to customs or cargo systems, cargo manifest tampering, or suspicious data export from BASC-regulated environments are escalated to the Regional BASC Compliance Officer within 1 hour of triage confirmation. The Regional Compliance Officer determines whether customs authority notification is required.
 
-### 7.4 Identity Threat Escalation
+### 7.4 Identity threat escalation
 
 Critical alerts from the identity threat detection platform, including Kerberoasting, pass-the-hash, DCSync, or suspicious replication activity, are automatically escalated to a P1 investigation workflow regardless of the number of affected accounts. The Privileged Access Management team is notified concurrently.
 
 ---
 
-## 8. Dashboard and Reporting
+## 8. Dashboard and reporting
 
-### 8.1 Real-Time Dashboards
+### 8.1 Real-time dashboards
 
 The SOC operates real-time dashboards providing continuous visibility into:
 
@@ -219,7 +219,7 @@ The SOC operates real-time dashboards providing continuous visibility into:
 
 Dashboards are accessible to SOC analysts, Security Engineering, IT Operations leads, and the CISO. Dashboard access is role-based and governed by the Identity and Access Management Policy.
 
-### 8.2 Daily Review
+### 8.2 Daily review
 
 SOC analysts review critical event logs daily. The daily review must cover:
 
@@ -230,7 +230,7 @@ SOC analysts review critical event logs daily. The daily review must cover:
 
 Daily review findings are recorded in the SOC shift log.
 
-### 8.3 Weekly Rule Tuning Review
+### 8.3 Weekly rule tuning review
 
 Security Engineering conducts a weekly review of correlation rule performance. The review examines:
 
@@ -241,39 +241,39 @@ Security Engineering conducts a weekly review of correlation rule performance. T
 
 Outcomes of the weekly review are documented and tracked. Approved rule changes are implemented via the change management process.
 
-### 8.4 Monthly Metrics Report
+### 8.4 Monthly metrics report
 
 Security Engineering compiles a monthly metrics report for the CISO. The report includes all metrics defined in §11 and a narrative summary covering notable incidents, detection improvements, and ongoing tuning actions. The monthly report is presented to the CISO within 5 business days of month-end.
 
 ---
 
-## 9. SIEM Rule Tuning and Maintenance
+## 9. SIEM rule tuning and maintenance
 
-### 9.1 Change Control for SIEM Rules
+### 9.1 Change control for SIEM rules
 
 All changes to SIEM detection rules, data connectors, and normalization pipelines are governed by the Change Management and Configuration Control Procedure. Changes to critical detection rules (those covering the mandatory alert categories in §4) require High-risk change classification and CISO approval before implementation.
 
-### 9.2 False Positive Target
+### 9.2 False positive target
 
 The target false positive rate for any individual SIEM correlation rule is less than 5%, measured over a rolling 30-day period. Rules consistently exceeding the false positive target are reviewed by Security Engineering for tuning or replacement. Rules cannot be disabled to reduce false positives without CISO approval and a compensating detection control.
 
-### 9.3 MITRE ATT&CK Mapping
+### 9.3 MITRE ATT&CK mapping
 
 All active SIEM correlation rules must be mapped to at least one MITRE ATT&CK technique or sub-technique. Security Engineering maintains the SIEM rule-to-MITRE mapping in the SIEM rule register. The mapping is reviewed quarterly against the current MITRE ATT&CK version to identify new technique coverage opportunities. Coverage gaps for techniques assessed as high-relevance to the organization's threat profile are prioritized for new rule development.
 
-### 9.4 New Log Source Onboarding
+### 9.4 New log source onboarding
 
 When a new system or application is deployed, the project team must engage Security Engineering at least 10 business days before the go-live date to design and test the log ingestion pipeline and any required new correlation rules. No system may go live without confirmed SIEM ingestion and the alert categories in §4 active, as required by the Production Security Requirements Standard §3.2.
 
-### 9.5 Rule Register
+### 9.5 Rule register
 
 Security Engineering maintains a SIEM rule register documenting, for each active rule: rule name and identifier; detection objective; MITRE ATT&CK mapping; severity; triage SLA; last tuning date; false positive rate (30-day rolling); and the Security Engineering owner. The rule register is reviewed by the CISO quarterly.
 
 ---
 
-## 10. AI-Assisted Detection
+## 10. AI-assisted detection
 
-### 10.1 Anomaly Detection Capabilities
+### 10.1 Anomaly detection capabilities
 
 The SIEM operates AI-driven anomaly detection to identify threats that may not trigger signature or threshold-based rules. Anomaly detection use cases include:
 
@@ -284,19 +284,19 @@ The SIEM operates AI-driven anomaly detection to identify threats that may not t
 
 Anomaly models are trained on organizational baseline data and refreshed at minimum quarterly. The baseline period used for training must not include known compromise periods.
 
-### 10.2 Anomaly Alert Handling
+### 10.2 Anomaly alert handling
 
 Anomaly detections appear in the SIEM as alerts and are triaged using the same workflow as rule-based alerts. Anomaly alerts are labelled as AI-generated in the SIEM and ITSM ticket to distinguish them from deterministic rule-based alerts. Triage of anomaly alerts must include an assessment of the model's confidence score and the supporting evidence used to generate the detection.
 
-### 10.3 Explainability Requirement
+### 10.3 Explainability requirement
 
 All automated AI-generated decisions, including anomaly scores, risk scores, and automated alert enrichments, must be explainable to the triaging analyst. The SIEM must present, alongside each AI-generated alert, a plain-language explanation of the specific behaviours or data points that contributed to the detection. Opaque or unexplainable AI detections must not be used as the sole basis for containment actions.
 
-### 10.4 Audit Logging of Automated Decisions
+### 10.4 Audit logging of automated decisions
 
 All AI-generated detections, model decisions, and automated enrichment actions are logged with their input data, model version, confidence score, and output. These logs are retained as part of the SIEM audit trail for a minimum of 7 years, consistent with the Logging and Monitoring Standard §4.1. AI model version changes that affect detection behaviour require Security Engineering review and documentation before deployment.
 
-### 10.5 Model Performance Review
+### 10.5 Model performance review
 
 Security Engineering reviews AI detection model performance monthly. Reviews assess true positive rate, false positive rate, and missed detections (based on confirmed incidents). Models that show degraded performance or excessive false positives are retrained, tuned, or replaced. Model performance reviews are documented and made available to the CISO on request.
 
@@ -322,7 +322,7 @@ The following metrics are tracked by the SOC, reported to the CISO monthly, and 
 
 ---
 
-## 12. Framework Alignment
+## 12. Framework alignment
 
 | Control Area | ISO/IEC 27002:2022 | NIST CSF | COBIT 2025 | CSA CCM v5 |
 | --- | --- | --- | --- | --- |

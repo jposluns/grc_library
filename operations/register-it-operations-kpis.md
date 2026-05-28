@@ -2,7 +2,7 @@
 
 **Document Title:** IT Operations Key Performance Indicators Register 
 **Document Type:** Register 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Chief Information Officer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material service, infrastructure, or regulatory change 
 **Repository Path:** [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -30,7 +30,7 @@ This register applies to all IT services, infrastructure, cloud environments, an
 
 ---
 
-## KPI Design Principles
+## KPI design principles
 
 1. Each KPI must have a defined measurement rule, target or threshold, frequency, owner role, and evidence class.
 2. KPIs must distinguish activity metrics from effectiveness metrics.
@@ -41,7 +41,7 @@ This register applies to all IT services, infrastructure, cloud environments, an
 
 ---
 
-## Section 1: Availability and Infrastructure
+## Section 1: availability and infrastructure
 
 | KPI | Measurement Rule | Target | Frequency | Owner Role | Evidence Class | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -52,7 +52,7 @@ This register applies to all IT services, infrastructure, cloud environments, an
 
 ---
 
-## Section 2: Incident Management
+## Section 2: incident management
 
 | KPI | Measurement Rule | Target | Frequency | Owner Role | Evidence Class | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -66,7 +66,7 @@ This register applies to all IT services, infrastructure, cloud environments, an
 
 ---
 
-## Section 3: Change Management
+## Section 3: change management
 
 | KPI | Measurement Rule | Target | Frequency | Owner Role | Evidence Class | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -78,7 +78,7 @@ This register applies to all IT services, infrastructure, cloud environments, an
 
 ---
 
-## Section 4: Problem Management
+## Section 4: problem management
 
 | KPI | Measurement Rule | Target | Frequency | Owner Role | Evidence Class | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -89,7 +89,7 @@ This register applies to all IT services, infrastructure, cloud environments, an
 
 ---
 
-## Section 5: Patch and Vulnerability Management
+## Section 5: patch and vulnerability management
 
 | KPI | Measurement Rule | Target | Frequency | Owner Role | Evidence Class | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -101,7 +101,7 @@ This register applies to all IT services, infrastructure, cloud environments, an
 
 ---
 
-## Section 6: Capacity Management
+## Section 6: capacity management
 
 | KPI | Measurement Rule | Target | Frequency | Owner Role | Evidence Class | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -112,7 +112,7 @@ This register applies to all IT services, infrastructure, cloud environments, an
 
 ---
 
-## Section 7: Service Desk and Request Fulfilment
+## Section 7: service desk and request fulfilment
 
 | KPI | Measurement Rule | Target | Frequency | Owner Role | Evidence Class | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -124,7 +124,7 @@ This register applies to all IT services, infrastructure, cloud environments, an
 
 ---
 
-## Section 8: Security Operations
+## Section 8: security operations
 
 | KPI | Measurement Rule | Target | Frequency | Owner Role | Evidence Class | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -136,7 +136,7 @@ This register applies to all IT services, infrastructure, cloud environments, an
 
 ---
 
-## Section 9: Reporting and Governance
+## Section 9: reporting and governance
 
 | Report | Frequency | Recipients | Owner Role | Content |
 | --- | --- | --- | --- | --- |
@@ -149,7 +149,7 @@ This register applies to all IT services, infrastructure, cloud environments, an
 
 ---
 
-## Evidence Requirements
+## Evidence requirements
 
 Adopting organizations must retain the following to substantiate KPI results:
 

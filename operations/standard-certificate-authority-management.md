@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material platform or regulatory change 
 **Repository Path:** [`operations/standard-certificate-authority-management.md`](standard-certificate-authority-management.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -42,23 +42,23 @@ Defines requirements for establishing, operating, and maintaining the internal C
 
 ---
 
-## 4. CA Platform
+## 4. CA platform
 
 The internal CA is implemented using a cloud-based PKI service, an endpoint management platform suite feature administered through the endpoint management admin console. This provides a fully cloud-hosted Root CA and Issuing CA hierarchy with no on-premises NDES servers, AD CS infrastructure, or hardware CA appliances required. The built-in SCEP service acts as the certificate registration authority for managed devices.
 
 The cloud-based PKI service integrates natively with the enterprise identity provider and endpoint management platform, making it the appropriate choice for an endpoint management platform-first environment. A Bring Your Own CA (BYOCA) option is available if future requirements necessitate chaining to an existing on-premises root; this is not required at initial implementation.
 
-**Licence requirement:** The cloud-based PKI service is an endpoint management platform suite add-on feature. Confirm that endpoint management platform suite licences are in place before provisioning CA infrastructure.
+**License requirement:** The cloud-based PKI service is an endpoint management platform suite add-on feature. Confirm that endpoint management platform suite licenses are in place before provisioning CA infrastructure.
 
 ---
 
-## 5. CA Hierarchy Design
+## 5. CA hierarchy design
 
 ### 5.1 Root CA
 
 A single internal Root CA is created. The Root CA acts as the trust anchor for all internal certificates. It does not directly issue end-entity certificates; it issues only to Issuing CAs. The Root CA certificate must be distributed to all managed devices and domain-joined systems via trusted certificate profiles and Group Policy respectively.
 
-### 5.2 Issuing CAs
+### 5.2 Issuing cas
 
 The cloud-based PKI service does not support the "Any Purpose" Extended Key Usage (EKU). Each Issuing CA must be scoped to a specific EKU set. The organization therefore operates separate Issuing CAs for each primary use case. This provides issuance policy separation and limits blast radius if an Issuing CA is compromised.
 
@@ -71,9 +71,9 @@ The cloud-based PKI service does not support the "Any Purpose" Extended Key Usag
 
 ---
 
-## 6. Use Case Scope and Constraints
+## 6. Use case scope and constraints
 
-### 6.1 Inter-Server TLS
+### 6.1 Inter-server TLS
 
 The internal TLS Issuing CA issues certificates for server-to-server communication within infrastructure. These certificates are not trusted by external browsers. Any internet-facing service must use a commercially trusted CA.
 
@@ -83,19 +83,19 @@ The S/MIME Issuing CA issues email protection certificates to end users via SCEP
 
 **Constraint:** Cloud-based PKI S/MIME deployment is limited to managed devices only.
 
-### 6.3 Code Signing
+### 6.3 Code signing
 
 Issues certificates for signing internal scripts, PowerShell modules, automation workflows, and software packages used internally. Certificates are trusted only by systems with the internal Root CA installed.
 
 **Hard boundary: publicly distributed software:** Code signing certificates from the internal CA are not trusted by external systems or software distribution platforms. Any software distributed outside the organization must be signed using a publicly trusted commercial CA certificate. As of December 2025, publicly trusted code signing certificates are limited to 1-year validity per CA/Browser Forum requirements. This boundary is absolute.
 
-### 6.4 Client Authentication
+### 6.4 Client authentication
 
 Issues device certificates for 802.1X (Wi-Fi and wired) and user certificates for VPN and application authentication. Certificate deployment is managed via SCEP profiles assigned to device or user groups.
 
 ---
 
-## 7. Certificate Profile Requirements
+## 7. Certificate profile requirements
 
 All SCEP certificate profiles deployed via the endpoint management platform must specify:
 
@@ -110,7 +110,7 @@ Certificate profiles must be reviewed and approved by the CISO or delegate befor
 
 ---
 
-## 8. Certificate Validity Periods
+## 8. Certificate validity periods
 
 | Certificate Type | Validity Period | Renewal Trigger |
 |---|---|---|
@@ -123,7 +123,7 @@ Certificate profiles must be reviewed and approved by the CISO or delegate befor
 
 ---
 
-## 9. Trust Distribution
+## 9. Trust distribution
 
 The Root CA certificate must be distributed to all systems that need to trust internally issued certificates:
 
@@ -135,13 +135,13 @@ Trust distribution is a prerequisite for each use case going live.
 
 ---
 
-## 10. S/MIME Key History and Encryption Key Retention
+## 10. S/MIME key history and encryption key retention
 
 S/MIME encryption requires that old private keys are retained to decrypt email encrypted under previous certificates. When an S/MIME encryption certificate is renewed, the prior certificate and private key must be retained on the user's device.
 
 ---
 
-## 11. CA Audit Logging
+## 11. CA audit logging
 
 All CA operations are logged within the cloud-based PKI service and endpoint management platform audit log. Logs include:
 
@@ -154,7 +154,7 @@ Audit logs are forwarded to SIEM via endpoint management diagnostic settings int
 
 ---
 
-## 12. Boundary Between Internal CA and Commercial CAs
+## 12. Boundary between internal CA and commercial cas
 
 | Use Case | CA Type | Rationale |
 |---|---|---|
@@ -168,7 +168,7 @@ Audit logs are forwarded to SIEM via endpoint management diagnostic settings int
 
 ---
 
-## 13. Framework Alignment
+## 13. Framework alignment
 
 | Framework | Reference |
 |---|---|
@@ -182,7 +182,7 @@ Audit logs are forwarded to SIEM via endpoint management diagnostic settings int
 
 ---
 
-*Licence: CC0 1.0 Universal. This document is released into the public domain. No rights reserved.*
+*License: CC0 1.0 Universal. This document is released into the public domain. No rights reserved.*
 
 
 

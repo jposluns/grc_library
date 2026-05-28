@@ -12,13 +12,13 @@
 **Review Frequency:** Annual and upon material platform or regulatory change 
 **Repository Path:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 This standard defines security requirements for production infrastructure and operations. It covers the controls that govern how production systems are secured, monitored, changed, and recovered. For deployment pipeline and DevOps controls, see the DevOps Security Requirements Standard.
 
 ---
 
-## 1. Network Security Operations
+## 1. Network security operations
 
 **VLAN and ACL compliance:** The current infrastructure Low Level Design is the authoritative network baseline. No ACL or firewall changes are permitted without a documented change request reviewed by the network and security teams. All rule changes are logged with business justification, approver, and effective date.
 
@@ -32,7 +32,7 @@ This standard defines security requirements for production infrastructure and op
 
 ---
 
-## 2. Backup and Recovery Operations
+## 2. Backup and recovery operations
 
 **Infrastructure:** Dedicated backup infrastructure with a hardened, immutable repository is required. All production workloads must be covered by active backup jobs. Coverage is audited monthly.
 
@@ -46,9 +46,9 @@ This standard defines security requirements for production infrastructure and op
 
 ---
 
-## 3. Security Monitoring and Incident Response
+## 3. Security monitoring and incident response
 
-### 3.1 SIEM Alert Coverage
+### 3.1 SIEM alert coverage
 
 The following alert categories must be configured and tested before any system goes to production:
 
@@ -65,7 +65,7 @@ The following alert categories must be configured and tested before any system g
 - Endpoint protection alerts
 - DNS anomalies
 
-### 3.2 Pre-Go-Live Security Validation
+### 3.2 Pre-go-live security validation
 
 The following must be evidenced before any system promotes to production. These criteria apply to any infrastructure programme or platform deployment regardless of scale.
 
@@ -80,13 +80,13 @@ The following must be evidenced before any system promotes to production. These 
 
 **Framework:** CSA CCM LOG-01 through LOG-14, SEF-01 through SEF-10
 
-### 3.3 Incident Response Obligations
+### 3.3 Incident response obligations
 
 Do not isolate or reimage systems without direction from the incident commander. Evidence preservation takes priority over service recovery in the first hour. Escalate immediately to the CIO and security leadership. The IR partner (where contracted) is notified by the security leadership for P1 incidents: current partner details are maintained in the operational state register. All IR actions must be logged with timestamps.
 
 ---
 
-## 4. Patch and Vulnerability Management
+## 4. Patch and vulnerability management
 
 | Severity | SLA |
 | --- | --- |
@@ -101,7 +101,7 @@ Authenticated vulnerability scans must run at minimum weekly. Results must be re
 
 ---
 
-## 5. Change Management
+## 5. Change management
 
 | Change Type | Approval | CAB Review |
 | --- | --- | --- |
@@ -116,7 +116,7 @@ All production changes must be executed through the approved IaC pipeline. Direc
 
 ---
 
-## 6. Infrastructure Programme Security Gate Requirements
+## 6. Infrastructure programme security gate requirements
 
 Any infrastructure programme delivering or replacing production infrastructure must produce evidence against the following security acceptance criteria at defined phase gates before proceeding to the next phase.
 
@@ -131,7 +131,7 @@ Any infrastructure programme delivering or replacing production infrastructure m
 
 ---
 
-## 7. Documentation Requirements
+## 7. Documentation requirements
 
 The following must be maintained as living artefacts:
 
@@ -147,7 +147,7 @@ The following must be maintained as living artefacts:
 
 ---
 
-## 8. Cloud Security Configuration
+## 8. Cloud security configuration
 
 **Subscription and tenant governance:** All cloud subscriptions must be under the enterprise identity provider tenant. Cloud policy enforces mandatory configurations including encryption, tagging, allowed regions, and network restrictions. Resource locks must be applied to critical production infrastructure.
 
@@ -163,35 +163,35 @@ The following must be maintained as living artefacts:
 
 ---
 
-## 9. On-Premises Middleware Security
+## 9. On-premises middleware security
 
 This section applies to all on-premises middleware platforms, message brokers, integration servers, EDI platforms, and equivalent, regardless of vendor or product.
 
-### Service Account Isolation
+### Service account isolation
 
 Each functional role within a middleware platform must use a dedicated, purpose-specific service account. No single service account may span multiple functional roles (inbound processing, outbound delivery, orchestration, tracking, and administrative functions must each have their own account). All middleware service account credentials must be stored in the PAM vault and subject to the standard rotation schedule.
 
-### Database Access
+### Database access
 
 Middleware platforms that use dedicated databases for message routing, configuration, tracking, and business activity data must enforce least-privilege database access per component. Runtime processing accounts must not hold administrative database permissions. Administrative accounts for middleware configuration databases must be separate from runtime service accounts. Database authentication must use Windows Authentication (Kerberos) or Managed Identity where supported. Username/password database authentication for middleware service accounts is prohibited.
 
-### Inbound Adapter Security
+### Inbound adapter security
 
 All receive locations or inbound adapters serving external or non-internal sources must enforce authentication. Anonymous inbound connections from external sources are prohibited. File transfer receive adapters must use SFTP or explicit FTPS. HTTP/SOAP adapters must enforce TLS 1.2 minimum. TLS 1.0 and 1.1 must be disabled at the OS level.
 
-### Partner and Certificate Management
+### Partner and certificate management
 
 Third-party integration certificates (AS2, SFTP, TLS mutual auth) must have a documented renewal process initiated at minimum 60 days before expiry. SIEM alerts must fire at 60 and 30 days before expiry. Certificates must be stored in the approved certificate or PAM vault, not hardcoded in application configuration.
 
-### Administrative Access
+### Administrative access
 
 Middleware management consoles and administrative interfaces must be restricted to named administrators, accessed from PAW or jump host only. Administrative group membership must be reviewed quarterly. Direct access from general workstations is prohibited.
 
-### Monitoring and Observability
+### Monitoring and observability
 
 All middleware servers must be enrolled in endpoint protection tooling and onboarded to cloud-based hybrid server management. Event logs must be forwarded to the SIEM. Health, activity, and tracking databases must be monitored for anomalous patterns.
 
-### Migration to Cloud Integration Platforms
+### Migration to cloud integration platforms
 
 When migrating from on-premises middleware to cloud integration platforms:
 
@@ -201,7 +201,7 @@ When migrating from on-premises middleware to cloud integration platforms:
 
 ---
 
-## 10. EOL: Production Obligations
+## 10. EOL: production obligations
 
 The EOL classification policy and remediation SLAs are defined in the Security Baseline Standard. Production and infrastructure obligations:
 
@@ -212,7 +212,7 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Control Area | ISO 27001:2022 | CSA CCM v4 | NIST SP 800-53 | NIST SSDF |
 | --- | --- | --- | --- | --- |

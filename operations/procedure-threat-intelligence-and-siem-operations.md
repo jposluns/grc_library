@@ -12,11 +12,11 @@
 **Review Frequency:** Annual and upon material platform or regulatory change 
 **Repository Path:** [`operations/procedure-threat-intelligence-and-siem-operations.md`](procedure-threat-intelligence-and-siem-operations.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
-## 1. Purpose and Scope
+## 1. Purpose and scope
 
 ### 1.1 Purpose
 
@@ -35,7 +35,7 @@ The procedure is aligned with NIST SP 800-150 (Guide to Cyber Threat Information
 
 ## 2. Governance
 
-### 2.1 Roles and Responsibilities
+### 2.1 Roles and responsibilities
 
 | Role | Responsibilities |
 | --- | --- |
@@ -46,7 +46,7 @@ The procedure is aligned with NIST SP 800-150 (Guide to Cyber Threat Information
 | **Detection Engineer** | Designs, tests, and deploys SIEM correlation rules. Maintains MITRE ATT&CK tactic-to-rule mappings. Validates rule performance metrics. |
 | **Legal Counsel** | Advises on intelligence sharing agreements, obligations under information sharing frameworks, and escalation requirements for nation-state threat attribution. |
 
-### 2.2 Governance Cadence
+### 2.2 Governance cadence
 
 | Forum | Frequency | Participants | Purpose |
 | --- | --- | --- | --- |
@@ -57,9 +57,9 @@ The procedure is aligned with NIST SP 800-150 (Guide to Cyber Threat Information
 
 ---
 
-## 3. Threat Intelligence Sources
+## 3. Threat intelligence sources
 
-### 3.1 Source Categories
+### 3.1 Source categories
 
 The organization maintains a diverse, layered threat intelligence programme drawing from the following source categories:
 
@@ -73,7 +73,7 @@ The organization maintains a diverse, layered threat intelligence programme draw
 | **Internal Telemetry** | SIEM-generated indicators from detected incidents, endpoint detection telemetry, DNS anomalies, and authentication failures | Automated from SIEM correlation output |
 | **Incident Response Findings** | Indicators and TTPs identified during post-incident reviews | Manual ingestion following PIR completion |
 
-### 3.2 Source Evaluation
+### 3.2 Source evaluation
 
 All threat intelligence sources are assessed at initial onboarding and annually thereafter against:
 
@@ -86,11 +86,11 @@ The Threat Intelligence Lead maintains a source registry documenting each source
 
 ---
 
-## 4. Indicator Management Lifecycle
+## 4. Indicator management lifecycle
 
 All threat intelligence indicators pass through a five-stage lifecycle before operationalization and remain managed until expiry or withdrawal.
 
-### 4.1 Lifecycle Stages
+### 4.1 Lifecycle stages
 
 | Stage | Description | Responsible Role | Output |
 | --- | --- | --- | --- |
@@ -100,7 +100,7 @@ All threat intelligence indicators pass through a five-stage lifecycle before op
 | **4. Operationalize** | High- and medium-confidence indicators are pushed to the SIEM as watchlist entries, detection rules, or automated block rules (subject to change control). Low-confidence indicators are retained for hunting reference only. | Detection Engineer | Active detection rule or watchlist entry in SIEM |
 | **5. Expire / Retire** | Indicators are aged out based on defined TTL (Time-to-Live) values by indicator type. Expired indicators are archived in the TIP and removed from active SIEM detection unless re-validated. | Threat Intelligence Lead | Archived indicator; SIEM rule deactivated or updated |
 
-### 4.2 Indicator Time-to-Live (TTL) Values
+### 4.2 Indicator time-to-live (TTL) values
 
 | Indicator Type | Default TTL | Rationale |
 | --- | --- | --- |
@@ -116,9 +116,9 @@ TTL values may be extended by the Threat Intelligence Lead where intelligence wa
 
 ---
 
-## 5. SIEM Correlation Rule Development
+## 5. SIEM correlation rule development
 
-### 5.1 Rule Development Principles
+### 5.1 Rule development principles
 
 All SIEM correlation rules must:
 
@@ -129,7 +129,7 @@ All SIEM correlation rules must:
 5. Be tested against historical log data or a representative test dataset before deployment to production.
 6. Comply with the pre-go-live SIEM validation requirements in [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md) §3.1: all required alert categories must be configured and verified before any system enters production.
 
-### 5.2 MITRE ATT&CK Tactic Coverage
+### 5.2 MITRE ATT&CK tactic coverage
 
 The detection rule library must maintain active coverage across the following MITRE ATT&CK tactics as a minimum baseline. Coverage gaps are reviewed at the bi-annual SIEM Rule Review and drive the detection engineering roadmap.
 
@@ -148,7 +148,7 @@ The detection rule library must maintain active coverage across the following MI
 | Exfiltration (TA0010) | Critical | Large outbound transfers, data staged to cloud storage |
 | Impact (TA0040) | Critical | Ransomware behaviour, data destruction, service disruption |
 
-### 5.3 Rule Development and Deployment Workflow
+### 5.3 Rule development and deployment workflow
 
 1. **Draft:** Detection Engineer documents the rule hypothesis, data sources, logic, and ATT&CK mapping.
 2. **Peer Review:** A second SOC analyst or Detection Engineer reviews the rule logic, field dependencies, and expected false positive rate.
@@ -158,7 +158,7 @@ The detection rule library must maintain active coverage across the following MI
 6. **Production Deployment:** Rule is activated through the approved change management process per [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md).
 7. **Documentation:** Rule is registered in the SIEM Alert Rule Register with all metadata fields completed.
 
-### 5.4 Review Cadence
+### 5.4 Review cadence
 
 - **Weekly:** SOC operations review validates that active rules are firing as expected and that alert volumes are within threshold.
 - **Bi-annual:** Full rule library review reassesses all rules for continued relevance, ATT&CK coverage, and false positive rates. Rules that have not fired in six months are reviewed for retirement or refinement.
@@ -166,9 +166,9 @@ The detection rule library must maintain active coverage across the following MI
 
 ---
 
-## 6. SIEM Platform Operations
+## 6. SIEM platform operations
 
-### 6.1 Workspace Health Monitoring
+### 6.1 Workspace health monitoring
 
 The SOC is responsible for the continuous operational health of the SIEM platform. Health monitoring covers:
 
@@ -181,14 +181,14 @@ The SOC is responsible for the continuous operational health of the SIEM platfor
 | **Query performance** | Alert query execution time monitored | Alert if scheduled query takes more than twice the historical average |
 | **Rule health** | Active correlation rules monitored for execution errors | Alert on any rule error within 1 hour |
 
-### 6.2 Data Connector Management
+### 6.2 Data connector management
 
 1. All data connectors must be documented in the SIEM connector registry, including: connector name, data source type, log types ingested, ingestion method, responsible owner, and last validated date.
 2. New connectors require approval by the SOC Manager and must be tested before production activation.
 3. Critical connectors (identity systems, endpoint detection and response (EDR) platform, network firewalls, cloud platform audit logs) must have redundant ingestion paths or compensating monitoring where technically feasible.
 4. Connector performance is reviewed monthly. Any connector with persistent gaps is escalated to the SOC Manager for remediation or documented risk acceptance.
 
-### 6.3 Ingestion Gap Alerting
+### 6.3 Ingestion gap alerting
 
 An ingestion gap is defined as any period during which an expected log source fails to deliver data to the SIEM within its defined ingestion SLA. The following controls apply:
 
@@ -197,7 +197,7 @@ An ingestion gap is defined as any period during which an expected log source fa
 - Gaps exceeding 4 hours for critical sources are escalated to the CISO.
 - Ingestion gap events are recorded in the incident register and reviewed at the weekly SOC operations meeting.
 
-### 6.4 Predictive Analytics and AI-Assisted Monitoring
+### 6.4 Predictive analytics and AI-assisted monitoring
 
 Predictive analytics and AI-assisted monitoring tools may be used to improve detection accuracy, identify anomalous patterns, and reduce analyst workload. Applications include:
 
@@ -209,15 +209,15 @@ All AI-assisted detections must be reviewed by a human analyst before any contai
 
 ---
 
-## 7. Threat Hunting
+## 7. Threat hunting
 
-### 7.1 Programme Overview
+### 7.1 Programme overview
 
 Threat hunting is the proactive, hypothesis-driven search for threat actor activity that has evaded automated detection controls. Hunting is conducted within all environments under organizational control and is distinct from reactive alert-driven investigation.
 
 The threat hunting programme operates on a quarterly cadence with targeted hunts triggered by specific intelligence inputs between scheduled cycles.
 
-### 7.2 Hunt Methodology
+### 7.2 Hunt methodology
 
 Threat hunts follow a hypothesis-driven approach:
 
@@ -228,7 +228,7 @@ Threat hunts follow a hypothesis-driven approach:
 5. **Output and Handoff:** Confirmed threats are escalated as security incidents per [`security/procedure-incident-response.md`](../security/procedure-incident-response.md). Detection gaps are submitted to the Detection Engineer for new rule development. False positive findings are used to refine existing rules.
 6. **Documentation:** All hunt activities are documented in the hunt register, including hypothesis, methodology, data sources queried, findings, and disposition.
 
-### 7.3 Quarterly Hunt Cadence
+### 7.3 Quarterly hunt cadence
 
 | Quarter | Focus Theme | Basis |
 | --- | --- | --- |
@@ -239,7 +239,7 @@ Threat hunts follow a hypothesis-driven approach:
 
 Hunt themes may be adjusted based on current threat intelligence and organizational priorities, subject to SOC Manager approval.
 
-### 7.4 Hunt Output Feeding Detection Engineering
+### 7.4 Hunt output feeding detection engineering
 
 The threat hunting programme feeds directly into SIEM rule improvement:
 
@@ -249,9 +249,9 @@ The threat hunting programme feeds directly into SIEM rule improvement:
 
 ---
 
-## 8. Intelligence Sharing and Escalation
+## 8. Intelligence sharing and escalation
 
-### 8.1 Intelligence Sharing
+### 8.1 Intelligence sharing
 
 The organization participates in structured intelligence sharing to contribute to collective sector defence and to receive early warning of threats affecting the organization's industry and geography.
 
@@ -263,7 +263,7 @@ The organization participates in structured intelligence sharing to contribute t
 
 All outbound intelligence sharing must comply with the Traffic Light Protocol (TLP). The default sharing classification for outbound indicators is TLP:AMBER unless explicitly approved at a higher level by the CISO.
 
-### 8.2 Escalation: Nation-State and APT Threats
+### 8.2 Escalation: nation-state and APT threats
 
 When threat intelligence or hunting activity indicates a likely nation-state actor or advanced persistent threat (APT) targeting the organization, the following escalation steps apply:
 
@@ -276,9 +276,9 @@ When threat intelligence or hunting activity indicates a likely nation-state act
 
 ---
 
-## 9. SIEM Rule Tuning
+## 9. SIEM rule tuning
 
-### 9.1 False Positive Management
+### 9.1 False positive management
 
 Excessive false positives degrade analyst efficiency and risk alert fatigue, causing genuine threats to be missed. The following controls manage false positive rates:
 
@@ -287,7 +287,7 @@ Excessive false positives degrade analyst efficiency and risk alert fatigue, cau
 3. **Approval:** Rule changes to reduce false positives follow the standard rule development and deployment workflow in §5.3. Emergency threshold adjustments may be approved verbally by the SOC Manager and documented within 4 hours.
 4. **Documentation:** All tuning actions are recorded in the SIEM Alert Rule Register with: rule ID, change description, reason, approver, and effective date.
 
-### 9.2 Bi-Annual Full Rule Review
+### 9.2 Bi-annual full rule review
 
 The bi-annual SIEM Rule Review assesses the complete active rule library against the following criteria:
 
@@ -322,7 +322,7 @@ Metric trends are reviewed for continual improvement. Lessons learned from incid
 
 ---
 
-## 11. Framework Alignment
+## 11. Framework alignment
 
 | Control Area | Framework Reference |
 | --- | --- |

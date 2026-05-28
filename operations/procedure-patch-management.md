@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material threat, framework, or regulatory change 
 **Repository Path:** [`operations/procedure-patch-management.md`](procedure-patch-management.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -32,7 +32,7 @@ Effective patch management reduces the window of exposure between public vulnera
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -45,7 +45,7 @@ Effective patch management reduces the window of exposure between public vulnera
 
 ---
 
-## 1. Patch Classification
+## 1. Patch classification
 
 Every patch or update is classified on receipt to determine the required deployment pathway and timeline. Classification is based on CVSS score and active exploitation status.
 
@@ -62,13 +62,13 @@ IT Operations reviews newly published CISA KEV entries daily. A KEV listing for 
 
 ---
 
-## 2. Patch Testing
+## 2. Patch testing
 
-### 2.1 Staging Requirement
+### 2.1 Staging requirement
 
 Standard patch classifications (Critical, High, Medium, Low) require deployment to a staging environment before production. The staging environment must be representative of the production configuration being patched.
 
-### 2.2 Emergency Patch Exception
+### 2.2 Emergency patch exception
 
 Emergency patches may be deployed directly to production without prior staging when the 24-hour window makes staging impractical. Direct-to-production Emergency deployments must include:
 
@@ -77,7 +77,7 @@ Emergency patches may be deployed directly to production without prior staging w
 3. Enhanced post-deployment monitoring for a minimum of 24 hours.
 4. Retrospective staging validation completed within 72 hours of production deployment.
 
-### 2.3 Regression Testing
+### 2.3 Regression testing
 
 Before any Standard patch is promoted to production, IT Operations and the relevant System Owner must complete a regression testing checklist covering:
 
@@ -88,7 +88,7 @@ Before any Standard patch is promoted to production, IT Operations and the relev
 
 ---
 
-## 3. Deployment Authorization
+## 3. Deployment authorization
 
 | Classification | Authorization Pathway |
 | --- | --- |
@@ -101,7 +101,7 @@ All deployments, regardless of classification, must be documented in the ITSM pl
 
 ---
 
-## 4. Exceptions and Deferrals
+## 4. Exceptions and deferrals
 
 Where an operational dependency prevents patching within the required SLA, for example, system stability risk, vendor-imposed patching constraints, or application compatibility issues, a formal exception must be raised before the SLA deadline lapses.
 
@@ -116,7 +116,7 @@ Where an operational dependency prevents patching within the required SLA, for e
 
 ---
 
-## 5. End-of-Life System Management
+## 5. End-of-life system management
 
 End-of-life (EOL) systems no longer receive security patches from vendors. No EOL system is permitted in production without a CIO-approved exception, consistent with the Production Security Requirements Standard.
 
@@ -132,7 +132,7 @@ EOL tracking is maintained in the asset register, with automated alerts at 180, 
 
 ---
 
-## 6. Third-Party and Open-Source Library Patching
+## 6. Third-party and open-source library patching
 
 Application dependencies, including open-source libraries, third-party SDKs, and container base images, are subject to the same patch SLA table as infrastructure assets.
 
@@ -143,9 +143,9 @@ Application dependencies, including open-source libraries, third-party SDKs, and
 
 ---
 
-## 7. Monitoring and Reporting
+## 7. Monitoring and reporting
 
-### 7.1 Patch Compliance Dashboard
+### 7.1 Patch compliance dashboard
 
 IT Operations maintains a real-time patch compliance dashboard covering all in-scope assets. The dashboard displays:
 
@@ -154,7 +154,7 @@ IT Operations maintains a real-time patch compliance dashboard covering all in-s
 - EOL assets in production.
 - Emergency patch deployment status and post-deployment verification state.
 
-### 7.2 SIEM Alerting
+### 7.2 SIEM alerting
 
 The SIEM generates an alert if a Critical or High patch has not been deployed within its SLA. Alerts are routed to IT Operations and the CISO. Unacknowledged alerts escalate to the CIO after 4 hours for Critical and 24 hours for High.
 
@@ -167,7 +167,7 @@ The SIEM generates an alert if a Critical or High patch has not been deployed wi
 | Programme effectiveness summary | Quarterly | Executive Risk Committee (ERC) |
 | Annual programme review | Annual | CISO, CIO, Internal Audit |
 
-### 7.4 Key Metrics
+### 7.4 Key metrics
 
 | Metric | Target |
 | --- | --- |
@@ -180,7 +180,7 @@ The SIEM generates an alert if a Critical or High patch has not been deployed wi
 
 ---
 
-## 8. Evidence Retention
+## 8. Evidence retention
 
 | Record Type | Retention Period |
 | --- | --- |
@@ -193,7 +193,7 @@ Retention timelines are subject to the Records Retention and Destruction Standar
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Control Area | NIST SP 800-40 Rev 4 | ISO/IEC 27001:2022 | CSA CCM v5 | CIS Controls v8 | COBIT 2025 |
 | --- | --- | --- | --- | --- | --- |

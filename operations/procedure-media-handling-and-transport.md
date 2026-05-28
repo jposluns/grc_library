@@ -12,13 +12,13 @@
 **Review Frequency:** Annual and upon material platform or regulatory change 
 **Repository Path:** [`operations/procedure-media-handling-and-transport.md`](procedure-media-handling-and-transport.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 This procedure defines the minimum requirements for classifying, storing, transporting, transferring, sanitizing, and disposing of physical and digital media throughout its lifecycle.
 
 ---
 
-## 1. Purpose and Scope
+## 1. Purpose and scope
 
 ### 1.1 Purpose
 
@@ -46,7 +46,7 @@ To protect information held on physical and digital media from unauthorised disc
 
 ---
 
-## 3. Media Classification
+## 3. Media classification
 
 The required level of protection for any piece of media is determined by the highest classification of information it contains, as defined in the Data Classification and Handling Standard.
 
@@ -62,9 +62,9 @@ Where a single piece of media contains data of multiple classifications, the con
 
 ---
 
-## 4. Secure Transport of Physical Media
+## 4. Secure transport of physical media
 
-### 4.1 Approved Transport Methods
+### 4.1 Approved transport methods
 
 Physical media containing Confidential or Restricted information must only be transported using approved methods:
 
@@ -74,7 +74,7 @@ Physical media containing Confidential or Restricted information must only be tr
 
 Personal or untracked postal services are prohibited for Confidential and Restricted media. Consumer parcel carriers without tracked, signed-delivery services are prohibited.
 
-### 4.2 Chain of Custody
+### 4.2 Chain of custody
 
 A chain-of-custody log must be maintained for every physical transport event involving Confidential or Restricted media. Each log entry must record:
 
@@ -91,19 +91,19 @@ A chain-of-custody log must be maintained for every physical transport event inv
 
 Chain-of-custody logs are retained for a minimum of 3 years or for the duration of the associated data's retention period, whichever is longer.
 
-### 4.3 Encryption Requirement for Transport
+### 4.3 Encryption requirement for transport
 
 All electronic media transported physically and containing Confidential or Restricted data must be encrypted before transport. Encryption must meet the requirements of the Encryption and Key Management Policy. Unencrypted removable media containing Confidential or Restricted data must not leave an IT-controlled area.
 
-### 4.4 Loss or Suspected Compromise During Transport
+### 4.4 Loss or suspected compromise during transport
 
 Loss or suspected compromise of physical media in transit must be reported immediately to the CISO and treated as a security incident under the Incident Response Procedure. If the media contained personal data, the Privacy Lead is notified concurrently to assess breach notification obligations.
 
 ---
 
-## 5. Transfer of Digital Data
+## 5. Transfer of digital data
 
-### 5.1 Approved Transfer Mechanisms
+### 5.1 Approved transfer mechanisms
 
 Digital transfer of organizational data must use approved channels. The approved mechanism depends on the classification of the data being transferred:
 
@@ -114,15 +114,15 @@ Digital transfer of organizational data must use approved channels. The approved
 | Confidential | Approved encrypted file transfer service or encrypted email; TLS 1.3 minimum for all channels. |
 | Restricted | Approved secure file transfer service with end-to-end encryption; access logged; transfer pre-authorized by CISO or Data Owner. |
 
-### 5.2 Prohibition on Personal Cloud Storage
+### 5.2 Prohibition on personal cloud storage
 
 The use of personal cloud storage services (including consumer file-sharing services) to store, transfer, or stage Confidential or Restricted data is strictly prohibited. This prohibition applies to all employees, contractors, and third parties. Violations are investigated under the Acceptable Use Policy and Incident Response Procedure.
 
-### 5.3 Encrypted Channels
+### 5.3 Encrypted channels
 
 All digital transfers of Confidential or Restricted data over any network, including the internal corporate network, must use an encrypted channel with TLS 1.3 or a higher-equivalent standard. TLS 1.2 may be used only where a documented technical constraint prevents TLS 1.3, with the constraint recorded in the exception register and reviewed quarterly.
 
-### 5.4 Transfer to Third Parties
+### 5.4 Transfer to third parties
 
 External transfer of Confidential or Restricted data to third parties requires:
 
@@ -135,9 +135,9 @@ Ad-hoc external transfers using unapproved channels are prohibited. Requests for
 
 ---
 
-## 6. Media Storage
+## 6. Media storage
 
-### 6.1 Physical Media Storage
+### 6.1 Physical media storage
 
 Physical media containing Confidential or Restricted data must be stored in locked, access-controlled cabinets within IT-managed infrastructure areas, as defined in the Physical Security of IT Infrastructure Standard. Storage requirements by classification:
 
@@ -149,19 +149,19 @@ Physical media containing Confidential or Restricted data must be stored in lock
 
 Media containing Confidential or Restricted data must not be stored in general office areas, reception areas, or any area accessible without IT Operations authorization.
 
-### 6.2 Portable Digital Media Encryption
+### 6.2 Portable digital media encryption
 
 All portable digital media (USB drives, external hard drives, portable SSDs) used for organizational data must be encrypted. Unencrypted portable media is prohibited for Confidential or Restricted data. IT Operations maintains an inventory of organization-issued portable media and the data classification they are approved to carry. Personal USB drives and portable storage devices are not permitted to connect to organization-managed endpoints unless explicitly approved by the CISO for a documented purpose.
 
-### 6.3 Backup Media
+### 6.3 Backup media
 
 Backup media (tapes or portable drives used for off-site backup) must be encrypted, stored in immutable repositories where technically feasible, and transported using chain-of-custody procedures consistent with §4. Backup media management is governed jointly by this procedure and the Backup and Recovery Procedure.
 
 ---
 
-## 7. Media Sanitization and Destruction
+## 7. Media sanitization and destruction
 
-### 7.1 Sanitization Before Reuse
+### 7.1 Sanitization before reuse
 
 Before any storage media is reissued for a different user or purpose, it must be sanitized to remove all previous data. The sanitization method must be appropriate to the classification of the data previously held and consistent with NIST SP 800-88 guidelines:
 
@@ -173,18 +173,18 @@ Before any storage media is reissued for a different user or purpose, it must be
 | Mobile device storage | Factory reset with cryptographic erasure where supported by the device OS. |
 | Optical media (CD, DVD, Blu-ray) | Physical destruction (shredding); optical media cannot be reliably overwritten and must not be reused for Confidential or above. |
 
-### 7.2 Destruction of Electronic Media
+### 7.2 Destruction of electronic media
 
 Electronic media that cannot be sanitized, including media that has failed, damaged media, or media for which cryptographic erasure keys are unavailable, must be physically destroyed:
 
 - Shredding, crushing, or disintegration in a manner that renders data recovery infeasible.
 - Destruction must be performed or witnessed by an IT Operations staff member, or by a contracted accredited disposal vendor with Certificates of Destruction issued.
 
-### 7.3 Destruction of Paper and Physical Records
+### 7.3 Destruction of paper and physical records
 
 Paper and physical records containing Confidential or Restricted data must be destroyed by cross-cut shredding at DIN 66399 Level P-4 or higher, or by contracted secure document destruction services that meet equivalent standards. Strip-cut shredding is not acceptable for Confidential or Restricted records. Shredding bins in general office areas are subject to locked-bin requirements for any area where Confidential or Restricted documents are handled.
 
-### 7.4 Destruction at End of Retention Period
+### 7.4 Destruction at end of retention period
 
 Media disposal initiated by expiry of the Records Retention Schedule is coordinated between IT Operations and the relevant Data Owner. Prior to disposal, the Data Owner confirms that:
 
@@ -195,7 +195,7 @@ Media subject to an active retention hold must not be destroyed until Legal Coun
 
 ---
 
-## 8. Certificate of Destruction
+## 8. Certificate of destruction
 
 ### 8.1 Requirement
 
@@ -208,7 +208,7 @@ A Certificate of Destruction is mandatory for the disposal of all media that has
 
 A Certificate of Destruction is not required for internal-only paper records shredded on-site, provided the shredding is recorded in the Destruction Register.
 
-### 8.2 Certificate Contents
+### 8.2 Certificate contents
 
 Each Certificate of Destruction must include:
 
@@ -229,9 +229,9 @@ Certificates of Destruction are retained for a minimum of 7 years, consistent wi
 
 ---
 
-## 9. Surplus and Disposal
+## 9. Surplus and disposal
 
-### 9.1 Surplus Hardware
+### 9.1 Surplus hardware
 
 Surplus hardware declared for disposal by IT Operations must be processed through the following workflow before leaving IT custody:
 
@@ -243,7 +243,7 @@ Surplus hardware declared for disposal by IT Operations must be processed throug
 
 No hardware may be donated, sold, transferred to a third party, or placed for general waste disposal without completing the above workflow.
 
-### 9.2 Secure Disposal Vendor Requirements
+### 9.2 Secure disposal vendor requirements
 
 Where external vendors are used for media sanitization or physical destruction, vendors must:
 
@@ -252,7 +252,7 @@ Where external vendors are used for media sanitization or physical destruction, 
 - Sign a data processing or confidentiality agreement prior to receiving any media.
 - Be reviewed annually by IT Operations and the CISO for continued compliance with accreditation requirements.
 
-### 9.3 BASC Trade Data Disposal
+### 9.3 BASC trade data disposal
 
 For media holding BASC-governed trade and customs data, destruction must be confirmed by the Regional BASC Compliance Officer before the Certificate of Destruction is filed. The Regional Compliance Officer verifies that:
 
@@ -277,7 +277,7 @@ The following metrics are reported to the CISO quarterly and reviewed annually a
 
 ---
 
-## 11. Framework Alignment
+## 11. Framework alignment
 
 | Control Area | ISO/IEC 27001:2022 | NIST SP 800-88 | CSA CCM v5 | COBIT 2025 |
 | --- | --- | --- | --- | --- |

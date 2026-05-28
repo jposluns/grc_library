@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material service management or regulatory change 
 **Repository Path:** [`operations/framework-it-service-management.md`](framework-it-service-management.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ Applies to all IT services, infrastructure, applications, cloud environments, an
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -42,39 +42,39 @@ Applies to all IT services, infrastructure, applications, cloud environments, an
 
 ---
 
-## Framework Principles
+## Framework principles
 
-### 1. Incident Management
+### 1. Incident management
 
 All incidents are logged, categorized, prioritized, and tracked to resolution within defined SLAs. Major incidents trigger immediate escalation to the CIO, CISO, and Crisis Management Team. Significant cybersecurity incidents meet EU NIS 2 reporting timelines (24 hours for early warning; 72 hours for full notification).
 
-### 2. Problem Management
+### 2. Problem management
 
 Problem records are created for recurring or significant incidents. Root cause analysis is conducted for all major incidents. Known Error Databases are maintained and reviewed monthly to drive proactive resolution.
 
-### 3. Change Management
+### 3. Change management
 
 All changes are categorized as Standard, Normal, or Emergency. CAB approval is required for Normal and Emergency changes. Post-implementation reviews assess success criteria and rollback results. Emergency changes are reviewed by the CAB within 5 business days of implementation.
 
-### 4. Service Level Management
+### 4. Service level management
 
 SLAs and OLAs are established for all critical services and reviewed annually. SLA breaches trigger service reviews and root cause analysis. SLA performance is reported to the CIO and ERC quarterly.
 
-### 5. Capacity and Availability Management
+### 5. Capacity and availability management
 
 Capacity plans are based on trend analysis and predictive modelling. Availability metrics are continuously monitored with defined service-level targets. Capacity risks are raised to the CIO as part of the quarterly governance reporting cycle.
 
-### 6. AI-Enabled Automation
+### 6. AI-enabled automation
 
 AI-based automation tools may augment ITSM workflows for incident triage, root cause prediction, and self-healing actions. AI recommendations must be explainable and validated by human operators. AI tools used in ITSM are subject to governance requirements under the AI Governance and Risk Framework.
 
-### 7. Continual Service Improvement
+### 7. Continual service improvement
 
 ITIL 4 continual improvement cycles are adopted. Service improvement plans are data-driven, documented, and reviewed quarterly. Improvement actions are tracked in the CAPA Register and reported to the ERC.
 
 ---
 
-## Service Levels
+## Service levels
 
 | Priority | Definition | Response | Resolution |
 | --- | --- | --- | --- |
@@ -85,7 +85,7 @@ ITIL 4 continual improvement cycles are adopted. Service improvement plans are d
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

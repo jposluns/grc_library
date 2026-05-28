@@ -12,11 +12,11 @@
 **Review Frequency:** Annual and upon material platform or regulatory change 
 **Repository Path:** [`operations/standard-physical-security-of-it-infrastructure.md`](standard-physical-security-of-it-infrastructure.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
-## Scope Boundary
+## Scope boundary
 
 Covers physical security controls for IT infrastructure owned and operated by the CIO's office. Covers server rooms, network closets, camera and NVR systems, and IT equipment. Broader facility physical security, building access systems, perimeter fencing, guard services, visitor management, is outside IT scope and governed by Facilities and Operations.
 
@@ -47,7 +47,7 @@ Defines minimum physical security requirements for IT infrastructure areas under
 
 ---
 
-## 1. Server Room and Data Centre Physical Access
+## 1. Server room and data centre physical access
 
 Access to the primary data centre server room and all IT equipment rooms is restricted to authorized IT Operations personnel.
 
@@ -61,7 +61,7 @@ Access to the primary data centre server room and all IT equipment rooms is rest
 
 ---
 
-## 2. Camera Surveillance and NVR Systems
+## 2. Camera surveillance and NVR systems
 
 The organization operates IP camera systems at office and data centre locations under IT Operations management.
 
@@ -76,7 +76,7 @@ The organization operates IP camera systems at office and data centre locations 
 
 ---
 
-## 3. Environmental Controls
+## 3. Environmental controls
 
 IT Operations is responsible for:
 
@@ -87,19 +87,19 @@ IT Operations is responsible for:
 
 ---
 
-## 4. Equipment Handling
+## 4. Equipment handling
 
 IT equipment entering or leaving an IT infrastructure area must be logged in the asset register before removal. Equipment removed without an asset register update is treated as potential theft and investigated as a P2 incident. Decommissioned equipment must be sanitized per the Media Handling and Transport Procedure before leaving IT custody.
 
 ---
 
-## 5. Clean Desk and Clear Screen
+## 5. Clean desk and clear screen
 
 IT Operations areas and the server room must maintain a clean desk policy. Printed documents containing Confidential or Restricted data must not be left unattended on desks in shared IT areas. Workstations in IT areas lock automatically after 15 minutes of inactivity per the endpoint compliance policy. Personnel must manually lock the screen when leaving a workstation unattended.
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference |
 |---|---|

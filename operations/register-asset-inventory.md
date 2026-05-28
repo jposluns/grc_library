@@ -12,7 +12,7 @@
 **Review Frequency:** Continuous (automated) with quarterly manual validation 
 **Repository Path:** [`operations/register-asset-inventory.md`](register-asset-inventory.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -34,7 +34,7 @@ Covers all organizational assets including:
 
 ---
 
-## Asset Classification
+## Asset classification
 
 | Classification | Description | Examples |
 | --- | --- | --- |
@@ -45,7 +45,7 @@ Covers all organizational assets including:
 
 ---
 
-## Asset Record Schema
+## Asset record schema
 
 Each asset record must contain the following fields:
 
@@ -61,7 +61,7 @@ Each asset record must contain the following fields:
 | **Location** | Physical location, data centre, or cloud region |
 | **Platform / Environment** | Production / DR / Development / Test |
 | **Version / Build** | Current version or build number |
-| **Licence** | Licence type, expiry date, and seat count (software) |
+| **License** | License type, expiry date, and seat count (software) |
 | **Vendor / Manufacturer** | Supplier name |
 | **Support Status** | Supported / End-of-Support / End-of-Life |
 | **End-of-Life Date** | Known or estimated end-of-life |
@@ -82,19 +82,19 @@ Each asset record must contain the following fields:
 - IT Operations maintains the inventory on a day-to-day basis using automated discovery tooling integrated with the IT Asset Management System.
 - Each asset must have a named owner (role title) who is responsible for its currency, security, and lifecycle management.
 
-### Automated Discovery
+### Automated discovery
 
 - Automated discovery tools scan the network and cloud environments continuously to detect new, changed, or removed assets.
 - Unregistered assets detected by automated discovery are flagged as unauthorised and reviewed within 2 business days.
 - Cloud resource tagging standards enforce mandatory owner, classification, and environment tags on all cloud assets.
 
-### Manual Validation
+### Manual validation
 
 - Asset owners validate their asset records quarterly to confirm accuracy.
 - IT Operations conducts a full inventory reconciliation annually, comparing automated discovery results against the registered inventory.
 - Discrepancies are investigated and resolved within 10 business days.
 
-### Unauthorised Assets
+### Unauthorised assets
 
 - Assets detected in the environment that are not in the inventory are treated as potentially unauthorised.
 - Unauthorised assets are quarantined from network access pending investigation.
@@ -102,7 +102,7 @@ Each asset record must contain the following fields:
 
 ---
 
-## Lifecycle Management
+## Lifecycle management
 
 | Lifecycle Stage | Trigger | Action |
 | --- | --- | --- |
@@ -114,7 +114,7 @@ Each asset record must contain the following fields:
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

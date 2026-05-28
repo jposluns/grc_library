@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material platform or regulatory change 
 **Repository Path:** [`operations/standard-network-security-and-segmentation.md`](standard-network-security-and-segmentation.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -46,7 +46,7 @@ Network design must limit blast radius and systematically close lateral movement
 
 ---
 
-## 4. Network Zone Model
+## 4. Network zone model
 
 All zone boundaries operate on a **default-deny** basis. Inter-zone communication requires explicit approved rules.
 
@@ -60,7 +60,7 @@ All zone boundaries operate on a **default-deny** basis. Inter-zone communicatio
 | User (Corporate) | End-user endpoints | Access to approved services in PROD and internet via proxy |
 | BASC / Logistics | BASC-certified logistics, cargo, and customs systems | Isolated from non-certified environments; inter-zone access requires CISO and Regional BASC Officer authorization |
 
-### 4.1 Key Segmentation Requirements
+### 4.1 Key segmentation requirements
 
 - Non-production environments must be air-gapped from PROD. No direct network path between TEST/DEV and PROD is permitted without a change-controlled deployment process. This control directly addresses lateral movement pathways exploited during a prior ransomware incident.
 - Domain controllers must reside in a dedicated protected subnet. Inbound access is restricted to domain-joined systems on approved management protocols (LDAP/S, Kerberos, DNS).
@@ -70,28 +70,28 @@ All zone boundaries operate on a **default-deny** basis. Inter-zone communicatio
 
 ---
 
-## 5. Firewall and Perimeter Security
+## 5. Firewall and perimeter security
 
-### 5.1 General Requirements
+### 5.1 General requirements
 
 - All perimeter gateways must enforce deny-by-default rules and allow only approved, documented traffic.
 - Firewalls must support stateful inspection, intrusion prevention, and content filtering.
 - Configuration changes must be approved through change-management workflows.
 
-### 5.2 Rule Management
+### 5.2 Rule management
 
 - All firewall rules must have a documented business justification, named owner, and scheduled review date.
 - Rules are reviewed at least annually. Any rule without a current owner or justification must be disabled pending review.
 - Emergency rule additions require CISO notification within 24 hours and a formal change ticket within 5 business days.
 
-### 5.3 BASC Customs Communications
+### 5.3 BASC customs communications
 
 - BASC customs communication channels (e.g., EDI, customs API gateways) must be secured with TLS 1.3 or stronger and validated PKI certificates.
 - Firewall configurations for BASC-certified operations must include customs and cargo logging policies meeting BASC Section 6 documentation controls.
 
 ---
 
-## 6. Cloud Network Security
+## 6. Cloud network security
 
 - Network security groups (NSGs) must be applied at the subnet level on all cloud virtual networks.
 - A cloud firewall or equivalent web application firewall (WAF) must be deployed for all internet-facing workloads.
@@ -100,14 +100,14 @@ All zone boundaries operate on a **default-deny** basis. Inter-zone communicatio
 
 ---
 
-## 7. Intrusion Detection, Prevention, and Monitoring
+## 7. Intrusion detection, prevention, and monitoring
 
-### 7.1 General IDS/IPS Requirements
+### 7.1 General IDS/IPS requirements
 
 - IDS and IPS systems must monitor all network traffic and integrate with the central SIEM.
 - The SOC must investigate alerts within 15 minutes for high-severity events and within 1 hour for medium-severity events.
 
-### 7.2 BASC Logistics and Customs Networks
+### 7.2 BASC logistics and customs networks
 
 - BASC logistics and customs networks must have dedicated intrusion-detection sensors monitoring for:
  - Unauthorised customs system access
@@ -115,7 +115,7 @@ All zone boundaries operate on a **default-deny** basis. Inter-zone communicatio
  - Unauthorised network segmentation bypass
 - All BASC intrusion logs must be retained for at least seven years in tamper-evident archives.
 
-### 7.3 AI-Assisted Network Defence
+### 7.3 AI-assisted network defence
 
 - AI analytics tools may be deployed to continuously evaluate traffic for anomaly detection, drift patterns, or behaviour consistent with adversarial attacks.
 - AI tools must produce explainable results for all autonomous actions and must integrate with SOC dashboards.
@@ -123,9 +123,9 @@ All zone boundaries operate on a **default-deny** basis. Inter-zone communicatio
 
 ---
 
-## 8. Remote Access and Secure Connectivity
+## 8. Remote access and secure connectivity
 
-### 8.1 Remote Access
+### 8.1 Remote access
 
 - VPN or Zero-Trust Network Access (ZTNA) solutions are the approved mechanisms for remote access to on-premises and sensitive resources. Solutions must enforce device health checks, MFA, and continuous session validation.
 - VPN authentication requires enterprise identity provider MFA.
@@ -134,18 +134,18 @@ All zone boundaries operate on a **default-deny** basis. Inter-zone communicatio
 - RDP and SSH to production systems via the public internet without VPN is prohibited.
 - Direct remote access to BASC trade or customs networks is prohibited unless authorized in writing by the CISO and the relevant Regional BASC Officer.
 
-### 8.2 Partner and Supplier Connectivity
+### 8.2 Partner and supplier connectivity
 
 - Partner and supplier connections must be isolated using virtual network peering, firewalls, or secure APIs.
 - Partner connections must be reviewed at least annually and terminated when the business relationship ends.
 
-### 8.3 Wireless Access
+### 8.3 Wireless access
 
 - Wireless access points within logistics or customs facilities must use WPA3-Enterprise encryption and must maintain logs for all authenticated sessions.
 
 ---
 
-## 9. Encryption and Data Protection
+## 9. Encryption and data protection
 
 - All network traffic must be encrypted using industry-approved algorithms (TLS 1.3, IPsec AES-256).
 - Encryption keys for BASC customs communications must be issued and managed under BASC-approved PKI or WCO SAFE-compliant authority.
@@ -154,9 +154,9 @@ All zone boundaries operate on a **default-deny** basis. Inter-zone communicatio
 
 ---
 
-## 10. BASC Trade-Network Security Controls
+## 10. BASC trade-network security controls
 
-### 10.1 Facility and Network Controls
+### 10.1 Facility and network controls
 
 BASC-certified facilities and logistics networks must implement:
 
@@ -164,7 +164,7 @@ BASC-certified facilities and logistics networks must implement:
 - Cargo and seal-tracking telemetry with audit trails
 - Customs-document integrity verification through checksum or equivalent integrity validation
 
-### 10.2 Compliance Audits
+### 10.2 Compliance audits
 
 BASC Section 6 compliance audits must verify:
 
@@ -172,13 +172,13 @@ BASC Section 6 compliance audits must verify:
 - Encryption and PKI validation for customs communications
 - Physical access control to networking and logistics hubs
 
-### 10.3 Incident Response
+### 10.3 Incident response
 
 Any detected BASC trade-network anomaly must trigger the Security Incident Response Procedure within 2 hours of discovery.
 
 ---
 
-## 11. Monitoring, Testing, and Continuous Improvement
+## 11. Monitoring, testing, and continuous improvement
 
 - The SOC must continuously monitor network performance, intrusion alerts, and access logs.
 - Penetration tests, vulnerability scans, and BASC trade-network inspections must occur at least annually.
@@ -187,7 +187,7 @@ Any detected BASC trade-network anomaly must trigger the Security Incident Respo
 
 ---
 
-## 12. Framework Alignment
+## 12. Framework alignment
 
 | Framework | Reference |
 |---|---|

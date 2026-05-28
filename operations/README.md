@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material infrastructure, cloud, or threat change 
 **Repository Path:** [`operations/README.md`](README.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This directory contains production and infrastructure security standards, proced
 
 ---
 
-## Active Documents
+## Active documents
 
 | Type | Title | Path |
 | --- | --- | --- |
@@ -45,7 +45,7 @@ This directory contains production and infrastructure security standards, proced
 
 ---
 
-## Domain Coverage
+## Domain coverage
 
 The operations domain covers:
 
@@ -65,7 +65,7 @@ The operations domain covers:
 
 ---
 
-## Planned Expansion
+## Planned expansion
 
 - ~~Standard: Production Security Requirements~~ *(active)*
 - ~~Standard: Network Security and Segmentation~~ *(active)*

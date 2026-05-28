@@ -12,7 +12,7 @@
 **Review Frequency:** Continuous; CISO review monthly; full review annually 
 **Repository Path:** [`operations/register-it-security-operations.md`](register-it-security-operations.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -24,7 +24,7 @@ The operational register is maintained in the GRC platform and updated continuou
 
 ---
 
-## Register Governance
+## Register governance
 
 | Principle | Requirement |
 | --- | --- |
@@ -35,9 +35,9 @@ The operational register is maintained in the GRC platform and updated continuou
 
 ---
 
-## Register Sections
+## Register sections
 
-### Section 1: Vendor and Partner Assignments
+### Section 1: vendor and partner assignments
 
 Records current vendor and partner relationships for security and operational functions including:
 - Security monitoring and SOC services.
@@ -48,7 +48,7 @@ Records current vendor and partner relationships for security and operational fu
 
 For each vendor, the register records: function, contract reference, renewal schedule, and scope notes. Vendor assignments are reviewed and confirmed annually.
 
-### Section 2: Application Platform Inventory
+### Section 2: application platform inventory
 
 Records the security baseline status for each application platform in scope. For each platform:
 - Platform name and description.
@@ -58,7 +58,7 @@ Records the security baseline status for each application platform in scope. For
 
 Platforms are linked to the Asset Inventory Register for lifecycle and asset management details.
 
-### Section 3: Unapproved Platforms
+### Section 3: unapproved platforms
 
 Records platforms identified as in use but not formally approved through the Acceptance Into Service process. For each unapproved platform:
 - Platform name.
@@ -69,7 +69,7 @@ Records platforms identified as in use but not formally approved through the Acc
 
 Unapproved platforms present in the production environment are treated as risks and tracked until resolved.
 
-### Section 4: Cloud Subscription and Environment Architecture
+### Section 4: cloud subscription and environment architecture
 
 Records the organizational cloud environment structure including:
 - Subscription / account names and purposes.
@@ -79,7 +79,7 @@ Records the organizational cloud environment structure including:
 
 Cross-environment connectivity from production to non-production is prohibited unless documented with risk acceptance.
 
-### Section 5: End-of-Life (EOL) Violations
+### Section 5: end-of-life (EOL) violations
 
 Records all systems and runtimes that have passed their vendor-supported end-of-life date. For each violation:
 - Runtime or system name.
@@ -91,7 +91,7 @@ Records all systems and runtimes that have passed their vendor-supported end-of-
 
 Class 1 EOL violations require remediation within 30 days. Class 2 within 90 days. All EOL items are escalated to the CIO monthly.
 
-### Section 6: Active Security Findings
+### Section 6: active security findings
 
 Records active operational security findings not yet resolved. For each finding:
 - Finding ID.
@@ -104,7 +104,7 @@ Records active operational security findings not yet resolved. For each finding:
 
 Critical findings are escalated to the CISO and CIO immediately. All findings are reviewed in the monthly CISO register review.
 
-### Section 7: Identity and Access Operational State
+### Section 7: identity and access operational state
 
 Records current state of identity management including:
 - Status of privileged identity management deployment.
@@ -112,11 +112,11 @@ Records current state of identity management including:
 - Service account inventory status.
 - Access review completion status.
 
-### Section 8: Infrastructure Programme Gate Mapping
+### Section 8: infrastructure programme gate mapping
 
 Records security acceptance criteria for each phase of the current infrastructure programme and tracks current status. Links programme milestones to security baseline requirements.
 
-### Section 9: Active Operational Constraints
+### Section 9: active operational constraints
 
 Records any active "do not modify" or restricted-change constraints on production systems, including:
 - System or component name.
@@ -127,7 +127,7 @@ Records any active "do not modify" or restricted-change constraints on productio
 
 ---
 
-## Relationship to Other Documents
+## Relationship to other documents
 
 | Register / Document | Relationship |
 | --- | --- |
@@ -138,7 +138,7 @@ Records any active "do not modify" or restricted-change constraints on productio
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

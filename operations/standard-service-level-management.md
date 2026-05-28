@@ -2,7 +2,7 @@
 
 **Document Title:** Service Level Management Standard 
 **Document Type:** Standard 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Chief Information Officer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material service, contract, or regulatory change 
 **Repository Path:** [`operations/standard-service-level-management.md`](standard-service-level-management.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -37,7 +37,7 @@ This standard does not apply to external services where the organization is the 
 
 ## Requirements
 
-### 1: Service Catalogue and Service Classification
+### 1: Service catalogue and service classification
 
 1.1 The Service Management Office must maintain a current service catalogue listing all in-scope IT services with their service classification, support tier, business criticality, and assigned Service Owner.
 
@@ -54,7 +54,7 @@ This standard does not apply to external services where the organization is the 
 
 ---
 
-### 2: SLA Establishment Requirements
+### 2: SLA establishment requirements
 
 2.1 Every Tier 1 and Tier 2 service must have a documented and approved SLA before entering production. SLAs for Tier 3 and Tier 4 services are recommended but not mandatory.
 
@@ -77,7 +77,7 @@ This standard does not apply to external services where the organization is the 
 
 ---
 
-### 3: Operational Level Agreements
+### 3: Operational level agreements
 
 3.1 Where a service depends on support from one or more internal IT teams, an Operational Level Agreement must be established between the Service Owner and each supporting team.
 
@@ -89,7 +89,7 @@ This standard does not apply to external services where the organization is the 
 
 ---
 
-### 4: SLA Monitoring and Measurement
+### 4: SLA monitoring and measurement
 
 4.1 Service availability and performance must be measured continuously using the organization's monitoring toolset. Manual measurements are permitted only where automated monitoring is not feasible and must be documented as a known limitation.
 
@@ -107,7 +107,7 @@ This standard does not apply to external services where the organization is the 
 
 ---
 
-### 5: Breach Detection and Escalation
+### 5: Breach detection and escalation
 
 5.1 A breach occurs when a service availability or resolution target is not met within the measurement period and is not attributable to an approved exclusion.
 
@@ -127,7 +127,7 @@ This standard does not apply to external services where the organization is the 
 
 ---
 
-### 6: SLA Review
+### 6: SLA review
 
 6.1 All SLAs must be reviewed at least annually. The review must assess:
 
@@ -148,7 +148,7 @@ This standard does not apply to external services where the organization is the 
 
 ---
 
-### 7: Supplier SLA Governance
+### 7: Supplier SLA governance
 
 7.1 Where an external supplier is responsible for delivering or supporting a service, the organization must hold the supplier accountable to the contracted SLA through the supplier governance process defined in `supply-chain/standard-supplier-security-and-privacy-assurance.md`.
 
@@ -165,7 +165,7 @@ This standard does not apply to external services where the organization is the 
 
 ---
 
-### 8: Cloud Provider Service Agreement Management
+### 8: Cloud provider service agreement management
 
 8.1 Where cloud infrastructure or platform services underpin a Tier 1 or Tier 2 internal service, the relevant cloud provider service agreement must be reviewed to identify:
 
@@ -180,7 +180,7 @@ This standard does not apply to external services where the organization is the 
 
 ---
 
-### 9: Continuous Improvement
+### 9: Continuous improvement
 
 9.1 Breach trends, repeat failures, and SLA performance patterns must be reviewed at the quarterly SLA governance meeting and fed into the ITIL 4 continual improvement cycle operated under the IT Service Management Framework.
 
@@ -190,7 +190,7 @@ This standard does not apply to external services where the organization is the 
 
 ---
 
-## Evidence Requirements
+## Evidence requirements
 
 Adopting organizations should retain:
 
@@ -203,7 +203,7 @@ Adopting organizations should retain:
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

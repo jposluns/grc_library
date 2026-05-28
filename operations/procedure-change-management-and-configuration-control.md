@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material platform or regulatory change 
 **Repository Path:** [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 This procedure defines the end-to-end process for classifying, approving, scheduling, implementing, and reviewing changes to production infrastructure, applications, and security configurations.
 
@@ -33,7 +33,7 @@ To ensure that changes to production systems are controlled, traceable, and reve
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -47,7 +47,7 @@ To ensure that changes to production systems are controlled, traceable, and reve
 
 ---
 
-## 1. Change Classification
+## 1. Change classification
 
 All changes must be classified before submission to the change process.
 
@@ -60,7 +60,7 @@ All changes must be classified before submission to the change process.
 
 ---
 
-## 2. Change Lifecycle
+## 2. Change lifecycle
 
 ### 2.1 Request
 
@@ -96,7 +96,7 @@ Approved Normal and High-risk changes are placed on the forward schedule of chan
 
 Changes must be implemented exactly as described in the approved CR. All production changes must be executed through the approved infrastructure-as-code (IaC) pipeline. Direct manual changes to production systems are prohibited except during declared incidents; any manual change made during an incident must be codified in the IaC pipeline within 24 hours.
 
-### 2.6 Post-Implementation Review (PIR)
+### 2.6 Post-implementation review (PIR)
 
 Within the same or next business day following implementation, the implementer completes a PIR confirming:
 
@@ -109,17 +109,17 @@ Failed changes that required rollback are escalated for root cause analysis.
 
 ---
 
-## 3. Change Advisory Board (CAB)
+## 3. Change advisory board (CAB)
 
 ### 3.1 Composition
 
 The CAB includes: Change Manager (chair); CISO or Security Engineering representative; IT Operations representative; relevant System Owners for changes on the agenda; and Business stakeholder representatives for user-impacting changes.
 
-### 3.2 Meeting Cadence
+### 3.2 Meeting cadence
 
 The CAB meets weekly. An emergency CAB can be convened within 4 hours for urgent Normal changes or retrospective Emergency change reviews.
 
-### 3.3 Decision Criteria
+### 3.3 Decision criteria
 
 The CAB evaluates each CR against:
 
@@ -133,7 +133,7 @@ A majority vote approves the change. The CISO holds a veto for changes with unre
 
 ---
 
-## 4. Emergency Change Process
+## 4. Emergency change process
 
 Emergency changes follow an accelerated path:
 
@@ -147,17 +147,17 @@ The CISO must be notified of all Emergency changes within 1 hour of initiation.
 
 ---
 
-## 5. IaC and Configuration Baseline
+## 5. Iac and configuration baseline
 
-### 5.1 Infrastructure-as-Code Requirement
+### 5.1 Infrastructure-as-code requirement
 
 All production infrastructure configurations must be managed as code in the approved IaC repository. No production resources may exist outside the IaC baseline without a documented exception.
 
-### 5.2 Configuration Drift Management
+### 5.2 Configuration drift management
 
 Automated configuration drift detection compares deployed configuration against the IaC baseline. Detected drift is alerted to IT Operations and Security Engineering. High-risk drift (critical security control disabled or authentication bypass introduced) is classified as a P2 incident.
 
-### 5.3 Baseline Documentation
+### 5.3 Baseline documentation
 
 The following must be maintained as living artefacts and updated within 30 days of any change:
 
@@ -168,7 +168,7 @@ The following must be maintained as living artefacts and updated within 30 days 
 
 ---
 
-## 6. Rollback Planning
+## 6. Rollback planning
 
 Every CAB-reviewed change must include a documented rollback plan that has been tested or reviewed for viability before CAB submission. The rollback plan must specify:
 
@@ -182,7 +182,7 @@ Rollback plans that have not been tested must be explicitly flagged in the CR; t
 
 ---
 
-## 7. Records and Evidence
+## 7. Records and evidence
 
 All change records must be retained in the ITSM platform and archived for a minimum of 3 years. Required evidence includes: the approved CR with all attachments; CAB meeting minutes and vote records; implementation log with timestamps; PIR sign-off; and rollback evidence where applicable.
 
@@ -202,7 +202,7 @@ The following metrics are reported to the CISO and CIO monthly:
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Control Area | ISO/IEC 20000 | ISO/IEC 27001 | COBIT 2025 | CSA CCM v5 | NIST |
 | --- | --- | --- | --- | --- | --- |
