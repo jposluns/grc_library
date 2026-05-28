@@ -1,18 +1,18 @@
 # Resilience Domain
 
-**Document Title:** Resilience Domain README  
-**Document Type:** Register  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Resilience Owner  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md)  
-**Classification:** Public  
-**Category:** Resilience  
-**Review Frequency:** Annual and upon material continuity, crisis, recovery, supplier, or regulatory change  
-**Repository Path:** [`resilience/README.md`](README.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Resilience Domain README 
+**Document Type:** Register 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Resilience Owner 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md) 
+**Classification:** Public 
+**Category:** Resilience 
+**Review Frequency:** Annual and upon material continuity, crisis, recovery, supplier, or regulatory change 
+**Repository Path:** [`resilience/README.md`](README.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 

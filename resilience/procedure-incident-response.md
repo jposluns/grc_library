@@ -1,18 +1,18 @@
 # Incident Response Procedure
 
-**Document Title:** Incident Response Procedure  
-**Document Type:** Procedure  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Security Owner  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](../security/sop-security-ticket-reporting-scheme.md)  
-**Classification:** Public  
-**Category:** Resilience  
-**Review Frequency:** Annual and upon material incident, threat, system, supplier, AI, privacy, or regulatory change  
-**Repository Path:** [`resilience/procedure-incident-response.md`](procedure-incident-response.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Incident Response Procedure 
+**Document Type:** Procedure 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Security Owner 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](../security/sop-security-ticket-reporting-scheme.md) 
+**Classification:** Public 
+**Category:** Resilience 
+**Review Frequency:** Annual and upon material incident, threat, system, supplier, AI, privacy, or regulatory change 
+**Repository Path:** [`resilience/procedure-incident-response.md`](procedure-incident-response.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 

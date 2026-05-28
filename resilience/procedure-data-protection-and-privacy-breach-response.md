@@ -1,18 +1,18 @@
 # Data Protection and Privacy Breach Response Procedure
 
-**Document Title:** Data Protection and Privacy Breach Response Procedure  
-**Document Type:** Procedure  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Privacy Owner  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`resilience/procedure-incident-response.md`](procedure-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md)  
-**Classification:** Public  
-**Category:** Resilience  
-**Review Frequency:** Annual and upon material privacy, data protection, incident, AI, supplier, or regulatory change  
-**Repository Path:** [`resilience/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Data Protection and Privacy Breach Response Procedure 
+**Document Type:** Procedure 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Privacy Owner 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`resilience/procedure-incident-response.md`](procedure-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md) 
+**Classification:** Public 
+**Category:** Resilience 
+**Review Frequency:** Annual and upon material privacy, data protection, incident, AI, supplier, or regulatory change 
+**Repository Path:** [`resilience/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 

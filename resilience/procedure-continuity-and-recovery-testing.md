@@ -1,18 +1,18 @@
 # Continuity and Recovery Testing Procedure
 
-**Document Title:** Continuity and Recovery Testing Procedure  
-**Document Type:** Procedure  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Resilience Owner  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md), [`resilience/business-continuity-and-crisis-management.md`](business-continuity-and-crisis-management.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`resilience/procedure-backup-and-recovery.md`](procedure-backup-and-recovery.md), [`resilience/register-resilience-metrics-and-testing-log.md`](register-resilience-metrics-and-testing-log.md)  
-**Classification:** Public  
-**Category:** Resilience  
-**Review Frequency:** Annual and upon material continuity, recovery, supplier, system, data, or AI change  
-**Repository Path:** [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Continuity and Recovery Testing Procedure 
+**Document Type:** Procedure 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Resilience Owner 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md), [`resilience/business-continuity-and-crisis-management.md`](business-continuity-and-crisis-management.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`resilience/procedure-backup-and-recovery.md`](procedure-backup-and-recovery.md), [`resilience/register-resilience-metrics-and-testing-log.md`](register-resilience-metrics-and-testing-log.md) 
+**Classification:** Public 
+**Category:** Resilience 
+**Review Frequency:** Annual and upon material continuity, recovery, supplier, system, data, or AI change 
+**Repository Path:** [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 

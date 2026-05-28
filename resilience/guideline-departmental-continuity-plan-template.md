@@ -1,18 +1,18 @@
 # Departmental Continuity Plan Template
 
-**Document Title:** Departmental Continuity Plan Template  
-**Document Type:** Template  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Resilience Owner  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`resilience/business-continuity-and-crisis-management.md`](business-continuity-and-crisis-management.md)  
-**Classification:** Public  
-**Category:** Resilience  
-**Review Frequency:** Annual and upon material process, service, supplier, data, workforce, facility, or system change  
-**Repository Path:** [`resilience/guideline-departmental-continuity-plan-template.md`](guideline-departmental-continuity-plan-template.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Departmental Continuity Plan Template 
+**Document Type:** Template 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Resilience Owner 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`resilience/business-continuity-and-crisis-management.md`](business-continuity-and-crisis-management.md) 
+**Classification:** Public 
+**Category:** Resilience 
+**Review Frequency:** Annual and upon material process, service, supplier, data, workforce, facility, or system change 
+**Repository Path:** [`resilience/guideline-departmental-continuity-plan-template.md`](guideline-departmental-continuity-plan-template.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -38,74 +38,74 @@ This template provides a reusable structure for documenting departmental or func
 
 | Field | Entry |
 | --- | --- |
-| Department or Function |  |
-| Plan Owner Role |  |
-| Alternate Owner Role |  |
-| Critical Services Supported |  |
-| Primary Operating Mode |  |
-| Alternate Operating Mode |  |
-| Last Review Date |  |
-| Next Review Date |  |
+| Department or Function | |
+| Plan Owner Role | |
+| Alternate Owner Role | |
+| Critical Services Supported | |
+| Primary Operating Mode | |
+| Alternate Operating Mode | |
+| Last Review Date | |
+| Next Review Date | |
 
 ### 2. Critical Processes
 
 | Process | Criticality Tier | Maximum Tolerable Disruption | Recovery Time Objective | Recovery Point Objective | Minimum Service Level | Manual Workaround |
 | --- | --- | --- | --- | --- | --- | --- |
-|  |  |  |  |  |  |  |
+| | | | | | | |
 
 ### 3. Dependencies
 
 | Dependency Type | Dependency Description | Owner Role | Alternate or Workaround | Recovery Constraint |
 | --- | --- | --- | --- | --- |
-| People |  |  |  |  |
-| Facility |  |  |  |  |
-| Application or System |  |  |  |  |
-| Data Set |  |  |  |  |
-| Supplier |  |  |  |  |
-| Cloud Service |  |  |  |  |
-| AI System or Automation |  |  |  |  |
-| Communication Channel |  |  |  |  |
+| People | | | | |
+| Facility | | | | |
+| Application or System | | | | |
+| Data Set | | | | |
+| Supplier | | | | |
+| Cloud Service | | | | |
+| AI System or Automation | | | | |
+| Communication Channel | | | | |
 
 ### 4. Continuity Actions
 
 | Disruption Scenario | Immediate Action | Sustained Workaround | Escalation Role | Evidence to Capture |
 | --- | --- | --- | --- | --- |
-| Loss of primary system |  |  |  |  |
-| Loss of critical data |  |  |  |  |
-| Supplier failure |  |  |  |  |
-| Facility unavailable |  |  |  |  |
-| Workforce unavailable |  |  |  |  |
-| AI system unavailable or unsafe |  |  |  |  |
+| Loss of primary system | | | | |
+| Loss of critical data | | | | |
+| Supplier failure | | | | |
+| Facility unavailable | | | | |
+| Workforce unavailable | | | | |
+| AI system unavailable or unsafe | | | | |
 
 ### 5. Communication Requirements
 
 | Audience | Message Purpose | Approval Role | Channel Class | Timing |
 | --- | --- | --- | --- | --- |
-| Internal stakeholders |  |  |  |  |
-| Customers or users |  |  |  |  |
-| Suppliers |  |  |  |  |
-| Regulators or authorities |  |  |  |  |
+| Internal stakeholders | | | | |
+| Customers or users | | | | |
+| Suppliers | | | | |
+| Regulators or authorities | | | | |
 
 ### 6. Restoration and Return to Normal
 
 | Step | Description | Owner Role | Validation Evidence |
 | --- | --- | --- | --- |
-| Confirm service stability |  |  |  |
-| Validate data integrity |  |  |  |
-| Reconcile manual workarounds |  |  |  |
-| Confirm control state |  |  |  |
-| Record residual risk |  |  |  |
-| Approve return to normal |  |  |  |
+| Confirm service stability | | | |
+| Validate data integrity | | | |
+| Reconcile manual workarounds | | | |
+| Confirm control state | | | |
+| Record residual risk | | | |
+| Approve return to normal | | | |
 
 ### 7. Testing and Maintenance
 
 | Test or Review | Frequency | Owner Role | Evidence |
 | --- | --- | --- | --- |
-| Plan review |  |  |  |
-| Tabletop exercise |  |  |  |
-| Manual workaround test |  |  |  |
-| Supplier escalation test |  |  |  |
-| AI fallback or disablement test |  |  |  |
+| Plan review | | | |
+| Tabletop exercise | | | |
+| Manual workaround test | | | |
+| Supplier escalation test | | | |
+| AI fallback or disablement test | | | |
 
 ---
 

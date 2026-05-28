@@ -1,18 +1,18 @@
 # Crisis Communication Plan
 
-**Document Title:** Crisis Communication Plan  
-**Document Type:** Plan  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Communications Owner  
-**Approving Authority:** Executive Management  
-**Related Documents:** [`resilience/business-continuity-and-crisis-management.md`](business-continuity-and-crisis-management.md), [`resilience/procedure-crisis-management-eoc-activation.md`](procedure-crisis-management-eoc-activation.md), [`resilience/procedure-incident-response.md`](procedure-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`resilience/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md)  
-**Classification:** Public  
-**Category:** Resilience  
-**Review Frequency:** Annual and upon material incident, communication, legal, regulatory, supplier, or operational change  
-**Repository Path:** [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Crisis Communication Plan 
+**Document Type:** Plan 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Communications Owner 
+**Approving Authority:** Executive Management 
+**Related Documents:** [`resilience/business-continuity-and-crisis-management.md`](business-continuity-and-crisis-management.md), [`resilience/procedure-crisis-management-eoc-activation.md`](procedure-crisis-management-eoc-activation.md), [`resilience/procedure-incident-response.md`](procedure-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`resilience/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md) 
+**Classification:** Public 
+**Category:** Resilience 
+**Review Frequency:** Annual and upon material incident, communication, legal, regulatory, supplier, or operational change 
+**Repository Path:** [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 

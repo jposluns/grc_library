@@ -1,18 +1,18 @@
 # Emergency Operations Contact Directory Template
 
-**Document Title:** Emergency Operations Contact Directory Template  
-**Document Type:** Register  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Resilience Owner  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/business-continuity-and-crisis-management.md`](business-continuity-and-crisis-management.md), [`resilience/procedure-crisis-management-eoc-activation.md`](procedure-crisis-management-eoc-activation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md)  
-**Classification:** Public  
-**Category:** Resilience  
-**Review Frequency:** Annual and upon material role, service, facility, supplier, or emergency response change  
-**Repository Path:** [`resilience/register-eoc-contact-directory.md`](register-eoc-contact-directory.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Emergency Operations Contact Directory Template 
+**Document Type:** Register 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Resilience Owner 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/business-continuity-and-crisis-management.md`](business-continuity-and-crisis-management.md), [`resilience/procedure-crisis-management-eoc-activation.md`](procedure-crisis-management-eoc-activation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md) 
+**Classification:** Public 
+**Category:** Resilience 
+**Review Frequency:** Annual and upon material role, service, facility, supplier, or emergency response change 
+**Repository Path:** [`resilience/register-eoc-contact-directory.md`](register-eoc-contact-directory.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -59,11 +59,11 @@ The template can be adapted for crisis management, emergency operations, continu
 
 | Role or Function | Primary Contact | Alternate Contact | Responsibility | Communication Channel | Availability Window | Escalation Path | Review Date | Record Owner |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Crisis Manager |  |  | Coordinates crisis response cadence and action tracking. |  |  | Executive Sponsor |  | Resilience Owner |
-| Technology Recovery Lead |  |  | Coordinates technology recovery and restoration validation. |  |  | Crisis Manager |  | Technology Owner |
-| Security Response Lead |  |  | Coordinates security containment, investigation, and evidence preservation. |  |  | Crisis Manager |  | Security Owner |
-| Privacy Response Lead |  |  | Coordinates personal data impact assessment and breach response. |  |  | Legal and Compliance Lead |  | Privacy Owner |
-| Supplier Escalation Lead |  |  | Coordinates third-party provider escalation and recovery commitments. |  |  | Crisis Manager |  | Supplier Owner |
+| Crisis Manager | | | Coordinates crisis response cadence and action tracking. | | | Executive Sponsor | | Resilience Owner |
+| Technology Recovery Lead | | | Coordinates technology recovery and restoration validation. | | | Crisis Manager | | Technology Owner |
+| Security Response Lead | | | Coordinates security containment, investigation, and evidence preservation. | | | Crisis Manager | | Security Owner |
+| Privacy Response Lead | | | Coordinates personal data impact assessment and breach response. | | | Legal and Compliance Lead | | Privacy Owner |
+| Supplier Escalation Lead | | | Coordinates third-party provider escalation and recovery commitments. | | | Crisis Manager | | Supplier Owner |
 
 ---
 
