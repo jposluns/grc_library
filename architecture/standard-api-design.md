@@ -2,7 +2,7 @@
 
 **Document Title:** API Design Standard 
 **Document Type:** Standard 
-**Version:** 0.0.1 
+**Version:** 0.0.2 
 **Date:** 2026-05-28 
 **Owner:** Chief Technology Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -33,6 +33,18 @@ This standard applies to:
 5. Asynchronous interfaces (event streams, webhooks) where a contract is offered to consumers.
 
 It does not govern private interfaces wholly within a single deployable unit.
+
+### Relationship to the API security standard and approval sequence
+
+This standard (CTO-owned) covers API design choices. The dev-security API security standard ([`dev-security/standard-api-security.md`](../dev-security/standard-api-security.md)) (CISO-owned) covers API security controls (authentication, authorisation, input validation, transport, rate limiting, observability).
+
+For material new APIs the approval sequence is:
+
+1. **Design choice gate** - this standard, reviewed at the architecture review forum.
+2. **Threat-model gate** - the security architecture forum (or the secure code review path for routine APIs) reviews threat model and security controls per the API security standard.
+3. **Implementation** - proceeds once both gates pass.
+
+A security-gate finding that implies a design change returns the proposal to step 1; the conditional-endorsement disposition in the architecture review procedure handles this loop.
 
 ---
 
