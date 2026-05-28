@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon significant standards revision 
 **Repository Path:** [`supply-chain/template-supplier-security-questionnaire.md`](template-supplier-security-questionnaire.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -24,7 +24,7 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 ---
 
-## Section 1: Organization Profile
+## Section 1: organization profile
 
 | Question | Response |
 |---|---|
@@ -37,7 +37,7 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 ---
 
-## Section 2: Security Governance
+## Section 2: security governance
 
 | Question | Yes/No | Evidence / Comment |
 |---|---|---|
@@ -51,7 +51,7 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 ---
 
-## Section 3: Access Control and Identity Management
+## Section 3: access control and identity management
 
 | Question | Yes/No | Evidence / Comment |
 |---|---|---|
@@ -64,7 +64,7 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 ---
 
-## Section 4: Vulnerability and Patch Management
+## Section 4: vulnerability and patch management
 
 | Question | Yes/No | Evidence / Comment |
 |---|---|---|
@@ -77,7 +77,7 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 ---
 
-## Section 5: Network and Infrastructure Security
+## Section 5: network and infrastructure security
 
 | Question | Yes/No | Evidence / Comment |
 |---|---|---|
@@ -90,7 +90,7 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 ---
 
-## Section 6: Incident Response
+## Section 6: incident response
 
 | Question | Yes/No | Evidence / Comment |
 |---|---|---|
@@ -103,7 +103,7 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 ---
 
-## Section 7: Data Protection and Privacy
+## Section 7: data protection and privacy
 
 | Question | Yes/No | Evidence / Comment |
 |---|---|---|
@@ -118,7 +118,7 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 ---
 
-## Section 8: Business Continuity and Resilience
+## Section 8: business continuity and resilience
 
 | Question | Yes/No | Evidence / Comment |
 |---|---|---|
@@ -131,7 +131,7 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 ---
 
-## Section 9: Sub-Contractors and Fourth Parties
+## Section 9: sub-contractors and fourth parties
 
 | Question | Yes/No | Evidence / Comment |
 |---|---|---|
@@ -143,7 +143,7 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 ---
 
-## Section 10: Trade Compliance (For Logistics Suppliers)
+## Section 10: trade compliance (for logistics suppliers)
 
 *Complete this section only if you provide logistics, freight, customs, or supply chain services.*
 
@@ -161,7 +161,7 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 ---
 
-## Section 11: AI Systems
+## Section 11: AI systems
 
 *Complete this section if you use or provide AI-enabled systems as part of your services.*
 
@@ -175,7 +175,7 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 ---
 
-## Section 12: Certifications and Evidence Attached
+## Section 12: certifications and evidence attached
 
 Please attach the following documents where applicable:
 

@@ -12,7 +12,7 @@
 **Review Frequency:** Quarterly review of active entries; annual template review 
 **Repository Path:** [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,9 +22,9 @@ This template defines the schema for the organization's Supplier Risk Register: 
 
 ---
 
-## Supplier Record Schema
+## Supplier record schema
 
-### Part A: Supplier Identification
+### Part a: supplier identification
 
 | Field | Description | Example |
 |---|---|---|
@@ -37,7 +37,7 @@ This template defines the schema for the organization's Supplier Risk Register: 
 | **Last Review Date** | Date of most recent risk review | |
 | **Status** | Active / Under Review / Exiting / Exited | Active |
 
-### Part B: Services and Scope
+### Part b: services and scope
 
 | Field | Description |
 |---|---|
@@ -48,7 +48,7 @@ This template defines the schema for the organization's Supplier Risk Register: 
 | **Personal Data Processing** | Yes / No: if Yes, link to DPA and subprocessor register entry |
 | **Trade Compliance Relevance** | Yes / No: if Yes, specify programme(s): CTPAT / AEO-S / PIP / BASC / Other |
 
-### Part C: Risk Classification
+### Part c: risk classification
 
 | Field | Scale / Options | Value |
 |---|---|---|
@@ -60,7 +60,7 @@ This template defines the schema for the organization's Supplier Risk Register: 
 | **Residual Risk Rating** | Low / Medium / High / Critical | |
 | **Within Risk Appetite?** | Yes / No / Borderline | |
 
-### Part D: Assurance and Compliance
+### Part d: assurance and compliance
 
 | Field | Description | Current Status |
 |---|---|---|
@@ -77,7 +77,7 @@ This template defines the schema for the organization's Supplier Risk Register: 
 | **Data Processing Agreement** | Executed / Not Required; date executed | |
 | **Sub-Contractor Disclosure** | Date of last sub-contractor list; number of material sub-contractors | |
 
-### Part E: Contract Details
+### Part e: contract details
 
 | Field | Description |
 |---|---|
@@ -92,7 +92,7 @@ This template defines the schema for the organization's Supplier Risk Register: 
 | **Data Return Obligation** | Format and timeline for data return on exit |
 | **Deletion Obligation** | Format and timeline for secure deletion on exit |
 
-### Part F: Monitoring Log
+### Part f: monitoring log
 
 Each monitoring activity must be recorded as a log entry:
 
@@ -102,13 +102,13 @@ Each monitoring activity must be recorded as a log entry:
 
 **Activity types:** Questionnaire review; Certification review; Financial check; Trade compliance verification; SLA review; Access review; Incident review; Unscheduled triggered review; Full reassessment
 
-### Part G: Issues and Corrective Actions
+### Part g: issues and corrective actions
 
 | Issue ID | Date Identified | Issue Description | Severity | CAPA Reference | Status | Resolved Date |
 |---|---|---|---|---|---|---|
 | | | | | | | |
 
-### Part H: Relationship History
+### Part h: relationship history
 
 | Event | Date | Description |
 |---|---|---|
@@ -122,7 +122,7 @@ Each monitoring activity must be recorded as a log entry:
 
 ---
 
-## Risk Score Reference
+## Risk score reference
 
 | Score | Rating | Monitoring Frequency (Tier 1) |
 |---|---|---|
@@ -135,7 +135,7 @@ For detailed scoring criteria see [`risk/procedure-risk-assessment-methodology.m
 
 ---
 
-## Register Governance
+## Register governance
 
 | Obligation | Frequency | Responsible |
 |---|---|---|
@@ -148,7 +148,7 @@ For detailed scoring criteria see [`risk/procedure-risk-assessment-methodology.m
 
 ---
 
-## Sample Entries
+## Sample entries
 
 | Supplier ID | Type | Tier | Residual Risk | Trade Compliance | Status |
 |---|---|---|---|---|---|

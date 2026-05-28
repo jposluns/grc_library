@@ -2,7 +2,7 @@
 
 **Document Title:** Trade and Supply-Chain Continuity Controls Annex 
 **Document Type:** Annex 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Supplier Risk Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material supplier, trade, regulatory, route, service, or resilience change 
 **Repository Path:** [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -30,7 +30,7 @@ It does not reproduce requirements from customs programmes, trade-security progr
 
 ---
 
-## Control Areas
+## Control areas
 
 | Control Area | Continuity Consideration | Evidence Class |
 | --- | --- | --- |
@@ -47,7 +47,7 @@ It does not reproduce requirements from customs programmes, trade-security progr
 
 ---
 
-## AI and Data Considerations
+## AI and data considerations
 
 Where AI systems support routing, shipment classification, document processing, risk scoring, fraud detection, customs documentation, supplier monitoring, or customer communications, continuity planning should address:
 
@@ -63,13 +63,13 @@ Where AI systems support routing, shipment classification, document processing, 
 
 ---
 
-## Applicability Notes
+## Applicability notes
 
 Trade and supply-chain obligations vary materially by jurisdiction, programme, sector, role, goods category, route, customs status, contractual commitment, and operating model. This annex provides a structure for continuity analysis only. It does not state that a specific programme, certification, notification deadline, or customs requirement applies.
 
 ---
 
-## Evidence Requirements
+## Evidence requirements
 
 Adopting organizations should maintain trade dependency maps, supplier continuity records, customs data inventories, route risk assessments, alternate processing plans, incident escalation records, recovery tests, corrective action logs, and residual risk decisions.
 

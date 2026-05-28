@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material supplier, regulatory, or framework change 
 **Repository Path:** [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -46,9 +46,9 @@ It integrates with the Supplier and Cloud Governance Framework, the Enterprise R
 
 ---
 
-## Third-Party Risk Management Lifecycle
+## Third-party risk management lifecycle
 
-### 1. Planning and Supplier Classification
+### 1. Planning and supplier classification
 
 All third parties must be classified into one of four tiers prior to engagement. Tier assignment determines the required depth of due diligence, monitoring frequency, and review cadence.
 
@@ -59,7 +59,7 @@ All third parties must be classified into one of four tiers prior to engagement.
 | Tier 3 | Moderate | Minimal data or system access; indirect service dependencies with limited organizational impact. |
 | Tier 4 | Low | No direct data or system access; negligible organizational impact. |
 
-### 2. Due Diligence and Risk Assessment
+### 2. Due diligence and risk assessment
 
 Before onboarding, each third party must undergo a structured risk assessment evaluating the following domains:
 
@@ -72,7 +72,7 @@ Before onboarding, each third party must undergo a structured risk assessment ev
 
 A Third-Party Risk Assessment Questionnaire (TPRAQ) must be completed by the supplier and reviewed jointly by Procurement and the CISO. High-risk findings must trigger a documented mitigation plan, contractual adjustments, or rejection of the engagement.
 
-### 3. Contracting and Security Clauses
+### 3. Contracting and security clauses
 
 All third-party contracts must include the following minimum provisions:
 
@@ -88,7 +88,7 @@ For AI service providers, contracts must additionally require:
 - Model validation and explainability measures per ISO/IEC 42001 §9.
 - Assurance of ethical data sourcing and absence of prohibited training data.
 
-### 4. Continuous Monitoring and Performance Review
+### 4. Continuous monitoring and performance review
 
 Supplier risk posture and performance must be monitored on an ongoing basis using the following mechanisms:
 
@@ -99,13 +99,13 @@ Supplier risk posture and performance must be monitored on an ongoing basis usin
 
 Tier 1 Critical suppliers must undergo semi-annual formal assessments and independent audits where contractually and operationally feasible.
 
-### 5. Incident Management
+### 5. Incident management
 
 All third parties must report security incidents or data breaches to the organization within 24 hours of discovery. Incidents involving personal data or regulated data categories must be escalated in accordance with the Data Protection and Privacy Breach Response Procedure.
 
 Suppliers that fail to comply with breach notification requirements may be subject to contract suspension or termination.
 
-### 6. Offboarding and Contract Termination
+### 6. Offboarding and contract termination
 
 Upon contract termination or expiry, the supplier must:
 
@@ -117,7 +117,7 @@ Residual risks identified during offboarding must be reviewed, documented, and l
 
 ---
 
-## Control Alignment
+## Control alignment
 
 | Requirement | Aligned Framework |
 | --- | --- |
@@ -128,7 +128,7 @@ Residual risks identified during offboarding must be reviewed, documented, and l
 
 ---
 
-## Related Documents
+## Related documents
 
 - Supplier and Cloud Governance Framework: [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md)
 - Supplier Due Diligence Procedure: [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md)

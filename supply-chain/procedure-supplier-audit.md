@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material supplier, regulatory, or framework change 
 **Repository Path:** [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -46,7 +46,7 @@ It is aligned with ISO/IEC 27036-4, COBIT 2025 BAI05.02, CSA CCM v5 STA-05, BASC
 
 ---
 
-## Audit Types and Frequency
+## Audit types and frequency
 
 | Audit Type | Objective | Frequency |
 | --- | --- | --- |
@@ -59,7 +59,7 @@ It is aligned with ISO/IEC 27036-4, COBIT 2025 BAI05.02, CSA CCM v5 STA-05, BASC
 
 ## Procedure
 
-### Step 1: Audit Planning and Scoping
+### Step 1: audit planning and scoping
 
 The Compliance and GRC Manager must maintain the Supplier Audit Register, recording for each supplier:
 
@@ -79,7 +79,7 @@ Audit scope for each engagement must be defined to cover, as applicable:
 
 Suppliers must be formally notified of an upcoming audit at least 30 calendar days in advance. Notification must include the proposed audit scope, requested documentation, and the scheduled date range.
 
-### Step 2: Pre-Audit Preparation
+### Step 2: pre-audit preparation
 
 Prior to conducting the audit, the audit team must:
 
@@ -92,7 +92,7 @@ Prior to conducting the audit, the audit team must:
  - BASC International Standard v6 2023, Sections 1 to 7 (for trade and logistics suppliers).
  - ENISA AI Cybersecurity Certification Scheme 2026 control families (for AI system suppliers).
 
-### Step 3: Evaluation and Scoring
+### Step 3: evaluation and scoring
 
 Audit findings must be scored using a weighted compliance matrix. The weighting reflects the relative governance importance of each domain.
 
@@ -116,7 +116,7 @@ Overall audit scores are interpreted as follows:
 | 60 to 74% | Moderate Risk | Improvement plan required within 30 days; follow-up review scheduled. |
 | Below 60% | Noncompliant | Subject to re-audit within 60 days or suspension pending remediation. |
 
-### Step 4: Reporting and Findings Management
+### Step 4: reporting and findings management
 
 A formal Supplier Audit Report must be issued within 15 business days of audit completion. The report must include:
 
@@ -127,7 +127,7 @@ A formal Supplier Audit Report must be issued within 15 business days of audit c
 
 All findings must be logged in the Corrective and Preventive Action (CAPA) Register. The Supplier Relationship Owner is responsible for tracking resolution progress and verifying closure of each finding. Critical or recurring findings must be escalated to the Enterprise Risk Committee.
 
-### Step 5: BASC Regional Trade Security Compliance
+### Step 5: BASC regional trade security compliance
 
 For suppliers engaged in Latin American logistics, customs brokerage, or cargo operations, the audit must additionally confirm:
 
@@ -141,7 +141,7 @@ BASC compliance metrics must be reported to the Regional Compliance Officer and 
 
 ---
 
-## Evidence Requirements
+## Evidence requirements
 
 | Activity | Required Evidence |
 | --- | --- |
@@ -155,7 +155,7 @@ BASC compliance metrics must be reported to the Regional Compliance Officer and 
 
 ---
 
-## Related Documents
+## Related documents
 
 - Supplier and Cloud Governance Framework: [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md)
 - Third-Party Risk Management Standard: [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md)

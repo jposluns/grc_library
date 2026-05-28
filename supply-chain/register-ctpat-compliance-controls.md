@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon CTPAT criteria revision, CBP validation visit, or material supply chain change 
 **Repository Path:** [`supply-chain/register-ctpat-compliance-controls.md`](register-ctpat-compliance-controls.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -27,7 +27,7 @@ This register documents the organization's implementation status against the ful
 
 ---
 
-## Programme Overview
+## Programme overview
 
 CTPAT membership requires organizations to meet Minimum Security Criteria (MSC) across all applicable supply chain security domains. The 2020 MSC apply to all CTPAT entity types. This register is structured around the seven MSC security domains.
 
@@ -39,7 +39,7 @@ CTPAT membership requires organizations to meet Minimum Security Criteria (MSC) 
 
 ---
 
-## Domain 1: Corporate Security
+## Domain 1: corporate security
 
 | Control ID | CTPAT Criterion | Implementation Description | Evidence Location | Status | Last Reviewed |
 |---|---|---|---|---|---|
@@ -51,7 +51,7 @@ CTPAT membership requires organizations to meet Minimum Security Criteria (MSC) 
 
 ---
 
-## Domain 2: Physical Security
+## Domain 2: physical security
 
 | Control ID | CTPAT Criterion | Implementation Description | Evidence Location | Status | Last Reviewed |
 |---|---|---|---|---|---|
@@ -65,7 +65,7 @@ CTPAT membership requires organizations to meet Minimum Security Criteria (MSC) 
 
 ---
 
-## Domain 3: Access Controls
+## Domain 3: access controls
 
 | Control ID | CTPAT Criterion | Implementation Description | Evidence Location | Status | Last Reviewed |
 |---|---|---|---|---|---|
@@ -75,7 +75,7 @@ CTPAT membership requires organizations to meet Minimum Security Criteria (MSC) 
 
 ---
 
-## Domain 4: Personnel Security
+## Domain 4: personnel security
 
 | Control ID | CTPAT Criterion | Implementation Description | Evidence Location | Status | Last Reviewed |
 |---|---|---|---|---|---|
@@ -86,7 +86,7 @@ CTPAT membership requires organizations to meet Minimum Security Criteria (MSC) 
 
 ---
 
-## Domain 5: Procedural Security (Cargo Handling)
+## Domain 5: procedural security (cargo handling)
 
 | Control ID | CTPAT Criterion | Implementation Description | Evidence Location | Status | Last Reviewed |
 |---|---|---|---|---|---|
@@ -99,7 +99,7 @@ CTPAT membership requires organizations to meet Minimum Security Criteria (MSC) 
 
 ---
 
-## Domain 6: Business Partner Security
+## Domain 6: business partner security
 
 | Control ID | CTPAT Criterion | Implementation Description | Evidence Location | Status | Last Reviewed |
 |---|---|---|---|---|---|
@@ -110,7 +110,7 @@ CTPAT membership requires organizations to meet Minimum Security Criteria (MSC) 
 
 ---
 
-## Domain 7: Information Technology
+## Domain 7: information technology
 
 *For detailed IT and cybersecurity criteria mapping, see [`compliance/register-ctpat-compliance-controls.md`](../compliance/register-ctpat-compliance-controls.md).*
 
@@ -129,7 +129,7 @@ CTPAT membership requires organizations to meet Minimum Security Criteria (MSC) 
 
 ---
 
-## UK AEO-S Parallel Controls
+## UK AEO-s parallel controls
 
 For each of the seven CTPAT domains, the equivalent AEO-S requirement exists under the UK HMRC AEO-S criteria. The mutual recognition arrangement between CTPAT and AEO-S means that evidence collected for CTPAT compliance can generally be reused for AEO-S, with the following jurisdiction-specific supplements:
 
@@ -147,7 +147,7 @@ See [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](../compliance/an
 
 ---
 
-## Annual Review and CBP Profile Update
+## Annual review and CBP profile update
 
 | Activity | Frequency | Responsible |
 |---|---|---|

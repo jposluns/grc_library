@@ -12,7 +12,7 @@
 **Review Frequency:** 6 to 12 months and upon material supplier, cloud, AI service, or regulatory change 
 **Repository Path:** [`supply-chain/README.md`](README.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This directory contains organization-neutral supplier governance, third-party ri
 
 ---
 
-## Active Documents
+## Active documents
 
 | Type | Title | Path |
 | --- | --- | --- |
@@ -45,14 +45,14 @@ This directory contains organization-neutral supplier governance, third-party ri
 
 ---
 
-## Domain Coverage
+## Domain coverage
 
 The supply chain domain covers two complementary areas:
 
-### Supplier and Third-Party Governance
+### Supplier and third-party governance
 Intake, classification, due diligence, contract control alignment, onboarding, monitoring, reassessment, incident management, resilience, exit, and evidence retention for all third-party relationships. AI service providers, cloud services, managed services, processors, subprocessors, software providers, and critical operational suppliers should be assessed for security, privacy, data use, resilience, deletion, breach notification, audit support, and exit capability.
 
-### Trade Security and Supply-Chain Continuity
+### Trade security and supply-chain continuity
 Operational controls for internationally recognized trusted-trader and supply-chain security programmes:
 
 - **WCO SAFE Framework**: World Customs Organization standards for customs-to-customs and customs-to-business cooperation
@@ -68,7 +68,7 @@ Operational controls for internationally recognized trusted-trader and supply-ch
 
 ---
 
-## Planned Expansion
+## Planned expansion
 
 - ~~Standard: Third-Party Risk Management~~ *(active)*
 - ~~Procedure: Supplier Due Diligence~~ *(active)*
@@ -88,7 +88,7 @@ Operational controls for internationally recognized trusted-trader and supply-ch
 
 ---
 
-## Licence Boundary
+## License boundary
 
 Supplier questionnaires, proprietary assurance reports, third-party audit reports, and external framework text must not be copied into this directory unless confirmed CC0-compatible. Use non-verbatim synthesis and original control language only.
 

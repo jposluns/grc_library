@@ -12,7 +12,7 @@
 **Review Frequency:** Updated upon each new subprocessor engagement or change; full register review annually 
 **Repository Path:** [`supply-chain/register-subprocessor-template.md`](register-subprocessor-template.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This template defines the schema for the organization's Subprocessor Register. T
 
 ---
 
-## Legal Context
+## Legal context
 
 Under GDPR and UK GDPR Article 28, a controller must engage processors only where the processor can provide sufficient guarantees about technical and organizational measures. Where a processor engages a subprocessor, the controller retains responsibility for the subprocessor's compliance. This register enables the organization to:
 
@@ -33,7 +33,7 @@ Under GDPR and UK GDPR Article 28, a controller must engage processors only wher
 
 ---
 
-## Subprocessor Record Schema
+## Subprocessor record schema
 
 ### Identification
 
@@ -47,7 +47,7 @@ Under GDPR and UK GDPR Article 28, a controller must engage processors only wher
 | **Date Added** | Date subprocessor was approved | |
 | **Date Terminated** | Date of termination (if applicable) | |
 
-### Processing Details
+### Processing details
 
 | Field | Description | Example |
 |---|---|---|
@@ -89,7 +89,7 @@ Under GDPR and UK GDPR Article 28, a controller must engage processors only wher
 | **Last Security Assessment** | Date and outcome |
 | **Known Incidents** | Any prior data incidents involving this subprocessor |
 
-### Customer Notification Obligations
+### Customer notification obligations
 
 For subprocessors where customer contracts include subprocessor notification clauses:
 
@@ -104,7 +104,7 @@ For subprocessors where customer contracts include subprocessor notification cla
 
 ---
 
-## Sub-Subprocessor Section
+## Sub-subprocessor section
 
 Where a subprocessor engages its own sub-subprocessors that will process the organization's personal data, these must be documented:
 
@@ -114,7 +114,7 @@ Where a subprocessor engages its own sub-subprocessors that will process the org
 
 ---
 
-## Register Governance
+## Register governance
 
 | Obligation | Frequency | Responsible |
 |---|---|---|
@@ -127,7 +127,7 @@ Where a subprocessor engages its own sub-subprocessors that will process the org
 
 ---
 
-## Connection to Records of Processing Activities (Article 30)
+## Connection to records of processing activities (article 30)
 
 This register forms the processor annex to the organization's Article 30 Records of Processing Activities. The DPO must ensure that:
 - Each subprocessor entry is reflected in the relevant processing activity record in the Article 30 register
@@ -135,7 +135,7 @@ This register forms the processor annex to the organization's Article 30 Records
 
 ---
 
-## Notification Template
+## Notification template
 
 Where customer contracts require subprocessor notification, the following minimum information should be communicated:
 

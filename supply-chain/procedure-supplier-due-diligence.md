@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material supplier, regulatory, or framework change 
 **Repository Path:** [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -50,7 +50,7 @@ This procedure is aligned with ISO/IEC 27036-2, COBIT 2025 BAI05, CSA CCM v5 STA
 
 ## Procedure
 
-### Step 1: Supplier Pre-Qualification
+### Step 1: supplier pre-qualification
 
 All suppliers must complete a Supplier Pre-Qualification Questionnaire (SPQ) before contract initiation. The SPQ must address the following domains:
 
@@ -68,7 +68,7 @@ Suppliers providing AI or cloud services must additionally submit:
 
 Suppliers failing to meet the minimum baseline requirements defined in the SPQ scoring rubric must be rejected or formally flagged for remediation prior to any engagement proceeding.
 
-### Step 2: Risk Assessment and Tier Classification
+### Step 2: risk assessment and tier classification
 
 Each supplier must be assessed and assigned a risk tier based on business impact, sensitivity of data accessed, and geographic or regulatory exposure. Tier assignment determines the applicable audit cadence.
 
@@ -79,7 +79,7 @@ Each supplier must be assessed and assigned a risk tier based on business impact
 | Tier 3 | Moderate | Non-sensitive, indirect services with limited organizational impact. | Biennial. |
 | Tier 4 | Low | Low-value, non-sensitive relationships with negligible data or system access. | Biennial or attestation. |
 
-### Step 3: Due Diligence Evaluation
+### Step 3: due diligence evaluation
 
 Assessments must be conducted across all applicable domains. Suppliers scoring below 70% of the maximum assessment score require documented remediation plans before engagement may proceed.
 
@@ -93,7 +93,7 @@ Assessments must be conducted across all applicable domains. Suppliers scoring b
 | Trade Security | Supply chain security programme compliance. | WCO SAFE Framework 2021, ISO 28000:2022. |
 | Sustainability | Energy management and environmental responsibility. | ISO 50001 Addendum 2026. |
 
-### Step 4: Contractual Review
+### Step 4: contractual review
 
 All supplier contracts must include, at minimum:
 
@@ -106,7 +106,7 @@ All supplier contracts must include, at minimum:
 
 Legal Counsel must review and approve all third-party contracts prior to execution.
 
-### Step 5: Compliance Assessment and Re-Audit
+### Step 5: compliance assessment and re-audit
 
 All Tier 1 and Tier 2 suppliers must undergo periodic compliance audits in accordance with the Supplier Audit Procedure. Re-audits may be triggered by any of the following events:
 
@@ -117,7 +117,7 @@ All Tier 1 and Tier 2 suppliers must undergo periodic compliance audits in accor
 
 All corrective actions identified through due diligence or re-audit must be logged in the Corrective and Preventive Action (CAPA) Register and tracked to closure.
 
-### Step 6: BASC and Regional Compliance Integration
+### Step 6: BASC and regional compliance integration
 
 For suppliers engaged in Latin American logistics, customs, or trade operations, the following additional requirements apply:
 
@@ -129,7 +129,7 @@ Regional Compliance Officers must maintain a BASC Supplier Compliance Log that i
 
 ---
 
-## Evidence Requirements
+## Evidence requirements
 
 | Activity | Required Evidence |
 | --- | --- |
@@ -142,7 +142,7 @@ Regional Compliance Officers must maintain a BASC Supplier Compliance Log that i
 
 ---
 
-## Related Documents
+## Related documents
 
 - Supplier and Cloud Governance Framework: [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md)
 - Third-Party Risk Management Standard: [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md)

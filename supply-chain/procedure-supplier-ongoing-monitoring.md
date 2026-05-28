@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon significant monitoring finding or regulatory update 
 **Repository Path:** [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This procedure defines the activities, frequencies, and escalation steps for ong
 
 ---
 
-## Monitoring Principles
+## Monitoring principles
 
 - Risk-proportionate: Tier 1 suppliers receive more intensive monitoring than Tier 3 and Tier 4 suppliers
 - Evidence-based: monitoring activities produce documented evidence that is retained in the supplier risk register
@@ -31,9 +31,9 @@ This procedure defines the activities, frequencies, and escalation steps for ong
 
 ---
 
-## Scheduled Monitoring Activities
+## Scheduled monitoring activities
 
-### Tier 1: Critical Suppliers
+### Tier 1: critical suppliers
 
 | Activity | Frequency | Method | Responsible |
 |---|---|---|---|
@@ -49,7 +49,7 @@ This procedure defines the activities, frequencies, and escalation steps for ong
 | Business continuity test invitation | Annually | Invite Tier 1 suppliers to participate in or demonstrate continuity testing | Resilience Manager |
 | Full periodic reassessment | Annually | Comprehensive reassessment covering all risk domains (security, privacy, financial, operational, trade compliance) | Supplier Risk Manager |
 
-### Tier 2: High Suppliers
+### Tier 2: high suppliers
 
 | Activity | Frequency | Method | Responsible |
 |---|---|---|---|
@@ -62,7 +62,7 @@ This procedure defines the activities, frequencies, and escalation steps for ong
 | Contract compliance review | Semi-annually | Key clause verification | Contract Owner |
 | Full periodic reassessment | Annually | All domains | Supplier Risk Manager |
 
-### Tier 3: Moderate Suppliers (where data access exists)
+### Tier 3: moderate suppliers (where data access exists)
 
 | Activity | Frequency | Method | Responsible |
 |---|---|---|---|
@@ -71,7 +71,7 @@ This procedure defines the activities, frequencies, and escalation steps for ong
 | Access review | Annually | Account inventory | IT Operations |
 | Full periodic reassessment | Every 2 years (or at contract renewal) | Scoped reassessment | Supplier Risk Manager |
 
-### Tier 4: Low Suppliers
+### Tier 4: low suppliers
 
 | Activity | Frequency | Method | Responsible |
 |---|---|---|---|
@@ -80,7 +80,7 @@ This procedure defines the activities, frequencies, and escalation steps for ong
 
 ---
 
-## Continuous Monitoring Signals
+## Continuous monitoring signals
 
 In addition to scheduled activities, the following continuous signals should be monitored where tooling supports it:
 
@@ -95,7 +95,7 @@ In addition to scheduled activities, the following continuous signals should be 
 
 ---
 
-## Trigger-Based (Unscheduled) Reviews
+## Trigger-based (unscheduled) reviews
 
 The following events must trigger an immediate unscheduled review regardless of scheduled monitoring cycle:
 
@@ -110,7 +110,7 @@ The following events must trigger an immediate unscheduled review regardless of 
 
 ---
 
-## Reassessment Process
+## Reassessment process
 
 When a full periodic reassessment or trigger-based reassessment is required:
 
@@ -124,7 +124,7 @@ When a full periodic reassessment or trigger-based reassessment is required:
 
 ---
 
-## Findings and Corrective Action
+## Findings and corrective action
 
 | Finding Severity | Definition | Required Action |
 |---|---|---|
@@ -135,7 +135,7 @@ When a full periodic reassessment or trigger-based reassessment is required:
 
 ---
 
-## Monitoring Records
+## Monitoring records
 
 All monitoring activities must be documented in [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md):
 - Date of activity

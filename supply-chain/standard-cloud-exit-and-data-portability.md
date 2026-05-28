@@ -2,7 +2,7 @@
 
 **Document Title:** Cloud Exit and Data Portability Standard 
 **Document Type:** Standard 
-**Version:** 0.1.0 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Chief Information Officer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual 
 **Repository Path:** [`supply-chain/standard-cloud-exit-and-data-portability.md`](standard-cloud-exit-and-data-portability.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -34,7 +34,7 @@ This standard defines the requirements for planning, managing, and executing the
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -45,7 +45,7 @@ This standard defines the requirements for planning, managing, and executing the
 
 ---
 
-## 1. Contract Requirements
+## 1. Contract requirements
 
 All new cloud and SaaS contracts must include the following provisions before signature. Procurement must confirm their presence; contracts without these provisions require CISO approval before execution.
 
@@ -59,7 +59,7 @@ All new cloud and SaaS contracts must include the following provisions before si
 
 ---
 
-## 2. Cloud Exit Plan Requirements
+## 2. Cloud exit plan requirements
 
 An exit plan must exist for every cloud service hosting Tier 1 or Tier 2 assets. Exit plans are maintained by IT Operations and reviewed annually.
 
@@ -75,7 +75,7 @@ Exit plans for Tier 3 and Tier 4 services are recommended but not mandatory. New
 
 ---
 
-## 3. Data Portability Standards
+## 3. Data portability standards
 
 Data stored in cloud platforms must be exportable in open or widely supported formats:
 
@@ -89,7 +89,7 @@ Data stored in cloud platforms must be exportable in open or widely supported fo
 
 ---
 
-## 4. Exit Triggers
+## 4. Exit triggers
 
 An exit plan must be activated when any of the following occur:
 
@@ -109,7 +109,7 @@ Where a cloud provider cannot meet the contract requirements in this standard, f
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

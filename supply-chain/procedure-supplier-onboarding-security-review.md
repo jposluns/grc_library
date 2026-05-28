@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon significant process change or regulatory update 
 **Repository Path:** [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -31,7 +31,7 @@ This procedure is triggered when:
 
 ---
 
-## Roles and Responsibilities
+## Roles and responsibilities
 
 | Role | Responsibility |
 |---|---|
@@ -45,9 +45,9 @@ This procedure is triggered when:
 
 ---
 
-## Procedure Steps
+## Procedure steps
 
-### Step 1: Onboarding Request and Initial Classification
+### Step 1: onboarding request and initial classification
 
 | Action | Responsible | Timeframe |
 |---|---|---|
@@ -58,7 +58,7 @@ This procedure is triggered when:
 | 1.5 Determine if the supplier is a logistics partner subject to trade compliance programme requirements (CTPAT, AEO-S, PIP, BASC) | Supplier Risk Manager / Trade Compliance | Within 2 business days |
 | 1.6 Record classification in [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md) | Supplier Risk Manager | Within 2 business days |
 
-### Step 2: Security and Privacy Assessment
+### Step 2: security and privacy assessment
 
 | Action | Responsible | Timeframe |
 |---|---|---|
@@ -72,7 +72,7 @@ This procedure is triggered when:
 
 **Supplier response deadlines:** Tier 1, 10 business days; Tier 2, 10 business days; Tier 3: 15 business days. Escalate to Requesting Business Unit if supplier does not respond.
 
-### Step 3: Gap Analysis and Risk Assessment
+### Step 3: gap analysis and risk assessment
 
 | Action | Responsible | Timeframe |
 |---|---|---|
@@ -83,7 +83,7 @@ This procedure is triggered when:
 | 3.5 If DPIA required: complete full DPIA and obtain DPO sign-off | DPO | Before contract execution |
 | 3.6 For suppliers where residual risk exceeds appetite: escalate to CRO for approval decision (proceed / do not proceed / proceed with conditions) | Supplier Risk Manager | Before contract execution |
 
-### Step 4: Contract and Agreement Execution
+### Step 4: contract and agreement execution
 
 | Action | Responsible | Timeframe |
 |---|---|---|
@@ -93,7 +93,7 @@ This procedure is triggered when:
 | 4.4 Obtain signed confidentiality and data handling acknowledgement from supplier where applicable | Legal | Before any data is shared |
 | 4.5 File executed contract and DPA in the contract management system | Legal / Procurement | Upon execution |
 
-### Step 5: Access Provisioning
+### Step 5: access provisioning
 
 | Action | Responsible | Timeframe |
 |---|---|---|
@@ -104,7 +104,7 @@ This procedure is triggered when:
 | 5.5 Record access grants in the access control system | IT Operations | At provisioning |
 | 5.6 Set access review reminder (Tier 1: quarterly; Tier 2: semi-annual; Tier 3: annual) | IT Operations / Supplier Risk Manager | At provisioning |
 
-### Step 6: Register Update and Handover
+### Step 6: register update and handover
 
 | Action | Responsible | Timeframe |
 |---|---|---|
@@ -115,7 +115,7 @@ This procedure is triggered when:
 
 ---
 
-## Decision Gates
+## Decision gates
 
 | Gate | Condition | Outcome |
 |---|---|---|
@@ -127,7 +127,7 @@ This procedure is triggered when:
 
 ---
 
-## Escalation Matrix
+## Escalation matrix
 
 | Scenario | Escalation Path | Timeframe |
 |---|---|---|

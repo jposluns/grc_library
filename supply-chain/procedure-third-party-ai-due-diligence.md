@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material supplier, regulatory, or framework change 
 **Repository Path:** [`supply-chain/procedure-third-party-ai-due-diligence.md`](procedure-third-party-ai-due-diligence.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -53,11 +53,11 @@ This procedure applies globally across all business units and geographic regions
 
 ---
 
-## 4. AI Supplier Classification
+## 4. AI supplier classification
 
 Before commencing due diligence, each AI supplier and the AI system being evaluated must be classified to determine the applicable assessment depth and contractual obligations.
 
-### 4.1 EU AI Act Risk Classification
+### 4.1 EU AI act risk classification
 
 | Classification | Criteria | Deployer Obligations |
 | --- | --- | --- |
@@ -65,7 +65,7 @@ Before commencing due diligence, each AI supplier and the AI system being evalua
 | General Purpose AI (GPAI) | Foundation models or large language models with broad applicability across tasks. | Model card, capability documentation, and systemic risk assessment required. |
 | Limited or Minimal Risk | AI systems with narrow scope and low potential for harm (e.g., spam filters, recommendation engines). | Standard due diligence; transparency disclosure required where the system interacts with individuals. |
 
-### 4.2 NIST AI RMF Tier Mapping
+### 4.2 NIST AI RMF tier mapping
 
 | NIST AI RMF Tier | Description | Assessment Depth |
 | --- | --- | --- |
@@ -75,7 +75,7 @@ Before commencing due diligence, each AI supplier and the AI system being evalua
 
 ---
 
-## 5. Pre-Engagement AI Due Diligence Checklist
+## 5. Pre-engagement AI due diligence checklist
 
 All required checklist items must be assessed before any AI supplier contract is executed. High-Risk AI systems require evidence against all items. General Purpose AI systems require evidence against all items except those marked as High-Risk only. Low-Risk systems require evidence against items marked as applicable.
 
@@ -100,46 +100,46 @@ Suppliers that fail to provide satisfactory evidence for items applicable to the
 
 ---
 
-## 6. Contractual AI Requirements
+## 6. Contractual AI requirements
 
 All contracts with AI suppliers must include the following provisions in addition to standard third-party contractual clauses:
 
-### 6.1 Model Documentation
+### 6.1 Model documentation
 
 - Delivery of a current model card or system card at contract execution and upon each major model version release.
 - Commitment to maintain and update documentation to reflect material capability or behavioural changes.
 
-### 6.2 Explainability Service Level Agreements
+### 6.2 Explainability service level agreements
 
 - Definition of the supplier's supported explainability methods (e.g., feature attribution, decision rationale outputs).
 - Commitment to response timelines for explanation requests submitted by the organization.
 
-### 6.3 Incident Notification
+### 6.3 Incident notification
 
 - Mandatory notification to the organization within 24 hours of discovery of a security incident, data breach, model failure, or material AI system deviation.
 - Notification must include: nature of the incident, affected data or model components, steps taken to contain the issue, and an estimated resolution timeline.
 
-### 6.4 Data Deletion on Contract Termination
+### 6.4 Data deletion on contract termination
 
 - Certified deletion of all organizational data, derived embeddings, fine-tuning artefacts, and retrieval stores within 30 days of contract termination.
 - Written confirmation of deletion provided to the organization within 5 business days of completion.
 
-### 6.5 Right to Audit AI System Logs
+### 6.5 Right to audit AI system logs
 
 - The organization retains the right to audit AI system logs, decision records, and model behaviour reports.
 - Supplier must retain AI system audit logs for a minimum of 7 years, consistent with ISO/IEC 42001 and EU AI Act Annex IV requirements.
 
-### 6.6 Model Version Change Notification
+### 6.6 Model version change notification
 
 - Supplier must provide at least 30 days' advance notice of any major model version change that may materially affect system behaviour, accuracy, or compliance properties.
 
 ---
 
-## 7. Ongoing Monitoring
+## 7. Ongoing monitoring
 
 AI supplier risk does not remain static after initial engagement. The following monitoring activities apply throughout the supplier relationship.
 
-### 7.1 Quarterly Model Performance Review
+### 7.1 Quarterly model performance review
 
 The Supplier Relationship Owner, in coordination with the AI Governance Council, must conduct a quarterly review of:
 
@@ -147,11 +147,11 @@ The Supplier Relationship Owner, in coordination with the AI Governance Council,
 - Incident and anomaly reports submitted since the last review.
 - Changes to the supplier's regulatory compliance classification.
 
-### 7.2 Annual Bias Re-Assessment
+### 7.2 Annual bias re-assessment
 
 At least annually, the AI Governance Council must review or commission a bias and fairness re-assessment for all High-Risk and GPAI suppliers. The re-assessment must use current operational data and reflect any demographic shifts in the population served.
 
-### 7.3 OWASP LLM Top 10 Re-Evaluation on Major Version Changes
+### 7.3 OWASP LLM top 10 re-evaluation on major version changes
 
 Whenever a supplier releases a major model version update, a re-evaluation against the OWASP LLM Top 10 supply chain risk categories must be conducted before the new version is approved for operational use. The evaluation must specifically address:
 
@@ -159,7 +159,7 @@ Whenever a supplier releases a major model version update, a re-evaluation again
 - LLM05: Supply Chain Vulnerabilities.
 - LLM09: Overreliance (automated decision dependency).
 
-### 7.4 Reassessment Triggers
+### 7.4 Reassessment triggers
 
 An out-of-cycle reassessment must be initiated upon any of the following events:
 
@@ -170,9 +170,9 @@ An out-of-cycle reassessment must be initiated upon any of the following events:
 
 ---
 
-## 8. Exit and Knowledge Transfer
+## 8. Exit and knowledge transfer
 
-### 8.1 Exit Planning
+### 8.1 Exit planning
 
 Exit planning for AI suppliers must be initiated at the contract review stage and maintained as a living document throughout the supplier relationship. The exit plan must address:
 
@@ -181,7 +181,7 @@ Exit planning for AI suppliers must be initiated at the contract review stage an
 - Continuity of AI-dependent processes during the transition period.
 - Identification of alternative AI suppliers or fallback operational processes.
 
-### 8.2 Data and Model Deletion
+### 8.2 Data and model deletion
 
 Upon contract termination, the AI supplier must:
 
@@ -189,7 +189,7 @@ Upon contract termination, the AI supplier must:
 2. Provide written certified deletion confirmation within 5 business days of completion.
 3. Retain deletion records for 7 years in accordance with ISO/IEC 42001 and EU AI Act Annex IV obligations.
 
-### 8.3 Documentation Retention
+### 8.3 Documentation retention
 
 The organization must retain the following AI system documentation for a minimum of 7 years:
 
@@ -202,7 +202,7 @@ The organization must retain the following AI system documentation for a minimum
 
 ---
 
-## 9. Related Documents
+## 9. Related documents
 
 - Supplier and Cloud Governance Framework: [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md)
 - Third-Party Risk Management Standard: [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md)

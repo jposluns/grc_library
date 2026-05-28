@@ -2,7 +2,7 @@
 
 **Document Title:** Supplier and Cloud Governance Framework 
 **Document Type:** Framework 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Supplier Risk Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** 6 to 12 months and upon material supplier, service, data, contract, or regulatory change 
 **Repository Path:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -42,7 +42,7 @@ Supplier categories may include:
 
 ---
 
-## Supplier Lifecycle
+## Supplier lifecycle
 
 | Stage | Required Governance Activity | Evidence Class |
 | --- | --- | --- |
@@ -57,7 +57,7 @@ Supplier categories may include:
 
 ---
 
-## Risk Classification Criteria
+## Risk classification criteria
 
 Suppliers should be classified using factors including:
 
@@ -78,7 +78,7 @@ Suppliers should be classified using factors including:
 
 ---
 
-## Minimum Supplier Control Domains
+## Minimum supplier control domains
 
 | Domain | Control Intent |
 | --- | --- |
@@ -95,7 +95,7 @@ Suppliers should be classified using factors including:
 
 ---
 
-## AI Supplier Requirements
+## AI supplier requirements
 
 AI suppliers require specific assessment where they provide model hosting, inference APIs, embedded AI capabilities, agents, assistants, coding systems, document processing, data labelling, model tuning, retrieval infrastructure, or monitoring.
 
@@ -114,7 +114,7 @@ Assessment should cover:
 
 ---
 
-## Cloud Governance Requirements
+## Cloud governance requirements
 
 Cloud services should be governed across:
 
@@ -133,7 +133,7 @@ Cloud services should be governed across:
 
 ---
 
-## Evidence Requirements
+## Evidence requirements
 
 Adopting organizations should maintain:
 

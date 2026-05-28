@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material programme criteria update or new programme membership 
 **Repository Path:** [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](matrix-supply-chain-security-programme-alignment.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This matrix provides a consolidated cross-reference of the internationally recog
 
 ---
 
-## Programme Summary
+## Programme summary
 
 | Programme | Authority | Jurisdiction | Programme Type | Benefit | Mutual Recognition |
 |---|---|---|---|---|---|
@@ -39,7 +39,7 @@ This matrix provides a consolidated cross-reference of the internationally recog
 
 ---
 
-## Security Domain Alignment Matrix
+## Security domain alignment matrix
 
 The following matrix maps the common supply chain security domains against each programme's requirements. ✓ = required by this programme; ~ = partially or conditionally required;: = not a primary requirement.
 
@@ -65,7 +65,7 @@ The following matrix maps the common supply chain security domains against each 
 
 ---
 
-## IT and Cybersecurity Requirements Comparison
+## IT and cybersecurity requirements comparison
 
 | IT Requirement | CTPAT | AEO-S (UK) | AEO (EU) | PIP | BASC |
 |---|---|---|---|---|---|
@@ -92,7 +92,7 @@ The following matrix maps the common supply chain security domains against each 
 
 ---
 
-## Mutual Recognition Arrangements
+## Mutual recognition arrangements
 
 Mutual recognition means that qualifying members of one programme receive facilitation benefits from a partner country's customs authority. Evidence collected for one programme can often satisfy another.
 
@@ -108,7 +108,7 @@ Mutual recognition means that qualifying members of one programme receive facili
 
 ---
 
-## Shared Evidence Opportunities
+## Shared evidence opportunities
 
 The following evidence types can be collected once and reused across multiple programme requirements:
 
@@ -127,7 +127,7 @@ The following evidence types can be collected once and reused across multiple pr
 
 ---
 
-## Programme Application Priority
+## Programme application priority
 
 | Priority | Programme | Recommended Sequencing |
 |---|---|---|
@@ -142,7 +142,7 @@ The following evidence types can be collected once and reused across multiple pr
 
 ---
 
-## Programme Contacts and References
+## Programme contacts and references
 
 | Programme | Authority | Key Reference |
 |---|---|---|
