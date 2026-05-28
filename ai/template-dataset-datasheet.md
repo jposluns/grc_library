@@ -4,7 +4,7 @@
 **Document Type:** Template 
 **Version:** 0.0.1 
 **Date:** 2026-05-28 
-**Owner:** AI Governance Maintainer 
+**Owner:** AI Data Steward 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/procedure-training-data-governance.md`](procedure-training-data-governance.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/standard-pseudonymisation-and-anonymisation.md`](../privacy/standard-pseudonymisation-and-anonymisation.md) 
 **Classification:** Public 
@@ -164,7 +164,7 @@ This template applies to all datasets that influence model behaviour: training, 
 | Approver role | Date |
 | --- | --- |
 | Dataset Maintainer | |
-| AI Governance Maintainer | |
+| AI Data Steward | |
 | Privacy Officer (if personal data) | |
 | Legal Counsel (if external licensing or sharing) | |
 | AI Security Maintainer (if poisoning risk material) | |

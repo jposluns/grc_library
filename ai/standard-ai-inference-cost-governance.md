@@ -4,7 +4,7 @@
 **Document Type:** Standard 
 **Version:** 0.0.1 
 **Date:** 2026-05-28 
-**Owner:** AI Governance Maintainer 
+**Owner:** AI Governance Approver 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`operations/standard-service-level-management.md`](../operations/standard-service-level-management.md), [`governance/framework-sustainability-and-responsible-technology.md`](../governance/framework-sustainability-and-responsible-technology.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) 
 **Classification:** Public 
@@ -177,10 +177,10 @@ For external providers:
 
 | Report | Cadence | Audience |
 | --- | --- | --- |
-| Per-feature cost dashboard | Continuous | Owners, AI Governance Maintainer |
+| Per-feature cost dashboard | Continuous | Owners, AI Governance Approver |
 | Quarterly AI cost report | Quarterly | AI Governance Council, Finance |
 | Annual AI cost report | Annual | Executive Sponsor, Board where required |
-| Anomaly summary | Per anomaly | AI Governance Maintainer, AI Security Maintainer, Finance |
+| Anomaly summary | Per anomaly | AI Governance Approver, AI Security Maintainer, Finance |
 | Variance to forecast | Quarterly | Owners, Finance |
 | Per-customer cost outliers | Monthly | Customer success, product, risk |
 

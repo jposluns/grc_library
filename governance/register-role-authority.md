@@ -2,7 +2,7 @@
 
 **Document Title:** Role Authority Register 
 **Document Type:** Register 
-**Version:** 1.0.0 
+**Version:** 1.1.0 
 **Date:** 2026-05-27 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -34,7 +34,10 @@ This register defines generic governance roles used across the GRC Documentation
 | Chief Compliance Officer | Compliance management, obligation tracking, control assurance, and regulatory response coordination. | Compliance policy, obligation register, compliance assurance plan. |
 | Chief Privacy Officer | Privacy governance, personal data protection, impact assessments, and data subject rights. | Privacy policy, impact assessment procedure, breach response procedure. |
 | Chief Data Officer | Data governance, data quality, lifecycle management, data lineage, and data stewardship. | Data governance standards, classification model, retention model. |
-| AI Governance Lead | AI system inventory, AI risk classification, lifecycle governance, human oversight, and AI assurance. | AI governance framework, AI impact assessment, AI exceptions. |
+| AI Governance Lead | Umbrella AI governance role chairing the AI governance function and coordinating the AI Governance Approver, AI Data Steward, and AI System Inventory Keeper. Typically the AI Governance Council secretariat. | AI governance framework, AI impact assessment, AI exceptions. |
+| AI Governance Approver | Approval decisions for AI policies, frameworks, standards, deployment gates, foundation-model selection, risk-classification approvals, and material lifecycle changes. | AI policy approvals, deployment decisions, exception approvals, model-selection sign-off. |
+| AI Data Steward | Training-data governance, dataset acceptance, deletion-propagation, lineage tracking, sensitive-content controls, and dataset documentation (datasheets). | Dataset acceptance, deletion authorisation, lineage records. |
+| AI System Inventory Keeper | Maintenance of the AI System Register, Model Registry, MCP server register, model cards, system cards, and cross-references between AI inventories and adjacent registers (ADM, resilience, supplier). | Inventory updates, model card and system card maintenance, register reconciliation. |
 | Legal Counsel | Legal interpretation, contractual obligations, regulatory privilege, and legal risk review. | Legal position statements, regulatory interpretation, contract exceptions. |
 | Internal Audit | Independent assessment of governance, control design, control operating effectiveness, and evidence. | Audit plan, audit report, assurance findings. |
 | System Owner | Accountability for a system, service, platform, model, or application across its lifecycle. | System risk acceptance, operating procedures, evidence maintenance. |

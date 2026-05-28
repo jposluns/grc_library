@@ -4,7 +4,7 @@
 **Document Type:** Register 
 **Version:** 1.1.0 
 **Date:** 2026-05-28 
-**Owner:** AI Governance Maintainer 
+**Owner:** AI Governance Approver 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md) 
 **Classification:** Public 
