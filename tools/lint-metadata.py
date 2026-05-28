@@ -337,6 +337,7 @@ def main(argv: list[str]) -> int:
         "privacy",
         "resilience",
         "risk",
+        "sectors",
         "security",
         "supply-chain",
     ]

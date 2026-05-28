@@ -191,7 +191,6 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 
 ### Policy
 
-- [BASC Information Security Policy](../compliance/policy-basc.md)
 - [Compliance, Audit, and CAPA Management Policy](../compliance/policy-compliance-and-audit-management.md)
 - [Digital Twin and Simulation Governance Policy](../governance/policy-digital-twin-and-simulation-governance.md)
 - [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md)
@@ -214,8 +213,6 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 ### Register
 
 - [Assurance Map Register](../risk/register-assurance-map.md)
-- [BASC IT Compliance Monitoring and KPIs](../compliance/register-basc-it-compliance-kpis.md)
-- [BASC IT and Information Security Responsibilities](../compliance/register-basc-it-responsibilities.md)
 - [CTPAT IT and Cybersecurity Compliance Controls Register](../compliance/register-ctpat-it-controls.md)
 - [Compliance Obligations Register Template](../compliance/register-compliance-obligations-template.md)
 - [Data Retention Schedule](../governance/register-data-retention-schedule.md)
@@ -427,7 +424,6 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 
 ### Policy
 
-- [BASC Information Security Policy](../compliance/policy-basc.md)
 - [Compliance, Audit, and CAPA Management Policy](../compliance/policy-compliance-and-audit-management.md)
 - [Legal and Regulatory Compliance Policy](../compliance/policy-legal-and-regulatory-compliance.md)
 
@@ -440,8 +436,6 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 
 ### Register
 
-- [BASC IT Compliance Monitoring and KPIs](../compliance/register-basc-it-compliance-kpis.md)
-- [BASC IT and Information Security Responsibilities](../compliance/register-basc-it-responsibilities.md)
 - [CTPAT IT and Cybersecurity Compliance Controls Register](../compliance/register-ctpat-it-controls.md)
 - [Compliance Obligations Register Template](../compliance/register-compliance-obligations-template.md)
 - [Global Regulatory Applicability Register](../compliance/register-global-regulatory-applicability.md)

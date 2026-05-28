@@ -4,6 +4,45 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 12.3 (2026-05-28): BASC migration to /sectors/ domain (organisation-neutrality)
+
+Resolves the organisation-neutrality violation identified by the comprehensive audit. The library declared itself "organization-neutral" in `README.md` while three core policy documents explicitly scoped themselves to "BASC-certified logistics operations in Latin America (Colombia, Mexico, Peru, Chile)" and the compliance domain hosted a BASC-specific policy and two BASC registers as if universal content.
+
+### Structural change
+
+New top-level directory `/sectors/` created for optional, programme-conditional governance content. Organisations not participating in a covered sector programme can omit the corresponding annex entirely without affecting the main library.
+
+- `sectors/README.md` (new, v1.0.0): domain register describing the sector-annex pattern, applicability rules, and relationship to the main library.
+- `sectors/basc/README.md` (new, v1.0.0): BASC sub-register describing applicability and listing active BASC documents.
+
+### Files moved (git history preserved via `git mv`)
+
+- `compliance/policy-basc.md` → `sectors/basc/policy-basc-information-security.md` (v1.0.0 → v1.1.0; renamed to reflect canonical naming; Category updated from "Compliance Management" to "Sector Annex"; cross-references updated)
+- `compliance/register-basc-it-responsibilities.md` → `sectors/basc/register-basc-it-responsibilities.md` (v1.0.0 → v1.1.0; same updates)
+- `compliance/register-basc-it-compliance-kpis.md` → `sectors/basc/register-basc-it-compliance-kpis.md` (v1.0.0 → v1.1.0; same updates)
+
+### BASC scoping stripped from main-domain documents
+
+- `security/policy-information-security.md`: scope section, governance section, network section (4.1, 4.3, 4.4), data section (7.1, 7.2, 7.3), incident section (9.1, 9.2), framework alignment (line 145) — generalised; sector overlay pointer added. Inline NIST AI RMF 1.1 reference (missed by Phase 12.1 because of bare "AI RMF" form) corrected to NIST AI RMF 1.0.
+- `risk/policy-enterprise-governance-and-risk-management.md`: scope section generalised; sector overlay pointer added.
+- `risk/standard-enterprise-risk-management.md`: scope section generalised; sector overlay pointer added.
+- `governance/standard-records-retention-and-destruction.md`: BASC-specific Section 6 generalised into "sector-specific retention overlays" with pointer to `/sectors/` and the transportation-and-logistics sector annex in `/compliance/`.
+
+### Cross-references updated
+
+Cross-references to old BASC paths updated in: `compliance/README.md` (v1.1.0 → v1.2.0), `compliance/annex-transportation-and-logistics-sector-requirements.md`, `compliance/matrix-grc-compliance-alignment.md`, `compliance/register-ctpat-it-controls.md`, `compliance/register-pip-compliance-controls.md`, `compliance/template-trade-compliance-gap-assessment.md`, `governance/matrix-reverse-framework-control-crosswalk.md`, `governance/register-document-index-and-classification.md` (v1.20.0 → v1.21.0; three BASC rows reclassified from Compliance to Sectors domain), `supply-chain/README.md`, `supply-chain/matrix-supply-chain-security-programme-alignment.md`, `supply-chain/register-ctpat-full-msc-controls.md`.
+
+### Tooling updates
+
+`sectors` added to the DOMAINS / scan-path lists in `tools/build-taxonomy.py`, `tools/lint-structure.py`, `tools/lint-metadata.py`, `tools/lint-language.py`, `tools/lint-links.py`, `tools/lint-citations.py`, `tools/check-review-cadence.py`. New denylist entry in `tools/lint-citations.py` for bare "AI RMF 1.1" form to complement the existing "NIST AI RMF 1.1" entry.
+
+### Top-level updates
+
+- `README.md` (v1.5.1 → v1.5.2, patch per the standing rule): new `/sectors/` directory entry added to the repository structure; document-count statement updated to mention the optional sector-annex domain.
+- `specification-master-project.md` (v1.2.4 → v1.2.5): `/sectors/` added to the directory listing and the domain purpose summary.
+
+Taxonomy, portal, and maturity scorecard regenerated.
+
 ## Phase 12.2 (2026-05-28): AI Governance Council operationalisation
 
 Resolves the charter status whereby the AI Governance Council was declared "in formation" with full operationalisation targeted for Q3 2026 while 16+ AI documents referenced its approval as binding. The council is now an active governance body.

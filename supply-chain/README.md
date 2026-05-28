@@ -87,7 +87,7 @@ Operational controls for internationally recognized trusted-trader and supply-ch
 - ~~Register: Subprocessor Register Template~~ *(active)*
 - ~~Template: Supplier Security Questionnaire~~ *(active)*
 - ~~Register: CTPAT Compliance Controls~~ *(active)*
-- ~~Register: BASC IT and Information Security Responsibilities~~ *(active: see [`compliance/register-basc-it-responsibilities.md`](../compliance/register-basc-it-responsibilities.md))*
+- ~~Register: BASC IT and Information Security Responsibilities~~ *(active: see [`sectors/basc/register-basc-it-responsibilities.md`](../sectors/basc/register-basc-it-responsibilities.md))*
 - ~~Register: AEO / AEO-S IT and Cybersecurity Requirements~~ *(active: see [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](../compliance/annex-aeo-s-it-cybersecurity-requirements.md))*
 - ~~Matrix: Supply Chain Security Programme Alignment~~ *(active)*
 

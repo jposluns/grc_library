@@ -243,7 +243,7 @@ This matrix does not reproduce restricted third-party framework text, does not e
 
 | CTPAT MSC domain | Library documents | Alignment type |
 | --- | --- | --- |
-| Corporate security and security training | [`compliance/policy-basc.md`](../compliance/policy-basc.md), [`compliance/register-basc-it-responsibilities.md`](../compliance/register-basc-it-responsibilities.md), [`security/standard-security-awareness-and-training.md`](../security/standard-security-awareness-and-training.md) | Contractual requirement |
+| Corporate security and security training | [`sectors/basc/policy-basc-information-security.md`](../sectors/basc/policy-basc-information-security.md), [`sectors/basc/register-basc-it-responsibilities.md`](../sectors/basc/register-basc-it-responsibilities.md), [`security/standard-security-awareness-and-training.md`](../security/standard-security-awareness-and-training.md) | Contractual requirement |
 | Personnel security | [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md) | Contractual requirement |
 | Physical security and physical access controls | [`operations/standard-physical-security-of-it-infrastructure.md`](../operations/standard-physical-security-of-it-infrastructure.md) | Contractual requirement |
 | Procedural and cargo security | [`supply-chain/register-ctpat-full-msc-controls.md`](../supply-chain/register-ctpat-full-msc-controls.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../supply-chain/annex-trade-and-supply-chain-continuity-controls.md) | Contractual requirement |

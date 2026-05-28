@@ -17,11 +17,11 @@ This classification is a heuristic derived from semver; it does not reflect audi
 
 ---
 
-_Summary as of last regeneration: Mature: 48, Baseline: 148, Draft: 70, Unknown: 0._
+_Summary as of last regeneration: Mature: 51, Baseline: 145, Draft: 70, Unknown: 0._
 
 ## Mature
 
-_48 documents._
+_51 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
@@ -34,7 +34,7 @@ _48 documents._
 | [governance/framework-document-architecture-and-interrelationship.md](../governance/framework-document-architecture-and-interrelationship.md) | Document Architecture and Interrelationship Framework | Framework | 1.1.0 | 2026-05-28 |
 | [governance/framework-sustainability-and-responsible-technology.md](../governance/framework-sustainability-and-responsible-technology.md) | Sustainability and Responsible Technology Framework | Framework | 1.1.0 | 2026-05-28 |
 | [governance/matrix-cross-framework-alignment.md](../governance/matrix-cross-framework-alignment.md) | Cross-Framework Alignment Matrix | Matrix | 1.1.1 | 2026-05-28 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.20.0 | 2026-05-28 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.21.0 | 2026-05-28 |
 | [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.3.0 | 2026-05-27 |
 | [operations/procedure-change-management-and-configuration-control.md](../operations/procedure-change-management-and-configuration-control.md) | Change Management and Configuration Control Procedure | Procedure | 1.3.0 | 2026-05-27 |
 | [operations/procedure-endpoint-management-and-device-compliance.md](../operations/procedure-endpoint-management-and-device-compliance.md) | Endpoint Management and Device Compliance Procedure | Procedure | 1.3.0 | 2026-05-27 |
@@ -58,6 +58,9 @@ _48 documents._
 | [resilience/template-departmental-continuity-plan.md](../resilience/template-departmental-continuity-plan.md) | Departmental Continuity Plan Template | Template | 1.1.0 | 2026-05-28 |
 | [risk/policy-enterprise-governance-and-risk-management.md](../risk/policy-enterprise-governance-and-risk-management.md) | Enterprise Governance and Risk Management Policy | Policy | 1.4.0 | 2026-05-28 |
 | [risk/standard-enterprise-risk-management.md](../risk/standard-enterprise-risk-management.md) | Enterprise Risk Management Standard | Standard | 1.3.1 | 2026-05-28 |
+| [sectors/basc/policy-basc-information-security.md](../sectors/basc/policy-basc-information-security.md) | BASC Information Security Policy | Policy | 1.1.0 | 2026-05-28 |
+| [sectors/basc/register-basc-it-compliance-kpis.md](../sectors/basc/register-basc-it-compliance-kpis.md) | BASC IT Compliance Monitoring and KPIs | Register | 1.1.0 | 2026-05-28 |
+| [sectors/basc/register-basc-it-responsibilities.md](../sectors/basc/register-basc-it-responsibilities.md) | BASC IT and Information Security Responsibilities | Register | 1.1.0 | 2026-05-28 |
 | [security/policy-acceptable-use.md](../security/policy-acceptable-use.md) | Acceptable Use Policy | Policy | 1.3.0 | 2026-05-27 |
 | [security/policy-encryption-and-key-management.md](../security/policy-encryption-and-key-management.md) | Encryption and Key Management Policy | Policy | 1.3.0 | 2026-05-27 |
 | [security/policy-identity-and-access-management.md](../security/policy-identity-and-access-management.md) | Identity and Access Management Policy | Policy | 1.3.0 | 2026-05-27 |
@@ -71,14 +74,14 @@ _48 documents._
 | [security/standard-data-loss-prevention.md](../security/standard-data-loss-prevention.md) | Data Loss Prevention Standard | Standard | 1.3.0 | 2026-05-27 |
 | [security/standard-logging-and-monitoring.md](../security/standard-logging-and-monitoring.md) | Logging and Monitoring Standard | Standard | 1.3.0 | 2026-05-27 |
 | [specification-ingestion.md](../specification-ingestion.md) | GRC Library CC0 Ingestion and Transformation Specification | Specification | 1.4.2 | 2026-05-28 |
-| [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.2.4 | 2026-05-28 |
+| [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.2.5 | 2026-05-28 |
 | [supply-chain/standard-supplier-security-and-privacy-assurance.md](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | Supplier Security and Privacy Assurance Standard | Standard | 1.1.0 | 2026-05-28 |
 
 ---
 
 ## Baseline
 
-_148 documents._
+_145 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
@@ -108,15 +111,12 @@ _148 documents._
 | [compliance/annex-healthcare-sector-requirements.md](../compliance/annex-healthcare-sector-requirements.md) | Healthcare Sector GRC Requirements Annex | Annex | 1.0.0 | 2026-05-27 |
 | [compliance/annex-transportation-and-logistics-sector-requirements.md](../compliance/annex-transportation-and-logistics-sector-requirements.md) | Transportation and Logistics Sector GRC Requirements Annex | Annex | 1.0.0 | 2026-05-27 |
 | [compliance/matrix-grc-compliance-alignment.md](../compliance/matrix-grc-compliance-alignment.md) | GRC Library Compliance Alignment Matrix | Matrix | 1.0.0 | 2026-05-27 |
-| [compliance/policy-basc.md](../compliance/policy-basc.md) | BASC Information Security Policy | Policy | 1.0.0 | 2026-05-27 |
 | [compliance/policy-compliance-and-audit-management.md](../compliance/policy-compliance-and-audit-management.md) | Compliance, Audit, and CAPA Management Policy | Policy | 1.0.0 | 2026-05-27 |
 | [compliance/policy-legal-and-regulatory-compliance.md](../compliance/policy-legal-and-regulatory-compliance.md) | Legal and Regulatory Compliance Policy | Policy | 1.0.0 | 2026-05-27 |
 | [compliance/procedure-aeo-it-self-assessment.md](../compliance/procedure-aeo-it-self-assessment.md) | AEO IT Self-Assessment Procedure | Procedure | 1.0.0 | 2026-05-27 |
 | [compliance/procedure-audit-planning.md](../compliance/procedure-audit-planning.md) | Audit Planning Procedure | Procedure | 1.0.1 | 2026-05-28 |
 | [compliance/procedure-capa.md](../compliance/procedure-capa.md) | Corrective and Preventive Action (CAPA) Procedure | Procedure | 1.0.1 | 2026-05-28 |
 | [compliance/procedure-control-testing.md](../compliance/procedure-control-testing.md) | Control Testing Procedure | Procedure | 1.0.0 | 2026-05-27 |
-| [compliance/register-basc-it-compliance-kpis.md](../compliance/register-basc-it-compliance-kpis.md) | BASC IT Compliance Monitoring and KPIs | Register | 1.0.0 | 2026-05-27 |
-| [compliance/register-basc-it-responsibilities.md](../compliance/register-basc-it-responsibilities.md) | BASC IT and Information Security Responsibilities | Register | 1.0.0 | 2026-05-27 |
 | [compliance/register-compliance-obligations-template.md](../compliance/register-compliance-obligations-template.md) | Compliance Obligations Register Template | Register | 1.0.1 | 2026-05-28 |
 | [compliance/register-ctpat-it-controls.md](../compliance/register-ctpat-it-controls.md) | CTPAT IT and Cybersecurity Compliance Controls Register | Register | 1.0.1 | 2026-05-28 |
 | [compliance/register-global-regulatory-applicability.md](../compliance/register-global-regulatory-applicability.md) | Global Regulatory Applicability Register | Register | 1.0.0 | 2026-05-27 |

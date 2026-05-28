@@ -6,7 +6,7 @@
 **Date:** 2026-05-27 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md) 
+**Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`sectors/basc/register-basc-it-responsibilities.md`](../sectors/basc/register-basc-it-responsibilities.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md) 
 **Classification:** Public 
 **Category:** Compliance Management 
 **Review Frequency:** Annual and upon material regulatory or framework change 
@@ -72,8 +72,8 @@ This matrix is indicative only. It reflects the best available assessment of con
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Compliance | Policy: Compliance, Audit, and CAPA Management | [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md) | GRC-06, GRC-07, GRC-08 | §9.2, §9.3, §10.1, §10.2 | GV.OC, ID.IM | N/A | Programme governance | §9.2, §10 | N/A | IT controls review and testing |
 | Compliance | Register: Global Regulatory Applicability | [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md) | GRC-01, GRC-06 | §4.1, §4.2, §6.1 | GV.OC, GV.RM | N/A | Programme governance | §4.1, §6.1 | N/A | Management commitment |
-| Compliance | Register: BASC IT and Information Security Responsibilities | [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md) | GRC-01, GRC-02 | §5.3, §6.1, §9.1 | GV.OC, GV.RM | N/A |: | §5.1, §6.1, §7.2, §7.5, §8.1, §8.3, §8.4, §8.5, §9.1, §9.2, §10 | Pillar I (Standard 6) | All AEO-S IT requirement areas |
-| Compliance | Register: BASC IT Compliance Monitoring and KPIs | [`compliance/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md) | GRC-04, GRC-08 | §9.1 | GV.OC, ID.IM | N/A |: | §9.1 | N/A | IT controls review and testing |
+| Compliance | Register: BASC IT and Information Security Responsibilities | [`sectors/basc/register-basc-it-responsibilities.md`](../sectors/basc/register-basc-it-responsibilities.md) | GRC-01, GRC-02 | §5.3, §6.1, §9.1 | GV.OC, GV.RM | N/A |: | §5.1, §6.1, §7.2, §7.5, §8.1, §8.3, §8.4, §8.5, §9.1, §9.2, §10 | Pillar I (Standard 6) | All AEO-S IT requirement areas |
+| Compliance | Register: BASC IT Compliance Monitoring and KPIs | [`sectors/basc/register-basc-it-compliance-kpis.md`](../sectors/basc/register-basc-it-compliance-kpis.md) | GRC-04, GRC-08 | §9.1 | GV.OC, ID.IM | N/A |: | §9.1 | N/A | IT controls review and testing |
 | Compliance | Annex: AEO-S IT and Cybersecurity Requirements | [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md) | IAM-01, SEF-01, DSP-01 | §5.3, §8.1, §9.1 | GV.OC, PR.AA, DE.CM | IT security requirements | IT security | §8.4, §8.5 | Pillar II (ICT security) | Access to IT systems; Information systems security; IT security incidents; Trade records retention |
 
 ---

@@ -24,7 +24,7 @@ This standard defines the enterprise-wide risk management framework, taxonomy, a
 
 ## 2. Scope
 
-1. This standard applies to all business, operational, financial, security, privacy, AI, and technology risks managed within the organization and its subsidiaries, including BASC-certified logistics operations in Latin America (Colombia, Mexico, Peru, and Chile).
+1. This standard applies to all business, operational, financial, security, privacy, AI, and technology risks managed within the organization and its subsidiaries. Sector-specific risk overlays (for example, BASC for trade and logistics operations) apply where the organization participates in a covered programme; see [`sectors/`](../sectors/).
 2. It covers both strategic and operational risk management activities across enterprise, project, and system levels.
 3. It applies to all employees, contractors, and third parties responsible for risk identification, analysis, reporting, or control execution.
 

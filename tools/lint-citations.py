@@ -50,6 +50,11 @@ DENYLIST: list[tuple[str, str, str]] = [
         "Hallucinated NIST AI RMF version. NIST AI RMF was published as version 1.0; the GenAI Profile is NIST AI 600-1.",
         "NIST AI RMF 1.0 (with AI 600-1 Generative AI Profile)",
     ),
+    (
+        "AI RMF 1.1",
+        "Hallucinated NIST AI RMF version (bare form). NIST AI RMF was published as version 1.0; the GenAI Profile is NIST AI 600-1.",
+        "NIST AI RMF 1.0 (with AI 600-1 Generative AI Profile)",
+    ),
 ]
 
 # Paths exempted from each pattern. CHANGELOG is the canonical exemption: historical
@@ -60,6 +65,7 @@ PATH_EXEMPTIONS: dict[str, set[str]] = {
     "CSA CCM v5": {"CHANGELOG.md", "tools/lint-citations.py"},
     "CCM v5": {"CHANGELOG.md", "tools/lint-citations.py"},
     "NIST AI RMF 1.1": {"CHANGELOG.md", "tools/lint-citations.py"},
+    "AI RMF 1.1": {"CHANGELOG.md", "tools/lint-citations.py"},
 }
 
 DEFAULT_PATHS = [
@@ -77,6 +83,7 @@ DEFAULT_PATHS = [
     "privacy",
     "resilience",
     "risk",
+    "sectors",
     "security",
     "supply-chain",
 ]
