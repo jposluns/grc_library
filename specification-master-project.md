@@ -2,7 +2,7 @@
 
 **Document Title:** Master Project Specification 
 **Document Type:** Specification 
-**Version:** 1.2.7 
+**Version:** 1.3.0 
 **Date:** 2026-05-28 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Chief Risk Officer 
@@ -174,6 +174,45 @@ No additional types may be created without approval.
 - Procedure versus SOP: a Procedure is a multi-actor or cross-functional workflow that coordinates several roles. An SOP is a single-actor or narrow team sequence with explicit step ownership for one repeatable task.
 - Plan versus Roadmap: a Plan is event-triggered or schedule-bound coordination such as incident, recovery, migration, or communication. A Roadmap is a multi-phase forward strategy tied to a strategic outcome with phased milestones and dependencies.
 - Guideline versus Guide: a Guideline is advisory interpretation of a policy or standard requirement and reads as governance commentary. A Guide is technical reference material organized for adoption such as patterns, examples, configuration models, or implementation walkthroughs.
+
+### 4.5 Library versioning
+
+The library as a whole carries a Calendar Versioning (CalVer) version separate from the per-document semantic versions defined in section 5. The library-level version answers the question "which snapshot of the library did the adopter take?".
+
+#### Scheme
+
+The library version is `YYYY.MM.patch` where:
+
+- `YYYY` is the four-digit year of the most recent merge to `main`.
+- `MM` is the two-digit month of the most recent merge to `main`.
+- `patch` is a sequential counter that increments on every merge to `main` within the same `YYYY.MM` window. It resets to `0` when the month rolls over.
+
+Examples: `2026.05.0`, `2026.05.7`, `2026.06.0`, `2026.12.42`.
+
+#### Why CalVer
+
+The library evolves continuously through small phased PRs rather than discrete versioned releases. CalVer is appropriate because:
+
+- The most useful question for an adopter is "how recent is this?", not "is this a backwards-compatible upgrade?".
+- The patch counter records cumulative churn within a month, surfacing the high merge frequency that semantic versioning would obscure.
+- No judgment is needed to decide between major/minor/patch bumps; the scheme is mechanical.
+
+#### Where the version is recorded
+
+The current library version is displayed in `README.md`'s metadata block as the field `Library Version`. The CHANGELOG records the library version at the time of each phase's completion in the phase heading.
+
+#### Maintenance
+
+Each PR that merges to `main` updates `README.md`'s `Library Version` field as part of the PR:
+
+- If the merge falls in the same calendar month as the current version, increment the patch.
+- If the calendar month has changed, set the new version to `YYYY.MM.0`.
+
+The version bump is the author's responsibility on the PR that introduces the change. The audit suite does not automatically enforce monotonicity, but reviewers should verify the bump is present before approving the PR.
+
+#### Relationship to per-document versioning
+
+Per-document versions (section 5, semantic versioning) remain unchanged. A document may move from `1.2.0` to `1.2.1` within library version `2026.05.7`, and another document in the same PR may move from `0.0.1` to `1.0.0`. The library version aggregates these into a single point-in-time identifier.
 
 ---
 

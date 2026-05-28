@@ -14,16 +14,7 @@ This file is informational and is not subject to the library's metadata-block, a
 
 ## Priority 2 — consistency and structural improvements
 
-### 2.1 Library-level versioning policy
-
-Currently each document carries its own version; the library as a whole has no declared version scheme. Pick and document one in `specification-master-project.md`:
-- CalVer (e.g., `2026.05`) — by year and month, simple
-- Milestone-based (e.g., `v2.0` after Phase 22) — semantic, more work
-- Rolling-main (no library version, only document versions) — current de facto
-
-Strategic value: lets adopters say "we adopted GRC Library 2026.05" rather than "as of commit 9cea9d1".
-
-### 2.2 Filename ↔ Document Title alignment audit
+### 2.1 Filename ↔ Document Title alignment audit
 
 New linter that warns when a file's filename (after the doctype prefix) and its Document Title diverge significantly. Catches cases like `annex-aeo-s-it-cybersecurity-requirements.md` with title `UK AEO-S IT and Cybersecurity Security Requirements` (the "Security Security" mistake we caught manually in Phase 20.1). Not strictly enforceable but useful as a warning.
 
