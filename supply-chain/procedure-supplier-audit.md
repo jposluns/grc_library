@@ -2,7 +2,7 @@
 
 **Document Title:** Supplier Audit Procedure 
 **Document Type:** Procedure 
-**Version:** 1.0.1 
+**Version:** 1.0.2 
 **Date:** 2026-05-28 
 **Owner:** Supplier Risk Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -127,17 +127,17 @@ A formal Supplier Audit Report must be issued within 15 business days of audit c
 
 All findings must be logged in the Corrective and Preventive Action (CAPA) Register. The Supplier Relationship Owner is responsible for tracking resolution progress and verifying closure of each finding. Critical or recurring findings must be escalated to the Enterprise Risk Committee.
 
-### Step 5: BASC regional trade security compliance
+### Step 5: Sector-programme trade-security compliance
 
-For suppliers engaged in Latin American logistics, customs brokerage, or cargo operations, the audit must additionally confirm:
+For suppliers in scope of a sector programme (for example, BASC for Latin American logistics, customs brokerage, or cargo operations; CTPAT for US trade; AEO for EU trade), the audit must additionally confirm:
 
-- Validity of current BASC certification and scheduled renewal date.
+- Validity of current sector certification (for example, BASC, CTPAT, AEO) and scheduled renewal date.
 - Compliance with the WCO SAFE Framework of Standards 2021.
 - Compliance with ISO 28000:2022 supply chain security management requirements.
 - Adequacy of cargo inspection procedures, seal integrity controls, and tamper-evidence mechanisms.
 - Security of communication channels with customs authorities and regulatory systems.
 
-BASC compliance metrics must be reported to the Regional Compliance Officer and the Enterprise Risk Committee on a quarterly basis.
+Sector-programme compliance metrics must be reported to the sector-conditional role defined by the relevant sector annex (for example, a BASC Regional Compliance Officer where the BASC annex defines that role) and the Enterprise Risk Committee on a quarterly basis; see [`sectors/`](../sectors/).
 
 ---
 

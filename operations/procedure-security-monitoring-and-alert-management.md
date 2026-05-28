@@ -2,8 +2,8 @@
 
 **Document Title:** Security Monitoring and Alert Management Procedure 
 **Document Type:** Procedure 
-**Version:** 1.3.0 
-**Date:** 2026-05-27 
+**Version:** 1.3.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md) 
@@ -43,8 +43,9 @@ Effective security monitoring reduces mean time to detect (MTTD) threats, ensure
 | **Security Operations Centre (SOC)** | Operates the SIEM; triages and manages alerts; escalates confirmed incidents; maintains dashboards; performs weekly rule tuning; documents all alert dispositions. |
 | **Security Engineering** | Designs and maintains correlation rules and detection logic; maps rules to MITRE ATT&CK; implements SIEM integrations for new log sources; manages AI detection configurations. |
 | **IT Operations** | Ensures that log source connectivity and agent health; resolves log ingestion failures within defined SLAs; assists with infrastructure-level investigation of alerts. |
-| **Regional BASC Compliance Officers** | Receive escalated notifications for BASC trade-security anomalies; coordinate with customs authorities where required. |
 | **Internal Audit** | Reviews SOC operational records, SLA adherence, and rule maintenance logs annually. |
+
+Sector-conditional roles (for example, a BASC Regional Compliance Officer who receives escalated notifications for trade-security anomalies and coordinates with customs authorities where required) apply where the organisation participates in a covered sector programme; see [`sectors/`](../sectors/).
 
 ---
 
@@ -193,9 +194,9 @@ A SIEM alert triggers P1 incident declaration when any of the following indicato
 
 In the absence of a clear indicator, the SOC lead escalates ambiguous high-severity situations to the CISO for declaration decision.
 
-### 7.3 BASC anomaly escalation
+### 7.3 Sector-programme anomaly escalation
 
-SIEM alerts tagged with the BASC scope indicator that are triaged as true positives involving unauthorized access to customs or cargo systems, cargo manifest tampering, or suspicious data export from BASC-regulated environments are escalated to the Regional BASC Compliance Officer within 1 hour of triage confirmation. The Regional Compliance Officer determines whether customs authority notification is required.
+Where the organisation participates in a sector programme that defines elevated-escalation alert categories (for example, BASC for trade and customs, healthcare-sector escalation for PHI access anomalies, financial-sector escalation for payment-rail anomalies), SIEM alerts tagged with the sector scope indicator that are triaged as true positives within the annex-defined trigger categories are escalated to the sector-conditional role defined by the relevant sector annex (for example, a BASC Regional Compliance Officer for the BASC programme) within the annex's stated timeframe. The sector-conditional role determines whether onward sector-authority notification is required. See [`sectors/`](../sectors/) for sector-specific escalation paths, triggers, and timeframes.
 
 ### 7.4 Identity threat escalation
 
@@ -318,7 +319,7 @@ The following metrics are tracked by the SOC, reported to the CISO monthly, and 
 | MITRE ATT&CK coverage (% of high-relevance techniques with active rule) | Reviewed quarterly; improvement trend required |
 | Mean time to detect (MTTD): confirmed incidents | Reviewed; quarter-on-quarter improvement target |
 | AI anomaly detection false positive rate | < 10%; reviewed monthly |
-| BASC environment alerts escalated to Regional Compliance Officer within SLA | 100% |
+| Sector-programme environment alerts escalated to the relevant sector-conditional role within annex SLA (where the organisation participates in a covered programme) | 100% |
 
 ---
 

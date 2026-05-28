@@ -2,8 +2,8 @@
 
 **Document Title:** Encryption and Key Management Policy 
 **Document Type:** Policy 
-**Version:** 1.3.0 
-**Date:** 2026-05-27 
+**Version:** 1.3.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) 
@@ -41,7 +41,8 @@ Defines mandatory encryption and cryptographic key management requirements. Ensu
 | Application Owners / Developers | Ensure that encryption requirements are applied within systems and APIs. |
 | Compliance / GRC Manager | Monitors adherence and maintains evidence for audit and certification. |
 | AI Governance Council (AIGC) | Oversees encryption of AI datasets, model artifacts, and explainability data. |
-| Regional Compliance Officers (BASC) | Verify trade-data encryption and customs-communication security for Latin American operations. |
+
+Sector-conditional roles (for example, a BASC Regional Compliance Officer who verifies trade-data encryption and customs-communication security for organisations participating in BASC) apply where the organisation participates in a covered sector programme; see [`sectors/`](../sectors/).
 
 ---
 
@@ -159,7 +160,7 @@ Model explainability files (e.g., SHAP/LIME outputs) must be encrypted and acces
 |---|---|---|
 | Continuous encryption compliance monitoring via SIEM and KMS dashboards | Ongoing | CISO / IT Operations |
 | Encryption compliance audit | Quarterly | CISO and Compliance Manager |
-| BASC regional audit of customs data and cargo communications encryption | Annually | Regional BASC Compliance Officers |
+| Sector-programme audit of programme-specific encryption (for example, customs data and cargo communications encryption under BASC where the organisation participates) | At the cadence stated by the relevant sector annex | Sector-conditional role per the annex; see [`sectors/`](../sectors/) |
 | Findings and remediation actions logged in CAPA Register | Per finding | Compliance / GRC Manager |
 
 ---
@@ -174,9 +175,9 @@ Exceptions require:
 - Documented business justification and risk assessment.
 - A temporary exception record in the Exception Register.
 
-### 8.2 BASC and customs-data exceptions
+### 8.2 Sector-programme exceptions
 
-BASC and customs-data exceptions are not permitted unless explicitly authorized by the Regional BASC Compliance Officer and the Enterprise Risk Committee.
+Where the organisation participates in a sector programme that imposes additional encryption requirements (for example, BASC for customs-data encryption), exceptions to those programme-specific controls are not permitted unless explicitly authorised by the sector-conditional role defined by the relevant sector annex and the Enterprise Risk Committee; see [`sectors/`](../sectors/).
 
 ---
 

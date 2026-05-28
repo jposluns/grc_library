@@ -2,8 +2,8 @@
 
 **Document Title:** Cryptographic Key Lifecycle Management Framework 
 **Document Type:** Framework 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Chief Information Officer 
 **Related Documents:** [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md) 
@@ -85,19 +85,22 @@ All cryptographic keys must be registered in the Key Lifecycle Register with the
 | **Security Architecture** | Designs key management architecture; selects approved algorithms and HSM platforms. |
 | **IT Operations** | Executes key rotation, distribution, and revocation procedures. |
 | **Internal Audit** | Verifies KLR completeness and control adherence annually. |
-| **Regional BASC Compliance Officers** | Maintain trade-system key registrations and validate keys during BASC audits. |
+
+Sector-conditional roles (for example, a BASC Regional Compliance Officer who maintains trade-system key registrations and validates keys during BASC audits) apply where the organisation participates in a covered sector programme; see [`sectors/`](../sectors/).
 
 ---
 
-## 5. BASC and WCO SAFE integration
+## 5. Sector-programme cryptographic integration
 
-Trade and customs systems must use AES-256 with PQC hybrid encryption by 2027. Keys used for customs communications must:
+Where the organisation participates in a sector programme that imposes additional cryptographic requirements (for example, BASC and WCO SAFE for trade and customs systems requiring AES-256 with PQC hybrid encryption by 2027), the keys used for sector-programme communications must:
 
 - Be uniquely identifiable in the Key Lifecycle Register.
-- Have documented ownership by the Regional BASC Compliance Officer.
-- Be rotated annually.
-- Be validated during BASC audits.
-- Have audit evidence retained for 7 years.
+- Have documented ownership by the sector-conditional role defined by the relevant sector annex (for example, a BASC Regional Compliance Officer for the BASC programme).
+- Be rotated at the cadence stated by the annex (default: annually unless the annex specifies a shorter interval).
+- Be validated during sector-programme audits.
+- Have audit evidence retained for the period stated by the annex (default: 7 years).
+
+See [`sectors/`](../sectors/) for the sector annex applicable to the organisation's covered programmes.
 
 ---
 

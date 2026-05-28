@@ -2,8 +2,8 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy 
 **Document Type:** Policy 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md) 
@@ -40,9 +40,10 @@ It ensures that legal, regulatory, and contractual requirements, including those
 | **Chief Information Security Officer (CISO)** | Ensures that security, privacy, and trade-compliance obligations are enforced and evidenced across all systems. |
 | **Legal Counsel** | Interprets laws, validates control coverage, and approves external submissions. |
 | **Chief Compliance Officer (CCO)** | Manages enterprise compliance programmes aligned to ISO 37301. |
-| **Regional BASC Compliance Officers** | Coordinate trade and customs compliance activities, liaising with BASC National Chapters and customs authorities. |
 | **AI Governance Council (AIGC)** | Oversees AI regulatory monitoring and EU AI Act readiness. |
 | **Internal Audit** | Validates compliance processes and verifies evidence linkage for all regulatory domains. |
+
+Sector-conditional roles (for example, a BASC Regional Compliance Officer for trade and customs compliance liaison with BASC National Chapters and customs authorities) apply where the organisation participates in a covered sector programme; see [`sectors/`](../sectors/).
 
 ---
 
@@ -58,11 +59,11 @@ It ensures that legal, regulatory, and contractual requirements, including those
 
 ## 2. Regulatory horizon scanning and change management
 
-2.1 Legal, compliance, and regional teams shall continuously monitor regulatory updates using verified industry sources, including WCO circulars, EU Official Journal, and regional BASC notifications.
+2.1 Legal, compliance, and regional teams shall continuously monitor regulatory updates using verified industry sources, including the EU Official Journal, US Federal Register equivalents, and sector-programme notifications (for example, WCO circulars and BASC chapter communications where the organisation participates).
 
 2.2 AI-related regulatory tracking must capture EU AI Act obligations, AIDA conformity updates, and supervisory guidance.
 
-2.3 Trade and customs regulation updates must be reflected within the BASC compliance matrix and communicated to all logistics sites.
+2.3 Sector-programme regulation updates (for example, trade and customs updates under BASC where the organisation participates) must be reflected within the relevant sector compliance matrix and communicated per the sector annex; see [`sectors/`](../sectors/).
 
 2.4 All updates must be logged in the ROR and routed through the Change Management and Configuration Control Procedure.
 
@@ -74,7 +75,7 @@ It ensures that legal, regulatory, and contractual requirements, including those
 
 3.2 High-risk obligations (such as customs reporting, data export, and AI bias mitigation) must have defined mitigation controls and response plans.
 
-3.3 Trade and customs compliance deviations require co-approval by the CISO and Regional BASC Compliance Officer.
+3.3 Sector-programme compliance deviations (for example, trade and customs deviations under BASC) require co-approval by the CISO and the sector-conditional role defined by the relevant sector annex.
 
 ---
 
@@ -84,7 +85,7 @@ It ensures that legal, regulatory, and contractual requirements, including those
 
 4.2 Evidence of compliance (audits, logs, reports) must be retained in the GRC repository for a minimum of seven years.
 
-4.3 BASC-related controls shall include encryption validation, cargo integrity verification, personnel screening records, and customs data exchange logs.
+4.3 Sector-programme controls (for example, BASC trade and customs controls including encryption validation, cargo integrity verification, personnel screening records, and customs data exchange logs) apply where the organisation participates in a covered programme per the relevant sector annex; see [`sectors/`](../sectors/).
 
 4.4 AI governance controls shall include documentation for transparency, robustness, and conformity per ISO 42001 and NIST AI RMF.
 
@@ -94,7 +95,7 @@ It ensures that legal, regulatory, and contractual requirements, including those
 
 5.1 All regulatory notifications must follow the Security Incident Reporting and Escalation Procedure.
 
-5.2 BASC and customs incidents must be reported to Regional BASC Compliance Officers within 24 hours, with notifications to BASC National Chapters following Chapter timelines.
+5.2 Sector-programme incidents (for example, BASC and customs incidents where the organisation participates in BASC) must be reported to the sector-conditional role defined by the relevant sector annex within the annex's stated timeframe, with onward notifications to the sector body following the annex's escalation path; see [`sectors/`](../sectors/).
 
 5.3 Data breaches must be reported to supervisory authorities within required periods (GDPR: 72 hours; NIS 2: 24 hours).
 

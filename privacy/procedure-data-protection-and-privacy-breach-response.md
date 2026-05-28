@@ -2,7 +2,7 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure 
 **Document Type:** Procedure 
-**Version:** 1.4.0 
+**Version:** 1.4.1 
 **Date:** 2026-05-28 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -50,7 +50,8 @@ A personal data breach is also a security incident. The CISO and Privacy Officer
 | **Legal Counsel** | Determines notification obligations by jurisdiction. Advises on exemptions, litigation hold, evidence handling, and regulatory engagement strategy. Reviews and approves all regulatory and data subject notifications before submission. |
 | **Security Operations Centre (SOC)** | Detects and triages security events that may constitute personal data breaches. Preserves evidence, executes technical containment, and provides forensic information to support the Privacy Officer's impact assessment. |
 | **IT Operations / System Owners** | Support data scope identification, access restriction, and deletion or recovery actions directed by the Privacy Officer and CISO. |
-| **Regional BASC Compliance Officer** | Notified for any breach affecting BASC trade, customs, or cargo records. Coordinates BASC-specific reporting. |
+
+Sector-conditional roles (for example, a BASC Regional Compliance Officer who is notified for any breach affecting trade, customs, or cargo records and coordinates sector-specific reporting) apply where the organisation participates in a covered sector programme; see [`sectors/`](../sectors/).
 
 ### 2.2 Joint leadership
 
