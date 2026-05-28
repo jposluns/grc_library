@@ -176,8 +176,8 @@ This standard defines the secure configuration baseline for cloud and cloud prod
 | CIS Cloud Foundations Benchmark | v2.0 | Secure cloud platform configuration |
 | CIS Cloud Productivity Foundations Benchmark | v3.0 | Secure cloud productivity configuration |
 | NIST SP 800-53 | CM-2, CM-6 | Configuration Baseline and Settings |
-| COBIT 2025 | DSS05 | Manage Security Services |
-| CSA CCM v5 | IVS-01, IVS-04 | Infrastructure and Virtualization Security |
+| COBIT 2019 | DSS05 | Manage Security Services |
+| CSA CCM v4.1 | IVS-01, IVS-04 | Infrastructure and Virtualization Security |
 
 ---
 

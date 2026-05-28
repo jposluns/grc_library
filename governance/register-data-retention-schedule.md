@@ -158,7 +158,7 @@ Records reaching the end of their retention period are destroyed per the Records
 | ISO/IEC 27001:2022 | Annex A.5.33: Protection of Records | Records protection and retention |
 | ISO/IEC 27002:2022 | §5.33 to 5.34 | Records management controls |
 | BASC International Standard v6 | Chapter 3: Document Retention | Trade record retention |
-| COBIT 2025 | APO14: Manage Data | Data governance and retention |
+| COBIT 2019 | APO14: Manage Data | Data governance and retention |
 
 ---
 

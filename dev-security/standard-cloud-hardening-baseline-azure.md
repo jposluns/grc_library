@@ -232,7 +232,7 @@ The standard aligns to the CIS Microsoft Azure Foundations Benchmark and to the 
 | NIST SP 800-53 Rev 5 | AC, AU, SC, CM, IR families | US baseline |
 | NIST CSF 2.0 | Identify, Protect, Detect, Respond, Recover | Risk function alignment |
 | ISO/IEC 27001:2022 | A.5, A.8 (selected) | Information security management |
-| CSA CCM v5 | IAM, IVS, LOG, GRC | Cloud control matrix |
+| CSA CCM v4.1 | IAM, IVS, LOG, GRC | Cloud control matrix |
 | PCI DSS v4 | Selected requirements where the environment processes cardholder data | Card data baseline |
 | EU AI Act, GDPR | Privacy framework | Privacy compliance |
 

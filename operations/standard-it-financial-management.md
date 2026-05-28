@@ -224,7 +224,7 @@ Each category has a documented definition and an owner.
 | FinOps Foundation | FinOps framework | Cloud financial operations |
 | ITIL 4 | Service financial management | Service management |
 | ISO/IEC 20000-1 | Service financial management | Service management standard |
-| COBIT 2025 | APO06 Manage budget and costs | Governance of enterprise IT |
+| COBIT 2019 | APO06 Manage budget and costs | Governance of enterprise IT |
 | ISO/IEC 27001:2022 | A.5.13 Labelling of information, A.5.14 Information transfer (tangentially) | Tagging discipline |
 | ISO 14001 | Environmental management | Sustainability cross-walk |
 | GAAP and IFRS | Capitalisation and depreciation of software and infrastructure | Accounting |

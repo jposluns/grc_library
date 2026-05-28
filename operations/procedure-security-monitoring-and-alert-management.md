@@ -324,7 +324,7 @@ The following metrics are tracked by the SOC, reported to the CISO monthly, and 
 
 ## 12. Framework alignment
 
-| Control Area | ISO/IEC 27002:2022 | NIST CSF | COBIT 2025 | CSA CCM v5 |
+| Control Area | ISO/IEC 27002:2022 | NIST CSF | COBIT 2019 | CSA CCM v4.1 |
 | --- | --- | --- | --- | --- |
 | Log ingestion and integrity | §8.15 | Detect: DE.CM-7 | DSS05.03 | LOG-01, LOG-04, LOG-07 |
 | Time synchronization | §8.15.3 | Detect: DE.CM-1 | DSS01.03 | LOG-03 |

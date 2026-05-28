@@ -87,7 +87,7 @@ Suspected compromise of a privileged account constitutes a P1 security incident.
 
 ## Framework alignment
 
-| Control | ISO/IEC 27001 | NIST SP 800-53 | COBIT 2025 | CSA CCM v5 | CIS |
+| Control | ISO/IEC 27001 | NIST SP 800-53 | COBIT 2019 | CSA CCM v4.1 | CIS |
 | --- | --- | --- | --- | --- | --- |
 | Privileged access rights | A.8.2 | AC-2, AC-6 | DSS05.04 | IAM-02, IAM-04 | Control 5 |
 | Just-in-time access | A.5.18 | AC-2(7) | N/A | IAM-04 | Control 6 |

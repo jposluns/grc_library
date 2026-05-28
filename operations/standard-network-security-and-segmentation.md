@@ -195,8 +195,8 @@ Any detected BASC trade-network anomaly must trigger the Security Incident Respo
 | ISO/IEC 27033:2020 | Network Security Architecture and Segmentation |
 | NIST SP 800-53 | SC-7: Boundary Protection |
 | NIST SP 800-207 | Zero Trust Architecture |
-| COBIT 2025 | DSS05: Manage Security Services |
-| CSA CCM v5 | IVS-06, IVS-07: Network Architecture and Segmentation |
+| COBIT 2019 | DSS05: Manage Security Services |
+| CSA CCM v4.1 | IVS-06, IVS-07: Network Architecture and Segmentation |
 | CIS Controls v8 | Control 12: Network Infrastructure Management |
 | BASC International Standard (v6 2023) | Trade and Customs Network Security |
 | WCO SAFE Framework (2021) | Supply Chain Security |

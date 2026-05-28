@@ -140,7 +140,7 @@ Applies to all AI models and machine learning systems developed internally, proc
 | ISO/IEC 42001:2023 | §10: Improvement | Model performance monitoring and improvement |
 | EU AI Act (2024) | Article 9: Risk Management System | Ongoing AI risk management |
 | NIST AI RMF (2023) | GOVERN, MAP, MEASURE, MANAGE functions | End-to-end AI lifecycle |
-| COBIT 2025 | BAI09: Manage Assets | AI asset lifecycle management |
+| COBIT 2019 | BAI09: Manage Assets | AI asset lifecycle management |
 
 ---
 

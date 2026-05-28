@@ -20,7 +20,7 @@
 
 This framework defines the organization's approach to ethical conduct, workforce integrity, and responsible innovation. It integrates human resource governance, ethical behaviour standards, and professional conduct expectations for all employees and affiliates.
 
-It consolidates the HR Security Policy, Security Awareness and Training Policy, Corporate Culture Framework, Whistleblower Procedure, and Anti-Bribery and Corruption Policy into a unified governance model. Aligned with ISO 37001, ISO 37301, OECD AI Principles, ISO/PAS 8800, and CSA CCM v5 SEF-01.
+It consolidates the HR Security Policy, Security Awareness and Training Policy, Corporate Culture Framework, Whistleblower Procedure, and Anti-Bribery and Corruption Policy into a unified governance model. Aligned with ISO 37001, ISO 37301, OECD AI Principles, ISO/PAS 8800, and CSA CCM v4.1 SEF-01.
 
 ---
 
@@ -110,8 +110,8 @@ Training completion is tracked and reported annually to the ERC and relevant com
 | ISO 37301:2021 | §7.4: Competence and Awareness | Compliance training and competency |
 | ISO/PAS 8800:2023 | Responsible Innovation Management | Ethical AI and responsible innovation |
 | OECD AI Principles (2023) | Human-centric, fair, accountable AI | Responsible AI training |
-| COBIT 2025 | APO07: Manage Human Resources | HR governance and competency |
-| CSA CCM v5 | SEF-01: Security and Ethics Framework | Ethics and conduct framework |
+| COBIT 2019 | APO07: Manage Human Resources | HR governance and competency |
+| CSA CCM v4.1 | SEF-01: Security and Ethics Framework | Ethics and conduct framework |
 
 ---
 

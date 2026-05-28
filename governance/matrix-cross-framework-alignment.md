@@ -58,7 +58,7 @@ This matrix provides an original, non-verbatim alignment structure for mapping r
 
 The following table maps the enterprise risk management control areas to external framework families. It supports the Enterprise Governance and Risk Management Policy, the Enterprise Risk Management Standard, and the underlying risk procedures.
 
-| Control Area | ISO 31000 | ISO 23894 | NIST SP 800-39 | NIST AI RMF | COBIT 2025 | CSA CCM v5 | Legal and Regulatory | Trade and Supply-Chain Programmes |
+| Control Area | ISO 31000 | ISO 23894 | NIST SP 800-39 | NIST AI RMF | COBIT 2019 | CSA CCM v4.1 | Legal and Regulatory | Trade and Supply-Chain Programmes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Risk framework and governance | Clause 5 Framework | Clause 5 Governance | Organization-wide RMF | Govern | APO12.01 Define risk context | GRM domain; GOV domain | Corporate governance charters | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO, AEO-S |
 | Risk identification and analysis | Clause 6 Identify; Clause 6 Analyse | Clause 6.2 Identification; Clause 6.3 Analysis | Tasks 1 and 2 | Map; Measure | APO12.03 Assess risk | GRM domain | GDPR Article 25; CPPA accountability | WCO SAFE equivalence |

@@ -22,7 +22,7 @@ This policy defines the governance framework for compliance assurance, internal 
 
 It consolidates previous compliance, audit, and CAPA policies into one unified governance instrument, ensuring consistent oversight of legal, regulatory, contractual, and ethical obligations; verification of control effectiveness; and continual improvement through audit findings and remediation cycles. 
 
-The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO 19011:2018** (Auditing Guidelines), **COBIT 2025 MEA01** (Monitor, Evaluate, and Assess Performance and Conformance), **Cloud Security Alliance (CSA)** frameworks, **NIST SP 800-53 Rev 5 CA** family, and regulatory expectations under the **EU AI Act**, **Canada's AIDA**, and **U.S. Executive Order 14110** on Safe, Secure, and Trustworthy AI.
+The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO 19011:2018** (Auditing Guidelines), **COBIT 2019 MEA01** (Monitor, Evaluate, and Assess Performance and Conformance), **Cloud Security Alliance (CSA)** frameworks, **NIST SP 800-53 Rev 5 CA** family, and regulatory expectations under the **EU AI Act**, **Canada's AIDA**, and **U.S. Executive Order 14110** on Safe, Secure, and Trustworthy AI.
 
 
 
@@ -102,7 +102,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 ### 8. Continual improvement
 8.1 Audit methodologies shall be reviewed annually per ISO 19011 Clause 10 and COBIT MEA01. 
 8.2 Lessons learned and regulatory updates shall inform training, control enhancement, and risk recalibration. 
-8.3 Digital trust and algorithmic assurance metrics shall be integrated in accordance with COBIT 2025 MEA01.
+8.3 Digital trust and algorithmic assurance metrics shall be integrated in accordance with COBIT 2019 MEA01.
 
 
 
@@ -110,7 +110,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 
 - **ISO 37301:2021** Compliance Management Systems 
 - **ISO 19011:2018** Guidelines for Auditing 
-- **COBIT 2025 MEA01** Monitor, Evaluate, and Assess Performance and Conformance 
+- **COBIT 2019 MEA01** Monitor, Evaluate, and Assess Performance and Conformance 
 - **Cloud Security Alliance (CSA)** frameworks (GOV, AUD, AICM) 
 - **NIST SP 800-53 Rev 5 CA** family (Assessment and Authorization) 
 - **OECD AI Principles** (Accountability, Transparency, Human Oversight) 
@@ -124,7 +124,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 
 ## Compliance mapping table
 
-| Control Area | ISO 37301 | ISO 19011 | COBIT 2025 | CSA | NIST | Legal / Regulatory | Trade and Supply Chain Programs |
+| Control Area | ISO 37301 | ISO 19011 | COBIT 2019 | CSA | NIST | Legal / Regulatory | Trade and Supply Chain Programs |
 |---------------|------------|------------|-------------|------|-------|--------------------|--------------------------------|
 | Compliance governance | Clauses 5 to 6 Leadership | Clause 5 Governance | MEA01.01 Establish governance | GOV 01 to 03 | NIST CSF Govern | GDPR, CPPA | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO |
 | Compliance risk and obligations register | Clauses 6 to 7 Planning | N/A | APO12 linkage | GOV 04 | NIST RMF Prepare | Multi-jurisdiction | WCO SAFE equivalence |

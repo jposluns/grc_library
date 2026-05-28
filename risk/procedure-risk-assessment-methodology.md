@@ -177,8 +177,8 @@ Residual risk score = Inherent risk × (1 − Control effectiveness factor)
 | ISO/IEC 27005:2022 | Information Security Risk Management | Information security risk methodology |
 | ISO/IEC 42001:2023 | §6: Planning (AI risk) | AI risk assessment integration |
 | NIST SP 800-30r1 | Guide for Conducting Risk Assessments | Risk assessment methodology |
-| COBIT 2025 | APO12: Manage Risk | Enterprise risk governance |
-| CSA CCM v5 | GRM-01 through GRM-11 | Cloud risk management |
+| COBIT 2019 | APO12: Manage Risk | Enterprise risk governance |
+| CSA CCM v4.1 | GRM-01 through GRM-11 | Cloud risk management |
 
 ---
 

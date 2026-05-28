@@ -140,7 +140,7 @@ The AIGC reports to the Enterprise Risk Committee (ERC). Quarterly AI Governance
 | EU AI Act (2024) | Chapter III: High-Risk AI Systems | High-risk AI oversight |
 | NIST AI RMF (2023) | GOVERN function | AI governance structure |
 | OECD AI Principles (2023) | Accountability and oversight | AI ethics oversight |
-| COBIT 2025 | APO14: Manage Data | AI data governance |
+| COBIT 2019 | APO14: Manage Data | AI data governance |
 
 ---
 

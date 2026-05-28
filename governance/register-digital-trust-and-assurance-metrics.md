@@ -122,11 +122,11 @@ Each metric should define:
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| COBIT 2025 | MEA01, MEA02: Performance, compliance, and assurance management | KPI governance, digital trust indicators |
+| COBIT 2019 | MEA01, MEA02: Performance, compliance, and assurance management | KPI governance, digital trust indicators |
 | ISO 9001:2015 | §9 to 10: Measurement, analysis, and improvement | Continual improvement metrics |
 | ISO/IEC 42001:2023 | §10: AI performance and continual improvement | AI governance KPIs |
 | ISO/IEC 27014 | Governance of information security | Security governance performance measurement |
-| CSA CCM v5 | GOV-09, GOV-10: Governance and digital trust | Control coverage and assurance metrics |
+| CSA CCM v4.1 | GOV-09, GOV-10: Governance and digital trust | Control coverage and assurance metrics |
 
 ---
 

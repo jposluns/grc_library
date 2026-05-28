@@ -122,8 +122,8 @@ Residual risks identified during offboarding must be reviewed, documented, and l
 | Requirement | Aligned Framework |
 | --- | --- |
 | Supplier risk classification and lifecycle management | ISO/IEC 27036-3:2013 |
-| Third-party governance and oversight | COBIT 2025 APO10 |
-| Supply chain security controls | CSA CCM v5 STA-02 |
+| Third-party governance and oversight | COBIT 2019 APO10 |
+| Supply chain security controls | CSA CCM v4.1 STA-02 |
 | Supply chain risk management practices | NIST SP 800-161r2 |
 
 ---
@@ -142,7 +142,7 @@ Residual risks identified during offboarding must be reviewed, documented, and l
 ## References
 
 - ISO/IEC 27036-3:2013: Information security for supplier relationships: Guidelines for information and communication technology supply chain security.
-- COBIT 2025 APO10: Managed Vendors.
+- COBIT 2019 APO10: Managed Vendors.
 - CSA Cloud Controls Matrix v5, STA-02: Supply Chain Management, Transparency, and Accountability.
 - NIST SP 800-161r2: Cybersecurity Supply Chain Risk Management Practices for Systems and Organizations.
 

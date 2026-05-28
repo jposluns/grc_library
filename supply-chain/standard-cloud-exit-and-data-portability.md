@@ -113,7 +113,7 @@ Where a cloud provider cannot meet the contract requirements in this standard, f
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| CSA CCM v5 | IPY-01 through IPY-05: Interoperability and Portability | Cloud exit and portability controls |
+| CSA CCM v4.1 | IPY-01 through IPY-05: Interoperability and Portability | Cloud exit and portability controls |
 | ISO/IEC 27001:2022 | Annex A.5.20: Addressing Security in Supplier Agreements | Supplier contract requirements |
 | NIST SP 800-53 | SA-9: External System Services | Third-party cloud service controls |
 | GDPR (2018) | Article 20: Data Portability | Personal data portability rights |

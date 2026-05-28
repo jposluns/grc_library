@@ -144,7 +144,7 @@ Security violations are classified by severity:
 | ISO/IEC 27001:2022 | Annex A.6.4: Disciplinary Process | Security disciplinary requirements |
 | ISO/IEC 27002:2022 | §6.4: Disciplinary Process | Disciplinary process controls |
 | NIST SP 800-53 | PS-8: Personnel Sanctions | Personnel security sanctions |
-| COBIT 2025 | DSS05: Manage Security Services | Security personnel controls |
+| COBIT 2019 | DSS05: Manage Security Services | Security personnel controls |
 
 ---
 

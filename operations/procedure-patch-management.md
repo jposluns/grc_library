@@ -195,7 +195,7 @@ Retention timelines are subject to the Records Retention and Destruction Standar
 
 ## Framework alignment
 
-| Control Area | NIST SP 800-40 Rev 4 | ISO/IEC 27001:2022 | CSA CCM v5 | CIS Controls v8 | COBIT 2025 |
+| Control Area | NIST SP 800-40 Rev 4 | ISO/IEC 27001:2022 | CSA CCM v4.1 | CIS Controls v8 | COBIT 2019 |
 | --- | --- | --- | --- | --- | --- |
 | Patch planning and classification | §2 (Planning) | A.8.8 | TVM-08 | Control 7.1 | DSS05.07 |
 | Patch testing | §3 (Testing) | A.8.8 | TVM-08 | Control 7.4 | DSS05.07 |

@@ -223,7 +223,7 @@ The assurance plan is the prospective view; the map is the current state.
 | IIA Three Lines Model 2020 | Three lines model | Lines of defence |
 | ISO 31000:2018 | Risk management principles | Risk management baseline |
 | COSO ERM 2017 | Enterprise risk management | Enterprise risk integration |
-| COBIT 2025 | MEA02 Managed assurance | Governance of enterprise IT |
+| COBIT 2019 | MEA02 Managed assurance | Governance of enterprise IT |
 | ISO/IEC 27001:2022 | A.5.35 Independent review of information security | Independent review |
 | ISO/IEC 42001:2023 | Management system assurance | AI management system |
 | Basel Committee Operational Risk Principles | Three lines | Operational risk governance |

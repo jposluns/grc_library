@@ -77,7 +77,7 @@ Disclosures use standardized frameworks (GRI, TCFD, SASB) to enable stakeholder 
 
 | Disclosure Item | Standard | Frequency |
 | --- | --- | --- |
-| AI governance maturity level | ISO/IEC 42001; COBIT 2025 | Annual |
+| AI governance maturity level | ISO/IEC 42001; COBIT 2019 | Annual |
 | Number of AI systems by risk tier | EU AI Act; NIST AI RMF | Annual |
 | Bias audit completion rate for production AI | ISO/IEC 42001 §9 | Annual |
 | Explainability compliance rate | EU AI Act Annex IV | Annual |
@@ -90,7 +90,7 @@ Disclosures use standardized frameworks (GRI, TCFD, SASB) to enable stakeholder 
 
 | Disclosure Item | Framework | Frequency |
 | --- | --- | --- |
-| Governance maturity assessment results | COBIT 2025 | Annual |
+| Governance maturity assessment results | COBIT 2019 | Annual |
 | Board and ERC oversight of AI and ESG | GRI 405; ISO 42001 §5 | Annual |
 | Anti-bribery commitment and compliance | ISO 37001; GRI 205 | Annual |
 | Data protection compliance summary | GDPR; PIPEDA | Annual |

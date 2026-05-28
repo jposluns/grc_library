@@ -118,8 +118,8 @@ The organization applies a 5-level Data Classification Model. DLP controls are c
 |---|---|---|
 | ISO/IEC 27002:2022 | §8.10 to 8.11 | Data Leakage Prevention |
 | ISO/IEC 27701:2019 | §8.9 | Privacy Incident Management |
-| COBIT 2025 | DSS05.03 | Protect Against Data Leakage |
-| CSA CCM v5 | DSP-04 | Data Leakage Prevention |
+| COBIT 2019 | DSS05.03 | Protect Against Data Leakage |
+| CSA CCM v4.1 | DSP-04 | Data Leakage Prevention |
 | NIST SP 800-53 Rev. 5 | SI-4, SC-7 | System Monitoring and Boundary Protection |
 
 ---

@@ -124,8 +124,8 @@ AI model testing is governed by the AI Testing, Validation and Documentation Sta
 | --- | --- | --- |
 | ISO 9001:2015 | §8.6: Release of Products and Services | Quality gate and release requirements |
 | ISO/IEC 27001:2022 | Annex A.8.29 | Security testing in development |
-| COBIT 2025 | BAI03: Manage Solutions Identification and Build | Solution quality assurance |
-| CSA CCM v5 | SEF-06: Testing and Quality Assurance | Cloud software testing controls |
+| COBIT 2019 | BAI03: Manage Solutions Identification and Build | Solution quality assurance |
+| CSA CCM v4.1 | SEF-06: Testing and Quality Assurance | Cloud software testing controls |
 | NIST SP 800-53 | SA: System and Services Acquisition Family | Software assurance controls |
 
 ---

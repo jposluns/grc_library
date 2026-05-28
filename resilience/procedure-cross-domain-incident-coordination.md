@@ -250,7 +250,7 @@ Maintain joint declaration record, coordination roster snapshot, joint decision 
 | Cybersecurity incident handling | NIST SP 800-61 Rev 2 |
 | Personal data breach coordination | GDPR Articles 33 to 34; UK GDPR Articles 33 to 34; PIPL Article 57; LGPD Articles 48 to 49 |
 | Operational resilience incident coordination | DORA Pillar 2; NIS 2 Articles 23 to 25 |
-| Cloud incident management | CSA CCM v5 SEF domain |
+| Cloud incident management | CSA CCM v4.1 SEF domain |
 | AI security incident response | NIST AI RMF MANAGE; ISO/IEC 42001:2023 §9 |
 
 ---

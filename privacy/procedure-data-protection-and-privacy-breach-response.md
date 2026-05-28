@@ -22,7 +22,7 @@
 
 This procedure defines the lifecycle for detecting, containing, assessing, notifying, remediating, and closing personal data breaches and privacy incidents. It establishes mandatory roles, response timeframes, jurisdiction-specific notification obligations, and evidence requirements, and ensures that regulatory notification deadlines are met for all applicable laws.
 
-The procedure is aligned to ISO/IEC 27701:2019 §8.9, GDPR Articles 33 to 34, UK GDPR Articles 33 to 34, CPPA, PIPL Article 57, LGPD, Quebec Law 25, and CSA CCM v5 PRI-05 and SEF-02.
+The procedure is aligned to ISO/IEC 27701:2019 §8.9, GDPR Articles 33 to 34, UK GDPR Articles 33 to 34, CPPA, PIPL Article 57, LGPD, Quebec Law 25, and CSA CCM v4.1 PRI-05 and SEF-02.
 
 ### 1.2 Scope
 
@@ -305,7 +305,7 @@ The following metrics are tracked and reported to the CIO and CISO at the quarte
 
 | Control Area | Framework Reference |
 | --- | --- |
-| Privacy breach response programme | ISO/IEC 27701:2019 §8.9; CSA CCM v5 PRI-05 |
+| Privacy breach response programme | ISO/IEC 27701:2019 §8.9; CSA CCM v4.1 PRI-05 |
 | Regulatory breach notification: EU/UK | GDPR Arts. 33 to 34; UK GDPR Arts. 33 to 34 |
 | Regulatory breach notification: Canada | CPPA; PIPEDA Breach of Security Safeguards Regulations; Quebec Law 25 |
 | Regulatory breach notification: China | PIPL Art. 57 |
@@ -313,7 +313,7 @@ The following metrics are tracked and reported to the CIO and CISO at the quarte
 | Regulatory breach notification: US | State breach notification laws; refer to [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md) |
 | Security incident response | ISO/IEC 27035; NIST SP 800-61 Rev 2; [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) |
 | Evidence preservation | ISO/IEC 27037; [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §8 |
-| SIEM alert integration | CSA CCM v5 SEF-02; [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) |
+| SIEM alert integration | CSA CCM v4.1 SEF-02; [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) |
 | Record keeping and retention | ISO/IEC 27701 §8.9; [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) |
 | AI training data leakage | ISO/IEC 27701 §8.9; [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) |
 | BASC trade data | BASC International Standard v6; [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../supply-chain/annex-trade-and-supply-chain-continuity-controls.md) |

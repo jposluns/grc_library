@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register defines the key performance indicators (KPIs) used to measure IT operations effectiveness across availability, incident management, change management, problem management, patch and vulnerability management, capacity, service desk, and security operations. KPIs support governance reporting to the CIO and Executive Risk Committee (ERC) and align with ISO/IEC 20000-1:2018, ITIL 4, COBIT 2025, and EU NIS 2 Directive obligations.
+This register defines the key performance indicators (KPIs) used to measure IT operations effectiveness across availability, incident management, change management, problem management, patch and vulnerability management, capacity, service desk, and security operations. KPIs support governance reporting to the CIO and Executive Risk Committee (ERC) and align with ISO/IEC 20000-1:2018, ITIL 4, COBIT 2019, and EU NIS 2 Directive obligations.
 
 This register is a public-domain baseline. Adopting organizations must populate target values, reporting owners, and evidence sources that match their own service catalogue, risk appetite, contractual obligations, and regulatory requirements.
 

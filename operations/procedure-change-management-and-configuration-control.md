@@ -204,7 +204,7 @@ The following metrics are reported to the CISO and CIO monthly:
 
 ## Framework alignment
 
-| Control Area | ISO/IEC 20000 | ISO/IEC 27001 | COBIT 2025 | CSA CCM v5 | NIST |
+| Control Area | ISO/IEC 20000 | ISO/IEC 27001 | COBIT 2019 | CSA CCM v4.1 | NIST |
 | --- | --- | --- | --- | --- | --- |
 | Change management | §8.5 | A.8.32 | CCC-01 to CCC-04 | CCC-01 to CCC-05 | SP 800-128 §4 |
 | Configuration management | §8.5 | A.8.9 | CCC-05 to CCC-07 | CCC-06 to CCC-09 | SP 800-128 §3 |

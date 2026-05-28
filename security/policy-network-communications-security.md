@@ -164,9 +164,9 @@ It establishes requirements for network segmentation, firewall configuration, in
 | --- | --- | --- |
 | ISO/IEC 27033:2020 | Network Security Architecture | Network architecture, segmentation, secure connectivity |
 | ISO/IEC 27001:2022 | A.8.20 to 21: Network security, network segmentation | Network security policy obligations |
-| COBIT 2025 | DSS05: Managed Security Services | Network security governance and service management |
+| COBIT 2019 | DSS05: Managed Security Services | Network security governance and service management |
 | NIST SP 800-207 | Zero Trust Architecture | ZTNA principles, continuous validation |
-| CSA CCM v5 | IVS-01: Network Security and Virtualization Controls | Cloud and virtualized network security |
+| CSA CCM v4.1 | IVS-01: Network Security and Virtualization Controls | Cloud and virtualized network security |
 | BASC v6 (2023) | Section 6: Trade and Customs Network Security | BASC logistics network controls, customs log retention |
 | WCO SAFE Framework (2021) | Authorized Economic Operator and Customs Security | Supply-chain and customs communication controls |
 | ISO 28000:2022 | Supply-Chain Security and Resilience | Trade network security management |

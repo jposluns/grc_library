@@ -149,8 +149,8 @@ Applies to all access to organizational systems including cloud platforms, on-pr
 | ISO/IEC 27001:2022 | Annex A.5.15 to 5.18: Access Control | Access governance |
 | ISO/IEC 27002:2022 | §5.15 to 5.18 | Access request, review, and revocation |
 | NIST SP 800-53 | AC: Access Control Family | Access management controls |
-| COBIT 2025 | DSS05: Manage Security Services | Access security services |
-| CSA CCM v5 | IAM-01 through IAM-14: Identity and Access Management | Cloud IAM controls |
+| COBIT 2019 | DSS05: Manage Security Services | Access security services |
+| CSA CCM v4.1 | IAM-01 through IAM-14: Identity and Access Management | Cloud IAM controls |
 | NIST SP 800-207 | Zero Trust Architecture | Least privilege and continuous authorization |
 
 ---

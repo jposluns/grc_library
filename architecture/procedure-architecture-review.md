@@ -208,7 +208,7 @@ A block can only be issued for substantive reasons recorded in writing; the prop
 | OWASP SAMM | Design; Architecture Assessment | Software assurance maturity |
 | ISO/IEC 27001:2022 | A.5.8 Information security in project management | Information security cross-walk |
 | NIST CSF 2.0 | Govern function | Risk integration |
-| COBIT 2025 | APO03 Manage enterprise architecture | Governance of enterprise IT |
+| COBIT 2019 | APO03 Manage enterprise architecture | Governance of enterprise IT |
 
 ---
 

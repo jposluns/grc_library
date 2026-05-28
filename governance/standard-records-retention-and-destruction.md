@@ -182,8 +182,8 @@ Annual audits verify:
 |---|---|
 | ISO 15489:2016 | Records Management |
 | ISO/IEC 27701:2019 §8.8 | Data Retention and Deletion |
-| COBIT 2025 DSS01 | Manage Operations |
-| CSA CCM v5 DSP-02 | Data Retention, Disposal, and Destruction |
+| COBIT 2019 DSS01 | Manage Operations |
+| CSA CCM v4.1 DSP-02 | Data Retention, Disposal, and Destruction |
 | ISO/IEC 42001:2023 §9 | AI Recordkeeping and Traceability |
 | EU AI Act Annex IV | AI System Documentation |
 | BASC International Standard v6 2023 | Supply-Chain and Customs Records Retention |

@@ -105,7 +105,7 @@ IT Operations areas and the server room must maintain a clean desk policy. Print
 |---|---|
 | ISO/IEC 27001:2022 | Annex A.7: Physical Controls (server room and IT equipment scope only) |
 | NIST SP 800-53 | PE-2, PE-3, PE-6: Physical Access Authorization, Control, and Monitoring |
-| CSA CCM v5 | IVS-03: Infrastructure and Virtualization Security: Physical Security |
+| CSA CCM v4.1 | IVS-03: Infrastructure and Virtualization Security: Physical Security |
 | CTPAT Minimum Security Criteria | Physical Access Controls for IT Systems |
 | Canada PIP | Physical Security of IT Infrastructure |
 

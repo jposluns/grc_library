@@ -20,7 +20,7 @@ This standard establishes enterprise-wide requirements for system logging, monit
 
 ## Purpose
 
-To ensure that consistent, auditable, and secure handling of log data aligned with ISO/IEC 27002:2022 §8.15, NIST SP 800-92, COBIT 2025 DSS05, CSA CCM v5 IVS-09 and SEF-01, and the EU NIS 2 Directive.
+To ensure that consistent, auditable, and secure handling of log data aligned with ISO/IEC 27002:2022 §8.15, NIST SP 800-92, COBIT 2019 DSS05, CSA CCM v4.1 IVS-09 and SEF-01, and the EU NIS 2 Directive.
 
 ---
 
@@ -117,7 +117,7 @@ To ensure that consistent, auditable, and secure handling of log data aligned wi
 
 ## Framework alignment
 
-| Control Area | ISO/IEC 27002 | NIST | COBIT 2025 | CSA CCM v5 | Legal |
+| Control Area | ISO/IEC 27002 | NIST | COBIT 2019 | CSA CCM v4.1 | Legal |
 | --- | --- | --- | --- | --- | --- |
 | Log management | §8.15 | SP 800-92 | DSS05.01 | IVS-09 | GDPR Art. 32, CPPA |
 | Time synchronization | §8.15.3 | SP 800-92 §4.2 | DSS01.03 | ISM-04 | SOX |

@@ -254,8 +254,8 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 | NIST SP 800-46 Rev. 2 | §4 Securing Telework Client Devices | Endpoint compliance baseline |
 | NIST Cybersecurity Framework 2.0 | PR.AC (Identity Management and Access Control) | Conditional access and device compliance enforcement |
 | NIST Cybersecurity Framework 2.0 | PR.DS (Data Security) | Remote data handling and classification requirements |
-| CSA CCM v5 | HRS-09 Remote and Home Working | Direct alignment: remote working security requirements |
-| CSA CCM v5 | UEM-01 Endpoint Devices | Managed device and MDM requirements |
+| CSA CCM v4.1 | HRS-09 Remote and Home Working | Direct alignment: remote working security requirements |
+| CSA CCM v4.1 | UEM-01 Endpoint Devices | Managed device and MDM requirements |
 | CIS Controls v8 | Control 4 (Secure Configuration of Enterprise Assets) | Device baseline configuration requirements |
 | CIS Controls v8 | Control 12 (Network Infrastructure Management) | VPN, split tunnelling, and network security guidance |
 

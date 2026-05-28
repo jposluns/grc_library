@@ -297,7 +297,7 @@ The following metrics are reported to the CISO monthly and reviewed at the quart
 
 ## 11. Framework alignment
 
-| Control Area | ISO/IEC 27001:2022 | NIST SP 800-124 | CSA CCM v5 | COBIT 2025 |
+| Control Area | ISO/IEC 27001:2022 | NIST SP 800-124 | CSA CCM v4.1 | COBIT 2019 |
 | --- | --- | --- | --- | --- |
 | Asset inventory and lifecycle | A.8.1 to A.8.3 | §4.1 Device Inventory | END-01 | DSS05.01 |
 | Endpoint protection deployment | A.8.7 | §4.2 Configuration Mgmt | END-02 | DSS05.03 |

@@ -184,7 +184,7 @@ Actions that exceed a defined ageing threshold escalate per the library quality 
 | ISO 19011:2018 | Guidelines for auditing management systems | Audit and review baseline |
 | ISO 30301 | Management systems for records | Records discipline |
 | ISO/IEC 42001:2023 | §9.3 Management review | AI management system cross-walk |
-| COBIT 2025 | MEA02 Managed assurance | Governance of enterprise IT |
+| COBIT 2019 | MEA02 Managed assurance | Governance of enterprise IT |
 | ITIL 4 | Continual improvement | Service management |
 
 ---

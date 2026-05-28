@@ -20,7 +20,7 @@
 
 This policy defines principles, governance structure, and control framework for managing personal data and organizational information assets across all jurisdictions. It consolidates Privacy Policy, Data Governance Policy, Data Quality Policy, and Records Management Policy into a unified global standard. It ensures that compliance with applicable data protection laws, upholds data accuracy and integrity, and governs ethical use of information including AI training datasets.
 
-**Applicable Frameworks:** ISO/IEC 27701:2019 PIMS, ISO 8000-8 Data Quality Principles, EU GDPR, EU Data Act (2026), Canada CPPA, APEC CBPR 2.0, China PIPL, CSA CCM v5 domains PRI and DSP.
+**Applicable Frameworks:** ISO/IEC 27701:2019 PIMS, ISO 8000-8 Data Quality Principles, EU GDPR, EU Data Act (2026), Canada CPPA, APEC CBPR 2.0, China PIPL, CSA CCM v4.1 domains PRI and DSP.
 
 ---
 
@@ -135,7 +135,7 @@ This policy defines principles, governance structure, and control framework for 
 
 ## Framework alignment
 
-| Policy Area | ISO/IEC 27701 | COBIT 2025 | CSA CCM v5 | Regulatory References |
+| Policy Area | ISO/IEC 27701 | COBIT 2019 | CSA CCM v4.1 | Regulatory References |
 |---|---|---|---|---|
 | Governance and accountability | Clauses 5 to 7 | APO13.01 | PRI-01 | GDPR Art 5, CPPA |
 | Lawful processing and consent | Clause 8.2 | DSS05 | PRI-02 | GDPR, PIPL, LGPD |

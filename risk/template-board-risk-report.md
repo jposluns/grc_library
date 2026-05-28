@@ -246,7 +246,7 @@ For each of the top enterprise risks (typically five to ten):
 | --- | --- | --- |
 | ISO 31000:2018 | Risk management principles | Risk management baseline |
 | COSO ERM 2017 | Reporting | Enterprise risk integration |
-| COBIT 2025 | EDM and APO domains | Governance of enterprise IT |
+| COBIT 2019 | EDM and APO domains | Governance of enterprise IT |
 | ISO/IEC 27001:2022 | A.5.4 Management responsibilities | Management oversight |
 | OECD G20 Principles of Corporate Governance | Board oversight of risk | Governance baseline |
 | FRC UK Corporate Governance Code | Section IV Audit, risk and internal control | UK governance |

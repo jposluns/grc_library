@@ -248,7 +248,7 @@ The example below illustrates a single risk entry. Adopting organisations replac
 | Basel Committee Operational Risk Principles | Operational risk taxonomy | Operational risk framework |
 | ORX Reference Taxonomy | Operational risk event types | Industry taxonomy |
 | FAIR | Factor analysis of information risk | Quantitative method |
-| COBIT 2025 | EDM03 risk optimization objective | Governance of enterprise IT |
+| COBIT 2019 | EDM03 risk optimization objective | Governance of enterprise IT |
 | NIST CSF 2.0 | Govern function | Risk integration |
 
 ---
