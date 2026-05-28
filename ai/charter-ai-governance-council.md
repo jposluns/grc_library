@@ -1,30 +1,30 @@
 # AI Governance Council Charter
 
-**Document Title:** AI Governance Council Charter  
-**Document Type:** Charter  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md)  
-**Classification:** Public  
-**Category:** AI Governance  
-**Review Frequency:** Annual and upon material organisational or regulatory change  
-**Repository Path:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** AI Governance Council Charter 
+**Document Type:** Charter 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md) 
+**Classification:** Public 
+**Category:** AI Governance 
+**Review Frequency:** Annual and upon material organizational or regulatory change 
+**Repository Path:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
-> **Note:** The AI Governance Council is in formation. Named role appointments are pending. Composition reflects target-state governance. Full council operationalisation is targeted for Q3 2026.
+> **Note:** The AI Governance Council is in formation. Named role appointments are pending. Composition reflects target-state governance. Full council operationalization is targeted for Q3 2026.
 
 ---
 
 ## Purpose
 
-This charter establishes the mandate, composition, authority, responsibilities, and operating procedures of the AI Governance Council (AIGC). The AIGC is the enterprise body responsible for overseeing the ethical, risk, and compliance governance of all artificial intelligence systems deployed or developed by the organisation.
+This charter establishes the mandate, composition, authority, responsibilities, and operating procedures of the AI Governance Council (AIGC). The AIGC is the enterprise body responsible for overseeing the ethical, risk, and compliance governance of all artificial intelligence systems deployed or developed by the organization.
 
-The AIGC ensures that AI use aligns with the organisation's values, applicable law, and international standards including ISO/IEC 42001, the EU AI Act, NIST AI RMF, and OECD AI Principles.
+The AIGC ensures that AI use aligns with the organization's values, applicable law, and international standards including ISO/IEC 42001, the EU AI Act, NIST AI RMF, and OECD AI Principles.
 
 ---
 
@@ -63,7 +63,7 @@ The AIGC has authority to:
 | **Privacy Officer / DPO** | Standing member |
 | **Legal Counsel** | Standing member |
 | **Risk Representative** | GRC Programme Manager |
-| **Business Domain Representative** | Rotating — appointed by ERC |
+| **Business Domain Representative** | Rotating: appointed by ERC |
 | **Independent External Adviser** | Pending appointment |
 
 Quorum requires attendance of the Chair plus at least three standing members.
@@ -75,14 +75,14 @@ Quorum requires attendance of the Chair plus at least three standing members.
 ### 1. AI Risk and Ethics Oversight
 
 - Review AI Impact Assessments for all high-risk AI systems.
-- Assess AI systems against the organisational AI risk taxonomy: Minimal, Limited, High, Unacceptable.
+- Assess AI systems against the organizational AI risk taxonomy: Minimal, Limited, High, Unacceptable.
 - Evaluate fairness, bias mitigation, transparency, and explainability evidence.
 - Monitor outcomes of deployed AI systems against defined performance thresholds.
 
 ### 2. Policy and Standards Governance
 
 - Approve AI governance policies, standards, and frameworks before publication.
-- Ensure AI documents remain current with ISO/IEC 42001 and regulatory requirements.
+- Ensure that AI documents remain current with ISO/IEC 42001 and regulatory requirements.
 - Review and approve the AI System Inventory annually.
 
 ### 3. Audit and Assurance
@@ -95,7 +95,7 @@ Quorum requires attendance of the Chair plus at least three standing members.
 
 - Receive and review escalated AI-related security or ethics incidents.
 - Approve responses to AI system failures with significant impact.
-- Ensure AI incidents are documented and lessons learned are incorporated.
+- Ensure that AI incidents are documented and lessons learned are incorporated.
 
 ### 5. Model Lifecycle Governance
 
@@ -112,7 +112,7 @@ Quorum requires attendance of the Chair plus at least three standing members.
 | Regular AIGC meeting | Quarterly |
 | AI risk review | Quarterly |
 | High-risk deployment reviews | As required (within 10 business days of request) |
-| Annual AI governance report | Annual — submitted to ERC and Board |
+| Annual AI governance report | Annual: submitted to ERC and Board |
 | Policy and standards review | Annual |
 
 Meetings are minuted. Decisions, approvals, and escalations are recorded. Minutes are retained in the governance document repository.
@@ -135,12 +135,12 @@ The AIGC reports to the Enterprise Risk Committee (ERC). Quarterly AI Governance
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 42001:2023 | §5 — Leadership and Governance | AI management system governance |
-| ISO/IEC 42001:2023 | §9 — Performance Evaluation | AI maturity monitoring |
-| EU AI Act (2024) | Chapter III — High-Risk AI Systems | High-risk AI oversight |
+| ISO/IEC 42001:2023 | §5: Leadership and Governance | AI management system governance |
+| ISO/IEC 42001:2023 | §9: Performance Evaluation | AI maturity monitoring |
+| EU AI Act (2024) | Chapter III: High-Risk AI Systems | High-risk AI oversight |
 | NIST AI RMF (2023) | GOVERN function | AI governance structure |
 | OECD AI Principles (2023) | Accountability and oversight | AI ethics oversight |
-| COBIT 2025 | APO14 — Manage Data | AI data governance |
+| COBIT 2025 | APO14: Manage Data | AI data governance |
 
 ---
 

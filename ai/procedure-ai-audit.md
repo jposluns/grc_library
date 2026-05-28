@@ -1,24 +1,24 @@
 # AI Audit Procedure
 
-**Document Title:** AI Audit Procedure  
-**Document Type:** Procedure  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)  
-**Classification:** Public  
-**Category:** AI Governance  
-**Review Frequency:** Annual and upon material AI framework or regulatory change  
-**Repository Path:** [`ai/procedure-ai-audit.md`](procedure-ai-audit.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** AI Audit Procedure 
+**Document Type:** Procedure 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) 
+**Classification:** Public 
+**Category:** AI Governance 
+**Review Frequency:** Annual and upon material AI framework or regulatory change 
+**Repository Path:** [`ai/procedure-ai-audit.md`](procedure-ai-audit.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This procedure defines the process for planning, executing, reporting, and following up on AI audits across the organisation's AI system inventory. AI audits verify that deployed AI systems operate within defined ethical, technical, and compliance boundaries, and that the AI Management System (AIMS) remains effective and improving.
+This procedure defines the process for planning, executing, reporting, and following up on AI audits across the organization's AI system inventory. AI audits verify that deployed AI systems operate within defined ethical, technical, and compliance boundaries, and that the AI Management System (AIMS) remains effective and improving.
 
 ---
 
@@ -44,7 +44,7 @@ Applies to all AI systems in the AI System Inventory, including production AI mo
 
 1.1 The AI audit plan is prepared annually by Internal Audit in consultation with the AIGC.
 
-1.2 AI systems are prioritised for audit based on:
+1.2 AI systems are prioritized for audit based on:
 - Risk tier (High-risk systems audited at minimum annually).
 - Prior audit findings.
 - Material changes since last audit.
@@ -146,11 +146,11 @@ Applies to all AI systems in the AI System Inventory, including production AI mo
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 42001:2023 | §9.2 — Internal Audit | AI management system audit |
+| ISO/IEC 42001:2023 | §9.2: Internal Audit | AI management system audit |
 | ISO 19011:2018 | Guidelines for Auditing Management Systems | Audit methodology |
-| EU AI Act (2024) | Article 43 — Conformity Assessment | High-risk AI audit obligations |
+| EU AI Act (2024) | Article 43: Conformity Assessment | High-risk AI audit obligations |
 | NIST AI RMF (2023) | MEASURE function | AI audit and measurement |
-| COBIT 2025 | MEA02 — Manage System of Internal Controls | Internal control assurance |
+| COBIT 2025 | MEA02: Manage System of Internal Controls | Internal control assurance |
 
 ---
 

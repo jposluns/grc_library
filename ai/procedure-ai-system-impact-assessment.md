@@ -1,18 +1,18 @@
 # AI System Impact Assessment Procedure
 
-**Document Title:** AI System Impact Assessment Procedure  
-**Document Type:** Procedure  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** AI Risk Maintainer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`governance/procedure-continuous-improvement-register.md`](../governance/procedure-continuous-improvement-register.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md)  
-**Classification:** Public  
-**Category:** AI Governance  
-**Review Frequency:** 6 to 12 months and upon material AI risk or regulatory change  
-**Repository Path:** [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** AI System Impact Assessment Procedure 
+**Document Type:** Procedure 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** AI Risk Maintainer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`governance/procedure-continuous-improvement-register.md`](../governance/procedure-continuous-improvement-register.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md) 
+**Classification:** Public 
+**Category:** AI Governance 
+**Review Frequency:** 6 to 12 months and upon material AI risk or regulatory change 
+**Repository Path:** [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 

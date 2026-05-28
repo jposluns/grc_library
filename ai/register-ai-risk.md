@@ -1,24 +1,24 @@
 # AI Risk Register
 
-**Document Title:** AI Risk Register  
-**Document Type:** Register  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** GRC Programme Manager  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)  
-**Classification:** Public  
-**Category:** AI Governance  
-**Review Frequency:** Quarterly and upon material AI system change or incident  
-**Repository Path:** [`ai/register-ai-risk.md`](register-ai-risk.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** AI Risk Register 
+**Document Type:** Register 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** GRC Programme Manager 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) 
+**Classification:** Public 
+**Category:** AI Governance 
+**Review Frequency:** Quarterly and upon material AI system change or incident 
+**Repository Path:** [`ai/register-ai-risk.md`](register-ai-risk.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This register defines the schema, governance, and representative risk entries for the AI Risk Register. The AI Risk Register is the central record of identified risks associated with AI systems deployed or under development by the organisation. It supports the AI Governance Council's risk oversight function and feeds into the enterprise risk management process.
+This register defines the schema, governance, and representative risk entries for the AI Risk Register. The AI Risk Register is the central record of identified risks associated with AI systems deployed or under development by the organization. It supports the AI Governance Council's risk oversight function and feeds into the enterprise risk management process.
 
 ---
 
@@ -99,9 +99,9 @@ The register is updated within 5 business days of any:
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 42001:2023 | §6.1 — Actions to Address Risks | AI risk identification and treatment |
-| ISO/IEC 42001:2023 | §9 — Performance Evaluation | AI risk monitoring |
-| EU AI Act (2024) | Article 9 — Risk Management System | High-risk AI risk register obligations |
+| ISO/IEC 42001:2023 | §6.1: Actions to Address Risks | AI risk identification and treatment |
+| ISO/IEC 42001:2023 | §9: Performance Evaluation | AI risk monitoring |
+| EU AI Act (2024) | Article 9: Risk Management System | High-risk AI risk register obligations |
 | NIST AI RMF (2023) | MAP and MEASURE functions | AI risk mapping and measurement |
 | ISO 31000:2018 | Risk Management Guidelines | Enterprise risk register methodology |
 

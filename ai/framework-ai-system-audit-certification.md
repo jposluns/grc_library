@@ -1,18 +1,18 @@
 # AI System Audit and Certification Framework
 
-**Document Title:** AI System Audit and Certification Framework  
-**Document Type:** Framework  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)  
-**Classification:** Public  
-**Category:** AI Governance  
-**Review Frequency:** 6 to 12 months and upon material AI governance or regulatory change  
-**Repository Path:** [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** AI System Audit and Certification Framework 
+**Document Type:** Framework 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md) 
+**Classification:** Public 
+**Category:** AI Governance 
+**Review Frequency:** 6 to 12 months and upon material AI governance or regulatory change 
+**Repository Path:** [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -20,30 +20,30 @@
 
 ### 1.1 Purpose
 
-This framework defines the audit and certification approach for AI systems within the organisation. It establishes the audit programme structure, evidence requirements, audit frequency by risk tier, the certification pathway to ISO/IEC 42001:2023, post-market monitoring obligations, conformity assessment requirements for EU AI Act high-risk systems, and the integration of audit findings into the corrective and preventive action (CAPA) process.
+This framework defines the audit and certification approach for AI systems within the organization. It establishes the audit programme structure, evidence requirements, audit frequency by risk tier, the certification pathway to ISO/IEC 42001:2023, post-market monitoring obligations, conformity assessment requirements for EU AI Act high-risk systems, and the integration of audit findings into the corrective and preventive action (CAPA) process.
 
-The framework draws on ISO/IEC 42001:2023 §9.2–9.3 (internal audit and management review), EU AI Act Title VIII (post-market monitoring and serious incident reporting), NIST AI RMF Measure and Manage functions, the ISO/IEC 42006 draft AI audit requirements, and the Cloud Security Alliance AI Controls Matrix (CSA AICM v1.0.3).
+The framework draws on ISO/IEC 42001:2023 §9.2 to 9.3 (internal audit and management review), EU AI Act Title VIII (post-market monitoring and serious incident reporting), NIST AI RMF Measure and Manage functions, the ISO/IEC 42006 draft AI audit requirements, and the Cloud Security Alliance AI Controls Matrix (CSA AICM v1.0.3).
 
 ### 1.2 Scope
 
 This framework applies to all AI systems in production or entering production. It covers:
 
 - Internally developed AI systems.
-- Procured or third-party AI systems that the organisation deploys and operates.
-- AI systems embedded within third-party services that the organisation configures and is responsible for deploying.
-- General-purpose AI models integrated into the organisation's products, services, or operational processes.
+- Procured or third-party AI systems that the organization deploys and operates.
+- AI systems embedded within third-party services that the organization configures and is responsible for deploying.
+- General-purpose AI models integrated into the organization's products, services, or operational processes.
 
-This framework complements the Supplier Third-Party AI Due Diligence Procedure (see [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)) for external AI services where the organisation is not the technical operator. That procedure applies at the point of supplier selection and periodic supplier review; this framework applies to systems once they are in production.
+This framework complements the Supplier Third-Party AI Due Diligence Procedure (see [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)) for external AI services where the organization is not the technical operator. That procedure applies at the point of supplier selection and periodic supplier review; this framework applies to systems once they are in production.
 
 ---
 
 ## 2. Governance
 
-### 2.1 AIGC — Audit Programme Owner
+### 2.1 AIGC: Audit Programme Owner
 
 The AI Governance Council (AIGC) owns the AI audit programme. It approves the annual AI audit plan, reviews audit findings, tracks CAPA completion, and escalates unresolved material findings to the Board or appropriate Board committee.
 
-### 2.2 CISO — Technical Audit Lead
+### 2.2 CISO: Technical Audit Lead
 
 The CISO leads the technical execution of AI audits. The CISO is responsible for:
 
@@ -65,10 +65,10 @@ All AI systems are assigned an audit tier at the time of classification (see [`a
 
 | Audit Tier | System Classification | Audit Frequency | Audit Type | Primary Evidence Required |
 |---|---|---|---|---|
-| **Tier 1 — High-Risk** | EU AI Act Annex III systems; safety-critical AI; AI making or materially influencing decisions with significant impact on individuals | Annual | Full technical audit by independent auditor; includes conformity assessment alignment check | Model card; system card; training data provenance; bias and fairness test results; explainability documentation; human oversight records; incident register entries; post-market monitoring data; FRIA |
-| **Tier 2 — General-Purpose** | GPAI models integrated into products or operations; large language models; foundation models | Every 18 months | Internal audit with CISO lead; supplemented by provider's published transparency documentation | Model card; system card; provider transparency documentation; use case assessment; incident register entries; copyright and licensing records |
-| **Tier 3 — Standard** | AI systems with limited decision-making impact; AI tools used for operational support without individual impact | Every 24 months (biennial) | Internal audit | AI System Register entry; model card (if applicable); access control review; incident log review |
-| **Tier 4 — Low-Risk** | Minimal-risk AI tools; AI-assisted productivity tools without personal data processing or individual impact | Every 24 months (biennial); triggered review if risk profile changes | Desk-based review | AI System Register entry; confirmation of current classification; access log review |
+| **Tier 1: High-Risk** | EU AI Act Annex III systems; safety-critical AI; AI making or materially influencing decisions with significant impact on individuals | Annual | Full technical audit by independent auditor; includes conformity assessment alignment check | Model card; system card; training data provenance; bias and fairness test results; explainability documentation; human oversight records; incident register entries; post-market monitoring data; FRIA |
+| **Tier 2: General-Purpose** | GPAI models integrated into products or operations; large language models; foundation models | Every 18 months | Internal audit with CISO lead; supplemented by provider's published transparency documentation | Model card; system card; provider transparency documentation; use case assessment; incident register entries; copyright and licensing records |
+| **Tier 3: Standard** | AI systems with limited decision-making impact; AI tools used for operational support without individual impact | Every 24 months (biennial) | Internal audit | AI System Register entry; model card (if applicable); access control review; incident log review |
+| **Tier 4: Low-Risk** | Minimal-risk AI tools; AI-assisted productivity tools without personal data processing or individual impact | Every 24 months (biennial); triggered review if risk profile changes | Desk-based review | AI System Register entry; confirmation of current classification; access log review |
 
 ---
 
@@ -76,7 +76,7 @@ All AI systems are assigned an audit tier at the time of classification (see [`a
 
 The following evidence must be available for each audit tier. Evidence gaps identified during the pre-audit documentation review are recorded as preliminary findings and must be remediated before the audit proceeds, unless the auditor determines a compensating assessment is adequate.
 
-### 4.1 Tier 1 (High-Risk) — Full Evidence Requirements
+### 4.1 Tier 1 (High-Risk): Full Evidence Requirements
 
 | Evidence Item | Description | Responsible Party |
 |---|---|---|
@@ -85,17 +85,17 @@ The following evidence must be available for each audit tier. Evidence gaps iden
 | Training data provenance | Documentation of training data sources, data quality measures, data governance agreements, and any data exclusions | AI System Owner / Data Owner |
 | Bias and fairness test results | Results of bias testing performed before deployment and at the most recent periodic re-assessment; methodology documented | CISO / AI System Owner |
 | Explainability documentation | Description of explainability approach; output of explainability testing; documentation of any inherent explainability limitations | AI System Owner |
-| Human oversight records | Evidence that designated human overseers exist; training completion records (anonymised); evidence of override capability testing | AI System Owner / Business Unit Owner |
+| Human oversight records | Evidence that designated human overseers exist; training completion records (anonymized); evidence of override capability testing | AI System Owner / Business Unit Owner |
 | Fundamental rights impact assessment (FRIA) | Completed FRIA per [`ai/policy-ai-compliance.md`](policy-ai-compliance.md) Section 5.2; evidence of Privacy Officer review | Privacy Officer / AI System Owner |
 | Incident register entries | Extract from the AI Incident Register for incidents involving this system in the preceding audit period | CISO |
 | Post-market monitoring data | Monitoring plan; performance metrics including accuracy trend, drift metrics, and bias drift; alerts generated and resolved | AI System Owner |
 | Conformity assessment records | EU AI Act Annex IV technical documentation; prior conformity assessment report if applicable | CISO / Legal |
 
-### 4.2 Tier 2 (General-Purpose) — Evidence Requirements
+### 4.2 Tier 2 (General-Purpose): Evidence Requirements
 
 Model card; system card; provider-published transparency and capability documentation; use case scope assessment; copyright and licensing records; incident register entries for the system for the preceding 18 months.
 
-### 4.3 Tier 3 (Standard) and Tier 4 (Low-Risk) — Evidence Requirements
+### 4.3 Tier 3 (Standard) and Tier 4 (Low-Risk): Evidence Requirements
 
 AI System Register entry (current); model card if the system uses a trained model; access control configuration review output; incident log review for the system for the preceding audit period.
 
@@ -153,13 +153,13 @@ The auditor reviews all AI Incident Register entries for the system covering the
 
 | Stage | Activity | Description |
 |---|---|---|
-| **Stage 1 — Gap Assessment** | Gap assessment against ISO/IEC 42001:2023 | Conducted by a qualified assessor; outputs a gap report identifying missing policies, procedures, records, and governance structures |
-| **Stage 2 — AIMS Design** | AI management system (AIMS) design and documentation | Policies, procedures, registers, roles, and governance structures developed or updated to address gaps |
-| **Stage 3 — Stage 1 Audit** | Documentation review by certification body | External certification body reviews AIMS documentation for completeness and adequacy; issues a Stage 1 report identifying areas to address before Stage 2 |
-| **Stage 4 — Stage 2 Audit** | On-site or remote audit by certification body | Certification body verifies that the AIMS is implemented and operating effectively; interviews staff; reviews evidence; assesses conformity with ISO/IEC 42001:2023 |
-| **Stage 5 — Certification** | ISO/IEC 42001:2023 certificate issued | Issued upon satisfactory completion of Stage 2 audit; typically valid for three years subject to annual surveillance |
-| **Stage 6 — Annual Surveillance** | Annual surveillance audits | Certification body conducts annual surveillance to confirm ongoing conformity; findings are reported and remediated |
-| **Stage 7 — Recertification** | Three-year recertification audit | Full recertification audit every three years; scope may be broadened to include new AI systems or capabilities added since initial certification |
+| **Stage 1: Gap Assessment** | Gap assessment against ISO/IEC 42001:2023 | Conducted by a qualified assessor; outputs a gap report identifying missing policies, procedures, records, and governance structures |
+| **Stage 2: AIMS Design** | AI management system (AIMS) design and documentation | Policies, procedures, registers, roles, and governance structures developed or updated to address gaps |
+| **Stage 3: Stage 1 Audit** | Documentation review by certification body | External certification body reviews AIMS documentation for completeness and adequacy; issues a Stage 1 report identifying areas to address before Stage 2 |
+| **Stage 4: Stage 2 Audit** | On-site or remote audit by certification body | Certification body verifies that the AIMS is implemented and operating effectively; interviews staff; reviews evidence; assesses conformity with ISO/IEC 42001:2023 |
+| **Stage 5: Certification** | ISO/IEC 42001:2023 certificate issued | Issued upon satisfactory completion of Stage 2 audit; typically valid for three years subject to annual surveillance |
+| **Stage 6: Annual Surveillance** | Annual surveillance audits | Certification body conducts annual surveillance to confirm ongoing conformity; findings are reported and remediated |
+| **Stage 7: Recertification** | Three-year recertification audit | Full recertification audit every three years; scope may be broadened to include new AI systems or capabilities added since initial certification |
 
 ---
 
@@ -172,11 +172,11 @@ Under EU AI Act Art. 43, conformity assessment for most high-risk AI systems lis
 - AI systems intended for use in biometric identification.
 - AI systems in Annex III categories where the Commission has specified third-party assessment in implementing acts.
 
-Where the organisation acts as a deployer of a high-risk system rather than the provider, it relies on the provider's conformity assessment documentation, supplemented by its own deployer obligations assessment.
+Where the organization acts as a deployer of a high-risk system rather than the provider, it relies on the provider's conformity assessment documentation, supplemented by its own deployer obligations assessment.
 
-### 7.2 Documentation Requirements — EU AI Act Annex IV
+### 7.2 Documentation Requirements: EU AI Act Annex IV
 
-For high-risk AI systems where the organisation is the provider, Annex IV technical documentation must include:
+For high-risk AI systems where the organization is the provider, Annex IV technical documentation must include:
 
 - A general description of the AI system, its intended purpose, and the version.
 - A description of the system's design, including model architecture, training methodology, and key design choices.
@@ -244,9 +244,9 @@ Each finding classified as Critical, High, or Medium generates a formal CAPA rec
 - Root cause analysis.
 - Proposed corrective action and target completion date.
 - Responsible owner.
-- Verification method — how the CISO will confirm the corrective action has been implemented effectively.
+- Verification method: how the CISO will confirm the corrective action has been implemented effectively.
 
-CAPAs are tracked in the organisation's CAPA management system and reviewed at each AIGC quarterly meeting. Overdue CAPAs are escalated to the CIO.
+CAPAs are tracked in the organization's CAPA management system and reviewed at each AIGC quarterly meeting. Overdue CAPAs are escalated to the CIO.
 
 ---
 
@@ -258,8 +258,8 @@ CAPAs are tracked in the organisation's CAPA management system and reviewed at e
 | ISO/IEC 42001:2023 §9.3 | Management review of the AIMS; inputs including audit results, incidents, performance data | 2.1, 8 |
 | ISO/IEC 42006 (draft 2024) | AI audit requirements; auditor competence; audit evidence; audit reporting | 4, 5, 9 |
 | EU AI Act Title VIII | Post-market monitoring; serious incident reporting; market surveillance | 7, 8 |
-| NIST AI RMF — Measure function | Metrics and methods for assessing AI risk; bias and fairness evaluation; explainability | 4, 5.5 |
-| NIST AI RMF — Manage function | Risk treatment; incident response; CAPA; residual risk documentation | 9 |
+| NIST AI RMF: Measure function | Metrics and methods for assessing AI risk; bias and fairness evaluation; explainability | 4, 5.5 |
+| NIST AI RMF: Manage function | Risk treatment; incident response; CAPA; residual risk documentation | 9 |
 | CSA AICM v1.0.3 | AI control families covering governance, transparency, data, model, security, and operations | 3, 4, 5 |
 
 ---

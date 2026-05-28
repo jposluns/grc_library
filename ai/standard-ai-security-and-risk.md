@@ -1,18 +1,18 @@
 # AI Security and Risk Standard
 
-**Document Title:** AI Security and Risk Standard  
-**Document Type:** Standard  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** AI Security Maintainer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`ai/register-ai-risk.md`](register-ai-risk.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`security/procedure-identity-management.md`](../security/procedure-identity-management.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md)  
-**Classification:** Public  
-**Category:** AI Governance  
-**Review Frequency:** 6 to 12 months and upon material AI threat, framework, or regulatory change  
-**Repository Path:** [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** AI Security and Risk Standard 
+**Document Type:** Standard 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** AI Security Maintainer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`ai/register-ai-risk.md`](register-ai-risk.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`security/procedure-identity-management.md`](../security/procedure-identity-management.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) 
+**Classification:** Public 
+**Category:** AI Governance 
+**Review Frequency:** 6 to 12 months and upon material AI threat, framework, or regulatory change 
+**Repository Path:** [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 

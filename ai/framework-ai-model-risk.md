@@ -1,18 +1,18 @@
 # AI Model Risk Framework
 
-**Document Title:** AI Model Risk Framework  
-**Document Type:** Framework  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** AI Governance Maintainer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md`](matrix-ai-model-risk-control-to-lifecycle-mapping.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)  
-**Classification:** Public  
-**Category:** AI Governance  
-**Review Frequency:** 6 to 12 months and upon material model, data, threat, regulatory, or assurance change  
-**Repository Path:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** AI Model Risk Framework 
+**Document Type:** Framework 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** AI Governance Maintainer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md`](matrix-ai-model-risk-control-to-lifecycle-mapping.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) 
+**Classification:** Public 
+**Category:** AI Governance 
+**Review Frequency:** 6 to 12 months and upon material model, data, threat, regulatory, or assurance change 
+**Repository Path:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 

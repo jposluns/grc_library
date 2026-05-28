@@ -1,24 +1,24 @@
 # AI Testing, Validation and Documentation Standard
 
-**Document Title:** AI Testing, Validation and Documentation Standard  
-**Document Type:** Standard  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md)  
-**Classification:** Public  
-**Category:** AI Governance  
-**Review Frequency:** Annual and upon material AI framework or regulatory change  
-**Repository Path:** [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** AI Testing, Validation and Documentation Standard 
+**Document Type:** Standard 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md) 
+**Classification:** Public 
+**Category:** AI Governance 
+**Review Frequency:** Annual and upon material AI framework or regulatory change 
+**Repository Path:** [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This standard defines the mandatory requirements for testing, validating, and documenting artificial intelligence systems throughout their lifecycle. It ensures that AI models deployed by the organisation are technically sound, ethically validated, explainable, and compliant with applicable standards and regulations before and after deployment.
+This standard defines the mandatory requirements for testing, validating, and documenting artificial intelligence systems throughout their lifecycle. It ensures that AI models deployed by the organization are technically sound, ethically validated, explainable, and compliant with applicable standards and regulations before and after deployment.
 
 The standard aligns with ISO/IEC 42001 §8, ISO/IEC 42006 (AI Impact Assessment), NIST AI RMF, EU AI Act Annex IV, and OWASP LLM Top 10.
 
@@ -26,7 +26,7 @@ The standard aligns with ISO/IEC 42001 §8, ISO/IEC 42006 (AI Impact Assessment)
 
 ## Scope
 
-Applies to all AI systems, machine learning models, generative AI tools, and automated decision-making systems developed, procured, or deployed by the organisation. Includes both internally developed and third-party AI systems integrated into operational workflows.
+Applies to all AI systems, machine learning models, generative AI tools, and automated decision-making systems developed, procured, or deployed by the organization. Includes both internally developed and third-party AI systems integrated into operational workflows.
 
 ---
 
@@ -35,7 +35,7 @@ Applies to all AI systems, machine learning models, generative AI tools, and aut
 | Role | Responsibility |
 | --- | --- |
 | **AI Governance Council (AIGC)** | Approves testing standards; reviews validation outcomes for high-risk systems. |
-| **CISO** | Ensures AI security testing is integrated into validation gates. |
+| **CISO** | Ensures that AI security testing is integrated into validation gates. |
 | **AI Development / Data Science Teams** | Execute model testing, validation, and documentation requirements. |
 | **QA and Testing Teams** | Validate AI system behaviour against defined acceptance criteria. |
 | **Internal Audit** | Audits adherence to this standard annually. |
@@ -71,7 +71,7 @@ All AI systems must pass the following testing gates before production deploymen
 
 ### 2.2 Bias and Fairness Testing
 
-- Demographic parity and equalised odds evaluated across protected groups.
+- Demographic parity and equalized odds evaluated across protected groups.
 - Bias mitigation techniques documented and validated.
 - Residual bias below defined acceptable thresholds; residual risk documented.
 
@@ -91,7 +91,7 @@ All AI systems must pass the following testing gates before production deploymen
 ### 2.5 Privacy Testing
 
 - Personal data processing confirmed within declared scope.
-- Data minimisation and purpose limitation validated.
+- Data minimization and purpose limitation validated.
 - PII outputs reviewed and masked where required.
 
 ---
@@ -138,9 +138,9 @@ AI models undergoing retraining or significant update must complete:
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 42001:2023 | §8 — Operation | AI system operation and validation |
+| ISO/IEC 42001:2023 | §8: Operation | AI system operation and validation |
 | ISO/IEC 42006 | AI Impact Assessment | AI risk and bias assessment |
-| EU AI Act (2024) | Annex IV — Technical Documentation | High-risk AI documentation |
+| EU AI Act (2024) | Annex IV: Technical Documentation | High-risk AI documentation |
 | NIST AI RMF (2023) | MAP, MEASURE functions | AI testing and measurement |
 | OWASP LLM Top 10 | LLM-specific vulnerabilities | Generative AI security testing |
 | ISO/IEC 27001:2022 | Annex A | Security controls for AI systems |

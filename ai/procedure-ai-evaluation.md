@@ -1,18 +1,18 @@
 # AI Evaluation Procedure
 
-**Document Title:** AI Evaluation Procedure  
-**Document Type:** Procedure  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md)  
-**Classification:** Public  
-**Category:** AI Governance  
-**Review Frequency:** Annual and upon material AI framework or regulatory change  
-**Repository Path:** [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** AI Evaluation Procedure 
+**Document Type:** Procedure 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md) 
+**Classification:** Public 
+**Category:** AI Governance 
+**Review Frequency:** Annual and upon material AI framework or regulatory change 
+**Repository Path:** [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -66,7 +66,7 @@ An AI evaluation is required when:
 
 ### 2.2 Fairness and Bias
 
-- Evaluate demographic parity and equalised odds across relevant protected groups.
+- Evaluate demographic parity and equalized odds across relevant protected groups.
 - Quantify bias magnitude; compare against acceptable threshold.
 - Validate effectiveness of bias mitigation techniques applied during training.
 - Document residual bias with risk acceptance rationale.
@@ -82,12 +82,12 @@ An AI evaluation is required when:
 - Adversarial robustness: test resistance to evasion, poisoning, and model extraction attacks.
 - For generative AI: test for prompt injection, data leakage, and hallucination risks.
 - Validate output filtering and guardrails where applicable.
-- Confirm integration security: authentication, authorisation, and API security controls.
+- Confirm integration security: authentication, authorization, and API security controls.
 
 ### 2.5 Privacy
 
 - Confirm personal data processing scope matches declared purpose.
-- Validate data minimisation and anonymisation techniques.
+- Validate data minimization and anonymization techniques.
 - Assess re-identification risk for model outputs involving personal data.
 - Confirm consent or legal basis for personal data used in training and inference.
 
@@ -101,18 +101,18 @@ An AI evaluation is required when:
 
 ## 3. Evaluation Process
 
-### Step 1 — Evaluation Planning (5 business days before evaluation)
+### Step 1: Evaluation Planning (5 business days before evaluation)
 
 - Define evaluation scope, timeline, and responsible parties.
 - Confirm test data, evaluation tooling, and access requirements.
 - Notify AIGC of upcoming evaluation.
 
-### Step 2 — Technical Evaluation (per agreed timeline)
+### Step 2: Technical Evaluation (per agreed timeline)
 
 - Execute all evaluation dimensions defined in Section 2.
 - Document results with supporting evidence (test outputs, logs, screenshots).
 
-### Step 3 — Draft Evaluation Report (within 5 business days of evaluation completion)
+### Step 3: Draft Evaluation Report (within 5 business days of evaluation completion)
 
 Report includes:
 - Executive summary.
@@ -121,13 +121,13 @@ Report includes:
 - Identified risks and recommended mitigations.
 - Overall recommendation: Deploy / Deploy with conditions / Do not deploy.
 
-### Step 4 — AI Governance Council Review
+### Step 4: AI Governance Council Review
 
 - Evaluation report submitted to AIGC for review.
 - AIGC reviews within 10 business days for High-risk systems.
 - AIGC issues approval, conditional approval, or rejection.
 
-### Step 5 — Deployment or Remediation
+### Step 5: Deployment or Remediation
 
 - Approved systems proceed through the Acceptance Into Service Policy.
 - Conditionally approved systems address specified conditions before deployment.
@@ -145,9 +145,9 @@ Evaluation reports are retained in the compliance repository for the lifecycle o
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 42001:2023 | §8 — Operation | AI system evaluation and deployment |
+| ISO/IEC 42001:2023 | §8: Operation | AI system evaluation and deployment |
 | ISO/IEC 42006 | AI Impact Assessment | Risk and bias evaluation |
-| EU AI Act (2024) | Article 9 — Risk Management System | Evaluation obligations for high-risk AI |
+| EU AI Act (2024) | Article 9: Risk Management System | Evaluation obligations for high-risk AI |
 | NIST AI RMF (2023) | MAP and MEASURE functions | AI evaluation methodology |
 | OWASP LLM Top 10 | LLM-specific vulnerabilities | Generative AI security evaluation |
 

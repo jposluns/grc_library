@@ -1,18 +1,18 @@
 # AI System Register Template
 
-**Document Title:** AI System Register Template  
-**Document Type:** Template  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** AI Governance Maintainer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/register-ai-risk.md`](register-ai-risk.md)  
-**Classification:** Public  
-**Category:** AI Governance  
-**Review Frequency:** 6 to 12 months and upon material AI governance change  
-**Repository Path:** [`ai/template-ai-system-register.md`](template-ai-system-register.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** AI System Register Template 
+**Document Type:** Template 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** AI Governance Maintainer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/register-ai-risk.md`](register-ai-risk.md) 
+**Classification:** Public 
+**Category:** AI Governance 
+**Review Frequency:** 6 to 12 months and upon material AI governance change 
+**Repository Path:** [`ai/template-ai-system-register.md`](template-ai-system-register.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -64,7 +64,7 @@ Do not populate this public template with real systems, company names, personal 
 
 | System ID | System Name | Lifecycle Status | Owner Role | Data Categories | Deployment Model | Risk Tier | Impact Assessment Status | Supplier Assessment Status | Next Review Date |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-|  |  | Proposed |  |  |  |  | Not started | Not applicable |  |
+| | | Proposed | | | | | Not started | Not applicable | |
 
 ---
 

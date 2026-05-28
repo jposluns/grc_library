@@ -1,18 +1,18 @@
 # AI Governance and Risk Framework
 
-**Document Title:** AI Governance and Risk Framework  
-**Document Type:** Framework  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** AI Governance Maintainer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/register-ai-risk.md`](register-ai-risk.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md)  
-**Classification:** Public  
-**Category:** AI Governance  
-**Review Frequency:** 6 to 12 months and upon material AI risk or regulatory change  
-**Repository Path:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** AI Governance and Risk Framework 
+**Document Type:** Framework 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** AI Governance Maintainer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/register-ai-risk.md`](register-ai-risk.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md) 
+**Classification:** Public 
+**Category:** AI Governance 
+**Review Frequency:** 6 to 12 months and upon material AI risk or regulatory change 
+**Repository Path:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 

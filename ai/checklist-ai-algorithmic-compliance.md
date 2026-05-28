@@ -1,18 +1,18 @@
 # AI Algorithmic Compliance Checklist
 
-**Document Title:** AI Algorithmic Compliance Checklist  
-**Document Type:** Checklist  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-incident-response.md`](../security/procedure-incident-response.md)  
-**Classification:** Public  
-**Category:** AI Governance  
-**Review Frequency:** 6 to 12 months and upon material AI governance or regulatory change  
-**Repository Path:** [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** AI Algorithmic Compliance Checklist 
+**Document Type:** Checklist 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-incident-response.md`](../security/procedure-incident-response.md) 
+**Classification:** Public 
+**Category:** AI Governance 
+**Review Frequency:** 6 to 12 months and upon material AI governance or regulatory change 
+**Repository Path:** [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -51,7 +51,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ## Section A: Governance and Documentation
 
-*Synthesised from: EU AI Act Art. 11, 13; ISO/IEC 42001:2023 §8.4; NIST AI RMF Govern function*
+*Synthesized from: EU AI Act Art. 11, 13; ISO/IEC 42001:2023 §8.4; NIST AI RMF Govern function*
 
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|
@@ -70,12 +70,12 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ## Section B: Data and Privacy Compliance
 
-*Synthesised from: GDPR Art. 5, 9, 22, 25, 35; EU AI Act Art. 10, 13; ISO/IEC 42001:2023 §8.4; ISO/IEC 27701*
+*Synthesized from: GDPR Art. 5, 9, 22, 25, 35; EU AI Act Art. 10, 13; ISO/IEC 42001:2023 §8.4; ISO/IEC 27701*
 
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|
 | B1 | Personal data processing performed by the AI system has been mapped; lawful basis for each processing activity is documented | | | | |
-| B2 | Data minimisation principle applied to training and inference data: only data necessary for the stated purpose is collected and processed | | | | |
+| B2 | Data minimization principle applied to training and inference data: only data necessary for the stated purpose is collected and processed | | | | |
 | B3 | Privacy Impact Assessment (PIA) or AI-specific impact assessment (AI-IA / FRIA) completed where required by privacy regulation or the AI System Impact Assessment Procedure | | | | |
 | B4 | Where the AI system may process data relating to children, specific safeguards are implemented and documented | | | | |
 | B5 | Cross-border data transfer controls are in place and documented for any training or inference data transferred across jurisdictions | | | | |
@@ -87,7 +87,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ## Section C: Security Controls
 
-*Synthesised from: OWASP LLM Top 10 (2025); MITRE ATLAS adversarial ML evaluation; EU AI Act Art. 15; NIST AI RMF Measure 2.6; ISO/IEC 42001:2023 §8.4*
+*Synthesized from: OWASP LLM Top 10 (2025); MITRE ATLAS adversarial ML evaluation; EU AI Act Art. 15; NIST AI RMF Measure 2.6; ISO/IEC 42001:2023 §8.4*
 
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|
@@ -104,7 +104,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ## Section D: Operational Controls
 
-*Synthesised from: EU AI Act Art. 14, 26; NIST AI RMF Manage function; IEEE 7000-2021 §7.3*
+*Synthesized from: EU AI Act Art. 14, 26; NIST AI RMF Manage function; IEEE 7000-2021 §7.3*
 
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|
@@ -119,7 +119,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ## Section E: Regulatory Compliance
 
-*Synthesised from: EU AI Act 2024 Title I–VIII; Canada AIDA 2024; UK AI Safety Institute guidance 2024; ISO/IEC 42001:2023; NIST AI RMF Govern function*
+*Synthesized from: EU AI Act 2024 Title I-VIII; Canada AIDA 2024; UK AI Safety Institute guidance 2024; ISO/IEC 42001:2023; NIST AI RMF Govern function*
 
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|
@@ -142,9 +142,9 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 | Score | Disposition |
 |---|---|
-| 95% or above | Compliant — proceed to deployment or confirm continued deployment |
-| 80% to 94% | Conditional — CAPA records must be raised for all No and Partial items before deployment is approved for Tier 1 systems; for systems in production, remediation plan required within 60 days |
-| Below 80% | **High finding** — system must not be deployed until score reaches at least 80%; systems already in production require a formal remediation plan approved by the AIGC within 60 days; CISO reports to AIGC at next scheduled meeting |
+| 95% or above | Compliant: proceed to deployment or confirm continued deployment |
+| 80% to 94% | Conditional: CAPA records must be raised for all No and Partial items before deployment is approved for Tier 1 systems; for systems in production, remediation plan required within 60 days |
+| Below 80% | **High finding**: system must not be deployed until score reaches at least 80%; systems already in production require a formal remediation plan approved by the AIGC within 60 days; CISO reports to AIGC at next scheduled meeting |
 
 ### Mandatory CAPA Requirements for High-Risk (Tier 1) Systems
 

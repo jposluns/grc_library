@@ -1,24 +1,24 @@
 # AI Model Lifecycle Management Procedure
 
-**Document Title:** AI Model Lifecycle Management Procedure  
-**Document Type:** Procedure  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)  
-**Classification:** Public  
-**Category:** AI Governance  
-**Review Frequency:** Annual and upon material AI framework or regulatory change  
-**Repository Path:** [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** AI Model Lifecycle Management Procedure 
+**Document Type:** Procedure 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) 
+**Classification:** Public 
+**Category:** AI Governance 
+**Review Frequency:** Annual and upon material AI framework or regulatory change 
+**Repository Path:** [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This procedure defines the end-to-end lifecycle management process for AI models, from initial development or procurement through deployment, monitoring, retraining, and decommissioning. It ensures that every AI model in the organisation's inventory is governed, documented, and reviewed throughout its operational life.
+This procedure defines the end-to-end lifecycle management process for AI models, from initial development or procurement through deployment, monitoring, retraining, and decommissioning. It ensures that every AI model in the organization's inventory is governed, documented, and reviewed throughout its operational life.
 
 ---
 
@@ -136,11 +136,11 @@ Applies to all AI models and machine learning systems developed internally, proc
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 42001:2023 | §8 — Operation | AI model lifecycle governance |
-| ISO/IEC 42001:2023 | §10 — Improvement | Model performance monitoring and improvement |
-| EU AI Act (2024) | Article 9 — Risk Management System | Ongoing AI risk management |
+| ISO/IEC 42001:2023 | §8: Operation | AI model lifecycle governance |
+| ISO/IEC 42001:2023 | §10: Improvement | Model performance monitoring and improvement |
+| EU AI Act (2024) | Article 9: Risk Management System | Ongoing AI risk management |
 | NIST AI RMF (2023) | GOVERN, MAP, MEASURE, MANAGE functions | End-to-end AI lifecycle |
-| COBIT 2025 | BAI09 — Manage Assets | AI asset lifecycle management |
+| COBIT 2025 | BAI09: Manage Assets | AI asset lifecycle management |
 
 ---
 

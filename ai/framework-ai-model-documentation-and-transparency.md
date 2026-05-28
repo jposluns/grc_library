@@ -1,24 +1,24 @@
 # AI Model Documentation and Transparency Framework
 
-**Document Title:** AI Model Documentation and Transparency Framework  
-**Document Type:** Framework  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md)  
-**Classification:** Public  
-**Category:** AI Governance  
-**Review Frequency:** Annual and upon material AI framework or regulatory change  
-**Repository Path:** [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** AI Model Documentation and Transparency Framework 
+**Document Type:** Framework 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md) 
+**Classification:** Public 
+**Category:** AI Governance 
+**Review Frequency:** Annual and upon material AI framework or regulatory change 
+**Repository Path:** [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This framework defines the documentation and transparency requirements for all AI systems deployed or developed by the organisation. It establishes minimum standards for model cards, AI Impact Assessments, training data records, and transparency disclosures, ensuring that AI systems are understandable, auditable, and accountable to stakeholders, regulators, and affected individuals.
+This framework defines the documentation and transparency requirements for all AI systems deployed or developed by the organization. It establishes minimum standards for model cards, AI Impact Assessments, training data records, and transparency disclosures, ensuring that AI systems are understandable, auditable, and accountable to stakeholders, regulators, and affected individuals.
 
 ---
 
@@ -58,7 +58,7 @@ Every AI system must have a current Model Card. Model Cards are living documents
 | **Bias and Fairness** | Fairness evaluation methodology and results; identified residual biases |
 | **Explainability** | Explainability method used; representative example explanations |
 | **Privacy** | Personal data processing summary; consent and legal basis if applicable |
-| **Risk Tier** | Organisational AI risk classification: Minimal / Limited / High / Unacceptable |
+| **Risk Tier** | Organizational AI risk classification: Minimal / Limited / High / Unacceptable |
 | **Owner** | Role title of AI System Owner |
 | **Version History** | Version, date, and summary of changes |
 
@@ -104,7 +104,7 @@ The AI System Inventory published by the GRC Programme Manager provides a summar
 
 ### 4.2 Affected Individual Transparency
 
-Where an AI system makes or materially influences decisions affecting individuals (customers, employees, suppliers), the organisation must:
+Where an AI system makes or materially influences decisions affecting individuals (customers, employees, suppliers), the organization must:
 
 - Disclose that an AI system is involved in the decision.
 - Provide a plain-language explanation of the factors that influenced the outcome.
@@ -133,11 +133,11 @@ For High-risk AI systems under the EU AI Act, technical documentation per Annex 
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 42001:2023 | §8.4 — AI System Documentation | AI documentation requirements |
-| EU AI Act (2024) | Annex IV — Technical Documentation | High-risk AI documentation |
+| ISO/IEC 42001:2023 | §8.4: AI System Documentation | AI documentation requirements |
+| EU AI Act (2024) | Annex IV: Technical Documentation | High-risk AI documentation |
 | NIST AI RMF (2023) | MAP and MANAGE functions | AI transparency and documentation |
 | OECD AI Principles (2023) | Transparency and Explainability | AI transparency obligations |
-| GDPR (2018) | Article 22 — Automated Decision-Making | Transparency and human review rights |
+| GDPR (2018) | Article 22: Automated Decision-Making | Transparency and human review rights |
 
 ---
 

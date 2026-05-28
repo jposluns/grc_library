@@ -1,18 +1,18 @@
 # AI Security Technical Implementation Guide
 
-**Document Title:** AI Security Technical Implementation Guide  
-**Document Type:** Guideline  
-**Version:** 1.1.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:**  
-**Classification:** Public  
-**Category:** AI Governance  
-**Review Frequency:** Annual and upon material AI framework or regulatory change  
-**Repository Path:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** AI Security Technical Implementation Guide 
+**Document Type:** Guideline 
+**Version:** 1.1.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** 
+**Classification:** Public 
+**Category:** AI Governance 
+**Review Frequency:** Annual and upon material AI framework or regulatory change 
+**Repository Path:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 This guide contains implementation patterns, code examples, CI/CD configurations, and reference architectures supporting the AI and Agentic Development Security Standard. This is a technical reference, not a policy document. Requirements are stated in the parent standard.
 
@@ -107,7 +107,7 @@ managed identity authentication. API key authentication requires explicit CIO/CI
 
 ## A2. CI/CD Examples
 
-### A2.1 GitHub Actions — AI Security Gates
+### A2.1 GitHub Actions: AI Security Gates
 
 ```yaml
 # .github/workflows/ai-security.yml
@@ -169,7 +169,7 @@ jobs:
           AI_ENDPOINT: ${{ vars.AI_INFERENCE_ENDPOINT }}
 ```
 
-### A2.2 CI/CD Pipeline — AI Security Gates
+### A2.2 CI/CD Pipeline: AI Security Gates
 
 ```yaml
 # pipeline-ai-security.yml  (adapt to your CI/CD platform)
@@ -284,7 +284,7 @@ reporting:
   output: garak-report.json
 ```
 
-### A2.5 Cloud Policy — AI Service Public Network Access Deny
+### A2.5 Cloud Policy: AI Service Public Network Access Deny
 
 Enforce at the cloud policy layer that managed AI inference service instances must have public network access disabled. The policy should:
 
@@ -614,14 +614,14 @@ The KQL examples above use a log analytics query language. Adapt to your SIEM's 
 
 ## External References
 
-- **TikiTribe claude-secure-coding-rules** — AI security rule files for Claude Code sessions; CI verification patterns
-- **OWASP LLM Top 10** — Primary threat taxonomy used throughout this guide
-- **MITRE ATLAS** — Adversarial ML threat catalogue
-- **NVIDIA Garak** — LLM vulnerability scanner (open source)
-- **Microsoft PyRIT** — AI red team automation framework (open source)
-- **promptfoo** — Prompt testing and evaluation framework (open source)
-- **NIST AI RMF** — AI risk management framework
-- **OWASP GenAI Security Project** — genai.owasp.org
+- **TikiTribe claude-secure-coding-rules**: AI security rule files for Claude Code sessions; CI verification patterns
+- **OWASP LLM Top 10**: Primary threat taxonomy used throughout this guide
+- **MITRE ATLAS**: Adversarial ML threat catalogue
+- **NVIDIA Garak**: LLM vulnerability scanner (open source)
+- **Microsoft PyRIT**: AI red team automation framework (open source)
+- **promptfoo**: Prompt testing and evaluation framework (open source)
+- **NIST AI RMF**: AI risk management framework
+- **OWASP GenAI Security Project**: genai.owasp.org
 
 
 

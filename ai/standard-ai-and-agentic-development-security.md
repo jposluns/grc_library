@@ -1,18 +1,18 @@
 # AI and Agentic Development Security Standard
 
-**Document Title:** AI and Agentic Development Security Standard  
-**Document Type:** Standard  
-**Version:** 1.2.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md)  
-**Classification:** Public  
-**Category:** AI Governance  
-**Review Frequency:** Annual and upon material AI framework or regulatory change  
-**Repository Path:** [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** AI and Agentic Development Security Standard 
+**Document Type:** Standard 
+**Version:** 1.2.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md) 
+**Classification:** Public 
+**Category:** AI Governance 
+**Review Frequency:** Annual and upon material AI framework or regulatory change 
+**Repository Path:** [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -39,13 +39,13 @@ This standard does not apply to deterministic rule-based automation without LLM 
 
 | Threat | Description |
 | --- | --- |
-| **T-01** Hostile inputs are inevitable | Every AI input surface — user prompts, retrieved documents, webhook payloads, email content in workflow automation — must be treated as potentially adversarially controlled. |
+| **T-01** Hostile inputs are inevitable | Every AI input surface, user prompts, retrieved documents, webhook payloads, email content in workflow automation, must be treated as potentially adversarially controlled. |
 | **T-02** Retrieved content is untrusted | Documents, emails, database records, and web pages surfaced by RAG pipelines may carry embedded instructions. The retrieval boundary is an injection surface. |
 | **T-03** AI outputs are not trusted inputs | LLM outputs must never be passed directly to shell execution, SQL queries, file operations, or downstream service calls without structural validation. |
 | **T-04** Tool permissions are a privilege escalation surface | Every tool granted to an agent is a potential exfiltration or abuse channel. |
 | **T-05** Agent context is a confidentiality boundary | System prompts, retrieved data, and conversation turns may contain PII, credentials, or Confidential business data. |
 | **T-06** Multi-agent systems compound trust failures | Trust must not propagate implicitly through agent chains. |
-| **T-07** AI-generated code has no inherent quality guarantee | It requires at minimum the same security review as human-written code — and in practice more. |
+| **T-07** AI-generated code has no inherent quality guarantee | It requires at minimum the same security review as human-written code: and in practice more. |
 | **T-08** Model supply chain is attackable | Third-party model weights, prompt templates, and AI frameworks are supply chain risk vectors equivalent to third-party libraries. |
 | **T-09** Managed AI service isolation is not sufficient | Content filter bypass, token leakage through error messages, and prompt leakage through logging are real risks in managed AI service environments. |
 | **T-10** Regulatory exposure is elevated | AI systems processing personal data trigger applicable privacy legislation obligations. See Privacy Management Programme. |
@@ -78,7 +78,7 @@ Enforcement points: input validation before inference; output validation before 
 | P-02 | Validate at every boundary. Input validation at the API gateway does not substitute for output validation before tool execution. |
 | P-03 | Require structured outputs for action-bearing responses. Validate against JSON Schema before acting. Never parse free text with regex to extract action parameters. |
 | P-04 | Tool access is explicit allow-list only. Define exactly which tools each agent role may invoke. Everything else is denied. |
-| P-05 | Human approval is mandatory for irreversible actions. Sending email, modifying production records, financial transactions, infrastructure changes, data deletion — all require human confirmation. No exception. |
+| P-05 | Human approval is mandatory for irreversible actions. Sending email, modifying production records, financial transactions, infrastructure changes, data deletion: all require human confirmation. No exception. |
 | P-06 | Fail closed on AI errors. Malformed response or validation failure means deny the action, not fall through to a permissive default. |
 | P-07 | Observability is a security control. Every inference call, tool invocation, and agent action must produce a structured audit event. |
 | P-08 | Secrets never enter inference context. Credentials, API keys, and PII must not appear in system prompts, user turns, retrieved context, or tool call parameters. |
@@ -107,16 +107,16 @@ Enforcement points: input validation before inference; output validation before 
 | Class | Description |
 | --- | --- |
 | **TC-01** Prompt Injection | Direct injection via user input overriding system prompt directives. Indirect injection via retrieved documents, email content, or database records containing embedded instructions. Hidden channels via unicode characters, HTML comments, or metadata fields. |
-| **TC-02** RAG Poisoning | Attacker-controlled documents ingested into the vector store, including embedding poisoning — crafted documents achieving high similarity scores to displace legitimate context. |
+| **TC-02** RAG Poisoning | Attacker-controlled documents ingested into the vector store, including embedding poisoning: crafted documents achieving high similarity scores to displace legitimate context. |
 | **TC-03** Context Contamination and Replay | Prior conversation context or retrieved content from one session leaking into another. Attacker-controlled content from an earlier turn persisted to affect later interactions. |
-| **TC-04** Tool Misuse and Agent Overreach | Legitimate tools used unintendedly — bulk record extraction via a read tool, exfiltration via a send tool. Autonomous execution of shell commands, infrastructure changes, or production modifications without human approval. |
+| **TC-04** Tool Misuse and Agent Overreach | Legitimate tools used unintendedly: bulk record extraction via a read tool, exfiltration via a send tool. Autonomous execution of shell commands, infrastructure changes, or production modifications without human approval. |
 | **TC-05** Unsafe Code Generation | AI-generated code introducing SQL injection, hardcoded secrets, deprecated cryptography, path traversal, or SSRF. Hallucinated dependency names creating typosquatting risk. |
 | **TC-06** Supply Chain Compromise | Backdoored model weights, compromised prompt templates, malicious fine-tuning datasets, compromised AI framework packages. |
 | **TC-07** Credential and Secret Exfiltration | System prompts containing credentials leaked via injection or verbose error messages. Token leakage through API error responses. Sensitive content captured in logs. |
 | **TC-08** Agent Privilege Escalation and Chain Compromise | A limited-permission agent calling a higher-privilege agent and inducing elevated permissions through crafted payloads. Compromised downstream agent injecting instructions into its response. |
 | **TC-09** MCP-Specific Threats | Tool poisoning via false tool descriptions. Context contamination through MCP tool results. Permission escalation via over-scoped MCP server access. |
-| **TC-10** Hallucinated Security Controls | AI-generated code that appears to implement a security control but does not — HMAC verification that skips signature checking, JWT validation that ignores expiry. |
-| **TC-11** Memory Poisoning | Injected summarisation introducing false information into persistent memory. Cross-session memory contamination where one user's data affects another user's memory context. |
+| **TC-10** Hallucinated Security Controls | AI-generated code that appears to implement a security control but does not: HMAC verification that skips signature checking, JWT validation that ignores expiry. |
+| **TC-11** Memory Poisoning | Injected summarization introducing false information into persistent memory. Cross-session memory contamination where one user's data affects another user's memory context. |
 
 ---
 
@@ -177,8 +177,8 @@ Absolute prohibitions. No exception without written CIO/CISO approval.
 
 Approved AI coding tools:
 
-- **Claude Code** — for development sessions with appropriate secure coding rule files deployed
-- **GitHub Copilot** — within the approved organization and tier
+- **Claude Code**: for development sessions with appropriate secure coding rule files deployed
+- **GitHub Copilot**: within the approved organization and tier
 
 Use of other AI coding tools, including public web interfaces, to generate code for production systems requires CIO approval.
 
@@ -206,7 +206,7 @@ Rule deployment is verified in CI. Builds fail if required rule files are absent
 
 **DEVSEC-AI-02:** AI-generated code passes the same CI/CD security gates as human-written code. No exemptions.
 
-**DEVSEC-AI-03:** The following code paths require explicit human security review regardless of origin: authentication and session management; authorisation and access control logic; cryptographic operations; input validation and sanitization; database queries and ORM operations; API key and secret handling; infrastructure-as-code; CI/CD pipeline definitions; agent tool definitions and permission grants.
+**DEVSEC-AI-03:** The following code paths require explicit human security review regardless of origin: authentication and session management; authorization and access control logic; cryptographic operations; input validation and sanitization; database queries and ORM operations; API key and secret handling; infrastructure-as-code; CI/CD pipeline definitions; agent tool definitions and permission grants.
 
 **DEVSEC-AI-04:** AI-suggested dependency names must be verified to exist in approved package registries before installation.
 
@@ -635,15 +635,15 @@ This standard is reviewed and updated at minimum annually, or when any of the fo
 
 | Control Area | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM v1 | NIST AI RMF |
 | --- | --- | --- | --- | --- |
-| Prompt injection | LLM01 | AML.T0051 | AI-TM-01–05 | GOVERN 1.1 |
-| Supply chain | LLM03 | AML.T0010–T0013 | AI-SC-01–08 | MANAGE 2.2 |
-| Sensitive data disclosure | LLM02 | — | AI-PP-01–05 | MAP 1.6 |
+| Prompt injection | LLM01 | AML.T0051 | AI-TM-01 to 05 | GOVERN 1.1 |
+| Supply chain | LLM03 | AML.T0010 to T0013 | AI-SC-01 to 08 | MANAGE 2.2 |
+| Sensitive data disclosure | LLM02 | N/A | AI-PP-01 to 05 | MAP 1.6 |
 | Tool misuse / overreach | LLM06 | AML.T0048 | AI-TM-08 | GOVERN 2.2 |
-| Unsafe code generation | LLM05 | — | AI-SC-05 | MAP 1.1 |
-| Excessive agency | LLM06 | — | AI-AU-01–06 | MANAGE 1.3 |
-| Overreliance | LLM09 | — | AI-EC-01 | MANAGE 4.1 |
-| Model theft | LLM10 | AML.T0037 | AI-SC-06 | — |
-| Hallucination/output validation | LLM09 | — | AI-EC-03 | MAP 3.5 |
+| Unsafe code generation | LLM05 | N/A | AI-SC-05 | MAP 1.1 |
+| Excessive agency | LLM06 | N/A | AI-AU-01 to 06 | MANAGE 1.3 |
+| Overreliance | LLM09 | N/A | AI-EC-01 | MANAGE 4.1 |
+| Model theft | LLM10 | AML.T0037 | AI-SC-06 | N/A |
+| Hallucination/output validation | LLM09 | N/A | AI-EC-03 | MAP 3.5 |
 
 
 
