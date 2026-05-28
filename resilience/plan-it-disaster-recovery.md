@@ -2,7 +2,7 @@
 
 **Document Title:** IT Disaster Recovery Plan 
 **Document Type:** Plan 
-**Version:** 1.1.0 
+**Version:** 1.2.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Chief Information Officer 
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This plan defines the system-specific recovery procedures, RTO and RPO targets, and runbook references for IT Disaster Recovery (DR). It is a companion document to the BC/DR Standard and the Business Continuity and Crisis Management Plan, which govern the broader BC/DR framework. This plan focuses on IT system recovery execution rather than business continuity governance. Lessons learned from a prior security incident, which required phased recovery over approximately 30 days, directly informed the structure and priorities in this document.
+This plan defines the system-specific recovery procedures, RTO and RPO targets, and runbook references for IT Disaster Recovery (DR). It is a companion document to the BC/DR Standard and the Business Continuity and Crisis Management Plan, which govern the broader BC/DR framework. This plan focuses on IT system recovery execution rather than business continuity governance. The plan reflects industry experience with phased recovery from major security incidents; adopting organisations calibrate RTO/RPO targets, tier assignments, and phasing to their own incident history, risk appetite, and operational context.
 
 ---
 

@@ -2,7 +2,7 @@
 
 **Document Title:** Supplier Due Diligence Procedure 
 **Document Type:** Procedure 
-**Version:** 1.0.1 
+**Version:** 1.1.0 
 **Date:** 2026-05-28 
 **Owner:** Supplier Risk Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -20,7 +20,7 @@
 
 This procedure defines the methodology for pre-qualification, risk assessment, and ongoing compliance review of suppliers, vendors, and third-party partners. It establishes a consistent, evidence-based approach to evaluating supplier fitness prior to engagement and at defined reassessment intervals throughout the supplier lifecycle.
 
-This procedure is aligned with ISO/IEC 27036-2, COBIT 2019 BAI05, CSA CCM v4.1 STA-01, and BASC International Standard v6 2023.
+This procedure is aligned with ISO/IEC 27036-2, COBIT 2019 BAI05, and CSA CCM v4.1 STA-01. Sector-specific framework alignments (for example, BASC International Standard v6 2023 for trade and logistics suppliers) apply where the organisation participates in a covered programme; see [`sectors/`](../sectors/).
 
 ---
 
@@ -28,7 +28,7 @@ This procedure is aligned with ISO/IEC 27036-2, COBIT 2019 BAI05, CSA CCM v4.1 S
 
 1. Applies to all suppliers and third-party entities engaged to provide goods or services to the organisation.
 2. Covers pre-engagement due diligence, contract validation, and periodic compliance reassessment.
-3. Includes global operations with additional requirements for BASC-certified logistics and trade partners in Latin America.
+3. Applies globally; sector-specific overlays (for example, BASC for trade and logistics partners) apply where the organisation participates in a covered programme, per [`sectors/`](../sectors/).
 4. Applies to suppliers providing AI systems, cloud services, logistics solutions, or data-handling activities.
 
 ---
@@ -43,8 +43,9 @@ This procedure is aligned with ISO/IEC 27036-2, COBIT 2019 BAI05, CSA CCM v4.1 S
 | Compliance and GRC Manager | Oversees due diligence documentation, evidence collection, and audit readiness. |
 | Legal Counsel | Verifies contractual and regulatory compliance, including data protection and trade law clauses. |
 | Sustainability Officer | Reviews environmental and social responsibility disclosures submitted by suppliers. |
-| Regional Compliance Officers | Oversee trade and customs integrity checks for Latin American and other regionally regulated operations. |
 | AI Governance Council | Reviews AI-enabled vendors for ethical, transparency, security, and regulatory compliance. |
+
+Sector-specific reviewer roles (for example, Regional Compliance Officers for sector-regulated operations) apply where the organisation participates in a covered programme; see [`sectors/`](../sectors/).
 
 ---
 
@@ -56,7 +57,7 @@ All suppliers must complete a Supplier Pre-Qualification Questionnaire (SPQ) bef
 
 - Corporate registration, ownership structure, and beneficial ownership disclosure.
 - Financial stability and credit standing.
-- Applicable security certifications (ISO/IEC 27001, SOC 2, BASC).
+- Applicable security certifications (for example, ISO/IEC 27001, SOC 2; plus sector-specific certifications such as BASC where the supplier is in scope of a covered programme, per [`sectors/`](../sectors/)).
 - Data privacy compliance posture (GDPR, CPPA, PIPL, LGPD).
 - Environmental, social, and governance (ESG) and sustainability disclosures.
 
@@ -89,9 +90,8 @@ Assessments must be conducted across all applicable domains. Suppliers scoring b
 | Privacy Compliance | Data protection obligations, consent management, cross-border transfer controls. | GDPR, CPPA, LGPD, PIPL. |
 | Business Continuity | Recovery capabilities, resilience planning, dependency management. | ISO 22301, COBIT DSS04. |
 | AI Governance | Model transparency, bias controls, fairness, auditability. | ISO/IEC 42001, CSA AICM. |
-| BASC Compliance | Customs integrity, cargo security, anti-smuggling controls (Latin America). | BASC International Standard v6 2023. |
-| Trade Security | Supply chain security programme compliance. | WCO SAFE Framework 2021, ISO 28000:2022. |
-| Sustainability | Energy management and environmental responsibility. | ISO 50001 Addendum 2026. |
+| Trade Security | Supply chain security programme compliance (where the supplier is in scope). | WCO SAFE Framework 2021, ISO 28000:2022; plus sector-specific overlays per [`sectors/`](../sectors/). |
+| Sustainability | Energy management and environmental responsibility. | ISO 50001. |
 
 ### Step 4: Contractual review
 
@@ -100,7 +100,7 @@ All supplier contracts must include, at minimum:
 - Data protection and confidentiality clauses aligned to applicable jurisdictional requirements.
 - Right-to-audit provisions exercisable by the organisation or its appointed representative.
 - AI ethics and transparency requirements for AI service providers.
-- BASC compliance obligations for Latin American logistics and trade partners.
+- Sector-specific obligations (for example, BASC, CTPAT, AEO, PIP compliance clauses) where the supplier is in scope of a covered programme; see [`sectors/`](../sectors/).
 - Environmental and sustainability obligations consistent with the organisation's ESG commitments.
 - Mandatory reporting timelines for security incidents, privacy breaches, or compliance failures.
 
@@ -112,20 +112,20 @@ All Tier 1 and Tier 2 suppliers must undergo periodic compliance audits in accor
 
 - A security incident or data breach involving the supplier.
 - A contract breach or material SLA failure.
-- Lapse, suspension, or revocation of a required regulatory or certification status (including BASC).
+- Lapse, suspension, or revocation of a required regulatory or certification status.
 - A material change in the supplier's ownership, infrastructure, or service delivery model.
 
 All corrective actions identified through due diligence or re-audit must be logged in the Corrective and Preventive Action (CAPA) Register and tracked to closure.
 
-### Step 6: BASC and regional compliance integration
+### Step 6: Sector-programme compliance integration
 
-For suppliers engaged in Latin American logistics, customs, or trade operations, the following additional requirements apply:
+For suppliers in scope of a sector-specific programme (for example, BASC for trade and logistics, CTPAT for US trade, AEO for EU trade, PIP for Canadian trade), the following additional integration applies:
 
-- BASC certification must be verified prior to engagement and tracked for renewal throughout the supplier relationship.
-- Compliance with the WCO SAFE Framework 2021 and ISO 28000:2022 must be confirmed.
-- Trade documentation, cargo integrity practices, and customs reporting accuracy must be reviewed as part of the periodic assessment.
+- Sector certification status must be verified prior to engagement and tracked for renewal throughout the supplier relationship.
+- Sector-specific compliance requirements (per the corresponding sector annex in [`sectors/`](../sectors/) or the relevant compliance annex in [`compliance/`](../compliance/)) must be confirmed.
+- Sector-specific documentation, integrity practices, and reporting accuracy must be reviewed as part of the periodic assessment.
 
-Regional Compliance Officers must maintain a BASC Supplier Compliance Log that is synchronized with the global Supplier Risk Register at least quarterly.
+A sector-supplier compliance log maintained by the appropriate sector-conditional role (for example, BASC Regional Compliance Officer where the sector annex defines that role) must be synchronised with the global Supplier Risk Register at least quarterly.
 
 ---
 
@@ -138,7 +138,7 @@ Regional Compliance Officers must maintain a BASC Supplier Compliance Log that i
 | Due Diligence Evaluation | Domain assessment results, evidence artefacts, remediation plan where required. |
 | Contractual Review | Executed contract with required clauses confirmed, Legal Counsel approval. |
 | Periodic Re-Assessment | Updated TPRAQ or equivalent, reassessment report, CAPA entries where applicable. |
-| BASC Compliance | BASC certificate copy, compliance log entry, renewal tracking record. |
+| Sector-Programme Compliance | Sector certificate copy (for example, BASC, CTPAT, AEO, PIP where applicable), compliance log entry, renewal tracking record. |
 
 ---
 
@@ -158,9 +158,10 @@ Regional Compliance Officers must maintain a BASC Supplier Compliance Log that i
 - ISO/IEC 27036-2:2014: Information security for supplier relationships: Requirements.
 - COBIT 2019 BAI05: Managed Organizational Change.
 - CSA Cloud Controls Matrix v5, STA-01: Supply Chain Management, Transparency, and Accountability.
-- BASC International Standard v6 2023: Business Alliance for Secure Commerce.
 - WCO SAFE Framework of Standards 2021: World Customs Organization.
 - ISO 28000:2022, Security and resilience, Security management systems for the supply chain.
+
+Sector-specific references (for example, BASC International Standard v6 2023 for trade and logistics) apply where the organisation participates in a covered programme; see [`sectors/`](../sectors/).
 
 ---
 

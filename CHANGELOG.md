@@ -4,6 +4,23 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 19.1 (2026-05-28): BASC migration completion
+
+Phase 19 sub-phase 1. The Phase 12.3 sector annex migration (in which BASC was moved from being treated as an organisation-wide baseline standard to being a sector overlay invoked only where the organisation participates in the BASC programme) was incomplete: four active documents retained content that scoped the organisation to BASC, named "Regional Compliance Officers" as a baseline role, or aligned the document's own framework table to BASC/WCO SAFE/ISO 28000 unconditionally. Phase 19.1 cleans that residue.
+
+### Files updated
+
+- `operations/standard-network-security-and-segmentation.md` (1.3.0 → 1.4.0): removed BASC/Latin America scoping, the "BASC / Logistics" network zone row, the dedicated "BASC trade-network security controls" section, and the unconditional BASC/WCO SAFE/ISO 28000 framework rows; sector overlays now invoked via `sectors/` pointers throughout. Also generalised "prior ransomware incident" references to industry-experience phrasing.
+- `supply-chain/procedure-supplier-due-diligence.md` (1.0.1 → 1.1.0): removed BASC from baseline framework alignment statement, baseline security-certification list, and References section; removed "Regional Compliance Officers" governance row; converted "BASC Compliance" evidence row, "BASC and regional compliance integration" step, contractual review clauses, and re-audit triggers to sector-conditional formulations.
+- `resilience/plan-it-disaster-recovery.md` (1.1.0 → 1.2.0): generalised the Purpose paragraph that referenced "a prior security incident" requiring "approximately a 30-day phased recovery" to industry-experience phrasing about phased recovery from major security incidents, since adopting organisations must calibrate RTO/RPO, tier assignments, and phasing to their own incident history and risk appetite rather than to the original drafting organisation's history.
+- `governance/standard-records-retention-and-destruction.md` (1.3.0 → 1.4.0): removed BASC/Latin America scope item content, "Regional Compliance Officers" governance row, the "BASC Trade and Customs" retention row, and the unconditional BASC/WCO SAFE framework alignment rows; sector overlays now invoked via `sectors/` pointers throughout.
+
+### Result
+
+The four documents that still implicitly assumed BASC participation now read consistently with the sector-overlay pattern established in Phase 12.3: BASC appears only as an illustrative example of "a sector programme an organisation may participate in", parallel with CTPAT, AEO, PIP, HIPAA, and financial-services overlays.
+
+Taxonomy regenerated. All ten audits clean.
+
 ## Phase 18 (2026-05-28): BrE/AmE spelling normalisation
 
 Resolves the final editorial finding from the next-passes list (item 1.1). The library now uses consistent Oxford English (BrE word stems + -ize verb endings) throughout active content.
