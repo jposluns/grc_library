@@ -83,6 +83,7 @@ def main(argv: list[str]) -> int:
         "specification-ingestion.md",
         "instruction-ai-document-ingestion.md",
         "ai",
+        "architecture",
         "compliance",
         "dev-security",
         "governance",

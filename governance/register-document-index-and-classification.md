@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register 
 **Document Type:** Register 
-**Version:** 1.18.0 
+**Version:** 1.19.0 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -293,6 +293,14 @@ All active repository documents should be Public.
 | Compliance | Annex | Telecommunications Sector Requirements Annex | [`compliance/annex-telecommunications-sector-requirements.md`](../compliance/annex-telecommunications-sector-requirements.md) | Chief Compliance Officer | Annual | EU EECC, EU ePrivacy, EU NIS 2, UK Telecoms Security Act, US CALEA, ETSI TS 102 232 |
 | Compliance | Annex | Energy and Utilities Sector Requirements Annex | [`compliance/annex-energy-and-utilities-sector-requirements.md`](../compliance/annex-energy-and-utilities-sector-requirements.md) | Chief Compliance Officer | Annual | IEC 62443 series, NERC CIP, EU NIS 2, US TSA Directives, EU Critical Entities Resilience, ENTSO-E |
 | Compliance | Annex | SOX IT General Controls Annex | [`compliance/annex-sox-itgc.md`](../compliance/annex-sox-itgc.md) | Chief Compliance Officer | Annual | Sarbanes-Oxley §§302/404/906, PCAOB AS 2201, COSO ICIF 2013, COSO ERM, NI 52-109, J-SOX, SOC 1 (ISAE 3402/SSAE 18) |
+| Architecture | Framework | Enterprise Architecture Framework | [`architecture/framework-enterprise-architecture.md`](../architecture/framework-enterprise-architecture.md) | Chief Technology Officer | Annual | TOGAF, ISO/IEC/IEEE 42010:2022, Open Agile Architecture, IT4IT, C4 model, DDD, Team Topologies, Wardley mapping, Accelerate, ISO 27001 A.5.1/A.5.8, NIST CSF 2.0 |
+| Architecture | Standard | Architecture Decision Records Standard | [`architecture/standard-architecture-decision-records.md`](../architecture/standard-architecture-decision-records.md) | Chief Technology Officer | Annual | Michael Nygard ADR practice, ISO/IEC/IEEE 42010:2022, TOGAF, C4 model, OWASP SAMM, NIST SP 800-218 SSDF |
+| Architecture | Standard | Reference Architecture Standard | [`architecture/standard-reference-architecture.md`](../architecture/standard-reference-architecture.md) | Chief Technology Officer | Annual | TOGAF Architecture Building Blocks and Reference Models, ISO/IEC/IEEE 42010:2022, C4 model, Open Agile Architecture, OWASP SAMM, NIST CSF 2.0 |
+| Architecture | Standard | Technology Radar Standard | [`architecture/standard-technology-radar.md`](../architecture/standard-technology-radar.md) | Chief Technology Officer | Quarterly | ThoughtWorks Technology Radar conventions, TOGAF Technology Reference Model, Open Agile Architecture, OWASP SAMM, NIST SSDF SP 800-218 PW.4, ISO 27001 A.5.20/A.8.30 |
+| Architecture | Procedure | Architecture Review Procedure | [`architecture/procedure-architecture-review.md`](../architecture/procedure-architecture-review.md) | Chief Technology Officer | Annual | TOGAF Architecture Compliance and Governance, ISO/IEC/IEEE 42010:2022, OWASP SAMM, ISO 27001 A.5.8, NIST CSF 2.0, COBIT 2025 APO03 |
+| Architecture | Standard | API Design Standard | [`architecture/standard-api-design.md`](../architecture/standard-api-design.md) | Chief Technology Officer | Annual | OpenAPI, AsyncAPI, gRPC/Protobuf, GraphQL, RFC 7807, Google AIPs, Microsoft REST API Guidelines, ISO 27001 A.8.26, OWASP API Security Top 10 |
+| Architecture | Standard | Data Architecture Standard | [`architecture/standard-data-architecture.md`](../architecture/standard-data-architecture.md) | Chief Technology Officer | Annual | DAMA-DMBOK 2, ISO/IEC 38505-1, ISO 8000, Data Mesh, TOGAF Data Architecture, ISO 27001 A.5.12/A.5.13/A.5.34, GDPR Arts 5/25/32, ISO 42001:2023 |
+| Architecture | Standard | Integration Architecture Standard | [`architecture/standard-integration-architecture.md`](../architecture/standard-integration-architecture.md) | Chief Technology Officer | Annual | Enterprise Integration Patterns, AsyncAPI, CloudEvents, OpenAPI, ESB and microservices references, ISO 27001 A.5.14/A.8.20-21, OWASP API Security Top 10, NIST CSF 2.0 |
 
 ---
 

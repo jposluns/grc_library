@@ -28,6 +28,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 DOMAINS = [
     "ai",
+    "architecture",
     "compliance",
     "dev-security",
     "governance",

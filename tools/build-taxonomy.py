@@ -28,6 +28,7 @@ TAXONOMY = REPO_ROOT / "taxonomy.yml"
 
 DOMAINS = [
     "ai",
+    "architecture",
     "compliance",
     "dev-security",
     "governance",
