@@ -181,6 +181,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 ### Guideline
 
 - [ESG and AI Ethics Disclosure Guideline](../governance/guideline-esg-and-ai-ethics-disclosure.md)
+- [Minimum Viable Governance Structure Guideline](../governance/guideline-minimum-viable-governance-structure.md)
 - [Quantitative Risk Analysis Guideline](../risk/guideline-quantitative-risk-analysis.md)
 
 ### Matrix

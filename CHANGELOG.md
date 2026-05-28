@@ -4,6 +4,23 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 15 (2026-05-28): Minimum-viable governance structure guideline
+
+Resolves the forum-proliferation audit finding by adding a new adopter-facing guideline that shows how the library's 13+ named forums can be implemented at three maturity tiers (minimum viable, mid-market, enterprise / regulated). The library's individual documents continue to reference the formal forum names; this guideline shows the consolidation patterns that preserve the responsibilities for smaller adopters.
+
+### New document
+
+- `governance/guideline-minimum-viable-governance-structure.md` (v0.0.1): three-tier structure (Tier 1: 2-3 forums; Tier 2: 4-6 forums; Tier 3: 8-12 forums) mapping the library's formal forum names to consolidated bodies. Per-tier consolidation table, seat-name mapping by role group (senior executive, AI sub-roles, ownership, maintainer), and mapping-document worked example.
+
+### Registry updates
+
+- `governance/README.md` (v1.1.0 → v1.2.0): new guideline added to active documents.
+- `governance/register-document-index-and-classification.md` (v1.22.0 → v1.23.0): new row added.
+
+Taxonomy, portal, and maturity scorecard regenerated.
+
+A separate (in-flight) citation verification deep-dive is running for items 7.1-7.4 of the next-passes list; any resulting corrections will be applied in a future phase.
+
 ## Phase 14 (2026-05-28): Provisional-draft and ownership cleanup
 
 Resolves three lingering status-uncertainty items and tightens AIGC ownership clarity.

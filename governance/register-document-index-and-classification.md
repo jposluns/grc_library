@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register 
 **Document Type:** Register 
-**Version:** 1.22.0 
+**Version:** 1.23.0 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -195,6 +195,7 @@ All active repository documents should be Public.
 | Governance | Procedure | Continuous Improvement Register Procedure | [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md) | GRC Programme Manager | Annual | ISO 9001 §10.3, ISO 27001 §10.2, ISO 42001 §10, COBIT MEA01/APO11 |
 | Governance | Procedure | Whistleblower and Incident Reporting Procedure | [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md) | Chief Compliance Officer | Annual | ISO 37001 §8.9, ISO 37301 §8.9, EU Whistleblowing Directive 2019/1937, GDPR Art 33 |
 | Governance | Guideline | ESG and AI Ethics Disclosure Guideline | [`governance/guideline-esg-and-ai-ethics-disclosure.md`](guideline-esg-and-ai-ethics-disclosure.md) | Chief Information Officer | Annual | GRI Standards, TCFD, OECD AI Principles, ISO 42001 §9, EU AI Act Arts 13/50 |
+| Governance | Guideline | Minimum Viable Governance Structure Guideline | [`governance/guideline-minimum-viable-governance-structure.md`](../governance/guideline-minimum-viable-governance-structure.md) | Governance Library Maintainer | Annual | ISO 37000:2021, ISO 27001 A.5.2, ISO 42001 §5, COBIT 2019 EDM, OECD G20 Corporate Governance, IIA Three Lines Model |
 | Governance | Procedure | Library Quality and Review Cadence Procedure | [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md) | Governance Library Maintainer | Annual | ISO 27001 A.5.36/A.5.37, ISO 9001 §7.5/§9, COBIT 2019 APO01, ITIL 4 continual improvement, ISO 42001 §9/§10, NIST CSF 2.0 |
 | Governance | Register | Document Review Schedule Register | [`governance/register-document-review-schedule.md`](register-document-review-schedule.md) | Governance Library Maintainer | Continuous | ISO 9001 §7.5.2/§7.5.3, ISO 27001 A.5.36/A.5.37, COBIT 2019 APO01, ITIL 4, ISO 30301, ISO 42001 §7.5/§9 |
 | Governance | Template | Document Review Record Template | [`governance/template-document-review-record.md`](template-document-review-record.md) | Governance Library Maintainer | Annual | ISO 9001 §7.5/§9.3, ISO 27001 A.5.35/A.5.36/A.5.37, ISO 19011:2018, ISO 30301, ISO 42001 §9.3, COBIT 2019 MEA02, ITIL 4 |
