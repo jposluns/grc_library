@@ -2,7 +2,7 @@
 
 **Document Title:** Observability and Telemetry Standard 
 **Document Type:** Standard 
-**Version:** 0.0.1 
+**Version:** 0.0.2 
 **Date:** 2026-05-28 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -33,6 +33,10 @@ This standard applies to:
 5. Vendor-managed services whose health affects organisational outcomes.
 
 It does not cover individual workstation telemetry (governed by the endpoint hardening standard) or experimental sandboxes that produce no organisational outcome.
+
+### Scope boundary with the security logging and monitoring standard
+
+This standard governs operational health signals (metrics, traces, logs of operational events, real-user monitoring, synthetic checks). Security-relevant logging, monitoring, and SIEM operations are governed by [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md). See that standard's scope-boundary table for the per-event-class routing rule. The short version: security-relevant events go to the SIEM, operational signals go to the observability platform, and dual-purpose events are emitted to both with shared trace identifiers.
 
 ---
 

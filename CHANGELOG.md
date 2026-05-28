@@ -4,6 +4,31 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 12.7 (2026-05-28): Scope matrices for paired standards
+
+Resolves three scope-collision findings from the comprehensive audit by adding explicit scope-boundary clauses to each affected document pair.
+
+### Cloud baselines — operations vs dev-security
+
+- `operations/standard-cloud-security-configuration-baseline.md` (v1.3.0 → v1.4.0): new §2.1 "Scope boundary with dev-security cloud hardening baselines" with a per-subject table mapping enterprise-tenant administration (this standard) to workload-level concerns (dev-security baselines).
+- `dev-security/standard-cloud-hardening-baseline-aws.md` (v0.0.1 → v0.0.2): new "Scope boundary with the operations cloud configuration baseline" sub-section.
+- `dev-security/standard-cloud-hardening-baseline-azure.md` (v0.0.1 → v0.0.2): same.
+- `dev-security/standard-cloud-hardening-baseline-gcp.md` (v0.0.1 → v0.0.2): same.
+
+A workload now reads as conforming to both standards with a clear division of authority.
+
+### Logging vs observability — routing rule
+
+- `security/standard-logging-and-monitoring.md` (v1.3.0 → v1.4.0): new "Scope boundary with the operations observability and telemetry standard" sub-section with an event-class routing table. Security-relevant events route to SIEM; operational signals route to observability; dual-purpose events emitted to both with shared trace identifiers. Also: BASC residue in the Scope section (caught here, missed by Phase 12.3) replaced with a sector-overlay pointer.
+- `operations/standard-observability-and-telemetry.md` (v0.0.1 → v0.0.2): reciprocal note pointing back to the security standard's routing table.
+
+### API design vs API security — approval sequence
+
+- `architecture/standard-api-design.md` (v0.0.1 → v0.0.2): new "Relationship to the API security standard and approval sequence" sub-section documenting the design-gate → threat-model-gate → implementation sequence.
+- `dev-security/standard-api-security.md` (v0.0.1 → v0.0.2): reciprocal sub-section with the same sequence; conditional-endorsement loop documented for cases where a security finding requires reshaping the contract.
+
+Taxonomy, portal, and maturity scorecard regenerated.
+
 ## Phase 12.5 / 12.6 (2026-05-28): [Unverified] tags, phantom dependency, internal hostname
 
 Resolves the `[Unverified]`-tag-in-mandatory-policy finding, the phantom "IT Operations Documentation Framework" dependency, and the internal-looking hostname in an AI code example. Bundled as a single change for compactness.

@@ -2,8 +2,8 @@
 
 **Document Title:** Cloud Security Configuration Baseline 
 **Document Type:** Standard 
-**Version:** 1.3.0 
-**Date:** 2026-05-27 
+**Version:** 1.4.0 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md) 
@@ -28,6 +28,21 @@ This standard defines the secure configuration baseline for cloud and cloud prod
 2. Covers configuration of identity, network, compute, storage, monitoring, and collaboration services.
 3. Applies to all environments: DEV, TEST, and PROD. Security classification applies consistently; TEST environments are not exempt from baseline security controls.
 4. Applies to IT Operations, the infrastructure programme team, and any third party managing cloud resources on behalf of the organization.
+
+### 2.1 Scope boundary with dev-security cloud hardening baselines
+
+This standard and the per-provider cloud hardening baselines in `dev-security/` together cover the organization's cloud security posture. The boundary is as follows:
+
+| Subject | Authoritative standard |
+| --- | --- |
+| Enterprise-tenant administration (identity provider tenant, organisation/management-group hierarchy, tenant-wide policies, cross-account trust, productivity SaaS, email and collaboration platforms) | This standard |
+| Workload accounts/subscriptions/projects and the IaC that provisions them | `dev-security/standard-cloud-hardening-baseline-aws.md`, `standard-cloud-hardening-baseline-azure.md`, `standard-cloud-hardening-baseline-gcp.md` |
+| Identity federation between the enterprise IdP and workload accounts | Both: federation is configured per this standard; consumption inside the workload is per the dev-security baseline |
+| Centralized audit log destination | This standard defines the destination; the dev-security baselines define what each workload emits |
+| Workload network segmentation, encryption, secrets handling, and infrastructure-as-code | The dev-security baselines |
+| Provider quotas, billing controls, and cross-tenant administration | This standard |
+
+A workload built on a cloud provider must conform to both: the enterprise-tenant rules here, and the workload-level rules in the matching dev-security baseline. Where a conflict appears, escalate to the architecture review forum.
 
 ---
 

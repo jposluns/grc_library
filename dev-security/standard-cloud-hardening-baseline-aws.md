@@ -2,7 +2,7 @@
 
 **Document Title:** AWS Cloud Hardening Baseline Standard 
 **Document Type:** Standard 
-**Version:** 0.0.1 
+**Version:** 0.0.2 
 **Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -32,6 +32,10 @@ This standard applies to:
 4. AWS infrastructure-as-code that provisions or configures the above.
 
 It does not cover the contractual relationship with the provider, which is governed by the supplier security and privacy assurance standard.
+
+### Scope boundary with the operations cloud configuration baseline
+
+This standard governs workload-level cloud hardening: application accounts/subscriptions/projects, the IaC that provisions them, in-workload IAM, workload network segmentation, encryption, secrets, and operational hardening. Enterprise-tenant concerns (identity-provider tenant, organisation/management-group hierarchy, tenant-wide policies, productivity SaaS, email and collaboration platforms, cross-tenant administration) are governed by `operations/standard-cloud-security-configuration-baseline.md`. A workload conforms to both: the enterprise-tenant rules in the operations baseline, and the workload-level rules here.
 
 ---
 

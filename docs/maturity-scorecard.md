@@ -27,7 +27,7 @@ _52 documents._
 | --- | --- | --- | --- | --- |
 | [ai/charter-ai-governance-council.md](../ai/charter-ai-governance-council.md) | AI Governance Council Charter | Charter | 1.1.0 | 2026-05-28 |
 | [ai/guide-ai-adversarial-test-reference.md](../ai/guide-ai-adversarial-test-reference.md) | AI Adversarial Test Reference | Guide | 1.3.0 | 2026-05-28 |
-| [ai/guide-ai-security-technical-implementation.md](../ai/guide-ai-security-technical-implementation.md) | AI Security Technical Implementation Guide | Guide | 1.3.0 | 2026-05-28 |
+| [ai/guide-ai-security-technical-implementation.md](../ai/guide-ai-security-technical-implementation.md) | AI Security Technical Implementation Guide | Guide | 1.3.1 | 2026-05-28 |
 | [ai/standard-ai-and-agentic-development-security.md](../ai/standard-ai-and-agentic-development-security.md) | AI and Agentic Development Security Standard | Standard | 1.2.0 | 2026-05-27 |
 | [dev-security/standard-software-composition-analysis.md](../dev-security/standard-software-composition-analysis.md) | Software Composition Analysis Standard | Standard | 1.1.0 | 2026-05-28 |
 | [governance/charter-governance-library.md](../governance/charter-governance-library.md) | Governance Library Charter | Charter | 1.1.0 | 2026-05-28 |
@@ -42,7 +42,7 @@ _52 documents._
 | [operations/procedure-security-monitoring-and-alert-management.md](../operations/procedure-security-monitoring-and-alert-management.md) | Security Monitoring and Alert Management Procedure | Procedure | 1.3.0 | 2026-05-27 |
 | [operations/procedure-threat-intelligence-and-siem-operations.md](../operations/procedure-threat-intelligence-and-siem-operations.md) | Threat Intelligence and SIEM Operations Procedure | Procedure | 1.3.0 | 2026-05-27 |
 | [operations/standard-certificate-authority-management.md](../operations/standard-certificate-authority-management.md) | Certificate Authority Management Standard | Standard | 1.3.0 | 2026-05-27 |
-| [operations/standard-cloud-security-configuration-baseline.md](../operations/standard-cloud-security-configuration-baseline.md) | Cloud Security Configuration Baseline | Standard | 1.3.0 | 2026-05-27 |
+| [operations/standard-cloud-security-configuration-baseline.md](../operations/standard-cloud-security-configuration-baseline.md) | Cloud Security Configuration Baseline | Standard | 1.4.0 | 2026-05-28 |
 | [operations/standard-network-security-and-segmentation.md](../operations/standard-network-security-and-segmentation.md) | Network Security and Segmentation Standard | Standard | 1.3.0 | 2026-05-27 |
 | [operations/standard-physical-security-of-it-infrastructure.md](../operations/standard-physical-security-of-it-infrastructure.md) | Physical Security of IT Infrastructure Standard | Standard | 1.3.0 | 2026-05-27 |
 | [operations/standard-production-security-requirements.md](../operations/standard-production-security-requirements.md) | Production Security Requirements | Standard | 1.1.1 | 2026-05-28 |
@@ -73,7 +73,7 @@ _52 documents._
 | [security/sop-security-ticket-reporting-scheme.md](../security/sop-security-ticket-reporting-scheme.md) | Security Ticket Reporting Scheme | SOP | 1.1.0 | 2026-05-28 |
 | [security/standard-data-classification-and-handling.md](../security/standard-data-classification-and-handling.md) | Data Classification and Handling Standard | Standard | 1.3.0 | 2026-05-27 |
 | [security/standard-data-loss-prevention.md](../security/standard-data-loss-prevention.md) | Data Loss Prevention Standard | Standard | 1.3.0 | 2026-05-27 |
-| [security/standard-logging-and-monitoring.md](../security/standard-logging-and-monitoring.md) | Logging and Monitoring Standard | Standard | 1.3.0 | 2026-05-27 |
+| [security/standard-logging-and-monitoring.md](../security/standard-logging-and-monitoring.md) | Logging and Monitoring Standard | Standard | 1.4.0 | 2026-05-28 |
 | [specification-ingestion.md](../specification-ingestion.md) | GRC Library CC0 Ingestion and Transformation Specification | Specification | 1.4.2 | 2026-05-28 |
 | [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.2.5 | 2026-05-28 |
 | [supply-chain/standard-supplier-security-and-privacy-assurance.md](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | Supplier Security and Privacy Assurance Standard | Standard | 1.1.0 | 2026-05-28 |
@@ -250,7 +250,7 @@ _70 documents._
 | [ai/template-dataset-datasheet.md](../ai/template-dataset-datasheet.md) | Dataset Datasheet Template | Template | 0.0.1 | 2026-05-28 |
 | [architecture/framework-enterprise-architecture.md](../architecture/framework-enterprise-architecture.md) | Enterprise Architecture Framework | Framework | 0.0.1 | 2026-05-28 |
 | [architecture/procedure-architecture-review.md](../architecture/procedure-architecture-review.md) | Architecture Review Procedure | Procedure | 0.0.1 | 2026-05-28 |
-| [architecture/standard-api-design.md](../architecture/standard-api-design.md) | API Design Standard | Standard | 0.0.1 | 2026-05-28 |
+| [architecture/standard-api-design.md](../architecture/standard-api-design.md) | API Design Standard | Standard | 0.0.2 | 2026-05-28 |
 | [architecture/standard-architecture-decision-records.md](../architecture/standard-architecture-decision-records.md) | Architecture Decision Records Standard | Standard | 0.0.1 | 2026-05-28 |
 | [architecture/standard-data-architecture.md](../architecture/standard-data-architecture.md) | Data Architecture Standard | Standard | 0.0.1 | 2026-05-28 |
 | [architecture/standard-integration-architecture.md](../architecture/standard-integration-architecture.md) | Integration Architecture Standard | Standard | 0.0.1 | 2026-05-28 |
@@ -264,10 +264,10 @@ _70 documents._
 | [compliance/annex-sox-itgc.md](../compliance/annex-sox-itgc.md) | SOX IT General Controls Annex | Annex | 0.0.1 | 2026-05-28 |
 | [compliance/annex-telecommunications-sector-requirements.md](../compliance/annex-telecommunications-sector-requirements.md) | Telecommunications Sector Requirements Annex | Annex | 0.0.1 | 2026-05-28 |
 | [dev-security/procedure-secure-code-review.md](../dev-security/procedure-secure-code-review.md) | Secure Code Review Procedure | Procedure | 0.0.1 | 2026-05-28 |
-| [dev-security/standard-api-security.md](../dev-security/standard-api-security.md) | API Security Standard | Standard | 0.0.1 | 2026-05-28 |
-| [dev-security/standard-cloud-hardening-baseline-aws.md](../dev-security/standard-cloud-hardening-baseline-aws.md) | AWS Cloud Hardening Baseline Standard | Standard | 0.0.1 | 2026-05-28 |
-| [dev-security/standard-cloud-hardening-baseline-azure.md](../dev-security/standard-cloud-hardening-baseline-azure.md) | Azure Cloud Hardening Baseline Standard | Standard | 0.0.1 | 2026-05-28 |
-| [dev-security/standard-cloud-hardening-baseline-gcp.md](../dev-security/standard-cloud-hardening-baseline-gcp.md) | Google Cloud Platform Hardening Baseline Standard | Standard | 0.0.1 | 2026-05-28 |
+| [dev-security/standard-api-security.md](../dev-security/standard-api-security.md) | API Security Standard | Standard | 0.0.2 | 2026-05-28 |
+| [dev-security/standard-cloud-hardening-baseline-aws.md](../dev-security/standard-cloud-hardening-baseline-aws.md) | AWS Cloud Hardening Baseline Standard | Standard | 0.0.2 | 2026-05-28 |
+| [dev-security/standard-cloud-hardening-baseline-azure.md](../dev-security/standard-cloud-hardening-baseline-azure.md) | Azure Cloud Hardening Baseline Standard | Standard | 0.0.2 | 2026-05-28 |
+| [dev-security/standard-cloud-hardening-baseline-gcp.md](../dev-security/standard-cloud-hardening-baseline-gcp.md) | Google Cloud Platform Hardening Baseline Standard | Standard | 0.0.2 | 2026-05-28 |
 | [dev-security/standard-container-and-image-security.md](../dev-security/standard-container-and-image-security.md) | Container and Image Security Standard | Standard | 0.0.1 | 2026-05-28 |
 | [dev-security/standard-mobile-application-security.md](../dev-security/standard-mobile-application-security.md) | Mobile Application Security Standard | Standard | 0.0.1 | 2026-05-28 |
 | [governance/matrix-reverse-framework-control-crosswalk.md](../governance/matrix-reverse-framework-control-crosswalk.md) | Reverse Framework Control Crosswalk Matrix | Matrix | 0.0.1 | 2026-05-28 |
@@ -277,7 +277,7 @@ _70 documents._
 | [operations/procedure-release-management.md](../operations/procedure-release-management.md) | Release Management Procedure | Procedure | 0.0.1 | 2026-05-28 |
 | [operations/standard-capacity-and-performance-management.md](../operations/standard-capacity-and-performance-management.md) | Capacity and Performance Management Standard | Standard | 0.0.1 | 2026-05-28 |
 | [operations/standard-it-financial-management.md](../operations/standard-it-financial-management.md) | IT Financial Management Standard | Standard | 0.0.1 | 2026-05-28 |
-| [operations/standard-observability-and-telemetry.md](../operations/standard-observability-and-telemetry.md) | Observability and Telemetry Standard | Standard | 0.0.1 | 2026-05-28 |
+| [operations/standard-observability-and-telemetry.md](../operations/standard-observability-and-telemetry.md) | Observability and Telemetry Standard | Standard | 0.0.2 | 2026-05-28 |
 | [operations/standard-site-reliability-engineering.md](../operations/standard-site-reliability-engineering.md) | Site Reliability Engineering Standard | Standard | 0.0.1 | 2026-05-28 |
 | [privacy/framework-childrens-data.md](../privacy/framework-childrens-data.md) | Children's Data Framework | Framework | 0.0.1 | 2026-05-28 |
 | [privacy/framework-consent-management.md](../privacy/framework-consent-management.md) | Consent Management Framework | Framework | 0.0.1 | 2026-05-28 |

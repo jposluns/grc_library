@@ -2,8 +2,8 @@
 
 **Document Title:** Logging and Monitoring Standard 
 **Document Type:** Standard 
-**Version:** 1.3.0 
-**Date:** 2026-05-27 
+**Version:** 1.4.0 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) 
@@ -26,9 +26,25 @@ To ensure that consistent, auditable, and secure handling of log data aligned wi
 
 ## Scope
 
-1. Applies to all systems, applications, services, network devices, cloud environments, and AI systems that process or store organizational or trade data, including BASC-certified logistics, customs, and supply-chain environments operating in Latin America.
-2. Includes infrastructure managed internally or by third parties, including SaaS, PaaS, and IaaS services supporting trade, cargo, or customs-related processes.
-3. Applies to logs generated for security, operational, compliance, AI accountability, and BASC trade-security assurance purposes.
+1. Applies to all systems, applications, services, network devices, cloud environments, and AI systems that process or store organizational data.
+2. Includes infrastructure managed internally or by third parties, including SaaS, PaaS, and IaaS services.
+3. Applies to logs generated for security, operational, compliance, and AI accountability purposes. Where the organization participates in a sector-specific programme (for example, BASC trade-security), the corresponding sector annex extends this standard with programme-specific log categories and retention overlays; see [`sectors/`](../sectors/).
+
+### Scope boundary with the operations observability and telemetry standard
+
+This standard governs security-relevant logging, monitoring, and SIEM operations. The operations observability and telemetry standard ([`operations/standard-observability-and-telemetry.md`](../operations/standard-observability-and-telemetry.md)) governs operational health signals (metrics, traces, latency, error rate, customer-experience telemetry).
+
+| Event class | Authoritative destination |
+| --- | --- |
+| Authentication, authorisation, privilege changes, secret access, security-policy outcomes | SIEM (per this standard) |
+| Data access, data export, classification-tagged operations | SIEM (per this standard) |
+| Incident and threat-detection signals, anti-malware, EDR, DLP | SIEM (per this standard) |
+| Service availability, latency, throughput, error rate, request traces | Observability platform (per the observability standard) |
+| Capacity, saturation, resource utilisation | Observability platform |
+| Customer-experience signals (real-user monitoring, synthetic checks) | Observability platform |
+| Events that are both security-relevant and operational (e.g. an authentication failure inside a request, or a privileged action during an outage) | Both: emitted to SIEM and to the observability platform, correlated by trace identifier and request identifier so the two backends can be joined for investigation |
+
+Where an event is genuinely dual-purpose, the producer service emits the security record to the security pipeline and the operational record to the observability platform; both records share the same trace identifier per the observability standard. This avoids security teams missing operational context for threat analysis and operational teams missing security implications of operational events.
 
 ---
 

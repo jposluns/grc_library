@@ -2,7 +2,7 @@
 
 **Document Title:** API Security Standard 
 **Document Type:** Standard 
-**Version:** 0.0.1 
+**Version:** 0.0.2 
 **Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -27,6 +27,20 @@ This standard defines the minimum security controls for every API the organisati
 This standard applies to every API designed, implemented, deployed, or consumed by the organisation. It does not duplicate the underlying developer security or DevOps security standards; it overlays API-specific requirements on the engineering baseline.
 
 It does not cover legacy SOAP integrations operating under a separate maintenance regime; those follow a documented exception path until retirement.
+
+### Relationship to the API design standard and approval sequence
+
+This standard (CISO-owned) covers API security controls. The architecture API design standard ([`architecture/standard-api-design.md`](../architecture/standard-api-design.md)) (CTO-owned) covers design choices: style (REST/RPC/GraphQL), versioning, identifiers, error model, schema, longevity.
+
+For material new APIs the approval sequence is:
+
+1. **Design choice gate** - the architecture review forum reviews style, schema, and contract per the API design standard. The proposer brings a draft contract and the rationale for the style choice.
+2. **Threat-model gate** - the security architecture forum (or the secure code review path for routine APIs) reviews the threat model and the security controls per this standard. Inputs include the contract from step 1.
+3. **Implementation** - proceeds once both gates pass.
+
+Where step 2 surfaces a finding that requires reshaping the contract (for example, an identifier-design change to avoid enumeration), the design returns to step 1. The conditional endorsement and request-revision dispositions in the architecture review procedure handle this loop.
+
+For routine changes within an existing API contract, the security controls in this standard apply through the secure code review procedure; the architecture review forum is not engaged.
 
 ---
 
