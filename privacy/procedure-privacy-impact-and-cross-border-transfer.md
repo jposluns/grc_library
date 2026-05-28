@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Impact and Cross-Border Transfer Procedure 
 **Document Type:** Procedure 
-**Version:** 1.3.1 
+**Version:** 1.3.2 
 **Date:** 2026-05-28 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -109,7 +109,7 @@ For EU transfers involving AI systems:
 ### Step 5: Consultation and approval
 
 - The CIO (acting DPO) reviews all completed PIAs and transfer assessments.
-- For AI systems or high-risk processing, the AIGC conducts additional review per ISO 42006 and EU AI Act Annex IV.
+- For AI systems or high-risk processing, the AIGC conducts additional review per ISO/IEC 42005:2025 and EU AI Act Annex IV.
 - If residual risk remains high, executive sign-off by the ERC and Legal Counsel is required before go-live.
 
 ---
@@ -153,7 +153,7 @@ Processing of children's personal data requires enhanced safeguards including ve
 | Conformity Assessment Information Requirements | EU AI Act Annex IV |
 | AI Impact Assessment Obligations (Canada) | AIDA §29 |
 | Privacy Impact and Risk Assessment Control | CSA CCM v4.1 PRI-05 |
-| AI Impact Assessment | ISO 42006 |
+| AI Impact Assessment | ISO/IEC 42005:2025 |
 
 ---
 

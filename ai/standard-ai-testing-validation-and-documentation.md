@@ -2,8 +2,8 @@
 
 **Document Title:** AI Testing, Validation and Documentation Standard 
 **Document Type:** Standard 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Chief Information Officer 
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md) 
@@ -20,7 +20,7 @@
 
 This standard defines the mandatory requirements for testing, validating, and documenting artificial intelligence systems throughout their lifecycle. It ensures that AI models deployed by the organisation are technically sound, ethically validated, explainable, and compliant with applicable standards and regulations before and after deployment.
 
-The standard aligns with ISO/IEC 42001 §8, ISO/IEC 42006 (AI Impact Assessment), NIST AI RMF, EU AI Act Annex IV, and OWASP LLM Top 10.
+The standard aligns with ISO/IEC 42001 §8, ISO/IEC 42005:2025 (AI system impact assessment), NIST AI RMF, EU AI Act Annex IV, and OWASP LLM Top 10.
 
 ---
 
@@ -139,7 +139,7 @@ AI models undergoing retraining or significant update must complete:
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO/IEC 42001:2023 | §8: Operation | AI system operation and validation |
-| ISO/IEC 42006 | AI Impact Assessment | AI risk and bias assessment |
+| ISO/IEC 42005:2025 | AI system impact assessment | AI risk and bias assessment |
 | EU AI Act (2024) | Annex IV: Technical Documentation | High-risk AI documentation |
 | NIST AI RMF (2023) | MAP, MEASURE functions | AI testing and measurement |
 | OWASP LLM Top 10 | LLM-specific vulnerabilities | Generative AI security testing |

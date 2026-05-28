@@ -4,9 +4,38 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 19.6 (2026-05-28): ISO/IEC 42005 and 42006 topic-attribution correction
+
+Phase 19 sub-phase 6, resolving the topic-attribution concern flagged in the Phase 19.4 changelog. ISO/IEC 42006:2025 covers "Requirements for bodies providing audit and certification of artificial intelligence management systems" — that is, requirements for accreditation bodies who audit and certify AIMS implementations against ISO/IEC 42001. It is the AIMS analogue of ISO/IEC 27006 (which provides the equivalent requirements for ISO/IEC 27001 audit bodies). The standard covering AI impact assessment guidance is ISO/IEC 42005:2025, published in May 2025.
+
+Several documents in the library had been authored before ISO/IEC 42005 was published and had assigned the AI Impact Assessment topic to ISO 42006 by mistake. Phase 19.6 corrects the attribution.
+
+### Citations corrected (topic was impact-assessment, attribution moved to ISO/IEC 42005:2025)
+
+- `ai/procedure-ai-evaluation.md` (1.0.1 → 1.0.2): framework alignment row updated to "ISO/IEC 42005:2025 | AI system impact assessment | Risk and bias evaluation".
+- `ai/standard-ai-testing-validation-and-documentation.md` (1.0.0 → 1.0.1): Purpose paragraph alignment list and framework alignment row both updated to ISO/IEC 42005:2025.
+- `privacy/procedure-privacy-impact-and-cross-border-transfer.md` (1.3.1 → 1.3.2): Step 5 consultation rule ("AIGC conducts additional review per ISO 42006") and the framework-mapping table row ("AI Impact Assessment | ISO 42006") both updated to ISO/IEC 42005:2025.
+- `security/policy-acceptance-into-service.md` (1.0.0 → 1.0.1): rule 4.3 ("AI Impact Assessments must evaluate transparency, fairness, and explainability per ISO 42006") updated to ISO/IEC 42005:2025.
+- `governance/register-document-index-and-classification.md` (1.24.1 → 1.24.2): three index rows updated where the document's topic is impact assessment — AI System Impact Assessment Procedure, AI Testing/Validation/Documentation Standard, AI Evaluation Procedure.
+
+### Citations clarified (topic was audit/certification, attribution retained as ISO 42006 with status updated)
+
+- `ai/register-model-registry.md` (0.0.1 → 0.0.2): "ISO/IEC 42006 | AI system audit | Audit baseline" updated to "ISO/IEC 42006:2025 | Requirements for AIMS audit and certification bodies | Audit baseline" to make the actual scope of the standard explicit. The model registry's use of ISO 42006 for audit-baseline context is correct.
+- `governance/register-document-index-and-classification.md`: two index rows where the topic is audit/certification — AI System Audit and Certification Framework, Model Registry — kept ISO 42006 attribution and updated to "ISO/IEC 42006:2025".
+
+### Standards now correctly cited in the library
+
+| Standard | Scope | Citation context |
+|---|---|---|
+| ISO/IEC 42001:2023 | AI management system requirements | All AI governance, lifecycle, and assurance documents |
+| ISO/IEC 42005:2025 | AI system impact assessment guidance | Impact assessment procedure, evaluation procedure, testing-validation-documentation standard, privacy impact procedure, acceptance-into-service policy |
+| ISO/IEC 42006:2025 | Requirements for bodies providing audit and certification of AIMS | AI System Audit and Certification Framework, Model Registry, document index rows for audit-related artefacts |
+
+Taxonomy and portal regenerated. All ten audits clean.
+
 ## Phase 19.5 (2026-05-28): Document count and BrE licence normalisation
 
-Phase 19 sub-phase 5 and the final Phase 19 sub-phase. Two low-severity findings.
+Phase 19 sub-phase 5. Two low-severity findings.
 
 ### L-1: README document count
 
