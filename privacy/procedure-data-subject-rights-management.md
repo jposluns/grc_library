@@ -1,18 +1,18 @@
 # Data Subject Rights Management Procedure
 
-**Document Title:** Data Subject Rights Management Procedure  
-**Document Type:** Procedure  
-**Version:** 1.3.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)  
-**Classification:** Public  
-**Category:** Privacy  
-**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change  
-**Repository Path:** [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Data Subject Rights Management Procedure 
+**Document Type:** Procedure 
+**Version:** 1.3.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) 
+**Classification:** Public 
+**Category:** Privacy 
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
+**Repository Path:** [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -20,17 +20,17 @@
 
 ### 1.1 Purpose
 
-This procedure defines the end-to-end process for receiving, validating, fulfilling, and documenting requests from individuals exercising their rights over personal data held by the organisation. It ensures compliance with applicable data subject rights obligations under GDPR, UK GDPR, CPPA, PIPL, and related laws, and establishes consistent standards for identity verification, response timelines, denial justification, and record keeping.
+This procedure defines the end-to-end process for receiving, validating, fulfilling, and documenting requests from individuals exercising their rights over personal data held by the organization. It ensures that compliance with applicable data subject rights obligations under GDPR, UK GDPR, CPPA, PIPL, and related laws, and establishes consistent standards for identity verification, response timelines, denial justification, and record keeping.
 
-The procedure is aligned to ISO/IEC 27701:2019 §7.3, GDPR Articles 15–22, CPPA Part 2 Division 5, PIPL Articles 44–47, and CSA CCM v5 PRI-04.
+The procedure is aligned to ISO/IEC 27701:2019 §7.3, GDPR Articles 15 to 22, CPPA Part 2 Division 5, PIPL Articles 44 to 47, and CSA CCM v5 PRI-04.
 
 ### 1.2 Scope
 
-1. Applies to all personal data held by the organisation in any format — structured, unstructured, digital, or physical — across all systems, applications, and third-party processors.
+1. Applies to all personal data held by the organization in any format, structured, unstructured, digital, or physical, across all systems, applications, and third-party processors.
 2. Covers requests submitted by individuals including employees, customers, suppliers, and other data subjects regardless of jurisdiction, subject to applicable legal rights.
 3. Covers all rights categories: access (Subject Access Request / SAR), correction, deletion, data portability, restriction of processing, objection to processing, and review of automated decisions.
 4. Includes AI-derived or AI-processed personal data where the individual is the subject of that data.
-5. Does not apply to data that is fully anonymised and no longer capable of identifying an individual.
+5. Does not apply to data that is fully anonymized and no longer capable of identifying an individual.
 
 ---
 
@@ -40,10 +40,10 @@ The procedure is aligned to ISO/IEC 27701:2019 §7.3, GDPR Articles 15–22, CPP
 
 | Role | Responsibilities |
 | --- | --- |
-| **Chief Information Officer (CIO, acting DPO)** | Accountable executive for the data subject rights programme. Signs off on all denials. Assumes DPO responsibilities until a formal DPO is appointed. Represents the organisation in regulatory matters relating to data subject rights. |
+| **Chief Information Officer (CIO, acting DPO)** | Accountable executive for the data subject rights programme. Signs off on all denials. Assumes DPO responsibilities until a formal DPO is appointed. Represents the organization in regulatory matters relating to data subject rights. |
 | **Privacy Officer** | Operational ownership of the DSR process. Manages the DSR register, coordinates fulfilment, reviews responses for accuracy and completeness, and escalates complex or contentious requests to the CIO. |
 | **Legal Counsel** | Advises on exemptions, applicable law, and denial justifications. Reviews and approves responses involving potentially litigation-sensitive information or novel legal questions. |
-| **CISO** | Ensures technical measures are available to locate, extract, restrict, and delete personal data across systems. Provides guidance on AI system data retrieval and AI-derived data scope. |
+| **CISO** | Ensures that technical measures are available to locate, extract, restrict, and delete personal data across systems. Provides guidance on AI system data retrieval and AI-derived data scope. |
 | **IT Operations / System Owners** | Execute data location, extraction, restriction, and deletion actions as directed by the Privacy Officer within defined timeframes. |
 | **All Employees** | Forward any received data subject request to the Privacy Officer immediately upon receipt. No employee may respond to, dismiss, or take action on a DSR without Privacy Officer involvement. |
 
@@ -65,7 +65,7 @@ The following table defines the rights managed under this procedure, the applica
 | **Data Portability** | GDPR Art. 20; UK GDPR Art. 20 | Provision of data in a structured, commonly used, machine-readable format; direct transmission to another controller where technically feasible | 30 days | Applies only to data provided by the individual and processed by consent or contract; does not apply to data processed under other legal bases |
 | **Restriction of Processing** | GDPR Art. 18; UK GDPR Art. 18 | Marking data to restrict active processing while accuracy, lawfulness, or competing interests are assessed | Acknowledgement within 72 hours; restriction applied within 30 days | Restriction lifted only on data subject consent, legal claims, overriding public interest, or resolution of the disputed grounds |
 | **Objection to Processing** | GDPR Art. 21; UK GDPR Art. 21; CPPA s.67 | Right to object to processing based on legitimate interests or for direct marketing | Halt direct marketing processing immediately; assess other objections and respond within 30 days | Compelling legitimate grounds overriding the individual's interests; legal claims |
-| **Automated Decision Review (including profiling)** | GDPR Art. 22; UK GDPR Art. 22; CPPA s.63(3) | Right to not be subject to solely automated decisions with significant legal or similarly significant effect; request human review | Acknowledgement within 5 business days; human review completed within 30 days | Decisions necessary for contract performance; authorised by law; explicit consent with appropriate safeguards |
+| **Automated Decision Review (including profiling)** | GDPR Art. 22; UK GDPR Art. 22; CPPA s.63(3) | Right to not be subject to solely automated decisions with significant legal or similarly significant effect; request human review | Acknowledgement within 5 business days; human review completed within 30 days | Decisions necessary for contract performance; authorized by law; explicit consent with appropriate safeguards |
 
 ---
 
@@ -76,10 +76,10 @@ The following table defines the rights managed under this procedure, the applica
 Data subjects may submit requests through:
 
 - The designated privacy request contact (email address or web portal maintained by the Privacy Officer).
-- Written correspondence to the organisation's registered address, directed to the Privacy Officer.
+- Written correspondence to the organization's registered address, directed to the Privacy Officer.
 - Any other channel where a request is received by an employee; employees must forward to the Privacy Officer on the same business day.
 
-The Privacy Officer maintains the official DSR submission channel and ensures it is published in the organisation's privacy notice.
+The Privacy Officer maintains the official DSR submission channel and ensures that it is published in the organization's privacy notice.
 
 ### 4.2 Identity Verification
 
@@ -88,7 +88,7 @@ Identity verification is required before any personal data is disclosed or actio
 | Verification Level | When Applied | Acceptable Methods |
 | --- | --- | --- |
 | **Standard** | General access, correction, or deletion requests for low-sensitivity data categories | Government-issued photo ID; confirmation of account details or employment record; two independently verifiable data points matching held records |
-| **Enhanced** | Requests involving health, financial, or biometric data; requests with indications of identity fraud; requests from authorised third parties acting on behalf of the data subject | Government-issued photo ID plus secondary verification; notarised authorisation for third-party requestors |
+| **Enhanced** | Requests involving health, financial, or biometric data; requests with indications of identity fraud; requests from authorized third parties acting on behalf of the data subject | Government-issued photo ID plus secondary verification; notarized authorization for third-party requestors |
 | **Re-verification** | Requests for the same data type made within 12 months of a prior request | Standard verification unless circumstances indicate heightened risk |
 
 Requests where identity cannot be verified within 10 business days are suspended. The data subject is notified of the verification requirement and given a reasonable further period to provide acceptable evidence.
@@ -234,7 +234,7 @@ The Privacy Officer maintains the DSR register as a living record of all request
 
 ### 9.2 Retention
 
-DSR records — including intake records, identity verification evidence, internal assessments, response copies, denial documentation, and CIO sign-off records — are retained for 2 years following the closure date of each request, consistent with the retention schedule in [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) (Privacy / Data Subject Requests: 2 years post-closure).
+DSR records, including intake records, identity verification evidence, internal assessments, response copies, denial documentation, and CIO sign-off records, are retained for 2 years following the closure date of each request, consistent with the retention schedule in [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) (Privacy / Data Subject Requests: 2 years post-closure).
 
 Records subject to regulatory investigation, litigation hold, or supervisory authority inquiry are retained until the hold is formally lifted by Legal Counsel, regardless of the standard retention period.
 
@@ -279,7 +279,7 @@ The following metrics are tracked and reported to the CIO at the quarterly Priva
 | Restriction of processing | GDPR Art. 18; UK GDPR Art. 18 |
 | Objection to processing | GDPR Art. 21; UK GDPR Art. 21; CPPA s.67 |
 | Automated decision review | GDPR Art. 22; UK GDPR Art. 22; CPPA s.63(3) |
-| DPO accountability and record keeping | GDPR Art. 37–39; ISO/IEC 27701 §6.2.3 |
+| DPO accountability and record keeping | GDPR Art. 37 to 39; ISO/IEC 27701 §6.2.3 |
 | Retention of DSR records | [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) |
 
 ---

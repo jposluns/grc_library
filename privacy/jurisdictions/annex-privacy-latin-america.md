@@ -1,17 +1,17 @@
 # Latin America Privacy Regulatory Requirements
 
-**Document Title:** Latin America Privacy Regulatory Requirements  
-**Document Type:** Annex  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Chief Privacy Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`privacy/jurisdictions/annex-privacy-brazil.md`](../jurisdictions/annex-privacy-brazil.md), [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)  
-**Classification:** Public  
-**Category:** Privacy  
-**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change  
-**Repository Path:** [`privacy/jurisdictions/annex-privacy-latin-america.md`](annex-privacy-latin-america.md)  
-**Confidentiality:** Public  
+**Document Title:** Latin America Privacy Regulatory Requirements 
+**Document Type:** Annex 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Chief Privacy Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`privacy/jurisdictions/annex-privacy-brazil.md`](../jurisdictions/annex-privacy-brazil.md), [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md) 
+**Classification:** Public 
+**Category:** Privacy 
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
+**Repository Path:** [`privacy/jurisdictions/annex-privacy-latin-america.md`](annex-privacy-latin-america.md) 
+**Confidentiality:** Public 
 **Licence:** CC0 1.0 Universal
 
 ---
@@ -31,7 +31,7 @@ This annex provides an overview of privacy regulatory requirements in key Latin 
 
 ### Mexico
 
-- **Federal Law on Protection of Personal Data Held by Private Parties (LFPDPPP, 2010)** and Regulations (2011). Applies to private-sector organisations processing personal data of Mexican individuals.
+- **Federal Law on Protection of Personal Data Held by Private Parties (LFPDPPP, 2010)** and Regulations (2011). Applies to private-sector organizations processing personal data of Mexican individuals.
 - **Regulatory authority:** Instituto Nacional de Transparencia, Acceso a la Información y Protección de Datos Personales (INAI).
 
 ### Colombia
@@ -41,7 +41,7 @@ This annex provides an overview of privacy regulatory requirements in key Latin 
 
 ### Chile
 
-- **Law No. 19,628 on the Protection of Private Life (1999).** A substantially modernised replacement bill is under legislative consideration to align with GDPR.
+- **Law No. 19,628 on the Protection of Private Life (1999).** A substantially modernized replacement bill is under legislative consideration to align with GDPR.
 - **Regulatory authority:** Consejo para la Transparencia (oversight role for public sector).
 
 ### Peru
@@ -58,7 +58,7 @@ Most Latin American jurisdictions apply general data protection principles to AI
 - **Argentina:** The AAIP has issued guidance on AI and data protection, applying Law 25,326 to automated processing. Algorithmic transparency is an area of active regulatory development.
 - **Mexico:** The INAI applies LFPDPPP principles to AI systems, requiring transparency about automated processing in privacy notices. The LFPDPPP provides rights to access, rectification, cancellation, and objection (ARCO rights).
 - **Colombia:** The SIC applies Law 1581 to AI systems. Data subjects may exercise ARCO rights against automated processing.
-- **Chile and Peru:** Both countries apply their existing data protection laws to AI processing. Both are in the process of legislative modernisation that is expected to introduce explicit automated decision-making provisions.
+- **Chile and Peru:** Both countries apply their existing data protection laws to AI processing. Both are in the process of legislative modernization that is expected to introduce explicit automated decision-making provisions.
 - **BASC regional context:** In jurisdictions where BASC certification is relevant, privacy controls should be aligned with BASC security management standards in addition to applicable local data protection laws.
 
 ---
@@ -67,10 +67,10 @@ Most Latin American jurisdictions apply general data protection principles to AI
 
 | Jurisdiction | Transfer Mechanism |
 |---|---|
-| Argentina | Adequacy (EU); contractual obligations; AAIP authorisation |
-| Mexico | LFPDPPP contractual provisions; consent; INAI authorisation |
-| Colombia | Consent; contractual safeguards; SIC authorisation for transfers outside Colombia |
-| Chile | Current law: general data protection provisions; modernised law expected to adopt GDPR-style mechanisms |
+| Argentina | Adequacy (EU); contractual obligations; AAIP authorization |
+| Mexico | LFPDPPP contractual provisions; consent; INAI authorization |
+| Colombia | Consent; contractual safeguards; SIC authorization for transfers outside Colombia |
+| Chile | Current law: general data protection provisions; modernized law expected to adopt GDPR-style mechanisms |
 | Peru | Consent; contractual safeguards; ANPD registration requirements |
 
 ---

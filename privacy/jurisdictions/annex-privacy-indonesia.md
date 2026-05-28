@@ -1,17 +1,17 @@
 # Indonesia Privacy Regulatory Requirements
 
-**Document Title:** Indonesia Privacy Regulatory Requirements  
-**Document Type:** Annex  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Chief Privacy Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)  
-**Classification:** Public  
-**Category:** Privacy  
-**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change  
-**Repository Path:** [`privacy/jurisdictions/annex-privacy-indonesia.md`](annex-privacy-indonesia.md)  
-**Confidentiality:** Public  
+**Document Title:** Indonesia Privacy Regulatory Requirements 
+**Document Type:** Annex 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Chief Privacy Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md) 
+**Classification:** Public 
+**Category:** Privacy 
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
+**Repository Path:** [`privacy/jurisdictions/annex-privacy-indonesia.md`](annex-privacy-indonesia.md) 
+**Confidentiality:** Public 
 **Licence:** CC0 1.0 Universal
 
 ---
@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable Laws and Regulatory Authorities
 
-- **Personal Data Protection Law (UU PDP) No. 27 of 2022** — Enacted October 2022; implementing regulations finalised through 2024. Indonesia's first dedicated and comprehensive personal data protection law.
+- **Personal Data Protection Law (UU PDP) No. 27 of 2022**: Enacted October 2022; implementing regulations finalized through 2024. Indonesia's first dedicated and comprehensive personal data protection law.
 - Data Controller and Processor framework aligned with GDPR concepts.
 - Rights: access, correction, portability, restriction, erasure, withdrawal of consent, and objection.
 - Mandatory breach notification within 14 calendar days of becoming aware.
@@ -37,7 +37,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 - The UU PDP requires transparency and human oversight for automated processing used for profiling or significantly impactful decision-making.
 - A national AI governance framework is under development.
-- Purpose limitation and data minimisation principles apply to AI systems processing personal data.
+- Purpose limitation and data minimization principles apply to AI systems processing personal data.
 
 ---
 

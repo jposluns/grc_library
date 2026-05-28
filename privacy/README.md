@@ -1,18 +1,18 @@
 # Privacy Domain
 
-**Document Title:** Privacy Domain README  
-**Document Type:** Register  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md)  
-**Classification:** Public  
-**Category:** Privacy and Data Governance  
-**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change  
-**Repository Path:** [`privacy/README.md`](README.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Privacy Domain README 
+**Document Type:** Register 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md) 
+**Classification:** Public 
+**Category:** Privacy and Data Governance 
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
+**Repository Path:** [`privacy/README.md`](README.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -70,12 +70,12 @@ This directory contains privacy governance artefacts covering data protection po
 
 The privacy domain covers:
 
-- **Privacy governance** — programme charter, DPO accountability, privacy-by-design requirements, regulatory obligations by jurisdiction.
-- **Data governance** — data quality, lineage, classification, and lifecycle management.
-- **Privacy impact assessment** — PIA/AI-IA process, cross-border transfer assessment, children's data safeguards.
-- **Data subject rights** — access, correction, deletion, portability, objection, and restriction request handling.
-- **Breach response** — privacy breach response triggers, regulatory notification timelines, coordination with security incident response.
-- **AI training data** — provenance, consent, reidentification risk, EU Data Act compliance.
+- **Privacy governance**: programme charter, DPO accountability, privacy-by-design requirements, regulatory obligations by jurisdiction.
+- **Data governance**: data quality, lineage, classification, and lifecycle management.
+- **Privacy impact assessment**: PIA/AI-IA process, cross-border transfer assessment, children's data safeguards.
+- **Data subject rights**: access, correction, deletion, portability, objection, and restriction request handling.
+- **Breach response**: privacy breach response triggers, regulatory notification timelines, coordination with security incident response.
+- **AI training data**: provenance, consent, reidentification risk, EU Data Act compliance.
 
 ---
 

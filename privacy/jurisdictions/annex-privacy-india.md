@@ -1,17 +1,17 @@
 # India Privacy Regulatory Requirements
 
-**Document Title:** India Privacy Regulatory Requirements  
-**Document Type:** Annex  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Chief Privacy Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)  
-**Classification:** Public  
-**Category:** Privacy  
-**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change  
-**Repository Path:** [`privacy/jurisdictions/annex-privacy-india.md`](annex-privacy-india.md)  
-**Confidentiality:** Public  
+**Document Title:** India Privacy Regulatory Requirements 
+**Document Type:** Annex 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Chief Privacy Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md) 
+**Classification:** Public 
+**Category:** Privacy 
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
+**Repository Path:** [`privacy/jurisdictions/annex-privacy-india.md`](annex-privacy-india.md) 
+**Confidentiality:** Public 
 **Licence:** CC0 1.0 Universal
 
 ---
@@ -24,11 +24,11 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable Laws and Regulatory Authorities
 
-- **Digital Personal Data Protection Act 2023 (DPDPA)** — Signed 11 August 2023. India's first comprehensive data protection law.
-- **Digital Personal Data Protection Rules 2025** — Published February 2025, in force 1 April 2025. Operationalised the principal Act, bringing the full compliance framework into effect.
+- **Digital Personal Data Protection Act 2023 (DPDPA)**: Signed 11 August 2023. India's first comprehensive data protection law.
+- **Digital Personal Data Protection Rules 2025**: Published February 2025, in force 1 April 2025. Operationalized the principal Act, bringing the full compliance framework into effect.
 - Scope: applies to processing of digital personal data of individuals in India; also applies to processing outside India where data of Indian residents is processed for the purpose of offering goods or services to individuals in India.
-- **Key concepts:** Data Principals (data subjects); Data Fiduciaries (data controllers); Consent Managers (accredited entities managing consent on behalf of Data Principals); Significant Data Fiduciaries (SDFs) — large-scale or high-risk data fiduciaries designated by the Indian government and subject to enhanced obligations.
-- **Regulatory authority:** Data Protection Board of India (DPBI) — an independent adjudicatory body that receives complaints and imposes financial penalties.
+- **Key concepts:** Data Principals (data subjects); Data Fiduciaries (data controllers); Consent Managers (accredited entities managing consent on behalf of Data Principals); Significant Data Fiduciaries (SDFs): large-scale or high-risk data fiduciaries designated by the Indian government and subject to enhanced obligations.
+- **Regulatory authority:** Data Protection Board of India (DPBI): an independent adjudicatory body that receives complaints and imposes financial penalties.
 
 ---
 
@@ -48,8 +48,8 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 - The DPDPA employs a **whitelist approach**: cross-border transfers of personal data are permitted only to countries and territories notified by the Indian government as permissible destinations.
 - The government may restrict transfers to countries posing a risk to national security or public order.
-- The 2025 Rules initiated the process for publishing the approved transfer destination list. Organisations must monitor official government notifications as the whitelist framework is progressively operationalised.
-- Practical note: until the whitelist is fully published, organisations should engage early with MeitY guidance and consider contractual safeguards as interim measures.
+- The 2025 Rules initiated the process for publishing the approved transfer destination list. Organizations must monitor official government notifications as the whitelist framework is progressively operationalized.
+- Practical note: until the whitelist is fully published, organizations should engage early with MeitY guidance and consider contractual safeguards as interim measures.
 
 ---
 

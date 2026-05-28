@@ -1,17 +1,17 @@
 # Vietnam Privacy Regulatory Requirements
 
-**Document Title:** Vietnam Privacy Regulatory Requirements  
-**Document Type:** Annex  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Chief Privacy Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)  
-**Classification:** Public  
-**Category:** Privacy  
-**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change  
-**Repository Path:** [`privacy/jurisdictions/annex-privacy-vietnam.md`](annex-privacy-vietnam.md)  
-**Confidentiality:** Public  
+**Document Title:** Vietnam Privacy Regulatory Requirements 
+**Document Type:** Annex 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Chief Privacy Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md) 
+**Classification:** Public 
+**Category:** Privacy 
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
+**Repository Path:** [`privacy/jurisdictions/annex-privacy-vietnam.md`](annex-privacy-vietnam.md) 
+**Confidentiality:** Public 
 **Licence:** CC0 1.0 Universal
 
 ---
@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable Laws and Regulatory Authorities
 
-- **Decree No. 13/2023/ND-CP on Personal Data Protection** — Effective 1 July 2023. Vietnam's first dedicated personal data protection regulation.
+- **Decree No. 13/2023/ND-CP on Personal Data Protection**: Effective 1 July 2023. Vietnam's first dedicated personal data protection regulation.
 - Classifies personal data as basic and sensitive. Sensitive categories include: political views, religion, health, genetic, biometric, financial, location, and nationality data.
 - Consent required for most processing. Sensitive personal data of Vietnamese citizens must be stored within Vietnam for a minimum period; transfers abroad require consent and meeting additional conditions.
 - Mandatory breach notification within 72 hours to Department A05.

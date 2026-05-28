@@ -1,17 +1,17 @@
 # China Privacy Regulatory Requirements
 
-**Document Title:** China Privacy Regulatory Requirements  
-**Document Type:** Annex  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Chief Privacy Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)  
-**Classification:** Public  
-**Category:** Privacy  
-**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change  
-**Repository Path:** [`privacy/jurisdictions/annex-privacy-china.md`](annex-privacy-china.md)  
-**Confidentiality:** Public  
+**Document Title:** China Privacy Regulatory Requirements 
+**Document Type:** Annex 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Chief Privacy Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md) 
+**Classification:** Public 
+**Category:** Privacy 
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
+**Repository Path:** [`privacy/jurisdictions/annex-privacy-china.md`](annex-privacy-china.md) 
+**Confidentiality:** Public 
 **Licence:** CC0 1.0 Universal
 
 ---
@@ -24,9 +24,9 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable Laws and Regulatory Authorities
 
-- **Personal Information Protection Law (PIPL)** — Effective 1 November 2021. China's comprehensive personal information protection law. Applies to processing of personal information of individuals in China and to offshore processing of personal information of Chinese individuals for the purpose of providing goods or services or analysing behaviour.
-- **Cybersecurity Law (CSL)** — Effective 1 June 2017. Governs network security obligations for network operators. Requires compliance with Multi-Level Protection Scheme (MLPS), implementation of security measures, and localisation of personal information and important data collected in China.
-- **Data Security Law (DSL)** — Effective 1 September 2021. Establishes a data security protection system based on data classification and grading. Introduces concepts of "important data" and "core state data" with associated localisation and security assessment requirements.
+- **Personal Information Protection Law (PIPL)**: Effective 1 November 2021. China's comprehensive personal information protection law. Applies to processing of personal information of individuals in China and to offshore processing of personal information of Chinese individuals for the purpose of providing goods or services or analyzing behaviour.
+- **Cybersecurity Law (CSL)**: Effective 1 June 2017. Governs network security obligations for network operators. Requires compliance with Multi-Level Protection Scheme (MLPS), implementation of security measures, and localization of personal information and important data collected in China.
+- **Data Security Law (DSL)**: Effective 1 September 2021. Establishes a data security protection system based on data classification and grading. Introduces concepts of "important data" and "core state data" with associated localization and security assessment requirements.
 - **Generative AI Regulations (Interim Measures for the Management of Generative AI Services, effective August 2023):** Regulates provision of generative AI services to the public in China. Requires pre-deployment security assessments, content moderation, AI-generated content labelling, transparency about training data, and real-name user registration.
 - **Algorithm Recommendation Regulations (effective March 2022):** Regulates use of recommendation algorithms in online information services, requiring transparency, user control, and labelling of algorithm-driven content.
 - **Deep Synthesis Regulations (effective January 2023):** Regulates provision of deep synthesis technology services (deepfakes), requiring content labelling and prohibiting disinformation generation.
@@ -39,8 +39,8 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 ### PIPL and AI
 
 - **Lawful basis (Article 13):** Processing requires one of: consent; contract performance or HR management; legal obligation; vital interests; public interest or journalism; or other legitimate interests (narrower than GDPR). Consent must be voluntary, specific, informed, and unambiguous.
-- **Sensitive personal information (Articles 28–32):** Separate and express consent required. Sensitive categories include biometric identification, religious beliefs, specially-designated status, medical health, financial accounts, whereabouts/location, and personal information of minors under 14.
-- **Automated decision-making (Article 24):** Organisations must ensure transparency and fairness. No unreasonable differential treatment of individuals in terms of transaction price or conditions. Individuals have the right to receive an explanation and to opt out of automated decision-making significantly affecting their interests.
+- **Sensitive personal information (Articles 28 to 32):** Separate and express consent required. Sensitive categories include biometric identification, religious beliefs, specially-designated status, medical health, financial accounts, whereabouts/location, and personal information of minors under 14.
+- **Automated decision-making (Article 24):** Organizations must ensure that transparency and fairness. No unreasonable differential treatment of individuals in terms of transaction price or conditions. Individuals have the right to receive an explanation and to opt out of automated decision-making significantly affecting their interests.
 - **Person in charge of personal information protection (Article 52):** Large-scale personal information processors must designate a responsible person whose name and contact information must be disclosed publicly.
 - **DPIA (Article 55):** Required before: processing sensitive personal information; using personal information for automated decision-making; entrusting, sharing, or publicly disclosing personal information; cross-border transfers; and processing activities with significant impact on personal rights. Records must be retained for at least three years.
 
@@ -61,11 +61,11 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Cross-Border Transfer Mechanisms
 
-PIPL (Articles 38–43) permits cross-border transfer only through one of three mechanisms:
+PIPL (Articles 38 to 43) permits cross-border transfer only through one of three mechanisms:
 
 1. **CAC Security Assessment (Mandatory threshold):** Mandatory for transfers by critical information infrastructure operators; transfers of personal information of more than 1 million individuals; cumulative transfers of more than 100,000 individuals or sensitive personal information of more than 10,000 individuals since 1 January of the prior year.
-2. **Standard Contracts:** Where the security assessment threshold is not triggered — PIPL Standard Contract Clauses published by the CAC (effective June 2023). Organisations must conduct a DPIA and file the signed standard contract with the local CAC within 10 working days.
-3. **Certification:** From a recognised professional institution as specified by the CAC; primarily applicable to intra-group transfers.
+2. **Standard Contracts:** Where the security assessment threshold is not triggered: PIPL Standard Contract Clauses published by the CAC (effective June 2023). Organizations must conduct a DPIA and file the signed standard contract with the local CAC within 10 working days.
+3. **Certification:** From a recognized professional institution as specified by the CAC; primarily applicable to intra-group transfers.
 
 **Important data:** Transfer of "important data" under the DSL is subject to separate security assessment requirements regardless of volume thresholds.
 

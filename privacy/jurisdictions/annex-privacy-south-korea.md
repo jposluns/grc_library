@@ -1,17 +1,17 @@
 # South Korea Privacy Regulatory Requirements
 
-**Document Title:** South Korea Privacy Regulatory Requirements  
-**Document Type:** Annex  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Chief Privacy Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)  
-**Classification:** Public  
-**Category:** Privacy  
-**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change  
-**Repository Path:** [`privacy/jurisdictions/annex-privacy-south-korea.md`](annex-privacy-south-korea.md)  
-**Confidentiality:** Public  
+**Document Title:** South Korea Privacy Regulatory Requirements 
+**Document Type:** Annex 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Chief Privacy Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md) 
+**Classification:** Public 
+**Category:** Privacy 
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
+**Repository Path:** [`privacy/jurisdictions/annex-privacy-south-korea.md`](annex-privacy-south-korea.md) 
+**Confidentiality:** Public 
 **Licence:** CC0 1.0 Universal
 
 ---
@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable Laws and Regulatory Authorities
 
-- **Personal Information Protection Act (PIPA)** — Most recently amended in 2023 (promulgated March 2023; key provisions effective September 2023). South Korea's primary data protection law.
+- **Personal Information Protection Act (PIPA)**: Most recently amended in 2023 (promulgated March 2023; key provisions effective September 2023). South Korea's primary data protection law.
 - South Korea holds an EU GDPR adequacy decision (granted December 2021).
 - **Key 2023 amendments:** Right to explanation for automated decisions; right to data portability; mandatory data breach notification within 72 hours; enhanced penalty regime; mobile application and online service obligations.
 - **Regulatory authority:** Personal Information Protection Commission (PIPC).
@@ -34,7 +34,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 ## AI and Privacy Obligations
 
 - **Right to explanation:** Data subjects may request an explanation of any decision made solely through automated means that significantly affects their rights or interests. The data controller must explain the criteria and logic applied and provide human review upon request.
-- **Purpose limitation and data minimisation:** Apply to AI training on personal data. Consent must be specific to the AI processing purpose.
+- **Purpose limitation and data minimization:** Apply to AI training on personal data. Consent must be specific to the AI processing purpose.
 - **High-risk processing:** CCTV systems, biometric systems, and credit assessment tools are subject to enhanced PIPC guidance requiring proportionality and human oversight.
 - **Employment and profiling:** PIPC has issued guidance on AI use in employment screening and credit decisions, requiring proportionality and human oversight.
 
@@ -49,7 +49,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Enforcement and Fines
 
-- **Administrative penalties:** Up to 3% of annual revenue for violations involving processing sensitive information, unlawful third-party provision, or outsourcing without authorisation.
+- **Administrative penalties:** Up to 3% of annual revenue for violations involving processing sensitive information, unlawful third-party provision, or outsourcing without authorization.
 - **Criminal penalties:** Up to 10 years imprisonment or fines up to KRW 100 million for the most serious violations.
 
 ---

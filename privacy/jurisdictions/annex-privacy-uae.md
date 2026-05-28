@@ -1,17 +1,17 @@
 # United Arab Emirates Privacy Regulatory Requirements
 
-**Document Title:** United Arab Emirates Privacy Regulatory Requirements  
-**Document Type:** Annex  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Chief Privacy Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)  
-**Classification:** Public  
-**Category:** Privacy  
-**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change  
-**Repository Path:** [`privacy/jurisdictions/annex-privacy-uae.md`](annex-privacy-uae.md)  
-**Confidentiality:** Public  
+**Document Title:** United Arab Emirates Privacy Regulatory Requirements 
+**Document Type:** Annex 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Chief Privacy Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md) 
+**Classification:** Public 
+**Category:** Privacy 
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
+**Repository Path:** [`privacy/jurisdictions/annex-privacy-uae.md`](annex-privacy-uae.md) 
+**Confidentiality:** Public 
 **Licence:** CC0 1.0 Universal
 
 ---
@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable Laws and Regulatory Authorities
 
-- **UAE Personal Data Protection Law (PDPL)** — Federal Decree-Law No. 45 of 2021, effective 2 January 2022 (implementing regulations issued 2023). The UAE's first comprehensive federal data protection law. Extraterritorial application where data of UAE residents is processed outside the UAE.
+- **UAE Personal Data Protection Law (PDPL)**: Federal Decree-Law No. 45 of 2021, effective 2 January 2022 (implementing regulations issued 2023). The UAE's first comprehensive federal data protection law. Extraterritorial application where data of UAE residents is processed outside the UAE.
 - Key rights: access, correction, erasure, objection to processing, and withdrawal of consent.
 - Sensitive data categories: biometric, health, financial, and data of children under 18.
 - **UAE AI Strategy 2031:** National AI strategy with published AI Ethics Principles (2019). Sector-specific AI guidance is being issued by the Securities and Commodities Authority, Central Bank of the UAE, and Health Authority.

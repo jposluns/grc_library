@@ -1,17 +1,17 @@
 # Thailand Privacy Regulatory Requirements
 
-**Document Title:** Thailand Privacy Regulatory Requirements  
-**Document Type:** Annex  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Chief Privacy Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)  
-**Classification:** Public  
-**Category:** Privacy  
-**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change  
-**Repository Path:** [`privacy/jurisdictions/annex-privacy-thailand.md`](annex-privacy-thailand.md)  
-**Confidentiality:** Public  
+**Document Title:** Thailand Privacy Regulatory Requirements 
+**Document Type:** Annex 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Chief Privacy Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md) 
+**Classification:** Public 
+**Category:** Privacy 
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
+**Repository Path:** [`privacy/jurisdictions/annex-privacy-thailand.md`](annex-privacy-thailand.md) 
+**Confidentiality:** Public 
 **Licence:** CC0 1.0 Universal
 
 ---
@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable Laws and Regulatory Authorities
 
-- **Personal Data Protection Act B.E. 2562 (2019) (PDPA)** — In force for general compliance obligations since 1 June 2022. Closely modelled on GDPR.
+- **Personal Data Protection Act B.E. 2562 (2019) (PDPA)**: In force for general compliance obligations since 1 June 2022. Closely modelled on GDPR.
 - Lawful bases: consent, vital interests, legitimate interests, public task, legal obligation, and contract performance.
 - Mandatory breach notification within 72 hours where feasible.
 - Sensitive personal data categories: health, biometric, genetic, political opinion, religious or philosophical belief, sexual behaviour, criminal records, and disability data.
@@ -37,7 +37,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 - PDPC guidance states that AI systems processing personal data must comply with PDPA principles.
 - Automated decision-making producing legal or significantly impactful effects requires human oversight and a mechanism for data subjects to contest decisions.
-- Purpose limitation and data minimisation apply to personal data used in AI training and inference.
+- Purpose limitation and data minimization apply to personal data used in AI training and inference.
 
 ---
 

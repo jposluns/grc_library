@@ -1,17 +1,17 @@
 # Nigeria Privacy Regulatory Requirements
 
-**Document Title:** Nigeria Privacy Regulatory Requirements  
-**Document Type:** Annex  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Chief Privacy Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)  
-**Classification:** Public  
-**Category:** Privacy  
-**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change  
-**Repository Path:** [`privacy/jurisdictions/annex-privacy-nigeria.md`](annex-privacy-nigeria.md)  
-**Confidentiality:** Public  
+**Document Title:** Nigeria Privacy Regulatory Requirements 
+**Document Type:** Annex 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Chief Privacy Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md) 
+**Classification:** Public 
+**Category:** Privacy 
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
+**Repository Path:** [`privacy/jurisdictions/annex-privacy-nigeria.md`](annex-privacy-nigeria.md) 
+**Confidentiality:** Public 
 **Licence:** CC0 1.0 Universal
 
 ---
@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable Laws and Regulatory Authorities
 
-- **Nigeria Data Protection Act 2023 (NDPA)** — Signed July 2023; the most significant recent privacy legislation in Sub-Saharan Africa, replacing the Nigeria Data Protection Regulation 2019 (NDPR).
+- **Nigeria Data Protection Act 2023 (NDPA)**: Signed July 2023; the most significant recent privacy legislation in Sub-Saharan Africa, replacing the Nigeria Data Protection Regulation 2019 (NDPR).
 - Applies to: processing of personal data of Nigerian residents; controllers and processors established in Nigeria; and controllers and processors outside Nigeria where the processing relates to Nigerian residents.
 - Mandatory breach notification within 72 hours to the NDPC for breaches likely to result in harm to data subjects.
 - Data Protection Officers required for controllers processing large volumes or sensitive categories of personal data.

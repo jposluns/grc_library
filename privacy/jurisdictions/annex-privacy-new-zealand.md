@@ -1,17 +1,17 @@
 # New Zealand Privacy Regulatory Requirements
 
-**Document Title:** New Zealand Privacy Regulatory Requirements  
-**Document Type:** Annex  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Chief Privacy Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)  
-**Classification:** Public  
-**Category:** Privacy  
-**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change  
-**Repository Path:** [`privacy/jurisdictions/annex-privacy-new-zealand.md`](annex-privacy-new-zealand.md)  
-**Confidentiality:** Public  
+**Document Title:** New Zealand Privacy Regulatory Requirements 
+**Document Type:** Annex 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Chief Privacy Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md) 
+**Classification:** Public 
+**Category:** Privacy 
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
+**Repository Path:** [`privacy/jurisdictions/annex-privacy-new-zealand.md`](annex-privacy-new-zealand.md) 
+**Confidentiality:** Public 
 **Licence:** CC0 1.0 Universal
 
 ---
@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable Laws and Regulatory Authorities
 
-- **Privacy Act 2020** — In force 1 December 2020, replacing the Privacy Act 1993. Administered by the Office of the Privacy Commissioner (OPC).
+- **Privacy Act 2020**: In force 1 December 2020, replacing the Privacy Act 1993. Administered by the Office of the Privacy Commissioner (OPC).
 - 13 Information Privacy Principles (IPPs) govern collection, use, disclosure, storage, and security of personal information.
 - **Mandatory breach notification:** Agencies must notify the OPC and affected individuals of privacy breaches likely to cause serious harm as soon as practicable after becoming aware.
 - **Extraterritorial reach:** Applies to any agency carrying on business in New Zealand, regardless of where they are based.
@@ -42,7 +42,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Cross-Border Transfer Mechanisms
 
-- **IPP 12** restricts transfer to overseas recipients. Transfer is permitted if: the overseas recipient is subject to privacy safeguards comparable to the IPPs; the data subject has authorised the transfer; or the agency takes reasonable steps to ensure comparable protection.
+- **IPP 12** restricts transfer to overseas recipients. Transfer is permitted if: the overseas recipient is subject to privacy safeguards comparable to the IPPs; the data subject has authorized the transfer; or the agency takes reasonable steps to ensure that comparable protection.
 - New Zealand benefits from EU adequacy status.
 - New Zealand participates in the APEC CBPR 2.0 framework.
 

@@ -1,17 +1,17 @@
 # Kenya Privacy Regulatory Requirements
 
-**Document Title:** Kenya Privacy Regulatory Requirements  
-**Document Type:** Annex  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Chief Privacy Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)  
-**Classification:** Public  
-**Category:** Privacy  
-**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change  
-**Repository Path:** [`privacy/jurisdictions/annex-privacy-kenya.md`](annex-privacy-kenya.md)  
-**Confidentiality:** Public  
+**Document Title:** Kenya Privacy Regulatory Requirements 
+**Document Type:** Annex 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Chief Privacy Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md) 
+**Classification:** Public 
+**Category:** Privacy 
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
+**Repository Path:** [`privacy/jurisdictions/annex-privacy-kenya.md`](annex-privacy-kenya.md) 
+**Confidentiality:** Public 
 **Licence:** CC0 1.0 Universal
 
 ---
@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable Laws and Regulatory Authorities
 
-- **Data Protection Act 2019 (Act No. 24 of 2019)** — Fully in force. Applies to data controllers and processors established in Kenya, and to processing of personal data of persons in Kenya by controllers or processors outside Kenya.
+- **Data Protection Act 2019 (Act No. 24 of 2019)**: Fully in force. Applies to data controllers and processors established in Kenya, and to processing of personal data of persons in Kenya by controllers or processors outside Kenya.
 - Key rights: access to personal data; correction; deletion; portability; right to object to processing; right not to be subject to automated decision-making.
 - Mandatory breach notification without undue delay, and within 72 hours where feasible.
 - Data Protection Officers required for entities engaging in large-scale systematic monitoring or large-scale processing of sensitive categories.
@@ -34,7 +34,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## AI and Privacy Obligations
 
-- Data subjects shall not be subject to decisions based solely on automated processing — including profiling — that significantly affects them.
+- Data subjects shall not be subject to decisions based solely on automated processing, including profiling, that significantly affects them.
 - Controllers must provide transparency and allow human review of automated decisions.
 - The ODPC has signalled intent to issue guidance on AI and data processing aligned with international best practices.
 
@@ -42,7 +42,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Cross-Border Transfer Mechanisms
 
-- Transfers permitted where the receiving country ensures adequate protection, the data subject has consented, or appropriate contractual safeguards are in place.
+- Transfers permitted where the receiving country ensures that adequate protection, the data subject has consented, or appropriate contractual safeguards are in place.
 - The ODPC maintains guidance on permissible transfer conditions.
 
 ---

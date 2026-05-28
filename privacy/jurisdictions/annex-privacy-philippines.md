@@ -1,17 +1,17 @@
 # Philippines Privacy Regulatory Requirements
 
-**Document Title:** Philippines Privacy Regulatory Requirements  
-**Document Type:** Annex  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Chief Privacy Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)  
-**Classification:** Public  
-**Category:** Privacy  
-**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change  
-**Repository Path:** [`privacy/jurisdictions/annex-privacy-philippines.md`](annex-privacy-philippines.md)  
-**Confidentiality:** Public  
+**Document Title:** Philippines Privacy Regulatory Requirements 
+**Document Type:** Annex 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Chief Privacy Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md) 
+**Classification:** Public 
+**Category:** Privacy 
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
+**Repository Path:** [`privacy/jurisdictions/annex-privacy-philippines.md`](annex-privacy-philippines.md) 
+**Confidentiality:** Public 
 **Licence:** CC0 1.0 Universal
 
 ---
@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable Laws and Regulatory Authorities
 
-- **Republic Act No. 10173 (Data Privacy Act 2012)** — With implementing rules updated through 2023. The Philippines' primary data protection law.
+- **Republic Act No. 10173 (Data Privacy Act 2012)**: With implementing rules updated through 2023. The Philippines' primary data protection law.
 - Rights: access, objection, erasure/blocking, rectification, portability, and damages.
 - DPOs required for all personal information controllers.
 - Mandatory breach notification within 72 hours for breaches involving sensitive personal information.
@@ -36,7 +36,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 ## AI and Privacy Obligations
 
 - NPC guidance requires that AI systems processing sensitive personal information implement heightened security and strict purpose limitation.
-- Organisations conducting large-scale AI profiling are encouraged to conduct privacy impact assessments.
+- Organizations conducting large-scale AI profiling are encouraged to conduct privacy impact assessments.
 - Data subjects have rights to object to automated processing producing significantly impactful effects.
 
 ---

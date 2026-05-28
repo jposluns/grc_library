@@ -1,18 +1,18 @@
 # Privacy Jurisdiction Index
 
-**Document Title:** Privacy Jurisdiction Index  
-**Document Type:** Annex  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Privacy Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)  
-**Classification:** Public  
-**Category:** Privacy  
-**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change  
-**Repository Path:** [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Privacy Jurisdiction Index 
+**Document Type:** Annex 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Privacy Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md) 
+**Classification:** Public 
+**Category:** Privacy 
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
+**Repository Path:** [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -105,7 +105,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | South Korea | PIPA 2023 | Right to explanation; automated decision review; PIPC guidance | Adequacy (EU); PIPC SCCs; consent | 3% annual revenue |
 | New Zealand | Privacy Act 2020 | IPP principles; OPC AI guidance; mandatory breach notification | IPP 12 safeguards; CBPR 2.0; adequacy (EU) | NZD 10,000 per offence |
 | UAE | PDPL, DIFC DPL, ADGM DPR | Sector-specific AI guidance; automated decision rights | Adequacy determination, SCCs | AED 5M (PDPL); USD 100,000 (DIFC) |
-| Saudi Arabia | PDPL | SDAIA AI governance framework; automated decision transparency | Adequacy determination; consent; localisation | SAR 5M (doubled for repeat) |
+| Saudi Arabia | PDPL | SDAIA AI governance framework; automated decision transparency | Adequacy determination; consent; localization | SAR 5M (doubled for repeat) |
 | South Africa | POPIA | Automated decision rights (s. 71); Information Regulator PIA guidance | s. 72 adequacy or safeguards | ZAR 10M |
 | Turkey | KVKK (2024 amendment) | Automated decision transparency; KVKK Board guidance | KVKK Board adequacy list; commitments; BCRs | TRY 22.7M for unlawful cross-border transfer |
 | Nigeria | NDPA 2023 | Automated profiling objection; NDPC accountability guidance | Adequacy (NDPC-determined); contractual safeguards | 2% annual gross revenue / USD 10M |
@@ -115,7 +115,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | Thailand | PDPA 2019 | Automated decision human oversight; PDPC guidance | Consent; adequacy (list in development) | THB 5M (~USD 140K) |
 | Indonesia | UU PDP 2022 | Automated profiling transparency; national AI framework in development | Equivalent protection standard | 2% annual Indonesian revenue |
 | Philippines | Data Privacy Act 2012 | Automated profiling PIA encouraged; NPC guidance | Comparable safeguards; consent | PHP 5M + imprisonment |
-| Vietnam | Decree 13/2023 | Automated decision disclosure; data localisation for sensitive data | Consent plus conditions; bilateral agreements | Administrative fines; criminal prosecution |
+| Vietnam | Decree 13/2023 | Automated decision disclosure; data localization for sensitive data | Consent plus conditions; bilateral agreements | Administrative fines; criminal prosecution |
 | Malaysia | PDPA 2010 (2024 amendment) | PDPA principles apply to AI; national AI Ethics framework (voluntary) | Minister-approved countries; consent exceptions | MYR 1M per offense |
 
 ---
@@ -132,9 +132,9 @@ The following material regulatory developments occurred or were anticipated betw
 - **APEC CBPR 2.0:** Additional economies joined the Global CBPR Forum; interoperability with GDPR SCCs was under active negotiation.
 - **India DPDPA:** Digital Personal Data Protection Rules 2025 published February 2025 and entered into force April 2025; the Data Protection Board of India commenced operations.
 - **Southeast Asia expansion:** Indonesia published implementing regulations under UU PDP; Malaysia's 2024 PDPA amendments entered into force; Vietnam Decree 13/2023 enforcement matured.
-- **South Korea PIPA:** 2023 amendments operationalised, including automated decision explanation rights and enhanced penalty framework.
+- **South Korea PIPA:** 2023 amendments operationalized, including automated decision explanation rights and enhanced penalty framework.
 - **Nigeria NDPA:** The Nigeria Data Protection Commission established as an independent body and commenced regulatory activity.
-- **Saudi Arabia:** SDAIA issued sector-specific AI governance guidelines for financial services and healthcare; data localisation requirements clarified.
+- **Saudi Arabia:** SDAIA issued sector-specific AI governance guidelines for financial services and healthcare; data localization requirements clarified.
 
 ---
 

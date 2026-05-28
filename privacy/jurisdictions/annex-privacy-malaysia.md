@@ -1,17 +1,17 @@
 # Malaysia Privacy Regulatory Requirements
 
-**Document Title:** Malaysia Privacy Regulatory Requirements  
-**Document Type:** Annex  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Chief Privacy Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)  
-**Classification:** Public  
-**Category:** Privacy  
-**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change  
-**Repository Path:** [`privacy/jurisdictions/annex-privacy-malaysia.md`](annex-privacy-malaysia.md)  
-**Confidentiality:** Public  
+**Document Title:** Malaysia Privacy Regulatory Requirements 
+**Document Type:** Annex 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Chief Privacy Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md) 
+**Classification:** Public 
+**Category:** Privacy 
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
+**Repository Path:** [`privacy/jurisdictions/annex-privacy-malaysia.md`](annex-privacy-malaysia.md) 
+**Confidentiality:** Public 
 **Licence:** CC0 1.0 Universal
 
 ---
@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable Laws and Regulatory Authorities
 
-- **Personal Data Protection Act 2010 (Act 709)** — As amended by the **Personal Data Protection (Amendment) Act 2024** (in force March 2024).
+- **Personal Data Protection Act 2010 (Act 709)**: As amended by the **Personal Data Protection (Amendment) Act 2024** (in force March 2024).
 - Seven data protection principles: General; Notice and Choice; Disclosure; Security; Retention; Data Integrity; Access.
 - **2024 amendments introduced:** Mandatory breach notification within 72 hours; mandatory DPO for certain sectors; enhanced rights including erasure and portability; increased penalties.
 - **Regulatory authority:** Personal Data Protection Commissioner under the Ministry of Digital.

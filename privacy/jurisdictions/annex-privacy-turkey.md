@@ -1,17 +1,17 @@
 # Turkey Privacy Regulatory Requirements
 
-**Document Title:** Turkey Privacy Regulatory Requirements  
-**Document Type:** Annex  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Chief Privacy Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)  
-**Classification:** Public  
-**Category:** Privacy  
-**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change  
-**Repository Path:** [`privacy/jurisdictions/annex-privacy-turkey.md`](annex-privacy-turkey.md)  
-**Confidentiality:** Public  
+**Document Title:** Turkey Privacy Regulatory Requirements 
+**Document Type:** Annex 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Chief Privacy Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md) 
+**Classification:** Public 
+**Category:** Privacy 
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
+**Repository Path:** [`privacy/jurisdictions/annex-privacy-turkey.md`](annex-privacy-turkey.md) 
+**Confidentiality:** Public 
 **Licence:** CC0 1.0 Universal
 
 ---
@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable Laws and Regulatory Authorities
 
-- **Law on the Protection of Personal Data (KVKK) No. 6698** — Effective April 2016; substantially amended by Law No. 7499 (enacted March 2024, in force June 2024), harmonising the KVKK with GDPR in several respects.
+- **Law on the Protection of Personal Data (KVKK) No. 6698**: Effective April 2016; substantially amended by Law No. 7499 (enacted March 2024, in force June 2024), harmonizing the KVKK with GDPR in several respects.
 - **Key 2024 amendments:** Explicit consent requirements aligned with GDPR standards; legitimate interest introduced as a lawful basis; new cross-border transfer mechanism through commitments (analogous to SCCs); enhanced rights including data portability; strengthened DPO-type obligations for large data processors.
 - **Regulatory authority:** Personal Data Protection Authority (KVKK Board / Kişisel Verileri Koruma Kurumu).
 

@@ -1,18 +1,18 @@
 # Privacy Impact and Cross-Border Transfer Procedure
 
-**Document Title:** Privacy Impact and Cross-Border Transfer Procedure  
-**Document Type:** Procedure  
-**Version:** 1.3.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)  
-**Classification:** Public  
-**Category:** Privacy  
-**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change  
-**Repository Path:** [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Privacy Impact and Cross-Border Transfer Procedure 
+**Document Type:** Procedure 
+**Version:** 1.3.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) 
+**Classification:** Public 
+**Category:** Privacy 
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
+**Repository Path:** [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -26,7 +26,7 @@ This procedure defines the process for conducting Privacy Impact Assessments (PI
 
 1. Applies to all projects, systems, products, and services that process personal data, sensitive data, or AI-related datasets.
 2. Covers new or modified processing activities; AI model development, training, or inference affecting individuals' rights; and any transfer of data across national or regional boundaries.
-3. Includes data from all regions where the organisation operates (EU, Canada, US, China, Brazil, and APAC).
+3. Includes data from all regions where the organization operates (EU, Canada, US, China, Brazil, and APAC).
 
 ---
 
@@ -35,7 +35,7 @@ This procedure defines the process for conducting Privacy Impact Assessments (PI
 | Role | Responsibility |
 |---|---|
 | CIO (acting DPO) | Accountable for ensuring PIAs and cross-border transfer reviews are completed in compliance with global privacy laws. |
-| CISO | Ensures technical and organisational measures are implemented to mitigate identified risks. |
+| CISO | Ensures that technical and organizational measures are implemented to mitigate identified risks. |
 | AIGC | Reviews AI-related impact assessments for ethical, transparency, and accountability alignment. |
 | Executive Risk Committee (ERC) | Approves high-risk processing activities requiring escalation beyond the CIO. |
 
@@ -45,7 +45,7 @@ High-risk processing activities require CIO approval and ERC escalation.
 
 ## Procedure
 
-### Step 1 — Initiation
+### Step 1: Initiation
 
 **Trigger events:**
 
@@ -58,7 +58,7 @@ The Project Owner must notify the Privacy Office or CIO (acting DPO) before data
 
 ---
 
-### Step 2 — Scoping and Data Mapping
+### Step 2: Scoping and Data Mapping
 
 Identify and document:
 
@@ -69,7 +69,7 @@ Identify and document:
 
 ---
 
-### Step 3 — Risk Identification and Evaluation
+### Step 3: Risk Identification and Evaluation
 
 Evaluate risks to data subjects:
 
@@ -86,11 +86,11 @@ Assign risk level: **Low**, **Medium**, **High**, or **Critical**.
 
 ---
 
-### Step 4 — Control Selection and Mitigation
+### Step 4: Control Selection and Mitigation
 
 Define and implement:
 
-- Data minimisation, pseudonymisation, encryption, RBAC, and privacy-by-design features.
+- Data minimization, pseudonymization, encryption, RBAC, and privacy-by-design features.
 
 For cross-border transfers:
 
@@ -98,7 +98,7 @@ For cross-border transfers:
 
 For transfers from China:
 
-- Apply PIPL Articles 38–40.
+- Apply PIPL Articles 38 to 40.
 
 For EU transfers involving AI systems:
 
@@ -106,7 +106,7 @@ For EU transfers involving AI systems:
 
 ---
 
-### Step 5 — Consultation and Approval
+### Step 5: Consultation and Approval
 
 - The CIO (acting DPO) reviews all completed PIAs and transfer assessments.
 - For AI systems or high-risk processing, the AIGC conducts additional review per ISO 42006 and EU AI Act Annex IV.
@@ -114,7 +114,7 @@ For EU transfers involving AI systems:
 
 ---
 
-### Step 6 — Record Keeping and Documentation
+### Step 6: Record Keeping and Documentation
 
 Maintain in the compliance repository:
 
@@ -128,7 +128,7 @@ All records retained for a minimum of **7 years**.
 
 ---
 
-### Step 7 — Review and Update
+### Step 7: Review and Update
 
 PIAs and cross-border transfer records are reviewed:
 
@@ -140,7 +140,7 @@ PIAs and cross-border transfer records are reviewed:
 
 ## Children's Data Protection
 
-Processing of children's personal data requires enhanced safeguards including verifiable parental consent and restricted access controls. AI models trained on data from minors must be clearly segregated and subject to periodic bias and risk reviews. Marketing and profiling using children's data is prohibited unless expressly authorised by applicable law.
+Processing of children's personal data requires enhanced safeguards including verifiable parental consent and restricted access controls. AI models trained on data from minors must be clearly segregated and subject to periodic bias and risk reviews. Marketing and profiling using children's data is prohibited unless expressly authorized by applicable law.
 
 ---
 

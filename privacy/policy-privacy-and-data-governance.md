@@ -1,24 +1,24 @@
 # Privacy and Data Governance Policy
 
-**Document Title:** Privacy and Data Governance Policy  
-**Document Type:** Policy  
-**Version:** 1.3.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)  
-**Classification:** Public  
-**Category:** Privacy  
-**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change  
-**Repository Path:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Privacy and Data Governance Policy 
+**Document Type:** Policy 
+**Version:** 1.3.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md) 
+**Classification:** Public 
+**Category:** Privacy 
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
+**Repository Path:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This policy defines principles, governance structure, and control framework for managing personal data and organisational information assets across all jurisdictions. It consolidates Privacy Policy, Data Governance Policy, Data Quality Policy, and Records Management Policy into a unified global standard. It ensures compliance with applicable data protection laws, upholds data accuracy and integrity, and governs ethical use of information including AI training datasets.
+This policy defines principles, governance structure, and control framework for managing personal data and organizational information assets across all jurisdictions. It consolidates Privacy Policy, Data Governance Policy, Data Quality Policy, and Records Management Policy into a unified global standard. It ensures that compliance with applicable data protection laws, upholds data accuracy and integrity, and governs ethical use of information including AI training datasets.
 
 **Applicable Frameworks:** ISO/IEC 27701:2019 PIMS, ISO 8000-8 Data Quality Principles, EU GDPR, EU Data Act (2026), Canada CPPA, APEC CBPR 2.0, China PIPL, CSA CCM v5 domains PRI and DSP.
 
@@ -26,9 +26,9 @@ This policy defines principles, governance structure, and control framework for 
 
 ## Scope
 
-1. Applies to all employees, contractors, subsidiaries, and third parties that collect, process, share, or store organisational or personal data.
-2. Covers all forms of data, including structured, unstructured, derived, anonymised, synthetic, and AI training datasets.
-3. Applies to all geographies where the organisation operates, including cross-border data transfers and multinational data processing arrangements.
+1. Applies to all employees, contractors, subsidiaries, and third parties that collect, process, share, or store organizational or personal data.
+2. Covers all forms of data, including structured, unstructured, derived, anonymized, synthetic, and AI training datasets.
+3. Applies to all geographies where the organization operates, including cross-border data transfers and multinational data processing arrangements.
 4. Encompasses the entire data lifecycle from collection through storage, use, disclosure, retention, and destruction.
 
 ---
@@ -39,26 +39,26 @@ This policy defines principles, governance structure, and control framework for 
 
 1. The **Chief Information Officer (CIO)** serves as the accountable executive for global data governance and assumes all responsibilities normally assigned to the Data Protection Officer (DPO) until that role is appointed.
 2. The **Chief Information Security Officer (CISO)** ensures that security controls protect data confidentiality, integrity, and availability.
-3. The CIO, in the capacity of acting DPO, represents the organisation before regulatory authorities and ensures compliance with applicable privacy laws.
-4. **Regional Data Stewards and Privacy Leads** ensure compliance with local data protection laws (EU GDPR, CPPA, PIPL, LGPD, etc.).
+3. The CIO, in the capacity of acting DPO, represents the organization before regulatory authorities and ensures that compliance with applicable privacy laws.
+4. **Regional Data Stewards and Privacy Leads** ensure that compliance with local data protection laws (EU GDPR, CPPA, PIPL, LGPD, etc.).
 
 ### Governance Committees
 
 - **Data Governance Council (DGC):** Sets strategic data management objectives.
-- **AI Governance Council (AIGC):** Ensures responsible use of data for AI training and operation.
+- **AI Governance Council (AIGC):** Ensures that responsible use of data for AI training and operation.
 
 ### Roles and Responsibilities
 
 | Role | Responsibilities |
 |---|---|
 | CIO (acting DPO) | Accountable for compliance with privacy and data protection laws, overseeing PIMS implementation, regulatory reporting, and response to data subject requests until a DPO is appointed. |
-| CISO | Implements and monitors technical security measures to ensure data protection and integrity. |
+| CISO | Implements and monitors technical security measures to ensure that data protection and integrity. |
 | Data Owners | Accountable for accuracy, quality, and lawful use of data within their domain. |
 | Data Stewards | Maintain data dictionaries, classification schemes, and quality validation rules. |
 | System Owners | Implement data protection controls, retention schedules, and access management. |
 | Employees and Contractors | Handle data in compliance with this policy and complete annual privacy training. |
 | Third Parties | Adhere to contractually defined data protection obligations and submit to audits. |
-| AI Engineers and Data Scientists | Ensure AI training datasets comply with privacy, consent, and data minimisation requirements. |
+| AI Engineers and Data Scientists | Ensure that AI training datasets comply with privacy, consent, and data minimization requirements. |
 | Internal Audit | Reviews data governance effectiveness and verifies compliance. |
 
 ---
@@ -74,7 +74,7 @@ This policy defines principles, governance structure, and control framework for 
 ### 2. Data Classification and Handling
 
 - All data assets shall be classified based on sensitivity: Public, Internal, Confidential, and Restricted.
-- Handling procedures for each classification level shall be documented and enforced through technical and organisational controls.
+- Handling procedures for each classification level shall be documented and enforced through technical and organizational controls.
 - Sensitive personal data and AI datasets shall be encrypted at rest and in transit.
 
 ### 3. Data Quality and Accuracy
@@ -85,19 +85,19 @@ This policy defines principles, governance structure, and control framework for 
 ### 4. Records and Retention Management
 
 - Records shall be maintained according to approved retention schedules and applicable legal or regulatory timeframes.
-- Destruction or anonymisation of records shall be conducted securely and verifiably.
+- Destruction or anonymization of records shall be conducted securely and verifiably.
 - Retention schedules shall cover both structured data and AI training artifacts.
 
 ### 5. Privacy by Design and Default
 
-- Systems and processes shall embed privacy principles from inception, including data minimisation and pseudonymisation.
+- Systems and processes shall embed privacy principles from inception, including data minimization and pseudonymization.
 - Privacy Impact Assessments (PIAs) shall be conducted for new systems, major changes, and AI model training activities.
 - PIAs shall assess lawful basis, consent management, cross-border data transfer, and model explainability impacts.
 
 ### 6. Cross-Border Data Transfers
 
-- All data transfers between jurisdictions must comply with applicable legal mechanisms, such as EU SCCs, APEC CBPR 2.0 certifications, or recognised adequacy decisions.
-- The organisation shall maintain a register of all cross-border data flows, reviewed quarterly.
+- All data transfers between jurisdictions must comply with applicable legal mechanisms, such as EU SCCs, APEC CBPR 2.0 certifications, or recognized adequacy decisions.
+- The organization shall maintain a register of all cross-border data flows, reviewed quarterly.
 - Transfers to jurisdictions lacking adequate protection must include additional safeguards and executive approval.
 
 ### 7. AI Training Data Governance
@@ -105,7 +105,7 @@ This policy defines principles, governance structure, and control framework for 
 - AI models shall only be trained on datasets that comply with privacy, consent, and licensing obligations.
 - Datasets must include provenance metadata detailing source, collection date, consent type, and processing purpose.
 - Disclosure of training dataset categories shall be documented for transparency and compliance with the EU Data Act (2026).
-- Synthetic and anonymised data used for AI training shall undergo reidentification risk assessments.
+- Synthetic and anonymized data used for AI training shall undergo reidentification risk assessments.
 
 ### 8. Data Subject Rights
 
@@ -137,12 +137,12 @@ This policy defines principles, governance structure, and control framework for 
 
 | Policy Area | ISO/IEC 27701 | COBIT 2025 | CSA CCM v5 | Regulatory References |
 |---|---|---|---|---|
-| Governance and accountability | Clauses 5–7 | APO13.01 | PRI-01 | GDPR Art 5, CPPA |
+| Governance and accountability | Clauses 5 to 7 | APO13.01 | PRI-01 | GDPR Art 5, CPPA |
 | Lawful processing and consent | Clause 8.2 | DSS05 | PRI-02 | GDPR, PIPL, LGPD |
 | Data classification and handling | Clause 8.5 | DSS01 | DSP-01 | ISO 8000-8 §5, SOX, SOC 2 |
 | Cross-border data transfers | Clause 8.6 | APO10 | PRI-03 | GDPR Ch V, CBPR 2.0 |
-| AI training data governance | — | DSS05.06 | DSP-04 | ISO 8000-8 §6, EU Data Act 2026 |
-| Data subject rights | Clause 8.7 | MEA01 | PRI-04 | GDPR Arts 15–22, CPPA |
+| AI training data governance | N/A | DSS05.06 | DSP-04 | ISO 8000-8 §6, EU Data Act 2026 |
+| Data subject rights | Clause 8.7 | MEA01 | PRI-04 | GDPR Arts 15 to 22, CPPA |
 | Records management | Clause 8.8 | DSS01 | DSP-02 | ISO 8000-8 §7, Retention laws |
 | Breach management | Clause 8.9 | DSS02 | PRI-05 | GDPR Art 33, PIPL Art 57 |
 

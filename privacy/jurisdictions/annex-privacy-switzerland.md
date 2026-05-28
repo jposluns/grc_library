@@ -1,17 +1,17 @@
 # Switzerland Privacy Regulatory Requirements
 
-**Document Title:** Switzerland Privacy Regulatory Requirements  
-**Document Type:** Annex  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Chief Privacy Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`privacy/jurisdictions/annex-privacy-european-union.md`](../jurisdictions/annex-privacy-european-union.md), [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)  
-**Classification:** Public  
-**Category:** Privacy  
-**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change  
-**Repository Path:** [`privacy/jurisdictions/annex-privacy-switzerland.md`](annex-privacy-switzerland.md)  
-**Confidentiality:** Public  
+**Document Title:** Switzerland Privacy Regulatory Requirements 
+**Document Type:** Annex 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Chief Privacy Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`privacy/jurisdictions/annex-privacy-european-union.md`](../jurisdictions/annex-privacy-european-union.md), [`privacy/jurisdictions/annex-privacy-jurisdiction-index.md`](../jurisdictions/annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md) 
+**Classification:** Public 
+**Category:** Privacy 
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
+**Repository Path:** [`privacy/jurisdictions/annex-privacy-switzerland.md`](annex-privacy-switzerland.md) 
+**Confidentiality:** Public 
 **Licence:** CC0 1.0 Universal
 
 ---
@@ -24,7 +24,7 @@ This annex defines privacy regulatory requirements applicable to the processing 
 
 ## Applicable Laws and Regulatory Authorities
 
-- **New Federal Act on Data Protection (nFADP / revDSG)** — entered into force 1 September 2023, replacing the 1992 Federal Act on Data Protection (FADP). Switzerland is not an EU member state; the nFADP is closely aligned with GDPR but is a distinct instrument.
+- **New Federal Act on Data Protection (nFADP / revDSG)**: entered into force 1 September 2023, replacing the 1992 Federal Act on Data Protection (FADP). Switzerland is not an EU member state; the nFADP is closely aligned with GDPR but is a distinct instrument.
 - Key provisions: mandatory records of processing activities; DPIA mandatory for high-risk processing; mandatory data breach notification to the FDPIC within 72 hours where feasible; right to data portability; expanded scope to data processors through accountability obligations; enhanced transparency requirements.
 - **Regulatory authority:** Federal Data Protection and Information Commissioner (FDPIC). The FDPIC issues recommendations and can refer matters to federal authorities for enforcement.
 
@@ -33,8 +33,8 @@ This annex defines privacy regulatory requirements applicable to the processing 
 ## AI and Privacy Obligations
 
 - Switzerland has not enacted standalone AI legislation as of 2025.
-- The FDPIC applies nFADP principles to AI processing of personal data, including purpose limitation, data minimisation, and accountability.
-- **Automated decision-making:** Individuals may request human review of decisions made solely by automated means where those decisions significantly affect them. Organisations must inform data subjects when decisions are made on an automated basis.
+- The FDPIC applies nFADP principles to AI processing of personal data, including purpose limitation, data minimization, and accountability.
+- **Automated decision-making:** Individuals may request human review of decisions made solely by automated means where those decisions significantly affect them. Organizations must inform data subjects when decisions are made on an automated basis.
 - **DPIA:** Required for high-risk processing activities, including large-scale automated processing of personal data.
 
 ---
@@ -43,15 +43,15 @@ This annex defines privacy regulatory requirements applicable to the processing 
 
 - Switzerland holds EU adequacy status (reconfirmed December 2023).
 - For transfers from Switzerland to third countries: adequacy determination by the FDPIC (approved countries list); FDPIC-approved standard data protection clauses; binding corporate rules; or narrow derogations.
-- **Important:** Switzerland's standard contractual clauses are distinct from EU SCCs. Organisations with operations in both EU and Switzerland must ensure separate transfer mechanisms are in place for each jurisdiction.
+- **Important:** Switzerland's standard contractual clauses are distinct from EU SCCs. Organizations with operations in both EU and Switzerland must ensure that separate transfer mechanisms are in place for each jurisdiction.
 
 ---
 
 ## Enforcement and Fines
 
-- The nFADP's criminal sanctions apply to responsible natural persons (individuals), not to organisations directly.
+- The nFADP's criminal sanctions apply to responsible natural persons (individuals), not to organizations directly.
 - Fines up to CHF 250,000 for intentional violations by natural persons.
-- The FDPIC may require organisations to amend or cease non-compliant processing.
+- The FDPIC may require organizations to amend or cease non-compliant processing.
 
 ---
 
