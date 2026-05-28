@@ -2,7 +2,7 @@
 
 **Document Title:** Exception and Risk Acceptance Management Policy 
 **Document Type:** Policy 
-**Version:** 1.0.0 
+**Version:** 1.0.1 
 **Date:** 2026-05-27 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -92,9 +92,9 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 6.1 Exception closure requires evidence that corrective actions or control remediation have been implemented. 
 6.2 Internal Audit, the CISO, and the CCO must validate closure before record archival. 
 
-### 7. Machine-readable exception registry (future readiness)
-7.1 [Unverified] The organization shall implement a machine-readable, API-enabled exception registry mapped to CSA CCM v4.1 GRM-12. 
-7.2 Automated expiry alerts, metadata tagging, and integration with risk dashboards shall support near real-time oversight.
+### 7. Machine-readable exception registry (recommended where automation is practical)
+7.1 Organisations may implement a machine-readable, API-enabled exception registry aligned with CSA CCM v4.1 GRM-12. This is a recommended practice rather than a mandatory requirement; it is appropriate where the exception volume and integration with risk dashboards justify the automation investment.
+7.2 Where implemented, automated expiry alerts, metadata tagging, and integration with risk dashboards support near real-time oversight.
 
 ### 8. Continual improvement
 8.1 Exception metrics shall be reviewed quarterly for trends, repeat occurrences, and systemic control weaknesses. 
@@ -109,7 +109,7 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 - **COBIT 2019** APO12.06 Respond to Risk; APO12.03 Assess Risk; MEA01 Monitor Evaluate and Assess 
 - **Cloud Security Alliance (CSA)** guidance including CCM v4.1 GRM-12 Exception Management 
 - **NIST SP 800-37 Rev 2** RMF Step 6 Authorize the System; **NIST SP 800-53 Rev 5** CA-6 Authorization 
-- **NIST AI RMF 1.0** Govern Function [Unverified] 
+- **NIST AI RMF 1.0** Govern Function (with the AI 600-1 Generative AI Profile)
 - **OECD AI Principles** Accountability and Transparency 
 - **Trade and Supply Chain Programs:** WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalents
 
@@ -124,7 +124,7 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 | Time-bound authorization | Annex A.5.36 | APO12.06 | CCM GRM-12 | SP 800-37 Step 6 | Contractual risk governance | WCO SAFE equivalence |
 | Exception tracking and reporting | Annex A.5.36 | MEA01 | CCM GRM-12 | SP 800-53 CA-6 | Audit transparency | WCO SAFE equivalence |
 | Closure and validation | Annex A.5.36 | DSS04 | CCM GRM-12 | SP 800-37 Step 6 | Regulatory evidence requirements | WCO SAFE equivalence |
-| Machine-readable registry | [Draft 2026 Reference] | APO12.06 | CCM GRM-12 | [Unverified] | Future automation compliance | WCO SAFE equivalence |
+| Machine-readable registry (recommended) | Annex A.5.36 (extension) | APO12.06 | CCM GRM-12 | SP 800-53 CA-6 (extension) | Future automation compliance | WCO SAFE equivalence |
 
 
 

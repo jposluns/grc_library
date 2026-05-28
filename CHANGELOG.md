@@ -4,6 +4,36 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 12.5 / 12.6 (2026-05-28): [Unverified] tags, phantom dependency, internal hostname
+
+Resolves the `[Unverified]`-tag-in-mandatory-policy finding, the phantom "IT Operations Documentation Framework" dependency, and the internal-looking hostname in an AI code example. Bundled as a single change for compactness.
+
+### `[Unverified]` tags removed from mandatory policy text
+
+- `governance/policy-exception-and-risk-acceptance-management.md` (v1.0.0 → v1.0.1):
+  - §7.1: removed `[Unverified]` marker and softened "shall implement" to "may implement"; the machine-readable exception registry is reclassified as a recommended practice rather than a mandatory `shall` obligation.
+  - §7 heading updated from "(future readiness)" to "(recommended where automation is practical)".
+  - References table: removed `[Unverified]` qualifier on the NIST AI RMF 1.0 entry.
+  - Compliance mapping table: replaced `[Draft 2026 Reference]` / `[Unverified]` cells with concrete framework references for the recommended-registry row.
+- `compliance/policy-compliance-and-audit-management.md` (v1.0.0 → v1.0.1):
+  - §5.3: removed `[Unverified]` marker; reframed as a where-cost-justifies recommendation.
+  - References list: removed the "Draft 2026 ISO 37301 Revision" `[Unverified]` entry.
+
+### Phantom "IT Operations Documentation Framework" dependency resolved
+
+- `compliance/policy-compliance-and-audit-management.md` §2.4: replaced the reference with concrete pointers to `governance/standard-records-retention-and-destruction.md` (for retention) and `operations/framework-it-service-management.md` (for ITSM-aligned documentation).
+- `resilience/plan-it-disaster-recovery.md`: same reference replaced with a concrete pointer to the recovery runbook template.
+
+### Internal hostname in AI code example replaced with generic placeholders
+
+- `ai/guide-ai-security-technical-implementation.md` (v1.3.0 → v1.3.1) line 493: `Server=db-server.internal;Database=AppDB` replaced with `Server=[DATABASE_HOSTNAME];Database=[DATABASE_NAME]`. The example continues to demonstrate the prohibited pattern but no longer reads as sanitisation residue from an internal codebase.
+
+### Citation denylist extended
+
+`tools/lint-citations.py` denylist now also pins "Draft 2026 ISO 37301" and "IT Operations Documentation Framework" so neither can be reintroduced silently.
+
+Taxonomy, portal, and maturity scorecard regenerated.
+
 ## Phase 12.4 (2026-05-28): Third-party risk standard consolidation
 
 Resolves the duplicate-authority finding identified by the comprehensive audit. Per the user's decision to merge, the two parallel third-party risk standards are consolidated into a single document in the risk domain.

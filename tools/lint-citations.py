@@ -55,6 +55,16 @@ DENYLIST: list[tuple[str, str, str]] = [
         "Hallucinated NIST AI RMF version (bare form). NIST AI RMF was published as version 1.0; the GenAI Profile is NIST AI 600-1.",
         "NIST AI RMF 1.0 (with AI 600-1 Generative AI Profile)",
     ),
+    (
+        "Draft 2026 ISO 37301",
+        "Unverified speculative reference. No such revision is published by ISO.",
+        "(remove the reference or replace with current ISO 37301:2021)",
+    ),
+    (
+        "IT Operations Documentation Framework",
+        "Phantom dependency. No such framework exists in the library; documents previously referencing it now point to operations/framework-it-service-management.md or governance/standard-records-retention-and-destruction.md.",
+        "operations/framework-it-service-management.md (or governance/standard-records-retention-and-destruction.md)",
+    ),
 ]
 
 # Paths exempted from each pattern. CHANGELOG is the canonical exemption: historical
@@ -66,6 +76,8 @@ PATH_EXEMPTIONS: dict[str, set[str]] = {
     "CCM v5": {"CHANGELOG.md", "tools/lint-citations.py"},
     "NIST AI RMF 1.1": {"CHANGELOG.md", "tools/lint-citations.py"},
     "AI RMF 1.1": {"CHANGELOG.md", "tools/lint-citations.py"},
+    "Draft 2026 ISO 37301": {"CHANGELOG.md", "tools/lint-citations.py"},
+    "IT Operations Documentation Framework": {"CHANGELOG.md", "tools/lint-citations.py"},
 }
 
 DEFAULT_PATHS = [
