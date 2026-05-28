@@ -233,7 +233,7 @@ All evidence is documented in audit working papers, cross-referenced to the rele
 
 ### 6.5 Analysis
 
-The audit team analyses collected evidence against the audit criteria to:
+The audit team analyzes collected evidence against the audit criteria to:
 
 - Identify conformities and nonconformities;
 - Assess the design adequacy and operational effectiveness of controls;

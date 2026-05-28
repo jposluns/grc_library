@@ -70,18 +70,18 @@ All requirements identified in Chapter 6 of the BASC International Security Stan
 | 6.2.e | Use unique user credentials with periodic updates. | Access Management |
 | 6.2.f | Limit and review user permissions based on assigned roles. | Access Management |
 | 6.2.g | Revoke system access upon contract termination. | Access Management |
-| 6.2.h | Prevent unauthorised software installation. | System Integrity |
+| 6.2.h | Prevent unauthorized software installation. | System Integrity |
 | 6.2.i | Use licensed, updated hardware/software to protect against malware. | System Integrity |
 | 6.2.j | Maintain secure backup copies of sensitive data offsite. | Asset Management |
 | 6.2.k | Keep an updated user access record with criticality level. | Access Management |
 | 6.2.l | Lock unattended computers. | Asset Management |
 | 6.2.m | Evaluate IT infrastructure annually and address vulnerabilities. | Threat Response |
-| 6.2.n | Identify unauthorised access or policy breaches. | Threat Response |
+| 6.2.n | Identify unauthorized access or policy breaches. | Threat Response |
 | 6.2.o | Review and update cybersecurity policies annually or as needed. | Governance |
 | 6.2.p | Use VPN or MFA for remote access. | Access Management |
-| 6.2.q | Prevent unauthorised remote access from personal or other devices. | System Integrity |
+| 6.2.q | Prevent unauthorized remote access from personal or other devices. | System Integrity |
 | 6.2.r | Inventory IT infrastructure media and equipment; ensure that legal disposal. | Asset Management |
-| 6.2.s | Restrict unauthorised devices from connecting to IT infrastructure. | System Integrity; Access Management |
+| 6.2.s | Restrict unauthorized devices from connecting to IT infrastructure. | System Integrity; Access Management |
 | 6.2.t | Monitor cybersecurity policy compliance in digital content and tools. | System Integrity; Threat Response |
 | 6.2.u | Conduct cybersecurity drills to test response effectiveness. | Threat Response |
 | 6.2.v | Implement controls for admin and superuser account traceability. | Access Management |
@@ -136,7 +136,7 @@ Physical and virtual backups are maintained securely offsite and tested regularl
 
 Only licensed and updated software is permitted.
 
-The installation of unauthorised software on corporate devices is strictly prohibited.
+The installation of unauthorized software on corporate devices is strictly prohibited.
 
 Compliance with this policy for all sanctioned applications and platforms is actively monitored through the change management process.
 
@@ -148,7 +148,7 @@ Personal device connections to internal systems are restricted unless explicitly
 
 Cybersecurity incidents are documented, analyzed, and communicated according to the established incident response process.
 
-Unauthorised data manipulation or policy violations are monitored and investigated.
+Unauthorized data manipulation or policy violations are monitored and investigated.
 
 Regular information security incident process reviews are conducted.
 
@@ -190,7 +190,7 @@ All exceptions are logged and assigned an expiry or review date. Owners are resp
 | Governance | IT Security Manager appointed; policy reviewed annually; information assets classified (Confidential, Internal, Public); security awareness training completed with attendance records. |
 | Access Management | Access rights based on roles in the enterprise identity provider; MFA enforced; administrator access traceability controls enforced; third-party access authorized through supplier evaluation; access revocation within 2 hours of termination. |
 | Asset Management | Managed computer inventory maintained; unattended computers locked via policy; offsite backups implemented and tested; secure media and hardware disposal procedures followed. |
-| System Integrity | Personal device access managed through endpoint management platform; only authorized devices on the network; only licensed and supported systems and software in use; controls prevent unauthorised software installation. |
+| System Integrity | Personal device access managed through endpoint management platform; only authorized devices on the network; only licensed and supported systems and software in use; controls prevent unauthorized software installation. |
 | Threat Response | Cybersecurity incidents tracked and reported; security incident response process documented and followed; logs and audit trails reviewed regularly; annual IT infrastructure evaluation conducted. |
 
 ---

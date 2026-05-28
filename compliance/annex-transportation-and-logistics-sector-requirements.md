@@ -149,7 +149,7 @@ Under NIS 2, transportation entities in the following sub-sectors are classified
 
 ### IMO maritime cyber risk management
 
-IMO Resolution MSC-FAL.1/Circ.3 (incorporated into ISM Code as of 1 January 2021) requires shipping companies to incorporate cyber risk management into their Safety Management Systems.
+IMO Resolution MSC-FAL.1/Circ.3 (incorporated into ISM Code as of 2021-01-01) requires shipping companies to incorporate cyber risk management into their Safety Management Systems.
 
 | IMO Requirement | GRC Library Mapping |
 |---|---|

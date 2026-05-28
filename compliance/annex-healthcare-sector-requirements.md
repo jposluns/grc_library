@@ -166,7 +166,7 @@ DSPT submission is annual. Organizations must achieve at minimum "Standards Met"
 
 ### FDA cybersecurity for medical devices (2023 guidance)
 
-For device manufacturers submitting 510(k), De Novo, or PMA applications after 29 March 2023:
+For device manufacturers submitting 510(k), De Novo, or PMA applications after 2023-03-29:
 
 | Requirement | Detail | GRC Library Mapping |
 |---|---|---|

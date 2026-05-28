@@ -34,7 +34,7 @@ This annex applies where an organization:
 
 | Regulation / Directive | Scope | Effective |
 |---|---|---|
-| **DORA**: Digital Operational Resilience Act (Regulation (EU) 2022/2554) | Financial entities and critical ICT third-party service providers (CTPPs) operating in or serving the EU financial sector | 17 January 2025 |
+| **DORA**: Digital Operational Resilience Act (Regulation (EU) 2022/2554) | Financial entities and critical ICT third-party service providers (CTPPs) operating in or serving the EU financial sector | 2025-01-17 |
 | **NIS 2 Directive** (Directive 2022/2555) | Financial sector entities classified as essential entities | October 2024 (transposition) |
 | **GDPR** | All personal data processing | May 2018 |
 | **PSD2 / PSD3** | Payment services providers; open banking | Ongoing |
