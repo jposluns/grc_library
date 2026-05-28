@@ -108,7 +108,7 @@ Backup status is reported monthly to the CISO. Any backup gap exceeding the defi
 
 ## Runbook references
 
-System-specific recovery runbooks are maintained in the IT Operations Documentation Framework and the IT/Operations space. Runbooks must be reviewed and tested at minimum annually. Runbook currency (last tested date) is tracked in the CMDB against each in-scope system. Runbooks not tested within 13 months are flagged as non-compliant.
+System-specific recovery runbooks are maintained per the recovery runbook template ([`resilience/template-recovery-runbook.md`](template-recovery-runbook.md)) and held in the operations documentation space owned by the IT/Operations function. Runbooks must be reviewed and tested at minimum annually. Runbook currency (last tested date) is tracked in the CMDB against each in-scope system. Runbooks not tested within 13 months are flagged as non-compliant.
 
 ---
 

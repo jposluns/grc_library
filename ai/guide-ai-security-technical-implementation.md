@@ -2,7 +2,7 @@
 
 **Document Title:** AI Security Technical Implementation Guide 
 **Document Type:** Guide 
-**Version:** 1.3.0 
+**Version:** 1.3.1 
 **Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -489,8 +489,8 @@ exec(llm_output)                               # Never
 ```python
 # PROHIBITED
 system_prompt = f"""
-You have access to our database.
-Connection: Server=db-server.internal;Database=AppDB;Password={DB_PASSWORD}
+You have access to the database.
+Connection: Server=[DATABASE_HOSTNAME];Database=[DATABASE_NAME];Password={DB_PASSWORD}
 """
 # If leaked via injection or logging, credentials are exposed.
 # Use managed identity database connections from application code instead.

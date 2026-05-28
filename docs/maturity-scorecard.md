@@ -112,7 +112,7 @@ _143 documents._
 | [compliance/annex-healthcare-sector-requirements.md](../compliance/annex-healthcare-sector-requirements.md) | Healthcare Sector GRC Requirements Annex | Annex | 1.0.0 | 2026-05-27 |
 | [compliance/annex-transportation-and-logistics-sector-requirements.md](../compliance/annex-transportation-and-logistics-sector-requirements.md) | Transportation and Logistics Sector GRC Requirements Annex | Annex | 1.0.0 | 2026-05-27 |
 | [compliance/matrix-grc-compliance-alignment.md](../compliance/matrix-grc-compliance-alignment.md) | GRC Library Compliance Alignment Matrix | Matrix | 1.0.0 | 2026-05-27 |
-| [compliance/policy-compliance-and-audit-management.md](../compliance/policy-compliance-and-audit-management.md) | Compliance, Audit, and CAPA Management Policy | Policy | 1.0.0 | 2026-05-27 |
+| [compliance/policy-compliance-and-audit-management.md](../compliance/policy-compliance-and-audit-management.md) | Compliance, Audit, and CAPA Management Policy | Policy | 1.0.1 | 2026-05-27 |
 | [compliance/policy-legal-and-regulatory-compliance.md](../compliance/policy-legal-and-regulatory-compliance.md) | Legal and Regulatory Compliance Policy | Policy | 1.0.0 | 2026-05-27 |
 | [compliance/procedure-aeo-it-self-assessment.md](../compliance/procedure-aeo-it-self-assessment.md) | AEO IT Self-Assessment Procedure | Procedure | 1.0.0 | 2026-05-27 |
 | [compliance/procedure-audit-planning.md](../compliance/procedure-audit-planning.md) | Audit Planning Procedure | Procedure | 1.0.1 | 2026-05-28 |
@@ -139,7 +139,7 @@ _143 documents._
 | [governance/framework-metrics-monitoring-and-performance-reporting.md](../governance/framework-metrics-monitoring-and-performance-reporting.md) | Metrics, Monitoring and Performance Reporting Framework | Framework | 1.0.0 | 2026-05-27 |
 | [governance/guideline-esg-and-ai-ethics-disclosure.md](../governance/guideline-esg-and-ai-ethics-disclosure.md) | ESG and AI Ethics Disclosure Guideline | Guideline | 1.0.0 | 2026-05-27 |
 | [governance/policy-digital-twin-and-simulation-governance.md](../governance/policy-digital-twin-and-simulation-governance.md) | Digital Twin and Simulation Governance Policy | Policy | 1.0.0 | 2026-05-27 |
-| [governance/policy-exception-and-risk-acceptance-management.md](../governance/policy-exception-and-risk-acceptance-management.md) | Exception and Risk Acceptance Management Policy | Policy | 1.0.0 | 2026-05-27 |
+| [governance/policy-exception-and-risk-acceptance-management.md](../governance/policy-exception-and-risk-acceptance-management.md) | Exception and Risk Acceptance Management Policy | Policy | 1.0.1 | 2026-05-27 |
 | [governance/procedure-continuous-improvement-register.md](../governance/procedure-continuous-improvement-register.md) | Continuous Improvement Register Procedure | Procedure | 1.0.0 | 2026-05-27 |
 | [governance/procedure-grc-programme-management-and-annual-review.md](../governance/procedure-grc-programme-management-and-annual-review.md) | GRC Programme Management and Annual Review Procedure | Procedure | 1.0.0 | 2026-05-27 |
 | [governance/procedure-whistleblower-and-incident-reporting.md](../governance/procedure-whistleblower-and-incident-reporting.md) | Whistleblower and Incident Reporting Procedure | Procedure | 1.0.0 | 2026-05-27 |

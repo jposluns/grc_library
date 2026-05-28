@@ -2,7 +2,7 @@
 
 **Document Title:** Compliance, Audit, and CAPA Management Policy 
 **Document Type:** Policy 
-**Version:** 1.0.0 
+**Version:** 1.0.1 
 **Date:** 2026-05-27 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -73,7 +73,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 2.1 Annual audit plans shall be risk-based, approved by the Audit Committee, and include IT, operational, supplier, AI, and trade-compliance audits. 
 2.2 Audit criteria shall follow ISO 19011 principles of integrity, independence, evidence-based assessment, and risk orientation. 
 2.3 Each audit shall document objective evidence, findings, severity, and recommendations. 
-2.4 Audit evidence, process documentation, and system-specific procedures shall be maintained under the IT Operations Documentation Framework to ensure that testing and assurance activities remain aligned to governance artefacts.
+2.4 Audit evidence, process documentation, and system-specific procedures shall be retained per the records retention and destruction standard ([`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)) and aligned with the operations domain's IT service management framework ([`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md)) so that testing and assurance activities remain traceable to governance artefacts.
 
 ### 3. Audit independence and objectivity
 3.1 Internal Audit shall remain functionally independent and report directly to the Board Audit Committee. 
@@ -88,7 +88,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 ### 5. Algorithmic and AI compliance auditing
 5.1 AI systems shall undergo algorithmic audits for transparency, bias, robustness, and ethical compliance. 
 5.2 AI audit trails shall include datasets, models, parameters, evaluation metrics, and risk classification per ISO 23894 and NIST AI RMF. 
-5.3 [Unverified] Automated monitoring may use algorithmic compliance checks and validation scripts integrated with audit workflows.
+5.3 Where the cost-benefit profile justifies, automated monitoring may use algorithmic compliance checks and validation scripts integrated with audit workflows; automation is optional, not mandatory.
 
 ### 6. Reporting and escalation
 6.1 Audit results shall be reported to management within 15 business days of closure. 
@@ -117,7 +117,6 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 - **EU AI Act** Articles 9 to 16 (Risk, Quality, and Post-Market Monitoring) 
 - **Canada Artificial Intelligence and Data Act (AIDA)** 
 - **U.S. Executive Order 14110** on Safe, Secure, and Trustworthy AI 
-- [Unverified] **Draft 2026 ISO 37301 Revision** to Algorithmic Compliance and Automation Integration 
 - **Trade and Supply Chain Programs:** WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (U.S.), AEO (EU), and equivalents
 
 
