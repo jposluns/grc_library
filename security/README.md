@@ -2,7 +2,7 @@
 
 **Document Title:** Information Security Domain README 
 **Document Type:** Register 
-**Version:** 1.1.1 
+**Version:** 1.2.0 
 **Date:** 2026-05-28 
 **Owner:** Information Security Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -53,6 +53,13 @@ This directory contains organization-neutral information security governance art
 | SOP | Incident Escalation Matrix | [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md) |
 | SOP | Security Ticket Reporting Scheme | [`security/sop-security-ticket-reporting-scheme.md`](sop-security-ticket-reporting-scheme.md) |
 | Roadmap | Post-Quantum Cryptography Readiness Roadmap | [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md) |
+| Framework | Zero Trust Architecture Framework | [`security/framework-zero-trust-architecture.md`](framework-zero-trust-architecture.md) |
+| Standard | Email Security Standard | [`security/standard-email-security.md`](standard-email-security.md) |
+| Standard | Security Operations Centre Operating Model Standard | [`security/standard-soc-operating-model.md`](standard-soc-operating-model.md) |
+| Standard | SaaS Security Posture Management Standard | [`security/standard-saas-security-posture-management.md`](standard-saas-security-posture-management.md) |
+| Framework | Insider Risk Programme Framework | [`security/framework-insider-risk-programme.md`](framework-insider-risk-programme.md) |
+| Standard | Endpoint Hardening Standard | [`security/standard-endpoint-hardening.md`](standard-endpoint-hardening.md) |
+| Procedure | Key Escrow and Recovery Procedure | [`security/procedure-key-escrow-and-recovery.md`](procedure-key-escrow-and-recovery.md) |
 
 ---
 

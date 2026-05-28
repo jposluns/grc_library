@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register 
 **Document Type:** Register 
-**Version:** 1.14.0 
+**Version:** 1.15.0 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -207,6 +207,13 @@ All active repository documents should be Public.
 | Security | SOP | Incident Escalation Matrix | [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md) | Chief Information Security Officer | Annual | ISO 27035:2023, NIST SP 800-61r3, COBIT DSS02, CSA CCM SEF-02 |
 | Security | SOP | Security Ticket Reporting Scheme | [`security/sop-security-ticket-reporting-scheme.md`](../security/sop-security-ticket-reporting-scheme.md) | Chief Information Security Officer | Annual | ISO 27035:2023, NIST SP 800-61r3, COBIT DSS02 |
 | Security | Roadmap | Post-Quantum Cryptography Readiness Roadmap | [`security/roadmap-post-quantum-cryptography.md`](../security/roadmap-post-quantum-cryptography.md) | Chief Information Security Officer | Annual | NIST SP 800-208, NIST FIPS 203/204/205, NSA CNSA 2.0, ISO 27001 A.8.24 |
+| Security | Framework | Zero Trust Architecture Framework | [`security/framework-zero-trust-architecture.md`](../security/framework-zero-trust-architecture.md) | Chief Information Security Officer | Annual | NIST SP 800-207, NIST SP 800-207A, CISA ZTMM 2.0, OMB M-22-09, DoD ZT RA, ISO 27001, CSA SDP |
+| Security | Standard | Email Security Standard | [`security/standard-email-security.md`](../security/standard-email-security.md) | Chief Information Security Officer | Annual | RFC 7208/6376/7489, BIMI, RFC 8460/8461, NIST SP 800-177r1, ISO 27001 A.5.14/A.8.21/A.8.23 |
+| Security | Standard | Security Operations Centre Operating Model Standard | [`security/standard-soc-operating-model.md`](../security/standard-soc-operating-model.md) | Chief Information Security Officer | Annual | NIST CSF 2.0, NIST SP 800-61r2/800-150/800-92, ISO 27001 A.5.7/A.5.24-28/A.8.15-16, ISO 27035, MITRE ATT&CK/D3FEND, SOC-CMM, FIRST |
+| Security | Standard | SaaS Security Posture Management Standard | [`security/standard-saas-security-posture-management.md`](../security/standard-saas-security-posture-management.md) | Chief Information Security Officer | Annual | ISO 27001 A.5.19-23, CSA CCM v5, CSA STAR, NIST CSF 2.0, NIST SP 800-204D, OWASP SaaS Checklist, MITRE ATT&CK Cloud |
+| Security | Framework | Insider Risk Programme Framework | [`security/framework-insider-risk-programme.md`](../security/framework-insider-risk-programme.md) | Chief Information Security Officer | Annual | ISO 27001 A.6.1-5/A.8.2-5, ISO 27002, NIST SP 800-53 PS/AT, CERT Insider Threat Center, NITTF, GDPR Arts 5/6/13/14/22/88, ILO, works councils |
+| Security | Standard | Endpoint Hardening Standard | [`security/standard-endpoint-hardening.md`](../security/standard-endpoint-hardening.md) | Chief Information Security Officer | Annual | CIS Benchmarks, NIST SP 800-46r2/800-124r2, ISO 27001 A.8.1/A.8.3/A.8.7, CSA CCM UEM, Microsoft SCT, macOS Security Compliance Project |
+| Security | Procedure | Key Escrow and Recovery Procedure | [`security/procedure-key-escrow-and-recovery.md`](../security/procedure-key-escrow-and-recovery.md) | Chief Information Security Officer | Annual | ISO 27002 §8.24-28, NIST SP 800-57/800-130/800-152, NIST FIPS 140-3, CSA CCM EKM, ETSI EN 319 411, PCI DSS v4.0, RFC 5280 |
 | Operations | Framework | IT Service Management Framework | [`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md) | Chief Information Officer | Annual | ISO 20000-1:2018, ITIL 4, COBIT DSS02/DSS03, EU NIS 2 Directive |
 | Operations | Register | Asset Inventory Register | [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md) | Chief Information Officer | Continuous / Quarterly | ISO 27001 A.5.9, NIST SP 800-53 CM-8, COBIT BAI09 |
 | Operations | Register | IT Security Operations Register | [`operations/register-it-security-operations.md`](../operations/register-it-security-operations.md) | Chief Information Security Officer | Continuous / Monthly | ISO 27001 §9.1, NIST SP 800-53 CA-7, COBIT DSS05 |

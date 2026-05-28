@@ -60,6 +60,8 @@ The Chief Information Security Officer needs policies, standards, and procedures
 ### Framework
 
 - [Cryptographic Key Lifecycle Management Framework](../security/framework-cryptographic-key-lifecycle.md)
+- [Insider Risk Programme Framework](../security/framework-insider-risk-programme.md)
+- [Zero Trust Architecture Framework](../security/framework-zero-trust-architecture.md)
 
 ### Policy
 
@@ -80,6 +82,7 @@ The Chief Information Security Officer needs policies, standards, and procedures
 - [Endpoint Management and Device Compliance Procedure](../operations/procedure-endpoint-management-and-device-compliance.md)
 - [IT Onboarding and Offboarding Procedure](../security/procedure-onboarding-and-offboarding.md)
 - [Identity Management Procedure](../security/procedure-identity-management.md)
+- [Key Escrow and Recovery Procedure](../security/procedure-key-escrow-and-recovery.md)
 - [Media Handling and Transport Procedure](../operations/procedure-media-handling-and-transport.md)
 - [Patch Management Procedure](../operations/procedure-patch-management.md)
 - [Security Disciplinary Process Procedure](../security/procedure-security-disciplinary-process.md)
@@ -106,6 +109,8 @@ The Chief Information Security Officer needs policies, standards, and procedures
 - [Data Loss Prevention Standard](../security/standard-data-loss-prevention.md)
 - [DevOps Security Requirements](../dev-security/standard-devops-security-requirements.md)
 - [Developer Security Requirements](../dev-security/standard-developer-security-requirements.md)
+- [Email Security Standard](../security/standard-email-security.md)
+- [Endpoint Hardening Standard](../security/standard-endpoint-hardening.md)
 - [Logging and Monitoring Standard](../security/standard-logging-and-monitoring.md)
 - [Network Security and Segmentation Standard](../operations/standard-network-security-and-segmentation.md)
 - [Penetration Testing and Red Team Standard](../security/standard-penetration-testing-and-red-team.md)
@@ -115,8 +120,10 @@ The Chief Information Security Officer needs policies, standards, and procedures
 - [Production Security Requirements](../operations/standard-production-security-requirements.md)
 - [Quality Assurance and Testing Standard](../dev-security/standard-quality-assurance-and-testing.md)
 - [Remote Working Security Standard](../security/standard-remote-working-security.md)
+- [SaaS Security Posture Management Standard](../security/standard-saas-security-posture-management.md)
 - [Security Awareness and Training Standard](../security/standard-security-awareness-and-training.md)
 - [Security Baseline and Standards Reference](../dev-security/standard-security-baseline-and-standards-reference.md)
+- [Security Operations Centre Operating Model Standard](../security/standard-soc-operating-model.md)
 - [Security Quick Reference](../dev-security/standard-security-quick-reference.md)
 - [Service Level Management Standard](../operations/standard-service-level-management.md)
 - [Software Composition Analysis Standard](../dev-security/standard-software-composition-analysis.md)
@@ -229,6 +236,8 @@ Security architects need the dev-security standards, the AI security guides, the
 - [AI Model Risk Framework](../ai/framework-ai-model-risk.md)
 - [AI System Audit and Certification Framework](../ai/framework-ai-system-audit-certification.md)
 - [Cryptographic Key Lifecycle Management Framework](../security/framework-cryptographic-key-lifecycle.md)
+- [Insider Risk Programme Framework](../security/framework-insider-risk-programme.md)
+- [Zero Trust Architecture Framework](../security/framework-zero-trust-architecture.md)
 
 ### Guide
 
@@ -277,14 +286,18 @@ Security architects need the dev-security standards, the AI security guides, the
 - [Data Loss Prevention Standard](../security/standard-data-loss-prevention.md)
 - [DevOps Security Requirements](../dev-security/standard-devops-security-requirements.md)
 - [Developer Security Requirements](../dev-security/standard-developer-security-requirements.md)
+- [Email Security Standard](../security/standard-email-security.md)
+- [Endpoint Hardening Standard](../security/standard-endpoint-hardening.md)
 - [Logging and Monitoring Standard](../security/standard-logging-and-monitoring.md)
 - [Penetration Testing and Red Team Standard](../security/standard-penetration-testing-and-red-team.md)
 - [Personnel Security Screening Standard](../security/standard-personnel-security-screening.md)
 - [Privileged Access Management Standard](../security/standard-privileged-access-management.md)
 - [Quality Assurance and Testing Standard](../dev-security/standard-quality-assurance-and-testing.md)
 - [Remote Working Security Standard](../security/standard-remote-working-security.md)
+- [SaaS Security Posture Management Standard](../security/standard-saas-security-posture-management.md)
 - [Security Awareness and Training Standard](../security/standard-security-awareness-and-training.md)
 - [Security Baseline and Standards Reference](../dev-security/standard-security-baseline-and-standards-reference.md)
+- [Security Operations Centre Operating Model Standard](../security/standard-soc-operating-model.md)
 - [Security Quick Reference](../dev-security/standard-security-quick-reference.md)
 - [Software Composition Analysis Standard](../dev-security/standard-software-composition-analysis.md)
 - [Software Evaluation, Acceptance and Lifecycle Management Standard](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md)
