@@ -1,18 +1,18 @@
 # Production Security Requirements
 
-**Document Title:** Production Security Requirements  
-**Document Type:** Standard  
-**Version:** 1.1.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](../dev-security/standard-security-quick-reference.md)  
-**Classification:** Public  
-**Category:** Operations  
-**Review Frequency:** Annual and upon material platform or regulatory change  
-**Repository Path:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Production Security Requirements 
+**Document Type:** Standard 
+**Version:** 1.1.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](../dev-security/standard-security-quick-reference.md) 
+**Classification:** Public 
+**Category:** Operations 
+**Review Frequency:** Annual and upon material platform or regulatory change 
+**Repository Path:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 This standard defines security requirements for production infrastructure and operations. It covers the controls that govern how production systems are secured, monitored, changed, and recovered. For deployment pipeline and DevOps controls, see the DevOps Security Requirements Standard.
 
@@ -24,7 +24,7 @@ This standard defines security requirements for production infrastructure and op
 
 **DNS security:** Internal DNS must have query logging enabled and forwarded to the SIEM.
 
-**TLS certificate management:** Internal services use an internal PKI (two-tier hierarchical CA). External-facing services use an approved external CA — a jurisdiction-appropriate CA is preferred for data residency alignment. Self-signed certificates are prohibited in Production. A certificate inventory must be maintained. Alerts fire at 60 days and 30 days before expiry. Certificate expiry in production is a critical incident.
+**TLS certificate management:** Internal services use an internal PKI (two-tier hierarchical CA). External-facing services use an approved external CA: a jurisdiction-appropriate CA is preferred for data residency alignment. Self-signed certificates are prohibited in Production. A certificate inventory must be maintained. Alerts fire at 60 days and 30 days before expiry. Certificate expiry in production is a critical incident.
 
 **Remote access:** All on-premises remote administration must originate from a Privileged Access Workstation (PAW) or approved jump host on the Management VLAN. Direct RDP/SSH from general workstations is prohibited. External vendor access must use the approved path or VPN with MFA, subject to PAM workflow.
 
@@ -82,7 +82,7 @@ The following must be evidenced before any system promotes to production. These 
 
 ### 3.3 Incident Response Obligations
 
-Do not isolate or reimage systems without direction from the incident commander. Evidence preservation takes priority over service recovery in the first hour. Escalate immediately to the CIO and security leadership. The IR partner (where contracted) is notified by the security leadership for P1 incidents — current partner details are maintained in the operational state register. All IR actions must be logged with timestamps.
+Do not isolate or reimage systems without direction from the incident commander. Evidence preservation takes priority over service recovery in the first hour. Escalate immediately to the CIO and security leadership. The IR partner (where contracted) is notified by the security leadership for P1 incidents: current partner details are maintained in the operational state register. All IR actions must be logged with timestamps.
 
 ---
 
@@ -90,10 +90,10 @@ Do not isolate or reimage systems without direction from the incident commander.
 
 | Severity | SLA |
 | --- | --- |
-| Critical (CVSS 9.0–10.0) | 24 hours if actively exploited; 72 hours if publicly disclosed; 7 days otherwise |
-| High (CVSS 7.0–8.9) | 14 days |
-| Medium (CVSS 4.0–6.9) | 30 days |
-| Low (CVSS 0.1–3.9) | 90 days or next maintenance window |
+| Critical (CVSS 9.0 to 10.0) | 24 hours if actively exploited; 72 hours if publicly disclosed; 7 days otherwise |
+| High (CVSS 7.0 to 8.9) | 14 days |
+| Medium (CVSS 4.0 to 6.9) | 30 days |
+| Low (CVSS 0.1 to 3.9) | 90 days or next maintenance window |
 
 Authenticated vulnerability scans must run at minimum weekly. Results must be reviewed within 48 hours. Critical findings trigger immediate alert. No EOL OS, middleware, or runtime versions are permitted in production. Upgrade plans must be initiated at minimum 6 months before any EOL date.
 
@@ -122,7 +122,7 @@ Any infrastructure programme delivering or replacing production infrastructure m
 
 | Phase | Description | Security Acceptance Criteria |
 | --- | --- | --- |
-| Mobilisation | Access and governance established | Access controls confirmed; security responsibilities assigned; governance documentation in place |
+| Mobilization | Access and governance established | Access controls confirmed; security responsibilities assigned; governance documentation in place |
 | Core platform | Compute, storage, and network baseline operational | Hypervisor or compute cluster operational; storage redundancy confirmed; VLANs and ACL baseline applied; PAW/jump host paths operational |
 | Identity baseline | Directory and authentication services live | Directory services live; GPOs applied; LDAP signing enforced; admin tier separation verified; MFA enforced at all access points |
 | Application readiness | Application platforms and data tiers in place | Database and application tiers deployed; backup hooks active; audit logging confirmed; database audit logging enabled |
@@ -153,7 +153,7 @@ The following must be maintained as living artefacts:
 
 **Conditional Access:** All Conditional Access policies are defined and enforced centrally by the enterprise identity platform. Application and infrastructure teams must not design around Conditional Access.
 
-**RBAC:** Custom roles are preferred over built-in where built-in roles grant excess permissions. Owner/Contributor at subscription level must be minimised. All assignments should use Privileged Identity Management (PIM) eligible assignments where possible. A quarterly review is mandatory.
+**RBAC:** Custom roles are preferred over built-in where built-in roles grant excess permissions. Owner/Contributor at subscription level must be minimized. All assignments should use Privileged Identity Management (PIM) eligible assignments where possible. A quarterly review is mandatory.
 
 **Secrets management:** Every application has its own secrets vault. No cross-application sharing for Confidential or Restricted secrets. Soft delete and purge protection must be enabled. Diagnostic logs must be forwarded to the SIEM. Firewall rules must restrict network access.
 
@@ -165,7 +165,7 @@ The following must be maintained as living artefacts:
 
 ## 9. On-Premises Middleware Security
 
-This section applies to all on-premises middleware platforms — message brokers, integration servers, EDI platforms, and equivalent — regardless of vendor or product.
+This section applies to all on-premises middleware platforms, message brokers, integration servers, EDI platforms, and equivalent, regardless of vendor or product.
 
 ### Service Account Isolation
 
@@ -197,11 +197,11 @@ When migrating from on-premises middleware to cloud integration platforms:
 
 - All migrated workflows must comply with developer security requirements from day one; no legacy credential patterns carry over.
 - Partner certificates and agreements must be migrated to the approved cloud certificate and integration store.
-- Parallel operation of on-premises and cloud paths during transition must have a documented cutover date and rollback plan — indefinite parallel operation is not permitted.
+- Parallel operation of on-premises and cloud paths during transition must have a documented cutover date and rollback plan: indefinite parallel operation is not permitted.
 
 ---
 
-## 10. EOL — Production Obligations
+## 10. EOL: Production Obligations
 
 The EOL classification policy and remediation SLAs are defined in the Security Baseline Standard. Production and infrastructure obligations:
 
@@ -216,14 +216,14 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 
 | Control Area | ISO 27001:2022 | CSA CCM v4 | NIST SP 800-53 | NIST SSDF |
 | --- | --- | --- | --- | --- |
-| Network security | A.8.20–8.23 | I&S-01–09 | SC-7, SC-8 | — |
-| Backup and recovery | A.8.13–8.14 | BCR-08–10 | CP-9, CP-10 | — |
-| Monitoring and incident response | A.8.15–8.16, A.5.24–5.28 | LOG-01–14, SEF-01–10 | IR-1–8, SI-4 | RV.1 |
-| Vulnerability management | A.8.8 | TVM-03–12 | RA-5, SI-2 | PO.5 |
-| Change management | A.8.32 | CCC-01–09 | CM-3, CM-5 | — |
-| Certificate management | A.8.24 | CEK-01–21 | SC-12, SC-17 | — |
-| Access control | A.5.15–5.18 | IAM-01–14 | AC-2, AC-6 | PW.6 |
-| EOL and lifecycle | A.8.8 | TVM-01–02 | SA-22 | PO.5 |
+| Network security | A.8.20 to 8.23 | I&S-01 to 09 | SC-7, SC-8 | N/A |
+| Backup and recovery | A.8.13 to 8.14 | BCR-08 to 10 | CP-9, CP-10 | N/A |
+| Monitoring and incident response | A.8.15 to 8.16, A.5.24 to 5.28 | LOG-01 to 14, SEF-01 to 10 | IR-1 to 8, SI-4 | RV.1 |
+| Vulnerability management | A.8.8 | TVM-03 to 12 | RA-5, SI-2 | PO.5 |
+| Change management | A.8.32 | CCC-01 to 09 | CM-3, CM-5 | N/A |
+| Certificate management | A.8.24 | CEK-01 to 21 | SC-12, SC-17 | N/A |
+| Access control | A.5.15 to 5.18 | IAM-01 to 14 | AC-2, AC-6 | PW.6 |
+| EOL and lifecycle | A.8.8 | TVM-01 to 02 | SA-22 | PO.5 |
 
 
 

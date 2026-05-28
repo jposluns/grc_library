@@ -1,20 +1,20 @@
 # Media Handling and Transport Procedure
 
-**Document Title:** Media Handling and Transport Procedure  
-**Document Type:** Procedure  
-**Version:** 1.3.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`operations/standard-physical-security-of-it-infrastructure.md`](standard-physical-security-of-it-infrastructure.md)  
-**Classification:** Public  
-**Category:** Operations  
-**Review Frequency:** Annual and upon material platform or regulatory change  
-**Repository Path:** [`operations/procedure-media-handling-and-transport.md`](procedure-media-handling-and-transport.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Media Handling and Transport Procedure 
+**Document Type:** Procedure 
+**Version:** 1.3.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`operations/standard-physical-security-of-it-infrastructure.md`](standard-physical-security-of-it-infrastructure.md) 
+**Classification:** Public 
+**Category:** Operations 
+**Review Frequency:** Annual and upon material platform or regulatory change 
+**Repository Path:** [`operations/procedure-media-handling-and-transport.md`](procedure-media-handling-and-transport.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
-This procedure defines the minimum requirements for classifying, storing, transporting, transferring, sanitising, and disposing of physical and digital media throughout its lifecycle.
+This procedure defines the minimum requirements for classifying, storing, transporting, transferring, sanitizing, and disposing of physical and digital media throughout its lifecycle.
 
 ---
 
@@ -28,8 +28,8 @@ To protect information held on physical and digital media from unauthorised disc
 
 1. Applies to all physical media including removable storage (USB drives, portable hard drives, optical media, magnetic tapes), printed documents, and decommissioned hardware containing storage.
 2. Applies to all digital media transfers including file transfer, email attachment, cloud sharing, and direct network transfer.
-3. Applies to organisation-issued and personally-owned devices (BYOD) where they are used to handle organisational data.
-4. Covers all employees, contractors, and third parties who handle organisational media in any classification.
+3. Applies to organization-issued and personally-owned devices (BYOD) where they are used to handle organizational data.
+4. Covers all employees, contractors, and third parties who handle organizational media in any classification.
 5. Applies globally across all office locations, data centre sites, field operations, and logistics environments including BASC-certified trade and customs operations.
 
 ---
@@ -39,8 +39,8 @@ To protect information held on physical and digital media from unauthorised disc
 | Role | Responsibility |
 | --- | --- |
 | **CISO** | Owns this procedure; approves use of non-standard transfer mechanisms for Confidential or Restricted data; reviews annual metrics. |
-| **IT Operations** | Manages approved media inventory and physical storage; performs and documents sanitisation and disposal; maintains the asset register; procures and manages approved secure disposal vendors. |
-| **Data Owners** | Classify data held on media under their domain; authorise transfers of Confidential or Restricted data; confirm retention holds before disposal is initiated. |
+| **IT Operations** | Manages approved media inventory and physical storage; performs and documents sanitization and disposal; maintains the asset register; procures and manages approved secure disposal vendors. |
+| **Data Owners** | Classify data held on media under their domain; authorize transfers of Confidential or Restricted data; confirm retention holds before disposal is initiated. |
 | **Regional BASC Compliance Officers** | Confirm destruction of BASC trade and customs data in compliance with BASC requirements and applicable national customs authority obligations. |
 | **All Employees and Contractors** | Handle media in accordance with the classification of the information it contains; report loss or suspected compromise of media immediately to IT Operations and the CISO. |
 
@@ -105,14 +105,14 @@ Loss or suspected compromise of physical media in transit must be reported immed
 
 ### 5.1 Approved Transfer Mechanisms
 
-Digital transfer of organisational data must use approved channels. The approved mechanism depends on the classification of the data being transferred:
+Digital transfer of organizational data must use approved channels. The approved mechanism depends on the classification of the data being transferred:
 
 | Data Classification | Approved Transfer Mechanisms |
 | --- | --- |
 | Public / Controlled | Approved collaboration platform, email, or file-sharing service. |
 | Internal | Approved internal systems; external transfer requires management approval and must use an encrypted channel. |
 | Confidential | Approved encrypted file transfer service or encrypted email; TLS 1.3 minimum for all channels. |
-| Restricted | Approved secure file transfer service with end-to-end encryption; access logged; transfer pre-authorised by CISO or Data Owner. |
+| Restricted | Approved secure file transfer service with end-to-end encryption; access logged; transfer pre-authorized by CISO or Data Owner. |
 
 ### 5.2 Prohibition on Personal Cloud Storage
 
@@ -126,7 +126,7 @@ All digital transfers of Confidential or Restricted data over any network, inclu
 
 External transfer of Confidential or Restricted data to third parties requires:
 
-1. Written authorisation from the Data Owner.
+1. Written authorization from the Data Owner.
 2. A current and valid data sharing or processing agreement.
 3. Confirmation that the receiving party's controls meet or exceed the requirements of this procedure.
 4. Use of an approved encrypted transfer mechanism.
@@ -144,14 +144,14 @@ Physical media containing Confidential or Restricted data must be stored in lock
 | Classification | Storage Requirement |
 | --- | --- |
 | Internal | Locked cabinet in an access-controlled area; key or combination held by IT Operations. |
-| Confidential | Locked cabinet in a restricted IT infrastructure area; access limited to authorised personnel; access log maintained. |
+| Confidential | Locked cabinet in a restricted IT infrastructure area; access limited to authorized personnel; access log maintained. |
 | Restricted | Double-locked storage (locked cabinet within a locked room); access list reviewed quarterly by the CISO; access events logged. |
 
-Media containing Confidential or Restricted data must not be stored in general office areas, reception areas, or any area accessible without IT Operations authorisation.
+Media containing Confidential or Restricted data must not be stored in general office areas, reception areas, or any area accessible without IT Operations authorization.
 
 ### 6.2 Portable Digital Media Encryption
 
-All portable digital media (USB drives, external hard drives, portable SSDs) used for organisational data must be encrypted. Unencrypted portable media is prohibited for Confidential or Restricted data. IT Operations maintains an inventory of organisation-issued portable media and the data classification they are approved to carry. Personal USB drives and portable storage devices are not permitted to connect to organisation-managed endpoints unless explicitly approved by the CISO for a documented purpose.
+All portable digital media (USB drives, external hard drives, portable SSDs) used for organizational data must be encrypted. Unencrypted portable media is prohibited for Confidential or Restricted data. IT Operations maintains an inventory of organization-issued portable media and the data classification they are approved to carry. Personal USB drives and portable storage devices are not permitted to connect to organization-managed endpoints unless explicitly approved by the CISO for a documented purpose.
 
 ### 6.3 Backup Media
 
@@ -159,13 +159,13 @@ Backup media (tapes or portable drives used for off-site backup) must be encrypt
 
 ---
 
-## 7. Media Sanitisation and Destruction
+## 7. Media Sanitization and Destruction
 
-### 7.1 Sanitisation Before Reuse
+### 7.1 Sanitization Before Reuse
 
-Before any storage media is reissued for a different user or purpose, it must be sanitised to remove all previous data. The sanitisation method must be appropriate to the classification of the data previously held and consistent with NIST SP 800-88 guidelines:
+Before any storage media is reissued for a different user or purpose, it must be sanitized to remove all previous data. The sanitization method must be appropriate to the classification of the data previously held and consistent with NIST SP 800-88 guidelines:
 
-| Media Type | Required Sanitisation Method |
+| Media Type | Required Sanitization Method |
 | --- | --- |
 | Hard disk drives (HDD) | NIST SP 800-88 Clear (overwrite) for Internal and below; Purge (verified overwrite or degauss) for Confidential and above. |
 | Solid-state drives (SSD) and flash media | Cryptographic erasure using ATA Secure Erase, Sanitize (Block Erase), or equivalent. |
@@ -175,7 +175,7 @@ Before any storage media is reissued for a different user or purpose, it must be
 
 ### 7.2 Destruction of Electronic Media
 
-Electronic media that cannot be sanitised — including media that has failed, damaged media, or media for which cryptographic erasure keys are unavailable — must be physically destroyed:
+Electronic media that cannot be sanitized, including media that has failed, damaged media, or media for which cryptographic erasure keys are unavailable, must be physically destroyed:
 
 - Shredding, crushing, or disintegration in a manner that renders data recovery infeasible.
 - Destruction must be performed or witnessed by an IT Operations staff member, or by a contracted accredited disposal vendor with Certificates of Destruction issued.
@@ -203,7 +203,7 @@ A Certificate of Destruction is mandatory for the disposal of all media that has
 
 - All decommissioned servers and workstations.
 - All portable media (USB drives, external drives, tapes) removed from service.
-- All organisation-issued mobile devices.
+- All organization-issued mobile devices.
 - Paper records of Confidential or Restricted classification destroyed by a contracted service.
 
 A Certificate of Destruction is not required for internal-only paper records shredded on-site, provided the shredding is recorded in the Destruction Register.
@@ -237,7 +237,7 @@ Surplus hardware declared for disposal by IT Operations must be processed throug
 
 1. The asset is flagged for disposal in the asset register by the IT Operations lead.
 2. The Data Owner for any data stored on the device confirms retention obligations are met and no hold is in effect.
-3. Media sanitisation or destruction is performed per §7 and recorded.
+3. Media sanitization or destruction is performed per §7 and recorded.
 4. A Certificate of Destruction is obtained per §8.
 5. The asset register is updated to "disposed" with the disposal date, method, and Certificate of Destruction reference.
 
@@ -245,10 +245,10 @@ No hardware may be donated, sold, transferred to a third party, or placed for ge
 
 ### 9.2 Secure Disposal Vendor Requirements
 
-Where external vendors are used for media sanitisation or physical destruction, vendors must:
+Where external vendors are used for media sanitization or physical destruction, vendors must:
 
 - Hold documented and current accreditation such as R2, e-Stewards, ADISA, or equivalent national standard.
-- Provide a Certificate of Destruction for each disposal event, itemised to the asset or batch level.
+- Provide a Certificate of Destruction for each disposal event, itemized to the asset or batch level.
 - Sign a data processing or confidentiality agreement prior to receiving any media.
 - Be reviewed annually by IT Operations and the CISO for continued compliance with accreditation requirements.
 
@@ -281,12 +281,12 @@ The following metrics are reported to the CISO quarterly and reviewed annually a
 
 | Control Area | ISO/IEC 27001:2022 | NIST SP 800-88 | CSA CCM v5 | COBIT 2025 |
 | --- | --- | --- | --- | --- |
-| Media handling and classification | A.8.10 | §2 — Overview | DSP-07 | DSS05.06 |
-| Physical transport and chain of custody | A.8.10, A.7.10 | §4.2 — Clear | DSP-07 | DSS05.06 |
-| Digital transfer controls | A.8.24, A.5.14 | — | DSP-07, CEK-14 | DSS05.02 |
-| Media storage | A.8.10, A.7.9 | §4.1 — Sanitisation | DSP-07 | DSS05.01 |
-| Sanitisation and destruction | A.8.10 | §4.3 — Purge, §4.4 — Destroy | DSP-07 | DSS05.06 |
-| Certificate of Destruction and records | A.5.33 | §4.5 — Documentation | DSP-07 | DSS05.06 |
+| Media handling and classification | A.8.10 | §2: Overview | DSP-07 | DSS05.06 |
+| Physical transport and chain of custody | A.8.10, A.7.10 | §4.2: Clear | DSP-07 | DSS05.06 |
+| Digital transfer controls | A.8.24, A.5.14 | N/A | DSP-07, CEK-14 | DSS05.02 |
+| Media storage | A.8.10, A.7.9 | §4.1: Sanitization | DSP-07 | DSS05.01 |
+| Sanitization and destruction | A.8.10 | §4.3, Purge, §4.4, Destroy | DSP-07 | DSS05.06 |
+| Certificate of Destruction and records | A.5.33 | §4.5: Documentation | DSP-07 | DSS05.06 |
 
 ---
 

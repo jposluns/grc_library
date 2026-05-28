@@ -1,30 +1,30 @@
 # Physical Security of IT Infrastructure Standard
 
-**Document Title:** Physical Security of IT Infrastructure Standard  
-**Document Type:** Standard  
-**Version:** 1.3.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-network-security-and-segmentation.md`](standard-network-security-and-segmentation.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)  
-**Classification:** Public  
-**Category:** Operations  
-**Review Frequency:** Annual and upon material platform or regulatory change  
-**Repository Path:** [`operations/standard-physical-security-of-it-infrastructure.md`](standard-physical-security-of-it-infrastructure.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Physical Security of IT Infrastructure Standard 
+**Document Type:** Standard 
+**Version:** 1.3.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-network-security-and-segmentation.md`](standard-network-security-and-segmentation.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) 
+**Classification:** Public 
+**Category:** Operations 
+**Review Frequency:** Annual and upon material platform or regulatory change 
+**Repository Path:** [`operations/standard-physical-security-of-it-infrastructure.md`](standard-physical-security-of-it-infrastructure.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Scope Boundary
 
-Covers physical security controls for IT infrastructure owned and operated by the CIO's office. Covers server rooms, network closets, camera and NVR systems, and IT equipment. Broader facility physical security — building access systems, perimeter fencing, guard services, visitor management — is outside IT scope and governed by Facilities and Operations.
+Covers physical security controls for IT infrastructure owned and operated by the CIO's office. Covers server rooms, network closets, camera and NVR systems, and IT equipment. Broader facility physical security, building access systems, perimeter fencing, guard services, visitor management, is outside IT scope and governed by Facilities and Operations.
 
 ---
 
 ## Purpose
 
-Defines minimum physical security requirements for IT infrastructure areas under direct control of the CIO. Ensures hardware, cabling, and IT equipment are protected from unauthorised physical access, tampering, environmental hazards, and theft. Supports the Information Security Policy and the Standard: Cloud Security Configuration Baseline (which governs logical controls). Aligns to ISO/IEC 27001:2022 Annex A.7 (Physical Controls) within IT scope.
+Defines minimum physical security requirements for IT infrastructure areas under direct control of the CIO. Ensures that hardware, cabling, and IT equipment are protected from unauthorised physical access, tampering, environmental hazards, and theft. Supports the Information Security Policy and the Standard: Cloud Security Configuration Baseline (which governs logical controls). Aligns to ISO/IEC 27001:2022 Annex A.7 (Physical Controls) within IT scope.
 
 ---
 
@@ -32,7 +32,7 @@ Defines minimum physical security requirements for IT infrastructure areas under
 
 1. Applies to all IT infrastructure areas under CIO management including the primary data centre server room, network closets, UPS and power distribution equipment, and IT equipment rooms at all office locations.
 2. Covers access control to IT rooms, camera surveillance systems and NVR infrastructure, environmental monitoring, equipment handling, and clean desk requirements for IT operations areas.
-3. Does not govern building perimeter access, parking areas, reception, or non-IT physical security — those are Facilities responsibilities.
+3. Does not govern building perimeter access, parking areas, reception, or non-IT physical security: those are Facilities responsibilities.
 
 ---
 
@@ -49,13 +49,13 @@ Defines minimum physical security requirements for IT infrastructure areas under
 
 ## 1. Server Room and Data Centre Physical Access
 
-Access to the primary data centre server room and all IT equipment rooms is restricted to authorised IT Operations personnel.
+Access to the primary data centre server room and all IT equipment rooms is restricted to authorized IT Operations personnel.
 
 | Control | Requirement |
 |---|---|
-| Access authorisation | Access granted by CISO or designated IT Operations lead. Access list reviewed quarterly and immediately upon departure of any authorised individual. |
+| Access authorization | Access granted by CISO or designated IT Operations lead. Access list reviewed quarterly and immediately upon departure of any authorized individual. |
 | Access mechanism | Physical access requires a credential (key card, PIN, or key) separate from general office access. Multi-factor physical access (card plus PIN) required for the primary data centre server room. |
-| Visitor and contractor access | Vendors, contractors, and visitors must be accompanied by an authorised IT Operations staff member at all times inside IT infrastructure areas. Unescorted access not permitted. Visitor access logged. |
+| Visitor and contractor access | Vendors, contractors, and visitors must be accompanied by an authorized IT Operations staff member at all times inside IT infrastructure areas. Unescorted access not permitted. Visitor access logged. |
 | Access logging | All physical access events logged electronically or manually. Logs retained for 2 years per the Records Retention Schedule and reviewed monthly by IT Operations. |
 | Tailgating prevention | Personnel must not permit others to follow them through access-controlled doors. Anti-tailgating procedures covered in the Security Awareness and Training Standard. |
 
@@ -63,7 +63,7 @@ Access to the primary data centre server room and all IT equipment rooms is rest
 
 ## 2. Camera Surveillance and NVR Systems
 
-The organisation operates IP camera systems at office and data centre locations under IT Operations management.
+The organization operates IP camera systems at office and data centre locations under IT Operations management.
 
 | Control | Requirement |
 |---|---|
@@ -89,7 +89,7 @@ IT Operations is responsible for:
 
 ## 4. Equipment Handling
 
-IT equipment entering or leaving an IT infrastructure area must be logged in the asset register before removal. Equipment removed without an asset register update is treated as potential theft and investigated as a P2 incident. Decommissioned equipment must be sanitised per the Media Handling and Transport Procedure before leaving IT custody.
+IT equipment entering or leaving an IT infrastructure area must be logged in the asset register before removal. Equipment removed without an asset register update is treated as potential theft and investigated as a P2 incident. Decommissioned equipment must be sanitized per the Media Handling and Transport Procedure before leaving IT custody.
 
 ---
 
@@ -103,9 +103,9 @@ IT Operations areas and the server room must maintain a clean desk policy. Print
 
 | Framework | Reference |
 |---|---|
-| ISO/IEC 27001:2022 | Annex A.7 — Physical Controls (server room and IT equipment scope only) |
-| NIST SP 800-53 | PE-2, PE-3, PE-6 — Physical Access Authorisation, Control, and Monitoring |
-| CSA CCM v5 | IVS-03 — Infrastructure and Virtualisation Security: Physical Security |
+| ISO/IEC 27001:2022 | Annex A.7: Physical Controls (server room and IT equipment scope only) |
+| NIST SP 800-53 | PE-2, PE-3, PE-6: Physical Access Authorization, Control, and Monitoring |
+| CSA CCM v5 | IVS-03: Infrastructure and Virtualization Security: Physical Security |
 | CTPAT Minimum Security Criteria | Physical Access Controls for IT Systems |
 | Canada PIP | Physical Security of IT Infrastructure |
 

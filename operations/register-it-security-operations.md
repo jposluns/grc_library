@@ -1,24 +1,24 @@
 # IT Security Operations Register
 
-**Document Title:** IT Security Operations Register  
-**Document Type:** Register  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`operations/register-asset-inventory.md`](register-asset-inventory.md), [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md)  
-**Classification:** Public  
-**Category:** Operations  
-**Review Frequency:** Continuous; CISO review monthly; full review annually  
-**Repository Path:** [`operations/register-it-security-operations.md`](register-it-security-operations.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** IT Security Operations Register 
+**Document Type:** Register 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`operations/register-asset-inventory.md`](register-asset-inventory.md), [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md) 
+**Classification:** Public 
+**Category:** Operations 
+**Review Frequency:** Continuous; CISO review monthly; full review annually 
+**Repository Path:** [`operations/register-it-security-operations.md`](register-it-security-operations.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This register defines the schema, governance model, and section structure for the IT Security Operations Register. The register is the single authoritative source for current operational security state across all IT platforms and environments. It does not contain security requirements — those are defined in security policies and standards. This register records the current implementation state and tracks remediation of identified gaps.
+This register defines the schema, governance model, and section structure for the IT Security Operations Register. The register is the single authoritative source for current operational security state across all IT platforms and environments. It does not contain security requirements: those are defined in security policies and standards. This register records the current implementation state and tracks remediation of identified gaps.
 
 The operational register is maintained in the GRC platform and updated continuously. This document defines its structure and governance.
 
@@ -29,7 +29,7 @@ The operational register is maintained in the GRC platform and updated continuou
 | Principle | Requirement |
 | --- | --- |
 | **Update obligation** | Any team member who changes the state of any item in this register must update the relevant section within 5 business days |
-| **CISO review** | Monthly — CISO reviews register for staleness and escalates unaddressed items |
+| **CISO review** | Monthly: CISO reviews register for staleness and escalates unaddressed items |
 | **Vendor assignments** | Reviewed annually in Q4 |
 | **Distribution** | IT Operations, DevOps, Infrastructure, and Security teams |
 
@@ -71,7 +71,7 @@ Unapproved platforms present in the production environment are treated as risks 
 
 ### Section 4: Cloud Subscription and Environment Architecture
 
-Records the organisational cloud environment structure including:
+Records the organizational cloud environment structure including:
 - Subscription / account names and purposes.
 - Environment classification (Production / Non-Production / Sandbox).
 - Cross-environment connectivity rules.
@@ -142,10 +142,10 @@ Records any active "do not modify" or restricted-change constraints on productio
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 27001:2022 | §9.1 — Monitoring, Measurement, Analysis and Evaluation | Operational security monitoring |
-| NIST SP 800-53 | CA-7 — Continuous Monitoring | Continuous operational assurance |
-| COBIT 2025 | DSS05 — Manage Security Services | Security operations governance |
-| CSA CCM v5 | SEF — Security Engineering and Development | Cloud security operations |
+| ISO/IEC 27001:2022 | §9.1: Monitoring, Measurement, Analysis and Evaluation | Operational security monitoring |
+| NIST SP 800-53 | CA-7: Continuous Monitoring | Continuous operational assurance |
+| COBIT 2025 | DSS05: Manage Security Services | Security operations governance |
+| CSA CCM v5 | SEF: Security Engineering and Development | Cloud security operations |
 
 ---
 

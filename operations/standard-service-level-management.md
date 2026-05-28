@@ -1,18 +1,18 @@
 # Service Level Management Standard
 
-**Document Title:** Service Level Management Standard  
-**Document Type:** Standard  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md), [`operations/register-it-security-operations.md`](register-it-security-operations.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../resilience/standard-business-continuity-and-disaster-recovery.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md)  
-**Classification:** Public  
-**Category:** Operations  
-**Review Frequency:** Annual and upon material service, contract, or regulatory change  
-**Repository Path:** [`operations/standard-service-level-management.md`](standard-service-level-management.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Service Level Management Standard 
+**Document Type:** Standard 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md), [`operations/register-it-security-operations.md`](register-it-security-operations.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../resilience/standard-business-continuity-and-disaster-recovery.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md) 
+**Classification:** Public 
+**Category:** Operations 
+**Review Frequency:** Annual and upon material service, contract, or regulatory change 
+**Repository Path:** [`operations/standard-service-level-management.md`](standard-service-level-management.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -28,16 +28,16 @@ This standard applies to:
 
 - All IT services delivered to internal customers, including business units and operational functions.
 - All Operational Level Agreements between internal IT teams supporting service delivery.
-- All externally sourced services where the organisation is the service consumer and the supplier is subject to a contracted SLA.
+- All externally sourced services where the organization is the service consumer and the supplier is subject to a contracted SLA.
 - Cloud-hosted services where availability and support terms are governed by provider service agreements.
 
-This standard does not apply to external services where the organisation is the service provider to clients; those obligations are governed by customer contracts and applicable regulatory requirements.
+This standard does not apply to external services where the organization is the service provider to clients; those obligations are governed by customer contracts and applicable regulatory requirements.
 
 ---
 
 ## Requirements
 
-### 1 — Service Catalogue and Service Classification
+### 1: Service Catalogue and Service Classification
 
 1.1 The Service Management Office must maintain a current service catalogue listing all in-scope IT services with their service classification, support tier, business criticality, and assigned Service Owner.
 
@@ -54,7 +54,7 @@ This standard does not apply to external services where the organisation is the 
 
 ---
 
-### 2 — SLA Establishment Requirements
+### 2: SLA Establishment Requirements
 
 2.1 Every Tier 1 and Tier 2 service must have a documented and approved SLA before entering production. SLAs for Tier 3 and Tier 4 services are recommended but not mandatory.
 
@@ -63,7 +63,7 @@ This standard does not apply to external services where the organisation is the 
 - Service name, description, and scope.
 - Service hours (planned availability window or 24/7 requirement).
 - Availability target, expressed as a percentage of scheduled service hours.
-- Response and resolution time targets by incident priority tier (P1–P4).
+- Response and resolution time targets by incident priority tier (P1 to P4).
 - Planned maintenance window terms and notification requirements.
 - Exclusions (events outside the service provider's control; force majeure; approved change windows).
 - Service review and reporting frequency.
@@ -73,11 +73,11 @@ This standard does not apply to external services where the organisation is the 
 
 2.3 SLAs must be approved by the Service Owner and acknowledged by the service consumer before activation.
 
-2.4 Where a service is delivered by an external supplier, the supplier's contracted service terms must be reviewed against the internal SLA to confirm the supplier's obligations support the organisation's service targets. Gaps must be identified and risk-accepted before service activation.
+2.4 Where a service is delivered by an external supplier, the supplier's contracted service terms must be reviewed against the internal SLA to confirm the supplier's obligations support the organization's service targets. Gaps must be identified and risk-accepted before service activation.
 
 ---
 
-### 3 — Operational Level Agreements
+### 3: Operational Level Agreements
 
 3.1 Where a service depends on support from one or more internal IT teams, an Operational Level Agreement must be established between the Service Owner and each supporting team.
 
@@ -89,9 +89,9 @@ This standard does not apply to external services where the organisation is the 
 
 ---
 
-### 4 — SLA Monitoring and Measurement
+### 4: SLA Monitoring and Measurement
 
-4.1 Service availability and performance must be measured continuously using the organisation's monitoring toolset. Manual measurements are permitted only where automated monitoring is not feasible and must be documented as a known limitation.
+4.1 Service availability and performance must be measured continuously using the organization's monitoring toolset. Manual measurements are permitted only where automated monitoring is not feasible and must be documented as a known limitation.
 
 4.2 The Service Management Office must produce a monthly SLA compliance report for all Tier 1 and Tier 2 services. The report must include:
 
@@ -107,7 +107,7 @@ This standard does not apply to external services where the organisation is the 
 
 ---
 
-### 5 — Breach Detection and Escalation
+### 5: Breach Detection and Escalation
 
 5.1 A breach occurs when a service availability or resolution target is not met within the measurement period and is not attributable to an approved exclusion.
 
@@ -127,7 +127,7 @@ This standard does not apply to external services where the organisation is the 
 
 ---
 
-### 6 — SLA Review
+### 6: SLA Review
 
 6.1 All SLAs must be reviewed at least annually. The review must assess:
 
@@ -148,9 +148,9 @@ This standard does not apply to external services where the organisation is the 
 
 ---
 
-### 7 — Supplier SLA Governance
+### 7: Supplier SLA Governance
 
-7.1 Where an external supplier is responsible for delivering or supporting a service, the organisation must hold the supplier accountable to the contracted SLA through the supplier governance process defined in `supply-chain/standard-supplier-security-and-privacy-assurance.md`.
+7.1 Where an external supplier is responsible for delivering or supporting a service, the organization must hold the supplier accountable to the contracted SLA through the supplier governance process defined in `supply-chain/standard-supplier-security-and-privacy-assurance.md`.
 
 7.2 Supplier SLA performance must be reviewed at least quarterly. Material or repeated supplier SLA breaches must be escalated to the Supplier Owner and documented in the supplier risk register.
 
@@ -165,7 +165,7 @@ This standard does not apply to external services where the organisation is the 
 
 ---
 
-### 8 — Cloud Provider Service Agreement Management
+### 8: Cloud Provider Service Agreement Management
 
 8.1 Where cloud infrastructure or platform services underpin a Tier 1 or Tier 2 internal service, the relevant cloud provider service agreement must be reviewed to identify:
 
@@ -174,13 +174,13 @@ This standard does not apply to external services where the organisation is the 
 - Notification requirements for provider-side incidents.
 - Geographic or zone-specific availability commitments.
 
-8.2 Cloud provider SLA availability must be factored into the organisation's internal SLA design. Where the cloud provider's SLA is lower than the internal service target, a compensating architecture (multi-region, failover, redundancy) must be documented.
+8.2 Cloud provider SLA availability must be factored into the organization's internal SLA design. Where the cloud provider's SLA is lower than the internal service target, a compensating architecture (multi-region, failover, redundancy) must be documented.
 
 8.3 Cloud provider service agreement terms must be reviewed when contracts are renewed and whenever a material architecture change affects the service.
 
 ---
 
-### 9 — Continuous Improvement
+### 9: Continuous Improvement
 
 9.1 Breach trends, repeat failures, and SLA performance patterns must be reviewed at the quarterly SLA governance meeting and fed into the ITIL 4 continual improvement cycle operated under the IT Service Management Framework.
 
@@ -209,8 +209,8 @@ Adopting organizations should retain:
 | --- | --- | --- |
 | ISO/IEC 20000-1:2018 | §8.3 Service Level Management | SLA establishment, monitoring, and review |
 | ITIL 4 | Service Level Management Practice | Service catalogue, SLA governance, continual improvement |
-| COBIT 2025 | DSS02 — Manage Service Requests and Incidents | Incident resolution targets and SLA governance |
-| COBIT 2025 | APO09 — Manage Service Agreements | Service agreement lifecycle |
+| COBIT 2025 | DSS02: Manage Service Requests and Incidents | Incident resolution targets and SLA governance |
+| COBIT 2025 | APO09: Manage Service Agreements | Service agreement lifecycle |
 | EU NIS 2 Directive | Business Continuity and Incident Reporting | Availability targets and notification timelines for significant incidents |
 
 ---

@@ -1,30 +1,30 @@
 # Asset Inventory Register
 
-**Document Title:** Asset Inventory Register  
-**Document Type:** Register  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md)  
-**Classification:** Public  
-**Category:** Operations  
-**Review Frequency:** Continuous (automated) with quarterly manual validation  
-**Repository Path:** [`operations/register-asset-inventory.md`](register-asset-inventory.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Asset Inventory Register 
+**Document Type:** Register 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md) 
+**Classification:** Public 
+**Category:** Operations 
+**Review Frequency:** Continuous (automated) with quarterly manual validation 
+**Repository Path:** [`operations/register-asset-inventory.md`](register-asset-inventory.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This register defines the schema, governance, and classification model for the organisational Asset Inventory. The Asset Inventory is the authoritative record of all IT hardware, software, cloud resources, data assets, and AI systems owned, managed, or used by the organisation. It supports risk assessments, vulnerability management, disaster recovery planning, and compliance activities.
+This register defines the schema, governance, and classification model for the organizational Asset Inventory. The Asset Inventory is the authoritative record of all IT hardware, software, cloud resources, data assets, and AI systems owned, managed, or used by the organization. It supports risk assessments, vulnerability management, disaster recovery planning, and compliance activities.
 
 ---
 
 ## Scope
 
-Covers all organisational assets including:
+Covers all organizational assets including:
 - Physical hardware: servers, workstations, laptops, mobile devices, network devices, printers.
 - Software: operating systems, applications, databases, development tools, cloud services.
 - Cloud resources: virtual machines, containers, cloud storage, managed services.
@@ -38,10 +38,10 @@ Covers all organisational assets including:
 
 | Classification | Description | Examples |
 | --- | --- | --- |
-| **Tier 1 — Mission Critical** | Assets whose failure causes immediate operational halt or significant customer impact | Core ERP, identity systems, production network infrastructure |
-| **Tier 2 — Essential** | Assets whose failure causes significant operational disruption within 24 hours | Email platform, financial systems, primary data systems |
-| **Tier 3 — Important** | Assets whose failure causes limited disruption; recoverable within 72 hours | Reporting tools, collaboration platforms, departmental applications |
-| **Tier 4 — Non-Critical** | Assets whose failure has minimal operational impact | Development environments, test systems, legacy archives |
+| **Tier 1: Mission Critical** | Assets whose failure causes immediate operational halt or significant customer impact | Core ERP, identity systems, production network infrastructure |
+| **Tier 2: Essential** | Assets whose failure causes significant operational disruption within 24 hours | Email platform, financial systems, primary data systems |
+| **Tier 3: Important** | Assets whose failure causes limited disruption; recoverable within 72 hours | Reporting tools, collaboration platforms, departmental applications |
+| **Tier 4: Non-Critical** | Assets whose failure has minimal operational impact | Development environments, test systems, legacy archives |
 
 ---
 
@@ -54,7 +54,7 @@ Each asset record must contain the following fields:
 | **Asset ID** | Unique identifier |
 | **Asset Name** | Descriptive name |
 | **Asset Type** | Hardware / Software / Cloud Resource / Data Asset / AI System |
-| **Classification Tier** | Tier 1–4 (from table above) |
+| **Classification Tier** | Tier 1 to 4 (from table above) |
 | **Data Classification** | Public / Internal / Confidential / Restricted |
 | **Owner** | Role title of responsible party |
 | **Custodian** | Team or individual managing the asset operationally |
@@ -68,7 +68,7 @@ Each asset record must contain the following fields:
 | **Last Vulnerability Scan** | Date of most recent vulnerability scan |
 | **Last Patched** | Date of most recent security patch |
 | **Backup Status** | Backup schedule, last successful backup, RPO |
-| **DR Classification** | Tier 1–4 aligned to IT DR Plan |
+| **DR Classification** | Tier 1 to 4 aligned to IT DR Plan |
 | **Date Added** | Date asset entered inventory |
 | **Last Reviewed** | Date of most recent manual validation |
 
@@ -118,10 +118,10 @@ Each asset record must contain the following fields:
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 27001:2022 | Annex A.5.9 — Inventory of Information and Other Assets | Asset inventory requirement |
-| ISO/IEC 27002:2022 | §5.9–5.10 | Asset ownership and acceptable use |
-| NIST SP 800-53 | CM-8 — Information System Component Inventory | Asset inventory controls |
-| COBIT 2025 | BAI09 — Manage Assets | IT asset lifecycle management |
+| ISO/IEC 27001:2022 | Annex A.5.9: Inventory of Information and Other Assets | Asset inventory requirement |
+| ISO/IEC 27002:2022 | §5.9 to 5.10 | Asset ownership and acceptable use |
+| NIST SP 800-53 | CM-8: Information System Component Inventory | Asset inventory controls |
+| COBIT 2025 | BAI09: Manage Assets | IT asset lifecycle management |
 | CSA CCM v5 | AIS-01 / HRS-01 | Cloud asset inventory and management |
 
 ---

@@ -1,18 +1,18 @@
 # IT Operations Key Performance Indicators Register
 
-**Document Title:** IT Operations Key Performance Indicators Register  
-**Document Type:** Register  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/register-it-security-operations.md`](register-it-security-operations.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md), [`resilience/register-resilience-metrics-and-testing-log.md`](../resilience/register-resilience-metrics-and-testing-log.md)  
-**Classification:** Public  
-**Category:** Operations  
-**Review Frequency:** Annual and upon material service, infrastructure, or regulatory change  
-**Repository Path:** [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** IT Operations Key Performance Indicators Register 
+**Document Type:** Register 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/register-it-security-operations.md`](register-it-security-operations.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md), [`resilience/register-resilience-metrics-and-testing-log.md`](../resilience/register-resilience-metrics-and-testing-log.md) 
+**Classification:** Public 
+**Category:** Operations 
+**Review Frequency:** Annual and upon material service, infrastructure, or regulatory change 
+**Repository Path:** [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -26,7 +26,7 @@ This register is a public-domain baseline. Adopting organizations must populate 
 
 ## Scope
 
-This register applies to all IT services, infrastructure, cloud environments, and operational functions managed by or on behalf of the organisation.
+This register applies to all IT services, infrastructure, cloud environments, and operational functions managed by or on behalf of the organization.
 
 ---
 
@@ -41,18 +41,18 @@ This register applies to all IT services, infrastructure, cloud environments, an
 
 ---
 
-## Section 1 — Availability and Infrastructure
+## Section 1: Availability and Infrastructure
 
 | KPI | Measurement Rule | Target | Frequency | Owner Role | Evidence Class | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | Critical service availability | Percentage of scheduled operational time that critical services are available, excluding approved maintenance windows. | 99.5% monthly per critical service | Monthly | Service Owner | Monitoring platform availability record, SLA report | Define service tiers and approved maintenance windows in the service catalogue. |
 | Infrastructure component uptime | Percentage uptime for core infrastructure components (compute, storage, network, identity services) measured per component group. | 99.9% monthly per component group | Monthly | IT Operations Manager | Platform availability log, cloud provider status record | Separate internal infrastructure from cloud provider availability where dependencies differ. |
 | Planned maintenance compliance | Percentage of planned maintenance windows completed within approved schedule and duration. | 95% | Monthly | Change Manager | Change record, maintenance window log | Overruns without approval are recorded as change deviations. |
-| Cloud capacity utilisation | Average utilisation of provisioned cloud compute and storage capacity as a percentage of approved budget envelope. | 70–85% utilisation band | Monthly | IT Operations Manager | Cloud cost management report, capacity dashboard | Values below 70% indicate over-provisioning; values above 85% indicate capacity risk. |
+| Cloud capacity utilization | Average utilization of provisioned cloud compute and storage capacity as a percentage of approved budget envelope. | 70 to 85% utilization band | Monthly | IT Operations Manager | Cloud cost management report, capacity dashboard | Values below 70% indicate over-provisioning; values above 85% indicate capacity risk. |
 
 ---
 
-## Section 2 — Incident Management
+## Section 2: Incident Management
 
 | KPI | Measurement Rule | Target | Frequency | Owner Role | Evidence Class | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -66,7 +66,7 @@ This register applies to all IT services, infrastructure, cloud environments, an
 
 ---
 
-## Section 3 — Change Management
+## Section 3: Change Management
 
 | KPI | Measurement Rule | Target | Frequency | Owner Role | Evidence Class | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -78,7 +78,7 @@ This register applies to all IT services, infrastructure, cloud environments, an
 
 ---
 
-## Section 4 — Problem Management
+## Section 4: Problem Management
 
 | KPI | Measurement Rule | Target | Frequency | Owner Role | Evidence Class | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -89,30 +89,30 @@ This register applies to all IT services, infrastructure, cloud environments, an
 
 ---
 
-## Section 5 — Patch and Vulnerability Management
+## Section 5: Patch and Vulnerability Management
 
 | KPI | Measurement Rule | Target | Frequency | Owner Role | Evidence Class | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | Critical vulnerability patch compliance | Percentage of internet-facing and internal systems patched or mitigated within 7 calendar days of a Critical-severity patch release. | 100% | Monthly | IT Operations Manager | Vulnerability scan, patch deployment record | Critical severity is defined by CVSS base score ≥ 9.0 or vendor critical rating. |
-| High vulnerability patch compliance | Percentage of systems patched or mitigated within 14 calendar days of a High-severity patch release. | 95% | Monthly | IT Operations Manager | Vulnerability scan, patch deployment record | High severity is CVSS base score 7.0–8.9. |
-| Vulnerability scan coverage | Percentage of in-scope systems scanned by the authorised vulnerability management tool within the last 7 days. | 100% | Weekly | IT Operations Manager | Vulnerability scan record | Coverage gaps must be tracked as exceptions. |
+| High vulnerability patch compliance | Percentage of systems patched or mitigated within 14 calendar days of a High-severity patch release. | 95% | Monthly | IT Operations Manager | Vulnerability scan, patch deployment record | High severity is CVSS base score 7.0 to 8.9. |
+| Vulnerability scan coverage | Percentage of in-scope systems scanned by the authorized vulnerability management tool within the last 7 days. | 100% | Weekly | IT Operations Manager | Vulnerability scan record | Coverage gaps must be tracked as exceptions. |
 | Unmitigated critical and high vulnerability age | Count of open Critical and High vulnerabilities exceeding the patching timeline without a formal exception and compensating control. | 0 | Monthly | IT Operations Manager | Vulnerability register, exception register | Any non-zero value triggers a mandatory risk review. |
 | Endpoint detection and response (EDR) coverage | Percentage of managed endpoints with a deployed and active endpoint detection and response agent. | 100% | Monthly | IT Security Manager | Endpoint management platform report | Exclusions require formal exception with compensating control. |
 
 ---
 
-## Section 6 — Capacity Management
+## Section 6: Capacity Management
 
 | KPI | Measurement Rule | Target | Frequency | Owner Role | Evidence Class | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| CPU utilisation — production systems | Average CPU utilisation across production compute workloads as a percentage of provisioned capacity. | 40–75% sustained average | Monthly | IT Operations Manager | Capacity dashboard, cloud monitoring report | Sustained utilisation above 75% triggers capacity planning review. |
-| Storage utilisation | Percentage of provisioned storage capacity in use across production environments. | < 80% | Monthly | IT Operations Manager | Storage management report | Alert threshold at 70%; capacity action required above 80%. |
-| Network bandwidth utilisation | Average bandwidth utilisation on primary internet and inter-site links as a percentage of contracted capacity. | < 70% average; < 85% peak | Monthly | Network Operations | Network monitoring log | Sustained peak above 85% requires capacity planning review. |
+| CPU utilization: production systems | Average CPU utilization across production compute workloads as a percentage of provisioned capacity. | 40 to 75% sustained average | Monthly | IT Operations Manager | Capacity dashboard, cloud monitoring report | Sustained utilization above 75% triggers capacity planning review. |
+| Storage utilization | Percentage of provisioned storage capacity in use across production environments. | < 80% | Monthly | IT Operations Manager | Storage management report | Alert threshold at 70%; capacity action required above 80%. |
+| Network bandwidth utilization | Average bandwidth utilization on primary internet and inter-site links as a percentage of contracted capacity. | < 70% average; < 85% peak | Monthly | Network Operations | Network monitoring log | Sustained peak above 85% requires capacity planning review. |
 | Capacity forecast accuracy | Variance between forecast capacity requirements (90-day forward estimate) and actual consumption, expressed as a percentage. | ± 15% | Quarterly | IT Operations Manager | Capacity plan, usage record | Accuracy below threshold triggers review of forecasting model. |
 
 ---
 
-## Section 7 — Service Desk and Request Fulfilment
+## Section 7: Service Desk and Request Fulfilment
 
 | KPI | Measurement Rule | Target | Frequency | Owner Role | Evidence Class | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -124,7 +124,7 @@ This register applies to all IT services, infrastructure, cloud environments, an
 
 ---
 
-## Section 8 — Security Operations
+## Section 8: Security Operations
 
 | KPI | Measurement Rule | Target | Frequency | Owner Role | Evidence Class | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -136,15 +136,15 @@ This register applies to all IT services, infrastructure, cloud environments, an
 
 ---
 
-## Section 9 — Reporting and Governance
+## Section 9: Reporting and Governance
 
 | Report | Frequency | Recipients | Owner Role | Content |
 | --- | --- | --- | --- | --- |
 | IT Operations KPI Dashboard | Monthly | CIO, Service Owners, Process Owners | Service Management Office | KPI results vs target for all eight categories; trend indicators; open exceptions. |
 | SLA Performance Report | Monthly | CIO, Service Owners | Service Management Office | SLA compliance rates by service and priority; breach root causes; corrective actions. |
 | Patch and Vulnerability Summary | Monthly | CIO, CISO | IT Operations Manager | Vulnerability count by severity, patch compliance rates, unmitigated critical items. |
-| Capacity Review Report | Quarterly | CIO | IT Operations Manager | Utilisation trends, capacity headroom, forecast vs actual, planned expansion. |
-| Executive Summary — IT Governance | Quarterly | ERC | Chief Information Officer | Aggregated KPI trend, major incident summary, significant risks, improvement plan status. |
+| Capacity Review Report | Quarterly | CIO | IT Operations Manager | Utilization trends, capacity headroom, forecast vs actual, planned expansion. |
+| Executive Summary: IT Governance | Quarterly | ERC | Chief Information Officer | Aggregated KPI trend, major incident summary, significant risks, improvement plan status. |
 | Annual IT Operations Review | Annual | ERC, Internal Audit | Chief Information Officer | Full-year KPI performance, SLA breach analysis, capacity programme outcomes, improvement plan. |
 
 ---
@@ -161,7 +161,7 @@ Adopting organizations must retain the following to substantiate KPI results:
 - ITSM portal request and service desk records.
 - SIEM alert logs and triage records.
 - Satisfaction survey results.
-- Capacity plans and utilisation trend exports.
+- Capacity plans and utilization trend exports.
 
 ---
 

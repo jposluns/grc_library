@@ -1,20 +1,20 @@
 # Endpoint Management and Device Compliance Procedure
 
-**Document Title:** Endpoint Management and Device Compliance Procedure  
-**Document Type:** Procedure  
-**Version:** 1.3.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md)  
-**Classification:** Public  
-**Category:** Operations  
-**Review Frequency:** Annual and upon material platform or regulatory change  
-**Repository Path:** [`operations/procedure-endpoint-management-and-device-compliance.md`](procedure-endpoint-management-and-device-compliance.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Endpoint Management and Device Compliance Procedure 
+**Document Type:** Procedure 
+**Version:** 1.3.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md) 
+**Classification:** Public 
+**Category:** Operations 
+**Review Frequency:** Annual and upon material platform or regulatory change 
+**Repository Path:** [`operations/procedure-endpoint-management-and-device-compliance.md`](procedure-endpoint-management-and-device-compliance.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
-This procedure defines the end-to-end lifecycle for provisioning, hardening, monitoring, and decommissioning endpoints and servers to ensure a consistent, auditable, and compliant device estate.
+This procedure defines the end-to-end lifecycle for provisioning, hardening, monitoring, and decommissioning endpoints and servers to ensure that a consistent, auditable, and compliant device estate.
 
 ---
 
@@ -22,14 +22,14 @@ This procedure defines the end-to-end lifecycle for provisioning, hardening, mon
 
 ### 1.1 Purpose
 
-To ensure that all organisational endpoints — including workstations, laptops, servers, and mobile devices — are enrolled, hardened, continuously monitored, and maintained in a compliant state throughout their operational lifetime, reducing the risk of compromise arising from misconfiguration, unpatched software, or unsanctioned devices accessing corporate resources.
+To ensure that all organizational endpoints, including workstations, laptops, servers, and mobile devices, are enrolled, hardened, continuously monitored, and maintained in a compliant state throughout their operational lifetime, reducing the risk of compromise arising from misconfiguration, unpatched software, or unsanctioned devices accessing corporate resources.
 
 ### 1.2 Scope
 
-1. Applies to all endpoints and servers owned or leased by the organisation, including physical and virtual machines, on-premises and cloud-hosted servers, and organisation-issued mobile devices.
+1. Applies to all endpoints and servers owned or leased by the organization, including physical and virtual machines, on-premises and cloud-hosted servers, and organization-issued mobile devices.
 2. Applies to personally-owned (BYOD) devices that access corporate systems, data, or networks.
-3. Covers IT Operations, Security Operations, System Owners, and all employees or contractors using organisation-managed or BYOD devices.
-4. Includes cloud platform virtual machines and containerised workloads that carry an identifiable OS layer enrolled in endpoint management.
+3. Covers IT Operations, Security Operations, System Owners, and all employees or contractors using organization-managed or BYOD devices.
+4. Includes cloud platform virtual machines and containerized workloads that carry an identifiable OS layer enrolled in endpoint management.
 
 ---
 
@@ -52,7 +52,7 @@ To ensure that all organisational endpoints — including workstations, laptops,
 
 No endpoint or server may connect to the corporate network or access corporate resources before it is registered in the asset register and enrolled in the endpoint management platform. This requirement applies to:
 
-- New organisation-issued workstations and laptops before first use.
+- New organization-issued workstations and laptops before first use.
 - New or replacement servers before promotion to any environment.
 - BYOD devices before accessing corporate systems (see §8).
 - Temporary or loaner devices issued by IT Operations.
@@ -87,7 +87,7 @@ The endpoint management platform performs automated device discovery to identify
 
 The enterprise endpoint detection and response (EDR) platform must be deployed on all managed devices, including:
 
-- All organisation-issued workstations and laptops.
+- All organization-issued workstations and laptops.
 - All on-premises and cloud platform servers (physical and virtual).
 - All on-premises servers enrolled in cloud-based hybrid server management.
 
@@ -101,10 +101,10 @@ All endpoint protection alerts must be forwarded to the SIEM in near-real-time. 
 
 | Asset Type | Endpoint Protection Coverage Target |
 | --- | --- |
-| Organisation-issued workstations and laptops | 100% |
+| Organization-issued workstations and laptops | 100% |
 | On-premises servers | 100% |
 | Cloud platform virtual machines | 100% |
-| Organisation-issued mobile devices | 100% |
+| Organization-issued mobile devices | 100% |
 
 Coverage below 98% on any asset class triggers an immediate remediation plan and CISO notification. Any single unprotected Tier 0 or Tier 1 server is treated as a P2 incident.
 
@@ -131,7 +131,7 @@ Baselines are reviewed annually and updated within 30 days of a new CIS Benchmar
 
 ### 5.2 Configuration Drift Detection
 
-The endpoint management platform performs continuous compliance assessment against deployed baselines. Configuration drift is reported in real time. Drift from the approved baseline is classified as non-compliant. High-risk drift — such as disabling screen lock, disabling endpoint protection, or removing required security policies — triggers an automated alert to Security Operations within 15 minutes.
+The endpoint management platform performs continuous compliance assessment against deployed baselines. Configuration drift is reported in real time. Drift from the approved baseline is classified as non-compliant. High-risk drift, such as disabling screen lock, disabling endpoint protection, or removing required security policies, triggers an automated alert to Security Operations within 15 minutes.
 
 ### 5.3 Workstation Screen Lock
 
@@ -209,7 +209,7 @@ Critical OS patches that affect server workloads are tested in a non-production 
 
 ### 8.1 Corporate-Issued Mobile Devices
 
-Organisation-issued mobile devices are enrolled in the endpoint management platform and subject to all controls in this procedure, including:
+Organization-issued mobile devices are enrolled in the endpoint management platform and subject to all controls in this procedure, including:
 
 - Remote wipe capability enabled.
 - Encryption enabled (hardware-backed where supported).
@@ -225,14 +225,14 @@ Personally-owned devices that access corporate systems must meet minimum securit
 | OS version | Supported, non-EOL version |
 | Screen lock | Enabled, maximum 5-minute timeout |
 | Device encryption | Enabled (full-device or work profile) |
-| Endpoint protection | Organisation-approved app or OS-native security |
+| Endpoint protection | Organization-approved app or OS-native security |
 | OS patches | Current within 30 days |
 
 Access to Restricted or Confidential data from a BYOD device is prohibited unless the device is enrolled in a managed work profile within the endpoint management platform. BYOD devices are not permitted to access the management VLAN, PAM infrastructure, or server administration interfaces under any circumstances.
 
 ### 8.3 Personal Device Separation
 
-Where a managed work profile is deployed to a BYOD device, corporate data is containerised and isolated from personal data. IT Operations may remotely wipe the managed work profile without affecting personal data. Remote wipe of the full device is not performed on BYOD devices without the device owner's written consent, except where required by law.
+Where a managed work profile is deployed to a BYOD device, corporate data is containerized and isolated from personal data. IT Operations may remotely wipe the managed work profile without affecting personal data. Remote wipe of the full device is not performed on BYOD devices without the device owner's written consent, except where required by law.
 
 ---
 
@@ -245,13 +245,13 @@ When an endpoint or server is retired, the following steps must be completed bef
 1. Confirm active data backup or migration of any data required for retention under the Records Retention and Destruction Standard.
 2. Revoke the device from the endpoint management platform and enterprise identity provider.
 3. Remove the device from any active Conditional Access or policy assignments.
-4. Perform media sanitisation per §9.2.
+4. Perform media sanitization per §9.2.
 5. Update the asset register to reflect decommissioned status with the date and method of disposal.
 6. Obtain a Certificate of Destruction where required by §9.3.
 
-### 9.2 Media Sanitisation
+### 9.2 Media Sanitization
 
-All storage media must be sanitised before a device leaves IT custody, consistent with the Media Handling and Transport Procedure and NIST SP 800-88 guidelines:
+All storage media must be sanitized before a device leaves IT custody, consistent with the Media Handling and Transport Procedure and NIST SP 800-88 guidelines:
 
 | Media Type | Required Method |
 | --- | --- |
@@ -260,7 +260,7 @@ All storage media must be sanitised before a device leaves IT custody, consisten
 | Non-erasable or damaged media | Physical destruction |
 | Mobile device storage | Factory reset with cryptographic erasure where supported by OS |
 
-Sanitisation must be verified and documented before the asset register is updated to "disposed."
+Sanitization must be verified and documented before the asset register is updated to "disposed."
 
 ### 9.3 Certificate of Destruction
 
@@ -286,8 +286,8 @@ The following metrics are reported to the CISO monthly and reviewed at the quart
 | --- | --- |
 | Endpoint protection coverage (all asset classes) | 100% |
 | Configuration compliance rate (compliant / total enrolled) | ≥ 98% |
-| Patch SLA adherence — Critical | ≥ 95% |
-| Patch SLA adherence — High | ≥ 90% |
+| Patch SLA adherence: Critical | ≥ 95% |
+| Patch SLA adherence: High | ≥ 90% |
 | Asset register reconciliation pass rate | 100% quarterly |
 | Non-compliant devices blocked by Conditional Access (count) | Reviewed; zero tolerance for unresolved > 24 hours |
 | Devices with EOL OS in production (count) | Zero; any exception reported to CISO immediately |
@@ -299,13 +299,13 @@ The following metrics are reported to the CISO monthly and reviewed at the quart
 
 | Control Area | ISO/IEC 27001:2022 | NIST SP 800-124 | CSA CCM v5 | COBIT 2025 |
 | --- | --- | --- | --- | --- |
-| Asset inventory and lifecycle | A.8.1–A.8.3 | §4.1 Device Inventory | END-01 | DSS05.01 |
+| Asset inventory and lifecycle | A.8.1 to A.8.3 | §4.1 Device Inventory | END-01 | DSS05.01 |
 | Endpoint protection deployment | A.8.7 | §4.2 Configuration Mgmt | END-02 | DSS05.03 |
 | Configuration compliance and hardening | A.8.9 | §4.3 Security Baseline | END-03 | DSS05.04 |
 | Conditional Access enforcement | A.5.15, A.8.2 | §4.4 Access Control | END-04 | DSS05.05 |
 | Patch and vulnerability management | A.8.8 | §4.5 Patch Management | END-05, TVM-06 | DSS05.07 |
 | Mobile and BYOD | A.8.1, A.6.7 | §4.6 Mobile Devices | END-01 | DSS05.03 |
-| Decommissioning and media sanitisation | A.8.10 | §4.7 Disposal | DSP-07 | DSS05.06 |
+| Decommissioning and media sanitization | A.8.10 | §4.7 Disposal | DSP-07 | DSS05.06 |
 
 ---
 

@@ -1,18 +1,18 @@
 # Threat Intelligence and SIEM Operations Procedure
 
-**Document Title:** Threat Intelligence and SIEM Operations Procedure  
-**Document Type:** Procedure  
-**Version:** 1.3.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`security/procedure-incident-response.md`](../security/procedure-incident-response.md)  
-**Classification:** Public  
-**Category:** Operations  
-**Review Frequency:** Annual and upon material platform or regulatory change  
-**Repository Path:** [`operations/procedure-threat-intelligence-and-siem-operations.md`](procedure-threat-intelligence-and-siem-operations.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Threat Intelligence and SIEM Operations Procedure 
+**Document Type:** Procedure 
+**Version:** 1.3.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`security/procedure-incident-response.md`](../security/procedure-incident-response.md) 
+**Classification:** Public 
+**Category:** Operations 
+**Review Frequency:** Annual and upon material platform or regulatory change 
+**Repository Path:** [`operations/procedure-threat-intelligence-and-siem-operations.md`](procedure-threat-intelligence-and-siem-operations.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -20,15 +20,15 @@
 
 ### 1.1 Purpose
 
-This procedure defines the operational processes for managing threat intelligence, operating the Security Information and Event Management (SIEM) platform, developing and maintaining correlation rules, conducting threat hunting, and sharing intelligence with sector peers. It establishes the practices by which threat intelligence is operationalised into detection capability and feeds back into continual improvement of the organisation's security posture.
+This procedure defines the operational processes for managing threat intelligence, operating the Security Information and Event Management (SIEM) platform, developing and maintaining correlation rules, conducting threat hunting, and sharing intelligence with sector peers. It establishes the practices by which threat intelligence is operationalized into detection capability and feeds back into continual improvement of the organization's security posture.
 
 The procedure is aligned with NIST SP 800-150 (Guide to Cyber Threat Information Sharing), MITRE ATT&CK Enterprise, ISO/IEC 27001:2022 A.5.7, COBIT 2025 DSS05, and CSA CCM v5 TIM-01 through TIM-08 and SEF-01 through SEF-10.
 
 ### 1.2 Scope
 
-1. Applies to all threat intelligence activities undertaken by the Security Operations Centre (SOC) and Threat Intelligence team, including collection, analysis, dissemination, and operationalisation of intelligence.
+1. Applies to all threat intelligence activities undertaken by the Security Operations Centre (SOC) and Threat Intelligence team, including collection, analysis, dissemination, and operationalization of intelligence.
 2. Covers the full SIEM platform lifecycle: workspace health, data connector management, correlation rule development and maintenance, and alert triage.
-3. Applies to threat hunting activities conducted within all environments under organisational control, including cloud platform, on-premises, and hybrid infrastructure.
+3. Applies to threat hunting activities conducted within all environments under organizational control, including cloud platform, on-premises, and hybrid infrastructure.
 4. Includes intelligence sharing with sector partners, government agencies, and industry consortia.
 
 ---
@@ -41,8 +41,8 @@ The procedure is aligned with NIST SP 800-150 (Guide to Cyber Threat Information
 | --- | --- |
 | **Chief Information Security Officer (CISO)** | Accountable for the threat intelligence and SIEM operations programme. Approves intelligence sharing agreements. Receives escalations for nation-state or advanced persistent threat (APT) activity. Reviews programme effectiveness at the quarterly security governance review. |
 | **Threat Intelligence Lead** | Manages threat intelligence sources, validates indicators of compromise (IoCs), oversees the indicator management lifecycle, and maintains relationships with ISACs and government advisory bodies. |
-| **SOC Manager** | Responsible for day-to-day SIEM operations, alert triage, correlation rule quality, and hunt programme delivery. Ensures analyst coverage and escalation paths are maintained. |
-| **SOC Analysts (Tier 1–3)** | Perform alert triage, initial investigation, indicator enrichment, rule tuning, and threat hunting. Document findings and feed lessons learned back into detection engineering. |
+| **SOC Manager** | Responsible for day-to-day SIEM operations, alert triage, correlation rule quality, and hunt programme delivery. Ensures that analyst coverage and escalation paths are maintained. |
+| **SOC Analysts (Tier 1 to 3)** | Perform alert triage, initial investigation, indicator enrichment, rule tuning, and threat hunting. Document findings and feed lessons learned back into detection engineering. |
 | **Detection Engineer** | Designs, tests, and deploys SIEM correlation rules. Maintains MITRE ATT&CK tactic-to-rule mappings. Validates rule performance metrics. |
 | **Legal Counsel** | Advises on intelligence sharing agreements, obligations under information sharing frameworks, and escalation requirements for nation-state threat attribution. |
 
@@ -50,8 +50,8 @@ The procedure is aligned with NIST SP 800-150 (Guide to Cyber Threat Information
 
 | Forum | Frequency | Participants | Purpose |
 | --- | --- | --- | --- |
-| SOC Operations Review | Weekly | SOC Manager, SOC Analysts, Detection Engineer | Validate correlation rule effectiveness, data normalisation quality, ingestion gaps, and alert thresholds |
-| Threat Intelligence Review | Monthly | Threat Intelligence Lead, SOC Manager, CISO | Review intelligence feed coverage, new IoCs operationalised, hunt findings, and intelligence sharing activities |
+| SOC Operations Review | Weekly | SOC Manager, SOC Analysts, Detection Engineer | Validate correlation rule effectiveness, data normalization quality, ingestion gaps, and alert thresholds |
+| Threat Intelligence Review | Monthly | Threat Intelligence Lead, SOC Manager, CISO | Review intelligence feed coverage, new IoCs operationalized, hunt findings, and intelligence sharing activities |
 | SIEM Rule Review | Bi-annual | Detection Engineer, SOC Manager, CISO | Full review of all active correlation rules; retire stale rules; validate MITRE ATT&CK coverage gaps |
 | Security Governance Review | Quarterly | CISO, CIO, Legal Counsel | Programme metrics, risk posture, significant incidents, and regulatory considerations |
 
@@ -61,14 +61,14 @@ The procedure is aligned with NIST SP 800-150 (Guide to Cyber Threat Information
 
 ### 3.1 Source Categories
 
-The organisation maintains a diverse, layered threat intelligence programme drawing from the following source categories:
+The organization maintains a diverse, layered threat intelligence programme drawing from the following source categories:
 
 | Source Category | Examples | Ingestion Method |
 | --- | --- | --- |
 | **Open Source Intelligence (OSINT)** | VirusTotal, Shodan, AlienVault OTX, abuse.ch, Threat Fox | Automated feed ingestion via TAXII/STIX or API |
 | **Commercial Vendor Feeds** | Contracted threat intelligence platforms providing curated IoCs, malware signatures, and adversary TTPs | API integration to SIEM and threat intelligence platform (TIP) |
 | **Government Advisories** | CISA Known Exploited Vulnerabilities (KEV) catalogue; NCSC (UK) threat advisories; CCCS (Canadian Centre for Cyber Security) alerts and advisories | Manual review and automated feed where available |
-| **Sector ISAC Memberships** | Relevant sector Information Sharing and Analysis Centre memberships per the organisation's sector profile | Encrypted email, portal, or STIX/TAXII feed |
+| **Sector ISAC Memberships** | Relevant sector Information Sharing and Analysis Centre memberships per the organization's sector profile | Encrypted email, portal, or STIX/TAXII feed |
 | **Dark Web and Criminal Forums** | Monitored via contracted threat intelligence service for credential exposure and pre-attack planning indicators | Vendor-curated alerting |
 | **Internal Telemetry** | SIEM-generated indicators from detected incidents, endpoint detection telemetry, DNS anomalies, and authentication failures | Automated from SIEM correlation output |
 | **Incident Response Findings** | Indicators and TTPs identified during post-incident reviews | Manual ingestion following PIR completion |
@@ -78,7 +78,7 @@ The organisation maintains a diverse, layered threat intelligence programme draw
 All threat intelligence sources are assessed at initial onboarding and annually thereafter against:
 
 - **Reliability:** Track record of accurate, timely, and actionable intelligence.
-- **Relevance:** Alignment with the organisation's threat landscape, industry, and geographic exposure.
+- **Relevance:** Alignment with the organization's threat landscape, industry, and geographic exposure.
 - **Timeliness:** Speed of dissemination from discovery to feed availability.
 - **Cost-effectiveness:** Value delivered relative to subscription or operational cost.
 
@@ -88,7 +88,7 @@ The Threat Intelligence Lead maintains a source registry documenting each source
 
 ## 4. Indicator Management Lifecycle
 
-All threat intelligence indicators pass through a five-stage lifecycle before operationalisation and remain managed until expiry or withdrawal.
+All threat intelligence indicators pass through a five-stage lifecycle before operationalization and remain managed until expiry or withdrawal.
 
 ### 4.1 Lifecycle Stages
 
@@ -96,8 +96,8 @@ All threat intelligence indicators pass through a five-stage lifecycle before op
 | --- | --- | --- | --- |
 | **1. Ingest** | Raw indicators received from all configured sources (OSINT, vendor, ISAC, government, internal). Ingested into the Threat Intelligence Platform (TIP) with source, confidence, and timestamp metadata. | Threat Intelligence Lead / SOC Analyst | Raw indicator record in TIP |
 | **2. Validate** | De-duplicate against existing indicators. Verify indicator is not a known false positive (e.g., CDN ranges, internal IP ranges). Cross-reference against at least one additional source where possible. Assign confidence level (High / Medium / Low). | Threat Intelligence Lead | Validated indicator record with confidence score |
-| **3. Enrich** | Augment with context: associated adversary group, MITRE ATT&CK tactic and technique, affected sectors, geolocation, associated malware family, and any known TTPs. AI-driven anomaly detection tools may be applied to identify correlated indicators suggesting compromised accounts or insider activity. | SOC Analyst (Tier 2–3) / Detection Engineer | Enriched indicator with ATT&CK mapping and contextual metadata |
-| **4. Operationalise** | High- and medium-confidence indicators are pushed to the SIEM as watchlist entries, detection rules, or automated block rules (subject to change control). Low-confidence indicators are retained for hunting reference only. | Detection Engineer | Active detection rule or watchlist entry in SIEM |
+| **3. Enrich** | Augment with context: associated adversary group, MITRE ATT&CK tactic and technique, affected sectors, geolocation, associated malware family, and any known TTPs. AI-driven anomaly detection tools may be applied to identify correlated indicators suggesting compromised accounts or insider activity. | SOC Analyst (Tier 2 to 3) / Detection Engineer | Enriched indicator with ATT&CK mapping and contextual metadata |
+| **4. Operationalize** | High- and medium-confidence indicators are pushed to the SIEM as watchlist entries, detection rules, or automated block rules (subject to change control). Low-confidence indicators are retained for hunting reference only. | Detection Engineer | Active detection rule or watchlist entry in SIEM |
 | **5. Expire / Retire** | Indicators are aged out based on defined TTL (Time-to-Live) values by indicator type. Expired indicators are archived in the TIP and removed from active SIEM detection unless re-validated. | Threat Intelligence Lead | Archived indicator; SIEM rule deactivated or updated |
 
 ### 4.2 Indicator Time-to-Live (TTL) Values
@@ -127,7 +127,7 @@ All SIEM correlation rules must:
 3. Specify expected data sources, log types, and field dependencies.
 4. Include a defined alert severity (Critical / High / Medium / Low) consistent with the incident severity framework in [`security/procedure-incident-response.md`](../security/procedure-incident-response.md).
 5. Be tested against historical log data or a representative test dataset before deployment to production.
-6. Comply with the pre-go-live SIEM validation requirements in [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md) §3.1 — all required alert categories must be configured and verified before any system enters production.
+6. Comply with the pre-go-live SIEM validation requirements in [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md) §3.1: all required alert categories must be configured and verified before any system enters production.
 
 ### 5.2 MITRE ATT&CK Tactic Coverage
 
@@ -177,7 +177,7 @@ The SOC is responsible for the continuous operational health of the SIEM platfor
 | **Data connector status** | All configured connectors monitored for active/inactive state | Alert within 15 minutes of any critical connector going inactive |
 | **Ingestion volume** | Daily ingestion volume monitored per source; baseline established over 30-day rolling window | Alert if any source drops more than 20% below baseline volume |
 | **Ingestion latency** | Time from log generation to availability in SIEM | Alert if latency exceeds 5 minutes for critical sources |
-| **Storage capacity** | Workspace storage utilisation monitored | Alert at 80% capacity; escalate at 90% |
+| **Storage capacity** | Workspace storage utilization monitored | Alert at 80% capacity; escalate at 90% |
 | **Query performance** | Alert query execution time monitored | Alert if scheduled query takes more than twice the historical average |
 | **Rule health** | Active correlation rules monitored for execution errors | Alert on any rule error within 1 hour |
 
@@ -213,7 +213,7 @@ All AI-assisted detections must be reviewed by a human analyst before any contai
 
 ### 7.1 Programme Overview
 
-Threat hunting is the proactive, hypothesis-driven search for threat actor activity that has evaded automated detection controls. Hunting is conducted within all environments under organisational control and is distinct from reactive alert-driven investigation.
+Threat hunting is the proactive, hypothesis-driven search for threat actor activity that has evaded automated detection controls. Hunting is conducted within all environments under organizational control and is distinct from reactive alert-driven investigation.
 
 The threat hunting programme operates on a quarterly cadence with targeted hunts triggered by specific intelligence inputs between scheduled cycles.
 
@@ -237,14 +237,14 @@ Threat hunts follow a hypothesis-driven approach:
 | Q3 | Data staging and exfiltration preparation | Internal telemetry anomalies and insider threat indicators |
 | Q4 | Identity-based attacks and cloud platform misuse | Government advisories (CISA, CCCS, NCSC) and ATT&CK Cloud Matrix |
 
-Hunt themes may be adjusted based on current threat intelligence and organisational priorities, subject to SOC Manager approval.
+Hunt themes may be adjusted based on current threat intelligence and organizational priorities, subject to SOC Manager approval.
 
 ### 7.4 Hunt Output Feeding Detection Engineering
 
 The threat hunting programme feeds directly into SIEM rule improvement:
 
 - Each hunt must produce a list of detection rule recommendations or confirmations.
-- New detection rules derived from hunt findings are prioritised for development within 30 days of the hunt conclusion.
+- New detection rules derived from hunt findings are prioritized for development within 30 days of the hunt conclusion.
 - Hunt findings are reviewed at the monthly Threat Intelligence Review and the quarterly Security Governance Review.
 
 ---
@@ -253,19 +253,19 @@ The threat hunting programme feeds directly into SIEM rule improvement:
 
 ### 8.1 Intelligence Sharing
 
-The organisation participates in structured intelligence sharing to contribute to collective sector defence and to receive early warning of threats affecting the organisation's industry and geography.
+The organization participates in structured intelligence sharing to contribute to collective sector defence and to receive early warning of threats affecting the organization's industry and geography.
 
 | Sharing Programme | Description | Responsible Role | Frequency |
 | --- | --- | --- | --- |
-| **Sector ISAC Contribution** | Submission of validated, anonymised IoCs and TTP observations to relevant sector ISAC | Threat Intelligence Lead | Ongoing; minimum monthly submission |
+| **Sector ISAC Contribution** | Submission of validated, anonymized IoCs and TTP observations to relevant sector ISAC | Threat Intelligence Lead | Ongoing; minimum monthly submission |
 | **Government Sharing (CISA, CCCS, NCSC)** | Participation in government-coordinated sharing programmes where available; submission of significant incident indicators as appropriate | CISO / Threat Intelligence Lead | As warranted by incident or advisory |
-| **Peer Organisation Sharing** | Bilateral sharing with peer organisations under executed information sharing agreements | CISO | Subject to active agreement |
+| **Peer Organization Sharing** | Bilateral sharing with peer organizations under executed information sharing agreements | CISO | Subject to active agreement |
 
 All outbound intelligence sharing must comply with the Traffic Light Protocol (TLP). The default sharing classification for outbound indicators is TLP:AMBER unless explicitly approved at a higher level by the CISO.
 
-### 8.2 Escalation — Nation-State and APT Threats
+### 8.2 Escalation: Nation-State and APT Threats
 
-When threat intelligence or hunting activity indicates a likely nation-state actor or advanced persistent threat (APT) targeting the organisation, the following escalation steps apply:
+When threat intelligence or hunting activity indicates a likely nation-state actor or advanced persistent threat (APT) targeting the organization, the following escalation steps apply:
 
 1. **Immediate Notification:** Threat Intelligence Lead notifies the CISO within 1 hour of forming a credible hypothesis of nation-state or APT activity.
 2. **CISO Assessment:** CISO convenes a brief assessment within 2 hours to evaluate the intelligence basis and determine whether a formal incident should be declared.
@@ -310,13 +310,13 @@ The following metrics are tracked and reported at the monthly SOC Operations Rev
 | Metric | Definition | Target |
 | --- | --- | --- |
 | **TI Feed Coverage (%)** | Percentage of active threat intelligence source categories (OSINT, vendor, government, ISAC) with at least one active, validated feed | ≥ 90% |
-| **Indicator Operationalisation Rate (%)** | Percentage of high-confidence validated indicators operationalised into SIEM detection within 48 hours of validation | ≥ 85% |
+| **Indicator Operationalization Rate (%)** | Percentage of high-confidence validated indicators operationalized into SIEM detection within 48 hours of validation | ≥ 85% |
 | **New Detection Rules per Quarter** | Number of new or materially revised SIEM correlation rules deployed to production each quarter | Target: ≥ 5 net new rules per quarter |
 | **MITRE ATT&CK Coverage (%)** | Percentage of defined priority ATT&CK tactics with at least one active, tested detection rule | ≥ 80% of priority tactics |
 | **Threat Hunt Findings per Quarter** | Number of confirmed threats or significant detection gaps identified through threat hunting activities per quarter | Tracked; minimum 1 completed hunt per quarter |
 | **False Positive Rate (%)** | Percentage of SIEM alerts determined to be false positives at Tier 1 triage | Target: < 20% overall; < 10% for Critical and High rules |
 | **SIEM Ingestion Health (%)** | Percentage of critical data connectors with zero gap events in the reporting period | ≥ 99% |
-| **Mean Time to Operationalise (MTTO)** | Average time from receipt of a new high-confidence IoC to active SIEM detection rule deployment | Target: ≤ 48 hours |
+| **Mean Time to Operationalize (MTTO)** | Average time from receipt of a new high-confidence IoC to active SIEM detection rule deployment | Target: ≤ 48 hours |
 
 Metric trends are reviewed for continual improvement. Lessons learned from incidents and audits inform updates to rules, hunting hypotheses, and intelligence source selections, consistent with [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) §10.
 
@@ -326,13 +326,13 @@ Metric trends are reviewed for continual improvement. Lessons learned from incid
 
 | Control Area | Framework Reference |
 | --- | --- |
-| Threat intelligence programme | NIST SP 800-150; ISO/IEC 27001:2022 A.5.7; CSA CCM TIM-01–TIM-08 |
-| SIEM operations and monitoring | CSA CCM SEF-01–SEF-10; NIST CSF Detect (DE.CM); ISO/IEC 27002:2022 §8.16 |
-| Correlation rule development | MITRE ATT&CK Enterprise; NIST SP 800-53 SI-4; CSA CCM LOG-01–LOG-14 |
+| Threat intelligence programme | NIST SP 800-150; ISO/IEC 27001:2022 A.5.7; CSA CCM TIM-01 to TIM-08 |
+| SIEM operations and monitoring | CSA CCM SEF-01 to SEF-10; NIST CSF Detect (DE.CM); ISO/IEC 27002:2022 §8.16 |
+| Correlation rule development | MITRE ATT&CK Enterprise; NIST SP 800-53 SI-4; CSA CCM LOG-01 to LOG-14 |
 | Threat hunting | MITRE ATT&CK; NIST CSF Detect (DE.AE); ISO/IEC 27002:2022 §8.16 |
-| Intelligence sharing | NIST SP 800-150 §4; CSA CCM TIM-07–TIM-08; CISA TLP Policy |
-| Incident escalation | ISO/IEC 27035; NIST SP 800-61 Rev 2; CSA CCM SEF-04–SEF-05 |
-| Pre-go-live SIEM validation | [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md) §3.1–§3.2 |
+| Intelligence sharing | NIST SP 800-150 §4; CSA CCM TIM-07 to TIM-08; CISA TLP Policy |
+| Incident escalation | ISO/IEC 27035; NIST SP 800-61 Rev 2; CSA CCM SEF-04 to SEF-05 |
+| Pre-go-live SIEM validation | [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md) §3.1 to §3.2 |
 | AI-assisted detection | [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) §9; NIST AI RMF |
 | Records and audit | COBIT 2025 DSS05; ISO/IEC 27001:2022 A.5.28 |
 

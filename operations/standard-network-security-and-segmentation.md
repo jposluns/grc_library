@@ -1,24 +1,24 @@
 # Network Security and Segmentation Standard
 
-**Document Title:** Network Security and Segmentation Standard  
-**Document Type:** Standard  
-**Version:** 1.3.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`operations/standard-cloud-security-configuration-baseline.md`](standard-cloud-security-configuration-baseline.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)  
-**Classification:** Public  
-**Category:** Operations  
-**Review Frequency:** Annual and upon material platform or regulatory change  
-**Repository Path:** [`operations/standard-network-security-and-segmentation.md`](standard-network-security-and-segmentation.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Network Security and Segmentation Standard 
+**Document Type:** Standard 
+**Version:** 1.3.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`operations/standard-cloud-security-configuration-baseline.md`](standard-cloud-security-configuration-baseline.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) 
+**Classification:** Public 
+**Category:** Operations 
+**Review Frequency:** Annual and upon material platform or regulatory change 
+**Repository Path:** [`operations/standard-network-security-and-segmentation.md`](standard-network-security-and-segmentation.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## 1. Purpose
 
-This standard defines requirements for network security architecture, segmentation, and perimeter controls across on-premises and cloud environments. It establishes technical and procedural controls for securing organisational networks, including requirements for network segmentation, firewall configuration, intrusion detection and prevention, and secure connectivity.
+This standard defines requirements for network security architecture, segmentation, and perimeter controls across on-premises and cloud environments. It establishes technical and procedural controls for securing organizational networks, including requirements for network segmentation, firewall configuration, intrusion detection and prevention, and secure connectivity.
 
 Network design must limit blast radius and systematically close lateral movement pathways identified during a prior ransomware incident. Requirements cover corporate, cloud, hybrid, and BASC-certified logistics and customs network environments.
 
@@ -26,8 +26,8 @@ Network design must limit blast radius and systematically close lateral movement
 
 ## 2. Scope
 
-1. Applies to all networks, connections, and communication channels transmitting or storing organisational or trade data, including all on-premises networks, cloud virtual networks, and all interconnected environments.
-2. Covers BASC-certified logistics and customs systems in Latin America (Colombia, Mexico, Peru, Chile); corporate LAN, WAN, and VPN; cloud and virtualised networks; wireless, remote, and partner connectivity.
+1. Applies to all networks, connections, and communication channels transmitting or storing organizational or trade data, including all on-premises networks, cloud virtual networks, and all interconnected environments.
+2. Covers BASC-certified logistics and customs systems in Latin America (Colombia, Mexico, Peru, Chile); corporate LAN, WAN, and VPN; cloud and virtualized networks; wireless, remote, and partner connectivity.
 3. Covers network zone design, segmentation requirements, firewall policy, remote access, wireless, and inter-zone traffic controls.
 4. Applies to all employees, contractors, and third parties who connect to corporate or third-party certified networks.
 5. Applies to the infrastructure programme from initial design. All new network architecture must conform before production deployment.
@@ -54,11 +54,11 @@ All zone boundaries operate on a **default-deny** basis. Inter-zone communicatio
 |---|---|---|
 | Internet / Untrusted | External internet and untrusted networks | To DMZ only; no direct access to internal zones |
 | DMZ | Internet-facing services (web, API, VPN concentrators) | Internet to published services; internal to DMZ management only |
-| Production (PROD) | Core production servers, databases, ERP, integration layer | From internal user zone via authorised protocols; from DMZ only via explicit rules |
+| Production (PROD) | Core production servers, databases, ERP, integration layer | From internal user zone via authorized protocols; from DMZ only via explicit rules |
 | Management | Network management, monitoring, backup infrastructure | From privileged admin workstations only; PAM-controlled |
 | Test / Dev (TEST / DEV) | Non-production environments | No inbound from PROD; no outbound to PROD except via approved change-controlled deployment paths |
 | User (Corporate) | End-user endpoints | Access to approved services in PROD and internet via proxy |
-| BASC / Logistics | BASC-certified logistics, cargo, and customs systems | Isolated from non-certified environments; inter-zone access requires CISO and Regional BASC Officer authorisation |
+| BASC / Logistics | BASC-certified logistics, cargo, and customs systems | Isolated from non-certified environments; inter-zone access requires CISO and Regional BASC Officer authorization |
 
 ### 4.1 Key Segmentation Requirements
 
@@ -110,9 +110,9 @@ All zone boundaries operate on a **default-deny** basis. Inter-zone communicatio
 ### 7.2 BASC Logistics and Customs Networks
 
 - BASC logistics and customs networks must have dedicated intrusion-detection sensors monitoring for:
-  - Unauthorised customs system access
-  - Cargo manifest tampering
-  - Unauthorised network segmentation bypass
+ - Unauthorised customs system access
+ - Cargo manifest tampering
+ - Unauthorised network segmentation bypass
 - All BASC intrusion logs must be retained for at least seven years in tamper-evident archives.
 
 ### 7.3 AI-Assisted Network Defence
@@ -130,9 +130,9 @@ All zone boundaries operate on a **default-deny** basis. Inter-zone communicatio
 - VPN or Zero-Trust Network Access (ZTNA) solutions are the approved mechanisms for remote access to on-premises and sensitive resources. Solutions must enforce device health checks, MFA, and continuous session validation.
 - VPN authentication requires enterprise identity provider MFA.
 - Split tunnelling: traffic to internal resources must route through VPN.
-- Direct internet breakout for cloud productivity platform traffic is permitted for performance optimisation.
+- Direct internet breakout for cloud productivity platform traffic is permitted for performance optimization.
 - RDP and SSH to production systems via the public internet without VPN is prohibited.
-- Direct remote access to BASC trade or customs networks is prohibited unless authorised in writing by the CISO and the relevant Regional BASC Officer.
+- Direct remote access to BASC trade or customs networks is prohibited unless authorized in writing by the CISO and the relevant Regional BASC Officer.
 
 ### 8.2 Partner and Supplier Connectivity
 
@@ -191,13 +191,13 @@ Any detected BASC trade-network anomaly must trigger the Security Incident Respo
 
 | Framework | Reference |
 |---|---|
-| ISO/IEC 27001:2022 | A.8.20, A.8.21, A.8.22 — Network Controls |
+| ISO/IEC 27001:2022 | A.8.20, A.8.21, A.8.22: Network Controls |
 | ISO/IEC 27033:2020 | Network Security Architecture and Segmentation |
-| NIST SP 800-53 | SC-7 — Boundary Protection |
+| NIST SP 800-53 | SC-7: Boundary Protection |
 | NIST SP 800-207 | Zero Trust Architecture |
-| COBIT 2025 | DSS05 — Manage Security Services |
-| CSA CCM v5 | IVS-06, IVS-07 — Network Architecture and Segmentation |
-| CIS Controls v8 | Control 12 — Network Infrastructure Management |
+| COBIT 2025 | DSS05: Manage Security Services |
+| CSA CCM v5 | IVS-06, IVS-07: Network Architecture and Segmentation |
+| CIS Controls v8 | Control 12: Network Infrastructure Management |
 | BASC International Standard (v6 2023) | Trade and Customs Network Security |
 | WCO SAFE Framework (2021) | Supply Chain Security |
 | ISO 28000:2022 | Security Management for the Supply Chain |

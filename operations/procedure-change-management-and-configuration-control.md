@@ -1,18 +1,18 @@
 # Change Management and Configuration Control Procedure
 
-**Document Title:** Change Management and Configuration Control Procedure  
-**Document Type:** Procedure  
-**Version:** 1.3.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md)  
-**Classification:** Public  
-**Category:** Operations  
-**Review Frequency:** Annual and upon material platform or regulatory change  
-**Repository Path:** [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Change Management and Configuration Control Procedure 
+**Document Type:** Procedure 
+**Version:** 1.3.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md) 
+**Classification:** Public 
+**Category:** Operations 
+**Review Frequency:** Annual and upon material platform or regulatory change 
+**Repository Path:** [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 This procedure defines the end-to-end process for classifying, approving, scheduling, implementing, and reviewing changes to production infrastructure, applications, and security configurations.
 
@@ -20,7 +20,7 @@ This procedure defines the end-to-end process for classifying, approving, schedu
 
 ## Purpose
 
-To ensure that changes to production systems are controlled, traceable, and reversible, minimising disruption to services and preventing unauthorised modifications to security-critical configurations.
+To ensure that changes to production systems are controlled, traceable, and reversible, minimizing disruption to services and preventing unauthorised modifications to security-critical configurations.
 
 ---
 
@@ -39,7 +39,7 @@ To ensure that changes to production systems are controlled, traceable, and reve
 | --- | --- |
 | **CIO** | Approves Emergency and High-risk changes; chairs or delegates CAB chair. |
 | **CISO** | Co-approves High-risk changes (identity, PAM, PKI, production network); reviews security impact of Normal changes. |
-| **Change Manager** | Administers the change process; chairs the CAB; maintains the change schedule; ensures rollback plans are present. |
+| **Change Manager** | Administers the change process; chairs the CAB; maintains the change schedule; ensures that rollback plans are present. |
 | **Change Advisory Board (CAB)** | Reviews and approves Normal and High-risk changes; validates rollback plans. |
 | **IT Operations / Engineering** | Submits change requests; implements approved changes; executes post-implementation reviews. |
 | **System Owners** | Validate impact scope of changes affecting their systems. |
@@ -85,7 +85,7 @@ The Change Manager reviews the CR for completeness and correct classification. S
 | --- | --- |
 | Standard | Team Lead approves from the standard change catalogue; no CAB required. |
 | Normal | Change Manager confirms completeness; CAB votes at weekly CAB meeting. |
-| Emergency | CIO or equivalent approves verbally or by written authorisation; retrospective CAB held within 24 hours. |
+| Emergency | CIO or equivalent approves verbally or by written authorization; retrospective CAB held within 24 hours. |
 | High-risk | CISO and CIO provide written approval; CAB reviews and confirms. |
 
 ### 2.4 Scheduling
@@ -137,7 +137,7 @@ A majority vote approves the change. The CISO holds a veto for changes with unre
 
 Emergency changes follow an accelerated path:
 
-1. CIO or equivalent authorises the change verbally or in writing.
+1. CIO or equivalent authorizes the change verbally or in writing.
 2. The change is implemented with all actions logged in real time.
 3. A retrospective CR is created in the ITSM platform within 4 hours of implementation.
 4. Retrospective CAB review is held within 24 hours.
@@ -206,11 +206,11 @@ The following metrics are reported to the CISO and CIO monthly:
 
 | Control Area | ISO/IEC 20000 | ISO/IEC 27001 | COBIT 2025 | CSA CCM v5 | NIST |
 | --- | --- | --- | --- | --- | --- |
-| Change management | §8.5 | A.8.32 | CCC-01–CCC-04 | CCC-01–CCC-05 | SP 800-128 §4 |
-| Configuration management | §8.5 | A.8.9 | CCC-05–CCC-07 | CCC-06–CCC-09 | SP 800-128 §3 |
+| Change management | §8.5 | A.8.32 | CCC-01 to CCC-04 | CCC-01 to CCC-05 | SP 800-128 §4 |
+| Configuration management | §8.5 | A.8.9 | CCC-05 to CCC-07 | CCC-06 to CCC-09 | SP 800-128 §3 |
 | Emergency change | §8.5 | A.8.32 | CCC-03 | CCC-03 | SP 800-128 §4.4 |
-| CAB governance | §8.5 | A.5.32 | CCC-02 | CCC-02 | — |
-| IaC and drift | — | A.8.9 | CCC-07 | CCC-07 | SP 800-128 §3.2 |
+| CAB governance | §8.5 | A.5.32 | CCC-02 | CCC-02 | N/A |
+| IaC and drift | N/A | A.8.9 | CCC-07 | CCC-07 | SP 800-128 §3.2 |
 
 
 

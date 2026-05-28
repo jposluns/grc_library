@@ -1,24 +1,24 @@
 # Cloud Security Configuration Baseline
 
-**Document Title:** Cloud Security Configuration Baseline  
-**Document Type:** Standard  
-**Version:** 1.3.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md)  
-**Classification:** Public  
-**Category:** Operations  
-**Review Frequency:** Annual and upon material platform or regulatory change  
-**Repository Path:** [`operations/standard-cloud-security-configuration-baseline.md`](standard-cloud-security-configuration-baseline.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Cloud Security Configuration Baseline 
+**Document Type:** Standard 
+**Version:** 1.3.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md) 
+**Classification:** Public 
+**Category:** Operations 
+**Review Frequency:** Annual and upon material platform or regulatory change 
+**Repository Path:** [`operations/standard-cloud-security-configuration-baseline.md`](standard-cloud-security-configuration-baseline.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## 1. Purpose
 
-This standard defines the secure configuration baseline for cloud and cloud productivity environments. It establishes minimum security configuration requirements for the cloud platform, enterprise identity provider, cloud productivity platform, and associated services to reduce attack surface and ensure consistent security posture across all tenants and subscriptions.
+This standard defines the secure configuration baseline for cloud and cloud productivity environments. It establishes minimum security configuration requirements for the cloud platform, enterprise identity provider, cloud productivity platform, and associated services to reduce attack surface and ensure that consistent security posture across all tenants and subscriptions.
 
 ---
 
@@ -27,7 +27,7 @@ This standard defines the secure configuration baseline for cloud and cloud prod
 1. Applies to all cloud tenants and subscriptions including cloud platform, enterprise identity provider, cloud productivity platform, and endpoint and email protection platform services.
 2. Covers configuration of identity, network, compute, storage, monitoring, and collaboration services.
 3. Applies to all environments: DEV, TEST, and PROD. Security classification applies consistently; TEST environments are not exempt from baseline security controls.
-4. Applies to IT Operations, the infrastructure programme team, and any third party managing cloud resources on behalf of the organisation.
+4. Applies to IT Operations, the infrastructure programme team, and any third party managing cloud resources on behalf of the organization.
 
 ---
 
@@ -37,7 +37,7 @@ This standard defines the secure configuration baseline for cloud and cloud prod
 |---|---|
 | Chief Information Security Officer (CISO) | Owns this standard; defines baseline requirements and approves exceptions |
 | IT Operations / Cloud Team | Implements and maintains baseline configurations; remediates configuration drift |
-| Infrastructure Programme Team | Ensures all new infrastructure deployments conform to this standard from initial build |
+| Infrastructure Programme Team | Ensures that all new infrastructure deployments conform to this standard from initial build |
 | Internal Audit | Reviews compliance against baseline using the cloud security posture score and cloud security posture management (CSPM) tooling |
 
 ---
@@ -177,7 +177,7 @@ This standard defines the secure configuration baseline for cloud and cloud prod
 | CIS Cloud Productivity Foundations Benchmark | v3.0 | Secure cloud productivity configuration |
 | NIST SP 800-53 | CM-2, CM-6 | Configuration Baseline and Settings |
 | COBIT 2025 | DSS05 | Manage Security Services |
-| CSA CCM v5 | IVS-01, IVS-04 | Infrastructure and Virtualisation Security |
+| CSA CCM v5 | IVS-01, IVS-04 | Infrastructure and Virtualization Security |
 
 ---
 

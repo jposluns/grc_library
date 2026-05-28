@@ -1,24 +1,24 @@
 # Patch Management Procedure
 
-**Document Title:** Patch Management Procedure  
-**Document Type:** Procedure  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** IT Operations Lead  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`security/policy-information-security.md`](../security/policy-information-security.md)  
-**Classification:** Public  
-**Category:** Operations Security  
-**Review Frequency:** Annual and upon material threat, framework, or regulatory change  
-**Repository Path:** [`operations/procedure-patch-management.md`](procedure-patch-management.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Patch Management Procedure 
+**Document Type:** Procedure 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** IT Operations Lead 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`security/policy-information-security.md`](../security/policy-information-security.md) 
+**Classification:** Public 
+**Category:** Operations Security 
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change 
+**Repository Path:** [`operations/procedure-patch-management.md`](procedure-patch-management.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This procedure defines the end-to-end process for identifying, classifying, testing, authorising, deploying, and verifying security patches and software updates across the organisation's technology estate. It operationalises the patch remediation SLAs established in the Production Security Requirements Standard and the Vulnerability Management Procedure, translating policy obligations into repeatable operational steps.
+This procedure defines the end-to-end process for identifying, classifying, testing, authorizing, deploying, and verifying security patches and software updates across the organization's technology estate. It operationalizes the patch remediation SLAs established in the Production Security Requirements Standard and the Vulnerability Management Procedure, translating policy obligations into repeatable operational steps.
 
 Effective patch management reduces the window of exposure between public vulnerability disclosure and remediation, limits the attack surface available for exploitation, and demonstrates measurable compliance with regulatory and framework obligations.
 
@@ -38,7 +38,7 @@ Effective patch management reduces the window of exposure between public vulnera
 | --- | --- |
 | **IT Operations Lead** | Owns the patch management programme; operates the patching infrastructure; produces compliance reports. |
 | **Chief Information Security Officer (CISO)** | Sets patch SLAs; approves exceptions and emergency patches; receives monthly compliance reporting. |
-| **Change Advisory Board (CAB)** | Authorises Standard patch deployments; receives post-notification for Emergency patches. |
+| **Change Advisory Board (CAB)** | Authorizes Standard patch deployments; receives post-notification for Emergency patches. |
 | **System Owners** | Accountable for ensuring patches are applied to their assets within defined SLAs; raise deferrals where operationally required. |
 | **Development Teams** | Responsible for patching application dependencies and open-source libraries; integrate SCA tooling into CI/CD pipelines. |
 | **Internal Audit** | Reviews programme compliance, exception governance, and SLA adherence annually. |
@@ -49,12 +49,12 @@ Effective patch management reduces the window of exposure between public vulnera
 
 Every patch or update is classified on receipt to determine the required deployment pathway and timeline. Classification is based on CVSS score and active exploitation status.
 
-| Classification | Trigger Condition | Deployment Timeline | Authorisation |
+| Classification | Trigger Condition | Deployment Timeline | Authorization |
 | --- | --- | --- | --- |
 | **Emergency** | Actively exploited vulnerability (CISA KEV listed or credible equivalent intelligence) | Deploy within 24 hours | CISO approval; CAB post-notification |
 | **Standard Critical** | CVSS ≥ 9.0; not yet actively exploited | Deploy within 72 hours after testing | CAB approval via standard change |
-| **Standard High** | CVSS 7.0–8.9 | Deploy within 14 days | CAB approval via standard change |
-| **Standard Medium** | CVSS 4.0–6.9 | Deploy within 30 days | Standard change or scheduled maintenance window |
+| **Standard High** | CVSS 7.0 to 8.9 | Deploy within 14 days | CAB approval via standard change |
+| **Standard Medium** | CVSS 4.0 to 6.9 | Deploy within 30 days | Standard change or scheduled maintenance window |
 | **Standard Low** | CVSS < 4.0 | Deploy within 90 days | Scheduled maintenance window |
 | **Vendor-Recommended Update** | Vendor advisory without CVE assignment | Deploy at next maintenance window unless reclassified higher | Standard change |
 
@@ -88,9 +88,9 @@ Before any Standard patch is promoted to production, IT Operations and the relev
 
 ---
 
-## 3. Deployment Authorisation
+## 3. Deployment Authorization
 
-| Classification | Authorisation Pathway |
+| Classification | Authorization Pathway |
 | --- | --- |
 | **Emergency** | CISO approval (verbal or written) before deployment; CAB notified post-deployment within 2 hours; retrospective CAB review within 5 business days |
 | **Standard Critical** | CAB approval via standard change request; expedited CAB review within 24 hours of submission |
@@ -103,7 +103,7 @@ All deployments, regardless of classification, must be documented in the ITSM pl
 
 ## 4. Exceptions and Deferrals
 
-Where an operational dependency prevents patching within the required SLA — for example, system stability risk, vendor-imposed patching constraints, or application compatibility issues — a formal exception must be raised before the SLA deadline lapses.
+Where an operational dependency prevents patching within the required SLA, for example, system stability risk, vendor-imposed patching constraints, or application compatibility issues, a formal exception must be raised before the SLA deadline lapses.
 
 | Requirement | Detail |
 | --- | --- |
@@ -134,7 +134,7 @@ EOL tracking is maintained in the asset register, with automated alerts at 180, 
 
 ## 6. Third-Party and Open-Source Library Patching
 
-Application dependencies — including open-source libraries, third-party SDKs, and container base images — are subject to the same patch SLA table as infrastructure assets.
+Application dependencies, including open-source libraries, third-party SDKs, and container base images, are subject to the same patch SLA table as infrastructure assets.
 
 1. **Software Bill of Materials (SBOM):** Development Teams maintain an SBOM for each production application. SBOMs are updated on every release and reviewed for newly published vulnerabilities weekly.
 2. **SCA pipeline integration:** Software Composition Analysis (SCA) tooling is integrated into the CI/CD pipeline. Builds that introduce or fail to remediate High or Critical dependency vulnerabilities are blocked from promotion to production.
@@ -186,7 +186,7 @@ The SIEM generates an alert if a Critical or High patch has not been deployed wi
 | --- | --- |
 | Patch deployment records (ITSM tickets, change records, verification evidence) | 3 years |
 | Exception records (approvals, risk assessments, compensating control documentation) | 7 years |
-| Emergency patch authorisation records | 7 years |
+| Emergency patch authorization records | 7 years |
 | EOL risk acceptance records | 7 years from date of decommission or acceptance |
 
 Retention timelines are subject to the Records Retention and Destruction Standard. Records must be retrievable for audit purposes within 5 business days of a request.
@@ -199,7 +199,7 @@ Retention timelines are subject to the Records Retention and Destruction Standar
 | --- | --- | --- | --- | --- | --- |
 | Patch planning and classification | §2 (Planning) | A.8.8 | TVM-08 | Control 7.1 | DSS05.07 |
 | Patch testing | §3 (Testing) | A.8.8 | TVM-08 | Control 7.4 | DSS05.07 |
-| Deployment authorisation | §3 (Deploying) | A.8.8 | TVM-08 | Control 7.3 | BAI06.01 |
+| Deployment authorization | §3 (Deploying) | A.8.8 | TVM-08 | Control 7.3 | BAI06.01 |
 | Exception governance | §4 (Exceptions) | A.5.20 | TVM-12 | Control 7.2 | APO12.06 |
 | EOL lifecycle management | §4 (Unsupported software) | A.8.8 | TVM-01, TVM-02 | Control 7.5 | DSS05.07 |
 | Third-party / library patching | §3 (Third-party) | A.8.8 | TVM-08 | Control 7.6 | DSS05.07 |
