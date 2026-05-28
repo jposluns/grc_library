@@ -4,6 +4,21 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 19.2 (2026-05-28): Sanitisation residue cleanup
+
+Phase 19 sub-phase 2. Three findings from the exhaustive re-audit involved content that revealed the original drafting organisation's specific operating context where a CC0-licensed reusable template should use generic placeholder phrasing.
+
+### Files updated
+
+- `privacy/register-cross-border-data-flow.md` (1.0.0 → 1.0.1): the Data Residency example column referenced "US East data centre", a specific cloud region tied to one organisation's deployment. Replaced with the generic placeholder "Cloud region in destination country (specify provider and region)" so adopters fill in their own residency without first having to overwrite a residual example.
+- `supply-chain/template-supplier-security-questionnaire.md` (1.0.0 → 1.0.1): five question rows used "our organisation" / "our data" / "our personal data" — first-person pronouns that read as residue from a specific organisation's internal version of the questionnaire. The document's own Purpose section already uses the formulation "the Organisation"; questions 1.5, 1.6, 7.4, 8.3, 9.1, and 9.5 are now consistent with that convention. Sample notification text in `register-subprocessor-template.md` was deliberately left in first person because the "we/our" appears inside a quoted email body the organisation sends to its customers — first-person pronouns are correct in that quoted speech.
+
+### Result
+
+Adopters cloning the library no longer encounter a specific cloud-region example or first-person "our organisation" phrasing in templates intended to be filled in or issued from the adopter's own organisational context.
+
+Taxonomy and portal regenerated. All ten audits clean.
+
 ## Phase 19.1 (2026-05-28): BASC migration completion
 
 Phase 19 sub-phase 1. The Phase 12.3 sector annex migration (in which BASC was moved from being treated as an organisation-wide baseline standard to being a sector overlay invoked only where the organisation participates in the BASC programme) was incomplete: four active documents retained content that scoped the organisation to BASC, named "Regional Compliance Officers" as a baseline role, or aligned the document's own framework table to BASC/WCO SAFE/ISO 28000 unconditionally. Phase 19.1 cleans that residue.

@@ -17,11 +17,11 @@ This classification is a heuristic derived from semver; it does not reflect audi
 
 ---
 
-_Summary as of last regeneration: Mature: 57, Baseline: 138, Draft: 72, Unknown: 0._
+_Summary as of last regeneration: Mature: 58, Baseline: 137, Draft: 72, Unknown: 0._
 
 ## Mature
 
-_57 documents._
+_58 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
@@ -38,7 +38,7 @@ _57 documents._
 | [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.24.0 | 2026-05-28 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.0 | 2026-05-28 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.2.0 | 2026-05-27 |
-| [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.3.0 | 2026-05-27 |
+| [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.4.0 | 2026-05-28 |
 | [operations/procedure-change-management-and-configuration-control.md](../operations/procedure-change-management-and-configuration-control.md) | Change Management and Configuration Control Procedure | Procedure | 1.3.0 | 2026-05-27 |
 | [operations/procedure-endpoint-management-and-device-compliance.md](../operations/procedure-endpoint-management-and-device-compliance.md) | Endpoint Management and Device Compliance Procedure | Procedure | 1.3.0 | 2026-05-27 |
 | [operations/procedure-media-handling-and-transport.md](../operations/procedure-media-handling-and-transport.md) | Media Handling and Transport Procedure | Procedure | 1.3.0 | 2026-05-27 |
@@ -46,7 +46,7 @@ _57 documents._
 | [operations/procedure-threat-intelligence-and-siem-operations.md](../operations/procedure-threat-intelligence-and-siem-operations.md) | Threat Intelligence and SIEM Operations Procedure | Procedure | 1.3.0 | 2026-05-27 |
 | [operations/standard-certificate-authority-management.md](../operations/standard-certificate-authority-management.md) | Certificate Authority Management Standard | Standard | 1.3.0 | 2026-05-27 |
 | [operations/standard-cloud-security-configuration-baseline.md](../operations/standard-cloud-security-configuration-baseline.md) | Cloud Security Configuration Baseline | Standard | 1.4.0 | 2026-05-28 |
-| [operations/standard-network-security-and-segmentation.md](../operations/standard-network-security-and-segmentation.md) | Network Security and Segmentation Standard | Standard | 1.3.0 | 2026-05-27 |
+| [operations/standard-network-security-and-segmentation.md](../operations/standard-network-security-and-segmentation.md) | Network Security and Segmentation Standard | Standard | 1.4.0 | 2026-05-27 |
 | [operations/standard-physical-security-of-it-infrastructure.md](../operations/standard-physical-security-of-it-infrastructure.md) | Physical Security of IT Infrastructure Standard | Standard | 1.3.0 | 2026-05-27 |
 | [operations/standard-production-security-requirements.md](../operations/standard-production-security-requirements.md) | Production Security Requirements | Standard | 1.1.1 | 2026-05-28 |
 | [privacy/charter-privacy-management-programme.md](../privacy/charter-privacy-management-programme.md) | Privacy Management Programme Charter | Charter | 1.3.0 | 2026-05-27 |
@@ -55,7 +55,7 @@ _57 documents._
 | [privacy/procedure-data-subject-rights-management.md](../privacy/procedure-data-subject-rights-management.md) | Data Subject Rights Management Procedure | Procedure | 1.3.0 | 2026-05-27 |
 | [privacy/procedure-privacy-impact-and-cross-border-transfer.md](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | Privacy Impact and Cross-Border Transfer Procedure | Procedure | 1.3.1 | 2026-05-28 |
 | [resilience/plan-business-continuity-and-crisis-management.md](../resilience/plan-business-continuity-and-crisis-management.md) | Business Continuity and Crisis Management Plan | Plan | 1.1.0 | 2026-05-28 |
-| [resilience/plan-it-disaster-recovery.md](../resilience/plan-it-disaster-recovery.md) | IT Disaster Recovery Plan | Plan | 1.1.0 | 2026-05-27 |
+| [resilience/plan-it-disaster-recovery.md](../resilience/plan-it-disaster-recovery.md) | IT Disaster Recovery Plan | Plan | 1.2.0 | 2026-05-27 |
 | [resilience/procedure-cross-domain-incident-coordination.md](../resilience/procedure-cross-domain-incident-coordination.md) | Cross-Domain Incident Coordination Procedure | Procedure | 1.1.0 | 2026-05-28 |
 | [resilience/register-eoc-contact-directory.md](../resilience/register-eoc-contact-directory.md) | Emergency Operations Contact Directory Register | Register | 1.1.0 | 2026-05-28 |
 | [resilience/register-resilience-metrics-and-testing-log.md](../resilience/register-resilience-metrics-and-testing-log.md) | Resilience Metrics and Testing Log Register | Register | 1.1.0 | 2026-05-28 |
@@ -80,6 +80,7 @@ _57 documents._
 | [security/standard-logging-and-monitoring.md](../security/standard-logging-and-monitoring.md) | Logging and Monitoring Standard | Standard | 1.4.0 | 2026-05-28 |
 | [specification-ingestion.md](../specification-ingestion.md) | GRC Library CC0 Ingestion and Transformation Specification | Specification | 1.4.2 | 2026-05-28 |
 | [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.2.5 | 2026-05-28 |
+| [supply-chain/procedure-supplier-due-diligence.md](../supply-chain/procedure-supplier-due-diligence.md) | Supplier Due Diligence Procedure | Procedure | 1.1.0 | 2026-05-28 |
 | [supply-chain/standard-cloud-exit-and-data-portability.md](../supply-chain/standard-cloud-exit-and-data-portability.md) | Cloud Exit and Data Portability Standard | Standard | 1.1.0 | 2026-05-27 |
 | [supply-chain/standard-supplier-security-and-privacy-assurance.md](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | Supplier Security and Privacy Assurance Standard | Standard | 1.1.0 | 2026-05-28 |
 
@@ -87,7 +88,7 @@ _57 documents._
 
 ## Baseline
 
-_138 documents._
+_137 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
@@ -181,7 +182,7 @@ _138 documents._
 | [privacy/jurisdictions/annex-privacy-united-kingdom.md](../privacy/jurisdictions/annex-privacy-united-kingdom.md) | United Kingdom Privacy Regulatory Requirements | Annex | 1.0.1 | 2026-05-28 |
 | [privacy/jurisdictions/annex-privacy-united-states.md](../privacy/jurisdictions/annex-privacy-united-states.md) | United States Privacy Regulatory Requirements | Annex | 1.0.1 | 2026-05-28 |
 | [privacy/jurisdictions/annex-privacy-vietnam.md](../privacy/jurisdictions/annex-privacy-vietnam.md) | Vietnam Privacy Regulatory Requirements | Annex | 1.0.1 | 2026-05-28 |
-| [privacy/register-cross-border-data-flow.md](../privacy/register-cross-border-data-flow.md) | Cross-Border Data Flow Register | Register | 1.0.0 | 2026-05-27 |
+| [privacy/register-cross-border-data-flow.md](../privacy/register-cross-border-data-flow.md) | Cross-Border Data Flow Register | Register | 1.0.1 | 2026-05-28 |
 | [resilience/framework-business-continuity-and-resilience.md](../resilience/framework-business-continuity-and-resilience.md) | Business Continuity and Resilience Framework | Framework | 1.0.0 | 2026-05-27 |
 | [resilience/guideline-emergency-response-and-protective-actions.md](../resilience/guideline-emergency-response-and-protective-actions.md) | Emergency Response and Protective Actions Guideline | Guideline | 1.0.0 | 2026-05-27 |
 | [resilience/plan-crisis-communication.md](../resilience/plan-crisis-communication.md) | Crisis Communication Plan | Plan | 1.0.1 | 2026-05-28 |
@@ -220,7 +221,6 @@ _138 documents._
 | [supply-chain/framework-supplier-and-cloud-governance.md](../supply-chain/framework-supplier-and-cloud-governance.md) | Supplier and Cloud Governance Framework | Framework | 1.0.0 | 2026-05-27 |
 | [supply-chain/matrix-supply-chain-security-programme-alignment.md](../supply-chain/matrix-supply-chain-security-programme-alignment.md) | Supply Chain Security Programme Alignment Matrix | Matrix | 1.0.0 | 2026-05-27 |
 | [supply-chain/procedure-supplier-audit.md](../supply-chain/procedure-supplier-audit.md) | Supplier Audit Procedure | Procedure | 1.0.1 | 2026-05-28 |
-| [supply-chain/procedure-supplier-due-diligence.md](../supply-chain/procedure-supplier-due-diligence.md) | Supplier Due Diligence Procedure | Procedure | 1.0.1 | 2026-05-28 |
 | [supply-chain/procedure-supplier-exit-and-data-return.md](../supply-chain/procedure-supplier-exit-and-data-return.md) | Supplier Exit and Data Return Procedure | Procedure | 1.0.1 | 2026-05-28 |
 | [supply-chain/procedure-supplier-onboarding-security-review.md](../supply-chain/procedure-supplier-onboarding-security-review.md) | Supplier Onboarding Security Review Procedure | Procedure | 1.0.1 | 2026-05-28 |
 | [supply-chain/procedure-supplier-ongoing-monitoring.md](../supply-chain/procedure-supplier-ongoing-monitoring.md) | Supplier Ongoing Monitoring Procedure | Procedure | 1.0.0 | 2026-05-27 |
@@ -228,7 +228,7 @@ _138 documents._
 | [supply-chain/register-ctpat-full-msc-controls.md](../supply-chain/register-ctpat-full-msc-controls.md) | CTPAT Full Minimum Security Criteria Controls Register | Register | 1.0.1 | 2026-05-28 |
 | [supply-chain/register-subprocessor-template.md](../supply-chain/register-subprocessor-template.md) | Subprocessor Register Template | Register | 1.0.0 | 2026-05-27 |
 | [supply-chain/register-supplier-risk-template.md](../supply-chain/register-supplier-risk-template.md) | Supplier Risk Register Template | Register | 1.0.0 | 2026-05-27 |
-| [supply-chain/template-supplier-security-questionnaire.md](../supply-chain/template-supplier-security-questionnaire.md) | Supplier Security Questionnaire | Template | 1.0.0 | 2026-05-27 |
+| [supply-chain/template-supplier-security-questionnaire.md](../supply-chain/template-supplier-security-questionnaire.md) | Supplier Security Questionnaire | Template | 1.0.1 | 2026-05-28 |
 
 ---
 
