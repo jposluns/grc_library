@@ -42,13 +42,17 @@ The Chief Information Officer needs the enterprise picture: governance, risk, te
 
 ### Standard
 
+- [Capacity and Performance Management Standard](../operations/standard-capacity-and-performance-management.md)
 - [Certificate Authority Management Standard](../operations/standard-certificate-authority-management.md)
 - [Cloud Security Configuration Baseline](../operations/standard-cloud-security-configuration-baseline.md)
 - [Enterprise Risk Management Standard](../risk/standard-enterprise-risk-management.md)
+- [IT Financial Management Standard](../operations/standard-it-financial-management.md)
 - [Network Security and Segmentation Standard](../operations/standard-network-security-and-segmentation.md)
+- [Observability and Telemetry Standard](../operations/standard-observability-and-telemetry.md)
 - [Physical Security of IT Infrastructure Standard](../operations/standard-physical-security-of-it-infrastructure.md)
 - [Production Security Requirements](../operations/standard-production-security-requirements.md)
 - [Service Level Management Standard](../operations/standard-service-level-management.md)
+- [Site Reliability Engineering Standard](../operations/standard-site-reliability-engineering.md)
 - [Third-Party and Supply Chain Risk Standard](../risk/standard-third-party-and-supply-chain-risk.md)
 
 ---
@@ -85,6 +89,7 @@ The Chief Information Security Officer needs policies, standards, and procedures
 - [Key Escrow and Recovery Procedure](../security/procedure-key-escrow-and-recovery.md)
 - [Media Handling and Transport Procedure](../operations/procedure-media-handling-and-transport.md)
 - [Patch Management Procedure](../operations/procedure-patch-management.md)
+- [Release Management Procedure](../operations/procedure-release-management.md)
 - [Security Disciplinary Process Procedure](../security/procedure-security-disciplinary-process.md)
 - [Security Incident Response Procedure](../security/procedure-security-incident-response.md)
 - [Security Monitoring and Alert Management Procedure](../operations/procedure-security-monitoring-and-alert-management.md)
@@ -106,6 +111,7 @@ The Chief Information Security Officer needs policies, standards, and procedures
 - [AWS Cloud Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-aws.md)
 - [Authentication and Password Management Standard](../security/standard-authentication-and-password-management.md)
 - [Azure Cloud Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-azure.md)
+- [Capacity and Performance Management Standard](../operations/standard-capacity-and-performance-management.md)
 - [Certificate Authority Management Standard](../operations/standard-certificate-authority-management.md)
 - [Cloud Security Configuration Baseline](../operations/standard-cloud-security-configuration-baseline.md)
 - [Container and Image Security Standard](../dev-security/standard-container-and-image-security.md)
@@ -116,9 +122,11 @@ The Chief Information Security Officer needs policies, standards, and procedures
 - [Email Security Standard](../security/standard-email-security.md)
 - [Endpoint Hardening Standard](../security/standard-endpoint-hardening.md)
 - [Google Cloud Platform Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-gcp.md)
+- [IT Financial Management Standard](../operations/standard-it-financial-management.md)
 - [Logging and Monitoring Standard](../security/standard-logging-and-monitoring.md)
 - [Mobile Application Security Standard](../dev-security/standard-mobile-application-security.md)
 - [Network Security and Segmentation Standard](../operations/standard-network-security-and-segmentation.md)
+- [Observability and Telemetry Standard](../operations/standard-observability-and-telemetry.md)
 - [Penetration Testing and Red Team Standard](../security/standard-penetration-testing-and-red-team.md)
 - [Personnel Security Screening Standard](../security/standard-personnel-security-screening.md)
 - [Physical Security of IT Infrastructure Standard](../operations/standard-physical-security-of-it-infrastructure.md)
@@ -132,6 +140,7 @@ The Chief Information Security Officer needs policies, standards, and procedures
 - [Security Operations Centre Operating Model Standard](../security/standard-soc-operating-model.md)
 - [Security Quick Reference](../dev-security/standard-security-quick-reference.md)
 - [Service Level Management Standard](../operations/standard-service-level-management.md)
+- [Site Reliability Engineering Standard](../operations/standard-site-reliability-engineering.md)
 - [Software Composition Analysis Standard](../dev-security/standard-software-composition-analysis.md)
 - [Software Evaluation, Acceptance and Lifecycle Management Standard](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md)
 
