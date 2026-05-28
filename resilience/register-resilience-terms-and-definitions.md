@@ -2,7 +2,7 @@
 
 **Document Title:** Resilience Terms and Definitions Register 
 **Document Type:** Register 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Resilience Owner 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material resilience terminology, framework, or regulatory change 
 **Repository Path:** [`resilience/register-resilience-terms-and-definitions.md`](register-resilience-terms-and-definitions.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -63,7 +63,7 @@ This register does not reproduce definitions from external standards, laws, trad
 
 ---
 
-## AI Resilience Terms
+## AI resilience terms
 
 | Term | Definition |
 | --- | --- |
@@ -75,7 +75,7 @@ This register does not reproduce definitions from external standards, laws, trad
 
 ---
 
-## Maintenance Rules
+## Maintenance rules
 
 1. Definitions must be original and CC0-compatible.
 2. Definitions must remain organization-neutral.

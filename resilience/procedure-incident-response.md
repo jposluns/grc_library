@@ -2,7 +2,7 @@
 
 **Document Title:** Incident Response Procedure 
 **Document Type:** Procedure 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Security Owner 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material incident, threat, system, supplier, AI, privacy, or regulatory change 
 **Repository Path:** [`resilience/procedure-incident-response.md`](procedure-incident-response.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ This procedure applies to incidents affecting confidentiality, integrity, availa
 
 ---
 
-## Incident Response Lifecycle
+## Incident response lifecycle
 
 | Phase | Activities | Outputs |
 | --- | --- | --- |
@@ -41,7 +41,7 @@ This procedure applies to incidents affecting confidentiality, integrity, availa
 
 ---
 
-## Severity Factors
+## Severity factors
 
 Incident severity should consider:
 
@@ -74,7 +74,7 @@ Incident severity should consider:
 
 ---
 
-## Evidence Requirements
+## Evidence requirements
 
 Maintain incident record, timeline, affected assets, affected data categories, severity decision, containment actions, evidence index, communications, supplier records, recovery validation, legal or privacy decisions where applicable, corrective actions, and closure approval.
 

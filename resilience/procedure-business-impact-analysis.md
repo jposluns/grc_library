@@ -2,7 +2,7 @@
 
 **Document Title:** Business Impact Analysis Procedure 
 **Document Type:** Procedure 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Resilience Owner 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material process, system, supplier, data, AI, facility, or organizational change 
 **Repository Path:** [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -30,41 +30,41 @@ The procedure applies to business processes, technology services, data sets, sup
 
 ## Procedure
 
-### Step 1: Define Scope
+### Step 1: define scope
 
 Identify the process, service, system, supplier, data set, facility, or AI system being assessed. Record the owner, assessment date, assessment trigger, related services, and known dependencies.
 
-### Step 2: Identify Critical Outputs
+### Step 2: identify critical outputs
 
 Record the business outputs, customers, users, regulated activities, data obligations, contractual commitments, and operational outcomes affected by disruption.
 
-### Step 3: Identify Dependencies
+### Step 3: identify dependencies
 
 Map dependencies including people, facilities, applications, infrastructure, cloud services, identity services, data stores, suppliers, integrations, communication channels, security controls, monitoring systems, and AI services.
 
-### Step 4: Assess Impact
+### Step 4: assess impact
 
 Assess impact over time across operational, financial, legal, regulatory, customer, safety, privacy, security, supplier, reputational, and resilience dimensions.
 
-### Step 5: Define Recovery Objectives
+### Step 5: define recovery objectives
 
 Define recovery time objective, recovery point objective, maximum tolerable disruption, minimum service level, manual workaround viability, data restoration needs, and business acceptance criteria.
 
-### Step 6: Identify Continuity Requirements
+### Step 6: identify continuity requirements
 
 Record required continuity strategies, manual workarounds, recovery sequence, alternate suppliers, emergency access requirements, communication requirements, and required evidence.
 
-### Step 7: Validate and Approve
+### Step 7: validate and approve
 
 Review the assessment with accountable roles. Approve recovery objectives and unresolved risks. Record assumptions, limitations, exceptions, and residual risk.
 
-### Step 8: Maintain
+### Step 8: maintain
 
 Review the assessment at the required cadence and after material changes to services, architecture, suppliers, data, AI systems, facilities, legal obligations, or business process criticality.
 
 ---
 
-## Minimum BIA Fields
+## Minimum BIA fields
 
 | Field | Description |
 | --- | --- |
@@ -85,13 +85,13 @@ Review the assessment at the required cadence and after material changes to serv
 
 ---
 
-## AI and Data Considerations
+## AI and data considerations
 
 Where the assessed process depends on AI systems, the BIA must consider model service availability, retrieval store availability, data lineage, prompt and output logs, monitoring records, supplier dependency, emergency disablement, fallback decision process, retention, deletion, and recovery validation.
 
 ---
 
-## Evidence Requirements
+## Evidence requirements
 
 Maintain the completed assessment, dependency map, recovery objective decision, owner approval, exception record, continuity requirement, and related corrective action records.
 

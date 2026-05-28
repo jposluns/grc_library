@@ -2,7 +2,7 @@
 
 **Document Title:** Business Continuity and Resilience Framework 
 **Document Type:** Framework 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Resilience Owner 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material incident, service change, supplier change, or recovery strategy change 
 **Repository Path:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -42,7 +42,7 @@ It covers:
 
 ---
 
-## Resilience Objectives
+## Resilience objectives
 
 1. Identify critical services and dependencies.
 2. Define recovery time objectives and recovery point objectives.
@@ -55,7 +55,7 @@ It covers:
 
 ---
 
-## Core Components
+## Core components
 
 | Component | Requirement | Evidence Class |
 | --- | --- | --- |
@@ -72,7 +72,7 @@ It covers:
 
 ---
 
-## Scenario Types
+## Scenario types
 
 Continuity and recovery tests should consider scenarios including:
 
@@ -91,7 +91,7 @@ Continuity and recovery tests should consider scenarios including:
 
 ---
 
-## Recovery Governance
+## Recovery governance
 
 Each critical service should define:
 
@@ -111,7 +111,7 @@ Each critical service should define:
 
 ---
 
-## Test Evidence Requirements
+## Test evidence requirements
 
 Resilience testing should record:
 

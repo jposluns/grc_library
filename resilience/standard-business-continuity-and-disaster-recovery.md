@@ -2,7 +2,7 @@
 
 **Document Title:** Business Continuity and Disaster Recovery Standard 
 **Document Type:** Standard 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Resilience Owner 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material resilience, recovery, supplier, data, or architecture change 
 **Repository Path:** [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -24,27 +24,27 @@ This standard defines minimum requirements for business continuity, disaster rec
 
 ## Requirements
 
-### 1. Business Impact Analysis
+### 1. Business impact analysis
 
 Critical processes, systems, data, suppliers, facilities, and workforce dependencies must be identified and assessed for operational, legal, financial, customer, safety, security, privacy, and regulatory impact.
 
-### 2. Recovery Objectives
+### 2. Recovery objectives
 
 Each critical service must have documented recovery objectives, including recovery time objective, recovery point objective, maximum tolerable disruption, minimum service level, and business acceptance criteria.
 
-### 3. Dependency Mapping
+### 3. Dependency mapping
 
 Dependency maps must include applications, data stores, identity services, infrastructure, cloud services, suppliers, facilities, workforce roles, integrations, monitoring, backup platforms, AI systems, retrieval stores, and critical records.
 
-### 4. Continuity Planning
+### 4. Continuity planning
 
 Continuity plans must define activation criteria, responsible roles, communication paths, manual workarounds, service prioritization, supplier escalation, evidence requirements, and return-to-normal criteria.
 
-### 5. Disaster Recovery
+### 5. Disaster recovery
 
 Disaster recovery plans must define restoration sequence, data validation, access validation, configuration recovery, security control restoration, monitoring restoration, supplier coordination, and business acceptance.
 
-### 6. Backup and Restoration
+### 6. Backup and restoration
 
 Backups must be scoped, protected, monitored, tested, retained, and deleted according to documented data, privacy, legal, business, and recovery requirements. Restoration testing must validate recoverability, integrity, access control, and usability.
 
@@ -52,11 +52,11 @@ Backups must be scoped, protected, monitored, tested, retained, and deleted acco
 
 Continuity and recovery testing must occur at defined intervals and after material changes. Testing methods may include tabletop exercises, technical restoration tests, supplier escalation tests, communications tests, failover tests, and full recovery simulations.
 
-### 8. AI and Data Resilience
+### 8. AI and data resilience
 
 AI systems must have continuity controls proportionate to risk. Controls must consider model service availability, retrieval store recovery, prompt and output logs, training or evaluation data, provenance, lineage, monitoring records, supplier dependencies, emergency disablement, and fallback procedures.
 
-### 9. Corrective Action
+### 9. Corrective action
 
 Failed tests, missed recovery objectives, undocumented dependencies, unavailable suppliers, data restoration gaps, and control failures must be recorded, assigned, remediated, and validated.
 
@@ -66,7 +66,7 @@ Evidence must be retained for assessments, plans, tests, restoration activities,
 
 ---
 
-## Minimum Evidence Set
+## Minimum evidence set
 
 - Business impact analysis.
 - Critical service register.

@@ -2,7 +2,7 @@
 
 **Document Title:** Crisis Communication Plan 
 **Document Type:** Plan 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Communications Owner 
 **Approving Authority:** Executive Management 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material incident, communication, legal, regulatory, supplier, or operational change 
 **Repository Path:** [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ This plan applies to internal communications, customer communications, supplier 
 
 ---
 
-## Communication Principles
+## Communication principles
 
 1. Communications must be factual, authorized, timely, and consistent with known evidence.
 2. Legal, privacy, compliance, security, supplier, and executive review must occur where required by impact or obligation.
@@ -56,37 +56,37 @@ This plan applies to internal communications, customer communications, supplier 
 
 ## Procedure
 
-### Step 1: Determine Communication Need
+### Step 1: determine communication need
 
 Assess audience, impact, obligations, timing, facts available, approval requirements, and risks from delayed, incomplete, or premature communication.
 
-### Step 2: Define Audience
+### Step 2: define audience
 
 Classify audiences such as employees, customers, suppliers, regulators, insurers, law enforcement, governing body, public, media, or affected individuals.
 
-### Step 3: Prepare Message
+### Step 3: prepare message
 
 Draft message content using confirmed facts, known impact, actions underway, contact path, next update timing, and limitations. Avoid internal system names, personal names, unverified cause, exploit details, and sensitive operational information unless explicitly approved.
 
-### Step 4: Review and Approve
+### Step 4: review and approve
 
 Route messages for review by communications, legal, privacy, security, compliance, supplier, executive, or other accountable roles according to impact and audience.
 
-### Step 5: Distribute
+### Step 5: distribute
 
 Distribute through approved channels. Record time, audience, channel, version, approver, sender role, and follow-up commitment.
 
-### Step 6: Update
+### Step 6: update
 
 Issue updates when facts materially change, recovery milestones occur, obligations require update, or a stated update interval arrives.
 
-### Step 7: Close
+### Step 7: close
 
 Close crisis communications when normal communication ownership resumes, all required notifications are complete, public or customer updates are closed, and the message log is archived internally.
 
 ---
 
-## Minimum Message Log Fields
+## Minimum message log fields
 
 | Field | Description |
 | --- | --- |

@@ -2,7 +2,7 @@
 
 **Document Title:** Business Continuity and Disaster Recovery Policy 
 **Document Type:** Policy 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Resilience Owner 
 **Approving Authority:** Executive Management 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material business, technology, supplier, regulatory, or resilience change 
 **Repository Path:** [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ This policy applies to business processes, information systems, cloud services, 
 
 ---
 
-## Policy Statements
+## Policy statements
 
 1. Critical services and supporting dependencies must be identified through business impact analysis.
 2. Recovery time objectives, recovery point objectives, maximum tolerable disruption, and minimum service levels must be defined for critical services.
@@ -43,7 +43,7 @@ This policy applies to business processes, information systems, cloud services, 
 
 ---
 
-## Evidence Requirements
+## Evidence requirements
 
 Adopting organizations should maintain business impact analyses, recovery objective registers, dependency maps, continuity plans, recovery plans, test reports, restoration logs, crisis action logs, supplier resilience evidence, corrective action logs, and risk acceptance records.
 

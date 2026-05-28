@@ -2,7 +2,7 @@
 
 **Document Title:** Business Continuity and Crisis Management Plan 
 **Document Type:** Plan 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Resilience Owner 
 **Approving Authority:** Executive Management 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material incident, service, supplier, facility, or recovery strategy change 
 **Repository Path:** [`resilience/business-continuity-and-crisis-management.md`](business-continuity-and-crisis-management.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -54,7 +54,7 @@ It covers:
 
 ---
 
-## Activation Criteria
+## Activation criteria
 
 Activation should be considered when one or more conditions exist:
 
@@ -67,7 +67,7 @@ Activation should be considered when one or more conditions exist:
 
 ---
 
-## Crisis Management Structure
+## Crisis management structure
 
 | Role | Accountability |
 | --- | --- |
@@ -84,7 +84,7 @@ Activation should be considered when one or more conditions exist:
 
 ---
 
-## Response Phases
+## Response phases
 
 | Phase | Activities | Outputs |
 | --- | --- | --- |
@@ -97,7 +97,7 @@ Activation should be considered when one or more conditions exist:
 
 ---
 
-## Evidence Requirements
+## Evidence requirements
 
 Maintain records for:
 

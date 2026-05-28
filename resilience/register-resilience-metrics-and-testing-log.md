@@ -2,7 +2,7 @@
 
 **Document Title:** Resilience Metrics and Testing Log Template 
 **Document Type:** Template 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Resilience Owner 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material resilience, testing, metric, service, supplier, or regulatory change 
 **Repository Path:** [`resilience/register-resilience-metrics-and-testing-log.md`](register-resilience-metrics-and-testing-log.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -24,7 +24,7 @@ Completed versions must not be published under CC0 unless sanitized. Real test r
 
 ---
 
-## Use Requirements
+## Use requirements
 
 1. Record tests and exercises after completion.
 2. Use objective measurements where available.
@@ -35,7 +35,7 @@ Completed versions must not be published under CC0 unless sanitized. Real test r
 
 ---
 
-## Section 1: Test and Exercise Log
+## Section 1: test and exercise log
 
 | Test ID | Test Date | Test Type | Scope | Objective | RTO Target | RTO Actual | RPO Target | RPO Actual | Success Criteria Met | Owner Role | Findings Summary | Residual Risk |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -43,7 +43,7 @@ Completed versions must not be published under CC0 unless sanitized. Real test r
 
 ---
 
-## Section 2: Resilience Metrics
+## Section 2: resilience metrics
 
 | Metric Category | Metric Name | Measurement Rule | Target or Threshold | Current Value | Status | Evidence Class | Owner Role |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -57,7 +57,7 @@ Completed versions must not be published under CC0 unless sanitized. Real test r
 
 ---
 
-## Section 3: Corrective Action Log
+## Section 3: corrective action log
 
 | Action ID | Source | Issue Summary | Corrective Action | Owner Role | Target Date | Completion Date | Status | Verification Method | Residual Risk |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -65,7 +65,7 @@ Completed versions must not be published under CC0 unless sanitized. Real test r
 
 ---
 
-## Section 4: Review Summary
+## Section 4: review summary
 
 | Review Period | Scope | Key Findings | Risk Trend | Improvement Priorities | Approval Role | Review Date |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -73,7 +73,7 @@ Completed versions must not be published under CC0 unless sanitized. Real test r
 
 ---
 
-## Evidence Requirements
+## Evidence requirements
 
 Adopting organizations should retain test plans, execution records, restoration logs, communication logs, supplier evidence, screenshots or technical records where internally appropriate, corrective actions, risk decisions, and approval records.
 

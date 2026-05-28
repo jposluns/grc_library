@@ -2,7 +2,7 @@
 
 **Document Title:** Security Incident Reporting and Escalation Procedure 
 **Document Type:** Procedure 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Security Owner 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material incident, threat, legal, regulatory, supplier, privacy, or AI change 
 **Repository Path:** [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ This procedure applies to suspected or confirmed incidents affecting information
 
 ---
 
-## Reportable Events
+## Reportable events
 
 Events should be reported when they involve or may involve:
 
@@ -47,37 +47,37 @@ Events should be reported when they involve or may involve:
 
 ## Procedure
 
-### Step 1: Report
+### Step 1: report
 
 Reports may originate from users, monitoring, suppliers, customers, audit, privacy, compliance, support channels, or automated detection. Reports must be captured in an approved internal record system by adopting organizations.
 
-### Step 2: Triage
+### Step 2: triage
 
 Initial triage must confirm known facts, affected systems, affected data classes, identities involved, supplier involvement, business impact, privacy impact, AI system impact, and immediate containment needs.
 
-### Step 3: Classify Severity
+### Step 3: classify severity
 
 Severity should consider data sensitivity, business criticality, attacker activity, privilege level, service impact, supplier exposure, privacy exposure, legal or regulatory implications, and potential harm.
 
-### Step 4: Escalate
+### Step 4: escalate
 
 Escalate to incident response, privacy, legal, compliance, supplier, resilience, communications, executive, or crisis management roles according to severity and impact.
 
-### Step 5: Preserve Evidence
+### Step 5: preserve evidence
 
 Preserve relevant logs, alerts, messages, access records, system records, supplier notifications, AI prompts and outputs where appropriate, tool execution records, retrieval logs, and decision records according to internal evidence handling requirements.
 
-### Step 6: Track Actions
+### Step 6: track actions
 
 Record containment actions, assigned owners, deadlines, decisions, communications, supplier actions, residual risk, and transfer to other processes.
 
-### Step 7: Close or Transfer
+### Step 7: close or transfer
 
 Close only when the event is determined not to be an incident or after transfer to incident response, privacy breach response, crisis management, or corrective action governance.
 
 ---
 
-## Minimum Record Fields
+## Minimum record fields
 
 | Field | Description |
 | --- | --- |

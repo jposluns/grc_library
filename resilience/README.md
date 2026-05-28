@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material continuity, crisis, recovery, supplier, or regulatory change 
 **Repository Path:** [`resilience/README.md`](README.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This directory contains organization-neutral business continuity, disaster recov
 
 ---
 
-## Active Documents
+## Active documents
 
 | Type | Title | Path |
 | --- | --- | --- |
@@ -48,13 +48,13 @@ This directory contains organization-neutral business continuity, disaster recov
 
 ---
 
-## Domain Coverage
+## Domain coverage
 
 Resilience documents should address business impact analysis, recovery objectives, continuity planning, disaster recovery, crisis communications, emergency response, supplier resilience, cloud service dependency, AI system dependency, data restoration, recovery testing, corrective action, and residual risk acceptance.
 
 ---
 
-## Licence Boundary
+## License boundary
 
 Completed crisis contact directories, internal recovery runbooks, infrastructure diagrams, supplier escalation paths, system-specific recovery steps, incident records, and audit evidence must not be published in this directory. Public CC0 content must remain generic, role-based, and non-identifying.
 

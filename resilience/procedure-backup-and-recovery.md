@@ -2,7 +2,7 @@
 
 **Document Title:** Backup and Recovery Procedure 
 **Document Type:** Procedure 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Resilience Owner 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material backup, recovery, infrastructure, data, or supplier change 
 **Repository Path:** [`resilience/procedure-backup-and-recovery.md`](procedure-backup-and-recovery.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -41,7 +41,7 @@ It covers:
 
 ---
 
-## Roles and Responsibilities
+## Roles and responsibilities
 
 | Role | Responsibility |
 | --- | --- |
@@ -56,7 +56,7 @@ It covers:
 
 ## Requirements
 
-### 1. Backup Scope
+### 1. Backup scope
 
 Each system requiring backup must have documented scope covering:
 
@@ -68,19 +68,19 @@ Each system requiring backup must have documented scope covering:
 - Logs required for investigation or audit.
 - AI prompts, outputs, embeddings, retrieval stores, model configuration, evaluation data, and monitoring records where applicable.
 
-### 2. Recovery Objectives
+### 2. Recovery objectives
 
 Recovery time objectives and recovery point objectives must be documented for critical services. Objectives must align with business impact analysis, contractual commitments, legal obligations, data classification, and supplier capability.
 
-### 3. Protection Requirements
+### 3. Protection requirements
 
 Backups must be protected against unauthorized access, alteration, deletion, ransomware, corruption, and inappropriate retention. Protection should include encryption, access control, separation of duties, immutability or deletion resistance where appropriate, monitoring, and restoration access review.
 
-### 4. Recovery Testing
+### 4. Recovery testing
 
 Recovery capability must be tested according to criticality. Tests should validate data integrity, service restoration, authentication, application dependencies, supplier dependencies, and business acceptance criteria.
 
-### 5. Restoration Procedure
+### 5. Restoration procedure
 
 Restoration activities must record:
 
@@ -95,17 +95,17 @@ Restoration activities must record:
 - Business acceptance.
 - Residual risk.
 
-### 6. AI and Data Recovery
+### 6. AI and data recovery
 
 AI system recovery must consider retrieval stores, embeddings, model configuration, system prompts, tool permissions, monitoring logs, training or fine-tuning data, data provenance, lineage, retention, and enforceable deletion requirements.
 
-### 7. Supplier Recovery
+### 7. Supplier recovery
 
 Where backup or recovery is provided by a supplier, contractual and assurance evidence should address restoration commitments, retention, encryption, access controls, subprocessor exposure, incident notification, deletion capability, and exit support.
 
 ---
 
-## Evidence Requirements
+## Evidence requirements
 
 Maintain evidence including backup inventory, recovery objectives, backup configuration record, access review, encryption record, test plan, test result, restoration log, corrective action log, supplier assurance record, and deletion or retention attestation where applicable.
 

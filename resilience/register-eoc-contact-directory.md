@@ -2,7 +2,7 @@
 
 **Document Title:** Emergency Operations Contact Directory Template 
 **Document Type:** Register 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Resilience Owner 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material role, service, facility, supplier, or emergency response change 
 **Repository Path:** [`resilience/register-eoc-contact-directory.md`](register-eoc-contact-directory.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ The template can be adapted for crisis management, emergency operations, continu
 
 ---
 
-## Use Requirements
+## Use requirements
 
 1. Completed contact directories must be stored in a restricted internal location.
 2. Personal contact data must be collected and retained only under documented authority.
@@ -39,7 +39,7 @@ The template can be adapted for crisis management, emergency operations, continu
 
 ---
 
-## Contact Directory Fields
+## Contact directory fields
 
 | Field | Description |
 | --- | --- |
@@ -55,7 +55,7 @@ The template can be adapted for crisis management, emergency operations, continu
 
 ---
 
-## Example Blank Table
+## Example blank table
 
 | Role or Function | Primary Contact | Alternate Contact | Responsibility | Communication Channel | Availability Window | Escalation Path | Review Date | Record Owner |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -67,7 +67,7 @@ The template can be adapted for crisis management, emergency operations, continu
 
 ---
 
-## Privacy and Security Notes
+## Privacy and security notes
 
 A completed contact directory is likely to contain personal data, emergency contact details, supplier escalation paths, and sensitive operational dependencies. It should not be published under CC0 once populated. Adopting organizations should classify completed versions according to internal data classification and privacy requirements.
 

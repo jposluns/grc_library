@@ -2,7 +2,7 @@
 
 **Document Title:** Departmental Continuity Plan Template 
 **Document Type:** Template 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Resilience Owner 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material process, service, supplier, data, workforce, facility, or system change 
 **Repository Path:** [`resilience/guideline-departmental-continuity-plan-template.md`](guideline-departmental-continuity-plan-template.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This template provides a reusable structure for documenting departmental or func
 
 ---
 
-## Use Requirements
+## Use requirements
 
 1. Completed continuity plans should be classified according to internal data classification requirements.
 2. Completed plans should be stored in a restricted internal location.
@@ -32,9 +32,9 @@ This template provides a reusable structure for documenting departmental or func
 
 ---
 
-## Continuity Plan Fields
+## Continuity plan fields
 
-### 1. Department or Function Overview
+### 1. Department or function overview
 
 | Field | Entry |
 | --- | --- |
@@ -47,7 +47,7 @@ This template provides a reusable structure for documenting departmental or func
 | Last Review Date | |
 | Next Review Date | |
 
-### 2. Critical Processes
+### 2. Critical processes
 
 | Process | Criticality Tier | Maximum Tolerable Disruption | Recovery Time Objective | Recovery Point Objective | Minimum Service Level | Manual Workaround |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -66,7 +66,7 @@ This template provides a reusable structure for documenting departmental or func
 | AI System or Automation | | | | |
 | Communication Channel | | | | |
 
-### 4. Continuity Actions
+### 4. Continuity actions
 
 | Disruption Scenario | Immediate Action | Sustained Workaround | Escalation Role | Evidence to Capture |
 | --- | --- | --- | --- | --- |
@@ -77,7 +77,7 @@ This template provides a reusable structure for documenting departmental or func
 | Workforce unavailable | | | | |
 | AI system unavailable or unsafe | | | | |
 
-### 5. Communication Requirements
+### 5. Communication requirements
 
 | Audience | Message Purpose | Approval Role | Channel Class | Timing |
 | --- | --- | --- | --- | --- |
@@ -86,7 +86,7 @@ This template provides a reusable structure for documenting departmental or func
 | Suppliers | | | | |
 | Regulators or authorities | | | | |
 
-### 6. Restoration and Return to Normal
+### 6. Restoration and return to normal
 
 | Step | Description | Owner Role | Validation Evidence |
 | --- | --- | --- | --- |
@@ -97,7 +97,7 @@ This template provides a reusable structure for documenting departmental or func
 | Record residual risk | | | |
 | Approve return to normal | | | |
 
-### 7. Testing and Maintenance
+### 7. Testing and maintenance
 
 | Test or Review | Frequency | Owner Role | Evidence |
 | --- | --- | --- | --- |

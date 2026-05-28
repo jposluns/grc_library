@@ -2,7 +2,7 @@
 
 **Document Title:** Emergency Response and Protective Actions Guideline 
 **Document Type:** Guideline 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Resilience Owner 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material facility, safety, emergency response, legal, or operational change 
 **Repository Path:** [`resilience/guideline-emergency-response-and-protective-actions.md`](guideline-emergency-response-and-protective-actions.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ This guideline may be adapted for offices, facilities, warehouses, operational s
 
 ---
 
-## Protective Action Principles
+## Protective action principles
 
 1. Life safety takes priority over property, systems, records, and service restoration.
 2. Local protective action may be required before executive or crisis management activation.
@@ -39,7 +39,7 @@ This guideline may be adapted for offices, facilities, warehouses, operational s
 
 ---
 
-## Emergency Types and Generic Protective Actions
+## Emergency types and generic protective actions
 
 | Emergency Type | Generic Protective Action |
 | --- | --- |
@@ -54,7 +54,7 @@ This guideline may be adapted for offices, facilities, warehouses, operational s
 
 ---
 
-## Role Guidance
+## Role guidance
 
 | Role | Responsibility |
 | --- | --- |
@@ -68,7 +68,7 @@ This guideline may be adapted for offices, facilities, warehouses, operational s
 
 ---
 
-## Evidence and Review
+## Evidence and review
 
 Adopting organizations should maintain local emergency procedures, drill records, site risk assessments, training records, incident records, communication logs, corrective action records, and transition records into crisis or continuity processes.
 

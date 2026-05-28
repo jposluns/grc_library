@@ -2,7 +2,7 @@
 
 **Document Title:** Continuity and Recovery Testing Procedure 
 **Document Type:** Procedure 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Resilience Owner 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material continuity, recovery, supplier, system, data, or AI change 
 **Repository Path:** [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ This procedure applies to critical processes, systems, data stores, suppliers, f
 
 ---
 
-## Test Types
+## Test types
 
 | Type | Purpose |
 | --- | --- |
@@ -44,41 +44,41 @@ This procedure applies to critical processes, systems, data stores, suppliers, f
 
 ## Procedure
 
-### Step 1: Define Test Scope
+### Step 1: define test scope
 
 Identify the service, process, supplier, system, data set, AI system, facility, or scenario being tested. Define objectives, assumptions, participants by role, and exclusions.
 
-### Step 2: Define Success Criteria
+### Step 2: define success criteria
 
 Define measurable criteria including recovery time, recovery point, minimum service level, data integrity, security control restoration, communication timing, supplier response, and business acceptance.
 
-### Step 3: Prepare Test Plan
+### Step 3: prepare test plan
 
 Document scenario, schedule, roles, evidence requirements, communication plan, rollback method, safety constraints, privacy considerations, and approval to execute.
 
-### Step 4: Execute Test
+### Step 4: execute test
 
 Perform the test according to the approved plan. Record actions, timing, decisions, deviations, failures, manual workarounds, supplier responses, and observed control issues.
 
-### Step 5: Validate Results
+### Step 5: validate results
 
 Validate whether success criteria were met. Confirm recovered data, restored services, access control, logging, monitoring, integrations, AI system behaviour, and business acceptance.
 
-### Step 6: Record Findings
+### Step 6: record findings
 
 Classify findings by severity, owner, corrective action, target date, dependency, and residual risk.
 
-### Step 7: Report and Approve
+### Step 7: report and approve
 
 Prepare a test report with scope, results, evidence, limitations, failed assumptions, corrective actions, residual risk, and approval or acceptance.
 
-### Step 8: Track Improvement
+### Step 8: track improvement
 
 Track corrective actions to closure. Update continuity plans, recovery plans, supplier records, BIA outputs, risk records, and recovery objectives where required.
 
 ---
 
-## Required Test Record
+## Required test record
 
 | Field | Description |
 | --- | --- |
@@ -97,7 +97,7 @@ Track corrective actions to closure. Update continuity plans, recovery plans, su
 
 ---
 
-## Evidence Requirements
+## Evidence requirements
 
 Maintain test plans, execution records, screenshots or logs where appropriate for internal use, validation results, communications records, supplier evidence, corrective action logs, and approval records. Public CC0 templates must not include internal screenshots, system names, supplier names, contact details, or operational evidence.
 

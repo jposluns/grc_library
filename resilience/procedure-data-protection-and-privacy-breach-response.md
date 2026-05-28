@@ -2,7 +2,7 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure 
 **Document Type:** Procedure 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Privacy Owner 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, data protection, incident, AI, supplier, or regulatory change 
 **Repository Path:** [`resilience/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -30,37 +30,37 @@ This procedure applies to suspected or confirmed unauthorized access, disclosure
 
 ## Procedure
 
-### Step 1: Identify and Report
+### Step 1: identify and report
 
 Report suspected privacy or data protection breaches through the approved incident reporting path. Record the source, date, affected data classes, affected systems, supplier involvement, and immediate containment needs.
 
-### Step 2: Contain
+### Step 2: contain
 
 Take proportionate containment actions to limit further access, disclosure, loss, alteration, or misuse while preserving evidence. Containment may include access removal, credential rotation, service isolation, supplier escalation, data flow suspension, AI system disablement, retrieval store restriction, or log preservation.
 
-### Step 3: Assess Data Impact
+### Step 3: assess data impact
 
 Assess affected data categories, number of affected records or individuals where known, sensitivity, identifiability, exposure duration, recipient or attacker access, cross-border implications, supplier handling, and likelihood of harm.
 
-### Step 4: Assess Legal, Regulatory, and Contractual Context
+### Step 4: assess legal, regulatory, and contractual context
 
 Determine whether legal, regulatory, contractual, customer, employment, sector, insurance, or data subject notification requirements may apply. This determination depends on jurisdiction, processing role, data category, harm threshold, affected population, and contractual commitments.
 
-### Step 5: Decide Notification Path
+### Step 5: decide notification path
 
 Document whether notification is required, not required, deferred pending investigation, or subject to legal privilege or further review. Notifications may include affected individuals, regulators, customers, suppliers, insurers, law enforcement, or internal governance roles.
 
-### Step 6: Remediate
+### Step 6: remediate
 
 Remediate control failures, access gaps, supplier issues, retention failures, deletion failures, AI data handling defects, logging gaps, monitoring gaps, or process failures identified during investigation.
 
-### Step 7: Close
+### Step 7: close
 
 Close the breach record only when facts, impact, notification decisions, remediation, residual risk, evidence, and approval are complete.
 
 ---
 
-## AI and Data-Specific Considerations
+## AI and data-specific considerations
 
 Where AI systems are involved, assess:
 
@@ -76,7 +76,7 @@ Where AI systems are involved, assess:
 
 ---
 
-## Minimum Record Fields
+## Minimum record fields
 
 | Field | Description |
 | --- | --- |

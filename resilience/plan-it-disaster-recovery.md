@@ -2,7 +2,7 @@
 
 **Document Title:** IT Disaster Recovery Plan 
 **Document Type:** Plan 
-**Version:** 0.1.0 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Chief Information Officer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual or following any major infrastructure change or DR exercise 
 **Repository Path:** [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -34,7 +34,7 @@ This plan defines the system-specific recovery procedures, RTO and RPO targets, 
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -46,7 +46,7 @@ This plan defines the system-specific recovery procedures, RTO and RPO targets, 
 
 ---
 
-## RTO and RPO Targets
+## RTO and RPO targets
 
 | System / Service Tier | Examples | RTO | RPO |
 | --- | --- | --- | --- |
@@ -59,7 +59,7 @@ Specific per-system RTO/RPO targets for ongoing system modernization workstreams
 
 ---
 
-## Recovery Infrastructure
+## Recovery infrastructure
 
 **Primary site:** On-premises hypervisor infrastructure in the primary data centre.
 
@@ -69,7 +69,7 @@ Specific per-system RTO/RPO targets for ongoing system modernization workstreams
 
 ---
 
-## Phased Recovery Sequence
+## Phased recovery sequence
 
 Recovery follows the sequence demonstrated and refined during the prior security incident response and post-incident review.
 
@@ -82,7 +82,7 @@ Recovery follows the sequence demonstrated and refined during the prior security
 
 ---
 
-## Pre-Conditions for Service Restoration
+## Pre-conditions for service restoration
 
 No production system is restored to service until the following conditions are confirmed:
 
@@ -94,7 +94,7 @@ No production system is restored to service until the following conditions are c
 
 ---
 
-## Backup and Restore Requirements
+## Backup and restore requirements
 
 All Tier 1 and Tier 2 systems must have:
 
@@ -106,13 +106,13 @@ Backup status is reported monthly to the CISO. Any backup gap exceeding the defi
 
 ---
 
-## Runbook References
+## Runbook references
 
 System-specific recovery runbooks are maintained in the IT Operations Documentation Framework and the IT/Operations space. Runbooks must be reviewed and tested at minimum annually. Runbook currency (last tested date) is tracked in the CMDB against each in-scope system. Runbooks not tested within 13 months are flagged as non-compliant.
 
 ---
 
-## DR Testing
+## DR testing
 
 DR testing requirements follow the Continuity and Recovery Testing and Exercising Procedure:
 
@@ -123,7 +123,7 @@ DR testing requirements follow the Continuity and Recovery Testing and Exercisin
 
 ---
 
-## Lessons Learned: Prior Security Incident
+## Lessons learned: prior security incident
 
 A ransomware incident resulted in approximately a 30-day recovery window. Key lessons incorporated into this plan include:
 
@@ -135,7 +135,7 @@ A ransomware incident resulted in approximately a 30-day recovery window. Key le
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
