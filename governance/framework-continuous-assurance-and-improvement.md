@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material governance, AI, or regulatory change 
 **Repository Path:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -33,7 +33,7 @@ It ensures that ongoing monitoring, evaluation, and improvement activities are c
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -47,7 +47,7 @@ It ensures that ongoing monitoring, evaluation, and improvement activities are c
 
 ---
 
-## 1. Framework Overview
+## 1. Framework overview
 
 The Continuous Assurance and Improvement Framework integrates four interrelated cycles to sustain governance maturity and improvement:
 
@@ -62,7 +62,7 @@ This structure provides a continuous feedback loop ensuring organizational learn
 
 ---
 
-## 2. Governance Review
+## 2. Governance review
 
 2.1 Annual governance reviews assess the relevance and effectiveness of policies, standards, and procedures.
 
@@ -75,7 +75,7 @@ This structure provides a continuous feedback loop ensuring organizational learn
 
 ---
 
-## 3. Assurance and Audit Integration
+## 3. Assurance and audit integration
 
 3.1 Continuous assurance combines proactive monitoring with formal audits to validate compliance readiness.
 
@@ -88,9 +88,9 @@ This structure provides a continuous feedback loop ensuring organizational learn
 
 ---
 
-## 4. Performance Evaluation
+## 4. Performance evaluation
 
-### 4.1 Digital Trust Indicators (COBIT 2025)
+### 4.1 Digital trust indicators (COBIT 2025)
 
 The organization shall track and improve:
 - Governance effectiveness and transparency.
@@ -98,14 +98,14 @@ The organization shall track and improve:
 - Security resilience and service availability.
 - Ethical accountability and stakeholder confidence.
 
-### 4.2 AI Performance and Maturity KPIs (ISO/IEC 42001 §10)
+### 4.2 AI performance and maturity kpis (ISO/IEC 42001 §10)
 
 - Percentage of AI models passing fairness and robustness thresholds.
 - Explainability compliance rate for deployed AI systems.
 - Frequency of ethics reviews completed by the AI Governance Council.
 - AI retraining and lifecycle compliance metrics.
 
-### 4.3 BASC and Regional Assurance Metrics
+### 4.3 BASC and regional assurance metrics
 
 - Cargo integrity and customs compliance rate.
 - Supplier BASC certification coverage.
@@ -115,7 +115,7 @@ Performance data from all assurance activities feed into the Governance Performa
 
 ---
 
-## 5. Improvement Implementation and Verification
+## 5. Improvement implementation and verification
 
 5.1 Identified nonconformities and improvement actions must be recorded in the CAPA system and tracked to closure.
 
@@ -130,7 +130,7 @@ Performance data from all assurance activities feed into the Governance Performa
 
 ---
 
-## 6. BASC and Regional Integration
+## 6. BASC and regional integration
 
 6.1 This framework embeds BASC International Standard governance cycles for trade operations:
 - Security and trade integrity reviews.
@@ -141,7 +141,7 @@ Performance data from all assurance activities feed into the Governance Performa
 
 ---
 
-## 7. Automation and Continuous Monitoring
+## 7. Automation and continuous monitoring
 
 7.1 Digital automation supports continuous improvement through:
 - KPI dashboards integrating digital trust and AI maturity metrics.
@@ -154,7 +154,7 @@ Performance data from all assurance activities feed into the Governance Performa
 
 ---
 
-## 8. Review and Continual Improvement
+## 8. Review and continual improvement
 
 8.1 This framework is reviewed annually by the CIO, CISO, and AIGC for relevance, scope, and performance.
 
@@ -167,7 +167,7 @@ Performance data from all assurance activities feed into the Governance Performa
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

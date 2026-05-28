@@ -12,7 +12,7 @@
 **Review Frequency:** Annual or as required by regulatory or framework changes 
 **Repository Path:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -45,7 +45,7 @@ This standard establishes controls, retention schedules, destruction methods, an
 
 ---
 
-## Records Classification
+## Records classification
 
 | Classification | Examples | Minimum Retention |
 |---|---|---|
@@ -57,7 +57,7 @@ This standard establishes controls, retention schedules, destruction methods, an
 
 ---
 
-## Section 1: Records Retention Schedule
+## Section 1: records retention schedule
 
 The Records Retention Schedule (RRS) defines minimum retention periods based on:
 
@@ -66,7 +66,7 @@ The Records Retention Schedule (RRS) defines minimum retention periods based on:
 - Business or audit requirements.
 - Data protection laws including GDPR, CPPA, and LGPD.
 
-### Domain-Specific Minimum Retention Periods
+### Domain-specific minimum retention periods
 
 | Domain | Minimum Retention |
 |---|---|
@@ -83,7 +83,7 @@ The Records Retention Schedule (RRS) defines minimum retention periods based on:
 
 ---
 
-## Section 2: Secure Storage and Access
+## Section 2: secure storage and access
 
 Records must be stored in secure, access-controlled systems with encryption applied at rest and in transit. Requirements include:
 
@@ -93,7 +93,7 @@ Records must be stored in secure, access-controlled systems with encryption appl
 
 ---
 
-## Section 3: Retention Hold and Litigation Freeze
+## Section 3: retention hold and litigation freeze
 
 When a record is subject to audit, investigation, or litigation, a retention hold must be applied immediately. The following controls apply:
 
@@ -103,18 +103,18 @@ When a record is subject to audit, investigation, or litigation, a retention hol
 
 ---
 
-## Section 4: Secure Destruction
+## Section 4: secure destruction
 
 Upon expiration of the applicable retention period and confirmation that no active hold exists, records must be securely destroyed using an approved method.
 
-### Acceptable Destruction Methods
+### Acceptable destruction methods
 
 | Media Type | Accepted Methods |
 |---|---|
 | **Paper / Physical** | Cross-cut shredding or contracted secure disposal service |
 | **Electronic / Digital** | Cryptographic erasure, secure overwrite per NIST SP 800-88, or physical drive destruction |
 
-### Destruction Documentation
+### Destruction documentation
 
 All destruction actions must be logged in the Destruction Register. Each entry must include:
 
@@ -128,7 +128,7 @@ Certificates of Destruction must be retained for a minimum of 7 years.
 
 ---
 
-## Section 5: AI Dataset and Model Record Retention
+## Section 5: AI dataset and model record retention
 
 All AI training datasets, test results, and model versions must be retained to support audit and reproducibility obligations per ISO/IEC 42001 §9. Required records include:
 
@@ -141,7 +141,7 @@ Retention ensures that traceability under EU AI Act Annex IV, OECD AI Principles
 
 ---
 
-## Section 6: BASC Trade and Customs Records
+## Section 6: BASC trade and customs records
 
 For operations governed by BASC International Standards in Latin America, retention must include:
 
@@ -154,9 +154,9 @@ Minimum retention is 5 years or as required by the applicable national customs a
 
 ---
 
-## Section 7: Monitoring and Compliance
+## Section 7: monitoring and compliance
 
-### Quarterly Reviews
+### Quarterly reviews
 
 Quarterly reviews confirm:
 
@@ -166,7 +166,7 @@ Quarterly reviews confirm:
 
 Non-compliance identified during reviews triggers investigation under the Corrective and Preventive Action (CAPA) Procedure.
 
-### Annual Audit
+### Annual audit
 
 Annual audits verify:
 
@@ -176,7 +176,7 @@ Annual audits verify:
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Relevance |
 |---|---|

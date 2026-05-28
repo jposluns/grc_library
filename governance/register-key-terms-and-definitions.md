@@ -2,7 +2,7 @@
 
 **Document Title:** Key Terms and Definitions Register 
 **Document Type:** Register 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material terminology change 
 **Repository Path:** [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -55,7 +55,7 @@ This register defines common terminology used across the GRC Documentation Libra
 
 ---
 
-## Maintenance Rules
+## Maintenance rules
 
 1. Definitions must be original and CC0-compatible.
 2. Definitions must not copy external standards text unless republication is explicitly compatible with CC0.

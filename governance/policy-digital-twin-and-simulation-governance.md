@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material technology or regulatory change 
 **Repository Path:** [`governance/policy-digital-twin-and-simulation-governance.md`](policy-digital-twin-and-simulation-governance.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -35,7 +35,7 @@ Excludes development and test environments that replicate production for softwar
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -47,13 +47,13 @@ Excludes development and test environments that replicate production for softwar
 
 ---
 
-## Policy Statements
+## Policy statements
 
-### 1. Approval and Acceptance
+### 1. Approval and acceptance
 
 All digital twin systems must complete the Acceptance Into Service process before production deployment. Digital twins incorporating AI require AIGC review and an AI Impact Assessment.
 
-### 2. Data Governance
+### 2. Data governance
 
 Data used in digital twin systems must be:
 - Sourced from authorized data feeds with documented provenance.
@@ -63,7 +63,7 @@ Data used in digital twin systems must be:
 
 Real-time data feeds into digital twins must be validated for accuracy and integrity before use in decision-making.
 
-### 3. Security Requirements
+### 3. Security requirements
 
 Digital twin systems must meet the same security baseline requirements as production systems at the equivalent classification tier. Key requirements include:
 - Access controls limiting digital twin access to authorized users.
@@ -71,24 +71,24 @@ Digital twin systems must meet the same security baseline requirements as produc
 - Encryption of data in transit and at rest.
 - Network isolation from production operational technology (OT) systems where applicable.
 
-### 4. AI-Enabled Digital Twins
+### 4. AI-enabled digital twins
 
 Digital twins incorporating AI or machine learning components are subject to the AI Governance and Risk Framework and the AI Testing, Validation and Documentation Standard. Requirements include:
 - AI risk tier classification before deployment.
 - Explainability validation for AI-driven predictions or recommendations.
 - Human oversight for AI outputs used in material operational decisions.
 
-### 5. Operational Integrity
+### 5. Operational integrity
 
 Digital twins must not be modified in ways that could introduce inaccurate operational data or decisions. Changes to digital twin configuration or data models follow the Change Management process. Accuracy of digital twin representations is validated against physical system state at defined intervals.
 
-### 6. Continual Review
+### 6. Continual review
 
 Digital twin systems are reviewed annually by the system owner to confirm: continued business need, data accuracy, security posture, and AI governance compliance (where applicable).
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

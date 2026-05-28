@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material regulatory or operational change 
 **Repository Path:** [`governance/register-data-retention-schedule.md`](register-data-retention-schedule.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -32,9 +32,9 @@ This register defines the mandatory retention periods for each category of organ
 
 ---
 
-## Data Retention Schedule
+## Data retention schedule
 
-### 1. Human Resources and Employment Records
+### 1. Human resources and employment records
 
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
@@ -45,7 +45,7 @@ This register defines the mandatory retention periods for each category of organ
 | Disciplinary and grievance records | Resolution + 5 years | Legal defensibility |
 | Training completion records | Duration of employment + 3 years | Compliance evidence |
 
-### 2. Financial and Accounting Records
+### 2. Financial and accounting records
 
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
@@ -54,7 +54,7 @@ This register defines the mandatory retention periods for each category of organ
 | Contracts and agreements | Term + 7 years | Legal and contractual obligations |
 | Insurance records | Term + 7 years | Legal defensibility |
 
-### 3. Information Security Records
+### 3. Information security records
 
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
@@ -66,7 +66,7 @@ This register defines the mandatory retention periods for each category of organ
 | CAPA records | 5 years after closure | Quality management; audit evidence |
 | SIEM event logs | 1 year hot + 2 years cold | Security investigation and compliance |
 
-### 4. Privacy and Personal Data Records
+### 4. Privacy and personal data records
 
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
@@ -76,7 +76,7 @@ This register defines the mandatory retention periods for each category of organ
 | Privacy breach notifications | 5 years | GDPR; PIPEDA; regulatory requirements |
 | Processing records (Article 30 ROPA) | Active + 5 years | GDPR Article 30 |
 
-### 5. Audit and Compliance Records
+### 5. Audit and compliance records
 
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
@@ -86,7 +86,7 @@ This register defines the mandatory retention periods for each category of organ
 | Compliance attestations | 5 years | Compliance evidence |
 | Control testing evidence | 5 years | Audit and certification support |
 
-### 6. Governance and GRC Records
+### 6. Governance and GRC records
 
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
@@ -96,7 +96,7 @@ This register defines the mandatory retention periods for each category of organ
 | Business continuity test records | 5 years | ISO 22301; certification evidence |
 | DR test records | 5 years | Compliance and insurance requirements |
 
-### 7. AI Governance Records
+### 7. AI governance records
 
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
@@ -106,7 +106,7 @@ This register defines the mandatory retention periods for each category of organ
 | Training data provenance records | Model decommission + 5 years | EU AI Act; bias accountability |
 | AI incident records | 5 years | EU AI Act; regulatory requirements |
 
-### 8. BASC and Trade Compliance Records
+### 8. BASC and trade compliance records
 
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
@@ -116,7 +116,7 @@ This register defines the mandatory retention periods for each category of organ
 | Personnel security screening (trade) | Duration of employment + 5 years | BASC v6 Chapter 6 |
 | Cryptographic key audit records (trade) | 7 years | BASC v6; WCO SAFE |
 
-### 9. Supplier and Third-Party Records
+### 9. Supplier and third-party records
 
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
@@ -127,7 +127,7 @@ This register defines the mandatory retention periods for each category of organ
 
 ---
 
-## Legal Holds
+## Legal holds
 
 When litigation, regulatory investigation, or audit is anticipated or underway:
 
@@ -148,7 +148,7 @@ Records reaching the end of their retention period are destroyed per the Records
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

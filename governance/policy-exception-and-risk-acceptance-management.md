@@ -2,7 +2,7 @@
 
 **Document Title:** Exception and Risk Acceptance Management Policy 
 **Document Type:** Policy 
-**Version:** 0.1.0 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual or as required by regulatory or framework changes 
 **Repository Path:** [`governance/policy-exception-and-risk-acceptance-management.md`](policy-exception-and-risk-acceptance-management.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -33,14 +33,14 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 
 
 
-## Governance and Accountability
+## Governance and accountability
 
-### 1. Governance Structure
+### 1. Governance structure
 1.1 The Chief Information Security Officer (CISO) and Chief Information Officer (CIO) co-own the exception management process. 
 1.2 The Enterprise Risk Committee (ERC) provides oversight on aggregate risk exposure and expiry compliance. 
 1.3 Exception reporting is integrated with enterprise risk dashboards.
 
-### 2. Roles and Responsibilities
+### 2. Roles and responsibilities
 
 | Role | Responsibility |
 |------|----------------|
@@ -57,14 +57,14 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 
 
 
-## Policy and Control Statements
+## Policy and control statements
 
-### 1. Exception Request and Registration
+### 1. Exception request and registration
 1.1 All exceptions shall be documented in the enterprise exception register before deviation occurs. 
 1.2 Each entry must include the affected control or standard reference, description and rationale, risk level (low, medium, high, critical), proposed compensating controls, expiry date, approver details, and sign-off evidence. 
 1.3 Requests must use the approved template and be submitted via the governance portal or automated workflow.
 
-### 2. Risk Assessment and Approval
+### 2. Risk assessment and approval
 2.1 Exceptions shall undergo risk assessment consistent with ISO 31000 and COBIT APO12.03. 
 2.2 Approval levels: 
 - **Low risk:** Department Head or equivalent. 
@@ -73,36 +73,36 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 - **Trade and customs-related exceptions:** applicable compliance officer co-approval and ERC notification. 
 2.3 Exceptions exceeding the organization's defined risk appetite or those impacting trade or customs operations require explicit acceptance by executive authority and validation against trade and supply-chain programs.
 
-### 3. Duration and Renewal
+### 3. Duration and renewal
 3.1 Exceptions shall be time-bound and should not exceed 180 days unless renewed with justification. 
 3.2 Renewals must undergo full re-approval and risk reassessment. 
 3.3 Expired exceptions must be remediated or escalated immediately.
 
-### 4. Compensating Controls and Monitoring
+### 4. Compensating controls and monitoring
 4.1 Requestors must implement compensating controls to mitigate risk exposure. 
 4.2 Compliance and security teams shall verify compensating control effectiveness within 30 days of approval. 
 4.3 Exceptions are subject to monitoring and periodic internal audit review.
 
-### 5. Tracking and Reporting
+### 5. Tracking and reporting
 5.1 All active exceptions shall be recorded in a central register with owner, expiry, risk rating, and status metadata. 
 5.2 Weekly automated reports shall alert control owners of expiries within 30 days. 
 5.3 Quarterly aggregate reports shall summarize exception trends and exposure by domain. A dedicated trade-security exceptions report shall highlight deviations affecting cargo integrity, customs compliance, and logistics controls aligned to the trade and supply-chain programs.
 
-### 6. Closure and Verification
+### 6. Closure and verification
 6.1 Exception closure requires evidence that corrective actions or control remediation have been implemented. 
 6.2 Internal Audit, the CISO, and the CCO must validate closure before record archival. 
 
-### 7. Machine-Readable Exception Registry (Future Readiness)
+### 7. Machine-readable exception registry (future readiness)
 7.1 [Unverified] The organization shall implement a machine-readable, API-enabled exception registry mapped to CSA CCM v5 GRM-12. 
 7.2 Automated expiry alerts, metadata tagging, and integration with risk dashboards shall support near real-time oversight.
 
-### 8. Continual Improvement
+### 8. Continual improvement
 8.1 Exception metrics shall be reviewed quarterly for trends, repeat occurrences, and systemic control weaknesses. 
 8.2 Lessons learned shall inform control redesign and updates to the risk management framework.
 
 
 
-## References and Framework Alignment
+## References and framework alignment
 
 - **ISO/IEC 27001:2022** Annex A.5.36 Policy on Exceptions 
 - **ISO 31000:2018** Risk Management 
@@ -115,7 +115,7 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 
 
 
-## Compliance Mapping Table
+## Compliance mapping table
 
 | Control Area | ISO/IEC 27001 | COBIT 2025 | CSA | NIST | Legal and Regulatory | Trade and Supply Chain Programs |
 |---------------|----------------|-------------|-----|------|----------------------|---------------------------------|

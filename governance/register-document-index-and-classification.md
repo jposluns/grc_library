@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material repository structure change 
 **Repository Path:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -24,7 +24,7 @@ This register intentionally avoids internal document numbers from any source org
 
 ---
 
-## Classification Model
+## Classification model
 
 | Classification | Use |
 | --- | --- |
@@ -36,11 +36,11 @@ All active repository documents should be Public.
 
 ---
 
-## Active Document Index
+## Active document index
 
 | Domain | Type | Title | Repository Path | Owner Role | Review Frequency | Primary Alignment Families |
 | --- | --- | --- | --- | --- | --- | --- |
-| Governance | Charter | Governance Library Charter | [`governance/charter-governance-library.md`](charter-governance-library.md) | Governance Library Maintainer | Annual | Governance authority, document lifecycle, licence boundary |
+| Governance | Charter | Governance Library Charter | [`governance/charter-governance-library.md`](charter-governance-library.md) | Governance Library Maintainer | Annual | Governance authority, document lifecycle, license boundary |
 | Governance | Framework | Document Architecture and Interrelationship Framework | [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md) | Governance Library Maintainer | Annual | Governance hierarchy, audit traceability, policy architecture |
 | Governance | Framework | Governance Performance and Improvement Framework | [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md) | GRC Programme Manager | Annual | PDCA, 5-level maturity model, KPIs, management review, COBIT DTI |
 | Governance | Framework | Continuous Assurance and Improvement Framework | [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md) | GRC Programme Manager | Annual | 4-cycle assurance model, BASC integration, AI maturity, CAPA linkage |
@@ -238,7 +238,7 @@ All active repository documents should be Public.
 
 ---
 
-## Expansion Backlog
+## Expansion backlog
 
 The following document families are planned for addition as original CC0 content:
 
@@ -246,7 +246,7 @@ The expansion backlog is currently empty. All planned documents are active.
 
 ---
 
-## Index Maintenance Rules
+## Index maintenance rules
 
 1. Every active document must appear in this register.
 2. Every document path must be unique.

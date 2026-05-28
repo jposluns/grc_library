@@ -2,7 +2,7 @@
 
 **Document Title:** Document Architecture and Interrelationship Framework 
 **Document Type:** Framework 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material repository structure change 
 **Repository Path:** [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -40,7 +40,7 @@ It governs:
 
 ---
 
-## Document Hierarchy
+## Document hierarchy
 
 | Level | Type | Function | Parent Relationship | Output |
 | --- | --- | --- | --- | --- |
@@ -57,7 +57,7 @@ It governs:
 
 ---
 
-## Relationship Rules
+## Relationship rules
 
 1. Every framework must identify its governing charter or parent framework.
 2. Every policy must identify the framework or charter that authorizes it.
@@ -70,7 +70,7 @@ It governs:
 
 ---
 
-## Cross-Domain Dependencies
+## Cross-domain dependencies
 
 | Source Domain | Dependent Domain | Typical Dependency |
 | --- | --- | --- |
@@ -89,7 +89,7 @@ It governs:
 
 ---
 
-## Evidence Flow
+## Evidence flow
 
 Evidence flows upward from operational execution to governance reporting:
 
@@ -103,7 +103,7 @@ Evidence examples include policy approval records, control assessment results, a
 
 ---
 
-## External Framework Mapping Rules
+## External framework mapping rules
 
 External mappings must be original summaries or identifiers. They must not copy restricted third-party control text, questionnaire text, guidance text, or metrics catalogue text.
 
@@ -121,7 +121,7 @@ Mappings should use the following pattern:
 
 ---
 
-## Document Review Dependencies
+## Document review dependencies
 
 A change in one document may require review of other documents.
 
@@ -137,7 +137,7 @@ A change in one document may require review of other documents.
 
 ---
 
-## Quality Control
+## Quality control
 
 Before publication, each document must be checked for:
 

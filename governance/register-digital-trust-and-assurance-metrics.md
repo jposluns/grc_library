@@ -12,7 +12,7 @@
 **Review Frequency:** 6 to 12 months and upon material assurance model change 
 **Repository Path:** [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This register defines reusable metric categories for evaluating governance matur
 
 ---
 
-## Metric Design Principles
+## Metric design principles
 
 1. Metrics must have a defined owner, data source, frequency, and interpretation rule.
 2. Metrics must distinguish activity from effectiveness.
@@ -33,7 +33,7 @@ This register defines reusable metric categories for evaluating governance matur
 
 ---
 
-## GRC Programme KPI Framework
+## GRC programme KPI framework
 
 The following KPI categories define the primary measurement dimensions for the GRC programme. Each category maps to one or more governance domains and feeds into the annual programme report to the Executive Review Committee.
 
@@ -50,7 +50,7 @@ The following KPI categories define the primary measurement dimensions for the G
 
 ---
 
-## Digital Trust Index (DTI)
+## Digital trust index (DTI)
 
 The DTI is calculated annually as the weighted average of five dimensions, each scored 0 to 5 by the GRC Programme Manager and reviewed by the ERC.
 
@@ -66,7 +66,7 @@ The DTI is calculated annually as the weighted average of five dimensions, each 
 
 ---
 
-## Core Metric Categories
+## Core metric categories
 
 | Category | Example Metric | Measurement Intent | Evidence Class | Frequency |
 | --- | --- | --- | --- | --- |
@@ -85,7 +85,7 @@ The DTI is calculated annually as the weighted average of five dimensions, each 
 
 ---
 
-## Metric Quality Fields
+## Metric quality fields
 
 Each metric should define:
 
@@ -106,7 +106,7 @@ Each metric should define:
 
 ---
 
-## Reporting Pattern
+## Reporting pattern
 
 | Report | Audience | Content |
 | --- | --- | --- |
@@ -118,7 +118,7 @@ Each metric should define:
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

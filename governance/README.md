@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material repository structure change 
 **Repository Path:** [`governance/README.md`](README.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This directory contains the enterprise-wide governance foundation of the GRC Doc
 
 ---
 
-## Active Documents
+## Active documents
 
 | Type | Title | Path |
 | --- | --- | --- |
@@ -51,15 +51,15 @@ This directory contains the enterprise-wide governance foundation of the GRC Doc
 
 ---
 
-## Domain Coverage
+## Domain coverage
 
-The governance domain establishes the authority model for the entire library. It contains the documents that every other domain depends on: the charter that sets licence and quality boundaries, the framework that defines how documents relate to each other, the role authority register that defines who approves what, and the cross-framework alignment matrix that maps repository artefacts to external standards families.
+The governance domain establishes the authority model for the entire library. It contains the documents that every other domain depends on: the charter that sets license and quality boundaries, the framework that defines how documents relate to each other, the role authority register that defines who approves what, and the cross-framework alignment matrix that maps repository artefacts to external standards families.
 
 The governance and risk management policy and the exception management policy establish the binding principles that all downstream standards and procedures implement.
 
 ---
 
-## Licence Boundary
+## License boundary
 
 All content in this directory is original and released under CC0 1.0 Universal. External framework identifiers and regulatory references are used for alignment purposes only and do not reproduce restricted third-party text.
 

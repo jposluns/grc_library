@@ -12,7 +12,7 @@
 **Review Frequency:** Annual or as required by regulatory or framework changes 
 **Repository Path:** [`governance/procedure-supplier-security-and-privacy-assurance.md`](procedure-supplier-security-and-privacy-assurance.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 This procedure defines the security, privacy, and trade-compliance assurance process for suppliers, vendors, and service providers that handle, process, or transmit organizational, personal, or trade data.
 
@@ -32,7 +32,7 @@ To ensure that all third parties meet the organization's technical, privacy, and
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -46,7 +46,7 @@ To ensure that all third parties meet the organization's technical, privacy, and
 
 ---
 
-## 1. Supplier Risk Tiering
+## 1. Supplier risk tiering
 
 All suppliers are classified by risk tier before onboarding. Tier classification is based on data sensitivity, access scope, and regulatory exposure.
 
@@ -59,7 +59,7 @@ All suppliers are classified by risk tier before onboarding. Tier classification
 
 ---
 
-## 2. Pre-Engagement Due Diligence
+## 2. Pre-engagement due diligence
 
 Before engaging a new supplier, the Supplier Relationship Owner completes the Supplier Security and Privacy Questionnaire (SSPQ), which captures:
 
@@ -78,7 +78,7 @@ Procurement shall not finalize vendor selection until:
 
 ---
 
-## 3. Contractual Security and Privacy Requirements
+## 3. Contractual security and privacy requirements
 
 All supplier contracts must include the following provisions:
 
@@ -96,9 +96,9 @@ BASC trade suppliers must provide proof of valid BASC certification or WCO SAFE 
 
 ---
 
-## 4. Supplier Evidence and Monitoring
+## 4. Supplier evidence and monitoring
 
-### 4.1 Evidence Collection
+### 4.1 Evidence collection
 
 The SRO collects and maintains evidence in the Supplier Assurance Repository:
 
@@ -110,7 +110,7 @@ The SRO collects and maintains evidence in the Supplier Assurance Repository:
 
 Evidence is retained in the Supplier Assurance Repository for 7 years per the Records Retention and Destruction Standard.
 
-### 4.2 Ongoing Monitoring
+### 4.2 Ongoing monitoring
 
 | Activity | Tier 1 | Tier 2 | Tier 3 |
 | --- | --- | --- | --- |
@@ -123,7 +123,7 @@ Continuous threat intelligence monitoring for Tier 1 suppliers is performed by S
 
 ---
 
-## 5. Breach and Incident Response Coordination
+## 5. Breach and incident response coordination
 
 Upon receiving a supplier breach notification:
 
@@ -137,7 +137,7 @@ Failure by a supplier to notify within the contractually required 24-hour window
 
 ---
 
-## 6. Termination and Offboarding
+## 6. Termination and offboarding
 
 Upon contract termination, the SRO coordinates the following within 30 days:
 
@@ -166,7 +166,7 @@ Supplier assurance metrics are reported to the CISO quarterly:
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Control Area | ISO/IEC 27001 | ISO/IEC 27701 | COBIT 2025 | CSA CCM v5 | Other |
 | --- | --- | --- | --- | --- | --- |

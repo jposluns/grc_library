@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material change 
 **Repository Path:** [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -36,7 +36,7 @@ This procedure aligns to ISO 37301:2021 §9 (Performance evaluation), ISO/IEC 27
 
 ---
 
-## 3. Roles and Responsibilities
+## 3. Roles and responsibilities
 
 | Role | Responsibilities |
 | --- | --- |
@@ -52,9 +52,9 @@ This procedure aligns to ISO 37301:2021 §9 (Performance evaluation), ISO/IEC 27
 
 ---
 
-## 4. Annual Review Cycle
+## 4. Annual review cycle
 
-### 4.1 Calendar and Milestones
+### 4.1 Calendar and milestones
 
 The following milestones govern each annual review cycle. All dates refer to calendar year unless otherwise stated.
 
@@ -68,7 +68,7 @@ The following milestones govern each annual review cycle. All dates refer to cal
 | 30 April | All approved changes incorporated into library documents; version numbers incremented; documents published | GRC Programme Manager | Updated GRC library; version register updated; change log closed |
 | May to December | Continuous monitoring; triggered reviews upon material regulatory change or significant event | GRC Programme Manager; Domain Approvers | Triggered review records; updated documents as required |
 
-### 4.2 Attestation Form Content
+### 4.2 Attestation form content
 
 Each attestation must address the following:
 
@@ -79,9 +79,9 @@ Each attestation must address the following:
 
 ---
 
-## 5. Triggered (Out-of-Cycle) Reviews
+## 5. Triggered (out-of-cycle) reviews
 
-### 5.1 Trigger Events
+### 5.1 Trigger events
 
 A triggered review is required outside the annual cycle when any of the following events occurs:
 
@@ -93,7 +93,7 @@ A triggered review is required outside the annual cycle when any of the followin
 | New framework adoption | Adoption of a new compliance framework, certification standard, or industry code that requires GRC library additions or changes |
 | ERC instruction | ERC directs a specific document or domain review outside the annual cycle |
 
-### 5.2 Triggered Review Timeline
+### 5.2 Triggered review timeline
 
 5.2.1 Triggered reviews must be completed within 60 calendar days of the trigger event being identified or notified to the GRC Programme Manager.
 
@@ -105,9 +105,9 @@ A triggered review is required outside the annual cycle when any of the followin
 
 ---
 
-## 6. Document Version Control
+## 6. Document version control
 
-### 6.1 Version Numbering Convention
+### 6.1 Version numbering convention
 
 All GRC library documents follow semantic versioning using the format MAJOR.MINOR.PATCH:
 
@@ -117,19 +117,19 @@ All GRC library documents follow semantic versioning using the format MAJOR.MINO
 | MINOR (x.y.0) | Minor addition, clarification, or update that does not alter core requirements | 1.0.0 → 1.1.0 |
 | PATCH (x.y.z) | Typographical correction, formatting fix, broken link update, minor reference correction | 1.0.0 → 1.0.1 |
 
-### 6.2 Change Approval Requirements
+### 6.2 Change approval requirements
 
 6.2.1 All version increments, including patch fixes, require sign-off from the document's approving authority before publication.
 
 6.2.2 MAJOR changes additionally require ERC notification (and ERC approval where they relate to policy-level or framework-level documents).
 
-### 6.3 Version History
+### 6.3 Version history
 
 6.3.1 A version history section must be maintained within each document, recording the version number, date, nature of change, and approving authority for each revision.
 
 6.3.2 The GRC Programme Manager maintains a central version register in the document index register for cross-document tracking.
 
-### 6.4 Retired Documents
+### 6.4 Retired documents
 
 6.4.1 When a document is superseded, it is retired. Retired documents must be:
 
@@ -140,9 +140,9 @@ All GRC library documents follow semantic versioning using the format MAJOR.MINO
 
 ---
 
-## 7. Policy Owner Attestation
+## 7. Policy owner attestation
 
-### 7.1 Annual Attestation Requirement
+### 7.1 Annual attestation requirement
 
 7.1.1 Every document owner must complete an annual attestation for each document they own, confirming either:
 
@@ -151,7 +151,7 @@ All GRC library documents follow semantic versioning using the format MAJOR.MINO
 
 7.1.2 Attestation is due by 31 January of each year, covering documents as they stand on 1 January.
 
-### 7.2 Missing Attestation
+### 7.2 Missing attestation
 
 7.2.1 Where a document owner fails to submit an attestation by 31 January, the GRC Programme Manager will treat the absence as a change-request trigger and initiate a review of the document.
 
@@ -159,7 +159,7 @@ All GRC library documents follow semantic versioning using the format MAJOR.MINO
 
 7.2.3 Persistent non-attestation will be reported to the ERC as a governance gap in the annual GRC programme report.
 
-### 7.3 Records Retention
+### 7.3 Records retention
 
 7.3.1 Attestation records must be retained for a minimum of 7 years. They constitute evidence of governance oversight for audit and regulatory purposes.
 
@@ -167,15 +167,15 @@ All GRC library documents follow semantic versioning using the format MAJOR.MINO
 
 ---
 
-## 8. Control Testing Schedule
+## 8. Control testing schedule
 
-### 8.1 Schedule Maintenance
+### 8.1 Schedule maintenance
 
 8.1.1 The GRC Programme Manager maintains a rolling 12-month control testing schedule. The schedule is published in the Compliance Controls and Gap Register at the start of each year (Q1).
 
 8.1.2 The schedule assigns each testable control a test frequency, responsible tester, test method (automated or manual), and target completion date.
 
-### 8.2 Testing Frequencies
+### 8.2 Testing frequencies
 
 | Control Domain | Minimum Test Frequency |
 | --- | --- |
@@ -184,7 +184,7 @@ All GRC library documents follow semantic versioning using the format MAJOR.MINO
 | ISO/IEC 27001:2022 Annex A controls | Annually (or more frequently for high-risk controls as determined by the CISO) |
 | Regulatory compliance controls | Per applicable regulatory cadence |
 
-### 8.3 Results Recording
+### 8.3 Results recording
 
 8.3.1 All control test results, pass, fail, or exception, must be recorded in the Compliance Controls and Gap Register.
 
@@ -194,15 +194,15 @@ All GRC library documents follow semantic versioning using the format MAJOR.MINO
 
 ---
 
-## 9. Quarterly GRC Metrics Reporting
+## 9. Quarterly GRC metrics reporting
 
-### 9.1 Purpose and Audience
+### 9.1 Purpose and audience
 
 9.1.1 The GRC Programme Manager produces a quarterly GRC metrics report for the CISO and Chief Risk Officer. The report provides a concise, data-driven view of the health of the GRC programme across all domains.
 
 9.1.2 The quarterly report is used by the CISO and Chief Risk Officer to identify trends, prioritize resources, and escalate material issues to the ERC.
 
-### 9.2 Report Contents
+### 9.2 Report contents
 
 Each quarterly report must include the following:
 
@@ -216,7 +216,7 @@ Each quarterly report must include the following:
 | Regulatory change log | New or amended regulations identified in the quarter; affected documents flagged |
 | New and updated documents | Documents added or revised in the quarter; version changes noted |
 
-### 9.3 Domain Status Metrics Template
+### 9.3 Domain status metrics template
 
 | Domain | Open Gaps | Overdue Tests | CAPA Count | Regulatory Changes | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -238,9 +238,9 @@ Each quarterly report must include the following:
 
 ---
 
-## 10. Risk Treatment Status Updates
+## 10. Risk treatment status updates
 
-### 10.1 Quarterly Risk Register Review
+### 10.1 Quarterly risk register review
 
 10.1.1 The risk register is reviewed and updated quarterly by the GRC Programme Manager in conjunction with risk owners across all domains.
 
@@ -251,13 +251,13 @@ Each quarterly report must include the following:
 - Any new or emerging risks identified since the last review
 - Risks where the residual risk level has changed materially
 
-### 10.2 Risk Owner Accountability
+### 10.2 Risk owner accountability
 
 10.2.1 Risk owners are responsible for reporting treatment progress to the GRC Programme Manager before each quarterly review.
 
 10.2.2 Where a treatment plan is overdue or the risk owner cannot be identified, the GRC Programme Manager escalates to the Chief Risk Officer.
 
-### 10.3 Residual Risk Acceptance
+### 10.3 Residual risk acceptance
 
 10.3.1 Where a risk treatment plan is concluded and a residual risk remains above the organization's risk appetite threshold, the residual risk must be formally accepted in writing by the CIO or above.
 
@@ -267,9 +267,9 @@ Each quarterly report must include the following:
 
 ---
 
-## 11. ERC Governance Reporting
+## 11. ERC governance reporting
 
-### 11.1 Annual GRC Programme Report
+### 11.1 Annual GRC programme report
 
 11.1.1 The annual GRC programme report is the primary governance artefact submitted to the ERC. It is submitted by 31 March each year and covers the preceding calendar year.
 
@@ -285,7 +285,7 @@ Each quarterly report must include the following:
 | Upcoming Review Priorities | Documents due for major revision; regulatory changes anticipated; domains requiring resource focus |
 | Resource Requirements | Staff, tooling, and budget requirements for the upcoming programme year |
 
-### 11.2 ERC Approval
+### 11.2 ERC approval
 
 11.2.1 The ERC reviews the annual GRC programme report at its April session and provides one of the following outcomes:
 
@@ -299,7 +299,7 @@ Each quarterly report must include the following:
 
 ---
 
-## 12. Document Retirement and Archival
+## 12. Document retirement and archival
 
 12.1 A document is retired when it is superseded by a new or revised document, when the organizational obligation it addressed no longer exists, or when directed by the ERC.
 
@@ -321,7 +321,7 @@ Each quarterly report must include the following:
 
 ---
 
-## 13. Framework Alignment
+## 13. Framework alignment
 
 | Framework | Reference | Alignment |
 | --- | --- | --- |

@@ -2,7 +2,7 @@
 
 **Document Title:** Role Authority Register 
 **Document Type:** Register 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual 
 **Repository Path:** [`governance/register-role-authority.md`](register-role-authority.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This register defines generic governance roles used across the GRC Documentation
 
 ---
 
-## Authority Register
+## Authority register
 
 | Role | Primary Accountability | Typical Approval Authority |
 | --- | --- | --- |
@@ -47,7 +47,7 @@ This register defines generic governance roles used across the GRC Documentation
 
 ---
 
-## RACI Pattern
+## RACI pattern
 
 | Activity | Accountable | Responsible | Consulted | Informed |
 | --- | --- | --- | --- | --- |
@@ -60,7 +60,7 @@ This register defines generic governance roles used across the GRC Documentation
 
 ---
 
-## Maintenance Rules
+## Maintenance rules
 
 1. Roles must remain generic.
 2. One organization may combine roles, but the public library must not assume a specific reporting structure.

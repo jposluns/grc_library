@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material governance or process change 
 **Repository Path:** [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ Applies to all improvement initiatives arising from: management reviews, audit f
 
 ---
 
-## Roles and Responsibilities
+## Roles and responsibilities
 
 | Role | Responsibility |
 | --- | --- |
@@ -39,7 +39,7 @@ Applies to all improvement initiatives arising from: management reviews, audit f
 
 ---
 
-## 1. Improvement Identification
+## 1. Improvement identification
 
 Improvement ideas may be submitted by any employee, contractor, or governance body. Common improvement sources include:
 
@@ -53,7 +53,7 @@ Improvement ideas may be submitted by any employee, contractor, or governance bo
 
 ---
 
-## 2. Improvement Registration
+## 2. Improvement registration
 
 Each improvement initiative is logged in the Continuous Improvement Register with:
 
@@ -82,7 +82,7 @@ Each improvement initiative is logged in the Continuous Improvement Register wit
 
 ---
 
-## 3. Review and Approval
+## 3. Review and approval
 
 3.1 The GRC Programme Manager reviews submitted improvements weekly and updates status.
 
@@ -94,7 +94,7 @@ Each improvement initiative is logged in the Continuous Improvement Register wit
 
 ---
 
-## 4. Progress Tracking and Reporting
+## 4. Progress tracking and reporting
 
 4.1 The GRC Programme Manager produces a CIR progress summary quarterly for the ERC.
 
@@ -108,7 +108,7 @@ Each improvement initiative is logged in the Continuous Improvement Register wit
 
 ---
 
-## 5. Closure and Verification
+## 5. Closure and verification
 
 5.1 Improvements are closed only when the domain owner provides completion evidence.
 
@@ -118,7 +118,7 @@ Each improvement initiative is logged in the Continuous Improvement Register wit
 
 ---
 
-## Relationship to CAPA Register
+## Relationship to CAPA register
 
 The CIR and CAPA Register are complementary:
 
@@ -131,7 +131,7 @@ Improvement actions arising from audit observations (non-nonconformity) are reco
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

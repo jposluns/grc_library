@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material governance or regulatory change 
 **Repository Path:** [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,13 +28,13 @@ Applies to all governance domains: governance, risk, compliance, security, priva
 
 ---
 
-## Framework Principles
+## Framework principles
 
-### 1. Governance Performance Measurement
+### 1. Governance performance measurement
 
 All governance domains define measurable KPIs aligned with organizational goals and compliance requirements. Metrics include risk reduction, compliance rate, audit closure rate, control effectiveness, and incident response time. Governance maturity is tracked using COBIT 2025 maturity models and Digital Trust Indicators.
 
-### 2. Maturity Assessment
+### 2. Maturity assessment
 
 Annual maturity assessments are conducted across all governance domains using a five-level scale:
 
@@ -48,15 +48,15 @@ Annual maturity assessments are conducted across all governance domains using a 
 
 AI governance maturity includes ISO/IEC 42001 Clause 10 indicators covering explainability, fairness, and accountability.
 
-### 3. Management Review
+### 3. Management review
 
 Executive governance review is conducted at least annually per ISO 9001 §9.3 and ISO 27001 §9.3. The review assesses adequacy, effectiveness, and alignment of the governance framework with strategic objectives.
 
-### 4. Continual Improvement Cycle
+### 4. Continual improvement cycle
 
 Follows the Plan-Do-Check-Act (PDCA) model. All improvement initiatives are logged, assigned, and tracked to closure in the CAPA system and governance improvement register.
 
-### 5. AI Governance Maturity and Digital Trust Metrics
+### 5. AI governance maturity and digital trust metrics
 
 AI governance KPIs per ISO/IEC 42001 Clause 10 include:
 - Model auditability and documentation completeness.
@@ -68,7 +68,7 @@ COBIT 2025 Digital Trust Indicators are applied across data, process, and techno
 
 ---
 
-## Governance Review Process
+## Governance review process
 
 | Stage | Activity | Responsible | Timing |
 | --- | --- | --- | --- |
@@ -81,7 +81,7 @@ COBIT 2025 Digital Trust Indicators are applied across data, process, and techno
 
 ---
 
-## Performance Reporting
+## Performance reporting
 
 | Report | Audience | Frequency | Content |
 | --- | --- | --- | --- |
@@ -92,7 +92,7 @@ COBIT 2025 Digital Trust Indicators are applied across data, process, and techno
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

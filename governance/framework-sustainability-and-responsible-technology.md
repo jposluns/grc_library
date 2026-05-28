@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material ESG, regulatory, or AI sustainability change 
 **Repository Path:** [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -30,13 +30,13 @@ Applies to all business units, data centres, digital systems, AI solutions, and 
 
 ---
 
-## Framework Principles
+## Framework principles
 
-### 1. Sustainability Governance
+### 1. Sustainability governance
 
 The organization maintains an enterprise sustainability management system aligned with ISO 50001 and ISO 26000. Sustainability performance is incorporated into strategic planning and investment decisions. Sustainability metrics are reported to the ERC annually and to external stakeholders per applicable disclosure requirements.
 
-### 2. Energy and Resource Efficiency
+### 2. Energy and resource efficiency
 
 All data centres, cloud environments, and AI workloads are measured for energy consumption. Requirements include:
 
@@ -45,23 +45,23 @@ All data centres, cloud environments, and AI workloads are measured for energy c
 - Data centre power usage effectiveness (PUE) monitored and reported annually.
 - Cloud resource optimization reviews conducted quarterly to eliminate waste.
 
-### 3. Responsible Technology and AI
+### 3. Responsible technology and AI
 
 All AI systems comply with GPAI Model Governance Playbook recommendations and ISO/IEC 42001. Model development must include sustainability and ethical risk considerations. AI lifecycle documentation includes energy usage metrics, bias testing, and explainability results.
 
-### 4. Digital Security and Resilience
+### 4. Digital security and resilience
 
 All technology deployments comply with the OECD Digital Security Framework principles of resilience, reliability, and societal benefit. Security measures are proportionate and avoid disproportionate environmental impact.
 
-### 5. Human Rights and Ethical Innovation
+### 5. Human rights and ethical innovation
 
 Human rights due diligence is performed for all technology and AI projects per UN Guiding Principles on Business and Human Rights. Technology solutions must not contribute to surveillance, exploitation, or discrimination. Supply chain partners are assessed for human rights risk as part of supplier due diligence.
 
-### 6. Sustainable Procurement
+### 6. Sustainable procurement
 
 All procurement decisions consider supplier sustainability performance and environmental impact. AI and cloud service contracts include energy transparency and ethical sourcing obligations where practicable.
 
-### 7. Measurement and Reporting
+### 7. Measurement and reporting
 
 | KPI Category | Metric | Frequency |
 | --- | --- | --- |
@@ -87,7 +87,7 @@ Reporting aligns with GRI Standards, TCFD recommendations, and ISO 50001 formats
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

@@ -2,7 +2,7 @@
 
 **Document Title:** Cross-Framework Alignment Matrix 
 **Document Type:** Matrix 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Control Framework Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** 6 to 12 months and upon material source-framework change 
 **Repository Path:** [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,9 +22,9 @@ This matrix provides an original, non-verbatim alignment structure for mapping r
 
 ---
 
-## Mapping Principles
+## Mapping principles
 
-1. Use framework families and control domains only where source licence terms restrict reproduction.
+1. Use framework families and control domains only where source license terms restrict reproduction.
 2. Do not copy third-party control text, questionnaire text, guidance text, or metrics text.
 3. Distinguish legal obligation from industry practice and architectural recommendation.
 4. Map repository artefacts to evidence classes that adopting organizations can implement internally.
@@ -32,7 +32,7 @@ This matrix provides an original, non-verbatim alignment structure for mapping r
 
 ---
 
-## Alignment Matrix
+## Alignment matrix
 
 | Repository Domain | Repository Artefact | External Reference Family | Alignment Type | Applicability Condition | Evidence Class |
 | --- | --- | --- | --- | --- | --- |
@@ -54,7 +54,7 @@ This matrix provides an original, non-verbatim alignment structure for mapping r
 
 ---
 
-## Minimum Mapping Fields for Adopting Organizations
+## Minimum mapping fields for adopting organizations
 
 Adopting organizations should extend this matrix with:
 

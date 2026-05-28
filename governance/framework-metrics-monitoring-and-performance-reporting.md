@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material governance, regulatory, or measurement change 
 **Repository Path:** [`governance/framework-metrics-monitoring-and-performance-reporting.md`](framework-metrics-monitoring-and-performance-reporting.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This framework defines the governance metrics, Key Risk Indicators (KRIs), Key P
 
 ---
 
-## Measurement Domains and Metrics
+## Measurement domains and metrics
 
 | Domain | Primary Indicators | Framework Alignment |
 | --- | --- | --- |
@@ -36,7 +36,7 @@ This framework defines the governance metrics, Key Risk Indicators (KRIs), Key P
 
 ---
 
-## Reporting Frequency
+## Reporting frequency
 
 | Cadence | Domains |
 | --- | --- |
@@ -46,7 +46,7 @@ This framework defines the governance metrics, Key Risk Indicators (KRIs), Key P
 
 ---
 
-## Metric Quality Requirements
+## Metric quality requirements
 
 All metrics used in governance reporting must have:
 - A defined owner (role title).
@@ -60,7 +60,7 @@ Poorly defined metrics without these fields must not be published in governance 
 
 ---
 
-## Reporting Audiences
+## Reporting audiences
 
 | Report | Audience | Frequency |
 | --- | --- | --- |
@@ -72,7 +72,7 @@ Poorly defined metrics without these fields must not be published in governance 
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

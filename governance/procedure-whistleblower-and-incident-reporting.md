@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material legal or regulatory change 
 **Repository Path:** [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -35,7 +35,7 @@ Applies to all employees, contractors, temporary workers, and third parties who 
 
 ---
 
-## Roles and Responsibilities
+## Roles and responsibilities
 
 | Role | Responsibility |
 | --- | --- |
@@ -48,7 +48,7 @@ Applies to all employees, contractors, temporary workers, and third parties who 
 
 ---
 
-## 1. Reporting Channels
+## 1. Reporting channels
 
 Disclosures may be submitted through any of the following channels:
 
@@ -64,7 +64,7 @@ Anonymous disclosures are accepted and investigated to the extent possible given
 
 ---
 
-## 2. Whistleblower Protections
+## 2. Whistleblower protections
 
 The organization prohibits any retaliation against individuals who make a disclosure in good faith. Protections include:
 
@@ -78,7 +78,7 @@ Good faith is defined as a genuine belief that the reported concern may be true.
 
 ---
 
-## 3. Incident Reporting
+## 3. Incident reporting
 
 All staff are required to report actual or suspected:
 - Information security incidents (data breaches, malware, phishing, unauthorised access).
@@ -91,7 +91,7 @@ Reports are made to the relevant team lead, IT/security helpdesk, or the CISO as
 
 ---
 
-## 4. Investigation Process
+## 4. Investigation process
 
 4.1 The Chief Compliance Officer acknowledges receipt of a disclosure within 5 business days.
 
@@ -111,7 +111,7 @@ Reports are made to the relevant team lead, IT/security helpdesk, or the CISO as
 
 ---
 
-## 5. Regulatory Notification Obligations
+## 5. Regulatory notification obligations
 
 Where an investigation confirms a breach that may trigger regulatory notification obligations, Legal Counsel assesses:
 
@@ -126,7 +126,7 @@ Where an investigation confirms a breach that may trigger regulatory notificatio
 
 ---
 
-## 6. Programme Effectiveness Review
+## 6. Programme effectiveness review
 
 The Chief Compliance Officer reviews the whistleblower programme annually and reports to the ERC on:
 - Number and category of disclosures received.
@@ -136,7 +136,7 @@ The Chief Compliance Officer reviews the whistleblower programme annually and re
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

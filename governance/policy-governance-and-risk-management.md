@@ -2,7 +2,7 @@
 
 **Document Title:** Governance and Risk Management Policy 
 **Document Type:** Policy 
-**Version:** 0.1.0 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Risk Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual or as required by regulatory or framework changes 
 **Repository Path:** [`governance/policy-governance-and-risk-management.md`](policy-governance-and-risk-management.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -34,24 +34,24 @@ It aligns with ISO 31000 Clause 5 Framework and Clause 6 Process, COBIT 2025 APO
 
 
 
-## Governance and Accountability
+## Governance and accountability
 
-### 1. Board and Executive Oversight
+### 1. Board and executive oversight
 1.1 The Board Risk Committee approves risk appetite and receives enterprise risk reporting. 
 1.2 The CEO and executive committee ensure that risk is embedded in strategic planning and capital allocation.
 
-### 2. Three Lines Model
+### 2. Three lines model
 2.1 The first line owns and manages risk within approved appetite. 
 2.2 The second line GRC function sets policy, facilitates risk methodology, challenges assertions, and consolidates reporting. 
 2.3 The third line Internal Audit provides independent assurance over risk governance and control effectiveness.
 
-### 3. Risk Sponsors and Owners
+### 3. Risk sponsors and owners
 Each material risk is assigned an executive sponsor and an operational owner with defined accountability and decision rights.
 
-### 4. AI Risk Accountability
+### 4. AI risk accountability
 The AI Governance Council approves AI risk appetite statements and exceptions for high risk AI uses aligned to ISO 23894 and the NIST AI RMF Govern function.
 
-### 5. Committee Structure and Cadence
+### 5. Committee structure and cadence
 5.1 Enterprise Risk Committee meets quarterly for top risks, appetite, and emerging risk review. 
 5.2 Model Risk Committee meets monthly for AI and analytics governance, validation, and monitoring. 
 5.3 Operational procedures and system administration activities are documented and maintained under the IT Operations Documentation Framework to ensure that traceability to governance requirements.
@@ -61,58 +61,58 @@ Standardized risk metrics and key risk indicators are reported at least monthly,
 
 
 
-## Policy and Control Statements
+## Policy and control statements
 
-### 1. Risk Framework and Method
+### 1. Risk framework and method
 1.1 The organization shall maintain a standard risk framework aligned to ISO 31000 Clause 5 and Clause 6 with common taxonomy, criteria, and registers. 
 1.2 Risk identification shall cover strategic, financial, operational, compliance, information security, privacy, third party, business continuity, and AI specific risks per ISO 23894. 
 1.3 Risk analysis shall use qualitative and quantitative methods, including scenario analysis and stress testing for high exposure risks. Quantitative analysis should incorporate FAIR aligned methods for estimating loss event frequency, magnitude, and exposure, including AI driven processes.
 
-### 2. Risk Appetite and Tolerances
+### 2. Risk appetite and tolerances
 2.1 The Board shall approve risk appetite statements for each material risk category, including AI usage classes and data sensitivity tiers. 
 2.2 Tolerances and thresholds shall be defined for KRIs and AI system performance measures such as model drift and harmful outcome rates.
 
-### 3. Treatment and Controls
+### 3. Treatment and controls
 3.1 Risk treatment plans shall state option, accountable owner, budget, residual risk, and acceptance criteria aligned to COBIT APO12.06. 
 3.2 Control objectives shall be technology agnostic and mapped to ISO 27001 Annex A control families, Cloud Security Alliance frameworks, and applicable legal requirements. 
 3.3 AI controls shall include dataset governance, model lifecycle governance, safety testing, bias and discrimination testing, human in the loop, secure deployment, and monitoring per ISO 23894 and the NIST AI RMF.
 
-### 4. Registers and Records
+### 4. Registers and records
 4.1 Enterprise and local risk registers shall be maintained with unique identifiers, status, and last review date. 
 4.2 An AI system inventory shall track purpose, risk level, model lineage, datasets, third parties, evaluation results, and deployment status.
 
-### 5. Third Party and Supply Chain Risk
+### 5. Third party and supply chain risk
 5.1 Suppliers shall undergo risk assessment, due diligence, contract controls, and ongoing monitoring aligned to COBIT APO10 and Cloud Security Alliance guidance. 
 5.2 Supply chain and trade security risk management shall align with WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalent frameworks. 
 5.3 Cloud services shall be assessed for jurisdiction, residency, resilience, and shared responsibility clarity.
 
-### 6. Business Continuity and Resilience
+### 6. Business continuity and resilience
 Business impact analysis, continuity strategies, disaster recovery, and crisis communications are mandatory for critical services per COBIT DSS04 and Cloud Security Alliance guidance.
 
-### 7. Privacy and Data Protection
+### 7. Privacy and data protection
 Privacy by design shall be embedded in processes and AI systems, with cross border transfer assessments for GDPR, CPPA, PIPL, LGPD, and CBPR 2.0 where applicable.
 
-### 8. Monitoring, Metrics, and Assurance
+### 8. Monitoring, metrics, and assurance
 8.1 KRIs and control performance indicators shall be defined, baselined, and reviewed at least quarterly. 
 8.2 Independent testing by Internal Audit shall verify design and operating effectiveness of key controls per COBIT MEA01. 
 8.3 AI systems shall undergo pre deployment evaluations and post deployment monitoring for accuracy, robustness, safety, and fairness.
 
-### 9. Issue and Exception Management
+### 9. Issue and exception management
 9.1 Risk issues and control deficiencies shall have tracked remediation plans and due dates. 
 9.2 Formal risk acceptance is required where residual risk exceeds tolerance, with time bound exceptions and executive approval.
 
-### 10. Reporting and Disclosure
+### 10. Reporting and disclosure
 10.1 Material risk changes shall be escalated within two business days. 
 10.2 External reporting shall follow legal requirements and executive approval.
 
-### 11. Continual Improvement
+### 11. Continual improvement
 11.1 The risk framework, taxonomy, and metrics shall be reviewed annually for effectiveness and updated against new standards and laws. 
 11.2 Lessons learned from incidents, near misses, and audits shall feed back into policies and controls. 
 11.3 Digital trust indicators shall be used to measure outcomes and maturity per COBIT 2025 guidance.
 
 
 
-## References and Framework Alignment
+## References and framework alignment
 
 - ISO 31000 Risk Management Clause 5 Framework and Clause 6 Process 
 - ISO 23894 AI Risk Management 
@@ -128,7 +128,7 @@ Privacy by design shall be embedded in processes and AI systems, with cross bord
 
 
 
-## Compliance Mapping Table
+## Compliance mapping table
 
 | Control Area | ISO 31000 | ISO 23894 | NIST SP 800 39 | NIST AI RMF | COBIT 2025 | CSA Frameworks | Legal / Regulatory | Trade and Supply Chain Programs |
 |---------------|------------|-----------|----------------|-------------|-------------|----------------|--------------------|--------------------------------|

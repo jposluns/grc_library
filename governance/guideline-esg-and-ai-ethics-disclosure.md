@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material ESG, AI, or regulatory disclosure requirement change 
 **Repository Path:** [`governance/guideline-esg-and-ai-ethics-disclosure.md`](guideline-esg-and-ai-ethics-disclosure.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,13 +28,13 @@ Applies to all external ESG and AI ethics disclosures including: annual sustaina
 
 ---
 
-## ESG Disclosure Principles
+## ESG disclosure principles
 
 ### 1. Materiality
 
 Disclosures focus on matters that are material to stakeholders: those that could reasonably influence their decisions. The organization applies a double materiality lens: impact on society and environment (impact materiality) and financial implications (financial materiality).
 
-### 2. Accuracy and Verifiability
+### 2. Accuracy and verifiability
 
 Disclosures are based on measured data where possible. Estimates are clearly labelled as estimates with methodology disclosed. Data supporting disclosures is retained per the Data Retention Schedule for audit and verification purposes.
 
@@ -48,7 +48,7 @@ Disclosures use standardized frameworks (GRI, TCFD, SASB) to enable stakeholder 
 
 ---
 
-## Environmental Disclosures
+## Environmental disclosures
 
 | Disclosure Item | Framework | Frequency |
 | --- | --- | --- |
@@ -61,7 +61,7 @@ Disclosures use standardized frameworks (GRI, TCFD, SASB) to enable stakeholder 
 
 ---
 
-## Social Disclosures
+## Social disclosures
 
 | Disclosure Item | Framework | Frequency |
 | --- | --- | --- |
@@ -73,7 +73,7 @@ Disclosures use standardized frameworks (GRI, TCFD, SASB) to enable stakeholder 
 
 ---
 
-## AI Ethics Disclosures
+## AI ethics disclosures
 
 | Disclosure Item | Standard | Frequency |
 | --- | --- | --- |
@@ -86,7 +86,7 @@ Disclosures use standardized frameworks (GRI, TCFD, SASB) to enable stakeholder 
 
 ---
 
-## Governance Disclosures
+## Governance disclosures
 
 | Disclosure Item | Framework | Frequency |
 | --- | --- | --- |
@@ -97,7 +97,7 @@ Disclosures use standardized frameworks (GRI, TCFD, SASB) to enable stakeholder 
 
 ---
 
-## Disclosure Standards and Frameworks
+## Disclosure standards and frameworks
 
 The organization aligns its ESG and AI ethics disclosures with the following standards:
 
@@ -113,7 +113,7 @@ The organization aligns its ESG and AI ethics disclosures with the following sta
 
 ---
 
-## Publication and Review
+## Publication and review
 
 The annual ESG and AI Ethics Report is:
 - Reviewed by the ERC before publication.
@@ -123,7 +123,7 @@ The annual ESG and AI Ethics Report is:
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

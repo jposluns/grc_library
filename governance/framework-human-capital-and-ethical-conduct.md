@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material HR, legal, or regulatory change 
 **Repository Path:** [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -30,13 +30,13 @@ Applies to all employees, contractors, consultants, and partners representing th
 
 ---
 
-## Framework Principles
+## Framework principles
 
-### 1. Ethical Conduct and Integrity
+### 1. Ethical conduct and integrity
 
 All personnel must perform duties honestly and transparently. Bribery, corruption, insider trading, conflicts of interest, and coercive practices are strictly prohibited. Personnel are expected to act in the organization's best interests and in accordance with applicable law at all times.
 
-### 2. Anti-Bribery and Corruption Controls
+### 2. Anti-bribery and corruption controls
 
 The organization operates an anti-bribery management system compliant with ISO 37001. Key controls include:
 
@@ -45,7 +45,7 @@ The organization operates an anti-bribery management system compliant with ISO 3
 - Suspected bribery or corruption is reported immediately through the whistleblower channel.
 - Third parties acting on behalf of the organization are subject to anti-bribery due diligence.
 
-### 3. Whistleblower Protection
+### 3. Whistleblower protection
 
 Employees may report misconduct, ethical violations, or legal breaches through confidential channels, including anonymously where preferred. Key protections include:
 
@@ -53,7 +53,7 @@ Employees may report misconduct, ethical violations, or legal breaches through c
 - Reports are reviewed by the Ethics and Compliance Committee (ECC) or equivalent governing body.
 - Reporters are informed of outcomes to the extent possible within legal and confidentiality constraints.
 
-### 4. Security Awareness
+### 4. Security awareness
 
 Annual information security and data privacy awareness training is mandatory for all personnel. Training covers:
 
@@ -64,7 +64,7 @@ Annual information security and data privacy awareness training is mandatory for
 
 Enhanced role-specific certification is required for personnel handling regulated, sensitive, or high-risk data.
 
-### 5. Responsible AI and Digital Ethics
+### 5. Responsible AI and digital ethics
 
 Personnel involved in AI development, data science, or AI-enabled decision-making must complete Responsible AI training aligned with OECD AI Principles and ISO/PAS 8800. Training covers:
 
@@ -73,11 +73,11 @@ Personnel involved in AI development, data science, or AI-enabled decision-makin
 - Explainability requirements for high-risk AI.
 - Ethical obligations when AI decisions affect individuals.
 
-### 6. Diversity, Inclusion, and Equity
+### 6. Diversity, inclusion, and equity
 
 The organization is committed to inclusive hiring, equitable treatment, and non-discrimination in all employment practices. Diversity and inclusion metrics are monitored and reported to leadership quarterly.
 
-### 7. Training and Competency
+### 7. Training and competency
 
 | Training Type | Completion Requirement |
 | --- | --- |
@@ -102,7 +102,7 @@ Training completion is tracked and reported annually to the ERC and relevant com
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
