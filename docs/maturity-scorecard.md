@@ -17,7 +17,7 @@ This classification is a heuristic derived from semver; it does not reflect audi
 
 ---
 
-_Summary as of last regeneration: Mature: 47, Baseline: 149, Draft: 9, Unknown: 0._
+_Summary as of last regeneration: Mature: 47, Baseline: 149, Draft: 16, Unknown: 0._
 
 ## Mature
 
@@ -33,7 +33,7 @@ _47 documents._
 | [governance/framework-document-architecture-and-interrelationship.md](../governance/framework-document-architecture-and-interrelationship.md) | Document Architecture and Interrelationship Framework | Framework | 1.1.0 | 2026-05-28 |
 | [governance/framework-sustainability-and-responsible-technology.md](../governance/framework-sustainability-and-responsible-technology.md) | Sustainability and Responsible Technology Framework | Framework | 1.1.0 | 2026-05-28 |
 | [governance/matrix-cross-framework-alignment.md](../governance/matrix-cross-framework-alignment.md) | Cross-Framework Alignment Matrix | Matrix | 1.1.1 | 2026-05-28 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.10.0 | 2026-05-28 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.11.0 | 2026-05-28 |
 | [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.3.0 | 2026-05-27 |
 | [operations/procedure-change-management-and-configuration-control.md](../operations/procedure-change-management-and-configuration-control.md) | Change Management and Configuration Control Procedure | Procedure | 1.3.0 | 2026-05-27 |
 | [operations/procedure-endpoint-management-and-device-compliance.md](../operations/procedure-endpoint-management-and-device-compliance.md) | Endpoint Management and Device Compliance Procedure | Procedure | 1.3.0 | 2026-05-27 |
@@ -235,10 +235,17 @@ _149 documents._
 
 ## Draft
 
-_9 documents._
+_16 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
+| [compliance/annex-dora-implementation.md](../compliance/annex-dora-implementation.md) | DORA Implementation Annex | Annex | 0.0.1 | 2026-05-28 |
+| [compliance/annex-energy-and-utilities-sector-requirements.md](../compliance/annex-energy-and-utilities-sector-requirements.md) | Energy and Utilities Sector Requirements Annex | Annex | 0.0.1 | 2026-05-28 |
+| [compliance/annex-fedramp-requirements.md](../compliance/annex-fedramp-requirements.md) | FedRAMP Sector Requirements Annex | Annex | 0.0.1 | 2026-05-28 |
+| [compliance/annex-nis-2-implementation.md](../compliance/annex-nis-2-implementation.md) | NIS 2 Implementation Annex | Annex | 0.0.1 | 2026-05-28 |
+| [compliance/annex-public-sector-requirements.md](../compliance/annex-public-sector-requirements.md) | Public Sector GRC Requirements Annex | Annex | 0.0.1 | 2026-05-28 |
+| [compliance/annex-sox-itgc.md](../compliance/annex-sox-itgc.md) | SOX IT General Controls Annex | Annex | 0.0.1 | 2026-05-28 |
+| [compliance/annex-telecommunications-sector-requirements.md](../compliance/annex-telecommunications-sector-requirements.md) | Telecommunications Sector Requirements Annex | Annex | 0.0.1 | 2026-05-28 |
 | [governance/matrix-reverse-framework-control-crosswalk.md](../governance/matrix-reverse-framework-control-crosswalk.md) | Reverse Framework Control Crosswalk Matrix | Matrix | 0.0.1 | 2026-05-28 |
 | [privacy/framework-childrens-data.md](../privacy/framework-childrens-data.md) | Children's Data Framework | Framework | 0.0.1 | 2026-05-28 |
 | [privacy/framework-consent-management.md](../privacy/framework-consent-management.md) | Consent Management Framework | Framework | 0.0.1 | 2026-05-28 |

@@ -131,8 +131,15 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 ### Annex
 
 - [AI-Specific Risk Methodology Annex](../risk/annex-ai-risk-methodology.md)
+- [DORA Implementation Annex](../compliance/annex-dora-implementation.md)
+- [Energy and Utilities Sector Requirements Annex](../compliance/annex-energy-and-utilities-sector-requirements.md)
+- [FedRAMP Sector Requirements Annex](../compliance/annex-fedramp-requirements.md)
 - [Financial Services Sector GRC Requirements Annex](../compliance/annex-financial-services-sector-requirements.md)
 - [Healthcare Sector GRC Requirements Annex](../compliance/annex-healthcare-sector-requirements.md)
+- [NIS 2 Implementation Annex](../compliance/annex-nis-2-implementation.md)
+- [Public Sector GRC Requirements Annex](../compliance/annex-public-sector-requirements.md)
+- [SOX IT General Controls Annex](../compliance/annex-sox-itgc.md)
+- [Telecommunications Sector Requirements Annex](../compliance/annex-telecommunications-sector-requirements.md)
 - [Transportation and Logistics Sector GRC Requirements Annex](../compliance/annex-transportation-and-logistics-sector-requirements.md)
 - [UK AEO-S IT and Cybersecurity Security Requirements](../compliance/annex-aeo-s-it-cybersecurity-requirements.md)
 
@@ -356,8 +363,15 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 
 ### Annex
 
+- [DORA Implementation Annex](../compliance/annex-dora-implementation.md)
+- [Energy and Utilities Sector Requirements Annex](../compliance/annex-energy-and-utilities-sector-requirements.md)
+- [FedRAMP Sector Requirements Annex](../compliance/annex-fedramp-requirements.md)
 - [Financial Services Sector GRC Requirements Annex](../compliance/annex-financial-services-sector-requirements.md)
 - [Healthcare Sector GRC Requirements Annex](../compliance/annex-healthcare-sector-requirements.md)
+- [NIS 2 Implementation Annex](../compliance/annex-nis-2-implementation.md)
+- [Public Sector GRC Requirements Annex](../compliance/annex-public-sector-requirements.md)
+- [SOX IT General Controls Annex](../compliance/annex-sox-itgc.md)
+- [Telecommunications Sector Requirements Annex](../compliance/annex-telecommunications-sector-requirements.md)
 - [Transportation and Logistics Sector GRC Requirements Annex](../compliance/annex-transportation-and-logistics-sector-requirements.md)
 - [UK AEO-S IT and Cybersecurity Security Requirements](../compliance/annex-aeo-s-it-cybersecurity-requirements.md)
 
