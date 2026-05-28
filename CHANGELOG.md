@@ -4,6 +4,34 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 21.6 (2026-05-28, Library Version 2026.05.1): Filename and Document Title alignment audit
+
+Sixth sub-phase of Phase 21. Closes the final Priority 2 item: an audit that catches typos and copy-paste defects where a file's name and its Document Title diverge.
+
+### New file
+
+- `tools/lint-filename-title-alignment.py`: permissive linter. For each active document, normalises both the filename's stem (after the doctype prefix) and the Document Title into a token set, and flags files where the two sets share **no** significant content words after normalisation. Honours a synonym table for legitimate acronym-in-filename / expansion-in-title patterns (SBOM, CAPA, FedRAMP, SOX, AEO, CTPAT, PIP, BASC, DORA, NIS, AI, and others).
+
+### Result on initial run
+
+- One match initially detected: `supply-chain/register-sbom.md` (filename uses the acronym, title uses the expansion "Software Bill of Materials Register"). Resolved by adding the SBOM → "software bill of materials" mapping to the synonym table. All 269 active documents now pass.
+- No content changes to the corpus; the existing filenames and titles were already aligned once acronym synonyms were recognised.
+
+### Tooling integration
+
+- `.github/workflows/quality.yml`: new "Filename and Document Title alignment audit" step added between the standards-currency audit and the role audit. The library now runs **12 audits** per PR.
+- `tools/README.md`: scripts table updated.
+
+### Convention captured
+
+The synonym table in the new linter doubles as a quick reference for which acronyms the library accepts in filenames. Adding new acronym-spelled filenames (for example, future country programmes) should update the synonym table at the same time.
+
+### TODO
+
+Priority 2.1 (filename ↔ Document Title alignment audit) removed. Priority 2 tier now complete.
+
+All 12 audits clean. Library Version: 2026.05.1.
+
 ## Phase 21.5 (2026-05-28, Library Version 2026.05.0): Library-level CalVer versioning adopted
 
 Fifth sub-phase of Phase 21 (foundations before content expansion). Resolves the absence of a library-level versioning scheme noted during Phase 20 review. Until now, each document carried its own semantic version, but the library as a whole had no declared version, leaving adopters to reference commit SHAs.

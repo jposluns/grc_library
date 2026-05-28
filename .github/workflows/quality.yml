@@ -37,6 +37,9 @@ jobs:
       - name: Standards-currency audit
         run: python3 tools/lint-standards-currency.py
 
+      - name: Filename and Document Title alignment audit
+        run: python3 tools/lint-filename-title-alignment.py
+
       - name: Owner and Approving Authority role audit
         run: python3 tools/lint-roles.py
 
