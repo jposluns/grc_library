@@ -4,6 +4,23 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 9.5 (2026-05-28): AI (10 new documents)
+
+Closes ten AI content gaps identified in the advisory review. Each new artefact starts at version 0.0.1 per the ingestion specification.
+
+- `ai/plan-ai-incident-response.md`: AI-specific incident classes and triggers, P1 to P4 severity criteria, seven-phase lifecycle with AI-specific actions at each phase, coordination with security and privacy streams, evidence requirements.
+- `ai/template-dataset-datasheet.md`: ten-section datasheets-for-datasets template covering motivation, composition, collection process, preprocessing and labelling, uses, distribution, maintenance, ethical considerations, provenance and lineage, signatures.
+- `ai/register-model-registry.md`: comprehensive model inventory with 30-field schema, six lifecycle states (Research, Evaluation, Staging, Production, Deprecated, Retired), backward and forward lineage tracking, integration with eleven adjacent governance artefacts.
+- `ai/procedure-foundation-model-lifecycle.md`: seven-step lifecycle for foundation-model consumption (identify, pre-engagement evaluation, contractual integration, deployment, ongoing monitoring, version transition, exit), seven AI-specific contract clauses, seven risk vectors with mitigations.
+- `ai/template-ai-vendor-security-questionnaire.md`: nine-section AI-specific extension to the general supplier questionnaire covering provider profile, training-data provenance, customer data handling, model security, tool and agent capabilities, evaluation and assurance, compliance and transparency, incident response, continuity and exit.
+- `ai/standard-ai-access-and-agent-permissions.md`: eight sections covering principles (six), human access to AI capabilities, service-to-AI access, AI-to-tool access for agentic systems (with tool allow-list, capability scopes, identity propagation, three confirmation modes, rate and chain-length limits, logging), AI-to-data access, AI-to-AI access, access review cadence, incident-time controls.
+- `ai/register-mcp-server.md`: MCP server inventory with 25-field schema, four-tier approval categories, server-security baseline (eleven control areas), coordination with seven adjacent governance artefacts.
+- `ai/procedure-training-data-governance.md`: ten-step procedure covering source identification, sensitive-content removal, consent and subject-rights mechanism, approval to train, lineage tracking, deletion propagation with SLAs, supplier-provided training data, synthetic data, retrieval index content, periodic review.
+- `ai/standard-ai-inference-cost-governance.md`: ten sections covering principles, budgeting and allocation, cost ceilings and rate limits, model-choice criteria, monitoring and anomaly response (dual-routed financial and security), feature lifecycle controls, agent and autonomous workflow controls, customer-facing transparency, provider-side cost-management, reporting.
+- `ai/template-ai-red-team-report.md`: nine-section red team engagement report covering engagement profile, methodology, structured findings (with twelve-field-per-finding schema), coverage assessment against OWASP LLM Top 10 and MITRE ATLAS, positive observations, recommendations, validation and retest, distribution, signatures.
+
+Document index `governance/register-document-index-and-classification.md` bumped 1.13.0 to 1.14.0 (minor: ten substantive new rows). AI README bumped 1.0.1 to 1.1.0 (minor: substantive section expansion).
+
 ## Phase 9.4 (2026-05-28): supply chain (5 new documents)
 
 Closes five supply-chain content gaps identified in the advisory review.

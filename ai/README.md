@@ -2,7 +2,7 @@
 
 **Document Title:** AI Governance Domain README 
 **Document Type:** Register 
-**Version:** 1.0.1 
+**Version:** 1.1.0 
 **Date:** 2026-05-28 
 **Owner:** AI Governance Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -53,6 +53,16 @@ AI documents in this repository treat data as the primary risk surface. They add
 | Procedure | AI Evaluation Procedure | [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md) |
 | Register | AI Risk Register | [`ai/register-ai-risk.md`](register-ai-risk.md) |
 | Guideline | Ethical AI Use Guideline | [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md) |
+| Plan | AI Incident Response Plan | [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md) |
+| Template | Dataset Datasheet Template | [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md) |
+| Register | Model Registry | [`ai/register-model-registry.md`](register-model-registry.md) |
+| Procedure | Foundation Model Lifecycle Procedure | [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md) |
+| Template | AI Vendor Security Questionnaire Template | [`ai/template-ai-vendor-security-questionnaire.md`](template-ai-vendor-security-questionnaire.md) |
+| Standard | AI Access and Agent Permissions Standard | [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md) |
+| Register | Model Context Protocol Server Register | [`ai/register-mcp-server.md`](register-mcp-server.md) |
+| Procedure | Training Data Governance Procedure | [`ai/procedure-training-data-governance.md`](procedure-training-data-governance.md) |
+| Standard | AI Inference Cost Governance Standard | [`ai/standard-ai-inference-cost-governance.md`](standard-ai-inference-cost-governance.md) |
+| Template | AI Red Team Report Template | [`ai/template-ai-red-team-report.md`](template-ai-red-team-report.md) |
 
 ---
 

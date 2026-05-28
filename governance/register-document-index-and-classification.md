@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register 
 **Document Type:** Register 
-**Version:** 1.13.0 
+**Version:** 1.14.0 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -220,6 +220,16 @@ All active repository documents should be Public.
 | AI | Procedure | AI Evaluation Procedure | [`ai/procedure-ai-evaluation.md`](../ai/procedure-ai-evaluation.md) | Chief Information Officer | Annual | ISO 42001 §8, ISO 42006, EU AI Act Art 9, NIST AI RMF MAP/MEASURE |
 | AI | Register | AI Risk Register | [`ai/register-ai-risk.md`](../ai/register-ai-risk.md) | GRC Programme Manager | Quarterly | ISO 42001 §6.1/9, EU AI Act Art 9, NIST AI RMF MAP/MEASURE, ISO 31000 |
 | AI | Guideline | Ethical AI Use Guideline | [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md) | Chief Information Officer | Annual | OECD AI Principles, ISO/PAS 8800, EU AI Act Arts 5/9, ISO 42001 §6/8 |
+| AI | Plan | AI Incident Response Plan | [`ai/plan-ai-incident-response.md`](../ai/plan-ai-incident-response.md) | AI Security Maintainer | Annual | OWASP LLM Top 10, MITRE ATLAS, NIST AI RMF MANAGE, ISO 42001 §9-10, EU AI Act Arts 15/17/26, ISO 27035-3 |
+| AI | Template | Dataset Datasheet Template | [`ai/template-dataset-datasheet.md`](../ai/template-dataset-datasheet.md) | AI Governance Maintainer | Annual | Datasheets for Datasets, ISO 42001 §8.4, EU AI Act Arts 10-12, NIST AI RMF MAP, GDPR Arts 5/6/9/25/30, ISO/IEC 5259 |
+| AI | Register | Model Registry | [`ai/register-model-registry.md`](../ai/register-model-registry.md) | AI Governance Maintainer | Continuous | ISO 42001 §8/§8.4, EU AI Act Arts 9/11/12/26/50/Annex IV, NIST AI RMF MAP/MEASURE/MANAGE, ISO 42006, ISO 23894 |
+| AI | Procedure | Foundation Model Lifecycle Procedure | [`ai/procedure-foundation-model-lifecycle.md`](../ai/procedure-foundation-model-lifecycle.md) | AI Governance Maintainer | Annual | ISO 42001 §8/9, EU AI Act Arts 26/50/53, NIST AI RMF, ISO 23894, Hiroshima Process, DORA Arts 28-44 |
+| AI | Template | AI Vendor Security Questionnaire Template | [`ai/template-ai-vendor-security-questionnaire.md`](../ai/template-ai-vendor-security-questionnaire.md) | AI Security Maintainer | Annual | ISO 42001, EU AI Act Arts 26/53/55, NIST AI RMF, OWASP LLM03, ISO 27036, GDPR Art 28, DORA Arts 28-44 |
+| AI | Standard | AI Access and Agent Permissions Standard | [`ai/standard-ai-access-and-agent-permissions.md`](../ai/standard-ai-access-and-agent-permissions.md) | AI Security Maintainer | Annual | ISO 42001 §8, EU AI Act Arts 14/15/26, NIST AI RMF MANAGE, OWASP LLM05/06/08, MITRE ATLAS, NIST SP 800-53 AC, ISO 27001 A.5.15-18 |
+| AI | Register | Model Context Protocol Server Register | [`ai/register-mcp-server.md`](../ai/register-mcp-server.md) | AI Security Maintainer | Quarterly | MCP specification, ISO 42001 §8, OWASP LLM06/LLM03, MITRE ATLAS, NIST AI RMF, NIST SP 800-53 AC/AU/SI/SR, ISO 27001 |
+| AI | Procedure | Training Data Governance Procedure | [`ai/procedure-training-data-governance.md`](../ai/procedure-training-data-governance.md) | AI Governance Maintainer | Annual | EU AI Act Arts 10/11, ISO 42001 §8.4, GDPR Arts 5/6/9/17/22/25/30/35, LGPD, PIPL, NIST AI RMF MAP, ISO/IEC 5259, OECD AI |
+| AI | Standard | AI Inference Cost Governance Standard | [`ai/standard-ai-inference-cost-governance.md`](../ai/standard-ai-inference-cost-governance.md) | AI Governance Maintainer | Annual | ISO 42001 §8/9, NIST AI RMF MEASURE/MANAGE, FinOps Foundation Framework, ISO/IEC 30134, EU AI Act Arts 26/53/55, GHG Protocol |
+| AI | Template | AI Red Team Report Template | [`ai/template-ai-red-team-report.md`](../ai/template-ai-red-team-report.md) | AI Security Maintainer | Annual | OWASP LLM Top 10, MITRE ATLAS, NIST AI RMF MEASURE, ISO 42001 §9, EU AI Act Arts 15/17, ISO 27001 A.8.29, PTES, OWASP GenAI Red Teaming |
 | Dev Security | Policy | Secure Development and Engineering Policy | [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md) | Chief Information Officer | Annual | ISO 27034, NIST SSDF, OWASP ASVS v5, COBIT BAI03/BAI07, CSA CCM SEF |
 | Dev Security | Standard | Software Evaluation, Acceptance and Lifecycle Management Standard | [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) | Chief Information Officer | Annual | ISO 12207, ISO 27002, ISO 25010, COBIT BAI03/BAI07/BAI09, CSA CCM AIS/SEF/TVM |
 | Dev Security | Standard | Quality Assurance and Testing Standard | [`dev-security/standard-quality-assurance-and-testing.md`](../dev-security/standard-quality-assurance-and-testing.md) | Chief Information Officer | Annual | ISO 9001 §8.6, ISO 27001 A.8.29, COBIT BAI03, CSA CCM SEF-06, NIST SP 800-53 SA |
