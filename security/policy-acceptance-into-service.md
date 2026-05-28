@@ -2,8 +2,8 @@
 
 **Document Title:** Acceptance Into Service Policy 
 **Document Type:** Policy 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Chief Information Officer 
 **Related Documents:** [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md) 
@@ -95,7 +95,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 4.2 High-risk AI systems require additional ethical and safety validation by the AIGC prior to deployment.
 
-4.3 AI Impact Assessments must evaluate transparency, fairness, and explainability per ISO 42006 and EU AI Act Annex IV.
+4.3 AI Impact Assessments must evaluate transparency, fairness, and explainability per ISO/IEC 42005:2025 and EU AI Act Annex IV.
 
 ### 5. Documentation and evidence
 

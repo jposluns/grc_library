@@ -2,7 +2,7 @@
 
 **Document Title:** Model Registry 
 **Document Type:** Register 
-**Version:** 0.0.1 
+**Version:** 0.0.2 
 **Date:** 2026-05-28 
 **Owner:** AI System Inventory Keeper 
 **Approving Authority:** Governance Library Maintainer 
@@ -142,7 +142,7 @@ For each model, the registry records two lineage chains:
 | ISO/IEC 42001:2023 | §8 operation, §8.4 documentation | AI management system |
 | EU AI Act | Articles 9, 11, 12, 26, 50; Annex IV | High-risk AI documentation, deployer obligations, transparency |
 | NIST AI RMF | MAP, MEASURE, MANAGE | Risk-management functions |
-| ISO/IEC 42006 | AI system audit | Audit baseline |
+| ISO/IEC 42006:2025 | Requirements for AIMS audit and certification bodies | Audit baseline |
 | ISO/IEC 23894:2023 | AI risk management | Risk integration |
 | OECD AI Principles | Transparency and accountability | Governance reference |
 | Model card pattern | Mitchell et al. 2019 | Model documentation |

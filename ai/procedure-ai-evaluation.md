@@ -2,7 +2,7 @@
 
 **Document Title:** AI Evaluation Procedure 
 **Document Type:** Procedure 
-**Version:** 1.0.1 
+**Version:** 1.0.2 
 **Date:** 2026-05-28 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Chief Information Officer 
@@ -146,7 +146,7 @@ Evaluation reports are retained in the compliance repository for the lifecycle o
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO/IEC 42001:2023 | §8: Operation | AI system evaluation and deployment |
-| ISO/IEC 42006 | AI Impact Assessment | Risk and bias evaluation |
+| ISO/IEC 42005:2025 | AI system impact assessment | Risk and bias evaluation |
 | EU AI Act (2024) | Article 9: Risk Management System | Evaluation obligations for high-risk AI |
 | NIST AI RMF (2023) | MAP and MEASURE functions | AI evaluation methodology |
 | OWASP LLM Top 10 | LLM-specific vulnerabilities | Generative AI security evaluation |
