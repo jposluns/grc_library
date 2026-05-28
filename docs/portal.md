@@ -212,6 +212,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 
 ### Register
 
+- [Assurance Map Register](../risk/register-assurance-map.md)
 - [BASC IT Compliance Monitoring and KPIs](../compliance/register-basc-it-compliance-kpis.md)
 - [BASC IT and Information Security Responsibilities](../compliance/register-basc-it-responsibilities.md)
 - [CTPAT IT and Cybersecurity Compliance Controls Register](../compliance/register-ctpat-it-controls.md)
@@ -224,6 +225,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [Key Terms and Definitions Register](../governance/register-key-terms-and-definitions.md)
 - [PIP IT and Cybersecurity Compliance Controls Register](../compliance/register-pip-compliance-controls.md)
 - [Role Authority Register](../governance/register-role-authority.md)
+- [Scenario Risk Catalogue](../risk/register-scenario-risk-catalogue.md)
 
 ### Standard
 
@@ -234,7 +236,9 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 
 ### Template
 
+- [Board Risk Report Template](../risk/template-board-risk-report.md)
 - [Enterprise Risk Register Template](../risk/template-enterprise-risk-register.md)
+- [Operational Risk Register Template](../risk/template-operational-risk-register.md)
 - [Risk Appetite Statement Template](../risk/template-risk-appetite-statement.md)
 - [Trade Compliance Programme Gap Assessment Template](../compliance/template-trade-compliance-gap-assessment.md)
 

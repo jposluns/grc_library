@@ -2,8 +2,8 @@
 
 **Document Title:** Risk Domain README 
 **Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.1.0 
+**Date:** 2026-05-28 
 **Owner:** Chief Risk Officer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) 
@@ -37,6 +37,10 @@ This directory contains enterprise risk management standards, registers, and pro
 | Annex | AI-Specific Risk Methodology Annex | [`risk/annex-ai-risk-methodology.md`](annex-ai-risk-methodology.md) |
 | Guideline | Quantitative Risk Analysis Guideline (FAIR-aligned) | [`risk/guideline-quantitative-risk-analysis.md`](guideline-quantitative-risk-analysis.md) |
 | Register | Key Risk Indicator Catalogue | [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md) |
+| Template | Operational Risk Register Template | [`risk/template-operational-risk-register.md`](template-operational-risk-register.md) |
+| Register | Scenario Risk Catalogue | [`risk/register-scenario-risk-catalogue.md`](register-scenario-risk-catalogue.md) |
+| Template | Board Risk Report Template | [`risk/template-board-risk-report.md`](template-board-risk-report.md) |
+| Register | Assurance Map Register | [`risk/register-assurance-map.md`](register-assurance-map.md) |
 
 ---
 
