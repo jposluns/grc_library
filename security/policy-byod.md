@@ -9,7 +9,7 @@
 **Related Documents:** [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-remote-working-security.md`](standard-remote-working-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md) 
 **Classification:** Public 
 **Category:** Information Security 
-**Review Frequency:** Annual and upon material platform, regulatory, or organizational change 
+**Review Frequency:** Annual and upon material platform, regulatory, or organisational change 
 **Repository Path:** [`security/policy-byod.md`](policy-byod.md) 
 **Confidentiality:** Public 
 **License:** CC0 1.0 Universal 
@@ -18,9 +18,9 @@
 
 ## Purpose
 
-This policy governs the use of personally owned devices, including smartphones, tablets, and laptops, to access corporate data and applications. It defines the technical controls applied to personal devices, the obligations of the device owner, and the boundaries of the organization's access to the device.
+This policy governs the use of personally owned devices, including smartphones, tablets, and laptops, to access corporate data and applications. It defines the technical controls applied to personal devices, the obligations of the device owner, and the boundaries of the organisation's access to the device.
 
-The organization's BYOD model uses mobile application management (MAM) without device enrolment. The organization does not enrol personal devices into device management (MDM) and does not apply device-level policies. Controls are applied at the application and data layer only. The device itself remains under the full ownership and control of the individual.
+The organisation's BYOD model uses mobile application management (MAM) without device enrolment. The organisation does not enrol personal devices into device management (MDM) and does not apply device-level policies. Controls are applied at the application and data layer only. The device itself remains under the full ownership and control of the individual.
 
 ---
 
@@ -61,15 +61,15 @@ Personal devices may access corporate applications through the cloud productivit
 
 ---
 
-## What the organization does not do
+## What the organisation does not do
 
-The organization does not enrol personal devices into MDM. The following actions are explicitly not taken under this policy:
+The organisation does not enrol personal devices into MDM. The following actions are explicitly not taken under this policy:
 
-- The organization does not apply device configuration profiles to personal devices.
-- The organization does not manage device-level security settings (password policy, encryption, screen lock) on personal devices.
-- The organization does not monitor personal application usage, browsing history, personal email, or personal files.
-- The organization does not perform a full device wipe. Remote wipe is scoped to corporate application data only.
-- The organization does not track device location.
+- The organisation does not apply device configuration profiles to personal devices.
+- The organisation does not manage device-level security settings (password policy, encryption, screen lock) on personal devices.
+- The organisation does not monitor personal application usage, browsing history, personal email, or personal files.
+- The organisation does not perform a full device wipe. Remote wipe is scoped to corporate application data only.
+- The organisation does not track device location.
 
 These boundaries are enforced by the MAM-without-MDM architecture. Enrolment of personal devices into MDM requires separate explicit consent and is not covered by this policy.
 

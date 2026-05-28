@@ -167,7 +167,7 @@ Do not populate the public repository version with real system names, people nam
 
 ## Use notes
 
-A system card documents deployment context and system-level risk. Model-level details should be recorded in model cards and linked by internal reference in adopting organizations.
+A system card documents deployment context and system-level risk. Model-level details should be recorded in model cards and linked by internal reference in adopting organisations.
 
 ---
 

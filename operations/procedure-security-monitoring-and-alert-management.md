@@ -259,7 +259,7 @@ The target false positive rate for any individual SIEM correlation rule is less 
 
 ### 9.3 MITRE ATT&CK mapping
 
-All active SIEM correlation rules must be mapped to at least one MITRE ATT&CK technique or sub-technique. Security Engineering maintains the SIEM rule-to-MITRE mapping in the SIEM rule register. The mapping is reviewed quarterly against the current MITRE ATT&CK version to identify new technique coverage opportunities. Coverage gaps for techniques assessed as high-relevance to the organization's threat profile are prioritized for new rule development.
+All active SIEM correlation rules must be mapped to at least one MITRE ATT&CK technique or sub-technique. Security Engineering maintains the SIEM rule-to-MITRE mapping in the SIEM rule register. The mapping is reviewed quarterly against the current MITRE ATT&CK version to identify new technique coverage opportunities. Coverage gaps for techniques assessed as high-relevance to the organisation's threat profile are prioritized for new rule development.
 
 ### 9.4 New log source onboarding
 
@@ -282,7 +282,7 @@ The SIEM operates AI-driven anomaly detection to identify threats that may not t
 - Insider threat indicators: anomalous patterns combining access, email, and file activity.
 - BASC environment anomalies: unusual cargo manifest activity or atypical customs-system access patterns.
 
-Anomaly models are trained on organizational baseline data and refreshed at minimum quarterly. The baseline period used for training must not include known compromise periods.
+Anomaly models are trained on organisational baseline data and refreshed at minimum quarterly. The baseline period used for training must not include known compromise periods.
 
 ### 10.2 Anomaly alert handling
 

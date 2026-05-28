@@ -26,7 +26,7 @@ Defines requirements for establishing, operating, and maintaining the internal C
 
 1. Applies to all certificate issuance by the internal CA infrastructure.
 2. Covers four primary use cases: inter-server TLS (machine authentication); S/MIME email signing and encryption; code signing for internal use; client authentication (user and device certificates).
-3. Applies to all IT Operations personnel and any third party operating CA components on behalf of the organization.
+3. Applies to all IT Operations personnel and any third party operating CA components on behalf of the organisation.
 4. Applies to all environments: DEV, TEST, and PROD. Separate issuing CAs are used per environment tier for production workloads; the root CA is shared.
 
 ---
@@ -60,13 +60,13 @@ A single internal Root CA is created. The Root CA acts as the trust anchor for a
 
 ### 5.2 Issuing cas
 
-The cloud-based PKI service does not support the "Any Purpose" Extended Key Usage (EKU). Each Issuing CA must be scoped to a specific EKU set. The organization therefore operates separate Issuing CAs for each primary use case. This provides issuance policy separation and limits blast radius if an Issuing CA is compromised.
+The cloud-based PKI service does not support the "Any Purpose" Extended Key Usage (EKU). Each Issuing CA must be scoped to a specific EKU set. The organisation therefore operates separate Issuing CAs for each primary use case. This provides issuance policy separation and limits blast radius if an Issuing CA is compromised.
 
 | Issuing CA | EKU | Purpose | Recipients |
 |---|---|---|---|
 | TLS / Server Authentication CA | Server Authentication (1.3.6.1.5.5.7.3.1) | TLS certificates for inter-server communication, internal APIs, and internal web services. | Servers, VMs, internal services. |
 | S/MIME CA | Secure Email (1.3.6.1.5.5.7.3.4) | S/MIME email signing and encryption for email client users. | End users on managed devices. |
-| Code Signing CA | Code Signing (1.3.6.1.5.5.7.3.3) | Signing of internal scripts, automation, and software not distributed outside the organization. | Development and operations personnel. |
+| Code Signing CA | Code Signing (1.3.6.1.5.5.7.3.3) | Signing of internal scripts, automation, and software not distributed outside the organisation. | Development and operations personnel. |
 | Client Authentication CA | Client Authentication (1.3.6.1.5.5.7.3.2) | Device certificates for 802.1X network access; user certificates for VPN and application authentication. | Managed devices and users. |
 
 ---
@@ -79,7 +79,7 @@ The internal TLS Issuing CA issues certificates for server-to-server communicati
 
 ### 6.2 S/MIME
 
-The S/MIME Issuing CA issues email protection certificates to end users via SCEP profiles. Certificates are trusted only by recipients who have the internal Root CA in their trust store. External recipients will not automatically trust internally issued S/MIME certificates: commercially issued S/MIME certificates are required for cross-organizational S/MIME trust. Certificate profiles must comply with current S/MIME Baseline Requirements.
+The S/MIME Issuing CA issues email protection certificates to end users via SCEP profiles. Certificates are trusted only by recipients who have the internal Root CA in their trust store. External recipients will not automatically trust internally issued S/MIME certificates: commercially issued S/MIME certificates are required for cross-organisational S/MIME trust. Certificate profiles must comply with current S/MIME Baseline Requirements.
 
 **Constraint:** Cloud-based PKI S/MIME deployment is limited to managed devices only.
 
@@ -87,7 +87,7 @@ The S/MIME Issuing CA issues email protection certificates to end users via SCEP
 
 Issues certificates for signing internal scripts, PowerShell modules, automation workflows, and software packages used internally. Certificates are trusted only by systems with the internal Root CA installed.
 
-**Hard boundary: publicly distributed software:** Code signing certificates from the internal CA are not trusted by external systems or software distribution platforms. Any software distributed outside the organization must be signed using a publicly trusted commercial CA certificate. As of December 2025, publicly trusted code signing certificates are limited to 1-year validity per CA/Browser Forum requirements. This boundary is absolute.
+**Hard boundary: publicly distributed software:** Code signing certificates from the internal CA are not trusted by external systems or software distribution platforms. Any software distributed outside the organisation must be signed using a publicly trusted commercial CA certificate. As of December 2025, publicly trusted code signing certificates are limited to 1-year validity per CA/Browser Forum requirements. This boundary is absolute.
 
 ### 6.4 Client authentication
 
@@ -161,7 +161,7 @@ Audit logs are forwarded to SIEM via endpoint management diagnostic settings int
 | Internal server-to-server TLS | Internal CA | Relying parties are managed systems with Root CA deployed. |
 | Internet-facing TLS | Commercial CA (e.g., industry-standard commercial CA) | External browsers and clients do not trust the internal Root CA. |
 | S/MIME for internal users communicating internally | Internal CA | All relying parties are managed and have Root CA trust. |
-| S/MIME for external cross-organizational trust | Commercial CA | External recipients do not have the internal Root CA in their trust store. |
+| S/MIME for external cross-organisational trust | Commercial CA | External recipients do not have the internal Root CA in their trust store. |
 | Code signing for internal scripts and automation | Internal CA | Signed only for execution on managed systems with Root CA trust. |
 | Code signing for publicly distributed software | Commercial CA (publicly trusted) | CA/Browser Forum requirement; internal CA is not publicly trusted. |
 | Client authentication (device/user certificates) | Internal CA | Authentication endpoints are internal and configured to trust the internal Root CA. |

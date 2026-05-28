@@ -4,6 +4,25 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 18 (2026-05-28): BrE/AmE spelling normalisation
+
+Resolves the final editorial finding from the next-passes list (item 1.1). The library now uses consistent Oxford English (BrE word stems + -ize verb endings) throughout active content.
+
+### Conversion applied
+
+`organization*` → `organisation*` across active content (713 replacements across 191 files), preserving 18 proper-noun occurrences (World Customs Organization, International Maritime Organization, International Civil Aviation Organization, ISO's full title "International Organization for Standardization", and COBIT 2019 process names containing "Organizational").
+
+### Library posture
+
+The library now consistently uses Oxford English: BrE word stems (organisation, behaviour, centre, labelling, programme, colour, favour, honour) with -ize verb endings (organize, recognize, prioritize, etc.). The language linter continues to enforce the -ize ending convention and now benefits from the consistent BrE word stems.
+
+### Not converted
+
+- `license` (verb and noun) and the LICENSE file: GitHub convention; metadata field name; left as-is.
+- `program` (technical contexts): the library already uses `programme` consistently in governance/operational contexts.
+
+Taxonomy, portal, and maturity scorecard regenerated.
+
 ## Phase 17 (2026-05-28): Adopter-facing content
 
 Adds the adopter-facing content identified by the next-passes list. Closes items 5.2 (decision tree), 5.3 (maturity progression), 5.5 (library health report template), and 5.6 (content feedback channel).

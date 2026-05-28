@@ -40,7 +40,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 - **Lawful basis (Article 13):** Processing requires one of: consent; contract performance or HR management; legal obligation; vital interests; public interest or journalism; or other legitimate interests (narrower than GDPR). Consent must be voluntary, specific, informed, and unambiguous.
 - **Sensitive personal information (Articles 28 to 32):** Separate and express consent required. Sensitive categories include biometric identification, religious beliefs, specially-designated status, medical health, financial accounts, whereabouts/location, and personal information of minors under 14.
-- **Automated decision-making (Article 24):** Organizations must ensure that transparency and fairness. No unreasonable differential treatment of individuals in terms of transaction price or conditions. Individuals have the right to receive an explanation and to opt out of automated decision-making significantly affecting their interests.
+- **Automated decision-making (Article 24):** Organisations must ensure that transparency and fairness. No unreasonable differential treatment of individuals in terms of transaction price or conditions. Individuals have the right to receive an explanation and to opt out of automated decision-making significantly affecting their interests.
 - **Person in charge of personal information protection (Article 52):** Large-scale personal information processors must designate a responsible person whose name and contact information must be disclosed publicly.
 - **DPIA (Article 55):** Required before: processing sensitive personal information; using personal information for automated decision-making; entrusting, sharing, or publicly disclosing personal information; cross-border transfers; and processing activities with significant impact on personal rights. Records must be retained for at least three years.
 
@@ -64,7 +64,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 PIPL (Articles 38 to 43) permits cross-border transfer only through one of three mechanisms:
 
 1. **CAC Security Assessment (Mandatory threshold):** Mandatory for transfers by critical information infrastructure operators; transfers of personal information of more than 1 million individuals; cumulative transfers of more than 100,000 individuals or sensitive personal information of more than 10,000 individuals since 1 January of the prior year.
-2. **Standard Contracts:** Where the security assessment threshold is not triggered: PIPL Standard Contract Clauses published by the CAC (effective June 2023). Organizations must conduct a DPIA and file the signed standard contract with the local CAC within 10 working days.
+2. **Standard Contracts:** Where the security assessment threshold is not triggered: PIPL Standard Contract Clauses published by the CAC (effective June 2023). Organisations must conduct a DPIA and file the signed standard contract with the local CAC within 10 working days.
 3. **Certification:** From a recognized professional institution as specified by the CAC; primarily applicable to intra-group transfers.
 
 **Important data:** Transfer of "important data" under the DSL is subject to separate security assessment requirements regardless of volume thresholds.
@@ -98,7 +98,7 @@ PIPL (Articles 38 to 43) permits cross-border transfer only through one of three
 
 ## Limitations
 
-This document is a public-domain reference baseline. It does not constitute legal advice. Adopting organizations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
+This document is a public-domain reference baseline. It does not constitute legal advice. Adopting organisations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
 
 ---
 

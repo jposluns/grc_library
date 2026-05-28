@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This framework defines an organization-neutral model for business continuity, disaster recovery, crisis management, operational resilience, and recovery assurance.
+This framework defines an organisation-neutral model for business continuity, disaster recovery, crisis management, operational resilience, and recovery assurance.
 
 The framework connects business impact, service dependency, recovery objectives, supplier exposure, technology recovery, communication, test evidence, corrective action, and governance reporting.
 
@@ -148,7 +148,7 @@ Recommended metrics include:
 
 ## Limitations
 
-This framework does not define an organization's actual critical services or recovery tolerances. Adopting organizations must complete a business impact analysis, validate technical recovery capability, test assumptions, and formally accept residual risk.
+This framework does not define an organisation's actual critical services or recovery tolerances. Adopting organisations must complete a business impact analysis, validate technical recovery capability, test assumptions, and formally accept residual risk.
 
 ---
 

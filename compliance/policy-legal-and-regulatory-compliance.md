@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This policy establishes the framework for identifying, interpreting, tracking, implementing, and reporting compliance with legal and regulatory obligations across all jurisdictions where the organization operates.
+This policy establishes the framework for identifying, interpreting, tracking, implementing, and reporting compliance with legal and regulatory obligations across all jurisdictions where the organisation operates.
 
 It ensures that legal, regulatory, and contractual requirements, including those governing data protection, cybersecurity, artificial intelligence, and trade and customs (BASC and WCO SAFE), are effectively integrated into governance, risk, and compliance (GRC) processes.
 
@@ -26,9 +26,9 @@ It ensures that legal, regulatory, and contractual requirements, including those
 
 ## Scope
 
-1. **Jurisdictional Coverage**: Applies globally to all organizational entities, subsidiaries, and business operations, including BASC-certified logistics and customs operations.
+1. **Jurisdictional Coverage**: Applies globally to all organisational entities, subsidiaries, and business operations, including BASC-certified logistics and customs operations.
 2. **Domains of Compliance**: Data protection and privacy; information security, cybersecurity, and business resilience; artificial intelligence, automation, and algorithmic transparency; trade, customs, and supply-chain security (BASC and ISO 28000); sector-specific and contractual compliance.
-3. **Applicability**: Applies to all employees, contractors, suppliers, and third parties handling organizational or trade data, including AI systems, logistics networks, customs systems, and cloud services supporting regulated processes.
+3. **Applicability**: Applies to all employees, contractors, suppliers, and third parties handling organisational or trade data, including AI systems, logistics networks, customs systems, and cloud services supporting regulated processes.
 
 ---
 
@@ -48,7 +48,7 @@ It ensures that legal, regulatory, and contractual requirements, including those
 
 ## 1. Compliance management system
 
-1.1 The organization shall operate a Compliance Management System (CMS) aligned to ISO 37301 Clauses 4 to 10.
+1.1 The organisation shall operate a Compliance Management System (CMS) aligned to ISO 37301 Clauses 4 to 10.
 
 1.2 The CMS shall maintain a centralized Regulatory Obligations Register (ROR) that catalogues all laws, regulations, standards, and contract clauses relevant to each entity or process.
 

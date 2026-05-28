@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This framework defines an organization-neutral model for supplier, third-party, cloud, managed service, outsourced processing, AI service, and supply-chain governance.
+This framework defines an organisation-neutral model for supplier, third-party, cloud, managed service, outsourced processing, AI service, and supply-chain governance.
 
 It establishes lifecycle controls for supplier intake, risk classification, due diligence, contract control alignment, onboarding, monitoring, reassessment, incident management, resilience, exit, and evidence retention.
 
@@ -26,7 +26,7 @@ It establishes lifecycle controls for supplier intake, risk classification, due 
 
 ## Scope
 
-This framework applies to external providers that provide, operate, host, process, access, store, transmit, analyze, support, maintain, or materially affect organizational data, systems, services, operations, security, privacy, AI capabilities, or resilience.
+This framework applies to external providers that provide, operate, host, process, access, store, transmit, analyze, support, maintain, or materially affect organisational data, systems, services, operations, security, privacy, AI capabilities, or resilience.
 
 Supplier categories may include:
 
@@ -135,7 +135,7 @@ Cloud services should be governed across:
 
 ## Evidence requirements
 
-Adopting organizations should maintain:
+Adopting organisations should maintain:
 
 - Supplier inventory.
 - Supplier risk classification.

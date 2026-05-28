@@ -26,7 +26,7 @@ It is aligned with ISO/IEC 27036-4, COBIT 2019 BAI05.02, CSA CCM v4.1 STA-05, BA
 
 ## Scope
 
-1. Applies to all suppliers, vendors, contractors, logistics partners, and service providers engaged by the organization.
+1. Applies to all suppliers, vendors, contractors, logistics partners, and service providers engaged by the organisation.
 2. Covers both IT and non-IT suppliers, including logistics, customs, AI, and cloud service providers.
 3. Applies globally, with additional regional audit requirements for BASC-certified operations in Latin America.
 

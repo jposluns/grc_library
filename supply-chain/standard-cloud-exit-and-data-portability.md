@@ -18,13 +18,13 @@
 
 ## Purpose
 
-This standard defines the requirements for planning, managing, and executing the exit from any cloud service provider or SaaS platform, and for ensuring portability of organizational data and workloads between platforms. It ensures that the organization is not locked into any single cloud provider without a documented exit path, and that all cloud contracts include minimum data portability and deletion rights.
+This standard defines the requirements for planning, managing, and executing the exit from any cloud service provider or SaaS platform, and for ensuring portability of organisational data and workloads between platforms. It ensures that the organisation is not locked into any single cloud provider without a documented exit path, and that all cloud contracts include minimum data portability and deletion rights.
 
 ---
 
 ## Scope
 
-1. Applies to all cloud services, SaaS platforms, and managed services hosting organizational data or running organizational workloads.
+1. Applies to all cloud services, SaaS platforms, and managed services hosting organisational data or running organisational workloads.
 2. Covers data portability requirements, exit planning obligations for new and existing contracts, and the process for executing a planned or emergency exit.
 3. Applies to IT Operations, infrastructure programme teams, and Procurement when evaluating or contracting new cloud services.
 
@@ -45,9 +45,9 @@ This standard defines the requirements for planning, managing, and executing the
 
 All new cloud and SaaS contracts must include the following provisions before signature. Procurement must confirm their presence; contracts without these provisions require CISO approval before execution.
 
-1. **Data export right:** The provider must allow the organization to export all data in a documented, machine-readable, non-proprietary format at any time during the contract term and for a minimum of 90 days following contract termination.
+1. **Data export right:** The provider must allow the organisation to export all data in a documented, machine-readable, non-proprietary format at any time during the contract term and for a minimum of 90 days following contract termination.
 
-2. **Data deletion confirmation:** Upon contract termination, the provider must confirm in writing that all organizational data has been deleted from their systems within a defined period, including backups.
+2. **Data deletion confirmation:** Upon contract termination, the provider must confirm in writing that all organisational data has been deleted from their systems within a defined period, including backups.
 
 3. **Exit assistance:** For Tier 1 and Tier 2 services (per the Asset Inventory Register), the contract must include a minimum 90-day exit assistance period during which the provider supports migration activities.
 
@@ -92,7 +92,7 @@ An exit plan must be activated when any of the following occur:
 - A provider announces service discontinuation.
 - A provider is acquired and the acquirer is assessed as a security or compliance risk.
 - Contractual terms change materially and negotiation fails.
-- A security incident at the provider results in confirmed or suspected organizational data exposure.
+- A security incident at the provider results in confirmed or suspected organisational data exposure.
 - The CISO determines that continued use of the service presents unacceptable risk.
 
 Emergency exits follow the Incident Response and Crisis Management escalation paths as appropriate.

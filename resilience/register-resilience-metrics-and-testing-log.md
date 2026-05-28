@@ -20,7 +20,7 @@
 
 This template provides a reusable structure for recording resilience metrics, continuity tests, recovery tests, crisis exercises, corrective actions, and residual risk decisions.
 
-Completed versions must not be published under CC0 unless sanitized. Real test results, service names, supplier names, system names, people names, incident details, recovery evidence, and internal metrics can reveal operational weakness and must be handled under an adopting organization's internal classification rules.
+Completed versions must not be published under CC0 unless sanitized. Real test results, service names, supplier names, system names, people names, incident details, recovery evidence, and internal metrics can reveal operational weakness and must be handled under an adopting organisation's internal classification rules.
 
 ---
 
@@ -75,13 +75,13 @@ Completed versions must not be published under CC0 unless sanitized. Real test r
 
 ## Evidence requirements
 
-Adopting organizations should retain test plans, execution records, restoration logs, communication logs, supplier evidence, screenshots or technical records where internally appropriate, corrective actions, risk decisions, and approval records.
+Adopting organisations should retain test plans, execution records, restoration logs, communication logs, supplier evidence, screenshots or technical records where internally appropriate, corrective actions, risk decisions, and approval records.
 
 ---
 
 ## Limitations
 
-This template is a public-domain baseline. It does not define an adopting organization's actual resilience thresholds, recovery objectives, supplier obligations, legal obligations, or testing cadence.
+This template is a public-domain baseline. It does not define an adopting organisation's actual resilience thresholds, recovery objectives, supplier obligations, legal obligations, or testing cadence.
 
 ---
 

@@ -61,7 +61,7 @@ Production deployments require manual approval from a designated approver who is
 
 ### 1.6 Artifact integrity
 
-All build artefacts deployed to Production must be signed (signing key in the organization's secrets management service) and the signature verified before deployment. An artefact with an invalid or absent signature must not be deployed.
+All build artefacts deployed to Production must be signed (signing key in the organisation's secrets management service) and the signature verified before deployment. An artefact with an invalid or absent signature must not be deployed.
 
 *CCM: CCC-04, CCC-05 / SLSA Level 3*
 
@@ -138,7 +138,7 @@ All DevOps teams must comply with cloud security configuration requirements when
 
 - RBAC reviewed across all accounts and subscriptions in a single consolidated quarterly review.
 - Service principal or service account assignments spanning multiple accounts documented with business justification.
-- Governance policy applied at organization level; deviations from organization-level enforcement require documented justification and a compensating-control plan.
+- Governance policy applied at organisation level; deviations from organisation-level enforcement require documented justification and a compensating-control plan.
 - Sandbox accounts must have no network path to production data. Cross-account connectivity from production to sandbox is prohibited.
 
 ---
@@ -193,7 +193,7 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 - When a runtime enters Class 3 (within 180 days of EOL), create an upgrade task in the team backlog.
 - When a runtime is Class 2 (within 90 days of EOL or already EOL), the upgrade must be in active development with a target completion date.
 - When a runtime is Class 1 (over 12 months EOL with qualifying CVE), the service must be in emergency remediation. No new feature development occurs until the runtime is upgraded.
-- CI/CD pipelines must not deploy code to a runtime version classified as EOL by organizational governance policy. Attempted deployment fails the pipeline.
+- CI/CD pipelines must not deploy code to a runtime version classified as EOL by organisational governance policy. Attempted deployment fails the pipeline.
 - Cloud governance policy enforcement and CI/CD pipeline EOL gate are both required. One does not substitute for the other.
 - AI-generated code suggestions to use deprecated or EOL package versions must be rejected.
 

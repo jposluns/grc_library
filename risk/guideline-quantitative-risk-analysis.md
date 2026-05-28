@@ -63,7 +63,7 @@ LM estimates the expected financial impact per loss event. It is composed of:
 
 | Loss Form | Description | Examples |
 |---|---|---|
-| **Primary Loss** | Direct losses experienced by the organization | Response costs; system recovery; downtime; data reconstruction |
+| **Primary Loss** | Direct losses experienced by the organisation | Response costs; system recovery; downtime; data reconstruction |
 | **Secondary Loss** | Downstream losses from secondary stakeholders | Regulatory fines; litigation; customer compensation; reputational damage |
 
 #### Primary loss components
@@ -141,7 +141,7 @@ Start from a qualitatively identified risk in the enterprise risk register. Defi
 - Productivity: 48 to 240 hours disruption × hourly revenue
 - Response costs: external IR retainer; forensics team; media specialist
 - Recovery costs: system rebuild; data restoration from backup
-- Primary loss range: *[example figures to be populated with organizational data]*
+- Primary loss range: *[example figures to be populated with organisational data]*
 
 ### Step 4: Estimate secondary loss magnitude
 

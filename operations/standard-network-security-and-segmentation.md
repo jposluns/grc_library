@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This standard defines requirements for network security architecture, segmentation, and perimeter controls across on-premises and cloud environments. It establishes technical and procedural controls for securing organizational networks, including requirements for network segmentation, firewall configuration, intrusion detection and prevention, and secure connectivity.
+This standard defines requirements for network security architecture, segmentation, and perimeter controls across on-premises and cloud environments. It establishes technical and procedural controls for securing organisational networks, including requirements for network segmentation, firewall configuration, intrusion detection and prevention, and secure connectivity.
 
 Network design must limit blast radius and systematically close lateral movement pathways identified during a prior ransomware incident. Requirements cover corporate, cloud, hybrid, and BASC-certified logistics and customs network environments.
 
@@ -26,7 +26,7 @@ Network design must limit blast radius and systematically close lateral movement
 
 ## 2. Scope
 
-1. Applies to all networks, connections, and communication channels transmitting or storing organizational or trade data, including all on-premises networks, cloud virtual networks, and all interconnected environments.
+1. Applies to all networks, connections, and communication channels transmitting or storing organisational or trade data, including all on-premises networks, cloud virtual networks, and all interconnected environments.
 2. Covers BASC-certified logistics and customs systems in Latin America (Colombia, Mexico, Peru, Chile); corporate LAN, WAN, and VPN; cloud and virtualized networks; wireless, remote, and partner connectivity.
 3. Covers network zone design, segmentation requirements, firewall policy, remote access, wireless, and inter-zone traffic controls.
 4. Applies to all employees, contractors, and third parties who connect to corporate or third-party certified networks.

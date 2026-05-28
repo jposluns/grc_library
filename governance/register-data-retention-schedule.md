@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register defines the mandatory retention periods for each category of organizational data and records. It implements the Records Retention and Destruction Standard and supports the organization's compliance with applicable privacy laws (GDPR, PIPEDA, Quebec Law 25, UK GDPR, LGPD, PIPL), regulatory requirements, and contractual obligations.
+This register defines the mandatory retention periods for each category of organisational data and records. It implements the Records Retention and Destruction Standard and supports the organisation's compliance with applicable privacy laws (GDPR, PIPEDA, Quebec Law 25, UK GDPR, LGPD, PIPL), regulatory requirements, and contractual obligations.
 
 ---
 

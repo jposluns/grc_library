@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This guideline provides organization-neutral guidance for immediate protective actions during emergencies that may affect personnel safety, facilities, operations, technology services, data, suppliers, or continuity response.
+This guideline provides organisation-neutral guidance for immediate protective actions during emergencies that may affect personnel safety, facilities, operations, technology services, data, suppliers, or continuity response.
 
 ---
 
@@ -70,7 +70,7 @@ This guideline may be adapted for offices, facilities, warehouses, operational s
 
 ## Evidence and review
 
-Adopting organizations should maintain local emergency procedures, drill records, site risk assessments, training records, incident records, communication logs, corrective action records, and transition records into crisis or continuity processes.
+Adopting organisations should maintain local emergency procedures, drill records, site risk assessments, training records, incident records, communication logs, corrective action records, and transition records into crisis or continuity processes.
 
 ---
 

@@ -38,12 +38,12 @@
 
 ### 1.1 Purpose
 
-This procedure governs the identification, recording, assessment, treatment, verification, and closure of nonconformities and opportunities for improvement across all GRC domains. It defines the Corrective and Preventive Action (CAPA) process that the organization uses to:
+This procedure governs the identification, recording, assessment, treatment, verification, and closure of nonconformities and opportunities for improvement across all GRC domains. It defines the Corrective and Preventive Action (CAPA) process that the organisation uses to:
 
 - Systematically address control failures, compliance gaps, and identified weaknesses before they recur or escalate;
 - Require root cause analysis for material findings so that actions address underlying causes rather than symptoms;
 - Ensure that accountability, target dates, and verification requirements are clearly assigned for every nonconformity;
-- Provide senior leadership with a consolidated, reliable view of the organization's nonconformity landscape and remediation status;
+- Provide senior leadership with a consolidated, reliable view of the organisation's nonconformity landscape and remediation status;
 - Drive measurable, sustained improvement in the GRC programme over time.
 
 ### 1.2 Scope
@@ -113,7 +113,7 @@ The **Executive Risk Committee (ERC)** receives a quarterly CAPA status report t
 
 ### 3.1 Raising a nonconformity
 
-Any individual across the organization may raise a nonconformity or improvement opportunity. Nonconformities are raised through the designated CAPA submission mechanism (e.g., a GRC platform, shared register, or submission form). Identifying and raising a potential nonconformity is a positive act and must not carry negative consequences for the person raising it.
+Any individual across the organisation may raise a nonconformity or improvement opportunity. Nonconformities are raised through the designated CAPA submission mechanism (e.g., a GRC platform, shared register, or submission form). Identifying and raising a potential nonconformity is a positive act and must not carry negative consequences for the person raising it.
 
 ### 3.2 Minimum required fields
 
@@ -180,7 +180,7 @@ CAPA classification aligns to the finding classification scheme defined in the I
 
 ### 5.1 Critical
 
-**Definition:** A material control failure or nonconformity that exposes the organization to significant risk of harm, regulatory sanction, certification failure, or operational disruption. The control is absent, has failed completely, or is being actively circumvented.
+**Definition:** A material control failure or nonconformity that exposes the organisation to significant risk of harm, regulatory sanction, certification failure, or operational disruption. The control is absent, has failed completely, or is being actively circumvented.
 
 **Response requirements:**
 
@@ -373,7 +373,7 @@ The pattern analysis is documented as a component of the annual GRC management r
 
 ### 10.1 Purpose of preventive action
 
-Preventive action addresses potential nonconformities: issues that have not yet occurred but that analysis or intelligence suggests may occur if no action is taken. Effective preventive action reduces the frequency and severity of future nonconformities and supports the organization's shift from reactive to proactive risk management.
+Preventive action addresses potential nonconformities: issues that have not yet occurred but that analysis or intelligence suggests may occur if no action is taken. Effective preventive action reduces the frequency and severity of future nonconformities and supports the organisation's shift from reactive to proactive risk management.
 
 ### 10.2 Triggers for preventive action
 
@@ -381,8 +381,8 @@ Preventive action may be initiated from:
 
 - Threat intelligence that indicates emerging risks to current control designs;
 - Near-miss events (an event that had the potential to be a security incident but did not result in harm);
-- External audit or regulatory findings at peer organizations in the same sector;
-- Significant changes to the organizational environment that may affect control effectiveness before those effects are detected;
+- External audit or regulatory findings at peer organisations in the same sector;
+- Significant changes to the organisational environment that may affect control effectiveness before those effects are detected;
 - Lessons learned from CAPA pattern analysis showing precursor conditions.
 
 ### 10.3 Preventive action process
@@ -422,7 +422,7 @@ All CAPA records, including root cause analysis documentation, corrective action
 
 For CAPAs that remain open at the time of any regulatory inspection, certification audit, or legal proceeding, records must be preserved until the relevant matter is fully resolved, regardless of the standard 7-year retention period.
 
-Records are stored in the designated secure GRC document repository. Access is restricted to the GRC team, CISO, domain owners with records in scope, and authorized senior leadership. Disposal after the retention period is conducted in accordance with the organization's data retention and disposal policy.
+Records are stored in the designated secure GRC document repository. Access is restricted to the GRC team, CISO, domain owners with records in scope, and authorized senior leadership. Disposal after the retention period is conducted in accordance with the organisation's data retention and disposal policy.
 
 ---
 

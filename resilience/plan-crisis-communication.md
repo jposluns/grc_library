@@ -35,7 +35,7 @@ This plan applies to internal communications, customer communications, supplier 
 3. Statements must avoid speculation, unsupported attribution, unnecessary technical detail, and disclosure of restricted evidence.
 4. Communications must distinguish confirmed facts, current assessment, open investigation items, and planned updates.
 5. AI-related communications must address data exposure, system behaviour, human oversight, model or supplier involvement, and remediation status where relevant.
-6. Public CC0 templates must not include real contact lists, customer names, supplier names, regulator contact details, incident facts, or approved message drafts from a specific organization.
+6. Public CC0 templates must not include real contact lists, customer names, supplier names, regulator contact details, incident facts, or approved message drafts from a specific organisation.
 
 ---
 
@@ -98,13 +98,13 @@ Close crisis communications when normal communication ownership resumes, all req
 | Release Channel | Internal channel, customer channel, regulator channel, public channel, or other. |
 | Release Time | Date and time released. |
 | Follow-Up Required | Yes, no, or pending. |
-| Evidence Reference | Internal record reference for adopting organizations. |
+| Evidence Reference | Internal record reference for adopting organisations. |
 
 ---
 
 ## Limitations
 
-This plan is a public-domain baseline. Adopting organizations must define actual approval thresholds, legal notification requirements, regulatory timelines, customer commitments, media process, contact lists, and message templates internally.
+This plan is a public-domain baseline. Adopting organisations must define actual approval thresholds, legal notification requirements, regulatory timelines, customer commitments, media process, contact lists, and message templates internally.
 
 ---
 

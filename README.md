@@ -10,9 +10,9 @@
 
 ## Purpose
 
-The Governance, Risk, and Compliance Documentation Library is a CC0-licensed public-domain reference set for building an organization-neutral governance, risk, compliance, security, privacy, resilience, supplier, and artificial intelligence governance programme.
+The Governance, Risk, and Compliance Documentation Library is a CC0-licensed public-domain reference set for building an organisation-neutral governance, risk, compliance, security, privacy, resilience, supplier, and artificial intelligence governance programme.
 
-The library is designed to be adopted, adapted, or extended by any organization without retaining references to a specific company, individual, internal system, customer, vendor, geography, or operating environment.
+The library is designed to be adopted, adapted, or extended by any organisation without retaining references to a specific company, individual, internal system, customer, vendor, geography, or operating environment.
 
 The repository provides reusable artefacts across the following domains:
 
@@ -34,9 +34,9 @@ The library currently contains approximately **240 documents** across 11 governa
 
 2. **Identify the documents relevant to your programme.** Start with the Core Reference Set below, then expand into domain-specific standards and procedures.
 
-3. **Copy and adapt.** All content is CC0. Copy documents directly into your own repository and substitute organization-specific values: role names, jurisdiction, sector, system names, risk appetite, and contact details.
+3. **Copy and adapt.** All content is CC0. Copy documents directly into your own repository and substitute organisation-specific values: role names, jurisdiction, sector, system names, risk appetite, and contact details.
 
-4. **Validate applicability.** Not every document applies to every organization. Validate that each document's scope, jurisdictional references, and control requirements match your operating environment, sector, and regulatory obligations before adoption.
+4. **Validate applicability.** Not every document applies to every organisation. Validate that each document's scope, jurisdictional references, and control requirements match your operating environment, sector, and regulatory obligations before adoption.
 
 5. **Review the contribution and authoring specifications.** If extending or maintaining the library, see the root-level specification files described in the section below.
 
@@ -46,7 +46,7 @@ The library currently contains approximately **240 documents** across 11 governa
 
 This repository is intended to become an authoritative public-domain GRC library. Authoritative means that the repository maintains a coherent hierarchy, controlled document model, versioned artefacts, role-based accountability, traceable mappings, and clear boundaries between original CC0 content and external reference materials.
 
-This repository is not legal advice, audit certification, regulatory approval, or a substitute for organization-specific risk acceptance. Adopting organizations must validate applicability, control implementation, and evidence against their own jurisdiction, sector, contractual obligations, processing role, threat model, and risk appetite.
+This repository is not legal advice, audit certification, regulatory approval, or a substitute for organisation-specific risk acceptance. Adopting organisations must validate applicability, control implementation, and evidence against their own jurisdiction, sector, contractual obligations, processing role, threat model, and risk appetite.
 
 ---
 
@@ -285,7 +285,7 @@ Mappings must distinguish between:
 - Architectural recommendation.
 - Optional assurance evidence.
 
-Mappings must not imply certification, compliance, conformity, regulatory approval, or operating effectiveness unless the adopting organization has implemented controls, retained evidence, assigned accountable owners, completed review, and accepted residual risk.
+Mappings must not imply certification, compliance, conformity, regulatory approval, or operating effectiveness unless the adopting organisation has implemented controls, retained evidence, assigned accountable owners, completed review, and accepted residual risk.
 
 ---
 
@@ -303,7 +303,7 @@ The developer security domain (`/dev-security/`) addresses AI coding assistant s
 
 Contributions must satisfy the following conditions:
 
-1. Content must be original, CC0-compatible, and organization-neutral.
+1. Content must be original, CC0-compatible, and organisation-neutral.
 2. Content must not include real company names, personal names, internal identifiers, customer details, vendor-specific implementation data, or proprietary evidence.
 3. Third-party materials may be used only for non-verbatim reference, unless their license terms explicitly permit CC0 republication.
 4. Framework references must be accurate, version-aware, and scoped to the stated purpose.

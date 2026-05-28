@@ -89,7 +89,7 @@ A triggered review is required outside the annual cycle when any of the followin
 | --- | --- |
 | Material regulatory change | New legislation, amended regulation, new supervisory guidance that affects one or more GRC library documents |
 | Significant security incident | Incident classified at severity 1 or 2 that exposes a gap in existing policy, standard, or procedure |
-| Major organizational change | Merger, acquisition, divestiture, significant change in business model or operating geography |
+| Major organisational change | Merger, acquisition, divestiture, significant change in business model or operating geography |
 | New framework adoption | Adoption of a new compliance framework, certification standard, or industry code that requires GRC library additions or changes |
 | ERC instruction | ERC directs a specific document or domain review outside the annual cycle |
 
@@ -259,7 +259,7 @@ Each quarterly report must include the following:
 
 ### 10.3 Residual risk acceptance
 
-10.3.1 Where a risk treatment plan is concluded and a residual risk remains above the organization's risk appetite threshold, the residual risk must be formally accepted in writing by the CIO or above.
+10.3.1 Where a risk treatment plan is concluded and a residual risk remains above the organisation's risk appetite threshold, the residual risk must be formally accepted in writing by the CIO or above.
 
 10.3.2 Written risk acceptance records are retained as evidence of informed decision-making. They are retained for 7 years and referenced in the risk register.
 
@@ -301,7 +301,7 @@ Each quarterly report must include the following:
 
 ## 12. Document retirement and archival
 
-12.1 A document is retired when it is superseded by a new or revised document, when the organizational obligation it addressed no longer exists, or when directed by the ERC.
+12.1 A document is retired when it is superseded by a new or revised document, when the organisational obligation it addressed no longer exists, or when directed by the ERC.
 
 12.2 Retirement process:
 
@@ -335,7 +335,7 @@ Each quarterly report must include the following:
 | COBIT 2019 | APO01 Managed IT Management Framework | Programme management governance, roles and responsibilities, document lifecycle |
 | COBIT 2019 | APO12 Managed Risk | Risk treatment status updates; ERC reporting; quarterly risk register reviews |
 | COBIT 2019 | APO14 Managed Data | Records retention requirements for attestation and deprovisioning evidence |
-| NIST CSF 2.0 | GV.OC (Organizational Context) | ERC governance reporting and programme scorecard |
+| NIST CSF 2.0 | GV.OC (Organisational Context) | ERC governance reporting and programme scorecard |
 | NIST CSF 2.0 | GV.RM (Risk Management Strategy) | Residual risk acceptance and quarterly risk review |
 
 ---

@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This template defines the schema, field definitions, population guidance, and governance requirements for the organization's enterprise risk register. The register is the primary instrument for tracking identified risks, their assessment scores, treatment plans, residual risk, and monitoring obligations across all risk categories.
+This template defines the schema, field definitions, population guidance, and governance requirements for the organisation's enterprise risk register. The register is the primary instrument for tracking identified risks, their assessment scores, treatment plans, residual risk, and monitoring obligations across all risk categories.
 
 ---
 

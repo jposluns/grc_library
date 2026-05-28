@@ -24,7 +24,7 @@ This plan defines the system-specific recovery procedures, RTO and RPO targets, 
 
 ## Scope
 
-1. Applies to all IT systems and infrastructure supporting organizational operations, including production systems in the primary data centre and cloud platform environments.
+1. Applies to all IT systems and infrastructure supporting organisational operations, including production systems in the primary data centre and cloud platform environments.
 2. Covers recovery of virtual infrastructure, identity systems, data systems, integration layer, and reporting services.
 3. Covers the current infrastructure programme environment model (DEV / TEST / PROD) as it is brought into service.
 
@@ -61,7 +61,7 @@ Specific per-system RTO/RPO targets for ongoing system modernization workstreams
 
 **Recovery platform:** A cloud-based site recovery service replicates production virtual machines to the cloud platform and enables failover within defined RTO windows. Failback to the primary data centre occurs after the primary site is restored and validated.
 
-**Cloud-native services:** Cloud productivity platform services and enterprise identity provider recover according to the cloud provider's platform SLAs and the organization's configuration backup procedures. These services do not require replication-based DR.
+**Cloud-native services:** Cloud productivity platform services and enterprise identity provider recover according to the cloud provider's platform SLAs and the organisation's configuration backup procedures. These services do not require replication-based DR.
 
 ---
 

@@ -18,15 +18,15 @@
 
 ## Purpose
 
-This charter establishes the Privacy Management Programme: the organizational structure, accountabilities, and operating principles governing how personal data is collected, used, stored, disclosed, and disposed of across all jurisdictions. It creates the overarching framework within which the Privacy and Data Governance Policy, the Privacy Impact and Cross-Border Transfer Procedure, and the Data Subject Rights Management Procedure operate. The programme aligns to ISO/IEC 27701:2019 as a Privacy Information Management System (PIMS) extension to ISO 27001.
+This charter establishes the Privacy Management Programme: the organisational structure, accountabilities, and operating principles governing how personal data is collected, used, stored, disclosed, and disposed of across all jurisdictions. It creates the overarching framework within which the Privacy and Data Governance Policy, the Privacy Impact and Cross-Border Transfer Procedure, and the Data Subject Rights Management Procedure operate. The programme aligns to ISO/IEC 27701:2019 as a Privacy Information Management System (PIMS) extension to ISO 27001.
 
 ---
 
 ## Scope
 
-1. Applies to all personal data processed by the organization, including employee data, customer data, supplier data, and partner data.
-2. Applies across all jurisdictions: Canada (PIPEDA and provincial legislation including Quebec Law 25), United States (applicable state breach notification and privacy laws), Latin America (applicable national privacy laws in jurisdictions where the organization operates), and United Kingdom (UK GDPR / Data Protection Act 2018).
-3. Applies to all employees, contractors, and third parties who process personal data on behalf of the organization.
+1. Applies to all personal data processed by the organisation, including employee data, customer data, supplier data, and partner data.
+2. Applies across all jurisdictions: Canada (PIPEDA and provincial legislation including Quebec Law 25), United States (applicable state breach notification and privacy laws), Latin America (applicable national privacy laws in jurisdictions where the organisation operates), and United Kingdom (UK GDPR / Data Protection Act 2018).
+3. Applies to all employees, contractors, and third parties who process personal data on behalf of the organisation.
 
 ---
 

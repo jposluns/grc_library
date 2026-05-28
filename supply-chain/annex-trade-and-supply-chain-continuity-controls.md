@@ -18,15 +18,15 @@
 
 ## Purpose
 
-This annex provides organization-neutral continuity considerations for trade, logistics, customs, cargo, and supply-chain operations. It supports continuity planning where disruption to external routes, facilities, suppliers, documents, customs data, or service providers may affect critical operations.
+This annex provides organisation-neutral continuity considerations for trade, logistics, customs, cargo, and supply-chain operations. It supports continuity planning where disruption to external routes, facilities, suppliers, documents, customs data, or service providers may affect critical operations.
 
 ---
 
 ## Scope
 
-This annex may be adapted for organizations with logistics, import, export, customs, broker, carrier, warehousing, cross-border, regulated shipment, or supply-chain dependencies.
+This annex may be adapted for organisations with logistics, import, export, customs, broker, carrier, warehousing, cross-border, regulated shipment, or supply-chain dependencies.
 
-It does not reproduce requirements from customs programmes, trade-security programmes, laws, standards, or certification schemes. Adopting organizations must validate applicable legal, regulatory, contractual, sector, and programme obligations independently.
+It does not reproduce requirements from customs programmes, trade-security programmes, laws, standards, or certification schemes. Adopting organisations must validate applicable legal, regulatory, contractual, sector, and programme obligations independently.
 
 ---
 
@@ -71,7 +71,7 @@ Trade and supply-chain obligations vary materially by jurisdiction, programme, s
 
 ## Evidence requirements
 
-Adopting organizations should maintain trade dependency maps, supplier continuity records, customs data inventories, route risk assessments, alternate processing plans, incident escalation records, recovery tests, corrective action logs, and residual risk decisions.
+Adopting organisations should maintain trade dependency maps, supplier continuity records, customs data inventories, route risk assessments, alternate processing plans, incident escalation records, recovery tests, corrective action logs, and residual risk decisions.
 
 ---
 

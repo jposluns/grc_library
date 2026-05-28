@@ -18,21 +18,21 @@
 
 ## Purpose
 
-This questionnaire is issued to suppliers and third-party service providers to gather information about their information security and privacy controls. Responses are used to assess whether the supplier meets the organization's requirements under [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md).
+This questionnaire is issued to suppliers and third-party service providers to gather information about their information security and privacy controls. Responses are used to assess whether the supplier meets the organisation's requirements under [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md).
 
-**Instructions for suppliers:** Complete all applicable sections. Where a question does not apply to your organization, enter "N/A" and provide a brief explanation. Responses may be verified through independent evidence or audit. Provision of false or misleading information may result in disqualification from the selection process or termination of an existing contract.
+**Instructions for suppliers:** Complete all applicable sections. Where a question does not apply to your organisation, enter "N/A" and provide a brief explanation. Responses may be verified through independent evidence or audit. Provision of false or misleading information may result in disqualification from the selection process or termination of an existing contract.
 
 ---
 
-## Section 1: organization profile
+## Section 1: organisation profile
 
 | Question | Response |
 |---|---|
 | 1.1 Legal entity name | |
 | 1.2 Primary business address and registered jurisdiction | |
-| 1.3 Does your organization have a parent company? If yes, provide name. | |
+| 1.3 Does your organisation have a parent company? If yes, provide name. | |
 | 1.4 Number of employees | |
-| 1.5 Describe the services you provide to our organization | |
+| 1.5 Describe the services you provide to our organisation | |
 | 1.6 What countries and regions will you process or store our data in? | |
 
 ---
@@ -41,13 +41,13 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 | Question | Yes/No | Evidence / Comment |
 |---|---|---|
-| 2.1 Does your organization have a documented and approved information security policy? | | |
+| 2.1 Does your organisation have a documented and approved information security policy? | | |
 | 2.2 Is the policy reviewed and updated at least annually? | | |
-| 2.3 Does your organization have a designated information security officer or equivalent? | | |
-| 2.4 Does your organization hold a current ISO 27001:2022 certification? (If yes, provide certificate details.) | | |
-| 2.5 Does your organization have a current SOC 2 Type II report? (If yes, provide opinion date and service scope.) | | |
-| 2.6 Has your organization undergone any security audits in the past 24 months by an external assessor? | | |
-| 2.7 Does your organization have a documented risk management process? | | |
+| 2.3 Does your organisation have a designated information security officer or equivalent? | | |
+| 2.4 Does your organisation hold a current ISO 27001:2022 certification? (If yes, provide certificate details.) | | |
+| 2.5 Does your organisation have a current SOC 2 Type II report? (If yes, provide opinion date and service scope.) | | |
+| 2.6 Has your organisation undergone any security audits in the past 24 months by an external assessor? | | |
+| 2.7 Does your organisation have a documented risk management process? | | |
 
 ---
 
@@ -55,7 +55,7 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 | Question | Yes/No | Evidence / Comment |
 |---|---|---|
-| 3.1 Does your organization enforce a documented access control policy based on least privilege? | | |
+| 3.1 Does your organisation enforce a documented access control policy based on least privilege? | | |
 | 3.2 Is multi-factor authentication (MFA) required for: (a) all remote access; (b) privileged accounts; (c) cloud management consoles? | | |
 | 3.3 Are user accounts reviewed at least quarterly for appropriateness? | | |
 | 3.4 Are accounts disabled within 24 hours of an employee's departure or role change? | | |
@@ -68,10 +68,10 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 | Question | Yes/No | Evidence / Comment |
 |---|---|---|
-| 4.1 Does your organization conduct periodic vulnerability scanning of internet-facing and internal systems? | | |
+| 4.1 Does your organisation conduct periodic vulnerability scanning of internet-facing and internal systems? | | |
 | 4.2 What is your target patching timeline for critical-severity vulnerabilities? | | |
 | 4.3 What is your target patching timeline for high-severity vulnerabilities? | | |
-| 4.4 Has your organization conducted an external penetration test in the last 12 months? If yes, provide test date and tester's qualification (e.g., CREST, CHECK, OSCP). | | |
+| 4.4 Has your organisation conducted an external penetration test in the last 12 months? If yes, provide test date and tester's qualification (e.g., CREST, CHECK, OSCP). | | |
 | 4.5 Are penetration test findings tracked to remediation? | | |
 | 4.6 Is endpoint detection and response (EDR) deployed on all managed devices? | | |
 
@@ -94,7 +94,7 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 | Question | Yes/No | Evidence / Comment |
 |---|---|---|
-| 6.1 Does your organization have a documented incident response plan (IRP)? | | |
+| 6.1 Does your organisation have a documented incident response plan (IRP)? | | |
 | 6.2 Is the IRP tested at least annually? | | |
 | 6.3 Do you have 24/7 security monitoring capability? If not, what are your monitoring hours? | | |
 | 6.4 What is your target time to detect a security incident? | | |
@@ -107,14 +107,14 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 | Question | Yes/No | Evidence / Comment |
 |---|---|---|
-| 7.1 Does your organization process personal data on behalf of your clients? | | |
-| 7.2 Does your organization have a documented privacy policy and data protection procedures? | | |
-| 7.3 Is your organization subject to GDPR or UK GDPR? If yes, is a Data Protection Officer (DPO) appointed? | | |
-| 7.4 Are you willing to sign a Data Processing Agreement (DPA) with our organization? | | |
+| 7.1 Does your organisation process personal data on behalf of your clients? | | |
+| 7.2 Does your organisation have a documented privacy policy and data protection procedures? | | |
+| 7.3 Is your organisation subject to GDPR or UK GDPR? If yes, is a Data Protection Officer (DPO) appointed? | | |
+| 7.4 Are you willing to sign a Data Processing Agreement (DPA) with our organisation? | | |
 | 7.5 Will any personal data be transferred to countries outside the EEA or UK? If yes, what transfer mechanism is used (adequacy, SCCs, IDTA, BCRs)? | | |
-| 7.6 Does your organization have a documented data breach notification procedure? | | |
+| 7.6 Does your organisation have a documented data breach notification procedure? | | |
 | 7.7 Have you had any personal data breaches in the past 24 months? If yes, briefly describe. | | |
-| 7.8 Does your organization have a process for honouring individual rights requests (access, erasure, portability)? | | |
+| 7.8 Does your organisation have a process for honouring individual rights requests (access, erasure, portability)? | | |
 
 ---
 
@@ -122,9 +122,9 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 | Question | Yes/No | Evidence / Comment |
 |---|---|---|
-| 8.1 Does your organization have a documented Business Continuity Plan (BCP)? | | |
+| 8.1 Does your organisation have a documented Business Continuity Plan (BCP)? | | |
 | 8.2 Has the BCP been tested in the past 12 months? | | |
-| 8.3 What are your target Recovery Time Objective (RTO) and Recovery Point Objective (RPO) for services provided to our organization? | | |
+| 8.3 What are your target Recovery Time Objective (RTO) and Recovery Point Objective (RPO) for services provided to our organisation? | | |
 | 8.4 Do you have an IT Disaster Recovery Plan? | | |
 | 8.5 Are backups performed and tested regularly? What is your backup retention period? | | |
 | 8.6 Do you have redundant data centre or cloud region capability? | | |
@@ -135,7 +135,7 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 | Question | Yes/No | Evidence / Comment |
 |---|---|---|
-| 9.1 Will you use sub-contractors to deliver services to our organization? | | |
+| 9.1 Will you use sub-contractors to deliver services to our organisation? | | |
 | 9.2 If yes, please list material sub-contractors and the services they provide. | | |
 | 9.3 Do you require sub-contractors to meet equivalent security standards? | | |
 | 9.4 Do you conduct security assessments of material sub-contractors? | | |
@@ -149,14 +149,14 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 | Question | Yes/No | Evidence / Comment |
 |---|---|---|
-| 10.1 Is your organization a member of CTPAT? If yes, provide membership number and tier (Certified / Validated / Status). | | |
-| 10.2 Does your organization hold UK AEO-S certification? If yes, provide authorization number and HMRC reference. | | |
-| 10.3 Does your organization hold EU AEO certification? If yes, provide EORI number and certification reference. | | |
-| 10.4 Does your organization hold PIP certification? If yes, provide CBSA-assigned number. | | |
-| 10.5 Does your organization hold BASC certification? | | |
-| 10.6 Does your organization hold NEEC certification? | | |
-| 10.7 Does your organization hold OEA (Brazil) certification? | | |
-| 10.8 Does your organization adhere to the WCO SAFE Framework? | | |
+| 10.1 Is your organisation a member of CTPAT? If yes, provide membership number and tier (Certified / Validated / Status). | | |
+| 10.2 Does your organisation hold UK AEO-S certification? If yes, provide authorization number and HMRC reference. | | |
+| 10.3 Does your organisation hold EU AEO certification? If yes, provide EORI number and certification reference. | | |
+| 10.4 Does your organisation hold PIP certification? If yes, provide CBSA-assigned number. | | |
+| 10.5 Does your organisation hold BASC certification? | | |
+| 10.6 Does your organisation hold NEEC certification? | | |
+| 10.7 Does your organisation hold OEA (Brazil) certification? | | |
+| 10.8 Does your organisation adhere to the WCO SAFE Framework? | | |
 | 10.9 Are your sub-contractors / freight agents required to maintain equivalent trade compliance programme memberships? | | |
 
 ---
@@ -170,7 +170,7 @@ This questionnaire is issued to suppliers and third-party service providers to g
 | 11.1 Does your service incorporate AI or machine learning systems? | | |
 | 11.2 If yes, are AI systems subject to pre-deployment testing and bias assessment? | | |
 | 11.3 Are AI system decisions explainable and auditable? | | |
-| 11.4 Is your organization subject to or preparing for EU AI Act obligations? | | |
+| 11.4 Is your organisation subject to or preparing for EU AI Act obligations? | | |
 | 11.5 Are any AI systems classified as High Risk under the EU AI Act? | | |
 
 ---
@@ -201,7 +201,7 @@ I certify that the information provided in this questionnaire is accurate and co
 | Field | Value |
 |---|---|
 | Completed by (role title) | |
-| Organization | |
+| Organisation | |
 | Date | |
 | Signature | |
 

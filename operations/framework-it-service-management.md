@@ -18,13 +18,13 @@
 
 ## Purpose
 
-This framework defines the structure, principles, and processes of the organization's IT Service Management (ITSM) function. It consolidates all ITIL-based processes, Incident, Problem, Change, Release, Request, Capacity, Availability, and Service Level Management, into a unified governance model. It aligns with ISO/IEC 20000-1:2018, ITIL 4, COBIT 2019 DSS02 and DSS03, and EU NIS 2 Directive requirements.
+This framework defines the structure, principles, and processes of the organisation's IT Service Management (ITSM) function. It consolidates all ITIL-based processes, Incident, Problem, Change, Release, Request, Capacity, Availability, and Service Level Management, into a unified governance model. It aligns with ISO/IEC 20000-1:2018, ITIL 4, COBIT 2019 DSS02 and DSS03, and EU NIS 2 Directive requirements.
 
 ---
 
 ## Scope
 
-Applies to all IT services, infrastructure, applications, cloud environments, and service delivery functions managed by or on behalf of the organization.
+Applies to all IT services, infrastructure, applications, cloud environments, and service delivery functions managed by or on behalf of the organisation.
 
 ---
 

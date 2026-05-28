@@ -27,11 +27,11 @@ This standard defines the secure configuration baseline for cloud and cloud prod
 1. Applies to all cloud tenants and subscriptions including cloud platform, enterprise identity provider, cloud productivity platform, and endpoint and email protection platform services.
 2. Covers configuration of identity, network, compute, storage, monitoring, and collaboration services.
 3. Applies to all environments: DEV, TEST, and PROD. Security classification applies consistently; TEST environments are not exempt from baseline security controls.
-4. Applies to IT Operations, the infrastructure programme team, and any third party managing cloud resources on behalf of the organization.
+4. Applies to IT Operations, the infrastructure programme team, and any third party managing cloud resources on behalf of the organisation.
 
 ### 2.1 Scope boundary with dev-security cloud hardening baselines
 
-This standard and the per-provider cloud hardening baselines in `dev-security/` together cover the organization's cloud security posture. The boundary is as follows:
+This standard and the per-provider cloud hardening baselines in `dev-security/` together cover the organisation's cloud security posture. The boundary is as follows:
 
 | Subject | Authoritative standard |
 | --- | --- |

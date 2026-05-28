@@ -79,13 +79,13 @@ External references should be expressed as framework families or public identifi
 
 ---
 
-## Personal and organization data exclusion
+## Personal and organisation data exclusion
 
 Repository content must not include:
 
 - Real company names.
 - Real personal names.
-- Internal titles tied to a specific organization.
+- Internal titles tied to a specific organisation.
 - Email addresses.
 - Phone numbers.
 - Physical addresses.

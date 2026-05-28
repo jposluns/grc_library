@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This directory contains organization-neutral information security governance artefacts released under CC0 1.0 Universal. The domain covers security governance, identity and access management, logging and monitoring, data classification, secure operations, incident response, vulnerability management, secure development, and technical control baselines.
+This directory contains organisation-neutral information security governance artefacts released under CC0 1.0 Universal. The domain covers security governance, identity and access management, logging and monitoring, data classification, secure operations, incident response, vulnerability management, secure development, and technical control baselines.
 
 ---
 

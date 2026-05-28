@@ -143,7 +143,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 **Kariedo: Claude Code Security Rules**
 - Repository: `https://github.com/kariedo/claude-code-security-rules`
-- Coverage: Core universal security practices, language-specific rules (Python, JavaScript, Java, PHP, Ruby, Rust, C), common vulnerability prevention, uses `@`-syntax import system for modular organization
+- Coverage: Core universal security practices, language-specific rules (Python, JavaScript, Java, PHP, Ruby, Rust, C), common vulnerability prevention, uses `@`-syntax import system for modular organisation
 - Use: Alternative modular rule set for projects needing broader language coverage
 
 ---
@@ -184,7 +184,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 **NIST SSDF: Secure Software Development Framework (SP 800-218)**
 - URL: `https://csrc.nist.gov/pubs/sp/800/218/final`
-- Coverage: Prepare the Organization (PO), Protect the Software (PS), Produce Well-Secured Software (PW), Respond to Vulnerabilities (RV)
+- Coverage: Prepare the Organisation (PO), Protect the Software (PS), Produce Well-Secured Software (PW), Respond to Vulnerabilities (RV)
 - Direct application: all rule files in `core/` and `pipeline/`
 
 **NIST SP 800-218A: Generative AI Profile**

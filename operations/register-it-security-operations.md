@@ -71,7 +71,7 @@ Unapproved platforms present in the production environment are treated as risks 
 
 ### Section 4: cloud subscription and environment architecture
 
-Records the organizational cloud environment structure including:
+Records the organisational cloud environment structure including:
 - Subscription / account names and purposes.
 - Environment classification (Production / Non-Production / Sandbox).
 - Cross-environment connectivity rules.

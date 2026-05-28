@@ -20,7 +20,7 @@
 
 This register is the primary traceability artefact for audit, insurance, board reporting, and regulatory purposes. It maps security and compliance controls to CSA CCM v4.1, AICM v1.0.3, and COBIT 2019 process identifiers, and records implementation status, evidence type, and responsible party for each control.
 
-Organizations should populate this template with their specific implementation status, evidence references, and responsible parties. The register must be updated when implementation status changes and reviewed quarterly at minimum.
+Organisations should populate this template with their specific implementation status, evidence references, and responsible parties. The register must be updated when implementation status changes and reviewed quarterly at minimum.
 
 ---
 
@@ -40,7 +40,7 @@ Organizations should populate this template with their specific implementation s
 
 ## How to use this register
 
-1. Copy this template into your organization's documentation system.
+1. Copy this template into your organisation's documentation system.
 2. For each control row, set the Status field using the definitions above.
 3. Record the Evidence Reference (document title, system configuration, test result, or other artefact).
 4. Assign a Responsible party (role title, not personal name).
@@ -156,7 +156,7 @@ Organizations should populate this template with their specific implementation s
 | --- | --- | --- | --- | --- | --- |
 | GRC-01 | Governance Programme Policy | | | | |
 | GRC-02 | Risk Management Programme | | | | |
-| GRC-03 | Organizational Policy Reviews | | | | |
+| GRC-03 | Organisational Policy Reviews | | | | |
 | GRC-04 | Policy Exception Process | | | | |
 | GRC-05 | Information Security Programme | | | | |
 | GRC-06 | Regulatory Change | | | | |

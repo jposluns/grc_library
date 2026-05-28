@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This framework defines the organization's approach to ethical conduct, workforce integrity, and responsible innovation. It integrates human resource governance, ethical behaviour standards, and professional conduct expectations for all employees and affiliates.
+This framework defines the organisation's approach to ethical conduct, workforce integrity, and responsible innovation. It integrates human resource governance, ethical behaviour standards, and professional conduct expectations for all employees and affiliates.
 
 It consolidates the HR Security Policy, Security Awareness and Training Policy, Corporate Culture Framework, Whistleblower Procedure, and Anti-Bribery and Corruption Policy into a unified governance model. Aligned with ISO 37001, ISO 37301, OECD AI Principles, ISO/PAS 8800, and CSA CCM v4.1 SEF-01.
 
@@ -26,7 +26,7 @@ It consolidates the HR Security Policy, Security Awareness and Training Policy, 
 
 ## Scope
 
-Applies to all employees, contractors, consultants, and partners representing the organization across all global operations, subsidiaries, and joint ventures.
+Applies to all employees, contractors, consultants, and partners representing the organisation across all global operations, subsidiaries, and joint ventures.
 
 ---
 
@@ -34,16 +34,16 @@ Applies to all employees, contractors, consultants, and partners representing th
 
 ### 1. Ethical conduct and integrity
 
-All personnel must perform duties honestly and transparently. Bribery, corruption, insider trading, conflicts of interest, and coercive practices are strictly prohibited. Personnel are expected to act in the organization's best interests and in accordance with applicable law at all times.
+All personnel must perform duties honestly and transparently. Bribery, corruption, insider trading, conflicts of interest, and coercive practices are strictly prohibited. Personnel are expected to act in the organisation's best interests and in accordance with applicable law at all times.
 
 ### 2. Anti-bribery and corruption controls
 
-The organization operates an anti-bribery management system compliant with ISO 37001. Key controls include:
+The organisation operates an anti-bribery management system compliant with ISO 37001. Key controls include:
 
 - All gifts, hospitality, and donations must be recorded and pre-approved above defined thresholds.
 - Facilitation payments are prohibited in all circumstances.
 - Suspected bribery or corruption is reported immediately through the whistleblower channel.
-- Third parties acting on behalf of the organization are subject to anti-bribery due diligence.
+- Third parties acting on behalf of the organisation are subject to anti-bribery due diligence.
 
 ### 3. Whistleblower protection
 
@@ -58,7 +58,7 @@ Employees may report misconduct, ethical violations, or legal breaches through c
 Annual information security and data privacy awareness training is mandatory for all personnel. Training covers:
 
 - Social engineering and phishing recognition.
-- Acceptable use of organizational systems and data.
+- Acceptable use of organisational systems and data.
 - Data protection obligations under applicable privacy law.
 - Incident reporting obligations.
 
@@ -75,7 +75,7 @@ Personnel involved in AI development, data science, or AI-enabled decision-makin
 
 ### 6. Diversity, inclusion, and equity
 
-The organization is committed to inclusive hiring, equitable treatment, and non-discrimination in all employment practices. Diversity and inclusion metrics are monitored and reported to leadership quarterly.
+The organisation is committed to inclusive hiring, equitable treatment, and non-discrimination in all employment practices. Diversity and inclusion metrics are monitored and reported to leadership quarterly.
 
 ### 7. Training and competency
 

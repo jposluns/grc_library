@@ -18,9 +18,9 @@
 
 ## Purpose
 
-This annex identifies the additional GRC obligations that apply to organizations operating in the transportation and logistics sector. It maps applicable regulatory frameworks to the core GRC library controls and identifies gap areas requiring sector-specific supplementation.
+This annex identifies the additional GRC obligations that apply to organisations operating in the transportation and logistics sector. It maps applicable regulatory frameworks to the core GRC library controls and identifies gap areas requiring sector-specific supplementation.
 
-This annex applies where an organization:
+This annex applies where an organisation:
 - Operates as a freight forwarder, customs broker, third-party logistics provider (3PL), or fourth-party logistics provider (4PL)
 - Operates road, rail, air, or maritime transportation services
 - Manages warehousing, distribution centres, or cross-docking operations
@@ -78,7 +78,7 @@ This annex applies where an organization:
 |---|---|---|
 | **NIS 2 Directive (2022/2555)** | National competent authorities | Essential entities including road transport, rail, air, maritime, port facilities, logistics |
 | **EU Aviation Security Regulation (EC) 300/2008** | EASA / national authorities | Air carriers; airports; cargo operators |
-| **EASA AMC 20-42: Aviation Cybersecurity** | EASA | Aviation organizations; airspace users |
+| **EASA AMC 20-42: Aviation Cybersecurity** | EASA | Aviation organisations; airspace users |
 | **EU Maritime Security (Regulation 725/2004)** | EMSA / national authorities | Ships; port facilities |
 | **ITS Regulation 2021/575** | European Commission | Intelligent transport systems |
 | **EU AI Act (High Risk: Annex III)** | EU AI Office | AI in critical transport infrastructure management |
@@ -94,7 +94,7 @@ This annex applies where an organization:
 | **IMO MSC-FAL.1/Circ.3 Rev 1** | IMO | Incorporated into ISM Code |
 | **IATA Cyber Security Guidance** | International Air Transport Association | IATA member airlines; handling agents |
 | **WCO SAFE Framework** | World Customs Organization | All customs operators |
-| **ISO 28000:2022**: Supply chain security | ISO | Supply chain organizations |
+| **ISO 28000:2022**: Supply chain security | ISO | Supply chain organisations |
 | **ISO 28001**: Best practices for implementing supply chain security | ISO | Customs clearance verification |
 | **ISO/SAE 21434**: Road Vehicle Cybersecurity Engineering | ISO / SAE | Vehicle OEMs; automotive supply chain |
 | **UNECE WP.29 / R155**: Cybersecurity Management System for vehicles | UNECE | Vehicle manufacturers selling in participating markets |
@@ -132,7 +132,7 @@ Under NIS 2, transportation entities in the following sub-sectors are classified
 
 | NIS 2 Article | Obligation | GRC Library Mapping |
 |---|---|---|
-| Art 21: Cybersecurity risk management | Risk-proportionate technical and organizational measures across 10 minimum areas | [`security/policy-information-security.md`](../security/policy-information-security.md); [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) |
+| Art 21: Cybersecurity risk management | Risk-proportionate technical and organisational measures across 10 minimum areas | [`security/policy-information-security.md`](../security/policy-information-security.md); [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) |
 | Art 21(2)(a): Policies on risk analysis | Documented policies on risk analysis and information system security | [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md) |
 | Art 21(2)(b): Incident handling | Incident detection and response | [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md) |
 | Art 21(2)(c): Business continuity | BCM, backup management, DR, crisis management | [`resilience/standard-business-continuity-and-disaster-recovery.md`](../resilience/standard-business-continuity-and-disaster-recovery.md); [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md) |
@@ -164,7 +164,7 @@ IMO Resolution MSC-FAL.1/Circ.3 (incorporated into ISM Code as of 2021-01-01) re
 
 ### ICAO aviation cybersecurity (doc 10055)
 
-ICAO's Aviation Cybersecurity Strategy requires states and aviation organizations to implement cybersecurity measures across the aviation ecosystem. Key areas:
+ICAO's Aviation Cybersecurity Strategy requires states and aviation organisations to implement cybersecurity measures across the aviation ecosystem. Key areas:
 
 | ICAO Area | Requirement | GRC Library Mapping |
 |---|---|---|
@@ -175,11 +175,11 @@ ICAO's Aviation Cybersecurity Strategy requires states and aviation organization
 | Training and awareness | Aviation-specific cybersecurity training | [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md) |
 | Resilience | Cyber resilience for safety-critical systems | [`resilience/standard-business-continuity-and-disaster-recovery.md`](../resilience/standard-business-continuity-and-disaster-recovery.md) |
 
-**CAA CAP 1753 (UK):** The UK Civil Aviation Authority's aviation cybersecurity framework aligns with ICAO Doc 10055 and maps to the CAF (Cyber Assessment Framework). UK aviation organizations must demonstrate compliance through CAF self-assessment.
+**CAA CAP 1753 (UK):** The UK Civil Aviation Authority's aviation cybersecurity framework aligns with ICAO Doc 10055 and maps to the CAF (Cyber Assessment Framework). UK aviation organisations must demonstrate compliance through CAF self-assessment.
 
 ### HMRC post-brexit customs obligations (UK)
 
-Following the UK's departure from the EU, all organizations moving goods between the UK and EU must comply with UK customs requirements administered by HMRC. Key technology-related obligations:
+Following the UK's departure from the EU, all organisations moving goods between the UK and EU must comply with UK customs requirements administered by HMRC. Key technology-related obligations:
 
 | Obligation | Detail | GRC Library Mapping |
 |---|---|---|
@@ -213,7 +213,7 @@ Transportation and logistics operators frequently operate Operational Technology
 
 ## Connected and automated vehicles
 
-For organizations operating or managing connected vehicle fleets:
+For organisations operating or managing connected vehicle fleets:
 
 | Obligation | Standard / Regulation | Scope |
 |---|---|---|
@@ -258,7 +258,7 @@ The transportation and logistics sector is the primary sector affected by truste
 
 ## Priority implementation sequence
 
-For transportation and logistics organizations building sector-specific GRC compliance:
+For transportation and logistics organisations building sector-specific GRC compliance:
 
 1. **Immediate (core baseline):**
  - Confirm CTPAT / AEO-S / PIP / BASC certification status and gap-fill using existing compliance domain documents

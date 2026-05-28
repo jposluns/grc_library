@@ -24,7 +24,7 @@ This procedure defines the step-by-step operational instructions for all cryptog
 
 ## Scope
 
-Applies to all cryptographic key operations performed by IT Operations, Security Architecture, and any personnel authorized to manage cryptographic material. Covers symmetric keys, asymmetric key pairs, digital certificates, SSH keys, and API tokens across all organizational platforms.
+Applies to all cryptographic key operations performed by IT Operations, Security Architecture, and any personnel authorized to manage cryptographic material. Covers symmetric keys, asymmetric key pairs, digital certificates, SSH keys, and API tokens across all organisational platforms.
 
 ---
 

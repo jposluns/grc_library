@@ -18,13 +18,13 @@
 
 ## Purpose
 
-This procedure defines the processes for testing the design and operating effectiveness of internal controls across the organization's governance, risk, compliance, security, and operational domains. Control testing provides objective evidence that controls are functioning as intended and supports certification, audit readiness, and continuous assurance activities.
+This procedure defines the processes for testing the design and operating effectiveness of internal controls across the organisation's governance, risk, compliance, security, and operational domains. Control testing provides objective evidence that controls are functioning as intended and supports certification, audit readiness, and continuous assurance activities.
 
 ---
 
 ## Scope
 
-Applies to all controls defined in the organization's control frameworks including ISO 27001 Annex A, COBIT 2019, CSA CCM v4.1, NIST SP 800-53, and any applicable regulatory control requirements. Encompasses preventive, detective, and corrective controls across all domains.
+Applies to all controls defined in the organisation's control frameworks including ISO 27001 Annex A, COBIT 2019, CSA CCM v4.1, NIST SP 800-53, and any applicable regulatory control requirements. Encompasses preventive, detective, and corrective controls across all domains.
 
 ---
 

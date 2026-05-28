@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This procedure defines the process for capturing, tracking, and managing improvement initiatives across all governance domains through the Continuous Improvement Register (CIR). The CIR is the organization's central record of proactive improvement actions, distinct from reactive CAPA actions, and supports the PDCA (Plan-Do-Check-Act) continual improvement cycle across GRC, security, compliance, and operational domains.
+This procedure defines the process for capturing, tracking, and managing improvement initiatives across all governance domains through the Continuous Improvement Register (CIR). The CIR is the organisation's central record of proactive improvement actions, distinct from reactive CAPA actions, and supports the PDCA (Plan-Do-Check-Act) continual improvement cycle across GRC, security, compliance, and operational domains.
 
 ---
 

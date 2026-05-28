@@ -39,7 +39,7 @@ Read across a row to identify which frameworks a given document supports. Read d
 
 ## Notes
 
-This matrix is indicative only. It reflects the best available assessment of control mappings at the time of publication based on the content of each GRC library document and publicly available framework documentation. Specific control mapping for a formal certification assessment, audit submission, or regulatory response requires an engagement-specific review by qualified practitioners with access to the full framework specifications and the organization's operational evidence. No entry in this matrix constitutes a certification, attestation, or legal opinion.
+This matrix is indicative only. It reflects the best available assessment of control mappings at the time of publication based on the content of each GRC library document and publicly available framework documentation. Specific control mapping for a formal certification assessment, audit submission, or regulatory response requires an engagement-specific review by qualified practitioners with access to the full framework specifications and the organisation's operational evidence. No entry in this matrix constitutes a certification, attestation, or legal opinion.
 
 ---
 

@@ -18,12 +18,12 @@
 
 ## Purpose
 
-This register documents the organization's implementation status against the IT and cybersecurity-related security requirements of Canada's Partners in Protection (PIP) programme administered by the Canada Border Services Agency (CBSA). It supports PIP membership compliance, annual partnership profile updates, and pre-certification readiness assessments.
+This register documents the organisation's implementation status against the IT and cybersecurity-related security requirements of Canada's Partners in Protection (PIP) programme administered by the Canada Border Services Agency (CBSA). It supports PIP membership compliance, annual partnership profile updates, and pre-certification readiness assessments.
 
 **Programme authority:** Canada Border Services Agency (CBSA) 
 **UK parallel programme:** Authorized Economic Operator to Security and Safety (AEO-S), administered by HMRC 
 **US parallel programme:** Customs-Trade Partnership Against Terrorism (CTPAT), administered by CBP 
-**Mutual recognition:** PIP maintains mutual recognition arrangements with CTPAT (US) and the EU AEO programme. The UK AEO-S programme, as the successor to the EU AEO scheme for UK operators, provides functionally equivalent security and safety certification. Organizations holding AEO-S or CTPAT certification can reference those programmes when demonstrating equivalent security standards to CBSA.
+**Mutual recognition:** PIP maintains mutual recognition arrangements with CTPAT (US) and the EU AEO programme. The UK AEO-S programme, as the successor to the EU AEO scheme for UK operators, provides functionally equivalent security and safety certification. Organisations holding AEO-S or CTPAT certification can reference those programmes when demonstrating equivalent security standards to CBSA.
 
 ---
 
@@ -57,7 +57,7 @@ PIP membership tiers:
 
 ## PIP-AEO-s alignment
 
-Canada's PIP and the UK's AEO-S both derive from the WCO SAFE Framework, resulting in significant overlap in security requirements. Organizations certified under AEO-S can reference this certification when applying for PIP or demonstrating equivalent security standards to CBSA.
+Canada's PIP and the UK's AEO-S both derive from the WCO SAFE Framework, resulting in significant overlap in security requirements. Organisations certified under AEO-S can reference this certification when applying for PIP or demonstrating equivalent security standards to CBSA.
 
 | PIP Requirement | UK AEO-S Equivalent | Evidence Sharing |
 |---|---|---|

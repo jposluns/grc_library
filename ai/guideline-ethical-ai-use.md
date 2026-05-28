@@ -18,19 +18,19 @@
 
 ## Purpose
 
-This guideline provides practical direction for all staff, developers, and managers on the ethical use of AI tools and systems within the organization. It translates the organization's AI governance principles into concrete day-to-day expectations, helping employees understand their responsibilities when using, developing, or relying on AI.
+This guideline provides practical direction for all staff, developers, and managers on the ethical use of AI tools and systems within the organisation. It translates the organisation's AI governance principles into concrete day-to-day expectations, helping employees understand their responsibilities when using, developing, or relying on AI.
 
 ---
 
 ## Scope
 
-Applies to all employees, contractors, and third parties who use, develop, procure, or are affected by AI systems operated by the organization. Includes all AI tools: productivity AI, generative AI, decision-support AI, and internally developed models.
+Applies to all employees, contractors, and third parties who use, develop, procure, or are affected by AI systems operated by the organisation. Includes all AI tools: productivity AI, generative AI, decision-support AI, and internally developed models.
 
 ---
 
 ## Foundational ethical principles
 
-The organization's approach to AI is grounded in the following principles, aligned with the OECD AI Principles and ISO/PAS 8800:
+The organisation's approach to AI is grounded in the following principles, aligned with the OECD AI Principles and ISO/PAS 8800:
 
 | Principle | What it means in practice |
 | --- | --- |

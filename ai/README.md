@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This directory contains organization-neutral AI governance, AI security, AI risk, lifecycle, documentation, evaluation, assurance, and register artefacts released under CC0 1.0 Universal.
+This directory contains organisation-neutral AI governance, AI security, AI risk, lifecycle, documentation, evaluation, assurance, and register artefacts released under CC0 1.0 Universal.
 
 AI documents in this repository treat data as the primary risk surface. They address collection, annotation, storage, processing, training, retrieval, inference, monitoring, retention, deletion, and decommissioning.
 

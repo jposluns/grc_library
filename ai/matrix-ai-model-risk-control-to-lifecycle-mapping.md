@@ -57,7 +57,7 @@ Suggested alignment families include AI management, AI risk management, informat
 ## Maintenance rules
 
 1. Add new control areas only where they materially improve lifecycle traceability.
-2. Keep evidence classes generic and organization-neutral.
+2. Keep evidence classes generic and organisation-neutral.
 3. Do not use this matrix to imply certification, compliance, or operating effectiveness.
 4. Update related AI model risk documents when lifecycle stages or control areas change.
 

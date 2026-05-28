@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This template provides a reusable structure for documenting departmental or function-level continuity plans. It must be adapted by adopting organizations and must not be populated in the public repository with real department names, people names, contact details, system names, supplier names, locations, customer names, or recovery evidence.
+This template provides a reusable structure for documenting departmental or function-level continuity plans. It must be adapted by adopting organisations and must not be populated in the public repository with real department names, people names, contact details, system names, supplier names, locations, customer names, or recovery evidence.
 
 ---
 

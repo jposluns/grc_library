@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register defines generic governance roles used across the GRC Documentation Library. Roles are deliberately organization-neutral and must not be replaced with named individuals in the public repository.
+This register defines generic governance roles used across the GRC Documentation Library. Roles are deliberately organisation-neutral and must not be replaced with named individuals in the public repository.
 
 ---
 
@@ -76,8 +76,8 @@ This register defines generic governance roles used across the GRC Documentation
 ## Maintenance rules
 
 1. Roles must remain generic.
-2. One organization may combine roles, but the public library must not assume a specific reporting structure.
-3. Approval authority should be adjusted by adopting organizations according to law, regulation, sector, size, and risk appetite.
+2. One organisation may combine roles, but the public library must not assume a specific reporting structure.
+3. Approval authority should be adjusted by adopting organisations according to law, regulation, sector, size, and risk appetite.
 4. Named individuals, job incumbents, email addresses, and internal team names must not be added to this public register.
 
 ---

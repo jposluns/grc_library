@@ -16,7 +16,7 @@ documents:
   approving_authority: "Chief Information Officer"
   classification: "Public"
   category: "AI Governance"
-  review_frequency: "Annual and upon material organizational or regulatory change"
+  review_frequency: "Annual and upon material organisational or regulatory change"
   license: "CC0 1.0 Universal"
   related_documents:
     - "ai/framework-ai-governance-and-risk.md"
@@ -3437,7 +3437,7 @@ documents:
   approving_authority: "Governance Library Maintainer"
   classification: "Public"
   category: "Resilience"
-  review_frequency: "Annual and upon material process, system, supplier, data, AI, facility, or organizational change"
+  review_frequency: "Annual and upon material process, system, supplier, data, AI, facility, or organisational change"
   license: "CC0 1.0 Universal"
   related_documents:
     - "resilience/framework-business-continuity-and-resilience.md"
@@ -4172,7 +4172,7 @@ documents:
   approving_authority: "Governance Library Maintainer"
   classification: "Public"
   category: "Information Security"
-  review_frequency: "Annual and upon material platform, regulatory, or organizational change"
+  review_frequency: "Annual and upon material platform, regulatory, or organisational change"
   license: "CC0 1.0 Universal"
   related_documents:
     - "security/policy-acceptable-use.md"
@@ -4421,7 +4421,7 @@ documents:
   approving_authority: "Chief Information Officer"
   classification: "Public"
   category: "Information Security"
-  review_frequency: "Annual or following significant organizational or contact change"
+  review_frequency: "Annual or following significant organisational or contact change"
   license: "CC0 1.0 Universal"
   related_documents:
     - "security/procedure-security-incident-response.md"

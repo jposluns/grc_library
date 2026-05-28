@@ -24,7 +24,7 @@ This procedure defines the channels, protections, investigation processes, and r
 
 ## Scope
 
-Applies to all employees, contractors, temporary workers, and third parties who access organizational systems or resources and who have concerns about:
+Applies to all employees, contractors, temporary workers, and third parties who access organisational systems or resources and who have concerns about:
 - Ethical violations or misconduct.
 - Legal or regulatory breaches.
 - Safety or security incidents.
@@ -66,7 +66,7 @@ Anonymous disclosures are accepted and investigated to the extent possible given
 
 ## 2. Whistleblower protections
 
-The organization prohibits any retaliation against individuals who make a disclosure in good faith. Protections include:
+The organisation prohibits any retaliation against individuals who make a disclosure in good faith. Protections include:
 
 - Employment protection: no dismissal, demotion, suspension, or unfavourable treatment.
 - Confidentiality: reporter identity is protected to the maximum extent possible.

@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This framework establishes the strategic governance, lifecycle controls, and operational standards for managing cryptographic keys across the organization's IT, OT, cloud, and BASC-certified trade environments. It defines a unified structure for key generation, distribution, storage, rotation, revocation, and destruction, aligned with NIST SP 800-57, ISO/IEC 27002:2022 §8.24 to §8.28, BASC v6, and the WCO SAFE Framework.
+This framework establishes the strategic governance, lifecycle controls, and operational standards for managing cryptographic keys across the organisation's IT, OT, cloud, and BASC-certified trade environments. It defines a unified structure for key generation, distribution, storage, rotation, revocation, and destruction, aligned with NIST SP 800-57, ISO/IEC 27002:2022 §8.24 to §8.28, BASC v6, and the WCO SAFE Framework.
 
 ---
 
@@ -103,7 +103,7 @@ Trade and customs systems must use AES-256 with PQC hybrid encryption by 2027. K
 
 ## 6. Post-quantum cryptography transition
 
-In alignment with the Post-Quantum Cryptography Roadmap, the organization shall:
+In alignment with the Post-Quantum Cryptography Roadmap, the organisation shall:
 
 1. Inventory all cryptographic dependencies by 2025 (complete).
 2. Deploy PQC hybrid algorithms in new systems from 2026.

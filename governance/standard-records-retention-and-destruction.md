@@ -24,7 +24,7 @@ This standard establishes controls, retention schedules, destruction methods, an
 
 ## Scope
 
-1. Applies to all organizational records including business documents, electronic files, system logs, datasets, AI model artifacts, and contractual records.
+1. Applies to all organisational records including business documents, electronic files, system logs, datasets, AI model artifacts, and contractual records.
 2. Covers all systems, storage media, and cloud environments that hold information subject to regulatory, audit, or contractual retention obligations.
 3. Applies globally across all entities and regional subsidiaries, including BASC-governed logistics and customs operations.
 4. Includes AI-specific content such as model training datasets, testing results, and explainability documentation.
@@ -143,7 +143,7 @@ Retention ensures that traceability under EU AI Act Annex IV, OECD AI Principles
 
 ## Section 6: sector-specific retention overlays
 
-Where the organization participates in a sector-specific programme that imposes its own retention obligations (for example, BASC for trade and logistics operations, sector-specific financial-services or healthcare regulations), the corresponding sector annex defines the additional retention categories, minimum retention periods, and destruction requirements. See [`sectors/`](../sectors/) and the sector-specific compliance annexes in [`compliance/`](../compliance/).
+Where the organisation participates in a sector-specific programme that imposes its own retention obligations (for example, BASC for trade and logistics operations, sector-specific financial-services or healthcare regulations), the corresponding sector annex defines the additional retention categories, minimum retention periods, and destruction requirements. See [`sectors/`](../sectors/) and the sector-specific compliance annexes in [`compliance/`](../compliance/).
 
 Sector overlays extend (do not contradict) the retention requirements defined elsewhere in this standard. Where the overlay specifies a longer retention period than the base requirement, the longer period applies.
 

@@ -26,7 +26,7 @@ This standard supersedes the prior `supply-chain/standard-third-party-risk.md` (
 
 ## Scope
 
-This standard applies to all third-party relationships involving access to the organization's data, systems, networks, facilities, or operational continuity, including:
+This standard applies to all third-party relationships involving access to the organisation's data, systems, networks, facilities, or operational continuity, including:
 
 - Logistics and freight service providers
 - Technology and software vendors
@@ -81,7 +81,7 @@ Third-party risks are scored using the same 5×5 likelihood × impact matrix as 
 
 In addition to inherent and residual scores, third-party risk assessments must capture:
 - **Concentration risk:** Degree to which multiple critical dependencies converge on a single supplier or geographic region
-- **Fourth-party risk:** Key sub-dependencies of the third party that could cascade to the organization
+- **Fourth-party risk:** Key sub-dependencies of the third party that could cascade to the organisation
 - **Substitutability:** Estimated time and cost to replace the supplier if the relationship fails
 
 ### 3. Risk register integration
@@ -176,12 +176,12 @@ Reference: [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](
 
 ### Supplier security incident response
 
-When a Tier 1 or Tier 2 supplier experiences a security incident or data breach that may affect the organization:
+When a Tier 1 or Tier 2 supplier experiences a security incident or data breach that may affect the organisation:
 
-1. Require the supplier to notify the organization within the contractually defined notification window
+1. Require the supplier to notify the organisation within the contractually defined notification window
 2. Initiate the supplier incident assessment within 4 hours of notification
-3. Evaluate whether the incident triggers the organization's own incident response obligations (regulatory notification, customer notification)
-4. Escalate to the enterprise incident response team if the incident affects the organization's systems or data: follow [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md)
+3. Evaluate whether the incident triggers the organisation's own incident response obligations (regulatory notification, customer notification)
+4. Escalate to the enterprise incident response team if the incident affects the organisation's systems or data: follow [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md)
 5. Document the incident in the supplier's risk record; reassess residual risk rating
 6. Initiate a CAPA if the incident reveals systemic control gaps: [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)
 
@@ -195,7 +195,7 @@ Where an incident or performance failure necessitates terminating a supplier rel
 
 Upon contract termination or expiry, the third party must:
 
-1. Return or securely delete all organizational data in accordance with the contracted retention schedule.
+1. Return or securely delete all organisational data in accordance with the contracted retention schedule.
 2. Revoke all system access credentials within 24 hours of termination.
 3. Provide written confirmation of data destruction or return.
 4. Transfer or destroy any model artefacts, embeddings, fine-tuned weights, or evaluation data derived from the organisation's data, where the contract is AI-related.
@@ -226,7 +226,7 @@ The full offboarding workflow is described in [`supply-chain/procedure-supplier-
 | ISO/IEC 27036-3:2013 | Information security for supplier relationships: ICT supply chain security |
 | ISO 28000 | Supply chain security management; risk and threat assessment |
 | NIST SP 800-53 Rev 5 | SA-9 External System Services; SR Supply Chain Risk Management |
-| NIST SP 800-161r2 | Cybersecurity Supply Chain Risk Management Practices for Systems and Organizations |
+| NIST SP 800-161r2 | Cybersecurity Supply Chain Risk Management Practices for Systems and Organisations |
 | NIST CSF 2.0 | GV.SC Supply Chain Risk Management; ID.SC Supply Chain Cybersecurity |
 | COBIT 2019 | APO10 Managed Vendors |
 | CSA CCM v4.1 | STA-02 Supply Chain Management, Transparency, and Accountability |

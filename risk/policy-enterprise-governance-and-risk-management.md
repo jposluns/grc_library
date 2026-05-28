@@ -18,16 +18,16 @@
 
 ## 1. Purpose
 
-This policy establishes the enterprise governance and risk management framework, principles, roles, and control requirements that guide consistent identification, assessment, treatment, monitoring, and reporting of risk across the organization. It is aligned with ISO 31000 Clauses 5 and 6, COBIT 2019 APO12, CSA CCM v4.1 GRC domain, NIST SP 800-39, ISO 23894 for AI risk, and the NIST AI RMF. The policy integrates risk, compliance, privacy, security, resilience, ethics, and sustainability across business, technology, data, and AI systems.
+This policy establishes the enterprise governance and risk management framework, principles, roles, and control requirements that guide consistent identification, assessment, treatment, monitoring, and reporting of risk across the organisation. It is aligned with ISO 31000 Clauses 5 and 6, COBIT 2019 APO12, CSA CCM v4.1 GRC domain, NIST SP 800-39, ISO 23894 for AI risk, and the NIST AI RMF. The policy integrates risk, compliance, privacy, security, resilience, ethics, and sustainability across business, technology, data, and AI systems.
 
 ---
 
 ## 2. Scope
 
-1. This policy applies to all business units, regions, subsidiaries, and joint ventures where the organization has operational control.
+1. This policy applies to all business units, regions, subsidiaries, and joint ventures where the organisation has operational control.
 2. It covers strategic, operational, financial, compliance, information security, privacy, safety, environmental, AI, and supply-chain risks across on-premises, cloud, multi-cloud, edge, and supplier-hosted services.
-3. It applies to all employees, contractors, suppliers, and partners who process organizational data or operate organization-controlled systems.
-4. Where the organization participates in trade-security and supply-chain programmes (for example, WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO, AEO-S, NEEC, OEA, and equivalent frameworks), the relevant sector annex extends this policy with programme-specific obligations; see [`sectors/`](../sectors/) and the transportation and logistics sector annex.
+3. It applies to all employees, contractors, suppliers, and partners who process organisational data or operate organisation-controlled systems.
+4. Where the organisation participates in trade-security and supply-chain programmes (for example, WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO, AEO-S, NEEC, OEA, and equivalent frameworks), the relevant sector annex extends this policy with programme-specific obligations; see [`sectors/`](../sectors/) and the transportation and logistics sector annex.
 
 ---
 
@@ -40,12 +40,12 @@ This policy establishes the enterprise governance and risk management framework,
 | AI Governance Council (AIGC) | Approves AI risk appetite statements and exceptions for high-risk AI uses per ISO 23894 and NIST AI RMF Govern function; meets monthly. |
 | Chief Information Officer | Accountable for the enterprise risk management framework. |
 | Chief Information Security Officer | Responsible for information security, privacy, and AI risk integration. |
-| Second Line: GRC Function | Sets policy; consolidates risk reporting across the organization. |
+| Second Line: GRC Function | Sets policy; consolidates risk reporting across the organisation. |
 | Third Line: Internal Audit | Provides independent assurance on governance and control effectiveness. |
 | Executive Sponsors | Each material risk category is assigned an executive sponsor. |
 | Operational Risk Owners | Manage day-to-day risk identification, control execution, and residual exposure reporting. |
 
-The organization operates the **Three Lines Model**:
+The organisation operates the **Three Lines Model**:
 
 - **First Line:** Business units and process owners own and manage risk within their domains.
 - **Second Line:** The GRC function sets policy, frameworks, and consolidated reporting.
@@ -57,7 +57,7 @@ The organization operates the **Three Lines Model**:
 
 ### 4.1 Risk framework
 
-The organization shall maintain a standard risk management framework aligned to ISO 31000 with a common taxonomy, scoring criteria, and risk registers used consistently across all units and regions.
+The organisation shall maintain a standard risk management framework aligned to ISO 31000 with a common taxonomy, scoring criteria, and risk registers used consistently across all units and regions.
 
 ### 4.2 Risk identification
 
@@ -158,7 +158,7 @@ Non-compliance with this policy may result in disciplinary action up to and incl
 
 ## 10. License
 
-This document is released under the **CC0 1.0 Universal** public domain dedication. To the extent possible under law, the organization waives all copyright and related rights to this document.
+This document is released under the **CC0 1.0 Universal** public domain dedication. To the extent possible under law, the organisation waives all copyright and related rights to this document.
 
 ---
 

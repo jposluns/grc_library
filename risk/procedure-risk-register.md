@@ -57,7 +57,7 @@ This procedure defines how risks are recorded, maintained, reviewed, escalated, 
 | Due Date | Target date. |
 | Status | Open, in treatment, accepted, closed, retired. |
 | Review Date | Next required review. |
-| Evidence Reference | Link to internal evidence in adopting organization. |
+| Evidence Reference | Link to internal evidence in adopting organisation. |
 
 ---
 

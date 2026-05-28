@@ -48,8 +48,8 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 - The DPDPA employs a **whitelist approach**: cross-border transfers of personal data are permitted only to countries and territories notified by the Indian government as permissible destinations.
 - The government may restrict transfers to countries posing a risk to national security or public order.
-- The 2025 Rules initiated the process for publishing the approved transfer destination list. Organizations must monitor official government notifications as the whitelist framework is progressively operationalized.
-- Practical note: until the whitelist is fully published, organizations should engage early with MeitY guidance and consider contractual safeguards as interim measures.
+- The 2025 Rules initiated the process for publishing the approved transfer destination list. Organisations must monitor official government notifications as the whitelist framework is progressively operationalized.
+- Practical note: until the whitelist is fully published, organisations should engage early with MeitY guidance and consider contractual safeguards as interim measures.
 
 ---
 
@@ -71,7 +71,7 @@ There are no criminal penalties under the DPDPA; enforcement is administrative t
 
 ## Limitations
 
-This document is a public-domain reference baseline. It does not constitute legal advice. Adopting organizations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
+This document is a public-domain reference baseline. It does not constitute legal advice. Adopting organisations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
 
 ---
 

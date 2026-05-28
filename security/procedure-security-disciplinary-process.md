@@ -24,7 +24,7 @@ This procedure defines the process for investigating and responding to security 
 
 ## Scope
 
-Applies to all employees, contractors, temporary workers, and third parties who access organizational systems or data and who are subject to the organization's security policies. Covers violations of any security policy, standard, or procedure within the GRC library.
+Applies to all employees, contractors, temporary workers, and third parties who access organisational systems or data and who are subject to the organisation's security policies. Covers violations of any security policy, standard, or procedure within the GRC library.
 
 ---
 

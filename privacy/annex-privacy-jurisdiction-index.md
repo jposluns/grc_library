@@ -20,7 +20,7 @@
 
 This index provides navigation to jurisdiction-specific privacy and AI regulatory requirement annexes and a cross-jurisdiction compliance mapping summary. Each jurisdiction file covers applicable laws, AI and privacy obligations, cross-border transfer mechanisms, and enforcement authorities and fines.
 
-Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting organizations should retain only the jurisdiction files relevant to their geographic footprint, regulatory obligations, and data subject locations.
+Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting organisations should retain only the jurisdiction files relevant to their geographic footprint, regulatory obligations, and data subject locations.
 
 ---
 

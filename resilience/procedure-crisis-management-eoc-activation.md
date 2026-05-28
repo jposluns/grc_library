@@ -92,7 +92,7 @@ Perform post-incident or post-exercise review. Record lessons, failed assumption
 
 ## Limitations
 
-This procedure is a public-domain baseline. Adopting organizations must define actual contact lists, meeting locations, communication channels, authority thresholds, legal escalation paths, and operational runbooks internally.
+This procedure is a public-domain baseline. Adopting organisations must define actual contact lists, meeting locations, communication channels, authority thresholds, legal escalation paths, and operational runbooks internally.
 
 ---
 

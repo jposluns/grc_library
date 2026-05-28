@@ -24,7 +24,7 @@ This standard defines the enterprise-wide risk management framework, taxonomy, a
 
 ## 2. Scope
 
-1. This standard applies to all business, operational, financial, security, privacy, AI, and technology risks managed within the organization and its subsidiaries. Sector-specific risk overlays (for example, BASC for trade and logistics operations) apply where the organization participates in a covered programme; see [`sectors/`](../sectors/).
+1. This standard applies to all business, operational, financial, security, privacy, AI, and technology risks managed within the organisation and its subsidiaries. Sector-specific risk overlays (for example, BASC for trade and logistics operations) apply where the organisation participates in a covered programme; see [`sectors/`](../sectors/).
 2. It covers both strategic and operational risk management activities across enterprise, project, and system levels.
 3. It applies to all employees, contractors, and third parties responsible for risk identification, analysis, reporting, or control execution.
 
@@ -37,7 +37,7 @@ This standard defines the enterprise-wide risk management framework, taxonomy, a
 | Chief Information Officer | Accountable for the overall enterprise risk management framework and its alignment with strategic objectives. |
 | Chief Information Security Officer | Responsible for managing information security, privacy, and AI-related risks; ensures that integration into the risk register. |
 | Enterprise Risk Committee (ERC) | Oversees risk appetite, tolerance, and periodic risk reporting; meets quarterly. |
-| Risk Manager / Compliance Officer | Administers risk registers and scoring models; facilitates risk assessments across the organization. |
+| Risk Manager / Compliance Officer | Administers risk registers and scoring models; facilitates risk assessments across the organisation. |
 | Process and System Owners | Identify risks within their domains, implement controls, and report residual exposures. |
 | Internal Audit | Provides independent assurance on risk governance and control effectiveness. |
 
@@ -45,7 +45,7 @@ This standard defines the enterprise-wide risk management framework, taxonomy, a
 
 ## 4. Risk taxonomy
 
-The organization maintains the following risk taxonomy. Each category contains subcategories used to classify risks consistently in the risk register.
+The organisation maintains the following risk taxonomy. Each category contains subcategories used to classify risks consistently in the risk register.
 
 | Category | Example Subcategories |
 |---|---|
@@ -236,7 +236,7 @@ Required evidence for audit and assurance purposes includes, but is not limited 
 
 ## 11. License
 
-This document is released under the **CC0 1.0 Universal** public domain dedication. To the extent possible under law, the organization waives all copyright and related rights to this document.
+This document is released under the **CC0 1.0 Universal** public domain dedication. To the extent possible under law, the organisation waives all copyright and related rights to this document.
 
 ---
 

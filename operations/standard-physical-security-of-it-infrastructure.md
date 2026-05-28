@@ -63,7 +63,7 @@ Access to the primary data centre server room and all IT equipment rooms is rest
 
 ## 2. Camera surveillance and NVR systems
 
-The organization operates IP camera systems at office and data centre locations under IT Operations management.
+The organisation operates IP camera systems at office and data centre locations under IT Operations management.
 
 | Control | Requirement |
 |---|---|

@@ -20,7 +20,7 @@
 
 This register is the authoritative index for active documents in the public GRC Documentation Library. It records document title, type, domain, classification, owner role, approving authority, review frequency, repository path, and primary alignment families.
 
-This register intentionally avoids internal document numbers from any source organization. Repository paths and filenames are the canonical identifiers.
+This register intentionally avoids internal document numbers from any source organisation. Repository paths and filenames are the canonical identifiers.
 
 ---
 
@@ -28,7 +28,7 @@ This register intentionally avoids internal document numbers from any source org
 
 | Classification | Use |
 | --- | --- |
-| Public | Suitable for publication under CC0 and contains no organization-specific, personal, proprietary, confidential, contractual, audit, incident, or security-sensitive information. |
+| Public | Suitable for publication under CC0 and contains no organisation-specific, personal, proprietary, confidential, contractual, audit, incident, or security-sensitive information. |
 | Reference Only | External source material or source-derived note that must not be committed as CC0 content unless independently confirmed to be compatible. |
 | Deprecated | Historical repository content that is retained for context but no longer recommended for adoption. |
 
@@ -321,7 +321,7 @@ The expansion backlog is currently empty. All planned documents are active.
 1. Every active document must appear in this register.
 2. Every document path must be unique.
 3. Every document must use a role-based owner and approving authority.
-4. Every document must be checked for organization-specific and person-specific identifiers before publication.
+4. Every document must be checked for organisation-specific and person-specific identifiers before publication.
 5. Documents informed by external sources must comply with [`NOTICE.md`](../NOTICE.md).
 6. Regulatory alignment must not be interpreted as compliance or legal advice.
 7. Framework alignment must not reproduce restricted third-party source text.

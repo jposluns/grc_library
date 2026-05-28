@@ -58,7 +58,7 @@ The Continuous Assurance and Improvement Framework integrates four interrelated 
 | **Performance Evaluation** | Measure KPIs, digital trust, and AI governance maturity. | GRC programme management procedure, metrics register |
 | **Improvement Implementation** | Execute corrective and preventive actions. | CAPA procedure, risk register |
 
-This structure provides a continuous feedback loop ensuring organizational learning, resilience, and compliance evolution.
+This structure provides a continuous feedback loop ensuring organisational learning, resilience, and compliance evolution.
 
 ---
 
@@ -92,7 +92,7 @@ This structure provides a continuous feedback loop ensuring organizational learn
 
 ### 4.1 Digital trust indicators (COBIT 2019)
 
-The organization shall track and improve:
+The organisation shall track and improve:
 - Governance effectiveness and transparency.
 - Data reliability and system integrity.
 - Security resilience and service availability.
@@ -163,7 +163,7 @@ Performance data from all assurance activities feed into the Governance Performa
 - Stakeholder feedback and maturity self-assessments.
 - Alignment with ISO, COBIT, CSA, and BASC revisions.
 
-8.3 Updates are approved by the ERC and published organization-wide.
+8.3 Updates are approved by the ERC and published organisation-wide.
 
 ---
 

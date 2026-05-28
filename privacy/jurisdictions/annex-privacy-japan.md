@@ -50,14 +50,14 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Enforcement and fines
 
-- Fines up to JPY 100 million for organizations for violations, including unlawful cross-border transfers and failure to notify the PPC of data breaches.
+- Fines up to JPY 100 million for organisations for violations, including unlawful cross-border transfers and failure to notify the PPC of data breaches.
 - Individuals responsible may face criminal penalties.
 
 ---
 
 ## Limitations
 
-This document is a public-domain reference baseline. It does not constitute legal advice. Adopting organizations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
+This document is a public-domain reference baseline. It does not constitute legal advice. Adopting organisations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
 
 ---
 

@@ -20,7 +20,7 @@
 
 This framework defines how documents in the GRC Documentation Library relate to each other. It establishes a hierarchy that connects governance authority to policies, standards, procedures, plans, evidence, metrics, and cross-framework mappings.
 
-The framework provides a reusable architecture for organizations that need a coherent policy corpus rather than disconnected documents performing audit theatre with nicer fonts.
+The framework provides a reusable architecture for organisations that need a coherent policy corpus rather than disconnected documents performing audit theatre with nicer fonts.
 
 ---
 
@@ -129,7 +129,7 @@ Mappings should use the following pattern:
 | Mapping Type | Legal obligation, regulatory interpretation, industry practice, architectural recommendation, or evidence category. |
 | Applicability Condition | Deployment, data, sector, jurisdiction, processing role, or service condition that activates relevance. |
 | Repository Artefact | Document path in this repository. |
-| Evidence Class | Record type that would support implementation in an adopting organization. |
+| Evidence Class | Record type that would support implementation in an adopting organisation. |
 | Limitation | Statement that mapping does not prove compliance or certification. |
 
 ---
@@ -156,7 +156,7 @@ Before publication, each document must be checked for:
 
 - Correct metadata.
 - Correct repository path.
-- No real organization names.
+- No real organisation names.
 - No real person names.
 - No internal identifiers.
 - No copied restricted third-party text.

@@ -79,7 +79,7 @@ All personnel must be aware that social engineering attacks are frequently condu
 
 ## 7. Monitoring
 
-The organization reserves the right to monitor activity on company systems and devices for security and compliance purposes. Monitoring is conducted in accordance with applicable privacy law and is disclosed through this policy. Users have no expectation of privacy when using company-owned devices or systems. Monitoring results may be used in disciplinary or legal proceedings.
+The organisation reserves the right to monitor activity on company systems and devices for security and compliance purposes. Monitoring is conducted in accordance with applicable privacy law and is disclosed through this policy. Users have no expectation of privacy when using company-owned devices or systems. Monitoring results may be used in disciplinary or legal proceedings.
 
 ---
 

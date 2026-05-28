@@ -26,7 +26,7 @@ This procedure defines the process for conducting Privacy Impact Assessments (PI
 
 1. Applies to all projects, systems, products, and services that process personal data, sensitive data, or AI-related datasets.
 2. Covers new or modified processing activities; AI model development, training, or inference affecting individuals' rights; and any transfer of data across national or regional boundaries.
-3. Includes data from all regions where the organization operates (EU, Canada, US, China, Brazil, and APAC).
+3. Includes data from all regions where the organisation operates (EU, Canada, US, China, Brazil, and APAC).
 
 ---
 
@@ -35,7 +35,7 @@ This procedure defines the process for conducting Privacy Impact Assessments (PI
 | Role | Responsibility |
 |---|---|
 | CIO (acting DPO) | Accountable for ensuring PIAs and cross-border transfer reviews are completed in compliance with global privacy laws. |
-| CISO | Ensures that technical and organizational measures are implemented to mitigate identified risks. |
+| CISO | Ensures that technical and organisational measures are implemented to mitigate identified risks. |
 | AIGC | Reviews AI-related impact assessments for ethical, transparency, and accountability alignment. |
 | Executive Risk Committee (ERC) | Approves high-risk processing activities requiring escalation beyond the CIO. |
 

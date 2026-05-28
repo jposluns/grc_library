@@ -18,13 +18,13 @@
 
 ## 1. Purpose
 
-This standard defines the governance, architecture, and technical controls for the Data Loss Prevention (DLP) programme. It establishes how the organization detects, monitors, and prevents unauthorized disclosure, transfer, or loss of data across all platforms. It ensures that consistent protection of sensitive data in use, at rest, and in motion in accordance with the Data Classification Model.
+This standard defines the governance, architecture, and technical controls for the Data Loss Prevention (DLP) programme. It establishes how the organisation detects, monitors, and prevents unauthorized disclosure, transfer, or loss of data across all platforms. It ensures that consistent protection of sensitive data in use, at rest, and in motion in accordance with the Data Classification Model.
 
 ---
 
 ## 2. Scope
 
-1. Applies to all employees, contractors, and third parties who handle organizational data regardless of format or location.
+1. Applies to all employees, contractors, and third parties who handle organisational data regardless of format or location.
 2. Covers all information systems, cloud services, endpoints, and collaboration platforms including the cloud productivity platform, collaboration platform, file storage, email platform, cloud access security broker (CASB), and endpoints.
 3. Includes protection of AI datasets, models, and outputs containing classified or sensitive content.
 4. Applies to all data classified under the 5-level Data Classification Model.
@@ -47,7 +47,7 @@ This standard defines the governance, architecture, and technical controls for t
 
 ## 4. Data classification labels
 
-The organization applies a 5-level Data Classification Model. DLP controls are calibrated to each level.
+The organisation applies a 5-level Data Classification Model. DLP controls are calibrated to each level.
 
 | Level | Definition | Sharing Restrictions |
 |---|---|---|

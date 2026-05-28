@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This framework defines the documentation and transparency requirements for all AI systems deployed or developed by the organization. It establishes minimum standards for model cards, AI Impact Assessments, training data records, and transparency disclosures, ensuring that AI systems are understandable, auditable, and accountable to stakeholders, regulators, and affected individuals.
+This framework defines the documentation and transparency requirements for all AI systems deployed or developed by the organisation. It establishes minimum standards for model cards, AI Impact Assessments, training data records, and transparency disclosures, ensuring that AI systems are understandable, auditable, and accountable to stakeholders, regulators, and affected individuals.
 
 ---
 
@@ -58,7 +58,7 @@ Every AI system must have a current Model Card. Model Cards are living documents
 | **Bias and Fairness** | Fairness evaluation methodology and results; identified residual biases |
 | **Explainability** | Explainability method used; representative example explanations |
 | **Privacy** | Personal data processing summary; consent and legal basis if applicable |
-| **Risk Tier** | Organizational AI risk classification: Minimal / Limited / High / Unacceptable |
+| **Risk Tier** | Organisational AI risk classification: Minimal / Limited / High / Unacceptable |
 | **Owner** | Role title of AI System Owner |
 | **Version History** | Version, date, and summary of changes |
 
@@ -104,7 +104,7 @@ The AI System Inventory published by the GRC Programme Manager provides a summar
 
 ### 4.2 Affected individual transparency
 
-Where an AI system makes or materially influences decisions affecting individuals (customers, employees, suppliers), the organization must:
+Where an AI system makes or materially influences decisions affecting individuals (customers, employees, suppliers), the organisation must:
 
 - Disclose that an AI system is involved in the decision.
 - Provide a plain-language explanation of the factors that influenced the outcome.

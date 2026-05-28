@@ -28,8 +28,8 @@ To protect information held on physical and digital media from unauthorized disc
 
 1. Applies to all physical media including removable storage (USB drives, portable hard drives, optical media, magnetic tapes), printed documents, and decommissioned hardware containing storage.
 2. Applies to all digital media transfers including file transfer, email attachment, cloud sharing, and direct network transfer.
-3. Applies to organization-issued and personally-owned devices (BYOD) where they are used to handle organizational data.
-4. Covers all employees, contractors, and third parties who handle organizational media in any classification.
+3. Applies to organisation-issued and personally-owned devices (BYOD) where they are used to handle organisational data.
+4. Covers all employees, contractors, and third parties who handle organisational media in any classification.
 5. Applies globally across all office locations, data centre sites, field operations, and logistics environments including BASC-certified trade and customs operations.
 
 ---
@@ -105,7 +105,7 @@ Loss or suspected compromise of physical media in transit must be reported immed
 
 ### 5.1 Approved transfer mechanisms
 
-Digital transfer of organizational data must use approved channels. The approved mechanism depends on the classification of the data being transferred:
+Digital transfer of organisational data must use approved channels. The approved mechanism depends on the classification of the data being transferred:
 
 | Data Classification | Approved Transfer Mechanisms |
 | --- | --- |
@@ -151,7 +151,7 @@ Media containing Confidential or Restricted data must not be stored in general o
 
 ### 6.2 Portable digital media encryption
 
-All portable digital media (USB drives, external hard drives, portable SSDs) used for organizational data must be encrypted. Unencrypted portable media is prohibited for Confidential or Restricted data. IT Operations maintains an inventory of organization-issued portable media and the data classification they are approved to carry. Personal USB drives and portable storage devices are not permitted to connect to organization-managed endpoints unless explicitly approved by the CISO for a documented purpose.
+All portable digital media (USB drives, external hard drives, portable SSDs) used for organisational data must be encrypted. Unencrypted portable media is prohibited for Confidential or Restricted data. IT Operations maintains an inventory of organisation-issued portable media and the data classification they are approved to carry. Personal USB drives and portable storage devices are not permitted to connect to organisation-managed endpoints unless explicitly approved by the CISO for a documented purpose.
 
 ### 6.3 Backup media
 
@@ -203,7 +203,7 @@ A Certificate of Destruction is mandatory for the disposal of all media that has
 
 - All decommissioned servers and workstations.
 - All portable media (USB drives, external drives, tapes) removed from service.
-- All organization-issued mobile devices.
+- All organisation-issued mobile devices.
 - Paper records of Confidential or Restricted classification destroyed by a contracted service.
 
 A Certificate of Destruction is not required for internal-only paper records shredded on-site, provided the shredding is recorded in the Destruction Register.

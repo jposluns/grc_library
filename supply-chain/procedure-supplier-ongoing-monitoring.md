@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This procedure defines the activities, frequencies, and escalation steps for ongoing monitoring of active supplier relationships. Monitoring ensures that supplier risk ratings remain current, contractual obligations are being met, and emerging risks are identified before they cause harm to the organization's operations, data, or compliance posture.
+This procedure defines the activities, frequencies, and escalation steps for ongoing monitoring of active supplier relationships. Monitoring ensures that supplier risk ratings remain current, contractual obligations are being met, and emerging risks are identified before they cause harm to the organisation's operations, data, or compliance posture.
 
 ---
 
@@ -89,7 +89,7 @@ In addition to scheduled activities, the following continuous signals should be 
 | **Security ratings** | External security rating drops materially (e.g., by one grade or 10+ points) | Initiate unscheduled security posture review |
 | **Dark web / threat intelligence** | Supplier's credentials or data appear in threat intelligence or breach notifications | Initiate immediate review; assess impact; notify DPO if personal data involved |
 | **Financial distress signals** | Credit rating downgrade; county court judgements; news of financial difficulty | Initiate contingency planning review; escalate to CRO |
-| **Regulatory sanctions** | Supplier named in regulatory enforcement action | Assess impact on organization; escalate to CCO and CRO |
+| **Regulatory sanctions** | Supplier named in regulatory enforcement action | Assess impact on organisation; escalate to CCO and CRO |
 | **Adverse media** | Significant negative news coverage involving security, privacy, or ethical conduct | Review and assess relevance; escalate if material |
 | **Trade compliance alerts** | Supplier loses CTPAT / AEO-S / PIP / BASC certification; enters customs sanctions list | Immediate escalation to Trade Compliance Manager and CRO; assess operational impact |
 

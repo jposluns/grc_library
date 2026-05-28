@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This procedure defines an organization-neutral process for backup, replication, recovery validation, restoration, and evidence capture for business-critical systems and data.
+This procedure defines an organisation-neutral process for backup, replication, recovery validation, restoration, and evidence capture for business-critical systems and data.
 
 The procedure intentionally avoids vendor-specific implementation steps so that it can be reused across cloud, on-premises, hybrid, managed service, database, file, application, and AI system recovery scenarios.
 
@@ -113,7 +113,7 @@ Maintain evidence including backup inventory, recovery objectives, backup config
 
 ## Limitations
 
-This procedure is a reusable public-domain baseline. Adopting organizations must define specific technologies, schedules, storage locations, encryption methods, network paths, retention periods, and recovery runbooks internally.
+This procedure is a reusable public-domain baseline. Adopting organisations must define specific technologies, schedules, storage locations, encryption methods, network paths, retention periods, and recovery runbooks internally.
 
 ---
 

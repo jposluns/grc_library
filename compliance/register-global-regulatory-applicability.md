@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register provides an organization-neutral structure for identifying regulatory applicability. It does not state that any specific law applies to an adopting organization. Applicability depends on facts including jurisdiction, establishment, data residency, processing role, sector, customer commitments, regulated activity, data category, and service model.
+This register provides an organisation-neutral structure for identifying regulatory applicability. It does not state that any specific law applies to an adopting organisation. Applicability depends on facts including jurisdiction, establishment, data residency, processing role, sector, customer commitments, regulated activity, data category, and service model.
 
 ---
 
@@ -72,7 +72,7 @@ This register separates requirements as follows:
 1. Do not state that a law applies without a documented applicability basis.
 2. Do not state that the repository proves compliance.
 3. Do not include legal advice.
-4. Do not include organization-specific facts.
+4. Do not include organisation-specific facts.
 5. Do not copy statutory text unless the source is public-domain or otherwise compatible with CC0 publication.
 6. Record uncertainty explicitly where deployment model, data residency, processing role, sector, or jurisdiction is unknown.
 

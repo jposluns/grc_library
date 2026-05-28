@@ -27,21 +27,21 @@ AI coding assistants introduce distinct risks that differ from conventional deve
 ## Scope
 
 Applies to all employees, contractors, and third-party developers using AI coding assistants on:
-- Organization-owned or managed devices.
-- Organization-managed cloud development environments.
-- Projects touching organization codebases, infrastructure, or data.
+- Organisation-owned or managed devices.
+- Organisation-managed cloud development environments.
+- Projects touching organisation codebases, infrastructure, or data.
 
-Does not apply to personal experimentation on personal devices with no connection to organizational data or systems.
+Does not apply to personal experimentation on personal devices with no connection to organisational data or systems.
 
 ---
 
 ## Approved tools and authorization
 
-The organization maintains an approved list of AI coding assistants. Developers must use only approved tools for work on organizational systems. Using an unapproved AI coding assistant with organizational code, data, or credentials is a policy violation requiring a formal exception.
+The organisation maintains an approved list of AI coding assistants. Developers must use only approved tools for work on organisational systems. Using an unapproved AI coding assistant with organisational code, data, or credentials is a policy violation requiring a formal exception.
 
 When evaluating a new AI coding assistant for approval, the assessment must cover:
 - Data handling and retention: what code and context is sent to external APIs; whether the provider retains prompts or completions; applicable data processing agreements.
-- Authentication and access scope: what organizational systems the tool can access.
+- Authentication and access scope: what organisational systems the tool can access.
 - Security rule configuration: whether the tool accepts binding security constraints (CLAUDE.md, rules files, or equivalent).
 - Incident response: the provider's breach notification obligations.
 
@@ -51,7 +51,7 @@ When evaluating a new AI coding assistant for approval, the assessment must cove
 
 ### Load security rules before using an AI coding assistant
 
-All AI coding assistant sessions working on organizational code must have security rules loaded before generating or reviewing code. The organization's security rules are maintained in `dev-security/claude-rules/`.
+All AI coding assistant sessions working on organisational code must have security rules loaded before generating or reviewing code. The organisation's security rules are maintained in `dev-security/claude-rules/`.
 
 **For Claude Code:**
 1. Copy [`dev-security/claude-rules/CLAUDE.md`](claude-rules/CLAUDE.md) to the project root. Claude Code reads this file automatically at session start.
@@ -128,10 +128,10 @@ The following uses of AI coding assistants are prohibited without explicit CIO/C
 1. Generating code that handles personal data without a human security design review.
 2. Using AI to modify production infrastructure or configuration directly (no human review step).
 3. Using AI coding assistants on production systems (read access to production data is prohibited).
-4. Training or fine-tuning AI models on organizational source code without Legal and CISO sign-off.
+4. Training or fine-tuning AI models on organisational source code without Legal and CISO sign-off.
 5. Using AI coding assistants to bypass security controls (no "write code to disable this security check").
-6. Sharing organizational code with AI coding assistant providers that do not have an applicable data processing agreement.
-7. Using unapproved AI coding assistants for organizational work.
+6. Sharing organisational code with AI coding assistant providers that do not have an applicable data processing agreement.
+7. Using unapproved AI coding assistants for organisational work.
 
 ---
 
@@ -169,7 +169,7 @@ Report the following events to the security team immediately:
 - Credentials, tokens, or personal data accidentally included in a prompt.
 - An AI coding assistant that appears to have been influenced by a prompt injection.
 - AI-generated code that was committed containing a security vulnerability.
-- Unauthorized use of an unapproved AI coding assistant on organizational code.
+- Unauthorized use of an unapproved AI coding assistant on organisational code.
 
 ---
 

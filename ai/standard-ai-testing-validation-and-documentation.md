@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This standard defines the mandatory requirements for testing, validating, and documenting artificial intelligence systems throughout their lifecycle. It ensures that AI models deployed by the organization are technically sound, ethically validated, explainable, and compliant with applicable standards and regulations before and after deployment.
+This standard defines the mandatory requirements for testing, validating, and documenting artificial intelligence systems throughout their lifecycle. It ensures that AI models deployed by the organisation are technically sound, ethically validated, explainable, and compliant with applicable standards and regulations before and after deployment.
 
 The standard aligns with ISO/IEC 42001 §8, ISO/IEC 42006 (AI Impact Assessment), NIST AI RMF, EU AI Act Annex IV, and OWASP LLM Top 10.
 
@@ -26,7 +26,7 @@ The standard aligns with ISO/IEC 42001 §8, ISO/IEC 42006 (AI Impact Assessment)
 
 ## Scope
 
-Applies to all AI systems, machine learning models, generative AI tools, and automated decision-making systems developed, procured, or deployed by the organization. Includes both internally developed and third-party AI systems integrated into operational workflows.
+Applies to all AI systems, machine learning models, generative AI tools, and automated decision-making systems developed, procured, or deployed by the organisation. Includes both internally developed and third-party AI systems integrated into operational workflows.
 
 ---
 

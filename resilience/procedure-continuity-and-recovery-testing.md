@@ -93,7 +93,7 @@ Track corrective actions to closure. Update continuity plans, recovery plans, su
 | Issues Identified | Gaps, failures, or limitations found. |
 | Corrective Actions | Required remediation and owner. |
 | Approval | Role accepting result or residual risk. |
-| Evidence Location | Internal evidence reference for adopting organizations. |
+| Evidence Location | Internal evidence reference for adopting organisations. |
 
 ---
 

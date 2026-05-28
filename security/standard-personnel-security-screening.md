@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This standard defines the organization's minimum requirements for personnel security screening. It governs pre-employment background verification for all employees and contractors, with heightened requirements for roles with access to sensitive systems, data, or privileged accounts.
+This standard defines the organisation's minimum requirements for personnel security screening. It governs pre-employment background verification for all employees and contractors, with heightened requirements for roles with access to sensitive systems, data, or privileged accounts.
 
 A prior security incident in which a previously active account belonging to a departed individual was exploited underscores the critical importance of sound identity lifecycle controls. Personnel screening is the first preventive layer; it must be paired with rigorous onboarding and offboarding procedures to ensure that access rights accurately reflect current employment status throughout the personnel lifecycle.
 
@@ -85,8 +85,8 @@ Background check scope varies by jurisdiction. Criminal record checks and certai
 
 ## Contractor and third-party screening
 
-1. Contractors and third-party personnel must provide evidence of background screening conducted by their employer or agency before being granted access to the organization's systems or facilities.
-2. Where a third-party employer cannot confirm that screening has been conducted, the organization may:
+1. Contractors and third-party personnel must provide evidence of background screening conducted by their employer or agency before being granted access to the organisation's systems or facilities.
+2. Where a third-party employer cannot confirm that screening has been conducted, the organisation may:
  a. Conduct its own screening at the contractor's expense; or
  b. Restrict the contractor to lower-risk system access with appropriate technical controls applied.
 3. Third-party screening requirements are included in supplier contracts per the Third-Party Risk Standard.

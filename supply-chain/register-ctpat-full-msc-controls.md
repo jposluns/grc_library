@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register documents the organization's implementation status against the full set of CTPAT Minimum Security Criteria (2020 revision) across all security domains: physical security, personnel security, cargo security, conveyance security, business partner security, information technology, and procedural controls. It complements [`compliance/register-ctpat-it-controls.md`](../compliance/register-ctpat-it-controls.md), which focuses specifically on IT and cybersecurity criteria.
+This register documents the organisation's implementation status against the full set of CTPAT Minimum Security Criteria (2020 revision) across all security domains: physical security, personnel security, cargo security, conveyance security, business partner security, information technology, and procedural controls. It complements [`compliance/register-ctpat-it-controls.md`](../compliance/register-ctpat-it-controls.md), which focuses specifically on IT and cybersecurity criteria.
 
 **Programme authority:** U.S. Customs and Border Protection (CBP) 
 **UK equivalent:** Authorized Economic Operator to Security and Safety (AEO-S): see [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](../compliance/annex-aeo-s-it-cybersecurity-requirements.md) 
@@ -29,10 +29,10 @@ This register documents the organization's implementation status against the ful
 
 ## Programme overview
 
-CTPAT membership requires organizations to meet Minimum Security Criteria (MSC) across all applicable supply chain security domains. The 2020 MSC apply to all CTPAT entity types. This register is structured around the seven MSC security domains.
+CTPAT membership requires organisations to meet Minimum Security Criteria (MSC) across all applicable supply chain security domains. The 2020 MSC apply to all CTPAT entity types. This register is structured around the seven MSC security domains.
 
-**Organization CTPAT entity type:** *[Select: Importer; Exporter; Customs Broker; Freight Forwarder; Air, Sea, or Land Carrier; Contract Logistics Provider; Other]* 
-**CTPAT membership number:** *[Complete with organization's CBP-assigned number]* 
+**Organisation CTPAT entity type:** *[Select: Importer; Exporter; Customs Broker; Freight Forwarder; Air, Sea, or Land Carrier; Contract Logistics Provider; Other]* 
+**CTPAT membership number:** *[Complete with organisation's CBP-assigned number]* 
 **Current tier:** Certified / Validated / Status Member 
 **Last CBP SCSS validation:** *[Date]* 
 **Next annual profile update due:** *[Date]*

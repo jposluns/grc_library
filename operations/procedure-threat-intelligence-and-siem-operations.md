@@ -20,7 +20,7 @@
 
 ### 1.1 Purpose
 
-This procedure defines the operational processes for managing threat intelligence, operating the Security Information and Event Management (SIEM) platform, developing and maintaining correlation rules, conducting threat hunting, and sharing intelligence with sector peers. It establishes the practices by which threat intelligence is operationalized into detection capability and feeds back into continual improvement of the organization's security posture.
+This procedure defines the operational processes for managing threat intelligence, operating the Security Information and Event Management (SIEM) platform, developing and maintaining correlation rules, conducting threat hunting, and sharing intelligence with sector peers. It establishes the practices by which threat intelligence is operationalized into detection capability and feeds back into continual improvement of the organisation's security posture.
 
 The procedure is aligned with NIST SP 800-150 (Guide to Cyber Threat Information Sharing), MITRE ATT&CK Enterprise, ISO/IEC 27001:2022 A.5.7, COBIT 2019 DSS05, and CSA CCM v4.1 TVM (Threat and Vulnerability Management) and SEF (Security Incident Management) domain controls.
 
@@ -28,7 +28,7 @@ The procedure is aligned with NIST SP 800-150 (Guide to Cyber Threat Information
 
 1. Applies to all threat intelligence activities undertaken by the Security Operations Centre (SOC) and Threat Intelligence team, including collection, analysis, dissemination, and operationalization of intelligence.
 2. Covers the full SIEM platform lifecycle: workspace health, data connector management, correlation rule development and maintenance, and alert triage.
-3. Applies to threat hunting activities conducted within all environments under organizational control, including cloud platform, on-premises, and hybrid infrastructure.
+3. Applies to threat hunting activities conducted within all environments under organisational control, including cloud platform, on-premises, and hybrid infrastructure.
 4. Includes intelligence sharing with sector partners, government agencies, and industry consortia.
 
 ---
@@ -61,14 +61,14 @@ The procedure is aligned with NIST SP 800-150 (Guide to Cyber Threat Information
 
 ### 3.1 Source categories
 
-The organization maintains a diverse, layered threat intelligence programme drawing from the following source categories:
+The organisation maintains a diverse, layered threat intelligence programme drawing from the following source categories:
 
 | Source Category | Examples | Ingestion Method |
 | --- | --- | --- |
 | **Open Source Intelligence (OSINT)** | VirusTotal, Shodan, AlienVault OTX, abuse.ch, Threat Fox | Automated feed ingestion via TAXII/STIX or API |
 | **Commercial Vendor Feeds** | Contracted threat intelligence platforms providing curated IoCs, malware signatures, and adversary TTPs | API integration to SIEM and threat intelligence platform (TIP) |
 | **Government Advisories** | CISA Known Exploited Vulnerabilities (KEV) catalogue; NCSC (UK) threat advisories; CCCS (Canadian Centre for Cyber Security) alerts and advisories | Manual review and automated feed where available |
-| **Sector ISAC Memberships** | Relevant sector Information Sharing and Analysis Centre memberships per the organization's sector profile | Encrypted email, portal, or STIX/TAXII feed |
+| **Sector ISAC Memberships** | Relevant sector Information Sharing and Analysis Centre memberships per the organisation's sector profile | Encrypted email, portal, or STIX/TAXII feed |
 | **Dark Web and Criminal Forums** | Monitored via contracted threat intelligence service for credential exposure and pre-attack planning indicators | Vendor-curated alerting |
 | **Internal Telemetry** | SIEM-generated indicators from detected incidents, endpoint detection telemetry, DNS anomalies, and authentication failures | Automated from SIEM correlation output |
 | **Incident Response Findings** | Indicators and TTPs identified during post-incident reviews | Manual ingestion following PIR completion |
@@ -78,7 +78,7 @@ The organization maintains a diverse, layered threat intelligence programme draw
 All threat intelligence sources are assessed at initial onboarding and annually thereafter against:
 
 - **Reliability:** Track record of accurate, timely, and actionable intelligence.
-- **Relevance:** Alignment with the organization's threat landscape, industry, and geographic exposure.
+- **Relevance:** Alignment with the organisation's threat landscape, industry, and geographic exposure.
 - **Timeliness:** Speed of dissemination from discovery to feed availability.
 - **Cost-effectiveness:** Value delivered relative to subscription or operational cost.
 
@@ -213,7 +213,7 @@ All AI-assisted detections must be reviewed by a human analyst before any contai
 
 ### 7.1 Programme overview
 
-Threat hunting is the proactive, hypothesis-driven search for threat actor activity that has evaded automated detection controls. Hunting is conducted within all environments under organizational control and is distinct from reactive alert-driven investigation.
+Threat hunting is the proactive, hypothesis-driven search for threat actor activity that has evaded automated detection controls. Hunting is conducted within all environments under organisational control and is distinct from reactive alert-driven investigation.
 
 The threat hunting programme operates on a quarterly cadence with targeted hunts triggered by specific intelligence inputs between scheduled cycles.
 
@@ -237,7 +237,7 @@ Threat hunts follow a hypothesis-driven approach:
 | Q3 | Data staging and exfiltration preparation | Internal telemetry anomalies and insider threat indicators |
 | Q4 | Identity-based attacks and cloud platform misuse | Government advisories (CISA, CCCS, NCSC) and ATT&CK Cloud Matrix |
 
-Hunt themes may be adjusted based on current threat intelligence and organizational priorities, subject to SOC Manager approval.
+Hunt themes may be adjusted based on current threat intelligence and organisational priorities, subject to SOC Manager approval.
 
 ### 7.4 Hunt output feeding detection engineering
 
@@ -253,19 +253,19 @@ The threat hunting programme feeds directly into SIEM rule improvement:
 
 ### 8.1 Intelligence sharing
 
-The organization participates in structured intelligence sharing to contribute to collective sector defence and to receive early warning of threats affecting the organization's industry and geography.
+The organisation participates in structured intelligence sharing to contribute to collective sector defence and to receive early warning of threats affecting the organisation's industry and geography.
 
 | Sharing Programme | Description | Responsible Role | Frequency |
 | --- | --- | --- | --- |
 | **Sector ISAC Contribution** | Submission of validated, anonymized IoCs and TTP observations to relevant sector ISAC | Threat Intelligence Lead | Ongoing; minimum monthly submission |
 | **Government Sharing (CISA, CCCS, NCSC)** | Participation in government-coordinated sharing programmes where available; submission of significant incident indicators as appropriate | CISO / Threat Intelligence Lead | As warranted by incident or advisory |
-| **Peer Organization Sharing** | Bilateral sharing with peer organizations under executed information sharing agreements | CISO | Subject to active agreement |
+| **Peer Organization Sharing** | Bilateral sharing with peer organisations under executed information sharing agreements | CISO | Subject to active agreement |
 
 All outbound intelligence sharing must comply with the Traffic Light Protocol (TLP). The default sharing classification for outbound indicators is TLP:AMBER unless explicitly approved at a higher level by the CISO.
 
 ### 8.2 Escalation: nation-state and APT threats
 
-When threat intelligence or hunting activity indicates a likely nation-state actor or advanced persistent threat (APT) targeting the organization, the following escalation steps apply:
+When threat intelligence or hunting activity indicates a likely nation-state actor or advanced persistent threat (APT) targeting the organisation, the following escalation steps apply:
 
 1. **Immediate Notification:** Threat Intelligence Lead notifies the CISO within 1 hour of forming a credible hypothesis of nation-state or APT activity.
 2. **CISO Assessment:** CISO convenes a brief assessment within 2 hours to evaluate the intelligence basis and determine whether a formal incident should be declared.
