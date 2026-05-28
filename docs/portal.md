@@ -457,6 +457,8 @@ The Resilience Owner needs the business continuity framework and policy, the dis
 - [Business Continuity and Crisis Management Plan](../resilience/plan-business-continuity-and-crisis-management.md)
 - [Crisis Communication Plan](../resilience/plan-crisis-communication.md)
 - [IT Disaster Recovery Plan](../resilience/plan-it-disaster-recovery.md)
+- [Pandemic Continuity Plan](../resilience/plan-pandemic-continuity.md)
+- [Physical Site Continuity Plan](../resilience/plan-physical-site-continuity.md)
 
 ### Policy
 
@@ -484,6 +486,9 @@ The Resilience Owner needs the business continuity framework and policy, the dis
 ### Template
 
 - [Departmental Continuity Plan Template](../resilience/template-departmental-continuity-plan.md)
+- [Lessons Learned Template](../resilience/template-lessons-learned.md)
+- [Recovery Runbook Template](../resilience/template-recovery-runbook.md)
+- [Tabletop Exercise Template](../resilience/template-tabletop-exercise.md)
 
 ---
 
