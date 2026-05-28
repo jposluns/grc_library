@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register 
 **Document Type:** Register 
-**Version:** 1.8.6 
+**Version:** 1.9.0 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -49,6 +49,7 @@ All active repository documents should be Public.
 | Governance | Register | Key Terms and Definitions Register | [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md) | Governance Library Maintainer | Annual | Cross-domain terminology |
 | Governance | Register | Role Authority Register | [`governance/register-role-authority.md`](register-role-authority.md) | Governance Library Maintainer | Annual | Accountability, RACI, approval authority |
 | Governance | Matrix | Cross-Framework Alignment Matrix | [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md) | Control Framework Maintainer | 6 to 12 months | ISO, NIST, COBIT, CCM, OWASP, MITRE ATLAS |
+| Governance | Matrix | Reverse Framework Control Crosswalk Matrix | [`governance/matrix-reverse-framework-control-crosswalk.md`](matrix-reverse-framework-control-crosswalk.md) | Control Framework Maintainer | 6 to 12 months | ISO 27001, ISO 42001, NIST CSF 2.0, NIST SP 800-53, NIST AI RMF, CSA CCM v5, EU AI Act, GDPR, DORA, NIS 2, OWASP LLM Top 10, MITRE ATLAS, CTPAT, BASC, WCO SAFE |
 | Governance | Policy | Exception and Risk Acceptance Management Policy | [`governance/policy-exception-and-risk-acceptance-management.md`](policy-exception-and-risk-acceptance-management.md) | Chief Risk Officer | Annual | Exceptions, deviations, compensating controls, expiry |
 | Governance | Standard | Records Retention and Destruction Standard | [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) | Governance Library Maintainer | Annual | ISO 15489, NIST SP 800-88, GDPR Art 17, BASC 5-year retention |
 | Governance | Procedure | GRC Programme Management and Annual Review Procedure | [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md) | GRC Programme Manager | Annual | ISO 37301 §9, ISO 27001 §9.3, ISO 31000 §6.7, COBIT 2025 APO01 |
