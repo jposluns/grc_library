@@ -6,7 +6,7 @@
 **Date:** 2026-05-27 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`security/procedure-incident-response.md`](../security/procedure-incident-response.md) 
+**Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) 
 **Classification:** Public 
 **Category:** Operations 
 **Review Frequency:** Annual and upon material platform or regulatory change 
@@ -125,7 +125,7 @@ All SIEM correlation rules must:
 1. Be mapped to one or more MITRE ATT&CK tactics and techniques, with the mapping documented in the rule metadata.
 2. Define a clear detection hypothesis: what adversary behaviour or anomalous condition the rule is designed to detect.
 3. Specify expected data sources, log types, and field dependencies.
-4. Include a defined alert severity (Critical / High / Medium / Low) consistent with the incident severity framework in [`security/procedure-incident-response.md`](../security/procedure-incident-response.md).
+4. Include a defined alert severity (Critical / High / Medium / Low) consistent with the incident severity framework in [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md).
 5. Be tested against historical log data or a representative test dataset before deployment to production.
 6. Comply with the pre-go-live SIEM validation requirements in [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md) §3.1: all required alert categories must be configured and verified before any system enters production.
 
@@ -225,7 +225,7 @@ Threat hunts follow a hypothesis-driven approach:
 2. **Scope Definition:** Define the data sources, time range, and systems in scope for the hunt.
 3. **Data Collection and Analysis:** Query SIEM, endpoint telemetry, network flow data, and identity logs. Apply analytics, statistical analysis, and pattern matching to surface anomalies.
 4. **Finding Classification:** Classify findings as: Confirmed Threat, Suspicious Activity Requiring Investigation, False Positive / Benign Behaviour, or Detection Gap Identified.
-5. **Output and Handoff:** Confirmed threats are escalated as security incidents per [`security/procedure-incident-response.md`](../security/procedure-incident-response.md). Detection gaps are submitted to the Detection Engineer for new rule development. False positive findings are used to refine existing rules.
+5. **Output and Handoff:** Confirmed threats are escalated as security incidents per [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md). Detection gaps are submitted to the Detection Engineer for new rule development. False positive findings are used to refine existing rules.
 6. **Documentation:** All hunt activities are documented in the hunt register, including hypothesis, methodology, data sources queried, findings, and disposition.
 
 ### 7.3 Quarterly hunt cadence

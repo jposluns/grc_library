@@ -2,7 +2,7 @@
 
 **Document Title:** Resilience Domain README 
 **Document Type:** Register 
-**Version:** 1.1.0 
+**Version:** 1.1.1 
 **Date:** 2026-05-28 
 **Owner:** Resilience Owner 
 **Approving Authority:** Governance Library Maintainer 
@@ -34,7 +34,7 @@ This directory contains organization-neutral business continuity, disaster recov
 | Procedure | Crisis Management and Emergency Operations Activation Procedure | [`resilience/procedure-crisis-management-eoc-activation.md`](procedure-crisis-management-eoc-activation.md) |
 | Procedure | Business Impact Analysis Procedure | [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md) |
 | Procedure | Continuity and Recovery Testing Procedure | [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md) |
-| Procedure | Incident Response Procedure | [`resilience/procedure-incident-response.md`](procedure-incident-response.md) |
+| Procedure | Cross-Domain Incident Coordination Procedure | [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md) |
 | Procedure | Security Incident Reporting and Escalation Procedure | [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md) |
 | Procedure | Data Protection and Privacy Breach Response Procedure | [`resilience/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md) |
 | Procedure | Backup and Recovery Procedure | [`resilience/procedure-backup-and-recovery.md`](procedure-backup-and-recovery.md) |

@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register 
 **Document Type:** Register 
-**Version:** 1.8.1 
+**Version:** 1.8.2 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -81,7 +81,7 @@ All active repository documents should be Public.
 | Security | Standard | Privileged Access Management Standard | [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md) | Chief Information Security Officer | Annual | ISO 27001 A.5.18, NIST SP 800-53 AC-6, CSA CCM IAM-05 |
 | Security | Standard | Authentication and Password Management Standard | [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md) | Chief Information Security Officer | Annual | ISO 27001 A.8.5, NIST SP 800-63B, FIDO2, CSA CCM IAM-09 |
 | Security | Standard | Data Loss Prevention Standard | [`security/standard-data-loss-prevention.md`](../security/standard-data-loss-prevention.md) | Chief Information Security Officer | Annual | ISO 27001 A.8.11 to 12, NIST SP 800-53 SI-12, CSA CCM DSP-09 |
-| Security | Procedure | Incident Response Procedure | [`security/procedure-incident-response.md`](../security/procedure-incident-response.md) | Chief Information Security Officer | Annual | ISO 27001 A.5.24 to 26, NIST SP 800-61, GDPR Art 33 to 34, BASC |
+| Security | Procedure | Security Incident Response Procedure | [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) | Chief Information Security Officer | Annual | ISO 27001 A.5.24 to 26, NIST SP 800-61, GDPR Art 33 to 34, BASC |
 | Security | Procedure | Vulnerability Management Procedure | [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md) | Chief Information Security Officer | Annual | ISO 27001 A.8.8, NIST SP 800-40, CVSS v3.1 |
 | Security | Standard | Personnel Security Screening Standard | [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md) | Chief Information Security Officer | Annual | ISO 27001 A.6.1/A.6.5, NIST SP 800-53 PS, four-tier screening, jurisdiction |
 | Security | Standard | Penetration Testing and Red Team Standard | [`security/standard-penetration-testing-and-red-team.md`](../security/standard-penetration-testing-and-red-team.md) | Chief Information Security Officer | Annual | PTES, OWASP, CVSS v3.1, CREST, red team RoE, remediation SLA |
@@ -160,7 +160,7 @@ All active repository documents should be Public.
 | Resilience | Procedure | Crisis Management and Emergency Operations Activation Procedure | [`resilience/procedure-crisis-management-eoc-activation.md`](../resilience/procedure-crisis-management-eoc-activation.md) | Resilience Owner | Annual | Crisis activation, action tracking, deactivation |
 | Resilience | Procedure | Business Impact Analysis Procedure | [`resilience/procedure-business-impact-analysis.md`](../resilience/procedure-business-impact-analysis.md) | Resilience Owner | Annual | Impact analysis, dependencies, recovery priorities |
 | Resilience | Procedure | Continuity and Recovery Testing Procedure | [`resilience/procedure-continuity-and-recovery-testing.md`](../resilience/procedure-continuity-and-recovery-testing.md) | Resilience Owner | Annual | Testing, recovery validation, corrective actions |
-| Resilience | Procedure | Incident Response Procedure | [`resilience/procedure-incident-response.md`](../resilience/procedure-incident-response.md) | Resilience Owner | Annual | ISO 22301, incident response lifecycle, recovery, evidence |
+| Resilience | Procedure | Cross-Domain Incident Coordination Procedure | [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md) | Resilience Owner | Annual | ISO 22301, cross-domain coordination, handoffs, recovery, evidence |
 | Resilience | Procedure | Security Incident Reporting and Escalation Procedure | [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md) | Security Owner | Annual | Reporting, triage, escalation, evidence preservation |
 | Resilience | Procedure | Data Protection and Privacy Breach Response Procedure | [`resilience/procedure-data-protection-and-privacy-breach-response.md`](../resilience/procedure-data-protection-and-privacy-breach-response.md) | Privacy Owner | Annual | GDPR Arts 33 to 34, breach assessment, notification decision, remediation |
 | Resilience | Procedure | Backup and Recovery Procedure | [`resilience/procedure-backup-and-recovery.md`](../resilience/procedure-backup-and-recovery.md) | Resilience Owner | Annual | Backup, recovery validation, restoration evidence |

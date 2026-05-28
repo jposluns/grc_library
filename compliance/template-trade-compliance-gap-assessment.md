@@ -119,7 +119,7 @@ Complete the following fields for each gap assessment.
 | Multi-factor authentication for remote and privileged access | CTPAT IT-2; PIP-IT-1; AEO-S | [`security/procedure-identity-management.md`](../security/procedure-identity-management.md) | | | | | |
 | Vulnerability management and patch cycle | CTPAT IT-3; PIP-IT-5; AEO-S | [`operations/register-it-security-operations.md`](../operations/register-it-security-operations.md) | | | | | |
 | Network segmentation and firewall controls | CTPAT IT-4; PIP-IT-4; AEO-S | | | | | | |
-| Cyber incident response procedures | CTPAT IT-5; PIP-IT-6; AEO-S | [`resilience/procedure-incident-response.md`](../resilience/procedure-incident-response.md) | | | | | |
+| Cyber incident response procedures | CTPAT IT-5; PIP-IT-6; AEO-S | [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md) | | | | | |
 | Cybersecurity awareness training | CTPAT IT-6; PIP-IT-7; AEO-S | [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md) | | | | | |
 | IT asset inventory | CTPAT IT-7; PIP-IT-8; AEO-S | [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md) | | | | | |
 | Third-party IT security controls | CTPAT IT-8; PIP-IT-9; AEO-S | [`supply-chain/standard-third-party-risk.md`](../supply-chain/standard-third-party-risk.md) | | | | | |

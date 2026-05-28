@@ -6,7 +6,7 @@
 **Date:** 2026-05-27 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/procedure-incident-response.md`](../security/procedure-incident-response.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md) 
+**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md) 
 **Classification:** Public 
 **Category:** Privacy 
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
@@ -30,11 +30,11 @@ The procedure is aligned to ISO/IEC 27701:2019 §8.9, GDPR Articles 33 to 34, UK
 2. Covers trade and customs data breaches where personal data is embedded in supply chain or customs records, including BASC-certified logistics environments.
 3. Covers AI training data leakage where personal data used to train or fine-tune AI models is exposed to unauthorized parties.
 4. Applies across all jurisdictions in which the organization operates, including the European Union, United Kingdom, Canada (federal and provincial), China, Brazil, and United States.
-5. This procedure operates alongside [`security/procedure-incident-response.md`](../security/procedure-incident-response.md), which governs the technical containment and investigation lifecycle. This procedure governs the privacy-specific assessment, notification, and post-breach obligations.
+5. This procedure operates alongside [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), which governs the technical containment and investigation lifecycle. This procedure governs the privacy-specific assessment, notification, and post-breach obligations.
 
 ### 1.3 Relationship to the incident response procedure
 
-A personal data breach is also a security incident. The CISO and Privacy Officer are jointly responsible for initiating breach response as documented in [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md). Technical containment, evidence preservation, and eradication actions are executed per [`security/procedure-incident-response.md`](../security/procedure-incident-response.md). This procedure governs the parallel privacy-specific stream: breach severity assessment, regulatory notification determination, data subject notification, and privacy-focused post-breach review.
+A personal data breach is also a security incident. The CISO and Privacy Officer are jointly responsible for initiating breach response as documented in [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md). Technical containment, evidence preservation, and eradication actions are executed per [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md). This procedure governs the parallel privacy-specific stream: breach severity assessment, regulatory notification determination, data subject notification, and privacy-focused post-breach review.
 
 ---
 
@@ -44,7 +44,7 @@ A personal data breach is also a security incident. The CISO and Privacy Officer
 
 | Role | Responsibilities |
 | --- | --- |
-| **CISO** | Joint responsibility for initiating breach response. Leads the technical incident investigation and containment stream per [`security/procedure-incident-response.md`](../security/procedure-incident-response.md). Notified immediately for all P1 and P2 breaches. Coordinates with the Privacy Officer on notification decisions. |
+| **CISO** | Joint responsibility for initiating breach response. Leads the technical incident investigation and containment stream per [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md). Notified immediately for all P1 and P2 breaches. Coordinates with the Privacy Officer on notification decisions. |
 | **Chief Information Officer (CIO, acting DPO)** | Executive accountability for regulatory notification decisions. Approves all notifications to supervisory authorities. Signs off on data subject communications. Represents the organization before regulatory authorities. Notified immediately for all P1 and confirmed P2 privacy breaches. |
 | **Privacy Officer** | Operational ownership of the privacy breach response process. Manages the breach register, coordinates jurisdictional notification assessment, prepares regulatory notification content, and oversees the post-breach review. |
 | **Legal Counsel** | Determines notification obligations by jurisdiction. Advises on exemptions, litigation hold, evidence handling, and regulatory engagement strategy. Reviews and approves all regulatory and data subject notifications before submission. |
@@ -72,7 +72,7 @@ Severity is reassessed at each phase of the breach response lifecycle. Any team 
 
 ### 3.1 Evidence preservation obligation
 
-For all P1 incidents, evidence preservation takes priority. Systems must not be isolated, reimaged, or modified without direction from the Incident Commander as defined in [`security/procedure-incident-response.md`](../security/procedure-incident-response.md) §5.1. The Privacy Officer must be briefed on evidence status before any containment action that could affect the completeness of the privacy impact assessment.
+For all P1 incidents, evidence preservation takes priority. Systems must not be isolated, reimaged, or modified without direction from the Incident Commander as defined in [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §5.1. The Privacy Officer must be briefed on evidence status before any containment action that could affect the completeness of the privacy impact assessment.
 
 ---
 
@@ -109,7 +109,7 @@ The assessment is documented and retained as part of the breach record.
 
 ### 5.1 Containment principles
 
-Containment actions for personal data breaches follow the containment framework in [`security/procedure-incident-response.md`](../security/procedure-incident-response.md) §5. The following privacy-specific principles additionally apply:
+Containment actions for personal data breaches follow the containment framework in [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §5. The following privacy-specific principles additionally apply:
 
 - **Do not destroy evidence.** No system, log, backup, or data record relevant to the breach may be deleted, overwritten, or modified pending the privacy impact assessment and regulatory notification determination.
 - **Scope isolation, not deletion.** Containment focuses on restricting further access to or exposure of personal data; premature deletion of breach-related data is prohibited unless specifically directed by Legal Counsel to meet a legal obligation.
@@ -297,8 +297,8 @@ The following metrics are tracked and reported to the CIO and CISO at the quarte
 | Regulatory breach notification: China | PIPL Art. 57 |
 | Regulatory breach notification: Brazil | LGPD Arts. 48 to 49 |
 | Regulatory breach notification: US | State breach notification laws; refer to [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md) |
-| Security incident response | ISO/IEC 27035; NIST SP 800-61 Rev 2; [`security/procedure-incident-response.md`](../security/procedure-incident-response.md) |
-| Evidence preservation | ISO/IEC 27037; [`security/procedure-incident-response.md`](../security/procedure-incident-response.md) §8 |
+| Security incident response | ISO/IEC 27035; NIST SP 800-61 Rev 2; [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) |
+| Evidence preservation | ISO/IEC 27037; [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §8 |
 | SIEM alert integration | CSA CCM v5 SEF-02; [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) |
 | Record keeping and retention | ISO/IEC 27701 §8.9; [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) |
 | AI training data leakage | ISO/IEC 27701 §8.9; [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) |

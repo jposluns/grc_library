@@ -1,16 +1,16 @@
-# Incident Response Procedure
+# Cross-Domain Incident Coordination Procedure
 
-**Document Title:** Incident Response Procedure 
+**Document Title:** Cross-Domain Incident Coordination Procedure 
 **Document Type:** Procedure 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** Security Owner 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
+**Owner:** Resilience Owner 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](../security/sop-security-ticket-reporting-scheme.md) 
+**Related Documents:** [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](../security/sop-security-ticket-reporting-scheme.md) 
 **Classification:** Public 
 **Category:** Resilience 
 **Review Frequency:** Annual and upon material incident, threat, system, supplier, AI, privacy, or regulatory change 
-**Repository Path:** [`resilience/procedure-incident-response.md`](procedure-incident-response.md) 
+**Repository Path:** [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md) 
 **Confidentiality:** Public 
 **License:** CC0 1.0 Universal 
 
@@ -18,13 +18,15 @@
 
 ## Purpose
 
-This procedure defines a reusable incident response lifecycle for identifying, triaging, containing, eradicating, recovering from, documenting, and learning from security, privacy, technology, supplier, operational, and AI-related incidents.
+This procedure defines how an incident is coordinated across domains when more than one response stream is involved: information security, privacy, supplier, AI, operations, communications, legal, and executive. It provides the common lifecycle, handoff points, and shared expectations that the domain-specific procedures build on.
+
+This procedure does not replace the domain-specific procedures. Technical security incident handling is governed by [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md). Personal data breach assessment and regulatory notification are governed by [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md). This procedure governs the joint, cross-stream coordination.
 
 ---
 
 ## Scope
 
-This procedure applies to incidents affecting confidentiality, integrity, availability, privacy, safety, operations, suppliers, cloud services, AI systems, logs, identities, data stores, applications, infrastructure, or critical business services.
+This procedure applies whenever an incident triggers, or is likely to trigger, response activity in more than one domain. Typical triggers include personal data exposure during a security incident, supplier-originated incidents with downstream customer impact, AI system incidents that affect personal data or operational services, and operational incidents that escalate to crisis governance. Single-domain incidents continue to be handled within the responsible domain's procedure.
 
 ---
 

@@ -6,7 +6,7 @@
 **Date:** 2026-05-27 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-incident-response.md`](../security/procedure-incident-response.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md) 
+**Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md) 
 **Classification:** Public 
 **Category:** Operations 
 **Review Frequency:** Annual and upon material platform or regulatory change 

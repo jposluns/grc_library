@@ -6,7 +6,7 @@
 **Date:** 2026-05-27 
 **Owner:** Privacy Owner 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`resilience/procedure-incident-response.md`](procedure-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md) 
+**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md) 
 **Classification:** Public 
 **Category:** Resilience 
 **Review Frequency:** Annual and upon material privacy, data protection, incident, AI, supplier, or regulatory change 
