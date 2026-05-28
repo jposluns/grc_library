@@ -12,11 +12,11 @@
 **Category:** Developer Security
 **Review Frequency:** 6 to 12 months and upon material threat, tooling, or framework change
 **Confidentiality:** Public
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 
 ---
 
-## What Are These Files?
+## What are these files?
 
 The `claude-rules/` directory contains a set of Markdown files designed to be loaded into [Claude Code](https://docs.anthropic.com/en/docs/claude-code) sessions as security context. When Claude Code reads these files, either via a `CLAUDE.md` in your project root or via explicit `/add-files`, they encode security and compliance requirements as persistent context that the AI coding assistant applies during development.
 
@@ -24,12 +24,12 @@ These are **draggable rule files**: copy any subset into your project's Claude C
 
 ---
 
-## Directory Structure
+## Directory structure
 
 ```text
 claude-rules/
 ├── README.md                   This file
-├── CLAUDE.md                   Root file — drag this into a project for full coverage
+├── CLAUDE.md Root file: drag this into a project for full coverage
 ├── core/
 │   ├── secrets.md              Never hardcode credentials, keys, or tokens
 │   ├── authentication.md       Secure authentication and session requirements
@@ -53,9 +53,9 @@ claude-rules/
 
 ---
 
-## How to Use
+## How to use
 
-### Option 1: Copy CLAUDE.md to Your Project Root
+### Option 1: copy claude.md to your project root
 
 The simplest approach. Copy `CLAUDE.md` into your project root. Claude Code will automatically read it at session start. It imports the most critical rules across all categories and includes instructions for Claude to fetch supplementary rules from external sources.
 
@@ -63,7 +63,7 @@ The simplest approach. Copy `CLAUDE.md` into your project root. Claude Code will
 cp path/to/claude-rules/CLAUDE.md ./CLAUDE.md
 ```
 
-### Option 2: Selective Rule Files
+### Option 2: selective rule files
 
 Copy only the rule files relevant to your project:
 
@@ -80,13 +80,13 @@ Then reference them in your project's `CLAUDE.md`:
 See .claude/rules/ for security requirements that apply to all code in this project.
 ```
 
-### Option 3: Add to Existing CLAUDE.md
+### Option 3: add to existing claude.md
 
 Copy the content of specific rule files into your existing `CLAUDE.md` under a `## Security Requirements` heading.
 
 ---
 
-## Rule Files and Their Scope
+## Rule files and their scope
 
 | File | When to Use |
 | --- | --- |
@@ -108,7 +108,7 @@ Copy the content of specific rule files into your existing `CLAUDE.md` under a `
 
 ---
 
-## Recursive External Fetch
+## Recursive external fetch
 
 `CLAUDE.md` instructs Claude Code to fetch supplementary rule sets from external repositories at session start using WebFetch. These external sources are fetched and applied in addition to the local rules. If a fetch fails, the local rules remain in force.
 
@@ -120,11 +120,11 @@ This means a single `CLAUDE.md` in your project root gives Claude Code access to
 
 ---
 
-## External References
+## External references
 
 These rule files draw on and are aligned to the following external projects and standards. All are publicly available and free to reference.
 
-### AI Coding Assistant Rule Repositories
+### AI coding assistant rule repositories
 
 **TikiTribe: Secure Coding Rules for AI Coding Assistants**
 - Repository: `https://github.com/TikiTribe/claude-secure-coding-rules`
@@ -148,7 +148,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 ---
 
-### OWASP Projects
+### OWASP projects
 
 **OWASP Top 10 for Web Applications (2021 and 2025)**
 - URL: `https://owasp.org/www-project-top-10/`
@@ -180,7 +180,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 ---
 
-### NIST Frameworks
+### NIST frameworks
 
 **NIST SSDF: Secure Software Development Framework (SP 800-218)**
 - URL: `https://csrc.nist.gov/pubs/sp/800/218/final`
@@ -199,7 +199,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 ---
 
-### MITRE Frameworks
+### MITRE frameworks
 
 **MITRE ATLAS (Adversarial Threat Landscape for AI Systems)**
 - URL: `https://atlas.mitre.org/`
@@ -213,7 +213,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 ---
 
-### Government and Standards Body Guidance
+### Government and standards body guidance
 
 **CISA Secure by Design**
 - URL: `https://www.cisa.gov/resources-tools/resources/secure-by-design`
@@ -237,7 +237,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 ---
 
-### Cloud Security Alliance
+### Cloud security alliance
 
 **CSA Cloud Controls Matrix (CCM) v4.0**
 - URL: `https://cloudsecurityalliance.org/research/cloud-controls-matrix/`
@@ -251,11 +251,11 @@ These rule files draw on and are aligned to the following external projects and 
 
 ---
 
-## Licence
+## License
 
 All content in this directory is released under CC0 1.0 Universal. Copy, modify, and redistribute freely.
 
-External repositories (TikiTribe, Wiz, Kariedo) maintain their own licences: check each repository before redistribution.
+External repositories (TikiTribe, Wiz, Kariedo) maintain their own licenses: check each repository before redistribution.
 
 ---
 

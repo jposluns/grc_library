@@ -4,21 +4,21 @@ These rules apply to all TypeScript and JavaScript code including browser, Node.
 
 ---
 
-## Secrets: TypeScript/Node Specific
+## Secrets: typescript/node specific
 
 ```typescript
-// NEVER — hardcoded values
+// NEVER: hardcoded values
 const apiKey = "sk-...";
 const dbPassword = "password123";
 
-// NEVER — in .env files committed to source control
+// NEVER: in .env files committed to source control
 // (but .env files are permitted as gitignored local dev files)
 
-// CORRECT — environment variables with validation at startup
+// CORRECT: environment variables with validation at startup
 const apiKey = process.env.API_KEY;
 if (!apiKey) throw new Error("API_KEY environment variable is not set");
 
-// CORRECT — accessed via secrets management SDK
+// CORRECT: accessed via secrets management SDK
 // Use the cloud provider SDK with managed identity
 ```
 
@@ -26,16 +26,16 @@ Browser context: secrets must never appear in client-side JavaScript, even in en
 
 ---
 
-## Authentication Token Storage
+## Authentication token storage
 
 ```typescript
-// NEVER — localStorage (accessible to all JavaScript on the page, XSS risk)
+// NEVER: localStorage (accessible to all JavaScript on the page, XSS risk)
 localStorage.setItem('authToken', token);
 
-// NEVER — sessionStorage for sensitive tokens (same XSS risk)
+// NEVER: sessionStorage for sensitive tokens (same XSS risk)
 sessionStorage.setItem('authToken', token);
 
-// CORRECT — httpOnly cookie (inaccessible to JavaScript)
+// CORRECT: httpOnly cookie (inaccessible to JavaScript)
 // Set server-side:
 res.cookie('session', token, {
   httpOnly: true,
@@ -44,50 +44,50 @@ res.cookie('session', token, {
   maxAge: 3600000        // 1 hour
 });
 
-// CORRECT — in-memory for SPAs (lost on page refresh, shorter lifespan)
+// CORRECT: in-memory for SPAs (lost on page refresh, shorter lifespan)
 // Store access token in memory; use httpOnly cookie for refresh token
 ```
 
 ---
 
-## SQL Injection: Node Specific
+## SQL injection: node specific
 
 ```typescript
-// NEVER — string concatenation or template literals in queries
+// NEVER: string concatenation or template literals in queries
 const query = `SELECT * FROM users WHERE id = ${userId}`;
 db.query(query);
 
-// CORRECT — parameterized with node-postgres (pg)
+// CORRECT: parameterized with node-postgres (pg)
 const result = await client.query(
   'SELECT * FROM users WHERE id = $1',
   [userId]
 );
 
-// CORRECT — Prisma ORM (parameterizes automatically)
+// CORRECT: Prisma ORM (parameterizes automatically)
 const user = await prisma.user.findUnique({ where: { id: userId } });
 
-// NEVER — Prisma raw with interpolated values
+// NEVER: Prisma raw with interpolated values
 await prisma.$queryRaw`SELECT * FROM users WHERE id = ${userId}`;  // Safe (tagged template)
 await prisma.$queryRawUnsafe(`SELECT * FROM users WHERE id = ${userId}`);  // UNSAFE
 ```
 
 ---
 
-## XSS Prevention: TypeScript Specific
+## XSS prevention: typescript specific
 
 ```typescript
-// NEVER — innerHTML with user data
+// NEVER: innerHTML with user data
 element.innerHTML = userInput;
 document.write(userInput);
 
-// CORRECT — textContent (safe, no HTML parsing)
+// CORRECT: textContent (safe, no HTML parsing)
 element.textContent = userInput;
 
-// CORRECT — DOMPurify for controlled HTML rendering
+// CORRECT: DOMPurify for controlled HTML rendering
 import DOMPurify from 'dompurify';
 element.innerHTML = DOMPurify.sanitize(userInput);
 
-// React — safe by default with JSX, dangerous with:
+// React: safe by default with JSX, dangerous with:
 // NEVER:
 <div dangerouslySetInnerHTML={{ __html: userInput }} />
 // Only permitted with sanitized input:
@@ -96,33 +96,33 @@ element.innerHTML = DOMPurify.sanitize(userInput);
 
 ---
 
-## Command Injection: Node Specific
+## Command injection: node specific
 
 ```typescript
-// NEVER — shell: true with user input
+// NEVER: shell: true with user input
 import { exec, spawn } from 'child_process';
 exec(`process ${userInput}`);  // Command injection
 
-// NEVER — eval with any user data
+// NEVER: eval with any user data
 eval(userCode);
 new Function(userCode)();
 
-// CORRECT — spawn with argument array (shell: false is the default)
+// CORRECT: spawn with argument array (shell: false is the default)
 spawn('process', [userInput]);
 ```
 
 ---
 
-## Cryptography: Node Specific
+## Cryptography: node specific
 
 ```typescript
-// CORRECT — AES-256-GCM via Node crypto
+// CORRECT: AES-256-GCM via Node crypto
 import { createCipheriv, randomBytes } from 'crypto';
 const key = randomBytes(32);  // 256-bit key
 const iv = randomBytes(12);   // 96-bit nonce
 const cipher = createCipheriv('aes-256-gcm', key, iv);
 
-// CORRECT — password hashing with argon2 or bcryptjs
+// CORRECT: password hashing with argon2 or bcryptjs
 import * as argon2 from 'argon2';
 const hash = await argon2.hash(password);
 const valid = await argon2.verify(hash, password);
@@ -132,20 +132,20 @@ Math.random()                     // Not cryptographically secure
 crypto.createHash('md5')          // Broken for security use
 crypto.createHash('sha1')         // Deprecated for security use
 
-// CORRECT — cryptographically secure random
+// CORRECT: cryptographically secure random
 import { randomBytes } from 'crypto';
 const token = randomBytes(32).toString('hex');
 ```
 
 ---
 
-## SSRF: Node Specific
+## SSRF: node specific
 
 ```typescript
-// NEVER — fetching user-supplied URLs without validation
+// NEVER: fetching user-supplied URLs without validation
 const response = await fetch(req.query.callbackUrl);
 
-// CORRECT — validate against allowlist before fetching
+// CORRECT: validate against allowlist before fetching
 const ALLOWED_HOSTS = ['api.example.com', 'partner.example.com'];
 const url = new URL(req.query.callbackUrl);
 if (!ALLOWED_HOSTS.includes(url.hostname)) {
@@ -156,14 +156,14 @@ const response = await fetch(url.toString());
 
 ---
 
-## Dependency Security
+## Dependency security
 
 ```json
-// package.json — use exact versions for production dependencies
+// package.json: use exact versions for production dependencies
 {
   "dependencies": {
-    "express": "4.18.2",     // Exact — correct
-    "lodash": "^4.17.21"     // Range — acceptable but lock with lockfile
+ "express": "4.18.2", // Exact: correct
+ "lodash": "^4.17.21" // Range: acceptable but lock with lockfile
   }
 }
 ```
@@ -172,13 +172,13 @@ Always commit `package-lock.json` or `yarn.lock`. Run `npm audit` or `yarn audit
 
 ---
 
-## HTTP Security Headers (Express)
+## HTTP security headers (express)
 
 ```typescript
 import helmet from 'helmet';
 app.use(helmet());  // Sets: CSP, X-Frame-Options, HSTS, X-Content-Type-Options, etc.
 
-// Additional — strict CSP
+// Additional: strict CSP
 app.use(helmet.contentSecurityPolicy({
   directives: {
     defaultSrc: ["'self'"],
@@ -192,7 +192,7 @@ app.use(helmet.contentSecurityPolicy({
 
 ---
 
-## SAST Tools for TypeScript/JavaScript
+## SAST tools for typescript/javascript
 
 Recommended: Semgrep (with JS/TS security rulesets), ESLint with security plugins (`eslint-plugin-security`, `eslint-plugin-no-secrets`). Run in CI/CD.
 
@@ -203,7 +203,7 @@ eslint --plugin security --rule "security/detect-..." .
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 Supplements `core/` rules. TypeScript/JavaScript controls implement:
 - OWASP ASVS V5 (Input), V6 (Crypto), V3 (Session), V14 (Config)

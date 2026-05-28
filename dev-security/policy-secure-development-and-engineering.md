@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material framework or regulatory change 
 **Repository Path:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -37,16 +37,16 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
-### Executive Oversight
+### Executive oversight
 
 1. The Chief Information Officer (CIO) is accountable for secure development governance and ensuring integration with enterprise risk management.
 2. The Chief Information Security Officer (CISO) enforces application security controls and maintains the secure SDLC framework.
 3. The Software Engineering and Security Architecture teams jointly manage design assurance, security testing, and peer review programmes.
 4. The Enterprise Risk Committee (ERC) receives quarterly reports on development security posture, vulnerabilities, and audit findings.
 
-### Roles and Responsibilities
+### Roles and responsibilities
 
 | Role | Responsibility |
 | --- | --- |
@@ -60,9 +60,9 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 ---
 
-## Policy Statements
+## Policy statements
 
-### 1. Secure Development Lifecycle (SDLC)
+### 1. Secure development lifecycle (SDLC)
 
 1.1 All applications must follow a defined SDLC that incorporates security checkpoints at each phase: planning, design, development, testing, deployment, and maintenance.
 
@@ -70,7 +70,7 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 1.3 Project plans must include threat modelling, risk assessments, and secure design reviews.
 
-### 2. Code Management and Version Control
+### 2. Code management and version control
 
 2.1 All source code shall reside in approved version control repositories with enforced access controls and audit logging.
 
@@ -78,7 +78,7 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 2.3 Code branching strategies must separate development, testing, and production releases with automated build validation pipelines.
 
-### 3. Secure Coding Practices
+### 3. Secure coding practices
 
 3.1 Developers shall follow OWASP ASVS v5 and language-specific secure coding standards.
 
@@ -88,7 +88,7 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 3.4 Input validation, output encoding, and proper error handling must be enforced for all applications.
 
-### 4. AI-Generated Code Governance
+### 4. AI-generated code governance
 
 4.1 AI-assisted code generation tools must be approved and monitored by the CISO.
 
@@ -98,17 +98,17 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 4.4 AI-generated libraries or logic blocks must be tagged for traceability and be auditable within code repositories.
 
-### 5. Open-Source and Third-Party Component Management
+### 5. Open-source and third-party component management
 
 5.1 Open-source libraries must be vetted using approved dependency scanning tools.
 
-5.2 Only components with permissive and compatible licences (e.g., MIT, Apache 2.0) may be used.
+5.2 Only components with permissive and compatible licenses (e.g., MIT, Apache 2.0) may be used.
 
 5.3 Vulnerable components must be patched or replaced within defined SLAs: Critical, 7 days; High, 14 days.
 
 5.4 A Software Bill of Materials (SBOM) shall be maintained for all applications per NIST Executive Order 14028 guidance.
 
-### 6. Testing and Validation
+### 6. Testing and validation
 
 6.1 Static Application Security Testing (SAST), Dynamic Application Security Testing (DAST), and Software Composition Analysis (SCA) are mandatory for all releases.
 
@@ -118,7 +118,7 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 6.4 Test evidence and reports must be stored in the quality assurance repository for audit review.
 
-### 7. Peer Review and Approval
+### 7. Peer review and approval
 
 7.1 All code changes must be peer-reviewed by at least one qualified developer and one security reviewer.
 
@@ -126,7 +126,7 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 7.3 Review comments and approvals must be logged within the version control platform.
 
-### 8. Continuous Integration and Deployment (CI/CD)
+### 8. Continuous integration and deployment (CI/CD)
 
 8.1 CI/CD pipelines shall include automated security scanning, dependency checks, and signature validation.
 
@@ -134,7 +134,7 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 8.3 Build environments shall be isolated and signed artefacts must be validated before release.
 
-### 9. Secure Configuration and Environment Management
+### 9. Secure configuration and environment management
 
 9.1 Development environments shall mirror production security configurations where feasible.
 
@@ -142,7 +142,7 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 9.3 Secrets and credentials must be stored in approved secrets management systems with role-based access.
 
-### 10. Continual Improvement and Metrics
+### 10. Continual improvement and metrics
 
 10.1 Development teams shall track metrics including vulnerability density, code coverage, and remediation time.
 
@@ -152,7 +152,7 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

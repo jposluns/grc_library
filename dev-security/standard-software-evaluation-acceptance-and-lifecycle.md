@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material platform or regulatory change 
 **Repository Path:** [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -33,7 +33,7 @@ Applies to:
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -46,7 +46,7 @@ Applies to:
 
 ---
 
-## 1. Evaluation and Testing
+## 1. Evaluation and testing
 
 All new or replacement software must undergo structured evaluation and pre-deployment testing including:
 
@@ -59,7 +59,7 @@ Evaluation environments must be isolated from production systems. Test results a
 
 ---
 
-## 2. Security and Compliance Review
+## 2. Security and compliance review
 
 Before approval, all software must undergo a security and compliance review validating:
 
@@ -72,7 +72,7 @@ CSA CCM AIS, SEF, and TVM domains apply to all evaluations.
 
 ---
 
-## 3. Acceptance and Approval for Use
+## 3. Acceptance and approval for use
 
 Software is formally approved through the Acceptance Into Service Policy and process. The AIS checklist must include:
 
@@ -85,7 +85,7 @@ Formal sign-off is required by the CIO or delegated authority before enterprise 
 
 ---
 
-## 4. Deployment and Configuration Control
+## 4. Deployment and configuration control
 
 All deployment activities must comply with the Change Management and Configuration Control Procedure. Requirements include:
 
@@ -95,7 +95,7 @@ All deployment activities must comply with the Change Management and Configurati
 
 ---
 
-## 5. Patch and Update Management
+## 5. Patch and update management
 
 Software patching and updates follow the Vulnerability and Patch Management Standard. Key requirements:
 
@@ -105,11 +105,11 @@ Software patching and updates follow the Vulnerability and Patch Management Stan
 
 ---
 
-## 6. Software Inventory and Version Control
+## 6. Software inventory and version control
 
 All approved software must be registered in the Asset Inventory Register. Inventory records include:
 
-- Product name, version, and licence details.
+- Product name, version, and license details.
 - Responsible owner (role title).
 - Last review date and next review date.
 
@@ -117,7 +117,7 @@ Unauthorised software detected via automated compliance tools must be removed or
 
 ---
 
-## 7. Ongoing Review and Retirement
+## 7. Ongoing review and retirement
 
 Each software product must undergo annual operational and compliance review. Evaluation includes:
 
@@ -129,7 +129,7 @@ Obsolete or unsupported software must be retired following the AIS lifecycle ter
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

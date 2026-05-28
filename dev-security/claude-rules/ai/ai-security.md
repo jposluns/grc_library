@@ -4,13 +4,13 @@ Apply these rules to all code that calls LLMs, uses AI APIs, processes AI-genera
 
 ---
 
-## Core Principle: AI Output Is Untrusted Input
+## Core principle: AI output is untrusted input
 
 Treat every LLM response, every model output, and every AI-generated value as if it came from an untrusted external user. Validate it. Encode it. Never execute it directly.
 
 ---
 
-## Prompt Injection Defense (OWASP LLM01)
+## Prompt injection defense (OWASP LLM01)
 
 **Direct prompt injection**: user input reaching the system prompt:
 - Never concatenate raw user input into system prompts
@@ -28,7 +28,7 @@ Treat every LLM response, every model output, and every AI-generated value as if
 
 ---
 
-## Sensitive Information Disclosure (OWASP LLM02)
+## Sensitive information disclosure (OWASP LLM02)
 
 - Never include secrets, credentials, API keys, or PII in prompts sent to external AI APIs
 - Implement PII detection and redaction before sending user-generated content to AI services
@@ -40,19 +40,19 @@ Treat every LLM response, every model output, and every AI-generated value as if
 
 ---
 
-## Supply Chain and Model Source Security (OWASP LLM03)
+## Supply chain and model source security (OWASP LLM03)
 
 - Source models and model APIs only from approved, verified providers
 - Verify model checksums/signatures when downloading open-weight models
-- Document all model dependencies (model name, version, provider, licence, data provenance where known)
+- Document all model dependencies (model name, version, provider, license, data provenance where known)
 - Never use a model that has been fine-tuned on unverified data for production applications handling Confidential data
-- Assess and document model licences: some open-weight models have usage restrictions
+- Assess and document model licenses: some open-weight models have usage restrictions
 
 **References:** OWASP LLM03, OWASP LLM06 (Excessive Agency)
 
 ---
 
-## Excessive Agency and Authorization (OWASP LLM06)
+## Excessive agency and authorization (OWASP LLM06)
 
 - **Minimize tools and permissions granted to AI agents**: give the model access only to tools it needs for the current task
 - Every tool that writes, deletes, or modifies data must require **human confirmation** before execution
@@ -65,7 +65,7 @@ Treat every LLM response, every model output, and every AI-generated value as if
 
 ---
 
-## Overreliance and Output Validation (OWASP LLM09)
+## Overreliance and output validation (OWASP LLM09)
 
 - Validate AI output before using it in downstream operations, especially:
  - Code generation → run SAST and security review
@@ -79,7 +79,7 @@ Treat every LLM response, every model output, and every AI-generated value as if
 
 ---
 
-## Input and Output Rate Limiting
+## Input and output rate limiting
 
 - Rate-limit all AI API endpoints: per user, per IP, and globally
 - Implement token-count tracking to prevent cost-exploitable prompt amplification
@@ -88,7 +88,7 @@ Treat every LLM response, every model output, and every AI-generated value as if
 
 ---
 
-## AI Logging Requirements
+## AI logging requirements
 
 Every AI-powered endpoint must log:
 - Request ID and session ID (not the full prompt in production)
@@ -103,7 +103,7 @@ Route all AI logs to the SIEM for anomaly detection.
 
 ---
 
-## Adversarial Testing Requirements
+## Adversarial testing requirements
 
 Before any AI feature reaches production, adversarial testing must include:
 - Direct prompt injection attempts using standard jailbreak and injection payloads
@@ -119,7 +119,7 @@ Before any AI feature reaches production, adversarial testing must include:
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Requirement | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM | NIST AI RMF |
 | --- | --- | --- | --- | --- |

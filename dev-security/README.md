@@ -12,7 +12,7 @@
 **Review Frequency:** 6 to 12 months and upon material threat, tooling, or framework change 
 **Repository Path:** [`dev-security/README.md`](README.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -24,7 +24,7 @@ The `claude-rules/` subdirectory provides a set of draggable CLAUDE.md and rule 
 
 ---
 
-## Active Documents
+## Active documents
 
 | Type | Title | Path |
 | --- | --- | --- |
@@ -41,7 +41,7 @@ The `claude-rules/` subdirectory provides a set of draggable CLAUDE.md and rule 
 
 ---
 
-## Domain Coverage
+## Domain coverage
 
 ### Standards
 Developer-facing security requirements covering:
@@ -54,16 +54,16 @@ Developer-facing security requirements covering:
 ### Registers
 - **Compliance controls and gap register**: template for tracking development security control gaps against applicable standards and frameworks
 
-### claude-rules/
+### Claude-rules/
 Draggable rule files for Claude Code sessions and AI-assisted development environments. See [`dev-security/claude-rules/README.md`](claude-rules/README.md) for usage guidance.
 
 ---
 
-## External Projects and Reference Sources
+## External projects and reference sources
 
 This domain draws on and references the following external projects. These references are for alignment and awareness; their content is not reproduced here.
 
-### OWASP Projects
+### OWASP projects
 - **OWASP Top 10**: Ten most critical web application security risks
 - **OWASP LLM Top 10**: Ten most critical risks specific to Large Language Model applications
 - **OWASP ASVS** (Application Security Verification Standard): Detailed security requirements for web applications across three levels of assurance
@@ -71,7 +71,7 @@ This domain draws on and references the following external projects. These refer
 - **OWASP Cheat Sheet Series**: Concise developer-facing guidance on specific security topics (authentication, session management, injection, etc.)
 - **OWASP SAMM** (Software Assurance Maturity Model): Framework for assessing and improving software security practices
 
-### AI and Agentic Development References
+### AI and agentic development references
 - **OWASP Generative AI Security Project**: Risks and controls specific to generative AI applications and pipelines: `https://genai.owasp.org/`
 - **OWASP LLM Top 10**: Ten most critical risks for Large Language Model applications: `https://owasp.org/www-project-top-10-for-large-language-model-applications/`
 - **OWASP MCP Top 10**: Security risks for Model Context Protocol integrations: `https://owasp.org/www-project-mcp-top-10/`
@@ -81,18 +81,18 @@ This domain draws on and references the following external projects. These refer
 - **Google SAIF**: Secure AI Framework for secure development, deployment, execution, and monitoring: `https://saif.google/`
 - **TikiTribe**: Open-source rule sets for AI coding assistants; covers AI, agent, MCP, and RAG security; aligns to OWASP LLM Top 10, OWASP MCP Top 10, MITRE ATLAS, and NIST AI RMF: `https://github.com/TikiTribe/claude-secure-coding-rules`
 
-### AI Coding Assistant Rule Repositories
+### AI coding assistant rule repositories
 - **Wiz Secure Rules Files**: Baseline security rules compatible with Claude Code, Cursor, and Copilot; organized by language and framework: `https://github.com/wiz-sec-public/secure-rules-files`
 - **Kariedo Claude Code Security Rules**: Modular rules for Claude Code using `@`-syntax import system: `https://github.com/kariedo/claude-code-security-rules`
 
-### DevSecOps References
+### DevSecOps references
 - **NIST SP 800-218**: Secure Software Development Framework (SSDF); maps to NIST CSF and provides secure development practices: `https://csrc.nist.gov/pubs/sp/800/218/final`
 - **SLSA**: Supply-chain Levels for Software Artifacts; framework for software supply-chain integrity levels: `https://slsa.dev/`
 - **CIS Benchmarks**: Configuration security baselines for OS, container, cloud, and application platforms: `https://www.cisecurity.org/cis-benchmarks`
 - **CISA Secure by Design**: Principles for shifting security burden to manufacturers; secure default configuration: `https://www.cisa.gov/resources-tools/resources/secure-by-design`
 - **MITRE CWE Top 25**: Most dangerous software weaknesses from the Common Weakness Enumeration catalogue: `https://cwe.mitre.org/top25/`
 
-### Compliance Frameworks Addressed
+### Compliance frameworks addressed
 - ISO/IEC 27001:2022: Information security management (development-relevant controls)
 - ISO/IEC 27002:2022: Secure development controls (Annex A.8.25 to A.8.34)
 - NIST SP 800-53 Rev 5: SA (System and Services Acquisition) and SI (System and Information Integrity) families
@@ -101,7 +101,7 @@ This domain draws on and references the following external projects. These refer
 
 ---
 
-## Planned Expansion
+## Planned expansion
 
 - Mobile application security standard
 - Java EE / Jakarta EE security standard
@@ -110,14 +110,14 @@ This domain draws on and references the following external projects. These refer
 - Container and image registry security standard
 - Cloud platform hardening baselines (per cloud provider)
 
-### claude-rules/ (draggable Claude Code rule files)
+### Claude-rules/ (draggable claude code rule files)
 
 The CLAUDE.md root file also instructs Claude Code to fetch supplementary rules from TikiTribe (`https://github.com/TikiTribe/claude-secure-coding-rules`) and Wiz (`https://github.com/wiz-sec-public/secure-rules-files`) at session start, ensuring the latest external rule sets are applied alongside the local rules.
 
 ```
 claude-rules/
 ├── README.md               Usage guide, composition instructions, and external source URLs
-├── CLAUDE.md               Root rule file — drag this into a project (fetches external sources at start)
+├── CLAUDE.md Root rule file: drag this into a project (fetches external sources at start)
 ├── core/
 │   ├── secrets.md          Never hardcode credentials, keys, or tokens
 │   ├── authentication.md   Secure auth and session requirements

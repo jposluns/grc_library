@@ -12,7 +12,7 @@ The 2025 edition moves Supply Chain Failures to A03 (previously tracked as A06 V
 
 ---
 
-## A01: Broken Access Control
+## A01: broken access control
 
 **What goes wrong**: Application trusts client-supplied data (user ID, role, tenant) to make authorization decisions without server-side verification.
 
@@ -25,16 +25,16 @@ The 2025 edition moves Supply Chain Failures to A03 (previously tracked as A06 V
 
 **Prohibited patterns**:
 ```
-# Prohibited — trusting user-supplied role
+# Prohibited: trusting user-supplied role
 if request.params['role'] == 'admin': allow()
 
-# Prohibited — no ownership check
+# Prohibited: no ownership check
 GET /api/documents/{id}   # Returns document for any authenticated user, regardless of ownership
 ```
 
 ---
 
-## A02: Cryptographic Failures
+## A02: cryptographic failures
 
 See `core/cryptography.md` for full requirements. Key rules:
 - No plaintext storage of sensitive data (passwords, payment data, credentials)
@@ -45,7 +45,7 @@ See `core/cryptography.md` for full requirements. Key rules:
 
 ---
 
-## A03: Injection
+## A03: injection
 
 See `core/input-validation.md` for full requirements. Key rules:
 - Parameterized queries only: no string concatenation for SQL, LDAP, XPath
@@ -55,7 +55,7 @@ See `core/input-validation.md` for full requirements. Key rules:
 
 ---
 
-## A04: Insecure Design
+## A04: insecure design
 
 **Required pattern**:
 - Threat model every new feature that handles Confidential data, authentication, or external integrations
@@ -69,7 +69,7 @@ See `core/input-validation.md` for full requirements. Key rules:
 
 ---
 
-## A05: Security Misconfiguration
+## A05: security misconfiguration
 
 **Required pattern**:
 - Disable or remove all default accounts, default passwords, and example configurations before deployment
@@ -85,7 +85,7 @@ See `core/input-validation.md` for full requirements. Key rules:
 
 ---
 
-## A06: Vulnerable and Outdated Components
+## A06: vulnerable and outdated components
 
 **Required pattern**:
 - SCA (Software Composition Analysis) scan on every build
@@ -100,7 +100,7 @@ See `core/input-validation.md` for full requirements. Key rules:
 
 ---
 
-## A07: Identification and Authentication Failures
+## A07: identification and authentication failures
 
 See `core/authentication.md` for full requirements. Key rules:
 - MFA mandatory: no bypass paths
@@ -110,7 +110,7 @@ See `core/authentication.md` for full requirements. Key rules:
 
 ---
 
-## A08: Software and Data Integrity Failures
+## A08: software and data integrity failures
 
 **Required pattern**:
 - Verify signatures or checksums on downloaded packages and build artefacts
@@ -125,7 +125,7 @@ See `core/authentication.md` for full requirements. Key rules:
 
 ---
 
-## A09: Security Logging and Monitoring Failures
+## A09: security logging and monitoring failures
 
 **Required pattern**:
 - Log: all authentication events; authorization failures; all access to Confidential/Restricted data; significant configuration changes; all API calls with caller, endpoint, response code, timestamp
@@ -139,7 +139,7 @@ See `core/authentication.md` for full requirements. Key rules:
 
 ---
 
-## A10: Server-Side Request Forgery (SSRF)
+## A10: server-side request forgery (SSRF)
 
 **Required pattern**:
 - Validate all URL inputs against an allowlist of permitted domains or IP ranges before making outbound requests
@@ -149,7 +149,7 @@ See `core/authentication.md` for full requirements. Key rules:
 
 **Prohibited patterns**:
 ```python
-# Prohibited — fetching user-supplied URL without validation
+# Prohibited: fetching user-supplied URL without validation
 url = request.params['callback_url']
 requests.get(url)  # SSRF risk
 ```
@@ -158,7 +158,7 @@ requests.get(url)  # SSRF risk
 
 ---
 
-## A03:2025: Software Supply Chain Failures (new in 2025)
+## A03:2025: software supply chain failures (new in 2025)
 
 In the 2025 edition, supply chain failures are elevated to A03.
 
@@ -180,7 +180,7 @@ In the 2025 edition, supply chain failures are elevated to A03.
 
 ---
 
-## OWASP MCP Top 10 Quick Reference
+## OWASP MCP top 10 quick reference
 
 Security risks for systems using the Model Context Protocol (MCP). Full detail in `ai/mcp-security.md`.
 
@@ -199,7 +199,7 @@ Security risks for systems using the Model Context Protocol (MCP). Full detail i
 
 ---
 
-## OWASP ASVS v5.0.0 Quick Reference by Level
+## OWASP ASVS v5.0.0 quick reference by level
 
 | ASVS Area | Level 1 (Minimum) | Level 2 (Standard) | Level 3 (Advanced) |
 | --- | --- | --- | --- |
@@ -216,7 +216,7 @@ ASVS v5.0.0 reference: `https://owasp.org/www-project-application-security-verif
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | OWASP Risk | ISO 27001 | NIST SSDF | CSA CCM |
 | --- | --- | --- | --- |

@@ -12,7 +12,7 @@
 **Review Frequency:** 6 to 12 months and upon material change to AI coding tooling, threat landscape, or regulatory guidance 
 **Repository Path:** [`dev-security/guideline-ai-coding-assistant-security.md`](guideline-ai-coding-assistant-security.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -35,7 +35,7 @@ Does not apply to personal experimentation on personal devices with no connectio
 
 ---
 
-## Approved Tools and Authorization
+## Approved tools and authorization
 
 The organization maintains an approved list of AI coding assistants. Developers must use only approved tools for work on organizational systems. Using an unapproved AI coding assistant with organizational code, data, or credentials is a policy violation requiring a formal exception.
 
@@ -47,9 +47,9 @@ When evaluating a new AI coding assistant for approval, the assessment must cove
 
 ---
 
-## Required Security Configuration
+## Required security configuration
 
-### Load Security Rules Before Using an AI Coding Assistant
+### Load security rules before using an AI coding assistant
 
 All AI coding assistant sessions working on organizational code must have security rules loaded before generating or reviewing code. The organization's security rules are maintained in `dev-security/claude-rules/`.
 
@@ -70,9 +70,9 @@ These are fetched via WebFetch and applied in addition to the local rules.
 
 ---
 
-## Data Handling Requirements
+## Data handling requirements
 
-### What May and May Not Be Sent to AI Coding Assistants
+### What may and may not be sent to AI coding assistants
 
 | Data Category | May Send | Conditions |
 | --- | --- | --- |
@@ -87,7 +87,7 @@ These are fetched via WebFetch and applied in addition to the local rules.
 
 If credentials or personal data are accidentally included in a prompt, treat the event as a potential breach: rotate the credentials immediately and report to the security team.
 
-### Data Residency
+### Data residency
 
 When using AI coding assistants that send prompts to external APIs:
 - Verify that the provider's data processing occurs within approved regions.
@@ -96,11 +96,11 @@ When using AI coding assistants that send prompts to external APIs:
 
 ---
 
-## Code Review Requirements for AI-Generated Code
+## Code review requirements for AI-generated code
 
 AI-generated code is not automatically correct or secure. It must be reviewed with the same scrutiny applied to human-written code, plus additional checks for AI-specific failure modes.
 
-### Mandatory Review Checklist for AI-Generated Code
+### Mandatory review checklist for AI-generated code
 
 Before committing AI-generated code:
 
@@ -113,15 +113,15 @@ Before committing AI-generated code:
 - [ ] **Cryptography**: only approved algorithms used; no custom crypto; no deprecated algorithms.
 - [ ] **Logging**: no sensitive data in logs; required security events logged.
 - [ ] **Error handling**: internal error details not exposed to callers.
-- [ ] **Licence**: AI-generated code may reproduce training data; verify no unlicensed verbatim reproductions of copyrighted material.
+- [ ] **License**: AI-generated code may reproduce training data; verify no unlicensed verbatim reproductions of copyrighted material.
 
-### SAST Gate
+### SAST gate
 
 All code (AI-generated or human-written) passes through SAST before merge. AI-generated code does not reduce the obligation to fix SAST findings. Do not override SAST findings with "AI generated this" as justification.
 
 ---
 
-## Prohibited Uses
+## Prohibited uses
 
 The following uses of AI coding assistants are prohibited without explicit CIO/CISO approval and a formal risk acceptance:
 
@@ -135,7 +135,7 @@ The following uses of AI coding assistants are prohibited without explicit CIO/C
 
 ---
 
-## Prompt Injection Awareness
+## Prompt injection awareness
 
 Developers using AI coding assistants must be aware that prompt injection can be introduced through:
 
@@ -148,7 +148,7 @@ If an AI coding assistant behaves unexpectedly, generates code that seems design
 
 ---
 
-## Agentic Use (Multi-Step Autonomous Coding)
+## Agentic use (multi-step autonomous coding)
 
 AI coding assistants operating in agentic mode (autonomous multi-step task execution with tool access) carry higher risk than single-turn interactions. Additional requirements apply:
 
@@ -162,7 +162,7 @@ For detailed agentic security requirements, see [`ai/standard-ai-and-agentic-dev
 
 ---
 
-## Incident Reporting
+## Incident reporting
 
 Report the following events to the security team immediately:
 
@@ -173,7 +173,7 @@ Report the following events to the security team immediately:
 
 ---
 
-## External Reference Sources
+## External reference sources
 
 The following publicly available resources provide additional guidance for AI coding assistant security:
 
@@ -192,7 +192,7 @@ The following publicly available resources provide additional guidance for AI co
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Control Area | ISO 27001:2022 | NIST SSDF | CSA AICM | Regulatory |
 | --- | --- | --- | --- | --- |

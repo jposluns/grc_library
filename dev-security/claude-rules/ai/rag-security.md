@@ -4,13 +4,13 @@ Apply these rules to all code that builds or operates retrieval-augmented genera
 
 ---
 
-## Core Threat Model for RAG Systems
+## Core threat model for RAG systems
 
 RAG systems have a unique attack surface: adversarial content in the retrieval corpus can reach the model's context and influence its behaviour (indirect prompt injection). Every document in the corpus is a potential attack vector if it contains adversarial instructions. Treat the retrieval pipeline as a trust boundary.
 
 ---
 
-## Document Ingestion Security
+## Document ingestion security
 
 Before indexing any document:
 
@@ -22,7 +22,7 @@ Before indexing any document:
 
 ---
 
-## Authorization on Retrieval
+## Authorization on retrieval
 
 The retrieval layer must enforce the same authorization as the underlying data:
 
@@ -33,7 +33,7 @@ The retrieval layer must enforce the same authorization as the underlying data:
 
 ---
 
-## Chunk and Embedding Security
+## Chunk and embedding security
 
 - Do not include metadata that reveals classification or access control details in chunks sent to the model: handle classification enforcement in the retrieval layer, not in the model context
 - Do not embed secrets, credentials, or PII in the vector index: strip these before chunking
@@ -41,7 +41,7 @@ The retrieval layer must enforce the same authorization as the underlying data:
 
 ---
 
-## Indirect Prompt Injection via Retrieved Content
+## Indirect prompt injection via retrieved content
 
 Adversarial documents in the corpus can instruct the model to take unintended actions.
 
@@ -59,7 +59,7 @@ Adversarial documents in the corpus can instruct the model to take unintended ac
 
 ---
 
-## Vector Database Security
+## Vector database security
 
 - Apply authentication and authorization to all vector database connections
 - Do not expose the vector database directly to the internet: access through the application layer only
@@ -69,7 +69,7 @@ Adversarial documents in the corpus can instruct the model to take unintended ac
 
 ---
 
-## Query Security
+## Query security
 
 - Validate and sanitize user queries before embedding: reject queries that exceed token limits or contain injection payloads
 - Implement rate limiting on retrieval queries per user and globally
@@ -78,7 +78,7 @@ Adversarial documents in the corpus can instruct the model to take unintended ac
 
 ---
 
-## Cross-Tenant Isolation in Multi-Tenant RAG
+## Cross-tenant isolation in multi-tenant RAG
 
 If the RAG system serves multiple tenants or user groups:
 
@@ -89,7 +89,7 @@ If the RAG system serves multiple tenants or user groups:
 
 ---
 
-## Data Retention in RAG Systems
+## Data retention in RAG systems
 
 - Apply the organization's data retention schedule to the retrieval corpus: documents past their retention date must be deleted from the index
 - Implement a deletion pipeline: when a document is deleted from the source system, it must be removed from the vector index within a defined SLA
@@ -97,7 +97,7 @@ If the RAG system serves multiple tenants or user groups:
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Requirement | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM | NIST AI RMF |
 | --- | --- | --- | --- | --- |

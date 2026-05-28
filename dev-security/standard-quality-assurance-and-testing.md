@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material framework or platform change 
 **Repository Path:** [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -31,7 +31,7 @@ This standard defines the Quality Assurance (QA) and testing framework for softw
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -46,7 +46,7 @@ This standard defines the Quality Assurance (QA) and testing framework for softw
 
 ---
 
-## QA and Testing Lifecycle
+## QA and testing lifecycle
 
 | Stage | Objective | Responsible Party |
 | --- | --- | --- |
@@ -59,7 +59,7 @@ This standard defines the Quality Assurance (QA) and testing framework for softw
 
 ---
 
-## Quality Gates and Release Criteria
+## Quality gates and release criteria
 
 No release may proceed without documented approval of quality gate checkpoints:
 
@@ -80,9 +80,9 @@ No release may proceed without documented approval of quality gate checkpoints:
 
 ---
 
-## Testing Types and Requirements
+## Testing types and requirements
 
-### Security and Vulnerability Testing
+### Security and vulnerability testing
 
 Security testing must align with the Vulnerability and Patch Management Standard and the Secure Development and Engineering Policy, including:
 
@@ -92,7 +92,7 @@ Security testing must align with the Vulnerability and Patch Management Standard
 - Penetration testing for major releases and annually.
 - All critical vulnerabilities must be remediated before release.
 
-### AI Model Testing
+### AI model testing
 
 AI model testing is governed by the AI Testing, Validation and Documentation Standard and must include:
 
@@ -102,7 +102,7 @@ AI model testing is governed by the AI Testing, Validation and Documentation Sta
 - Adversarial input resilience testing.
 - AIGC review for High-risk AI systems.
 
-### Performance Testing
+### Performance testing
 
 - Load and stress testing must be conducted for all Tier 1 and Tier 2 systems before production deployment.
 - Performance benchmarks are defined in test plans and compared against actual results.
@@ -110,7 +110,7 @@ AI model testing is governed by the AI Testing, Validation and Documentation Sta
 
 ---
 
-## Test Environment Requirements
+## Test environment requirements
 
 - Test environments must be logically isolated from production.
 - Production data must not be used in non-production environments unless it has been fully anonymized.
@@ -118,7 +118,7 @@ AI model testing is governed by the AI Testing, Validation and Documentation Sta
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

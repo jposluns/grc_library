@@ -4,57 +4,57 @@ These rules apply to all Java and Kotlin code including Spring Boot, Jakarta EE,
 
 ---
 
-## Secrets: Java Specific
+## Secrets: java specific
 
 ```java
-// NEVER — hardcoded in source
+// NEVER: hardcoded in source
 private static final String API_KEY = "sk-...";
 String connString = "jdbc:postgresql://host/db?user=admin&password=secret";
 
-// NEVER — in application.properties / application.yml committed to source control
+// NEVER: in application.properties / application.yml committed to source control
 // spring.datasource.password=mysecret   ← WRONG if committed
 
-// CORRECT — from environment variables
+// CORRECT: from environment variables
 String apiKey = System.getenv("API_KEY");
 if (apiKey == null || apiKey.isBlank()) {
     throw new IllegalStateException("API_KEY environment variable is not configured");
 }
 
-// CORRECT — Spring Boot externalized configuration with env override
+// CORRECT: Spring Boot externalized configuration with env override
 // application.properties: spring.datasource.password=${DB_PASSWORD}
 // Set DB_PASSWORD in the deployment environment or secrets manager
 
-// CORRECT — AWS Secrets Manager / Azure Key Vault / GCP Secret Manager via SDK
-// Use the platform SDK with managed identity — never pass credentials to the SDK call
+// CORRECT: AWS Secrets Manager / Azure Key Vault / GCP Secret Manager via SDK
+// Use the platform SDK with managed identity: never pass credentials to the SDK call
 ```
 
 ---
 
-## SQL Injection: Java Specific
+## SQL injection: java specific
 
 ```java
-// NEVER — string concatenation in queries
+// NEVER: string concatenation in queries
 String query = "SELECT * FROM users WHERE username = '" + username + "'";
 stmt.executeQuery(query);  // SQL injection risk
 
-// NEVER — JPQL/HQL string concatenation
+// NEVER: JPQL/HQL string concatenation
 String jpql = "FROM User WHERE username = '" + username + "'";  // injection risk
 
-// CORRECT — JDBC PreparedStatement
+// CORRECT: JDBC PreparedStatement
 String sql = "SELECT * FROM users WHERE username = ?";
 PreparedStatement stmt = conn.prepareStatement(sql);
 stmt.setString(1, username);
 ResultSet rs = stmt.executeQuery();
 
-// CORRECT — Spring JdbcTemplate named parameters
+// CORRECT: Spring JdbcTemplate named parameters
 String sql = "SELECT * FROM users WHERE username = :username";
 MapSqlParameterSource params = new MapSqlParameterSource("username", username);
 jdbcTemplate.query(sql, params, rowMapper);
 
-// CORRECT — Spring Data JPA repository
+// CORRECT: Spring Data JPA repository
 Optional<User> findByUsername(String username);  // automatically parameterized
 
-// CORRECT — JPA Criteria API
+// CORRECT: JPA Criteria API
 CriteriaBuilder cb = em.getCriteriaBuilder();
 CriteriaQuery<User> query = cb.createQuery(User.class);
 Root<User> root = query.from(User.class);
@@ -63,15 +63,15 @@ query.where(cb.equal(root.get("username"), username));  // safe
 
 ---
 
-## XML / XXE Prevention
+## XML / XXE prevention
 
 ```java
-// NEVER — default DocumentBuilderFactory (vulnerable to XXE)
+// NEVER: default DocumentBuilderFactory (vulnerable to XXE)
 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 DocumentBuilder builder = factory.newDocumentBuilder();
 Document doc = builder.parse(inputStream);  // XXE risk
 
-// CORRECT — disable DTD and external entities
+// CORRECT: disable DTD and external entities
 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
@@ -80,7 +80,7 @@ factory.setXIncludeAware(false);
 factory.setExpandEntityReferences(false);
 DocumentBuilder builder = factory.newDocumentBuilder();
 
-// CORRECT — use a vetted XML processing library configured for safety
+// CORRECT: use a vetted XML processing library configured for safety
 // Consider Jackson XML or JAXB with schema validation as an alternative
 ```
 
@@ -89,14 +89,14 @@ DocumentBuilder builder = factory.newDocumentBuilder();
 ## Deserialization
 
 ```java
-// NEVER — deserialize untrusted data with Java's native ObjectInputStream
+// NEVER: deserialize untrusted data with Java's native ObjectInputStream
 ObjectInputStream ois = new ObjectInputStream(inputStream);
-Object obj = ois.readObject();  // deserialization gadget risk — RCE possible
+Object obj = ois.readObject(); // deserialization gadget risk: RCE possible
 
-// NEVER — use XStream with untrusted input without strict class allowlist
-// NEVER — use SnakeYAML with Yaml.load() on untrusted input
+// NEVER: use XStream with untrusted input without strict class allowlist
+// NEVER: use SnakeYAML with Yaml.load() on untrusted input
 
-// CORRECT — use JSON (Jackson) for external data exchange
+// CORRECT: use JSON (Jackson) for external data exchange
 ObjectMapper mapper = new ObjectMapper();
 mapper.activateDefaultTyping(
     mapper.getPolymorphicTypeValidator(),
@@ -104,7 +104,7 @@ mapper.activateDefaultTyping(
 );
 MyClass obj = mapper.readValue(jsonString, MyClass.class);
 
-// CORRECT — if Java serialization is required, use a deserialization filter
+// CORRECT: if Java serialization is required, use a deserialization filter
 ObjectInputStream ois = new ObjectInputStream(inputStream);
 ois.setObjectInputFilter(filterInfo -> {
     Class<?> clazz = filterInfo.serialClass();
@@ -117,32 +117,32 @@ ois.setObjectInputFilter(filterInfo -> {
 
 ---
 
-## Command Injection
+## Command injection
 
 ```java
-// NEVER — Runtime.exec() or ProcessBuilder with shell
+// NEVER: Runtime.exec() or ProcessBuilder with shell
 Runtime.getRuntime().exec("ls " + userInput);  // command injection risk
 new ProcessBuilder("sh", "-c", "ls " + userInput).start();  // injection risk
 
-// CORRECT — argument array, never shell=true
+// CORRECT: argument array, never shell=true
 ProcessBuilder pb = new ProcessBuilder("ls", "-la", sanitizedDirectory);
 pb.redirectErrorStream(true);
 Process process = pb.start();
 
-// CORRECT — prefer Java APIs over shell commands (Files, Paths, etc.)
+// CORRECT: prefer Java APIs over shell commands (Files, Paths, etc.)
 // Use java.nio.file.Files.list() instead of shelling out to ls
 ```
 
 ---
 
-## Path Traversal
+## Path traversal
 
 ```java
-// NEVER — concatenate user input into file paths
+// NEVER: concatenate user input into file paths
 File file = new File("/uploads/" + userInput);  // path traversal risk
 Path path = Paths.get("/uploads/" + filename);   // path traversal risk
 
-// CORRECT — resolve and validate against base directory
+// CORRECT: resolve and validate against base directory
 Path baseDir = Paths.get("/uploads").toRealPath();
 Path target = baseDir.resolve(filename).normalize();
 if (!target.startsWith(baseDir)) {
@@ -153,17 +153,17 @@ if (!target.startsWith(baseDir)) {
 
 ---
 
-## Cryptography: Java Specific
+## Cryptography: java specific
 
 ```java
-// NEVER — MD5 or SHA-1 for integrity or password hashing
+// NEVER: MD5 or SHA-1 for integrity or password hashing
 MessageDigest.getInstance("MD5")   // broken
 MessageDigest.getInstance("SHA-1") // broken for security use
 
-// NEVER — ECB mode
+// NEVER: ECB mode
 Cipher.getInstance("AES/ECB/PKCS5Padding")  // no IV, reveals patterns
 
-// CORRECT — AES-GCM
+// CORRECT: AES-GCM
 KeyGenerator keyGen = KeyGenerator.getInstance("AES");
 keyGen.init(256, new SecureRandom());
 SecretKey key = keyGen.generateKey();
@@ -172,12 +172,12 @@ byte[] iv = new byte[12];
 new SecureRandom().nextBytes(iv);
 cipher.init(Cipher.ENCRYPT_MODE, key, new GCMParameterSpec(128, iv));
 
-// CORRECT — password hashing with Spring Security BCrypt
+// CORRECT: password hashing with Spring Security BCrypt
 PasswordEncoder encoder = new BCryptPasswordEncoder(12);
 String hash = encoder.encode(rawPassword);
 boolean matches = encoder.matches(rawPassword, hash);
 
-// CORRECT — secure random token generation
+// CORRECT: secure random token generation
 byte[] token = new byte[32];
 new SecureRandom().nextBytes(token);
 String tokenHex = HexFormat.of().formatHex(token);
@@ -185,10 +185,10 @@ String tokenHex = HexFormat.of().formatHex(token);
 
 ---
 
-## Spring Boot Security Configuration
+## Spring boot security configuration
 
 ```java
-// CORRECT — Spring Security baseline configuration
+// CORRECT: Spring Security baseline configuration
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -215,7 +215,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // NEVER — disabling security for convenience
+ // NEVER: disabling security for convenience
     // http.csrf().disable()   ← prohibited
     // http.authorizeRequests().anyRequest().permitAll()  ← prohibited
 }
@@ -223,24 +223,24 @@ public class SecurityConfig {
 
 ---
 
-## Logging: Java Specific
+## Logging: java specific
 
 ```java
-// NEVER — log sensitive data
+// NEVER: log sensitive data
 logger.info("User {} logged in with password {}", username, password);  // prohibited
 logger.debug("Auth token: {}", token);  // prohibited
 
-// NEVER — log exceptions with full stack trace containing system details to external callers
+// NEVER: log exceptions with full stack trace containing system details to external callers
 // Return generic error + correlation ID to caller; full stack trace to server logs only
 
-// CORRECT — structured logging with SLF4J / Logback
+// CORRECT: structured logging with SLF4J / Logback
 private static final Logger logger = LoggerFactory.getLogger(MyService.class);
 
 logger.info("Authentication successful for user={} correlationId={}", username, correlationId);
 logger.warn("Authorization failure resource={} user={} correlationId={}", resourceId, username, correlationId);
 logger.error("Unexpected error correlationId={}", correlationId, exception);  // exception as last arg = stack trace to log, not caller
 
-// CORRECT — MDC for request correlation
+// CORRECT: MDC for request correlation
 MDC.put("correlationId", UUID.randomUUID().toString());
 MDC.put("userId", authenticatedUserId);
 try {
@@ -252,10 +252,10 @@ try {
 
 ---
 
-## Dependency Management
+## Dependency management
 
 ```xml
-<!-- CORRECT — Maven: pin exact versions, no ranges -->
+<!-- CORRECT: Maven: pin exact versions, no ranges -->
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-security</artifactId>
@@ -264,7 +264,7 @@ try {
 ```
 
 ```gradle
-// CORRECT — Gradle: exact version pinning
+// CORRECT: Gradle: exact version pinning
 implementation 'org.springframework.boot:spring-boot-starter-security:3.2.5'
 // Run: gradle dependencyCheckAnalyze (OWASP Dependency Check plugin)
 ```
@@ -275,7 +275,7 @@ implementation 'org.springframework.boot:spring-boot-starter-security:3.2.5'
 
 ---
 
-## SAST Tools for Java
+## SAST tools for java
 
 - **SpotBugs + Find Security Bugs plugin**: static analysis for security bugs
 - **Semgrep** with Java ruleset: pattern-based security scanning
@@ -284,7 +284,7 @@ implementation 'org.springframework.boot:spring-boot-starter-security:3.2.5'
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Control Area | OWASP ASVS | NIST SSDF | ISO 27001 |
 | --- | --- | --- | --- |

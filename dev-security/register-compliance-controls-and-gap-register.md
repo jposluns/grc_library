@@ -12,7 +12,7 @@
 **Review Frequency:** Quarterly and upon material control implementation change 
 **Repository Path:** [`dev-security/register-compliance-controls-and-gap-register.md`](register-compliance-controls-and-gap-register.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -24,7 +24,7 @@ Organizations should populate this template with their specific implementation s
 
 ---
 
-## Status Definitions
+## Status definitions
 
 | Status | Meaning |
 | --- | --- |
@@ -38,7 +38,7 @@ Organizations should populate this template with their specific implementation s
 
 ---
 
-## How to Use This Register
+## How to use this register
 
 1. Copy this template into your organization's documentation system.
 2. For each control row, set the Status field using the definitions above.
@@ -51,9 +51,9 @@ Organizations should populate this template with their specific implementation s
 
 ---
 
-## CSA CCM v5 Control Mapping
+## CSA CCM v5 control mapping
 
-### Audit and Assurance (A&A)
+### Audit and assurance (a&a)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -64,7 +64,7 @@ Organizations should populate this template with their specific implementation s
 | A&A-05 | Audit Management Process | | | | |
 | A&A-06 | Remediation | | | | |
 
-### Application and Interface Security (AIS)
+### Application and interface security (AIS)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -77,7 +77,7 @@ Organizations should populate this template with their specific implementation s
 | AIS-07 | Application Vulnerability Remediation | | | | |
 | AIS-08 | API Security | | | | |
 
-### Business Continuity Management (BCR)
+### Business continuity management (BCR)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -91,7 +91,7 @@ Organizations should populate this template with their specific implementation s
 | BCR-10 | Response Plan Exercise | | | | |
 | BCR-11 | Equipment Redundancy | | | | |
 
-### Change Control and Configuration Management (CCC)
+### Change control and configuration management (CCC)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -105,7 +105,7 @@ Organizations should populate this template with their specific implementation s
 | CCC-08 | Exception Management | | | | |
 | CCC-09 | Change Restoration | | | | |
 
-### Cryptography, Encryption and Key Management (CEK)
+### Cryptography, encryption and key management (CEK)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -121,7 +121,7 @@ Organizations should populate this template with their specific implementation s
 | CEK-19 | Encryption Key Inventory | | | | |
 | CEK-21 | Unmanaged Certificates | | | | |
 
-### Data Security and Privacy (DSP)
+### Data security and privacy (DSP)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -137,7 +137,7 @@ Organizations should populate this template with their specific implementation s
 | DSP-18 | Disclosure Notification | | | | |
 | DSP-19 | Data Location | | | | |
 
-### Datacenter Security (DCS)
+### Datacenter security (DCS)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -150,7 +150,7 @@ Organizations should populate this template with their specific implementation s
 | DCS-12 | Cabling Security | | | | |
 | DCS-13 | Environmental Risks | | | | |
 
-### Governance, Risk and Compliance (GRC)
+### Governance, risk and compliance (GRC)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -162,7 +162,7 @@ Organizations should populate this template with their specific implementation s
 | GRC-06 | Regulatory Change | | | | |
 | GRC-07 | Information System Regulatory Mapping | | | | |
 
-### Human Resources (HRS)
+### Human resources (HRS)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -173,7 +173,7 @@ Organizations should populate this template with their specific implementation s
 | HRS-09 | Personnel Training and Awareness | | | | |
 | HRS-11 | Security Awareness Training | | | | |
 
-### Identity and Access Management (IAM)
+### Identity and access management (IAM)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -191,7 +191,7 @@ Organizations should populate this template with their specific implementation s
 | IAM-14 | Credentials Management | | | | |
 | IAM-15 | Authorization Mechanisms | | | | |
 
-### Infrastructure and Virtualization Security (IVS)
+### Infrastructure and virtualization security (IVS)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -203,7 +203,7 @@ Organizations should populate this template with their specific implementation s
 | IVS-08 | Production and Non-Production Environments | | | | |
 | IVS-09 | Vulnerability and Patch Management | | | | |
 
-### Logging and Monitoring (LOG)
+### Logging and monitoring (LOG)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -218,7 +218,7 @@ Organizations should populate this template with their specific implementation s
 | LOG-13 | Access Control Logs | | | | |
 | LOG-14 | Failures and Anomalies Reporting | | | | |
 
-### Security Incident Management, E-Discovery, and Cloud Forensics (SEF)
+### Security incident management, e-discovery, and cloud forensics (SEF)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -230,7 +230,7 @@ Organizations should populate this template with their specific implementation s
 | SEF-09 | Incident Records Management | | | | |
 | SEF-10 | Points of Contact Maintenance | | | | |
 
-### Supply Chain Management (STA)
+### Supply chain management (STA)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -241,7 +241,7 @@ Organizations should populate this template with their specific implementation s
 | STA-10 | Supply Chain Risk Management | | | | |
 | STA-13 | Supply Chain Agreement | | | | |
 
-### Threat and Vulnerability Management (TVM)
+### Threat and vulnerability management (TVM)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -256,7 +256,7 @@ Organizations should populate this template with their specific implementation s
 | TVM-09 | Vulnerability Prioritization | | | | |
 | TVM-10 | Threat Response | | | | |
 
-### Universal Endpoint Management (UEM)
+### Universal endpoint management (UEM)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -271,7 +271,7 @@ Organizations should populate this template with their specific implementation s
 
 ---
 
-## AICM v1.0.3: AI-Specific Controls
+## AICM v1.0.3: AI-specific controls
 
 Applies to any AI or ML system in production. See [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) for detailed requirements.
 
@@ -297,7 +297,7 @@ Applies to any AI or ML system in production. See [`ai/standard-ai-security-and-
 
 ---
 
-## COBIT 2025 Process Alignment
+## COBIT 2025 process alignment
 
 | COBIT Process | Description | Status | Lead Role | Notes |
 | --- | --- | --- | --- | --- |
@@ -318,7 +318,7 @@ Applies to any AI or ML system in production. See [`ai/standard-ai-security-and-
 
 ---
 
-## Open Items and Gap Register
+## Open items and gap register
 
 Use this section to track controls with status Gap: Action Required, In Progress (overdue), or Deferred. Each entry must have a confirmed owner and target resolution date.
 
@@ -328,7 +328,7 @@ Use this section to track controls with status Gap: Action Required, In Progress
 
 ---
 
-## Deferred Controls Register
+## Deferred controls register
 
 Use this section to document controls that have been explicitly deferred, with rationale and responsible owner.
 
@@ -338,7 +338,7 @@ Use this section to document controls that have been explicitly deferred, with r
 
 ---
 
-## Maintenance Rules
+## Maintenance rules
 
 1. This register must be reviewed quarterly and updated when any control status changes.
 2. Every Gap: Action Required item must have a CAPA record per the CAPA Procedure.

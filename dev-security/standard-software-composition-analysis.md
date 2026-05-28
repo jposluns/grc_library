@@ -12,7 +12,7 @@
 **Review Frequency:** 6 to 12 months and upon material tooling change, significant supply chain incident, or new regulatory guidance on SBOM or software provenance 
 **Repository Path:** [`dev-security/standard-software-composition-analysis.md`](standard-software-composition-analysis.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -41,7 +41,7 @@ This standard applies to all languages and package ecosystems in use across the 
 
 | Term | Definition |
 |---|---|
-| **Software Composition Analysis (SCA)** | Automated analysis of software to identify open-source and third-party components, their versions, known vulnerabilities, and associated licences |
+| **Software Composition Analysis (SCA)** | Automated analysis of software to identify open-source and third-party components, their versions, known vulnerabilities, and associated licenses |
 | **Software Bill of Materials (SBOM)** | A structured, machine-readable inventory of all components, libraries, and their metadata included in a software artefact |
 | **Transitive Dependency** | A component that is not directly declared but is included because a direct dependency depends on it |
 | **Dependency Confusion Attack** | An attack where a malicious package with the same name as an internal package is published to a public registry and automatically resolved |
@@ -53,9 +53,9 @@ This standard applies to all languages and package ecosystems in use across the 
 
 ---
 
-## SCA Requirements
+## SCA requirements
 
-### 1. Tool Integration
+### 1. Tool integration
 
 SCA tools must be integrated at multiple points in the software development lifecycle:
 
@@ -68,7 +68,7 @@ SCA tools must be integrated at multiple points in the software development life
 | **Scheduled background scan** | All active repositories and deployed artefacts scanned weekly for newly disclosed vulnerabilities in existing dependencies | Weekly |
 | **SBOM generation** | SBOM generated as an artefact of every production build in CycloneDX or SPDX format | Every production build |
 
-### 2. Vulnerability Remediation SLAs
+### 2. Vulnerability remediation slas
 
 | CVSS Score | Severity | Maximum Age in Production | Escalation on Breach |
 |---|---|---|---|
@@ -84,28 +84,28 @@ Where a fix is not available (no patched version exists), the following actions 
 3. Obtain formal risk acceptance from the CISO if the vulnerability will remain open beyond the SLA
 4. Monitor for patch availability daily for Critical, weekly for High
 
-### 3. Licence Compliance
+### 3. License compliance
 
-All open-source licences in use must be reviewed and approved before use in the organization's products or services.
+All open-source licenses in use must be reviewed and approved before use in the organization's products or services.
 
-| Licence Category | Examples | Use Permitted | Conditions |
+| License Category | Examples | Use Permitted | Conditions |
 |---|---|---|---|
-| **Permissive** | MIT; Apache 2.0; BSD 2-clause; BSD 3-clause; ISC | Yes: no special conditions | Attribution required; retain licence notices |
+| **Permissive** | MIT; Apache 2.0; BSD 2-clause; BSD 3-clause; ISC | Yes: no special conditions | Attribution required; retain license notices |
 | **Weak Copyleft** | LGPL 2.1; LGPL 3.0; MPL 2.0; EUPL 1.2 | Yes: with conditions | Must not statically link LGPL components into proprietary code without compliance review; MPL modifications must be shared |
 | **Strong Copyleft** | GPL 2.0; GPL 3.0; AGPL 3.0 | Conditional, requires legal review | GPL components in products distributed externally require legal review; AGPL requires source disclosure for network services, escalate to Legal before use |
-| **Proprietary / Commercial** | Custom commercial licences | Subject to procurement and legal review | Licence terms must be reviewed; ensure that scope covers intended use |
-| **Unknown / Unlicenced** | No licence file present | Prohibited without legal clearance | Treat as "All rights reserved"; obtain written clarification from author |
-| **Incompatible / Prohibited** | SSPL; BUSL; Commons Clause | Prohibited in production: requires exception | These licences impose restrictions incompatible with commercial use; escalate to Legal |
+| **Proprietary / Commercial** | Custom commercial licenses | Subject to procurement and legal review | License terms must be reviewed; ensure that scope covers intended use |
+| **Unknown / Unlicenced** | No license file present | Prohibited without legal clearance | Treat as "All rights reserved"; obtain written clarification from author |
+| **Incompatible / Prohibited** | SSPL; BUSL; Commons Clause | Prohibited in production: requires exception | These licenses impose restrictions incompatible with commercial use; escalate to Legal |
 
-**Licence inventory obligations:**
-- All production dependencies must have an identified and approved licence
-- Transitive dependencies must be included in licence review
-- SCA tooling must produce a licence inventory as part of the SBOM
-- Legal must be consulted before introducing any Strong Copyleft or Unknown licence dependency
+**License inventory obligations:**
+- All production dependencies must have an identified and approved license
+- Transitive dependencies must be included in license review
+- SCA tooling must produce a license inventory as part of the SBOM
+- Legal must be consulted before introducing any Strong Copyleft or Unknown license dependency
 
-### 4. Software Bill of Materials (SBOM)
+### 4. Software bill of materials (SBOM)
 
-#### Minimum SBOM Content
+#### Minimum SBOM content
 
 SBOMs must comply with the NTIA Minimum Elements for a Software Bill of Materials and must include:
 
@@ -119,13 +119,13 @@ SBOMs must comply with the NTIA Minimum Elements for a Software Bill of Material
 | Author of SBOM data | Tool or person that generated this SBOM entry |
 | Timestamp | Date and time the SBOM was generated |
 
-#### SBOM Format
+#### SBOM format
 
 SBOMs must be produced in at least one of:
 - **CycloneDX** (preferred): XML or JSON; supports VEX (Vulnerability Exploitability eXchange)
 - **SPDX**: tag-value, JSON, or RDF; widely adopted in open-source tooling
 
-#### SBOM Retention and Distribution
+#### SBOM retention and distribution
 
 | Use Case | Requirement |
 |---|---|
@@ -134,9 +134,9 @@ SBOMs must be produced in at least one of:
 | Regulatory requests | SBOM must be provided to regulatory authorities on lawful request |
 | Incident response | SBOM must be immediately accessible to incident responders to assess blast radius of disclosed CVE |
 
-### 5. Supply Chain Attack Mitigations
+### 5. Supply chain attack mitigations
 
-#### Dependency Confusion and Package Integrity
+#### Dependency confusion and package integrity
 
 | Control | Requirement |
 |---|---|
@@ -147,7 +147,7 @@ SBOMs must be produced in at least one of:
 | **Package hash verification** | CI/CD pipelines must verify package integrity using cryptographic hashes at install time. |
 | **Subresource Integrity (SRI)** | For web applications loading third-party scripts via CDN, SRI hashes must be included in HTML `<script>` and `<link>` tags. |
 
-#### Source and Build Integrity (SLSA Alignment)
+#### Source and build integrity (SLSA alignment)
 
 The organization targets the following SLSA levels by system type:
 
@@ -162,7 +162,7 @@ SLSA Level 2 minimum requirements:
 - Build platform generates signed provenance (build inputs, outputs, timestamps)
 - Provenance verified before artefacts are deployed
 
-### 6. Triaging and Exceptions
+### 6. Triaging and exceptions
 
 Not all CVEs require immediate remediation. Developers must triage each finding using the following criteria:
 
@@ -177,7 +177,7 @@ Findings assessed as not exploitable in context must be documented using a **VEX
 
 Formal exceptions to SLA timelines must be approved by the CISO and documented in the risk register.
 
-### 7. AI and Machine Learning Dependencies
+### 7. AI and machine learning dependencies
 
 SCA controls apply to all ML and AI codebases with the following additional requirements:
 
@@ -185,12 +185,12 @@ SCA controls apply to all ML and AI codebases with the following additional requ
 |---|---|
 | **Model framework dependencies** | All ML framework dependencies (TensorFlow, PyTorch, scikit-learn, Hugging Face Transformers, etc.) must be included in SCA scans |
 | **Pre-trained model provenance** | Pre-trained models obtained from public repositories (Hugging Face Hub, TensorFlow Hub, etc.) must be verified for provenance: model card review, author verification, checksum validation |
-| **Dataset licence review** | Open-source datasets used in training must be reviewed for licence compatibility and provenance documentation |
+| **Dataset license review** | Open-source datasets used in training must be reviewed for license compatibility and provenance documentation |
 | **Supply chain risk for LLM APIs** | Third-party LLM API dependencies (model provider libraries, SDK versions) must be assessed for vulnerability using the same SCA process |
 
 ---
 
-## Roles and Responsibilities
+## Roles and responsibilities
 
 | Role | Responsibilities |
 |---|---|
@@ -198,7 +198,7 @@ SCA controls apply to all ML and AI codebases with the following additional requ
 | **Security Champion** | Review SCA reports for their team; escalate unresolved High+ findings; advise on compensating controls |
 | **DevOps / Platform Team** | Maintain and configure SCA tooling in CI/CD pipelines; ensure that SBOM generation is automated; manage private registry configuration |
 | **CISO** | Approve exceptions to remediation SLAs; set organizational risk acceptance thresholds; review Critical vulnerability escalations |
-| **Legal** | Review and approve licence exceptions; advise on SBOM distribution obligations |
+| **Legal** | Review and approve license exceptions; advise on SBOM distribution obligations |
 | **Procurement** | Require SBOMs from commercial software vendors; include SBOM provision clauses in software procurement contracts |
 
 ---
@@ -211,12 +211,12 @@ SCA controls apply to all ML and AI codebases with the following additional requ
 | Mean time to remediate High vulnerabilities | ≤ 30 days | Monthly |
 | Percentage of production builds with SBOM generated | 100% | Monthly |
 | Percentage of dependencies with pinned exact versions | ≥ 95% | Quarterly |
-| Licence compliance coverage (all dependencies reviewed) | 100% | Quarterly |
+| License compliance coverage (all dependencies reviewed) | 100% | Quarterly |
 | Number of Critical findings open beyond SLA | 0 | Weekly |
 
 ---
 
-## Framework and Regulatory Alignment
+## Framework and regulatory alignment
 
 | Framework / Requirement | Relevance |
 |---|---|

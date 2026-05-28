@@ -4,7 +4,7 @@ These rules apply to DevOps engineers configuring CI/CD pipelines for any langua
 
 ---
 
-## Mandatory Gate Order
+## Mandatory gate order
 
 Every pipeline deploying to Test or Production must run these gates in this order. A failure at any gate halts the pipeline.
 
@@ -14,7 +14,7 @@ Every pipeline deploying to Test or Production must run these gates in this orde
 3. SCA (dependency scan)    → Fail on Critical CVE
 4. Container image scan     → Fail on Critical CVE in image or base layer (if containers)
 5. IaC scan                 → Fail on Critical misconfiguration (if IaC present)
-6. Licence compliance       → Fail on unapproved copyleft licence (GPL/AGPL without Legal approval)
+6. License compliance       → Fail on unapproved copyleft license (GPL/AGPL without Legal approval)
 7. Runtime EOL check        → Fail on deployment to EOL runtime version
 8. SBOM generation          → Generate and archive on every production build
 9. Artefact signing         → Sign all production build artefacts
@@ -23,7 +23,7 @@ Every pipeline deploying to Test or Production must run these gates in this orde
 
 ---
 
-## Secret Scanning
+## Secret scanning
 
 - Scan all files in the repository, not just changed files
 - Scan git history on first configuration, then new commits incrementally
@@ -33,7 +33,7 @@ Every pipeline deploying to Test or Production must run these gates in this orde
 
 ---
 
-## SAST Configuration
+## SAST configuration
 
 - Configure SAST to run on the full codebase, not just changed files, on protected branch merges
 - Threshold: Critical → fail; High → fail; Medium → warn and track
@@ -42,7 +42,7 @@ Every pipeline deploying to Test or Production must run these gates in this orde
 
 ---
 
-## SCA (Software Composition Analysis)
+## SCA (software composition analysis)
 
 - Scan all dependencies including transitive dependencies
 - Critical CVE in any dependency: fail immediately
@@ -52,7 +52,7 @@ Every pipeline deploying to Test or Production must run these gates in this orde
 
 ---
 
-## Container Image Scanning
+## Container image scanning
 
 - Scan base images before first use and on a scheduled cadence (weekly minimum)
 - Scan every image build, not just base image pulls
@@ -62,7 +62,7 @@ Every pipeline deploying to Test or Production must run these gates in this orde
 
 ---
 
-## IaC Scanning
+## IaC scanning
 
 - Scan Terraform, Bicep, CloudFormation, Kubernetes manifests, and Helm charts
 - Critical findings (open storage buckets, disabled encryption, open security groups): fail
@@ -71,7 +71,7 @@ Every pipeline deploying to Test or Production must run these gates in this orde
 
 ---
 
-## Runtime EOL Gate
+## Runtime EOL gate
 
 - Maintain a list of approved runtime versions (node, python, dotnet, java, ruby, go, etc.)
 - Fail the pipeline if the configured runtime version has passed its vendor EOL date
@@ -80,7 +80,7 @@ Every pipeline deploying to Test or Production must run these gates in this orde
 
 ---
 
-## Pipeline Identity and Authorization
+## Pipeline identity and authorization
 
 - The pipeline runs as a dedicated service identity, not a human account
 - The pipeline identity must not be able to approve its own production deployments
@@ -90,7 +90,7 @@ Every pipeline deploying to Test or Production must run these gates in this orde
 
 ---
 
-## Branch Protection Requirements
+## Branch protection requirements
 
 Protected branches feeding Test or Production pipelines must enforce:
 - Minimum 1 required reviewer before merge (2 for security-sensitive repositories)
@@ -100,7 +100,7 @@ Protected branches feeding Test or Production pipelines must enforce:
 
 ---
 
-## Production Deployment Approval
+## Production deployment approval
 
 - Production deployments require manual approval from a designated approver who is not the pipeline author
 - The approval event is recorded in the CI/CD audit log
@@ -109,7 +109,7 @@ Protected branches feeding Test or Production pipelines must enforce:
 
 ---
 
-## Pipeline as Code Security
+## Pipeline as code security
 
 Pipeline definition files (YAML, JSON, HCL) must:
 - Be stored in version control: no manual pipeline configuration
@@ -120,7 +120,7 @@ Pipeline definition files (YAML, JSON, HCL) must:
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Gate | CSA CCM | NIST SSDF | ISO 27001 | SLSA |
 | --- | --- | --- | --- | --- |

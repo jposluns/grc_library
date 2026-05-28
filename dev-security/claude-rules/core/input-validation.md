@@ -2,15 +2,15 @@
 
 ---
 
-## Core Principle
+## Core principle
 
 All external input is untrusted. Validate before processing. Encode before output. The boundary between trusted and untrusted is the application perimeter: everything that crosses it is untrusted.
 
 ---
 
-## Input Validation Requirements
+## Input validation requirements
 
-### Validate Everything from Outside the Trust Boundary
+### Validate everything from outside the trust boundary
 
 - HTTP request parameters (query string, path, headers, cookies, body)
 - File uploads (name, content, size, MIME type)
@@ -20,7 +20,7 @@ All external input is untrusted. Validate before processing. Encode before outpu
 - Data from message queues, event streams, and webhooks
 - AI/LLM-generated output (treated as untrusted: see ai/ai-security.md)
 
-### Validation Rules
+### Validation rules
 
 ```
 Type:    Validate the data type matches expected (string, integer, date, UUID)
@@ -32,15 +32,15 @@ Charset: Restrict character sets where applicable (alphanumeric only for IDs)
 
 **Reject invalid input: do not sanitize and continue.** Sanitization is complex, error-prone, and creates a false sense of safety. Return a 400 Bad Request with a generic error message.
 
-### Server-Side Validation is Mandatory
+### Server-side validation is mandatory
 
 Client-side validation (JavaScript, HTML5 required attributes) is a UX improvement only. It provides zero security. All validation logic must exist server-side. Never skip server-side validation because client-side validation exists.
 
 ---
 
-## Injection Prevention
+## Injection prevention
 
-### SQL Injection
+### SQL injection
 
 **Always** use parameterized queries or prepared statements:
 
@@ -48,21 +48,21 @@ Client-side validation (JavaScript, HTML5 required attributes) is a UX improveme
 # Correct
 cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
 
-# Prohibited — string concatenation
+# Prohibited: string concatenation
 cursor.execute("SELECT * FROM users WHERE id = " + user_id)
 cursor.execute(f"SELECT * FROM users WHERE id = {user_id}")
 ```
 
 This applies to: SQL; LDAP queries; XPath queries; NoSQL query constructors; search engine query strings.
 
-### Command Injection
+### Command injection
 
 Never pass user input to shell commands. If a shell command is unavoidable:
 - Use the language's subprocess API with argument lists (not shell=True)
 - Allowlist the set of permitted values before constructing the command
 - Never use `os.system()`, `exec()`, `eval()` with user input
 
-### Path Traversal
+### Path traversal
 
 When handling file paths from user input:
 - Resolve the canonical path and verify it is within the allowed base directory
@@ -71,7 +71,7 @@ When handling file paths from user input:
 
 ---
 
-## Output Encoding
+## Output encoding
 
 Output encoding must be **context-aware**. The encoding required depends on where the output appears.
 
@@ -90,21 +90,21 @@ Use a well-maintained library for output encoding: do not implement encoding fun
 
 ---
 
-## File Upload Security
+## File upload security
 
 ```
-1. Validate MIME type by content (magic bytes) — not by file extension alone
-2. Validate file size — enforce a maximum before reading content
-3. Rename the file — never use the user-supplied filename on the server
-4. Store outside the web root — the file must not be directly accessible via URL
-5. Scan content — run antivirus/malware scan before processing
-6. Never execute — the file must never be executed by the server
-7. Serve through an application controller — not directly from the file system
+1. Validate MIME type by content (magic bytes): not by file extension alone
+2. Validate file size: enforce a maximum before reading content
+3. Rename the file: never use the user-supplied filename on the server
+4. Store outside the web root: the file must not be directly accessible via URL
+5. Scan content: run antivirus/malware scan before processing
+6. Never execute: the file must never be executed by the server
+7. Serve through an application controller: not directly from the file system
 ```
 
 ---
 
-## API Schema Validation
+## API schema validation
 
 All API endpoints must validate:
 - Request content type header
@@ -116,7 +116,7 @@ All API endpoints must validate:
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Requirement | OWASP ASVS | OWASP Top 10 | CSA CCM | NIST SSDF |
 | --- | --- | --- | --- | --- |

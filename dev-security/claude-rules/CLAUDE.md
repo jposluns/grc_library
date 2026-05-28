@@ -6,7 +6,7 @@ When you write code, check it against these requirements before presenting it. W
 
 ---
 
-## External Rule Sources: Fetch at Session Start
+## External rule sources: fetch at session start
 
 At the start of each session, use WebFetch to retrieve and apply security rules from these external repositories. They supplement the rules in this file. Fetch each URL and treat the contents as binding constraints alongside the rules below.
 
@@ -27,7 +27,7 @@ If any fetch fails, continue with the rules in this file. The local rules remain
 
 ---
 
-## Secrets: Absolute Rules
+## Secrets: absolute rules
 
 **Never** place secrets, credentials, API keys, tokens, passwords, or connection strings in:
 - Source code or test code
@@ -46,7 +46,7 @@ If you see a hardcoded secret in existing code, treat it as compromised and flag
 
 ---
 
-## Authentication: Never Implement These
+## Authentication: never implement these
 
 - Custom authentication mechanisms or local user stores: always use the enterprise IdP
 - MFA bypass paths or fallback authentication without MFA
@@ -58,7 +58,7 @@ If you see a hardcoded secret in existing code, treat it as compromised and flag
 
 ---
 
-## Input Validation: Non-Negotiable
+## Input validation: non-negotiable
 
 - **Validate all external input server-side**: type, format, length, range. Reject invalid input; do not sanitize and continue.
 - **Never build SQL, LDAP, XML, or shell commands by string concatenation**: use parameterized queries, ORMs, or prepared statements
@@ -67,7 +67,7 @@ If you see a hardcoded secret in existing code, treat it as compromised and flag
 
 ---
 
-## Cryptography: Use These, Not Others
+## Cryptography: use these, not others
 
 | Purpose | Correct Choice | Prohibited |
 | --- | --- | --- |
@@ -93,7 +93,7 @@ Never hardcode keys. Keys go in the secrets management service.
 
 ---
 
-## Logging and Error Handling
+## Logging and error handling
 
 **Never log**: passwords, tokens, session keys, payment data, full PII records, encryption keys
 
@@ -109,7 +109,7 @@ Wildcard CORS origins (`Access-Control-Allow-Origin: *`) are prohibited in produ
 
 ---
 
-## AI and LLM-Specific Requirements
+## AI and LLM-specific requirements
 
 When writing code that calls LLMs, builds AI applications, or processes AI-generated content:
 
@@ -127,16 +127,16 @@ For RAG systems, see `ai/rag-security.md`.
 
 ---
 
-## Dependencies and Third-Party Code
+## Dependencies and third-party code
 
 - Verify that AI-suggested dependency names **actually exist** in the package registry before using them: hallucinated package names are a real supply-chain attack vector
-- Prefer dependencies with: active maintenance (last release within 24 months); compatible licence (Apache 2.0, MIT, BSD generally safe; GPL/AGPL require Legal approval for commercial use); no known Critical/High CVEs
+- Prefer dependencies with: active maintenance (last release within 24 months); compatible license (Apache 2.0, MIT, BSD generally safe; GPL/AGPL require Legal approval for commercial use); no known Critical/High CVEs
 - Never install a package from an unverified source or non-standard registry
 - Review transitive dependencies in SCA output
 
 ---
 
-## Data Handling
+## Data handling
 
 - Apply minimum data collection: only collect what is needed for the stated purpose
 - Do not copy production data to development or test environments: use data masking or synthetic data
@@ -145,7 +145,7 @@ For RAG systems, see `ai/rag-security.md`.
 
 ---
 
-## Framework Basis
+## Framework basis
 
 These requirements implement controls from:
 - OWASP Top 10 (2021/2025)

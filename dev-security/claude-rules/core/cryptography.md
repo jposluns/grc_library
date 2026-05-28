@@ -2,7 +2,7 @@
 
 ---
 
-## Algorithm Selection: Use These
+## Algorithm selection: use these
 
 | Purpose | Required Algorithm | Prohibited |
 | --- | --- | --- |
@@ -18,7 +18,7 @@
 
 ---
 
-## AES Modes
+## AES modes
 
 - **GCM (Galois/Counter Mode)**: Use this. Provides authenticated encryption: integrity is built in. Required for all new development.
 - **CBC**: Permitted only for legacy interoperability where GCM is not possible. Requires a separate HMAC for authentication. Requires unpredictable IVs.
@@ -26,17 +26,17 @@
 
 ---
 
-## Password Hashing
+## Password hashing
 
 Passwords must never be stored as plaintext, encrypted (reversible), or with a general-purpose hash function.
 
 ```python
-# Correct — Argon2id
+# Correct: Argon2id
 from argon2 import PasswordHasher
 ph = PasswordHasher()
 hashed = ph.hash(password)
 
-# Correct — bcrypt with cost ≥ 12
+# Correct: bcrypt with cost ≥ 12
 import bcrypt
 hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt(rounds=12))
 
@@ -47,7 +47,7 @@ hashlib.md5(password.encode()).hexdigest()       # Broken
 
 ---
 
-## Key Management
+## Key management
 
 Keys must never be hardcoded in source code, configuration files, or build artefacts. Store keys in the organization's approved secrets management service.
 
@@ -60,7 +60,7 @@ Key lifecycle requirements:
 
 ---
 
-## Initialization Vectors (IV) and Nonces
+## Initialization vectors (IV) and nonces
 
 - IVs must be randomly generated for each encryption operation using a CSPRNG
 - IVs must never be hardcoded or predictable
@@ -69,7 +69,7 @@ Key lifecycle requirements:
 
 ---
 
-## TLS Configuration
+## TLS configuration
 
 When configuring TLS in application code or infrastructure:
 
@@ -85,7 +85,7 @@ Never set `verify=False`, `ssl.CERT_NONE`, `InsecureSkipVerify: true`, or equiva
 
 ---
 
-## Random Number Generation
+## Random number generation
 
 Use a cryptographically secure random number generator for all security-relevant randomness:
 
@@ -98,7 +98,7 @@ Use a cryptographically secure random number generator for all security-relevant
 
 ---
 
-## Post-Quantum Readiness
+## Post-quantum readiness
 
 Current public-key cryptography (RSA, ECDSA, ECDH) is vulnerable to cryptographically relevant quantum computers. Organizations should:
 - Inventory all systems using public-key cryptography
@@ -110,7 +110,7 @@ This is a planning requirement, not an immediate implementation requirement, exc
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Requirement | OWASP ASVS | NIST SP 800-131A | CSA CCM | ISO 27001 |
 | --- | --- | --- | --- | --- |

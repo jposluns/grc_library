@@ -2,7 +2,7 @@
 
 ---
 
-## Identity Provider
+## Identity provider
 
 Never implement custom authentication mechanisms or local user stores. All authentication must flow through the organization's enterprise identity provider (IdP). This applies to:
 - Web application logins
@@ -10,7 +10,7 @@ Never implement custom authentication mechanisms or local user stores. All authe
 - Mobile application authentication
 - Service-to-service authentication
 
-## MFA Requirements
+## MFA requirements
 
 Multi-factor authentication is mandatory for all human access. Applications must not provide:
 - Password-only authentication paths
@@ -20,7 +20,7 @@ Multi-factor authentication is mandatory for all human access. Applications must
 
 For Tier 0 access (identity systems, PAM, PKI infrastructure): phishing-resistant MFA only: FIDO2 security key or certificate-based authentication.
 
-## Service-to-Service Authentication
+## Service-to-service authentication
 
 | Caller Type | Required Pattern |
 | --- | --- |
@@ -31,7 +31,7 @@ For Tier 0 access (identity systems, PAM, PKI infrastructure): phishing-resistan
 
 Shared secrets and hardcoded service account passwords are prohibited for service-to-service authentication.
 
-## Session Token Security
+## Session token security
 
 ```
 Minimum entropy:      128 bits
@@ -42,14 +42,14 @@ Transmission:         Never in URLs, query strings, or log output
 Refresh tokens:       Rotation on each use; revocable on logout or compromise
 ```
 
-## Directory Integration
+## Directory integration
 
 - LDAPS (port 636) only: plain LDAP (port 389) is prohibited
 - UPN-based authentication: SAMAccountName-only is prohibited in new code
 - Kerberos AES-256: RC4 Kerberos prohibited in new builds
 - Service account directory binds must use dedicated service accounts in the PAM vault
 
-## Authentication Error Handling
+## Authentication error handling
 
 Authentication failures must return generic error messages to the caller. Do not reveal:
 - Whether the username exists
@@ -59,7 +59,7 @@ Authentication failures must return generic error messages to the caller. Do not
 
 Log full error details server-side with correlation ID. Return only a generic failure message with correlation ID to the caller.
 
-## Brute-Force Protection
+## Brute-force protection
 
 All login endpoints must implement:
 - Account lockout or progressive delay after N failed attempts
@@ -67,7 +67,7 @@ All login endpoints must implement:
 - Rate limiting per IP and per account
 - Alerting to SIEM on anomalous failed authentication patterns
 
-## Framework Alignment
+## Framework alignment
 
 | Requirement | OWASP ASVS | OWASP Top 10 | CSA CCM | ISO 27001 |
 | --- | --- | --- | --- | --- |

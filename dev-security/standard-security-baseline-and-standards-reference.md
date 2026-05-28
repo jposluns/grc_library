@@ -12,11 +12,11 @@
 **Review Frequency:** Annual or upon material threat, regulatory, or framework change 
 **Repository Path:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
-## Purpose and Scope
+## Purpose and scope
 
 This document establishes the security framework, governing principles, data classification model, identity architecture, and network security model applicable to all computing environments, development programmes, and activities within an organization's security boundary. It applies to all cloud environments, all internal and outsourced development, and all personnel, contractors, and service providers with access to organizational systems, data, or code repositories.
 
@@ -24,11 +24,11 @@ All requirements in the developer security requirements, DevOps security require
 
 ---
 
-## 1. Governing Framework Hierarchy
+## 1. Governing framework hierarchy
 
 In the event of conflict, higher layers take precedence.
 
-### Layer 1: Statute and Regulation
+### Layer 1: statute and regulation
 
 | Obligation | Jurisdiction | Relevance |
 | --- | --- | --- |
@@ -41,7 +41,7 @@ In the event of conflict, higher layers take precedence.
 | WCO SAFE Framework | Global | Customs data integrity and trade security |
 | CTPAT | USA | Cross-border trade security |
 
-### Layer 2: Primary Security Frameworks
+### Layer 2: primary security frameworks
 
 | Framework | Version | Role |
 | --- | --- | --- |
@@ -53,17 +53,17 @@ In the event of conflict, higher layers take precedence.
 | NIST SSDF | SP 800-218 and SP 800-218A (Generative AI Profile) | Secure-by-design development. Mandatory for all net-new development. SP 800-218A applies to all AI and ML workloads. |
 | OWASP ASVS | v5.0.0 | Application security testing baseline. |
 
-### Layer 3: Internal Governance Documents
+### Layer 3: internal governance documents
 
 The governance library includes authoritative artefacts in the following areas: information security policy; secure development and engineering policy; acceptance into service policy; identity and access management policy; privileged access management standard; authentication and password management standard; encryption and key management policy; privacy and data governance policy; network security and segmentation standard; logging and monitoring standard; physical security of IT infrastructure standard; remote working security standard; penetration testing and red team programme standard; bring-your-own-device policy; media handling and transport procedure; cloud exit and data portability standard; change management procedure; vulnerability management procedure; incident response procedure; AI compliance policy; AI governance and ethics framework; AI security and risk standard; post-quantum cryptography readiness roadmap.
 
-### Layer 4: Architectural Standards
+### Layer 4: architectural standards
 
 Current architectural authority documents define infrastructure delivery standards, network design, and approved tooling. Adopting organizations should maintain a current-state register of approved platforms, tooling, and vendor assignments.
 
 ---
 
-## 2. Core Security Principles
+## 2. Core security principles
 
 Deviations require a formal exception approved by the CIO or CISO.
 
@@ -82,7 +82,7 @@ Deviations require a formal exception approved by the CIO or CISO.
 
 ---
 
-## 3. Data Classification
+## 3. Data classification
 
 | Classification | Description | Examples |
 | --- | --- | --- |
@@ -95,27 +95,27 @@ Always classified as Confidential or Restricted regardless of context: personal 
 
 ---
 
-## 4. Regulatory Obligations
+## 4. Regulatory obligations
 
-### 4.1 Canadian Privacy Law
+### 4.1 Canadian privacy law
 
 Quebec Law 25 requires: PIA before any technology deployment involving personal information; data residency justification for storage outside Quebec; breach notification to the provincial privacy regulator within 72 hours of a high-risk breach; designated privacy officer. See the privacy management programme charter for the full privacy governance model.
 
-### 4.2 Trade Security Compliance (BASC)
+### 4.2 Trade security compliance (BASC)
 
 BASC International Standard requires: documented access controls to logistics and trade systems; protection of customs and shipment data; supply chain integrity controls; incident response and reporting for trade operations. IT responsibilities should be mapped in a dedicated compliance register.
 
-### 4.3 Trusted-Trader Programmes (CTPAT and Equivalents)
+### 4.3 Trusted-trader programmes (CTPAT and equivalents)
 
 Requirements include: documented cybersecurity programme; password and access control standards; periodic security assessments; and business partner vetting. Refer to the authentication and password management standard and the penetration testing programme standard.
 
-### 4.4 AI Regulation
+### 4.4 AI regulation
 
 Canada's AIDA requires: risk classification of AI systems; algorithmic impact assessments before deployment; transparency and explainability; retention of compliance records. Treat as near-term compliance target. Refer to the AI and agentic development security standard for AI security requirements.
 
 ---
 
-## 5. Cloud Hosting Policy
+## 5. Cloud hosting policy
 
 **Default:** Primary cloud region designated by the organization.
 
@@ -129,17 +129,17 @@ Canada's AIDA requires: risk classification of AI systems; algorithmic impact as
 
 ---
 
-## 6. Identity and Access Architecture
+## 6. Identity and access architecture
 
-### 6.1 Identity Authority
+### 6.1 Identity authority
 
 An enterprise identity provider (IdP) serves as the authoritative identity authority for all environments. On-premises identity domains should be separate security boundaries from resource domains. Administrative access must not cross trust boundaries.
 
-### 6.2 Authentication Standards
+### 6.2 Authentication standards
 
 Multi-factor authentication (MFA) is mandatory for all human access without exception. Phishing-resistant MFA (e.g., FIDO2 or certificate-based) is required for Tier 0 access. Service accounts use platform managed identities or PAM-vaulted accounts. LDAPS (port 636) is the only permitted directory integration protocol. Kerberos AES-256 is required; RC4 Kerberos is prohibited in all new builds.
 
-### 6.3 Privileged Access Management
+### 6.3 Privileged access management
 
 Just-in-time privileged access, approval workflows, and audit trails must be implemented for all privileged access. PAM tiers:
 
@@ -149,13 +149,13 @@ Just-in-time privileged access, approval workflows, and audit trails must be imp
 | **Tier 1** | Hypervisor, storage, backup, virtualization infrastructure | No Tier 0 access. MFA and session recording mandatory. Rotate every 24 to 48 hours. |
 | **Tier 2** | Application and database servers | No Tier 0/1 access unless explicitly approved. MFA mandatory. Rotate every 7 days. |
 
-### 6.4 Service Identities
+### 6.4 Service identities
 
 Service identities must be named per approved convention, hold minimum required permissions, be registered in the PAM vault or managed identity registry, and be reviewed quarterly. No service identity may hold standing domain administrator membership. Cloud workloads should use platform managed identity for all service-to-service authentication wherever technically feasible.
 
 ---
 
-## 7. Network Security Architecture
+## 7. Network security architecture
 
 All inter-segment communication is default-deny. Production, Test, and Dev are fully segregated with separate identity domains, network segments, and access controls. Storage segments are non-routable. Database segments have no outbound internet access. DMZ systems cannot initiate connections to database, storage, or backup segments. All administrative access is from a privileged access workstation (PAW) or approved jump host only. Perimeter controls include a cloud-based web application firewall (WAF) and next-generation firewalls enforcing north-south traffic policy.
 
@@ -163,11 +163,11 @@ Applications must document required network flows before deployment. No access c
 
 ---
 
-## 8. Logging and Monitoring
+## 8. Logging and monitoring
 
 Logging is mandatory and is not a post-deployment activity. A SIEM is the primary platform for log aggregation and alerting across Production and Test environments. All systems must forward logs to the SIEM.
 
-### Minimum Log Retention
+### Minimum log retention
 
 | Environment | Hot Retention | Archive |
 | --- | --- | --- |
@@ -175,21 +175,21 @@ Logging is mandatory and is not a post-deployment activity. A SIEM is the primar
 | Dev | 30 days | N/A |
 | Security logs | 12 months minimum | 24 months recommended |
 
-### Required Log Sources: All Systems
+### Required log sources: all systems
 
 Authentication events; privileged access events; administrative actions; network boundary events; application errors and security exceptions; backup events; certificate lifecycle events.
 
-### Applications Additionally Log
+### Applications additionally log
 
 All authentication attempts; all authorization decisions; all Confidential/Restricted data access events; all API calls with caller, endpoint, response code, and timestamp; significant configuration changes.
 
-### Log Integrity
+### Log integrity
 
 Logs must not be modifiable by the actor that generated them. SIEM workspace deletion is restricted to break-glass roles only.
 
 ---
 
-## 9. Incident Response Obligations
+## 9. Incident response obligations
 
 - Report any suspected incident immediately to the security team. No silent remediation.
 - Preserve evidence. Do not reimage, restart, or modify affected systems without IR team instruction.
@@ -198,11 +198,11 @@ Logs must not be modifiable by the actor that generated them. SIEM workspace del
 
 ---
 
-## 10. Framework and Runtime End-of-Life Policy
+## 10. Framework and runtime end-of-life policy
 
 Running application frameworks, language runtimes, or middleware that have reached vendor End-of-Life (EOL) is a security risk. EOL runtimes do not receive security patches. CVEs identified after the EOL date will remain unmitigated permanently. This policy applies to all runtimes including .NET, Node.js, Java, Python, OS versions, database engines, and on-premises middleware.
 
-### EOL Classification and Remediation SLA
+### EOL classification and remediation SLA
 
 | Class | Definition | Remediation SLA | Interim Controls |
 | --- | --- | --- | --- |
@@ -210,13 +210,13 @@ Running application frameworks, language runtimes, or middleware that have reach
 | **Class 2: High** | Runtime EOL date has passed with no qualifying CVE yet, OR runtime reaches EOL within 90 days | 90 days for already-EOL. Upgrade initiated before EOL date for imminent EOL. | Upgrade plan documented and tracked. Interim monitoring in place. |
 | **Class 3: Medium** | Runtime reaches EOL within 180 days | Upgrade plan must exist before the 90-day threshold is reached. | Planning and procurement only. |
 
-### EOL Tracking and Enforcement
+### EOL tracking and enforcement
 
 A runtime EOL tracking register is maintained by the DevOps lead and reviewed quarterly. SIEM alerts fire at 180 days, 90 days, and 30 days before any runtime reaches EOL. Cloud governance policy should block deployment to EOL runtime versions at the subscription or organizational level. Policy exceptions require a documented waiver with a maximum 30-day duration and CIO approval.
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Control Area | ISO 27001/27002 | CSA CCM v4 | NIST SP 800-218 | OWASP ASVS | Regulatory |
 | --- | --- | --- | --- | --- | --- |

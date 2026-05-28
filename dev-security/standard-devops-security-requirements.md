@@ -12,7 +12,7 @@
 **Review Frequency:** 6 to 12 months and upon material tooling, threat, or infrastructure change 
 **Repository Path:** [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,13 +22,13 @@ This standard defines security requirements for DevOps engineering: CI/CD pipeli
 
 ---
 
-## 1. CI/CD Pipeline Security
+## 1. CI/CD pipeline security
 
-### 1.1 Pipeline as Code
+### 1.1 Pipeline as code
 
 All pipeline definitions must be stored in version control. Pipeline files must not contain hard-coded credentials, API keys, tokens, or logic that bypasses security gates.
 
-### 1.2 Mandatory Pipeline Security Gates
+### 1.2 Mandatory pipeline security gates
 
 The following gates are mandatory in every pipeline deploying to Test or Production. The pipeline must fail and halt on any gate failure.
 
@@ -39,7 +39,7 @@ The following gates are mandatory in every pipeline deploying to Test or Product
 | SCA: dependency scan | Critical CVE: fail. High CVE: fail unless tracked issue exists with 14-day grace. |
 | Container image scanning | Critical CVE in base image or layer: fail. |
 | IaC scanning | Critical misconfiguration: fail. |
-| Licence compliance | GPL/AGPL without Legal approval: fail. |
+| License compliance | GPL/AGPL without Legal approval: fail. |
 | SBOM generation | Must generate and archive on every production build. |
 | Runtime EOL check | Deployment to EOL runtime version: fail. See Security Baseline Standard. |
 
@@ -47,19 +47,19 @@ Gate results are logged and retained as acceptance-into-service gate audit evide
 
 *CCM: CCC-01 through CCC-09, AIS-04 / NIST SSDF PW.8 / SLSA Level 2+*
 
-### 1.3 Pipeline Identity
+### 1.3 Pipeline identity
 
 The CI/CD pipeline must use a dedicated service identity, not a human account. For cloud deployments: service connection backed by managed identity or service principal with minimum permissions. For on-premises deployments: PAM-vaulted service account with credential injection. The pipeline identity must not be able to approve its own production deployments.
 
-### 1.4 Branch Protection
+### 1.4 Branch protection
 
 Protected branches feeding Test or Production pipelines must enforce: at minimum one required reviewer (two for security-sensitive repos); no direct push; SAST, SCA, and secret scanning must pass before merge; branch deletion restricted.
 
-### 1.5 Production Deployment Approval
+### 1.5 Production deployment approval
 
 Production deployments require manual approval from a designated approver who is not the pipeline author. The approval is recorded as an audit event. Emergency deployments still require approval, which may be asynchronous but must be obtained within 4 hours and documented.
 
-### 1.6 Artifact Integrity
+### 1.6 Artifact integrity
 
 All build artefacts deployed to Production must be signed (signing key in the organization's secrets management service) and the signature verified before deployment. An artefact with an invalid or absent signature must not be deployed.
 
@@ -67,28 +67,28 @@ All build artefacts deployed to Production must be signed (signing key in the or
 
 ---
 
-## 2. Infrastructure as Code (IaC)
+## 2. Infrastructure as code (iac)
 
 **Everything as code.** All infrastructure provisioning must be defined as code. Manual production changes are prohibited except in declared incidents and must be codified within 24 hours.
 
 **Approved tooling categories:** Terraform, Bicep, ARM templates, Ansible, or equivalent declarative infrastructure tools. Choice must be consistent within a workstream.
 
-### IaC Security Standards
+### IaC security standards
 
 - IaC scanning must pass with no Critical findings.
 - Encryption explicitly configured. Network access explicitly restricted. Logging and diagnostic settings configured for every resource.
 - Resource tagging: environment, owner, classification level, and cost centre.
 - No secrets in IaC code: use secrets management references or managed identity.
 
-### State Management
+### State management
 
 IaC state must be stored remotely in a cloud object store with versioning and access logging. Not in version control. Not local. State backends require authentication.
 
 ---
 
-## 3. Environment Separation and Promotion
+## 3. Environment separation and promotion
 
-### Three-Environment Model
+### Three-environment model
 
 | Environment | Identity Domain | Promotion Gate |
 | --- | --- | --- |
@@ -98,7 +98,7 @@ IaC state must be stored remotely in a cloud object store with versioning and ac
 
 Test consolidates all pre-production testing (integration, QA, UAT). Multiple server or service copies may exist within Test. All are treated as Test-tier for security classification and access control.
 
-### Promotion Rules
+### Promotion rules
 
 - Code and configuration move Dev → Test → Production only. No lateral movement. No back-promotion.
 - Production data must not flow to Test or Dev. Data masking or synthetic data required.
@@ -109,7 +109,7 @@ Test consolidates all pre-production testing (integration, QA, UAT). Multiple se
 
 ---
 
-## 4. Container and Platform Security
+## 4. Container and platform security
 
 **Base images:** Sourced from approved trusted registries. Minimal (distroless, Alpine) preferred. Must be scanned before use and on a scheduled cadence. Must not run as root. Privileged mode prohibited in production.
 
@@ -123,7 +123,7 @@ Test consolidates all pre-production testing (integration, QA, UAT). Multiple se
 
 ---
 
-## 5. Cloud Security Configuration
+## 5. Cloud security configuration
 
 All DevOps teams must comply with cloud security configuration requirements when provisioning, configuring, or modifying any cloud resource. DevOps-specific obligations:
 
@@ -134,7 +134,7 @@ All DevOps teams must comply with cloud security configuration requirements when
 
 ---
 
-## 6. Multi-Subscription and Multi-Account Governance
+## 6. Multi-subscription and multi-account governance
 
 - RBAC reviewed across all accounts and subscriptions in a single consolidated quarterly review.
 - Service principal or service account assignments spanning multiple accounts documented with business justification.
@@ -143,15 +143,15 @@ All DevOps teams must comply with cloud security configuration requirements when
 
 ---
 
-## 7. Automation Platform Operational Security
+## 7. Automation platform operational security
 
 This section defines deployment-time and operational security requirements for automation platforms (workflow automation and equivalent). Coding-level security requirements for automation workflows are in the Developer Security Requirements Standard.
 
-### Runtime Version Management
+### Runtime version management
 
 All automation platform runtimes must be on a supported, non-EOL version. A runtime EOL tracking register must be maintained. SIEM alerts fire at 60 and 30 days before any runtime EOL. Pipelines block deployment to EOL runtimes per §1.2. Upgrade sequence: sandbox regression testing first, then production.
 
-### Deployment Prerequisites
+### Deployment prerequisites
 
 Before any automation workflow deploys to production:
 
@@ -161,31 +161,31 @@ Before any automation workflow deploys to production:
 - All vendor API endpoint URLs are production endpoints, not development or staging.
 - API gateway named values are secrets-management-backed (not plain text).
 
-### OAuth Connection Re-authorization
+### OAuth connection re-authorization
 
 Platform OAuth connections expire after a defined period (typically 90 days). A quarterly re-authorization audit of all OAuth-type connections is mandatory. This is an operational obligation enforced by the DevOps team.
 
 ---
 
-## 8. API Gateway Operational Requirements
+## 8. API gateway operational requirements
 
 API gateway timeout must equal or exceed worst-case backend response time. All gateway named values must be secrets-management-backed. Gateway observability workspace must be onboarded to the SIEM.
 
 ---
 
-## 9. Shared File System Security
+## 9. Shared file system security
 
 On-premises shared file systems used by automated workflows as production dependencies must be: access-restricted to the specific service accounts and named administrators that require access; availability-monitored with a SIEM alert on unavailability; included in any applicable migration programme. File permissions audited on any shared file system used in a production automation path.
 
 ---
 
-## 10. Application Service Owner Registry
+## 10. Application service owner registry
 
 An application service owner registry must be populated before any application onboards to production. Required fields: application name, version, owner, admin contact, operational status, support team, compliance requirements.
 
 ---
 
-## 11. Framework and Runtime EOL: DevOps Requirements
+## 11. Framework and runtime EOL: DevOps requirements
 
 The EOL classification policy and remediation SLAs are defined in the Security Baseline Standard. DevOps obligations:
 
@@ -199,7 +199,7 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Control Area | ISO 27001/27002 | CSA CCM v4 | NIST SSDF | NIST SP 800-53 | SLSA |
 | --- | --- | --- | --- | --- | --- |

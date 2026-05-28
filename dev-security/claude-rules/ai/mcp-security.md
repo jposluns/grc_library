@@ -4,7 +4,7 @@ Apply these rules to all code that builds, operates, or consumes MCP servers. MC
 
 ---
 
-## MCP Server Authentication and Authorization
+## MCP server authentication and authorization
 
 - **All MCP servers must require authentication**: no unauthenticated tool endpoints
 - Implement per-tool authorization: not every caller with access to the server should be able to call every tool
@@ -14,7 +14,7 @@ Apply these rules to all code that builds, operates, or consumes MCP servers. MC
 
 ---
 
-## Tool Exposure Minimization
+## Tool exposure minimization
 
 - Expose **only the tools necessary** for the specific agent or use case: do not expose a general-purpose tool set
 - Do not expose tools that provide shell access, arbitrary file system access, or arbitrary network access unless specifically required and tightly scoped
@@ -23,7 +23,7 @@ Apply these rules to all code that builds, operates, or consumes MCP servers. MC
 
 ---
 
-## Input Validation on Tool Arguments
+## Input validation on tool arguments
 
 MCP tool handlers must validate all input from the model before acting on it:
 
@@ -35,7 +35,7 @@ MCP tool handlers must validate all input from the model before acting on it:
 
 ---
 
-## Preventing Tool-Call Injection
+## Preventing tool-call injection
 
 Tool-call injection occurs when adversarial content in the environment causes the model to make tool calls the user did not intend.
 
@@ -48,7 +48,7 @@ Tool-call injection occurs when adversarial content in the environment causes th
 
 ---
 
-## Resource Handler Security
+## Resource handler security
 
 MCP resource handlers expose data to the model. Treat them as APIs:
 
@@ -60,7 +60,7 @@ MCP resource handlers expose data to the model. Treat them as APIs:
 
 ---
 
-## Transport Security
+## Transport security
 
 - MCP servers must use TLS 1.2 minimum (TLS 1.3 preferred) for all transport
 - Validate TLS certificates: do not use `verify=False` or equivalent in MCP clients
@@ -68,7 +68,7 @@ MCP resource handlers expose data to the model. Treat them as APIs:
 
 ---
 
-## Tool Result Sanitization
+## Tool result sanitization
 
 Tool results returned to the model are part of the model's context and can carry prompt injection payloads:
 
@@ -78,7 +78,7 @@ Tool results returned to the model are part of the model's context and can carry
 
 ---
 
-## Privileged MCP Operations
+## Privileged MCP operations
 
 Some MCP tools may execute privileged operations (database writes, system configuration, external API calls). For these tools:
 
@@ -89,7 +89,7 @@ Some MCP tools may execute privileged operations (database writes, system config
 
 ---
 
-## MCP Server Lifecycle and Inventory
+## MCP server lifecycle and inventory
 
 - Maintain an inventory of all MCP servers in production, including: server name and version, tools exposed, authorization model, data accessed, owning team
 - Review the tool inventory quarterly: decommission tools no longer in use
@@ -97,7 +97,7 @@ Some MCP tools may execute privileged operations (database writes, system config
 
 ---
 
-## Adversarial Testing
+## Adversarial testing
 
 Before deploying any MCP server to production, conduct:
 
@@ -114,7 +114,7 @@ Before deploying any MCP server to production, conduct:
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Requirement | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM | NIST AI RMF |
 | --- | --- | --- | --- | --- |

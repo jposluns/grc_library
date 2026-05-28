@@ -4,7 +4,7 @@ These rules apply to all code in all languages. There are no exceptions without 
 
 ---
 
-## Absolute Prohibitions
+## Absolute prohibitions
 
 Never place the following in source code, config files tracked in version control, Dockerfiles, CI/CD definitions, log output, or error messages:
 
@@ -24,7 +24,7 @@ Never place the following in source code, config files tracked in version contro
 
 ---
 
-## Required Approach by Context
+## Required approach by context
 
 | Context | Store Secrets Here |
 | --- | --- |
@@ -37,7 +37,7 @@ Never place the following in source code, config files tracked in version contro
 
 ---
 
-## Secret Detection in Code Review
+## Secret detection in code review
 
 When reviewing code, flag any of the following patterns as a **Critical security finding**:
 
@@ -55,7 +55,7 @@ Treat discovered secrets as **compromised immediately**, regardless of whether t
 
 ---
 
-## Secret Rotation Design Requirement
+## Secret rotation design requirement
 
 Secret rotation must not require a code deployment. If rotating a secret requires:
 - A code change
@@ -68,7 +68,7 @@ Correct pattern: read the secret from the secrets management service at startup 
 
 ---
 
-## Git History
+## Git history
 
 Secrets committed to git history remain exposed even after the offending commit is removed from the HEAD. If a secret is found in git history:
 1. Rotate the secret immediately: assume it is compromised.
@@ -80,7 +80,7 @@ Secret scanning tools must be configured to scan all historical commits, not jus
 
 ---
 
-## `.env` File Rules
+## `.env` file rules
 
 `.env` files for local development are permitted under these conditions:
 1. The file is listed in `.gitignore`: verify this before creating the file.
@@ -90,7 +90,7 @@ Secret scanning tools must be configured to scan all historical commits, not jus
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Requirement | OWASP ASVS | OWASP Top 10 | NIST SSDF | CSA CCM |
 | --- | --- | --- | --- | --- |
