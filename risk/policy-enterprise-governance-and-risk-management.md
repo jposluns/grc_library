@@ -2,11 +2,11 @@
 
 **Document Title:** Enterprise Governance and Risk Management Policy 
 **Document Type:** Policy 
-**Version:** 1.3.0 
-**Date:** 2026-05-27 
+**Version:** 1.4.0 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) 
+**Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) 
 **Classification:** Public 
 **Category:** Risk Management 
 **Review Frequency:** Annual or as required by regulatory or framework changes 
@@ -27,6 +27,7 @@ This policy establishes the enterprise governance and risk management framework,
 1. This policy applies to all business units, regions, subsidiaries, and joint ventures where the organization has operational control, including BASC-certified logistics operations in Latin America (Colombia, Mexico, Peru, and Chile).
 2. It covers strategic, operational, financial, compliance, information security, privacy, safety, environmental, AI, and supply-chain risks across on-premises, cloud, multi-cloud, edge, and supplier-hosted services.
 3. It applies to all employees, contractors, suppliers, and partners who process organizational or trade data, handle cargo, or operate customs-facing systems.
+4. It encompasses trade-security and supply-chain risk management aligned to globally recognized programmes including WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), AEO-S (United Kingdom), NEEC (Mexico), OEA (Brazil), and equivalent frameworks.
 
 ---
 

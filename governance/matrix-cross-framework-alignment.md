@@ -2,8 +2,8 @@
 
 **Document Title:** Cross-Framework Alignment Matrix 
 **Document Type:** Matrix 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.1.0 
+**Date:** 2026-05-28 
 **Owner:** Control Framework Maintainer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`NOTICE.md`](../NOTICE.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md), [`governance/guideline-esg-and-ai-ethics-disclosure.md`](guideline-esg-and-ai-ethics-disclosure.md), [`risk/guideline-quantitative-risk-analysis.md`](../risk/guideline-quantitative-risk-analysis.md) 
@@ -51,6 +51,24 @@ This matrix provides an original, non-verbatim alignment structure for mapping r
 | Supply Chain | Trade and Supply-Chain Continuity Controls | WCO SAFE, ISO 28000, CTPAT, BASC, PIP, AEO, AEO-S, NEEC, OEA | Regulatory interpretation or contractual requirement | Organization participates in customs, logistics, or trade-security programmes. | Programme audit record, gap assessment, corrective action evidence. |
 | Resilience | Business Continuity and Resilience Framework | ISO 22301 continuity, NIST SP 800-34 continuity planning, COBIT DSS04, operational resilience families | Industry practice or regulatory interpretation | Services have recovery, availability, regulatory, or customer-impact obligations. | BIA, RTO/RPO register, test report, recovery plan, corrective action log. |
 | Dev Security | Developer Security Requirements Standard | OWASP Top 10, OWASP ASVS, OWASP LLM Top 10, NIST SSDF (SP 800-218), NIST SP 800-53 SA/SI families, ISO 27001 Annex A.8.25 to A.8.34, SLSA | Architectural recommendation | Organization develops or maintains software, AI systems, or automated pipelines. | Secure code review, SAST/DAST results, dependency scan, pipeline gate evidence. |
+
+---
+
+## Risk management control area mappings
+
+The following table maps the enterprise risk management control areas to external framework families. It supports the Enterprise Governance and Risk Management Policy, the Enterprise Risk Management Standard, and the underlying risk procedures.
+
+| Control Area | ISO 31000 | ISO 23894 | NIST SP 800-39 | NIST AI RMF | COBIT 2025 | CSA CCM v5 | Legal and Regulatory | Trade and Supply-Chain Programmes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Risk framework and governance | Clause 5 Framework | Clause 5 Governance | Organization-wide RMF | Govern | APO12.01 Define risk context | GRM domain; GOV domain | Corporate governance charters | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO, AEO-S |
+| Risk identification and analysis | Clause 6 Identify; Clause 6 Analyse | Clause 6.2 Identification; Clause 6.3 Analysis | Tasks 1 and 2 | Map; Measure | APO12.03 Assess risk | GRM domain | GDPR Article 25; CPPA accountability | WCO SAFE equivalence |
+| Risk appetite and tolerance | Clause 5.4 Integration; Clause 5.6 Evaluation | Clause 5 Governance | Organizational risk strategy | Govern | APO12.02 Define risk appetite | GRM domain | Board-approved appetite statements | WCO SAFE equivalence |
+| Treatment and control selection | Clause 6 Treat | Clause 6.4 Treatment | Task 3 Respond | Manage | APO12.06 Respond to risk | GRM domain | ISO 27001 Annex A controls | WCO SAFE equivalence |
+| Monitoring and review | Clause 6 Monitor and review | Clause 6.5 Monitoring | Task 4 Monitor | Manage | MEA01; MEA02 | GRM domain | Regulatory reporting duties | WCO SAFE equivalence |
+| AI model governance | Clause 6 lifecycle | Clauses 5 and 6 lifecycle | Organizational context | Govern; Manage | APO12; BAI03; DSS06 | AIS domain | EU AI Act; AIDA (pending, Canada) | Not applicable |
+| Third-party and supply-chain risk | Clause 5.3 Design | Clause 6.2 Context and third-party data | Organizational context | Govern | APO10 Manage Suppliers | STA domain | Contractual clauses; data processing agreements; transfer impact assessments | WCO SAFE equivalence |
+| Business continuity and resilience | Clause 5.2 Leadership | Not applicable | Organizational resilience context | Manage | DSS04 Manage Continuity | BCR domain | Local continuity regulations | WCO SAFE equivalence |
+| Exception and acceptance | Clause 6 Treat decision | Clause 6.4 Acceptance criteria | Risk response acceptance | Govern | APO12.07 Risk acceptance | GRM domain | Documented approvals and durations | WCO SAFE equivalence |
 
 ---
 

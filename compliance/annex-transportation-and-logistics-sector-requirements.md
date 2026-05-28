@@ -168,7 +168,7 @@ ICAO's Aviation Cybersecurity Strategy requires states and aviation organization
 
 | ICAO Area | Requirement | GRC Library Mapping |
 |---|---|---|
-| Governance | Cybersecurity governance framework; designated accountable executive | [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md) |
+| Governance | Cybersecurity governance framework; designated accountable executive | [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) |
 | Risk management | Cyber risk identification and mitigation | [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) |
 | Incident management | Aviation-specific incident response; reporting to national aviation authority | [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md): supplement with CAA/FAA notification procedure |
 | Supply chain | Cybersecurity requirements for aviation suppliers | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md) |

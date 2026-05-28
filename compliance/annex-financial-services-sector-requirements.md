@@ -125,7 +125,7 @@ OSFI B-13 applies to all federally regulated financial institutions in Canada. K
 
 | B-13 Domain | Outcome Required | GRC Library Mapping |
 |---|---|---|
-| **Governance** | Technology and cyber risk oversight at Board level; CRO accountability; technology risk appetite | [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md); [`risk/template-risk-appetite-statement.md`](../risk/template-risk-appetite-statement.md) |
+| **Governance** | Technology and cyber risk oversight at Board level; CRO accountability; technology risk appetite | [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md); [`risk/template-risk-appetite-statement.md`](../risk/template-risk-appetite-statement.md) |
 | **Technology Asset Management** | Complete, accurate technology asset inventory | [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md) |
 | **Technology and Cyber Risk Management** | Risk identification, assessment, treatment aligned to enterprise framework | [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md); [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md) |
 | **Cyber Resilience** | Cyber resilience strategy; incident response; threat intelligence; recovery capability | [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md); [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md) |
