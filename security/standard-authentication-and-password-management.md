@@ -1,18 +1,18 @@
 # Authentication and Password Management Standard
 
-**Document Title:** Authentication and Password Management Standard  
-**Document Type:** Standard  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)  
-**Classification:** Public  
-**Category:** Information Security  
-**Review Frequency:** Annual and upon material threat, framework, or regulatory change  
-**Repository Path:** [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Authentication and Password Management Standard 
+**Document Type:** Standard 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md) 
+**Classification:** Public 
+**Category:** Information Security 
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change 
+**Repository Path:** [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 This standard defines authentication and password management requirements across all systems, applications, and services. It consolidates requirements referenced across the PAM Standard, Cloud Security Configuration Baseline, and IAM Policy into a single authoritative reference.
 
@@ -38,7 +38,7 @@ To establish consistent, risk-proportionate authentication controls that reduce 
 | --- | --- |
 | CISO | Owns this standard; approves exceptions to MFA requirements. |
 | IT Operations / IAM Team | Enforces authentication controls via Conditional Access, enterprise identity provider, and endpoint management platform; manages MFA configuration. |
-| System / Application Owners | Ensure their systems enforce password and authentication policies; report deviations to IT Operations. |
+| System / Application Owners | Ensure that their systems enforce password and authentication policies; report deviations to IT Operations. |
 
 ---
 
@@ -63,7 +63,7 @@ MFA is mandatory for all accounts without exception. There are no circumstances 
 1. FIDO2 hardware security key
 2. Authenticator app with number matching enabled
 3. Software TOTP token
-4. SMS OTP — permitted only where no other method is technically feasible; deprecated by default. SMS OTP is **not** permitted for privileged accounts.
+4. SMS OTP: permitted only where no other method is technically feasible; deprecated by default. SMS OTP is **not** permitted for privileged accounts.
 
 MFA is enforced at the enterprise identity provider Conditional Access layer.
 
@@ -99,7 +99,7 @@ Exceptions to any requirement in this standard require CISO approval and must be
 | Password requirements | §5.1.1 | A.8.5 | IAM-06 | Control 5 |
 | MFA | §6.3 | A.8.5 | IAM-08 | Control 6 |
 | Session management | §7.1 | A.8.5 | IAM-09 | Control 5 |
-| Service account auth | — | A.8.2 | IAM-02 | Control 5 |
+| Service account auth | N/A | A.8.2 | IAM-02 | Control 5 |
 
 
 

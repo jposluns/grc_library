@@ -1,22 +1,22 @@
 # Incident Escalation Matrix
 
-**Document Title:** Incident Escalation Matrix  
-**Document Type:** Procedure  
-**Version:** 0.1.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`security/procedure-incident-response.md`](procedure-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/business-continuity-and-crisis-management.md`](../resilience/business-continuity-and-crisis-management.md)  
-**Classification:** Public  
-**Category:** Information Security  
-**Review Frequency:** Annual or following significant organisational or contact change  
-**Repository Path:** [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Incident Escalation Matrix 
+**Document Type:** Procedure 
+**Version:** 0.1.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`security/procedure-incident-response.md`](procedure-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/business-continuity-and-crisis-management.md`](../resilience/business-continuity-and-crisis-management.md) 
+**Classification:** Public 
+**Category:** Information Security 
+**Review Frequency:** Annual or following significant organizational or contact change 
+**Repository Path:** [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
-> **Document Status — Provisional:** This document is a provisional draft added to the GRC library in May 2026. Content is based on standard frameworks and best-practice assumptions. It has not yet been reviewed or formally approved by all stakeholders. It must not be used as the basis for operational decisions until reviewed, updated, and approved. Target formal review: Q3 2026.
+> **Document Status: Provisional:** This document is a provisional draft added to the GRC library in May 2026. Content is based on standard frameworks and best-practice assumptions. It has not yet been reviewed or formally approved by all stakeholders. It must not be used as the basis for operational decisions until reviewed, updated, and approved. Target formal review: Q3 2026.
 
 ---
 
@@ -41,10 +41,10 @@ This SoP defines the incident escalation matrix for security incidents. It speci
 
 | Severity | Initial Detection | First Escalation (within) | Second Escalation (within) | Executive Notification |
 | --- | --- | --- | --- | --- |
-| **P1 — Critical** | SOC / any staff | SOC Manager — immediate | CISO / CIO — within 30 minutes | CEO and ELT — within 1 hour |
-| **P2 — High** | SOC | SOC Manager — within 30 minutes | CISO — within 2 hours | CIO — within 2 hours; CEO if significant |
-| **P3 — Medium** | SOC | IR Coordinator — within 4 hours | CISO — within 24 hours if not resolved | CIO — if unresolved after 24 hours |
-| **P4 — Low** | SOC | IR Coordinator — within 24 hours | None required unless escalation triggered | None unless pattern identified |
+| **P1, Critical** | SOC / any staff | SOC Manager, immediate | CISO / CIO: within 30 minutes | CEO and ELT: within 1 hour |
+| **P2, High** | SOC | SOC Manager, within 30 minutes | CISO: within 2 hours | CIO: within 2 hours; CEO if significant |
+| **P3, Medium** | SOC | IR Coordinator, within 4 hours | CISO: within 24 hours if not resolved | CIO: if unresolved after 24 hours |
+| **P4, Low** | SOC | IR Coordinator, within 24 hours | None required unless escalation triggered | None unless pattern identified |
 
 ---
 
@@ -97,8 +97,8 @@ Any incident where escalation did not occur within the required timeline must be
 | --- | --- | --- |
 | ISO/IEC 27035:2023 | Information Security Incident Management | Incident classification and escalation |
 | NIST SP 800-61r3 | Computer Security Incident Handling Guide | Escalation and notification guidance |
-| COBIT 2025 | DSS02 — Manage Service Requests and Incidents | Incident management governance |
-| CSA CCM v5 | SEF-02 — Incident Management | Cloud incident escalation |
+| COBIT 2025 | DSS02: Manage Service Requests and Incidents | Incident management governance |
+| CSA CCM v5 | SEF-02: Incident Management | Cloud incident escalation |
 
 ---
 

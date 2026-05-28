@@ -1,24 +1,24 @@
 # Remote Working Security Standard
 
-**Document Title:** Remote Working Security Standard  
-**Document Type:** Standard  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md)  
-**Classification:** Public  
-**Category:** Information Security  
-**Review Frequency:** Annual and upon material change  
-**Repository Path:** [`security/standard-remote-working-security.md`](standard-remote-working-security.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Remote Working Security Standard 
+**Document Type:** Standard 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md) 
+**Classification:** Public 
+**Category:** Information Security 
+**Review Frequency:** Annual and upon material change 
+**Repository Path:** [`security/standard-remote-working-security.md`](standard-remote-working-security.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## 1. Purpose
 
-This standard defines the minimum security requirements for personnel working remotely — that is, working from any location outside a corporate office, including home, hotels, client sites, co-working spaces, and public locations. It establishes enforceable requirements for device security, network usage, physical workspace protection, and data handling when work is conducted outside the controlled office environment.
+This standard defines the minimum security requirements for personnel working remotely: that is, working from any location outside a corporate office, including home, hotels, client sites, co-working spaces, and public locations. It establishes enforceable requirements for device security, network usage, physical workspace protection, and data handling when work is conducted outside the controlled office environment.
 
 This standard supports the Information Security Policy, the Acceptable Use Policy, and the Authentication and Password Management Standard, and aligns to ISO/IEC 27001:2022 Annex A control A.6.7 (Remote working).
 
@@ -26,7 +26,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ## 2. Scope
 
-2.1 This standard applies to all employees, contractors, consultants, and third-party workers who access organisational systems, applications, or data from any location outside a corporate office.
+2.1 This standard applies to all employees, contractors, consultants, and third-party workers who access organizational systems, applications, or data from any location outside a corporate office.
 
 2.2 It covers all company-owned managed devices used for remote work.
 
@@ -42,7 +42,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 | --- | --- |
 | Chief Information Security Officer (CISO) | Owns this standard. Approves exceptions to remote working security requirements, including high-risk data access from non-standard devices or networks. Reviews compliance reports quarterly. |
 | IT Operations | Maintains and enforces conditional access policies, VPN and secure access tooling, and the endpoint management platform configuration. Monitors device compliance and reports deviations to the CISO. |
-| Line Managers | Ensure direct reports are aware of and comply with this standard prior to commencing remote work. Approve requests for exceptions in the first instance before escalation to the CISO. |
+| Line Managers | Ensure that direct reports are aware of and comply with this standard prior to commencing remote work. Approve requests for exceptions in the first instance before escalation to the CISO. |
 | All Employees and Contractors | Comply with all requirements in this standard. Report suspected incidents, device loss, or suspected compromise immediately to the IT service desk. |
 
 ---
@@ -68,7 +68,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 4.2.1 Where a device falls out of compliance (e.g., due to a missed patch cycle or lapsed certificate), IT Operations will alert the device owner and the device will enter a compliance remediation period.
 
-4.2.2 The compliance grace period is a maximum of 24 hours from the time non-compliance is detected. If the device is not remediated within 24 hours, conditional access policy enforcement will block access to organisational systems until compliance is restored.
+4.2.2 The compliance grace period is a maximum of 24 hours from the time non-compliance is detected. If the device is not remediated within 24 hours, conditional access policy enforcement will block access to organizational systems until compliance is restored.
 
 4.2.3 During the grace period, access to Confidential and Restricted data is suspended regardless of the nature of the non-compliance.
 
@@ -84,13 +84,13 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ### 5.1 Public and Untrusted Networks
 
-5.1.1 Organisational work must not be conducted on public or untrusted Wi-Fi networks (e.g., coffee shops, hotels, airports, conference venues) without first establishing a VPN or equivalent encrypted tunnel.
+5.1.1 Organizational work must not be conducted on public or untrusted Wi-Fi networks (e.g., coffee shops, hotels, airports, conference venues) without first establishing a VPN or equivalent encrypted tunnel.
 
-5.1.2 Where a VPN connection cannot be established, personnel must use a personal mobile hotspot (mobile data connection) as an alternative to an untrusted public network before conducting any organisational work.
+5.1.2 Where a VPN connection cannot be established, personnel must use a personal mobile hotspot (mobile data connection) as an alternative to an untrusted public network before conducting any organizational work.
 
 5.1.3 The following network types require VPN regardless of the nature of work being conducted:
 
-- Public Wi-Fi (any network not under the control of the organisation or the remote worker's household)
+- Public Wi-Fi (any network not under the control of the organization or the remote worker's household)
 - Hotel or hospitality networks
 - Client site networks unless a formal network access agreement is in place
 
@@ -107,7 +107,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ### 5.3 VPN Split Tunnelling
 
-5.3.1 VPN split tunnelling — the configuration that routes only some traffic through the VPN while other traffic accesses the internet directly — must not be enabled by end users without explicit IT Operations approval.
+5.3.1 VPN split tunnelling, the configuration that routes only some traffic through the VPN while other traffic accesses the internet directly, must not be enabled by end users without explicit IT Operations approval.
 
 5.3.2 Where split tunnelling is configured by IT Operations for performance reasons (e.g., to allow direct routing of cloud productivity platform traffic), the configuration must ensure that all access to on-premises resources and Confidential or Restricted data is routed through the VPN tunnel.
 
@@ -122,13 +122,13 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 - Keep router firmware current
 - Segment IoT devices onto a separate guest network where the router supports this capability
 
-5.4.2 The organisation does not mandate home router configuration, but notes that a compromised home network increases the risk of credential interception. The VPN provides the primary compensating control for home network risks.
+5.4.2 The organization does not mandate home router configuration, but notes that a compromised home network increases the risk of credential interception. The VPN provides the primary compensating control for home network risks.
 
 ---
 
 ## 6. Workspace and Physical Security
 
-6.1 Personnel working remotely must ensure screens displaying organisational information are not visible to others in public locations or shared living spaces.
+6.1 Personnel working remotely must ensure that screens displaying organizational information are not visible to others in public locations or shared living spaces.
 
 6.2 Devices must be locked immediately when stepping away, even briefly. Screen lock must not be disabled.
 
@@ -138,7 +138,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 6.5 Clean desk principles apply when not actively working: documents must be put away, screens locked, and physical notes containing sensitive information must be stored securely.
 
-6.6 Printed documents containing organisational information must be stored securely when not in use and disposed of via cross-cut shredding. Printing of Confidential or Restricted data at home or public locations requires prior written approval from the relevant line manager and the CISO.
+6.6 Printed documents containing organizational information must be stored securely when not in use and disposed of via cross-cut shredding. Printing of Confidential or Restricted data at home or public locations requires prior written approval from the relevant line manager and the CISO.
 
 ---
 
@@ -146,7 +146,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ### 7.1 Classification and Storage
 
-7.1.1 Remote workers must handle data in accordance with the Data Classification and Handling Standard at all times. The four classification tiers and their remote working implications are summarised below:
+7.1.1 Remote workers must handle data in accordance with the Data Classification and Handling Standard at all times. The four classification tiers and their remote working implications are summarized below:
 
 | Classification | Remote Access Permitted | Storage Requirements | VPN Required |
 | --- | --- | --- | --- |
@@ -155,11 +155,11 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 | **Confidential** | Yes, on compliant managed device; personal devices require CISO approval | Company-managed encrypted storage; personal cloud storage prohibited | Yes (on-premises access); Yes (all access from non-home networks) |
 | **Restricted** | Managed device only; CISO approval required for remote access | Company-managed encrypted storage; no personal storage of any kind | Yes, always |
 
-7.1.2 All data must remain in company-managed storage. Data must not be saved to personal cloud storage services, personal drives, or any storage medium not under the control of the organisation.
+7.1.2 All data must remain in company-managed storage. Data must not be saved to personal cloud storage services, personal drives, or any storage medium not under the control of the organization.
 
 ### 7.2 Collaboration and File Sharing
 
-7.2.1 Files must be shared using the organisation's approved collaboration and file storage platform. Email attachments containing Confidential or Restricted data must not be sent to personal email addresses.
+7.2.1 Files must be shared using the organization's approved collaboration and file storage platform. Email attachments containing Confidential or Restricted data must not be sent to personal email addresses.
 
 7.2.2 Screen-sharing sessions via the collaboration platform must not expose Confidential or Restricted content to participants who do not have a legitimate business need.
 
@@ -167,7 +167,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ## 8. Bring-Your-Own Device (BYOD)
 
-8.1 A formal BYOD policy is pending approval. In the interim, the following requirements apply to any use of personal devices to access organisational systems:
+8.1 A formal BYOD policy is pending approval. In the interim, the following requirements apply to any use of personal devices to access organizational systems:
 
 8.2 Personal devices may not be used to access data classified as Confidential or Restricted without explicit written approval from the CISO and a documented compensating control.
 
@@ -175,7 +175,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 - Enrolment in the endpoint management platform (where technically feasible) or equivalent mobile device management
 - Conditional access policy enforcement applied to the personal device
-- Prohibition on local data storage — access must be read-only or via browser-based thin client where possible
+- Prohibition on local data storage: access must be read-only or via browser-based thin client where possible
 - The CISO approval must be documented, time-limited (maximum 90 days per the exception process in Section 9), and reviewed on renewal
 
 8.4 Personal devices may access Public and Internal data via cloud productivity platform browser interfaces subject to conditional access policy enforcement, without CISO approval, provided no data is downloaded to the personal device.
@@ -236,7 +236,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 11.2 IT Operations will monitor device compliance posture via the endpoint management platform and report non-compliance to the CISO on a monthly basis, or immediately for critical non-compliance events.
 
-11.3 Breaches of this standard will be handled in accordance with the organisation's disciplinary procedures. Repeated or wilful non-compliance may result in remote access privileges being suspended or terminated.
+11.3 Breaches of this standard will be handled in accordance with the organization's disciplinary procedures. Repeated or wilful non-compliance may result in remote access privileges being suspended or terminated.
 
 11.4 Contractors and third-party workers who breach this standard may have their access revoked immediately pending investigation.
 
@@ -246,7 +246,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 | Framework | Reference | Alignment |
 | --- | --- | --- |
-| ISO/IEC 27001:2022 | A.6.7 Remote working | Primary alignment — this standard operationalises A.6.7 requirements |
+| ISO/IEC 27001:2022 | A.6.7 Remote working | Primary alignment: this standard operationalizes A.6.7 requirements |
 | ISO/IEC 27001:2022 | A.8.1 User endpoint devices | Device security and compliance baseline requirements |
 | ISO/IEC 27001:2022 | A.6.6 Confidentiality or non-disclosure agreements | Data handling obligations for remote workers |
 | ISO/IEC 27002:2022 | §6.7 Remote working | Detailed implementation guidance for teleworking controls |
@@ -254,7 +254,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 | NIST SP 800-46 Rev. 2 | §4 Securing Telework Client Devices | Endpoint compliance baseline |
 | NIST Cybersecurity Framework 2.0 | PR.AC (Identity Management and Access Control) | Conditional access and device compliance enforcement |
 | NIST Cybersecurity Framework 2.0 | PR.DS (Data Security) | Remote data handling and classification requirements |
-| CSA CCM v5 | HRS-09 Remote and Home Working | Direct alignment — remote working security requirements |
+| CSA CCM v5 | HRS-09 Remote and Home Working | Direct alignment: remote working security requirements |
 | CSA CCM v5 | UEM-01 Endpoint Devices | Managed device and MDM requirements |
 | CIS Controls v8 | Control 4 (Secure Configuration of Enterprise Assets) | Device baseline configuration requirements |
 | CIS Controls v8 | Control 12 (Network Infrastructure Management) | VPN, split tunnelling, and network security guidance |

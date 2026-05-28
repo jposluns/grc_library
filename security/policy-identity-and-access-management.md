@@ -1,18 +1,18 @@
 # Identity and Access Management Policy
 
-**Document Title:** Identity and Access Management Policy  
-**Document Type:** Policy  
-**Version:** 1.3.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)  
-**Classification:** Public  
-**Category:** Information Security  
-**Review Frequency:** Annual and upon material threat, framework, or regulatory change  
-**Repository Path:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Identity and Access Management Policy 
+**Document Type:** Policy 
+**Version:** 1.3.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) 
+**Classification:** Public 
+**Category:** Information Security 
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change 
+**Repository Path:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 This policy establishes the principles, control objectives, and governance requirements for identity and access management (IAM) across all systems, applications, and environments.
 
@@ -20,7 +20,7 @@ This policy establishes the principles, control objectives, and governance requi
 
 ## Purpose
 
-To ensure that all users — human, service, and machine — are uniquely identified, appropriately authenticated, and authorized according to business need, while maintaining compliance with information security, privacy, and regulatory obligations.
+To ensure that all users, human, service, and machine, are uniquely identified, appropriately authenticated, and authorized according to business need, while maintaining compliance with information security, privacy, and regulatory obligations.
 
 ---
 
@@ -40,7 +40,7 @@ To ensure that all users — human, service, and machine — are uniquely identi
 | CIO | Accountable for IAM strategy, architecture, and integration with enterprise risk management. |
 | CISO | Responsible for enforcement, compliance monitoring, and IAM control validation. |
 | IT Operations / Security Engineering | Responsible for implementation, configuration, and monitoring of IAM technologies. |
-| System and Application Owners | Ensure proper access design and periodic certification within their systems. |
+| System and Application Owners | Ensure that proper access design and periodic certification within their systems. |
 | Managers and Supervisors | Approve and review user access rights for their direct reports. |
 | Users | Must safeguard credentials and comply with authentication requirements. |
 
@@ -89,7 +89,7 @@ To ensure that all users — human, service, and machine — are uniquely identi
 
 ### 7. Monitoring and Logging
 
-7.1 All IAM events — including logins, privilege escalations, failed authentications, and permission changes — shall be logged in the SIEM per the Logging and Monitoring Standard.
+7.1 All IAM events, including logins, privilege escalations, failed authentications, and permission changes, shall be logged in the SIEM per the Logging and Monitoring Standard.
 7.2 IAM alerts must be correlated with endpoint and network telemetry to detect anomalous behaviour.
 7.3 AI-driven anomaly detection may be used to identify compromised accounts or access misuse.
 
@@ -115,11 +115,11 @@ To ensure that all users — human, service, and machine — are uniquely identi
 
 | Control Area | ISO/IEC 27001 | ISO/IEC 27002 | NIST | COBIT 2025 | CSA CCM v5 |
 | --- | --- | --- | --- | --- | --- |
-| Identity Management | A.5.15–A.5.20 | 9.1–9.4 | SP 800-63 | DSS05 | IAM-01–09 |
+| Identity Management | A.5.15 to A.5.20 | 9.1 to 9.4 | SP 800-63 | DSS05 | IAM-01 to 09 |
 | Authentication | A.8.5 | §8.3 | SP 800-63B | DSS05.04 | IAM-06, IAM-08 |
 | Privileged Access | A.8.2 | §8.2 | SP 800-53 AC-2, AC-6 | DSS05.04 | IAM-02, IAM-04 |
-| Access Review | A.5.18 | — | SP 800-53 AC-2 | MEA01 | IAM-10 |
-| AI/Automation Access | A.8 (emerging) | — | AI RMF | DSS05.06 | IAM-14 |
+| Access Review | A.5.18 | N/A | SP 800-53 AC-2 | MEA01 | IAM-10 |
+| AI/Automation Access | A.8 (emerging) | N/A | AI RMF | DSS05.06 | IAM-14 |
 
 
 

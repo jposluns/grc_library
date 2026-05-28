@@ -1,26 +1,26 @@
 # Privileged Access Management Standard
 
-**Document Title:** Privileged Access Management Standard  
-**Document Type:** Standard  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md)  
-**Classification:** Public  
-**Category:** Information Security  
-**Review Frequency:** Annual and upon material threat, framework, or regulatory change  
-**Repository Path:** [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Privileged Access Management Standard 
+**Document Type:** Standard 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md) 
+**Classification:** Public 
+**Category:** Information Security 
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change 
+**Repository Path:** [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
-This standard defines the requirements for managing privileged access across systems and environments. It establishes controls for the identification, provisioning, monitoring, and revocation of privileged accounts to minimise the risk of unauthorized access, credential abuse, and lateral movement.
+This standard defines the requirements for managing privileged access across systems and environments. It establishes controls for the identification, provisioning, monitoring, and revocation of privileged accounts to minimize the risk of unauthorized access, credential abuse, and lateral movement.
 
 ---
 
 ## Purpose
 
-To ensure privileged accounts are managed, monitored, and revoked according to a documented, auditable process that reduces the attack surface available to insider threats and external adversaries.
+To ensure that privileged accounts are managed, monitored, and revoked according to a documented, auditable process that reduces the attack surface available to insider threats and external adversaries.
 
 ---
 
@@ -90,8 +90,8 @@ Suspected compromise of a privileged account constitutes a P1 security incident.
 | Control | ISO/IEC 27001 | NIST SP 800-53 | COBIT 2025 | CSA CCM v5 | CIS |
 | --- | --- | --- | --- | --- | --- |
 | Privileged access rights | A.8.2 | AC-2, AC-6 | DSS05.04 | IAM-02, IAM-04 | Control 5 |
-| Just-in-time access | A.5.18 | AC-2(7) | — | IAM-04 | Control 6 |
-| Emergency access | A.5.17 | AC-2(2) | DSS05.04 | IAM-03 | — |
+| Just-in-time access | A.5.18 | AC-2(7) | N/A | IAM-04 | Control 6 |
+| Emergency access | A.5.17 | AC-2(2) | DSS05.04 | IAM-03 | N/A |
 | Session logging | A.8.15 | AU-2, AU-12 | DSS05.04 | IAM-06 | Control 8 |
 
 

@@ -1,18 +1,18 @@
 # Security Disciplinary Process Procedure
 
-**Document Title:** Security Disciplinary Process Procedure  
-**Document Type:** Procedure  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md), [`security/standard-personnel-security-screening.md`](standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md)  
-**Classification:** Public  
-**Category:** Information Security  
-**Review Frequency:** Annual and upon material HR, legal, or regulatory change  
-**Repository Path:** [`security/procedure-security-disciplinary-process.md`](procedure-security-disciplinary-process.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Security Disciplinary Process Procedure 
+**Document Type:** Procedure 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md), [`security/standard-personnel-security-screening.md`](standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md) 
+**Classification:** Public 
+**Category:** Information Security 
+**Review Frequency:** Annual and upon material HR, legal, or regulatory change 
+**Repository Path:** [`security/procedure-security-disciplinary-process.md`](procedure-security-disciplinary-process.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -24,7 +24,7 @@ This procedure defines the process for investigating and responding to security 
 
 ## Scope
 
-Applies to all employees, contractors, temporary workers, and third parties who access organisational systems or data and who are subject to the organisation's security policies. Covers violations of any security policy, standard, or procedure within the GRC library.
+Applies to all employees, contractors, temporary workers, and third parties who access organizational systems or data and who are subject to the organization's security policies. Covers violations of any security policy, standard, or procedure within the GRC library.
 
 ---
 
@@ -33,7 +33,7 @@ Applies to all employees, contractors, temporary workers, and third parties who 
 | Role | Responsibility |
 | --- | --- |
 | **CISO** | Initiates security investigations; determines severity classification; advises HR on security context. |
-| **HR / People Operations** | Owns the disciplinary process; ensures procedural fairness and legal compliance. |
+| **HR / People Operations** | Owns the disciplinary process; ensures that procedural fairness and legal compliance. |
 | **Legal Counsel** | Advises on employment law, regulatory obligations, and any criminal referral. |
 | **Manager / People Leader** | Participates in disciplinary meetings; implements agreed outcomes. |
 | **Internal Audit** | Reviews disciplinary process adherence and documents systemic issues. |
@@ -141,10 +141,10 @@ Security violations are classified by severity:
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 27001:2022 | Annex A.6.4 — Disciplinary Process | Security disciplinary requirements |
-| ISO/IEC 27002:2022 | §6.4 — Disciplinary Process | Disciplinary process controls |
-| NIST SP 800-53 | PS-8 — Personnel Sanctions | Personnel security sanctions |
-| COBIT 2025 | DSS05 — Manage Security Services | Security personnel controls |
+| ISO/IEC 27001:2022 | Annex A.6.4: Disciplinary Process | Security disciplinary requirements |
+| ISO/IEC 27002:2022 | §6.4: Disciplinary Process | Disciplinary process controls |
+| NIST SP 800-53 | PS-8: Personnel Sanctions | Personnel security sanctions |
+| COBIT 2025 | DSS05: Manage Security Services | Security personnel controls |
 
 ---
 

@@ -1,18 +1,18 @@
 # Logging and Monitoring Standard
 
-**Document Title:** Logging and Monitoring Standard  
-**Document Type:** Standard  
-**Version:** 1.3.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/procedure-incident-response.md`](procedure-incident-response.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)  
-**Classification:** Public  
-**Category:** Information Security  
-**Review Frequency:** Annual and upon material threat, framework, or regulatory change  
-**Repository Path:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Logging and Monitoring Standard 
+**Document Type:** Standard 
+**Version:** 1.3.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/procedure-incident-response.md`](procedure-incident-response.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) 
+**Classification:** Public 
+**Category:** Information Security 
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change 
+**Repository Path:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 This standard establishes enterprise-wide requirements for system logging, monitoring, telemetry collection, and alert management to support threat detection, forensic analysis, and compliance verification. Consolidates the former Logging Policy, Monitoring Procedure, and SIEM Integration Standard.
 
@@ -20,7 +20,7 @@ This standard establishes enterprise-wide requirements for system logging, monit
 
 ## Purpose
 
-To ensure consistent, auditable, and secure handling of log data aligned with ISO/IEC 27002:2022 §8.15, NIST SP 800-92, COBIT 2025 DSS05, CSA CCM v5 IVS-09 and SEF-01, and the EU NIS 2 Directive.
+To ensure that consistent, auditable, and secure handling of log data aligned with ISO/IEC 27002:2022 §8.15, NIST SP 800-92, COBIT 2025 DSS05, CSA CCM v5 IVS-09 and SEF-01, and the EU NIS 2 Directive.
 
 ---
 
@@ -36,7 +36,7 @@ To ensure consistent, auditable, and secure handling of log data aligned with IS
 
 - The CISO is accountable for centralized logging and monitoring capabilities.
 - The Security Operations Center (SOC) manages log collection, storage, correlation, and alerting.
-- The CIO ensures integration with enterprise infrastructure and business systems.
+- The CIO ensures that integration with enterprise infrastructure and business systems.
 - System owners and third-party service providers are responsible for compliant logging configurations.
 - Regional BASC Compliance Officers oversee logging for BASC-certified logistics and customs systems, with trade-security logs capturing cargo inspection results, customs-transaction records, and personnel screening activities.
 
@@ -123,9 +123,9 @@ To ensure consistent, auditable, and secure handling of log data aligned with IS
 | Time synchronization | §8.15.3 | SP 800-92 §4.2 | DSS01.03 | ISM-04 | SOX |
 | Central collection and retention | §8.15.5 | CSF Detect | DSS05.02 | SEF-01 | NIS 2 Directive |
 | Access and protection | §8.15.7 | SP 800-53 AC-6 | DSS05.04 | ISM-03 | Privacy laws |
-| AI system traceability | — | AI RMF | DSS05.06 | IVS-09 | ENISA AI Certification Scheme |
+| AI system traceability | N/A | AI RMF | DSS05.06 | IVS-09 | ENISA AI Certification Scheme |
 | Monitoring and alerting | §8.16 | CSF Respond | DSS05.03 | SEF-01 | Incident reporting laws |
-| BASC trade logging | — | — | — | — | BASC v6, WCO SAFE, ISO 28000 |
+| BASC trade logging | N/A |, | N/A |, | BASC v6, WCO SAFE, ISO 28000 |
 
 
 

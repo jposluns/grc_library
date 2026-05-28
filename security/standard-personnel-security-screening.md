@@ -1,24 +1,24 @@
 # Personnel Security Screening Standard
 
-**Document Title:** Personnel Security Screening Standard  
-**Document Type:** Standard  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/procedure-incident-response.md`](procedure-incident-response.md), [`supply-chain/standard-third-party-risk.md`](../supply-chain/standard-third-party-risk.md)  
-**Classification:** Public  
-**Category:** Information Security  
-**Review Frequency:** Annual and upon material threat, framework, or regulatory change  
-**Repository Path:** [`security/standard-personnel-security-screening.md`](standard-personnel-security-screening.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Personnel Security Screening Standard 
+**Document Type:** Standard 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/procedure-incident-response.md`](procedure-incident-response.md), [`supply-chain/standard-third-party-risk.md`](../supply-chain/standard-third-party-risk.md) 
+**Classification:** Public 
+**Category:** Information Security 
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change 
+**Repository Path:** [`security/standard-personnel-security-screening.md`](standard-personnel-security-screening.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This standard defines the organisation's minimum requirements for personnel security screening. It governs pre-employment background verification for all employees and contractors, with heightened requirements for roles with access to sensitive systems, data, or privileged accounts.
+This standard defines the organization's minimum requirements for personnel security screening. It governs pre-employment background verification for all employees and contractors, with heightened requirements for roles with access to sensitive systems, data, or privileged accounts.
 
 A prior security incident in which a previously active account belonging to a departed individual was exploited underscores the critical importance of robust identity lifecycle controls. Personnel screening is the first preventive layer; it must be paired with rigorous onboarding and offboarding procedures to ensure that access rights accurately reflect current employment status throughout the personnel lifecycle.
 
@@ -51,22 +51,22 @@ All personnel must be screened to the tier corresponding to their role classific
 
 | Role Tier | Examples | Required Screening Elements |
 | --- | --- | --- |
-| **Tier 1 — Standard** | All employees and contractors with system access | Identity verification; employment history confirmation; right-to-work verification |
-| **Tier 2 — Elevated** | Finance, HR, payroll, legal, procurement | All Tier 1 requirements; criminal record check (where permitted by jurisdiction); reference checks (minimum 2) |
-| **Tier 3 — Privileged** | IT Operations, system administrators, developers with production access, security personnel | All Tier 2 requirements; enhanced reference checks; verification of relevant qualifications or certifications where claimed |
-| **Tier 4 — Executive / High-Trust** | CxO, ELT, roles with board or audit committee access | All Tier 3 requirements; media and regulatory screening where applicable and permitted |
+| **Tier 1: Standard** | All employees and contractors with system access | Identity verification; employment history confirmation; right-to-work verification |
+| **Tier 2: Elevated** | Finance, HR, payroll, legal, procurement | All Tier 1 requirements; criminal record check (where permitted by jurisdiction); reference checks (minimum 2) |
+| **Tier 3: Privileged** | IT Operations, system administrators, developers with production access, security personnel | All Tier 2 requirements; enhanced reference checks; verification of relevant qualifications or certifications where claimed |
+| **Tier 4: Executive / High-Trust** | CxO, ELT, roles with board or audit committee access | All Tier 3 requirements; media and regulatory screening where applicable and permitted |
 
 ---
 
 ## Jurisdiction Constraints
 
-Background check scope varies by jurisdiction. Criminal record checks and certain credit-related checks are subject to provincial privacy legislation (Quebec Law 25, Ontario privacy equivalents), US state-level restrictions, and applicable local law in Latin American and European locations. Legal Counsel must confirm the permitted scope for each jurisdiction before screening is conducted. Screening must not exceed what is authorised by applicable law. Where legal constraints prohibit a required screening element, Human Resources must document the limitation and notify the CISO before onboarding proceeds.
+Background check scope varies by jurisdiction. Criminal record checks and certain credit-related checks are subject to provincial privacy legislation (Quebec Law 25, Ontario privacy equivalents), US state-level restrictions, and applicable local law in Latin American and European locations. Legal Counsel must confirm the permitted scope for each jurisdiction before screening is conducted. Screening must not exceed what is authorized by applicable law. Where legal constraints prohibit a required screening element, Human Resources must document the limitation and notify the CISO before onboarding proceeds.
 
 ---
 
 ## Screening Timing
 
-1. Screening must be initiated before an offer of employment is finalised.
+1. Screening must be initiated before an offer of employment is finalized.
 2. Screening must be substantially complete before the individual is granted access to company systems.
 3. Conditional access pending screening completion requires written CISO approval and must be documented with a defined completion deadline.
 4. Access is not granted until the minimum Tier 1 requirements are verified.
@@ -85,10 +85,10 @@ Background check scope varies by jurisdiction. Criminal record checks and certai
 
 ## Contractor and Third-Party Screening
 
-1. Contractors and third-party personnel must provide evidence of background screening conducted by their employer or agency before being granted access to the organisation's systems or facilities.
-2. Where a third-party employer cannot confirm that screening has been conducted, the organisation may:
-   a. Conduct its own screening at the contractor's expense; or
-   b. Restrict the contractor to lower-risk system access with appropriate technical controls applied.
+1. Contractors and third-party personnel must provide evidence of background screening conducted by their employer or agency before being granted access to the organization's systems or facilities.
+2. Where a third-party employer cannot confirm that screening has been conducted, the organization may:
+ a. Conduct its own screening at the contractor's expense; or
+ b. Restrict the contractor to lower-risk system access with appropriate technical controls applied.
 3. Third-party screening requirements are included in supplier contracts per the Third-Party Risk Standard.
 4. Spot-check audits of contractor screening compliance are conducted annually by Human Resources in coordination with the CISO.
 
@@ -104,10 +104,10 @@ Screening records, adverse finding decisions, and conditional access approvals a
 
 | Requirement Area | ISO/IEC 27001:2022 | NIST SP 800-53 | CSA CCM v5 | CTPAT / PIP / BASC |
 | --- | --- | --- | --- | --- |
-| Pre-employment screening | A.6.1 | PS-3 | HRS-01, HRS-02 | CTPAT Personnel Security; Canada PIP — Personnel and Staffing; BASC v6 §8.3 |
+| Pre-employment screening | A.6.1 | PS-3 | HRS-01, HRS-02 | CTPAT Personnel Security; Canada PIP: Personnel and Staffing; BASC v6 §8.3 |
 | Contractor screening | A.6.6 | PS-7 | HRS-06 | CTPAT Personnel Security |
-| Role-based access consideration | A.5.15 | AC-2 | IAM-02 | — |
-| Records and accountability | A.5.33 | PS-3(1) | HRS-04 | — |
+| Role-based access consideration | A.5.15 | AC-2 | IAM-02 | N/A |
+| Records and accountability | A.5.33 | PS-3(1) | HRS-04 | N/A |
 
 ---
 

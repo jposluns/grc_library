@@ -1,18 +1,18 @@
 # Information Security Policy
 
-**Document Title:** Information Security Policy  
-**Document Type:** Policy  
-**Version:** 1.3.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)  
-**Classification:** Public  
-**Category:** Information Security  
-**Review Frequency:** Annual and upon material threat, framework, or regulatory change  
-**Repository Path:** [`security/policy-information-security.md`](policy-information-security.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Information Security Policy 
+**Document Type:** Policy 
+**Version:** 1.3.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) 
+**Classification:** Public 
+**Category:** Information Security 
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change 
+**Repository Path:** [`security/policy-information-security.md`](policy-information-security.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 This policy establishes the overarching framework for protecting the confidentiality, integrity, and availability of information and systems. It merges and supersedes the Access Control Policy, Network Security Policy, Endpoint Security Policy, Vulnerability Management Policy, and Asset Management Policy into a unified Information Security Management System (ISMS) directive.
 
@@ -37,11 +37,11 @@ To ensure that information security is systematically managed, risks are mitigat
 
 **ISMS Ownership**
 - The Chief Information Security Officer (CISO) is responsible for establishing, maintaining, and continually improving the ISMS.
-- The Chief Information Officer (CIO) provides strategic alignment and ensures resourcing.
+- The Chief Information Officer (CIO) provides strategic alignment and ensures that resourcing.
 - An Enterprise Risk Committee reviews risk posture and control effectiveness quarterly.
 
 **Information Security Management System (ISMS)**
-- The ISMS shall operate in accordance with ISO/IEC 27001:2022 Clauses 4–10 and Annex A.
+- The ISMS shall operate in accordance with ISO/IEC 27001:2022 Clauses 4 to 10 and Annex A.
 - Control ownership shall be assigned for each ISO/IEC 27002 control family and CSA CCM domain.
 
 **Roles and Responsibilities**
@@ -49,7 +49,7 @@ To ensure that information security is systematically managed, risks are mitigat
 | Role | Responsibility |
 | --- | --- |
 | CISO | Defines and enforces security strategy, policies, and controls. Oversees risk assessments, vulnerability management, and incident response. |
-| CIO | Ensures security objectives align with business goals. Oversees infrastructure, architecture, and compliance integration. |
+| CIO | Ensures that security objectives align with business goals. Oversees infrastructure, architecture, and compliance integration. |
 | Security Operations Team | Implements and monitors preventive, detective, and corrective controls. Operates SIEM, vulnerability scanners, and endpoint protection. |
 | System and Application Owners | Maintain asset inventories, apply security baselines, and validate access rights. |
 | Network and Cloud Engineers | Configure, monitor, and protect network and cloud infrastructure per NIST CSF 2.0 Protect and Detect functions. |
@@ -66,7 +66,7 @@ To ensure that information security is systematically managed, risks are mitigat
 
 ### 1. Information Security Framework
 
-1.1 The organization shall maintain an ISMS aligned to ISO/IEC 27001:2022 Clauses 4–10 and Annex A.
+1.1 The organization shall maintain an ISMS aligned to ISO/IEC 27001:2022 Clauses 4 to 10 and Annex A.
 1.2 The ISMS shall integrate risk management, business continuity, privacy, and AI governance.
 1.3 Security objectives shall be measurable and reviewed annually.
 
@@ -112,7 +112,7 @@ To ensure that information security is systematically managed, risks are mitigat
 
 8.1 AI systems and models shall be protected against unauthorized access, modification, or data poisoning.
 8.2 Model artifacts shall be version-controlled, integrity-checked, and logged.
-8.3 Validation and verification procedures shall be implemented to ensure accuracy, fairness, and reproducibility.
+8.3 Validation and verification procedures shall be implemented to ensure that accuracy, fairness, and reproducibility.
 8.4 AI model risk metrics shall align with NIST CSF 2.0 and AI RMF 1.1.
 
 ### 9. Incident Response and Reporting
@@ -133,13 +133,13 @@ To ensure that information security is systematically managed, risks are mitigat
 
 | Control Area | ISO/IEC 27001 | ISO/IEC 27002 | NIST CSF 2.0 | COBIT 2025 | CSA CCM v5 |
 | --- | --- | --- | --- | --- | --- |
-| Governance and ISMS | Clauses 4–10 | A.5 | Identify, Protect | DSS01.01 | ISM-01 |
-| Asset Management | A.5.9–A.5.11 | 8.1–8.3 | Identify | DSS01.02 | ISM-02 |
-| Access Control | A.5.15–A.5.20 | 9.1–9.4 | Protect | DSS05 | IAM-01–09 |
-| Network and Cloud Security | A.5.21–A.5.23 | 10.1–10.5 | Protect, Detect | DSS01, DSS04 | IVS-01–10 |
-| Vulnerability and Patch | A.8.8, A.8.9 | 12.1–12.6 | Detect, Respond | DSS05 | ISM-04 |
-| Incident Management | A.5.24 | 16.1–16.3 | Respond, Recover | DSS02 | ISM-05 |
-| AI Model Security | A.8 (emerging) | — | Protect, Detect | DSS01.06 | ISM-10 |
+| Governance and ISMS | Clauses 4 to 10 | A.5 | Identify, Protect | DSS01.01 | ISM-01 |
+| Asset Management | A.5.9 to A.5.11 | 8.1 to 8.3 | Identify | DSS01.02 | ISM-02 |
+| Access Control | A.5.15 to A.5.20 | 9.1 to 9.4 | Protect | DSS05 | IAM-01 to 09 |
+| Network and Cloud Security | A.5.21 to A.5.23 | 10.1 to 10.5 | Protect, Detect | DSS01, DSS04 | IVS-01 to 10 |
+| Vulnerability and Patch | A.8.8, A.8.9 | 12.1 to 12.6 | Detect, Respond | DSS05 | ISM-04 |
+| Incident Management | A.5.24 | 16.1 to 16.3 | Respond, Recover | DSS02 | ISM-05 |
+| AI Model Security | A.8 (emerging) | N/A | Protect, Detect | DSS01.06 | ISM-10 |
 | Continuous Improvement | Clause 10 | 18.1 | Recover | MEA01 | ISM-12 |
 
 **Additional alignments:** BASC International Standard (v6 2023); WCO SAFE Framework (2021); ISO 28000:2022; PIPEDA; AIDA.

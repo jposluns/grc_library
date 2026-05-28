@@ -1,30 +1,30 @@
 # Access Control Procedure
 
-**Document Title:** Access Control Procedure  
-**Document Type:** Procedure  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`security/procedure-identity-management.md`](procedure-identity-management.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md)  
-**Classification:** Public  
-**Category:** Information Security  
-**Review Frequency:** Annual and upon material system or regulatory change  
-**Repository Path:** [`security/procedure-access-control.md`](procedure-access-control.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Access Control Procedure 
+**Document Type:** Procedure 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`security/procedure-identity-management.md`](procedure-identity-management.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md) 
+**Classification:** Public 
+**Category:** Information Security 
+**Review Frequency:** Annual and upon material system or regulatory change 
+**Repository Path:** [`security/procedure-access-control.md`](procedure-access-control.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This procedure defines the processes for granting, reviewing, modifying, and revoking access to organisational systems, applications, data, and network resources. It implements the principle of least privilege and need-to-know access model across all platforms, ensuring access is appropriate, authorised, and periodically reviewed.
+This procedure defines the processes for granting, reviewing, modifying, and revoking access to organizational systems, applications, data, and network resources. It implements the principle of least privilege and need-to-know access model across all platforms, ensuring access is appropriate, authorized, and periodically reviewed.
 
 ---
 
 ## Scope
 
-Applies to all access to organisational systems including cloud platforms, on-premises systems, applications, network infrastructure, databases, development environments, and privileged management interfaces. Covers all user types: employees, contractors, third parties, and service accounts.
+Applies to all access to organizational systems including cloud platforms, on-premises systems, applications, network infrastructure, databases, development environments, and privileged management interfaces. Covers all user types: employees, contractors, third parties, and service accounts.
 
 ---
 
@@ -53,7 +53,7 @@ Applies to all access to organisational systems including cloud platforms, on-pr
 
 1.3 Privileged access (administrative rights, root/sudo, domain admin) requires additional approval from the CISO or delegated security lead.
 
-1.4 Emergency access requests may be approved verbally and must be formalised within 24 hours.
+1.4 Emergency access requests may be approved verbally and must be formalized within 24 hours.
 
 ---
 
@@ -78,8 +78,8 @@ Applies to all access to organisational systems including cloud platforms, on-pr
 | Access Type | Review Frequency |
 | --- | --- |
 | Privileged / administrative access | Quarterly |
-| Standard user access — high-sensitivity systems | Semi-annual |
-| Standard user access — general systems | Annual |
+| Standard user access: high-sensitivity systems | Semi-annual |
+| Standard user access: general systems | Annual |
 | Third-party / contractor access | On contract renewal and at least annually |
 
 3.2 Access reviews confirm that current access remains appropriate for the user's current role.
@@ -146,12 +146,12 @@ Applies to all access to organisational systems including cloud platforms, on-pr
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 27001:2022 | Annex A.5.15–5.18 — Access Control | Access governance |
-| ISO/IEC 27002:2022 | §5.15–5.18 | Access request, review, and revocation |
-| NIST SP 800-53 | AC — Access Control Family | Access management controls |
-| COBIT 2025 | DSS05 — Manage Security Services | Access security services |
-| CSA CCM v5 | IAM-01 through IAM-14 — Identity and Access Management | Cloud IAM controls |
-| NIST SP 800-207 | Zero Trust Architecture | Least privilege and continuous authorisation |
+| ISO/IEC 27001:2022 | Annex A.5.15 to 5.18: Access Control | Access governance |
+| ISO/IEC 27002:2022 | §5.15 to 5.18 | Access request, review, and revocation |
+| NIST SP 800-53 | AC: Access Control Family | Access management controls |
+| COBIT 2025 | DSS05: Manage Security Services | Access security services |
+| CSA CCM v5 | IAM-01 through IAM-14: Identity and Access Management | Cloud IAM controls |
+| NIST SP 800-207 | Zero Trust Architecture | Least privilege and continuous authorization |
 
 ---
 

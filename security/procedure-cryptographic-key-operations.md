@@ -1,30 +1,30 @@
 # Cryptographic Key Operations Procedure
 
-**Document Title:** Cryptographic Key Operations Procedure  
-**Document Type:** Procedure  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md)  
-**Classification:** Public  
-**Category:** Information Security  
-**Review Frequency:** Annual and upon material cryptographic standard or operational change  
-**Repository Path:** [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Cryptographic Key Operations Procedure 
+**Document Type:** Procedure 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md) 
+**Classification:** Public 
+**Category:** Information Security 
+**Review Frequency:** Annual and upon material cryptographic standard or operational change 
+**Repository Path:** [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This procedure defines the step-by-step operational instructions for all cryptographic key operations including generation, registration, distribution, activation, rotation, revocation, and destruction. It implements the controls established in the Cryptographic Key Lifecycle Management Framework and ensures consistent, auditable execution of key management operations.
+This procedure defines the step-by-step operational instructions for all cryptographic key operations including generation, registration, distribution, activation, rotation, revocation, and destruction. It implements the controls established in the Cryptographic Key Lifecycle Management Framework and ensures that consistent, auditable execution of key management operations.
 
 ---
 
 ## Scope
 
-Applies to all cryptographic key operations performed by IT Operations, Security Architecture, and any personnel authorised to manage cryptographic material. Covers symmetric keys, asymmetric key pairs, digital certificates, SSH keys, and API tokens across all organisational platforms.
+Applies to all cryptographic key operations performed by IT Operations, Security Architecture, and any personnel authorized to manage cryptographic material. Covers symmetric keys, asymmetric key pairs, digital certificates, SSH keys, and API tokens across all organizational platforms.
 
 ---
 
@@ -33,12 +33,12 @@ Applies to all cryptographic key operations performed by IT Operations, Security
 | Role | Responsibility |
 | --- | --- |
 | **Security Architecture** | Designs key management architecture; approves new key types and algorithms. |
-| **IT Operations — Key Custodian** | Executes key operations; maintains Key Lifecycle Register. |
+| **IT Operations: Key Custodian** | Executes key operations; maintains Key Lifecycle Register. |
 | **CISO** | Approves non-standard key operations; reviews KLR quarterly. |
 | **System / Application Owner** | Requests keys for their systems; approves rotation schedules. |
 | **Internal Audit** | Audits KLR completeness and key operation logs annually. |
 
-Dual control is required for all key generation, export, and destruction operations — no single person may perform these operations unilaterally.
+Dual control is required for all key generation, export, and destruction operations: no single person may perform these operations unilaterally.
 
 ---
 
@@ -50,7 +50,7 @@ Dual control is required for all key generation, export, and destruction operati
 
 1.3 Key generation is performed using FIPS 140-3 validated Hardware Security Modules (HSMs) or approved software cryptographic libraries.
 
-1.4 Two authorised Key Custodians must be present or cryptographically authenticate for key generation.
+1.4 Two authorized Key Custodians must be present or cryptographically authenticate for key generation.
 
 1.5 Upon generation, the Key Custodian registers the key in the Key Lifecycle Register with all required fields.
 
@@ -77,7 +77,7 @@ Dual control is required for all key generation, export, and destruction operati
 
 ## 3. Key Distribution
 
-3.1 Keys are distributed only to authorised systems and personnel as defined in the approved access list.
+3.1 Keys are distributed only to authorized systems and personnel as defined in the approved access list.
 
 3.2 Distribution channels:
 - Public keys: distributed via PKI certificate exchange or encrypted API (TLS 1.3+).
@@ -92,7 +92,7 @@ Dual control is required for all key generation, export, and destruction operati
 
 ## 4. Key Activation
 
-4.1 Keys are activated in the target system or application by the system owner or authorised operator.
+4.1 Keys are activated in the target system or application by the system owner or authorized operator.
 
 4.2 Activation is recorded in the Key Lifecycle Register: activation date, activating operator, target system.
 
@@ -162,10 +162,10 @@ Dual control is required for all key generation, export, and destruction operati
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 27002:2022 | §8.24–§8.28 — Cryptographic Controls | Key operation controls |
-| NIST SP 800-57 Parts 1–3 | Key Management Guidelines | Key operational procedures |
+| ISO/IEC 27002:2022 | §8.24 to §8.28: Cryptographic Controls | Key operation controls |
+| NIST SP 800-57 Parts 1 to 3 | Key Management Guidelines | Key operational procedures |
 | NIST FIPS 140-3 | Security Requirements for Cryptographic Modules | HSM and module requirements |
-| COBIT 2025 | DSS05 — Manage Security Services | Security service operations |
+| COBIT 2025 | DSS05: Manage Security Services | Security service operations |
 | CSA CCM v5 | EKM-01 through EKM-04 | Cloud key management operations |
 
 ---

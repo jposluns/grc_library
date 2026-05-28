@@ -1,18 +1,18 @@
 # Security Awareness and Training Standard
 
-**Document Title:** Security Awareness and Training Standard  
-**Document Type:** Standard  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)  
-**Classification:** Public  
-**Category:** Information Security  
-**Review Frequency:** Annual and upon material threat, framework, or regulatory change  
-**Repository Path:** [`security/standard-security-awareness-and-training.md`](standard-security-awareness-and-training.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Security Awareness and Training Standard 
+**Document Type:** Standard 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md) 
+**Classification:** Public 
+**Category:** Information Security 
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change 
+**Repository Path:** [`security/standard-security-awareness-and-training.md`](standard-security-awareness-and-training.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 This standard defines the requirements for a security awareness and training programme. It establishes minimum training obligations, content requirements, delivery frequency, completion tracking, and role-based training requirements for personnel with elevated security responsibilities.
 
@@ -37,9 +37,9 @@ To ensure that all personnel understand their security obligations, can recogniz
 | Role | Responsibility |
 | --- | --- |
 | CISO | Owns the security awareness programme; approves training content and annual curriculum. |
-| Human Resources | Ensures training completion is tracked in the HR management system; integrates security training into onboarding; reports non-completion to CISO. |
+| Human Resources | Ensures that training completion is tracked in the HR management system; integrates security training into onboarding; reports non-completion to CISO. |
 | IT Operations | Delivers platform-based training (LMS or equivalent); manages phishing simulation campaigns. |
-| Managers | Ensure their direct reports complete mandatory training within required timelines. |
+| Managers | Ensure that their direct reports complete mandatory training within required timelines. |
 | Internal Audit | Verifies training completion rates and programme effectiveness annually. |
 
 ---
@@ -53,7 +53,7 @@ To ensure that all personnel understand their security obligations, can recogniz
 | Security awareness fundamentals (phishing, social engineering, password hygiene, data handling) | Annual | Within 30 days of hire; annually thereafter |
 | Acceptable Use Policy acknowledgement | Annual | First day of employment; annually thereafter |
 | Privacy and data protection basics (applicable legislation, personal data handling) | Annual | Within 30 days of hire; annually thereafter |
-| Incident reporting (how to recognise and report a suspected security incident) | Annual | Within 30 days of hire; annually thereafter |
+| Incident reporting (how to recognize and report a suspected security incident) | Annual | Within 30 days of hire; annually thereafter |
 
 ### Role-Based Supplemental Training
 
@@ -97,7 +97,7 @@ The CISO reviews programme effectiveness annually using: training completion rat
 | --- | --- | --- | --- | --- |
 | Security awareness | A.6.3 | AT-2 | HRS-06 | CTPAT, Canada PIP |
 | Role-based training | A.6.3 | AT-3 | HRS-07 | BASC v6 §7.2 |
-| Training governance | Clause 7.2 | AT-1 | — | — |
+| Training governance | Clause 7.2 | AT-1 | N/A |: |
 
 
 

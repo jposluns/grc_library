@@ -1,24 +1,24 @@
 # Network Communications Security Policy
 
-**Document Title:** Network Communications Security Policy  
-**Document Type:** Policy  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)  
-**Classification:** Public  
-**Category:** Information Security  
-**Review Frequency:** Annual and upon material network, architecture, or regulatory change  
-**Repository Path:** [`security/policy-network-communications-security.md`](policy-network-communications-security.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Network Communications Security Policy 
+**Document Type:** Policy 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md) 
+**Classification:** Public 
+**Category:** Information Security 
+**Review Frequency:** Annual and upon material network, architecture, or regulatory change 
+**Repository Path:** [`security/policy-network-communications-security.md`](policy-network-communications-security.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This policy defines the technical and procedural controls for securing organisational networks across on-premise, cloud, and hybrid environments.
+This policy defines the technical and procedural controls for securing organizational networks across on-premise, cloud, and hybrid environments.
 
 It establishes requirements for network segmentation, firewall configuration, intrusion detection and prevention, and secure connectivity, ensuring protection of corporate, cloud, and BASC-regulated logistics networks.
 
@@ -26,12 +26,12 @@ It establishes requirements for network segmentation, firewall configuration, in
 
 ## Scope
 
-1. Applies to all networks, connections, and communication channels that transmit or store organisational or trade data, including BASC-certified logistics and customs systems.
+1. Applies to all networks, connections, and communication channels that transmit or store organizational or trade data, including BASC-certified logistics and customs systems.
 2. Covers:
-   - Corporate LAN, WAN, and VPN infrastructure.
-   - Cloud and virtualised networks.
-   - BASC logistics, customs, and cargo networks.
-   - Wireless, remote, and partner connectivity.
+ - Corporate LAN, WAN, and VPN infrastructure.
+ - Cloud and virtualized networks.
+ - BASC logistics, customs, and cargo networks.
+ - Wireless, remote, and partner connectivity.
 3. Applies to all employees, contractors, and third parties who connect to corporate or third-party certified networks.
 4. Encompasses both internal traffic and external connectivity to partners, customers, and customs authorities.
 
@@ -45,7 +45,7 @@ It establishes requirements for network segmentation, firewall configuration, in
 | **Chief Information Officer (CIO)** | Provides resources and strategic oversight for network infrastructure and architecture. |
 | **Network Security Manager** | Implements segmentation, firewall, VPN, and IDS/IPS configurations. |
 | **Security Operations Centre (SOC)** | Monitors traffic, alerts, and anomalies using SIEM and AI-assisted analytics. |
-| **Regional BASC Compliance Officers** | Ensure BASC-certified networks follow customs-security and cargo-integrity controls. |
+| **Regional BASC Compliance Officers** | Ensure that BASC-certified networks follow customs-security and cargo-integrity controls. |
 | **System and Application Owners** | Validate that network configurations support required data classifications and encryption levels. |
 | **Internal Audit** | Performs periodic verification of firewall and segmentation effectiveness across enterprise and BASC environments. |
 
@@ -100,7 +100,7 @@ It establishes requirements for network segmentation, firewall configuration, in
 
 4.1 All remote connections must use VPN or Zero-Trust Network Access (ZTNA) solutions enforcing device health, MFA, and continuous session validation.
 
-4.2 Direct remote access to BASC trade or customs networks is prohibited unless authorised in writing by the CISO and Regional BASC Compliance Officer.
+4.2 Direct remote access to BASC trade or customs networks is prohibited unless authorized in writing by the CISO and Regional BASC Compliance Officer.
 
 4.3 Partner and supplier connections must be isolated using virtual network peering, firewalls, or secure APIs.
 
@@ -163,12 +163,12 @@ It establishes requirements for network segmentation, firewall configuration, in
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO/IEC 27033:2020 | Network Security Architecture | Network architecture, segmentation, secure connectivity |
-| ISO/IEC 27001:2022 | A.8.20–21 — Network security, network segmentation | Network security policy obligations |
-| COBIT 2025 | DSS05 — Managed Security Services | Network security governance and service management |
+| ISO/IEC 27001:2022 | A.8.20 to 21: Network security, network segmentation | Network security policy obligations |
+| COBIT 2025 | DSS05: Managed Security Services | Network security governance and service management |
 | NIST SP 800-207 | Zero Trust Architecture | ZTNA principles, continuous validation |
-| CSA CCM v5 | IVS-01 — Network Security and Virtualisation Controls | Cloud and virtualised network security |
-| BASC v6 (2023) | Section 6 — Trade and Customs Network Security | BASC logistics network controls, customs log retention |
-| WCO SAFE Framework (2021) | Authorised Economic Operator and Customs Security | Supply-chain and customs communication controls |
+| CSA CCM v5 | IVS-01: Network Security and Virtualization Controls | Cloud and virtualized network security |
+| BASC v6 (2023) | Section 6: Trade and Customs Network Security | BASC logistics network controls, customs log retention |
+| WCO SAFE Framework (2021) | Authorized Economic Operator and Customs Security | Supply-chain and customs communication controls |
 | ISO 28000:2022 | Supply-Chain Security and Resilience | Trade network security management |
 | EU NIS 2 Directive (2023) | Critical Network Security Requirements | Critical infrastructure network obligations |
 

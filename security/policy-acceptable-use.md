@@ -1,30 +1,30 @@
 # Acceptable Use Policy
 
-**Document Title:** Acceptable Use Policy  
-**Document Type:** Policy  
-**Version:** 1.3.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-security-awareness-and-training.md`](standard-security-awareness-and-training.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md)  
-**Classification:** Public  
-**Category:** Information Security  
-**Review Frequency:** Annual and upon material threat, framework, or regulatory change  
-**Repository Path:** [`security/policy-acceptable-use.md`](policy-acceptable-use.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Acceptable Use Policy 
+**Document Type:** Policy 
+**Version:** 1.3.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-security-awareness-and-training.md`](standard-security-awareness-and-training.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md) 
+**Classification:** Public 
+**Category:** Information Security 
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change 
+**Repository Path:** [`security/policy-acceptable-use.md`](policy-acceptable-use.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## 1. Purpose
 
-This policy defines acceptable use of information systems, devices, networks, and data by all authorised personnel. It establishes the boundaries of permitted activity, prohibited behaviours, and personal use expectations. All personnel must acknowledge this policy annually.
+This policy defines acceptable use of information systems, devices, networks, and data by all authorized personnel. It establishes the boundaries of permitted activity, prohibited behaviours, and personal use expectations. All personnel must acknowledge this policy annually.
 
 ---
 
 ## 2. Scope
 
-1. Applies to all employees, contractors, consultants, and any other party authorised to access systems, networks, or data.
+1. Applies to all employees, contractors, consultants, and any other party authorized to access systems, networks, or data.
 2. Covers all company-owned and managed devices, cloud services, email, collaboration platforms, internet access, and data handled in the course of work.
 3. Applies to access from any location including offices, home, and travel.
 
@@ -32,7 +32,7 @@ This policy defines acceptable use of information systems, devices, networks, an
 
 ## 3. Acceptable Use
 
-Authorised users may use systems and devices for work purposes. Incidental personal use of internet and email is permitted provided it does not:
+Authorized users may use systems and devices for work purposes. Incidental personal use of internet and email is permitted provided it does not:
 
 - interfere with work performance;
 - consume excessive bandwidth or storage;
@@ -50,11 +50,11 @@ The following activities are prohibited on company systems, devices, and network
 3. Sharing credentials, passwords, or MFA codes with any other person for any reason.
 4. Circumventing or disabling security controls including endpoint protection, MFA, or Conditional Access policies.
 5. Connecting unapproved personal devices or storage media (USB drives, external hard drives) to company systems.
-6. Accessing company systems or data for personal financial gain or to benefit a third party outside the scope of authorised work.
+6. Accessing company systems or data for personal financial gain or to benefit a third party outside the scope of authorized work.
 7. Using company email or collaboration platforms to transmit defamatory, harassing, or discriminatory content.
-8. Deliberately attempting to access systems, data, or accounts beyond the scope of the user's authorised role.
+8. Deliberately attempting to access systems, data, or accounts beyond the scope of the user's authorized role.
 9. Exfiltrating company data to personal accounts, personal devices, or external services not approved by IT.
-10. Granting remote access to company devices or systems to unapproved third parties — including via tools such as AnyDesk, TeamViewer, or equivalent — unless explicitly authorised by IT Operations and documented.
+10. Granting remote access to company devices or systems to unapproved third parties, including via tools such as AnyDesk, TeamViewer, or equivalent, unless explicitly authorized by IT Operations and documented.
 
 ---
 
@@ -79,7 +79,7 @@ All personnel must be aware that social engineering attacks are frequently condu
 
 ## 7. Monitoring
 
-The organisation reserves the right to monitor activity on company systems and devices for security and compliance purposes. Monitoring is conducted in accordance with applicable privacy law and is disclosed through this policy. Users have no expectation of privacy when using company-owned devices or systems. Monitoring results may be used in disciplinary or legal proceedings.
+The organization reserves the right to monitor activity on company systems and devices for security and compliance purposes. Monitoring is conducted in accordance with applicable privacy law and is disclosed through this policy. Users have no expectation of privacy when using company-owned devices or systems. Monitoring results may be used in disciplinary or legal proceedings.
 
 ---
 
@@ -99,10 +99,10 @@ All personnel must sign or electronically acknowledge this policy upon hire and 
 
 | Framework | Reference |
 |---|---|
-| ISO/IEC 27001:2022 | A.5.10 — Acceptable Use of Information and Other Associated Assets |
-| NIST SP 800-53 | PL-4 — Rules of Behaviour |
-| CSA CCM v5 | HRS-04 — Acceptable Use Policy |
-| COBIT 2025 | APO01.08 — Manage People, Skills and Behaviour |
+| ISO/IEC 27001:2022 | A.5.10: Acceptable Use of Information and Other Associated Assets |
+| NIST SP 800-53 | PL-4: Rules of Behaviour |
+| CSA CCM v5 | HRS-04: Acceptable Use Policy |
+| COBIT 2025 | APO01.08: Manage People, Skills and Behaviour |
 
 ---
 

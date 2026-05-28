@@ -1,28 +1,28 @@
 # Acceptance Into Service Policy
 
-**Document Title:** Acceptance Into Service Policy  
-**Document Type:** Policy  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md)  
-**Classification:** Public  
-**Category:** Information Security  
-**Review Frequency:** Annual and upon material framework or regulatory change  
-**Repository Path:** [`security/policy-acceptance-into-service.md`](policy-acceptance-into-service.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Acceptance Into Service Policy 
+**Document Type:** Policy 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md) 
+**Classification:** Public 
+**Category:** Information Security 
+**Review Frequency:** Annual and upon material framework or regulatory change 
+**Repository Path:** [`security/policy-acceptance-into-service.md`](policy-acceptance-into-service.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This policy establishes a standardised framework for evaluating, approving, and transitioning new or changed systems, services, and AI solutions into operational production environments. It ensures that all deliverables meet readiness, compliance, security, and risk requirements before formal acceptance.
+This policy establishes a standardized framework for evaluating, approving, and transitioning new or changed systems, services, and AI solutions into operational production environments. It ensures that all deliverables meet readiness, compliance, security, and risk requirements before formal acceptance.
 
 The policy replaces the AIS Lifecycle Process, Readiness Review Procedure, and Post-Implementation Review Procedure, providing a unified acceptance model for IT, cloud, and AI-enabled services.
 
-It aligns with ISO/IEC 42001 §8 Operation, NIST SP 800-37 Risk Management Framework (RMF) Step 6 — Authorize the System, COBIT 2025 BAI07 Manage Change Acceptance and Transitioning, and CSA CCM v5 AIS-01 Acceptance Into Service.
+It aligns with ISO/IEC 42001 §8 Operation, NIST SP 800-37 Risk Management Framework (RMF) Step 6: Authorize the System, COBIT 2025 BAI07 Manage Change Acceptance and Transitioning, and CSA CCM v5 AIS-01 Acceptance Into Service.
 
 Mandatory AI risk classification and impact validation are required as a prerequisite for production deployment.
 
@@ -50,8 +50,8 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 | Role | Responsibility |
 | --- | --- |
-| **Project Owner / Sponsor** | Ensures project objectives, requirements, and acceptance criteria are met prior to AIS submission. |
-| **CIO** | Authorises final AIS approval based on security, compliance, and risk validation. |
+| **Project Owner / Sponsor** | Ensures that project objectives, requirements, and acceptance criteria are met prior to AIS submission. |
+| **CIO** | Authorizes final AIS approval based on security, compliance, and risk validation. |
 | **CISO** | Confirms all applicable controls from the ISMS, Privacy, and AI Risk Standards are satisfied. |
 | **IT Service Owner** | Validates operational support model, monitoring, and service-level readiness. |
 | **AI Governance Council (AIGC)** | Reviews AI systems for ISO/IEC 42001 alignment, risk classification, and compliance readiness. |
@@ -83,7 +83,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 ### 3. Risk and Compliance Validation
 
-3.1 AIS submissions shall include risk assessment outcomes aligned with NIST SP 800-37 RMF Steps 4–6.
+3.1 AIS submissions shall include risk assessment outcomes aligned with NIST SP 800-37 RMF Steps 4 to 6.
 
 3.2 Security and privacy validation must include evidence from penetration testing, code reviews, and compliance checks.
 
@@ -91,7 +91,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 ### 4. AI Risk Classification and Impact Validation
 
-4.1 All AI systems shall be classified according to the organisational AI risk taxonomy: Minimal, Limited, High, or Unacceptable.
+4.1 All AI systems shall be classified according to the organizational AI risk taxonomy: Minimal, Limited, High, or Unacceptable.
 
 4.2 High-risk AI systems require additional ethical and safety validation by the AIGC prior to deployment.
 
@@ -111,11 +111,11 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 ### 6. Approval and Sign-Off
 
-6.1 The CIO provides final authorisation for service go-live after confirming successful completion of all reviews.
+6.1 The CIO provides final authorization for service go-live after confirming successful completion of all reviews.
 
 6.2 The CISO and AIGC must co-approve any AI-related AIS submission.
 
-6.3 The CAB must authorise the final change release prior to deployment.
+6.3 The CAB must authorize the final change release prior to deployment.
 
 ### 7. Post-Implementation Review
 
@@ -129,9 +129,9 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 8.1 The AIS process shall be reviewed annually to reflect updated frameworks, emerging risks, and AI compliance changes.
 
-8.2 Performance metrics (time-to-acceptance, post-implementation incidents, audit findings) shall be analysed quarterly.
+8.2 Performance metrics (time-to-acceptance, post-implementation incidents, audit findings) shall be analyzed quarterly.
 
-8.3 Feedback loops shall ensure alignment with COBIT BAI07 and CSA CCM AIS-01 maturity progression.
+8.3 Feedback loops shall ensure that alignment with COBIT BAI07 and CSA CCM AIS-01 maturity progression.
 
 ---
 
@@ -139,12 +139,12 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 42001:2023 | §8 — AI Management System Operation | AI acceptance and risk classification |
-| ISO/IEC 27001:2022 | Annex A.5.36–A.5.37 | Change and handover controls |
-| NIST SP 800-37 Rev. 2 | RMF Step 6 — Authorize the System | Risk-based production authorisation |
-| COBIT 2025 | BAI07 — Manage Change Acceptance and Transitioning | Controlled transition and handover |
-| COBIT 2025 | DSS01 — Manage Operations | Operational readiness validation |
-| CSA CCM v5 | AIS-01 — Acceptance Into Service | Cloud service handover and validation |
+| ISO/IEC 42001:2023 | §8: AI Management System Operation | AI acceptance and risk classification |
+| ISO/IEC 27001:2022 | Annex A.5.36 to A.5.37 | Change and handover controls |
+| NIST SP 800-37 Rev. 2 | RMF Step 6: Authorize the System | Risk-based production authorization |
+| COBIT 2025 | BAI07: Manage Change Acceptance and Transitioning | Controlled transition and handover |
+| COBIT 2025 | DSS01: Manage Operations | Operational readiness validation |
+| CSA CCM v5 | AIS-01: Acceptance Into Service | Cloud service handover and validation |
 | OECD AI Principles | Safety and Accountability | AI readiness and impact validation |
 | EU AI Act | Annex III and Annex IV | High-risk AI system acceptance criteria |
 

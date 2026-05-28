@@ -1,18 +1,18 @@
 # Data Classification and Handling Standard
 
-**Document Title:** Data Classification and Handling Standard  
-**Document Type:** Standard  
-**Version:** 1.3.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)  
-**Classification:** Public  
-**Category:** Information Security  
-**Review Frequency:** Annual and upon material threat, framework, or regulatory change  
-**Repository Path:** [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Data Classification and Handling Standard 
+**Document Type:** Standard 
+**Version:** 1.3.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md) 
+**Classification:** Public 
+**Category:** Information Security 
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change 
+**Repository Path:** [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 This standard defines the classification, labelling, protection, retention, and destruction requirements for all information assets.
 
@@ -20,7 +20,7 @@ This standard defines the classification, labelling, protection, retention, and 
 
 ## Purpose
 
-To ensure consistent handling of information according to its sensitivity, regulatory obligations, and business impact, while supporting confidentiality, integrity, and availability. Aligns with ISO/IEC 27002:2022 §§5.12–5.15, COBIT 2025 DSS05, CSA CCM v5 DSP-02, GDPR Article 32, ISO/IEC 27701:2019 §8.8, and BASC International Standard (v6 2023).
+To ensure that consistent handling of information according to its sensitivity, regulatory obligations, and business impact, while supporting confidentiality, integrity, and availability. Aligns with ISO/IEC 27002:2022 §§5.12 to 5.15, COBIT 2025 DSS05, CSA CCM v5 DSP-02, GDPR Article 32, ISO/IEC 27701:2019 §8.8, and BASC International Standard (v6 2023).
 
 ---
 
@@ -37,13 +37,13 @@ To ensure consistent handling of information according to its sensitivity, regul
 
 | Role | Responsibility |
 | --- | --- |
-| CIO | Approves data classification framework and ensures enterprise-wide adoption. |
+| CIO | Approves data classification framework and ensures that enterprise-wide adoption. |
 | CISO | Enforces encryption, labelling, and protection controls. |
 | Data Owners / Department Heads | Classify and label data assets according to business and regulatory sensitivity. |
 | IT Operations / Cloud Administrators | Implement and maintain automated labelling, DLP, and encryption solutions. |
-| Privacy Officer | Ensures alignment with privacy and data protection laws. |
+| Privacy Officer | Ensures that alignment with privacy and data protection laws. |
 | AI Governance Council | Oversees classification and protection of AI datasets and model data. |
-| Regional Compliance Officers (BASC) | Ensure classification of customs, trade, and cargo data meets BASC confidentiality standards. |
+| Regional Compliance Officers (BASC) | Ensure that classification of customs, trade, and cargo data meets BASC confidentiality standards. |
 
 ---
 
@@ -102,7 +102,7 @@ To ensure consistent handling of information according to its sensitivity, regul
 - Cryptographic erasure for digital data (per NIST SP 800-88).
 - Cross-cut shredding for physical media.
 4.3 Certificates of Destruction must be logged and archived for seven years.
-4.4 AI datasets and BASC trade data must undergo destruction validation to ensure data lineage tracking integrity.
+4.4 AI datasets and BASC trade data must undergo destruction validation to ensure that data lineage tracking integrity.
 
 ---
 
@@ -143,11 +143,11 @@ Encryption keys must be managed under the Encryption and Key Management Policy.
 
 | Control Area | ISO/IEC 27002 | COBIT 2025 | CSA CCM v5 | Legal / Regulatory |
 | --- | --- | --- | --- | --- |
-| Classification and labelling | §§5.12–5.15 | DSS05 | DSP-02 | GDPR Art. 32, CPPA |
-| Encryption | §8.24 | DSS05.03 | CEK-01–21 | BASC §6 |
+| Classification and labelling | §§5.12 to 5.15 | DSS05 | DSP-02 | GDPR Art. 32, CPPA |
+| Encryption | §8.24 | DSS05.03 | CEK-01 to 21 | BASC §6 |
 | Retention and disposal | §8.10 | DSS05 | DSP-07 | ISO/IEC 27701 §8.8 |
-| AI data handling | — | DSS05.06 | — | AIDA, PIPEDA |
-| Trade data (BASC) | — | — | — | BASC v6, ISO 28000 |
+| AI data handling | N/A | DSS05.06 | N/A | AIDA, PIPEDA |
+| Trade data (BASC) | N/A |: | N/A | BASC v6, ISO 28000 |
 
 
 

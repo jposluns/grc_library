@@ -1,30 +1,30 @@
 # Post-Quantum Cryptography Readiness Plan
 
-**Document Title:** Post-Quantum Cryptography Readiness Plan  
-**Document Type:** Plan  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md)  
-**Classification:** Public  
-**Category:** Information Security  
-**Review Frequency:** Annual and upon significant NIST, ETSI, or national standards developments  
-**Repository Path:** [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Post-Quantum Cryptography Readiness Plan 
+**Document Type:** Plan 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md) 
+**Classification:** Public 
+**Category:** Information Security 
+**Review Frequency:** Annual and upon significant NIST, ETSI, or national standards developments 
+**Repository Path:** [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This roadmap defines the organisation's strategy and phased plan for transitioning cryptographic systems to post-quantum cryptography (PQC) algorithms. It responds to the threat posed by cryptographically relevant quantum computers (CRQCs) to current public-key cryptographic algorithms, and establishes a time-bound migration plan aligned with NIST PQC standards, NIST SP 800-208, and NSA CNSA 2.0 Suite guidance.
+This roadmap defines the organization's strategy and phased plan for transitioning cryptographic systems to post-quantum cryptography (PQC) algorithms. It responds to the threat posed by cryptographically relevant quantum computers (CRQCs) to current public-key cryptographic algorithms, and establishes a time-bound migration plan aligned with NIST PQC standards, NIST SP 800-208, and NSA CNSA 2.0 Suite guidance.
 
 ---
 
 ## The Quantum Threat
 
-Current widely-deployed public-key algorithms — RSA, ECC (ECDSA, ECDH), and DSA — are vulnerable to Shor's algorithm on a cryptographically relevant quantum computer. While CRQCs capable of breaking current key sizes do not yet exist, the threat model requires action now because:
+Current widely-deployed public-key algorithms, RSA, ECC (ECDSA, ECDH), and DSA, are vulnerable to Shor's algorithm on a cryptographically relevant quantum computer. While CRQCs capable of breaking current key sizes do not yet exist, the threat model requires action now because:
 
 1. **Harvest-now, decrypt-later attacks:** Adversaries may be harvesting encrypted communications today for decryption once CRQCs become available.
 2. **Long-lifecycle data:** Data with confidentiality requirements extending to 2030 and beyond must be protected against future quantum decryption.
@@ -36,7 +36,7 @@ Symmetric encryption (AES-256) and hash functions (SHA-256 with adequate output 
 
 ## Target PQC Algorithms
 
-The organisation will adopt NIST-standardised post-quantum algorithms:
+The organization will adopt NIST-standardized post-quantum algorithms:
 
 | Algorithm | NIST Standard | Use Case |
 | --- | --- | --- |
@@ -65,7 +65,7 @@ Hybrid schemes combining classical and PQC algorithms (e.g., X25519 + Kyber) are
 
 ## Phased Migration Roadmap
 
-### Phase 1: Discovery and Inventory (2025 — Complete)
+### Phase 1: Discovery and Inventory (2025: Complete)
 
 - Conduct cryptographic asset discovery across all environments.
 - Identify all systems, applications, and protocols using public-key cryptography.
@@ -77,7 +77,7 @@ Hybrid schemes combining classical and PQC algorithms (e.g., X25519 + Kyber) are
 
 ### Phase 2: Standards and Architecture (2026)
 
-- Adopt NIST FIPS 203, 204, and 205 as the organisational PQC standard.
+- Adopt NIST FIPS 203, 204, and 205 as the organizational PQC standard.
 - Define hybrid algorithm transition schemes for each cryptographic function.
 - Update the Cryptographic Key Lifecycle Management Framework with PQC requirements.
 - Evaluate and procure PQC-capable HSMs, TLS libraries, and certificate authority services.
@@ -85,7 +85,7 @@ Hybrid schemes combining classical and PQC algorithms (e.g., X25519 + Kyber) are
 
 **Deliverable:** Updated cryptographic standards; PQC-capable infrastructure procured.
 
-### Phase 3: Pilot and New Systems (2026–2027)
+### Phase 3: Pilot and New Systems (2026 to 2027)
 
 - Deploy PQC hybrid TLS in new system builds and infrastructure programme environments.
 - Issue PQC hybrid certificates for all new PKI enrolments.
@@ -94,7 +94,7 @@ Hybrid schemes combining classical and PQC algorithms (e.g., X25519 + Kyber) are
 
 **Deliverable:** All new systems deployed with PQC hybrid cryptography.
 
-### Phase 4: Production Migration — High Priority Systems (2027)
+### Phase 4: Production Migration: High Priority Systems (2027)
 
 - Migrate PKI root and intermediate CAs to Dilithium hybrid.
 - Migrate Tier 1 (Mission Critical) systems' TLS and key management to PQC hybrid.
@@ -111,7 +111,7 @@ Hybrid schemes combining classical and PQC algorithms (e.g., X25519 + Kyber) are
 - Retire legacy RSA-2048 and ECC P-256 certificates and keys.
 - Achieve full PQC hybrid coverage across all cryptographic functions.
 
-**Deliverable:** Organisation-wide PQC transition complete; legacy algorithm retirement.
+**Deliverable:** Organization-wide PQC transition complete; legacy algorithm retirement.
 
 ### Phase 6: Pure PQC Transition (2030 target, pending standards maturity)
 

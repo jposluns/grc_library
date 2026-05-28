@@ -1,18 +1,18 @@
 # Incident Response Procedure
 
-**Document Title:** Incident Response Procedure  
-**Document Type:** Procedure  
-**Version:** 1.3.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md)  
-**Classification:** Public  
-**Category:** Information Security  
-**Review Frequency:** Annual and upon material threat, framework, or regulatory change  
-**Repository Path:** [`security/procedure-incident-response.md`](procedure-incident-response.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Incident Response Procedure 
+**Document Type:** Procedure 
+**Version:** 1.3.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md) 
+**Classification:** Public 
+**Category:** Information Security 
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change 
+**Repository Path:** [`security/procedure-incident-response.md`](procedure-incident-response.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -70,10 +70,10 @@ During a declared P1 incident, the Incident Commander is the CIO or CISO unless 
 
 | Severity | Criteria | Examples | Response SLA | Escalation |
 | --- | --- | --- | --- | --- |
-| **P1 — Critical** | Confirmed active breach, ransomware in execution, active data exfiltration, or confirmed privileged account compromise. | Ransomware executing on production systems; confirmed exfiltration of customer PII or trade data; domain administrator credential confirmed compromised; active threat actor in the environment. | Immediate (within 15 minutes of detection) | Incident Commander, CISO, and CIO notified immediately. IR partner notified by CISO. All IR actions logged with timestamps. |
-| **P2 — High** | Suspected breach or significant security event with potential for serious impact; malware detected but not yet confirmed active; significant control failure. | Malware detected on a critical server; suspicious lateral movement observed in SIEM; single privileged account compromise suspected; failed restore test on production backup. | 4-hour initial response | CISO notified within 1 hour. Incident Commander assigned. |
-| **P3 — Medium** | Anomalous activity requiring investigation; policy violation with potential security significance; isolated endpoint compromise. | Single endpoint malware detection; user account exhibiting anomalous access patterns; unauthorized software detected on production system; failed authentication threshold exceeded. | Same-day (within 8 business hours) | SOC lead notified. Security team investigation initiated. |
-| **P4 — Low** | Policy violations; failed security scans; informational security events with no confirmed harm. | Failed patch scan; acceptable use policy violation; expired certificate on non-critical system; minor misconfiguration with no exploitation evidence. | Within 5 business days | Assigned to SOC queue. Standard change or remediation process. |
+| **P1: Critical** | Confirmed active breach, ransomware in execution, active data exfiltration, or confirmed privileged account compromise. | Ransomware executing on production systems; confirmed exfiltration of customer PII or trade data; domain administrator credential confirmed compromised; active threat actor in the environment. | Immediate (within 15 minutes of detection) | Incident Commander, CISO, and CIO notified immediately. IR partner notified by CISO. All IR actions logged with timestamps. |
+| **P2: High** | Suspected breach or significant security event with potential for serious impact; malware detected but not yet confirmed active; significant control failure. | Malware detected on a critical server; suspicious lateral movement observed in SIEM; single privileged account compromise suspected; failed restore test on production backup. | 4-hour initial response | CISO notified within 1 hour. Incident Commander assigned. |
+| **P3: Medium** | Anomalous activity requiring investigation; policy violation with potential security significance; isolated endpoint compromise. | Single endpoint malware detection; user account exhibiting anomalous access patterns; unauthorized software detected on production system; failed authentication threshold exceeded. | Same-day (within 8 business hours) | SOC lead notified. Security team investigation initiated. |
+| **P4: Low** | Policy violations; failed security scans; informational security events with no confirmed harm. | Failed patch scan; acceptable use policy violation; expired certificate on non-critical system; minor misconfiguration with no exploitation evidence. | Within 5 business days | Assigned to SOC queue. Standard change or remediation process. |
 
 ### 3.2 Severity Escalation
 
@@ -102,9 +102,9 @@ Security incidents may be detected from any of the following sources:
 
 Upon receipt of an alert or report, the SOC analyst shall:
 
-1. **Validate** the event — confirm it is not a false positive by corroborating evidence from at least one additional source.
+1. **Validate** the event: confirm it is not a false positive by corroborating evidence from at least one additional source.
 2. **Classify severity** using the criteria in Section 3.
-3. **Preserve evidence immediately** — capture log snapshots, SIEM query results, endpoint telemetry, and network flows before any containment action is taken. Evidence preservation takes priority over service recovery in the first hour.
+3. **Preserve evidence immediately**: capture log snapshots, SIEM query results, endpoint telemetry, and network flows before any containment action is taken. Evidence preservation takes priority over service recovery in the first hour.
 4. **Assign an Incident ID** and open a formal incident record in the ticketing system.
 5. **Notify** the appropriate roles per Section 3.1 escalation requirements.
 6. **Brief the Incident Commander** with: what is known, what systems and data are affected, what the suspected attack vector is, and what immediate containment options are available.
@@ -182,7 +182,7 @@ Once the scope of compromise is confirmed, the SOC and IT Operations shall:
 
 ### 6.3 BASC Trade and Customs Anomalies
 
-Any incident involving anomalous activity in cargo, customs, or trade systems — including unauthorized access to shipment data, tampering with customs records, or suspected cargo integrity compromise — triggers the incident response process with a 2-hour initial response SLA. The Regional BASC Compliance Officer is notified immediately and participates in triage. BASC incident documentation is maintained separately in the BASC Continuous Improvement Register.
+Any incident involving anomalous activity in cargo, customs, or trade systems, including unauthorized access to shipment data, tampering with customs records, or suspected cargo integrity compromise, triggers the incident response process with a 2-hour initial response SLA. The Regional BASC Compliance Officer is notified immediately and participates in triage. BASC incident documentation is maintained separately in the BASC Continuous Improvement Register.
 
 ### 6.4 Notification Confidentiality
 
@@ -196,24 +196,24 @@ Regulatory notifications are Restricted classification materials. Content shall 
 
 | Severity | PIR Required | Deadline |
 | --- | --- | --- |
-| P1 — Critical | Mandatory | Within 5 business days of incident closure |
-| P2 — High | Mandatory | Within 5 business days of incident closure |
-| P3 — Medium | Required | Within 15 business days |
-| P4 — Low | At SOC discretion | Next monthly review cycle |
+| P1: Critical | Mandatory | Within 5 business days of incident closure |
+| P2: High | Mandatory | Within 5 business days of incident closure |
+| P3: Medium | Required | Within 15 business days |
+| P4: Low | At SOC discretion | Next monthly review cycle |
 
 ### 7.2 PIR Process
 
 The PIR shall be conducted by the Incident Commander (for P1/P2) or SOC lead (for P3/P4) and shall address:
 
-1. **Timeline reconstruction** — complete chronological sequence from initial indicator to closure, with timestamps.
-2. **Root cause analysis** — the fundamental control failure, vulnerability, or process gap that enabled the incident.
-3. **Detection effectiveness** — how the incident was detected; whether automated controls fired correctly; mean time to detect (MTTD).
-4. **Containment effectiveness** — adequacy and timeliness of containment actions.
-5. **Recovery effectiveness** — time to restore services; completeness of eradication.
-6. **Regulatory and legal compliance** — whether all notification obligations were met within required timeframes.
-7. **Control gaps** — specific controls that failed, were absent, or were insufficient.
-8. **Corrective actions** — named owners, deadlines, and tracking mechanism for each gap.
-9. **Risk register update** — confirm whether existing risks require re-scoring or new risks require addition.
+1. **Timeline reconstruction**: complete chronological sequence from initial indicator to closure, with timestamps.
+2. **Root cause analysis**: the fundamental control failure, vulnerability, or process gap that enabled the incident.
+3. **Detection effectiveness**: how the incident was detected; whether automated controls fired correctly; mean time to detect (MTTD).
+4. **Containment effectiveness**: adequacy and timeliness of containment actions.
+5. **Recovery effectiveness**: time to restore services; completeness of eradication.
+6. **Regulatory and legal compliance**: whether all notification obligations were met within required timeframes.
+7. **Control gaps**: specific controls that failed, were absent, or were insufficient.
+8. **Corrective actions**: named owners, deadlines, and tracking mechanism for each gap.
+9. **Risk register update**: confirm whether existing risks require re-scoring or new risks require addition.
 
 ### 7.3 PIR Output
 
@@ -252,7 +252,7 @@ Every incident, regardless of severity, must have a completed incident record co
 | Field | Description |
 | --- | --- |
 | Incident ID | Unique identifier |
-| Severity (initial and final) | P1–P4 with rationale |
+| Severity (initial and final) | P1 to P4 with rationale |
 | Detection timestamp | UTC |
 | Detection source | SIEM, EDR, user, external, etc. |
 | Affected systems and data | Hostnames, data classifications, record count where known |

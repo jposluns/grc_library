@@ -1,30 +1,30 @@
 # Identity Management Procedure
 
-**Document Title:** Identity Management Procedure  
-**Document Type:** Procedure  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`security/procedure-access-control.md`](procedure-access-control.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md)  
-**Classification:** Public  
-**Category:** Information Security  
-**Review Frequency:** Annual and upon material platform or regulatory change  
-**Repository Path:** [`security/procedure-identity-management.md`](procedure-identity-management.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Identity Management Procedure 
+**Document Type:** Procedure 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`security/procedure-access-control.md`](procedure-access-control.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md) 
+**Classification:** Public 
+**Category:** Information Security 
+**Review Frequency:** Annual and upon material platform or regulatory change 
+**Repository Path:** [`security/procedure-identity-management.md`](procedure-identity-management.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This procedure defines the processes for managing digital identities throughout their lifecycle: creation, maintenance, authentication configuration, privileged access management, and termination. It ensures that every identity within the organisation's systems is unique, accountable, appropriately privileged, and subject to regular review.
+This procedure defines the processes for managing digital identities throughout their lifecycle: creation, maintenance, authentication configuration, privileged access management, and termination. It ensures that every identity within the organization's systems is unique, accountable, appropriately privileged, and subject to regular review.
 
 ---
 
 ## Scope
 
-Applies to all user identities, service accounts, and machine identities across all organisational platforms including on-premises systems, cloud platforms, applications, network devices, and development environments. Covers employees, contractors, temporary workers, and third-party service accounts.
+Applies to all user identities, service accounts, and machine identities across all organizational platforms including on-premises systems, cloud platforms, applications, network devices, and development environments. Covers employees, contractors, temporary workers, and third-party service accounts.
 
 ---
 
@@ -33,7 +33,7 @@ Applies to all user identities, service accounts, and machine identities across 
 | Role | Responsibility |
 | --- | --- |
 | **CISO** | Owns identity governance policy; approves privileged identity changes. |
-| **IT Operations — Identity Team** | Executes identity lifecycle operations; manages identity platform. |
+| **IT Operations: Identity Team** | Executes identity lifecycle operations; manages identity platform. |
 | **HR / People Operations** | Initiates onboarding and offboarding notifications. |
 | **Manager / People Leader** | Approves identity requests for their team; confirms offboarding completeness. |
 | **Internal Audit** | Reviews identity inventory and access certification completeness annually. |
@@ -44,12 +44,12 @@ Applies to all user identities, service accounts, and machine identities across 
 
 1.1 Identity creation is triggered by the approved onboarding workflow initiated by HR or People Operations.
 
-1.2 Each user receives a unique identity — shared accounts are prohibited except for approved service account use cases.
+1.2 Each user receives a unique identity: shared accounts are prohibited except for approved service account use cases.
 
 1.3 Identity creation includes:
 - Unique username following the approved naming convention.
 - Role-based group membership assignment aligned to job function.
-- Multi-factor authentication (MFA) enrolment — mandatory before first login.
+- Multi-factor authentication (MFA) enrolment: mandatory before first login.
 - Initial password set to a temporary value requiring change at first login.
 
 1.4 Service account identities require:
@@ -88,13 +88,13 @@ Applies to all user identities, service accounts, and machine identities across 
 3.1 Privileged identities (domain admin, cloud admin, root, sudo, security platform admin) are managed through the Privileged Identity Management (PIM) system.
 
 3.2 PIM controls:
-- Just-in-time activation required — no standing privileged access.
+- Just-in-time activation required: no standing privileged access.
 - Time-limited sessions: maximum 4 hours, extendable with re-approval.
 - Approval workflow required for activation.
 - Full session recording and logging.
 - Quarterly access review by CISO.
 
-3.3 Privileged accounts are separate from day-to-day user accounts — no single account is used for both standard and privileged operations.
+3.3 Privileged accounts are separate from day-to-day user accounts: no single account is used for both standard and privileged operations.
 
 3.4 Privileged access for external vendors is time-limited and scoped to minimum required permissions.
 
@@ -150,11 +150,11 @@ Applies to all user identities, service accounts, and machine identities across 
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 27001:2022 | Annex A.5.15–5.18 — Access Control | Identity lifecycle governance |
-| ISO/IEC 27002:2022 | §5.16–5.17 — Identity Management | Identity and authentication controls |
-| NIST SP 800-53 | IA — Identification and Authentication Family | Identity assurance controls |
+| ISO/IEC 27001:2022 | Annex A.5.15 to 5.18: Access Control | Identity lifecycle governance |
+| ISO/IEC 27002:2022 | §5.16 to 5.17: Identity Management | Identity and authentication controls |
+| NIST SP 800-53 | IA: Identification and Authentication Family | Identity assurance controls |
 | NIST SP 800-207 | Zero Trust Architecture | Continuous identity validation |
-| COBIT 2025 | DSS05 — Manage Security Services | Identity security operations |
+| COBIT 2025 | DSS05: Manage Security Services | Identity security operations |
 | CSA CCM v5 | IAM-01 through IAM-14 | Cloud identity and access management |
 
 ---

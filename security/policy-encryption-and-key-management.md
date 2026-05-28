@@ -1,24 +1,24 @@
 # Encryption and Key Management Policy
 
-**Document Title:** Encryption and Key Management Policy  
-**Document Type:** Policy  
-**Version:** 1.3.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)  
-**Classification:** Public  
-**Category:** Information Security  
-**Review Frequency:** Annual and upon material threat, framework, or regulatory change  
-**Repository Path:** [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Encryption and Key Management Policy 
+**Document Type:** Policy 
+**Version:** 1.3.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) 
+**Classification:** Public 
+**Category:** Information Security 
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change 
+**Repository Path:** [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-Defines mandatory encryption and cryptographic key management requirements. Ensures confidentiality, integrity, and availability through consistent encryption controls for data at rest, in transit, and in use.
+Defines mandatory encryption and cryptographic key management requirements. Ensures that confidentiality, integrity, and availability through consistent encryption controls for data at rest, in transit, and in use.
 
 ---
 
@@ -35,10 +35,10 @@ Defines mandatory encryption and cryptographic key management requirements. Ensu
 
 | Role | Responsibility |
 |---|---|
-| CIO | Approves encryption standards and ensures alignment with enterprise risk strategy. |
-| CISO | Owns encryption controls, defines key management processes, and ensures compliance monitoring. |
-| IT Operations / Security Engineering | Ensures all cryptographic implementation procedures and key-management runbooks are maintained for traceability and lifecycle verification. |
-| Application Owners / Developers | Ensure encryption requirements are applied within systems and APIs. |
+| CIO | Approves encryption standards and ensures that alignment with enterprise risk strategy. |
+| CISO | Owns encryption controls, defines key management processes, and ensures that compliance monitoring. |
+| IT Operations / Security Engineering | Ensures that all cryptographic implementation procedures and key-management runbooks are maintained for traceability and lifecycle verification. |
+| Application Owners / Developers | Ensure that encryption requirements are applied within systems and APIs. |
 | Compliance / GRC Manager | Monitors adherence and maintains evidence for audit and certification. |
 | AI Governance Council (AIGC) | Oversees encryption of AI datasets, model artifacts, and explainability data. |
 | Regional Compliance Officers (BASC) | Verify trade-data encryption and customs-communication security for Latin American operations. |
@@ -53,7 +53,7 @@ Defines mandatory encryption and cryptographic key management requirements. Ensu
 | In Transit | Encrypt all external and internal communications. | TLS 1.3 or stronger; SSH 2.0 or stronger. |
 | In Use | Protect data processed in volatile memory through secure enclaves or hardware encryption where supported. | Trusted Execution Environments (TEE), SGX, SEV. |
 | AI and Model Data | Apply encryption for model weights, datasets, and configuration files. | AES-256 + key hashing (SHA-512). |
-| BASC Customs and Trade Data | Ensure encryption for all cargo manifests, customs documentation, and trade communications. | AES-256 + PKI certificates validated by BASC chapter or WCO SAFE authority. |
+| BASC Customs and Trade Data | Ensure that encryption for all cargo manifests, customs documentation, and trade communications. | AES-256 + PKI certificates validated by BASC chapter or WCO SAFE authority. |
 
 ---
 
@@ -101,7 +101,7 @@ Cloud storage must enforce:
 
 - Customer-managed keys (CMK) with a defined rotation schedule.
 - Audit logging for all key access and rotation events.
-- Integration with centralised Key Management Service (KMS).
+- Integration with centralized Key Management Service (KMS).
 
 ### 4.2 Cloud Productivity and Collaboration Platforms
 
@@ -120,12 +120,12 @@ DLP enforcement must block or encrypt Restricted and Confidential data shared ex
 All trade, customs, and cargo data in BASC-certified regions (Colombia, Mexico, Peru, Chile) must:
 
 - Be encrypted at rest and in transit per ISO 28000 and BASC Section 6.
-- Utilise PKI authentication for customs and government system integration.
+- Utilize PKI authentication for customs and government system integration.
 - Maintain tamper-proof audit logs of encryption and decryption events.
 
 ### 5.2 Key Custody
 
-Trade-data decryption keys must remain under organisational or BASC-validated custody only.
+Trade-data decryption keys must remain under organizational or BASC-validated custody only.
 
 ### 5.3 Violations
 
@@ -176,7 +176,7 @@ Exceptions require:
 
 ### 8.2 BASC and Customs-Data Exceptions
 
-BASC and customs-data exceptions are not permitted unless explicitly authorised by the Regional BASC Compliance Officer and the Enterprise Risk Committee.
+BASC and customs-data exceptions are not permitted unless explicitly authorized by the Regional BASC Compliance Officer and the Enterprise Risk Committee.
 
 ---
 
@@ -205,12 +205,12 @@ Lessons learned from incidents or audits feed into the continual improvement cyc
 
 | Framework | Reference |
 |---|---|
-| ISO/IEC 27002:2022 | §§8.24–8.28 — Cryptographic Controls |
-| COBIT 2025 | DSS05.03 — Protect Against Data Leakage |
-| CSA CCM v5 | EKM-01 — Encryption and Key Management |
+| ISO/IEC 27002:2022 | §§8.24 to 8.28: Cryptographic Controls |
+| COBIT 2025 | DSS05.03: Protect Against Data Leakage |
+| CSA CCM v5 | EKM-01: Encryption and Key Management |
 | NIST SP 800-57 | Key Management Guidelines |
 | NIST SP 800-208 | Post-Quantum Cryptography Readiness |
-| PCI DSS v4.0 | Requirement 3 — Encryption and Key Management |
+| PCI DSS v4.0 | Requirement 3: Encryption and Key Management |
 | BASC International Standard (v6 2023) | Trade and Customs Data Security |
 | WCO SAFE Framework (2021) | Supply Chain Security |
 | ISO 28000:2022 | Supply-Chain Security and Resilience |

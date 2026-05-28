@@ -1,18 +1,18 @@
 # IT Onboarding and Offboarding Procedure
 
-**Document Title:** IT Onboarding and Offboarding Procedure  
-**Document Type:** Procedure  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)  
-**Classification:** Public  
-**Category:** Information Security  
-**Review Frequency:** Annual and upon material change  
-**Repository Path:** [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** IT Onboarding and Offboarding Procedure 
+**Document Type:** Procedure 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) 
+**Classification:** Public 
+**Category:** Information Security 
+**Review Frequency:** Annual and upon material change 
+**Repository Path:** [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -26,13 +26,13 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 ## 2. Scope
 
-2.1 This procedure applies to all employees (permanent and fixed-term), contractors, consultants, and third-party workers who are granted access to any organisational system, application, network, or physical IT asset.
+2.1 This procedure applies to all employees (permanent and fixed-term), contractors, consultants, and third-party workers who are granted access to any organizational system, application, network, or physical IT asset.
 
 2.2 It covers all user account types including standard user accounts, privileged accounts, shared accounts, service accounts provisioned to individuals, and third-party portal credentials.
 
 2.3 It applies regardless of whether personnel are onboarded or offboarded locally or remotely, and regardless of whether access is to on-premises, cloud, or hybrid systems.
 
-2.4 Physical access (key cards, building access) is subject to separate facilities management processes but is included in the deprovisioning checklist in Section 10 to ensure coordinated revocation.
+2.4 Physical access (key cards, building access) is subject to separate facilities management processes but is included in the deprovisioning checklist in Section 10 to ensure that coordinated revocation.
 
 ---
 
@@ -40,7 +40,7 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 | Role | Responsibility |
 | --- | --- |
-| Chief Information Officer (CIO) | Owns this procedure. Ensures IT Operations has capacity and processes to meet the timelines defined herein. Receives escalated exceptions. |
+| Chief Information Officer (CIO) | Owns this procedure. Ensures that IT Operations has capacity and processes to meet the timelines defined herein. Receives escalated exceptions. |
 | Chief Information Security Officer (CISO) | Provides oversight of access provisioning governance. Reviews privileged access provisioning and deprovisioning. Receives reports on deprovisioning SLA compliance. |
 | Human Resources (HR) | Triggers all onboarding and offboarding notifications to IT Operations within the timeframes specified. Notifies IT Operations of role changes within 24 hours of approval. Owns the hire, departure, and role-change notification forms. |
 | IT Operations | Executes account provisioning and deprovisioning. Maintains access profiles per role. Manages the deprovisioning checklist. Reports SLA compliance monthly to the CISO and CIO. |
@@ -165,7 +165,7 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 ### 7.5 Data Retrieval
 
-7.5.1 Any organisational data stored in the individual's collaboration and file storage platform workspace must be reviewed and, where required, transferred to the line manager or a designated successor within 7 calendar days of departure.
+7.5.1 Any organizational data stored in the individual's collaboration and file storage platform workspace must be reviewed and, where required, transferred to the line manager or a designated successor within 7 calendar days of departure.
 
 7.5.2 Personal email forwarding from a corporate account to a personal account must not be set up and will be removed as part of the deprovisioning checklist.
 
@@ -207,9 +207,9 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 9.1 Contractors and third-party workers with system access are subject to the same deprovisioning timelines as employees (Sections 7 and 8, as applicable depending on whether departure is voluntary or involuntary).
 
-9.2 Third-party system access — including access to client portals, supplier systems, or external platforms — must be reviewed and removed as part of the deprovisioning checklist.
+9.2 Third-party system access, including access to client portals, supplier systems, or external platforms, must be reviewed and removed as part of the deprovisioning checklist.
 
-9.3 Where a contractor or third-party worker shared credentials with other members of their organisation (e.g., a shared service account for a supplier), those shared credentials must be rotated immediately upon the individual's departure, regardless of whether other authorised users continue to require access.
+9.3 Where a contractor or third-party worker shared credentials with other members of their organization (e.g., a shared service account for a supplier), those shared credentials must be rotated immediately upon the individual's departure, regardless of whether other authorized users continue to require access.
 
 9.4 IT Operations must confirm with the relevant line manager or contract owner that all third-party access has been removed before closing the offboarding record.
 
@@ -217,7 +217,7 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 ## 10. Privileged Access Deprovisioning
 
-10.1 All privileged accounts held by a departing individual — including local administrator accounts, domain administrator accounts, cloud platform administrative roles, PAM vault accounts, and any other elevated access — must be reviewed and revoked within 2 hours of the departure notification being received by IT Operations.
+10.1 All privileged accounts held by a departing individual, including local administrator accounts, domain administrator accounts, cloud platform administrative roles, PAM vault accounts, and any other elevated access, must be reviewed and revoked within 2 hours of the departure notification being received by IT Operations.
 
 10.2 This timeline applies to both voluntary and involuntary departures. For involuntary departures, privileged access revocation is the first priority action, preceding completion of all other deprovisioning steps.
 
@@ -225,7 +225,7 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 | Scenario | Required Action |
 | --- | --- |
-| Service account used by systems the individual managed | Re-assign ownership to another authorised IT staff member immediately |
+| Service account used by systems the individual managed | Re-assign ownership to another authorized IT staff member immediately |
 | Service account used only by the departing individual | Disable the service account immediately; confirm with the application owner that no downstream dependency exists before permanent deletion |
 | Service account credentials known only to the departing individual | Reset credentials immediately; document and re-issue to the new owner |
 
@@ -254,7 +254,7 @@ The following checklist must be completed for every departure. IT Operations is 
 | 13 | Service accounts re-assigned or disabled | IT Operations | Within 2 hours of departure notification | Service account ownership register updated |
 | 14 | Service desk / ITSM account closed | IT Operations | Within 7 calendar days | Account status confirmed in ITSM system |
 | 15 | Third-party portal access removed | IT Operations / Line Manager | Within 7 calendar days | Each portal confirmed; documented in offboarding record |
-| 16 | Shared credentials rotated (contractors/third parties) | IT Operations | Immediately upon departure | Credential rotation confirmed; new credentials distributed to remaining authorised users |
+| 16 | Shared credentials rotated (contractors/third parties) | IT Operations | Immediately upon departure | Credential rotation confirmed; new credentials distributed to remaining authorized users |
 | 17 | Physical access cards and office keys returned | Facilities / Line Manager | Last day | Facilities receipt or confirmation email |
 | 18 | Security group and distribution list memberships removed | IT Operations | Within 24 hours | Directory groups confirmed |
 | 19 | Software licences released and reclaimed | IT Operations | Within 7 calendar days | Licence management platform updated |
@@ -268,7 +268,7 @@ The following checklist must be completed for every departure. IT Operations is 
 
 12.2 Deprovisioning records must be retained for a minimum of 7 years from the date of departure. This supports audit requirements, regulatory inquiry, and legal proceedings.
 
-12.3 Records must be stored in the organisation's approved records management system with access restricted to IT Operations, CISO, CIO, HR, and Internal Audit.
+12.3 Records must be stored in the organization's approved records management system with access restricted to IT Operations, CISO, CIO, HR, and Internal Audit.
 
 12.4 Onboarding records (access provisioning approvals, role-profile assignments, initial MFA enrolment confirmation) must similarly be retained for 7 years from the date of offboarding of the individual to whom they relate.
 
