@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon programme criteria revision, new programme application, or material change to supply chain operations 
 **Repository Path:** [`compliance/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -27,7 +27,7 @@ This template provides a structured approach for assessing the organization's cu
 
 ---
 
-## Assessment Header
+## Assessment header
 
 Complete the following fields for each gap assessment.
 
@@ -51,7 +51,7 @@ Complete the following fields for each gap assessment.
 
 ---
 
-## Section 1: Corporate Security and Governance
+## Section 1: corporate security and governance
 
 | Requirement Area | Programme Source | Current Control or Evidence | Gap Description | Gap Severity | Remediation Action | Target Date | Owner |
 |---|---|---|---|---|---|---|---|
@@ -63,7 +63,7 @@ Complete the following fields for each gap assessment.
 
 ---
 
-## Section 2: Physical Security
+## Section 2: physical security
 
 | Requirement Area | Programme Source | Current Control or Evidence | Gap Description | Gap Severity | Remediation Action | Target Date | Owner |
 |---|---|---|---|---|---|---|---|
@@ -76,7 +76,7 @@ Complete the following fields for each gap assessment.
 
 ---
 
-## Section 3: Personnel Security
+## Section 3: personnel security
 
 | Requirement Area | Programme Source | Current Control or Evidence | Gap Description | Gap Severity | Remediation Action | Target Date | Owner |
 |---|---|---|---|---|---|---|---|
@@ -88,7 +88,7 @@ Complete the following fields for each gap assessment.
 
 ---
 
-## Section 4: Cargo and Conveyance Security
+## Section 4: cargo and conveyance security
 
 | Requirement Area | Programme Source | Current Control or Evidence | Gap Description | Gap Severity | Remediation Action | Target Date | Owner |
 |---|---|---|---|---|---|---|---|
@@ -100,7 +100,7 @@ Complete the following fields for each gap assessment.
 
 ---
 
-## Section 5: Business Partner and Supplier Security
+## Section 5: business partner and supplier security
 
 | Requirement Area | Programme Source | Current Control or Evidence | Gap Description | Gap Severity | Remediation Action | Target Date | Owner |
 |---|---|---|---|---|---|---|---|
@@ -111,7 +111,7 @@ Complete the following fields for each gap assessment.
 
 ---
 
-## Section 6: IT and Cybersecurity
+## Section 6: IT and cybersecurity
 
 | Requirement Area | Programme Source | Current Control or Evidence | Gap Description | Gap Severity | Remediation Action | Target Date | Owner |
 |---|---|---|---|---|---|---|---|
@@ -130,7 +130,7 @@ Complete the following fields for each gap assessment.
 
 ---
 
-## Section 7: Incident Response and Reporting
+## Section 7: incident response and reporting
 
 | Requirement Area | Programme Source | Current Control or Evidence | Gap Description | Gap Severity | Remediation Action | Target Date | Owner |
 |---|---|---|---|---|---|---|---|
@@ -140,7 +140,7 @@ Complete the following fields for each gap assessment.
 
 ---
 
-## Section 8: Regulatory and Customs Compliance Record
+## Section 8: regulatory and customs compliance record
 
 | Requirement Area | Programme Source | Current Control or Evidence | Gap Description | Gap Severity | Remediation Action | Target Date | Owner |
 |---|---|---|---|---|---|---|---|
@@ -151,7 +151,7 @@ Complete the following fields for each gap assessment.
 
 ---
 
-## Gap Severity Definitions
+## Gap severity definitions
 
 | Severity | Definition | Response Timeline |
 |---|---|---|
@@ -162,7 +162,7 @@ Complete the following fields for each gap assessment.
 
 ---
 
-## Gap Summary Dashboard
+## Gap summary dashboard
 
 Complete after all sections are assessed.
 
@@ -185,7 +185,7 @@ Complete after all sections are assessed.
 
 ---
 
-## Remediation Plan
+## Remediation plan
 
 For each gap rated Critical or High, document a formal remediation plan below. Link each item to a CAPA record using [`compliance/procedure-capa.md`](procedure-capa.md).
 
@@ -195,7 +195,7 @@ For each gap rated Critical or High, document a formal remediation plan below. L
 
 ---
 
-## Sign-Off
+## Sign-off
 
 | Role | Name (role title) | Date | Signature |
 |---|---|---|---|

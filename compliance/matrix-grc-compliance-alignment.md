@@ -12,11 +12,11 @@
 **Review Frequency:** Annual and upon material regulatory or framework change 
 **Repository Path:** [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
-## How to Use This Matrix
+## How to use this matrix
 
 This matrix maps GRC library documents to the control domains and section references of eight compliance and security frameworks. Each row represents one GRC library document. Each framework column lists the control identifiers, domains, or section references that the document materially supports.
 
@@ -43,7 +43,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 ---
 
-## Governance Domain
+## Governance domain
 
 | Domain | Document Title | Path | CSA CCM v5 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -56,7 +56,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 ---
 
-## Risk Domain
+## Risk domain
 
 | Domain | Document Title | Path | CSA CCM v5 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -66,7 +66,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 ---
 
-## Compliance Domain
+## Compliance domain
 
 | Domain | Document Title | Path | CSA CCM v5 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -78,7 +78,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 ---
 
-## Security Domain
+## Security domain
 
 | Domain | Document Title | Path | CSA CCM v5 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -95,7 +95,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 ---
 
-## Operations Domain
+## Operations domain
 
 | Domain | Document Title | Path | CSA CCM v5 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -112,7 +112,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 ---
 
-## Supply Chain Domain
+## Supply chain domain
 
 | Domain | Document Title | Path | CSA CCM v5 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -123,7 +123,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 ---
 
-## Resilience Domain
+## Resilience domain
 
 | Domain | Document Title | Path | CSA CCM v5 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -133,7 +133,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 ---
 
-## Privacy Domain
+## Privacy domain
 
 | Domain | Document Title | Path | CSA CCM v5 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -142,7 +142,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 ---
 
-## Framework Coverage Summary
+## Framework coverage summary
 
 The following table summarizes how many GRC library documents provide primary coverage per framework, to assist in identifying gaps.
 

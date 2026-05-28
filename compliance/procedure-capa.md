@@ -12,11 +12,11 @@
 **Review Frequency:** Annual and upon material audit methodology or regulatory change 
 **Repository Path:** compliance/procedure-capa.md 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
-## Table of Contents
+## Table of contents
 
 1. [Purpose and Scope](#1-purpose-and-scope)
 2. [Governance](#2-governance)
@@ -34,7 +34,7 @@
 
 ---
 
-## 1. Purpose and Scope
+## 1. Purpose and scope
 
 ### 1.1 Purpose
 
@@ -67,7 +67,7 @@ This procedure applies to all personnel who identify, own, or are involved in re
 
 ## 2. Governance
 
-### 2.1 CAPA Programme Owner
+### 2.1 CAPA programme owner
 
 The **CISO** is the owner of the CAPA programme. The CISO is accountable for:
 
@@ -76,7 +76,7 @@ The **CISO** is the owner of the CAPA programme. The CISO is accountable for:
 - Reporting CAPA programme status to the ERC on a quarterly basis;
 - Approving decisions to extend target dates for Critical findings.
 
-### 2.2 Domain Owner Responsibilities
+### 2.2 Domain owner responsibilities
 
 Each **domain owner** (e.g., the head of operations, IT manager, privacy officer, or equivalent role responsible for a defined GRC domain) is responsible for:
 
@@ -86,7 +86,7 @@ Each **domain owner** (e.g., the head of operations, IT manager, privacy officer
 - Providing evidence of corrective action completion to the GRC Manager for verification;
 - Escalating resource constraints or implementation obstacles to the CISO promptly.
 
-### 2.3 GRC Manager Responsibilities
+### 2.3 GRC manager responsibilities
 
 The **GRC Manager** is responsible for:
 
@@ -97,7 +97,7 @@ The **GRC Manager** is responsible for:
 - Preparing the quarterly CAPA status report for the ERC;
 - Conducting annual pattern analysis of recurring nonconformities.
 
-### 2.4 ERC Reporting
+### 2.4 ERC reporting
 
 The **Executive Risk Committee (ERC)** receives a quarterly CAPA status report that includes:
 
@@ -109,13 +109,13 @@ The **Executive Risk Committee (ERC)** receives a quarterly CAPA status report t
 
 ---
 
-## 3. Nonconformity Identification and Recording
+## 3. Nonconformity identification and recording
 
-### 3.1 Raising a Nonconformity
+### 3.1 Raising a nonconformity
 
 Any individual across the organization may raise a nonconformity or improvement opportunity. Nonconformities are raised through the designated CAPA submission mechanism (e.g., a GRC platform, shared register, or submission form). Identifying and raising a potential nonconformity is a positive act and must not carry negative consequences for the person raising it.
 
-### 3.2 Minimum Required Fields
+### 3.2 Minimum required fields
 
 Every nonconformity record must include the following minimum information at the time of submission. The GRC Manager will work with the submitter to complete any missing fields within 2 business days:
 
@@ -130,17 +130,17 @@ Every nonconformity record must include the following minimum information at the
 | Owner | The individual responsible for implementing the corrective action |
 | Target Date | The date by which corrective action is to be completed, aligned to the classification timelines in Section 5 |
 
-### 3.3 CAPA ID Assignment
+### 3.3 CAPA ID assignment
 
 The GRC Manager assigns a unique CAPA ID to each record upon entry into the CAPA register. The CAPA ID format is: **CAPA-[YYYY]-[NNN]** (e.g., CAPA-2026-001). The CAPA ID is communicated to the submitter and the domain owner within 2 business days.
 
 ---
 
-## 4. Root Cause Analysis Requirements
+## 4. Root cause analysis requirements
 
 Effective corrective action requires that the underlying cause of the nonconformity is understood and addressed, not merely the observable symptom. Root cause analysis requirements vary by finding classification.
 
-### 4.1 Critical and High Findings
+### 4.1 Critical and high findings
 
 A **formal root cause analysis** is required for all Critical and High classified nonconformities. The responsible owner, in consultation with relevant subject matter experts, conducts root cause analysis using one of the following methodologies (analyst's choice):
 
@@ -154,11 +154,11 @@ The chosen methodology and its outputs must be documented in the CAPA record. Th
 
 The root cause analysis for Critical findings must be completed and submitted to the GRC Manager within **5 business days** of CAPA opening. For High findings, within **10 business days**.
 
-### 4.2 Moderate and Low Findings
+### 4.2 Moderate and low findings
 
 For Moderate and Low classified nonconformities, a **concise root cause statement** (1 to 3 sentences) is sufficient. The statement must still identify the primary cause and the condition that allowed it to persist. A formal methodology is not required, though teams may use one if it aids analysis.
 
-### 4.3 Root Cause Categories
+### 4.3 Root cause categories
 
 Root causes are categorized using the following taxonomy to enable pattern analysis:
 
@@ -174,7 +174,7 @@ Root causes are categorized using the following taxonomy to enable pattern analy
 
 ---
 
-## 5. CAPA Classification
+## 5. CAPA classification
 
 CAPA classification aligns to the finding classification scheme defined in the Internal Audit Standard (compliance/standard-internal-audit.md §7). The classification determines the urgency of response, the notification obligations, and the target closure date.
 
@@ -218,7 +218,7 @@ CAPA classification aligns to the finding classification scheme defined in the I
 | Documented remediation plan | Within **15 business days** of CAPA opening |
 | Full remediation / closure target | **90 days** |
 
-### 5.4 Low / Observation
+### 5.4 Low / observation
 
 **Definition:** A minor improvement opportunity or observation. The control is broadly effective but could be enhanced. Does not constitute a nonconformity against a defined requirement.
 
@@ -231,9 +231,9 @@ CAPA classification aligns to the finding classification scheme defined in the I
 
 ---
 
-## 6. Corrective Action Planning
+## 6. Corrective action planning
 
-### 6.1 Action Plan Requirements
+### 6.1 Action plan requirements
 
 For each CAPA, the owner develops a documented corrective action plan. The plan must contain:
 
@@ -245,7 +245,7 @@ c. **Target date for each action:** Intermediate target dates for each action st
 
 d. **Verification method:** A statement of how completion will be verified (e.g., document evidence, test result, training completion report, observation, re-test of the control).
 
-### 6.2 Interim Controls
+### 6.2 Interim controls
 
 Where full corrective action cannot be completed within the classification target date (e.g., due to technology procurement lead times or complex process redesign), the owner must:
 
@@ -255,7 +255,7 @@ Where full corrective action cannot be completed within the classification targe
 
 Reliance on interim controls does not close the CAPA. The CAPA remains open until the substantive corrective action is implemented and verified.
 
-### 6.3 Target Date Changes
+### 6.3 Target date changes
 
 Target date changes must be approved by:
 
@@ -267,9 +267,9 @@ Target date changes must be accompanied by a documented justification and a new 
 
 ---
 
-## 7. Implementation and Verification
+## 7. Implementation and verification
 
-### 7.1 Owner Implementation Responsibilities
+### 7.1 Owner implementation responsibilities
 
 The corrective action owner is responsible for:
 
@@ -278,7 +278,7 @@ The corrective action owner is responsible for:
 - Proactively communicating progress to the GRC Manager at agreed intervals (at minimum, monthly for Critical and High CAPAs);
 - Notifying the GRC Manager promptly if any obstacle is encountered that may cause a target date to be missed.
 
-### 7.2 GRC Manager Verification
+### 7.2 GRC manager verification
 
 The GRC Manager verifies that corrective actions have been implemented and are effective before marking a CAPA as closed. Verification must include:
 
@@ -288,7 +288,7 @@ The GRC Manager verifies that corrective actions have been implemented and are e
 
 The GRC Manager documents the verification findings in the CAPA record, including the date of verification and the evidence reviewed.
 
-### 7.3 Re-Audit Trigger
+### 7.3 Re-audit trigger
 
 For **Critical and High CAPAs** where the verification review raises doubt about the effectiveness of the corrective action, the GRC Manager may request a targeted re-audit of the affected control. The re-audit is conducted in accordance with the Audit Planning Procedure (compliance/procedure-audit-planning.md) and is scoped specifically to the control or controls addressed by the CAPA.
 
@@ -307,9 +307,9 @@ CAPAs are not closed until verification is complete. The domain owner's assertio
 
 ---
 
-## 8. CAPA Register
+## 8. CAPA register
 
-### 8.1 Register Structure
+### 8.1 Register structure
 
 The GRC Manager maintains a centralized CAPA register. Each record contains the following fields:
 
@@ -330,7 +330,7 @@ The GRC Manager maintains a centralized CAPA register. Each record contains the 
 | **Closure Evidence** | Reference to evidence artefacts reviewed during verification |
 | **Verified By** | Name or role of the GRC Manager or reviewer who performed closure verification |
 
-### 8.2 Register Maintenance
+### 8.2 Register maintenance
 
 The CAPA register is:
 
@@ -341,9 +341,9 @@ The CAPA register is:
 
 ---
 
-## 9. CAPA Escalation
+## 9. CAPA escalation
 
-### 9.1 Overdue Critical and High CAPAs
+### 9.1 Overdue critical and high capas
 
 An item is considered **overdue** when its target date has passed and closure has not been verified. Overdue Critical and High CAPAs are subject to the following escalation chain:
 
@@ -356,7 +356,7 @@ An item is considered **overdue** when its target date has passed and closure ha
 
 Overdue Moderate and Low CAPAs are reported in the quarterly ERC status report but do not follow the above escalation chain unless they have been extended more than twice.
 
-### 9.2 Pattern Analysis
+### 9.2 Pattern analysis
 
 The GRC Manager conducts an **annual pattern analysis** of CAPA data to identify:
 
@@ -369,13 +369,13 @@ The pattern analysis is documented as a component of the annual GRC management r
 
 ---
 
-## 10. Preventive Action
+## 10. Preventive action
 
-### 10.1 Purpose of Preventive Action
+### 10.1 Purpose of preventive action
 
 Preventive action addresses potential nonconformities: issues that have not yet occurred but that analysis or intelligence suggests may occur if no action is taken. Effective preventive action reduces the frequency and severity of future nonconformities and supports the organization's shift from reactive to proactive risk management.
 
-### 10.2 Triggers for Preventive Action
+### 10.2 Triggers for preventive action
 
 Preventive action may be initiated from:
 
@@ -385,7 +385,7 @@ Preventive action may be initiated from:
 - Significant changes to the organizational environment that may affect control effectiveness before those effects are detected;
 - Lessons learned from CAPA pattern analysis showing precursor conditions.
 
-### 10.3 Preventive Action Process
+### 10.3 Preventive action process
 
 Preventive action items are recorded in the same CAPA register as corrective actions, with the Source field designated as "Preventive Action" and the Description field explaining the potential nonconformity being prevented. The same classification, action planning, ownership, and verification process applies.
 
@@ -393,13 +393,13 @@ Preventive action items are classified based on the potential severity of the no
 
 ---
 
-## 11. Relationship to Continual Improvement
+## 11. Relationship to continual improvement
 
-### 11.1 CAPA as an Improvement Driver
+### 11.1 CAPA as an improvement driver
 
 The CAPA programme is a primary mechanism for continual improvement of the GRC programme. Individual CAPAs address specific nonconformities; the aggregate of CAPA activity provides evidence of the programme's improvement trajectory over time.
 
-### 11.2 Annual Management Review Input
+### 11.2 Annual management review input
 
 CAPA programme data forms a mandatory input to the annual GRC management review. The input package includes:
 
@@ -410,13 +410,13 @@ CAPA programme data forms a mandatory input to the annual GRC management review.
 - Key themes from root cause analysis, with recommendations for structural programme improvements;
 - Preventive actions initiated and their outcomes.
 
-### 11.3 GRC Programme Improvement Plan
+### 11.3 GRC programme improvement plan
 
 Systemic or structural issues identified through CAPA pattern analysis are incorporated into the GRC programme improvement plan. The improvement plan is owned by the CISO and reviewed by the ERC annually. Improvements driven by CAPA outcomes are tracked as a specific category within the improvement plan to demonstrate the value of the CAPA process.
 
 ---
 
-## 12. Evidence Retention
+## 12. Evidence retention
 
 All CAPA records, including root cause analysis documentation, corrective action plans, implementation evidence, and closure verification records, must be retained for a minimum of **7 years** from the CAPA closure date.
 
@@ -426,7 +426,7 @@ Records are stored in the designated secure GRC document repository. Access is r
 
 ---
 
-## 13. Framework Alignment
+## 13. Framework alignment
 
 | Framework / Standard | Relevant Clause or Section | Mapping |
 |----------------------|---------------------------|---------|

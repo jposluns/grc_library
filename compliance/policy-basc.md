@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material BASC framework or infrastructure change 
 **Repository Path:** [`compliance/policy-basc.md`](policy-basc.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -41,7 +41,7 @@ Applies to all employees, contractors, and third parties accessing the organizat
 
 ---
 
-## Roles and Responsibilities
+## Roles and responsibilities
 
 | Role | Responsibility |
 | --- | --- |
@@ -54,7 +54,7 @@ Applies to all employees, contractors, and third parties accessing the organizat
 
 ---
 
-## BASC Information Security Requirements
+## BASC information security requirements
 
 All requirements identified in Chapter 6 of the BASC International Security Standard are mapped below to the organization's control areas.
 
@@ -88,7 +88,7 @@ All requirements identified in Chapter 6 of the BASC International Security Stan
 
 ---
 
-## Information Security Controls
+## Information security controls
 
 ### Governance
 
@@ -102,7 +102,7 @@ Mandatory annual security awareness training is required for all personnel, cove
 
 *Requirement IDs: 6.1.b, 6.2.d, 6.2.o*
 
-### Access Management
+### Access management
 
 Access rights are granted based on the principle of least privilege.
 
@@ -118,7 +118,7 @@ Access is revoked immediately upon termination or contract conclusion.
 
 *Requirement IDs: 6.1.b, 6.1.c, 6.2.c, 6.2.e, 6.2.f, 6.2.g, 6.2.k, 6.2.p, 6.2.s, 6.2.v*
 
-### Asset and Media Management
+### Asset and media management
 
 All IT equipment and storage media are inventoried and tracked.
 
@@ -132,7 +132,7 @@ Physical and virtual backups are maintained securely offsite and tested regularl
 
 *Requirement IDs: 6.1.a, 6.1.b, 6.1.c, 6.2.j, 6.2.l, 6.2.r*
 
-### System Integrity
+### System integrity
 
 Only licensed and updated software is permitted.
 
@@ -144,7 +144,7 @@ Personal device connections to internal systems are restricted unless explicitly
 
 *Requirement IDs: 6.1.b, 6.1.c, 6.2.h, 6.2.i, 6.2.q, 6.2.s, 6.2.t*
 
-### Threat Response
+### Threat response
 
 Cybersecurity incidents are documented, analyzed, and communicated according to the established incident response process.
 
@@ -160,7 +160,7 @@ Compliance is monitored through logs, reports, and audits.
 
 ---
 
-## Exception Process
+## Exception process
 
 ### Submission
 
@@ -177,13 +177,13 @@ Any employee may submit an exception request via the ITSM portal or designated c
 - Temporary exceptions (less than 90 days): approved by CISO and CIO.
 - Long-term exceptions: reviewed by the Change Control Board and require a risk acceptance memo signed by executive leadership.
 
-### Documentation and Monitoring
+### Documentation and monitoring
 
 All exceptions are logged and assigned an expiry or review date. Owners are responsible for implementing compensating controls and tracking progress.
 
 ---
 
-## Information Security Audit Checklist
+## Information security audit checklist
 
 | Area | Evidence Required |
 | --- | --- |
@@ -195,7 +195,7 @@ All exceptions are logged and assigned an expiry or review date. Owners are resp
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

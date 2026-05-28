@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material regulatory or framework change 
 **Repository Path:** [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ This register covers only the IT and information security elements of BASC compl
 
 ---
 
-## BASC IT and Information Security Responsibility Matrix
+## BASC IT and information security responsibility matrix
 
 | BASC v6 Control Domain | IT / Cybersecurity Element | IT Owner | Governing GRC Document(s) |
 | --- | --- | --- | --- |
@@ -46,13 +46,13 @@ This register covers only the IT and information security elements of BASC compl
 
 ---
 
-## Ownership Boundary
+## Ownership boundary
 
 IT ownership covers the controls listed above. Physical facility security, cargo handling procedures, and operational partner screening are outside IT scope and are governed by the relevant operational and compliance functions.
 
 ---
 
-## Related Standards and Procedures
+## Related standards and procedures
 
 1. Register: BASC IT Compliance Monitoring and KPIs: [`compliance/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md)
 2. Framework: Supplier and Cloud Governance Framework: [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)
@@ -67,7 +67,7 @@ IT ownership covers the controls listed above. Physical facility security, cargo
 
 ---
 
-## Document History
+## Document history
 
 | Version | Date | Change |
 | --- | --- | --- |

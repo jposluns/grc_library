@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material regulatory change in applicable jurisdictions 
 **Repository Path:** [`compliance/annex-healthcare-sector-requirements.md`](annex-healthcare-sector-requirements.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -30,9 +30,9 @@ This annex applies where an organization:
 
 ---
 
-## Regulatory Landscape Overview
+## Regulatory landscape overview
 
-### United States
+### United states
 
 | Regulation | Authority | Scope |
 |---|---|---|
@@ -57,7 +57,7 @@ This annex applies where an organization:
 | **PHIA** (Manitoba, Nova Scotia, etc.) | Provincial | Province-specific health information custodians |
 | **FINTRAC** | FINTRAC | Pharmacies (AML obligations in some provinces) |
 
-### United Kingdom
+### United kingdom
 
 | Regulation / Standard | Authority | Scope |
 |---|---|---|
@@ -67,7 +67,7 @@ This annex applies where an organization:
 | **Caldicott Principles** | National Data Guardian (NDG) | NHS and social care organizations |
 | **MHRA regulations** | MHRA | Medical device manufacturers and distributors in UK |
 
-### European Union
+### European union
 
 | Regulation | Authority | Scope |
 |---|---|---|
@@ -90,13 +90,13 @@ This annex applies where an organization:
 
 ---
 
-## Key Regulatory Requirements
+## Key regulatory requirements
 
-### HIPAA Security Rule
+### HIPAA security rule
 
 The HIPAA Security Rule establishes three categories of safeguards for ePHI:
 
-#### Administrative Safeguards (§164.308)
+#### Administrative safeguards (§164.308)
 
 | Standard | Required / Addressable | GRC Library Mapping |
 |---|---|---|
@@ -113,7 +113,7 @@ The HIPAA Security Rule establishes three categories of safeguards for ePHI:
 | Evaluation: periodic technical and non-technical evaluation | Required | [`compliance/procedure-control-testing.md`](procedure-control-testing.md); [`compliance/standard-internal-audit.md`](standard-internal-audit.md) |
 | Business associate contracts | Required | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md): supplement with BAA template |
 
-#### Physical Safeguards (§164.310)
+#### Physical safeguards (§164.310)
 
 | Standard | GRC Library Mapping |
 |---|---|
@@ -121,7 +121,7 @@ The HIPAA Security Rule establishes three categories of safeguards for ePHI:
 | Workstation use policies | [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md) |
 | Device and media controls: disposal | [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md); media disposal procedures |
 
-#### Technical Safeguards (§164.312)
+#### Technical safeguards (§164.312)
 
 | Standard | Required / Addressable | GRC Library Mapping |
 |---|---|---|
@@ -133,7 +133,7 @@ The HIPAA Security Rule establishes three categories of safeguards for ePHI:
 | Integrity controls | Addressable | Data integrity controls |
 | Transmission security, encryption | Addressable | [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md), TLS 1.2+ required |
 
-### HIPAA Breach Notification Rule
+### HIPAA breach notification rule
 
 | Obligation | Threshold | Timeline |
 |---|---|---|
@@ -164,7 +164,7 @@ The NHS Data Security and Protection Toolkit is mandatory for all organizations 
 
 DSPT submission is annual. Organizations must achieve at minimum "Standards Met" status to maintain NHS data access.
 
-### FDA Cybersecurity for Medical Devices (2023 Guidance)
+### FDA cybersecurity for medical devices (2023 guidance)
 
 For device manufacturers submitting 510(k), De Novo, or PMA applications after 29 March 2023:
 
@@ -179,7 +179,7 @@ For device manufacturers submitting 510(k), De Novo, or PMA applications after 2
 | **Coordinated vulnerability disclosure** | Policy and process for accepting and responding to security reports | Supplement: vulnerability disclosure policy |
 | **Secure by design** | Implement security by design principles | [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md); [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md) |
 
-### GDPR Article 9: Special Category Health Data
+### GDPR article 9: special category health data
 
 Processing health data as special category data under GDPR requires additional safeguards:
 
@@ -192,7 +192,7 @@ Processing health data as special category data under GDPR requires additional s
 | **Access controls** | Strict access controls; logs of all access to health records | [`security/procedure-access-control.md`](../security/procedure-access-control.md); [`operations/register-it-security-operations.md`](../operations/register-it-security-operations.md) |
 | **Breach notification** | High risk health data breaches require notification within 72 hours | [`resilience/procedure-data-protection-and-privacy-breach-response.md`](../resilience/procedure-data-protection-and-privacy-breach-response.md) |
 
-### Caldicott Principles (UK NHS)
+### Caldicott principles (UK NHS)
 
 In addition to UK GDPR, NHS and social care organizations must apply the 7 Caldicott Principles:
 
@@ -208,7 +208,7 @@ Governance processes should document how each Caldicott Principle is applied to 
 
 ---
 
-## Gap Analysis: Core Library vs. Healthcare Requirements
+## Gap analysis: core library vs. healthcare requirements
 
 | Gap Area | Applicable Regulation | Action Required |
 |---|---|---|
@@ -224,7 +224,7 @@ Governance processes should document how each Caldicott Principle is applied to 
 
 ---
 
-## Key Healthcare-Specific Controls
+## Key healthcare-specific controls
 
 The following controls have elevated importance or specific implementation requirements in healthcare:
 

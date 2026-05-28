@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material legal, regulatory, or framework change 
 **Repository Path:** [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -32,7 +32,7 @@ It ensures that legal, regulatory, and contractual requirements, including those
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -46,7 +46,7 @@ It ensures that legal, regulatory, and contractual requirements, including those
 
 ---
 
-## 1. Compliance Management System
+## 1. Compliance management system
 
 1.1 The organization shall operate a Compliance Management System (CMS) aligned to ISO 37301 Clauses 4 to 10.
 
@@ -56,7 +56,7 @@ It ensures that legal, regulatory, and contractual requirements, including those
 
 ---
 
-## 2. Regulatory Horizon Scanning and Change Management
+## 2. Regulatory horizon scanning and change management
 
 2.1 Legal, compliance, and regional teams shall continuously monitor regulatory updates using verified industry sources, including WCO circulars, EU Official Journal, and regional BASC notifications.
 
@@ -68,7 +68,7 @@ It ensures that legal, regulatory, and contractual requirements, including those
 
 ---
 
-## 3. Risk Assessment and Treatment
+## 3. Risk assessment and treatment
 
 3.1 Compliance risks shall be assessed per ISO 31000 and COBIT APO12, integrating legal, operational, and trade risks.
 
@@ -78,7 +78,7 @@ It ensures that legal, regulatory, and contractual requirements, including those
 
 ---
 
-## 4. Control Design and Evidence Management
+## 4. Control design and evidence management
 
 4.1 Each obligation shall be mapped to one or more documented and tested controls.
 
@@ -90,7 +90,7 @@ It ensures that legal, regulatory, and contractual requirements, including those
 
 ---
 
-## 5. Reporting and Notification Obligations
+## 5. Reporting and notification obligations
 
 5.1 All regulatory notifications must follow the Security Incident Reporting and Escalation Procedure.
 
@@ -102,7 +102,7 @@ It ensures that legal, regulatory, and contractual requirements, including those
 
 ---
 
-## 6. Supplier and Trade Compliance
+## 6. Supplier and trade compliance
 
 6.1 Suppliers must maintain certifications including ISO 27001, ISO 27018, SOC 2, and BASC (for trade and logistics partners).
 
@@ -112,7 +112,7 @@ It ensures that legal, regulatory, and contractual requirements, including those
 
 ---
 
-## 7. Monitoring, Metrics, and Review
+## 7. Monitoring, metrics, and review
 
 7.1 The Compliance Steering Group shall review compliance KPIs quarterly, including AI governance and BASC metrics.
 
@@ -122,7 +122,7 @@ It ensures that legal, regulatory, and contractual requirements, including those
 
 ---
 
-## 8. Continuous Improvement
+## 8. Continuous improvement
 
 8.1 Gaps identified through audits, incidents, or BASC assessments shall be documented in the CAPA Procedure and compliance controls register.
 
@@ -132,7 +132,7 @@ It ensures that legal, regulatory, and contractual requirements, including those
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material control framework change 
 **Repository Path:** [`compliance/procedure-control-testing.md`](procedure-control-testing.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ Applies to all controls defined in the organization's control frameworks includi
 
 ---
 
-## Roles and Responsibilities
+## Roles and responsibilities
 
 | Role | Responsibility |
 | --- | --- |
@@ -40,7 +40,7 @@ Applies to all controls defined in the organization's control frameworks includi
 
 ---
 
-## 1. Control Testing Planning
+## 1. Control testing planning
 
 1.1 The annual Control Testing Calendar is prepared by the GRC Programme Manager in alignment with the Audit Planning Procedure.
 
@@ -54,9 +54,9 @@ Applies to all controls defined in the organization's control frameworks includi
 
 ---
 
-## 2. Control Testing Methodology
+## 2. Control testing methodology
 
-### 2.1 Design Effectiveness Testing
+### 2.1 Design effectiveness testing
 
 Design testing verifies that a control, if operating as designed, would prevent or detect the associated risk.
 
@@ -68,7 +68,7 @@ Design testing methods:
 
 Outcome: Design adequate / Design gap identified.
 
-### 2.2 Operating Effectiveness Testing
+### 2.2 Operating effectiveness testing
 
 Operating testing verifies that a control has operated consistently during the test period.
 
@@ -89,7 +89,7 @@ Sample sizes for inspection-based tests follow a risk-based sampling methodology
 
 ---
 
-## 3. Evidence Collection
+## 3. Evidence collection
 
 3.1 All testing is supported by documented evidence retained in the compliance repository.
 
@@ -99,7 +99,7 @@ Sample sizes for inspection-based tests follow a risk-based sampling methodology
 
 ---
 
-## 4. Testing Results and Findings
+## 4. Testing results and findings
 
 4.1 Control testing results are classified as:
 
@@ -126,7 +126,7 @@ Sample sizes for inspection-based tests follow a risk-based sampling methodology
 
 ---
 
-## 6. Remediation and Re-testing
+## 6. Remediation and re-testing
 
 6.1 Control owners must submit remediation plans for all deficiencies within 10 business days.
 
@@ -136,7 +136,7 @@ Sample sizes for inspection-based tests follow a risk-based sampling methodology
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

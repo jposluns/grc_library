@@ -2,7 +2,7 @@
 
 **Document Title:** Global Regulatory Applicability Register 
 **Document Type:** Register 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Compliance Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** 6 to 12 months and upon material regulatory change 
 **Repository Path:** [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This register provides an organization-neutral structure for identifying regulat
 
 ---
 
-## Applicability Assessment Fields
+## Applicability assessment fields
 
 | Field | Description |
 | --- | --- |
@@ -39,7 +39,7 @@ This register provides an organization-neutral structure for identifying regulat
 
 ---
 
-## High-Level Regulatory Families
+## High-level regulatory families
 
 | Family | Typical Trigger | Relevant Repository Domains | Evidence Classes |
 | --- | --- | --- | --- |
@@ -53,7 +53,7 @@ This register provides an organization-neutral structure for identifying regulat
 
 ---
 
-## Legal Obligation Versus Practice
+## Legal obligation versus practice
 
 This register separates requirements as follows:
 
@@ -67,7 +67,7 @@ This register separates requirements as follows:
 
 ---
 
-## Maintenance Rules
+## Maintenance rules
 
 1. Do not state that a law applies without a documented applicability basis.
 2. Do not state that the repository proves compliance.

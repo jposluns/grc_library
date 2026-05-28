@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material regulatory change in applicable jurisdictions 
 **Repository Path:** [`compliance/annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,9 +28,9 @@ This annex applies where an organization:
 
 ---
 
-## Regulatory Landscape Overview
+## Regulatory landscape overview
 
-### European Union
+### European union
 
 | Regulation / Directive | Scope | Effective |
 |---|---|---|
@@ -42,7 +42,7 @@ This annex applies where an organization:
 | **MiFID II / MiFIR** | Investment firms; trading venues | Ongoing |
 | **Basel III / CRR3** | Credit institutions; capital and operational risk | 2025 onwards |
 
-### United Kingdom
+### United kingdom
 
 | Regulation / Guidance | Authority | Scope |
 |---|---|---|
@@ -65,19 +65,19 @@ This annex applies where an organization:
 | **PIPEDA / CPPA** | OPC / Privacy Commissioner | All organizations processing Canadians' personal data |
 | **CSA (investment) obligations** | Canadian Securities Administrators | Federally registered investment dealers |
 
-### United States
+### United states
 
 | Regulation / Framework | Authority | Scope |
 |---|---|---|
 | **GLBA**: Gramm-Leach-Bliley Act Safeguards Rule (16 CFR Part 314) | FTC; federal banking regulators | Financial institutions; those significantly engaged in financial activities |
-| **23 NYCRR 500**: NY DFS Cybersecurity Regulation | NY Department of Financial Services | Covered entities with NY DFS licence or charter |
+| **23 NYCRR 500**: NY DFS Cybersecurity Regulation | NY Department of Financial Services | Covered entities with NY DFS license or charter |
 | **FFIEC IT Examination Handbook** | FFIEC | US banks and credit unions |
 | **FFIEC Cybersecurity Assessment Tool (CAT)** | FFIEC | US depository institutions |
 | **SOX**: Sarbanes-Oxley Act Section 302/404 | SEC; PCAOB | Publicly listed companies in the US |
 | **Bank Secrecy Act / AML obligations** | FinCEN | Banks; money services businesses; broker-dealers |
 | **PCI DSS v4.0** | PCI SSC | Any organization storing, processing, or transmitting payment card data |
 
-### Global / Cross-Jurisdictional
+### Global / cross-jurisdictional
 
 | Framework | Body | Scope |
 |---|---|---|
@@ -88,9 +88,9 @@ This annex applies where an organization:
 
 ---
 
-## Key Regulatory Requirements
+## Key regulatory requirements
 
-### DORA: Digital Operational Resilience Act (EU)
+### DORA: digital operational resilience act (EU)
 
 DORA applies to approximately 22 categories of EU financial entities and to ICT third-party service providers designated as Critical (CTPPs). Key requirements:
 
@@ -110,7 +110,7 @@ DORA applies to approximately 22 categories of EU financial entities and to ICT 
 - Exit and termination provisions; reversibility
 - Audit rights including supervisory authority access
 
-### UK FCA/PRA Operational Resilience
+### UK FCA/PRA operational resilience
 
 | Requirement | Core Obligation | GRC Library Mapping |
 |---|---|---|
@@ -119,7 +119,7 @@ DORA applies to approximately 22 categories of EU financial entities and to ICT 
 | **Mapping and testing** | Map people, processes, technology, facilities, and information supporting each service; stress test against disruption scenarios | [`resilience/procedure-continuity-and-recovery-testing.md`](../resilience/procedure-continuity-and-recovery-testing.md); [`resilience/procedure-business-impact-analysis.md`](../resilience/procedure-business-impact-analysis.md) |
 | **Self-assessment** | Annual self-assessment of operational resilience capability against impact tolerances | [`compliance/procedure-aeo-it-self-assessment.md`](procedure-aeo-it-self-assessment.md): adapt template |
 
-### OSFI B-13 (Canada: FRFIs)
+### OSFI b-13 (canada: frfis)
 
 OSFI B-13 applies to all federally regulated financial institutions in Canada. Key outcomes:
 
@@ -165,7 +165,7 @@ PCI DSS applies to any organization that stores, processes, or transmits payment
 - Phishing-resistant MFA for interactive logins
 - Ecommerce scripts (payment page scripts) monitored for changes
 
-### AML / CFT Requirements
+### AML / CFT requirements
 
 For organizations subject to AML obligations (banks, money service businesses, certain freight/customs operators under FATF Recommendation 22):
 
@@ -180,7 +180,7 @@ For organizations subject to AML obligations (banks, money service businesses, c
 
 ---
 
-## Gap Analysis: Core Library vs. Financial Services Requirements
+## Gap analysis: core library vs. financial services requirements
 
 The following controls are required by financial services regulations but are not fully addressed by the core GRC library. Supplement with sector-specific procedures as needed.
 
@@ -199,7 +199,7 @@ The following controls are required by financial services regulations but are no
 
 ---
 
-## Priority Implementation Sequence
+## Priority implementation sequence
 
 For organizations entering the financial services sector or achieving DORA compliance:
 

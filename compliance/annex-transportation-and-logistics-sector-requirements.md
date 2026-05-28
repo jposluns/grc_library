@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material regulatory change, new TSA directive, or significant security incident in the sector 
 **Repository Path:** [`compliance/annex-transportation-and-logistics-sector-requirements.md`](annex-transportation-and-logistics-sector-requirements.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -32,9 +32,9 @@ This annex applies where an organization:
 
 ---
 
-## Regulatory Landscape Overview
+## Regulatory landscape overview
 
-### United States
+### United states
 
 | Regulation / Directive | Authority | Mode / Scope |
 |---|---|---|
@@ -60,7 +60,7 @@ This annex applies where an organization:
 | **Canadian Rail Safety Act** | Transport Canada | Federally regulated railways |
 | **PIPEDA / CPPA** | OPC | All personal data processing |
 
-### United Kingdom
+### United kingdom
 
 | Regulation / Guidance | Authority | Scope |
 |---|---|---|
@@ -72,7 +72,7 @@ This annex applies where an organization:
 | **UK GDPR** | ICO | All personal data |
 | **HMRC Customs Obligations** | HMRC | All customs operators post-Brexit |
 
-### European Union
+### European union
 
 | Regulation / Directive | Authority | Scope |
 |---|---|---|
@@ -84,7 +84,7 @@ This annex applies where an organization:
 | **EU AI Act (High Risk: Annex III)** | EU AI Office | AI in critical transport infrastructure management |
 | **AEO (EU UCC Art 38)** | National customs authorities | Customs operators |
 
-### Global / International
+### Global / international
 
 | Standard / Programme | Body | Scope |
 |---|---|---|
@@ -101,9 +101,9 @@ This annex applies where an organization:
 
 ---
 
-## Key Regulatory Requirements
+## Key regulatory requirements
 
-### TSA Cybersecurity Directives (US Surface Transportation and Pipeline)
+### TSA cybersecurity directives (US surface transportation and pipeline)
 
 TSA Security Directives for surface transportation (freight rail, highway) and pipelines mandate specific cybersecurity measures. Key requirements applicable across directives:
 
@@ -118,7 +118,7 @@ TSA Security Directives for surface transportation (freight rail, highway) and p
 
 **CISA Reporting Timeline:** Cybersecurity incidents affecting transportation critical infrastructure must be reported to CISA within 24 hours of discovery under CIRCIA (Cyber Incident Reporting for Critical Infrastructure Act).
 
-### EU NIS 2: Transportation Essential Entities
+### EU NIS 2: transportation essential entities
 
 Under NIS 2, transportation entities in the following sub-sectors are classified as **essential entities** and subject to the highest tier of obligations:
 
@@ -147,7 +147,7 @@ Under NIS 2, transportation entities in the following sub-sectors are classified
 
 **NIS 2 Penalties:** Essential entities: up to €10M or 2% of global annual turnover (whichever is higher).
 
-### IMO Maritime Cyber Risk Management
+### IMO maritime cyber risk management
 
 IMO Resolution MSC-FAL.1/Circ.3 (incorporated into ISM Code as of 1 January 2021) requires shipping companies to incorporate cyber risk management into their Safety Management Systems.
 
@@ -162,7 +162,7 @@ IMO Resolution MSC-FAL.1/Circ.3 (incorporated into ISM Code as of 1 January 2021
 
 **Critical OT systems requiring risk assessment:** ECDIS (navigation); GPS/AIS; GMDSS (communications); cargo management systems; engine monitoring; access control systems.
 
-### ICAO Aviation Cybersecurity (Doc 10055)
+### ICAO aviation cybersecurity (doc 10055)
 
 ICAO's Aviation Cybersecurity Strategy requires states and aviation organizations to implement cybersecurity measures across the aviation ecosystem. Key areas:
 
@@ -177,7 +177,7 @@ ICAO's Aviation Cybersecurity Strategy requires states and aviation organization
 
 **CAA CAP 1753 (UK):** The UK Civil Aviation Authority's aviation cybersecurity framework aligns with ICAO Doc 10055 and maps to the CAF (Cyber Assessment Framework). UK aviation organizations must demonstrate compliance through CAF self-assessment.
 
-### HMRC Post-Brexit Customs Obligations (UK)
+### HMRC post-brexit customs obligations (UK)
 
 Following the UK's departure from the EU, all organizations moving goods between the UK and EU must comply with UK customs requirements administered by HMRC. Key technology-related obligations:
 
@@ -191,7 +191,7 @@ Following the UK's departure from the EU, all organizations moving goods between
 
 ---
 
-## Operational Technology (OT) and Industrial Control System Security
+## Operational technology (OT) and industrial control system security
 
 Transportation and logistics operators frequently operate Operational Technology (OT) environments including warehouse management systems, automated sorting and conveyor systems, port terminal operating systems, fleet telematics, and vehicle electronic systems. These environments require additional security considerations:
 
@@ -211,7 +211,7 @@ Transportation and logistics operators frequently operate Operational Technology
 
 ---
 
-## Connected and Automated Vehicles
+## Connected and automated vehicles
 
 For organizations operating or managing connected vehicle fleets:
 
@@ -224,7 +224,7 @@ For organizations operating or managing connected vehicle fleets:
 
 ---
 
-## Gap Analysis: Core Library vs. Transportation Requirements
+## Gap analysis: core library vs. transportation requirements
 
 | Gap Area | Applicable Regulation | Action Required |
 |---|---|---|
@@ -241,7 +241,7 @@ For organizations operating or managing connected vehicle fleets:
 
 ---
 
-## Trade Compliance and Customs Security Integration
+## Trade compliance and customs security integration
 
 The transportation and logistics sector is the primary sector affected by trusted-trader and trade compliance programme requirements. The following documents in the core GRC library provide detailed compliance controls:
 
@@ -256,7 +256,7 @@ The transportation and logistics sector is the primary sector affected by truste
 
 ---
 
-## Priority Implementation Sequence
+## Priority implementation sequence
 
 For transportation and logistics organizations building sector-specific GRC compliance:
 

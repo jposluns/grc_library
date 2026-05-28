@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material regulatory or framework change 
 **Repository Path:** [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ The UK Authorized Economic Operator (AEO) programme, administered by HMRC and Bo
 
 ---
 
-## AEO Programme Context
+## AEO programme context
 
 AEO status is granted by HMRC under the UK's implementation of the World Customs Organization (WCO) SAFE Framework of Standards. AEO-S requires that an applicant demonstrates adequate security standards across:
 
@@ -36,7 +36,7 @@ This document addresses information systems security only. All other AEO-S domai
 
 ---
 
-## IT and Cybersecurity Controls Mapping for AEO-S
+## IT and cybersecurity controls mapping for AEO-s
 
 | AEO-S Requirement | IT Control | Governing GRC Document(s) |
 | --- | --- | --- |
@@ -51,7 +51,7 @@ This document addresses information systems security only. All other AEO-S domai
 
 ---
 
-## Self-Assessment Obligation
+## Self-assessment obligation
 
 AEO-S requires periodic self-assessment against HMRC AEO criteria. The IT elements of the self-assessment are coordinated by the CISO and completed as part of the annual GRC programme review. The CISO provides documented evidence of IT control effectiveness to the AEO Compliance function for inclusion in the overall AEO self-assessment submission.
 
@@ -65,7 +65,7 @@ AEO-S requires periodic self-assessment against HMRC AEO criteria. The IT elemen
 
 ---
 
-## Document History
+## Document history
 
 | Version | Date | Change |
 | --- | --- | --- |

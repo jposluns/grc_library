@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material regulatory or framework change 
 **Repository Path:** [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,11 +22,11 @@ This template defines the structure, schema, and population guidance for an orga
 
 ---
 
-## Register Schema
+## Register schema
 
 Each obligation record in the register captures the following fields.
 
-### Identification Fields
+### Identification fields
 
 | Field | Description | Example |
 |---|---|---|
@@ -36,7 +36,7 @@ Each obligation record in the register captures the following fields.
 | **Source Reference** | Specific law, regulation, clause, or standard section | GDPR Article 32; Recital 83 |
 | **Jurisdiction** | Applicable jurisdiction(s) | EU; UK (UK GDPR) |
 
-### Applicability Fields
+### Applicability fields
 
 | Field | Description | Example |
 |---|---|---|
@@ -46,7 +46,7 @@ Each obligation record in the register captures the following fields.
 | **Data Categories Affected** | If privacy-related: categories of personal data in scope | Special category data, financial data |
 | **Departments in Scope** | Business functions subject to this obligation | All; IT Operations; HR |
 
-### Obligation Content Fields
+### Obligation content fields
 
 | Field | Description | Example |
 |---|---|---|
@@ -55,7 +55,7 @@ Each obligation record in the register captures the following fields.
 | **Obligation Type** | Preventive / Detective / Corrective / Reporting / Disclosure | Preventive |
 | **Deadline / Trigger Date** | Fixed deadline, recurring date, or event-triggered | Ongoing; by processing start date |
 
-### Control Mapping Fields
+### Control mapping fields
 
 | Field | Description | Example |
 |---|---|---|
@@ -65,7 +65,7 @@ Each obligation record in the register captures the following fields.
 | **Implementation Evidence** | Where evidence of compliance can be found | Encryption configuration records; annual control testing report |
 | **Gaps Identified** | Known gaps between requirement and current implementation | Mobile device encryption not yet enforced for BYOD |
 
-### Ownership and Monitoring Fields
+### Ownership and monitoring fields
 
 | Field | Description | Example |
 |---|---|---|
@@ -76,7 +76,7 @@ Each obligation record in the register captures the following fields.
 | **Compliance Status** | Compliant / Partially Compliant / Non-Compliant / Under Assessment | Compliant |
 | **Regulatory Risk Rating** | High / Medium / Low: based on penalty, reputational impact | High |
 
-### Reporting and Escalation Fields
+### Reporting and escalation fields
 
 | Field | Description | Example |
 |---|---|---|
@@ -88,7 +88,7 @@ Each obligation record in the register captures the following fields.
 
 ---
 
-## Obligation Categories
+## Obligation categories
 
 Populate the register across the following obligation categories. Each category should have its own table or tab in the implementing register.
 
@@ -106,26 +106,26 @@ Populate the register across the following obligation categories. Each category 
 
 ---
 
-## Population Guidance
+## Population guidance
 
-### Step 1: Identify applicable obligations
+### Step 1: identify applicable obligations
 Use [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md) as the source of truth for which jurisdictions and regulatory regimes apply. For each applicable regime, enumerate the specific legal obligations that apply to the organization's activities, data categories, and processing roles.
 
-### Step 2: Assign Obligation IDs
+### Step 2: assign obligation ids
 Use the format `OBL-[YYYY]-[NNN]` where YYYY is the year the obligation was entered into the register. Number sequentially from 001 within each year.
 
-### Step 3: Map to controls
+### Step 3: map to controls
 For each obligation, identify the policy, standard, procedure, or control that fulfils it. Where no control exists, record as a gap and initiate a CAPA using [`compliance/procedure-capa.md`](procedure-capa.md).
 
-### Step 4: Assign ownership
+### Step 4: assign ownership
 Each obligation must have a named role as Obligation Owner. Ownership should align with accountability for the regulated activity, not merely the legal or compliance function.
 
-### Step 5: Set review cadence
+### Step 5: set review cadence
 High-risk obligations should be reviewed at least annually. Obligations tied to pending regulation should be reviewed as regulatory developments occur.
 
 ---
 
-## Compliance Status Definitions
+## Compliance status definitions
 
 | Status | Definition |
 |---|---|
@@ -137,19 +137,19 @@ High-risk obligations should be reviewed at least annually. Obligations tied to 
 
 ---
 
-## Risk Rating Guidance
+## Risk rating guidance
 
 Assign Regulatory Risk Rating based on potential consequences of non-compliance:
 
 | Rating | Criteria |
 |---|---|
-| **High** | Significant financial penalty (e.g., GDPR fines up to 4% global annual turnover); criminal liability; suspension of operating licence; material reputational damage |
+| **High** | Significant financial penalty (e.g., GDPR fines up to 4% global annual turnover); criminal liability; suspension of operating license; material reputational damage |
 | **Medium** | Moderate financial penalty; regulatory warning; potential for escalation to High if not remediated |
 | **Low** | Minor administrative penalty; low enforcement priority; limited reputational impact |
 
 ---
 
-## Integration with Other Processes
+## Integration with other processes
 
 | Process | Integration Point |
 |---|---|

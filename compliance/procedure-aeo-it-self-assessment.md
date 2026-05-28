@@ -12,11 +12,11 @@
 **Review Frequency:** 6 to 12 months and upon material AI governance or regulatory change 
 **Repository Path:** [`compliance/procedure-aeo-it-self-assessment.md`](procedure-aeo-it-self-assessment.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
-## 1. Purpose and Scope
+## 1. Purpose and scope
 
 ### 1.1 Purpose
 
@@ -42,7 +42,7 @@ The IT control areas covered by this procedure are drawn from the eight AEO-S IT
 
 ## 2. Governance
 
-### 2.1 CISO: IT Element Lead
+### 2.1 CISO: IT element lead
 
 The CISO is the lead responsible party for all IT elements of the AEO-S self-assessment. The CISO:
 
@@ -52,11 +52,11 @@ The CISO is the lead responsible party for all IT elements of the AEO-S self-ass
 - Signs off on the IT evidence package before handoff to the AEO Compliance function.
 - Coordinates the response to any HMRC follow-up queries on IT elements.
 
-### 2.2 AEO Compliance Function
+### 2.2 AEO compliance function
 
 The AEO Compliance function (Legal / Finance / Compliance) owns the overall AEO-S self-assessment submission. It provides the CISO with the submission timeline and any HMRC guidance updates. It integrates the IT evidence package into the overall submission and manages the HMRC submission process.
 
-### 2.3 Legal Review
+### 2.3 Legal review
 
 Legal reviews the IT evidence package before submission to confirm that:
 
@@ -64,15 +64,15 @@ Legal reviews the IT evidence package before submission to confirm that:
 - No incident detail that could create legal exposure is included in the submission.
 - The package accurately represents the organization's compliance position.
 
-### 2.4 CIO Sign-Off
+### 2.4 CIO sign-off
 
 The CIO provides sign-off on the completed IT evidence package, confirming that the evidence accurately represents the state of IT controls as of the assessment date.
 
 ---
 
-## 3. Self-Assessment Trigger and Timeline
+## 3. Self-assessment trigger and timeline
 
-### 3.1 Annual Trigger
+### 3.1 Annual trigger
 
 The AEO IT self-assessment is conducted annually. The HMRC submission window is typically in Q4 of the calendar year, subject to annual confirmation from the AEO Compliance function.
 
@@ -91,7 +91,7 @@ The AEO IT self-assessment is conducted annually. The HMRC submission window is 
 
 ---
 
-## 4. IT Control Evidence Collection
+## 4. IT control evidence collection
 
 Evidence is collected across the eight IT control areas defined in [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md). Evidence must be:
 
@@ -100,7 +100,7 @@ Evidence is collected across the eight IT control areas defined in [`compliance/
 - Summarized where the full document contains commercially sensitive or legally sensitive information not relevant to the HMRC assessment.
 - Clearly labelled with the IT control area and the date of the evidence.
 
-### 4.1 Access Controls
+### 4.1 Access controls
 
 | Evidence Item | Description | Source |
 |---|---|---|
@@ -110,7 +110,7 @@ Evidence is collected across the eight IT control areas defined in [`compliance/
 
 Governing documents: [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md); [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md); [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md)
 
-### 4.2 System Protection
+### 4.2 System protection
 
 | Evidence Item | Description | Source |
 |---|---|---|
@@ -120,7 +120,7 @@ Governing documents: [`security/policy-identity-and-access-management.md`](../se
 
 Governing documents: [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md); [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md); [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md); [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md)
 
-### 4.3 Incident Detection and Response
+### 4.3 Incident detection and response
 
 | Evidence Item | Description | Source |
 |---|---|---|
@@ -129,7 +129,7 @@ Governing documents: [`operations/standard-network-security-and-segmentation.md`
 
 Governing documents: [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md); [`operations/procedure-security-monitoring-and-alert-management.md`](../operations/procedure-security-monitoring-and-alert-management.md); [`security/procedure-incident-response.md`](../security/procedure-incident-response.md)
 
-### 4.4 Personnel Screening
+### 4.4 Personnel screening
 
 | Evidence Item | Description | Source |
 |---|---|---|
@@ -137,7 +137,7 @@ Governing documents: [`security/standard-logging-and-monitoring.md`](../security
 
 Governing documents: Personnel Security Screening Standard
 
-### 4.5 Backup and Recovery
+### 4.5 Backup and recovery
 
 | Evidence Item | Description | Source |
 |---|---|---|
@@ -146,7 +146,7 @@ Governing documents: Personnel Security Screening Standard
 
 Governing documents: [`resilience/procedure-backup-and-recovery.md`](../resilience/procedure-backup-and-recovery.md)
 
-### 4.6 Risk Assessment
+### 4.6 Risk assessment
 
 | Evidence Item | Description | Source |
 |---|---|---|
@@ -154,7 +154,7 @@ Governing documents: [`resilience/procedure-backup-and-recovery.md`](../resilien
 
 Governing documents: [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md)
 
-### 4.7 Control Testing
+### 4.7 Control testing
 
 | Evidence Item | Description | Source |
 |---|---|---|
@@ -163,7 +163,7 @@ Governing documents: [`risk/standard-enterprise-risk-management.md`](../risk/sta
 
 Governing documents: [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)
 
-### 4.8 Records Retention
+### 4.8 Records retention
 
 | Evidence Item | Description | Source |
 |---|---|---|
@@ -174,9 +174,9 @@ Governing documents: [`governance/standard-records-retention-and-destruction.md`
 
 ---
 
-## 5. IT Evidence Package Assembly
+## 5. IT evidence package assembly
 
-### 5.1 Package Format
+### 5.1 Package format
 
 The CISO assembles all collected evidence items into the IT evidence package. The package must:
 
@@ -185,7 +185,7 @@ The CISO assembles all collected evidence items into the IT evidence package. Th
 - Clearly label each evidence item with the control area it supports and the date of the evidence.
 - Include a CISO attestation statement confirming that the evidence accurately represents the state of IT controls as of the assessment date.
 
-### 5.2 Anonymization and Summarization Requirements
+### 5.2 Anonymization and summarization requirements
 
 The IT evidence package submitted to HMRC must not contain:
 
@@ -198,7 +198,7 @@ Where source evidence contains such information, the CISO prepares a sanitized s
 
 ---
 
-## 6. Internal Review
+## 6. Internal review
 
 The IT evidence package is subject to the following sequential review and sign-off before handoff:
 
@@ -208,7 +208,7 @@ The IT evidence package is subject to the following sequential review and sign-o
 
 ---
 
-## 7. Handoff to AEO Compliance Function
+## 7. Handoff to AEO compliance function
 
 The CISO delivers the completed, reviewed, and CIO-signed IT evidence package to the AEO Compliance function at least 10 business days before the HMRC submission deadline.
 
@@ -222,7 +222,7 @@ The AEO Compliance function is responsible for integrating the IT evidence packa
 
 ---
 
-## 8. Post-Submission: Retention of IT Evidence Package
+## 8. Post-submission: retention of IT evidence package
 
 The CISO retains a complete copy of the IT evidence package as submitted (the version integrated into the HMRC submission) for a minimum of 7 years from the date of submission. Retention is managed in accordance with [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md).
 
@@ -236,11 +236,11 @@ The retained package must include:
 
 ---
 
-## 9. HMRC Audit Response
+## 9. HMRC audit response
 
 If HMRC requests follow-up information or conducts an audit of the IT elements of the AEO-S submission, the CISO coordinates the response.
 
-### 9.1 Response Process
+### 9.1 Response process
 
 1. The AEO Compliance function notifies the CISO of the HMRC follow-up request, including the specific IT elements queried and the deadline for response.
 2. The CISO reviews the query and determines whether the response can be provided from the retained evidence package or whether additional evidence must be gathered.
@@ -253,9 +253,9 @@ The CISO aims to provide the IT response to the AEO Compliance function within 1
 
 ---
 
-## 10. Related Documents and Framework Alignment
+## 10. Related documents and framework alignment
 
-### 10.1 GRC Library Documents
+### 10.1 GRC library documents
 
 | Document | Relevance |
 |---|---|
@@ -275,7 +275,7 @@ The CISO aims to provide the IT response to the AEO Compliance function within 1
 | [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) | Risk register evidence source |
 | [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) | Records retention evidence source |
 
-### 10.2 External Framework Alignment
+### 10.2 External framework alignment
 
 | Framework / Authority | Relevance |
 |---|---|

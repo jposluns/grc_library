@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material regulatory or framework change 
 **Repository Path:** [`compliance/README.md`](README.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This directory contains compliance management policies, registers, and audit gov
 
 ---
 
-## Active Documents
+## Active documents
 
 | Type | Title | Path |
 | --- | --- | --- |
@@ -49,7 +49,7 @@ This directory contains compliance management policies, registers, and audit gov
 
 ---
 
-## Domain Coverage
+## Domain coverage
 
 The compliance domain covers:
 
@@ -61,7 +61,7 @@ The compliance domain covers:
 
 ---
 
-## Planned Expansion
+## Planned expansion
 
 - ~~BASC IT and Information Security Responsibilities register~~ *(active)*
 - ~~BASC IT Compliance Monitoring and KPIs register~~ *(active)*

@@ -12,11 +12,11 @@
 **Review Frequency:** Annual and upon material audit methodology or regulatory change 
 **Repository Path:** compliance/standard-internal-audit.md 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
-## Table of Contents
+## Table of contents
 
 1. [Purpose and Scope](#1-purpose-and-scope)
 2. [Governance](#2-governance)
@@ -32,7 +32,7 @@
 
 ---
 
-## 1. Purpose and Scope
+## 1. Purpose and scope
 
 ### 1.1 Purpose
 
@@ -67,7 +67,7 @@ This standard applies to all personnel who plan, conduct, manage, or are subject
 
 ## 2. Governance
 
-### 2.1 Audit Function Ownership
+### 2.1 Audit function ownership
 
 The **Chief Audit Executive (CAE)**, or where a dedicated CAE role does not exist, the **GRC Manager**, holds primary accountability for the internal audit function. Responsibilities include:
 
@@ -77,7 +77,7 @@ The **Chief Audit Executive (CAE)**, or where a dedicated CAE role does not exis
 - Reporting audit programme status, key findings, and trend analysis to the ERC on at least a quarterly basis;
 - Coordinating with the CISO on security and privacy audit activity.
 
-### 2.2 CISO Responsibilities
+### 2.2 CISO responsibilities
 
 The **Chief Information Security Officer (CISO)** is responsible for:
 
@@ -86,7 +86,7 @@ The **Chief Information Security Officer (CISO)** is responsible for:
 - Reviewing and accepting or challenging audit findings that fall within the information security and privacy domains;
 - Sponsoring remediation plans for Critical and High findings within those domains.
 
-### 2.3 Independence Requirements
+### 2.3 Independence requirements
 
 The internal audit function must operate with sufficient independence to provide objective assurance. The following requirements apply:
 
@@ -100,7 +100,7 @@ d. **External support:** Where internal independence cannot be achieved for a pa
 
 ---
 
-## 3. Audit Principles
+## 3. Audit principles
 
 The internal audit function operates in accordance with the following principles, derived from ISO 19011:2018 §4:
 
@@ -117,9 +117,9 @@ The internal audit function operates in accordance with the following principles
 
 ---
 
-## 4. Audit Programme Management
+## 4. Audit programme management
 
-### 4.1 Annual Audit Plan
+### 4.1 Annual audit plan
 
 The CAE/GRC Manager develops an **Annual Audit Plan** each year. The plan must:
 
@@ -129,11 +129,11 @@ The CAE/GRC Manager develops an **Annual Audit Plan** each year. The plan must:
 - Be made available to the CISO, domain owners, and relevant senior leadership;
 - Be reviewed at mid-year and updated to reflect changes in organizational risk, incidents, or regulatory changes.
 
-### 4.2 Three-Year Rolling Coverage
+### 4.2 Three-year rolling coverage
 
 The audit programme must achieve complete coverage of all in-scope GRC domains across a rolling three-year cycle. No domain may remain unaudited for more than three consecutive years. Higher-risk domains should be audited annually or more frequently as risk dictates.
 
-### 4.3 Risk-Based Scheduling
+### 4.3 Risk-based scheduling
 
 Scheduling priority is determined by:
 
@@ -143,7 +143,7 @@ Scheduling priority is determined by:
 4. Time elapsed since the last audit of the domain;
 5. Significant changes to the domain, systems, or operating environment since the last audit.
 
-### 4.4 Triggers for Unplanned Audits
+### 4.4 Triggers for unplanned audits
 
 The following events may trigger an unplanned audit outside the Annual Audit Plan schedule:
 
@@ -159,33 +159,33 @@ Unplanned audits are incorporated into the audit register and reported to the ER
 
 ---
 
-## 5. Audit Types
+## 5. Audit types
 
 The internal audit function recognizes the following audit types:
 
-### 5.1 Compliance Audit
+### 5.1 Compliance audit
 
 Assesses whether organizational practices conform to applicable policies, standards, procedures, legal requirements, and contractual obligations. Compliance audits are typically used to verify adherence to certification requirements (e.g., supply chain security standards, information security management systems) and regulatory mandates.
 
-### 5.2 Control Effectiveness Audit
+### 5.2 Control effectiveness audit
 
 Evaluates whether controls are not only designed appropriately to address the risks they are intended to mitigate, but are also operating effectively in practice. This type of audit goes beyond confirming the existence of a control to assessing whether it achieves its intended outcome.
 
-### 5.3 Technical Security Audit
+### 5.3 Technical security audit
 
 Examines the technical implementation of security controls across infrastructure, applications, networks, and platforms. May include configuration review, vulnerability assessment review, access control testing, logging and monitoring validation, and secure configuration benchmarking. Technical security audits are typically conducted by auditors with specialist technical competency or with the assistance of technical subject matter experts.
 
-### 5.4 Third-Party / Supplier Audit
+### 5.4 Third-party / supplier audit
 
 Assesses the security, privacy, and compliance posture of suppliers or third parties that process, store, or transmit organizational data, or that provide services material to the organization's operations or certification requirements. May be conducted as a document review, questionnaire-based assessment, or on-site audit depending on risk classification and contractual rights.
 
-### 5.5 AI System Audit
+### 5.5 AI system audit
 
 Examines the governance, transparency, accountability, and risk management controls applied to artificial intelligence and machine learning systems in use across the organization. Specific areas of focus include: data quality and provenance, model bias and fairness assessment, explainability and output review mechanisms, human oversight controls, change management for model updates, and alignment with applicable AI governance frameworks and regulations.
 
 ---
 
-## 6. Audit Lifecycle
+## 6. Audit lifecycle
 
 All internal audits follow the lifecycle defined in this section. Deviations from this lifecycle must be documented and approved by the CAE/GRC Manager.
 
@@ -210,7 +210,7 @@ The lead auditor:
 - Notifies the auditee of the audit at least **10 business days** before the commencement of fieldwork;
 - Identifies and documents any preliminary findings or areas of concern from document review.
 
-### 6.3 Opening Meeting
+### 6.3 Opening meeting
 
 An opening meeting is held between the audit team and relevant auditees before fieldwork begins. The opening meeting:
 
@@ -220,7 +220,7 @@ An opening meeting is held between the audit team and relevant auditees before f
 - Clarifies expectations for availability and cooperation;
 - Addresses any questions from the auditee.
 
-### 6.4 Evidence Collection
+### 6.4 Evidence collection
 
 The audit team collects evidence in accordance with the audit programme. Evidence collection methods include:
 
@@ -240,7 +240,7 @@ The audit team analyses collected evidence against the audit criteria to:
 - Evaluate the materiality and risk implications of identified gaps;
 - Identify patterns or systemic issues across multiple control areas.
 
-### 6.6 Draft Findings
+### 6.6 Draft findings
 
 The lead auditor prepares draft audit findings. Each finding includes:
 
@@ -254,7 +254,7 @@ The lead auditor prepares draft audit findings. Each finding includes:
 
 Draft findings are reviewed by the audit team for consistency and accuracy before sharing with the auditee.
 
-### 6.7 Management Response
+### 6.7 Management response
 
 Draft findings are shared with the auditee for factual accuracy review and management response. Auditees have **5 business days** to:
 
@@ -263,7 +263,7 @@ Draft findings are shared with the auditee for factual accuracy review and manag
 
 Where a dispute cannot be resolved, the finding is reported in the final report with both the auditor's position and the auditee's response documented.
 
-### 6.8 Final Report
+### 6.8 Final report
 
 The lead auditor issues the final audit report within **10 business days** of fieldwork completion. The final report includes:
 
@@ -277,7 +277,7 @@ The lead auditor issues the final audit report within **10 business days** of fi
 
 The final report is distributed to the auditee, the CAE/GRC Manager, the CISO (for security and privacy audits), and the ERC.
 
-### 6.9 Closure Tracking
+### 6.9 Closure tracking
 
 All findings are entered into the audit register and, where required, into the CAPA register (see Section 10). The CAE/GRC Manager tracks remediation progress against agreed target dates and reports overdue items to the ERC.
 
@@ -285,7 +285,7 @@ Findings are marked as closed only when the CAE/GRC Manager has verified that th
 
 ---
 
-## 7. Finding Classification
+## 7. Finding classification
 
 Audit findings are classified using the following scheme, aligned to the CAPA Procedure (compliance/procedure-capa.md):
 
@@ -320,7 +320,7 @@ Audit findings are classified using the following scheme, aligned to the CAPA Pr
 - Remediation completed within **90 days**;
 - CAPA record recommended but not mandatory unless the control area has recurring findings.
 
-### 7.4 Low / Observation
+### 7.4 Low / observation
 
 **Definition:** A minor improvement opportunity or best-practice observation that does not constitute a nonconformity against a defined requirement. The control is broadly effective but could be enhanced.
 
@@ -331,9 +331,9 @@ Audit findings are classified using the following scheme, aligned to the CAPA Pr
 
 ---
 
-## 8. Audit Evidence Requirements
+## 8. Audit evidence requirements
 
-### 8.1 Types of Acceptable Evidence
+### 8.1 Types of acceptable evidence
 
 Audit evidence must be sufficient, appropriate, and relevant to support audit conclusions. Acceptable evidence types include:
 
@@ -346,7 +346,7 @@ Audit evidence must be sufficient, appropriate, and relevant to support audit co
 
 Where a finding is solely based on interview evidence, the auditor must attempt to corroborate through at least one additional evidence type before classifying the finding as Critical or High.
 
-### 8.2 Evidence Documentation
+### 8.2 Evidence documentation
 
 All evidence must be:
 
@@ -355,15 +355,15 @@ All evidence must be:
 - Labelled with the collection date, collection method, and the auditor responsible;
 - Stored securely in the designated audit evidence repository.
 
-### 8.3 Evidence Retention
+### 8.3 Evidence retention
 
 All audit working papers, evidence artefacts, draft findings, management responses, and final reports must be retained for a minimum of **7 years** from the date of the final report, in accordance with the organization's data retention policy.
 
 ---
 
-## 9. Auditor Competency Requirements
+## 9. Auditor competency requirements
 
-### 9.1 Competency Framework
+### 9.1 Competency framework
 
 Auditors must demonstrate competency aligned to the ISO 19011:2018 competency framework, covering:
 
@@ -372,7 +372,7 @@ Auditors must demonstrate competency aligned to the ISO 19011:2018 competency fr
 - **Domain-specific knowledge:** Technical and process knowledge relevant to the domain being audited (e.g., information security, supply chain, AI governance);
 - **Professional behaviour:** Integrity, objectivity, discretion, and professional scepticism.
 
-### 9.2 Credential Requirements
+### 9.2 Credential requirements
 
 Lead auditors must hold at least one of the following, or must be operating under a structured supervised qualification programme:
 
@@ -380,7 +380,7 @@ Lead auditors must hold at least one of the following, or must be operating unde
 - Documented completion of formal audit training that covers the ISO 19011 competency framework, with a minimum of three completed supervised audits as supporting lead auditor;
 - For technical security audits: specialist technical certification or documented equivalent experience, reviewed and approved by the CAE/GRC Manager.
 
-### 9.3 Supervised Qualification Programme
+### 9.3 Supervised qualification programme
 
 Where an auditor does not yet hold the required credentials, they may conduct audits under the direct supervision of a qualified lead auditor. The supervisory arrangement must be:
 
@@ -388,21 +388,21 @@ Where an auditor does not yet hold the required credentials, they may conduct au
 - Reviewed by the CAE/GRC Manager;
 - Limited to no more than three consecutive supervised engagements before formal qualification is required.
 
-### 9.4 Continuing Professional Development
+### 9.4 Continuing professional development
 
 All auditors are expected to maintain current knowledge of evolving threats, control frameworks, and regulatory requirements relevant to the domains they audit. Evidence of continuing professional development is recorded as part of the annual competency review.
 
 ---
 
-## 10. Relationship to CAPA Procedure
+## 10. Relationship to CAPA procedure
 
-### 10.1 Mandatory CAPA Generation
+### 10.1 Mandatory CAPA generation
 
 All findings classified as **Critical** or **High** must result in a Corrective and Preventive Action (CAPA) record in accordance with the CAPA Procedure (compliance/procedure-capa.md).
 
 The CAPA record must be opened within **2 business days** of the final report being issued, or immediately upon identification for Critical findings discovered during fieldwork.
 
-### 10.2 Linkage Between Audit and CAPA Records
+### 10.2 Linkage between audit and CAPA records
 
 Each CAPA record generated from an audit finding must reference:
 
@@ -412,7 +412,7 @@ Each CAPA record generated from an audit finding must reference:
 
 Conversely, each audit finding record in the audit register must reference the corresponding CAPA ID once raised.
 
-### 10.3 Moderate and Low Findings
+### 10.3 Moderate and low findings
 
 Moderate findings may be elevated to a CAPA record at the discretion of the CAE/GRC Manager, particularly where:
 
@@ -422,13 +422,13 @@ Moderate findings may be elevated to a CAPA record at the discretion of the CAE/
 
 Low / Observation findings are tracked in the audit register and do not routinely generate CAPA records unless a pattern of recurrence is identified.
 
-### 10.4 CAPA Closure Verification
+### 10.4 CAPA closure verification
 
 Audit findings are not closed in the audit register until the corresponding CAPA record (where one exists) has been verified as closed by the GRC Manager. The CAE/GRC Manager may request evidence of closure and, for Critical and High findings, may require a follow-up audit to confirm sustained effectiveness.
 
 ---
 
-## 11. Framework Alignment
+## 11. Framework alignment
 
 | Framework / Standard | Relevant Clause or Control | Mapping |
 |----------------------|---------------------------|---------|

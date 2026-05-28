@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material CTPAT criteria update, audit finding, or certification renewal 
 **Repository Path:** [`compliance/register-ctpat-compliance-controls.md`](register-ctpat-compliance-controls.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -26,7 +26,7 @@ This register documents the organization's implementation status against the IT 
 
 ---
 
-## Programme Overview
+## Programme overview
 
 CTPAT is a voluntary government-business partnership programme administered by U.S. Customs and Border Protection. Members who meet the minimum security criteria receive expedited cargo processing and reduced examination rates at US ports of entry. Since the 2020 criteria revision, IT and cybersecurity form a dedicated minimum security criteria category alongside physical, personnel, procedural, and cargo security.
 
@@ -37,7 +37,7 @@ Membership tiers:
 
 ---
 
-## IT and Cybersecurity Minimum Security Criteria
+## IT and cybersecurity minimum security criteria
 
 The following table maps each CTPAT IT and cybersecurity minimum security criterion (2020 revision) to the organization's control framework and implementation status.
 
@@ -56,7 +56,7 @@ The following table maps each CTPAT IT and cybersecurity minimum security criter
 
 ---
 
-## CTPAT-AEO-S Control Alignment
+## CTPAT-AEO-s control alignment
 
 Both CTPAT and UK AEO-S require substantively equivalent IT security controls. The table below cross-references CTPAT IT criteria with their AEO-S counterparts to support joint compliance and reduce duplication of evidence.
 
@@ -77,7 +77,7 @@ See [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-c
 
 ---
 
-## CTPAT-BASC Control Alignment
+## CTPAT-BASC control alignment
 
 BASC (Business Alliance for Secure Commerce) requires comparable IT security controls for Latin American trade routes. See [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md) for the detailed BASC IT mapping. Key overlapping criteria:
 
@@ -90,13 +90,13 @@ BASC (Business Alliance for Secure Commerce) requires comparable IT security con
 
 ---
 
-## Programme-Wide Alignment
+## Programme-wide alignment
 
 For a consolidated view of how CTPAT IT controls map to other applicable trade programmes (BASC, PIP, AEO, AEO-S, NEEC, OEA) and to ISO 28000, see [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md).
 
 ---
 
-## Review and Maintenance
+## Review and maintenance
 
 | Activity | Frequency | Responsibility |
 |---|---|---|

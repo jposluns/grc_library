@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material CBSA criteria update, audit finding, or certification renewal 
 **Repository Path:** [`compliance/register-pip-compliance-controls.md`](register-pip-compliance-controls.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -27,7 +27,7 @@ This register documents the organization's implementation status against the IT 
 
 ---
 
-## Programme Overview
+## Programme overview
 
 PIP is a voluntary partnership programme in which businesses commit to enhancing border security in exchange for expedited cargo processing at Canadian ports of entry. The programme is administered by CBSA and aligns with the World Customs Organization (WCO) SAFE Framework of Standards. IT and cybersecurity requirements are embedded in the Information Technology security section of the PIP security profile.
 
@@ -38,7 +38,7 @@ PIP membership tiers:
 
 ---
 
-## IT and Cybersecurity Security Requirements
+## IT and cybersecurity security requirements
 
 | Requirement ID | PIP Requirement | Control Reference | Implementation Evidence | Status | Last Reviewed |
 |---|---|---|---|---|---|
@@ -55,7 +55,7 @@ PIP membership tiers:
 
 ---
 
-## PIP-AEO-S Alignment
+## PIP-AEO-s alignment
 
 Canada's PIP and the UK's AEO-S both derive from the WCO SAFE Framework, resulting in significant overlap in security requirements. Organizations certified under AEO-S can reference this certification when applying for PIP or demonstrating equivalent security standards to CBSA.
 
@@ -76,7 +76,7 @@ See [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-c
 
 ---
 
-## PIP-CTPAT Cross-Reference
+## PIP-CTPAT cross-reference
 
 CTPAT (US) and PIP (Canada) maintain a mutual recognition arrangement. Evidence collected for CTPAT IT criteria may be reused for PIP with minimal supplementation. See [`compliance/register-ctpat-compliance-controls.md`](register-ctpat-compliance-controls.md) for the CTPAT mapping.
 
@@ -86,13 +86,13 @@ CTPAT (US) and PIP (Canada) maintain a mutual recognition arrangement. Evidence 
 
 ---
 
-## Programme-Wide Alignment
+## Programme-wide alignment
 
 For a consolidated view across CTPAT, PIP, BASC, AEO, AEO-S, NEEC, and OEA, see [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md).
 
 ---
 
-## Review and Maintenance
+## Review and maintenance
 
 | Activity | Frequency | Responsibility |
 |---|---|---|

@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material regulatory or framework change 
 **Repository Path:** [`compliance/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This register defines the key performance indicators (KPIs) used to monitor IT a
 
 ---
 
-## IT and Cybersecurity KPIs
+## IT and cybersecurity kpis
 
 | KPI | Metric | Target | Reporting Frequency | Owner |
 | --- | --- | --- | --- | --- |
@@ -45,7 +45,7 @@ The CISO consolidates IT and cybersecurity KPI results monthly. Quarterly result
 
 ---
 
-## Related Documents
+## Related documents
 
 - Register: BASC IT and Information Security Responsibilities: [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md)
 
@@ -58,7 +58,7 @@ The CISO consolidates IT and cybersecurity KPI results monthly. Quarterly result
 
 ---
 
-## Document History
+## Document history
 
 | Version | Date | Change |
 | --- | --- | --- |
