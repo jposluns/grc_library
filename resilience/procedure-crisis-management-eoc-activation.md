@@ -2,8 +2,8 @@
 
 **Document Title:** Crisis Management and Emergency Operations Activation Procedure 
 **Document Type:** Procedure 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Resilience Owner 
 **Approving Authority:** Executive Management 
 **Related Documents:** [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`resilience/register-eoc-contact-directory.md`](register-eoc-contact-directory.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md) 
@@ -44,31 +44,31 @@ Activation should be considered when one or more conditions exist:
 
 ## Procedure
 
-### Step 1: confirm event severity
+### Step 1: Confirm event severity
 
 Assess known facts, affected services, immediate risks, data impact, safety concerns, supplier involvement, legal or regulatory exposure, and required decision authority.
 
-### Step 2: activate crisis structure
+### Step 2: Activate crisis structure
 
 Assign crisis roles, establish meeting cadence, open action and decision logs, define objectives, and initiate approved communication channels.
 
-### Step 3: stabilize operations
+### Step 3: Stabilize operations
 
 Prioritize life safety, containment, service continuity, evidence preservation, data protection, supplier escalation, and recovery sequencing.
 
-### Step 4: coordinate decisions
+### Step 4: Coordinate decisions
 
 Track decisions, risk acceptances, communication approvals, restoration priorities, legal or compliance considerations, and resource constraints.
 
-### Step 5: monitor and report
+### Step 5: Monitor and report
 
 Maintain current status, material changes, open actions, service impacts, recovery estimates, supplier status, and residual risk.
 
-### Step 6: deactivate
+### Step 6: Deactivate
 
 Deactivate the crisis structure when objectives are met, services are stabilized, communication requirements are complete, and residual activities are assigned to normal governance processes.
 
-### Step 7: review
+### Step 7: Review
 
 Perform post-incident or post-exercise review. Record lessons, failed assumptions, corrective actions, evidence gaps, supplier issues, and required document updates.
 

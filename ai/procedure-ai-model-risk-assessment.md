@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Risk Assessment Procedure 
 **Document Type:** Procedure 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** AI Governance Maintainer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) 
@@ -30,43 +30,43 @@ This procedure applies to models and model-enabled systems developed, acquired, 
 
 ## Procedure
 
-### Step 1: prepare assessment
+### Step 1: Prepare assessment
 
 Record model purpose, owner, risk tier, lifecycle stage, deployment context, data categories, supplier involvement, intended users, prohibited uses, and assessment trigger.
 
-### Step 2: validate data provenance and lineage
+### Step 2: Validate data provenance and lineage
 
 Review training, tuning, retrieval, evaluation, prompt, inference, monitoring, and output data. Confirm origin, permitted use, classification, transformations, retention, deletion method, supplier handling, and known quality limitations.
 
-### Step 3: assess interpretability
+### Step 3: Assess interpretability
 
 Determine interpretability requirements based on risk tier and use context. Record output drivers, known limitations, explanation method, reviewability, and suitability for human oversight.
 
-### Step 4: assess representation and bias risk
+### Step 4: Assess representation and bias risk
 
 Evaluate whether features, labels, embeddings, latent variables, or retrieval sources may encode sensitive, biased, unstable, misleading, or unauthorized patterns. Record mitigation, limitations, and residual risk.
 
-### Step 5: assess robustness and adversarial exposure
+### Step 5: Assess robustness and adversarial exposure
 
 Assess exposure to prompt injection, indirect prompt injection, data poisoning, model inversion, membership inference, training data leakage, retrieval leakage, unsafe tool use, unauthorized extraction, and out-of-distribution behaviour.
 
-### Step 6: assess alignment and oversight
+### Step 6: Assess alignment and oversight
 
 Evaluate whether model behaviour aligns with approved purpose, user context, legal or regulatory constraints, operational controls, human oversight, escalation paths, and prohibited uses.
 
-### Step 7: assess monitoring and incident linkage
+### Step 7: Assess monitoring and incident linkage
 
 Confirm monitoring for drift, misuse, leakage, unsafe outputs, unsafe tool execution, anomalous retrieval, access-control failure, supplier change, and incidents. Link model incidents to incident response and risk governance.
 
-### Step 8: review documentation
+### Step 8: Review documentation
 
 Confirm that model card, system card where applicable, evaluation record, data lineage record, supplier record, monitoring plan, exception record, and approval record are complete enough for the model risk tier.
 
-### Step 9: determine residual risk
+### Step 9: Determine residual risk
 
 Record unresolved risks, compensating controls, acceptance rationale, treatment actions, owner, expiry, and review date.
 
-### Step 10: approve, defer, reject, or retire
+### Step 10: Approve, defer, reject, or retire
 
 The accountable approval role must decide whether the model may proceed, proceed with conditions, remain in pilot, require remediation, be rejected, or be retired.
 

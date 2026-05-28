@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Audit Procedure 
 **Document Type:** Procedure 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Supplier Risk Maintainer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) 
@@ -59,7 +59,7 @@ It is aligned with ISO/IEC 27036-4, COBIT 2025 BAI05.02, CSA CCM v5 STA-05, BASC
 
 ## Procedure
 
-### Step 1: audit planning and scoping
+### Step 1: Audit planning and scoping
 
 The Compliance and GRC Manager must maintain the Supplier Audit Register, recording for each supplier:
 
@@ -79,7 +79,7 @@ Audit scope for each engagement must be defined to cover, as applicable:
 
 Suppliers must be formally notified of an upcoming audit at least 30 calendar days in advance. Notification must include the proposed audit scope, requested documentation, and the scheduled date range.
 
-### Step 2: pre-audit preparation
+### Step 2: Pre-audit preparation
 
 Prior to conducting the audit, the audit team must:
 
@@ -92,7 +92,7 @@ Prior to conducting the audit, the audit team must:
  - BASC International Standard v6 2023, Sections 1 to 7 (for trade and logistics suppliers).
  - ENISA AI Cybersecurity Certification Scheme 2026 control families (for AI system suppliers).
 
-### Step 3: evaluation and scoring
+### Step 3: Evaluation and scoring
 
 Audit findings must be scored using a weighted compliance matrix. The weighting reflects the relative governance importance of each domain.
 
@@ -116,7 +116,7 @@ Overall audit scores are interpreted as follows:
 | 60 to 74% | Moderate Risk | Improvement plan required within 30 days; follow-up review scheduled. |
 | Below 60% | Noncompliant | Subject to re-audit within 60 days or suspension pending remediation. |
 
-### Step 4: reporting and findings management
+### Step 4: Reporting and findings management
 
 A formal Supplier Audit Report must be issued within 15 business days of audit completion. The report must include:
 

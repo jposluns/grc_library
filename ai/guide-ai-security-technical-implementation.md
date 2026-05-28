@@ -2,7 +2,7 @@
 
 **Document Title:** AI Security Technical Implementation Guide 
 **Document Type:** Guide 
-**Version:** 1.2.0 
+**Version:** 1.2.1 
 **Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -18,9 +18,9 @@ This guide contains implementation patterns, code examples, CI/CD configurations
 
 ---
 
-## A1. reference architectures
+## A1. Reference architectures
 
-### A1.1 secure RAG pipeline
+### A1.1 Secure RAG pipeline
 
 ```
 [User Input]
@@ -39,7 +39,7 @@ This guide contains implementation patterns, code examples, CI/CD configurations
     → Audit log → application telemetry platform + SIEM
 ```
 
-### A1.2 secure agent pipeline
+### A1.2 Secure agent pipeline
 
 ```
 [User Request]
@@ -75,7 +75,7 @@ This guide contains implementation patterns, code examples, CI/CD configurations
     → Deployment via standard pipeline
 ```
 
-### A1.4 workflow automation + AI secure orchestration pattern
+### A1.4 Workflow automation and AI secure orchestration pattern
 
 For workflow automation actions invoking managed AI inference (see AI Security Standard §31 ORCH-SEC-05 through ORCH-SEC-07):
 
@@ -107,7 +107,7 @@ managed identity authentication. API key authentication requires explicit CIO/CI
 
 ## A2. CI/CD examples
 
-### A2.1 GitHub actions: AI security gates
+### A2.1 GitHub Actions: AI security gates
 
 ```yaml
 # .github/workflows/ai-security.yml
@@ -284,7 +284,7 @@ reporting:
   output: garak-report.json
 ```
 
-### A2.5 cloud policy: AI service public network access deny
+### A2.5 Cloud policy: AI service public network access deny
 
 Enforce at the cloud policy layer that managed AI inference service instances must have public network access disabled. The policy should:
 
@@ -296,9 +296,9 @@ Consult your cloud provider's policy framework documentation for the exact JSON/
 
 ---
 
-## A3. secure prompt engineering patterns
+## A3. Secure prompt engineering patterns
 
-### A3.1 structural isolation (required template)
+### A3.1 Structural isolation (required template)
 
 Every prompt inserting retrieved content or user input must use the following structure. Concatenation into a single string is prohibited (AI Security Standard §8 P-18).
 
@@ -328,7 +328,7 @@ User question: {validated_user_input}
 prompt = f"{SYSTEM_PROMPT}\n\nDocument: {retrieved_content}\nUser: {user_input}"
 ```
 
-### A3.2 structured output enforcement
+### A3.2 Structured output enforcement
 
 ```python
 import jsonschema, json
@@ -376,7 +376,7 @@ if "query" in response_text:
     execute_query(entity_id)  # Never
 ```
 
-### A3.3 tool allow-list pattern
+### A3.3 Tool allow-list pattern
 
 ```python
 AGENT_TOOLS = {
@@ -417,7 +417,7 @@ def execute_tool(tool_name: str, parameters: dict) -> dict:
     return _execute_tool_internal(tool_name, parameters)
 ```
 
-### A3.4 session-scoped context (required pattern)
+### A3.4 Session-scoped context (required pattern)
 
 ```python
 MAX_CONTEXT_TURNS = 20
@@ -440,7 +440,7 @@ def chat(user_message: str):
     return llm.chat(conversation_history)  # User B reads User A's history
 ```
 
-### A3.5 workflow automation: safe AI output insertion pattern
+### A3.5 Workflow automation: safe AI output insertion pattern
 
 For workflow automation actions that insert AI-generated content into downstream systems (AI Security Standard §31 ORCH-SEC-06):
 
@@ -470,9 +470,9 @@ For workflow automation actions that insert AI-generated content into downstream
 
 ---
 
-## A4. unsafe pattern examples
+## A4. Unsafe pattern examples
 
-### A4.1 shell execution from LLM output (prohibited)
+### A4.1 Shell execution from LLM output (prohibited)
 
 ```python
 # PROHIBITED
@@ -484,7 +484,7 @@ eval(llm_output)                               # Never
 exec(llm_output)                               # Never
 ```
 
-### A4.2 credentials in prompts (prohibited)
+### A4.2 Credentials in prompts (prohibited)
 
 ```python
 # PROHIBITED
@@ -496,7 +496,7 @@ Connection: Server=db-server.internal;Database=AppDB;Password={DB_PASSWORD}
 # Use managed identity database connections from application code instead.
 ```
 
-### A4.3 unvalidated AI output to database (prohibited)
+### A4.3 Unvalidated AI output to database (prohibited)
 
 ```python
 # PROHIBITED
@@ -514,7 +514,7 @@ if query_key not in ALLOWED_QUERIES:
 cursor.execute(ALLOWED_QUERIES[query_key], (validated_param,))
 ```
 
-### A4.4 untrusted retrieved content without delimitation
+### A4.4 Untrusted retrieved content without delimitation
 
 ```python
 # PROHIBITED
@@ -534,7 +534,7 @@ User question: {html.escape(user_query)}
 """
 ```
 
-### A4.5 AI output as innerhtml (prohibited)
+### A4.5 AI output as innerHTML (prohibited)
 
 ```typescript
 // PROHIBITED
@@ -550,7 +550,7 @@ element.textContent = llmResponse;
 
 ---
 
-## A5. audit log format
+## A5. Audit log format
 
 ```json
 {

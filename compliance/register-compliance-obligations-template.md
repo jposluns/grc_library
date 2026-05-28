@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance Obligations Register Template 
 **Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md) 
@@ -108,19 +108,19 @@ Populate the register across the following obligation categories. Each category 
 
 ## Population guidance
 
-### Step 1: identify applicable obligations
+### Step 1: Identify applicable obligations
 Use [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md) as the source of truth for which jurisdictions and regulatory regimes apply. For each applicable regime, enumerate the specific legal obligations that apply to the organization's activities, data categories, and processing roles.
 
-### Step 2: assign obligation ids
+### Step 2: Assign obligation ids
 Use the format `OBL-[YYYY]-[NNN]` where YYYY is the year the obligation was entered into the register. Number sequentially from 001 within each year.
 
-### Step 3: map to controls
+### Step 3: Map to controls
 For each obligation, identify the policy, standard, procedure, or control that fulfils it. Where no control exists, record as a gap and initiate a CAPA using [`compliance/procedure-capa.md`](procedure-capa.md).
 
-### Step 4: assign ownership
+### Step 4: Assign ownership
 Each obligation must have a named role as Obligation Owner. Ownership should align with accountability for the regulated activity, not merely the legal or compliance function.
 
-### Step 5: set review cadence
+### Step 5: Set review cadence
 High-risk obligations should be reviewed at least annually. Obligations tied to pending regulation should be reviewed as regulatory developments occur.
 
 ---
