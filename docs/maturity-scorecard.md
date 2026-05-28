@@ -17,7 +17,7 @@ This classification is a heuristic derived from semver; it does not reflect audi
 
 ---
 
-_Summary as of last regeneration: Mature: 47, Baseline: 149, Draft: 26, Unknown: 0._
+_Summary as of last regeneration: Mature: 47, Baseline: 149, Draft: 36, Unknown: 0._
 
 ## Mature
 
@@ -33,7 +33,7 @@ _47 documents._
 | [governance/framework-document-architecture-and-interrelationship.md](../governance/framework-document-architecture-and-interrelationship.md) | Document Architecture and Interrelationship Framework | Framework | 1.1.0 | 2026-05-28 |
 | [governance/framework-sustainability-and-responsible-technology.md](../governance/framework-sustainability-and-responsible-technology.md) | Sustainability and Responsible Technology Framework | Framework | 1.1.0 | 2026-05-28 |
 | [governance/matrix-cross-framework-alignment.md](../governance/matrix-cross-framework-alignment.md) | Cross-Framework Alignment Matrix | Matrix | 1.1.1 | 2026-05-28 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.13.0 | 2026-05-28 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.14.0 | 2026-05-28 |
 | [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.3.0 | 2026-05-27 |
 | [operations/procedure-change-management-and-configuration-control.md](../operations/procedure-change-management-and-configuration-control.md) | Change Management and Configuration Control Procedure | Procedure | 1.3.0 | 2026-05-27 |
 | [operations/procedure-endpoint-management-and-device-compliance.md](../operations/procedure-endpoint-management-and-device-compliance.md) | Endpoint Management and Device Compliance Procedure | Procedure | 1.3.0 | 2026-05-27 |
@@ -235,10 +235,20 @@ _149 documents._
 
 ## Draft
 
-_26 documents._
+_36 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
+| [ai/plan-ai-incident-response.md](../ai/plan-ai-incident-response.md) | AI Incident Response Plan | Plan | 0.0.1 | 2026-05-28 |
+| [ai/procedure-foundation-model-lifecycle.md](../ai/procedure-foundation-model-lifecycle.md) | Foundation Model Lifecycle Procedure | Procedure | 0.0.1 | 2026-05-28 |
+| [ai/procedure-training-data-governance.md](../ai/procedure-training-data-governance.md) | Training Data Governance Procedure | Procedure | 0.0.1 | 2026-05-28 |
+| [ai/register-mcp-server.md](../ai/register-mcp-server.md) | Model Context Protocol Server Register | Register | 0.0.1 | 2026-05-28 |
+| [ai/register-model-registry.md](../ai/register-model-registry.md) | Model Registry | Register | 0.0.1 | 2026-05-28 |
+| [ai/standard-ai-access-and-agent-permissions.md](../ai/standard-ai-access-and-agent-permissions.md) | AI Access and Agent Permissions Standard | Standard | 0.0.1 | 2026-05-28 |
+| [ai/standard-ai-inference-cost-governance.md](../ai/standard-ai-inference-cost-governance.md) | AI Inference Cost Governance Standard | Standard | 0.0.1 | 2026-05-28 |
+| [ai/template-ai-red-team-report.md](../ai/template-ai-red-team-report.md) | AI Red Team Report Template | Template | 0.0.1 | 2026-05-28 |
+| [ai/template-ai-vendor-security-questionnaire.md](../ai/template-ai-vendor-security-questionnaire.md) | AI Vendor Security Questionnaire Template | Template | 0.0.1 | 2026-05-28 |
+| [ai/template-dataset-datasheet.md](../ai/template-dataset-datasheet.md) | Dataset Datasheet Template | Template | 0.0.1 | 2026-05-28 |
 | [compliance/annex-dora-implementation.md](../compliance/annex-dora-implementation.md) | DORA Implementation Annex | Annex | 0.0.1 | 2026-05-28 |
 | [compliance/annex-energy-and-utilities-sector-requirements.md](../compliance/annex-energy-and-utilities-sector-requirements.md) | Energy and Utilities Sector Requirements Annex | Annex | 0.0.1 | 2026-05-28 |
 | [compliance/annex-fedramp-requirements.md](../compliance/annex-fedramp-requirements.md) | FedRAMP Sector Requirements Annex | Annex | 0.0.1 | 2026-05-28 |

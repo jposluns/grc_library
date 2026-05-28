@@ -257,6 +257,8 @@ Security architects need the dev-security standards, the AI security guides, the
 - [AI Model Lifecycle Management Procedure](../ai/procedure-ai-model-lifecycle-management.md)
 - [AI Model Risk Assessment Procedure](../ai/procedure-ai-model-risk-assessment.md)
 - [AI System Impact Assessment Procedure](../ai/procedure-ai-system-impact-assessment.md)
+- [Foundation Model Lifecycle Procedure](../ai/procedure-foundation-model-lifecycle.md)
+- [Training Data Governance Procedure](../ai/procedure-training-data-governance.md)
 
 ### Register
 
@@ -264,6 +266,8 @@ Security architects need the dev-security standards, the AI security guides, the
 
 ### Standard
 
+- [AI Access and Agent Permissions Standard](../ai/standard-ai-access-and-agent-permissions.md)
+- [AI Inference Cost Governance Standard](../ai/standard-ai-inference-cost-governance.md)
 - [AI Model Risk Standard](../ai/standard-ai-model-risk.md)
 - [AI Security and Risk Standard](../ai/standard-ai-security-and-risk.md)
 - [AI Testing, Validation and Documentation Standard](../ai/standard-ai-testing-validation-and-documentation.md)
