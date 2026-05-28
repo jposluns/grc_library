@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register 
 **Document Type:** Register 
-**Version:** 1.25.0 
+**Version:** 1.25.1 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -46,7 +46,8 @@ All active repository documents should be Public.
 | Governance | Framework | Continuous Assurance and Improvement Framework | [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md) | GRC Programme Manager | Annual | 4-cycle assurance model, BASC integration, AI maturity, CAPA linkage |
 | Governance | Framework | Metrics, Monitoring and Performance Reporting Framework | [`governance/framework-metrics-monitoring-and-performance-reporting.md`](framework-metrics-monitoring-and-performance-reporting.md) | GRC Programme Manager | Annual | KRI/KPI framework, BASC trade metrics, AI maturity indicators, COBIT MEA01 |
 | Governance | Register | Document Index and Classification Register | [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md) | Governance Library Maintainer | Annual | Document control, classification, traceability |
-| Governance | Register | Key Terms and Definitions Register | [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md) | Governance Library Maintainer | Annual | Cross-domain terminology |
+| Governance | Register | Key Terms and Definitions Register | [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md) | Governance Library Maintainer | Annual | Cross-domain terminology, internal GRC concepts |
+| Governance | Register | Glossary and Acronym Index | [`governance/register-glossary.md`](register-glossary.md) | Governance Library Maintainer | Annual | Acronyms, external standards, regulations, frameworks, regulators, sector programmes |
 | Governance | Register | Role Authority Register | [`governance/register-role-authority.md`](register-role-authority.md) | Governance Library Maintainer | Annual | Accountability, RACI, approval authority |
 | Governance | Matrix | Cross-Framework Alignment Matrix | [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md) | Control Framework Maintainer | 6 to 12 months | ISO, NIST, COBIT, CCM, OWASP, MITRE ATLAS |
 | Governance | Matrix | Reverse Framework Control Crosswalk Matrix | [`governance/matrix-reverse-framework-control-crosswalk.md`](matrix-reverse-framework-control-crosswalk.md) | Control Framework Maintainer | 6 to 12 months | ISO 27001, ISO 42001, NIST CSF 2.0, NIST SP 800-53, NIST AI RMF, CSA CCM v4.1, EU AI Act, GDPR, DORA, NIS 2, OWASP LLM Top 10, MITRE ATLAS, CTPAT, BASC, WCO SAFE |
