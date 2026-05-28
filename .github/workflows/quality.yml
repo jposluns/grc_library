@@ -31,6 +31,18 @@ jobs:
       - name: Structural index integrity audit
         run: python3 tools/lint-structure.py
 
+      - name: Framework citation hallucination audit
+        run: python3 tools/lint-citations.py
+
+      - name: Owner and Approving Authority role audit
+        run: python3 tools/lint-roles.py
+
+      - name: Mandatory requirement near uncertainty marker audit
+        run: python3 tools/lint-shall-near-uncertainty.py
+
+      - name: Per-document review cadence audit
+        run: python3 tools/check-review-cadence.py
+
       - name: Machine-readable taxonomy in sync
         run: python3 tools/build-taxonomy.py --check
 

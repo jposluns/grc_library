@@ -4,6 +4,42 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 13 (2026-05-28): Tooling hardening — two new linters and full audit-suite wire-up
+
+Resolves the audit blind-spots that allowed the Phase 12 defect set to accrete: the linter suite now catches the patterns Phase 12 had to fix manually. The audit suite grows from 8 to 10 audits, all wired into pre-commit and CI.
+
+### New linters
+
+- `tools/lint-shall-near-uncertainty.py` (new): detects mandatory `shall`/`must`/`will` requirements within 2 lines of uncertainty markers (`[Unverified]`, `TBD`, `TODO`, `FIXME`, `XXX`, `Draft <year/proper-noun>`, `placeholder`, `[Draft N Reference]`). Would have caught the Phase 12.5 finding before merge. Returns non-zero on findings.
+
+- `tools/lint-roles.py` (new): parses every `**Owner:**` and `**Approving Authority:**` value from document metadata blocks and verifies the value is either defined in `governance/register-role-authority.md` or in the linter's `EXTRA_KNOWN_ROLES` exemption set (for cross-functional bodies, alias roles, and named maintainer functions). Detects undefined-role usage that creates governance ambiguity. Skips obvious template placeholders (`<role title>`, `Role Name`, bracketed text).
+
+### Role authority register expanded
+
+- `governance/register-role-authority.md` (v1.1.0 → v1.2.0): nine additional roles added that were used in document metadata but not previously defined: Board of Directors, Chief Technology Officer, Chief Audit Executive, Security Owner, Communications Owner, IT Operations Lead, AI Risk Maintainer, Assurance Metrics Maintainer, Control Framework Maintainer. Total known roles in scanned files: 40 (was 22).
+
+### Tooling pipeline wire-up
+
+- `.pre-commit-config.yaml`: extended to run all 10 audits locally on commit. Previously ran 6 (missing the four newer linters added in Phases 11, 12.1, 13).
+- `.github/workflows/quality.yml`: extended to run all 10 audits in CI on push to main and on every PR.
+- `CONTRIBUTING.md`: local-audit instructions extended to list all 10 audits.
+
+### Result
+
+The audit pipeline now catches:
+1. Metadata block defects (lint-metadata).
+2. Language and style defects including em/en dashes, BrE `-ise` endings, bare `ensure`, sanitisation residue, heading-case violations (lint-language).
+3. Broken internal links (lint-links).
+4. Structural defects such as documents missing from their domain README (lint-structure).
+5. Hallucinated or stale framework version citations (lint-citations).
+6. Undefined Owner/Approving Authority roles in metadata (lint-roles).
+7. Mandatory requirements next to uncertainty markers (lint-shall-near-uncertainty).
+8. Overdue document reviews past the action threshold (check-review-cadence).
+9. Taxonomy drift between source documents and the auto-generated registry (build-taxonomy --check).
+10. Portal and maturity-scorecard drift (build-portal --check).
+
+Taxonomy regenerated. No content changes beyond the role-register expansion.
+
 ## Phase 12.10 (2026-05-28): Editorial and terminology consolidation
 
 Resolves the remaining medium and low-severity findings from the comprehensive audit. Closes the corrective campaign at Phase 12.
