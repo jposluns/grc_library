@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register 
 **Document Type:** Register 
-**Version:** 1.16.0 
+**Version:** 1.17.0 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -219,6 +219,11 @@ All active repository documents should be Public.
 | Operations | Register | IT Security Operations Register | [`operations/register-it-security-operations.md`](../operations/register-it-security-operations.md) | Chief Information Security Officer | Continuous / Monthly | ISO 27001 §9.1, NIST SP 800-53 CA-7, COBIT DSS05 |
 | Operations | Standard | Service Level Management Standard | [`operations/standard-service-level-management.md`](../operations/standard-service-level-management.md) | Chief Information Officer | Annual | ISO 20000-1:2018 §8.3, ITIL 4 SLM, COBIT DSS02/APO09, EU NIS 2 |
 | Operations | Register | IT Operations Key Performance Indicators Register | [`operations/register-it-operations-kpis.md`](../operations/register-it-operations-kpis.md) | Chief Information Officer | Annual | ISO 20000-1:2018 §9.1, ITIL 4, COBIT DSS02/DSS03, EU NIS 2 Directive |
+| Operations | Standard | Observability and Telemetry Standard | [`operations/standard-observability-and-telemetry.md`](../operations/standard-observability-and-telemetry.md) | Chief Information Officer | Annual | Google SRE four golden signals, ITIL 4, ISO 20000-1, ISO 27001 A.5.7/A.8.15/A.8.16, NIST SP 800-137, OpenTelemetry, W3C Trace Context |
+| Operations | Standard | Site Reliability Engineering Standard | [`operations/standard-site-reliability-engineering.md`](../operations/standard-site-reliability-engineering.md) | Chief Information Officer | Annual | Google SRE Book and Workbook, ITIL 4, ISO 20000-1, ISO 27001 A.5.29, ISO 22301, DORA Arts 5-16, NIST CSF 2.0 |
+| Operations | Standard | Capacity and Performance Management Standard | [`operations/standard-capacity-and-performance-management.md`](../operations/standard-capacity-and-performance-management.md) | Chief Information Officer | Annual | ITIL 4 capacity and performance management, ISO 20000-1, FinOps Foundation, Google SRE, ISO 27001 A.8.6, NIST SP 800-53 SC-5/CP-2 |
+| Operations | Procedure | Release Management Procedure | [`operations/procedure-release-management.md`](../operations/procedure-release-management.md) | Chief Information Officer | Annual | ITIL 4 release and deployment management, ISO 20000-1, ISO 27001 A.8.32, NIST SP 800-218 SSDF, OWASP SAMM, Google SRE, DORA accelerate metrics |
+| Operations | Standard | IT Financial Management Standard | [`operations/standard-it-financial-management.md`](../operations/standard-it-financial-management.md) | Chief Information Officer | Annual | FinOps Foundation, ITIL 4 service financial management, ISO 20000-1, COBIT 2025 APO06, ISO 27001 A.5.13/A.5.14, ISO 14001, GAAP/IFRS |
 | AI | Charter | AI Governance Council Charter | [`ai/charter-ai-governance-council.md`](../ai/charter-ai-governance-council.md) | Chief Information Officer | Annual | ISO 42001 §5, EU AI Act Chapter III, NIST AI RMF GOVERN, OECD AI Principles |
 | AI | Standard | AI Testing, Validation and Documentation Standard | [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md) | Chief Information Officer | Annual | ISO 42001 §8, ISO 42006, EU AI Act Annex IV, NIST AI RMF, OWASP LLM Top 10 |
 | AI | Framework | AI Model Documentation and Transparency Framework | [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md) | Chief Information Officer | Annual | ISO 42001 §8.4, EU AI Act Annex IV, NIST AI RMF, OECD AI Principles, GDPR Art 22 |

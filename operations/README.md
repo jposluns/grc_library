@@ -2,8 +2,8 @@
 
 **Document Title:** Operations Domain README 
 **Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.1.0 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md) 
@@ -42,6 +42,11 @@ This directory contains production and infrastructure security standards, proced
 | Register | Asset Inventory Register | [`operations/register-asset-inventory.md`](register-asset-inventory.md) |
 | Register | IT Security Operations Register | [`operations/register-it-security-operations.md`](register-it-security-operations.md) |
 | Register | IT Operations Key Performance Indicators Register | [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md) |
+| Standard | Observability and Telemetry Standard | [`operations/standard-observability-and-telemetry.md`](standard-observability-and-telemetry.md) |
+| Standard | Site Reliability Engineering Standard | [`operations/standard-site-reliability-engineering.md`](standard-site-reliability-engineering.md) |
+| Standard | Capacity and Performance Management Standard | [`operations/standard-capacity-and-performance-management.md`](standard-capacity-and-performance-management.md) |
+| Procedure | Release Management Procedure | [`operations/procedure-release-management.md`](procedure-release-management.md) |
+| Standard | IT Financial Management Standard | [`operations/standard-it-financial-management.md`](standard-it-financial-management.md) |
 
 ---
 
