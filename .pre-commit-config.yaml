@@ -36,6 +36,34 @@ repos:
         pass_filenames: false
         types: [markdown]
 
+      - id: lint-citations
+        name: Framework citation hallucination audit
+        entry: python3 tools/lint-citations.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-roles
+        name: Owner and Approving Authority role audit
+        entry: python3 tools/lint-roles.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-shall-near-uncertainty
+        name: Mandatory requirement near uncertainty marker audit
+        entry: python3 tools/lint-shall-near-uncertainty.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: check-review-cadence
+        name: Per-document review cadence audit
+        entry: python3 tools/check-review-cadence.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
       - id: taxonomy-in-sync
         name: Machine-readable taxonomy in sync
         entry: python3 tools/build-taxonomy.py --check

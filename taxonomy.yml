@@ -2090,7 +2090,7 @@ documents:
   domain: "governance"
   type: "Register"
   title: "Role Authority Register"
-  version: "1.1.0"
+  version: "1.2.0"
   date: "2026-05-27"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"

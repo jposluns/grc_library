@@ -42,6 +42,8 @@ This statement is informational; contributors are not required to declare whethe
    python3 tools/lint-links.py
    python3 tools/lint-structure.py
    python3 tools/lint-citations.py
+   python3 tools/lint-roles.py
+   python3 tools/lint-shall-near-uncertainty.py
    python3 tools/check-review-cadence.py
    python3 tools/build-taxonomy.py --check
    python3 tools/build-portal.py --check

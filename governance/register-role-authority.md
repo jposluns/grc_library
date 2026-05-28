@@ -2,7 +2,7 @@
 
 **Document Title:** Role Authority Register 
 **Document Type:** Register 
-**Version:** 1.1.0 
+**Version:** 1.2.0 
 **Date:** 2026-05-27 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -27,13 +27,16 @@ This register defines generic governance roles used across the GRC Documentation
 | Role | Primary Accountability | Typical Approval Authority |
 | --- | --- | --- |
 | Governing Body | Oversight of enterprise risk, compliance, security, privacy, resilience, and technology governance. | Charters, risk appetite, major risk acceptance. |
+| Board of Directors | The organisation's board (or equivalent governing body where the term applies). Specific board-level approvals such as risk appetite statements and material policy adoption. | Board-approved risk appetite, board-reviewed material exceptions. |
 | Executive Management | Executive accountability for policy adoption, resourcing, and operating effectiveness. | Enterprise policies, material exceptions, strategic risk decisions. |
 | Chief Information Officer | Information and technology governance, architecture, operational technology risk, and digital stewardship. | Technology policies, service governance, architecture exceptions. |
+| Chief Technology Officer | Engineering, architecture, technology selection, development practice, and platform direction. | Architecture standards, technology radar, engineering exceptions. |
 | Chief Information Security Officer | Information security programme, security risk, control assurance, incident governance, and security standards. | Security standards, security exceptions, incident response procedures. |
 | Chief Risk Officer | Enterprise risk methodology, risk appetite alignment, risk aggregation, and risk reporting. | Enterprise risk framework, risk taxonomy, risk reporting. |
 | Chief Compliance Officer | Compliance management, obligation tracking, control assurance, and regulatory response coordination. | Compliance policy, obligation register, compliance assurance plan. |
 | Chief Privacy Officer | Privacy governance, personal data protection, impact assessments, and data subject rights. | Privacy policy, impact assessment procedure, breach response procedure. |
 | Chief Data Officer | Data governance, data quality, lifecycle management, data lineage, and data stewardship. | Data governance standards, classification model, retention model. |
+| Chief Audit Executive | Internal audit function head; audit planning, audit assurance, and audit-committee reporting. | Audit plan, audit charter, audit findings. |
 | AI Governance Lead | Umbrella AI governance role chairing the AI governance function and coordinating the AI Governance Approver, AI Data Steward, and AI System Inventory Keeper. Typically the AI Governance Council secretariat. | AI governance framework, AI impact assessment, AI exceptions. |
 | AI Governance Approver | Approval decisions for AI policies, frameworks, standards, deployment gates, foundation-model selection, risk-classification approvals, and material lifecycle changes. | AI policy approvals, deployment decisions, exception approvals, model-selection sign-off. |
 | AI Data Steward | Training-data governance, dataset acceptance, deletion-propagation, lineage tracking, sensitive-content controls, and dataset documentation (datasheets). | Dataset acceptance, deletion authorisation, lineage records. |
@@ -47,6 +50,12 @@ This register defines generic governance roles used across the GRC Documentation
 | Supplier Owner | Ownership of supplier relationship, due diligence, contractual controls, performance, and exit planning. | Supplier risk acceptance, supplier review, supplier exit plan. |
 | Supplier Risk Maintainer | Maintenance of supplier-related governance artefacts (supplier risk register, due-diligence procedure, supplier audit procedure, supplier-resilience monitoring, concentration register). Distinct from the Supplier Owner role, which is per-supplier; this role maintains the cross-supplier governance content. | Supplier-governance artefact updates; supplier inventory consistency. |
 | Resilience Owner | Ownership of business continuity, recovery objectives, testing, and recovery evidence. | Continuity plans, recovery tests, resilience exceptions. |
+| Security Owner | Ownership of security controls and incident response within a specific scope (a service, a platform, a programme). Distinct from CISO (organisation-wide). | Security control evidence, scope-level security exceptions, incident response within scope. |
+| Communications Owner | Ownership of crisis-communication and incident-communication content and channels. | Communications plans, customer notifications, post-incident communications. |
+| IT Operations Lead | Day-to-day IT operations leadership including incident response, change execution, and operations governance. | Operations procedures, operational exceptions, runbook approval. |
+| AI Risk Maintainer | Maintenance of AI-specific risk artefacts (AI risk register, AI risk methodology annex, AI impact assessment templates). | AI risk register updates, AI methodology updates. |
+| Assurance Metrics Maintainer | Maintenance of digital trust and assurance metrics registers. | Metrics catalogue updates. |
+| Control Framework Maintainer | Maintenance of the cross-framework alignment matrix and the reverse framework control crosswalk. | Cross-framework matrix updates, control mapping updates. |
 | Document Owner | Maintenance of a governance document, metadata, review cycle, and related artefacts. | Minor document updates, review records. |
 
 ---
