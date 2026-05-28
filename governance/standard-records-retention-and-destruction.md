@@ -2,8 +2,8 @@
 
 **Document Title:** Records Retention and Destruction Standard 
 **Document Type:** Standard 
-**Version:** 1.3.0 
-**Date:** 2026-05-27 
+**Version:** 1.4.0 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) 
@@ -26,7 +26,7 @@ This standard establishes controls, retention schedules, destruction methods, an
 
 1. Applies to all organisational records including business documents, electronic files, system logs, datasets, AI model artifacts, and contractual records.
 2. Covers all systems, storage media, and cloud environments that hold information subject to regulatory, audit, or contractual retention obligations.
-3. Applies globally across all entities and regional subsidiaries, including BASC-governed logistics and customs operations.
+3. Applies globally across all entities and regional subsidiaries. Sector-specific retention overlays (for example, BASC trade and customs retention) apply where the organisation participates in a covered programme; see [`sectors/`](../sectors/).
 4. Includes AI-specific content such as model training datasets, testing results, and explainability documentation.
 
 ---
@@ -41,7 +41,8 @@ This standard establishes controls, retention schedules, destruction methods, an
 | **Department Heads / Data Owners** | Classify and manage records according to business and regulatory requirements. |
 | **Legal Counsel** | Validates retention periods based on jurisdictional and contractual obligations. |
 | **AI Governance Council (AIGC)** | Defines retention and destruction controls for AI datasets, model versions, and audit logs. |
-| **Regional Compliance Officers** | Ensure that BASC-specific retention for customs, trade, and cargo-related records. |
+
+Sector-conditional roles (for example, a BASC Regional Compliance Officer where the organisation participates in BASC) apply retention controls per the relevant sector annex; see [`sectors/`](../sectors/).
 
 ---
 
@@ -77,7 +78,8 @@ The Records Retention Schedule (RRS) defines minimum retention periods based on:
 | Legal and Compliance | 7 years |
 | Privacy / Data Subject Requests (DSR) | 2 years post-closure |
 | AI Systems | 5 years post-decommission |
-| BASC Trade and Customs | 5 years or per applicable BASC chapter policy |
+
+Sector-specific retention categories (for example, trade and customs records under BASC, healthcare records under HIPAA, financial-services records under sector-specific regulation) apply where the organisation participates in a covered programme; see [`sectors/`](../sectors/).
 
 > Retention periods longer than 7 years require written approval from Legal Counsel.
 
@@ -181,8 +183,8 @@ Annual audits verify:
 | CSA CCM v4.1 DSP-02 | Data Retention, Disposal, and Destruction |
 | ISO/IEC 42001:2023 §9 | AI Recordkeeping and Traceability |
 | EU AI Act Annex IV | AI System Documentation |
-| BASC International Standard v6 2023 | Supply-Chain and Customs Records Retention |
-| WCO SAFE Framework 2021 | Trade Compliance Documentation |
+
+Sector-specific framework alignments (for example, BASC International Standard v6 2023 and WCO SAFE Framework 2021 for trade and customs records retention) apply where the organisation participates in a covered programme; see [`sectors/`](../sectors/).
 
 ---
 
