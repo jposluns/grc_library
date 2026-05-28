@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This template provides a structured approach for assessing the organization's current security controls against the requirements of one or more internationally recognized trade compliance and trusted-trader programmes. It is used for:
+This template provides a structured approach for assessing the organisation's current security controls against the requirements of one or more internationally recognized trade compliance and trusted-trader programmes. It is used for:
 
 - Initial gap assessment prior to applying for a new programme certification
 - Annual readiness reviews for existing programme memberships

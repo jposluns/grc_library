@@ -30,7 +30,7 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 ## Scope
 
-1. Applies to all software, scripts, infrastructure-as-code, AI models, APIs, and automation developed, maintained, or integrated by the organization.
+1. Applies to all software, scripts, infrastructure-as-code, AI models, APIs, and automation developed, maintained, or integrated by the organisation.
 2. Covers both internal and outsourced development, including open-source and third-party components.
 3. Applies to all personnel involved in software design, coding, testing, deployment, and maintenance.
 4. Encompasses both traditional and AI-assisted development environments.

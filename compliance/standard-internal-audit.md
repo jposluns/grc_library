@@ -58,7 +58,7 @@ This standard applies to all internal audit activity conducted across the follow
 | Artificial Intelligence | Governance, transparency, accountability, and bias controls for AI/ML systems |
 | Supply Chain Security | Third-party risk management, supplier controls, and vendor assurance |
 | Regulatory Compliance | Adherence to applicable legal, regulatory, and contractual requirements |
-| Organizational Resilience | Business continuity, disaster recovery, and crisis management capabilities |
+| Organisational Resilience | Business continuity, disaster recovery, and crisis management capabilities |
 | Development Security | Secure development lifecycle, code quality, and DevSecOps control effectiveness |
 
 This standard applies to all personnel who plan, conduct, manage, or are subject to internal audits.
@@ -96,7 +96,7 @@ b. **Structural independence:** The CAE/GRC Manager must have a reporting line t
 
 c. **Conflict disclosure:** Any auditor who identifies a potential conflict of interest must disclose it to the CAE/GRC Manager before fieldwork commences. The CAE/GRC Manager will reassign the engagement if a material conflict exists.
 
-d. **External support:** Where internal independence cannot be achieved for a particular domain (e.g., where the audit team is small), the organization may supplement the internal audit function with qualified external auditors or peer reviewers to maintain objectivity.
+d. **External support:** Where internal independence cannot be achieved for a particular domain (e.g., where the audit team is small), the organisation may supplement the internal audit function with qualified external auditors or peer reviewers to maintain objectivity.
 
 ---
 
@@ -106,13 +106,13 @@ The internal audit function operates in accordance with the following principles
 
 | Principle | Description |
 |-----------|-------------|
-| **Integrity** | Auditors conduct their work honestly, diligently, and responsibly. Audit conclusions are not influenced by personal relationships, organizational pressures, or anticipated outcomes. |
+| **Integrity** | Auditors conduct their work honestly, diligently, and responsibly. Audit conclusions are not influenced by personal relationships, organisational pressures, or anticipated outcomes. |
 | **Fair Presentation** | Audit findings, conclusions, and reports accurately and truthfully reflect the evidence gathered. Significant obstacles encountered during the audit and unresolved divergences of opinion between auditors and auditees are reported. |
 | **Due Professional Care** | Auditors exercise the level of care, judgement, and skill expected of a competent audit professional, commensurate with the complexity and risk of the audit. |
 | **Confidentiality** | Audit evidence, working papers, and findings are handled with discretion and are not disclosed to parties outside the defined distribution list without authorization. |
 | **Independence** | Auditors are free from bias and conflicts of interest to the greatest extent practicable. Independence underpins the objectivity and credibility of audit conclusions. |
 | **Evidence-Based Approach** | Audit conclusions are grounded in verifiable, reproducible evidence. Findings are not made on the basis of assumption or hearsay. |
-| **Risk-Based Approach** | Audit resources are directed towards the highest-risk domains, processes, and controls. The audit programme is adapted dynamically as the risk profile of the organization changes. |
+| **Risk-Based Approach** | Audit resources are directed towards the highest-risk domains, processes, and controls. The audit programme is adapted dynamically as the risk profile of the organisation changes. |
 | **Continual Improvement** | The audit programme itself is subject to periodic evaluation and improvement. Lessons learned from completed audits are applied to future audit cycles. |
 
 ---
@@ -127,7 +127,7 @@ The CAE/GRC Manager develops an **Annual Audit Plan** each year. The plan must:
 - Provide coverage across all in-scope GRC domains, with higher-risk domains scheduled for more frequent review;
 - Be reviewed and approved by the **ERC no later than 31 January** of the year to which it applies;
 - Be made available to the CISO, domain owners, and relevant senior leadership;
-- Be reviewed at mid-year and updated to reflect changes in organizational risk, incidents, or regulatory changes.
+- Be reviewed at mid-year and updated to reflect changes in organisational risk, incidents, or regulatory changes.
 
 ### 4.2 Three-year rolling coverage
 
@@ -153,7 +153,7 @@ The following events may trigger an unplanned audit outside the Annual Audit Pla
 | Significant control failure identified through monitoring | Immediate focused audit of the control and related compensating controls |
 | Material regulatory change or new certification requirement | Audit of impacted controls and processes before the effective date of the change |
 | ERC or CISO direction | Audit initiated within the timeframe specified by the directing body |
-| Significant organizational change (e.g., merger, acquisition, outsourcing) | Audit of affected domains within 60 days |
+| Significant organisational change (e.g., merger, acquisition, outsourcing) | Audit of affected domains within 60 days |
 
 Unplanned audits are incorporated into the audit register and reported to the ERC at the next scheduled reporting cycle.
 
@@ -165,7 +165,7 @@ The internal audit function recognizes the following audit types:
 
 ### 5.1 Compliance audit
 
-Assesses whether organizational practices conform to applicable policies, standards, procedures, legal requirements, and contractual obligations. Compliance audits are typically used to verify adherence to certification requirements (e.g., supply chain security standards, information security management systems) and regulatory mandates.
+Assesses whether organisational practices conform to applicable policies, standards, procedures, legal requirements, and contractual obligations. Compliance audits are typically used to verify adherence to certification requirements (e.g., supply chain security standards, information security management systems) and regulatory mandates.
 
 ### 5.2 Control effectiveness audit
 
@@ -177,11 +177,11 @@ Examines the technical implementation of security controls across infrastructure
 
 ### 5.4 Third-party / supplier audit
 
-Assesses the security, privacy, and compliance posture of suppliers or third parties that process, store, or transmit organizational data, or that provide services material to the organization's operations or certification requirements. May be conducted as a document review, questionnaire-based assessment, or on-site audit depending on risk classification and contractual rights.
+Assesses the security, privacy, and compliance posture of suppliers or third parties that process, store, or transmit organisational data, or that provide services material to the organisation's operations or certification requirements. May be conducted as a document review, questionnaire-based assessment, or on-site audit depending on risk classification and contractual rights.
 
 ### 5.5 AI system audit
 
-Examines the governance, transparency, accountability, and risk management controls applied to artificial intelligence and machine learning systems in use across the organization. Specific areas of focus include: data quality and provenance, model bias and fairness assessment, explainability and output review mechanisms, human oversight controls, change management for model updates, and alignment with applicable AI governance frameworks and regulations.
+Examines the governance, transparency, accountability, and risk management controls applied to artificial intelligence and machine learning systems in use across the organisation. Specific areas of focus include: data quality and provenance, model bias and fairness assessment, explainability and output review mechanisms, human oversight controls, change management for model updates, and alignment with applicable AI governance frameworks and regulations.
 
 ---
 
@@ -291,7 +291,7 @@ Audit findings are classified using the following scheme, aligned to the CAPA Pr
 
 ### 7.1 Critical
 
-**Definition:** A material control failure that exposes the organization to significant risk of harm, regulatory sanction, certification failure, or operational disruption. The control is absent, has failed completely, or is being actively circumvented.
+**Definition:** A material control failure that exposes the organisation to significant risk of harm, regulatory sanction, certification failure, or operational disruption. The control is absent, has failed completely, or is being actively circumvented.
 
 **Response requirements:**
 - Immediate verbal or written notification to the CISO and CIO on the day of identification;
@@ -357,7 +357,7 @@ All evidence must be:
 
 ### 8.3 Evidence retention
 
-All audit working papers, evidence artefacts, draft findings, management responses, and final reports must be retained for a minimum of **7 years** from the date of the final report, in accordance with the organization's data retention policy.
+All audit working papers, evidence artefacts, draft findings, management responses, and final reports must be retained for a minimum of **7 years** from the date of the final report, in accordance with the organisation's data retention policy.
 
 ---
 

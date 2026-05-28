@@ -20,13 +20,13 @@
 
 ### 1.1 Purpose
 
-This procedure defines the end-to-end process for receiving, validating, fulfilling, and documenting requests from individuals exercising their rights over personal data held by the organization. It ensures that compliance with applicable data subject rights obligations under GDPR, UK GDPR, CPPA, PIPL, and related laws, and establishes consistent standards for identity verification, response timelines, denial justification, and record keeping.
+This procedure defines the end-to-end process for receiving, validating, fulfilling, and documenting requests from individuals exercising their rights over personal data held by the organisation. It ensures that compliance with applicable data subject rights obligations under GDPR, UK GDPR, CPPA, PIPL, and related laws, and establishes consistent standards for identity verification, response timelines, denial justification, and record keeping.
 
 The procedure is aligned to ISO/IEC 27701:2019 §7.3, GDPR Articles 15 to 22, CPPA Part 2 Division 5, PIPL Articles 44 to 47, and CSA CCM v4.1 PRI-04.
 
 ### 1.2 Scope
 
-1. Applies to all personal data held by the organization in any format, structured, unstructured, digital, or physical, across all systems, applications, and third-party processors.
+1. Applies to all personal data held by the organisation in any format, structured, unstructured, digital, or physical, across all systems, applications, and third-party processors.
 2. Covers requests submitted by individuals including employees, customers, suppliers, and other data subjects regardless of jurisdiction, subject to applicable legal rights.
 3. Covers all rights categories: access (Subject Access Request / SAR), correction, deletion, data portability, restriction of processing, objection to processing, and review of automated decisions.
 4. Includes AI-derived or AI-processed personal data where the individual is the subject of that data.
@@ -40,7 +40,7 @@ The procedure is aligned to ISO/IEC 27701:2019 §7.3, GDPR Articles 15 to 22, CP
 
 | Role | Responsibilities |
 | --- | --- |
-| **Chief Information Officer (CIO, acting DPO)** | Accountable executive for the data subject rights programme. Signs off on all denials. Assumes DPO responsibilities until a formal DPO is appointed. Represents the organization in regulatory matters relating to data subject rights. |
+| **Chief Information Officer (CIO, acting DPO)** | Accountable executive for the data subject rights programme. Signs off on all denials. Assumes DPO responsibilities until a formal DPO is appointed. Represents the organisation in regulatory matters relating to data subject rights. |
 | **Privacy Officer** | Operational ownership of the DSR process. Manages the DSR register, coordinates fulfilment, reviews responses for accuracy and completeness, and escalates complex or contentious requests to the CIO. |
 | **Legal Counsel** | Advises on exemptions, applicable law, and denial justifications. Reviews and approves responses involving potentially litigation-sensitive information or novel legal questions. |
 | **CISO** | Ensures that technical measures are available to locate, extract, restrict, and delete personal data across systems. Provides guidance on AI system data retrieval and AI-derived data scope. |
@@ -76,10 +76,10 @@ The following table defines the rights managed under this procedure, the applica
 Data subjects may submit requests through:
 
 - The designated privacy request contact (email address or web portal maintained by the Privacy Officer).
-- Written correspondence to the organization's registered address, directed to the Privacy Officer.
+- Written correspondence to the organisation's registered address, directed to the Privacy Officer.
 - Any other channel where a request is received by an employee; employees must forward to the Privacy Officer on the same business day.
 
-The Privacy Officer maintains the official DSR submission channel and ensures that it is published in the organization's privacy notice.
+The Privacy Officer maintains the official DSR submission channel and ensures that it is published in the organisation's privacy notice.
 
 ### 4.2 Identity verification
 

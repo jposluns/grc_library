@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register defines common terminology used across the GRC Documentation Library. Definitions are written for organization-neutral reuse and do not incorporate restricted wording from external standards or framework materials.
+This register defines common terminology used across the GRC Documentation Library. Definitions are written for organisation-neutral reuse and do not incorporate restricted wording from external standards or framework materials.
 
 ---
 
@@ -76,7 +76,7 @@ This register defines common terminology used across the GRC Documentation Libra
 
 1. Definitions must be original and CC0-compatible.
 2. Definitions must not copy external standards text unless republication is explicitly compatible with CC0.
-3. Definitions must remain organization-neutral.
+3. Definitions must remain organisation-neutral.
 4. Terms specific to one domain should be added only when they materially improve consistency across documents.
 
 ---

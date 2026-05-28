@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This template defines a reusable structure for recording AI systems, owners, risk tiering, lifecycle status, data categories, suppliers, controls, approvals, and evidence. It must be adapted by adopting organizations before use in an internal environment.
+This template defines a reusable structure for recording AI systems, owners, risk tiering, lifecycle status, data categories, suppliers, controls, approvals, and evidence. It must be adapted by adopting organisations before use in an internal environment.
 
 Do not populate this public template with real systems, company names, personal names, customer names, suppliers, internal identifiers, data samples, or incident details.
 
@@ -28,7 +28,7 @@ Do not populate this public template with real systems, company names, personal 
 
 | Field | Description | Required |
 | --- | --- | --- |
-| System ID | Organization-defined identifier. Use a non-sensitive identifier. | Yes |
+| System ID | Organisation-defined identifier. Use a non-sensitive identifier. | Yes |
 | System Name | Name of the AI system. Avoid sensitive naming in public artefacts. | Yes |
 | Business Purpose | Approved purpose and business process. | Yes |
 | Lifecycle Status | Proposed, pilot, production, suspended, retired. | Yes |

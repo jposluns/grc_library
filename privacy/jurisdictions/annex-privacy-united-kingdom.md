@@ -37,15 +37,15 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - The UK has not enacted legislation equivalent to the EU AI Act as of 2025. The ICO, Competition and Markets Authority (CMA), and Financial Conduct Authority (FCA) each apply existing sector-specific powers to AI.
 - **Automated decision-making:** UK GDPR Article 22 applies; data subjects have the right not to be subject to solely automated decisions with legal or similarly significant effects. Human review safeguards are required.
 - **DPIA:** Mandatory under UK GDPR Article 35 for high-risk processing, consistent with EU GDPR requirements.
-- **AI literacy and accountability:** The UK government's AI Opportunities Action Plan and ICO guidance on responsible AI apply. Organizations should monitor developments in the UK's forthcoming statutory AI framework.
+- **AI literacy and accountability:** The UK government's AI Opportunities Action Plan and ICO guidance on responsible AI apply. Organisations should monitor developments in the UK's forthcoming statutory AI framework.
 
 ---
 
 ## Cross-border transfer mechanisms
 
 - **UK Adequacy Regulations:** The UK Secretary of State may issue adequacy regulations for third countries. The UK has retained EU adequacy decisions in effect at the end of the Brexit transition period and has added its own, including recognizing the EU as adequate.
-- **International Data Transfer Agreements (IDTAs):** The UK's equivalent of EU SCCs for transfers from the UK. Organizations using EU SCCs for EU transfers need separate IDTAs (or the Addendum to EU SCCs) for UK transfers.
-- **UK-US Data Bridge:** The UK Extension to the EU-US Data Privacy Framework, in force October 2023, provides a transfer mechanism for UK-to-US transfers to participating US organizations.
+- **International Data Transfer Agreements (IDTAs):** The UK's equivalent of EU SCCs for transfers from the UK. Organisations using EU SCCs for EU transfers need separate IDTAs (or the Addendum to EU SCCs) for UK transfers.
+- **UK-US Data Bridge:** The UK Extension to the EU-US Data Privacy Framework, in force October 2023, provides a transfer mechanism for UK-to-US transfers to participating US organisations.
 
 ---
 
@@ -60,7 +60,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Limitations
 
-This document is a public-domain reference baseline. It does not constitute legal advice. Adopting organizations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
+This document is a public-domain reference baseline. It does not constitute legal advice. Adopting organisations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
 
 ---
 

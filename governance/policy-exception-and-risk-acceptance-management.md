@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This policy defines the organization-wide process for managing security, risk, compliance, and operational exceptions. It consolidates the former Exception Process, Risk Acceptance Memo Procedure, Temporary Waiver Procedure, and Exception Tracking Log into one cohesive governance artefact.
+This policy defines the organisation-wide process for managing security, risk, compliance, and operational exceptions. It consolidates the former Exception Process, Risk Acceptance Memo Procedure, Temporary Waiver Procedure, and Exception Tracking Log into one cohesive governance artefact.
 
 Its purpose is to ensure that all deviations from policy, control, or standard requirements are risk assessed, time bound, approved at the appropriate authority level, and tracked to closure. The policy aligns with **ISO/IEC 27001:2022 Annex A.5.36 Policy on Exceptions**, **COBIT 2019 APO12.06 Respond to Risk**, **Cloud Security Alliance (CSA)** guidance (CCM v4.1 GRC-12 Exception Management), and **NIST SP 800-37 Revision 2 RMF Step 6 Authorize the System**.
 
@@ -26,7 +26,7 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 
 ## Scope
 
-- Applies to all employees, contractors, suppliers, and partners operating or supporting organizational systems across on-premise, cloud, multi-cloud, edge, and AI environments. 
+- Applies to all employees, contractors, suppliers, and partners operating or supporting organisational systems across on-premise, cloud, multi-cloud, edge, and AI environments. 
 - Covers exceptions to policies, standards, procedures, control requirements, and regulatory or contractual obligations. 
 - Includes control configuration baselines, temporary use of unapproved technology, or processes that could affect data integrity or regulated operations. 
 - Encompasses trade-security programs under a unified reference model. **Trade and Supply Chain Programs** include WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalent frameworks.
@@ -71,7 +71,7 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 - **Medium risk:** CIO or delegate. 
 - **High or critical risk:** Executive Committee or Board Risk Committee. 
 - **Trade and customs-related exceptions:** applicable compliance officer co-approval and ERC notification. 
-2.3 Exceptions exceeding the organization's defined risk appetite or those impacting trade or customs operations require explicit acceptance by executive authority and validation against trade and supply-chain programs.
+2.3 Exceptions exceeding the organisation's defined risk appetite or those impacting trade or customs operations require explicit acceptance by executive authority and validation against trade and supply-chain programs.
 
 ### 3. Duration and renewal
 3.1 Exceptions shall be time-bound and should not exceed 180 days unless renewed with justification. 
@@ -130,7 +130,7 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 
 ## Definitions
 
-Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
+Refer to the **Role Authority Register** for definitions of organisational roles and authorities.
 
 
 

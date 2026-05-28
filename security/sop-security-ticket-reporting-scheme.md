@@ -58,7 +58,7 @@ The current vendor tag table is maintained in the IT Security Operations Registe
 | Component | Description | Example |
 | --- | --- | --- |
 | **Vendor Tag** | 2 to 4 character code identifying the reporting vendor or service | `MDR`, `EDR`, `SOC` |
-| **ITSM Ticket ID** | The organization's ITSM portal ticket number in brackets | `[IN-007456]` |
+| **ITSM Ticket ID** | The organisation's ITSM portal ticket number in brackets | `[IN-007456]` |
 | **Alert Name** | Full name of the alert or finding as reported by the vendor or tool | `Unfamiliar sign-in properties involving one user` |
 | **Affected User or System** | Full name or system identifier of the affected entity | `j.smith@example.com` or `SRV-PROD-001` |
 

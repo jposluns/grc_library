@@ -125,7 +125,7 @@ All trade, customs, and cargo data in BASC-certified regions (Colombia, Mexico, 
 
 ### 5.2 Key custody
 
-Trade-data decryption keys must remain under organizational or BASC-validated custody only.
+Trade-data decryption keys must remain under organisational or BASC-validated custody only.
 
 ### 5.3 Violations
 

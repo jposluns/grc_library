@@ -18,13 +18,13 @@
 
 ## Purpose
 
-This procedure defines the processes for granting, reviewing, modifying, and revoking access to organizational systems, applications, data, and network resources. It implements the principle of least privilege and need-to-know access model across all platforms, ensuring access is appropriate, authorized, and periodically reviewed.
+This procedure defines the processes for granting, reviewing, modifying, and revoking access to organisational systems, applications, data, and network resources. It implements the principle of least privilege and need-to-know access model across all platforms, ensuring access is appropriate, authorized, and periodically reviewed.
 
 ---
 
 ## Scope
 
-Applies to all access to organizational systems including cloud platforms, on-premises systems, applications, network infrastructure, databases, development environments, and privileged management interfaces. Covers all user types: employees, contractors, third parties, and service accounts.
+Applies to all access to organisational systems including cloud platforms, on-premises systems, applications, network infrastructure, databases, development environments, and privileged management interfaces. Covers all user types: employees, contractors, third parties, and service accounts.
 
 ---
 

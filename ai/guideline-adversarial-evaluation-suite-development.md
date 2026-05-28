@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This guideline provides an organization-neutral method for developing adversarial evaluation suites for AI models and AI systems. It supports repeatable testing for misuse resistance, data leakage, prompt injection, unsafe tool use, robustness, and lifecycle assurance.
+This guideline provides an organisation-neutral method for developing adversarial evaluation suites for AI models and AI systems. It supports repeatable testing for misuse resistance, data leakage, prompt injection, unsafe tool use, robustness, and lifecycle assurance.
 
 ---
 
@@ -105,7 +105,7 @@ Maintain evaluation plan, test case inventory, execution summary, findings, reme
 
 ## Limitations
 
-This guideline is a public-domain baseline. Adopting organizations must define specific technical methods, tooling, restricted test prompts, evidence repositories, legal review triggers, and disclosure controls internally.
+This guideline is a public-domain baseline. Adopting organisations must define specific technical methods, tooling, restricted test prompts, evidence repositories, legal review triggers, and disclosure controls internally.
 
 ---
 

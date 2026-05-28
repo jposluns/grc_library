@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register documents the organization's implementation status against the IT and cybersecurity-related minimum security criteria of the U.S. Customs-Trade Partnership Against Terrorism (CTPAT) programme. It supports CTPAT membership compliance, annual trade partner profile updates, and pre-certification readiness assessments.
+This register documents the organisation's implementation status against the IT and cybersecurity-related minimum security criteria of the U.S. Customs-Trade Partnership Against Terrorism (CTPAT) programme. It supports CTPAT membership compliance, annual trade partner profile updates, and pre-certification readiness assessments.
 
 **Programme authority:** U.S. Customs and Border Protection (CBP) 
 **UK parallel programme:** Authorized Economic Operator to Security and Safety (AEO-S), administered by HMRC 
@@ -39,7 +39,7 @@ Membership tiers:
 
 ## IT and cybersecurity minimum security criteria
 
-The following table maps each CTPAT IT and cybersecurity minimum security criterion (2020 revision) to the organization's control framework and implementation status.
+The following table maps each CTPAT IT and cybersecurity minimum security criterion (2020 revision) to the organisation's control framework and implementation status.
 
 | Criterion ID | CTPAT Requirement | Control Reference | Implementation Evidence | Status | Last Reviewed |
 |---|---|---|---|---|---|

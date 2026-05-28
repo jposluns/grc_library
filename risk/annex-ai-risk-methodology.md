@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This annex extends the enterprise risk assessment methodology in [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md) with AI-specific risk dimensions, assessment criteria, and treatment guidance. It supports consistent identification, scoring, and management of risks arising from the development, deployment, and use of AI systems across the organization.
+This annex extends the enterprise risk assessment methodology in [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md) with AI-specific risk dimensions, assessment criteria, and treatment guidance. It supports consistent identification, scoring, and management of risks arising from the development, deployment, and use of AI systems across the organisation.
 
 ---
 

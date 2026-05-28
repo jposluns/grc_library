@@ -14,7 +14,7 @@ RAG systems have a unique attack surface: adversarial content in the retrieval c
 
 Before indexing any document:
 
-- **Classify the document**: apply the organization's data classification scheme to determine who can retrieve it
+- **Classify the document**: apply the organisation's data classification scheme to determine who can retrieve it
 - **Validate the source**: documents from untrusted sources (user uploads, external URLs, scraped content) require elevated scrutiny
 - **Scan for prompt injection payloads**: run content through an injection detector before indexing
 - **Strip active content**: scripts, macros, embedded code, and executable content must be removed before indexing
@@ -91,7 +91,7 @@ If the RAG system serves multiple tenants or user groups:
 
 ## Data retention in RAG systems
 
-- Apply the organization's data retention schedule to the retrieval corpus: documents past their retention date must be deleted from the index
+- Apply the organisation's data retention schedule to the retrieval corpus: documents past their retention date must be deleted from the index
 - Implement a deletion pipeline: when a document is deleted from the source system, it must be removed from the vector index within a defined SLA
 - Test that deletion is complete: verify that deleted documents are no longer retrievable after removal
 

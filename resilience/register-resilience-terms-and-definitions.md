@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register defines resilience terminology used across the public GRC Documentation Library. Definitions are original, organization-neutral, and intended for CC0 reuse.
+This register defines resilience terminology used across the public GRC Documentation Library. Definitions are original, organisation-neutral, and intended for CC0 reuse.
 
 This register does not reproduce definitions from external standards, laws, trade programmes, or certification schemes.
 
@@ -78,7 +78,7 @@ This register does not reproduce definitions from external standards, laws, trad
 ## Maintenance rules
 
 1. Definitions must be original and CC0-compatible.
-2. Definitions must remain organization-neutral.
+2. Definitions must remain organisation-neutral.
 3. Do not copy definitions from external standards, laws, or programme materials unless confirmed CC0-compatible.
 4. New resilience terms should be added when they materially improve consistency across documents.
 5. Role definitions should remain in [`governance/register-role-authority.md`](../governance/register-role-authority.md) unless a resilience-specific role definition is required.

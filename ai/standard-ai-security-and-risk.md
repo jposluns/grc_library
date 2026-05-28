@@ -24,7 +24,7 @@ This standard defines minimum security and risk requirements for AI systems. It 
 
 ## Applicability
 
-This standard applies to AI systems that create, process, retrieve, infer, classify, generate, recommend, automate, summarize, translate, code, reason, or trigger actions using organizational or user-provided data.
+This standard applies to AI systems that create, process, retrieve, infer, classify, generate, recommend, automate, summarize, translate, code, reason, or trigger actions using organisational or user-provided data.
 
 The standard applies regardless of whether the AI system is internally developed, externally hosted, embedded in a commercial platform, accessed through an API, used through a browser, deployed as a local model, or operated by a supplier.
 
@@ -45,7 +45,7 @@ The standard applies regardless of whether the AI system is internally developed
 3. Data lineage must identify source, transformation, storage location, access path, retention period, and deletion method.
 4. Sensitive data must not be used unless authorized, risk-assessed, and controlled.
 5. Data used in prompts, files, retrieval stores, vector databases, logs, model evaluations, and monitoring must follow retention and deletion rules.
-6. The system must not use organizational data for external model training or provider improvement unless explicitly approved and documented.
+6. The system must not use organisational data for external model training or provider improvement unless explicitly approved and documented.
 
 ### 3. Identity and access control
 
@@ -161,7 +161,7 @@ At minimum, each AI system should maintain:
 
 ## Compliance notes
 
-This standard does not establish legal compliance or certification. It defines a reusable security and risk baseline. Adopting organizations must validate requirements against applicable laws, sector obligations, contracts, deployment architecture, data categories, and risk appetite.
+This standard does not establish legal compliance or certification. It defines a reusable security and risk baseline. Adopting organisations must validate requirements against applicable laws, sector obligations, contracts, deployment architecture, data categories, and risk appetite.
 
 ---
 

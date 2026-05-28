@@ -18,12 +18,12 @@
 
 ## Purpose
 
-This specification defines how source material is converted into organization-neutral, CC0-compatible governance documents for the public GRC Documentation Library.
+This specification defines how source material is converted into organisation-neutral, CC0-compatible governance documents for the public GRC Documentation Library.
 
 It establishes rules for:
 
 - Assessing source material for license compatibility.
-- Removing identifying and organization-specific information.
+- Removing identifying and organisation-specific information.
 - Selecting document type and canonical filename.
 - Selecting repository domain.
 - Applying metadata and document structure.
@@ -56,7 +56,7 @@ Do not copy into this repository:
 - Metrics catalogue text.
 - Tables reconstructed from restrictively licensed sources.
 - Proprietary examples.
-- Organization-specific evidence.
+- Organisation-specific evidence.
 
 Permitted use includes independent synthesis, framework name references, high-level domain alignment, original commentary, evidence category mapping, and non-verbatim applicability analysis.
 
@@ -82,7 +82,7 @@ Repository content must not include:
 - Audit evidence.
 - Screenshots or exports from internal systems.
 
-Replace organization-specific details with generic roles, generic system categories, generic data classes, generic supplier classes, and generic evidence classes. Apply the substitution table in Appendix A to all source content before producing output.
+Replace organisation-specific details with generic roles, generic system categories, generic data classes, generic supplier classes, and generic evidence classes. Apply the substitution table in Appendix A to all source content before producing output.
 
 ---
 
@@ -149,7 +149,7 @@ Filenames must:
 4. Replace ampersands with `and`.
 5. Start with the document type prefix.
 6. Avoid duplicate, trailing, or leading hyphens.
-7. Avoid organization-specific product, vendor, system, or service names.
+7. Avoid organisation-specific product, vendor, system, or service names.
 
 Examples:
 
@@ -255,13 +255,13 @@ Documents must use `---` to separate major sections and must end with:
 
 ## Language requirements
 
-Documents must use precise, organization-neutral language. They must avoid vendor-marketing language, unsupported maturity claims, and statements implying compliance, certification, regulatory approval, or operating effectiveness without implementation evidence.
+Documents must use precise, organisation-neutral language. They must avoid vendor-marketing language, unsupported maturity claims, and statements implying compliance, certification, regulatory approval, or operating effectiveness without implementation evidence.
 
 Use Oxford English with `-ize` forms where applicable. Do not use em dashes or en dashes. Pair `ensure` with `that`; do not use bare `ensure` or `ensures`.
 
 Use sentence case for all section headings (H2 through H6). The first word of the heading text is capitalised and subsequent words are lowercase except proper nouns and acronyms. Section identifiers such as `A1.`, `Step 1:`, and `Category 1:` count as numbering rather than as the first word, so the word that follows must be capitalised. H1 document titles may use Title Case where they name a controlled artefact such as a policy, standard, or charter title.
 
-Do not state that a document ensures that compliance. State that it provides a baseline, structure, evidence class, or control model that adopting organizations must validate.
+Do not state that a document ensures that compliance. State that it provides a baseline, structure, evidence class, or control model that adopting organisations must validate.
 
 ---
 
@@ -322,11 +322,11 @@ Before committing a document, validate that:
 
 Apply all substitutions below before producing any output. Substitution is case-insensitive. Apply the longer or more specific form first where multiple entries could match.
 
-### Organization-specific terms
+### Organisation-specific terms
 
 | Source Term | Replacement |
 |---|---|
-| Traffic Tech | the organization |
+| Traffic Tech | the organisation |
 | Mississauga data centre | primary data centre |
 | MissDC | primary data centre |
 | Greenfield | infrastructure programme |

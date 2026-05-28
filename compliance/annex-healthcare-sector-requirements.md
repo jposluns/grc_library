@@ -18,9 +18,9 @@
 
 ## Purpose
 
-This annex identifies the additional GRC obligations that apply to organizations operating in or adjacent to the healthcare sector. It maps applicable regulatory frameworks to the core GRC library controls and identifies gap areas requiring sector-specific supplementation.
+This annex identifies the additional GRC obligations that apply to organisations operating in or adjacent to the healthcare sector. It maps applicable regulatory frameworks to the core GRC library controls and identifies gap areas requiring sector-specific supplementation.
 
-This annex applies where an organization:
+This annex applies where an organisation:
 - Is a healthcare provider, health insurer, or healthcare clearinghouse (covered entity under HIPAA)
 - Processes electronic protected health information (ePHI) or equivalent health data on behalf of a covered entity (business associate)
 - Manufactures, distributes, or services connected medical devices
@@ -52,7 +52,7 @@ This annex applies where an organization:
 |---|---|---|
 | **PIPEDA / CPPA** (personal health information provisions) | OPC | Health information about identifiable individuals |
 | **PHIPA**: Personal Health Information Protection Act | Ontario IPC | Ontario health information custodians |
-| **PIPA** (Alberta) | OIPC Alberta | Alberta health organizations |
+| **PIPA** (Alberta) | OIPC Alberta | Alberta health organisations |
 | **HIA**: Health Information Act | Alberta | Alberta custodians of health information |
 | **PHIA** (Manitoba, Nova Scotia, etc.) | Provincial | Province-specific health information custodians |
 | **FINTRAC** | FINTRAC | Pharmacies (AML obligations in some provinces) |
@@ -62,9 +62,9 @@ This annex applies where an organization:
 | Regulation / Standard | Authority | Scope |
 |---|---|---|
 | **UK GDPR + Data Protection Act 2018** | ICO | All health data processing |
-| **NHS Data Security and Protection Toolkit (DSPT)** | NHS England | NHS organizations and their suppliers |
+| **NHS Data Security and Protection Toolkit (DSPT)** | NHS England | NHS organisations and their suppliers |
 | **CQC Data Security Standards** | Care Quality Commission | Regulated health and social care providers |
-| **Caldicott Principles** | National Data Guardian (NDG) | NHS and social care organizations |
+| **Caldicott Principles** | National Data Guardian (NDG) | NHS and social care organisations |
 | **MHRA regulations** | MHRA | Medical device manufacturers and distributors in UK |
 
 ### European union
@@ -82,7 +82,7 @@ This annex applies where an organization:
 
 | Standard | Body | Scope |
 |---|---|---|
-| **ISO 27799**, Health informatics, Information security management | ISO | Health organizations implementing information security |
+| **ISO 27799**, Health informatics, Information security management | ISO | Health organisations implementing information security |
 | **HL7 FHIR Security** | HL7 International | FHIR API implementers |
 | **ISO 13485**: Medical devices quality management | ISO | Medical device manufacturers |
 | **IEC 62304**: Medical device software lifecycle | IEC | Medical device software developers |
@@ -147,7 +147,7 @@ The HIPAA Security Rule establishes three categories of safeguards for ePHI:
 
 ### NHS DSPT (UK)
 
-The NHS Data Security and Protection Toolkit is mandatory for all organizations that access NHS patient data or systems. It is structured around the 10 National Data Guardian Standards.
+The NHS Data Security and Protection Toolkit is mandatory for all organisations that access NHS patient data or systems. It is structured around the 10 National Data Guardian Standards.
 
 | NDG Standard | Core Requirement | GRC Library Mapping |
 |---|---|---|
@@ -162,7 +162,7 @@ The NHS Data Security and Protection Toolkit is mandatory for all organizations 
 | 9. IT protection | Cyber security measures deployed | [`security/policy-information-security.md`](../security/policy-information-security.md) |
 | 10. Accountable suppliers | Contracts include data security requirements | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md) |
 
-DSPT submission is annual. Organizations must achieve at minimum "Standards Met" status to maintain NHS data access.
+DSPT submission is annual. Organisations must achieve at minimum "Standards Met" status to maintain NHS data access.
 
 ### FDA cybersecurity for medical devices (2023 guidance)
 
@@ -194,7 +194,7 @@ Processing health data as special category data under GDPR requires additional s
 
 ### Caldicott principles (UK NHS)
 
-In addition to UK GDPR, NHS and social care organizations must apply the 7 Caldicott Principles:
+In addition to UK GDPR, NHS and social care organisations must apply the 7 Caldicott Principles:
 
 1. Justify the purpose for using confidential information
 2. Use only the minimum necessary identifiable information

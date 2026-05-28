@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This framework defines the processes and performance mechanisms used to measure, review, and continually improve the organization's governance, risk, compliance, and digital trust programmes. It consolidates the performance measurement model, governance review process, maturity assessment methodology, and continuous improvement cycle into a single enterprise governance improvement model.
+This framework defines the processes and performance mechanisms used to measure, review, and continually improve the organisation's governance, risk, compliance, and digital trust programmes. It consolidates the performance measurement model, governance review process, maturity assessment methodology, and continuous improvement cycle into a single enterprise governance improvement model.
 
 ---
 
@@ -32,7 +32,7 @@ Applies to all governance domains: governance, risk, compliance, security, priva
 
 ### 1. Governance performance measurement
 
-All governance domains define measurable KPIs aligned with organizational goals and compliance requirements. Metrics include risk reduction, compliance rate, audit closure rate, control effectiveness, and incident response time. Governance maturity is tracked using COBIT 2019 maturity models and Digital Trust Indicators.
+All governance domains define measurable KPIs aligned with organisational goals and compliance requirements. Metrics include risk reduction, compliance rate, audit closure rate, control effectiveness, and incident response time. Governance maturity is tracked using COBIT 2019 maturity models and Digital Trust Indicators.
 
 ### 2. Maturity assessment
 
@@ -42,7 +42,7 @@ Annual maturity assessments are conducted across all governance domains using a 
 | --- | --- |
 | 1: Initial | Processes ad hoc and undocumented; dependent on individual knowledge. |
 | 2: Managed | Processes repeatable and tracked; basic metrics defined. |
-| 3: Defined | Processes standardized and documented; organization-wide consistency. |
+| 3: Defined | Processes standardized and documented; organisation-wide consistency. |
 | 4: Quantitatively Managed | Processes measured with quantitative objectives; statistical controls applied. |
 | 5: Optimized | Continuous process improvement through incremental and innovative change. |
 

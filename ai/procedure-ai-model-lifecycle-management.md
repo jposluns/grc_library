@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This procedure defines the end-to-end lifecycle management process for AI models, from initial development or procurement through deployment, monitoring, retraining, and decommissioning. It ensures that every AI model in the organization's inventory is governed, documented, and reviewed throughout its operational life.
+This procedure defines the end-to-end lifecycle management process for AI models, from initial development or procurement through deployment, monitoring, retraining, and decommissioning. It ensures that every AI model in the organisation's inventory is governed, documented, and reviewed throughout its operational life.
 
 ---
 

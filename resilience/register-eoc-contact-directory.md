@@ -69,7 +69,7 @@ The template can be adapted for crisis management, emergency operations, continu
 
 ## Privacy and security notes
 
-A completed contact directory is likely to contain personal data, emergency contact details, supplier escalation paths, and sensitive operational dependencies. It should not be published under CC0 once populated. Adopting organizations should classify completed versions according to internal data classification and privacy requirements.
+A completed contact directory is likely to contain personal data, emergency contact details, supplier escalation paths, and sensitive operational dependencies. It should not be published under CC0 once populated. Adopting organisations should classify completed versions according to internal data classification and privacy requirements.
 
 ---
 

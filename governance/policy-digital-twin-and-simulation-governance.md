@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This policy establishes the governance requirements for the development, deployment, and operation of digital twins, simulation environments, and virtual replicas of physical systems, processes, or organizations. It ensures that these technologies are governed with appropriate oversight of data use, AI integration, security, and operational risk.
+This policy establishes the governance requirements for the development, deployment, and operation of digital twins, simulation environments, and virtual replicas of physical systems, processes, or organisations. It ensures that these technologies are governed with appropriate oversight of data use, AI integration, security, and operational risk.
 
 A digital twin is a real-time or near-real-time digital representation of a physical asset, system, or process, used for monitoring, simulation, predictive analytics, or decision support.
 
@@ -57,7 +57,7 @@ All digital twin systems must complete the Acceptance Into Service process befor
 
 Data used in digital twin systems must be:
 - Sourced from authorized data feeds with documented provenance.
-- Classified according to the organization's data classification policy.
+- Classified according to the organisation's data classification policy.
 - Processed in compliance with privacy obligations where personal data is involved.
 - Retained according to the Data Retention Schedule.
 

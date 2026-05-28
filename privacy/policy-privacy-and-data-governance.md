@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This policy defines principles, governance structure, and control framework for managing personal data and organizational information assets across all jurisdictions. It consolidates Privacy Policy, Data Governance Policy, Data Quality Policy, and Records Management Policy into a unified global standard. It supports the organization's compliance with applicable data protection laws, upholds data accuracy and integrity, and governs ethical use of information including AI training datasets.
+This policy defines principles, governance structure, and control framework for managing personal data and organisational information assets across all jurisdictions. It consolidates Privacy Policy, Data Governance Policy, Data Quality Policy, and Records Management Policy into a unified global standard. It supports the organisation's compliance with applicable data protection laws, upholds data accuracy and integrity, and governs ethical use of information including AI training datasets.
 
 **Applicable Frameworks:** ISO/IEC 27701:2019 PIMS, ISO 8000-8 Data Quality Principles, EU GDPR, EU Data Act (2026), Canada CPPA, APEC CBPR 2.0, China PIPL, CSA CCM v4.1 domains PRI and DSP.
 
@@ -26,9 +26,9 @@ This policy defines principles, governance structure, and control framework for 
 
 ## Scope
 
-1. Applies to all employees, contractors, subsidiaries, and third parties that collect, process, share, or store organizational or personal data.
+1. Applies to all employees, contractors, subsidiaries, and third parties that collect, process, share, or store organisational or personal data.
 2. Covers all forms of data, including structured, unstructured, derived, anonymized, synthetic, and AI training datasets.
-3. Applies to all geographies where the organization operates, including cross-border data transfers and multinational data processing arrangements.
+3. Applies to all geographies where the organisation operates, including cross-border data transfers and multinational data processing arrangements.
 4. Encompasses the entire data lifecycle from collection through storage, use, disclosure, retention, and destruction.
 
 ---
@@ -39,7 +39,7 @@ This policy defines principles, governance structure, and control framework for 
 
 1. The **Chief Information Officer (CIO)** serves as the accountable executive for global data governance and assumes all responsibilities normally assigned to the Data Protection Officer (DPO) until that role is appointed.
 2. The **Chief Information Security Officer (CISO)** ensures that security controls protect data confidentiality, integrity, and availability.
-3. The CIO, in the capacity of acting DPO, represents the organization before regulatory authorities and oversees the organization's compliance with applicable privacy laws.
+3. The CIO, in the capacity of acting DPO, represents the organisation before regulatory authorities and oversees the organisation's compliance with applicable privacy laws.
 4. **Regional Data Stewards and Privacy Leads** ensure that compliance with local data protection laws (EU GDPR, CPPA, PIPL, LGPD, etc.).
 
 ### Governance committees
@@ -74,7 +74,7 @@ This policy defines principles, governance structure, and control framework for 
 ### 2. Data classification and handling
 
 - All data assets shall be classified based on sensitivity: Public, Internal, Confidential, and Restricted.
-- Handling procedures for each classification level shall be documented and enforced through technical and organizational controls.
+- Handling procedures for each classification level shall be documented and enforced through technical and organisational controls.
 - Sensitive personal data and AI datasets shall be encrypted at rest and in transit.
 
 ### 3. Data quality and accuracy
@@ -97,7 +97,7 @@ This policy defines principles, governance structure, and control framework for 
 ### 6. Cross-border data transfers
 
 - All data transfers between jurisdictions must comply with applicable legal mechanisms, such as EU SCCs, APEC CBPR 2.0 certifications, or recognized adequacy decisions.
-- The organization shall maintain a register of all cross-border data flows, reviewed quarterly.
+- The organisation shall maintain a register of all cross-border data flows, reviewed quarterly.
 - Transfers to jurisdictions lacking adequate protection must include additional safeguards and executive approval.
 
 ### 7. AI training data governance

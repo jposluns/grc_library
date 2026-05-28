@@ -26,9 +26,9 @@ To ensure that consistent, auditable, and secure handling of log data aligned wi
 
 ## Scope
 
-1. Applies to all systems, applications, services, network devices, cloud environments, and AI systems that process or store organizational data.
+1. Applies to all systems, applications, services, network devices, cloud environments, and AI systems that process or store organisational data.
 2. Includes infrastructure managed internally or by third parties, including SaaS, PaaS, and IaaS services.
-3. Applies to logs generated for security, operational, compliance, and AI accountability purposes. Where the organization participates in a sector-specific programme (for example, BASC trade-security), the corresponding sector annex extends this standard with programme-specific log categories and retention overlays; see [`sectors/`](../sectors/).
+3. Applies to logs generated for security, operational, compliance, and AI accountability purposes. Where the organisation participates in a sector-specific programme (for example, BASC trade-security), the corresponding sector annex extends this standard with programme-specific log categories and retention overlays; see [`sectors/`](../sectors/).
 
 ### Scope boundary with the operations observability and telemetry standard
 

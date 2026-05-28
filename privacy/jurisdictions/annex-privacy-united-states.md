@@ -83,7 +83,7 @@ The United States does not have a single comprehensive federal privacy law. Obli
 ## Cross-border transfer mechanisms
 
 - The United States does not impose general restrictions on outbound cross-border transfers (with sector-specific exceptions such as HIPAA business associate requirements).
-- **EU-US Data Privacy Framework (DPF):** Organizations certified under the DPF can receive personal data from the EU, UK (via UK Extension), and Switzerland without additional transfer mechanisms. Administered by the International Trade Administration (ITA).
+- **EU-US Data Privacy Framework (DPF):** Organisations certified under the DPF can receive personal data from the EU, UK (via UK Extension), and Switzerland without additional transfer mechanisms. Administered by the International Trade Administration (ITA).
 - **CCPA:** Does not restrict cross-border transfers but requires contractual data protection obligations on service providers and contractors.
 - **State health data laws:** Washington My Health My Data Act and similar laws restrict sharing of consumer health data across borders.
 
@@ -116,7 +116,7 @@ The United States does not have a single comprehensive federal privacy law. Obli
 
 ## Limitations
 
-This document is a public-domain reference baseline. It does not constitute legal advice. Adopting organizations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
+This document is a public-domain reference baseline. It does not constitute legal advice. Adopting organisations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
 
 ---
 

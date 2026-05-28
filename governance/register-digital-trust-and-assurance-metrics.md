@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register defines reusable metric categories for evaluating governance maturity, control coverage, resilience, data protection, supplier assurance, and artificial intelligence governance. Metrics are original, organization-neutral, and do not reproduce restricted third-party metrics catalogues.
+This register defines reusable metric categories for evaluating governance maturity, control coverage, resilience, data protection, supplier assurance, and artificial intelligence governance. Metrics are original, organisation-neutral, and do not reproduce restricted third-party metrics catalogues.
 
 ---
 

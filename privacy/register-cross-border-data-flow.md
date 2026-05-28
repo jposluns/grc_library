@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register documents all cross-border transfers of personal data from the organization's operating jurisdictions to third countries. It provides the basis for demonstrating compliance with Chapter V of the GDPR, Schedule 21 of the UK GDPR, and equivalent requirements under applicable privacy laws in Canada (PIPEDA/CPPA), Quebec (Law 25), Brazil (LGPD), China (PIPL), and other applicable regimes.
+This register documents all cross-border transfers of personal data from the organisation's operating jurisdictions to third countries. It provides the basis for demonstrating compliance with Chapter V of the GDPR, Schedule 21 of the UK GDPR, and equivalent requirements under applicable privacy laws in Canada (PIPEDA/CPPA), Quebec (Law 25), Brazil (LGPD), China (PIPL), and other applicable regimes.
 
 ---
 
@@ -54,7 +54,7 @@ Cross-border data transfer restrictions apply when personal data is transmitted,
 
 | Field | Description | Example |
 |---|---|---|
-| **Data Controller** | Legal entity acting as controller | [Organization legal entity] |
+| **Data Controller** | Legal entity acting as controller | [Organisation legal entity] |
 | **Data Processor / Recipient** | Legal entity receiving the data | [Recipient entity name and jurisdiction] |
 | **Relationship Type** | Controller → Processor; Controller → Controller; Processor → Sub-processor | Controller → Processor |
 | **Data Categories** | Categories of personal data being transferred | Employee names, salary details, bank account numbers |

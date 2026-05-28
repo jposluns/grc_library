@@ -213,7 +213,7 @@ Rules:
 4. No wide or overflow tables in standard documents.
 5. One sentence per line recommended for policies and standards.
 6. Section order must follow the canonical order defined in the Ingestion Specification.
-7. All text must be globally reusable and must not contain organization-specific references.
+7. All text must be globally reusable and must not contain organisation-specific references.
 8. Apply the sanitization substitution table in Appendix A of the Ingestion Specification to all content.
 9. Use Oxford English with `-ize` forms where applicable.
 10. Do not use em dashes or en dashes.

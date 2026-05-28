@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This standard defines the governance, evaluation, and control requirements for acquiring, testing, approving, deploying, maintaining, and retiring software across the organization. It ensures that all software introduced into the environment is secure, licensed, compliant, and operationally validated before enterprise use, in accordance with the organization's risk, compliance, and change management framework.
+This standard defines the governance, evaluation, and control requirements for acquiring, testing, approving, deploying, maintaining, and retiring software across the organisation. It ensures that all software introduced into the environment is secure, licensed, compliant, and operationally validated before enterprise use, in accordance with the organisation's risk, compliance, and change management framework.
 
 ---
 

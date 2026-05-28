@@ -34,7 +34,7 @@ Treat every LLM response, every model output, and every AI-generated value as if
 - Implement PII detection and redaction before sending user-generated content to AI services
 - Do not log full prompt content in production: log metadata (token count, model, latency) but not the prompt text unless required for specific audit purposes
 - Scrub AI responses for potential training data leakage before returning to users
-- Set up output content scanning to detect when the model reveals system prompt content, training data, or organizational configuration
+- Set up output content scanning to detect when the model reveals system prompt content, training data, or organisational configuration
 
 **References:** OWASP LLM02, MITRE ATLAS AML.T0024: Training Data Exfiltration
 

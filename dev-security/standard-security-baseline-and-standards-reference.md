@@ -18,7 +18,7 @@
 
 ## Purpose and scope
 
-This document establishes the security framework, governing principles, data classification model, identity architecture, and network security model applicable to all computing environments, development programmes, and activities within an organization's security boundary. It applies to all cloud environments, all internal and outsourced development, and all personnel, contractors, and service providers with access to organizational systems, data, or code repositories.
+This document establishes the security framework, governing principles, data classification model, identity architecture, and network security model applicable to all computing environments, development programmes, and activities within an organisation's security boundary. It applies to all cloud environments, all internal and outsourced development, and all personnel, contractors, and service providers with access to organisational systems, data, or code repositories.
 
 All requirements in the developer security requirements, DevOps security requirements, and production security requirements standards flow from this document. When this document conflicts with any subordinate standard, this document takes precedence.
 
@@ -59,7 +59,7 @@ The governance library includes authoritative artefacts in the following areas: 
 
 ### Layer 4: architectural standards
 
-Current architectural authority documents define infrastructure delivery standards, network design, and approved tooling. Adopting organizations should maintain a current-state register of approved platforms, tooling, and vendor assignments.
+Current architectural authority documents define infrastructure delivery standards, network design, and approved tooling. Adopting organisations should maintain a current-state register of approved platforms, tooling, and vendor assignments.
 
 ---
 
@@ -87,7 +87,7 @@ Deviations require a formal exception approved by the CIO or CISO.
 | Classification | Description | Examples |
 | --- | --- | --- |
 | **Public** | Approved for unrestricted external disclosure. | Marketing materials, public website content |
-| **Internal** | For organizational internal use only. | Operational procedures, internal reports |
+| **Internal** | For organisational internal use only. | Operational procedures, internal reports |
 | **Confidential** | Sensitive business data requiring controlled access. | Customer records, financial data, contracts, trade data, personnel information |
 | **Restricted** | Highest sensitivity; access strictly controlled. | Credentials, encryption keys, audit logs with PII, investigation materials |
 
@@ -117,13 +117,13 @@ Canada's AIDA requires: risk classification of AI systems; algorithmic impact as
 
 ## 5. Cloud hosting policy
 
-**Default:** Primary cloud region designated by the organization.
+**Default:** Primary cloud region designated by the organisation.
 
 **Non-default hosting process:** Initiate data residency risk assessment; Legal and Compliance review; PIA where personal data is involved; written CIO approval with Legal sign-off; recorded in Exception Register; reviewed annually.
 
 **Multi-cloud:** Multiple cloud platforms may be approved for specific workloads. All multi-cloud workloads must comply with this security baseline and be included in SIEM monitoring.
 
-**AI service residency:** Some AI services may not be available in preferred cloud regions. Any project using such a service must complete the non-default hosting exception process before deployment. Adopting organizations should identify approved fallback services for workloads with contractual data residency requirements.
+**AI service residency:** Some AI services may not be available in preferred cloud regions. Any project using such a service must complete the non-default hosting exception process before deployment. Adopting organisations should identify approved fallback services for workloads with contractual data residency requirements.
 
 **Cloud exit:** All cloud services must have a documented exit plan per the cloud exit and data portability standard.
 
@@ -212,7 +212,7 @@ Running application frameworks, language runtimes, or middleware that have reach
 
 ### EOL tracking and enforcement
 
-A runtime EOL tracking register is maintained by the DevOps lead and reviewed quarterly. SIEM alerts fire at 180 days, 90 days, and 30 days before any runtime reaches EOL. Cloud governance policy should block deployment to EOL runtime versions at the subscription or organizational level. Policy exceptions require a documented waiver with a maximum 30-day duration and CIO approval.
+A runtime EOL tracking register is maintained by the DevOps lead and reviewed quarterly. SIEM alerts fire at 180 days, 90 days, and 30 days before any runtime reaches EOL. Cloud governance policy should block deployment to EOL runtime versions at the subscription or organisational level. Policy exceptions require a documented waiver with a maximum 30-day duration and CIO approval.
 
 ---
 

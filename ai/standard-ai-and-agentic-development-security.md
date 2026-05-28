@@ -178,7 +178,7 @@ Absolute prohibitions. No exception without written CIO/CISO approval.
 Approved AI coding tools:
 
 - **Claude Code**: for development sessions with appropriate secure coding rule files deployed
-- **GitHub Copilot**: within the approved organization and tier
+- **GitHub Copilot**: within the approved organisation and tier
 
 Use of other AI coding tools, including public web interfaces, to generate code for production systems requires CIO approval.
 
@@ -287,7 +287,7 @@ Rule deployment is verified in CI. Builds fail if required rule files are absent
 
 ## 12. MCP security requirements
 
-**MCP-SEC-01:** Only organization-controlled MCP servers are permitted in production. Third-party MCP servers require security team review before any integration.
+**MCP-SEC-01:** Only organisation-controlled MCP servers are permitted in production. Third-party MCP servers require security team review before any integration.
 
 **MCP-SEC-02:** MCP server tool manifests must be signed and version-controlled. The client must verify signatures before trusting tool descriptions.
 
@@ -581,7 +581,7 @@ When an AI security incident is declared, the following steps apply in addition 
 
 **AUTON-SEC-02:** The following action categories are permanently classified as requiring human confirmation and cannot be reclassified as autonomous:
 
-- Any action sending data outside the organizational cloud tenant
+- Any action sending data outside the organisational cloud tenant
 - Any action modifying a production database record
 - Any action initiating a financial transaction
 - Any action creating, modifying, or deleting user accounts or permissions

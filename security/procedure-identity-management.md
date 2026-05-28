@@ -18,13 +18,13 @@
 
 ## Purpose
 
-This procedure defines the processes for managing digital identities throughout their lifecycle: creation, maintenance, authentication configuration, privileged access management, and termination. It ensures that every identity within the organization's systems is unique, accountable, appropriately privileged, and subject to regular review.
+This procedure defines the processes for managing digital identities throughout their lifecycle: creation, maintenance, authentication configuration, privileged access management, and termination. It ensures that every identity within the organisation's systems is unique, accountable, appropriately privileged, and subject to regular review.
 
 ---
 
 ## Scope
 
-Applies to all user identities, service accounts, and machine identities across all organizational platforms including on-premises systems, cloud platforms, applications, network devices, and development environments. Covers employees, contractors, temporary workers, and third-party service accounts.
+Applies to all user identities, service accounts, and machine identities across all organisational platforms including on-premises systems, cloud platforms, applications, network devices, and development environments. Covers employees, contractors, temporary workers, and third-party service accounts.
 
 ---
 

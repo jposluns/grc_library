@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This directory contains organization-neutral supplier governance, third-party risk, cloud governance, and supply-chain continuity artefacts. It covers the full lifecycle of supplier and partner relationships as well as trade security programme obligations. All content is released under CC0 1.0 Universal.
+This directory contains organisation-neutral supplier governance, third-party risk, cloud governance, and supply-chain continuity artefacts. It covers the full lifecycle of supplier and partner relationships as well as trade security programme obligations. All content is released under CC0 1.0 Universal.
 
 ---
 

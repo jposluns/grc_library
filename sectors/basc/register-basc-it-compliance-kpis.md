@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register defines the key performance indicators (KPIs) used to monitor IT and cybersecurity obligations under the BASC International Standard v6. BASC §9.1 requires that the organization establish, implement, and maintain monitoring and measurement processes. This register operationalizes that requirement for IT-owned controls. Results are reported to the CISO monthly and to the BASC Compliance function quarterly.
+This register defines the key performance indicators (KPIs) used to monitor IT and cybersecurity obligations under the BASC International Standard v6. BASC §9.1 requires that the organisation establish, implement, and maintain monitoring and measurement processes. This register operationalizes that requirement for IT-owned controls. Results are reported to the CISO monthly and to the BASC Compliance function quarterly.
 
 ---
 

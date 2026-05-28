@@ -29,7 +29,7 @@ The procedure is aligned to ISO/IEC 27035 (Information Security Incident Managem
 This procedure applies to:
 
 - All employees, contractors, and third parties who detect, respond to, or are affected by a security incident.
-- All systems, applications, endpoints, networks, cloud environments, identities, and data under organizational control, including BASC-certified trade and customs systems operating in Latin America.
+- All systems, applications, endpoints, networks, cloud environments, identities, and data under organisational control, including BASC-certified trade and customs systems operating in Latin America.
 - All incident types including but not limited to: unauthorized access, malware or ransomware, data exfiltration, privilege compromise, denial of service, supply chain compromise, privacy breaches, and AI system security events.
 
 ---
@@ -94,7 +94,7 @@ Security incidents may be detected from any of the following sources:
 | Vulnerability scanners | Critical vulnerability actively exploited in the environment. |
 | User reports | Employee or contractor reporting suspicious activity, phishing, unauthorized access, or missing data. |
 | Third-party or supplier notification | Supplier reporting a breach affecting shared systems or data. |
-| Threat intelligence | External notification of credentials in breach databases; indicators of compromise matching organizational assets. |
+| Threat intelligence | External notification of credentials in breach databases; indicators of compromise matching organisational assets. |
 | Audit and compliance reviews | Control failures discovered during audit that indicate an active or historical breach. |
 | BASC monitoring | Anomalies in cargo, customs, or trade systems flagged by BASC compliance monitoring. |
 

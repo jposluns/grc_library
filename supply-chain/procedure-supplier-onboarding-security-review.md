@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This procedure defines the steps, gates, and responsibilities for conducting a security review as part of the supplier onboarding process. It ensures that every new supplier is risk-classified, assessed against the requirements of [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), and approved before receiving access to organization systems, data, or networks.
+This procedure defines the steps, gates, and responsibilities for conducting a security review as part of the supplier onboarding process. It ensures that every new supplier is risk-classified, assessed against the requirements of [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), and approved before receiving access to organisation systems, data, or networks.
 
 ---
 
@@ -52,7 +52,7 @@ This procedure is triggered when:
 | Action | Responsible | Timeframe |
 |---|---|---|
 | 1.1 Submit onboarding request including: proposed supplier name and services; business justification; scope of data access; anticipated system integrations; trade compliance programme relevance | Requesting Business Unit | Before any supplier engagement |
-| 1.2 Assign a Supplier ID using the organization's supplier registry | Supplier Risk Manager | Within 2 business days |
+| 1.2 Assign a Supplier ID using the organisation's supplier registry | Supplier Risk Manager | Within 2 business days |
 | 1.3 Classify the supplier into Tier 1 to 4 using criteria in [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md) | Supplier Risk Manager | Within 2 business days |
 | 1.4 Determine if the supplier will process personal data (triggers DPA requirement) | Supplier Risk Manager / DPO | Within 2 business days |
 | 1.5 Determine if the supplier is a logistics partner subject to trade compliance programme requirements (CTPAT, AEO-S, PIP, BASC) | Supplier Risk Manager / Trade Compliance | Within 2 business days |
@@ -99,7 +99,7 @@ This procedure is triggered when:
 |---|---|---|
 | 5.1 Access provisioning gate check: confirm Steps 1 to 4 are complete before access is granted | Supplier Risk Manager | Before any access |
 | 5.2 Provision access following least-privilege principle: request only required access | IT Operations | Within 5 business days of gate check |
-| 5.3 Create user accounts with organization-assigned credentials (not shared) | IT Operations | During Step 5 |
+| 5.3 Create user accounts with organisation-assigned credentials (not shared) | IT Operations | During Step 5 |
 | 5.4 Enable MFA for all remote access | IT Operations | During provisioning |
 | 5.5 Record access grants in the access control system | IT Operations | At provisioning |
 | 5.6 Set access review reminder (Tier 1: quarterly; Tier 2: semi-annual; Tier 3: annual) | IT Operations / Supplier Risk Manager | At provisioning |

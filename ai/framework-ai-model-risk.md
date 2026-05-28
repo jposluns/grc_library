@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This framework defines an organization-neutral model for identifying, assessing, treating, monitoring, and evidencing risks arising from AI model behaviour, data representation, robustness, interpretability, lifecycle control, and deployment context.
+This framework defines an organisation-neutral model for identifying, assessing, treating, monitoring, and evidencing risks arising from AI model behaviour, data representation, robustness, interpretability, lifecycle control, and deployment context.
 
 The framework treats data as the primary risk surface. Model behaviour is governed through controls over data provenance, lineage, training or tuning data, retrieval sources, prompts, inference inputs, monitoring records, retention, deletion, and lifecycle evidence.
 
@@ -103,7 +103,7 @@ Each model or model-enabled system should have:
 
 ## Limitations
 
-This framework is a CC0 public-domain baseline. It does not reproduce external framework text and does not establish legal compliance, certification, model safety, or operating effectiveness. Adopting organizations must validate requirements against their own AI systems, data categories, suppliers, jurisdictions, sectors, and risk appetite.
+This framework is a CC0 public-domain baseline. It does not reproduce external framework text and does not establish legal compliance, certification, model safety, or operating effectiveness. Adopting organisations must validate requirements against their own AI systems, data categories, suppliers, jurisdictions, sectors, and risk appetite.
 
 ---
 

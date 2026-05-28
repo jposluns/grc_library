@@ -81,10 +81,10 @@ This procedure defines the steps for managing the termination of a supplier rela
 
 | Action | Responsible | Timeframe |
 |---|---|---|
-| 3.1 Request the supplier to export all organization data in the agreed format and by the agreed deadline | Supplier Risk Manager / DPO | Per contract data return provision |
+| 3.1 Request the supplier to export all organisation data in the agreed format and by the agreed deadline | Supplier Risk Manager / DPO | Per contract data return provision |
 | 3.2 Verify completeness of returned data against the data inventory compiled in Step 2 | DPO / IT Operations | Within 5 business days of receipt |
 | 3.3 Validate integrity of returned data: confirm it is readable and complete | IT Operations | Within 5 business days of receipt |
-| 3.4 Ingest returned data into organization-controlled storage | IT Operations | Within 5 business days of verification |
+| 3.4 Ingest returned data into organisation-controlled storage | IT Operations | Within 5 business days of verification |
 | 3.5 For personal data: confirm the returned data includes all personal data categories identified in the DPA | DPO | Within 5 business days |
 | 3.6 Escalate to Legal if supplier fails to return data within the contractual deadline | Legal / DPO | Immediately on deadline breach |
 
@@ -92,7 +92,7 @@ This procedure defines the steps for managing the termination of a supplier rela
 
 | Action | Responsible | Timeframe |
 |---|---|---|
-| 4.1 Issue formal instruction to the supplier to securely delete all copies of organization data (including personal data, test data, backup data) | DPO / Legal | Upon data return completion or at contract end |
+| 4.1 Issue formal instruction to the supplier to securely delete all copies of organisation data (including personal data, test data, backup data) | DPO / Legal | Upon data return completion or at contract end |
 | 4.2 Request a written deletion certificate from the supplier confirming all data has been deleted | DPO / Supplier Risk Manager | Within 30 days of deletion instruction |
 | 4.3 For personal data: confirm deletion complies with DPA deletion obligations (GDPR Article 28(3)(g); UK GDPR) | DPO | Upon receipt of deletion certificate |
 | 4.4 Where deletion certificate cannot be obtained: document the gap and risk; escalate to Chief Privacy Officer | DPO | If not received within 30 days |

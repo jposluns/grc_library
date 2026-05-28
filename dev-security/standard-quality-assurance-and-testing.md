@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This standard defines the Quality Assurance (QA) and testing framework for software, infrastructure, and system changes to ensure that consistent reliability, performance, and compliance across all organizational technology environments. It establishes testing lifecycle stages, quality gates, acceptance criteria, and validation requirements for projects and releases.
+This standard defines the Quality Assurance (QA) and testing framework for software, infrastructure, and system changes to ensure that consistent reliability, performance, and compliance across all organisational technology environments. It establishes testing lifecycle stages, quality gates, acceptance criteria, and validation requirements for projects and releases.
 
 ---
 

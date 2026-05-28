@@ -22,13 +22,13 @@ This procedure defines the end-to-end lifecycle for provisioning, hardening, mon
 
 ### 1.1 Purpose
 
-To ensure that all organizational endpoints, including workstations, laptops, servers, and mobile devices, are enrolled, hardened, continuously monitored, and maintained in a compliant state throughout their operational lifetime, reducing the risk of compromise arising from misconfiguration, unpatched software, or unsanctioned devices accessing corporate resources.
+To ensure that all organisational endpoints, including workstations, laptops, servers, and mobile devices, are enrolled, hardened, continuously monitored, and maintained in a compliant state throughout their operational lifetime, reducing the risk of compromise arising from misconfiguration, unpatched software, or unsanctioned devices accessing corporate resources.
 
 ### 1.2 Scope
 
-1. Applies to all endpoints and servers owned or leased by the organization, including physical and virtual machines, on-premises and cloud-hosted servers, and organization-issued mobile devices.
+1. Applies to all endpoints and servers owned or leased by the organisation, including physical and virtual machines, on-premises and cloud-hosted servers, and organisation-issued mobile devices.
 2. Applies to personally-owned (BYOD) devices that access corporate systems, data, or networks.
-3. Covers IT Operations, Security Operations, System Owners, and all employees or contractors using organization-managed or BYOD devices.
+3. Covers IT Operations, Security Operations, System Owners, and all employees or contractors using organisation-managed or BYOD devices.
 4. Includes cloud platform virtual machines and containerized workloads that carry an identifiable OS layer enrolled in endpoint management.
 
 ---
@@ -52,7 +52,7 @@ To ensure that all organizational endpoints, including workstations, laptops, se
 
 No endpoint or server may connect to the corporate network or access corporate resources before it is registered in the asset register and enrolled in the endpoint management platform. This requirement applies to:
 
-- New organization-issued workstations and laptops before first use.
+- New organisation-issued workstations and laptops before first use.
 - New or replacement servers before promotion to any environment.
 - BYOD devices before accessing corporate systems (see §8).
 - Temporary or loaner devices issued by IT Operations.
@@ -87,7 +87,7 @@ The endpoint management platform performs automated device discovery to identify
 
 The enterprise endpoint detection and response (EDR) platform must be deployed on all managed devices, including:
 
-- All organization-issued workstations and laptops.
+- All organisation-issued workstations and laptops.
 - All on-premises and cloud platform servers (physical and virtual).
 - All on-premises servers enrolled in cloud-based hybrid server management.
 
@@ -101,10 +101,10 @@ All endpoint protection alerts must be forwarded to the SIEM in near-real-time. 
 
 | Asset Type | Endpoint Protection Coverage Target |
 | --- | --- |
-| Organization-issued workstations and laptops | 100% |
+| Organisation-issued workstations and laptops | 100% |
 | On-premises servers | 100% |
 | Cloud platform virtual machines | 100% |
-| Organization-issued mobile devices | 100% |
+| Organisation-issued mobile devices | 100% |
 
 Coverage below 98% on any asset class triggers an immediate remediation plan and CISO notification. Any single unprotected Tier 0 or Tier 1 server is treated as a P2 incident.
 
@@ -209,7 +209,7 @@ Critical OS patches that affect server workloads are tested in a non-production 
 
 ### 8.1 Corporate-issued mobile devices
 
-Organization-issued mobile devices are enrolled in the endpoint management platform and subject to all controls in this procedure, including:
+Organisation-issued mobile devices are enrolled in the endpoint management platform and subject to all controls in this procedure, including:
 
 - Remote wipe capability enabled.
 - Encryption enabled (hardware-backed where supported).
@@ -225,7 +225,7 @@ Personally-owned devices that access corporate systems must meet minimum securit
 | OS version | Supported, non-EOL version |
 | Screen lock | Enabled, maximum 5-minute timeout |
 | Device encryption | Enabled (full-device or work profile) |
-| Endpoint protection | Organization-approved app or OS-native security |
+| Endpoint protection | Organisation-approved app or OS-native security |
 | OS patches | Current within 30 days |
 
 Access to Restricted or Confidential data from a BYOD device is prohibited unless the device is enrolled in a managed work profile within the endpoint management platform. BYOD devices are not permitted to access the management VLAN, PAM infrastructure, or server administration interfaces under any circumstances.

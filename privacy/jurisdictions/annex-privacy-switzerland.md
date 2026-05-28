@@ -34,7 +34,7 @@ This annex defines privacy regulatory requirements applicable to the processing 
 
 - Switzerland has not enacted standalone AI legislation as of 2025.
 - The FDPIC applies nFADP principles to AI processing of personal data, including purpose limitation, data minimization, and accountability.
-- **Automated decision-making:** Individuals may request human review of decisions made solely by automated means where those decisions significantly affect them. Organizations must inform data subjects when decisions are made on an automated basis.
+- **Automated decision-making:** Individuals may request human review of decisions made solely by automated means where those decisions significantly affect them. Organisations must inform data subjects when decisions are made on an automated basis.
 - **DPIA:** Required for high-risk processing activities, including large-scale automated processing of personal data.
 
 ---
@@ -43,21 +43,21 @@ This annex defines privacy regulatory requirements applicable to the processing 
 
 - Switzerland holds EU adequacy status (reconfirmed December 2023).
 - For transfers from Switzerland to third countries: adequacy determination by the FDPIC (approved countries list); FDPIC-approved standard data protection clauses; binding corporate rules; or narrow derogations.
-- **Important:** Switzerland's standard contractual clauses are distinct from EU SCCs. Organizations with operations in both EU and Switzerland must ensure that separate transfer mechanisms are in place for each jurisdiction.
+- **Important:** Switzerland's standard contractual clauses are distinct from EU SCCs. Organisations with operations in both EU and Switzerland must ensure that separate transfer mechanisms are in place for each jurisdiction.
 
 ---
 
 ## Enforcement and fines
 
-- The nFADP's criminal sanctions apply to responsible natural persons (individuals), not to organizations directly.
+- The nFADP's criminal sanctions apply to responsible natural persons (individuals), not to organisations directly.
 - Fines up to CHF 250,000 for intentional violations by natural persons.
-- The FDPIC may require organizations to amend or cease non-compliant processing.
+- The FDPIC may require organisations to amend or cease non-compliant processing.
 
 ---
 
 ## Limitations
 
-This document is a public-domain reference baseline. It does not constitute legal advice. Adopting organizations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
+This document is a public-domain reference baseline. It does not constitute legal advice. Adopting organisations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
 
 ---
 

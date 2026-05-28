@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This template defines the structure, schema, and population guidance for an organization's Compliance Obligations Register. The register provides a single consolidated inventory of all applicable legal, regulatory, contractual, and voluntary obligations, enabling the organization to track compliance status, assign ownership, and prioritize remediation.
+This template defines the structure, schema, and population guidance for an organisation's Compliance Obligations Register. The register provides a single consolidated inventory of all applicable legal, regulatory, contractual, and voluntary obligations, enabling the organisation to track compliance status, assign ownership, and prioritize remediation.
 
 ---
 
@@ -41,8 +41,8 @@ Each obligation record in the register captures the following fields.
 | Field | Description | Example |
 |---|---|---|
 | **Trigger Condition** | Condition(s) that make this obligation applicable | Processing personal data of EU/UK data subjects |
-| **Applies to Organization?** | Yes / No / Conditional | Yes |
-| **Applicability Rationale** | Brief explanation of why the obligation applies | Organization processes EU and UK personal data as a controller |
+| **Applies to Organisation?** | Yes / No / Conditional | Yes |
+| **Applicability Rationale** | Brief explanation of why the obligation applies | Organisation processes EU and UK personal data as a controller |
 | **Data Categories Affected** | If privacy-related: categories of personal data in scope | Special category data, financial data |
 | **Departments in Scope** | Business functions subject to this obligation | All; IT Operations; HR |
 
@@ -50,7 +50,7 @@ Each obligation record in the register captures the following fields.
 
 | Field | Description | Example |
 |---|---|---|
-| **Obligation Summary** | Plain-language statement of what is required | Implement appropriate technical and organizational measures to ensure that data security proportionate to risk |
+| **Obligation Summary** | Plain-language statement of what is required | Implement appropriate technical and organisational measures to ensure that data security proportionate to risk |
 | **Specific Requirements** | Discrete requirements derived from the obligation | (1) Encryption of data at rest; (2) Encryption in transit; (3) Ongoing confidentiality and integrity assurance; (4) Ability to restore data; (5) Regular testing of measures |
 | **Obligation Type** | Preventive / Detective / Corrective / Reporting / Disclosure | Preventive |
 | **Deadline / Trigger Date** | Fixed deadline, recurring date, or event-triggered | Ongoing; by processing start date |
@@ -109,7 +109,7 @@ Populate the register across the following obligation categories. Each category 
 ## Population guidance
 
 ### Step 1: Identify applicable obligations
-Use [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md) as the source of truth for which jurisdictions and regulatory regimes apply. For each applicable regime, enumerate the specific legal obligations that apply to the organization's activities, data categories, and processing roles.
+Use [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md) as the source of truth for which jurisdictions and regulatory regimes apply. For each applicable regime, enumerate the specific legal obligations that apply to the organisation's activities, data categories, and processing roles.
 
 ### Step 2: Assign obligation ids
 Use the format `OBL-[YYYY]-[NNN]` where YYYY is the year the obligation was entered into the register. Number sequentially from 001 within each year.
@@ -133,7 +133,7 @@ High-risk obligations should be reviewed at least annually. Obligations tied to 
 | **Partially Compliant** | Some requirements implemented; known gaps exist with remediation planned |
 | **Non-Compliant** | Obligation is not met; remediation is required immediately |
 | **Under Assessment** | Applicability or implementation status is being evaluated |
-| **Not Applicable** | Organization has confirmed this obligation does not apply; rationale documented |
+| **Not Applicable** | Organisation has confirmed this obligation does not apply; rationale documented |
 
 ---
 

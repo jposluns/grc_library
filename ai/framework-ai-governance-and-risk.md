@@ -26,7 +26,7 @@ The framework treats data as the primary risk surface. Model behaviour, system a
 
 ## Scope
 
-This framework applies to AI systems that are developed, configured, procured, deployed, integrated, embedded, or materially used by an adopting organization.
+This framework applies to AI systems that are developed, configured, procured, deployed, integrated, embedded, or materially used by an adopting organisation.
 
 It applies to:
 
@@ -169,7 +169,7 @@ AI governance assurance should include:
 
 ## Limitations
 
-This framework does not create legal compliance by itself. Adopting organizations must validate applicable laws, sector expectations, data residency, processing roles, supplier terms, and deployment-specific risks.
+This framework does not create legal compliance by itself. Adopting organisations must validate applicable laws, sector expectations, data residency, processing roles, supplier terms, and deployment-specific risks.
 
 ---
 

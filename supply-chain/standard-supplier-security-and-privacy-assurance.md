@@ -18,17 +18,17 @@
 
 ## Purpose
 
-This standard defines the minimum information security and privacy assurance requirements that suppliers, processors, and other third-party service providers must meet as a condition of doing business with the organization. It establishes the evidence and contractual obligations the organization requires, and the assessment methods used to verify compliance.
+This standard defines the minimum information security and privacy assurance requirements that suppliers, processors, and other third-party service providers must meet as a condition of doing business with the organisation. It establishes the evidence and contractual obligations the organisation requires, and the assessment methods used to verify compliance.
 
 ---
 
 ## Scope
 
 This standard applies to all third-party relationships where the supplier:
-- Accesses, processes, stores, or transmits the organization's data or systems
-- Delivers services integrated into or dependent on the organization's IT infrastructure
-- Processes personal data on behalf of the organization as a data processor or subprocessor
-- Provides critical operational services whose failure would materially impact the organization's operations or trade compliance obligations
+- Accesses, processes, stores, or transmits the organisation's data or systems
+- Delivers services integrated into or dependent on the organisation's IT infrastructure
+- Processes personal data on behalf of the organisation as a data processor or subprocessor
+- Provides critical operational services whose failure would materially impact the organisation's operations or trade compliance obligations
 
 The tier classification in [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md) determines the depth of assurance required.
 
@@ -44,7 +44,7 @@ The tier classification in [`risk/standard-third-party-and-supply-chain-risk.md`
 | Access control: least privilege, MFA for remote access | Documented access control policy and procedures | Policy documentation; MFA configuration attestation |
 | Vulnerability management: critical patches within 30 days, high within 90 days | Documented patch management procedure | Patch management records; vulnerability scan summary |
 | Incident response capability: 24-hour detection target; documented escalation | Documented IRP with notification timelines | IRP document; evidence of testing |
-| Security incident notification to the organization | Within 24 hours of confirmed incident affecting organization data or services | Contractual notification obligation; test notification record |
+| Security incident notification to the organisation | Within 24 hours of confirmed incident affecting organisation data or services | Contractual notification obligation; test notification record |
 | Penetration testing | Annual external penetration test by qualified provider | Pen test report or letter of attestation (last 12 months) |
 | Security operations monitoring | 24/7 or business-hours SIEM/SOC capability | SOC capability statement; monitoring evidence |
 | Business continuity: documented BCP covering service delivery | Tested BCP with RTO/RPO aligned to contractual SLAs | BCP document; test results |
@@ -62,7 +62,7 @@ The tier classification in [`risk/standard-third-party-and-supply-chain-risk.md`
 | Incident notification | Within 24 hours | Contractual obligation |
 | Penetration testing | Annual or most recent within 18 months | Attestation letter or abbreviated report |
 | Business continuity plan | Documented | BCP document |
-| Sub-contractor disclosure | Notify organization of material sub-contractors | Notification commitment |
+| Sub-contractor disclosure | Notify organisation of material sub-contractors | Notification commitment |
 
 ### Tier 3: moderate suppliers (where data access exists)
 
@@ -77,7 +77,7 @@ The tier classification in [`risk/standard-third-party-and-supply-chain-risk.md`
 
 ## Privacy assurance requirements
 
-For any supplier that processes personal data on behalf of the organization, the following privacy assurance requirements apply in addition to security requirements.
+For any supplier that processes personal data on behalf of the organisation, the following privacy assurance requirements apply in addition to security requirements.
 
 ### All data processors
 
@@ -85,7 +85,7 @@ For any supplier that processes personal data on behalf of the organization, the
 |---|---|---|
 | Data Processing Agreement (DPA) executed | GDPR Article 28; UK GDPR; PIPEDA; applicable law | Signed DPA on file |
 | Processing limited to documented purposes | GDPR Article 28(3)(a); UK GDPR | DPA scope clause; processing instructions |
-| Technical and organizational measures proportionate to risk | GDPR Article 32; UK GDPR | TOM schedule or statement |
+| Technical and organisational measures proportionate to risk | GDPR Article 32; UK GDPR | TOM schedule or statement |
 | Sub-processor notification and approval process | GDPR Article 28(2); UK GDPR | Sub-processor clause in DPA; sub-processor list |
 | Individual rights support: DSAR assistance | GDPR Articles 12 to 23; UK GDPR | Contractual commitment; process evidence |
 | Data breach notification within 24 hours of awareness | GDPR Article 33(2); UK GDPR | DPA notification clause |
@@ -106,7 +106,7 @@ Where the supplier transfers personal data outside the EEA or UK:
 
 ## Assurance evidence hierarchy
 
-The organization accepts supplier security assurance in the following priority order. Higher-tier evidence is preferred.
+The organisation accepts supplier security assurance in the following priority order. Higher-tier evidence is preferred.
 
 | Tier | Evidence Type | Applicability |
 |---|---|---|

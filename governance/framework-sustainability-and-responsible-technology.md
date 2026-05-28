@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This framework defines the organization's approach to environmental sustainability, ethical technology development, and human rights due diligence across all operations and digital systems. It consolidates the Sustainability Framework, Ethical Technology Use Framework, and Human Rights Due Diligence Framework into a unified enterprise structure.
+This framework defines the organisation's approach to environmental sustainability, ethical technology development, and human rights due diligence across all operations and digital systems. It consolidates the Sustainability Framework, Ethical Technology Use Framework, and Human Rights Due Diligence Framework into a unified enterprise structure.
 
 Aligned with ISO 50001 (Energy Management), ISO 26000 (Social Responsibility), OECD Digital Security Framework, UN SDGs, GPAI Model Governance Playbook, and CSA CCM v4.1 GOV-10.
 
@@ -34,7 +34,7 @@ Applies to all business units, data centres, digital systems, AI solutions, and 
 
 ### 1. Sustainability governance
 
-The organization maintains an enterprise sustainability management system aligned with ISO 50001 and ISO 26000. Sustainability performance is incorporated into strategic planning and investment decisions. Sustainability metrics are reported to the ERC annually and to external stakeholders per applicable disclosure requirements.
+The organisation maintains an enterprise sustainability management system aligned with ISO 50001 and ISO 26000. Sustainability performance is incorporated into strategic planning and investment decisions. Sustainability metrics are reported to the ERC annually and to external stakeholders per applicable disclosure requirements.
 
 ### 2. Energy and resource efficiency
 

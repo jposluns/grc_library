@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This directory contains organization-neutral business continuity, disaster recovery, crisis management, incident coordination, emergency response, resilience testing, and recovery governance artefacts released under CC0 1.0 Universal.
+This directory contains organisation-neutral business continuity, disaster recovery, crisis management, incident coordination, emergency response, resilience testing, and recovery governance artefacts released under CC0 1.0 Universal.
 
 ---
 

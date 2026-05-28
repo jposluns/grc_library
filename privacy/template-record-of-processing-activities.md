@@ -47,7 +47,7 @@ This template applies to every processing activity carried out by the organisati
 | Third-country transfers | Country, mechanism (adequacy, SCC, BCR, derogation), TIA reference | Cross-reference to the cross-border data flow register |
 | Retention period | Per-purpose retention period | Cross-reference to the data retention schedule |
 | Deletion mechanism | Automated, manual, cascaded | Note whether deletion is enforceable end-to-end including backups, embeddings, caches |
-| Technical and organizational measures | Encryption at rest and in transit, access control, logging, pseudonymisation, monitoring | High-level reference; not a control catalogue |
+| Technical and organisational measures | Encryption at rest and in transit, access control, logging, pseudonymisation, monitoring | High-level reference; not a control catalogue |
 | Risk tier | Tier classification under the organisation's privacy risk methodology | Drives DPIA threshold |
 | DPIA reference | Identifier of the impact assessment if one is required | None if the activity is below threshold |
 | Last reviewed | Date of last ROPA review for this row | At least annually |
@@ -64,7 +64,7 @@ This template applies to every processing activity carried out by the organisati
 | Categories of data subjects | As specified by the controller | |
 | Sub-processors engaged | Sub-processor name (in private use), service, country, contract date | Cross-reference to the subprocessor register |
 | Transfers to third countries | Mechanism per transfer | Cross-reference to cross-border data flow register |
-| Technical and organizational measures | TOMs the processor commits to in the data processing agreement | |
+| Technical and organisational measures | TOMs the processor commits to in the data processing agreement | |
 | Contract reference | Data processing agreement identifier | Private record only |
 | Audit rights | As defined in the contract | |
 | Sub-processor notification commitment | Days notice prior to engaging a new sub-processor | |

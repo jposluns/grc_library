@@ -26,7 +26,7 @@ This procedure is aligned with ISO/IEC 27036-2, COBIT 2019 BAI05, CSA CCM v4.1 S
 
 ## Scope
 
-1. Applies to all suppliers and third-party entities engaged to provide goods or services to the organization.
+1. Applies to all suppliers and third-party entities engaged to provide goods or services to the organisation.
 2. Covers pre-engagement due diligence, contract validation, and periodic compliance reassessment.
 3. Includes global operations with additional requirements for BASC-certified logistics and trade partners in Latin America.
 4. Applies to suppliers providing AI systems, cloud services, logistics solutions, or data-handling activities.
@@ -76,7 +76,7 @@ Each supplier must be assessed and assigned a risk tier based on business impact
 | --- | --- | --- | --- |
 | Tier 1 | Critical | Access to sensitive or regulated data, AI systems, or critical infrastructure. | Semi-annual. |
 | Tier 2 | High | Cloud, logistics, or key service dependencies with moderate data exposure. | Annual. |
-| Tier 3 | Moderate | Non-sensitive, indirect services with limited organizational impact. | Biennial. |
+| Tier 3 | Moderate | Non-sensitive, indirect services with limited organisational impact. | Biennial. |
 | Tier 4 | Low | Low-value, non-sensitive relationships with negligible data or system access. | Biennial or attestation. |
 
 ### Step 3: Due diligence evaluation
@@ -98,10 +98,10 @@ Assessments must be conducted across all applicable domains. Suppliers scoring b
 All supplier contracts must include, at minimum:
 
 - Data protection and confidentiality clauses aligned to applicable jurisdictional requirements.
-- Right-to-audit provisions exercisable by the organization or its appointed representative.
+- Right-to-audit provisions exercisable by the organisation or its appointed representative.
 - AI ethics and transparency requirements for AI service providers.
 - BASC compliance obligations for Latin American logistics and trade partners.
-- Environmental and sustainability obligations consistent with the organization's ESG commitments.
+- Environmental and sustainability obligations consistent with the organisation's ESG commitments.
 - Mandatory reporting timelines for security incidents, privacy breaches, or compliance failures.
 
 Legal Counsel must review and approve all third-party contracts prior to execution.

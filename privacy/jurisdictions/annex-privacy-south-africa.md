@@ -35,7 +35,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 - **Processing Limitation (Condition 2) and Purpose Specification (Condition 3):** Apply to the use of personal information in AI training and operation.
 - **Automated decision-making (POPIA Section 71):** Data subjects have the right not to be subject to decisions taken solely on the basis of automated processing of personal information where those decisions have legal or similarly significant effects. The responsible party must inform the data subject and allow for human review.
-- **Security safeguards (Condition 7):** Responsible parties must implement appropriate technical and organizational measures to protect personal information processed in AI systems.
+- **Security safeguards (Condition 7):** Responsible parties must implement appropriate technical and organisational measures to protect personal information processed in AI systems.
 - The Information Regulator has published guidance encouraging responsible parties to conduct PIAs before deploying AI systems involving personal information.
 
 ---
@@ -56,7 +56,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Limitations
 
-This document is a public-domain reference baseline. It does not constitute legal advice. Adopting organizations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
+This document is a public-domain reference baseline. It does not constitute legal advice. Adopting organisations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
 
 ---
 

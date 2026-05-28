@@ -49,7 +49,7 @@ Events should be reported when they involve or may involve:
 
 ### Step 1: Report
 
-Reports may originate from users, monitoring, suppliers, customers, audit, privacy, compliance, support channels, or automated detection. Reports must be captured in an approved internal record system by adopting organizations.
+Reports may originate from users, monitoring, suppliers, customers, audit, privacy, compliance, support channels, or automated detection. Reports must be captured in an approved internal record system by adopting organisations.
 
 ### Step 2: Triage
 
@@ -96,7 +96,7 @@ Close only when the event is determined not to be an incident or after transfer 
 
 ## Limitations
 
-This procedure is a public-domain baseline. Adopting organizations must define actual contact channels, escalation thresholds, legal notification requirements, regulatory timelines, evidence handling rules, and internal tooling.
+This procedure is a public-domain baseline. Adopting organisations must define actual contact channels, escalation thresholds, legal notification requirements, regulatory timelines, evidence handling rules, and internal tooling.
 
 ---
 

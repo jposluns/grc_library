@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register defines the schema, governance, and representative risk entries for the AI Risk Register. The AI Risk Register is the central record of identified risks associated with AI systems deployed or under development by the organization. It supports the AI Governance Council's risk oversight function and feeds into the enterprise risk management process.
+This register defines the schema, governance, and representative risk entries for the AI Risk Register. The AI Risk Register is the central record of identified risks associated with AI systems deployed or under development by the organisation. It supports the AI Governance Council's risk oversight function and feeds into the enterprise risk management process.
 
 ---
 

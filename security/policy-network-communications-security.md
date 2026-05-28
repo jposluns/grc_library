@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This policy defines the technical and procedural controls for securing organizational networks across on-premise, cloud, and hybrid environments.
+This policy defines the technical and procedural controls for securing organisational networks across on-premise, cloud, and hybrid environments.
 
 It establishes requirements for network segmentation, firewall configuration, intrusion detection and prevention, and secure connectivity, ensuring protection of corporate, cloud, and BASC-regulated logistics networks.
 
@@ -26,7 +26,7 @@ It establishes requirements for network segmentation, firewall configuration, in
 
 ## Scope
 
-1. Applies to all networks, connections, and communication channels that transmit or store organizational or trade data, including BASC-certified logistics and customs systems.
+1. Applies to all networks, connections, and communication channels that transmit or store organisational or trade data, including BASC-certified logistics and customs systems.
 2. Covers:
  - Corporate LAN, WAN, and VPN infrastructure.
  - Cloud and virtualized networks.

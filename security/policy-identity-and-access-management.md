@@ -26,7 +26,7 @@ To ensure that all users, human, service, and machine, are uniquely identified, 
 
 ## Scope
 
-1. Applies to all employees, contractors, vendors, and partners accessing organizational systems, data, or cloud environments.
+1. Applies to all employees, contractors, vendors, and partners accessing organisational systems, data, or cloud environments.
 2. Covers all authentication mechanisms: passwords, tokens, biometrics, certificates, federated identities, and API/service accounts.
 3. Applies to all IT, OT, and AI systems managed on-premises, in cloud, or hybrid environments.
 4. Includes both privileged and non-privileged access across applications, infrastructure, and data assets.

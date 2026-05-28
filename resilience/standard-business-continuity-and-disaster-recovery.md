@@ -86,7 +86,7 @@ Evidence must be retained for assessments, plans, tests, restoration activities,
 
 ## Limitations
 
-This standard is a public-domain baseline. Adopting organizations must define specific thresholds, technologies, schedules, service tiers, legal obligations, contractual commitments, and approval authorities internally.
+This standard is a public-domain baseline. Adopting organisations must define specific thresholds, technologies, schedules, service tiers, legal obligations, contractual commitments, and approval authorities internally.
 
 ---
 

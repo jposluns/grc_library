@@ -91,7 +91,7 @@ All required checklist items must be assessed before any AI supplier contract is
 | 8 | **Privacy Controls** | Data minimization, pseudonymization, retention limits, and support for data subject rights (deletion, portability). | All tiers. |
 | 9 | **Regulatory Compliance Classification** | Supplier's own assessment of EU AI Act classification, supported by documentation. | All tiers. |
 | 10 | **Incident Notification Capability** | Confirmation of the supplier's ability and commitment to notify within 24 hours of a security or AI system incident. | All tiers. |
-| 11 | **Data Deletion on Contract Termination** | Written confirmation that all organizational data and derived model artefacts will be deleted upon termination. | All tiers. |
+| 11 | **Data Deletion on Contract Termination** | Written confirmation that all organisational data and derived model artefacts will be deleted upon termination. | All tiers. |
 | 12 | **Subprocessor and Supply Chain Transparency** | Disclosure of subprocessors, data sub-labellers, infrastructure providers, and upstream model dependencies. | High-Risk and GPAI. |
 | 13 | **ISO/IEC 42001 Alignment** | Evidence of AI management system practices aligned to ISO/IEC 42001 §9 (third-party AI governance). | High-Risk and GPAI. |
 | 14 | **CSA AICM Alignment** | Self-assessment or independent attestation against applicable CSA AI Controls Matrix v1.0.3 control families. | High-Risk and GPAI. |
@@ -112,21 +112,21 @@ All contracts with AI suppliers must include the following provisions in additio
 ### 6.2 Explainability service level agreements
 
 - Definition of the supplier's supported explainability methods (e.g., feature attribution, decision rationale outputs).
-- Commitment to response timelines for explanation requests submitted by the organization.
+- Commitment to response timelines for explanation requests submitted by the organisation.
 
 ### 6.3 Incident notification
 
-- Mandatory notification to the organization within 24 hours of discovery of a security incident, data breach, model failure, or material AI system deviation.
+- Mandatory notification to the organisation within 24 hours of discovery of a security incident, data breach, model failure, or material AI system deviation.
 - Notification must include: nature of the incident, affected data or model components, steps taken to contain the issue, and an estimated resolution timeline.
 
 ### 6.4 Data deletion on contract termination
 
-- Certified deletion of all organizational data, derived embeddings, fine-tuning artefacts, and retrieval stores within 30 days of contract termination.
-- Written confirmation of deletion provided to the organization within 5 business days of completion.
+- Certified deletion of all organisational data, derived embeddings, fine-tuning artefacts, and retrieval stores within 30 days of contract termination.
+- Written confirmation of deletion provided to the organisation within 5 business days of completion.
 
 ### 6.5 Right to audit AI system logs
 
-- The organization retains the right to audit AI system logs, decision records, and model behaviour reports.
+- The organisation retains the right to audit AI system logs, decision records, and model behaviour reports.
 - Supplier must retain AI system audit logs for a minimum of 7 years, consistent with ISO/IEC 42001 and EU AI Act Annex IV requirements.
 
 ### 6.6 Model version change notification
@@ -166,7 +166,7 @@ An out-of-cycle reassessment must be initiated upon any of the following events:
 - A security incident or data breach affecting the supplier's AI infrastructure.
 - A material change in the supplier's ownership, model architecture, or data supply chain.
 - A regulatory enforcement action or compliance finding involving the supplier.
-- A material change in the organization's use of the AI system.
+- A material change in the organisation's use of the AI system.
 
 ---
 
@@ -176,7 +176,7 @@ An out-of-cycle reassessment must be initiated upon any of the following events:
 
 Exit planning for AI suppliers must be initiated at the contract review stage and maintained as a living document throughout the supplier relationship. The exit plan must address:
 
-- Model repatriation (where the organization has rights to a fine-tuned or custom model) or certified deletion.
+- Model repatriation (where the organisation has rights to a fine-tuned or custom model) or certified deletion.
 - Migration of prompts, system configurations, integration logic, and operational parameters.
 - Continuity of AI-dependent processes during the transition period.
 - Identification of alternative AI suppliers or fallback operational processes.
@@ -185,13 +185,13 @@ Exit planning for AI suppliers must be initiated at the contract review stage an
 
 Upon contract termination, the AI supplier must:
 
-1. Permanently delete all organizational data, training fine-tuning artefacts, embeddings, and retrieval stores.
+1. Permanently delete all organisational data, training fine-tuning artefacts, embeddings, and retrieval stores.
 2. Provide written certified deletion confirmation within 5 business days of completion.
 3. Retain deletion records for 7 years in accordance with ISO/IEC 42001 and EU AI Act Annex IV obligations.
 
 ### 8.3 Documentation retention
 
-The organization must retain the following AI system documentation for a minimum of 7 years:
+The organisation must retain the following AI system documentation for a minimum of 7 years:
 
 - All model cards and system cards received from the supplier.
 - Pre-engagement due diligence checklists and assessment reports.

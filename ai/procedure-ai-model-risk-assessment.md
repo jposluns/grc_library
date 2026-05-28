@@ -24,7 +24,7 @@ This procedure defines a reusable method for assessing AI model risk. It support
 
 ## Scope
 
-This procedure applies to models and model-enabled systems developed, acquired, fine-tuned, embedded, integrated, deployed, monitored, materially changed, or retired by an adopting organization.
+This procedure applies to models and model-enabled systems developed, acquired, fine-tuned, embedded, integrated, deployed, monitored, materially changed, or retired by an adopting organisation.
 
 ---
 
@@ -89,7 +89,7 @@ The accountable approval role must decide whether the model may proceed, proceed
 
 ## Limitations
 
-This procedure is a public-domain baseline. Adopting organizations must define specific scoring methods, evidence repositories, approval thresholds, legal review triggers, and technical test methods internally.
+This procedure is a public-domain baseline. Adopting organisations must define specific scoring methods, evidence repositories, approval thresholds, legal review triggers, and technical test methods internally.
 
 ---
 

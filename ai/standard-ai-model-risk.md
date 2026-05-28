@@ -106,7 +106,7 @@ Evidence should include inventory entry, model card, system card where applicabl
 
 ## Limitations
 
-This standard is original CC0 content. It does not reproduce external control text and does not establish compliance, certification, safety, or assurance by itself. Adopting organizations must validate applicability and operating effectiveness.
+This standard is original CC0 content. It does not reproduce external control text and does not establish compliance, certification, safety, or assurance by itself. Adopting organisations must validate applicability and operating effectiveness.
 
 ---
 

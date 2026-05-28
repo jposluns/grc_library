@@ -45,7 +45,7 @@ This policy applies to business processes, information systems, cloud services, 
 
 ## Evidence requirements
 
-Adopting organizations should maintain business impact analyses, recovery objective registers, dependency maps, continuity plans, recovery plans, test reports, restoration logs, crisis action logs, supplier resilience evidence, corrective action logs, and risk acceptance records.
+Adopting organisations should maintain business impact analyses, recovery objective registers, dependency maps, continuity plans, recovery plans, test reports, restoration logs, crisis action logs, supplier resilience evidence, corrective action logs, and risk acceptance records.
 
 ---
 

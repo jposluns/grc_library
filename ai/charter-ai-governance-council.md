@@ -9,7 +9,7 @@
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md) 
 **Classification:** Public 
 **Category:** AI Governance 
-**Review Frequency:** Annual and upon material organizational or regulatory change 
+**Review Frequency:** Annual and upon material organisational or regulatory change 
 **Repository Path:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md) 
 **Confidentiality:** Public 
 **License:** CC0 1.0 Universal 
@@ -18,9 +18,9 @@
 
 ## Purpose
 
-This charter establishes the mandate, composition, authority, responsibilities, and operating procedures of the AI Governance Council (AIGC). The AIGC is the enterprise body responsible for overseeing the ethical, risk, and compliance governance of all artificial intelligence systems deployed or developed by the organization.
+This charter establishes the mandate, composition, authority, responsibilities, and operating procedures of the AI Governance Council (AIGC). The AIGC is the enterprise body responsible for overseeing the ethical, risk, and compliance governance of all artificial intelligence systems deployed or developed by the organisation.
 
-The AIGC ensures that AI use aligns with the organization's values, applicable law, and international standards including ISO/IEC 42001, the EU AI Act, NIST AI RMF, and OECD AI Principles.
+The AIGC ensures that AI use aligns with the organisation's values, applicable law, and international standards including ISO/IEC 42001, the EU AI Act, NIST AI RMF, and OECD AI Principles.
 
 ---
 
@@ -88,7 +88,7 @@ Charter administrative ownership rests with the Chief Information Officer (the c
 ### 1. AI risk and ethics oversight
 
 - Review AI Impact Assessments for all high-risk AI systems.
-- Assess AI systems against the organizational AI risk taxonomy: Minimal, Limited, High, Unacceptable.
+- Assess AI systems against the organisational AI risk taxonomy: Minimal, Limited, High, Unacceptable.
 - Evaluate fairness, bias mitigation, transparency, and explainability evidence.
 - Monitor outcomes of deployed AI systems against defined performance thresholds.
 
