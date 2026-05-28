@@ -1,0 +1,32 @@
+name: Repository quality checks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  lint:
+    name: Lint markdown corpus
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Metadata audit
+        run: python3 tools/lint-metadata.py
+
+      - name: Language and style audit
+        run: python3 tools/lint-language.py
+
+      - name: Repository-internal link audit
+        run: python3 tools/lint-links.py
+
+      - name: Structural index integrity audit
+        run: python3 tools/lint-structure.py

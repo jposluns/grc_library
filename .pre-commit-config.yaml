@@ -1,0 +1,37 @@
+# Pre-commit configuration for the GRC Documentation Library.
+#
+# Install: pip install pre-commit && pre-commit install
+# Run on all files: pre-commit run --all-files
+#
+# Each hook invokes a stdlib-only Python script with no third-party deps.
+
+repos:
+  - repo: local
+    hooks:
+      - id: lint-metadata
+        name: Metadata audit
+        entry: python3 tools/lint-metadata.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-language
+        name: Language and style audit
+        entry: python3 tools/lint-language.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-links
+        name: Internal link audit
+        entry: python3 tools/lint-links.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-structure
+        name: Structural index integrity
+        entry: python3 tools/lint-structure.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
