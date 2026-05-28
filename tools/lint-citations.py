@@ -65,6 +65,26 @@ DENYLIST: list[tuple[str, str, str]] = [
         "Phantom dependency. No such framework exists in the library; documents previously referencing it now point to operations/framework-it-service-management.md or governance/standard-records-retention-and-destruction.md.",
         "operations/framework-it-service-management.md (or governance/standard-records-retention-and-destruction.md)",
     ),
+    (
+        "CCM GRM",
+        "Stale v3 CCM domain code. v4.1 uses GRC (Governance, Risk, Compliance).",
+        "CCM GRC",
+    ),
+    (
+        "CCM EKM",
+        "Stale v3 CCM domain code. v4.1 uses CEK (Cryptography, Encryption, Key Management).",
+        "CCM CEK",
+    ),
+    (
+        "CCM END",
+        "Stale CCM domain code. v4.1 uses UEM (Universal Endpoint Management).",
+        "CCM UEM",
+    ),
+    (
+        "CCM TIM",
+        "Non-existent CCM domain code. Threat intelligence is part of TVM (Threat and Vulnerability Management) in v4.1.",
+        "CCM TVM",
+    ),
 ]
 
 # Paths exempted from each pattern. CHANGELOG is the canonical exemption: historical
@@ -78,6 +98,10 @@ PATH_EXEMPTIONS: dict[str, set[str]] = {
     "AI RMF 1.1": {"CHANGELOG.md", "tools/lint-citations.py"},
     "Draft 2026 ISO 37301": {"CHANGELOG.md", "tools/lint-citations.py"},
     "IT Operations Documentation Framework": {"CHANGELOG.md", "tools/lint-citations.py"},
+    "CCM GRM": {"CHANGELOG.md", "tools/lint-citations.py"},
+    "CCM EKM": {"CHANGELOG.md", "tools/lint-citations.py"},
+    "CCM END": {"CHANGELOG.md", "tools/lint-citations.py"},
+    "CCM TIM": {"CHANGELOG.md", "tools/lint-citations.py"},
 }
 
 DEFAULT_PATHS = [

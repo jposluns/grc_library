@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This standard defines the enterprise-wide risk management framework, taxonomy, and scoring methodology that guide the identification, evaluation, treatment, and monitoring of risks across all business units and functions. It ensures that risk management practices are consistent, measurable, and traceable, aligned with ISO 31000, COBIT 2019 APO12, and CSA CCM v4.1 GRM-01.
+This standard defines the enterprise-wide risk management framework, taxonomy, and scoring methodology that guide the identification, evaluation, treatment, and monitoring of risks across all business units and functions. It ensures that risk management practices are consistent, measurable, and traceable, aligned with ISO 31000, COBIT 2019 APO12, and CSA CCM v4.1 GRC-01.
 
 ---
 
@@ -222,7 +222,7 @@ Required evidence for audit and assurance purposes includes, but is not limited 
 | ISO/IEC 23894:2023 | AI Risk Management |
 | ISO/IEC 42001:2023 | AI Management System |
 | COBIT 2019 | APO12 Manage Risk; APO10 Manage Suppliers; MEA01 |
-| CSA CCM v4.1 | GRM-01 Risk Management Framework |
+| CSA CCM v4.1 | GRC-01 Risk Management Framework |
 | NIST SP 800-39 | Managing Information Security Risk |
 | NIST AI RMF | Govern, Map, Measure, Manage functions |
 | OECD AI Principles | Transparency, robustness, accountability |

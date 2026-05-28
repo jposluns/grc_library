@@ -166,7 +166,7 @@ Dual control is required for all key generation, export, and destruction operati
 | NIST SP 800-57 Parts 1 to 3 | Key Management Guidelines | Key operational procedures |
 | NIST FIPS 140-3 | Security Requirements for Cryptographic Modules | HSM and module requirements |
 | COBIT 2019 | DSS05: Manage Security Services | Security service operations |
-| CSA CCM v4.1 | EKM-01 through EKM-04 | Cloud key management operations |
+| CSA CCM v4.1 | CEK-01 through CEK-04 | Cloud key management operations |
 
 ---
 

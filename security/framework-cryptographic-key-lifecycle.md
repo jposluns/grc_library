@@ -123,7 +123,7 @@ Kyber (key encapsulation) and Dilithium (digital signatures) are the designated 
 | NIST SP 800-208 | PQC Transition Planning | Post-quantum algorithm migration |
 | NIST FIPS 203 / 204 | Kyber and Dilithium Standards | PQC algorithm selection |
 | COBIT 2019 | DSS05: Manage Security Services | Security service controls |
-| CSA CCM v4.1 | EKM-01: Encryption and Key Management | Cloud key management controls |
+| CSA CCM v4.1 | CEK-01: Encryption and Key Management | Cloud key management controls |
 | CSA CCM v4.1 | DSP-02: Data Security / Protection | Data encryption requirements |
 | BASC International Standard v6 | Trade and Customs Encryption Integrity | Trade system key management |
 | WCO SAFE Framework (2021) | AEO cryptographic integrity | Customs communication security |
