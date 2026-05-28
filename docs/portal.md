@@ -205,6 +205,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [Control Testing Procedure](../compliance/procedure-control-testing.md)
 - [Corrective and Preventive Action (CAPA) Procedure](../compliance/procedure-capa.md)
 - [GRC Programme Management and Annual Review Procedure](../governance/procedure-grc-programme-management-and-annual-review.md)
+- [Library Quality and Review Cadence Procedure](../governance/procedure-library-quality-and-review-cadence.md)
 - [Risk Acceptance Procedure](../risk/procedure-risk-acceptance.md)
 - [Risk Assessment Methodology Procedure](../risk/procedure-risk-assessment-methodology.md)
 - [Risk Register Procedure](../risk/procedure-risk-register.md)
@@ -220,6 +221,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [Data Retention Schedule](../governance/register-data-retention-schedule.md)
 - [Digital Trust and Assurance Metrics Register](../governance/register-digital-trust-and-assurance-metrics.md)
 - [Document Index and Classification Register](../governance/register-document-index-and-classification.md)
+- [Document Review Schedule Register](../governance/register-document-review-schedule.md)
 - [Global Regulatory Applicability Register](../compliance/register-global-regulatory-applicability.md)
 - [Key Risk Indicator Catalogue](../risk/register-key-risk-indicators.md)
 - [Key Terms and Definitions Register](../governance/register-key-terms-and-definitions.md)
@@ -237,6 +239,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 ### Template
 
 - [Board Risk Report Template](../risk/template-board-risk-report.md)
+- [Document Review Record Template](../governance/template-document-review-record.md)
 - [Enterprise Risk Register Template](../risk/template-enterprise-risk-register.md)
 - [Operational Risk Register Template](../risk/template-operational-risk-register.md)
 - [Risk Appetite Statement Template](../risk/template-risk-appetite-statement.md)

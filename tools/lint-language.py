@@ -133,6 +133,7 @@ def check_file(path: Path) -> list[tuple[str, int, str]]:
     is_ingestion_spec = relative == INGESTION_SPEC
     is_master_spec = relative == "specification-master-project.md"
     is_instruction_file = relative == "instruction-ai-document-ingestion.md"
+    is_review_record_template = relative == "governance/template-document-review-record.md"
     in_code_block = False
 
     with path.open("r", encoding="utf-8") as fh:
@@ -152,9 +153,10 @@ def check_file(path: Path) -> list[tuple[str, int, str]]:
             for m in ISE_PATTERN.finditer(line):
                 findings.append(("ise", lineno, m.group(0)))
 
-            # Skip the specs' and the AI ingestion instruction's own self-referential
-            # rule statements about "ensure that".
+            # Skip the specs', the AI ingestion instruction's, and the document review
+            # record template's own self-referential rule statements about "ensure that".
             if (not is_ingestion_spec and not is_master_spec and not is_instruction_file
+                    and not is_review_record_template
                     and ENSURE_PATTERN.search(line)):
                 findings.append(("ensure", lineno, line.strip()))
 

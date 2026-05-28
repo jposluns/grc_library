@@ -2,7 +2,7 @@
 
 **Document Title:** Governance Domain README 
 **Document Type:** Register 
-**Version:** 1.0.3 
+**Version:** 1.1.0 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -47,6 +47,9 @@ This directory contains the enterprise-wide governance foundation of the GRC Doc
 | Procedure | Continuous Improvement Register Procedure | [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md) |
 | Procedure | Whistleblower and Incident Reporting Procedure | [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md) |
 | Guideline | ESG and AI Ethics Disclosure Guideline | [`governance/guideline-esg-and-ai-ethics-disclosure.md`](guideline-esg-and-ai-ethics-disclosure.md) |
+| Procedure | Library Quality and Review Cadence Procedure | [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md) |
+| Register | Document Review Schedule Register | [`governance/register-document-review-schedule.md`](register-document-review-schedule.md) |
+| Template | Document Review Record Template | [`governance/template-document-review-record.md`](template-document-review-record.md) |
 
 ---
 

@@ -4,6 +4,29 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 11 (2026-05-28): Continuous quality and review cadence (3 new documents + cadence checker)
+
+Codifies the library maintenance practice with three new governance artefacts and a new audit tool. Closes the continuous-quality phase of the advisory review.
+
+- `governance/procedure-library-quality-and-review-cadence.md`: eight-step procedure covering schedule establishment, overdue detection, per-document review (currency, framework alignment, cross-reference, sanitisation, language, disposition, record), disposition application, derived-artefact maintenance, the standing audit suite (now seven audits), periodic library-level review (quarterly/semi-annual/annual cadences), and drift handling.
+- `governance/register-document-review-schedule.md`: schedule schema with eleven fields, review-frequency normalisation table, six status values (Current, Due-soon, Overdue, Action-threshold, Blocked, Retired), maintenance rules, operating cadence, integration with tooling, and reporting outputs.
+- `governance/template-document-review-record.md`: six-section per-document review record (identification, assessment of thirteen items, findings, disposition, actions, sign-off), style and length expectations, worked example.
+
+New tool:
+
+- `tools/check-review-cadence.py`: stdlib-only Python script that parses each active document's Date and Review Frequency metadata, computes next-review-due dates, and reports overdue and past-action-threshold entries with configurable warn-window and action-threshold parameters. Returns non-zero when documents are past the action threshold to gate CI.
+
+Supporting changes:
+
+- Governance README bumped 1.0.3 to 1.1.0 (minor: three substantive new rows).
+- Document index `governance/register-document-index-and-classification.md` bumped 1.19.0 to 1.20.0 (minor: three substantive new rows).
+- Specification master bumped 1.2.3 to 1.2.4 (patch: architecture domain added to the repository structure listing).
+- `CONTRIBUTING.md` updated to list the full seven-audit suite local contributors should run.
+- Language linter exemption list extended to include the document review record template (which references the "ensure that" rule explicitly).
+- Taxonomy, portal, and maturity scorecard regenerated.
+
+Baseline: 266 active documents scanned by the cadence checker; all current except 1 due-soon (a monthly-cadence operations register) and 2 event-driven.
+
 ## Phase 10 (2026-05-28): Architecture domain (8 new documents)
 
 Establishes the new `/architecture/` domain. Each new artefact starts at version 0.0.1 per the ingestion specification.
