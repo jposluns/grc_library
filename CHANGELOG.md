@@ -4,6 +4,40 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 21.3 (2026-05-28): Standards-currency checker and canonical citations register
+
+Third sub-phase of Phase 21 (foundations before content expansion). Introduces a positive-list catalogue of canonical standards citations and a new linter that detects stale references against it. Resolves the highest-leverage consistency risk identified during Phase 20 review: standards citations drifting as new versions are published.
+
+### New files
+
+- `governance/register-canonical-citations.md` (v1.0.0, Register doctype): positive list of standards citations across ISO/IEC, NIST, EU regulations and directives, North-American regulations, other privacy regulations, CSA frameworks, ISACA frameworks, MITRE adversary frameworks, OWASP, customs and trade, sector-specific standards, OECD, and ICAO/IMO. ~81 standards entries. For each: current version, publication date, topic, and known superseded versions for the linter to flag.
+- `tools/lint-standards-currency.py` (new audit): permissive linter. Parses the canonical citations register and flags references to versions listed as superseded. The register is the source of truth; new standards added to the catalogue extend the linter's coverage automatically. Complementary to `lint-citations.py` (denylist for hallucinations) rather than replacing it.
+
+### Existing-content fixes triggered by the new linter
+
+Initial run of the new linter detected two stale citations:
+
+- `governance/framework-human-capital-and-ethical-conduct.md` (1.0.0 → 1.0.1): "ISO 37001:2016" → "ISO 37001:2025" (ISO 37001 was revised and republished in February 2025).
+- `governance/procedure-whistleblower-and-incident-reporting.md` (1.0.0 → 1.0.1): same correction.
+
+### Tooling integration
+
+- `.github/workflows/quality.yml`: new "Standards-currency audit" step added to the CI pipeline. The library now runs 11 audits on every PR and push.
+- `tools/README.md`: scripts table expanded to document all linters including the new standards-currency one (previously listed only 4 of the 8 scripts).
+- `tools/lint-citations.py`: PATH_EXEMPTIONS extended to include `governance/register-canonical-citations.md` (the canonical register intentionally documents hallucinated/superseded strings as part of its scope).
+
+### Cross-references updated
+
+- `governance/README.md`: canonical citations register entry added to Active Documents.
+- `governance/register-document-index-and-classification.md` (1.25.1 → 1.25.2): canonical citations register entry added.
+- `TODO.md`: P1.1 (standards-currency checker + canonical citations catalogue) removed; Priority 1 tier now complete.
+
+### Result
+
+Every PR adding new content will now have its standards citations automatically checked against the canonical register. When a new version of a listed standard is published, updating the register's "Superseded versions" column will surface every stale citation in the library on the next CI run.
+
+All eleven audits clean.
+
 ## Phase 21.2 (2026-05-28): Glossary and acronym index
 
 Second sub-phase of Phase 21 (foundations before content expansion). Introduces a single canonical resolved reference for the acronyms and external-domain terms used throughout the library.

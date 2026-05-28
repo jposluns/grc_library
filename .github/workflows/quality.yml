@@ -34,6 +34,9 @@ jobs:
       - name: Framework citation hallucination audit
         run: python3 tools/lint-citations.py
 
+      - name: Standards-currency audit
+        run: python3 tools/lint-standards-currency.py
+
       - name: Owner and Approving Authority role audit
         run: python3 tools/lint-roles.py
 

@@ -6,17 +6,9 @@ This file is informational and is not subject to the library's metadata-block, a
 
 ---
 
-## Priority 1 — foundations (next up)
+## Priority 1 — foundations
 
-These prevent drift across the library as content scales. Doing them before country/sector content expansion means later additions are auto-audited and consistent.
-
-### 1.1 Standards-currency checker + canonical citations catalogue
-
-Two artefacts working together:
-- `governance/register-canonical-citations.md` — positive list of standards with current versions, publication dates, scope summaries, and replacement notes for superseded versions (e.g., "ISO/IEC 42006:2025 — Requirements for bodies providing audit and certification of AI management systems"; "ISO/IEC 27006:2015 — successor: ISO/IEC 27006:2024").
-- `tools/lint-standards-currency.py` — new audit. Flags citations of "(draft)" markers, year-only version labels where the standard has been published, and any standards citation not appearing in the canonical list.
-
-Rationale: prevents the kind of drift hit in Phase 19.4/19.6 (ISO 42006 cited as draft after publication; then misattributed to AI Impact Assessment when ISO 42005:2025 is the impact-assessment standard). Every new country/sector annex will cite standards; without this, each PR requires manual citation audit; with this, the audit is automatic.
+*(Tier 1 foundations completed in Phases 21.1 backlog, 21.2 glossary, and 21.3 standards-currency checker + canonical citations register.)*
 
 ---
 
