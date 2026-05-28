@@ -2,8 +2,8 @@
 
 **Document Title:** Human Capital and Ethical Conduct Framework 
 **Document Type:** Framework 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Chief Information Officer 
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](../security/procedure-onboarding-and-offboarding.md), [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md) 
@@ -106,7 +106,7 @@ Training completion is tracked and reported annually to the ERC and relevant com
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO 37001:2016 | Anti-Bribery Management Systems | Anti-bribery controls |
+| ISO 37001:2025 | Anti-Bribery Management Systems | Anti-bribery controls |
 | ISO 37301:2021 | §7.4: Competence and Awareness | Compliance training and competency |
 | ISO/PAS 8800:2023 | Responsible Innovation Management | Ethical AI and responsible innovation |
 | OECD AI Principles (2023) | Human-centric, fair, accountable AI | Responsible AI training |

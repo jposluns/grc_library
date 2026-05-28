@@ -2,8 +2,8 @@
 
 **Document Title:** Whistleblower and Incident Reporting Procedure 
 **Document Type:** Procedure 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Chief Information Officer 
 **Related Documents:** [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`security/procedure-security-disciplinary-process.md`](../security/procedure-security-disciplinary-process.md) 
@@ -140,7 +140,7 @@ The Chief Compliance Officer reviews the whistleblower programme annually and re
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO 37001:2016 | §8.9: Reporting, Monitoring, and Investigation | Anti-bribery whistleblower requirements |
+| ISO 37001:2025 | §8.9: Reporting, Monitoring, and Investigation | Anti-bribery whistleblower requirements |
 | ISO 37301:2021 | §8.9: Reporting Obligations | Compliance reporting channels |
 | EU Whistleblowing Directive (2019/1937) | Protection for whistleblowers | EU member state transposition requirements |
 | GDPR (2018) | Article 33: Notification of Breach | Personal data breach notification |

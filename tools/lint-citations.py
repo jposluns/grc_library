@@ -91,17 +91,17 @@ DENYLIST: list[tuple[str, str, str]] = [
 # entries record what was committed at the time, including the defects that were later
 # corrected. Add as a relative posix path.
 PATH_EXEMPTIONS: dict[str, set[str]] = {
-    "COBIT 2025": {"CHANGELOG.md", "tools/lint-citations.py"},
-    "CSA CCM v5": {"CHANGELOG.md", "tools/lint-citations.py"},
-    "CCM v5": {"CHANGELOG.md", "tools/lint-citations.py"},
-    "NIST AI RMF 1.1": {"CHANGELOG.md", "tools/lint-citations.py"},
-    "AI RMF 1.1": {"CHANGELOG.md", "tools/lint-citations.py"},
-    "Draft 2026 ISO 37301": {"CHANGELOG.md", "tools/lint-citations.py"},
-    "IT Operations Documentation Framework": {"CHANGELOG.md", "tools/lint-citations.py"},
-    "CCM GRM": {"CHANGELOG.md", "tools/lint-citations.py"},
-    "CCM EKM": {"CHANGELOG.md", "tools/lint-citations.py"},
-    "CCM END": {"CHANGELOG.md", "tools/lint-citations.py"},
-    "CCM TIM": {"CHANGELOG.md", "tools/lint-citations.py"},
+    "COBIT 2025": {"CHANGELOG.md", "tools/lint-citations.py", "governance/register-canonical-citations.md"},
+    "CSA CCM v5": {"CHANGELOG.md", "tools/lint-citations.py", "governance/register-canonical-citations.md"},
+    "CCM v5": {"CHANGELOG.md", "tools/lint-citations.py", "governance/register-canonical-citations.md"},
+    "NIST AI RMF 1.1": {"CHANGELOG.md", "tools/lint-citations.py", "governance/register-canonical-citations.md"},
+    "AI RMF 1.1": {"CHANGELOG.md", "tools/lint-citations.py", "governance/register-canonical-citations.md"},
+    "Draft 2026 ISO 37301": {"CHANGELOG.md", "tools/lint-citations.py", "governance/register-canonical-citations.md"},
+    "IT Operations Documentation Framework": {"CHANGELOG.md", "tools/lint-citations.py", "governance/register-canonical-citations.md"},
+    "CCM GRM": {"CHANGELOG.md", "tools/lint-citations.py", "governance/register-canonical-citations.md"},
+    "CCM EKM": {"CHANGELOG.md", "tools/lint-citations.py", "governance/register-canonical-citations.md"},
+    "CCM END": {"CHANGELOG.md", "tools/lint-citations.py", "governance/register-canonical-citations.md"},
+    "CCM TIM": {"CHANGELOG.md", "tools/lint-citations.py", "governance/register-canonical-citations.md"},
 }
 
 DEFAULT_PATHS = [

@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register 
 **Document Type:** Register 
-**Version:** 1.25.1 
+**Version:** 1.25.2 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -48,6 +48,7 @@ All active repository documents should be Public.
 | Governance | Register | Document Index and Classification Register | [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md) | Governance Library Maintainer | Annual | Document control, classification, traceability |
 | Governance | Register | Key Terms and Definitions Register | [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md) | Governance Library Maintainer | Annual | Cross-domain terminology, internal GRC concepts |
 | Governance | Register | Glossary and Acronym Index | [`governance/register-glossary.md`](register-glossary.md) | Governance Library Maintainer | Annual | Acronyms, external standards, regulations, frameworks, regulators, sector programmes |
+| Governance | Register | Canonical Citations Register | [`governance/register-canonical-citations.md`](register-canonical-citations.md) | Governance Library Maintainer | Quarterly | Positive list of cited standards with current versions, publication dates, superseded versions; source for the standards-currency linter |
 | Governance | Register | Role Authority Register | [`governance/register-role-authority.md`](register-role-authority.md) | Governance Library Maintainer | Annual | Accountability, RACI, approval authority |
 | Governance | Matrix | Cross-Framework Alignment Matrix | [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md) | Control Framework Maintainer | 6 to 12 months | ISO, NIST, COBIT, CCM, OWASP, MITRE ATLAS |
 | Governance | Matrix | Reverse Framework Control Crosswalk Matrix | [`governance/matrix-reverse-framework-control-crosswalk.md`](matrix-reverse-framework-control-crosswalk.md) | Control Framework Maintainer | 6 to 12 months | ISO 27001, ISO 42001, NIST CSF 2.0, NIST SP 800-53, NIST AI RMF, CSA CCM v4.1, EU AI Act, GDPR, DORA, NIS 2, OWASP LLM Top 10, MITRE ATLAS, CTPAT, BASC, WCO SAFE |
