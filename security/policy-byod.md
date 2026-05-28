@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material platform, regulatory, or organizational change 
 **Repository Path:** [`security/policy-byod.md`](policy-byod.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -32,7 +32,7 @@ The organization's BYOD model uses mobile application management (MAM) without d
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -42,7 +42,7 @@ The organization's BYOD model uses mobile application management (MAM) without d
 
 ---
 
-## Approved Access Model
+## Approved access model
 
 Personal devices may access corporate applications through the cloud productivity platform (email, collaboration, file storage) only. Access is governed by the following controls, enforced at the application and identity layer:
 
@@ -61,7 +61,7 @@ Personal devices may access corporate applications through the cloud productivit
 
 ---
 
-## What the Organization Does Not Do
+## What the organization does not do
 
 The organization does not enrol personal devices into MDM. The following actions are explicitly not taken under this policy:
 
@@ -75,13 +75,13 @@ These boundaries are enforced by the MAM-without-MDM architecture. Enrolment of 
 
 ---
 
-## Data Classification Restriction
+## Data classification restriction
 
 Personal devices may only be used to access Internal and lower data classifications. Access to data classified as Confidential or Restricted from a personal device is not permitted. Personnel with regular access requirements for Confidential data must use a company-managed device. Where a specific business need requires Confidential access from a personal device, written CISO approval is required and a compensating control plan must be documented.
 
 ---
 
-## Acceptable Use on Personal Devices
+## Acceptable use on personal devices
 
 When accessing corporate applications on a personal device, the Acceptable Use Policy applies in full to all corporate application activity. In particular:
 
@@ -91,19 +91,19 @@ When accessing corporate applications on a personal device, the Acceptable Use P
 
 ---
 
-## Incident and Loss Reporting
+## Incident and loss reporting
 
 If a personal device with active access to corporate applications is lost, stolen, or compromised, the employee must notify the IT service desk immediately. IT Operations will initiate a selective wipe of corporate application data within 1 hour of notification. The individual is responsible for reporting the loss to their mobile carrier and taking appropriate personal data protection steps for the device itself.
 
 ---
 
-## Termination and Offboarding
+## Termination and offboarding
 
 Upon departure, all corporate application data is selectively wiped from personal devices as part of the standard offboarding process. The individual does not need to surrender the device. Corporate applications and data are removed; the device and personal data are unaffected.
 
 ---
 
-## Policy Violations
+## Policy violations
 
 Violations of this policy, including attempts to circumvent MAM controls, deliberate data exfiltration to personal applications, or use of jailbroken devices, are subject to disciplinary action under the Acceptable Use Policy.
 
@@ -115,7 +115,7 @@ Exceptions to this policy require CISO approval, documented business justificati
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

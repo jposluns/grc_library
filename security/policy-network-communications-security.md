@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material network, architecture, or regulatory change 
 **Repository Path:** [`security/policy-network-communications-security.md`](policy-network-communications-security.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -37,7 +37,7 @@ It establishes requirements for network segmentation, firewall configuration, in
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -51,7 +51,7 @@ It establishes requirements for network segmentation, firewall configuration, in
 
 ---
 
-## 1. Network Segmentation and Architecture
+## 1. Network segmentation and architecture
 
 1.1 The network shall be segmented into zones based on business function, sensitivity, and regulatory requirements, including BASC customs and logistics segments.
 
@@ -67,7 +67,7 @@ It establishes requirements for network segmentation, firewall configuration, in
 
 ---
 
-## 2. Firewall and Perimeter Security
+## 2. Firewall and perimeter security
 
 2.1 All perimeter gateways must enforce deny-by-default rules and allow only approved, documented traffic.
 
@@ -81,7 +81,7 @@ It establishes requirements for network segmentation, firewall configuration, in
 
 ---
 
-## 3. Intrusion Detection, Prevention, and Monitoring
+## 3. Intrusion detection, prevention, and monitoring
 
 3.1 IDS and IPS systems must monitor all network traffic and integrate with the central SIEM.
 
@@ -96,7 +96,7 @@ It establishes requirements for network segmentation, firewall configuration, in
 
 ---
 
-## 4. Secure Connectivity and Remote Access
+## 4. Secure connectivity and remote access
 
 4.1 All remote connections must use VPN or Zero-Trust Network Access (ZTNA) solutions enforcing device health, MFA, and continuous session validation.
 
@@ -108,7 +108,7 @@ It establishes requirements for network segmentation, firewall configuration, in
 
 ---
 
-## 5. Encryption and Data Protection
+## 5. Encryption and data protection
 
 5.1 All network traffic must be encrypted using industry-approved algorithms (TLS 1.3, IPsec AES-256).
 
@@ -120,7 +120,7 @@ It establishes requirements for network segmentation, firewall configuration, in
 
 ---
 
-## 6. AI-Assisted Network Defence
+## 6. AI-assisted network defence
 
 6.1 AI analytics shall continuously evaluate traffic for anomaly detection, drift patterns, or suspicious behaviour consistent with adversarial AI attacks.
 
@@ -130,7 +130,7 @@ It establishes requirements for network segmentation, firewall configuration, in
 
 ---
 
-## 7. BASC Trade-Network Security Controls
+## 7. BASC trade-network security controls
 
 7.1 BASC-certified facilities and logistics networks must implement:
 - Perimeter monitoring (CCTV, IDS integration).
@@ -146,7 +146,7 @@ It establishes requirements for network segmentation, firewall configuration, in
 
 ---
 
-## 8. Monitoring, Testing, and Continuous Improvement
+## 8. Monitoring, testing, and continuous improvement
 
 8.1 The SOC shall continuously monitor performance, intrusion alerts, and access logs.
 
@@ -158,7 +158,7 @@ It establishes requirements for network segmentation, firewall configuration, in
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

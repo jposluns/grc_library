@@ -12,11 +12,11 @@
 **Review Frequency:** Annual and upon material threat, framework, or regulatory change 
 **Repository Path:** [`security/procedure-incident-response.md`](procedure-incident-response.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
-## 1. Purpose and Scope
+## 1. Purpose and scope
 
 ### 1.1 Purpose
 
@@ -36,7 +36,7 @@ This procedure applies to:
 
 ## 2. Governance
 
-### 2.1 Roles and Responsibilities
+### 2.1 Roles and responsibilities
 
 | Role | Responsibilities |
 | --- | --- |
@@ -51,7 +51,7 @@ This procedure applies to:
 | **Regional BASC Compliance Officer** | Notified for any incident affecting trade, customs, or cargo systems. Coordinates BASC-specific reporting and corrective actions. |
 | **All Employees** | Responsible for immediately reporting any suspected security incident to the SOC or security operations team. No silent remediation is permitted. |
 
-### 2.2 Incident Commander Authority
+### 2.2 Incident commander authority
 
 The Incident Commander has authority to:
 
@@ -64,9 +64,9 @@ During a declared P1 incident, the Incident Commander is the CIO or CISO unless 
 
 ---
 
-## 3. Incident Severity Classification
+## 3. Incident severity classification
 
-### 3.1 Severity Levels
+### 3.1 Severity levels
 
 | Severity | Criteria | Examples | Response SLA | Escalation |
 | --- | --- | --- | --- | --- |
@@ -75,15 +75,15 @@ During a declared P1 incident, the Incident Commander is the CIO or CISO unless 
 | **P3: Medium** | Anomalous activity requiring investigation; policy violation with potential security significance; isolated endpoint compromise. | Single endpoint malware detection; user account exhibiting anomalous access patterns; unauthorized software detected on production system; failed authentication threshold exceeded. | Same-day (within 8 business hours) | SOC lead notified. Security team investigation initiated. |
 | **P4: Low** | Policy violations; failed security scans; informational security events with no confirmed harm. | Failed patch scan; acceptable use policy violation; expired certificate on non-critical system; minor misconfiguration with no exploitation evidence. | Within 5 business days | Assigned to SOC queue. Standard change or remediation process. |
 
-### 3.2 Severity Escalation
+### 3.2 Severity escalation
 
 Severity classification must be reassessed as new information becomes available. Any analyst may escalate severity upward without management approval. Downgrading severity from P1 requires Incident Commander approval. The initial classification is recorded and retained even if subsequently revised.
 
 ---
 
-## 4. Detection and Triage
+## 4. Detection and triage
 
-### 4.1 Detection Sources
+### 4.1 Detection sources
 
 Security incidents may be detected from any of the following sources:
 
@@ -98,7 +98,7 @@ Security incidents may be detected from any of the following sources:
 | Audit and compliance reviews | Control failures discovered during audit that indicate an active or historical breach. |
 | BASC monitoring | Anomalies in cargo, customs, or trade systems flagged by BASC compliance monitoring. |
 
-### 4.2 Triage Process
+### 4.2 Triage process
 
 Upon receipt of an alert or report, the SOC analyst shall:
 
@@ -109,7 +109,7 @@ Upon receipt of an alert or report, the SOC analyst shall:
 5. **Notify** the appropriate roles per Section 3.1 escalation requirements.
 6. **Brief the Incident Commander** with: what is known, what systems and data are affected, what the suspected attack vector is, and what immediate containment options are available.
 
-### 4.3 Triage Record Fields
+### 4.3 Triage record fields
 
 | Field | Required Content |
 | --- | --- |
@@ -126,15 +126,15 @@ Upon receipt of an alert or report, the SOC analyst shall:
 
 ---
 
-## 5. Containment, Eradication, and Recovery
+## 5. Containment, eradication, and recovery
 
-### 5.1 Containment Principles
+### 5.1 Containment principles
 
 - **Do not isolate or reimage systems without direction from the Incident Commander.** Premature isolation may destroy volatile evidence or alert the threat actor.
 - **Evidence preservation takes priority over service recovery in the first hour.** Capture memory dumps, running process lists, active network connections, and relevant log exports before any containment action that could alter system state.
 - All containment actions must be logged with the UTC timestamp, the identity of the person taking the action, and the Incident Commander's authorization.
 
-### 5.2 Containment Phases
+### 5.2 Containment phases
 
 | Phase | Actions | Authorization |
 | --- | --- | --- |
@@ -161,9 +161,9 @@ Once the scope of compromise is confirmed, the SOC and IT Operations shall:
 
 ---
 
-## 6. Regulatory Notification
+## 6. Regulatory notification
 
-### 6.1 Notification Obligations Summary
+### 6.1 Notification obligations summary
 
 | Regulation | Trigger | Notification Deadline | Notifying Authority |
 | --- | --- | --- | --- |
@@ -173,26 +173,26 @@ Once the scope of compromise is confirmed, the SOC and IT Operations shall:
 | **PIPL (China)** | Confirmed breach of personal data of China data subjects | Immediately / without delay | CISO / Privacy Lead to relevant authority |
 | **BASC** | Trade, cargo, or customs anomaly meeting breach threshold | Within 2 hours of detection | Regional BASC Compliance Officer to BASC national chapter |
 
-### 6.2 GDPR and CPPA Notification Process
+### 6.2 GDPR and CPPA notification process
 
 1. The Privacy Lead assesses whether the incident involves personal data and whether the risk threshold for notification is met.
 2. Legal Counsel reviews and approves notification content before submission.
 3. The CIO (acting DPO) submits the regulatory notification and retains a copy in the incident record.
 4. If notification cannot be completed within the regulatory window, the delay must be documented with reasons, and partial information submitted where permitted.
 
-### 6.3 BASC Trade and Customs Anomalies
+### 6.3 BASC trade and customs anomalies
 
 Any incident involving anomalous activity in cargo, customs, or trade systems, including unauthorized access to shipment data, tampering with customs records, or suspected cargo integrity compromise, triggers the incident response process with a 2-hour initial response SLA. The Regional BASC Compliance Officer is notified immediately and participates in triage. BASC incident documentation is maintained separately in the BASC Continuous Improvement Register.
 
-### 6.4 Notification Confidentiality
+### 6.4 Notification confidentiality
 
 Regulatory notifications are Restricted classification materials. Content shall not be shared externally beyond regulators, Legal, the CIO, and the CISO without written authorization. No public statements regarding the incident shall be made without CIO approval and coordination with Legal Counsel.
 
 ---
 
-## 7. Post-Incident Review
+## 7. Post-incident review
 
-### 7.1 PIR Requirements
+### 7.1 PIR requirements
 
 | Severity | PIR Required | Deadline |
 | --- | --- | --- |
@@ -201,7 +201,7 @@ Regulatory notifications are Restricted classification materials. Content shall 
 | P3: Medium | Required | Within 15 business days |
 | P4: Low | At SOC discretion | Next monthly review cycle |
 
-### 7.2 PIR Process
+### 7.2 PIR process
 
 The PIR shall be conducted by the Incident Commander (for P1/P2) or SOC lead (for P3/P4) and shall address:
 
@@ -215,15 +215,15 @@ The PIR shall be conducted by the Incident Commander (for P1/P2) or SOC lead (fo
 8. **Corrective actions**: named owners, deadlines, and tracking mechanism for each gap.
 9. **Risk register update**: confirm whether existing risks require re-scoring or new risks require addition.
 
-### 7.3 PIR Output
+### 7.3 PIR output
 
 The PIR report is a Restricted document. It is provided to the CISO, CIO, and Internal Audit. Corrective actions are tracked in the security remediation register and reported at the quarterly security governance review.
 
 ---
 
-## 8. Evidence and Documentation Requirements
+## 8. Evidence and documentation requirements
 
-### 8.1 Evidence Preservation
+### 8.1 Evidence preservation
 
 All evidence collected during an incident must be:
 
@@ -245,7 +245,7 @@ The following evidence classes must be preserved for any P1 or P2 incident:
 | Containment records | Timestamped log of all containment actions taken |
 | Communications | All internal communications related to the incident, including approvals |
 
-### 8.2 Mandatory Incident Record Fields
+### 8.2 Mandatory incident record fields
 
 Every incident, regardless of severity, must have a completed incident record containing:
 
@@ -285,7 +285,7 @@ The SOC shall track and report the following metrics at the monthly security ope
 
 ---
 
-## 10. Framework Alignment
+## 10. Framework alignment
 
 | Control Area | ISO/IEC 27035 | NIST SP 800-61 | ISO/IEC 27001:2022 | COBIT 2025 | CSA CCM v5 |
 | --- | --- | --- | --- | --- | --- |
@@ -300,7 +300,7 @@ The SOC shall track and report the following metrics at the monthly security ope
 
 ---
 
-## Licence
+## License
 
 This document is released under the **CC0 1.0 Universal** public domain dedication. To the extent possible under law, all copyright and related rights are waived. See `LICENSE` in the repository root.
 

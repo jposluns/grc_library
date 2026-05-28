@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material threat, framework, or regulatory change 
 **Repository Path:** [`security/policy-acceptable-use.md`](policy-acceptable-use.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -30,7 +30,7 @@ This policy defines acceptable use of information systems, devices, networks, an
 
 ---
 
-## 3. Acceptable Use
+## 3. Acceptable use
 
 Authorized users may use systems and devices for work purposes. Incidental personal use of internet and email is permitted provided it does not:
 
@@ -41,7 +41,7 @@ Authorized users may use systems and devices for work purposes. Incidental perso
 
 ---
 
-## 4. Prohibited Activities
+## 4. Prohibited activities
 
 The following activities are prohibited on company systems, devices, and networks:
 
@@ -58,7 +58,7 @@ The following activities are prohibited on company systems, devices, and network
 
 ---
 
-## 5. Collaboration Platform and Social Engineering Awareness
+## 5. Collaboration platform and social engineering awareness
 
 All personnel must be aware that social engineering attacks are frequently conducted via collaboration platforms. In particular:
 
@@ -69,7 +69,7 @@ All personnel must be aware that social engineering attacks are frequently condu
 
 ---
 
-## 6. Remote Access and BYOD
+## 6. Remote access and BYOD
 
 - Access to company resources from personal devices is subject to Conditional Access policies enforced at the enterprise identity provider layer.
 - Personal devices used for company work must comply with minimum security standards (up-to-date OS, device encryption, active anti-malware) where technically enforceable.
@@ -95,7 +95,7 @@ All personnel must sign or electronically acknowledge this policy upon hire and 
 
 ---
 
-## 10. Framework Alignment
+## 10. Framework alignment
 
 | Framework | Reference |
 |---|---|

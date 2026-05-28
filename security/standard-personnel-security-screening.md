@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material threat, framework, or regulatory change 
 **Repository Path:** [`security/standard-personnel-security-screening.md`](standard-personnel-security-screening.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -34,7 +34,7 @@ This standard supports the Identity and Access Management Policy, the Informatio
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -45,7 +45,7 @@ This standard supports the Identity and Access Management Policy, the Informatio
 
 ---
 
-## Screening Requirements by Role Tier
+## Screening requirements by role tier
 
 All personnel must be screened to the tier corresponding to their role classification. Where a role spans multiple tiers, the higher tier applies.
 
@@ -58,13 +58,13 @@ All personnel must be screened to the tier corresponding to their role classific
 
 ---
 
-## Jurisdiction Constraints
+## Jurisdiction constraints
 
 Background check scope varies by jurisdiction. Criminal record checks and certain credit-related checks are subject to provincial privacy legislation (Quebec Law 25, Ontario privacy equivalents), US state-level restrictions, and applicable local law in Latin American and European locations. Legal Counsel must confirm the permitted scope for each jurisdiction before screening is conducted. Screening must not exceed what is authorized by applicable law. Where legal constraints prohibit a required screening element, Human Resources must document the limitation and notify the CISO before onboarding proceeds.
 
 ---
 
-## Screening Timing
+## Screening timing
 
 1. Screening must be initiated before an offer of employment is finalized.
 2. Screening must be substantially complete before the individual is granted access to company systems.
@@ -73,7 +73,7 @@ Background check scope varies by jurisdiction. Criminal record checks and certai
 
 ---
 
-## Adverse Findings
+## Adverse findings
 
 1. Adverse findings are reviewed by Human Resources and the relevant Hiring Manager.
 2. For Tier 3 and Tier 4 roles, the CISO is notified of any adverse finding related to fraud, computer crime, or breach of trust.
@@ -83,7 +83,7 @@ Background check scope varies by jurisdiction. Criminal record checks and certai
 
 ---
 
-## Contractor and Third-Party Screening
+## Contractor and third-party screening
 
 1. Contractors and third-party personnel must provide evidence of background screening conducted by their employer or agency before being granted access to the organization's systems or facilities.
 2. Where a third-party employer cannot confirm that screening has been conducted, the organization may:
@@ -94,13 +94,13 @@ Background check scope varies by jurisdiction. Criminal record checks and certai
 
 ---
 
-## Records Retention
+## Records retention
 
 Screening records, adverse finding decisions, and conditional access approvals are retained in accordance with the Records Retention and Destruction Standard. Minimum retention is five years from the date of the screening outcome.
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Requirement Area | ISO/IEC 27001:2022 | NIST SP 800-53 | CSA CCM v5 | CTPAT / PIP / BASC |
 | --- | --- | --- | --- | --- |

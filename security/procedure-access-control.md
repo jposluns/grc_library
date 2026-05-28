@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material system or regulatory change 
 **Repository Path:** [`security/procedure-access-control.md`](procedure-access-control.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ Applies to all access to organizational systems including cloud platforms, on-pr
 
 ---
 
-## Roles and Responsibilities
+## Roles and responsibilities
 
 | Role | Responsibility |
 | --- | --- |
@@ -40,7 +40,7 @@ Applies to all access to organizational systems including cloud platforms, on-pr
 
 ---
 
-## 1. Access Request and Approval
+## 1. Access request and approval
 
 1.1 All access requests must be submitted through the ITSM portal with:
 - User identity and role.
@@ -57,7 +57,7 @@ Applies to all access to organizational systems including cloud platforms, on-pr
 
 ---
 
-## 2. Access Provisioning
+## 2. Access provisioning
 
 2.1 Access is provisioned by the Identity Team following approved request documentation.
 
@@ -71,7 +71,7 @@ Applies to all access to organizational systems including cloud platforms, on-pr
 
 ---
 
-## 3. Access Review
+## 3. Access review
 
 3.1 System owners conduct access reviews for their systems at the following frequency:
 
@@ -90,7 +90,7 @@ Applies to all access to organizational systems including cloud platforms, on-pr
 
 ---
 
-## 4. Access Modification
+## 4. Access modification
 
 4.1 Access must be modified when a user changes role, changes location, or when their responsibilities change materially.
 
@@ -100,7 +100,7 @@ Applies to all access to organizational systems including cloud platforms, on-pr
 
 ---
 
-## 5. Access Revocation
+## 5. Access revocation
 
 5.1 Access is revoked in the following circumstances:
 
@@ -118,7 +118,7 @@ Applies to all access to organizational systems including cloud platforms, on-pr
 
 ---
 
-## 6. Privileged Access Management
+## 6. Privileged access management
 
 6.1 Privileged access is subject to the following additional controls:
 - All privileged sessions are recorded and logged.
@@ -132,7 +132,7 @@ Applies to all access to organizational systems including cloud platforms, on-pr
 
 ---
 
-## 7. Third-Party and Vendor Access
+## 7. Third-party and vendor access
 
 7.1 Third-party access is time-limited, scoped to the minimum required, and requires a named sponsor.
 
@@ -142,7 +142,7 @@ Applies to all access to organizational systems including cloud platforms, on-pr
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

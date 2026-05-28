@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material HR, legal, or regulatory change 
 **Repository Path:** [`security/procedure-security-disciplinary-process.md`](procedure-security-disciplinary-process.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ Applies to all employees, contractors, temporary workers, and third parties who 
 
 ---
 
-## Roles and Responsibilities
+## Roles and responsibilities
 
 | Role | Responsibility |
 | --- | --- |
@@ -40,7 +40,7 @@ Applies to all employees, contractors, temporary workers, and third parties who 
 
 ---
 
-## 1. Violation Categories
+## 1. Violation categories
 
 Security violations are classified by severity:
 
@@ -53,7 +53,7 @@ Security violations are classified by severity:
 
 ---
 
-## 2. Incident Detection and Referral
+## 2. Incident detection and referral
 
 2.1 Security violations may be detected via: SIEM alerts, DLP triggers, access control anomalies, manager or colleague reports, self-disclosure, or audit findings.
 
@@ -89,7 +89,7 @@ Security violations are classified by severity:
 
 ---
 
-## 4. Disciplinary Hearing
+## 4. Disciplinary hearing
 
 4.1 If the investigation identifies a potential violation, HR initiates the disciplinary process in accordance with employment law.
 
@@ -101,7 +101,7 @@ Security violations are classified by severity:
 
 ---
 
-## 5. Disciplinary Outcomes
+## 5. Disciplinary outcomes
 
 5.1 Outcomes are proportionate to severity and circumstances:
 
@@ -129,7 +129,7 @@ Security violations are classified by severity:
 
 ---
 
-## 7. Post-Action Security Controls
+## 7. Post-action security controls
 
 7.1 Following any formal disciplinary action, the CISO reviews whether additional access controls, monitoring, or remediation steps are required.
 
@@ -137,7 +137,7 @@ Security violations are classified by severity:
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

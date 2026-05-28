@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material security, threat, architecture, or regulatory change 
 **Repository Path:** [`security/README.md`](README.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This directory contains organization-neutral information security governance art
 
 ---
 
-## Active Documents
+## Active documents
 
 | Type | Title | Path |
 | --- | --- | --- |
@@ -56,7 +56,7 @@ This directory contains organization-neutral information security governance art
 
 ---
 
-## Domain Coverage
+## Domain coverage
 
 Security documents should address identity, privilege, access review, data classification, logging, monitoring, incident response, vulnerability management, secure configuration, secure development, cryptography, key management, network security, backup and recovery, and supplier-operated security dependencies.
 
@@ -64,7 +64,7 @@ AI-enabled services, agents, model integrations, retrieval stores, prompt logs, 
 
 ---
 
-## Licence Boundary
+## License boundary
 
 Security standards, implementation guides, benchmarks, audit guides, control catalogues, and vendor documentation must not be copied into this directory unless confirmed CC0-compatible. Use non-verbatim synthesis, original control language, and high-level alignment only.
 

@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material threat, framework, or regulatory change 
 **Repository Path:** [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 This standard defines the classification, labelling, protection, retention, and destruction requirements for all information assets.
 
@@ -33,7 +33,7 @@ To ensure that consistent handling of information according to its sensitivity, 
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -47,7 +47,7 @@ To ensure that consistent handling of information according to its sensitivity, 
 
 ---
 
-## Data Classification Levels
+## Data classification levels
 
 | Classification | Definition | Handling Requirements | Examples |
 | --- | --- | --- | --- |
@@ -59,7 +59,7 @@ To ensure that consistent handling of information according to its sensitivity, 
 
 ---
 
-## 1. Classification and Labelling
+## 1. Classification and labelling
 
 1.1 Data Owners are responsible for classifying data upon creation or receipt.
 1.2 All digital files must display classification labels within document metadata, filenames, or headers.
@@ -69,7 +69,7 @@ To ensure that consistent handling of information according to its sensitivity, 
 
 ---
 
-## 2. Handling Requirements
+## 2. Handling requirements
 
 | Control Area | Requirement |
 | --- | --- |
@@ -83,7 +83,7 @@ To ensure that consistent handling of information according to its sensitivity, 
 
 ---
 
-## 3. AI Data Classification and Handling
+## 3. AI data classification and handling
 
 3.1 AI datasets, model artifacts, and logs must follow equivalent or stricter handling than Confidential data.
 3.2 Datasets containing personal or proprietary information must be anonymized, pseudonymized, or encrypted.
@@ -95,7 +95,7 @@ To ensure that consistent handling of information according to its sensitivity, 
 
 ---
 
-## 4. Retention and Destruction
+## 4. Retention and destruction
 
 4.1 Data retention periods are defined in the Records Retention and Destruction Standard.
 4.2 Upon expiration of retention, data must be securely destroyed via:
@@ -106,7 +106,7 @@ To ensure that consistent handling of information according to its sensitivity, 
 
 ---
 
-## 5. Encryption Requirements
+## 5. Encryption requirements
 
 | Classification | Encryption Requirement |
 | --- | --- |
@@ -120,7 +120,7 @@ Encryption keys must be managed under the Encryption and Key Management Policy.
 
 ---
 
-## 6. BASC and Regional Trade Data Handling
+## 6. BASC and regional trade data handling
 
 6.1 For Latin American operations, BASC requirements apply to all customs, cargo, and personnel data:
 - Classified as Restricted unless explicitly downgraded by the Regional Compliance Officer.
@@ -130,7 +130,7 @@ Encryption keys must be managed under the Encryption and Key Management Policy.
 
 ---
 
-## 7. Monitoring and Compliance
+## 7. Monitoring and compliance
 
 7.1 The CISO and Compliance Manager perform quarterly reviews of classification and handling adherence.
 7.2 Automated DLP reports must be analyzed monthly to detect potential misclassifications or policy breaches.
@@ -139,7 +139,7 @@ Encryption keys must be managed under the Encryption and Key Management Policy.
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Control Area | ISO/IEC 27002 | COBIT 2025 | CSA CCM v5 | Legal / Regulatory |
 | --- | --- | --- | --- | --- |

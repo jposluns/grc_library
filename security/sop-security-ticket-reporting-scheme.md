@@ -12,7 +12,7 @@
 **Review Frequency:** Annual or upon significant change to vendor or tooling landscape 
 **Repository Path:** [`security/sop-security-ticket-reporting-scheme.md`](sop-security-ticket-reporting-scheme.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This SoP defines the standard naming and reporting scheme for security incident 
 
 ---
 
-## Ticket Naming Convention
+## Ticket naming convention
 
 When reporting security incidents to management or creating escalation records, the following naming format must be used:
 
@@ -37,7 +37,7 @@ SOC - [IN-007456] Unfamiliar sign-in properties involving one user - j.smith@exa
 
 ---
 
-## Vendor Tag Assignment
+## Vendor tag assignment
 
 Each security vendor or service partner is assigned a short tag (2 to 4 characters) used as the prefix in incident ticket names. Vendor tags are maintained by the CISO and reviewed annually.
 
@@ -53,7 +53,7 @@ The current vendor tag table is maintained in the IT Security Operations Registe
 
 ---
 
-## Naming Format Components
+## Naming format components
 
 | Component | Description | Example |
 | --- | --- | --- |
@@ -64,7 +64,7 @@ The current vendor tag table is maintained in the IT Security Operations Registe
 
 ---
 
-## Usage Rules
+## Usage rules
 
 1. **Begin with the vendor tag** that generated or reported the incident.
 2. **Follow with a hyphen and the ITSM ticket number** from the ITSM portal in square brackets.
@@ -75,7 +75,7 @@ The current vendor tag table is maintained in the IT Security Operations Registe
 
 ---
 
-## Ticket Creation Requirements
+## Ticket creation requirements
 
 All security incident tickets must be created in the ITSM portal before escalation to management. Verbal or informal reports must be formalized in the ITSM portal within 1 hour for P1/P2 incidents and within 4 hours for P3/P4 incidents.
 
@@ -86,7 +86,7 @@ The ticket must link to:
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

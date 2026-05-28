@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material cryptographic standard or operational change 
 **Repository Path:** [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ Applies to all cryptographic key operations performed by IT Operations, Security
 
 ---
 
-## Roles and Responsibilities
+## Roles and responsibilities
 
 | Role | Responsibility |
 | --- | --- |
@@ -42,7 +42,7 @@ Dual control is required for all key generation, export, and destruction operati
 
 ---
 
-## 1. Key Generation
+## 1. Key generation
 
 1.1 Submit a key generation request through the ITSM portal specifying: key type, algorithm, key length, intended use, system/application, and required validity period.
 
@@ -58,7 +58,7 @@ Dual control is required for all key generation, export, and destruction operati
 
 ---
 
-## 2. Key Registration
+## 2. Key registration
 
 2.1 All generated keys must be registered in the Key Lifecycle Register within 1 business day of generation.
 
@@ -75,7 +75,7 @@ Dual control is required for all key generation, export, and destruction operati
 
 ---
 
-## 3. Key Distribution
+## 3. Key distribution
 
 3.1 Keys are distributed only to authorized systems and personnel as defined in the approved access list.
 
@@ -90,7 +90,7 @@ Dual control is required for all key generation, export, and destruction operati
 
 ---
 
-## 4. Key Activation
+## 4. Key activation
 
 4.1 Keys are activated in the target system or application by the system owner or authorized operator.
 
@@ -100,7 +100,7 @@ Dual control is required for all key generation, export, and destruction operati
 
 ---
 
-## 5. Key Rotation
+## 5. Key rotation
 
 5.1 Keys are rotated per the schedule defined in the Cryptographic Key Lifecycle Management Framework:
 - Symmetric keys: every 90 days.
@@ -120,7 +120,7 @@ Dual control is required for all key generation, export, and destruction operati
 
 ---
 
-## 6. Key Revocation
+## 6. Key revocation
 
 6.1 Keys are revoked immediately upon: suspected compromise, confirmed compromise, employee departure (where key is personal), or at end of key validity.
 
@@ -134,7 +134,7 @@ Dual control is required for all key generation, export, and destruction operati
 
 ---
 
-## 7. Key Destruction
+## 7. Key destruction
 
 7.1 Keys are destroyed when: revoked and no longer needed, at end of planned lifecycle, or upon system decommission.
 
@@ -148,7 +148,7 @@ Dual control is required for all key generation, export, and destruction operati
 
 ---
 
-## 8. Key Compromise Response
+## 8. Key compromise response
 
 8.1 Any suspected key compromise is treated as a security incident and reported to the CISO immediately.
 
@@ -158,7 +158,7 @@ Dual control is required for all key generation, export, and destruction operati
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

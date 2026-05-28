@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material change 
 **Repository Path:** [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -36,7 +36,7 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 ---
 
-## 3. Governance and Accountability
+## 3. Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -49,9 +49,9 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 ---
 
-## 4. Pre-Joining and Hire Notification
+## 4. Pre-joining and hire notification
 
-### 4.1 HR Notification to IT Operations
+### 4.1 HR notification to IT operations
 
 4.1.1 HR must notify IT Operations of a new hire a minimum of 5 business days before the individual's start date. The notification must include:
 
@@ -68,7 +68,7 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 4.1.2 Late notification (fewer than 5 business days) must be approved by the CIO and may result in delayed account activation or device availability on the start date. IT Operations will communicate any delays to HR and the line manager.
 
-### 4.2 Provisional Account Creation
+### 4.2 Provisional account creation
 
 4.2.1 Upon receipt of a valid hire notification, IT Operations will create the individual's account in the enterprise identity provider in a provisional (disabled) state.
 
@@ -78,15 +78,15 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 ---
 
-## 5. First-Day Provisioning
+## 5. First-day provisioning
 
-### 5.1 Device Readiness
+### 5.1 Device readiness
 
 5.1.1 A configured, enrolled, and compliant managed device must be available for the individual on their first working day. The device will be enrolled in the endpoint management platform and meet the endpoint configuration baseline.
 
 5.1.2 For remote joiners, the device must be shipped in advance to arrive before the start date, or alternative arrangements confirmed with IT Operations and the line manager.
 
-### 5.2 Credential Issuance
+### 5.2 Credential issuance
 
 5.2.1 Initial credentials (username and temporary password) must be issued in one of the following secure ways only:
 
@@ -97,7 +97,7 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 5.2.3 The individual must change their temporary password on first login.
 
-### 5.3 Multi-Factor Authentication Enrolment
+### 5.3 Multi-factor authentication enrolment
 
 5.3.1 MFA must be enrolled on the individual's first working day, before access to any Confidential or Restricted data is granted.
 
@@ -105,7 +105,7 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 5.3.3 MFA requirements are governed by the Authentication and Password Management Standard.
 
-### 5.4 Role-Based Access Provisioning
+### 5.4 Role-based access provisioning
 
 5.4.1 Access is provisioned in accordance with the pre-approved role access profile. Access beyond the standard profile is not activated until line manager written approval is confirmed.
 
@@ -115,19 +115,19 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 ---
 
-## 6. Role Changes and Transfers
+## 6. Role changes and transfers
 
-### 6.1 HR Notification
+### 6.1 HR notification
 
 6.1.1 HR must notify IT Operations within 24 hours of a role change or internal transfer being approved. The notification must include the individual's name, previous role, new role, effective date of change, and any changes to access requirements.
 
-### 6.2 Access Review
+### 6.2 Access review
 
 6.2.1 An access review for the transferred individual must be triggered within 3 business days of HR notification.
 
 6.2.2 The access review will compare the individual's current access rights against the access profile for their new role. Any access that is no longer required in the new role is classified as excess access.
 
-### 6.3 Excess Access Removal
+### 6.3 Excess access removal
 
 6.3.1 All excess access identified in the access review must be removed within 5 business days of HR notification.
 
@@ -137,25 +137,25 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 ---
 
-## 7. Voluntary Departure
+## 7. Voluntary departure
 
-### 7.1 Notice and Pre-Departure Preparation
+### 7.1 Notice and pre-departure preparation
 
 7.1.1 HR must notify IT Operations a minimum of 5 business days before the individual's last working day. Where notice is shorter (e.g., immediate resignation), IT Operations must be notified on the same day.
 
 7.1.2 IT Operations will initiate the deprovisioning checklist (Section 10) upon receipt of departure notification.
 
-### 7.2 Last Working Day
+### 7.2 Last working day
 
 7.2.1 All user accounts for the departing individual must be suspended (not merely password-reset) at the end of their last working day. Suspension means the account is disabled in the enterprise identity provider and cannot be used to authenticate.
 
 7.2.2 Active sessions must be terminated and refresh tokens revoked at the time of account suspension.
 
-### 7.3 Post-Departure Account Deletion
+### 7.3 Post-departure account deletion
 
 7.3.1 All accounts must be fully deprovisioned (deleted or permanently disabled) within 7 calendar days of the individual's last working day, unless a longer retention period is required for legal hold, investigation, or data retrieval purposes approved by the CISO or Legal.
 
-### 7.4 Device Collection
+### 7.4 Device collection
 
 7.4.1 The managed device must be collected on or before the individual's last working day. The line manager is responsible for coordinating device collection.
 
@@ -163,7 +163,7 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 7.4.3 Remote wipe will be initiated via the endpoint management platform if the device is not returned within the required timeframe.
 
-### 7.5 Data Retrieval
+### 7.5 Data retrieval
 
 7.5.1 Any organizational data stored in the individual's collaboration and file storage platform workspace must be reviewed and, where required, transferred to the line manager or a designated successor within 7 calendar days of departure.
 
@@ -171,15 +171,15 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 ---
 
-## 8. Involuntary Departure
+## 8. Involuntary departure
 
-### 8.1 Account Suspension
+### 8.1 Account suspension
 
 8.1.1 In the event of involuntary termination (dismissal, redundancy with immediate effect, or any termination where the individual is not permitted to work their notice), all accounts must be suspended on the same business day, effective at the time the termination decision is implemented.
 
 8.1.2 Where possible, account suspension should be coordinated to occur at the same time as, or immediately before, the individual is informed of the termination.
 
-### 8.2 Access Removal Timeline
+### 8.2 Access removal timeline
 
 8.2.1 All access must be fully removed within 4 hours of the suspension instruction being received by IT Operations. This includes:
 
@@ -189,13 +189,13 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 - Revocation of VPN certificates
 - Suspension of collaboration platform access
 
-### 8.3 Device Collection
+### 8.3 Device collection
 
 8.3.1 The managed device must be collected on the same day as termination where the individual is on site. Where same-day collection is not possible, the device must be collected or secured within 1 business day.
 
 8.3.2 IT Operations must initiate a remote wipe via the endpoint management platform immediately if there is any risk that the individual may attempt to access or remove data from the device before collection.
 
-### 8.4 Line Manager Notification
+### 8.4 Line manager notification
 
 8.4.1 The individual's line manager will be notified at the time the termination decision is communicated, to coordinate device return and brief their team as appropriate.
 
@@ -203,7 +203,7 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 ---
 
-## 9. Contractor and Third-Party Offboarding
+## 9. Contractor and third-party offboarding
 
 9.1 Contractors and third-party workers with system access are subject to the same deprovisioning timelines as employees (Sections 7 and 8, as applicable depending on whether departure is voluntary or involuntary).
 
@@ -215,7 +215,7 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 ---
 
-## 10. Privileged Access Deprovisioning
+## 10. Privileged access deprovisioning
 
 10.1 All privileged accounts held by a departing individual, including local administrator accounts, domain administrator accounts, cloud platform administrative roles, PAM vault accounts, and any other elevated access, must be reviewed and revoked within 2 hours of the departure notification being received by IT Operations.
 
@@ -233,7 +233,7 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 ---
 
-## 11. Deprovisioning Checklist
+## 11. Deprovisioning checklist
 
 The following checklist must be completed for every departure. IT Operations is responsible for completion and verification. The completed checklist is retained as an evidence record.
 
@@ -257,12 +257,12 @@ The following checklist must be completed for every departure. IT Operations is 
 | 16 | Shared credentials rotated (contractors/third parties) | IT Operations | Immediately upon departure | Credential rotation confirmed; new credentials distributed to remaining authorized users |
 | 17 | Physical access cards and office keys returned | Facilities / Line Manager | Last day | Facilities receipt or confirmation email |
 | 18 | Security group and distribution list memberships removed | IT Operations | Within 24 hours | Directory groups confirmed |
-| 19 | Software licences released and reclaimed | IT Operations | Within 7 calendar days | Licence management platform updated |
+| 19 | Software licenses released and reclaimed | IT Operations | Within 7 calendar days | License management platform updated |
 | 20 | Offboarding record completed and filed | IT Operations | Within 7 calendar days of departure | Record accessible in ITSM with all checklist items verified |
 
 ---
 
-## 12. Evidence and Records Retention
+## 12. Evidence and records retention
 
 12.1 A completed deprovisioning checklist record must be created and retained for every individual offboarded, without exception.
 
@@ -276,7 +276,7 @@ The following checklist must be completed for every departure. IT Operations is 
 
 ---
 
-## 13. Framework Alignment
+## 13. Framework alignment
 
 | Framework | Reference | Alignment |
 | --- | --- | --- |

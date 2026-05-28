@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material cryptographic standard or regulatory change 
 **Repository Path:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ Applies to all enterprise systems, databases, applications, network devices, and
 
 ---
 
-## 1. Key Lifecycle Phases
+## 1. Key lifecycle phases
 
 | Phase | Objective | Core Activities |
 | --- | --- | --- |
@@ -42,7 +42,7 @@ Applies to all enterprise systems, databases, applications, network devices, and
 
 ---
 
-## 2. Key Management Controls
+## 2. Key management controls
 
 **Approved algorithms:**
 
@@ -59,7 +59,7 @@ Applies to all enterprise systems, databases, applications, network devices, and
 
 ---
 
-## 3. Key Lifecycle Register (KLR)
+## 3. Key lifecycle register (KLR)
 
 All cryptographic keys must be registered in the Key Lifecycle Register with the following mandatory fields:
 
@@ -77,7 +77,7 @@ All cryptographic keys must be registered in the Key Lifecycle Register with the
 
 ---
 
-## 4. Governance and Accountability
+## 4. Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -89,7 +89,7 @@ All cryptographic keys must be registered in the Key Lifecycle Register with the
 
 ---
 
-## 5. BASC and WCO SAFE Integration
+## 5. BASC and WCO SAFE integration
 
 Trade and customs systems must use AES-256 with PQC hybrid encryption by 2027. Keys used for customs communications must:
 
@@ -101,7 +101,7 @@ Trade and customs systems must use AES-256 with PQC hybrid encryption by 2027. K
 
 ---
 
-## 6. Post-Quantum Cryptography Transition
+## 6. Post-quantum cryptography transition
 
 In alignment with the Post-Quantum Cryptography Roadmap, the organization shall:
 
@@ -114,7 +114,7 @@ Kyber (key encapsulation) and Dilithium (digital signatures) are the designated 
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

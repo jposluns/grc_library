@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material threat, framework, or regulatory change 
 **Repository Path:** [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -45,7 +45,7 @@ This standard defines the governance, architecture, and technical controls for t
 
 ---
 
-## 4. Data Classification Labels
+## 4. Data classification labels
 
 The organization applies a 5-level Data Classification Model. DLP controls are calibrated to each level.
 
@@ -59,9 +59,9 @@ The organization applies a 5-level Data Classification Model. DLP controls are c
 
 ---
 
-## 5. DLP Protection Framework
+## 5. DLP protection framework
 
-### 5.1 Data States
+### 5.1 Data states
 
 | Data State | Description | Primary Controls |
 |---|---|---|
@@ -69,7 +69,7 @@ The organization applies a 5-level Data Classification Model. DLP controls are c
 | Data in Use | Data being processed on endpoints, browsers, and collaboration tools | Endpoint DLP agents, browser-based DLP, insider risk adaptive protection |
 | Data in Motion | Data transmitted via email, collaboration platform, web upload, or external sharing | Email and collaboration platform DLP, CASB, Conditional Access |
 
-### 5.2 Adaptive Enforcement by Classification Level
+### 5.2 Adaptive enforcement by classification level
 
 | Classification Level | Enforcement Action |
 |---|---|
@@ -81,7 +81,7 @@ The organization applies a 5-level Data Classification Model. DLP controls are c
 
 ---
 
-## 6. DLP Architecture and Implementation
+## 6. DLP architecture and implementation
 
 1. **Core Platform:** The enterprise DLP platform is integrated with the CASB. Detection logic uses built-in and custom Sensitive Information Types (SITs) and sensitivity labels tied to classification levels.
 2. **SIEM Integration:** DLP events feed into the SIEM for correlation. Alerts automatically open incident tickets for SOC triage.
@@ -90,14 +90,14 @@ The organization applies a 5-level Data Classification Model. DLP controls are c
 
 ---
 
-## 7. Monitoring and Reporting
+## 7. Monitoring and reporting
 
-### 7.1 Incident Logging
+### 7.1 Incident logging
 
 - DLP incidents are logged centrally within the enterprise DLP platform and CASB.
 - All incidents are correlated in the SIEM and linked to associated tickets.
 
-### 7.2 Key Performance Indicators
+### 7.2 Key performance indicators
 
 | Metric | Target |
 |---|---|
@@ -105,14 +105,14 @@ The organization applies a 5-level Data Classification Model. DLP controls are c
 | Recurring violations per quarter | < 10% |
 | Mean time to resolution (MTTR) | < 5 business days |
 
-### 7.3 Reporting Cadence
+### 7.3 Reporting cadence
 
 - Key metrics tracked: incidents per classification level; false positive and negative rates; mean time to identify (MTTI) and MTTR.
 - Quarterly DLP metrics reviewed by the CISO and presented to the executive risk committee (ERC).
 
 ---
 
-## 8. Framework Alignment
+## 8. Framework alignment
 
 | Framework | Reference | Topic |
 |---|---|---|

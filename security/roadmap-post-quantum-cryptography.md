@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon significant NIST, ETSI, or national standards developments 
 **Repository Path:** [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This roadmap defines the organization's strategy and phased plan for transitioni
 
 ---
 
-## The Quantum Threat
+## The quantum threat
 
 Current widely-deployed public-key algorithms, RSA, ECC (ECDSA, ECDH), and DSA, are vulnerable to Shor's algorithm on a cryptographically relevant quantum computer. While CRQCs capable of breaking current key sizes do not yet exist, the threat model requires action now because:
 
@@ -34,7 +34,7 @@ Symmetric encryption (AES-256) and hash functions (SHA-256 with adequate output 
 
 ---
 
-## Target PQC Algorithms
+## Target PQC algorithms
 
 The organization will adopt NIST-standardized post-quantum algorithms:
 
@@ -48,7 +48,7 @@ Hybrid schemes combining classical and PQC algorithms (e.g., X25519 + Kyber) are
 
 ---
 
-## Migration Scope
+## Migration scope
 
 | Cryptographic Function | Current Algorithm | PQC Migration Target | Priority |
 | --- | --- | --- | --- |
@@ -63,9 +63,9 @@ Hybrid schemes combining classical and PQC algorithms (e.g., X25519 + Kyber) are
 
 ---
 
-## Phased Migration Roadmap
+## Phased migration roadmap
 
-### Phase 1: Discovery and Inventory (2025: Complete)
+### Phase 1: discovery and inventory (2025: complete)
 
 - Conduct cryptographic asset discovery across all environments.
 - Identify all systems, applications, and protocols using public-key cryptography.
@@ -75,7 +75,7 @@ Hybrid schemes combining classical and PQC algorithms (e.g., X25519 + Kyber) are
 
 **Deliverable:** Cryptographic asset inventory registered in the Key Lifecycle Register.
 
-### Phase 2: Standards and Architecture (2026)
+### Phase 2: standards and architecture (2026)
 
 - Adopt NIST FIPS 203, 204, and 205 as the organizational PQC standard.
 - Define hybrid algorithm transition schemes for each cryptographic function.
@@ -85,7 +85,7 @@ Hybrid schemes combining classical and PQC algorithms (e.g., X25519 + Kyber) are
 
 **Deliverable:** Updated cryptographic standards; PQC-capable infrastructure procured.
 
-### Phase 3: Pilot and New Systems (2026 to 2027)
+### Phase 3: pilot and new systems (2026 to 2027)
 
 - Deploy PQC hybrid TLS in new system builds and infrastructure programme environments.
 - Issue PQC hybrid certificates for all new PKI enrolments.
@@ -94,7 +94,7 @@ Hybrid schemes combining classical and PQC algorithms (e.g., X25519 + Kyber) are
 
 **Deliverable:** All new systems deployed with PQC hybrid cryptography.
 
-### Phase 4: Production Migration: High Priority Systems (2027)
+### Phase 4: production migration: high priority systems (2027)
 
 - Migrate PKI root and intermediate CAs to Dilithium hybrid.
 - Migrate Tier 1 (Mission Critical) systems' TLS and key management to PQC hybrid.
@@ -104,7 +104,7 @@ Hybrid schemes combining classical and PQC algorithms (e.g., X25519 + Kyber) are
 
 **Deliverable:** All Tier 1 systems and PKI migrated to PQC hybrid cryptography.
 
-### Phase 5: Full Production Migration (2028)
+### Phase 5: full production migration (2028)
 
 - Complete PQC hybrid migration across all Tier 2 and Tier 3 systems.
 - Migrate SSH authentication infrastructure to Dilithium hybrid.
@@ -113,7 +113,7 @@ Hybrid schemes combining classical and PQC algorithms (e.g., X25519 + Kyber) are
 
 **Deliverable:** Organization-wide PQC transition complete; legacy algorithm retirement.
 
-### Phase 6: Pure PQC Transition (2030 target, pending standards maturity)
+### Phase 6: pure PQC transition (2030 target, pending standards maturity)
 
 - Remove classical algorithm components from hybrid schemes where standards and interoperability allow.
 - Transition to pure PQC for newly issued certificates and keys.
@@ -127,7 +127,7 @@ The PQC Roadmap is reviewed annually by the CISO and Security Architecture team.
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material threat, framework, or regulatory change 
 **Repository Path:** [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 This standard defines the requirements for managing privileged access across systems and environments. It establishes controls for the identification, provisioning, monitoring, and revocation of privileged accounts to minimize the risk of unauthorized access, credential abuse, and lateral movement.
 
@@ -32,7 +32,7 @@ To ensure that privileged accounts are managed, monitored, and revoked according
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -44,15 +44,15 @@ To ensure that privileged accounts are managed, monitored, and revoked according
 
 ---
 
-## PAM Approach
+## PAM approach
 
-### Primary Tool: Privileged Identity Management (PIM)
+### Primary tool: privileged identity management (PIM)
 
 The primary PAM approach uses Privileged Identity Management (PIM), which provides just-in-time (JIT) privileged access, time-bound role activation, approval workflows, and audit logging for cloud and productivity platform roles. PIM is the default implementation for all cloud directory and platform privileged roles.
 
 Third-party PAM solutions remain available for extended use cases including on-premises systems and external vendor access management.
 
-### Key PAM Controls
+### Key PAM controls
 
 | Control | Requirement |
 | --- | --- |
@@ -67,7 +67,7 @@ Third-party PAM solutions remain available for extended use cases including on-p
 
 ---
 
-## Privileged Account Lifecycle
+## Privileged account lifecycle
 
 **Provisioning:** All privileged account requests must be approved by the account owner's manager and the CISO or delegate. Requests must include business justification and expected duration. Accounts are created following the principle of least privilege.
 
@@ -79,13 +79,13 @@ Third-party PAM solutions remain available for extended use cases including on-p
 
 ---
 
-## Incident Response
+## Incident response
 
 Suspected compromise of a privileged account constitutes a P1 security incident. The IAM Team must immediately disable the account, revoke active sessions, and notify the CISO. All privileged credential compromises follow the Incident Response Procedure.
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Control | ISO/IEC 27001 | NIST SP 800-53 | COBIT 2025 | CSA CCM v5 | CIS |
 | --- | --- | --- | --- | --- | --- |

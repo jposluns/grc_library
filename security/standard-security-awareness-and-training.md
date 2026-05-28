@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material threat, framework, or regulatory change 
 **Repository Path:** [`security/standard-security-awareness-and-training.md`](standard-security-awareness-and-training.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 This standard defines the requirements for a security awareness and training programme. It establishes minimum training obligations, content requirements, delivery frequency, completion tracking, and role-based training requirements for personnel with elevated security responsibilities.
 
@@ -32,7 +32,7 @@ To ensure that all personnel understand their security obligations, can recogniz
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -44,9 +44,9 @@ To ensure that all personnel understand their security obligations, can recogniz
 
 ---
 
-## Mandatory Training Requirements
+## Mandatory training requirements
 
-### All Personnel
+### All personnel
 
 | Training Module | Frequency | Completion Deadline |
 | --- | --- | --- |
@@ -55,7 +55,7 @@ To ensure that all personnel understand their security obligations, can recogniz
 | Privacy and data protection basics (applicable legislation, personal data handling) | Annual | Within 30 days of hire; annually thereafter |
 | Incident reporting (how to recognize and report a suspected security incident) | Annual | Within 30 days of hire; annually thereafter |
 
-### Role-Based Supplemental Training
+### Role-based supplemental training
 
 | Role | Additional Training Required | Frequency |
 | --- | --- | --- |
@@ -67,31 +67,31 @@ To ensure that all personnel understand their security obligations, can recogniz
 
 ---
 
-## Collaboration Platform Social Engineering Awareness
+## Collaboration platform social engineering awareness
 
 All employees must complete awareness training on collaboration platform-based social engineering attacks. This module covers: how attackers use external or spoofed tenant invitations; indicators of impersonation; the correct procedure for verifying IT requests; and how to report a suspicious interaction. This module is mandatory for all personnel and is included in the annual curriculum.
 
 ---
 
-## Phishing Simulations
+## Phishing simulations
 
 IT Operations conducts simulated phishing campaigns at minimum quarterly. Results are reported to the CISO and used to identify training gaps. Employees who repeatedly fail simulations are required to complete targeted remediation training within 10 business days. Simulation results are not used for disciplinary purposes unless repeated failure follows remediation training.
 
 ---
 
-## Training Completion Tracking
+## Training completion tracking
 
 Training completion is tracked in the Learning Management System (LMS) or equivalent. HR reports monthly completion rates to the CISO. Completion rates below 90% by the required deadline are escalated to the relevant manager. Non-completion beyond 30 days past deadline is treated as a policy violation and escalated to the CISO and HR for disciplinary consideration per the Security Disciplinary Process.
 
 ---
 
-## Programme Effectiveness
+## Programme effectiveness
 
 The CISO reviews programme effectiveness annually using: training completion rates; phishing simulation click rates and trends; volume and quality of employee-reported incidents; and post-incident analysis where human behaviour was a contributing factor. Results are incorporated into the annual GRC programme review and reported to the Enterprise Risk Committee.
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Control | ISO/IEC 27001 | NIST SP 800-53 | CSA CCM v5 | Trade Compliance |
 | --- | --- | --- | --- | --- |

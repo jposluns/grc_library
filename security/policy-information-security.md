@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material threat, framework, or regulatory change 
 **Repository Path:** [`security/policy-information-security.md`](policy-information-security.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 This policy establishes the overarching framework for protecting the confidentiality, integrity, and availability of information and systems. It merges and supersedes the Access Control Policy, Network Security Policy, Endpoint Security Policy, Vulnerability Management Policy, and Asset Management Policy into a unified Information Security Management System (ISMS) directive.
 
@@ -33,7 +33,7 @@ To ensure that information security is systematically managed, risks are mitigat
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
 **ISMS Ownership**
 - The Chief Information Security Officer (CISO) is responsible for establishing, maintaining, and continually improving the ISMS.
@@ -62,66 +62,66 @@ To ensure that information security is systematically managed, risks are mitigat
 
 ---
 
-## Policy Statements
+## Policy statements
 
-### 1. Information Security Framework
+### 1. Information security framework
 
 1.1 The organization shall maintain an ISMS aligned to ISO/IEC 27001:2022 Clauses 4 to 10 and Annex A.
 1.2 The ISMS shall integrate risk management, business continuity, privacy, and AI governance.
 1.3 Security objectives shall be measurable and reviewed annually.
 
-### 2. Asset Management
+### 2. Asset management
 
 2.1 All information assets shall be inventoried and classified by confidentiality, integrity, and availability impact.
 2.2 Owners shall be assigned to each asset and responsible for protection throughout its lifecycle.
 2.3 Unauthorized assets shall be removed from the network and reported to the CISO.
 
-### 3. Access Control and Identity Management
+### 3. Access control and identity management
 
 3.1 Access shall follow the principle of least privilege and be granted based on approved business need.
 3.2 All privileged accounts shall use multi-factor authentication.
 3.3 Role-based access controls shall be defined and periodically reviewed for accuracy.
 3.4 Access revocation must occur within 24 hours of employee termination or role change.
 
-### 4. Network and Infrastructure Security
+### 4. Network and infrastructure security
 
 4.1 The network shall be segmented according to sensitivity, criticality, and regulatory or trade-compliance requirements, including BASC logistics-network segregation between operational, administrative, and customs zones.
 4.2 Firewalls, intrusion prevention systems, and secure gateways shall be configured, monitored, and updated regularly.
 4.3 Cloud environments shall implement shared responsibility models and continuous monitoring aligned to CSA CCM IVS controls and BASC International Standard Section 6.
 4.4 All network traffic, including cargo, customs, and trade data, shall be logged and retained per the Logging and Monitoring Standard and BASC record keeping obligations.
 
-### 5. Endpoint and Mobile Security
+### 5. Endpoint and mobile security
 
 5.1 All endpoints shall have up-to-date antivirus, endpoint detection, and response capabilities.
 5.2 Device encryption shall be enforced for all laptops, tablets, and mobile devices storing organizational data.
 5.3 Removable media shall be restricted and encrypted when use is approved.
 
-### 6. Vulnerability and Patch Management
+### 6. Vulnerability and patch management
 
 6.1 Vulnerability scans shall occur at least monthly for all systems and after any major change.
 6.2 Critical vulnerabilities must be remediated within seven days; high within fourteen days.
 6.3 Patch deployment shall be automated where possible and tracked for compliance metrics.
 
-### 7. Information Handling and Data Protection
+### 7. Information handling and data protection
 
 7.1 Data classification and labelling shall follow the Data Classification Standard, assigning all trade and customs data a minimum classification of Restricted under BASC Section 6.
 7.2 Data at rest and in transit shall be encrypted using approved algorithms (AES-256 or stronger), including BASC-required PKI validation for customs and cargo data transmissions.
 7.3 Backups shall be performed daily, tested quarterly, and stored securely in geographically diverse locations, with BASC-governed trade and customs data stored only in BASC-approved or validated facilities.
 
-### 8. AI Model and System Security
+### 8. AI model and system security
 
 8.1 AI systems and models shall be protected against unauthorized access, modification, or data poisoning.
 8.2 Model artifacts shall be version-controlled, integrity-checked, and logged.
 8.3 Validation and verification procedures shall be implemented to ensure that accuracy, fairness, and reproducibility.
 8.4 AI model risk metrics shall align with NIST CSF 2.0 and AI RMF 1.1.
 
-### 9. Incident Response and Reporting
+### 9. Incident response and reporting
 
 9.1 All suspected or confirmed information security incidents, including trade and customs data breaches or BASC control failures, must be reported immediately to the security operations team and the Regional BASC Compliance Officer.
 9.2 Incident response shall follow the NIST 800-61 framework, COBIT DSS02, and BASC incident-handling procedures aligned to WCO SAFE.
 9.3 Root cause analysis and lessons learned must be completed within ten business days of incident closure.
 
-### 10. Monitoring and Continuous Improvement
+### 10. Monitoring and continuous improvement
 
 10.1 The ISMS shall be continuously monitored through defined metrics (mean time to detect, vulnerability closure rate, compliance posture).
 10.2 The ISMS shall be audited annually for ISO/IEC 27001 compliance.
@@ -129,7 +129,7 @@ To ensure that information security is systematically managed, risks are mitigat
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Control Area | ISO/IEC 27001 | ISO/IEC 27002 | NIST CSF 2.0 | COBIT 2025 | CSA CCM v5 |
 | --- | --- | --- | --- | --- | --- |

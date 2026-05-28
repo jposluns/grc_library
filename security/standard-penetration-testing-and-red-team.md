@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material threat, framework, or regulatory change 
 **Repository Path:** [`security/standard-penetration-testing-and-red-team.md`](standard-penetration-testing-and-red-team.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -34,7 +34,7 @@ This standard supports the Information Security Policy and addresses NIST SP 800
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -45,7 +45,7 @@ This standard supports the Information Security Policy and addresses NIST SP 800
 
 ---
 
-## Testing Programme Requirements
+## Testing programme requirements
 
 | Test Type | Minimum Frequency | Scope |
 | --- | --- | --- |
@@ -57,7 +57,7 @@ This standard supports the Information Security Policy and addresses NIST SP 800
 
 ---
 
-## Rules of Engagement
+## Rules of engagement
 
 Every engagement requires a signed Rules of Engagement (RoE) document before testing begins. The RoE must specify:
 
@@ -85,7 +85,7 @@ Reports are classified Confidential and distributed only to the CIO, CISO, and r
 
 ---
 
-## Remediation Timelines
+## Remediation timelines
 
 Remediation timelines for penetration test findings align with those established in the Vulnerability Management Procedure.
 
@@ -100,7 +100,7 @@ Unresolved Critical and High findings beyond their required timelines are escala
 
 ---
 
-## Vendor Selection and Qualification
+## Vendor selection and qualification
 
 External penetration testing must be conducted by a qualified third-party vendor. Vendors must:
 
@@ -112,7 +112,7 @@ The CISO retains final approval authority over vendor selection for all penetrat
 
 ---
 
-## Programme Tracking and Continuous Improvement
+## Programme tracking and continuous improvement
 
 1. Findings from all engagements are tracked in the organization's vulnerability and risk management tooling.
 2. Year-over-year trend analysis (finding counts by severity, repeat findings, time-to-remediation) is presented to the CISO and CIO annually.
@@ -121,7 +121,7 @@ The CISO retains final approval authority over vendor selection for all penetrat
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Control Area | ISO/IEC 27001:2022 | NIST SP 800-53 | CSA CCM v5 | Other |
 | --- | --- | --- | --- | --- |

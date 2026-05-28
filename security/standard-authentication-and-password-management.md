@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material threat, framework, or regulatory change 
 **Repository Path:** [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 This standard defines authentication and password management requirements across all systems, applications, and services. It consolidates requirements referenced across the PAM Standard, Cloud Security Configuration Baseline, and IAM Policy into a single authoritative reference.
 
@@ -32,7 +32,7 @@ To establish consistent, risk-proportionate authentication controls that reduce 
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -42,7 +42,7 @@ To establish consistent, risk-proportionate authentication controls that reduce 
 
 ---
 
-## Password Requirements
+## Password requirements
 
 | Parameter | Requirement |
 | --- | --- |
@@ -55,7 +55,7 @@ To establish consistent, risk-proportionate authentication controls that reduce 
 
 ---
 
-## Multi-Factor Authentication (MFA)
+## Multi-factor authentication (MFA)
 
 MFA is mandatory for all accounts without exception. There are no circumstances under which a user account may access company resources without MFA enrolled.
 
@@ -69,7 +69,7 @@ MFA is enforced at the enterprise identity provider Conditional Access layer.
 
 ---
 
-## Session Management
+## Session management
 
 Sessions on cloud and productivity platforms are governed by Conditional Access sign-in frequency policies:
 - Maximum session lifetime before re-authentication: 8 hours for standard users; 1 hour for privileged role activations.
@@ -78,7 +78,7 @@ Sessions on cloud and productivity platforms are governed by Conditional Access 
 
 ---
 
-## Service Account Authentication
+## Service account authentication
 
 Service accounts must use managed identities, workload identities, or certificate-based authentication wherever technically feasible.
 
@@ -92,7 +92,7 @@ Exceptions to any requirement in this standard require CISO approval and must be
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Control | NIST SP 800-63B | ISO/IEC 27001 | CSA CCM v5 | CIS |
 | --- | --- | --- | --- | --- |

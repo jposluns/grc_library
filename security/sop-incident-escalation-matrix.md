@@ -2,7 +2,7 @@
 
 **Document Title:** Incident Escalation Matrix 
 **Document Type:** Procedure 
-**Version:** 0.1.0 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Chief Information Officer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual or following significant organizational or contact change 
 **Repository Path:** [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -26,7 +26,7 @@ This SoP defines the incident escalation matrix for security incidents. It speci
 
 ---
 
-## Incident Severity Levels
+## Incident severity levels
 
 | Level | Severity | Definition |
 | --- | --- | --- |
@@ -37,7 +37,7 @@ This SoP defines the incident escalation matrix for security incidents. It speci
 
 ---
 
-## Escalation Matrix
+## Escalation matrix
 
 | Severity | Initial Detection | First Escalation (within) | Second Escalation (within) | Executive Notification |
 | --- | --- | --- | --- | --- |
@@ -48,7 +48,7 @@ This SoP defines the incident escalation matrix for security incidents. It speci
 
 ---
 
-## Notification Method
+## Notification method
 
 | Recipient | Primary Contact Method | Backup Method |
 | --- | --- | --- |
@@ -64,7 +64,7 @@ Actual contact details (names, numbers, emails) are maintained in the confidenti
 
 ---
 
-## Special Escalation Triggers
+## Special escalation triggers
 
 | Trigger | Additional Notifications Required |
 | --- | --- |
@@ -77,7 +77,7 @@ Actual contact details (names, numbers, emails) are maintained in the confidenti
 
 ---
 
-## Out-of-Hours Escalation
+## Out-of-hours escalation
 
 For P1 incidents occurring outside business hours, the SOC must attempt phone contact with the CISO/CIO immediately. If unreachable within 15 minutes, escalate to the CEO.
 
@@ -85,13 +85,13 @@ On-call responsibility rotates as documented in the IR Contact Register. Out-of-
 
 ---
 
-## Escalation Review
+## Escalation review
 
 Any incident where escalation did not occur within the required timeline must be reviewed in the post-incident review. Escalation failures are documented in the CAPA Register and contribute to SOC performance metrics.
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

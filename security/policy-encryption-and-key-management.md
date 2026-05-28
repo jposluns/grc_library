@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material threat, framework, or regulatory change 
 **Repository Path:** [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -45,7 +45,7 @@ Defines mandatory encryption and cryptographic key management requirements. Ensu
 
 ---
 
-## 1. Encryption Standards
+## 1. Encryption standards
 
 | State | Requirement | Approved Standards |
 |---|---|---|
@@ -57,31 +57,31 @@ Defines mandatory encryption and cryptographic key management requirements. Ensu
 
 ---
 
-## 2. Cryptographic Key Management
+## 2. Cryptographic key management
 
-### 2.1 Key Generation
+### 2.1 Key generation
 
 Keys generated using FIPS 140-3 certified hardware or software modules. Default, hard-coded, or vendor-supplied keys are prohibited.
 
-### 2.2 Key Distribution
+### 2.2 Key distribution
 
 Symmetric keys distributed via encrypted channels (TLS 1.3+). Asymmetric key exchange via authenticated PKI.
 
-### 2.3 Key Storage
+### 2.3 Key storage
 
 Keys stored in dedicated Hardware Security Modules (HSMs) or a cloud key management service (KMS). Keys must never be stored in plaintext or embedded in source code.
 
-### 2.4 Key Rotation
+### 2.4 Key rotation
 
 Encryption keys rotated at least every 90 days for Restricted data and annually for other categories. Immediate rotation required after personnel changes or suspected compromise.
 
-### 2.5 Key Destruction
+### 2.5 Key destruction
 
 Retired or expired keys destroyed using cryptographic erase (per NIST SP 800-88). Destruction events logged in the Key Lifecycle Register and retained for seven years.
 
 ---
 
-## 3. Cryptographic Algorithms and Hashing
+## 3. Cryptographic algorithms and hashing
 
 | Category | Approved Algorithms |
 |---|---|
@@ -93,9 +93,9 @@ Retired or expired keys destroyed using cryptographic erase (per NIST SP 800-88)
 
 ---
 
-## 4. Cloud and SaaS Encryption Requirements
+## 4. Cloud and SaaS encryption requirements
 
-### 4.1 Cloud Storage
+### 4.1 Cloud storage
 
 Cloud storage must enforce:
 
@@ -103,19 +103,19 @@ Cloud storage must enforce:
 - Audit logging for all key access and rotation events.
 - Integration with centralized Key Management Service (KMS).
 
-### 4.2 Cloud Productivity and Collaboration Platforms
+### 4.2 Cloud productivity and collaboration platforms
 
 Cloud productivity platform, collaboration platform, and file storage must use sensitivity labels and encryption policies mapped to classification levels per the Data Classification and Handling Standard.
 
-### 4.3 Data Loss Prevention
+### 4.3 Data loss prevention
 
 DLP enforcement must block or encrypt Restricted and Confidential data shared externally.
 
 ---
 
-## 5. BASC Trade-Data Protection
+## 5. BASC trade-data protection
 
-### 5.1 Encryption Requirements
+### 5.1 Encryption requirements
 
 All trade, customs, and cargo data in BASC-certified regions (Colombia, Mexico, Peru, Chile) must:
 
@@ -123,7 +123,7 @@ All trade, customs, and cargo data in BASC-certified regions (Colombia, Mexico, 
 - Utilize PKI authentication for customs and government system integration.
 - Maintain tamper-proof audit logs of encryption and decryption events.
 
-### 5.2 Key Custody
+### 5.2 Key custody
 
 Trade-data decryption keys must remain under organizational or BASC-validated custody only.
 
@@ -133,27 +133,27 @@ Unauthorised decryption, key export, or sharing constitutes a Critical BASC Viol
 
 ---
 
-## 6. AI and Data Encryption Requirements
+## 6. AI and data encryption requirements
 
-### 6.1 Dataset Encryption
+### 6.1 Dataset encryption
 
 AI datasets containing personal or proprietary information must be encrypted in transit and at rest.
 
-### 6.2 Key Separation
+### 6.2 Key separation
 
 Encryption keys must be separate from AI training environments and stored in secure HSMs.
 
-### 6.3 Model Encryption Logs
+### 6.3 Model encryption logs
 
 Model encryption logs must be linked to AI system entries in the AI Audit Repository.
 
-### 6.4 Explainability Files
+### 6.4 Explainability files
 
 Model explainability files (e.g., SHAP/LIME outputs) must be encrypted and access-controlled per Restricted classification.
 
 ---
 
-## 7. Monitoring and Compliance
+## 7. Monitoring and compliance
 
 | Activity | Frequency | Owner |
 |---|---|---|
@@ -166,7 +166,7 @@ Model explainability files (e.g., SHAP/LIME outputs) must be encrypted and acces
 
 ## 8. Exceptions
 
-### 8.1 Standard Exceptions
+### 8.1 Standard exceptions
 
 Exceptions require:
 
@@ -174,23 +174,23 @@ Exceptions require:
 - Documented business justification and risk assessment.
 - A temporary exception record in the Exception Register.
 
-### 8.2 BASC and Customs-Data Exceptions
+### 8.2 BASC and customs-data exceptions
 
 BASC and customs-data exceptions are not permitted unless explicitly authorized by the Regional BASC Compliance Officer and the Enterprise Risk Committee.
 
 ---
 
-## 9. Continual Improvement
+## 9. Continual improvement
 
-### 9.1 Annual Review
+### 9.1 Annual review
 
 The CISO and AIGC review encryption standards annually against evolving regulatory, quantum, and BASC requirements.
 
-### 9.2 Lessons Learned
+### 9.2 Lessons learned
 
 Lessons learned from incidents or audits feed into the continual improvement cycle.
 
-### 9.3 Policy Metrics
+### 9.3 Policy metrics
 
 | Metric | Description |
 |---|---|
@@ -201,7 +201,7 @@ Lessons learned from incidents or audits feed into the continual improvement cyc
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference |
 |---|---|

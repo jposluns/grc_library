@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material framework or regulatory change 
 **Repository Path:** [`security/policy-acceptance-into-service.md`](policy-acceptance-into-service.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -37,16 +37,16 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
-### Executive Oversight
+### Executive oversight
 
 1. The Chief Information Officer (CIO) is accountable for enforcing the AIS process and ensuring integration with enterprise governance, risk, and compliance frameworks.
 2. The Chief Information Security Officer (CISO) validates that security, privacy, and risk management controls are satisfied prior to production approval.
 3. The Enterprise Architecture and Service Management Offices jointly verify operational readiness, documentation, and support model adequacy.
 4. The AI Governance Council (AIGC) reviews AI-related AIS submissions for ethical, risk, and safety conformance.
 
-### Roles and Responsibilities
+### Roles and responsibilities
 
 | Role | Responsibility |
 | --- | --- |
@@ -60,9 +60,9 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 ---
 
-## Policy Statements
+## Policy statements
 
-### 1. Acceptance Framework
+### 1. Acceptance framework
 
 1.1 All systems, services, and AI models shall complete the AIS process prior to entering production.
 
@@ -70,7 +70,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 1.3 No service shall be deployed to production without documented AIS approval by the CIO and CISO.
 
-### 2. Readiness Review
+### 2. Readiness review
 
 2.1 A Readiness Review must confirm that:
 
@@ -81,7 +81,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 2.2 AI systems must include risk tier classification and AI Impact Assessment results prior to approval.
 
-### 3. Risk and Compliance Validation
+### 3. Risk and compliance validation
 
 3.1 AIS submissions shall include risk assessment outcomes aligned with NIST SP 800-37 RMF Steps 4 to 6.
 
@@ -89,7 +89,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 3.3 AI solutions must demonstrate conformance to ISO/IEC 42001 §8 and the AI Security and Risk Standard.
 
-### 4. AI Risk Classification and Impact Validation
+### 4. AI risk classification and impact validation
 
 4.1 All AI systems shall be classified according to the organizational AI risk taxonomy: Minimal, Limited, High, or Unacceptable.
 
@@ -97,7 +97,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 4.3 AI Impact Assessments must evaluate transparency, fairness, and explainability per ISO 42006 and EU AI Act Annex IV.
 
-### 5. Documentation and Evidence
+### 5. Documentation and evidence
 
 5.1 Each AIS submission must include:
 
@@ -109,7 +109,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 5.2 All AIS evidence shall be stored in the central compliance repository with version control and audit traceability.
 
-### 6. Approval and Sign-Off
+### 6. Approval and sign-off
 
 6.1 The CIO provides final authorization for service go-live after confirming successful completion of all reviews.
 
@@ -117,7 +117,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 6.3 The CAB must authorize the final change release prior to deployment.
 
-### 7. Post-Implementation Review
+### 7. Post-implementation review
 
 7.1 A review shall occur within 30 days of deployment to evaluate system stability, incident trends, and user feedback.
 
@@ -125,7 +125,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 7.3 Deficiencies identified post-implementation shall trigger corrective action plans and potential rollback where required.
 
-### 8. Continual Improvement
+### 8. Continual improvement
 
 8.1 The AIS process shall be reviewed annually to reflect updated frameworks, emerging risks, and AI compliance changes.
 
@@ -135,7 +135,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

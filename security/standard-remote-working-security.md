@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material change 
 **Repository Path:** [`security/standard-remote-working-security.md`](standard-remote-working-security.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -36,7 +36,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ---
 
-## 3. Governance and Accountability
+## 3. Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -47,9 +47,9 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ---
 
-## 4. Device Requirements
+## 4. Device requirements
 
-### 4.1 Managed Device Requirement
+### 4.1 Managed device requirement
 
 4.1.1 Remote work must be conducted exclusively on a company-managed device enrolled in the endpoint management platform. The endpoint management platform enforces configuration baselines and conditional access policy enforcement prevents access from non-compliant or unmanaged devices.
 
@@ -64,7 +64,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 | VPN client | Installed, current version, and functional |
 | Certificate-based authentication | Device certificate provisioned and valid; used for network authentication and conditional access |
 
-### 4.2 Device Compliance Grace Period
+### 4.2 Device compliance grace period
 
 4.2.1 Where a device falls out of compliance (e.g., due to a missed patch cycle or lapsed certificate), IT Operations will alert the device owner and the device will enter a compliance remediation period.
 
@@ -72,7 +72,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 4.2.3 During the grace period, access to Confidential and Restricted data is suspended regardless of the nature of the non-compliance.
 
-### 4.3 Device Maintenance
+### 4.3 Device maintenance
 
 4.3.1 Remote workers must not disable, circumvent, or interfere with any security controls enforced by the endpoint management platform.
 
@@ -80,9 +80,9 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ---
 
-## 5. Network Requirements
+## 5. Network requirements
 
-### 5.1 Public and Untrusted Networks
+### 5.1 Public and untrusted networks
 
 5.1.1 Organizational work must not be conducted on public or untrusted Wi-Fi networks (e.g., coffee shops, hotels, airports, conference venues) without first establishing a VPN or equivalent encrypted tunnel.
 
@@ -94,7 +94,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 - Hotel or hospitality networks
 - Client site networks unless a formal network access agreement is in place
 
-### 5.2 Home Networks
+### 5.2 Home networks
 
 5.2.1 Home networks are the minimum acceptable connection for standard access to cloud productivity platform services protected by conditional access.
 
@@ -105,7 +105,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 - Access to data classified as Confidential or Restricted
 - Administrative or privileged access to any system
 
-### 5.3 VPN Split Tunnelling
+### 5.3 VPN split tunnelling
 
 5.3.1 VPN split tunnelling, the configuration that routes only some traffic through the VPN while other traffic accesses the internet directly, must not be enabled by end users without explicit IT Operations approval.
 
@@ -113,7 +113,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 5.3.3 Any approved split tunnelling configuration must be documented, reviewed annually, and subject to the exception management process in Section 9.
 
-### 5.4 Home Router Security
+### 5.4 Home router security
 
 5.4.1 Remote workers are encouraged to apply the following baseline home network security practices:
 
@@ -126,7 +126,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ---
 
-## 6. Workspace and Physical Security
+## 6. Workspace and physical security
 
 6.1 Personnel working remotely must ensure that screens displaying organizational information are not visible to others in public locations or shared living spaces.
 
@@ -142,9 +142,9 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ---
 
-## 7. Data Handling and Classification
+## 7. Data handling and classification
 
-### 7.1 Classification and Storage
+### 7.1 Classification and storage
 
 7.1.1 Remote workers must handle data in accordance with the Data Classification and Handling Standard at all times. The four classification tiers and their remote working implications are summarized below:
 
@@ -157,7 +157,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 7.1.2 All data must remain in company-managed storage. Data must not be saved to personal cloud storage services, personal drives, or any storage medium not under the control of the organization.
 
-### 7.2 Collaboration and File Sharing
+### 7.2 Collaboration and file sharing
 
 7.2.1 Files must be shared using the organization's approved collaboration and file storage platform. Email attachments containing Confidential or Restricted data must not be sent to personal email addresses.
 
@@ -165,7 +165,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ---
 
-## 8. Bring-Your-Own Device (BYOD)
+## 8. Bring-your-own device (BYOD)
 
 8.1 A formal BYOD policy is pending approval. In the interim, the following requirements apply to any use of personal devices to access organizational systems:
 
@@ -182,9 +182,9 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ---
 
-## 9. Incident Reporting and Response
+## 9. Incident reporting and response
 
-### 9.1 Reporting Obligation
+### 9.1 Reporting obligation
 
 9.1.1 Remote workers must report any of the following events to the IT service desk immediately and in no case later than 1 hour after discovery:
 
@@ -195,7 +195,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 9.1.2 Reports must be made by telephone to the IT service desk. Email alone is not acceptable for urgent device loss or compromise reports.
 
-### 9.2 Response Actions
+### 9.2 Response actions
 
 9.2.1 Upon receipt of a device loss or theft report, IT Operations will initiate a remote wipe of the managed device via the endpoint management platform within 1 hour of notification.
 
@@ -203,7 +203,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 9.2.3 The incident will be logged and managed in accordance with the Incident Response Procedure.
 
-### 9.3 Post-Incident Review
+### 9.3 Post-incident review
 
 9.3.1 Following any device loss, theft, or compromise involving a remote working scenario, a post-incident review will be conducted within 10 business days.
 
@@ -230,7 +230,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ---
 
-## 11. Compliance and Enforcement
+## 11. Compliance and enforcement
 
 11.1 Compliance with this standard is mandatory for all personnel within scope.
 
@@ -242,7 +242,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ---
 
-## 12. Framework Alignment
+## 12. Framework alignment
 
 | Framework | Reference | Alignment |
 | --- | --- | --- |

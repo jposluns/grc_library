@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material platform or regulatory change 
 **Repository Path:** [`security/procedure-identity-management.md`](procedure-identity-management.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ Applies to all user identities, service accounts, and machine identities across 
 
 ---
 
-## Roles and Responsibilities
+## Roles and responsibilities
 
 | Role | Responsibility |
 | --- | --- |
@@ -40,7 +40,7 @@ Applies to all user identities, service accounts, and machine identities across 
 
 ---
 
-## 1. Identity Creation
+## 1. Identity creation
 
 1.1 Identity creation is triggered by the approved onboarding workflow initiated by HR or People Operations.
 
@@ -62,7 +62,7 @@ Applies to all user identities, service accounts, and machine identities across 
 
 ---
 
-## 2. Authentication Standards
+## 2. Authentication standards
 
 2.1 Multi-factor authentication (MFA) is mandatory for:
 - All cloud platform and cloud application access.
@@ -83,7 +83,7 @@ Applies to all user identities, service accounts, and machine identities across 
 
 ---
 
-## 3. Privileged Identity Management
+## 3. Privileged identity management
 
 3.1 Privileged identities (domain admin, cloud admin, root, sudo, security platform admin) are managed through the Privileged Identity Management (PIM) system.
 
@@ -100,7 +100,7 @@ Applies to all user identities, service accounts, and machine identities across 
 
 ---
 
-## 4. Identity Maintenance
+## 4. Identity maintenance
 
 4.1 Identity attributes (role, department, manager) are maintained by HR and updated within 1 business day of change.
 
@@ -112,7 +112,7 @@ Applies to all user identities, service accounts, and machine identities across 
 
 ---
 
-## 5. Access Certification
+## 5. Access certification
 
 5.1 Access certifications confirm that each identity's access remains appropriate.
 
@@ -127,7 +127,7 @@ Applies to all user identities, service accounts, and machine identities across 
 
 ---
 
-## 6. Identity Termination
+## 6. Identity termination
 
 6.1 Identity termination is triggered by the offboarding workflow.
 
@@ -146,7 +146,7 @@ Applies to all user identities, service accounts, and machine identities across 
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
