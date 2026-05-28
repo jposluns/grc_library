@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Domain README 
 **Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.1.0 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) 
@@ -38,6 +38,13 @@ The `claude-rules/` subdirectory provides a set of draggable CLAUDE.md and rule 
 | Register | Compliance Controls and Gap Register | [`dev-security/register-compliance-controls-and-gap-register.md`](register-compliance-controls-and-gap-register.md) |
 | Standard | Software Composition Analysis Standard | [`dev-security/standard-software-composition-analysis.md`](standard-software-composition-analysis.md) |
 | Guideline | AI Coding Assistant Security Guideline | [`dev-security/guideline-ai-coding-assistant-security.md`](guideline-ai-coding-assistant-security.md) |
+| Standard | API Security Standard | [`dev-security/standard-api-security.md`](standard-api-security.md) |
+| Standard | Container and Image Security Standard | [`dev-security/standard-container-and-image-security.md`](standard-container-and-image-security.md) |
+| Standard | Mobile Application Security Standard | [`dev-security/standard-mobile-application-security.md`](standard-mobile-application-security.md) |
+| Procedure | Secure Code Review Procedure | [`dev-security/procedure-secure-code-review.md`](procedure-secure-code-review.md) |
+| Standard | AWS Cloud Hardening Baseline Standard | [`dev-security/standard-cloud-hardening-baseline-aws.md`](standard-cloud-hardening-baseline-aws.md) |
+| Standard | Azure Cloud Hardening Baseline Standard | [`dev-security/standard-cloud-hardening-baseline-azure.md`](standard-cloud-hardening-baseline-azure.md) |
+| Standard | Google Cloud Platform Hardening Baseline Standard | [`dev-security/standard-cloud-hardening-baseline-gcp.md`](standard-cloud-hardening-baseline-gcp.md) |
 
 ---
 
@@ -103,12 +110,7 @@ This domain draws on and references the following external projects. These refer
 
 ## Planned expansion
 
-- Mobile application security standard
 - Java EE / Jakarta EE security standard
-- API security and lifecycle management standard
-- Secure code review procedure
-- Container and image registry security standard
-- Cloud platform hardening baselines (per cloud provider)
 
 ### Claude-rules/ (draggable claude code rule files)
 
