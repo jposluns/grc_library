@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register 
 **Document Type:** Register 
-**Version:** 1.19.0 
+**Version:** 1.20.0 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -196,6 +196,9 @@ All active repository documents should be Public.
 | Governance | Procedure | Continuous Improvement Register Procedure | [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md) | GRC Programme Manager | Annual | ISO 9001 §10.3, ISO 27001 §10.2, ISO 42001 §10, COBIT MEA01/APO11 |
 | Governance | Procedure | Whistleblower and Incident Reporting Procedure | [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md) | Chief Compliance Officer | Annual | ISO 37001 §8.9, ISO 37301 §8.9, EU Whistleblowing Directive 2019/1937, GDPR Art 33 |
 | Governance | Guideline | ESG and AI Ethics Disclosure Guideline | [`governance/guideline-esg-and-ai-ethics-disclosure.md`](guideline-esg-and-ai-ethics-disclosure.md) | Chief Information Officer | Annual | GRI Standards, TCFD, OECD AI Principles, ISO 42001 §9, EU AI Act Arts 13/50 |
+| Governance | Procedure | Library Quality and Review Cadence Procedure | [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md) | Governance Library Maintainer | Annual | ISO 27001 A.5.36/A.5.37, ISO 9001 §7.5/§9, COBIT 2025 APO01, ITIL 4 continual improvement, ISO 42001 §9/§10, NIST CSF 2.0 |
+| Governance | Register | Document Review Schedule Register | [`governance/register-document-review-schedule.md`](register-document-review-schedule.md) | Governance Library Maintainer | Continuous | ISO 9001 §7.5.2/§7.5.3, ISO 27001 A.5.36/A.5.37, COBIT 2025 APO01, ITIL 4, ISO 30301, ISO 42001 §7.5/§9 |
+| Governance | Template | Document Review Record Template | [`governance/template-document-review-record.md`](template-document-review-record.md) | Governance Library Maintainer | Annual | ISO 9001 §7.5/§9.3, ISO 27001 A.5.35/A.5.36/A.5.37, ISO 19011:2018, ISO 30301, ISO 42001 §9.3, COBIT 2025 MEA02, ITIL 4 |
 | Risk | Procedure | Risk Assessment Methodology Procedure | [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md) | GRC Programme Manager | Annual | ISO 31000:2018, ISO 27005:2022, ISO 42001 §6, NIST SP 800-30r1, COBIT APO12 |
 | Compliance | Procedure | Control Testing Procedure | [`compliance/procedure-control-testing.md`](../compliance/procedure-control-testing.md) | Chief Compliance Officer | Annual | ISO 27001 §9.1, ISO 19011:2018, NIST SP 800-53A, COBIT MEA01 |
 | Security | Policy | Acceptance Into Service Policy | [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md) | Chief Information Officer | Annual | ISO 42001 §8, NIST SP 800-37 RMF Step 6, COBIT BAI07, CSA CCM AIS-01 |

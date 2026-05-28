@@ -23,13 +23,16 @@ Thank you for considering a contribution. This library is released under CC0 1.0
 
 1. **Open an issue first** if the change is non-trivial (a new document, a new section, a structural change to the index). Use the issue to agree the scope before authoring.
 2. **Fork or branch.** Develop your change on a feature branch named after the work, for example `add-fedramp-annex` or `fix-sop-references`.
-3. **Run the local audits before committing.** All four must pass.
+3. **Run the local audits before committing.** All must pass.
 
    ```
    python3 tools/lint-metadata.py
    python3 tools/lint-language.py
    python3 tools/lint-links.py
    python3 tools/lint-structure.py
+   python3 tools/check-review-cadence.py
+   python3 tools/build-taxonomy.py --check
+   python3 tools/build-portal.py --check
    ```
 
    Optionally install pre-commit to run the audits automatically:

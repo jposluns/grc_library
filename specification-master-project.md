@@ -2,7 +2,7 @@
 
 **Document Title:** Master Project Specification 
 **Document Type:** Specification 
-**Version:** 1.2.3 
+**Version:** 1.2.4 
 **Date:** 2026-05-28 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Chief Risk Officer 
@@ -94,6 +94,7 @@ Top-level structure for governance artefacts:
 /risk/
 /dev-security/
 /operations/
+/architecture/
 ```
 
 Repository infrastructure directories and files that are not used for governance artefacts but are part of the repository:
