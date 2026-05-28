@@ -14,11 +14,7 @@ This file is informational and is not subject to the library's metadata-block, a
 
 ## Priority 2 — consistency and structural improvements
 
-### 2.1 Related-Documents reciprocity check
-
-Extend `tools/lint-structure.py` (or add a new linter) to verify that if document A's Related Documents lists B, then B's Related Documents lists A (or B explicitly marks A as a one-way reference). Catches the half-updated cross-reference state that accumulates across phases.
-
-### 2.2 Library-level versioning policy
+### 2.1 Library-level versioning policy
 
 Currently each document carries its own version; the library as a whole has no declared version scheme. Pick and document one in `specification-master-project.md`:
 - CalVer (e.g., `2026.05`) — by year and month, simple
@@ -27,7 +23,7 @@ Currently each document carries its own version; the library as a whole has no d
 
 Strategic value: lets adopters say "we adopted GRC Library 2026.05" rather than "as of commit 9cea9d1".
 
-### 2.3 Filename ↔ Document Title alignment audit
+### 2.2 Filename ↔ Document Title alignment audit
 
 New linter that warns when a file's filename (after the doctype prefix) and its Document Title diverge significantly. Catches cases like `annex-aeo-s-it-cybersecurity-requirements.md` with title `UK AEO-S IT and Cybersecurity Security Requirements` (the "Security Security" mistake we caught manually in Phase 20.1). Not strictly enforceable but useful as a warning.
 
@@ -173,6 +169,22 @@ Current matrix covers major frameworks; could expand coverage to additional sect
 Items requiring user decision or external dependency before becoming actionable.
 
 - *(none currently)*
+
+---
+
+## Decisions log
+
+Items considered and explicitly dropped, with rationale. Recorded here so the reasoning is preserved if the question recurs.
+
+### Phase 21.4 (2026-05-28): Strict Related-Documents reciprocity dropped
+
+Original plan: add a linter enforcing that if document A's Related Documents lists B, then B's Related Documents lists A. Empirical run found 1,269 non-reciprocal references across 266 of 280 active documents.
+
+The library's actual convention is **asymmetric** Related Documents: each document lists "what this document consumes / relates to from its own perspective", not "the complete bidirectional graph". This is a reasonable, content-author-friendly convention.
+
+The underlying concern (catching half-updated cross-references during refactors) is already covered by `lint-links.py` (broken-link detection).
+
+Decision: dropped. Not pursued in narrower form (doctype-pair rules) because the marginal value over `lint-links.py` does not justify the maintenance cost of a curated rule set with many exemptions.
 
 ---
 

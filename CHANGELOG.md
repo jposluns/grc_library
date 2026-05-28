@@ -4,6 +4,30 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 21.4 (2026-05-28): Related-Documents reciprocity rule considered and dropped
+
+Fourth sub-phase of Phase 21 (foundations before content expansion). A draft reciprocity linter was implemented and empirically tested against the library; the test revealed 1,269 non-reciprocal Related-Documents references across 266 of 280 active documents.
+
+### Finding
+
+The library's actual convention is **asymmetric** Related Documents: each document lists "what this document consumes / relates to from its own perspective", not "the complete bidirectional graph". Authors curate Related Documents to be useful to a reader of that document, not to satisfy graph symmetry. This is a reasonable convention.
+
+### Decision
+
+The strict-reciprocity rule was dropped. Three reasons:
+
+1. The convention is established and reasonable; enforcing strict reciprocity would require either rewriting 1,269 cross-references (mostly noise) or adopting an exemption-marker mechanism on every legitimately one-way reference (also extensive).
+2. The underlying concern (catching half-updated cross-references during refactors) is already covered by `lint-links.py` (broken-link detection), which would catch the kind of file-rename mishap that drove this proposal.
+3. A narrower doctype-pair rule (Framework↔Standard, Policy↔Standard, Charter↔Framework) was considered but rejected: the marginal value over `lint-links.py` does not justify the maintenance cost of a curated rule set with many exemptions.
+
+### Recorded in TODO
+
+The decision is also recorded in a new `## Decisions log` section in `TODO.md` so the rationale is preserved if the question recurs.
+
+### Result
+
+No linter added. No code changes other than the TODO and CHANGELOG entries. Priority 2 list renumbered: former 2.2 (library-level versioning) becomes 2.1; former 2.3 (filename/title alignment) becomes 2.2.
+
 ## Phase 21.3 (2026-05-28): Standards-currency checker and canonical citations register
 
 Third sub-phase of Phase 21 (foundations before content expansion). Introduces a positive-list catalogue of canonical standards citations and a new linter that detects stale references against it. Resolves the highest-leverage consistency risk identified during Phase 20 review: standards citations drifting as new versions are published.
