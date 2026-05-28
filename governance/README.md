@@ -2,7 +2,7 @@
 
 **Document Title:** Governance Domain README 
 **Document Type:** Register 
-**Version:** 1.0.2 
+**Version:** 1.0.3 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -33,6 +33,7 @@ This directory contains the enterprise-wide governance foundation of the GRC Doc
 | Framework | Metrics, Monitoring and Performance Reporting Framework | [`governance/framework-metrics-monitoring-and-performance-reporting.md`](framework-metrics-monitoring-and-performance-reporting.md) |
 | Policy | Exception and Risk Acceptance Management Policy | [`governance/policy-exception-and-risk-acceptance-management.md`](policy-exception-and-risk-acceptance-management.md) |
 | Matrix | Cross-Framework Alignment Matrix | [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md) |
+| Matrix | Reverse Framework Control Crosswalk Matrix | [`governance/matrix-reverse-framework-control-crosswalk.md`](matrix-reverse-framework-control-crosswalk.md) |
 | Register | Document Index and Classification Register | [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md) |
 | Register | Role Authority Register | [`governance/register-role-authority.md`](register-role-authority.md) |
 | Register | Key Terms and Definitions Register | [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md) |

@@ -35,3 +35,10 @@ repos:
         language: system
         pass_filenames: false
         types: [markdown]
+
+      - id: taxonomy-in-sync
+        name: Machine-readable taxonomy in sync
+        entry: python3 tools/build-taxonomy.py --check
+        language: system
+        pass_filenames: false
+        types: [markdown]

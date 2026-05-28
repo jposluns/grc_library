@@ -30,3 +30,6 @@ jobs:
 
       - name: Structural index integrity audit
         run: python3 tools/lint-structure.py
+
+      - name: Machine-readable taxonomy in sync
+        run: python3 tools/build-taxonomy.py --check

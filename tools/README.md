@@ -10,6 +10,7 @@ This directory contains repository quality tooling. The scripts are intentionall
 | `lint-language.py` | Audits em and en dashes, British `-ise` endings, bare `ensure` or `ensures` without `that`, sentence-case heading rule (H2 to H6), and leaked sanitisation-table source terms outside the ingestion specification. Skips fenced code blocks and the specs' own rule statements. |
 | `lint-links.py` | Validates that every relative markdown link target inside the repository resolves to a file that exists. External links (http, https, mailto, tel, ftp) and fragment-only anchors are ignored. Skips fenced code blocks. |
 | `lint-structure.py` | Asserts that every active markdown file appears in its domain README's Active Documents table and in `governance/register-document-index-and-classification.md`, and that every reference in those tables points to a file that exists. |
+| `build-taxonomy.py` | Generates the machine-readable `taxonomy.yml` registry from the canonical metadata block of every active artefact. Running with `--check` asserts the on-disk taxonomy is in sync with current document metadata; suitable for CI and pre-commit. |
 
 ## Running
 
@@ -20,12 +21,19 @@ python3 tools/lint-metadata.py
 python3 tools/lint-language.py
 python3 tools/lint-links.py
 python3 tools/lint-structure.py
+python3 tools/build-taxonomy.py --check
 ```
 
-Each script prints `OK: ...` on a clean run and exits zero. On findings it prints a grouped report and exits one. Optionally pass file or directory paths to restrict scope:
+Each script prints `OK: ...` on a clean run and exits zero. On findings it prints a grouped report and exits one. Optionally pass file or directory paths to restrict the lint scripts' scope:
 
 ```
 python3 tools/lint-language.py ai security
+```
+
+To regenerate the taxonomy after editing artefact metadata, run without `--check`:
+
+```
+python3 tools/build-taxonomy.py
 ```
 
 ## Pre-commit integration
