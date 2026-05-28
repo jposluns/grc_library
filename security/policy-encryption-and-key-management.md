@@ -129,7 +129,7 @@ Trade-data decryption keys must remain under organizational or BASC-validated cu
 
 ### 5.3 Violations
 
-Unauthorised decryption, key export, or sharing constitutes a Critical BASC Violation and triggers investigation under the Incident Response Procedure.
+Unauthorized decryption, key export, or sharing constitutes a Critical BASC Violation and triggers investigation under the Incident Response Procedure.
 
 ---
 

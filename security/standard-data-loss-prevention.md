@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This standard defines the governance, architecture, and technical controls for the Data Loss Prevention (DLP) programme. It establishes how the organization detects, monitors, and prevents unauthorised disclosure, transfer, or loss of data across all platforms. It ensures that consistent protection of sensitive data in use, at rest, and in motion in accordance with the Data Classification Model.
+This standard defines the governance, architecture, and technical controls for the Data Loss Prevention (DLP) programme. It establishes how the organization detects, monitors, and prevents unauthorized disclosure, transfer, or loss of data across all platforms. It ensures that consistent protection of sensitive data in use, at rest, and in motion in accordance with the Data Classification Model.
 
 ---
 

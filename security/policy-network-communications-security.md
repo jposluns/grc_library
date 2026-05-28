@@ -88,9 +88,9 @@ It establishes requirements for network segmentation, firewall configuration, in
 3.2 SOC must investigate alerts within 15 minutes for high-severity and 1 hour for medium-severity events.
 
 3.3 BASC logistics and customs networks must have dedicated intrusion-detection sensors that monitor for:
-- Unauthorised customs system access.
+- Unauthorized customs system access.
 - Cargo manifest tampering.
-- Unauthorised network segmentation bypass attempts.
+- Unauthorized network segmentation bypass attempts.
 
 3.4 All BASC intrusion logs shall be retained for at least seven years and stored in tamper-evident archives.
 

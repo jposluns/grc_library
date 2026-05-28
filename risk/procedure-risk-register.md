@@ -63,7 +63,7 @@ This procedure defines how risks are recorded, maintained, reviewed, escalated, 
 
 ## Quality rules
 
-Risk statements must be specific enough to support decision-making. “Cyber risk exists” is not a risk statement; it is the sort of fog bank that turns governance into theatre. A usable risk statement identifies cause, event, impact, and affected objective.
+Risk statements must be specific enough to support decision-making. "Cyber risk exists" is not a risk statement; it is the sort of fog bank that turns governance into theatre. A usable risk statement identifies cause, event, impact, and affected objective.
 
 ---
 

@@ -46,7 +46,7 @@ Authorized users may use systems and devices for work purposes. Incidental perso
 The following activities are prohibited on company systems, devices, and networks:
 
 1. Accessing, storing, or transmitting illegal content, including copyright-infringing material, malware, or content prohibited by applicable law.
-2. Installing unauthorised software or applications on company devices without IT approval.
+2. Installing unauthorized software or applications on company devices without IT approval.
 3. Sharing credentials, passwords, or MFA codes with any other person for any reason.
 4. Circumventing or disabling security controls including endpoint protection, MFA, or Conditional Access policies.
 5. Connecting unapproved personal devices or storage media (USB drives, external hard drives) to company systems.

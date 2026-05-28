@@ -71,7 +71,7 @@ CTPAT membership requires organizations to meet Minimum Security Criteria (MSC) 
 |---|---|---|---|---|---|
 | AC-1 | Personnel identification: photo ID badges for all employees | Photo ID programme in place | Badge issuance records | Implemented | |
 | AC-2 | Visitor and vendor access controls: sign-in, escort, identification | Visitor management procedure; sign-in log | Visitor log; escort policy | Implemented | |
-| AC-3 | Challenging and removing unauthorised persons | Policy and training for challenging unidentified individuals | Security training records | Implemented | |
+| AC-3 | Challenging and removing unauthorized persons | Policy and training for challenging unidentified individuals | Security training records | Implemented | |
 
 ---
 

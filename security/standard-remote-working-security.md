@@ -189,7 +189,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 9.1.1 Remote workers must report any of the following events to the IT service desk immediately and in no case later than 1 hour after discovery:
 
 - Loss or theft of a managed device
-- Suspected device compromise (malware, unauthorised access, unusual behaviour)
+- Suspected device compromise (malware, unauthorized access, unusual behaviour)
 - Suspected interception of credentials or data
 - Connection of a managed device to a potentially hostile network without VPN
 

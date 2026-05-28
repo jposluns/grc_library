@@ -132,8 +132,8 @@ The following evidence types can be collected once and reused across multiple pr
 | Priority | Programme | Recommended Sequencing |
 |---|---|---|
 | 1 | CTPAT | Primary US market access; foundational evidence set used by all others |
-| 2 | AEO-S (UK) | UK market access; leverages CTPAT evidence set; HMRC supplements required |
-| 3 | AEO (EU) | EU market access; parallel to AEO-S; leverages same evidence set |
+| 2 | AEO-S (UK) | UK market access; uses the CTPAT evidence set; HMRC supplements required |
+| 3 | AEO (EU) | EU market access; parallel to AEO-S; uses the same evidence set |
 | 4 | PIP (Canada) | Canadian market access; CTPAT mutual recognition supports application |
 | 5 | BASC | Latin American market access; builds on CTPAT and ISO 28000 controls |
 | 6 | NEEC | Mexican market access; CTPAT mutual recognition provides foundation |

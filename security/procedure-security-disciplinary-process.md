@@ -48,7 +48,7 @@ Security violations are classified by severity:
 | --- | --- | --- |
 | **Low** | Unintentional policy breach with no data exposure; failure to complete required training; minor acceptable-use violation | Informal counselling; mandatory training |
 | **Medium** | Intentional policy bypass; sharing credentials; accessing data outside role; failure to report a suspected incident | Formal written warning; additional training; access restriction |
-| **High** | Deliberate data exfiltration; installing unauthorised software that creates material risk; repeated medium violations; failure to report a known breach | Final written warning; suspension; access revocation |
+| **High** | Deliberate data exfiltration; installing unauthorized software that creates material risk; repeated medium violations; failure to report a known breach | Final written warning; suspension; access revocation |
 | **Critical** | Insider threat; sabotage; fraud; criminal conduct; wilful exposure of sensitive data | Summary dismissal; referral to law enforcement; regulatory notification |
 
 ---

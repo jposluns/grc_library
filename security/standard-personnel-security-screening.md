@@ -20,7 +20,7 @@
 
 This standard defines the organization's minimum requirements for personnel security screening. It governs pre-employment background verification for all employees and contractors, with heightened requirements for roles with access to sensitive systems, data, or privileged accounts.
 
-A prior security incident in which a previously active account belonging to a departed individual was exploited underscores the critical importance of robust identity lifecycle controls. Personnel screening is the first preventive layer; it must be paired with rigorous onboarding and offboarding procedures to ensure that access rights accurately reflect current employment status throughout the personnel lifecycle.
+A prior security incident in which a previously active account belonging to a departed individual was exploited underscores the critical importance of sound identity lifecycle controls. Personnel screening is the first preventive layer; it must be paired with rigorous onboarding and offboarding procedures to ensure that access rights accurately reflect current employment status throughout the personnel lifecycle.
 
 This standard supports the Identity and Access Management Policy, the Information Security Policy, and personnel security requirements under CTPAT Minimum Security Criteria and the Canada Partners in Protection (PIP) programme.
 
