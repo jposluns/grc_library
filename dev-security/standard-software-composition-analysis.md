@@ -2,8 +2,8 @@
 
 **Document Title:** Software Composition Analysis Standard 
 **Document Type:** Standard 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.1.0 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`dev-security/README.md`](README.md), [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`dev-security/register-compliance-controls-and-gap-register.md`](register-compliance-controls-and-gap-register.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`supply-chain/standard-third-party-risk.md`](../supply-chain/standard-third-party-risk.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) 
@@ -178,7 +178,6 @@ Findings assessed as not exploitable in context must be documented using a **VEX
 Formal exceptions to SLA timelines must be approved by the CISO and documented in the risk register.
 
 ### 7. AI and machine learning dependencies
-
 SCA controls apply to all ML and AI codebases with the following additional requirements:
 
 | Requirement | Description |
@@ -187,6 +186,27 @@ SCA controls apply to all ML and AI codebases with the following additional requ
 | **Pre-trained model provenance** | Pre-trained models obtained from public repositories (Hugging Face Hub, TensorFlow Hub, etc.) must be verified for provenance: model card review, author verification, checksum validation |
 | **Dataset license review** | Open-source datasets used in training must be reviewed for license compatibility and provenance documentation |
 | **Supply chain risk for LLM APIs** | Third-party LLM API dependencies (model provider libraries, SDK versions) must be assessed for vulnerability using the same SCA process |
+
+---
+
+### 8. Tool acceptance criteria
+
+The SCA programme is tool-agnostic; the requirements above govern what every tool must produce, not which tool to use. When evaluating, selecting, or replacing a tool, apply the following acceptance criteria. The criteria are listed in priority order; a tool that fails a higher-priority criterion is rejected regardless of how well it satisfies lower-priority criteria.
+
+| Criterion | Acceptance requirement | Verification method |
+| --- | --- | --- |
+| Language and ecosystem coverage | Covers every first-party language and package ecosystem in production use, including transitive dependencies | Inventory of in-scope projects mapped against the tool's supported ecosystems |
+| Vulnerability database currency | Vulnerability data refreshed at least daily from authoritative sources (NVD, vendor advisories, language-specific advisory databases) | Tool documentation review plus a sample query for a CVE disclosed within the last seven days |
+| Detection accuracy | False-positive rate measured against a representative repository sample remains below 10% after suppression rules are applied | One-time evaluation harness comparing tool output against a hand-curated baseline |
+| SBOM generation | Produces machine-readable SBOM in CycloneDX or SPDX, including transitive dependencies, hashes, and license fields | Generate an SBOM for a known project and inspect the output against the format specification |
+| CI/CD integration | Native integration with the CI/CD platform in use, with an exit code or annotation that blocks merge on a configurable severity threshold | Run in a pipeline against a known-vulnerable test repository and confirm the pipeline fails |
+| Vulnerability suppression and exception workflow | Permits suppression with reason code, expiry, and audit trail; suppressions surface in reports | Suppress a finding, verify it appears in the suppression register, expire the suppression, confirm the finding returns |
+| VEX support | Permits attaching VEX statements to declare a vulnerability not applicable, with the rationale travelling with the SBOM | Generate a VEX statement and verify it embeds correctly in the produced SBOM |
+| Open-source dependency licensing | Tool license permits the intended use (commercial, internal, redistribution) | License review by Legal |
+| Data residency | Tool processes code or metadata only in jurisdictions consistent with the data residency standard | Tool deployment model review; for SaaS tools, vendor data residency attestation |
+| Cost transparency | Pricing model documented and aligned with the IT financial management standard | Procurement evaluation |
+
+A tool that passes the criteria is documented in the security architecture registry. Tool changes require re-evaluation; the prior tool's findings are migrated and reconciled before the new tool replaces it in the CI/CD pipeline.
 
 ---
 

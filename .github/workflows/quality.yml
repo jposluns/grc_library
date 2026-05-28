@@ -33,3 +33,6 @@ jobs:
 
       - name: Machine-readable taxonomy in sync
         run: python3 tools/build-taxonomy.py --check
+
+      - name: Adopter portal and maturity scorecard in sync
+        run: python3 tools/build-portal.py --check

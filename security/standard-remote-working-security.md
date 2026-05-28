@@ -2,8 +2,8 @@
 
 **Document Title:** Remote Working Security Standard 
 **Document Type:** Standard 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md) 
@@ -175,7 +175,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 - Enrolment in the endpoint management platform (where technically feasible) or equivalent mobile device management
 - Conditional access policy enforcement applied to the personal device
-- Prohibition on local data storage: access must be read-only or via browser-based thin client where possible
+- Prohibition on local data storage: access shall be read-only or via browser-based thin client; any deviation requires CISO approval recorded as an exception in the risk register
 - The CISO approval must be documented, time-limited (maximum 90 days per the exception process in Section 9), and reviewed on renewal
 
 8.4 Personal devices may access Public and Internal data via cloud productivity platform browser interfaces subject to conditional access policy enforcement, without CISO approval, provided no data is downloaded to the personal device.
