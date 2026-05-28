@@ -1,0 +1,650 @@
+# AI and Agentic Development Security Standard
+
+**Document Title:** AI and Agentic Development Security Standard  
+**Document Type:** Standard  
+**Version:** 1.2.0  
+**Date:** 2026-05-27  
+**Owner:** Chief Information Security Officer  
+**Approving Authority:** Governance Library Maintainer  
+**Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md)  
+**Classification:** Public  
+**Category:** AI Governance  
+**Review Frequency:** Annual and upon material AI framework or regulatory change  
+**Repository Path:** [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md)  
+**Confidentiality:** Public  
+**Licence:** CC0 1.0 Universal  
+
+---
+
+## 1. Scope
+
+This standard applies to any system that incorporates:
+
+- LLMs via managed AI inference service, third-party APIs, or self-hosted inference
+- AI chat assistants, copilots, or AI-augmented interfaces
+- AI-generated or AI-assisted code committed to any repository
+- RAG (Retrieval-Augmented Generation) systems and vector database integrations
+- Autonomous or semi-autonomous agents acting on business systems
+- MCP (Model Context Protocol) servers, clients, or tool-calling integrations
+- Workflow automation or integration platform workflows that invoke AI APIs or route on AI-derived outputs
+- AI analytics, scoring, classification, or prediction features in any application
+- AI inference infrastructure, model registries, or prompt repositories
+- Claude Code, GitHub Copilot, or equivalent AI coding tools used in development
+
+This standard does not apply to deterministic rule-based automation without LLM or ML inference.
+
+---
+
+## 2. Threat Model
+
+| Threat | Description |
+| --- | --- |
+| **T-01** Hostile inputs are inevitable | Every AI input surface — user prompts, retrieved documents, webhook payloads, email content in workflow automation — must be treated as potentially adversarially controlled. |
+| **T-02** Retrieved content is untrusted | Documents, emails, database records, and web pages surfaced by RAG pipelines may carry embedded instructions. The retrieval boundary is an injection surface. |
+| **T-03** AI outputs are not trusted inputs | LLM outputs must never be passed directly to shell execution, SQL queries, file operations, or downstream service calls without structural validation. |
+| **T-04** Tool permissions are a privilege escalation surface | Every tool granted to an agent is a potential exfiltration or abuse channel. |
+| **T-05** Agent context is a confidentiality boundary | System prompts, retrieved data, and conversation turns may contain PII, credentials, or Confidential business data. |
+| **T-06** Multi-agent systems compound trust failures | Trust must not propagate implicitly through agent chains. |
+| **T-07** AI-generated code has no inherent quality guarantee | It requires at minimum the same security review as human-written code — and in practice more. |
+| **T-08** Model supply chain is attackable | Third-party model weights, prompt templates, and AI frameworks are supply chain risk vectors equivalent to third-party libraries. |
+| **T-09** Managed AI service isolation is not sufficient | Content filter bypass, token leakage through error messages, and prompt leakage through logging are real risks in managed AI service environments. |
+| **T-10** Regulatory exposure is elevated | AI systems processing personal data trigger applicable privacy legislation obligations. See Privacy Management Programme. |
+
+---
+
+## 3. Trust Zones
+
+| Zone | Trust Level |
+| --- | --- |
+| Human-authored, peer-reviewed code in main/release branch | High |
+| AI-assisted code after human security review | Medium |
+| AI-generated code awaiting review | Untrusted |
+| User-provided prompt input | Untrusted |
+| Retrieved document content (RAG) | Untrusted |
+| LLM output | Untrusted until structurally validated |
+| Third-party model weights | Untrusted until hash-verified |
+| External MCP servers | Untrusted |
+| Agent output passed to another agent | Untrusted |
+
+Enforcement points: input validation before inference; output validation before action; tool authorization per agent role; session-scoped context isolation.
+
+---
+
+## 4. Security Architecture Principles
+
+| ID | Principle |
+| --- | --- |
+| P-01 | AI components are untrusted subsystems. They must not have direct write access to production data, infrastructure configuration, or security controls. |
+| P-02 | Validate at every boundary. Input validation at the API gateway does not substitute for output validation before tool execution. |
+| P-03 | Require structured outputs for action-bearing responses. Validate against JSON Schema before acting. Never parse free text with regex to extract action parameters. |
+| P-04 | Tool access is explicit allow-list only. Define exactly which tools each agent role may invoke. Everything else is denied. |
+| P-05 | Human approval is mandatory for irreversible actions. Sending email, modifying production records, financial transactions, infrastructure changes, data deletion — all require human confirmation. No exception. |
+| P-06 | Fail closed on AI errors. Malformed response or validation failure means deny the action, not fall through to a permissive default. |
+| P-07 | Observability is a security control. Every inference call, tool invocation, and agent action must produce a structured audit event. |
+| P-08 | Secrets never enter inference context. Credentials, API keys, and PII must not appear in system prompts, user turns, retrieved context, or tool call parameters. |
+
+---
+
+## 5. Secure-by-Default Requirements
+
+| Parameter | Required Default |
+| --- | --- |
+| LLM temperature | ≤ 0.3 for action-bearing agents; ≤ 0.7 for assistants |
+| Tool access | None; explicitly granted per agent role |
+| Agent internet egress | Blocked; explicitly allow-listed per endpoint |
+| Context persistence | Session-scoped; no cross-session memory |
+| Model output | Treated as Untrusted until validated |
+| RAG retrieval | Source attribution required |
+| AI content filtering | Strictest available setting; documented exception required to loosen |
+| Inference call logging | Enabled; request hash, response hash, token count, tool calls |
+| PII in prompts | Blocked; requires data handling justification |
+| AI-generated code in CI | Flagged for security review; does not auto-merge |
+
+---
+
+## 6. Threat Classes
+
+| Class | Description |
+| --- | --- |
+| **TC-01** Prompt Injection | Direct injection via user input overriding system prompt directives. Indirect injection via retrieved documents, email content, or database records containing embedded instructions. Hidden channels via unicode characters, HTML comments, or metadata fields. |
+| **TC-02** RAG Poisoning | Attacker-controlled documents ingested into the vector store, including embedding poisoning — crafted documents achieving high similarity scores to displace legitimate context. |
+| **TC-03** Context Contamination and Replay | Prior conversation context or retrieved content from one session leaking into another. Attacker-controlled content from an earlier turn persisted to affect later interactions. |
+| **TC-04** Tool Misuse and Agent Overreach | Legitimate tools used unintendedly — bulk record extraction via a read tool, exfiltration via a send tool. Autonomous execution of shell commands, infrastructure changes, or production modifications without human approval. |
+| **TC-05** Unsafe Code Generation | AI-generated code introducing SQL injection, hardcoded secrets, deprecated cryptography, path traversal, or SSRF. Hallucinated dependency names creating typosquatting risk. |
+| **TC-06** Supply Chain Compromise | Backdoored model weights, compromised prompt templates, malicious fine-tuning datasets, compromised AI framework packages. |
+| **TC-07** Credential and Secret Exfiltration | System prompts containing credentials leaked via injection or verbose error messages. Token leakage through API error responses. Sensitive content captured in logs. |
+| **TC-08** Agent Privilege Escalation and Chain Compromise | A limited-permission agent calling a higher-privilege agent and inducing elevated permissions through crafted payloads. Compromised downstream agent injecting instructions into its response. |
+| **TC-09** MCP-Specific Threats | Tool poisoning via false tool descriptions. Context contamination through MCP tool results. Permission escalation via over-scoped MCP server access. |
+| **TC-10** Hallucinated Security Controls | AI-generated code that appears to implement a security control but does not — HMAC verification that skips signature checking, JWT validation that ignores expiry. |
+| **TC-11** Memory Poisoning | Injected summarisation introducing false information into persistent memory. Cross-session memory contamination where one user's data affects another user's memory context. |
+
+---
+
+## 7. Mandatory Input and Output Controls
+
+**AI-SEC-INP-01:** All user-supplied text must pass through an AI content safety prompt shield service before reaching the LLM.
+
+**AI-SEC-INP-02:** System prompts and user turns must use the API's native role separation. Never concatenate system instructions and user input into a single string.
+
+**AI-SEC-INP-03:** Retrieved content must be presented in explicitly delimited context blocks framed as untrusted external data, not instructions. See the AI Security Technical Implementation Guide for the required template.
+
+**AI-SEC-INP-04:** Maximum token budget for user input must be enforced at the application layer.
+
+**AI-SEC-INP-05:** PII detection must run on all user inputs before logging. Detected PII must be masked before writing to any log system.
+
+**AI-SEC-OUT-01:** LLM output driving a tool call, API call, database operation, or file operation must be validated against a JSON Schema before the action executes. Schema failure results in action denial and a security event log.
+
+**AI-SEC-OUT-02:** LLM output must not be passed to eval(), exec(), subprocess, os.system(), or shell execution equivalents in any language.
+
+**AI-SEC-OUT-03:** LLM output rendered in a web interface must be HTML-escaped. dangerouslySetInnerHTML, innerHTML, and equivalents with unescaped LLM output are prohibited.
+
+**AI-SEC-OUT-04:** LLM outputs containing email addresses, URLs, or file paths must be validated against allow-lists before use in downstream operations.
+
+---
+
+## 8. Prohibited Engineering Patterns
+
+Absolute prohibitions. No exception without written CIO/CISO approval.
+
+| # | Prohibited | Risk |
+| --- | --- | --- |
+| P-01 | LLM output passed directly to shell execution (subprocess, eval, exec, os.system) | Arbitrary code execution |
+| P-02 | Production credentials, API keys, or secrets in any prompt | Credential exfiltration |
+| P-03 | Agent direct write access to production databases without human approval gate | Uncontrolled data modification |
+| P-04 | AI-generated infrastructure code deployed without human security review | Misconfigured cloud resources |
+| P-05 | AI-generated code in auth, cryptography, or access control paths without security review | Hallucinated security controls |
+| P-06 | LLM conversation context persisted across user sessions without explicit consent | Context contamination, privacy breach |
+| P-07 | Unsigned or unverified model weights in any system | Supply chain compromise |
+| P-08 | Third-party MCP servers without security team review and approval | Tool poisoning |
+| P-09 | Agent internet egress without explicit endpoint allow-list | Data exfiltration |
+| P-10 | AI-generated SQL queries without parameterization | SQL injection |
+| P-11 | Full prompt content including retrieved documents logged without PII masking | Sensitive data in logs |
+| P-12 | Agent permissions exceeding those of a human user in the same role | Privilege escalation |
+| P-13 | Irreversible actions executed without human approval | Unrecoverable production damage |
+| P-14 | trust_remote_code=True when loading model weights | Arbitrary code execution at load time |
+| P-15 | LLM output as innerHTML or dangerouslySetInnerHTML | XSS via AI-generated content |
+| P-16 | Confidential or Restricted data sent to external AI services without a data processing agreement and CIO approval | Privacy breach, regulatory violation |
+| P-17 | Multi-agent systems where downstream agents implicitly trust upstream agent output | Agent chain compromise |
+| P-18 | Prompt templates hardcoded in application code without version control | Untracked prompt modification |
+| P-19 | AI-suggested dependency names used without registry verification | Dependency confusion / typosquatting |
+| P-20 | AI content safety filters disabled without documented exception and CIO/CISO approval | Jailbreak exposure |
+
+---
+
+## 9. AI-Assisted Development Controls
+
+### Approved Tools
+
+Approved AI coding tools:
+
+- **Claude Code** — for development sessions with appropriate secure coding rule files deployed
+- **GitHub Copilot** — within the approved organization and tier
+
+Use of other AI coding tools, including public web interfaces, to generate code for production systems requires CIO approval.
+
+### Secure Coding Rules Deployment
+
+The TikiTribe claude-secure-coding-rules repository is the approved Claude Code rules framework. Relevant CLAUDE.md rule files must be deployed in the project's `.claude/` directory before development begins.
+
+| Project Type | Required Rule Files |
+| --- | --- |
+| Any project with user-facing interfaces | `rules/_core/owasp-2025.md` |
+| Any project incorporating AI/LLM features | `rules/_core/ai-security.md` |
+| Any project with agentic behaviour | `rules/_core/agent-security.md` |
+| Any project with RAG | `rules/_core/rag-security.md` |
+| Any project using MCP tools | `rules/_core/mcp-security.md` |
+| Python workloads | `rules/languages/python/CLAUDE.md` |
+| TypeScript/React workloads | `rules/languages/typescript/CLAUDE.md` + `rules/frontend/react/CLAUDE.md` |
+| .NET workloads | `rules/languages/csharp/CLAUDE.md` |
+| FastAPI backends | `rules/backend/fastapi/CLAUDE.md` |
+
+Rule deployment is verified in CI. Builds fail if required rule files are absent when AI-generated code is detected in the commit.
+
+### AI-Generated Code Requirements
+
+**DEVSEC-AI-01:** All AI-generated code must include AI attribution disclosure in the commit message or inline comment identifying the tool and model version.
+
+**DEVSEC-AI-02:** AI-generated code passes the same CI/CD security gates as human-written code. No exemptions.
+
+**DEVSEC-AI-03:** The following code paths require explicit human security review regardless of origin: authentication and session management; authorisation and access control logic; cryptographic operations; input validation and sanitization; database queries and ORM operations; API key and secret handling; infrastructure-as-code; CI/CD pipeline definitions; agent tool definitions and permission grants.
+
+**DEVSEC-AI-04:** AI-suggested dependency names must be verified to exist in approved package registries before installation.
+
+**DEVSEC-AI-05:** AI-generated IaC must pass Checkov or tfsec with no Critical findings before deployment.
+
+**DEVSEC-AI-06:** No AI-generated code deploys to production until it passes the production onboarding security checklist gate.
+
+### Engineering Coding Standards (AI Modules)
+
+| Requirement | Standard |
+| --- | --- |
+| Unit test coverage | ≥ 85% for all AI-enabled modules |
+| SAST | OWASP-aligned (Bandit, Semgrep) mandatory per commit |
+| Schema validation | Pydantic (Python) or Zod (TypeScript) on all AI API inputs |
+| Dependency management | All AI dependencies pinned, hash-verified, CVE-scanned weekly |
+| Structured logging | All agent actions emit structured JSON logs with trace_id, agent_id, action, result |
+| AI code review | All AI code PRs require peer review plus one security reviewer |
+| Secrets management | Secrets stored in secrets management service; never in code |
+| Security testing | SAST and DAST reports required for every production release |
+| Observability | Distributed tracing on every agent run |
+| SLOs | Latency and availability thresholds defined for all AI services |
+
+---
+
+## 10. Agent Security Requirements
+
+**AGENT-SEC-01:** Each agent must operate under a dedicated, scoped identity. Agents use managed identity or a dedicated service principal with minimum required RBAC. Shared agent identities are prohibited.
+
+**AGENT-SEC-02:** Agent tool permissions are defined as explicit allow-lists in version-controlled configuration. Permissions embedded in system prompts do not count.
+
+**AGENT-SEC-03:** Agents must not modify their own permission grants. Permission changes require a separate privileged process with human approval.
+
+**AGENT-SEC-04:** In multi-agent systems, each called agent must independently authenticate the caller and validate parameters against its own policy. Trust is not inherited.
+
+**AGENT-SEC-05:** Every tool must have an explicit schema defining allowed parameter ranges and formats. Tool calls violating the schema are rejected before execution.
+
+**AGENT-SEC-06:** Tools that perform write operations require human confirmation before execution unless explicitly classified as low-risk and reversible in the agent's governance documentation.
+
+**AGENT-SEC-07:** Tool invocation rate limits must be enforced per agent per tool. Limit breaches generate a SIEM alert.
+
+**AGENT-SEC-08:** Tool responses are treated as Untrusted input and validated before being passed back into agent context.
+
+**AGENT-SEC-09:** Email-sending tools must restrict recipient fields to an approved domain allow-list enforced at the tool layer, not in the system prompt.
+
+**AGENT-SEC-10:** Database tools use read-only connections by default. Write access requires explicit elevation, documented justification, and human approval per write action.
+
+**AGENT-SEC-11:** Agents must classify every proposed action as Read, Write, Send, Execute, or Deploy. Write, Send, Execute, and Deploy require human approval unless pre-approved and documented.
+
+**AGENT-SEC-12:** A maximum autonomous action chain length must be defined per agent in its governance documentation. Reaching the limit halts the agent and requests human input.
+
+**AGENT-SEC-13:** Agents must not spawn additional agent instances, modify their own configuration, or extend their own permissions during a session.
+
+**AGENT-SEC-14:** Code-executing agents must run in an isolated sandbox with no network access except to explicitly allow-listed endpoints and no persistence between sessions.
+
+---
+
+## 11. RAG Security Requirements
+
+**RAG-SEC-01:** Documents may only be ingested from approved source systems. Ingestion from arbitrary sources is prohibited.
+
+**RAG-SEC-02:** Documents must be scanned at ingestion for injection patterns and PII. Documents containing detected injection patterns must be quarantined.
+
+**RAG-SEC-03:** A SHA-256 hash of each ingested document must be stored alongside the vector embeddings to support tampering detection.
+
+**RAG-SEC-04:** Vector store namespaces must be isolated by data classification. Confidential content must not be retrievable in contexts authorized only for Internal.
+
+**RAG-SEC-05:** Retrieved chunks must carry source attribution metadata (document ID, source system, ingestion timestamp, hash).
+
+**RAG-SEC-06:** Retrieval must be bounded. Maximum result count and similarity threshold must be enforced.
+
+**RAG-SEC-07:** Retrieved chunks must be scanned for injection patterns at retrieval time, not only at ingestion time.
+
+**RAG-SEC-08:** Documents modified since ingestion (detected by hash comparison) must not be used until re-ingested and re-validated.
+
+**RAG-SEC-09:** Cloud vector search services must use enterprise identity provider RBAC. API key authentication must be disabled in production. Private endpoint required.
+
+---
+
+## 12. MCP Security Requirements
+
+**MCP-SEC-01:** Only organization-controlled MCP servers are permitted in production. Third-party MCP servers require security team review before any integration.
+
+**MCP-SEC-02:** MCP server tool manifests must be signed and version-controlled. The client must verify signatures before trusting tool descriptions.
+
+**MCP-SEC-03:** MCP servers must authenticate all client connections. No anonymous MCP connections in production.
+
+**MCP-SEC-04:** MCP servers must implement per-tool RBAC. Server-level authentication does not grant access to all tools.
+
+**MCP-SEC-05:** MCP tool results must be sanitized before return. Tool results are treated as Untrusted input.
+
+**MCP-SEC-06:** All MCP server access must be logged to the SIEM with tool name, calling identity, parameter hash, and result status.
+
+**MCP-SEC-07:** The number of MCP tools available in any given agent session must be the minimum required for the task.
+
+---
+
+## 13. Prompt Security Requirements
+
+**PROMPT-SEC-01:** System prompts must be stored in a version-controlled prompt registry or secrets management service with versioning. Changes are tracked and approved as code changes.
+
+**PROMPT-SEC-02:** System prompts must include explicit statements of what the agent may and may not do, including an explicit instruction for handling override attempts.
+
+**PROMPT-SEC-03:** Prompt templates inserting user input or retrieved content must use structural delimiter patterns separating instruction context from data context. See the AI Security Technical Implementation Guide for required templates.
+
+**PROMPT-SEC-04:** System prompts must not contain secrets, credentials, internal hostnames, or data classified above Internal.
+
+**PROMPT-SEC-05:** Every production system prompt must have a corresponding prompt test suite covering functional correctness, injection resistance, boundary conditions, and adversarial inputs.
+
+**PROMPT-SEC-06:** Prompt test suites run in CI on every change. A system prompt change causing regression in injection resistance tests is rejected.
+
+---
+
+## 14. Context Isolation Requirements
+
+**CTX-ISO-01:** Each user session must have a dedicated, isolated context buffer enforced at the application layer.
+
+**CTX-ISO-02:** Multi-tenant AI deployments must enforce tenant isolation at the infrastructure layer. Prompt-only isolation is insufficient and prohibited as the sole isolation mechanism.
+
+**CTX-ISO-03:** Context windows are bounded by both token count and time-to-live. Unbounded context accumulation is prohibited.
+
+**CTX-ISO-04:** Context that includes retrieved documents must tag each chunk with source identifier, sensitivity classification, and retrieval timestamp.
+
+---
+
+## 15. Memory Security Requirements
+
+**MEM-SEC-01:** Persistent cross-session memory is prohibited by default. Enabling it requires design approval and a Privacy Impact Assessment. See Privacy Management Programme.
+
+**MEM-SEC-02:** Where approved, persistent memory must be implemented as explicit, user-visible records with user consent. Users must be able to view, edit, and delete their memory records.
+
+**MEM-SEC-03:** Memory stores must be access-controlled per user identity. Cross-user memory access is prohibited.
+
+**MEM-SEC-04:** Memory content containing Confidential or Restricted data must be encrypted at rest with customer-managed keys and access-logged.
+
+**MEM-SEC-05:** Memory records must have a maximum retention TTL and must be automatically purged on expiry. See Data Retention Schedule for applicable periods.
+
+---
+
+## 16. Runtime Enforcement Controls
+
+**RUNTIME-SEC-01:** All production AI systems must have AI content safety filters enabled. Hate, self-harm, sexual content, violence, jailbreak detection, and indirect attack detection must be active at the highest available sensitivity.
+
+**RUNTIME-SEC-02:** Content safety filter changes are High-risk changes requiring security team approval. Disabling or loosening filters requires CIO/CISO approval.
+
+**RUNTIME-SEC-03:** Content safety block events must be logged to the SIEM with the request hash and block category.
+
+**RUNTIME-SEC-04:** All AI endpoints must implement per-user and per-tenant rate limiting enforced at the API management gateway.
+
+**RUNTIME-SEC-05:** Token budget limits must be enforced per session, per user, and per day.
+
+**RUNTIME-SEC-06:** Anomalous usage must generate SIEM alerts.
+
+---
+
+## 17. Infrastructure Security Requirements
+
+**INFRA-SEC-01:** Containers hosting AI workloads must be network-integrated with egress through a cloud firewall or egress gateway with explicit allow-list rules.
+
+**INFRA-SEC-02:** Container images for AI workloads must be built from approved base images, scanned for vulnerabilities, and stored in the container registry with image signing enabled.
+
+**INFRA-SEC-03:** Managed AI inference service instances must use private endpoints with public network access disabled.
+
+**INFRA-SEC-04:** AI inference service RBAC: application workloads use managed identity with minimum required role. Contributor-level roles are restricted to DevOps pipelines.
+
+**INFRA-SEC-05:** Managed AI inference service diagnostic logs must be forwarded to the SIEM. Token consumption metrics must flow to the application telemetry platform.
+
+**INFRA-SEC-06:** Managed AI inference service model version must be pinned. Automatic model updates must be disabled.
+
+**INFRA-SEC-07:** All AI workload secrets are stored in the secrets management service. Direct environment variable injection is not permitted in production.
+
+**INFRA-SEC-08:** Secrets management service hosting AI workload secrets must have soft-delete and purge protection enabled.
+
+**INFRA-SEC-09:** On-premises servers hosting AI inference workloads are subject to physical access controls including restricted room access, access logging, and environmental monitoring.
+
+---
+
+## 18. AI Supply Chain Security
+
+**SUPPLY-SEC-01:** All AI Python packages must be pinned to specific versions with hash verification. Unpinned AI dependencies are a Critical CI finding.
+
+**SUPPLY-SEC-02:** AI dependencies must be scanned for known CVEs on every build. Critical CVEs block deployment; High CVEs require a tracked exception.
+
+**SUPPLY-SEC-03:** An SBOM must be generated for every production AI workload and stored with the build artifact in SPDX or CycloneDX format.
+
+**SUPPLY-SEC-04:** Models used in production must be sourced from approved providers: managed cloud AI service (approved); open-source via cloud ML platform (approved with security review); self-hosted (require security review and malware scan).
+
+**SUPPLY-SEC-05:** Model artifacts must have a verified provider checksum validated before deployment.
+
+**SUPPLY-SEC-06:** Fine-tuned models must have documented dataset provenance. Training datasets from unvetted external sources require quality and bias review before production use. See Third-Party AI Due Diligence Procedure.
+
+---
+
+## 19. CI/CD Pipeline Controls
+
+Every CI/CD pipeline for AI-enabled systems must include the following gates in addition to the standard DevOps pipeline gates:
+
+| Gate | Tool | Failure Condition |
+| --- | --- | --- |
+| Secret scanning (AI API key patterns) | gitleaks + custom AI patterns | Any secret detected → fail |
+| SAST with AI rules | Semgrep with TikiTribe AI ruleset | Critical or High → fail |
+| Dependency audit | pip-audit or npm audit | Critical CVE → fail; High CVE → fail within 14-day tracked exception |
+| SBOM generation | syft or cdxgen | Must generate and archive every build |
+| Prompt linting | Custom rules or promptfoo | Format violations, missing delimiters, hardcoded secrets → fail |
+| Prompt regression testing | promptfoo | Functional or security regression → fail |
+| Adversarial prompt testing | promptfoo + adversarial test suite | New injection vulnerabilities → fail |
+| Container scanning | Trivy | Critical CVE in base image → fail |
+| IaC scanning | Checkov | Critical AI service misconfiguration → fail |
+| TikiTribe rule verification | Custom CI check | Required rule files absent → fail |
+
+---
+
+## 20. AI Observability and Telemetry
+
+| Event | Required Fields | Destination |
+| --- | --- | --- |
+| Inference request | trace_id, session_id (anonymized), model, deployment, token_count_input, timestamp | Application telemetry platform |
+| Inference response | trace_id, token_count_output, latency_ms, content_filter_result, finish_reason | Application telemetry platform |
+| Tool invocation | trace_id, agent_id, tool_name, parameter_hash (not values), timestamp | SIEM |
+| Tool result | trace_id, tool_name, result_status, result_schema_valid | SIEM |
+| Human approval event | trace_id, agent_id, action_type, approver_id, decision, timestamp | SIEM |
+| Security block | trace_id, block_type, timestamp | SIEM |
+| Context isolation event | session_id, event_type, timestamp | Application telemetry platform |
+
+**OBS-SEC-01:** Full prompt content must not be logged. Log request hash and token count only.
+
+**OBS-SEC-02:** PII detected in prompts or responses must be masked in all log systems before writing.
+
+Log retention per Data Retention Schedule.
+
+---
+
+## 21. Security Testing Requirements
+
+### Pre-Production Gate
+
+- Prompt injection resistance (promptfoo): pass with no open findings
+- Garak vulnerability scan: pass all required probe categories
+- Context isolation verification: confirmed session A cannot access session B data
+- Tool permission scope test: each tool operates within its defined parameter constraints
+- Secret leakage test: system prompt content is not extractable via adversarial input
+- Data classification boundary test: Confidential data not returned in Internal-authorized contexts
+- Human approval gate test: irreversible actions blocked without explicit human confirmation
+
+### Regression Schedule
+
+| Test Type | Frequency | Trigger |
+| --- | --- | --- |
+| Prompt regression (promptfoo functional) | Every PR | Any change to system prompt, model, or tool definitions |
+| Injection resistance (promptfoo security) | Every PR | Any change to system prompt, model, or retrieval pipeline |
+| Garak scan | Pre-release | Model version change, major system prompt change |
+| PyRIT red team | Quarterly | Continuous operation; or major architecture change |
+| Manual penetration test | Annually | Per Penetration Testing and Red Team Standard |
+
+---
+
+## 22. Adversarial Testing Requirements
+
+The adversarial test suite must cover five categories on every system in scope. Required categories and test cases are in the AI Adversarial Test Reference.
+
+**ADTEST-SEC-01:** The test suite must be updated quarterly with new techniques sourced from OWASP GenAI Security Project, MITRE ATLAS, GitHub Security Lab AI research, and internal incident-derived cases.
+
+**ADTEST-SEC-02:** Test cases may not be removed from the suite without CISO approval.
+
+---
+
+## 23. Red Team Requirements
+
+**REDTEAM-SEC-01:** All AI systems handling Confidential data or capable of initiating actions with financial or operational impact must undergo red team evaluation before production go-live and annually thereafter.
+
+**REDTEAM-SEC-02:** Red team scope must include full kill chain exercise, multi-turn attack scenarios, RAG poisoning simulation, tool abuse, context contamination, and agent chain attacks where applicable. See AI Adversarial Test Reference for methodology.
+
+**REDTEAM-SEC-03:** Critical and High red team findings block production deployment until remediated and verified.
+
+**REDTEAM-SEC-04:** Red team tooling must include PyRIT for automated multi-turn attack simulation. Manual testing by a qualified practitioner is required in addition.
+
+---
+
+## 24. Human Approval Boundaries
+
+| Action | Minimum Approval | Reversibility |
+| --- | --- | --- |
+| Send external email | Session supervisor | Low |
+| Modify production database records | Named data owner | Partial |
+| Delete any record or data | Named data owner + security team | None |
+| Create or modify user accounts or permissions | IT administrator | Reversible |
+| Deploy or modify infrastructure | DevOps lead (CIO for production) | Disruptive |
+| Execute code in a production environment | DevOps lead | Partial |
+| Initiate a financial transaction or workflow | Finance approver | Partial |
+| Invoke an external API with real-world effects | Business owner | Varies |
+
+---
+
+## 25. Data Security Requirements
+
+**DATA-SEC-01:** Data entering AI systems must be classified before processing. Restricted-classified data must not be sent to any external AI API.
+
+**DATA-SEC-02:** A Privacy Impact Assessment is mandatory before deploying any AI system that processes personal data in a new way. See Privacy Management Programme.
+
+**DATA-SEC-03:** Data minimization applies. Only the minimum personal data required for the function must be included in AI prompts or retrieval context.
+
+**DATA-SEC-04:** Data residency requirements apply. Managed AI inference services must be deployed in approved cloud regions meeting data residency requirements.
+
+**DATA-SEC-05:** AI systems must not retain input data beyond the session TTL unless explicit data retention authorization exists. See Data Retention Schedule.
+
+---
+
+## 26. Secret Handling Requirements
+
+**SECRET-SEC-01:** Secrets must never appear in prompts, prompt templates, retrieved context, tool call parameters, or any payload sent to an LLM API. Absolute prohibition.
+
+**SECRET-SEC-02:** AI workload secrets are stored in the secrets management service and injected at runtime via managed identity.
+
+**SECRET-SEC-03:** Secret scanning in CI must include custom patterns for AI-specific secret formats: AI inference service subscription-key headers, AI API keys, model provider tokens.
+
+**SECRET-SEC-04:** A secret detected in a prompt, retrieved document, or log file is treated as compromised. Standard rotation procedures apply.
+
+---
+
+## 27. Model Governance Requirements
+
+**MODEL-GOV-01:** Each deployed model must have a Model Registry entry documenting: model name and version, provider, deployment date, use case, data types processed, data residency status, content filter configuration, and approved-for-production status. See AI Risk Register.
+
+**MODEL-GOV-02:** Model version changes in production are High-risk changes per the Production Security Requirements Standard.
+
+**MODEL-GOV-03:** Model performance and behaviour drift must be monitored. Significant output distribution changes must trigger alert and human review.
+
+**MODEL-GOV-04:** For AI systems making or informing decisions affecting individuals, an AI Impact Assessment and Bias and Fairness Assessment are mandatory before production deployment.
+
+**MODEL-GOV-05:** Models processing personal data must have a documented lawful basis under applicable privacy legislation. AI-generated decisions must be explainable to affected individuals on request.
+
+---
+
+## 28. Logging and Audit Requirements
+
+**LOG-SEC-01:** All AI system operations must generate structured JSON audit logs. Minimum required log format is defined in the AI Security Technical Implementation Guide.
+
+**LOG-SEC-02:** AI audit logs must be forwarded to the SIEM. Retention per Logging and Monitoring Standard and Data Retention Schedule.
+
+**LOG-SEC-03:** AI audit logs must be immutable. Delete access is prohibited.
+
+**LOG-SEC-04:** Human approval decision events must be logged with approver identity, action, timestamp, and context hash.
+
+---
+
+## 29. Incident Detection and Response
+
+### AI Incident Indicators
+
+- Confirmed prompt injection: user input or retrieved content successfully overrode system prompt behaviour
+- Unexpected data exfiltration: AI output containing another user's context or above-authorized classification
+- Tool scope escape: agent invoked tool parameters outside defined constraints
+- Human approval gate bypass: agent performed an irreversible action without required approval
+- Content filter circumvention: prohibited content generated despite active filters
+- Autonomous action breach: agent performed an action outside its defined autonomous scope
+
+### AI-Specific IR Additions
+
+When an AI security incident is declared, the following steps apply in addition to the standard Incident Response Procedure:
+
+- Immediately isolate the affected AI endpoint before diagnosing.
+- Preserve conversation logs before any TTL expiry or log rotation.
+- Do not reproduce adversarial inputs against the production system.
+- Assess blast radius: what data was accessible, what tools were available, what actions occurred.
+- Notify the CIO/CISO immediately if the incident involves data exfiltration, tool scope escape, or human approval gate bypass.
+- Add a new adversarial test case derived from the attack before the system returns to production.
+
+---
+
+## 30. Autonomous Action Constraints
+
+**AUTON-SEC-01:** AI systems operate in Supervised Autonomous mode by default. Agents may plan and prepare actions autonomously; consequential execution requires human confirmation.
+
+**AUTON-SEC-02:** The following action categories are permanently classified as requiring human confirmation and cannot be reclassified as autonomous:
+
+- Any action sending data outside the organizational cloud tenant
+- Any action modifying a production database record
+- Any action initiating a financial transaction
+- Any action creating, modifying, or deleting user accounts or permissions
+- Any action triggering external notification to a customer, partner, or regulator
+
+**AUTON-SEC-03:** Actions pre-approved as autonomous must be documented in the agent's governance document, reviewed by the security team, and reassessed quarterly.
+
+---
+
+## 31. Secure Agent Orchestration
+
+**ORCH-SEC-01:** Agent security policies are not inherited through orchestration. The orchestrator may reduce but not expand a called agent's permission set.
+
+**ORCH-SEC-02:** Orchestrator-to-agent communications must be authenticated. An agent must verify the orchestrator's identity before acting on instructions.
+
+**ORCH-SEC-03:** Output from one agent passed to another is treated as Untrusted input by the receiving agent.
+
+**ORCH-SEC-04:** Circular agent invocation patterns are prohibited. Maximum orchestration depth must be defined and enforced.
+
+**ORCH-SEC-05 (Workflow automation):** Workflow automation actions invoking AI inference must authenticate using managed identity. API key authentication requires explicit justification.
+
+**ORCH-SEC-06 (Workflow automation):** Workflow automation actions inserting AI-generated output into database records, document stores, or email must validate AI output against a defined schema before insertion.
+
+**ORCH-SEC-07 (Workflow automation):** AI-generated email content must be reviewed by a human before sending unless the content is classified as low-risk, tightly constrained, and that classification is documented.
+
+---
+
+## 32. Sandbox and Isolation
+
+**SANDBOX-SEC-01:** Agents executing code must do so in isolated sandbox containers with no persistent filesystem access, no network access except to allow-listed endpoints, CPU/memory limits, and maximum execution time limits.
+
+**SANDBOX-SEC-02:** Sandbox containers must not have access to platform credential metadata endpoints.
+
+**SANDBOX-SEC-03:** Sandbox environments must be ephemeral. Fresh sandbox per session. No state between instances.
+
+**SANDBOX-SEC-04:** Sandbox isolation uses separate container environments with restricted egress profiles and no cloud RBAC permissions on the sandbox identity.
+
+---
+
+## 33. Verification and Enforcement
+
+Compliance with this standard is verified through: CI/CD pipeline gate results (automated, per commit); pre-production security checklist gate (per deployment); quarterly security review of AI systems (manual); and annual red team evaluation per §23.
+
+Any AI system found non-compliant with a Critical or High requirement must be remediated within the timeframes defined in the Production Security Requirements Standard. Continued operation requires explicit CIO risk acceptance documented in the Exception Register.
+
+This standard is reviewed and updated at minimum annually, or when any of the following occurs: a new confirmed AI threat technique affects deployed AI surface; a significant new AI capability is introduced; OWASP LLM Top 10 or NIST AI RMF is materially updated; or an AI security incident occurs.
+
+---
+
+## Framework Alignment
+
+| Control Area | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM v1 | NIST AI RMF |
+| --- | --- | --- | --- | --- |
+| Prompt injection | LLM01 | AML.T0051 | AI-TM-01–05 | GOVERN 1.1 |
+| Supply chain | LLM03 | AML.T0010–T0013 | AI-SC-01–08 | MANAGE 2.2 |
+| Sensitive data disclosure | LLM02 | — | AI-PP-01–05 | MAP 1.6 |
+| Tool misuse / overreach | LLM06 | AML.T0048 | AI-TM-08 | GOVERN 2.2 |
+| Unsafe code generation | LLM05 | — | AI-SC-05 | MAP 1.1 |
+| Excessive agency | LLM06 | — | AI-AU-01–06 | MANAGE 1.3 |
+| Overreliance | LLM09 | — | AI-EC-01 | MANAGE 4.1 |
+| Model theft | LLM10 | AML.T0037 | AI-SC-06 | — |
+| Hallucination/output validation | LLM09 | — | AI-EC-03 | MAP 3.5 |
+
+
+
+**End of Document**
