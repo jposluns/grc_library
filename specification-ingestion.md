@@ -9,10 +9,10 @@
 **Related Documents:** [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md) 
 **Classification:** Public 
 **Category:** Core Governance 
-**Review Frequency:** Annual and upon material repository, licence, or source-framework change 
+**Review Frequency:** Annual and upon material repository, license, or source-framework change 
 **Repository Path:** [`specification-ingestion.md`](specification-ingestion.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This specification defines how source material is converted into organization-ne
 
 It establishes rules for:
 
-- Assessing source material for licence compatibility.
+- Assessing source material for license compatibility.
 - Removing identifying and organization-specific information.
 - Selecting document type and canonical filename.
 - Selecting repository domain.
@@ -41,11 +41,11 @@ It applies to source material from internal documents, public standards, control
 
 ---
 
-## Licence Compatibility Rules
+## License compatibility rules
 
 All original repository content is released under CC0 1.0 Universal.
 
-Before source material is used, determine whether it is compatible with CC0 republication. Where licence terms are restrictive, uncertain, proprietary, all-rights-reserved, noncommercial, no-derivatives, no-redistribution, or otherwise incompatible with CC0, the source may be used only for non-verbatim reference.
+Before source material is used, determine whether it is compatible with CC0 republication. Where license terms are restrictive, uncertain, proprietary, all-rights-reserved, noncommercial, no-derivatives, no-redistribution, or otherwise incompatible with CC0, the source may be used only for non-verbatim reference.
 
 Do not copy into this repository:
 
@@ -62,7 +62,7 @@ Permitted use includes independent synthesis, framework name references, high-le
 
 ---
 
-## Identification and Sanitization Rules
+## Identification and sanitization rules
 
 Repository content must not include:
 
@@ -86,7 +86,7 @@ Replace organization-specific details with generic roles, generic system categor
 
 ---
 
-## Repository Domains
+## Repository domains
 
 Documents must be placed in the domain that best reflects their primary governance purpose.
 
@@ -124,7 +124,7 @@ operations/    IT operations, asset management, change management, configuration
 
 ---
 
-## Filename Rules
+## Filename rules
 
 Filenames must:
 
@@ -147,7 +147,7 @@ Examples:
 
 ---
 
-## Document Types
+## Document types
 
 Allowed document types are:
 
@@ -169,7 +169,7 @@ Do not use `SOP` as the document type. Convert it to Procedure, Standard, or Pla
 
 ---
 
-## Canonical Metadata
+## Canonical metadata
 
 Every document must start with this metadata pattern:
 
@@ -178,7 +178,7 @@ Every document must start with this metadata pattern:
 
 **Document Title:** Document Title
 **Document Type:** Policy
-**Version:** 0.0.1
+**Version:** 1.0.0
 **Date:** YYYY-MM-DD
 **Owner:** Role Name
 **Approving Authority:** Role Name
@@ -188,7 +188,7 @@ Every document must start with this metadata pattern:
 **Review Frequency:** Annual and upon material change
 **Repository Path:** [`domain/file-name.md`](file-name.md)
 **Confidentiality:** Public
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 ```
 
 Related Documents and Repository Path use markdown links. The display text is the root-relative path. The link target is relative to the current file's directory: same-directory files use the bare filename; cross-directory files use `../` traversal.
@@ -199,7 +199,7 @@ Dates must use ISO 8601 format: `YYYY-MM-DD`.
 
 ---
 
-## Version Numbering
+## Version numbering
 
 - All new documents begin at version `0.0.1`.
 - Increment the patch segment (`0.0.x`) for minor corrections to content within an existing version.
@@ -209,7 +209,7 @@ Dates must use ISO 8601 format: `YYYY-MM-DD`.
 
 ---
 
-## Required Structural Pattern
+## Required structural pattern
 
 After metadata, documents should use this structure unless the document type requires a different structure:
 
@@ -229,7 +229,7 @@ Documents must use `---` to separate major sections and must end with:
 
 ---
 
-## Language Requirements
+## Language requirements
 
 Documents must use precise, organization-neutral language. They must avoid vendor-marketing language, unsupported maturity claims, and statements implying compliance, certification, regulatory approval, or operating effectiveness without implementation evidence.
 
@@ -239,7 +239,7 @@ Do not state that a document ensures that compliance. State that it provides a b
 
 ---
 
-## Regulatory and Framework Mapping Rules
+## Regulatory and framework mapping rules
 
 Mappings must classify each statement as one of:
 
@@ -254,7 +254,7 @@ Mappings must include applicability conditions where jurisdiction, sector, proce
 
 ---
 
-## AI Content Rules
+## AI content rules
 
 AI documents must treat data as the primary risk surface and must address relevant lifecycle stages:
 
@@ -274,13 +274,13 @@ AI documents must explicitly consider prompt injection, indirect prompt injectio
 
 ---
 
-## Quality Gate
+## Quality gate
 
 Before committing a document, validate that:
 
-1. Metadata is complete and follows the canonical pattern including the `Licence` field.
+1. Metadata is complete and follows the canonical pattern including the `License` field.
 2. Repository path matches actual file path.
-3. Licence is CC0 1.0 Universal.
+3. License is CC0 1.0 Universal.
 4. No prohibited identifiers are present; Appendix A substitutions have been applied.
 5. No restrictively licensed third-party text is copied.
 6. Roles are generic and role-based.
@@ -292,11 +292,11 @@ Before committing a document, validate that:
 
 ---
 
-## Appendix A: Sanitization Substitution Table
+## Appendix a: sanitization substitution table
 
 Apply all substitutions below before producing any output. Substitution is case-insensitive. Apply the longer or more specific form first where multiple entries could match.
 
-### Organization-Specific Terms
+### Organization-specific terms
 
 | Source Term | Replacement |
 |---|---|
@@ -305,7 +305,7 @@ Apply all substitutions below before producing any output. Substitution is case-
 | MissDC | primary data centre |
 | Greenfield | infrastructure programme |
 
-### Microsoft Product and Service Names
+### Microsoft product and service names
 
 | Source Term | Replacement |
 |---|---|
@@ -336,7 +336,7 @@ Apply all substitutions below before producing any output. Substitution is case-
 | Microsoft Cloud PKI | cloud-based PKI service |
 | BitLocker | full-disk encryption |
 
-### Third-Party Product and Vendor Names
+### Third-party product and vendor names
 
 | Source Term | Replacement |
 |---|---|
@@ -349,7 +349,7 @@ Apply all substitutions below before producing any output. Substitution is case-
 | ESXi | hypervisor infrastructure |
 | metacompliance.com | security awareness training platform |
 
-### Incident and Case References
+### Incident and case references
 
 | Source Term | Replacement |
 |---|---|
@@ -358,13 +358,13 @@ Apply all substitutions below before producing any output. Substitution is case-
 | TT-REG-001 | omit: highly confidential; do not publish |
 | TT-REG-002 | omit: highly confidential; do not publish |
 
-### Personal Names
+### Personal names
 
 | Source Term | Replacement |
 |---|---|
 | Any real person's name | omit or replace with role title |
 
-### Terms to Preserve Without Substitution
+### Terms to preserve without substitution
 
 The following are public standards, frameworks, regulatory citations, and programme names that must not be substituted: ISO, NIST, COBIT, CSA CCM, BASC, WCO, ISO 28000, GDPR, PIPEDA, AIDA, CPPA, PIPL, LGPD, Quebec Law 25, UK GDPR, EU AI Act, FIDO2, MITRE ATT&CK, OWASP, PTES, OSCP, CREST, CVSS, CTPAT, PIP, AEO, AEO-S, HMRC, NEEC, OEA, DORA, NIS 2, PCI DSS, HIPAA, HITECH, SOX, FedRAMP, SLSA, FAIR, VEX, SBOM, HL7, FHIR, IEC 62443, IMO, ICAO, TSA, and all other recognized public regulatory, standards, or programme acronyms.
 

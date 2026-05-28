@@ -6,7 +6,7 @@
 **Approving Authority:** Chief Risk Officer 
 **Classification:** Public 
 **Category:** Meta-Governance 
-**Review Frequency:** Annual and upon material repository structure, governance, or licence change 
+**Review Frequency:** Annual and upon material repository structure, governance, or license change 
 **Repository Path:** [`specification-master-project.md`](specification-master-project.md) 
 **Confidentiality:** Public 
 
@@ -31,7 +31,7 @@ This specification applies to every AI response within the project, including:
 
 ---
 
-## 1. Canonical Governing Order
+## 1. Canonical governing order
 
 1. Master Project Specification (this document).
 2. Ingestion Specification (latest version).
@@ -39,11 +39,11 @@ This specification applies to every AI response within the project, including:
 4. Document-type rules (policy, standard, procedure, etc.).
 5. Any user-provided overrides.
 
-When conflict occurs, the highest item prevails. Exception: where any conflict concerns CC0 licence compatibility, the more restrictive CC0-compatible rule prevails regardless of document position in this order.
+When conflict occurs, the highest item prevails. Exception: where any conflict concerns CC0 license compatibility, the more restrictive CC0-compatible rule prevails regardless of document position in this order.
 
 ---
 
-## 2. Behavioural Requirements for the AI
+## 2. Behavioural requirements for the AI
 
 The AI must:
 
@@ -61,7 +61,7 @@ The AI must:
 
 ---
 
-## 3. Document Output Rule
+## 3. Document output rule
 
 When producing governance documents in a chat or interactive interface, each document must be contained inside exactly one fenced code block. The fenced block must use backticks (` ``` `) with no language tag unless the user specifically requests one. Nothing may appear inside the fence except the document itself. All commentary, analysis, and repository-update registers must appear outside the fenced block. Multi-document outputs require user approval: one document per output.
 
@@ -69,7 +69,7 @@ When working in a git repository via direct file tooling (read, write, edit oper
 
 ---
 
-## 4. Repository Architecture
+## 4. Repository architecture
 
 Top-level structure:
 
@@ -92,7 +92,7 @@ Top-level structure:
 /operations/
 ```
 
-### 4.1 Directory Rules
+### 4.1 Directory rules
 
 1. All documents must be placed in one of the approved directories listed in Section 4.
 2. No directory shall contain non-canonical document types.
@@ -101,7 +101,7 @@ Top-level structure:
 5. Each file must follow canonical naming: `document-type-canonical-name.md`.
 6. Each domain directory must contain a [`README.md`](README.md) that lists all active documents in that domain.
 
-### 4.2 Domain Purpose Summary
+### 4.2 Domain purpose summary
 
 | Directory | Primary Governance Purpose |
 |---|---|
@@ -116,7 +116,7 @@ Top-level structure:
 | `dev-security/` | Secure development standards, DevOps security, software composition analysis, developer quick references, and AI coding agent rule files |
 | `operations/` | IT operations, asset management, change management, configuration management, and security operations registers |
 
-### 4.3 Document-Type Definitions
+### 4.3 Document-type definitions
 
 Allowed types:
 
@@ -138,7 +138,7 @@ No additional types may be created without approval. Do not use `SOP` as a docum
 
 ---
 
-## 5. Metadata Requirements
+## 5. Metadata requirements
 
 Every generated governance document must include the canonical metadata block with the following fields, in this order:
 
@@ -154,7 +154,7 @@ Every generated governance document must include the canonical metadata block wi
 10. Review Frequency
 11. Repository Path
 12. Confidentiality
-13. Licence
+13. License
 
 Rules:
 
@@ -163,11 +163,11 @@ Rules:
 - Dates use ISO 8601 format: `YYYY-MM-DD`.
 - Classification defaults to Public unless the user requires otherwise.
 - Related Documents must reference canonical filenames using repository-relative paths.
-- Licence is always `CC0 1.0 Universal`.
+- License is always `CC0 1.0 Universal`.
 
 ---
 
-## 6. Formatting and Style Requirements
+## 6. Formatting and style requirements
 
 1. Use plain Markdown only.
 2. No HTML, no images, no emojis.
@@ -180,11 +180,11 @@ Rules:
 
 ---
 
-## 7. External Framework Alignment
+## 7. External framework alignment
 
 When referencing standards and frameworks, the AI must only reference publicly recognized frameworks. The following are confirmed for use in this repository:
 
-### Information Security and Risk
+### Information security and risk
 
 - ISO/IEC 27001:2022: Information security management systems
 - ISO/IEC 27002:2022: Information security controls
@@ -205,7 +205,7 @@ When referencing standards and frameworks, the AI must only reference publicly r
 - MITRE ATT&CK: Adversarial tactics and techniques
 - MITRE ATLAS: Adversarial ML threat landscape
 
-### Privacy and Data Protection
+### Privacy and data protection
 
 - GDPR: General Data Protection Regulation (EU)
 - UK GDPR: United Kingdom General Data Protection Regulation
@@ -215,14 +215,14 @@ When referencing standards and frameworks, the AI must only reference publicly r
 - LGPD: Lei Geral de Proteção de Dados (Brazil)
 - Quebec Law 25: Act respecting the protection of personal information
 
-### AI and Emerging Technology
+### AI and emerging technology
 
 - EU AI Act: Regulation on Artificial Intelligence
 - OWASP LLM Top 10: Large Language Model application risks
 - OWASP Top 10: Web application security risks
 - OWASP ASVS: Application Security Verification Standard
 
-### Trade Compliance and Supply Chain
+### Trade compliance and supply chain
 
 - CTPAT: Customs-Trade Partnership Against Terrorism (US CBP)
 - AEO: Authorized Economic Operator (EU)
@@ -234,14 +234,14 @@ When referencing standards and frameworks, the AI must only reference publicly r
 - WCO SAFE Framework of Standards
 - ISO 28000: Supply chain security management systems
 
-### Resilience and Operational Technology
+### Resilience and operational technology
 
 - IEC 62443: Industrial cybersecurity
 - DORA: Digital Operational Resilience Act (EU)
 - NIS 2 Directive: Network and Information Security (EU)
 - SLSA: Supply-chain Levels for Software Artifacts
 
-### Financial and Sector-Specific
+### Financial and sector-specific
 
 - PCI DSS v4.0: Payment card industry data security standard
 - HIPAA: Health Insurance Portability and Accountability Act (US)
@@ -253,7 +253,7 @@ References must be accurate and must not be invented. Do not reference framework
 
 ---
 
-## 8. Governance Document Generation Rules
+## 8. Governance document generation rules
 
 1. All content must be normalized to CC0-compatible language unless the user requests internal versioning.
 2. Documents must adhere to the canonical structure:
@@ -271,7 +271,7 @@ References must be accurate and must not be invented. Do not reference framework
 
 ---
 
-## 9. Register and Matrix Rules
+## 9. Register and matrix rules
 
 1. Registers and matrices must follow the directory and naming rules.
 2. Multi-row matrices must be broken into multiple small tables if they exceed width limits.
@@ -279,7 +279,7 @@ References must be accurate and must not be invented. Do not reference framework
 
 ---
 
-## 10. Index and README Maintenance
+## 10. Index and README maintenance
 
 1. Every new active document must be added to [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md).
 2. Every new active document must be added to the Active Documents table in the domain-level [`README.md`](README.md) for its directory.
@@ -288,7 +288,7 @@ References must be accurate and must not be invented. Do not reference framework
 
 ---
 
-## 11. Conflict Resolution Rules
+## 11. Conflict resolution rules
 
 1. If any project rule conflicts with user instructions, request clarification.
 2. If user intent is clear and conflicts with the Ingestion Specification, the Master Project Specification prevails unless the conflict concerns CC0 constraints.

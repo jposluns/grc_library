@@ -4,7 +4,7 @@
 **Date:** 2026-05-27 
 **Classification:** Public 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ The library currently contains **197 documents** across 10 governance domains.
 
 ---
 
-## How to Use
+## How to use
 
 1. **Browse the document index.** [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) is the primary navigation point: it lists every document with its type, domain, status, and related artefacts.
 
@@ -42,7 +42,7 @@ The library currently contains **197 documents** across 10 governance domains.
 
 ---
 
-## Operating Position
+## Operating position
 
 This repository is intended to become an authoritative public-domain GRC library. Authoritative means that the repository maintains a coherent hierarchy, controlled document model, versioned artefacts, role-based accountability, traceable mappings, and clear boundaries between original CC0 content and external reference materials.
 
@@ -50,11 +50,11 @@ This repository is not legal advice, audit certification, regulatory approval, o
 
 ---
 
-## Licence and Third-Party Reference Boundary
+## License and third-party reference boundary
 
 All original content committed to this repository is dedicated to the public domain under CC0 1.0 Universal.
 
-External standards, regulatory texts, control frameworks, questionnaires, implementation guides, audit guides, metrics catalogues, and similar materials remain subject to their own licence terms. This repository may use such materials only as reference inputs for independent synthesis, high-level alignment, terminology normalization, and non-verbatim mapping structures.
+External standards, regulatory texts, control frameworks, questionnaires, implementation guides, audit guides, metrics catalogues, and similar materials remain subject to their own license terms. This repository may use such materials only as reference inputs for independent synthesis, high-level alignment, terminology normalization, and non-verbatim mapping structures.
 
 Do not copy, redistribute, modify, or embed third-party copyrighted control text, questionnaire text, guidance text, tables, metrics catalogues, or implementation notes into this repository unless the material is confirmed to be compatible with CC0 release. Where compatibility is uncertain or restrictive, include only framework identifiers, domain names, high-level alignment notes, and original commentary.
 
@@ -62,7 +62,7 @@ See [`NOTICE.md`](NOTICE.md) for repository rules governing external reference m
 
 ---
 
-## Repository Structure
+## Repository structure
 
 Documents are organized by primary governance domain.
 
@@ -122,7 +122,7 @@ Examples:
 
 ---
 
-## Specification and Authoring Files
+## Specification and authoring files
 
 Three root-level files govern how the library is maintained and extended:
 
@@ -136,7 +136,7 @@ Contributors and maintainers must read these files before adding or modifying li
 
 ---
 
-## Document Types
+## Document types
 
 The library uses the following artefact types:
 
@@ -158,14 +158,14 @@ The library uses the following artefact types:
 
 ---
 
-## Canonical Metadata
+## Canonical metadata
 
 Every document begins with a metadata block in the following format and field order:
 
 ```
 **Document Title:** <title matching the H1 heading>
 **Document Type:** <type from the table above>
-**Version:** <x.y.z — three-part semantic versioning; new documents start at 0.0.1>
+**Version:** <x.y.z: three-part semantic versioning; new documents start at 0.0.1>
 **Date:** <YYYY-MM-DD>
 **Owner:** <role title>
 **Approving Authority:** <role title>
@@ -175,7 +175,7 @@ Every document begins with a metadata block in the following format and field or
 **Review Frequency:** <cadence statement>
 **Repository Path:** [`domain/filename.md`](filename.md)
 **Confidentiality:** Public
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 ```
 
 Related Documents and Repository Path use markdown links. The display text is always the root-relative path (e.g., `security/policy-information-security.md`). The link target is the path relative to the current file's directory: same-directory files use the bare filename; cross-directory files use `../other-domain/file.md` traversal.
@@ -184,7 +184,7 @@ Owners and approving authorities must be role-based, not person-specific. Docume
 
 ---
 
-## Core Reference Set
+## Core reference set
 
 The current authoritative starter set is organized around these foundational artefacts:
 
@@ -227,7 +227,7 @@ The current authoritative starter set is organized around these foundational art
 
 ---
 
-## Framework Alignment Model
+## Framework alignment model
 
 The library aligns to recognized framework families including ISO management system standards, NIST cybersecurity and artificial intelligence guidance, COBIT governance concepts, CSA CCM, STAR-style assurance models, OWASP projects (Top 10, LLM Top 10, ASVS, SAMM, Cheat Sheet Series), MITRE ATLAS, MITRE ATT&CK, and jurisdiction-specific laws or regulations.
 
@@ -244,7 +244,7 @@ Mappings must not imply certification, compliance, conformity, regulatory approv
 
 ---
 
-## Artificial Intelligence and Data Security Position
+## Artificial intelligence and data security position
 
 AI governance documents in this repository treat data as the primary risk surface. The lifecycle must address collection, annotation, storage, processing, training, retrieval, inference, monitoring, retention, deletion, and decommissioning.
 
@@ -254,13 +254,13 @@ The developer security domain (`/dev-security/`) addresses AI coding assistant s
 
 ---
 
-## Contribution Rules
+## Contribution rules
 
 Contributions must satisfy the following conditions:
 
 1. Content must be original, CC0-compatible, and organization-neutral.
 2. Content must not include real company names, personal names, internal identifiers, customer details, vendor-specific implementation data, or proprietary evidence.
-3. Third-party materials may be used only for non-verbatim reference, unless their licence terms explicitly permit CC0 republication.
+3. Third-party materials may be used only for non-verbatim reference, unless their license terms explicitly permit CC0 republication.
 4. Framework references must be accurate, version-aware, and scoped to the stated purpose.
 5. Regulatory content must separate obligation from interpretation and must identify where applicability depends on jurisdiction, sector, role, residency, or data category.
 6. Documents must maintain role-based ownership and approving authority.
@@ -268,7 +268,7 @@ Contributions must satisfy the following conditions:
 
 ---
 
-## Review Cadence
+## Review cadence
 
 The library should be reviewed at least annually and upon material change to major standards, regulatory expectations, assurance models, AI threat patterns, cloud control frameworks, privacy obligations, or operational resilience requirements.
 

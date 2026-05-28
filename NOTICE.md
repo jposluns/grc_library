@@ -1,10 +1,10 @@
-# Notice: External Reference Materials and Licence Boundaries
+# Notice: External Reference Materials and License Boundaries
 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Classification:** Public 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal for original repository content only 
+**License:** CC0 1.0 Universal for original repository content only 
 
 ---
 
@@ -16,7 +16,7 @@ The repository is released under CC0 1.0 Universal. That dedication applies only
 
 ---
 
-## External Reference Boundary
+## External reference boundary
 
 External materials may be used for:
 
@@ -28,11 +28,11 @@ External materials may be used for:
 - Applicability assessment structure.
 - Original commentary describing governance intent, risk context, and implementation considerations.
 
-External materials must not be copied into this repository where their licence terms restrict modification, redistribution, commercial reuse, or derivative works.
+External materials must not be copied into this repository where their license terms restrict modification, redistribution, commercial reuse, or derivative works.
 
 ---
 
-## Prohibited Content
+## Prohibited content
 
 Do not commit any of the following unless the material is independently confirmed to be CC0-compatible:
 
@@ -48,7 +48,7 @@ Do not commit any of the following unless the material is independently confirme
 
 ---
 
-## Permitted Reference Patterns
+## Permitted reference patterns
 
 The following patterns are permitted where they are independently written and do not reproduce restricted expression:
 
@@ -62,7 +62,7 @@ The following patterns are permitted where they are independently written and do
 
 ---
 
-## Attribution and Source Tracking
+## Attribution and source tracking
 
 Where an artefact is informed by external materials, the document may identify the external reference family by name. The document must avoid implying endorsement, certification, official mapping approval, or reproduction permission.
 
@@ -79,7 +79,7 @@ External references should be expressed as framework families or public identifi
 
 ---
 
-## Personal and Organization Data Exclusion
+## Personal and organization data exclusion
 
 Repository content must not include:
 
@@ -104,17 +104,17 @@ Roles must be generic, such as Chief Information Officer, Chief Information Secu
 
 ---
 
-## Licence Compatibility Decision Rule
+## License compatibility decision rule
 
 If a source material includes language indicating all rights reserved, personal use only, noncommercial use only, no modification, no redistribution, or similar restrictions, then it must be treated as non-CC0-compatible. It may be used only as a reference for independent synthesis and must not be copied, adapted, or redistributed in repository content.
 
-Where licence status is uncertain, do not include source text. Record only a high-level reference and original analysis.
+Where license status is uncertain, do not include source text. Record only a high-level reference and original analysis.
 
 ---
 
-## Review Requirement
+## Review requirement
 
-Licence compatibility should be reviewed when new external reference materials are introduced and during annual repository review. AI, cloud assurance, and regulatory reference materials should be rechecked on a 6 to 12 month cadence because source versions, licence terms, and assurance programme rules can change.
+License compatibility should be reviewed when new external reference materials are introduced and during annual repository review. AI, cloud assurance, and regulatory reference materials should be rechecked on a 6 to 12 month cadence because source versions, license terms, and assurance programme rules can change.
 
 ---
 
