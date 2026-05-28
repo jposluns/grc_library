@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material AI framework or regulatory change 
 **Repository Path:** [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ Applies to all employees, contractors, and third parties who use, develop, procu
 
 ---
 
-## Foundational Ethical Principles
+## Foundational ethical principles
 
 The organization's approach to AI is grounded in the following principles, aligned with the OECD AI Principles and ISO/PAS 8800:
 
@@ -43,15 +43,15 @@ The organization's approach to AI is grounded in the following principles, align
 
 ---
 
-## Guidance for All Staff Using AI Tools
+## Guidance for all staff using AI tools
 
-### 1. Using Approved AI Tools Only
+### 1. Using approved AI tools only
 
 Use only AI tools that have been approved through the Acceptance Into Service process. Unapproved AI tools may introduce security, privacy, or compliance risks.
 
 If you discover a useful AI tool that is not yet approved, raise it with your manager or the IT team for evaluation.
 
-### 2. Do Not Input Sensitive Data Into Consumer AI Tools
+### 2. Do not input sensitive data into consumer AI tools
 
 Do not input the following into non-approved or consumer AI services (e.g., publicly available generative AI chatbots):
 - Personal data of customers, employees, or any individual.
@@ -62,7 +62,7 @@ Do not input the following into non-approved or consumer AI services (e.g., publ
 
 Approved enterprise AI tools have been configured with appropriate data governance controls. Consumer tools have not.
 
-### 3. Verify AI Outputs
+### 3. Verify AI outputs
 
 AI outputs are not always accurate. Before acting on AI-generated content:
 - Check factual claims against authoritative sources.
@@ -71,53 +71,53 @@ AI outputs are not always accurate. Before acting on AI-generated content:
 
 This is especially important in customer-facing communications and decision-making that affects individuals.
 
-### 4. Report AI Concerns
+### 4. Report AI concerns
 
 If you observe AI behaviour that appears biased, inaccurate, harmful, or ethically questionable, report it through the incident reporting channel or directly to your manager. AI ethics concerns are treated seriously and investigated.
 
 ---
 
-## Guidance for Developers and Data Scientists
+## Guidance for developers and data scientists
 
-### 1. Build for Fairness
+### 1. Build for fairness
 
 During model development, actively test for demographic disparities in model outputs. Use established fairness metrics (demographic parity, equalized odds) and document results. Do not deploy models with residual bias above defined acceptable thresholds without AIGC review and explicit risk acceptance.
 
-### 2. Build for Explainability
+### 2. Build for explainability
 
 Design AI systems so that their outputs can be explained in plain language to affected individuals. Implement an appropriate explainability technique (SHAP, LIME, or equivalent) for all production models. Test whether explanations are meaningful to non-technical stakeholders.
 
-### 3. Protect Privacy by Design
+### 3. Protect privacy by design
 
 Apply data minimization: use only the personal data necessary for the model's purpose. Anonymize or pseudonymize training data where possible. Confirm legal basis before using personal data for model training.
 
-### 4. Document Everything
+### 4. Document everything
 
 Maintain a current Model Card, AI Impact Assessment, and Training Data Record for every AI system you own. Documentation is not optional: it is a governance requirement and a professional responsibility.
 
-### 5. Human in the Loop for High-Stakes Decisions
+### 5. Human in the loop for high-stakes decisions
 
 For decisions that materially affect individuals (credit, employment, benefits, safety), ensure that there is a human review step. AI must support, not replace, human accountability for consequential decisions.
 
 ---
 
-## Guidance for Managers
+## Guidance for managers
 
-### 1. Know What AI Your Team Uses
+### 1. Know what AI your team uses
 
 Maintain awareness of the AI tools your team uses. Ensure that all tools are approved. Raise unapproved usage with IT for assessment.
 
-### 2. Create Space for Concerns
+### 2. Create space for concerns
 
 Ensure that team members feel safe raising concerns about AI behaviour, bias, or ethics. Discourage pressure to deploy AI systems faster than proper evaluation allows.
 
-### 3. Support Documentation Obligations
+### 3. Support documentation obligations
 
 Ensure that AI system owners in your team have time to maintain required documentation. Model Cards and AI Impact Assessments are governance obligations, not optional extras.
 
 ---
 
-## Red Lines: AI Uses That Are Not Permitted
+## Red lines: AI uses that are not permitted
 
 The following uses of AI are prohibited regardless of the tool or context:
 
@@ -132,7 +132,7 @@ These are absolute prohibitions. Requests to deploy AI for these purposes are es
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

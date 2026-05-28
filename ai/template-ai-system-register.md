@@ -2,7 +2,7 @@
 
 **Document Title:** AI System Register Template 
 **Document Type:** Template 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** AI Governance Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** 6 to 12 months and upon material AI governance change 
 **Repository Path:** [`ai/template-ai-system-register.md`](template-ai-system-register.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -24,7 +24,7 @@ Do not populate this public template with real systems, company names, personal 
 
 ---
 
-## Register Fields
+## Register fields
 
 | Field | Description | Required |
 | --- | --- | --- |
@@ -60,7 +60,7 @@ Do not populate this public template with real systems, company names, personal 
 
 ---
 
-## Example Empty Register Table
+## Example empty register table
 
 | System ID | System Name | Lifecycle Status | Owner Role | Data Categories | Deployment Model | Risk Tier | Impact Assessment Status | Supplier Assessment Status | Next Review Date |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -68,7 +68,7 @@ Do not populate this public template with real systems, company names, personal 
 
 ---
 
-## Review Questions
+## Review questions
 
 1. Is the system recorded before use?
 2. Is the business purpose approved and specific?

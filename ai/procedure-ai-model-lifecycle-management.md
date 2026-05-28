@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material AI framework or regulatory change 
 **Repository Path:** [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ Applies to all AI models and machine learning systems developed internally, proc
 
 ---
 
-## Roles and Responsibilities
+## Roles and responsibilities
 
 | Role | Responsibility |
 | --- | --- |
@@ -40,7 +40,7 @@ Applies to all AI models and machine learning systems developed internally, proc
 
 ---
 
-## 1. AI System Inventory
+## 1. AI system inventory
 
 1.1 The GRC Programme Manager maintains an AI System Inventory covering all AI models in use or under development.
 
@@ -50,7 +50,7 @@ Applies to all AI models and machine learning systems developed internally, proc
 
 ---
 
-## 2. Development and Pre-Deployment
+## 2. Development and pre-deployment
 
 2.1 New AI model development must be registered in the AI System Inventory at inception.
 
@@ -71,7 +71,7 @@ Applies to all AI models and machine learning systems developed internally, proc
 
 ---
 
-## 3. Production Deployment
+## 3. Production deployment
 
 3.1 Approved AI models are deployed via the change management process.
 
@@ -81,7 +81,7 @@ Applies to all AI models and machine learning systems developed internally, proc
 
 ---
 
-## 4. Ongoing Monitoring
+## 4. Ongoing monitoring
 
 4.1 AI System Owners review model performance monitoring outputs at minimum monthly.
 
@@ -93,7 +93,7 @@ Applies to all AI models and machine learning systems developed internally, proc
 
 ---
 
-## 5. Retraining and Model Updates
+## 5. Retraining and model updates
 
 5.1 Retraining is triggered by: scheduled retraining cycle, performance drift below threshold, significant change in input data distribution, or post-incident review recommendation.
 
@@ -105,7 +105,7 @@ Applies to all AI models and machine learning systems developed internally, proc
 
 ---
 
-## 6. Annual Review
+## 6. Annual review
 
 6.1 All AI models in production undergo an annual review.
 
@@ -132,7 +132,7 @@ Applies to all AI models and machine learning systems developed internally, proc
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

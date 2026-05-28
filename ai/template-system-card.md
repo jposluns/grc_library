@@ -2,7 +2,7 @@
 
 **Document Title:** System Card Template 
 **Document Type:** Template 
-**Version:** 0.0.2 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** AI Governance Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** 6 to 12 months and upon material AI system, supplier, data, architecture, or control change 
 **Repository Path:** [`ai/template-system-card.md`](template-system-card.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -24,9 +24,9 @@ Do not populate the public repository version with real system names, people nam
 
 ---
 
-## System Card Fields
+## System card fields
 
-### 1. System Overview
+### 1. System overview
 
 | Field | Entry |
 | --- | --- |
@@ -42,7 +42,7 @@ Do not populate the public repository version with real system names, people nam
 | Prohibited Uses | |
 | Risk Tier | Low, moderate, high, critical. |
 
-### 2. System Boundary
+### 2. System boundary
 
 | Field | Entry |
 | --- | --- |
@@ -57,7 +57,7 @@ Do not populate the public repository version with real system names, people nam
 | Downstream Dependencies | |
 | Supplier Dependencies | |
 
-### 3. Data Lifecycle
+### 3. Data lifecycle
 
 | Field | Entry |
 | --- | --- |
@@ -74,7 +74,7 @@ Do not populate the public repository version with real system names, people nam
 | Enforceable Deletion Method | |
 | Supplier Data Handling | |
 
-### 4. Security and Access Controls
+### 4. Security and access controls
 
 | Field | Entry |
 | --- | --- |
@@ -88,7 +88,7 @@ Do not populate the public repository version with real system names, people nam
 | Network or Exposure Boundary | |
 | Tool Permission Boundary | |
 
-### 5. AI Risk and Testing
+### 5. AI risk and testing
 
 | Field | Entry |
 | --- | --- |
@@ -103,7 +103,7 @@ Do not populate the public repository version with real system names, people nam
 | Human Oversight Testing | |
 | Resilience or Fallback Testing | |
 
-### 6. Human Oversight and Decision Impact
+### 6. Human oversight and decision impact
 
 | Field | Entry |
 | --- | --- |
@@ -114,7 +114,7 @@ Do not populate the public repository version with real system names, people nam
 | User Disclosure Requirement | |
 | Output Verification Requirement | |
 
-### 7. Supplier and External Service Review
+### 7. Supplier and external service review
 
 | Field | Entry |
 | --- | --- |
@@ -127,7 +127,7 @@ Do not populate the public repository version with real system names, people nam
 | Deletion and Export Capability | |
 | Exit Support | |
 
-### 8. Monitoring, Incident, and Change Control
+### 8. Monitoring, incident, and change control
 
 | Field | Entry |
 | --- | --- |
@@ -139,7 +139,7 @@ Do not populate the public repository version with real system names, people nam
 | Exception References | |
 | Corrective Action References | |
 
-### 9. Approval and Review
+### 9. Approval and review
 
 | Field | Entry |
 | --- | --- |
@@ -150,7 +150,7 @@ Do not populate the public repository version with real system names, people nam
 | Next Review Date | |
 | Residual Risk Summary | |
 
-### 10. Retirement and Decommissioning
+### 10. Retirement and decommissioning
 
 | Field | Entry |
 | --- | --- |
@@ -165,7 +165,7 @@ Do not populate the public repository version with real system names, people nam
 
 ---
 
-## Use Notes
+## Use notes
 
 A system card documents deployment context and system-level risk. Model-level details should be recorded in model cards and linked by internal reference in adopting organizations.
 

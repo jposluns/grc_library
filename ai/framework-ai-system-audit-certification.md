@@ -12,11 +12,11 @@
 **Review Frequency:** 6 to 12 months and upon material AI governance or regulatory change 
 **Repository Path:** [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
-## 1. Purpose and Scope
+## 1. Purpose and scope
 
 ### 1.1 Purpose
 
@@ -39,11 +39,11 @@ This framework complements the Supplier Third-Party AI Due Diligence Procedure (
 
 ## 2. Governance
 
-### 2.1 AIGC: Audit Programme Owner
+### 2.1 AIGC: audit programme owner
 
 The AI Governance Council (AIGC) owns the AI audit programme. It approves the annual AI audit plan, reviews audit findings, tracks CAPA completion, and escalates unresolved material findings to the Board or appropriate Board committee.
 
-### 2.2 CISO: Technical Audit Lead
+### 2.2 CISO: technical audit lead
 
 The CISO leads the technical execution of AI audits. The CISO is responsible for:
 
@@ -53,13 +53,13 @@ The CISO leads the technical execution of AI audits. The CISO is responsible for
 - Reporting audit findings to the AIGC.
 - Ensuring CAPA records are raised for each finding and tracked to closure.
 
-### 2.3 Independent Auditor for High-Risk Systems
+### 2.3 Independent auditor for high-risk systems
 
 High-risk AI systems (EU AI Act Annex III) require an independent auditor who is not involved in the development or operation of the system under review. For systems requiring EU AI Act conformity assessment by a third-party notified body, the engagement and output of that assessment satisfies the independent audit requirement for that assessment cycle.
 
 ---
 
-## 3. AI System Audit Classification and Frequency
+## 3. AI system audit classification and frequency
 
 All AI systems are assigned an audit tier at the time of classification (see [`ai/policy-ai-compliance.md`](policy-ai-compliance.md) Section 4). Audit tier determines the frequency, audit type, and evidence requirements.
 
@@ -72,11 +72,11 @@ All AI systems are assigned an audit tier at the time of classification (see [`a
 
 ---
 
-## 4. Audit Evidence Catalogue
+## 4. Audit evidence catalogue
 
 The following evidence must be available for each audit tier. Evidence gaps identified during the pre-audit documentation review are recorded as preliminary findings and must be remediated before the audit proceeds, unless the auditor determines a compensating assessment is adequate.
 
-### 4.1 Tier 1 (High-Risk): Full Evidence Requirements
+### 4.1 Tier 1 (high-risk): full evidence requirements
 
 | Evidence Item | Description | Responsible Party |
 |---|---|---|
@@ -91,17 +91,17 @@ The following evidence must be available for each audit tier. Evidence gaps iden
 | Post-market monitoring data | Monitoring plan; performance metrics including accuracy trend, drift metrics, and bias drift; alerts generated and resolved | AI System Owner |
 | Conformity assessment records | EU AI Act Annex IV technical documentation; prior conformity assessment report if applicable | CISO / Legal |
 
-### 4.2 Tier 2 (General-Purpose): Evidence Requirements
+### 4.2 Tier 2 (general-purpose): evidence requirements
 
 Model card; system card; provider-published transparency and capability documentation; use case scope assessment; copyright and licensing records; incident register entries for the system for the preceding 18 months.
 
-### 4.3 Tier 3 (Standard) and Tier 4 (Low-Risk): Evidence Requirements
+### 4.3 Tier 3 (standard) and tier 4 (low-risk): evidence requirements
 
 AI System Register entry (current); model card if the system uses a trained model; access control configuration review output; incident log review for the system for the preceding audit period.
 
 ---
 
-## 5. Internal Audit Process
+## 5. Internal audit process
 
 ### 5.1 Scoping
 
@@ -113,11 +113,11 @@ At least four weeks before the audit commences, the CISO confirms:
 - The audit period covered.
 - The audit objectives and any specific focus areas identified from the previous audit, incident register, or post-market monitoring signals.
 
-### 5.2 Pre-Audit Documentation Review
+### 5.2 Pre-audit documentation review
 
 The auditor conducts a desk-based review of all evidence items listed in Section 4. Gaps and deficiencies are logged in a pre-audit findings list and communicated to the AI System Owner. The AI System Owner has 10 business days to remediate or provide a written explanation for any gap before the on-site or technical review phase begins.
 
-### 5.3 Technical Review Checklist
+### 5.3 Technical review checklist
 
 During the technical review phase, the auditor verifies:
 
@@ -129,15 +129,15 @@ During the technical review phase, the auditor verifies:
 - Output validation controls are in place before downstream use.
 - Security controls align with the AI Algorithmic Compliance Checklist ([`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md)).
 
-### 5.4 Human Oversight Observation
+### 5.4 Human oversight observation
 
 For Tier 1 systems, the auditor conducts a structured observation of the human oversight process, confirming that designated overseers understand the system's limitations, are capable of interpreting outputs, and can exercise the override capability documented in the system card.
 
-### 5.5 Bias Re-Assessment
+### 5.5 Bias re-assessment
 
 At each Tier 1 audit, bias testing is re-run against the current production model. Results are compared with the baseline recorded in the training data provenance and original deployment documentation. Statistically significant increases in bias across protected characteristics are recorded as High findings.
 
-### 5.6 Incident Log Review
+### 5.6 Incident log review
 
 The auditor reviews all AI Incident Register entries for the system covering the audit period, assessing whether:
 
@@ -149,7 +149,7 @@ The auditor reviews all AI Incident Register entries for the system covering the
 
 ---
 
-## 6. ISO/IEC 42001:2023 Certification Roadmap
+## 6. ISO/IEC 42001:2023 certification roadmap
 
 | Stage | Activity | Description |
 |---|---|---|
@@ -163,9 +163,9 @@ The auditor reviews all AI Incident Register entries for the system covering the
 
 ---
 
-## 7. High-Risk AI Act Conformity Assessment
+## 7. High-risk AI act conformity assessment
 
-### 7.1 Self-Assessment vs. Third-Party Notified Body
+### 7.1 Self-assessment vs. third-party notified body
 
 Under EU AI Act Art. 43, conformity assessment for most high-risk AI systems listed in Annex III may be conducted by the provider as a self-assessment. However, a third-party assessment by an EU AI Act notified body is required for:
 
@@ -174,7 +174,7 @@ Under EU AI Act Art. 43, conformity assessment for most high-risk AI systems lis
 
 Where the organization acts as a deployer of a high-risk system rather than the provider, it relies on the provider's conformity assessment documentation, supplemented by its own deployer obligations assessment.
 
-### 7.2 Documentation Requirements: EU AI Act Annex IV
+### 7.2 Documentation requirements: EU AI act annex IV
 
 For high-risk AI systems where the organization is the provider, Annex IV technical documentation must include:
 
@@ -188,15 +188,15 @@ For high-risk AI systems where the organization is the provider, Annex IV techni
 
 The CISO is responsible for ensuring Annex IV documentation is maintained and updated following any substantial modification.
 
-### 7.3 Registration in the EU Database
+### 7.3 Registration in the EU database
 
 High-risk AI systems within scope of EU AI Act Art. 51 registration obligations must be registered in the EU database for high-risk AI systems by the provider before the system is placed on the market or put into service. The AI System Owner initiates and maintains the registration, with Legal support.
 
 ---
 
-## 8. Post-Market Monitoring Obligations
+## 8. Post-market monitoring obligations
 
-### 8.1 Monitoring Plan
+### 8.1 Monitoring plan
 
 Each high-risk AI system in production must have a documented post-market monitoring plan that specifies:
 
@@ -207,7 +207,7 @@ Each high-risk AI system in production must have a documented post-market monito
 - The responsible party for reviewing monitoring outputs.
 - Escalation path when thresholds are breached.
 
-### 8.2 Serious Incident Reporting
+### 8.2 Serious incident reporting
 
 Where post-market monitoring or any other signal identifies a serious incident as defined under EU AI Act Art. 3(49), the following reporting timeline applies:
 
@@ -219,15 +219,15 @@ Where post-market monitoring or any other signal identifies a serious incident a
 
 The CISO is responsible for preparing and submitting reports, in coordination with Legal. Reports are logged in the AI Incident Register.
 
-### 8.3 Substantial Modification
+### 8.3 Substantial modification
 
 Where a substantial modification is made to a high-risk AI system (including changes to the training data, model architecture, or intended purpose that affect the system's conformity with EU AI Act requirements), the conformity assessment process must be re-initiated. The CISO determines whether a full re-assessment or a targeted assessment of the modification is required.
 
 ---
 
-## 9. Audit Findings and CAPA Integration
+## 9. Audit findings and CAPA integration
 
-### 9.1 Findings Classification
+### 9.1 Findings classification
 
 | Finding Classification | Definition | Required Response |
 |---|---|---|
@@ -236,7 +236,7 @@ Where a substantial modification is made to a high-risk AI system (including cha
 | **Medium** | A control weakness or documentation deficiency that could lead to a higher finding if not addressed | CAPA raised within 10 business days; resolved within agreed timeline not exceeding 90 days |
 | **Low** | An observation or improvement opportunity with limited risk impact | Noted in the audit report; assigned to AI System Owner for resolution within the next review cycle |
 
-### 9.2 CAPA Process
+### 9.2 CAPA process
 
 Each finding classified as Critical, High, or Medium generates a formal CAPA record. The CAPA record documents:
 
@@ -250,7 +250,7 @@ CAPAs are tracked in the organization's CAPA management system and reviewed at e
 
 ---
 
-## 10. Framework Alignment
+## 10. Framework alignment
 
 | Framework / Standard | Relevant Requirements | Section Addressed |
 |---|---|---|

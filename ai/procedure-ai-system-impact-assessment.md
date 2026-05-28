@@ -2,7 +2,7 @@
 
 **Document Title:** AI System Impact Assessment Procedure 
 **Document Type:** Procedure 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** AI Risk Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** 6 to 12 months and upon material AI risk or regulatory change 
 **Repository Path:** [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -24,7 +24,7 @@ The assessment focuses on data lifecycle risk, security risk, privacy risk, oper
 
 ---
 
-## Trigger Events
+## Trigger events
 
 An AI impact assessment is required when:
 
@@ -41,7 +41,7 @@ An AI impact assessment is required when:
 
 ## Procedure
 
-### Step 1: Register the System
+### Step 1: register the system
 
 Create or update the AI System Register entry with:
 
@@ -56,7 +56,7 @@ Create or update the AI System Register entry with:
 - Data categories.
 - Initial risk tier.
 
-### Step 2: Define the Use Case
+### Step 2: define the use case
 
 Document:
 
@@ -69,7 +69,7 @@ Document:
 - Criticality.
 - Failure consequences.
 
-### Step 3: Assess Data Lifecycle
+### Step 3: assess data lifecycle
 
 Evaluate each lifecycle stage:
 
@@ -86,7 +86,7 @@ Evaluate each lifecycle stage:
 | Retention | How long is each data class retained, and why? |
 | Deletion | Can data, embeddings, logs, and supplier-held copies be deleted or rendered inaccessible? |
 
-### Step 4: Assess Threats and Control Exposure
+### Step 4: assess threats and control exposure
 
 Assess exposure to:
 
@@ -104,13 +104,13 @@ Assess exposure to:
 - Excessive agency or automation.
 - Supplier failure or terms change.
 
-### Step 5: Assess Privacy and Legal Context
+### Step 5: assess privacy and legal context
 
 Determine whether the system processes personal data, sensitive data, regulated data, employee data, customer data, confidential business data, or data subject to retention, transfer, or deletion obligations.
 
 Record whether review is required from privacy, legal, compliance, labour, sector regulatory, procurement, or information security roles.
 
-### Step 6: Assess Supplier and External Service Dependency
+### Step 6: assess supplier and external service dependency
 
 For externally operated services, document:
 
@@ -125,7 +125,7 @@ For externally operated services, document:
 - Exit capability.
 - Availability and continuity commitments.
 
-### Step 7: Assign Risk Tier
+### Step 7: assign risk tier
 
 Assign a risk tier using criteria such as:
 
@@ -136,7 +136,7 @@ Assign a risk tier using criteria such as:
 | High | Sensitive data, external users, regulated context, material business or individual impact, supplier dependency, or tool execution. |
 | Critical | Safety, rights, access, employment, financial, security, legal, regulatory, or critical service impact with limited tolerance for failure. |
 
-### Step 8: Define Required Controls
+### Step 8: define required controls
 
 Define required controls for:
 
@@ -153,7 +153,7 @@ Define required controls for:
 - Incident response.
 - Decommissioning.
 
-### Step 9: Approve or Reject
+### Step 9: approve or reject
 
 The approving authority must decide one of the following:
 
@@ -166,13 +166,13 @@ The approving authority must decide one of the following:
 
 Approval must record residual risk, required conditions, control owner, review date, and exception reference where applicable.
 
-### Step 10: Maintain Evidence
+### Step 10: maintain evidence
 
 Retain the assessment, approvals, test results, control evidence, supplier evidence, monitoring records, incident records, and decommissioning records according to defined retention rules.
 
 ---
 
-## Required Outputs
+## Required outputs
 
 - AI System Register entry.
 - AI impact assessment record.

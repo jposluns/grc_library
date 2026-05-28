@@ -12,7 +12,7 @@
 **Review Frequency:** 6 to 12 months and upon material AI governance change 
 **Repository Path:** [`ai/README.md`](README.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -24,7 +24,7 @@ AI documents in this repository treat data as the primary risk surface. They add
 
 ---
 
-## Active Documents
+## Active documents
 
 | Type | Title | Path |
 | --- | --- | --- |
@@ -55,7 +55,7 @@ AI documents in this repository treat data as the primary risk surface. They add
 
 ---
 
-## AI Risk Coverage
+## AI risk coverage
 
 AI domain documents should explicitly consider:
 
@@ -73,7 +73,7 @@ AI domain documents should explicitly consider:
 
 ---
 
-## Licence Boundary
+## License boundary
 
 External AI standards, control frameworks, questionnaires, audit guidance, implementation guidance, and metrics catalogues must not be copied into this directory unless they are confirmed to permit CC0-compatible republication. Use non-verbatim synthesis, original control language, and high-level alignment only.
 

@@ -12,11 +12,11 @@
 **Review Frequency:** 6 to 12 months and upon material AI governance or regulatory change 
 **Repository Path:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
-## 1. Purpose and Scope
+## 1. Purpose and scope
 
 ### 1.1 Purpose
 
@@ -37,7 +37,7 @@ This policy does not replace privacy, information security, or supplier governan
 
 ---
 
-## 2. Policy Statement
+## 2. Policy statement
 
 Senior leadership recognizes that AI systems present opportunities to improve operational efficiency, decision quality, and service delivery, and also introduce risks to individuals, society, and the organization if deployed without adequate governance.
 
@@ -55,11 +55,11 @@ The organization commits to:
 
 ## 3. Governance
 
-### 3.1 AI Governance Council (AIGC)
+### 3.1 AI governance council (AIGC)
 
 The AI Governance Council is the organization's primary body for AI compliance oversight. It is chaired by the CISO and includes representation from the Privacy Officer, CIO, Legal, and representatives from business functions that deploy or use AI systems. The AIGC meets at least quarterly.
 
-### 3.2 Accountability Table
+### 3.2 Accountability table
 
 | Role | AI Compliance Responsibilities |
 |---|---|
@@ -73,11 +73,11 @@ The AI Governance Council is the organization's primary body for AI compliance o
 
 ---
 
-## 4. AI System Classification
+## 4. AI system classification
 
 All AI systems must be classified before deployment. Classification determines the regulatory obligations and internal controls that apply. The organization uses the EU AI Act risk tier framework as the primary classification model, supplemented by NIST AI RMF risk categorization for systems not subject to EU AI Act jurisdiction.
 
-### 4.1 Classification Table
+### 4.1 Classification table
 
 | EU AI Act Risk Tier | EU AI Act Scope | Regulatory Obligations | Organization Approach |
 |---|---|---|---|
@@ -88,7 +88,7 @@ All AI systems must be classified before deployment. Classification determines t
 | **Limited-risk** | AI systems with specific transparency obligations: chatbots; AI-generated content; emotion recognition and biometric categorization systems (EU AI Act Art. 50) | Disclose AI interaction to users; label AI-generated content | User notification implemented; AI-generated content labelling policy applied |
 | **Minimal-risk** | All other AI systems | No mandatory obligations under EU AI Act | Best-practice governance applied; AI System Register entry still required; periodic review conducted |
 
-### 4.2 Classification Process
+### 4.2 Classification process
 
 1. The AI System Owner completes an initial classification using the classification table above and the NIST AI RMF risk categorization criteria.
 2. The AIGC reviews and approves the classification before deployment.
@@ -96,7 +96,7 @@ All AI systems must be classified before deployment. Classification determines t
 
 ---
 
-## 5. Deployer Obligations for High-Risk AI Systems
+## 5. Deployer obligations for high-risk AI systems
 
 Where the organization deploys a high-risk AI system (as classified under Section 4), the following obligations apply.
 
@@ -104,7 +104,7 @@ Where the organization deploys a high-risk AI system (as classified under Sectio
 
 High-risk AI systems used in contexts covered by EU AI Act Annex III must be registered in the EU database of high-risk AI systems by the deployer, where required by the applicable provision. The AI System Owner is responsible for initiating and maintaining this registration, with Legal support.
 
-### 5.2 Fundamental Rights Impact Assessment (FRIA)
+### 5.2 Fundamental rights impact assessment (FRIA)
 
 A Fundamental Rights Impact Assessment must be completed before deploying any high-risk AI system. The FRIA must:
 
@@ -117,7 +117,7 @@ A Fundamental Rights Impact Assessment must be completed before deploying any hi
 
 The FRIA is documented as part of the AI System Impact Assessment (see [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md)) and retained as part of the system's compliance documentation.
 
-### 5.3 Human Oversight
+### 5.3 Human oversight
 
 High-risk AI systems must be deployed with appropriate human oversight mechanisms that:
 
@@ -128,17 +128,17 @@ High-risk AI systems must be deployed with appropriate human oversight mechanism
 
 Human oversight assignments must be documented in the AI System Register and reviewed annually.
 
-### 5.4 Incident Reporting
+### 5.4 Incident reporting
 
 AI-related incidents involving high-risk AI systems must be reported in accordance with Section 10 of this policy.
 
 ---
 
-## 6. General-Purpose AI Model Obligations
+## 6. General-purpose AI model obligations
 
 Where the organization deploys, integrates, fine-tunes, or builds upon a general-purpose AI (GPAI) model, the following obligations apply.
 
-### 6.1 Transparency Documentation
+### 6.1 Transparency documentation
 
 The organization must maintain or obtain from the model provider documentation covering:
 
@@ -149,11 +149,11 @@ The organization must maintain or obtain from the model provider documentation c
 
 This documentation is recorded in the model card ([`ai/template-model-card.md`](template-model-card.md)) associated with the relevant AI System Register entry.
 
-### 6.2 Copyright Compliance
+### 6.2 Copyright compliance
 
-Where the organization fine-tunes a GPAI model using proprietary, licensed, or third-party data, the Legal team must confirm that the use of that data for training is lawful and that any applicable text and data mining exemptions or licences are documented.
+Where the organization fine-tunes a GPAI model using proprietary, licensed, or third-party data, the Legal team must confirm that the use of that data for training is lawful and that any applicable text and data mining exemptions or licenses are documented.
 
-### 6.3 Systemic Risk Assessment
+### 6.3 Systemic risk assessment
 
 Where a GPAI model is identified as presenting systemic risk under EU AI Act Title III Chapter 5 (whether because the model provider has designated it as such or because the European Commission has so determined), the organization must assess and document:
 
@@ -164,9 +164,9 @@ Where a GPAI model is identified as presenting systemic risk under EU AI Act Tit
 
 ---
 
-## 7. National and Regional Compliance
+## 7. National and regional compliance
 
-### 7.1 EU AI Act
+### 7.1 EU AI act
 
 The EU AI Act applies to AI systems placed on the market or put into service in the EU, and to outputs of AI systems used in the EU, regardless of where the deployer or provider is established. Where any AI system operated by the organization generates outputs used in, or affects individuals in, the EU, the obligations of the EU AI Act apply.
 
@@ -178,7 +178,7 @@ Key compliance obligations:
 - Serious incident reporting per Section 10.
 - Post-market monitoring for high-risk systems per [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md).
 
-### 7.2 Canada: Artificial Intelligence and Data Act (AIDA)
+### 7.2 Canada: artificial intelligence and data act (AIDA)
 
 AIDA establishes obligations for persons involved in the international and interprovincial trade and commerce of AI systems, with specific obligations for "high-impact AI systems." Where the organization operates in Canada or processes data in connection with Canadian trade operations:
 
@@ -190,7 +190,7 @@ AIDA establishes obligations for persons involved in the international and inter
 
 The AIGC is responsible for tracking AIDA's passage into law and updating this policy and associated procedures when AIDA is enacted.
 
-### 7.3 UK AI Safety Priorities
+### 7.3 UK AI safety priorities
 
 The UK does not currently have a single AI Act equivalent. The organization follows the UK AI Safety Institute's guidance on frontier AI safety and the Information Commissioner's Office guidance on AI and data protection. Specific commitments:
 
@@ -198,7 +198,7 @@ The UK does not currently have a single AI Act equivalent. The organization foll
 - The organization monitors UK AI regulatory developments and participates in relevant consultation processes where material to operations.
 - High-risk AI systems that may affect UK individuals are assessed against the AI Safety Institute's evaluation criteria for frontier models.
 
-### 7.4 ISO/IEC 42001:2023 Certification Roadmap
+### 7.4 ISO/IEC 42001:2023 certification roadmap
 
 ISO/IEC 42001:2023 specifies requirements for an AI management system (AIMS). The organization's certification roadmap is:
 
@@ -214,9 +214,9 @@ ISO/IEC 42001:2023 specifies requirements for an AI management system (AIMS). Th
 
 ---
 
-## 8. AI Compliance Audit and Review
+## 8. AI compliance audit and review
 
-### 8.1 Annual AIGC Review
+### 8.1 Annual AIGC review
 
 The AIGC conducts an annual AI compliance review that covers:
 
@@ -229,23 +229,23 @@ The AIGC conducts an annual AI compliance review that covers:
 
 The AIGC produces a written annual review report. The CISO presents a summary to the Board or appropriate Board committee.
 
-### 8.2 Third-Party Audit for High-Risk Deployments
+### 8.2 Third-party audit for high-risk deployments
 
 High-risk AI systems must be subject to an independent third-party audit at least annually. The audit scope, evidence requirements, and findings management process are defined in [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md).
 
-### 8.3 Continuous Monitoring
+### 8.3 Continuous monitoring
 
 AI System Owners maintain continuous monitoring of AI system performance, including accuracy, drift, bias drift, and incident signals, as defined in the post-market monitoring plan for each high-risk system.
 
 ---
 
-## 9. AI Transparency and Disclosure
+## 9. AI transparency and disclosure
 
-### 9.1 User Notification
+### 9.1 User notification
 
 Where individuals interact with an AI system, including chatbots, automated response systems, or AI-assisted advisory tools, the system must clearly disclose that they are interacting with an AI system and not a human. This disclosure must be made at the point of first interaction or before the individual provides information to the system.
 
-### 9.2 AI-Generated Content Labelling
+### 9.2 AI-generated content labelling
 
 AI-generated content, including text, images, audio, and video produced or substantially modified by an AI system, must be labelled as AI-generated where:
 
@@ -255,7 +255,7 @@ AI-generated content, including text, images, audio, and video produced or subst
 
 The labelling mechanism must be technically implemented and documented in the relevant system card.
 
-### 9.3 Explainability for Individuals
+### 9.3 Explainability for individuals
 
 Where an AI system makes or materially contributes to a decision that significantly affects an individual, including employment, financial, or service access decisions, the individual has the right to:
 
@@ -267,9 +267,9 @@ Business unit owners are responsible for implementing and communicating these ri
 
 ---
 
-## 10. AI Incident Reporting
+## 10. AI incident reporting
 
-### 10.1 Incident Classification
+### 10.1 Incident classification
 
 An AI incident is any unintended behaviour of an AI system, or an event resulting from AI system operation, that:
 
@@ -279,11 +279,11 @@ An AI incident is any unintended behaviour of an AI system, or an event resultin
 - Generates discriminatory, unlawful, or harmful outputs at scale.
 - Constitutes a "serious incident" under EU AI Act Art. 3(49): a malfunctioning that directly or indirectly causes death, serious harm to health, serious harm to property, or significant disruption to the provision of essential services.
 
-### 10.2 Internal Reporting
+### 10.2 Internal reporting
 
 All AI incidents must be reported internally within 24 hours of detection to the CISO and the relevant AI System Owner. The CISO assesses the incident and determines whether external reporting obligations are triggered.
 
-### 10.3 External Reporting: EU AI Act
+### 10.3 External reporting: EU AI act
 
 For serious incidents involving high-risk AI systems deployed in the EU, the organization must report to the relevant national competent authority:
 
@@ -292,7 +292,7 @@ For serious incidents involving high-risk AI systems deployed in the EU, the org
 
 The CISO is responsible for preparing and submitting the report, in coordination with Legal.
 
-### 10.4 Co-ordination with Privacy Officer: GDPR Art. 33
+### 10.4 Co-ordination with privacy officer: GDPR art. 33
 
 Where an AI incident involves a personal data breach (as defined under GDPR Art. 4(12)), the Privacy Officer must be notified immediately. The Privacy Officer determines whether:
 
@@ -301,13 +301,13 @@ Where an AI incident involves a personal data breach (as defined under GDPR Art.
 
 The AI incident report and the GDPR personal data breach report are managed as parallel but co-ordinated obligations. The CISO and Privacy Officer jointly own the co-ordination process.
 
-### 10.5 Incident Register
+### 10.5 Incident register
 
 All AI incidents, whether or not they meet the threshold for external reporting, must be recorded in the AI Incident Register maintained by the CISO. The register records incident description, affected systems, timeline, response actions, root cause, and outcome.
 
 ---
 
-## 11. Non-Compliance Consequences
+## 11. Non-compliance consequences
 
 Failure to comply with this policy may result in:
 
@@ -321,7 +321,7 @@ Material non-compliance must be reported to the AIGC by the relevant business un
 
 ---
 
-## 12. Related Documents and Framework Alignment
+## 12. Related documents and framework alignment
 
 | Framework / Regulation | Relevance | Primary Policy Section |
 |---|---|---|
@@ -334,7 +334,7 @@ Material non-compliance must be reported to the AIGC by the relevant business un
 | Canada AIDA 2024 | High-impact AI obligations; risk mitigation; incident reporting | 7.2 |
 | GDPR (UK and EU) | Personal data processing; automated decision-making; breach reporting | 5.2, 9.3, 10.4 |
 
-### Related GRC Library Documents
+### Related GRC library documents
 
 - [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md)
 - [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md)

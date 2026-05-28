@@ -12,17 +12,17 @@
 **Review Frequency:** 6 to 12 months and upon material AI governance or regulatory change 
 **Repository Path:** [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
-## Purpose and Usage
+## Purpose and usage
 
 This checklist provides a structured assessment tool for evaluating AI system compliance before deployment and at periodic review intervals. It is used by the AIGC and CISO as part of the AI System Impact Assessment Procedure ([`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md)) and the AI System Audit and Certification Framework ([`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md)).
 
 The checklist is completed by the AI System Owner in the first instance, reviewed by the CISO, and reviewed by the Privacy Officer for items in Section B. For high-risk AI systems (Tier 1), the completed checklist is submitted to the AIGC for approval before deployment.
 
-### Completion Instructions
+### Completion instructions
 
 - For each item, select the status: **Yes**, **No**, **Partial**, or **N/A**.
 - **Evidence:** Record the document, record, test result, or system reference that substantiates the status selected.
@@ -32,7 +32,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ---
 
-## Checklist Header
+## Checklist header
 
 | Field | Entry |
 |---|---|
@@ -49,7 +49,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ---
 
-## Section A: Governance and Documentation
+## Section a: governance and documentation
 
 *Synthesized from: EU AI Act Art. 11, 13; ISO/IEC 42001:2023 §8.4; NIST AI RMF Govern function*
 
@@ -68,7 +68,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ---
 
-## Section B: Data and Privacy Compliance
+## Section b: data and privacy compliance
 
 *Synthesized from: GDPR Art. 5, 9, 22, 25, 35; EU AI Act Art. 10, 13; ISO/IEC 42001:2023 §8.4; ISO/IEC 27701*
 
@@ -85,7 +85,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ---
 
-## Section C: Security Controls
+## Section c: security controls
 
 *Synthesized from: OWASP LLM Top 10 (2025); MITRE ATLAS adversarial ML evaluation; EU AI Act Art. 15; NIST AI RMF Measure 2.6; ISO/IEC 42001:2023 §8.4*
 
@@ -102,7 +102,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ---
 
-## Section D: Operational Controls
+## Section d: operational controls
 
 *Synthesized from: EU AI Act Art. 14, 26; NIST AI RMF Manage function; IEEE 7000-2021 §7.3*
 
@@ -117,7 +117,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ---
 
-## Section E: Regulatory Compliance
+## Section e: regulatory compliance
 
 *Synthesized from: EU AI Act 2024 Title I-VIII; Canada AIDA 2024; UK AI Safety Institute guidance 2024; ISO/IEC 42001:2023; NIST AI RMF Govern function*
 
@@ -132,7 +132,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ---
 
-## Scoring and Disposition Guidance
+## Scoring and disposition guidance
 
 ### Scoring
 
@@ -146,7 +146,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 | 80% to 94% | Conditional: CAPA records must be raised for all No and Partial items before deployment is approved for Tier 1 systems; for systems in production, remediation plan required within 60 days |
 | Below 80% | **High finding**: system must not be deployed until score reaches at least 80%; systems already in production require a formal remediation plan approved by the AIGC within 60 days; CISO reports to AIGC at next scheduled meeting |
 
-### Mandatory CAPA Requirements for High-Risk (Tier 1) Systems
+### Mandatory CAPA requirements for high-risk (tier 1) systems
 
 For any AI system classified as Tier 1 (High-Risk):
 
@@ -156,7 +156,7 @@ For any AI system classified as Tier 1 (High-Risk):
 
 CAPA records are managed per [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md).
 
-### Re-Assessment Triggers
+### Re-assessment triggers
 
 This checklist must be re-completed when:
 

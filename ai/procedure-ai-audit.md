@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material AI framework or regulatory change 
 **Repository Path:** [`ai/procedure-ai-audit.md`](procedure-ai-audit.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ Applies to all AI systems in the AI System Inventory, including production AI mo
 
 ---
 
-## Roles and Responsibilities
+## Roles and responsibilities
 
 | Role | Responsibility |
 | --- | --- |
@@ -40,7 +40,7 @@ Applies to all AI systems in the AI System Inventory, including production AI mo
 
 ---
 
-## 1. Audit Planning
+## 1. Audit planning
 
 1.1 The AI audit plan is prepared annually by Internal Audit in consultation with the AIGC.
 
@@ -54,7 +54,7 @@ Applies to all AI systems in the AI System Inventory, including production AI mo
 
 ---
 
-## 2. Audit Scope Definition
+## 2. Audit scope definition
 
 2.1 For each AI audit, the scope defines:
 - AI system(s) under review.
@@ -67,7 +67,7 @@ Applies to all AI systems in the AI System Inventory, including production AI mo
 
 ---
 
-## 3. Evidence Collection
+## 3. Evidence collection
 
 3.1 Auditors collect evidence including:
 - Model documentation (Model Card, AI Impact Assessment, Training Data Record).
@@ -83,7 +83,7 @@ Applies to all AI systems in the AI System Inventory, including production AI mo
 
 ---
 
-## 4. Audit Execution
+## 4. Audit execution
 
 4.1 Auditors assess evidence against audit criteria and note:
 - Conformities: requirements met with evidence.
@@ -97,7 +97,7 @@ Applies to all AI systems in the AI System Inventory, including production AI mo
 
 ---
 
-## 5. Audit Reporting
+## 5. Audit reporting
 
 5.1 A draft AI Audit Report is issued to the AI System Owner within 10 business days of fieldwork completion.
 
@@ -116,7 +116,7 @@ Applies to all AI systems in the AI System Inventory, including production AI mo
 
 ---
 
-## 6. Corrective Action and Follow-Up
+## 6. Corrective action and follow-up
 
 6.1 All nonconformities are logged in the CAPA Register.
 
@@ -132,7 +132,7 @@ Applies to all AI systems in the AI System Inventory, including production AI mo
 
 ---
 
-## 7. AIGC Reporting
+## 7. AIGC reporting
 
 7.1 Internal Audit presents an AI audit summary to the AIGC quarterly.
 
@@ -142,7 +142,7 @@ Applies to all AI systems in the AI System Inventory, including production AI mo
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

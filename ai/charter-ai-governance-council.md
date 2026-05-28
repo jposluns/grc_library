@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material organizational or regulatory change 
 **Repository Path:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -41,7 +41,7 @@ The AI Governance Council is mandated to:
 
 ---
 
-## Scope of Authority
+## Scope of authority
 
 The AIGC has authority to:
 
@@ -72,32 +72,32 @@ Quorum requires attendance of the Chair plus at least three standing members.
 
 ## Responsibilities
 
-### 1. AI Risk and Ethics Oversight
+### 1. AI risk and ethics oversight
 
 - Review AI Impact Assessments for all high-risk AI systems.
 - Assess AI systems against the organizational AI risk taxonomy: Minimal, Limited, High, Unacceptable.
 - Evaluate fairness, bias mitigation, transparency, and explainability evidence.
 - Monitor outcomes of deployed AI systems against defined performance thresholds.
 
-### 2. Policy and Standards Governance
+### 2. Policy and standards governance
 
 - Approve AI governance policies, standards, and frameworks before publication.
 - Ensure that AI documents remain current with ISO/IEC 42001 and regulatory requirements.
 - Review and approve the AI System Inventory annually.
 
-### 3. Audit and Assurance
+### 3. Audit and assurance
 
 - Oversee the AI audit programme per the AI Audit Procedure.
 - Review AI audit findings and approve corrective action plans.
 - Report on AI governance maturity to the ERC quarterly.
 
-### 4. Incident and Escalation Management
+### 4. Incident and escalation management
 
 - Receive and review escalated AI-related security or ethics incidents.
 - Approve responses to AI system failures with significant impact.
 - Ensure that AI incidents are documented and lessons learned are incorporated.
 
-### 5. Model Lifecycle Governance
+### 5. Model lifecycle governance
 
 - Approve the deployment of new AI models into production.
 - Review material changes to deployed AI models (retraining, scope expansion).
@@ -105,7 +105,7 @@ Quorum requires attendance of the Chair plus at least three standing members.
 
 ---
 
-## Operating Procedures
+## Operating procedures
 
 | Activity | Frequency |
 | --- | --- |
@@ -131,7 +131,7 @@ The AIGC reports to the Enterprise Risk Committee (ERC). Quarterly AI Governance
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

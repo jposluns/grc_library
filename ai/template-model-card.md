@@ -2,7 +2,7 @@
 
 **Document Title:** Model Card Template 
 **Document Type:** Template 
-**Version:** 0.0.2 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** AI Governance Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** 6 to 12 months and upon material AI governance, model risk, or documentation change 
 **Repository Path:** [`ai/template-model-card.md`](template-model-card.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -24,9 +24,9 @@ Do not populate the public repository version with real model names, system name
 
 ---
 
-## Model Card Fields
+## Model card fields
 
-### 1. Model Overview
+### 1. Model overview
 
 | Field | Entry |
 | --- | --- |
@@ -42,7 +42,7 @@ Do not populate the public repository version with real model names, system name
 | Prohibited Uses | |
 | Risk Tier | Low, moderate, high, critical. |
 
-### 2. Functional Description
+### 2. Functional description
 
 | Field | Entry |
 | --- | --- |
@@ -54,7 +54,7 @@ Do not populate the public repository version with real model names, system name
 | Human Oversight | |
 | Deployment Context | Internal, external service, cloud-hosted, embedded platform, API, local, hybrid. |
 
-### 3. Data Provenance and Lineage
+### 3. Data provenance and lineage
 
 | Field | Entry |
 | --- | --- |
@@ -70,7 +70,7 @@ Do not populate the public repository version with real model names, system name
 | Deletion Method | |
 | Supplier Data Handling | |
 
-### 4. Evaluation Summary
+### 4. Evaluation summary
 
 | Field | Entry |
 | --- | --- |
@@ -83,7 +83,7 @@ Do not populate the public repository version with real model names, system name
 | Out-of-Distribution Results | |
 | Robustness Results | |
 
-### 5. Interpretability and Representation
+### 5. Interpretability and representation
 
 | Field | Entry |
 | --- | --- |
@@ -93,7 +93,7 @@ Do not populate the public repository version with real model names, system name
 | Bias or Disparity Indicators | |
 | Review Limitations | |
 
-### 6. Adversarial and Security Testing
+### 6. Adversarial and security testing
 
 | Field | Entry |
 | --- | --- |
@@ -108,7 +108,7 @@ Do not populate the public repository version with real model names, system name
 | Adversarial Test Summary | |
 | Remediation or Acceptance | |
 
-### 7. Monitoring and Operations
+### 7. Monitoring and operations
 
 | Field | Entry |
 | --- | --- |
@@ -120,7 +120,7 @@ Do not populate the public repository version with real model names, system name
 | Incident Response Linkage | |
 | Review Cadence | |
 
-### 8. Risk and Approval
+### 8. Risk and approval
 
 | Field | Entry |
 | --- | --- |
@@ -132,7 +132,7 @@ Do not populate the public repository version with real model names, system name
 | Approval Date | |
 | Next Review Date | |
 
-### 9. Retirement and Deletion
+### 9. Retirement and deletion
 
 | Field | Entry |
 | --- | --- |
@@ -147,7 +147,7 @@ Do not populate the public repository version with real model names, system name
 
 ---
 
-## Use Notes
+## Use notes
 
 A model card documents model-level risk and evidence. A system card documents deployment context, integrations, users, workflows, tools, and system-level controls. Both may be required for high-risk or externally integrated AI systems.
 

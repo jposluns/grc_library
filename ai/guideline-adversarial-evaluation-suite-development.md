@@ -2,7 +2,7 @@
 
 **Document Title:** Adversarial Evaluation Suite Development Guideline 
 **Document Type:** Guideline 
-**Version:** 0.0.2 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** AI Security Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** 6 to 12 months and upon material AI threat, model, data, supplier, or assurance change 
 **Repository Path:** [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,17 +28,17 @@ This guideline applies to predictive models, generative models, retrieval-augmen
 
 ---
 
-## Development Method
+## Development method
 
-### 1. Define Evaluation Objectives
+### 1. Define evaluation objectives
 
 Define the evaluation purpose, model or system scope, approved use, prohibited use, risk tier, users, data classes, deployment model, and required evidence.
 
-### 2. Identify Attack Surfaces
+### 2. Identify attack surfaces
 
 Assess attack surfaces including prompts, retrieved content, uploaded files, APIs, plugins, tools, code execution, browser content, email, documents, connectors, retrieval stores, model endpoints, logs, and supplier-operated services.
 
-### 3. Define Threat Scenarios
+### 3. Define threat scenarios
 
 Threat scenarios should consider:
 
@@ -57,29 +57,29 @@ Threat scenarios should consider:
 - Cross-user or cross-tenant data exposure.
 - Supplier control failure.
 
-### 4. Build Test Cases
+### 4. Build test cases
 
 Each test case should define objective, target control, input design, expected safe behaviour, failure condition, evidence to capture, severity criteria, and remediation path.
 
-### 5. Protect Test Data
+### 5. Protect test data
 
 Adversarial evaluation must not use real personal data, confidential data, customer data, supplier data, credentials, secrets, production tokens, or internal incident details in public templates or reusable test examples.
 
-### 6. Execute and Record Results
+### 6. Execute and record results
 
 Record results with sufficient detail for review without exposing sensitive prompts, system prompts, internal data, credentials, or exploit details that should remain restricted.
 
-### 7. Determine Residual Risk
+### 7. Determine residual risk
 
 Classify findings, assign owners, define mitigation, determine compensating controls, and record whether residual risk is accepted, deferred, or blocking.
 
-### 8. Update Governance Artefacts
+### 8. Update governance artefacts
 
 Update model cards, system cards, impact assessments, risk registers, monitoring requirements, supplier reviews, and incident playbooks where findings indicate control gaps.
 
 ---
 
-## Minimum Test Case Fields
+## Minimum test case fields
 
 | Field | Description |
 | --- | --- |
@@ -97,7 +97,7 @@ Update model cards, system cards, impact assessments, risk registers, monitoring
 
 ---
 
-## Evidence Requirements
+## Evidence requirements
 
 Maintain evaluation plan, test case inventory, execution summary, findings, remediation record, residual risk decision, approval record, and update log for affected model or system documentation.
 

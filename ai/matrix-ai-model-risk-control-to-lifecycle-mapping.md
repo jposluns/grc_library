@@ -2,7 +2,7 @@
 
 **Document Title:** AI Model Risk Control to Lifecycle Mapping Matrix 
 **Document Type:** Matrix 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** AI Governance Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** 6 to 12 months and upon material model, data, framework, threat, or assurance change 
 **Repository Path:** [`ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md`](matrix-ai-model-risk-control-to-lifecycle-mapping.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This matrix maps AI model risk control areas to lifecycle stages and evidence cl
 
 ---
 
-## Lifecycle Mapping
+## Lifecycle mapping
 
 | Control Area | Design | Data Preparation | Development | Validation | Deployment | Monitoring | Re-evaluation | Retirement | Evidence Class |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -46,7 +46,7 @@ This matrix maps AI model risk control areas to lifecycle stages and evidence cl
 
 ---
 
-## Framework Alignment Notes
+## Framework alignment notes
 
 External framework alignment should be recorded at a high level using framework names, domains, and evidence categories only. Do not reproduce third-party control statements, questionnaire text, implementation guidance, audit guidance, or metrics catalogues unless the material is confirmed CC0-compatible.
 
@@ -54,7 +54,7 @@ Suggested alignment families include AI management, AI risk management, informat
 
 ---
 
-## Maintenance Rules
+## Maintenance rules
 
 1. Add new control areas only where they materially improve lifecycle traceability.
 2. Keep evidence classes generic and organization-neutral.

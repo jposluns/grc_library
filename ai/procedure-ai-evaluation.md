@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material AI framework or regulatory change 
 **Repository Path:** [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ Applies to all AI systems under consideration for deployment, as well as deploye
 
 ---
 
-## Roles and Responsibilities
+## Roles and responsibilities
 
 | Role | Responsibility |
 | --- | --- |
@@ -40,7 +40,7 @@ Applies to all AI systems under consideration for deployment, as well as deploye
 
 ---
 
-## 1. Evaluation Triggers
+## 1. Evaluation triggers
 
 An AI evaluation is required when:
 
@@ -55,16 +55,16 @@ An AI evaluation is required when:
 
 ---
 
-## 2. Evaluation Dimensions
+## 2. Evaluation dimensions
 
-### 2.1 Technical Performance
+### 2.1 Technical performance
 
 - Evaluate accuracy, precision, recall, F1, or relevant task-specific metrics against defined thresholds.
 - Test on a held-out evaluation dataset representative of the deployment population.
 - Evaluate performance consistency across input subgroups.
 - Document performance degradation conditions and edge cases.
 
-### 2.2 Fairness and Bias
+### 2.2 Fairness and bias
 
 - Evaluate demographic parity and equalized odds across relevant protected groups.
 - Quantify bias magnitude; compare against acceptable threshold.
@@ -99,20 +99,20 @@ An AI evaluation is required when:
 
 ---
 
-## 3. Evaluation Process
+## 3. Evaluation process
 
-### Step 1: Evaluation Planning (5 business days before evaluation)
+### Step 1: evaluation planning (5 business days before evaluation)
 
 - Define evaluation scope, timeline, and responsible parties.
 - Confirm test data, evaluation tooling, and access requirements.
 - Notify AIGC of upcoming evaluation.
 
-### Step 2: Technical Evaluation (per agreed timeline)
+### Step 2: technical evaluation (per agreed timeline)
 
 - Execute all evaluation dimensions defined in Section 2.
 - Document results with supporting evidence (test outputs, logs, screenshots).
 
-### Step 3: Draft Evaluation Report (within 5 business days of evaluation completion)
+### Step 3: draft evaluation report (within 5 business days of evaluation completion)
 
 Report includes:
 - Executive summary.
@@ -121,13 +121,13 @@ Report includes:
 - Identified risks and recommended mitigations.
 - Overall recommendation: Deploy / Deploy with conditions / Do not deploy.
 
-### Step 4: AI Governance Council Review
+### Step 4: AI governance council review
 
 - Evaluation report submitted to AIGC for review.
 - AIGC reviews within 10 business days for High-risk systems.
 - AIGC issues approval, conditional approval, or rejection.
 
-### Step 5: Deployment or Remediation
+### Step 5: deployment or remediation
 
 - Approved systems proceed through the Acceptance Into Service Policy.
 - Conditionally approved systems address specified conditions before deployment.
@@ -135,13 +135,13 @@ Report includes:
 
 ---
 
-## 4. Evaluation Report Retention
+## 4. Evaluation report retention
 
 Evaluation reports are retained in the compliance repository for the lifecycle of the AI system plus 5 years.
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

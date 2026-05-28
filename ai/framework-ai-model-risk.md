@@ -2,7 +2,7 @@
 
 **Document Title:** AI Model Risk Framework 
 **Document Type:** Framework 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** AI Governance Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** 6 to 12 months and upon material model, data, threat, regulatory, or assurance change 
 **Repository Path:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -32,7 +32,7 @@ It applies across design, data preparation, development, training, validation, d
 
 ---
 
-## Model Risk Domains
+## Model risk domains
 
 | Domain | Risk Description |
 | --- | --- |
@@ -48,7 +48,7 @@ It applies across design, data preparation, development, training, validation, d
 
 ---
 
-## Lifecycle Control Model
+## Lifecycle control model
 
 | Lifecycle Stage | Model Risk Focus | Evidence Class |
 | --- | --- | --- |
@@ -63,7 +63,7 @@ It applies across design, data preparation, development, training, validation, d
 
 ---
 
-## Evaluation Requirements
+## Evaluation requirements
 
 Model risk evaluation should be proportionate to risk and may include:
 
@@ -83,7 +83,7 @@ Model risk evaluation should be proportionate to risk and may include:
 
 ---
 
-## Governance Requirements
+## Governance requirements
 
 Each model or model-enabled system should have:
 

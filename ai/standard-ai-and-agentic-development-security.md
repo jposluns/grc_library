@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material AI framework or regulatory change 
 **Repository Path:** [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -35,7 +35,7 @@ This standard does not apply to deterministic rule-based automation without LLM 
 
 ---
 
-## 2. Threat Model
+## 2. Threat model
 
 | Threat | Description |
 | --- | --- |
@@ -52,7 +52,7 @@ This standard does not apply to deterministic rule-based automation without LLM 
 
 ---
 
-## 3. Trust Zones
+## 3. Trust zones
 
 | Zone | Trust Level |
 | --- | --- |
@@ -70,7 +70,7 @@ Enforcement points: input validation before inference; output validation before 
 
 ---
 
-## 4. Security Architecture Principles
+## 4. Security architecture principles
 
 | ID | Principle |
 | --- | --- |
@@ -85,7 +85,7 @@ Enforcement points: input validation before inference; output validation before 
 
 ---
 
-## 5. Secure-by-Default Requirements
+## 5. Secure-by-default requirements
 
 | Parameter | Required Default |
 | --- | --- |
@@ -102,7 +102,7 @@ Enforcement points: input validation before inference; output validation before 
 
 ---
 
-## 6. Threat Classes
+## 6. Threat classes
 
 | Class | Description |
 | --- | --- |
@@ -120,7 +120,7 @@ Enforcement points: input validation before inference; output validation before 
 
 ---
 
-## 7. Mandatory Input and Output Controls
+## 7. Mandatory input and output controls
 
 **AI-SEC-INP-01:** All user-supplied text must pass through an AI content safety prompt shield service before reaching the LLM.
 
@@ -142,7 +142,7 @@ Enforcement points: input validation before inference; output validation before 
 
 ---
 
-## 8. Prohibited Engineering Patterns
+## 8. Prohibited engineering patterns
 
 Absolute prohibitions. No exception without written CIO/CISO approval.
 
@@ -171,9 +171,9 @@ Absolute prohibitions. No exception without written CIO/CISO approval.
 
 ---
 
-## 9. AI-Assisted Development Controls
+## 9. AI-assisted development controls
 
-### Approved Tools
+### Approved tools
 
 Approved AI coding tools:
 
@@ -182,7 +182,7 @@ Approved AI coding tools:
 
 Use of other AI coding tools, including public web interfaces, to generate code for production systems requires CIO approval.
 
-### Secure Coding Rules Deployment
+### Secure coding rules deployment
 
 The TikiTribe claude-secure-coding-rules repository is the approved Claude Code rules framework. Relevant CLAUDE.md rule files must be deployed in the project's `.claude/` directory before development begins.
 
@@ -200,7 +200,7 @@ The TikiTribe claude-secure-coding-rules repository is the approved Claude Code 
 
 Rule deployment is verified in CI. Builds fail if required rule files are absent when AI-generated code is detected in the commit.
 
-### AI-Generated Code Requirements
+### AI-generated code requirements
 
 **DEVSEC-AI-01:** All AI-generated code must include AI attribution disclosure in the commit message or inline comment identifying the tool and model version.
 
@@ -214,7 +214,7 @@ Rule deployment is verified in CI. Builds fail if required rule files are absent
 
 **DEVSEC-AI-06:** No AI-generated code deploys to production until it passes the production onboarding security checklist gate.
 
-### Engineering Coding Standards (AI Modules)
+### Engineering coding standards (AI modules)
 
 | Requirement | Standard |
 | --- | --- |
@@ -231,7 +231,7 @@ Rule deployment is verified in CI. Builds fail if required rule files are absent
 
 ---
 
-## 10. Agent Security Requirements
+## 10. Agent security requirements
 
 **AGENT-SEC-01:** Each agent must operate under a dedicated, scoped identity. Agents use managed identity or a dedicated service principal with minimum required RBAC. Shared agent identities are prohibited.
 
@@ -263,7 +263,7 @@ Rule deployment is verified in CI. Builds fail if required rule files are absent
 
 ---
 
-## 11. RAG Security Requirements
+## 11. RAG security requirements
 
 **RAG-SEC-01:** Documents may only be ingested from approved source systems. Ingestion from arbitrary sources is prohibited.
 
@@ -285,7 +285,7 @@ Rule deployment is verified in CI. Builds fail if required rule files are absent
 
 ---
 
-## 12. MCP Security Requirements
+## 12. MCP security requirements
 
 **MCP-SEC-01:** Only organization-controlled MCP servers are permitted in production. Third-party MCP servers require security team review before any integration.
 
@@ -303,7 +303,7 @@ Rule deployment is verified in CI. Builds fail if required rule files are absent
 
 ---
 
-## 13. Prompt Security Requirements
+## 13. Prompt security requirements
 
 **PROMPT-SEC-01:** System prompts must be stored in a version-controlled prompt registry or secrets management service with versioning. Changes are tracked and approved as code changes.
 
@@ -319,7 +319,7 @@ Rule deployment is verified in CI. Builds fail if required rule files are absent
 
 ---
 
-## 14. Context Isolation Requirements
+## 14. Context isolation requirements
 
 **CTX-ISO-01:** Each user session must have a dedicated, isolated context buffer enforced at the application layer.
 
@@ -331,7 +331,7 @@ Rule deployment is verified in CI. Builds fail if required rule files are absent
 
 ---
 
-## 15. Memory Security Requirements
+## 15. Memory security requirements
 
 **MEM-SEC-01:** Persistent cross-session memory is prohibited by default. Enabling it requires design approval and a Privacy Impact Assessment. See Privacy Management Programme.
 
@@ -345,7 +345,7 @@ Rule deployment is verified in CI. Builds fail if required rule files are absent
 
 ---
 
-## 16. Runtime Enforcement Controls
+## 16. Runtime enforcement controls
 
 **RUNTIME-SEC-01:** All production AI systems must have AI content safety filters enabled. Hate, self-harm, sexual content, violence, jailbreak detection, and indirect attack detection must be active at the highest available sensitivity.
 
@@ -361,7 +361,7 @@ Rule deployment is verified in CI. Builds fail if required rule files are absent
 
 ---
 
-## 17. Infrastructure Security Requirements
+## 17. Infrastructure security requirements
 
 **INFRA-SEC-01:** Containers hosting AI workloads must be network-integrated with egress through a cloud firewall or egress gateway with explicit allow-list rules.
 
@@ -383,7 +383,7 @@ Rule deployment is verified in CI. Builds fail if required rule files are absent
 
 ---
 
-## 18. AI Supply Chain Security
+## 18. AI supply chain security
 
 **SUPPLY-SEC-01:** All AI Python packages must be pinned to specific versions with hash verification. Unpinned AI dependencies are a Critical CI finding.
 
@@ -399,7 +399,7 @@ Rule deployment is verified in CI. Builds fail if required rule files are absent
 
 ---
 
-## 19. CI/CD Pipeline Controls
+## 19. CI/CD pipeline controls
 
 Every CI/CD pipeline for AI-enabled systems must include the following gates in addition to the standard DevOps pipeline gates:
 
@@ -418,7 +418,7 @@ Every CI/CD pipeline for AI-enabled systems must include the following gates in 
 
 ---
 
-## 20. AI Observability and Telemetry
+## 20. AI observability and telemetry
 
 | Event | Required Fields | Destination |
 | --- | --- | --- |
@@ -438,9 +438,9 @@ Log retention per Data Retention Schedule.
 
 ---
 
-## 21. Security Testing Requirements
+## 21. Security testing requirements
 
-### Pre-Production Gate
+### Pre-production gate
 
 - Prompt injection resistance (promptfoo): pass with no open findings
 - Garak vulnerability scan: pass all required probe categories
@@ -450,7 +450,7 @@ Log retention per Data Retention Schedule.
 - Data classification boundary test: Confidential data not returned in Internal-authorized contexts
 - Human approval gate test: irreversible actions blocked without explicit human confirmation
 
-### Regression Schedule
+### Regression schedule
 
 | Test Type | Frequency | Trigger |
 | --- | --- | --- |
@@ -462,7 +462,7 @@ Log retention per Data Retention Schedule.
 
 ---
 
-## 22. Adversarial Testing Requirements
+## 22. Adversarial testing requirements
 
 The adversarial test suite must cover five categories on every system in scope. Required categories and test cases are in the AI Adversarial Test Reference.
 
@@ -472,7 +472,7 @@ The adversarial test suite must cover five categories on every system in scope. 
 
 ---
 
-## 23. Red Team Requirements
+## 23. Red team requirements
 
 **REDTEAM-SEC-01:** All AI systems handling Confidential data or capable of initiating actions with financial or operational impact must undergo red team evaluation before production go-live and annually thereafter.
 
@@ -484,7 +484,7 @@ The adversarial test suite must cover five categories on every system in scope. 
 
 ---
 
-## 24. Human Approval Boundaries
+## 24. Human approval boundaries
 
 | Action | Minimum Approval | Reversibility |
 | --- | --- | --- |
@@ -499,7 +499,7 @@ The adversarial test suite must cover five categories on every system in scope. 
 
 ---
 
-## 25. Data Security Requirements
+## 25. Data security requirements
 
 **DATA-SEC-01:** Data entering AI systems must be classified before processing. Restricted-classified data must not be sent to any external AI API.
 
@@ -513,7 +513,7 @@ The adversarial test suite must cover five categories on every system in scope. 
 
 ---
 
-## 26. Secret Handling Requirements
+## 26. Secret handling requirements
 
 **SECRET-SEC-01:** Secrets must never appear in prompts, prompt templates, retrieved context, tool call parameters, or any payload sent to an LLM API. Absolute prohibition.
 
@@ -525,7 +525,7 @@ The adversarial test suite must cover five categories on every system in scope. 
 
 ---
 
-## 27. Model Governance Requirements
+## 27. Model governance requirements
 
 **MODEL-GOV-01:** Each deployed model must have a Model Registry entry documenting: model name and version, provider, deployment date, use case, data types processed, data residency status, content filter configuration, and approved-for-production status. See AI Risk Register.
 
@@ -539,7 +539,7 @@ The adversarial test suite must cover five categories on every system in scope. 
 
 ---
 
-## 28. Logging and Audit Requirements
+## 28. Logging and audit requirements
 
 **LOG-SEC-01:** All AI system operations must generate structured JSON audit logs. Minimum required log format is defined in the AI Security Technical Implementation Guide.
 
@@ -551,9 +551,9 @@ The adversarial test suite must cover five categories on every system in scope. 
 
 ---
 
-## 29. Incident Detection and Response
+## 29. Incident detection and response
 
-### AI Incident Indicators
+### AI incident indicators
 
 - Confirmed prompt injection: user input or retrieved content successfully overrode system prompt behaviour
 - Unexpected data exfiltration: AI output containing another user's context or above-authorized classification
@@ -562,7 +562,7 @@ The adversarial test suite must cover five categories on every system in scope. 
 - Content filter circumvention: prohibited content generated despite active filters
 - Autonomous action breach: agent performed an action outside its defined autonomous scope
 
-### AI-Specific IR Additions
+### AI-specific IR additions
 
 When an AI security incident is declared, the following steps apply in addition to the standard Incident Response Procedure:
 
@@ -575,7 +575,7 @@ When an AI security incident is declared, the following steps apply in addition 
 
 ---
 
-## 30. Autonomous Action Constraints
+## 30. Autonomous action constraints
 
 **AUTON-SEC-01:** AI systems operate in Supervised Autonomous mode by default. Agents may plan and prepare actions autonomously; consequential execution requires human confirmation.
 
@@ -591,7 +591,7 @@ When an AI security incident is declared, the following steps apply in addition 
 
 ---
 
-## 31. Secure Agent Orchestration
+## 31. Secure agent orchestration
 
 **ORCH-SEC-01:** Agent security policies are not inherited through orchestration. The orchestrator may reduce but not expand a called agent's permission set.
 
@@ -609,7 +609,7 @@ When an AI security incident is declared, the following steps apply in addition 
 
 ---
 
-## 32. Sandbox and Isolation
+## 32. Sandbox and isolation
 
 **SANDBOX-SEC-01:** Agents executing code must do so in isolated sandbox containers with no persistent filesystem access, no network access except to allow-listed endpoints, CPU/memory limits, and maximum execution time limits.
 
@@ -621,7 +621,7 @@ When an AI security incident is declared, the following steps apply in addition 
 
 ---
 
-## 33. Verification and Enforcement
+## 33. Verification and enforcement
 
 Compliance with this standard is verified through: CI/CD pipeline gate results (automated, per commit); pre-production security checklist gate (per deployment); quarterly security review of AI systems (manual); and annual red team evaluation per §23.
 
@@ -631,7 +631,7 @@ This standard is reviewed and updated at minimum annually, or when any of the fo
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Control Area | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM v1 | NIST AI RMF |
 | --- | --- | --- | --- | --- |

@@ -12,7 +12,7 @@
 **Review Frequency:** Quarterly and upon material AI system change or incident 
 **Repository Path:** [`ai/register-ai-risk.md`](register-ai-risk.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This register defines the schema, governance, and representative risk entries fo
 
 ---
 
-## Register Schema
+## Register schema
 
 Each AI risk entry must contain the following fields:
 
@@ -49,7 +49,7 @@ Each AI risk entry must contain the following fields:
 
 ---
 
-## Risk Categories
+## Risk categories
 
 | Category | Description |
 | --- | --- |
@@ -63,7 +63,7 @@ Each AI risk entry must contain the following fields:
 
 ---
 
-## Representative Risk Entries
+## Representative risk entries
 
 The following entries represent the baseline risk register template. Actual operational entries are maintained in the GRC platform and are updated quarterly by the GRC Programme Manager.
 
@@ -95,7 +95,7 @@ The register is updated within 5 business days of any:
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

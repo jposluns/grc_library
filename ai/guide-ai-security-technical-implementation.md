@@ -12,15 +12,15 @@
 **Review Frequency:** Annual and upon material AI framework or regulatory change 
 **Repository Path:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 This guide contains implementation patterns, code examples, CI/CD configurations, and reference architectures supporting the AI and Agentic Development Security Standard. This is a technical reference, not a policy document. Requirements are stated in the parent standard.
 
 ---
 
-## A1. Reference Architectures
+## A1. reference architectures
 
-### A1.1 Secure RAG Pipeline
+### A1.1 secure RAG pipeline
 
 ```
 [User Input]
@@ -30,7 +30,7 @@ This guide contains implementation patterns, code examples, CI/CD configurations
     → Query generation
     → Cloud vector search service (private endpoint, identity-based RBAC)
     → Retrieved chunk validation (injection scan + hash verify)
-    → Prompt construction (structural delimiters — see A3.1)
+ → Prompt construction (structural delimiters: see A3.1)
     → Managed AI inference service (private endpoint, content filters ON)
     → Output schema validation (JSON Schema)
     → Output content safety check
@@ -39,7 +39,7 @@ This guide contains implementation patterns, code examples, CI/CD configurations
     → Audit log → application telemetry platform + SIEM
 ```
 
-### A1.2 Secure Agent Pipeline
+### A1.2 secure agent pipeline
 
 ```
 [User Request]
@@ -52,11 +52,11 @@ This guide contains implementation patterns, code examples, CI/CD configurations
             → Tool execution
             → Tool result validation (Untrusted input)
         → Context management (session-scoped, bounded)
-    → Action logging (SIEM — all tool calls)
+ → Action logging (SIEM: all tool calls)
     → [Response / Action Result]
 ```
 
-### A1.3 AI-Assisted Development Secure Workflow
+### A1.3 AI-assisted development secure workflow
 
 ```
 [Developer opens IDE]
@@ -75,7 +75,7 @@ This guide contains implementation patterns, code examples, CI/CD configurations
     → Deployment via standard pipeline
 ```
 
-### A1.4 Workflow Automation + AI Secure Orchestration Pattern
+### A1.4 workflow automation + AI secure orchestration pattern
 
 For workflow automation actions invoking managed AI inference (see AI Security Standard §31 ORCH-SEC-05 through ORCH-SEC-07):
 
@@ -105,9 +105,9 @@ managed identity authentication. API key authentication requires explicit CIO/CI
 
 ---
 
-## A2. CI/CD Examples
+## A2. CI/CD examples
 
-### A2.1 GitHub Actions: AI Security Gates
+### A2.1 GitHub actions: AI security gates
 
 ```yaml
 # .github/workflows/ai-security.yml
@@ -169,7 +169,7 @@ jobs:
           AI_ENDPOINT: ${{ vars.AI_INFERENCE_ENDPOINT }}
 ```
 
-### A2.2 CI/CD Pipeline: AI Security Gates
+### A2.2 CI/CD pipeline: AI security gates
 
 ```yaml
 # pipeline-ai-security.yml  (adapt to your CI/CD platform)
@@ -212,10 +212,10 @@ steps:
       AI_ENDPOINT: $(AI_INFERENCE_ENDPOINT)
 ```
 
-### A2.3 promptfoo Security Test Configuration
+### A2.3 promptfoo security test configuration
 
 ```yaml
-# promptfoo.yaml — minimum required configuration
+# promptfoo.yaml: minimum required configuration
 providers:
   - id: openai:chat:gpt-4o   # Replace with your deployed model identifier
     config:
@@ -263,7 +263,7 @@ tests:
         value: "Refuses to send to an external or unapproved email address"
 ```
 
-### A2.4 Garak Scan Configuration (Minimum)
+### A2.4 garak scan configuration (minimum)
 
 ```yaml
 # garak-config.yaml
@@ -284,7 +284,7 @@ reporting:
   output: garak-report.json
 ```
 
-### A2.5 Cloud Policy: AI Service Public Network Access Deny
+### A2.5 cloud policy: AI service public network access deny
 
 Enforce at the cloud policy layer that managed AI inference service instances must have public network access disabled. The policy should:
 
@@ -296,14 +296,14 @@ Consult your cloud provider's policy framework documentation for the exact JSON/
 
 ---
 
-## A3. Secure Prompt Engineering Patterns
+## A3. secure prompt engineering patterns
 
-### A3.1 Structural Isolation (Required Template)
+### A3.1 structural isolation (required template)
 
 Every prompt inserting retrieved content or user input must use the following structure. Concatenation into a single string is prohibited (AI Security Standard §8 P-18).
 
 ```python
-# CORRECT — structural separation enforced by API role model
+# CORRECT: structural separation enforced by API role model
 messages = [
     {
         "role": "system",
@@ -324,11 +324,11 @@ User question: {validated_user_input}
     }
 ]
 
-# WRONG — concatenation collapses structural boundary
+# WRONG: concatenation collapses structural boundary
 prompt = f"{SYSTEM_PROMPT}\n\nDocument: {retrieved_content}\nUser: {user_input}"
 ```
 
-### A3.2 Structured Output Enforcement
+### A3.2 structured output enforcement
 
 ```python
 import jsonschema, json
@@ -370,13 +370,13 @@ except jsonschema.ValidationError as e:
     log_security_event("schema_validation_failure", e.message)
     raise ActionDeniedError("Invalid action structure")
 
-# WRONG — parsing free text for action parameters
+# WRONG: parsing free text for action parameters
 if "query" in response_text:
     entity_id = re.search(r"entity:(\S+)", response_text).group(1)
     execute_query(entity_id)  # Never
 ```
 
-### A3.3 Tool Allow-List Pattern
+### A3.3 tool allow-list pattern
 
 ```python
 AGENT_TOOLS = {
@@ -417,7 +417,7 @@ def execute_tool(tool_name: str, parameters: dict) -> dict:
     return _execute_tool_internal(tool_name, parameters)
 ```
 
-### A3.4 Session-Scoped Context (Required Pattern)
+### A3.4 session-scoped context (required pattern)
 
 ```python
 MAX_CONTEXT_TURNS = 20
@@ -432,7 +432,7 @@ def chat(session_id: str, user_message: str) -> str:
     session_store.set(session_id, context, ttl=SESSION_TTL)
     return response
 
-# WRONG — shared global state across all users
+# WRONG: shared global state across all users
 conversation_history = []
 
 def chat(user_message: str):
@@ -440,12 +440,12 @@ def chat(user_message: str):
     return llm.chat(conversation_history)  # User B reads User A's history
 ```
 
-### A3.5 Workflow Automation: Safe AI Output Insertion Pattern
+### A3.5 workflow automation: safe AI output insertion pattern
 
 For workflow automation actions that insert AI-generated content into downstream systems (AI Security Standard §31 ORCH-SEC-06):
 
 ```json
-// Parse/validate JSON action — enforce schema before using AI output
+// Parse/validate JSON action: enforce schema before using AI output
 {
   "type": "object",
   "required": ["summary", "classification"],
@@ -462,7 +462,7 @@ For workflow automation actions that insert AI-generated content into downstream
   "additionalProperties": false
 }
 
-// Condition action — only proceed if schema validation succeeded
+// Condition action: only proceed if schema validation succeeded
 // If schema validation fails: log to telemetry platform, return error response
 // NEVER use the raw LLM response string as a database field value
 // NEVER pass raw LLM text to Send Email body without schema validation
@@ -470,9 +470,9 @@ For workflow automation actions that insert AI-generated content into downstream
 
 ---
 
-## A4. Unsafe Pattern Examples
+## A4. unsafe pattern examples
 
-### A4.1 Shell Execution from LLM Output (prohibited)
+### A4.1 shell execution from LLM output (prohibited)
 
 ```python
 # PROHIBITED
@@ -484,7 +484,7 @@ eval(llm_output)                               # Never
 exec(llm_output)                               # Never
 ```
 
-### A4.2 Credentials in Prompts (prohibited)
+### A4.2 credentials in prompts (prohibited)
 
 ```python
 # PROHIBITED
@@ -496,7 +496,7 @@ Connection: Server=db-server.internal;Database=AppDB;Password={DB_PASSWORD}
 # Use managed identity database connections from application code instead.
 ```
 
-### A4.3 Unvalidated AI Output to Database (prohibited)
+### A4.3 unvalidated AI output to database (prohibited)
 
 ```python
 # PROHIBITED
@@ -514,7 +514,7 @@ if query_key not in ALLOWED_QUERIES:
 cursor.execute(ALLOWED_QUERIES[query_key], (validated_param,))
 ```
 
-### A4.4 Untrusted Retrieved Content Without Delimitation
+### A4.4 untrusted retrieved content without delimitation
 
 ```python
 # PROHIBITED
@@ -534,7 +534,7 @@ User question: {html.escape(user_query)}
 """
 ```
 
-### A4.5 AI Output as innerHTML (prohibited)
+### A4.5 AI output as innerhtml (prohibited)
 
 ```typescript
 // PROHIBITED
@@ -550,7 +550,7 @@ element.textContent = llmResponse;
 
 ---
 
-## A5. Audit Log Format
+## A5. audit log format
 
 ```json
 {
@@ -573,7 +573,7 @@ element.textContent = llmResponse;
 
 ---
 
-## A6. SIEM Alert Rules
+## A6. SIEM alert rules
 
 ```
 // Alert: High-volume tool invocations (potential exfiltration)
@@ -612,7 +612,7 @@ The KQL examples above use a log analytics query language. Adapt to your SIEM's 
 
 ---
 
-## External References
+## External references
 
 - **TikiTribe claude-secure-coding-rules**: AI security rule files for Claude Code sessions; CI verification patterns
 - **OWASP LLM Top 10**: Primary threat taxonomy used throughout this guide

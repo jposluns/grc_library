@@ -2,7 +2,7 @@
 
 **Document Title:** AI Governance and Risk Framework 
 **Document Type:** Framework 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** AI Governance Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** 6 to 12 months and upon material AI risk or regulatory change 
 **Repository Path:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -42,7 +42,7 @@ It applies to:
 
 ---
 
-## Governance Objectives
+## Governance objectives
 
 1. Maintain an authoritative AI system inventory.
 2. Classify AI systems by risk, data sensitivity, autonomy, impact, and operating context.
@@ -56,13 +56,13 @@ It applies to:
 
 ---
 
-## AI Lifecycle Model
+## AI lifecycle model
 
 | Lifecycle Stage | Governance Requirement | Evidence Class |
 | --- | --- | --- |
 | Intake | Proposed AI system is recorded before use. | Intake form, business justification, owner assignment. |
 | Classification | Risk, data sensitivity, autonomy, user population, and impact are classified. | Risk tiering record, classification decision. |
-| Data Review | Data origin, permitted use, provenance, lineage, retention, and deletion are assessed. | Data assessment, lineage record, licence or rights review. |
+| Data Review | Data origin, permitted use, provenance, lineage, retention, and deletion are assessed. | Data assessment, lineage record, license or rights review. |
 | Impact Assessment | Privacy, security, legal, ethical, operational, resilience, and supplier risks are evaluated. | AI impact assessment, residual risk decision. |
 | Design and Configuration | Controls are defined for identity, access, logging, model behaviour, prompts, tools, retrieval, and data flows. | Architecture record, control design, threat model. |
 | Testing and Validation | Functionality, safety, security, privacy, bias, misuse, and failure modes are tested. | Test plan, test result, defect log. |
@@ -74,7 +74,7 @@ It applies to:
 
 ---
 
-## Risk Classification Criteria
+## Risk classification criteria
 
 AI systems should be classified using criteria including:
 
@@ -96,7 +96,7 @@ AI systems should be classified using criteria including:
 
 ---
 
-## Control Domains
+## Control domains
 
 | Domain | Required Control Intent |
 | --- | --- |
@@ -114,7 +114,7 @@ AI systems should be classified using criteria including:
 
 ---
 
-## Shadow AI Control Boundary
+## Shadow AI control boundary
 
 Unapproved AI services, browser extensions, coding agents, meeting assistants, model APIs, data analysis services, prompt repositories, and document summarization services must be governed as shadow AI unless they have completed intake, classification, data review, and approval.
 
@@ -132,7 +132,7 @@ The control boundary must cover:
 
 ---
 
-## Assurance Requirements
+## Assurance requirements
 
 AI governance assurance should include:
 

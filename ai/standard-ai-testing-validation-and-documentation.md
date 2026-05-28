@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material AI framework or regulatory change 
 **Repository Path:** [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -30,7 +30,7 @@ Applies to all AI systems, machine learning models, generative AI tools, and aut
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -42,7 +42,7 @@ Applies to all AI systems, machine learning models, generative AI tools, and aut
 
 ---
 
-## 1. AI System Documentation Requirements
+## 1. AI system documentation requirements
 
 All AI systems must maintain current documentation covering:
 
@@ -59,36 +59,36 @@ High-risk AI systems (EU AI Act Annex III) must maintain technical documentation
 
 ---
 
-## 2. Pre-Deployment Testing Requirements
+## 2. Pre-deployment testing requirements
 
 All AI systems must pass the following testing gates before production deployment:
 
-### 2.1 Functional Validation
+### 2.1 Functional validation
 
 - Accuracy, precision, recall, and F1 score meet defined acceptance thresholds.
 - Output consistency verified across representative input distributions.
 - Edge case and adversarial input handling documented and tested.
 
-### 2.2 Bias and Fairness Testing
+### 2.2 Bias and fairness testing
 
 - Demographic parity and equalized odds evaluated across protected groups.
 - Bias mitigation techniques documented and validated.
 - Residual bias below defined acceptable thresholds; residual risk documented.
 
-### 2.3 Explainability Validation
+### 2.3 Explainability validation
 
 - Explanations generated for representative model decisions.
 - Explainability method appropriate to deployment context (SHAP, LIME, or equivalent).
 - Output interpretable by the intended decision-making audience.
 
-### 2.4 Security Testing
+### 2.4 Security testing
 
 - Adversarial robustness testing performed (evasion, poisoning, extraction attacks).
 - AI system tested against OWASP LLM Top 10 where applicable.
 - Prompt injection and data leakage risks assessed for generative AI systems.
 - Model outputs do not expose training data or confidential system information.
 
-### 2.5 Privacy Testing
+### 2.5 Privacy testing
 
 - Personal data processing confirmed within declared scope.
 - Data minimization and purpose limitation validated.
@@ -96,7 +96,7 @@ All AI systems must pass the following testing gates before production deploymen
 
 ---
 
-## 3. Post-Deployment Monitoring Requirements
+## 3. Post-deployment monitoring requirements
 
 Deployed AI systems must be monitored continuously for:
 
@@ -112,7 +112,7 @@ Material performance degradation triggers model review and potential retraining 
 
 ---
 
-## 4. Retraining and Update Validation
+## 4. Retraining and update validation
 
 AI models undergoing retraining or significant update must complete:
 
@@ -123,7 +123,7 @@ AI models undergoing retraining or significant update must complete:
 
 ---
 
-## 5. Risk Tier Testing Requirements
+## 5. Risk tier testing requirements
 
 | Risk Tier | Additional Testing Requirements |
 | --- | --- |
@@ -134,7 +134,7 @@ AI models undergoing retraining or significant update must complete:
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

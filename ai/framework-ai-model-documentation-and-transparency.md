@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material AI framework or regulatory change 
 **Repository Path:** [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ Applies to all AI systems, machine learning models, generative AI tools, and aut
 
 ---
 
-## Governance and Accountability
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -40,7 +40,7 @@ Applies to all AI systems, machine learning models, generative AI tools, and aut
 
 ---
 
-## 1. Model Card Requirements
+## 1. Model card requirements
 
 Every AI system must have a current Model Card. Model Cards are living documents updated at each major version or retraining event.
 
@@ -64,7 +64,7 @@ Every AI system must have a current Model Card. Model Cards are living documents
 
 ---
 
-## 2. AI Impact Assessment
+## 2. AI impact assessment
 
 An AI Impact Assessment (AI-IA) is required for all Limited and High-risk AI systems before deployment and following any material change.
 
@@ -81,7 +81,7 @@ An AI Impact Assessment (AI-IA) is required for all Limited and High-risk AI sys
 
 ---
 
-## 3. Training Data Record
+## 3. Training data record
 
 All AI systems must maintain a Training Data Record covering:
 
@@ -94,15 +94,15 @@ All AI systems must maintain a Training Data Record covering:
 
 ---
 
-## 4. Transparency Disclosures
+## 4. Transparency disclosures
 
-### 4.1 Internal Transparency
+### 4.1 Internal transparency
 
 All stakeholders with governance responsibility for an AI system must have access to the current Model Card and AI Impact Assessment.
 
 The AI System Inventory published by the GRC Programme Manager provides a summary view of all deployed AI systems and their risk tiers.
 
-### 4.2 Affected Individual Transparency
+### 4.2 Affected individual transparency
 
 Where an AI system makes or materially influences decisions affecting individuals (customers, employees, suppliers), the organization must:
 
@@ -111,13 +111,13 @@ Where an AI system makes or materially influences decisions affecting individual
 - Provide a mechanism for individuals to request human review of AI-influenced decisions (GDPR Article 22 right).
 - Document the explanation provided and retain for audit purposes.
 
-### 4.3 Regulatory Transparency
+### 4.3 Regulatory transparency
 
 For High-risk AI systems under the EU AI Act, technical documentation per Annex IV must be maintained and available to competent authorities on request.
 
 ---
 
-## 5. Documentation Lifecycle
+## 5. Documentation lifecycle
 
 | Event | Documentation Action |
 | --- | --- |
@@ -129,7 +129,7 @@ For High-risk AI systems under the EU AI Act, technical documentation per Annex 
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

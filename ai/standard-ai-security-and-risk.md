@@ -2,7 +2,7 @@
 
 **Document Title:** AI Security and Risk Standard 
 **Document Type:** Standard 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** AI Security Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** 6 to 12 months and upon material AI threat, framework, or regulatory change 
 **Repository Path:** [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -30,15 +30,15 @@ The standard applies regardless of whether the AI system is internally developed
 
 ---
 
-## Minimum Requirements
+## Minimum requirements
 
-### 1. Inventory and Ownership
+### 1. Inventory and ownership
 
 1. Each AI system must be recorded in the AI System Register before production use.
 2. Each AI system must have an assigned AI System Owner, Data Owner, Control Owner, and Supplier Owner where applicable.
 3. Each AI system must have a documented business purpose, approved use case, prohibited use conditions, lifecycle status, and review date.
 
-### 2. Data Governance
+### 2. Data governance
 
 1. Data used by the AI system must be classified before use.
 2. Data provenance must be documented for training, fine-tuning, retrieval, prompt, inference, monitoring, and evaluation data.
@@ -47,14 +47,14 @@ The standard applies regardless of whether the AI system is internally developed
 5. Data used in prompts, files, retrieval stores, vector databases, logs, model evaluations, and monitoring must follow retention and deletion rules.
 6. The system must not use organizational data for external model training or provider improvement unless explicitly approved and documented.
 
-### 3. Identity and Access Control
+### 3. Identity and access control
 
 1. Access to AI systems must use approved identity and access management processes.
 2. Privileged administrative access must be restricted, logged, and reviewed.
 3. API keys, tokens, service accounts, plugins, agents, and tool permissions must be inventoried and rotated according to risk.
 4. Access to prompts, outputs, logs, retrieval stores, model endpoints, datasets, and evaluation records must be restricted by need to know.
 
-### 4. Prompt, Retrieval, and Tool Security
+### 4. Prompt, retrieval, and tool security
 
 1. Systems using user prompts, retrieved content, documents, browser data, email, tickets, repositories, or web content must be assessed for prompt injection exposure.
 2. Systems with tool use, code execution, workflow execution, transaction initiation, or external API access must define allowed actions and denial conditions.
@@ -62,7 +62,7 @@ The standard applies regardless of whether the AI system is internally developed
 4. Retrieval content must be permission-filtered and must not expose data across users, roles, tenants, customers, or business contexts.
 5. System prompts, policy prompts, guardrail instructions, and tool schemas must be protected from unauthorized disclosure and modification.
 
-### 5. Model and Data Attack Resistance
+### 5. Model and data attack resistance
 
 Controls must address, proportionate to risk:
 
@@ -79,7 +79,7 @@ Controls must address, proportionate to risk:
 - Unauthorized model extraction.
 - Evaluation data contamination.
 
-### 6. Testing and Validation
+### 6. Testing and validation
 
 1. AI systems must be tested before release and after material change.
 2. Test coverage must include intended use, prohibited use, security boundaries, data leakage, access control, prompt injection, unsafe outputs, failure modes, and monitoring triggers.
@@ -88,21 +88,21 @@ Controls must address, proportionate to risk:
 5. Known limitations must be documented and communicated to users and control owners.
 6. Testing and validation documentation requirements are governed by [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md).
 
-### 7. Monitoring and Logging
+### 7. Monitoring and logging
 
 1. AI system usage must be logged according to risk, privacy, and retention requirements.
 2. Logs must support investigation of misuse, leakage, unauthorized access, system drift, unexpected tool execution, and incident response.
 3. Monitoring must include anomaly detection or review processes for high-risk systems.
 4. Monitoring must not create unnecessary sensitive data retention.
 
-### 8. Human Oversight
+### 8. Human oversight
 
 1. Human review is required where AI outputs may materially affect rights, eligibility, access, employment, finances, safety, regulatory reporting, or critical business operations.
 2. Human reviewers must receive enough context to challenge, override, or reject outputs.
 3. Automation boundaries must be documented.
 4. Users must not be led to treat probabilistic outputs as authoritative evidence without verification.
 
-### 9. Supplier and External Service Controls
+### 9. Supplier and external service controls
 
 External AI services must be assessed for:
 
@@ -119,7 +119,7 @@ External AI services must be assessed for:
 - Exit support.
 - Contractual control commitments.
 
-### 10. Incident and Exception Management
+### 10. Incident and exception management
 
 1. AI incidents must be classified and escalated through incident management.
 2. AI-specific incidents include unauthorized disclosure, unexpected data retention, prompt injection success, unsafe tool execution, unauthorized model use, data poisoning, material output failure, and policy bypass.
@@ -142,7 +142,7 @@ AI systems must be retired with controls for:
 
 ---
 
-## Evidence Requirements
+## Evidence requirements
 
 At minimum, each AI system should maintain:
 
@@ -159,7 +159,7 @@ At minimum, each AI system should maintain:
 
 ---
 
-## Compliance Notes
+## Compliance notes
 
 This standard does not establish legal compliance or certification. It defines a reusable security and risk baseline. Adopting organizations must validate requirements against applicable laws, sector obligations, contracts, deployment architecture, data categories, and risk appetite.
 
