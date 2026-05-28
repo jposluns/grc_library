@@ -6,7 +6,7 @@
 **Date:** 2026-05-27 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Chief Information Officer 
-**Related Documents:** [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`governance/policy-governance-and-risk-management.md`](policy-governance-and-risk-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`security/procedure-security-disciplinary-process.md`](../security/procedure-security-disciplinary-process.md) 
+**Related Documents:** [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`security/procedure-security-disciplinary-process.md`](../security/procedure-security-disciplinary-process.md) 
 **Classification:** Public 
 **Category:** Governance 
 **Review Frequency:** Annual and upon material legal or regulatory change 

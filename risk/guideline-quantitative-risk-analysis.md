@@ -6,7 +6,7 @@
 **Date:** 2026-05-27 
 **Owner:** Chief Risk Officer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md) 
+**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) 
 **Classification:** Public 
 **Category:** Risk Management: Quantitative Analysis 
 **Review Frequency:** Annual and upon material methodology update 

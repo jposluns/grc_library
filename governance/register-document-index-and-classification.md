@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register 
 **Document Type:** Register 
-**Version:** 1.8.3 
+**Version:** 1.8.4 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -49,7 +49,6 @@ All active repository documents should be Public.
 | Governance | Register | Key Terms and Definitions Register | [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md) | Governance Library Maintainer | Annual | Cross-domain terminology |
 | Governance | Register | Role Authority Register | [`governance/register-role-authority.md`](register-role-authority.md) | Governance Library Maintainer | Annual | Accountability, RACI, approval authority |
 | Governance | Matrix | Cross-Framework Alignment Matrix | [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md) | Control Framework Maintainer | 6 to 12 months | ISO, NIST, COBIT, CCM, OWASP, MITRE ATLAS |
-| Governance | Policy | Governance and Risk Management Policy | [`governance/policy-governance-and-risk-management.md`](policy-governance-and-risk-management.md) | Chief Risk Officer | Annual | Enterprise governance, risk oversight, accountability |
 | Governance | Policy | Exception and Risk Acceptance Management Policy | [`governance/policy-exception-and-risk-acceptance-management.md`](policy-exception-and-risk-acceptance-management.md) | Chief Risk Officer | Annual | Exceptions, deviations, compensating controls, expiry |
 | Governance | Standard | Records Retention and Destruction Standard | [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) | Governance Library Maintainer | Annual | ISO 15489, NIST SP 800-88, GDPR Art 17, BASC 5-year retention |
 | Governance | Procedure | Supplier Security and Privacy Assurance Procedure | [`governance/procedure-supplier-security-and-privacy-assurance.md`](procedure-supplier-security-and-privacy-assurance.md) | Chief Risk Officer | Annual | ISO 27001 A.5.19 to 22, ISO 28000, BASC v6, WCO SAFE Framework |

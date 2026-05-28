@@ -6,7 +6,7 @@
 **Date:** 2026-05-27 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Chief Information Officer 
-**Related Documents:** [`operations/register-asset-inventory.md`](register-asset-inventory.md), [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md) 
+**Related Documents:** [`operations/register-asset-inventory.md`](register-asset-inventory.md), [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) 
 **Classification:** Public 
 **Category:** Operations 
 **Review Frequency:** Continuous; CISO review monthly; full review annually 

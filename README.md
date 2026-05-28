@@ -104,7 +104,7 @@ Examples:
 - [`governance/charter-governance-library.md`](governance/charter-governance-library.md)
 - [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md)
 - [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)
-- [`governance/policy-governance-and-risk-management.md`](governance/policy-governance-and-risk-management.md)
+- [`risk/policy-enterprise-governance-and-risk-management.md`](risk/policy-enterprise-governance-and-risk-management.md)
 - [`risk/standard-enterprise-risk-management.md`](risk/standard-enterprise-risk-management.md)
 - [`compliance/policy-compliance-and-audit-management.md`](compliance/policy-compliance-and-audit-management.md)
 - [`security/policy-information-security.md`](security/policy-information-security.md)

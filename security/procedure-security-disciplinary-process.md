@@ -6,7 +6,7 @@
 **Date:** 2026-05-27 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Chief Information Officer 
-**Related Documents:** [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md), [`security/standard-personnel-security-screening.md`](standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md) 
+**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/standard-personnel-security-screening.md`](standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md) 
 **Classification:** Public 
 **Category:** Information Security 
 **Review Frequency:** Annual and upon material HR, legal, or regulatory change 
