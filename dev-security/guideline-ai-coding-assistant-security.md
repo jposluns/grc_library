@@ -113,7 +113,7 @@ Before committing AI-generated code:
 - [ ] **Cryptography**: only approved algorithms used; no custom crypto; no deprecated algorithms.
 - [ ] **Logging**: no sensitive data in logs; required security events logged.
 - [ ] **Error handling**: internal error details not exposed to callers.
-- [ ] **License**: AI-generated code may reproduce training data; verify no unlicensed verbatim reproductions of copyrighted material.
+- [ ] **Licence**: AI-generated code may reproduce training data; verify no unlicensed verbatim reproductions of copyrighted material.
 
 ### SAST gate
 

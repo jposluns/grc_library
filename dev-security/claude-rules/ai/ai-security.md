@@ -44,9 +44,9 @@ Treat every LLM response, every model output, and every AI-generated value as if
 
 - Source models and model APIs only from approved, verified providers
 - Verify model checksums/signatures when downloading open-weight models
-- Document all model dependencies (model name, version, provider, license, data provenance where known)
+- Document all model dependencies (model name, version, provider, licence, data provenance where known)
 - Never use a model that has been fine-tuned on unverified data for production applications handling Confidential data
-- Assess and document model licenses: some open-weight models have usage restrictions
+- Assess and document model licences: some open-weight models have usage restrictions
 
 **References:** OWASP LLM03, OWASP LLM06 (Excessive Agency)
 

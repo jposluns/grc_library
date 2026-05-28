@@ -2,7 +2,7 @@
 
 **Document Title:** Enterprise Governance and Risk Management Policy 
 **Document Type:** Policy 
-**Version:** 1.4.0 
+**Version:** 1.4.1 
 **Date:** 2026-05-28 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -156,7 +156,7 @@ Non-compliance with this policy may result in disciplinary action up to and incl
 
 ---
 
-## 10. License
+## 10. Licence
 
 This document is released under the **CC0 1.0 Universal** public domain dedication. To the extent possible under law, the organisation waives all copyright and related rights to this document.
 

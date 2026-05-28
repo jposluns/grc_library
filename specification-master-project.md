@@ -2,14 +2,14 @@
 
 **Document Title:** Master Project Specification 
 **Document Type:** Specification 
-**Version:** 1.2.5 
+**Version:** 1.2.6 
 **Date:** 2026-05-28 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Chief Risk Officer 
 **Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md) 
 **Classification:** Public 
 **Category:** Meta-Governance 
-**Review Frequency:** Annual and upon material repository structure, governance, or license change 
+**Review Frequency:** Annual and upon material repository structure, governance, or licence change 
 **Repository Path:** [`specification-master-project.md`](specification-master-project.md) 
 **Confidentiality:** Public 
 **License:** CC0 1.0 Universal 
@@ -43,7 +43,7 @@ This specification applies to every AI response within the project, including:
 4. Document-type rules (policy, standard, procedure, etc.).
 5. Any user-provided overrides.
 
-When conflict occurs, the highest item prevails. Exception: where any conflict concerns CC0 license compatibility, the more restrictive CC0-compatible rule prevails regardless of document position in this order.
+When conflict occurs, the highest item prevails. Exception: where any conflict concerns CC0 licence compatibility, the more restrictive CC0-compatible rule prevails regardless of document position in this order.
 
 ---
 

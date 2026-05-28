@@ -71,7 +71,7 @@ AI-enabled services, agents, model integrations, retrieval stores, prompt logs, 
 
 ---
 
-## License boundary
+## Licence boundary
 
 Security standards, implementation guides, benchmarks, audit guides, control catalogues, and vendor documentation must not be copied into this directory unless confirmed CC0-compatible. Use non-verbatim synthesis, original control language, and high-level alignment only.
 

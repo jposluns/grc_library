@@ -25,7 +25,7 @@ This statement is informational; contributors are not required to declare whethe
 
 ## What contributions are not welcome
 
-- Verbatim third-party control text, questionnaire text, audit guidance text, or metrics catalogue text whose source license restricts modification or redistribution. See [`NOTICE.md`](NOTICE.md).
+- Verbatim third-party control text, questionnaire text, audit guidance text, or metrics catalogue text whose source licence restricts modification or redistribution. See [`NOTICE.md`](NOTICE.md).
 - Organisation-specific identifiers (company names, personal names, tenant identifiers, internal system names, incident details, IP addresses, contract numbers, email addresses, phone numbers).
 - Translations of existing English artefacts.
 - Marketing language, certification claims, or statements implying that adopting the library makes an organisation compliant with any regulation.
@@ -74,7 +74,7 @@ Readers who notice issues but do not want to submit a code change can report con
 | Unsafe guidance | Guidance that, if followed literally, could create a security or operational hazard. |
 | Operational unrealism | A control or procedure that is not realistically executable. |
 
-For security-related defects (CC0 license concerns, security flaws in code samples, leakage of organisational identifiers), use the path in [`SECURITY.md`](SECURITY.md) instead.
+For security-related defects (CC0 licence concerns, security flaws in code samples, leakage of organisational identifiers), use the path in [`SECURITY.md`](SECURITY.md) instead.
 
 ## Metadata block
 
@@ -118,6 +118,6 @@ Each value line ends with a trailing space and the line break is two spaces or a
 
 A maintainer reviews each pull request for CC0 compatibility, organisation neutrality, accuracy of external framework references, and conformance to the specifications. Changes that touch core artefacts (charter, document architecture framework, document index register) or that introduce a new domain folder require explicit user approval beyond the standard review.
 
-## License
+## Licence
 
 By submitting a contribution, you dedicate it to the public domain under [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/). If you cannot make that dedication for the material you are submitting, do not submit it.

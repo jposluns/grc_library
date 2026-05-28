@@ -2,8 +2,8 @@
 
 **Document Title:** IT Onboarding and Offboarding Procedure 
 **Document Type:** Procedure 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) 
@@ -257,7 +257,7 @@ The following checklist must be completed for every departure. IT Operations is 
 | 16 | Shared credentials rotated (contractors/third parties) | IT Operations | Immediately upon departure | Credential rotation confirmed; new credentials distributed to remaining authorized users |
 | 17 | Physical access cards and office keys returned | Facilities / Line Manager | Last day | Facilities receipt or confirmation email |
 | 18 | Security group and distribution list memberships removed | IT Operations | Within 24 hours | Directory groups confirmed |
-| 19 | Software licenses released and reclaimed | IT Operations | Within 7 calendar days | License management platform updated |
+| 19 | Software licences released and reclaimed | IT Operations | Within 7 calendar days | Licence management platform updated |
 | 20 | Offboarding record completed and filed | IT Operations | Within 7 calendar days of departure | Record accessible in ITSM with all checklist items verified |
 
 ---

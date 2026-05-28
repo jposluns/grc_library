@@ -57,7 +57,7 @@ Adopting organisations implementing BASC certification consume:
 
 ---
 
-## License boundary
+## Licence boundary
 
 All content is original and released under CC0 1.0 Universal. The annex references the BASC International Standard by name and section identifier; the standard's text itself is not reproduced.
 

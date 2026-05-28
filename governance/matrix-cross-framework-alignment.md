@@ -2,7 +2,7 @@
 
 **Document Title:** Cross-Framework Alignment Matrix 
 **Document Type:** Matrix 
-**Version:** 1.1.1 
+**Version:** 1.1.2 
 **Date:** 2026-05-28 
 **Owner:** Control Framework Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -24,7 +24,7 @@ This matrix provides an original, non-verbatim alignment structure for mapping r
 
 ## Mapping principles
 
-1. Use framework families and control domains only where source license terms restrict reproduction.
+1. Use framework families and control domains only where source licence terms restrict reproduction.
 2. Do not copy third-party control text, questionnaire text, guidance text, or metrics text.
 3. Distinguish legal obligation from industry practice and architectural recommendation.
 4. Map repository artefacts to evidence classes that adopting organisations can implement internally.

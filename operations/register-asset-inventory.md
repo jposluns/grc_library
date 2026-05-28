@@ -2,8 +2,8 @@
 
 **Document Title:** Asset Inventory Register 
 **Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Chief Information Officer 
 **Related Documents:** [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md) 
@@ -61,7 +61,7 @@ Each asset record must contain the following fields:
 | **Location** | Physical location, data centre, or cloud region |
 | **Platform / Environment** | Production / DR / Development / Test |
 | **Version / Build** | Current version or build number |
-| **License** | License type, expiry date, and seat count (software) |
+| **Licence** | Licence type, expiry date, and seat count (software) |
 | **Vendor / Manufacturer** | Supplier name |
 | **Support Status** | Supported / End-of-Support / End-of-Life |
 | **End-of-Life Date** | Known or estimated end-of-life |
