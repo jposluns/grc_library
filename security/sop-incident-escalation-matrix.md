@@ -2,7 +2,7 @@
 
 **Document Title:** Incident Escalation Matrix 
 **Document Type:** SOP 
-**Version:** 1.1.0 
+**Version:** 1.2.0 
 **Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Chief Information Officer 
@@ -13,10 +13,6 @@
 **Repository Path:** [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md) 
 **Confidentiality:** Public 
 **License:** CC0 1.0 Universal 
-
----
-
-> **Document Status: Provisional:** This document is a provisional draft added to the GRC library in May 2026. Content is based on standard frameworks and best-practice assumptions. It has not yet been reviewed or formally approved by all stakeholders. It must not be used as the basis for operational decisions until reviewed, updated, and approved. Target formal review: Q3 2026.
 
 ---
 

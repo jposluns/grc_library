@@ -81,7 +81,7 @@ Controls must address, proportionate to risk:
 
 ### 6. Testing and validation
 
-1. AI systems must be tested before release and after material change.
+1. AI systems must be tested before release and after material change. "Material" is defined by the Material change thresholds table in [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md).
 2. Test coverage must include intended use, prohibited use, security boundaries, data leakage, access control, prompt injection, unsafe outputs, failure modes, and monitoring triggers.
 3. High-risk AI systems must include adversarial or misuse testing proportionate to the impact of failure.
 4. Test results must be retained as evidence.

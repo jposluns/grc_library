@@ -131,7 +131,7 @@ Report includes:
 
 - Approved systems proceed through the Acceptance Into Service Policy.
 - Conditionally approved systems address specified conditions before deployment.
-- Rejected systems require material changes and full re-evaluation.
+- Rejected systems require material changes and full re-evaluation. "Material" is defined by the Material change thresholds table in [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md).
 
 ---
 

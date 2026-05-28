@@ -2,7 +2,7 @@
 
 **Document Title:** AI Governance Council Charter 
 **Document Type:** Charter 
-**Version:** 1.1.0 
+**Version:** 1.2.0 
 **Date:** 2026-05-28 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Chief Information Officer 
@@ -69,6 +69,18 @@ The council is an active body. Where any member seat is unfilled at a given time
 
 Quorum requires attendance of the Chair (or Deputy Chair) plus at least four members. Decisions are recorded with the date, attendees, and the decision rationale.
 
+### Roles outside the council that report into it
+
+The AI governance function has three operational sub-roles defined in the role authority register. They report into the council through the AI Governance Lead (secretariat):
+
+| Role | Reports through | Council interaction |
+| --- | --- | --- |
+| AI Governance Approver | AI Governance Lead | Brings approval items (deployment gates, policy approvals, exception approvals) to the council; acts under delegated authority between council meetings |
+| AI Data Steward | AI Governance Lead | Brings dataset, training-data, and deletion-propagation matters to the council where they cross the council's escalation thresholds |
+| AI System Inventory Keeper | AI Governance Lead | Maintains the inventories the council reviews; reports inventory consistency and material additions |
+
+Charter administrative ownership rests with the Chief Information Officer (the charter's metadata Owner); governance decisions rest with the council; per-system or per-decision approvals rest with the AI Governance Approver acting under delegated council authority. The role authority register is the source of truth for the role definitions.
+
 ---
 
 ## Responsibilities
@@ -101,7 +113,7 @@ Quorum requires attendance of the Chair (or Deputy Chair) plus at least four mem
 ### 5. Model lifecycle governance
 
 - Approve the deployment of new AI models into production.
-- Review material changes to deployed AI models (retraining, scope expansion).
+- Review material changes to deployed AI models (retraining, scope expansion). "Material" is defined by the Material change thresholds table in [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md).
 - Confirm decommissioning of AI systems that are end-of-life or non-compliant.
 
 ---
