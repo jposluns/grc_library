@@ -2,7 +2,7 @@
 
 **Document Title:** Compliance Domain README 
 **Document Type:** Register 
-**Version:** 1.0.1 
+**Version:** 1.1.0 
 **Date:** 2026-05-28 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -46,6 +46,13 @@ This directory contains compliance management policies, registers, and audit gov
 | Annex | Financial Services Sector GRC Requirements Annex | [`compliance/annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md) |
 | Annex | Healthcare Sector GRC Requirements Annex | [`compliance/annex-healthcare-sector-requirements.md`](annex-healthcare-sector-requirements.md) |
 | Annex | Transportation and Logistics Sector GRC Requirements Annex | [`compliance/annex-transportation-and-logistics-sector-requirements.md`](annex-transportation-and-logistics-sector-requirements.md) |
+| Annex | FedRAMP Sector Requirements Annex | [`compliance/annex-fedramp-requirements.md`](annex-fedramp-requirements.md) |
+| Annex | DORA Implementation Annex | [`compliance/annex-dora-implementation.md`](annex-dora-implementation.md) |
+| Annex | NIS 2 Implementation Annex | [`compliance/annex-nis-2-implementation.md`](annex-nis-2-implementation.md) |
+| Annex | Public Sector GRC Requirements Annex | [`compliance/annex-public-sector-requirements.md`](annex-public-sector-requirements.md) |
+| Annex | Telecommunications Sector Requirements Annex | [`compliance/annex-telecommunications-sector-requirements.md`](annex-telecommunications-sector-requirements.md) |
+| Annex | Energy and Utilities Sector Requirements Annex | [`compliance/annex-energy-and-utilities-sector-requirements.md`](annex-energy-and-utilities-sector-requirements.md) |
+| Annex | SOX IT General Controls Annex | [`compliance/annex-sox-itgc.md`](annex-sox-itgc.md) |
 
 ---
 

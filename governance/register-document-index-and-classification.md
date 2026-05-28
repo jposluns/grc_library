@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register 
 **Document Type:** Register 
-**Version:** 1.10.0 
+**Version:** 1.11.0 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -243,6 +243,13 @@ All active repository documents should be Public.
 | Compliance | Annex | Financial Services Sector GRC Requirements Annex | [`compliance/annex-financial-services-sector-requirements.md`](../compliance/annex-financial-services-sector-requirements.md) | Chief Compliance Officer | Annual | DORA, FCA/PRA PS21/3, OSFI B-13, NY DFS 23 NYCRR 500, GLBA, PCI DSS v4.0, FATF |
 | Compliance | Annex | Healthcare Sector GRC Requirements Annex | [`compliance/annex-healthcare-sector-requirements.md`](../compliance/annex-healthcare-sector-requirements.md) | Chief Compliance Officer | Annual | HIPAA Security/Privacy/Breach Rules, NHS DSPT, NDG Caldicott, GDPR Art 9, MDR/IVDR |
 | Compliance | Annex | Transportation and Logistics Sector GRC Requirements Annex | [`compliance/annex-transportation-and-logistics-sector-requirements.md`](../compliance/annex-transportation-and-logistics-sector-requirements.md) | Chief Compliance Officer | Annual | TSA Directives, EU NIS 2, IMO MSC-FAL.1/Circ.3, ICAO Doc 10055, UNECE WP.29 R155, IEC 62443 |
+| Compliance | Annex | FedRAMP Sector Requirements Annex | [`compliance/annex-fedramp-requirements.md`](../compliance/annex-fedramp-requirements.md) | Chief Compliance Officer | Annual | FedRAMP Baselines, NIST SP 800-53 Rev 5, NIST SP 800-37 Rev 2, NIST SP 800-171, OMB M-22-09, FIPS 140-3 |
+| Compliance | Annex | DORA Implementation Annex | [`compliance/annex-dora-implementation.md`](../compliance/annex-dora-implementation.md) | Chief Compliance Officer | Annual | DORA (EU) 2022/2554, DORA RTS/ITS, TIBER-EU, EBA/EIOPA Guidelines, ISO 27001 |
+| Compliance | Annex | NIS 2 Implementation Annex | [`compliance/annex-nis-2-implementation.md`](../compliance/annex-nis-2-implementation.md) | Chief Compliance Officer | Annual | NIS 2 (EU) 2022/2555, ENISA guidelines, EU Cyber Resilience Act, EU Cybersecurity Act, ISO 27001, NIST CSF 2.0 |
+| Compliance | Annex | Public Sector GRC Requirements Annex | [`compliance/annex-public-sector-requirements.md`](../compliance/annex-public-sector-requirements.md) | Chief Compliance Officer | Annual | WCAG 2.2 AA, EN 301 549, ISO 15489, ISO 19011, OECD Public Service Leadership, ISO 42001 |
+| Compliance | Annex | Telecommunications Sector Requirements Annex | [`compliance/annex-telecommunications-sector-requirements.md`](../compliance/annex-telecommunications-sector-requirements.md) | Chief Compliance Officer | Annual | EU EECC, EU ePrivacy, EU NIS 2, UK Telecoms Security Act, US CALEA, ETSI TS 102 232 |
+| Compliance | Annex | Energy and Utilities Sector Requirements Annex | [`compliance/annex-energy-and-utilities-sector-requirements.md`](../compliance/annex-energy-and-utilities-sector-requirements.md) | Chief Compliance Officer | Annual | IEC 62443 series, NERC CIP, EU NIS 2, US TSA Directives, EU Critical Entities Resilience, ENTSO-E |
+| Compliance | Annex | SOX IT General Controls Annex | [`compliance/annex-sox-itgc.md`](../compliance/annex-sox-itgc.md) | Chief Compliance Officer | Annual | Sarbanes-Oxley §§302/404/906, PCAOB AS 2201, COSO ICIF 2013, COSO ERM, NI 52-109, J-SOX, SOC 1 (ISAE 3402/SSAE 18) |
 
 ---
 
