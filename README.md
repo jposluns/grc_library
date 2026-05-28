@@ -1,10 +1,13 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Version:** 1.5.4 
+**Library Version:** 2026.05.0 
+**README Version:** 1.6.0 
 **Date:** 2026-05-28 
 **Classification:** Public 
 **Confidentiality:** Public 
 **License:** CC0 1.0 Universal 
+
+The library uses Calendar Versioning (CalVer) of the form `YYYY.MM.patch` for the library as a whole; see `specification-master-project.md` section 4.5. Per-document semantic versioning continues for individual artefacts. 
 
 ---
 

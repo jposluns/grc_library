@@ -2,7 +2,46 @@
 
 All notable changes to this repository are recorded in this file.
 
-The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
+
+## Phase 21.5 (2026-05-28, Library Version 2026.05.0): Library-level CalVer versioning adopted
+
+Fifth sub-phase of Phase 21 (foundations before content expansion). Resolves the absence of a library-level versioning scheme noted during Phase 20 review. Until now, each document carried its own semantic version, but the library as a whole had no declared version, leaving adopters to reference commit SHAs.
+
+### Scheme adopted
+
+Calendar Versioning (CalVer) of the form `YYYY.MM.patch`:
+
+- `YYYY` is the four-digit year of the most recent merge to `main`.
+- `MM` is the two-digit month of the most recent merge to `main`.
+- `patch` is a sequential counter that increments on every merge to `main` within the same `YYYY.MM` window. It resets to `0` when the month rolls over.
+
+Rationale for CalVer over SemVer:
+
+- The library evolves continuously through small phased PRs rather than discrete versioned releases.
+- The most useful question for an adopter is "how recent is this snapshot?", not "is this backwards-compatible?".
+- The patch counter records cumulative churn within a month, surfacing the high merge frequency that semantic versioning would obscure.
+- No judgment is needed to decide between major/minor/patch bumps; the scheme is mechanical.
+
+### Files updated
+
+- `specification-master-project.md` (1.2.7 → 1.3.0): new section 4.5 "Library versioning" documenting the scheme, rationale, recording location, maintenance procedure, and relationship to per-document semantic versioning.
+- `README.md` (1.5.4 → 1.6.0): metadata block restructured. The previous `**Version:**` field is renamed to `**README Version:**` (clarifying it tracks the README content, not the library). A new `**Library Version:**` field is introduced and set to the initial value `2026.05.0`. An explanatory sentence below the metadata block points to the specification.
+- `CHANGELOG.md` (this file): preamble updated to reference the new versioning scheme. Phase headings now include the Library Version in effect at the time of the phase's completion.
+
+### Initial value
+
+The library version is initialised at `2026.05.0` by this Phase 21.5. Future PRs merged to `main` will increment the patch counter (2026.05.1, 2026.05.2, etc.) within the same calendar month. When the calendar month changes, the next merge sets the version to `YYYY.MM.0`.
+
+### Maintenance
+
+Each PR that merges to `main` updates `README.md`'s `Library Version` field as part of the PR. The audit suite does not automatically enforce monotonicity, but reviewers verify the bump is present before approving the PR.
+
+### TODO
+
+Priority 2.1 (library-level versioning policy) removed. Remaining P2 items: 2.1 (was 2.2) filename ↔ Document Title alignment audit.
+
+All eleven audits clean.
 
 ## Phase 21.4 (2026-05-28): Related-Documents reciprocity rule considered and dropped
 
