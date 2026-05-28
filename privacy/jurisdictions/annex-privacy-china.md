@@ -2,7 +2,7 @@
 
 **Document Title:** China Privacy Regulatory Requirements 
 **Document Type:** Annex 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Privacy Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/jurisdictions/annex-privacy-china.md`](annex-privacy-china.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 
 ---
 
@@ -22,7 +22,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Applicable Laws and Regulatory Authorities
+## Applicable laws and regulatory authorities
 
 - **Personal Information Protection Law (PIPL)**: Effective 1 November 2021. China's comprehensive personal information protection law. Applies to processing of personal information of individuals in China and to offshore processing of personal information of Chinese individuals for the purpose of providing goods or services or analyzing behaviour.
 - **Cybersecurity Law (CSL)**: Effective 1 June 2017. Governs network security obligations for network operators. Requires compliance with Multi-Level Protection Scheme (MLPS), implementation of security measures, and localization of personal information and important data collected in China.
@@ -34,7 +34,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## AI and Privacy Obligations
+## AI and privacy obligations
 
 ### PIPL and AI
 
@@ -44,7 +44,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Person in charge of personal information protection (Article 52):** Large-scale personal information processors must designate a responsible person whose name and contact information must be disclosed publicly.
 - **DPIA (Article 55):** Required before: processing sensitive personal information; using personal information for automated decision-making; entrusting, sharing, or publicly disclosing personal information; cross-border transfers; and processing activities with significant impact on personal rights. Records must be retained for at least three years.
 
-### Generative AI Regulations
+### Generative AI regulations
 
 - **Pre-deployment security assessment:** Required for public-facing generative AI services meeting CAC thresholds.
 - **Training data obligations:** Must be lawfully acquired; no personal information without consent; intellectual property rights must be respected.
@@ -53,13 +53,13 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Real-name registration:** Providers must verify user identity.
 - **Incident reporting:** Security incidents must be reported to the CAC.
 
-### Cybersecurity Law / MLPS
+### Cybersecurity law / MLPS
 
 - AI systems processing personal information at scale may require MLPS assessments at Level 2 or above.
 
 ---
 
-## Cross-Border Transfer Mechanisms
+## Cross-border transfer mechanisms
 
 PIPL (Articles 38 to 43) permits cross-border transfer only through one of three mechanisms:
 
@@ -73,7 +73,7 @@ PIPL (Articles 38 to 43) permits cross-border transfer only through one of three
 
 ---
 
-## Enforcement and Fines
+## Enforcement and fines
 
 ### PIPL
 
@@ -84,13 +84,13 @@ PIPL (Articles 38 to 43) permits cross-border transfer only through one of three
 ### CSL
 
 - Fines up to RMB 1 million for operators; additional fines for responsible persons.
-- Suspension of business, revocation of licences for critical information infrastructure operators.
+- Suspension of business, revocation of licenses for critical information infrastructure operators.
 
 ### DSL
 
 - Fines up to RMB 10 million for processors of core state data; up to RMB 5 million for processors of important data; up to RMB 500,000 for general data security violations.
 
-### Generative AI Regulations
+### Generative AI regulations
 
 - Suspension of services, fines, and criminal referral for serious violations. As of 2025, the CAC has commenced enforcement actions against generative AI service providers.
 

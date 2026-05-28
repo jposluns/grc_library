@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/README.md`](README.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This directory contains privacy governance artefacts covering data protection po
 
 ---
 
-## Active Documents
+## Active documents
 
 | Type | Title | Path |
 | --- | --- | --- |
@@ -34,7 +34,7 @@ This directory contains privacy governance artefacts covering data protection po
 | Annex | Privacy Jurisdiction Index | [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md) |
 | Register | Cross-Border Data Flow Register | [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md) |
 
-### Jurisdiction-Specific Annexes (`privacy/jurisdictions/`)
+### Jurisdiction-specific annexes (`privacy/jurisdictions/`)
 
 | Jurisdiction | File |
 | --- | --- |
@@ -66,7 +66,7 @@ This directory contains privacy governance artefacts covering data protection po
 
 ---
 
-## Domain Coverage
+## Domain coverage
 
 The privacy domain covers:
 
@@ -79,7 +79,7 @@ The privacy domain covers:
 
 ---
 
-## Planned Expansion
+## Planned expansion
 
 - ~~Procedure: Data Subject Rights Management~~ *(active)*
 - ~~Procedure: Data Protection and Privacy Breach Response~~ *(active)*

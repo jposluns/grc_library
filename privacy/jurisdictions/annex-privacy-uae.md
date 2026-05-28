@@ -2,7 +2,7 @@
 
 **Document Title:** United Arab Emirates Privacy Regulatory Requirements 
 **Document Type:** Annex 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Privacy Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/jurisdictions/annex-privacy-uae.md`](annex-privacy-uae.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 
 ---
 
@@ -22,7 +22,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Applicable Laws and Regulatory Authorities
+## Applicable laws and regulatory authorities
 
 - **UAE Personal Data Protection Law (PDPL)**: Federal Decree-Law No. 45 of 2021, effective 2 January 2022 (implementing regulations issued 2023). The UAE's first comprehensive federal data protection law. Extraterritorial application where data of UAE residents is processed outside the UAE.
 - Key rights: access, correction, erasure, objection to processing, and withdrawal of consent.
@@ -33,7 +33,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## AI and Privacy Obligations
+## AI and privacy obligations
 
 - **Lawful basis:** The UAE PDPL requires a lawful basis for processing personal data in AI systems.
 - **Automated decision-making:** Automated processing producing legal or similarly significant effects requires either explicit consent or another specified lawful basis. Data subjects have the right to request human review.
@@ -42,14 +42,14 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Cross-Border Transfer Mechanisms
+## Cross-border transfer mechanisms
 
 - Cross-border transfers permitted to countries offering adequate protection (as determined by the UAE Data Office) or with appropriate safeguards (standard contractual clauses, BCRs, or other approved mechanisms).
 - DIFC and ADGM have their own transfer frameworks closely modelled on GDPR SCCs.
 
 ---
 
-## Enforcement and Fines
+## Enforcement and fines
 
 - **UAE PDPL:** Administrative fines up to AED 5 million (approximately USD 1.36 million) for violations. Criminal penalties for unauthorised disclosure of sensitive personal data.
 - **DIFC:** Fines up to USD 100,000 for significant violations.

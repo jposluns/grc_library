@@ -2,7 +2,7 @@
 
 **Document Title:** Switzerland Privacy Regulatory Requirements 
 **Document Type:** Annex 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Privacy Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/jurisdictions/annex-privacy-switzerland.md`](annex-privacy-switzerland.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 
 ---
 
@@ -22,7 +22,7 @@ This annex defines privacy regulatory requirements applicable to the processing 
 
 ---
 
-## Applicable Laws and Regulatory Authorities
+## Applicable laws and regulatory authorities
 
 - **New Federal Act on Data Protection (nFADP / revDSG)**: entered into force 1 September 2023, replacing the 1992 Federal Act on Data Protection (FADP). Switzerland is not an EU member state; the nFADP is closely aligned with GDPR but is a distinct instrument.
 - Key provisions: mandatory records of processing activities; DPIA mandatory for high-risk processing; mandatory data breach notification to the FDPIC within 72 hours where feasible; right to data portability; expanded scope to data processors through accountability obligations; enhanced transparency requirements.
@@ -30,7 +30,7 @@ This annex defines privacy regulatory requirements applicable to the processing 
 
 ---
 
-## AI and Privacy Obligations
+## AI and privacy obligations
 
 - Switzerland has not enacted standalone AI legislation as of 2025.
 - The FDPIC applies nFADP principles to AI processing of personal data, including purpose limitation, data minimization, and accountability.
@@ -39,7 +39,7 @@ This annex defines privacy regulatory requirements applicable to the processing 
 
 ---
 
-## Cross-Border Transfer Mechanisms
+## Cross-border transfer mechanisms
 
 - Switzerland holds EU adequacy status (reconfirmed December 2023).
 - For transfers from Switzerland to third countries: adequacy determination by the FDPIC (approved countries list); FDPIC-approved standard data protection clauses; binding corporate rules; or narrow derogations.
@@ -47,7 +47,7 @@ This annex defines privacy regulatory requirements applicable to the processing 
 
 ---
 
-## Enforcement and Fines
+## Enforcement and fines
 
 - The nFADP's criminal sanctions apply to responsible natural persons (individuals), not to organizations directly.
 - Fines up to CHF 250,000 for intentional violations by natural persons.

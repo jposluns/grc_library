@@ -2,7 +2,7 @@
 
 **Document Title:** European Union Privacy Regulatory Requirements 
 **Document Type:** Annex 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Privacy Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/jurisdictions/annex-privacy-european-union.md`](annex-privacy-european-union.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 
 ---
 
@@ -22,7 +22,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Applicable Laws and Regulatory Authorities
+## Applicable laws and regulatory authorities
 
 - **EU General Data Protection Regulation (GDPR)**: Regulation (EU) 2016/679, effective 25 May 2018. The primary EU data protection law governing the processing of personal data of individuals in the EU.
 - **EU AI Act**: Regulation (EU) 2024/1689, entered into force 1 August 2024, with phased application through 2027. The world's first comprehensive horizontal AI regulation, classifying AI systems by risk level (unacceptable, high, limited, minimal).
@@ -30,9 +30,9 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## AI and Privacy Obligations
+## AI and privacy obligations
 
-### GDPR Obligations Relevant to AI
+### GDPR obligations relevant to AI
 
 - **Lawful basis (Article 6):** Personal data used to train or operate AI systems must have a lawful basis (consent, legitimate interests, contract, legal obligation, vital interests, or public task).
 - **Special categories (Article 9):** AI systems processing biometric data, health data, political opinions, racial or ethnic origin, or other special categories require explicit consent or an Article 9(2) exemption.
@@ -41,7 +41,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Data minimization and purpose limitation (Articles 5(1)(b) and 5(1)(c)):** AI training datasets must be limited to data adequate, relevant, and necessary for the specified purpose. Repurposing data for AI training requires a compatible purpose assessment or fresh lawful basis.
 - **Transparency and right to explanation (Articles 13, 14, 22(3)):** Individuals must be informed when their data is used in automated processing. Where automated individual decision-making applies, meaningful information about the logic involved must be provided.
 
-### EU AI Act Obligations (Phased)
+### EU AI act obligations (phased)
 
 - **Prohibited practices (Article 5, applicable February 2025):** Prohibited AI applications include subliminal manipulation, exploitation of vulnerable groups, real-time remote biometric identification in public spaces (narrow law enforcement exceptions), social scoring by public authorities, and predictive policing based solely on profiling.
 - **High-risk AI systems (Annex III, applicable August 2026):** AI deployed in employment management, credit scoring, biometric categorization, and critical infrastructure is subject to mandatory conformity assessments, technical documentation, human oversight mechanisms, and EU database registration.
@@ -51,7 +51,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Cross-Border Transfer Mechanisms
+## Cross-border transfer mechanisms
 
 - **Adequacy decisions (Article 45):** Transfers to countries with an EU adequacy decision require no additional safeguards. Current adequacy decisions (as of 2025) include: Andorra, Argentina, Canada (commercial, PIPEDA), Faroe Islands, Guernsey, Israel, Isle of Man, Japan, Jersey, New Zealand, Republic of Korea, Switzerland, United Kingdom, United States (EU-US Data Privacy Framework), and Uruguay.
 - **Standard Contractual Clauses (SCCs) (Article 46(2)(c)):** The 2021 European Commission SCCs are the primary mechanism for transfers to non-adequate third countries. SCCs must be supplemented by a Transfer Impact Assessment (TIA).
@@ -60,7 +60,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Enforcement and Fines
+## Enforcement and fines
 
 - **Higher tier (GDPR):** Up to €20 million or 4% of total worldwide annual turnover for violations of basic principles, lawful basis, data subject rights, international transfers, and high-risk processing obligations.
 - **Lower tier (GDPR):** Up to €10 million or 2% of total worldwide annual turnover for data controller and processor obligation violations and notification failures.

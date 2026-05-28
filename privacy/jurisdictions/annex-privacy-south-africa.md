@@ -2,7 +2,7 @@
 
 **Document Title:** South Africa Privacy Regulatory Requirements 
 **Document Type:** Annex 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Privacy Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/jurisdictions/annex-privacy-south-africa.md`](annex-privacy-south-africa.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 
 ---
 
@@ -22,7 +22,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Applicable Laws and Regulatory Authorities
+## Applicable laws and regulatory authorities
 
 - **Protection of Personal Information Act, 2013 (POPIA)**: Act No. 4 of 2013, fully in effect since 1 July 2021. The most comprehensive privacy law in Africa, closely modelled on GDPR. Applies to processing of personal information by responsible parties established in South Africa, or not established in South Africa but who make use of automated or non-automated means in South Africa.
 - **Eight conditions for lawful processing:** Accountability; Processing Limitation; Purpose Specification; Further Processing Limitation; Information Quality; Openness; Security Safeguards; Data Subject Participation.
@@ -31,7 +31,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## AI and Privacy Obligations
+## AI and privacy obligations
 
 - **Processing Limitation (Condition 2) and Purpose Specification (Condition 3):** Apply to the use of personal information in AI training and operation.
 - **Automated decision-making (POPIA Section 71):** Data subjects have the right not to be subject to decisions taken solely on the basis of automated processing of personal information where those decisions have legal or similarly significant effects. The responsible party must inform the data subject and allow for human review.
@@ -40,13 +40,13 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Cross-Border Transfer Mechanisms
+## Cross-border transfer mechanisms
 
 - **Section 72:** Restricts transfer of personal information to a third party in a foreign country unless: the foreign country has adequate protection (as determined by the Information Regulator); the data subject consents; the transfer is necessary for the performance of a contract; it is in the public interest; it is necessary for establishment, exercise, or defence of legal claims; or the responsible party takes reasonable steps to ensure that adequate protection.
 
 ---
 
-## Enforcement and Fines
+## Enforcement and fines
 
 - Administrative fines up to ZAR 10 million (approximately USD 535,000).
 - Criminal penalties including imprisonment for responsible parties and operators in serious cases.

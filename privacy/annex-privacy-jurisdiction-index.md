@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -24,7 +24,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 
 ---
 
-## Jurisdiction Files
+## Jurisdiction files
 
 ### Europe
 
@@ -43,7 +43,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | Brazil (LGPD) | [`privacy/jurisdictions/annex-privacy-brazil.md`](jurisdictions/annex-privacy-brazil.md) |
 | Latin America (Argentina, Mexico, Colombia, Chile, Peru) | [`privacy/jurisdictions/annex-privacy-latin-america.md`](jurisdictions/annex-privacy-latin-america.md) |
 
-### Asia-Pacific
+### Asia-pacific
 
 | Jurisdiction | File |
 | --- | --- |
@@ -53,7 +53,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | South Korea (PIPA 2023) | [`privacy/jurisdictions/annex-privacy-south-korea.md`](jurisdictions/annex-privacy-south-korea.md) |
 | New Zealand (Privacy Act 2020) | [`privacy/jurisdictions/annex-privacy-new-zealand.md`](jurisdictions/annex-privacy-new-zealand.md) |
 
-### Middle East and Africa
+### Middle east and africa
 
 | Jurisdiction | File |
 | --- | --- |
@@ -64,19 +64,19 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | Nigeria (NDPA 2023) | [`privacy/jurisdictions/annex-privacy-nigeria.md`](jurisdictions/annex-privacy-nigeria.md) |
 | Kenya (Data Protection Act 2019) | [`privacy/jurisdictions/annex-privacy-kenya.md`](jurisdictions/annex-privacy-kenya.md) |
 
-### East Asia
+### East asia
 
 | Jurisdiction | File |
 | --- | --- |
 | China (PIPL, CSL, DSL, Generative AI Regulations) | [`privacy/jurisdictions/annex-privacy-china.md`](jurisdictions/annex-privacy-china.md) |
 
-### South Asia
+### South asia
 
 | Jurisdiction | File |
 | --- | --- |
 | India (DPDPA 2023, Rules 2025) | [`privacy/jurisdictions/annex-privacy-india.md`](jurisdictions/annex-privacy-india.md) |
 
-### Southeast Asia
+### Southeast asia
 
 | Jurisdiction | File |
 | --- | --- |
@@ -88,7 +88,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 
 ---
 
-## Cross-Jurisdiction Compliance Mapping Summary
+## Cross-jurisdiction compliance mapping summary
 
 | Jurisdiction | Primary Law(s) | AI-Specific Obligation | Cross-Border Mechanism | Max Fine |
 |---|---|---|---|---|
@@ -120,7 +120,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 
 ---
 
-## 2026 Update Summary
+## 2026 Update summary
 
 The following material regulatory developments occurred or were anticipated between the initial 2025 issuance and the 2026 review cycle:
 

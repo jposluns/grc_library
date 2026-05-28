@@ -12,7 +12,7 @@
 **Review Frequency:** Not applicable: superseded document 
 **Repository Path:** [`privacy/annex-regional-privacy-requirements.md`](annex-regional-privacy-requirements.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 

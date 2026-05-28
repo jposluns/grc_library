@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -30,7 +30,7 @@ This charter establishes the Privacy Management Programme: the organizational st
 
 ---
 
-## Privacy Accountability Structure
+## Privacy accountability structure
 
 The following roles hold defined accountability within the Privacy Management Programme:
 
@@ -46,7 +46,7 @@ The following roles hold defined accountability within the Privacy Management Pr
 
 ---
 
-## Privacy by Design
+## Privacy by design
 
 Privacy considerations must be incorporated into any new system, process, or data collection activity from the design stage. Privacy Impact Assessments (PIAs) are mandatory before any of the following:
 
@@ -57,7 +57,7 @@ Privacy considerations must be incorporated into any new system, process, or dat
 
 ---
 
-## Applicable Regulatory Obligations
+## Applicable regulatory obligations
 
 | Jurisdiction | Instrument | Key Obligations |
 |---|---|---|
@@ -69,13 +69,13 @@ Privacy considerations must be incorporated into any new system, process, or dat
 
 ---
 
-## Data Breach Response
+## Data breach response
 
 Privacy breaches involving personal data are managed under the Data Protection and Privacy Breach Response Procedure, which includes regulatory notification assessment. The CISO and Privacy Officer are jointly responsible for initiating breach response. Legal Counsel determines notification obligations by jurisdiction in accordance with the applicable law table above.
 
 ---
 
-## Annual Review
+## Annual review
 
 The Privacy Management Programme is reviewed annually by the Privacy Officer and CISO. The review assesses:
 
@@ -89,7 +89,7 @@ Results are reported to the CIO and included in the annual GRC programme report 
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Relevance |
 |---|---|

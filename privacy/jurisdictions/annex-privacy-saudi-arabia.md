@@ -2,7 +2,7 @@
 
 **Document Title:** Saudi Arabia Privacy Regulatory Requirements 
 **Document Type:** Annex 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Privacy Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/jurisdictions/annex-privacy-saudi-arabia.md`](annex-privacy-saudi-arabia.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 
 ---
 
@@ -22,7 +22,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Applicable Laws and Regulatory Authorities
+## Applicable laws and regulatory authorities
 
 - **Saudi Personal Data Protection Law (PDPL)**: Royal Decree No. M/19, adopted 2021; implementing regulations published 2023, in force September 2023. Applies to processing of personal data of individuals in Saudi Arabia and to any processing occurring in Saudi Arabia.
 - Sensitive data includes: health, financial, credit, biometric, genetic, and data revealing racial, ethnic, religious, or political characteristics, criminal records, and data of minors and their guardians.
@@ -32,7 +32,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## AI and Privacy Obligations
+## AI and privacy obligations
 
 - **Transparency:** The Saudi PDPL requires transparency about automated processing. Data subjects may object to processing for profiling purposes.
 - **National AI Governance Framework:** SDAIA is developing sector-specific AI obligations for financial services, healthcare, and government AI.
@@ -40,14 +40,14 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Cross-Border Transfer Mechanisms
+## Cross-border transfer mechanisms
 
 - Cross-border transfers permitted only with explicit consent of the data subject, for contract performance, to protect vital interests, for legal proceedings, or to a recipient in a country providing adequate protection as determined by SDAIA.
 - SDAIA may require certain categories of data to be processed within Saudi Arabia (data localization requirements).
 
 ---
 
-## Enforcement and Fines
+## Enforcement and fines
 
 - Administrative fines up to SAR 5 million (approximately USD 1.33 million); doubled for repeat violations.
 - Criminal penalties for intentional violations.

@@ -2,7 +2,7 @@
 
 **Document Title:** Canada Privacy Regulatory Requirements 
 **Document Type:** Annex 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Privacy Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/jurisdictions/annex-privacy-canada.md`](annex-privacy-canada.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 
 ---
 
@@ -22,7 +22,7 @@ This annex defines privacy and AI regulatory requirements applicable to processi
 
 ---
 
-## Applicable Laws and Regulatory Authorities
+## Applicable laws and regulatory authorities
 
 - **Personal Information Protection and Electronic Documents Act (PIPEDA)**: S.C. 2000, c. 5. Federal private-sector privacy law governing collection, use, and disclosure of personal information in commercial activity. Schedule 1 incorporates the CSA Model Code as fair information principles.
 - **Consumer Privacy Protection Act (CPPA)**: Part of Bill C-27 (Digital Charter Implementation Act, 2022), intended to replace PIPEDA. As of 2025, Bill C-27 has not yet received Royal Assent; PIPEDA remains in force. CPPA would introduce stronger consent requirements, rights to portability and disposal, privacy management programmes, and an independent Privacy Commissioner with order-making and penalty powers.
@@ -32,22 +32,22 @@ This annex defines privacy and AI regulatory requirements applicable to processi
 
 ---
 
-## AI and Privacy Obligations
+## AI and privacy obligations
 
-### Under PIPEDA (Current)
+### Under PIPEDA (current)
 
 - **Consent:** Meaningful consent required for collection, use, or disclosure. Implied consent for non-sensitive; express consent for sensitive information.
 - **Automated decision-making:** PIPEDA has no explicit equivalent to GDPR Article 22. The OPC has issued guidance that individuals should be informed when significant decisions are made using automated systems and that human review should be available.
 - **Accountability:** Organizations must designate an individual responsible for compliance, develop privacy policies and procedures, and respond to individual complaints.
 
-### Under CPPA (Anticipated)
+### Under CPPA (anticipated)
 
 - **Algorithmic transparency (s. 63 CPPA):** Individuals would have the right to request explanation of predictions, recommendations, or decisions by automated decision systems that significantly affect them, and to challenge those decisions.
 - **Sensitive personal information:** Enhanced consent requirements.
 - **Children's privacy:** Specific protections for minors.
 - **De-identification:** Permitted for internal research and AI training without consent, subject to de-identification requirements and prohibitions on re-identification.
 
-### Under AIDA (Anticipated)
+### Under AIDA (anticipated)
 
 - **High-impact AI systems:** Defined by regulation; expected to include AI in employment, credit, healthcare, and law enforcement contexts.
 - **Impact assessments:** Mandatory before deployment.
@@ -55,7 +55,7 @@ This annex defines privacy and AI regulatory requirements applicable to processi
 - **Transparency:** Public disclosure that a high-impact AI system is in use.
 - **Audits:** The AI and Data Commissioner would have audit powers.
 
-### Under Quebec Law 25
+### Under quebec law 25
 
 - **Privacy Impact Assessments (PIAs):** Required for any project involving personal information before implementation.
 - **Automated decisions:** Organizations must inform individuals before or at the time of automated decisions and provide the right to request human review.
@@ -63,14 +63,14 @@ This annex defines privacy and AI regulatory requirements applicable to processi
 
 ---
 
-## Cross-Border Transfer Mechanisms
+## Cross-border transfer mechanisms
 
 ### Under PIPEDA
 
 - PIPEDA does not prohibit cross-border transfers but requires comparable protection for personal information transferred to third parties including foreign affiliates. Contractual provisions are used to achieve this.
 - The OPC recommends assessing recipient jurisdiction laws and disclosing to individuals that their information may be accessible to foreign authorities.
 
-### Under Quebec Law 25
+### Under quebec law 25
 
 - Transfers outside Quebec require a Privacy Impact Assessment.
 - Transfers may proceed only if the receiving jurisdiction offers adequate protection or the organization takes steps to mitigate risks.
@@ -83,23 +83,23 @@ This annex defines privacy and AI regulatory requirements applicable to processi
 
 ---
 
-## Enforcement and Fines
+## Enforcement and fines
 
-### PIPEDA (Current)
+### PIPEDA (current)
 
 - The OPC can investigate and issue findings but has no order-making or fine-imposing powers under PIPEDA. The OPC may make recommendations and bring matters to the Federal Court.
 
-### CPPA (Anticipated)
+### CPPA (anticipated)
 
 - Administrative monetary penalties: Up to CAD 10 million or 3% of global revenue for general violations; up to CAD 25 million or 5% of global revenue for the most serious violations.
 - Privacy Commissioner would have order-making powers.
 
-### Quebec Law 25
+### Quebec law 25
 
 - CAI administrative penalties: up to CAD 10 million or 2% of worldwide turnover (less serious); up to CAD 25 million or 4% of worldwide turnover (more serious).
 - Penal fines: CAD 15,000 to 25,000,000 for organizations.
 
-### AIDA (Anticipated)
+### AIDA (anticipated)
 
 - Penalties up to CAD 10 million or 3% of global revenues (general); up to CAD 25 million or 5% (most serious violations).
 - Criminal penalties for intentional violations causing harm.

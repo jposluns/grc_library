@@ -2,7 +2,7 @@
 
 **Document Title:** United Kingdom Privacy Regulatory Requirements 
 **Document Type:** Annex 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Privacy Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/jurisdictions/annex-privacy-united-kingdom.md`](annex-privacy-united-kingdom.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 
 ---
 
@@ -22,7 +22,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Applicable Laws and Regulatory Authorities
+## Applicable laws and regulatory authorities
 
 - **UK GDPR**: The retained EU GDPR as amended by the Data Protection Act 2018 (DPA 2018), applicable in the United Kingdom following Brexit. Administered by the Information Commissioner's Office (ICO).
 - **UK Data Protection Act 2018 (DPA 2018)**: Supplements UK GDPR; includes provisions for law enforcement and intelligence services processing.
@@ -30,7 +30,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## AI and Privacy Obligations
+## AI and privacy obligations
 
 - The UK has adopted a pro-innovation, principles-based approach to AI regulation. The UK AI Safety Institute conducts evaluations of frontier AI models.
 - The ICO has published guidance on AI and data protection, including guidance on explaining AI decisions and auditing AI systems.
@@ -41,7 +41,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Cross-Border Transfer Mechanisms
+## Cross-border transfer mechanisms
 
 - **UK Adequacy Regulations:** The UK Secretary of State may issue adequacy regulations for third countries. The UK has retained EU adequacy decisions in effect at the end of the Brexit transition period and has added its own, including recognizing the EU as adequate.
 - **International Data Transfer Agreements (IDTAs):** The UK's equivalent of EU SCCs for transfers from the UK. Organizations using EU SCCs for EU transfers need separate IDTAs (or the Addendum to EU SCCs) for UK transfers.
@@ -49,7 +49,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Enforcement and Fines
+## Enforcement and fines
 
 - **UK GDPR / DPA 2018: higher tier:** Up to £17.5 million or 4% of global annual turnover (whichever is higher).
 - **UK GDPR / DPA 2018: lower tier:** Up to £8.7 million or 2% of global annual turnover.

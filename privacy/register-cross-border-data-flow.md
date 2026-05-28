@@ -12,7 +12,7 @@
 **Review Frequency:** Updated upon each new or changed transfer; full register review annually and upon material regulatory change 
 **Repository Path:** [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This register documents all cross-border transfers of personal data from the org
 
 ---
 
-## Legal Context
+## Legal context
 
 Cross-border data transfer restrictions apply when personal data is transmitted, accessed, or stored in a country outside the originating jurisdiction's regulatory protection area. The following regimes require documented transfer mechanisms:
 
@@ -37,7 +37,7 @@ Cross-border data transfer restrictions apply when personal data is transmitted,
 
 ---
 
-## Transfer Record Schema
+## Transfer record schema
 
 ### Identification
 
@@ -50,7 +50,7 @@ Cross-border data transfer restrictions apply when personal data is transmitted,
 | **Last Reviewed** | Date of most recent review | |
 | **Next Review Date** | Date of next scheduled review | |
 
-### Data Details
+### Data details
 
 | Field | Description | Example |
 |---|---|---|
@@ -74,7 +74,7 @@ Cross-border data transfer restrictions apply when personal data is transmitted,
 | **Onward Transfer?** | Does the recipient further transfer to other countries? | No |
 | **Onward Transfer Countries** | If yes, destination countries | N/A |
 
-### Transfer Mechanism
+### Transfer mechanism
 
 | Field | Description |
 |---|---|
@@ -87,7 +87,7 @@ Cross-border data transfer restrictions apply when personal data is transmitted,
 | **UK Assessment** | For UK GDPR: Transfer Risk Assessment (TRA) completed? |
 | **PIPL Assessment** | For China PIPL transfers: CAC assessment / standard contract filed? |
 
-### Transfer Mechanisms by Regime
+### Transfer mechanisms by regime
 
 | Regime | Mechanism | Instrument |
 |---|---|---|
@@ -102,7 +102,7 @@ Cross-border data transfer restrictions apply when personal data is transmitted,
 | LGPD (Brazil) | SCCs or contractual clauses | ANPD-recognized clauses or ANPD adequacy decision |
 | PIPL (China) | Standard Contract | CAC Standard Contract for Cross-Border Transfer of Personal Information (filed) |
 
-### Risk Assessment
+### Risk assessment
 
 | Field | Description |
 |---|---|
@@ -121,7 +121,7 @@ Cross-border data transfer restrictions apply when personal data is transmitted,
 | **Deletion on Transfer End** | Confirmed in DPA? What obligation? |
 | **Breach Notification** | Notification timeline for breach affecting transferred data |
 
-### Regulatory Notifications
+### Regulatory notifications
 
 | Field | Description |
 |---|---|
@@ -132,7 +132,7 @@ Cross-border data transfer restrictions apply when personal data is transmitted,
 
 ---
 
-## Active Transfers Summary Table
+## Active transfers summary table
 
 *Populate with all active cross-border transfers. Remove sample entries when implementing.*
 
@@ -146,7 +146,7 @@ Cross-border data transfer restrictions apply when personal data is transmitted,
 
 ---
 
-## Register Governance
+## Register governance
 
 | Obligation | Frequency | Responsible |
 |---|---|---|
@@ -160,7 +160,7 @@ Cross-border data transfer restrictions apply when personal data is transmitted,
 
 ---
 
-## Connection to Related Registers
+## Connection to related registers
 
 | Related Register | Connection |
 |---|---|

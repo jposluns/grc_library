@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -45,7 +45,7 @@ High-risk processing activities require CIO approval and ERC escalation.
 
 ## Procedure
 
-### Step 1: Initiation
+### Step 1: initiation
 
 **Trigger events:**
 
@@ -58,7 +58,7 @@ The Project Owner must notify the Privacy Office or CIO (acting DPO) before data
 
 ---
 
-### Step 2: Scoping and Data Mapping
+### Step 2: scoping and data mapping
 
 Identify and document:
 
@@ -69,7 +69,7 @@ Identify and document:
 
 ---
 
-### Step 3: Risk Identification and Evaluation
+### Step 3: risk identification and evaluation
 
 Evaluate risks to data subjects:
 
@@ -86,7 +86,7 @@ Assign risk level: **Low**, **Medium**, **High**, or **Critical**.
 
 ---
 
-### Step 4: Control Selection and Mitigation
+### Step 4: control selection and mitigation
 
 Define and implement:
 
@@ -106,7 +106,7 @@ For EU transfers involving AI systems:
 
 ---
 
-### Step 5: Consultation and Approval
+### Step 5: consultation and approval
 
 - The CIO (acting DPO) reviews all completed PIAs and transfer assessments.
 - For AI systems or high-risk processing, the AIGC conducts additional review per ISO 42006 and EU AI Act Annex IV.
@@ -114,7 +114,7 @@ For EU transfers involving AI systems:
 
 ---
 
-### Step 6: Record Keeping and Documentation
+### Step 6: record keeping and documentation
 
 Maintain in the compliance repository:
 
@@ -128,7 +128,7 @@ All records retained for a minimum of **7 years**.
 
 ---
 
-### Step 7: Review and Update
+### Step 7: review and update
 
 PIAs and cross-border transfer records are reviewed:
 
@@ -138,13 +138,13 @@ PIAs and cross-border transfer records are reviewed:
 
 ---
 
-## Children's Data Protection
+## Children's data protection
 
 Processing of children's personal data requires enhanced safeguards including verifiable parental consent and restricted access controls. AI models trained on data from minors must be clearly segregated and subject to periodic bias and risk reviews. Marketing and profiling using children's data is prohibited unless expressly authorized by applicable law.
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Requirement | Reference |
 |---|---|

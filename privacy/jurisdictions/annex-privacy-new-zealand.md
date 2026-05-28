@@ -2,7 +2,7 @@
 
 **Document Title:** New Zealand Privacy Regulatory Requirements 
 **Document Type:** Annex 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Privacy Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/jurisdictions/annex-privacy-new-zealand.md`](annex-privacy-new-zealand.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 
 ---
 
@@ -22,7 +22,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Applicable Laws and Regulatory Authorities
+## Applicable laws and regulatory authorities
 
 - **Privacy Act 2020**: In force 1 December 2020, replacing the Privacy Act 1993. Administered by the Office of the Privacy Commissioner (OPC).
 - 13 Information Privacy Principles (IPPs) govern collection, use, disclosure, storage, and security of personal information.
@@ -32,7 +32,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## AI and Privacy Obligations
+## AI and privacy obligations
 
 - **IPP 3 (purpose of collection), IPP 6 (access), and IPP 10 (limits on use)** apply to personal information used in AI systems.
 - The OPC has published guidance on responsible use of AI and application of IPPs to AI-assisted decision-making.
@@ -40,7 +40,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Cross-Border Transfer Mechanisms
+## Cross-border transfer mechanisms
 
 - **IPP 12** restricts transfer to overseas recipients. Transfer is permitted if: the overseas recipient is subject to privacy safeguards comparable to the IPPs; the data subject has authorized the transfer; or the agency takes reasonable steps to ensure that comparable protection.
 - New Zealand benefits from EU adequacy status.
@@ -48,7 +48,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Enforcement and Fines
+## Enforcement and fines
 
 - Pecuniary penalties up to NZD 10,000 for certain offences.
 - The Human Rights Review Tribunal may award damages for proven privacy interferences.

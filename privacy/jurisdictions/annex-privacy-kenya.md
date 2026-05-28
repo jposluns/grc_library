@@ -2,7 +2,7 @@
 
 **Document Title:** Kenya Privacy Regulatory Requirements 
 **Document Type:** Annex 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Privacy Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/jurisdictions/annex-privacy-kenya.md`](annex-privacy-kenya.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 
 ---
 
@@ -22,7 +22,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Applicable Laws and Regulatory Authorities
+## Applicable laws and regulatory authorities
 
 - **Data Protection Act 2019 (Act No. 24 of 2019)**: Fully in force. Applies to data controllers and processors established in Kenya, and to processing of personal data of persons in Kenya by controllers or processors outside Kenya.
 - Key rights: access to personal data; correction; deletion; portability; right to object to processing; right not to be subject to automated decision-making.
@@ -32,7 +32,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## AI and Privacy Obligations
+## AI and privacy obligations
 
 - Data subjects shall not be subject to decisions based solely on automated processing, including profiling, that significantly affects them.
 - Controllers must provide transparency and allow human review of automated decisions.
@@ -40,14 +40,14 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Cross-Border Transfer Mechanisms
+## Cross-border transfer mechanisms
 
 - Transfers permitted where the receiving country ensures that adequate protection, the data subject has consented, or appropriate contractual safeguards are in place.
 - The ODPC maintains guidance on permissible transfer conditions.
 
 ---
 
-## Enforcement and Fines
+## Enforcement and fines
 
 - Civil fines up to KES 3 million (approximately USD 23,000) per violation.
 - Criminal offences: imprisonment up to 10 years for the most serious violations.

@@ -12,11 +12,11 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
-## 1. Purpose and Scope
+## 1. Purpose and scope
 
 ### 1.1 Purpose
 
@@ -36,7 +36,7 @@ The procedure is aligned to ISO/IEC 27701:2019 §7.3, GDPR Articles 15 to 22, CP
 
 ## 2. Governance
 
-### 2.1 Roles and Responsibilities
+### 2.1 Roles and responsibilities
 
 | Role | Responsibilities |
 | --- | --- |
@@ -47,13 +47,13 @@ The procedure is aligned to ISO/IEC 27701:2019 §7.3, GDPR Articles 15 to 22, CP
 | **IT Operations / System Owners** | Execute data location, extraction, restriction, and deletion actions as directed by the Privacy Officer within defined timeframes. |
 | **All Employees** | Forward any received data subject request to the Privacy Officer immediately upon receipt. No employee may respond to, dismiss, or take action on a DSR without Privacy Officer involvement. |
 
-### 2.2 Acting DPO Status
+### 2.2 Acting DPO status
 
 The CIO currently assumes all responsibilities normally assigned to a Data Protection Officer (DPO) as documented in [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md) §Governance and [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md). All references to DPO in this procedure refer to the CIO in that acting capacity until a formal appointment is made.
 
 ---
 
-## 3. Rights Catalogue
+## 3. Rights catalogue
 
 The following table defines the rights managed under this procedure, the applicable legal instruments, standard response timeframes, and key exemptions.
 
@@ -69,9 +69,9 @@ The following table defines the rights managed under this procedure, the applica
 
 ---
 
-## 4. Request Intake
+## 4. Request intake
 
-### 4.1 Submission Channels
+### 4.1 Submission channels
 
 Data subjects may submit requests through:
 
@@ -81,7 +81,7 @@ Data subjects may submit requests through:
 
 The Privacy Officer maintains the official DSR submission channel and ensures that it is published in the organization's privacy notice.
 
-### 4.2 Identity Verification
+### 4.2 Identity verification
 
 Identity verification is required before any personal data is disclosed or action taken. The verification standard must be proportionate to the sensitivity of the data involved.
 
@@ -93,7 +93,7 @@ Identity verification is required before any personal data is disclosed or actio
 
 Requests where identity cannot be verified within 10 business days are suspended. The data subject is notified of the verification requirement and given a reasonable further period to provide acceptable evidence.
 
-### 4.3 DSR Register Logging
+### 4.3 DSR register logging
 
 Upon receipt, every request is assigned a unique DSR identifier and logged in the DSR register with:
 
@@ -109,7 +109,7 @@ Upon receipt, every request is assigned a unique DSR identifier and logged in th
 
 ---
 
-## 5. Triage and Assessment
+## 5. Triage and assessment
 
 Following intake and initial logging, the Privacy Officer completes a triage assessment within 3 business days:
 
@@ -123,9 +123,9 @@ Following intake and initial logging, the Privacy Officer completes a triage ass
 
 ---
 
-## 6. Fulfilment Workflow
+## 6. Fulfilment workflow
 
-### 6.1 Data Location
+### 6.1 Data location
 
 The Privacy Officer coordinates with IT Operations and relevant System Owners to locate all personal data within scope of the request. Data location covers:
 
@@ -135,7 +135,7 @@ The Privacy Officer coordinates with IT Operations and relevant System Owners to
 - Third-party processors and sub-processors subject to data processing agreements.
 - AI systems that process, store, or generate outputs from the data subject's personal data, including AI-derived data and profiling outputs.
 
-### 6.2 Scoping the Response
+### 6.2 Scoping the response
 
 The Privacy Officer determines:
 
@@ -143,7 +143,7 @@ The Privacy Officer determines:
 - Whether any exemptions apply to specific data elements.
 - Whether any third-party personal data is intermingled with the requestor's data and must be redacted before disclosure.
 
-### 6.3 Redaction of Third-Party Data
+### 6.3 Redaction of third-party data
 
 Responses must not disclose the personal data of third parties without their consent or legal basis. Redaction must be applied to:
 
@@ -152,7 +152,7 @@ Responses must not disclose the personal data of third parties without their con
 
 Redaction must be documented in the fulfilment record. The Privacy Officer retains the unredacted version in the case file.
 
-### 6.4 Preparation and Delivery of Response
+### 6.4 Preparation and delivery of response
 
 Responses are prepared in clear, plain language. The response format depends on the right invoked:
 
@@ -170,9 +170,9 @@ Responses are delivered via a secure channel. Transmission of personal data by u
 
 ---
 
-## 7. Denial and Exemptions
+## 7. Denial and exemptions
 
-### 7.1 Grounds for Denial
+### 7.1 Grounds for denial
 
 A request may be denied wholly or in part on the following grounds (non-exhaustive; determined by applicable law):
 
@@ -184,7 +184,7 @@ A request may be denied wholly or in part on the following grounds (non-exhausti
 - The right invoked does not apply under the relevant law (e.g., portability not available for data processed under legitimate interests).
 - The request is manifestly unfounded or excessive (repeat or abusive requests); this must be assessed individually and objectively.
 
-### 7.2 Denial Process
+### 7.2 Denial process
 
 1. The Privacy Officer documents the proposed grounds for denial with reference to the specific legal provision.
 2. Legal Counsel reviews the denial rationale and confirms the legal basis.
@@ -196,9 +196,9 @@ All denials must be justified in writing and reviewed by the CIO (acting DPO) be
 
 ---
 
-## 8. Cross-Border and AI Considerations
+## 8. Cross-border and AI considerations
 
-### 8.1 Cross-Border Requests
+### 8.1 Cross-border requests
 
 Where a request involves personal data transferred across jurisdictions, the Privacy Officer:
 
@@ -206,7 +206,7 @@ Where a request involves personal data transferred across jurisdictions, the Pri
 - Identifies any legal mechanism constraints (e.g., PIPL restrictions on disclosing China-held data in response to foreign legal requests).
 - Consults Legal Counsel before fulfilling or denying the cross-border element of the request.
 
-### 8.2 AI-Derived Data
+### 8.2 AI-derived data
 
 Data subjects have the right to access data held about them regardless of whether it was directly provided or derived through automated processing, including AI systems. When fulfilling access requests:
 
@@ -214,7 +214,7 @@ Data subjects have the right to access data held about them regardless of whethe
 - The Privacy Officer coordinates with the CISO and AI system owners to retrieve AI-derived data within the access scope.
 - The system card or model card for relevant AI systems is consulted to confirm what data is generated and retained.
 
-### 8.3 Automated Decision Review (GDPR Art. 22 / CPPA)
+### 8.3 Automated decision review (GDPR art. 22 / CPPA)
 
 Where a data subject exercises their right to human review of an automated decision:
 
@@ -226,9 +226,9 @@ Where a data subject exercises their right to human review of an automated decis
 
 ---
 
-## 9. Record Keeping
+## 9. Record keeping
 
-### 9.1 DSR Register
+### 9.1 DSR register
 
 The Privacy Officer maintains the DSR register as a living record of all requests received. The register must be accessible to the CIO and available for production to supervisory authorities on request. The DSR register contains, for each request, all fields defined in §4.3 plus fulfilment notes, denial grounds where applicable, and closure date.
 
@@ -238,7 +238,7 @@ DSR records, including intake records, identity verification evidence, internal 
 
 Records subject to regulatory investigation, litigation hold, or supervisory authority inquiry are retained until the hold is formally lifted by Legal Counsel, regardless of the standard retention period.
 
-### 9.3 Evidence of Fulfilment
+### 9.3 Evidence of fulfilment
 
 For each completed request, the case file must include:
 
@@ -267,7 +267,7 @@ The following metrics are tracked and reported to the CIO at the quarterly Priva
 
 ---
 
-## 11. Framework Alignment
+## 11. Framework alignment
 
 | Control Area | Framework Reference |
 | --- | --- |

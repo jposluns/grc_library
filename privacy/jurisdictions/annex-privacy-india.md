@@ -2,7 +2,7 @@
 
 **Document Title:** India Privacy Regulatory Requirements 
 **Document Type:** Annex 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Privacy Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/jurisdictions/annex-privacy-india.md`](annex-privacy-india.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 
 ---
 
@@ -22,7 +22,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Applicable Laws and Regulatory Authorities
+## Applicable laws and regulatory authorities
 
 - **Digital Personal Data Protection Act 2023 (DPDPA)**: Signed 11 August 2023. India's first comprehensive data protection law.
 - **Digital Personal Data Protection Rules 2025**: Published February 2025, in force 1 April 2025. Operationalized the principal Act, bringing the full compliance framework into effect.
@@ -32,7 +32,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## AI and Privacy Obligations
+## AI and privacy obligations
 
 - **Consent:** Most processing of personal data requires free, specific, informed, and unambiguous consent. Consent requests must be in clear, plain language and in the language specified by the Data Principal. The Consent Manager framework provides a regulated intermediary structure.
 - **Purpose limitation:** Personal data may be processed only for the specified lawful purpose for which consent was given. Repurposing for AI training requires fresh consent or another valid legal ground.
@@ -44,7 +44,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Cross-Border Transfer Mechanisms
+## Cross-border transfer mechanisms
 
 - The DPDPA employs a **whitelist approach**: cross-border transfers of personal data are permitted only to countries and territories notified by the Indian government as permissible destinations.
 - The government may restrict transfers to countries posing a risk to national security or public order.
@@ -53,7 +53,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Enforcement and Fines
+## Enforcement and fines
 
 The Data Protection Board adjudicates complaints and imposes financial penalties per instance of violation (not per affected individual):
 

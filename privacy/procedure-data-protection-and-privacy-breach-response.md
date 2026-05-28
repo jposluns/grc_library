@@ -12,11 +12,11 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
-## 1. Purpose and Scope
+## 1. Purpose and scope
 
 ### 1.1 Purpose
 
@@ -32,7 +32,7 @@ The procedure is aligned to ISO/IEC 27701:2019 §8.9, GDPR Articles 33 to 34, UK
 4. Applies across all jurisdictions in which the organization operates, including the European Union, United Kingdom, Canada (federal and provincial), China, Brazil, and United States.
 5. This procedure operates alongside [`security/procedure-incident-response.md`](../security/procedure-incident-response.md), which governs the technical containment and investigation lifecycle. This procedure governs the privacy-specific assessment, notification, and post-breach obligations.
 
-### 1.3 Relationship to the Incident Response Procedure
+### 1.3 Relationship to the incident response procedure
 
 A personal data breach is also a security incident. The CISO and Privacy Officer are jointly responsible for initiating breach response as documented in [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md). Technical containment, evidence preservation, and eradication actions are executed per [`security/procedure-incident-response.md`](../security/procedure-incident-response.md). This procedure governs the parallel privacy-specific stream: breach severity assessment, regulatory notification determination, data subject notification, and privacy-focused post-breach review.
 
@@ -40,7 +40,7 @@ A personal data breach is also a security incident. The CISO and Privacy Officer
 
 ## 2. Governance
 
-### 2.1 Roles and Responsibilities
+### 2.1 Roles and responsibilities
 
 | Role | Responsibilities |
 | --- | --- |
@@ -52,13 +52,13 @@ A personal data breach is also a security incident. The CISO and Privacy Officer
 | **IT Operations / System Owners** | Support data scope identification, access restriction, and deletion or recovery actions directed by the Privacy Officer and CISO. |
 | **Regional BASC Compliance Officer** | Notified for any breach affecting BASC trade, customs, or cargo records. Coordinates BASC-specific reporting. |
 
-### 2.2 Joint Leadership
+### 2.2 Joint leadership
 
 The CISO and Privacy Officer are jointly responsible for initiating breach response the moment a potential personal data breach is identified. Neither role may unilaterally close or downscale a privacy breach without agreement of the other and CIO sign-off.
 
 ---
 
-## 3. Breach Severity Classification
+## 3. Breach severity classification
 
 All suspected personal data breaches are classified at the point of initial detection and reassessed as additional information becomes available. Classification drives response SLAs, escalation paths, and resourcing.
 
@@ -70,15 +70,15 @@ All suspected personal data breaches are classified at the point of initial dete
 
 Severity is reassessed at each phase of the breach response lifecycle. Any team member may escalate severity upward. Downgrading from P1 requires CIO approval.
 
-### 3.1 Evidence Preservation Obligation
+### 3.1 Evidence preservation obligation
 
 For all P1 incidents, evidence preservation takes priority. Systems must not be isolated, reimaged, or modified without direction from the Incident Commander as defined in [`security/procedure-incident-response.md`](../security/procedure-incident-response.md) §5.1. The Privacy Officer must be briefed on evidence status before any containment action that could affect the completeness of the privacy impact assessment.
 
 ---
 
-## 4. Detection and Initial Assessment
+## 4. Detection and initial assessment
 
-### 4.1 Detection Sources
+### 4.1 Detection sources
 
 Personal data breaches may be detected from any of the following sources:
 
@@ -90,7 +90,7 @@ Personal data breaches may be detected from any of the following sources:
 - Dark web monitoring alerting to the appearance of organizational data.
 - BASC monitoring systems identifying anomalies in trade or customs data flows.
 
-### 4.2 24-Hour Initial Assessment
+### 4.2 24-hour initial assessment
 
 Within 24 hours of a potential personal data breach being identified, the Privacy Officer and CISO jointly conduct an initial assessment to determine:
 
@@ -107,7 +107,7 @@ The assessment is documented and retained as part of the breach record.
 
 ## 5. Containment
 
-### 5.1 Containment Principles
+### 5.1 Containment principles
 
 Containment actions for personal data breaches follow the containment framework in [`security/procedure-incident-response.md`](../security/procedure-incident-response.md) §5. The following privacy-specific principles additionally apply:
 
@@ -115,7 +115,7 @@ Containment actions for personal data breaches follow the containment framework 
 - **Scope isolation, not deletion.** Containment focuses on restricting further access to or exposure of personal data; premature deletion of breach-related data is prohibited unless specifically directed by Legal Counsel to meet a legal obligation.
 - **Notify processors promptly.** If personal data held by a third-party processor is affected, the processor is notified immediately and directed to preserve evidence and assist with the impact assessment.
 
-### 5.2 Containment Actions
+### 5.2 Containment actions
 
 Containment actions vary by breach type:
 
@@ -130,9 +130,9 @@ Containment actions vary by breach type:
 
 ---
 
-## 6. Notification Assessment
+## 6. Notification assessment
 
-### 6.1 Assessment Framework
+### 6.1 Assessment framework
 
 Following containment and initial assessment, the Privacy Officer and Legal Counsel conduct a formal notification assessment determining:
 
@@ -143,7 +143,7 @@ Following containment and initial assessment, the Privacy Officer and Legal Coun
 
 The notification assessment is documented in the breach record and approved by the CIO (acting DPO) before any notification is submitted.
 
-### 6.2 Jurisdiction-Specific Notification Requirements
+### 6.2 Jurisdiction-specific notification requirements
 
 | Jurisdiction | Governing Law | Regulatory Authority | Notification Trigger | Regulatory Deadline | Individual Notification |
 | --- | --- | --- | --- | --- | --- |
@@ -157,7 +157,7 @@ The notification assessment is documented in the breach record and approved by t
 
 > **Note:** The 72-hour GDPR clock starts from the moment the controller becomes aware that a breach of personal data has occurred: not from the moment the breach occurred. "Becoming aware" is interpreted as when the controller has a reasonable degree of certainty that a security incident has taken place that has led to personal data being compromised.
 
-### 6.3 Supplier Notification
+### 6.3 Supplier notification
 
 Where a processor or sub-processor is involved, the organization:
 
@@ -167,11 +167,11 @@ Where a processor or sub-processor is involved, the organization:
 
 ---
 
-## 7. Notification Content Requirements
+## 7. Notification content requirements
 
 All regulatory and individual notifications must contain the following information to the extent known at the time of notification. Where information is not yet available, the notification states this and provides a timeline for supplementary notification.
 
-### 7.1 Regulatory Notification Content
+### 7.1 Regulatory notification content
 
 1. **Nature of the breach:** Description of what happened, when it occurred, and when it was discovered.
 2. **Data categories and approximate volume:** Categories of personal data affected (e.g., contact details, financial data, health data, credentials) and approximate number of records and individuals affected.
@@ -180,7 +180,7 @@ All regulatory and individual notifications must contain the following informati
 5. **Contact details:** Name and contact details of the DPO (or acting DPO/CIO) for further liaison with the supervisory authority.
 6. **Affected jurisdictions:** Where the breach affects individuals in multiple jurisdictions, the notification identifies the lead authority and confirms cross-border scope.
 
-### 7.2 Individual Notification Content
+### 7.2 Individual notification content
 
 Individual notifications are written in plain, accessible language and include:
 
@@ -192,7 +192,7 @@ Individual notifications are written in plain, accessible language and include:
 
 Individual notifications must not contain information that could compromise an ongoing investigation. Legal Counsel reviews all individual notification content before distribution.
 
-### 7.3 Phased Notification
+### 7.3 Phased notification
 
 Where full information is not available within the notification deadline, a phased notification approach is used:
 
@@ -201,9 +201,9 @@ Where full information is not available within the notification deadline, a phas
 
 ---
 
-## 8. Post-Breach Review
+## 8. Post-breach review
 
-### 8.1 Post-Incident Review (PIR) Requirement
+### 8.1 Post-incident review (PIR) requirement
 
 A formal post-breach review (PIR) is mandatory for all P1 and P2 privacy breaches and must be completed within 10 business days of incident closure.
 
@@ -213,7 +213,7 @@ A formal post-breach review (PIR) is mandatory for all P1 and P2 privacy breache
 | P2: High | Mandatory | Within 10 business days of closure |
 | P3: Medium | At Privacy Officer discretion | Within 20 business days of closure |
 
-### 8.2 PIR Scope
+### 8.2 PIR scope
 
 The PIR addresses:
 
@@ -226,15 +226,15 @@ The PIR addresses:
 7. **Corrective actions:** Named control owners, remediation actions, implementation deadlines, and tracking mechanism.
 8. **Risk register update:** Confirmation that existing risk entries have been re-scored or new risks added to reflect the lessons learned.
 
-### 8.3 PIR Output
+### 8.3 PIR output
 
 The PIR report is classified Restricted. It is provided to the CIO, CISO, Privacy Officer, and Internal Audit. Corrective actions are tracked in the privacy remediation register and reported at the quarterly Privacy Governance Review. Where the breach was subject to regulatory notification, the regulator may request the PIR findings as part of their investigation.
 
 ---
 
-## 9. Record Keeping
+## 9. Record keeping
 
-### 9.1 Breach Register
+### 9.1 Breach register
 
 The Privacy Officer maintains a breach register documenting every suspected or confirmed personal data breach, regardless of whether regulatory notification was required. The breach register is a living document retained and available for regulatory inspection.
 
@@ -259,13 +259,13 @@ Each breach register entry includes:
 | Closure date | Date formally closed |
 | CIO sign-off | Date and confirmation |
 
-### 9.2 Evidence Retention
+### 9.2 Evidence retention
 
 All breach evidence, forensic artefacts, SIEM log exports, investigation records, containment records, notification drafts and submissions, authority correspondence, PIR reports, and corrective action records, must be retained for a minimum of 7 years, consistent with the retention schedule in [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md).
 
 Records subject to regulatory investigation, litigation hold, or authority request are retained until the hold is formally lifted by Legal Counsel.
 
-### 9.3 Regulatory Notification Records
+### 9.3 Regulatory notification records
 
 Copies of all submitted regulatory notifications, including phased supplementary notifications and authority correspondence, are retained in the breach case file as Restricted documents. Access is limited to the Privacy Officer, CIO, CISO, and Legal Counsel.
 
@@ -287,7 +287,7 @@ The following metrics are tracked and reported to the CIO and CISO at the quarte
 
 ---
 
-## 11. Framework Alignment
+## 11. Framework alignment
 
 | Control Area | Framework Reference |
 | --- | --- |

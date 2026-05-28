@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -35,19 +35,19 @@ This policy defines principles, governance structure, and control framework for 
 
 ## Governance
 
-### Accountable Roles
+### Accountable roles
 
 1. The **Chief Information Officer (CIO)** serves as the accountable executive for global data governance and assumes all responsibilities normally assigned to the Data Protection Officer (DPO) until that role is appointed.
 2. The **Chief Information Security Officer (CISO)** ensures that security controls protect data confidentiality, integrity, and availability.
 3. The CIO, in the capacity of acting DPO, represents the organization before regulatory authorities and ensures that compliance with applicable privacy laws.
 4. **Regional Data Stewards and Privacy Leads** ensure that compliance with local data protection laws (EU GDPR, CPPA, PIPL, LGPD, etc.).
 
-### Governance Committees
+### Governance committees
 
 - **Data Governance Council (DGC):** Sets strategic data management objectives.
 - **AI Governance Council (AIGC):** Ensures that responsible use of data for AI training and operation.
 
-### Roles and Responsibilities
+### Roles and responsibilities
 
 | Role | Responsibilities |
 |---|---|
@@ -63,69 +63,69 @@ This policy defines principles, governance structure, and control framework for 
 
 ---
 
-## Policy Requirements
+## Policy requirements
 
-### 1. Lawful and Fair Processing
+### 1. Lawful and fair processing
 
 - Personal data shall be collected and processed only for legitimate business purposes in compliance with applicable laws.
 - Individuals shall be informed about data collection, use, retention, and transfer through transparent notices.
 - Consent, where required, must be specific, informed, and revocable.
 
-### 2. Data Classification and Handling
+### 2. Data classification and handling
 
 - All data assets shall be classified based on sensitivity: Public, Internal, Confidential, and Restricted.
 - Handling procedures for each classification level shall be documented and enforced through technical and organizational controls.
 - Sensitive personal data and AI datasets shall be encrypted at rest and in transit.
 
-### 3. Data Quality and Accuracy
+### 3. Data quality and accuracy
 
 - Data must be accurate, complete, and kept up to date in accordance with ISO 8000-8.
 - Periodic validation processes shall verify data integrity, detect anomalies, and prevent unauthorised modification.
 
-### 4. Records and Retention Management
+### 4. Records and retention management
 
 - Records shall be maintained according to approved retention schedules and applicable legal or regulatory timeframes.
 - Destruction or anonymization of records shall be conducted securely and verifiably.
 - Retention schedules shall cover both structured data and AI training artifacts.
 
-### 5. Privacy by Design and Default
+### 5. Privacy by design and default
 
 - Systems and processes shall embed privacy principles from inception, including data minimization and pseudonymization.
 - Privacy Impact Assessments (PIAs) shall be conducted for new systems, major changes, and AI model training activities.
 - PIAs shall assess lawful basis, consent management, cross-border data transfer, and model explainability impacts.
 
-### 6. Cross-Border Data Transfers
+### 6. Cross-border data transfers
 
 - All data transfers between jurisdictions must comply with applicable legal mechanisms, such as EU SCCs, APEC CBPR 2.0 certifications, or recognized adequacy decisions.
 - The organization shall maintain a register of all cross-border data flows, reviewed quarterly.
 - Transfers to jurisdictions lacking adequate protection must include additional safeguards and executive approval.
 
-### 7. AI Training Data Governance
+### 7. AI training data governance
 
 - AI models shall only be trained on datasets that comply with privacy, consent, and licensing obligations.
 - Datasets must include provenance metadata detailing source, collection date, consent type, and processing purpose.
 - Disclosure of training dataset categories shall be documented for transparency and compliance with the EU Data Act (2026).
 - Synthetic and anonymized data used for AI training shall undergo reidentification risk assessments.
 
-### 8. Data Subject Rights
+### 8. Data subject rights
 
 - Individuals shall have the right to access, correct, delete, or port their personal data as required under GDPR, CPPA, and PIPL.
 - Requests must be processed within legal timeframes (typically 30 days).
 - Denials must be justified in writing and reviewed by the CIO (acting DPO).
 
-### 9. Third-Party and Supplier Governance
+### 9. Third-party and supplier governance
 
 - All vendors processing personal or regulated data must be assessed for privacy and security compliance before engagement.
 - Data processing agreements shall include breach notification, audit rights, and cross-border data protection clauses.
 - Supplier performance shall be monitored and reviewed annually.
 
-### 10. Incident Response and Breach Management
+### 10. Incident response and breach management
 
 - Data breaches shall be reported immediately to the CISO and CIO (acting DPO).
 - Regulatory notifications shall be issued within 72 hours (GDPR standard) or as required by local laws.
 - Post-incident reviews shall determine root cause, impact, and mitigation actions.
 
-### 11. Monitoring and Continual Improvement
+### 11. Monitoring and continual improvement
 
 - Compliance shall be monitored through audits, metrics, and incident trends.
 - Lessons learned from data breaches or privacy complaints shall be integrated into training and control design.
@@ -133,7 +133,7 @@ This policy defines principles, governance structure, and control framework for 
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Policy Area | ISO/IEC 27701 | COBIT 2025 | CSA CCM v5 | Regulatory References |
 |---|---|---|---|---|

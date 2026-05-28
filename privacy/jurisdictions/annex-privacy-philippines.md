@@ -2,7 +2,7 @@
 
 **Document Title:** Philippines Privacy Regulatory Requirements 
 **Document Type:** Annex 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Privacy Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/jurisdictions/annex-privacy-philippines.md`](annex-privacy-philippines.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 
 ---
 
@@ -22,7 +22,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Applicable Laws and Regulatory Authorities
+## Applicable laws and regulatory authorities
 
 - **Republic Act No. 10173 (Data Privacy Act 2012)**: With implementing rules updated through 2023. The Philippines' primary data protection law.
 - Rights: access, objection, erasure/blocking, rectification, portability, and damages.
@@ -33,7 +33,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## AI and Privacy Obligations
+## AI and privacy obligations
 
 - NPC guidance requires that AI systems processing sensitive personal information implement heightened security and strict purpose limitation.
 - Organizations conducting large-scale AI profiling are encouraged to conduct privacy impact assessments.
@@ -41,13 +41,13 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Cross-Border Transfer Mechanisms
+## Cross-border transfer mechanisms
 
 - Transfers permitted where comparable safeguards exist in the recipient country, the data subject has consented, or contractual mechanisms providing equivalent protection are in place.
 
 ---
 
-## Enforcement and Fines
+## Enforcement and fines
 
 - Administrative fines up to PHP 5 million per violation.
 - Imprisonment from 1 to 6 years for serious violations.

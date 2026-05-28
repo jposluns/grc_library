@@ -2,7 +2,7 @@
 
 **Document Title:** Turkey Privacy Regulatory Requirements 
 **Document Type:** Annex 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Privacy Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/jurisdictions/annex-privacy-turkey.md`](annex-privacy-turkey.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 
 ---
 
@@ -22,7 +22,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Applicable Laws and Regulatory Authorities
+## Applicable laws and regulatory authorities
 
 - **Law on the Protection of Personal Data (KVKK) No. 6698**: Effective April 2016; substantially amended by Law No. 7499 (enacted March 2024, in force June 2024), harmonizing the KVKK with GDPR in several respects.
 - **Key 2024 amendments:** Explicit consent requirements aligned with GDPR standards; legitimate interest introduced as a lawful basis; new cross-border transfer mechanism through commitments (analogous to SCCs); enhanced rights including data portability; strengthened DPO-type obligations for large data processors.
@@ -30,7 +30,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## AI and Privacy Obligations
+## AI and privacy obligations
 
 - The KVKK Board has issued guidance on automated decision-making, requiring transparency about automated processing that significantly affects individuals.
 - Data subjects have the right to object to decisions made solely through automated means.
@@ -38,7 +38,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Cross-Border Transfer Mechanisms
+## Cross-border transfer mechanisms
 
 The 2024 amendment introduced a cleaner framework:
 
@@ -49,7 +49,7 @@ The 2024 amendment introduced a cleaner framework:
 
 ---
 
-## Enforcement and Fines
+## Enforcement and fines
 
 Administrative fines are recalibrated annually for inflation. As of 2025:
 

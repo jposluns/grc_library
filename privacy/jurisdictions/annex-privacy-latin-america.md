@@ -2,7 +2,7 @@
 
 **Document Title:** Latin America Privacy Regulatory Requirements 
 **Document Type:** Annex 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Privacy Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/jurisdictions/annex-privacy-latin-america.md`](annex-privacy-latin-america.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 
 ---
 
@@ -22,7 +22,7 @@ This annex provides an overview of privacy regulatory requirements in key Latin 
 
 ---
 
-## Applicable Laws and Regulatory Authorities
+## Applicable laws and regulatory authorities
 
 ### Argentina
 
@@ -51,7 +51,7 @@ This annex provides an overview of privacy regulatory requirements in key Latin 
 
 ---
 
-## AI and Privacy Obligations
+## AI and privacy obligations
 
 Most Latin American jurisdictions apply general data protection principles to AI processing of personal data. Key considerations:
 
@@ -63,7 +63,7 @@ Most Latin American jurisdictions apply general data protection principles to AI
 
 ---
 
-## Cross-Border Transfer Mechanisms
+## Cross-border transfer mechanisms
 
 | Jurisdiction | Transfer Mechanism |
 |---|---|
@@ -75,7 +75,7 @@ Most Latin American jurisdictions apply general data protection principles to AI
 
 ---
 
-## Enforcement and Fines
+## Enforcement and fines
 
 | Jurisdiction | Regulator | Penalty Regime |
 |---|---|---|

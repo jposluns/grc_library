@@ -2,7 +2,7 @@
 
 **Document Title:** Singapore Privacy Regulatory Requirements 
 **Document Type:** Annex 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Privacy Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/jurisdictions/annex-privacy-singapore.md`](annex-privacy-singapore.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 
 ---
 
@@ -22,7 +22,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Applicable Laws and Regulatory Authorities
+## Applicable laws and regulatory authorities
 
 - **Personal Data Protection Act 2012 (PDPA)**: Administered by the Personal Data Protection Commission (PDPC). Governs collection, use, disclosure, and care of personal data by private organizations. Significantly amended in 2020 (effective 1 February 2021) to introduce mandatory data breach notification, enhanced consent exceptions, data portability, and expanded enforcement powers.
 - **PDPC Advisory Guidelines on AI Recommendations (2022):** Advisory guidelines on the use of personal data in AI recommendation systems and on responsible use of AI in decision-making.
@@ -30,7 +30,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## AI and Privacy Obligations
+## AI and privacy obligations
 
 - Organizations using AI to make or assist decisions about individuals must ensure that decisions based on personal data are made fairly and with appropriate human oversight.
 - The PDPC's Model Governance Framework for AI (2019, second edition 2020) provides a voluntary but widely adopted framework for responsible AI governance, covering risk-proportionate governance, internal governance, operations management for AI models, and stakeholder interaction.
@@ -39,7 +39,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Cross-Border Transfer Mechanisms
+## Cross-border transfer mechanisms
 
 - Transfers outside Singapore are permitted if the recipient jurisdiction provides a comparable standard of protection, or if the transferring organization takes reasonable steps to ensure that comparable protection through PDPC-approved contractual data protection clauses or binding corporate rules.
 - PDPC has published standard contractual clauses.
@@ -47,7 +47,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Enforcement and Fines
+## Enforcement and fines
 
 - Financial penalties: Up to SGD 1 million or 10% of the organization's annual turnover in Singapore (whichever is higher) for egregious data breaches (post-2020 amendment).
 - The PDPC may also issue directions to stop collecting, using, or disclosing personal data.

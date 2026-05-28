@@ -2,7 +2,7 @@
 
 **Document Title:** Japan Privacy Regulatory Requirements 
 **Document Type:** Annex 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Privacy Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/jurisdictions/annex-privacy-japan.md`](annex-privacy-japan.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 
 ---
 
@@ -22,7 +22,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Applicable Laws and Regulatory Authorities
+## Applicable laws and regulatory authorities
 
 - **Act on the Protection of Personal Information (APPI)**: Substantially amended in 2022 (effective April 2022) to introduce stricter consent requirements for third-party provision, cross-border transfer restrictions, pseudonymous information as a new category, rights to request suspension of third-party provision and deletion, and expanded enforcement powers.
 - **Regulatory authority:** Personal Information Protection Commission (PPC).
@@ -30,7 +30,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## AI and Privacy Obligations
+## AI and privacy obligations
 
 - **Purpose specification:** Personal information used to train AI must be handled in compliance with APPI's purpose specification principle. Using personal information obtained by a third party for AI training requires that it was originally provided for a compatible purpose or that explicit consent exists for repurposing.
 - **Publicly available data:** The PPC has issued guidance that even publicly available personal information must be handled in compliance with APPI; scraping for AI training may constitute a violation.
@@ -40,7 +40,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Cross-Border Transfer Mechanisms
+## Cross-border transfer mechanisms
 
 - Cross-border third-party provision requires either consent of the data subject, or the recipient is in a country designated by the PPC as having equivalent protection (EU and UK recognized), or the recipient has established a personal information protection system equivalent to APPI standards (BCRs or equivalent contractual obligations).
 - The PPC has issued guidance on required contractual and monitoring obligations for cross-border transfers.
@@ -48,7 +48,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Enforcement and Fines
+## Enforcement and fines
 
 - Fines up to JPY 100 million for organizations for violations, including unlawful cross-border transfers and failure to notify the PPC of data breaches.
 - Individuals responsible may face criminal penalties.

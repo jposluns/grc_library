@@ -2,7 +2,7 @@
 
 **Document Title:** Australia Privacy Regulatory Requirements 
 **Document Type:** Annex 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Privacy Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/jurisdictions/annex-privacy-australia.md`](annex-privacy-australia.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 
 ---
 
@@ -22,7 +22,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Applicable Laws and Regulatory Authorities
+## Applicable laws and regulatory authorities
 
 - **Privacy Act 1988 (Cth)**: Administered by the Office of the Australian Information Commissioner (OAIC). Applies to Australian Government agencies and private-sector organizations with annual turnover exceeding AUD 3 million (and certain other categories). Structured around 13 Australian Privacy Principles (APPs).
 - **Privacy and Other Legislation Amendment Act 2024:** Introduced significant reforms including a statutory tort for serious invasions of privacy, new children's privacy protections, and enhanced enforcement powers.
@@ -30,7 +30,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## AI and Privacy Obligations
+## AI and privacy obligations
 
 - The Privacy Act's APPs apply to personal information used in AI systems:
  - **APP 3 (collection):** Collection must be reasonably necessary for a lawful purpose.
@@ -43,14 +43,14 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Cross-Border Transfer Mechanisms
+## Cross-border transfer mechanisms
 
 - **APP 8:** Governs cross-border disclosure of personal information. Organizations may disclose personal information overseas if the recipient is subject to a law substantially similar to the Privacy Act, or the individual consents, or the organization takes reasonable steps to ensure that the overseas recipient complies with the APPs.
 - Australia participates in the APEC CBPR 2.0 framework.
 
 ---
 
-## Enforcement and Fines
+## Enforcement and fines
 
 - **Serious or repeated privacy interferences:** Civil penalties up to AUD 50 million, or three times the benefit obtained, or 30% of adjusted turnover during the relevant period (whichever is greatest).
 - **Statutory tort (Privacy and Other Legislation Amendment Act 2024):** Compensation including damages for emotional distress for serious invasions of privacy.

@@ -2,7 +2,7 @@
 
 **Document Title:** Thailand Privacy Regulatory Requirements 
 **Document Type:** Annex 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Privacy Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/jurisdictions/annex-privacy-thailand.md`](annex-privacy-thailand.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 
 ---
 
@@ -22,7 +22,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Applicable Laws and Regulatory Authorities
+## Applicable laws and regulatory authorities
 
 - **Personal Data Protection Act B.E. 2562 (2019) (PDPA)**: In force for general compliance obligations since 1 June 2022. Closely modelled on GDPR.
 - Lawful bases: consent, vital interests, legitimate interests, public task, legal obligation, and contract performance.
@@ -33,7 +33,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## AI and Privacy Obligations
+## AI and privacy obligations
 
 - PDPC guidance states that AI systems processing personal data must comply with PDPA principles.
 - Automated decision-making producing legal or significantly impactful effects requires human oversight and a mechanism for data subjects to contest decisions.
@@ -41,14 +41,14 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Cross-Border Transfer Mechanisms
+## Cross-border transfer mechanisms
 
 - Transfers permitted with: consent; vital interests; legal claims; public interest; or adequacy as determined by the PDPC (adequacy list under development).
 - Contractual safeguards are the primary interim mechanism pending PDPC adequacy determinations.
 
 ---
 
-## Enforcement and Fines
+## Enforcement and fines
 
 - Administrative fines: up to THB 5 million (~USD 140,000).
 - Criminal fines: up to THB 1 million.

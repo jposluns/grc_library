@@ -2,7 +2,7 @@
 
 **Document Title:** South Korea Privacy Regulatory Requirements 
 **Document Type:** Annex 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Privacy Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/jurisdictions/annex-privacy-south-korea.md`](annex-privacy-south-korea.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 
 ---
 
@@ -22,7 +22,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Applicable Laws and Regulatory Authorities
+## Applicable laws and regulatory authorities
 
 - **Personal Information Protection Act (PIPA)**: Most recently amended in 2023 (promulgated March 2023; key provisions effective September 2023). South Korea's primary data protection law.
 - South Korea holds an EU GDPR adequacy decision (granted December 2021).
@@ -31,7 +31,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## AI and Privacy Obligations
+## AI and privacy obligations
 
 - **Right to explanation:** Data subjects may request an explanation of any decision made solely through automated means that significantly affects their rights or interests. The data controller must explain the criteria and logic applied and provide human review upon request.
 - **Purpose limitation and data minimization:** Apply to AI training on personal data. Consent must be specific to the AI processing purpose.
@@ -40,14 +40,14 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Cross-Border Transfer Mechanisms
+## Cross-border transfer mechanisms
 
 - Transfers permitted to: countries designated by the PIPC as providing equivalent or higher protection; the EU (adequacy decision); with data subject-specific consent; or via PIPC-approved standard contractual clauses.
 - Mandatory disclosure to data subjects of the identity, contact details, and purposes of overseas recipients at or before transfer.
 
 ---
 
-## Enforcement and Fines
+## Enforcement and fines
 
 - **Administrative penalties:** Up to 3% of annual revenue for violations involving processing sensitive information, unlawful third-party provision, or outsourcing without authorization.
 - **Criminal penalties:** Up to 10 years imprisonment or fines up to KRW 100 million for the most serious violations.

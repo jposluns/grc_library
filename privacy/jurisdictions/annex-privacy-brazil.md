@@ -2,7 +2,7 @@
 
 **Document Title:** Brazil Privacy Regulatory Requirements 
 **Document Type:** Annex 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Privacy Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
 **Repository Path:** [`privacy/jurisdictions/annex-privacy-brazil.md`](annex-privacy-brazil.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal
+**License:** CC0 1.0 Universal
 
 ---
 
@@ -22,7 +22,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Applicable Laws and Regulatory Authorities
+## Applicable laws and regulatory authorities
 
 - **Lei Geral de Proteção de Dados Pessoais (LGPD)**: Law No. 13,709/2018, as amended by Law No. 13,853/2019, in force September 2020. Brazil's comprehensive data protection law, closely modelled on GDPR. Applies to any processing of personal data of individuals located in Brazil, regardless of where the processor is located, provided that the processing takes place in Brazil, the purpose of processing is offering goods or services in Brazil, or the personal data was collected in Brazil.
 - **Brazilian Internet Act (Marco Civil da Internet)**: Law No. 12,965/2014. Establishes principles, rights, and duties for internet use in Brazil, including data protection principles for connection and application providers.
@@ -30,7 +30,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## AI and Privacy Obligations
+## AI and privacy obligations
 
 - **Lawful basis (Article 7):** Processing by AI systems requires one of ten lawful bases including consent, legitimate interest, contract performance, legal obligation, and research in the public interest.
 - **Sensitive personal data (Article 11):** AI systems processing health, biometric, racial or ethnic origin, religious belief, political opinion, sexual orientation, genetic, or children's data require consent or another specific Article 11 basis. Consent must be specific, prominent, and separate.
@@ -42,7 +42,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ---
 
-## Cross-Border Transfer Mechanisms
+## Cross-border transfer mechanisms
 
 International transfers of personal data from Brazil are permitted only when (LGPD Articles 33 to 36):
 
@@ -56,7 +56,7 @@ ANPD-approved standard contractual clauses (Resolution CD/ANPD No. 19/2023) are 
 
 ---
 
-## Enforcement and Fines
+## Enforcement and fines
 
 - **Simple fine (Article 52):** Up to 2% of the revenue of the private legal entity, group, or conglomerate in Brazil in its last fiscal year (excluding taxes), up to a maximum of BRL 50 million per violation.
 - **Daily fine:** To compel cessation of the violation, up to BRL 50 million in total.
