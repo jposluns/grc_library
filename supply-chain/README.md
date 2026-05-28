@@ -92,7 +92,7 @@ Operational controls for internationally recognized trusted-trader and supply-ch
 
 ---
 
-## License boundary
+## Licence boundary
 
 Supplier questionnaires, proprietary assurance reports, third-party audit reports, and external framework text must not be copied into this directory unless confirmed CC0-compatible. Use non-verbatim synthesis and original control language only.
 

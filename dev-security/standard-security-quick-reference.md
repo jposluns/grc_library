@@ -2,8 +2,8 @@
 
 **Document Title:** Security Quick Reference 
 **Document Type:** Standard 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Chief Information Officer 
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md) 
@@ -135,7 +135,7 @@ Every pipeline touching Test or Production must include these checks in order. P
 3. SCA (dependency scan): fail on Critical CVE; High requires tracked issue
 4. Container image scan (if containers used): fail on Critical CVE in image
 5. IaC scan (if IaC present): fail on Critical misconfiguration
-6. License check: fail on unapproved copyleft license
+6. Licence check: fail on unapproved copyleft licence
 7. Runtime EOL check: fail on deployment to EOL runtime version
 8. SBOM generation (production builds only): must generate and archive
 9. Manual approval gate (production deployments): human approval required

@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Requirements 
 **Document Type:** Standard 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Chief Information Officer 
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) 
@@ -184,7 +184,7 @@ An SBOM must be generated for every production release and retained. See penetra
 ## 9. Dependency and open-source governance
 
 - Source from approved, trusted registries only.
-- Before adding any dependency: confirm active maintenance (last release within 24 months); compatible license; no Critical/High CVEs; no supply chain compromise flags.
+- Before adding any dependency: confirm active maintenance (last release within 24 months); compatible licence; no Critical/High CVEs; no supply chain compromise flags.
 - SCA scanning covers transitive dependencies.
 - GPL/AGPL licenses require Legal approval before use in commercial software. Apache 2.0, MIT, BSD generally approved.
 - AI-suggested dependency names must be verified to exist in approved registries before installation (hallucinated package names are an active supply-chain attack vector).

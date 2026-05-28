@@ -54,7 +54,7 @@ Where a sector annex restates a control because the sector's regulator requires 
 
 ---
 
-## License and neutrality posture
+## Licence and neutrality posture
 
 All sector annexes are released under CC0 1.0 Universal alongside the rest of the library. Sector-specific content remains organisation-neutral: it describes how a sector programme is implemented in general terms rather than how any specific organisation has implemented it.
 

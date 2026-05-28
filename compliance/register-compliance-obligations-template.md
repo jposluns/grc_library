@@ -2,7 +2,7 @@
 
 **Document Title:** Compliance Obligations Register Template 
 **Document Type:** Register 
-**Version:** 1.0.1 
+**Version:** 1.0.2 
 **Date:** 2026-05-28 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -143,7 +143,7 @@ Assign Regulatory Risk Rating based on potential consequences of non-compliance:
 
 | Rating | Criteria |
 |---|---|
-| **High** | Significant financial penalty (e.g., GDPR fines up to 4% global annual turnover); criminal liability; suspension of operating license; material reputational damage |
+| **High** | Significant financial penalty (e.g., GDPR fines up to 4% global annual turnover); criminal liability; suspension of operating licence; material reputational damage |
 | **Medium** | Moderate financial penalty; regulatory warning; potential for escalation to High if not remediated |
 | **Low** | Minor administrative penalty; low enforcement priority; limited reputational impact |
 

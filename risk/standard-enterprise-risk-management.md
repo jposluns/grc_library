@@ -2,7 +2,7 @@
 
 **Document Title:** Enterprise Risk Management Standard 
 **Document Type:** Standard 
-**Version:** 1.3.1 
+**Version:** 1.3.2 
 **Date:** 2026-05-28 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -98,7 +98,7 @@ Risk scores are calculated as **Likelihood (1 to 5) × Impact (1 to 5) = Risk Sc
 | 2 | Minor | Limited disruption; minor financial loss; no regulatory action |
 | 3 | Moderate | Significant operational disruption; measurable financial loss; possible regulatory inquiry |
 | 4 | Major | Serious harm to operations, customers, or data subjects; regulatory investigation likely |
-| 5 | Catastrophic | Existential financial or reputational impact; regulatory sanctions; loss of operating license |
+| 5 | Catastrophic | Existential financial or reputational impact; regulatory sanctions; loss of operating licence |
 
 #### 5×5 risk scoring matrix
 
@@ -234,7 +234,7 @@ Required evidence for audit and assurance purposes includes, but is not limited 
 
 ---
 
-## 11. License
+## 11. Licence
 
 This document is released under the **CC0 1.0 Universal** public domain dedication. To the extent possible under law, the organisation waives all copyright and related rights to this document.
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Certificate Authority Management Standard 
 **Document Type:** Standard 
-**Version:** 1.3.0 
-**Date:** 2026-05-27 
+**Version:** 1.3.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`operations/standard-cloud-security-configuration-baseline.md`](standard-cloud-security-configuration-baseline.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md) 
@@ -48,7 +48,7 @@ The internal CA is implemented using a cloud-based PKI service, an endpoint mana
 
 The cloud-based PKI service integrates natively with the enterprise identity provider and endpoint management platform, making it the appropriate choice for an endpoint management platform-first environment. A Bring Your Own CA (BYOCA) option is available if future requirements necessitate chaining to an existing on-premises root; this is not required at initial implementation.
 
-**License requirement:** The cloud-based PKI service is an endpoint management platform suite add-on feature. Confirm that endpoint management platform suite licenses are in place before provisioning CA infrastructure.
+**Licence requirement:** The cloud-based PKI service is an endpoint management platform suite add-on feature. Confirm that endpoint management platform suite licences are in place before provisioning CA infrastructure.
 
 ---
 
@@ -182,7 +182,7 @@ Audit logs are forwarded to SIEM via endpoint management diagnostic settings int
 
 ---
 
-*License: CC0 1.0 Universal. This document is released into the public domain. No rights reserved.*
+*Licence: CC0 1.0 Universal. This document is released into the public domain. No rights reserved.*
 
 
 

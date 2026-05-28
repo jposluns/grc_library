@@ -2,7 +2,7 @@
 
 **Document Title:** Software Composition Analysis Standard 
 **Document Type:** Standard 
-**Version:** 1.1.0 
+**Version:** 1.1.1 
 **Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -84,24 +84,24 @@ Where a fix is not available (no patched version exists), the following actions 
 3. Obtain formal risk acceptance from the CISO if the vulnerability will remain open beyond the SLA
 4. Monitor for patch availability daily for Critical, weekly for High
 
-### 3. License compliance
+### 3. Licence compliance
 
-All open-source licenses in use must be reviewed and approved before use in the organisation's products or services.
+All open-source licences in use must be reviewed and approved before use in the organisation's products or services.
 
-| License Category | Examples | Use Permitted | Conditions |
+| Licence Category | Examples | Use Permitted | Conditions |
 |---|---|---|---|
-| **Permissive** | MIT; Apache 2.0; BSD 2-clause; BSD 3-clause; ISC | Yes: no special conditions | Attribution required; retain license notices |
+| **Permissive** | MIT; Apache 2.0; BSD 2-clause; BSD 3-clause; ISC | Yes: no special conditions | Attribution required; retain licence notices |
 | **Weak Copyleft** | LGPL 2.1; LGPL 3.0; MPL 2.0; EUPL 1.2 | Yes: with conditions | Must not statically link LGPL components into proprietary code without compliance review; MPL modifications must be shared |
 | **Strong Copyleft** | GPL 2.0; GPL 3.0; AGPL 3.0 | Conditional, requires legal review | GPL components in products distributed externally require legal review; AGPL requires source disclosure for network services, escalate to Legal before use |
-| **Proprietary / Commercial** | Custom commercial licenses | Subject to procurement and legal review | License terms must be reviewed; ensure that scope covers intended use |
-| **Unknown / Unlicenced** | No license file present | Prohibited without legal clearance | Treat as "All rights reserved"; obtain written clarification from author |
-| **Incompatible / Prohibited** | SSPL; BUSL; Commons Clause | Prohibited in production: requires exception | These licenses impose restrictions incompatible with commercial use; escalate to Legal |
+| **Proprietary / Commercial** | Custom commercial licences | Subject to procurement and legal review | Licence terms must be reviewed; ensure that scope covers intended use |
+| **Unknown / Unlicensed** | No licence file present | Prohibited without legal clearance | Treat as "All rights reserved"; obtain written clarification from author |
+| **Incompatible / Prohibited** | SSPL; BUSL; Commons Clause | Prohibited in production: requires exception | These licences impose restrictions incompatible with commercial use; escalate to Legal |
 
-**License inventory obligations:**
-- All production dependencies must have an identified and approved license
-- Transitive dependencies must be included in license review
-- SCA tooling must produce a license inventory as part of the SBOM
-- Legal must be consulted before introducing any Strong Copyleft or Unknown license dependency
+**Licence inventory obligations:**
+- All production dependencies must have an identified and approved licence
+- Transitive dependencies must be included in licence review
+- SCA tooling must produce a licence inventory as part of the SBOM
+- Legal must be consulted before introducing any Strong Copyleft or Unknown licence dependency
 
 ### 4. Software bill of materials (SBOM)
 
@@ -184,7 +184,7 @@ SCA controls apply to all ML and AI codebases with the following additional requ
 |---|---|
 | **Model framework dependencies** | All ML framework dependencies (TensorFlow, PyTorch, scikit-learn, Hugging Face Transformers, etc.) must be included in SCA scans |
 | **Pre-trained model provenance** | Pre-trained models obtained from public repositories (Hugging Face Hub, TensorFlow Hub, etc.) must be verified for provenance: model card review, author verification, checksum validation |
-| **Dataset license review** | Open-source datasets used in training must be reviewed for license compatibility and provenance documentation |
+| **Dataset licence review** | Open-source datasets used in training must be reviewed for licence compatibility and provenance documentation |
 | **Supply chain risk for LLM APIs** | Third-party LLM API dependencies (model provider libraries, SDK versions) must be assessed for vulnerability using the same SCA process |
 
 ---
@@ -198,11 +198,11 @@ The SCA programme is tool-agnostic; the requirements above govern what every too
 | Language and ecosystem coverage | Covers every first-party language and package ecosystem in production use, including transitive dependencies | Inventory of in-scope projects mapped against the tool's supported ecosystems |
 | Vulnerability database currency | Vulnerability data refreshed at least daily from authoritative sources (NVD, vendor advisories, language-specific advisory databases) | Tool documentation review plus a sample query for a CVE disclosed within the last seven days |
 | Detection accuracy | False-positive rate measured against a representative repository sample remains below 10% after suppression rules are applied | One-time evaluation harness comparing tool output against a hand-curated baseline |
-| SBOM generation | Produces machine-readable SBOM in CycloneDX or SPDX, including transitive dependencies, hashes, and license fields | Generate an SBOM for a known project and inspect the output against the format specification |
+| SBOM generation | Produces machine-readable SBOM in CycloneDX or SPDX, including transitive dependencies, hashes, and licence fields | Generate an SBOM for a known project and inspect the output against the format specification |
 | CI/CD integration | Native integration with the CI/CD platform in use, with an exit code or annotation that blocks merge on a configurable severity threshold | Run in a pipeline against a known-vulnerable test repository and confirm the pipeline fails |
 | Vulnerability suppression and exception workflow | Permits suppression with reason code, expiry, and audit trail; suppressions surface in reports | Suppress a finding, verify it appears in the suppression register, expire the suppression, confirm the finding returns |
 | VEX support | Permits attaching VEX statements to declare a vulnerability not applicable, with the rationale travelling with the SBOM | Generate a VEX statement and verify it embeds correctly in the produced SBOM |
-| Open-source dependency licensing | Tool license permits the intended use (commercial, internal, redistribution) | License review by Legal |
+| Open-source dependency licensing | Tool licence permits the intended use (commercial, internal, redistribution) | Licence review by Legal |
 | Data residency | Tool processes code or metadata only in jurisdictions consistent with the data residency standard | Tool deployment model review; for SaaS tools, vendor data residency attestation |
 | Cost transparency | Pricing model documented and aligned with the IT financial management standard | Procurement evaluation |
 
@@ -218,7 +218,7 @@ A tool that passes the criteria is documented in the security architecture regis
 | **Security Champion** | Review SCA reports for their team; escalate unresolved High+ findings; advise on compensating controls |
 | **DevOps / Platform Team** | Maintain and configure SCA tooling in CI/CD pipelines; ensure that SBOM generation is automated; manage private registry configuration |
 | **CISO** | Approve exceptions to remediation SLAs; set organisational risk acceptance thresholds; review Critical vulnerability escalations |
-| **Legal** | Review and approve license exceptions; advise on SBOM distribution obligations |
+| **Legal** | Review and approve licence exceptions; advise on SBOM distribution obligations |
 | **Procurement** | Require SBOMs from commercial software vendors; include SBOM provision clauses in software procurement contracts |
 
 ---
@@ -231,7 +231,7 @@ A tool that passes the criteria is documented in the security architecture regis
 | Mean time to remediate High vulnerabilities | ≤ 30 days | Monthly |
 | Percentage of production builds with SBOM generated | 100% | Monthly |
 | Percentage of dependencies with pinned exact versions | ≥ 95% | Quarterly |
-| License compliance coverage (all dependencies reviewed) | 100% | Quarterly |
+| Licence compliance coverage (all dependencies reviewed) | 100% | Quarterly |
 | Number of Critical findings open beyond SLA | 0 | Weekly |
 
 ---

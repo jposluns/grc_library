@@ -130,7 +130,7 @@ For RAG systems, see `ai/rag-security.md`.
 ## Dependencies and third-party code
 
 - Verify that AI-suggested dependency names **actually exist** in the package registry before using them: hallucinated package names are a real supply-chain attack vector
-- Prefer dependencies with: active maintenance (last release within 24 months); compatible license (Apache 2.0, MIT, BSD generally safe; GPL/AGPL require Legal approval for commercial use); no known Critical/High CVEs
+- Prefer dependencies with: active maintenance (last release within 24 months); compatible licence (Apache 2.0, MIT, BSD generally safe; GPL/AGPL require Legal approval for commercial use); no known Critical/High CVEs
 - Never install a package from an unverified source or non-standard registry
 - Review transitive dependencies in SCA output
 

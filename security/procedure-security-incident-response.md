@@ -2,7 +2,7 @@
 
 **Document Title:** Security Incident Response Procedure 
 **Document Type:** Procedure 
-**Version:** 1.3.2 
+**Version:** 1.3.3 
 **Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -302,7 +302,7 @@ The SOC shall track and report the following metrics at the monthly security ope
 
 ---
 
-## License
+## Licence
 
 This document is released under the **CC0 1.0 Universal** public domain dedication. To the extent possible under law, all copyright and related rights are waived. See `LICENSE` in the repository root.
 

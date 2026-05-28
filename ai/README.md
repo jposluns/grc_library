@@ -84,7 +84,7 @@ AI domain documents should explicitly consider:
 
 ---
 
-## License boundary
+## Licence boundary
 
 External AI standards, control frameworks, questionnaires, audit guidance, implementation guidance, and metrics catalogues must not be copied into this directory unless they are confirmed to permit CC0-compatible republication. Use non-verbatim synthesis, original control language, and high-level alignment only.
 

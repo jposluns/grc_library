@@ -251,7 +251,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 ---
 
-## License
+## Licence
 
 All content in this directory is released under CC0 1.0 Universal. Copy, modify, and redistribute freely.
 

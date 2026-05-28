@@ -2,14 +2,14 @@
 
 **Document Title:** GRC Library CC0 Ingestion and Transformation Specification 
 **Document Type:** Specification 
-**Version:** 1.4.2 
+**Version:** 1.4.3 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md) 
 **Classification:** Public 
 **Category:** Core Governance 
-**Review Frequency:** Annual and upon material repository, license, or source-framework change 
+**Review Frequency:** Annual and upon material repository, licence, or source-framework change 
 **Repository Path:** [`specification-ingestion.md`](specification-ingestion.md) 
 **Confidentiality:** Public 
 **License:** CC0 1.0 Universal 
@@ -22,7 +22,7 @@ This specification defines how source material is converted into organisation-ne
 
 It establishes rules for:
 
-- Assessing source material for license compatibility.
+- Assessing source material for licence compatibility.
 - Removing identifying and organisation-specific information.
 - Selecting document type and canonical filename.
 - Selecting repository domain.
@@ -41,11 +41,11 @@ It applies to source material from internal documents, public standards, control
 
 ---
 
-## License compatibility rules
+## Licence compatibility rules
 
 All original repository content is released under CC0 1.0 Universal.
 
-Before source material is used, determine whether it is compatible with CC0 republication. Where license terms are restrictive, uncertain, proprietary, all-rights-reserved, noncommercial, no-derivatives, no-redistribution, or otherwise incompatible with CC0, the source may be used only for non-verbatim reference.
+Before source material is used, determine whether it is compatible with CC0 republication. Where licence terms are restrictive, uncertain, proprietary, all-rights-reserved, noncommercial, no-derivatives, no-redistribution, or otherwise incompatible with CC0, the source may be used only for non-verbatim reference.
 
 Do not copy into this repository:
 

@@ -2,8 +2,8 @@
 
 **Document Title:** AI Governance and Risk Framework 
 **Document Type:** Framework 
-**Version:** 1.1.0 
-**Date:** 2026-05-27 
+**Version:** 1.1.1 
+**Date:** 2026-05-28 
 **Owner:** AI Governance Approver 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/register-ai-risk.md`](register-ai-risk.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md) 
@@ -62,7 +62,7 @@ It applies to:
 | --- | --- | --- |
 | Intake | Proposed AI system is recorded before use. | Intake form, business justification, owner assignment. |
 | Classification | Risk, data sensitivity, autonomy, user population, and impact are classified. | Risk tiering record, classification decision. |
-| Data Review | Data origin, permitted use, provenance, lineage, retention, and deletion are assessed. | Data assessment, lineage record, license or rights review. |
+| Data Review | Data origin, permitted use, provenance, lineage, retention, and deletion are assessed. | Data assessment, lineage record, licence or rights review. |
 | Impact Assessment | Privacy, security, legal, ethical, operational, resilience, and supplier risks are evaluated. | AI impact assessment, residual risk decision. |
 | Design and Configuration | Controls are defined for identity, access, logging, model behaviour, prompts, tools, retrieval, and data flows. | Architecture record, control design, threat model. |
 | Testing and Validation | Functionality, safety, security, privacy, bias, misuse, and failure modes are tested. | Test plan, test result, defect log. |

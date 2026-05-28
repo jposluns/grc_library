@@ -1,6 +1,6 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Version:** 1.5.2 
+**Version:** 1.5.3 
 **Date:** 2026-05-28 
 **Classification:** Public 
 **Confidentiality:** Public 
@@ -24,7 +24,7 @@ The repository provides reusable artefacts across the following domains:
 - Supplier, third-party, cloud, and supply-chain governance.
 - Cross-framework mapping, regulatory applicability analysis, and metrics.
 
-The library currently contains approximately **240 documents** across 11 governance domains plus an optional sector-annex domain (`/sectors/`) for organisations participating in sector-specific programmes. Automated counts will replace this approximation in a future repository release.
+The library currently contains approximately **280 documents** across 11 governance domains plus an optional sector-annex domain (`/sectors/`) for organisations participating in sector-specific programmes. Automated counts will replace this approximation in a future repository release.
 
 ---
 
@@ -50,11 +50,11 @@ This repository is not legal advice, audit certification, regulatory approval, o
 
 ---
 
-## License and third-party reference boundary
+## Licence and third-party reference boundary
 
 All original content committed to this repository is dedicated to the public domain under CC0 1.0 Universal.
 
-External standards, regulatory texts, control frameworks, questionnaires, implementation guides, audit guides, metrics catalogues, and similar materials remain subject to their own license terms. This repository may use such materials only as reference inputs for independent synthesis, high-level alignment, terminology normalization, and non-verbatim mapping structures.
+External standards, regulatory texts, control frameworks, questionnaires, implementation guides, audit guides, metrics catalogues, and similar materials remain subject to their own licence terms. This repository may use such materials only as reference inputs for independent synthesis, high-level alignment, terminology normalization, and non-verbatim mapping structures.
 
 Do not copy, redistribute, modify, or embed third-party copyrighted control text, questionnaire text, guidance text, tables, metrics catalogues, or implementation notes into this repository unless the material is confirmed to be compatible with CC0 release. Where compatibility is uncertain or restrictive, include only framework identifiers, domain names, high-level alignment notes, and original commentary.
 
@@ -305,7 +305,7 @@ Contributions must satisfy the following conditions:
 
 1. Content must be original, CC0-compatible, and organisation-neutral.
 2. Content must not include real company names, personal names, internal identifiers, customer details, vendor-specific implementation data, or proprietary evidence.
-3. Third-party materials may be used only for non-verbatim reference, unless their license terms explicitly permit CC0 republication.
+3. Third-party materials may be used only for non-verbatim reference, unless their licence terms explicitly permit CC0 republication.
 4. Framework references must be accurate, version-aware, and scoped to the stated purpose.
 5. Regulatory content must separate obligation from interpretation and must identify where applicability depends on jurisdiction, sector, role, residency, or data category.
 6. Documents must maintain role-based ownership and approving authority.

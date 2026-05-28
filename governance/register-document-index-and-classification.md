@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register 
 **Document Type:** Register 
-**Version:** 1.24.0 
+**Version:** 1.24.1 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -40,7 +40,7 @@ All active repository documents should be Public.
 
 | Domain | Type | Title | Repository Path | Owner Role | Review Frequency | Primary Alignment Families |
 | --- | --- | --- | --- | --- | --- | --- |
-| Governance | Charter | Governance Library Charter | [`governance/charter-governance-library.md`](charter-governance-library.md) | Governance Library Maintainer | Annual | Governance authority, document lifecycle, license boundary |
+| Governance | Charter | Governance Library Charter | [`governance/charter-governance-library.md`](charter-governance-library.md) | Governance Library Maintainer | Annual | Governance authority, document lifecycle, licence boundary |
 | Governance | Framework | Document Architecture and Interrelationship Framework | [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md) | Governance Library Maintainer | Annual | Governance hierarchy, audit traceability, policy architecture |
 | Governance | Framework | Governance Performance and Improvement Framework | [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md) | GRC Programme Manager | Annual | PDCA, 5-level maturity model, KPIs, management review, COBIT DTI |
 | Governance | Framework | Continuous Assurance and Improvement Framework | [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md) | GRC Programme Manager | Annual | 4-cycle assurance model, BASC integration, AI maturity, CAPA linkage |

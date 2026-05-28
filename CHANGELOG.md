@@ -4,6 +4,70 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 19.5 (2026-05-28): Document count and BrE licence normalisation
+
+Phase 19 sub-phase 5 and the final Phase 19 sub-phase. Two low-severity findings.
+
+### L-1: README document count
+
+- `README.md` (1.5.2 → 1.5.3, patch-level per the main-README rule): the document count description said "approximately **240 documents**". Actual count: 282 documents in active domain directories (`ai/`, `architecture/`, `compliance/`, `dev-security/`, `governance/`, `operations/`, `privacy/`, `resilience/`, `risk/`, `security/`, `supply-chain/`, `sectors/`), excluding domain READMEs. Updated to "approximately **280 documents**" — still an approximation as the description states, with the actual count expected to fluctuate as Phase 19 sub-phases progress.
+
+### L-2: BrE licence noun normalisation (body content)
+
+The library uses Oxford English (BrE word stems + `-ize` verb endings). The noun `license` in body content was inconsistent with the convention — BrE uses `licence` for the noun and `license` for the verb. The metadata field name `License` and the `LICENSE` repository-root file are GitHub conventions left as-is.
+
+Files updated:
+
+- `NOTICE.md` (1.0.0 → 1.0.1): title and 3 body usages (incl. document title "External Reference Materials and Licence Boundaries").
+- `README.md` (1.5.2 → 1.5.3): 2 body usages plus the L-1 count change.
+- `CONTRIBUTING.md`: 3 body usages (no metadata block; not version-tracked).
+- `specification-master-project.md` (1.2.5 → 1.2.6): Review Frequency field reference and one body usage.
+- `specification-ingestion.md` (1.4.2 → 1.4.3): Review Frequency field reference, section heading "Licence compatibility rules", and 2 body usages.
+- `instruction-ai-document-ingestion.md`: 2 body usages (no metadata block; not version-tracked).
+- `ai/framework-ai-governance-and-risk.md` (1.1.0 → 1.1.1): 1 body usage.
+- `ai/README.md`: section heading "Licence boundary".
+- `governance/register-document-index-and-classification.md` (1.24.0 → 1.24.1): 1 body usage.
+- `governance/README.md`: section heading "Licence boundary" and 1 body usage.
+- `governance/charter-governance-library.md` (1.1.0 → 1.1.1): Review Frequency field reference, 3 body usages, and 1 role-name body usage ("Licence Reviewer").
+- `governance/matrix-cross-framework-alignment.md` (1.1.1 → 1.1.2): 1 body usage.
+- `risk/standard-enterprise-risk-management.md` (1.3.1 → 1.3.2): section heading "Licence" and 1 body usage.
+- `risk/policy-enterprise-governance-and-risk-management.md` (1.4.0 → 1.4.1): section heading "Licence".
+- `compliance/annex-financial-services-sector-requirements.md` (1.0.0 → 1.0.1): 1 body usage.
+- `compliance/register-compliance-obligations-template.md` (1.0.1 → 1.0.2): 1 body usage.
+- `dev-security/standard-developer-security-requirements.md` (1.0.0 → 1.0.1): 1 body usage.
+- `dev-security/standard-security-quick-reference.md` (1.0.0 → 1.0.1): 2 body usages.
+- `dev-security/standard-software-composition-analysis.md` (1.1.0 → 1.1.1): section heading and 11 body usages (table column header "Licence Category", row headers, and inventory obligations bullets).
+- `dev-security/standard-software-evaluation-acceptance-and-lifecycle.md` (1.0.0 → 1.0.1): 1 body usage.
+- `dev-security/standard-devops-security-requirements.md` (1.0.1 → 1.0.2): 1 body usage.
+- `dev-security/guideline-ai-coding-assistant-security.md` (1.0.1 → 1.0.1 — already bumped in Phase 19.4): 1 body usage (checklist label).
+- `dev-security/claude-rules/README.md`: section heading "Licence".
+- `dev-security/claude-rules/CLAUDE.md`: 1 body usage (no metadata block; not version-tracked).
+- `dev-security/claude-rules/pipeline/cicd-gates.md`: 1 body usage (no metadata block; not version-tracked).
+- `dev-security/claude-rules/ai/ai-security.md`: 2 body usages (no metadata block; not version-tracked).
+- `operations/standard-certificate-authority-management.md` (1.3.0 → 1.3.1): 2 body usages.
+- `operations/register-asset-inventory.md` (1.0.0 → 1.0.1): 1 body usage (table row label).
+- `resilience/README.md`: section heading "Licence boundary".
+- `sectors/README.md`: section heading "Licence and neutrality posture".
+- `sectors/basc/README.md`: section heading "Licence boundary".
+- `security/README.md`: section heading "Licence boundary".
+- `security/procedure-security-incident-response.md` (1.3.2 → 1.3.3): section heading "Licence".
+- `security/procedure-onboarding-and-offboarding.md` (1.0.0 → 1.0.1): 1 body usage.
+- `supply-chain/README.md`: section heading "Licence boundary".
+
+Additionally, the `Unlicenced` spelling in `standard-software-composition-analysis.md` was corrected to `Unlicensed` (BrE/AmE shared participle adjective form; `Unlicenced` is non-standard in both).
+
+### Not converted
+
+- `License` as the metadata field name (defined library convention): kept (specification-master-project.md, specification-ingestion.md, instruction-ai-document-ingestion.md, docs/adopter-guide.md, tools/README.md).
+- The `LICENSE` repository-root file: GitHub convention; kept.
+- `licensed` (past-participle adjective): same spelling in BrE and AmE; kept.
+
+### Result
+
+Body content is now consistent BrE: `licence` (noun) and `license` (verb), parallel to the existing `practice/practise`, `defence/defend`, `analyse/analysis` patterns. The metadata field name `License` and the `LICENSE` file remain as GitHub-convention exceptions, documented above.
+
+Taxonomy and portal regenerated. All ten audits clean.
+
 ## Phase 19.4 (2026-05-28): Standards-currency and BASC-residue cleanup
 
 Phase 19 sub-phase 4. Three findings from the exhaustive re-audit: an obsolete ISO 42006 status reference; a guideline document containing 11 normative `must` statements that belong in a standard, not a guideline; and additional baseline `Regional BASC Compliance Officer` references that Phase 12.3 and Phase 19.1 had not reached.

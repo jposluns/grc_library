@@ -2,7 +2,7 @@
 
 **Document Title:** DevOps Security Requirements 
 **Document Type:** Standard 
-**Version:** 1.0.1 
+**Version:** 1.0.2 
 **Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Chief Information Officer 
@@ -39,7 +39,7 @@ The following gates are mandatory in every pipeline deploying to Test or Product
 | SCA: dependency scan | Critical CVE: fail. High CVE: fail unless tracked issue exists with 14-day grace. |
 | Container image scanning | Critical CVE in base image or layer: fail. |
 | IaC scanning | Critical misconfiguration: fail. |
-| License compliance | GPL/AGPL without Legal approval: fail. |
+| Licence compliance | GPL/AGPL without Legal approval: fail. |
 | SBOM generation | Must generate and archive on every production build. |
 | Runtime EOL check | Deployment to EOL runtime version: fail. See Security Baseline Standard. |
 

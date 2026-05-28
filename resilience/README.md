@@ -59,7 +59,7 @@ Resilience documents should address business impact analysis, recovery objective
 
 ---
 
-## License boundary
+## Licence boundary
 
 Completed crisis contact directories, internal recovery runbooks, infrastructure diagrams, supplier escalation paths, system-specific recovery steps, incident records, and audit evidence must not be published in this directory. Public CC0 content must remain generic, role-based, and non-identifying.
 

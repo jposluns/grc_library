@@ -14,7 +14,7 @@ Every pipeline deploying to Test or Production must run these gates in this orde
 3. SCA (dependency scan)    → Fail on Critical CVE
 4. Container image scan     → Fail on Critical CVE in image or base layer (if containers)
 5. IaC scan                 → Fail on Critical misconfiguration (if IaC present)
-6. License compliance       → Fail on unapproved copyleft license (GPL/AGPL without Legal approval)
+6. Licence compliance       → Fail on unapproved copyleft licence (GPL/AGPL without Legal approval)
 7. Runtime EOL check        → Fail on deployment to EOL runtime version
 8. SBOM generation          → Generate and archive on every production build
 9. Artefact signing         → Sign all production build artefacts
