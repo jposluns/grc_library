@@ -136,7 +136,7 @@ The choice is recorded as an ADR for material APIs.
 | Idempotency-key handling | Documented behaviour for duplicate requests |
 | Retry semantics | Retryable vs not-retryable indicated |
 | Rate limit responses | 429 with documented headers per the API security standard |
-| Problem-details format | RFC 7807 problem-details JSON format preferred |
+| Problem-details format | RFC 7807 problem-details JSON format preferred; RFC 9457 (which obsoletes 7807) is acceptable and recommended for new APIs |
 
 ---
 
@@ -268,7 +268,8 @@ The choice is recorded as an ADR for material APIs.
 | AsyncAPI Initiative | AsyncAPI Specification | Event schema |
 | gRPC and Protobuf | RPC schema | RPC schema |
 | GraphQL Foundation | GraphQL Specification | Graph schema |
-| RFC 7807 | Problem Details for HTTP APIs | Error model |
+| RFC 7807 (obsoleted by RFC 9457) | Problem Details for HTTP APIs | Error model |
+| RFC 9457 | Problem Details for HTTP APIs (current) | Error model |
 | Google API Improvement Proposals (AIPs) | Vendor-neutral REST conventions | Design guidance |
 | Microsoft REST API Guidelines | Vendor-neutral REST conventions | Design guidance |
 | ISO/IEC 27001:2022 | A.8.26 Application security requirements | Information security cross-walk |

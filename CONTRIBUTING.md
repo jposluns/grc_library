@@ -5,6 +5,17 @@ Thank you for considering a contribution. This library is released under CC0 1.0
 - [`specification-master-project.md`](specification-master-project.md): document model, type vocabulary, metadata block, formatting rules.
 - [`specification-ingestion.md`](specification-ingestion.md): how new content is ingested, CC0 compatibility checks, sanitisation substitution table, filename rules.
 
+## AI-assisted authorship
+
+A substantial portion of this library was authored with AI assistance and then reviewed and edited by humans. AI assistance is acceptable for contributions provided that:
+
+- The contributor remains accountable for the content as if they wrote it directly.
+- Framework citations (ISO, NIST, OWASP, COBIT, CSA, regulatory references, etc.) are verified against primary sources before submission. The `tools/lint-citations.py` denylist prevents reintroduction of known hallucinations but is not a substitute for verification of new citations.
+- The contribution remains organisation-neutral and free of sanitisation residue.
+- The contribution passes the local audit suite (see Workflow below).
+
+This statement is informational; contributors are not required to declare whether AI assisted their authorship.
+
 ## What contributions are welcome
 
 - New original CC0 artefacts that fit one of the ten governance domains and one of the sixteen allowed document types.

@@ -54,7 +54,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 4.2 Audit and compliance teams verify CAPA effectiveness before closure.
 
 ### 5. AI and trade compliance oversight
-5.1 The AI Governance Council ensures that compliance with AI-related laws, standards, and ethical principles. 
+5.1 The AI Governance Council oversees compliance with AI-related laws, standards, and ethical principles. 
 5.2 Documentation and audit trails shall demonstrate conformity to frameworks such as the EU AI Act, AIDA, and OECD AI Principles. 
 5.3 Regional trade compliance officers coordinate with the CCO and Internal Audit to ensure that adherence to recognized global supply-chain programs, including **WCO SAFE**, **ISO 28000**, **BASC**, **PIP (Canada)**, **CTPAT (United States)**, **AEO (European Union)**, and equivalent frameworks. 
 5.4 Audit scope for trade compliance includes verification of cargo integrity, personnel screening, and customs documentation accuracy. 

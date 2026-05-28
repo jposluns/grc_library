@@ -33,7 +33,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 ## AI and privacy obligations
 
 - Organizations using AI to make or assist decisions about individuals must ensure that decisions based on personal data are made fairly and with appropriate human oversight.
-- The PDPC's Model Governance Framework for AI (2019, second edition 2020) provides a voluntary but widely adopted framework for responsible AI governance, covering risk-proportionate governance, internal governance, operations management for AI models, and stakeholder interaction.
+- The PDPC's Model Governance Framework for AI (2019, second edition 2020) provides a voluntary framework for responsible AI governance (broadly adopted in Singapore enterprise practice as of 2026), covering risk-proportionate governance, internal governance, operations management for AI models, and stakeholder interaction.
 - **Mandatory data breach notification:** Organizations must notify the PDPC and affected individuals of breaches likely to result in significant harm within 3 business days of assessment.
 - **Consent exceptions for AI (2020 amendments):** Organizations may use personal data without consent for business improvement and research purposes, subject to conditions including anonymization requirements.
 

@@ -37,12 +37,14 @@ It does not cover the device-management posture for organisationally-issued devi
 
 ## Section 1: platform alignment
 
-The standard aligns to the OWASP Mobile Application Security Verification Standard (MASVS) v2 verification levels.
+The standard aligns to the OWASP Mobile Application Security Verification Standard (MASVS) v2 conceptual verification levels.
 
 | MASVS-L1 | Standard mobile application security |
 | --- | --- |
 | MASVS-L2 | Defence-in-depth |
 | MASVS-R | Resilience against reverse engineering |
+
+Note on MASVS v2 structure: MASVS v2 reorganised the operational test groupings into MAS Testing Profiles in the Mobile Application Security Testing Guide (MASTG). The L1, L2, and R concepts remain as verification-level shorthand; this standard uses them as such while pointing implementers to MASTG for the concrete test catalogue.
 
 Applications classified by sensitivity tier determine the verification level applied.
 

@@ -45,6 +45,7 @@ This register defines generic governance roles used across the GRC Documentation
 | Control Owner | Ownership of control implementation, monitoring, evidence, exception handling, and remediation. | Control evidence, control design changes, control remediation. |
 | Process Owner | Ownership of a business or technical process and its operational controls. | Process procedures, operational exceptions, improvement actions. |
 | Supplier Owner | Ownership of supplier relationship, due diligence, contractual controls, performance, and exit planning. | Supplier risk acceptance, supplier review, supplier exit plan. |
+| Supplier Risk Maintainer | Maintenance of supplier-related governance artefacts (supplier risk register, due-diligence procedure, supplier audit procedure, supplier-resilience monitoring, concentration register). Distinct from the Supplier Owner role, which is per-supplier; this role maintains the cross-supplier governance content. | Supplier-governance artefact updates; supplier inventory consistency. |
 | Resilience Owner | Ownership of business continuity, recovery objectives, testing, and recovery evidence. | Continuity plans, recovery tests, resilience exceptions. |
 | Document Owner | Maintenance of a governance document, metadata, review cycle, and related artefacts. | Minor document updates, review records. |
 
