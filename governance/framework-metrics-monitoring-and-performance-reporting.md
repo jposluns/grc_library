@@ -31,7 +31,7 @@ This framework defines the governance metrics, Key Risk Indicators (KRIs), Key P
 | **Information Security** | Vulnerability closure rate, MTTR, MTTD, patch-compliance percentage, incident false-positive ratio | ISO 27004, NIST CSF |
 | **Business Continuity** | RTO/RPO compliance percentage, BCP testing frequency, continuity audit score | ISO 22301, COBIT DSS04 |
 | **AI Governance** | Model explainability percentage, bias detection rate, retraining frequency, ISO 42001 maturity score | ISO 42001 §10, NIST AI RMF |
-| **Digital Trust** | Transparency index, stakeholder confidence rating, service uptime, SLA adherence | COBIT 2025 Digital Trust Indicators |
+| **Digital Trust** | Transparency index, stakeholder confidence rating, service uptime, SLA adherence | COBIT 2019 Digital Trust Indicators |
 | **BASC Trade Security** | Cargo integrity incidents (count), customs data validation accuracy percentage, BASC audit score, time-to-report customs incidents | BASC v6, WCO SAFE, ISO 28000 |
 
 ---
@@ -80,9 +80,9 @@ Poorly defined metrics without these fields must not be published in governance 
 | ISO/IEC 27004:2022 | Information Security Measurement and Metrics | Security metric design and reporting |
 | ISO/IEC 42001:2023 | §10: AI Management System Performance Indicators | AI governance KPIs |
 | ISO 22301:2019 | Business continuity performance | BCP/DR metrics |
-| COBIT 2025 | MEA01: Monitor, Evaluate, and Assess Performance | Performance governance |
-| COBIT 2025 | Digital Trust Indicators | Stakeholder confidence and service quality |
-| CSA CCM v5 | GOV-09: Governance and Continuous Improvement | Cloud control governance metrics |
+| COBIT 2019 | MEA01: Monitor, Evaluate, and Assess Performance | Performance governance |
+| COBIT 2019 | Digital Trust Indicators | Stakeholder confidence and service quality |
+| CSA CCM v4.1 | GOV-09: Governance and Continuous Improvement | Cloud control governance metrics |
 | BASC v6 (2023) | Trade-Security Performance Measurement | BASC KPI and customs incident reporting |
 | WCO SAFE Framework (2021) | AEO performance standards | Trade security performance measurement |
 | ISO 28000:2022 | Supply chain security measurement | Supply chain security metrics |

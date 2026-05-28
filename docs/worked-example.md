@@ -148,7 +148,7 @@ against their own policy and legal requirements.
 | --- | --- | --- |
 | ISO/IEC 27001:2022 | A.5.15 to A.5.18 | Access control and identity lifecycle |
 | NIST SP 800-53 Rev 5 | AC-2; AC-6 | Account management; least privilege |
-| CSA CCM v5 | IAM-05 | Privileged account management |
+| CSA CCM v4.1 | IAM-05 | Privileged account management |
 | Quebec Law 25 | Articles 8 to 9 | Accountability and access logging |
 
 ---

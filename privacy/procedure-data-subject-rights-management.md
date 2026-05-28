@@ -22,7 +22,7 @@
 
 This procedure defines the end-to-end process for receiving, validating, fulfilling, and documenting requests from individuals exercising their rights over personal data held by the organization. It ensures that compliance with applicable data subject rights obligations under GDPR, UK GDPR, CPPA, PIPL, and related laws, and establishes consistent standards for identity verification, response timelines, denial justification, and record keeping.
 
-The procedure is aligned to ISO/IEC 27701:2019 §7.3, GDPR Articles 15 to 22, CPPA Part 2 Division 5, PIPL Articles 44 to 47, and CSA CCM v5 PRI-04.
+The procedure is aligned to ISO/IEC 27701:2019 §7.3, GDPR Articles 15 to 22, CPPA Part 2 Division 5, PIPL Articles 44 to 47, and CSA CCM v4.1 PRI-04.
 
 ### 1.2 Scope
 
@@ -271,7 +271,7 @@ The following metrics are tracked and reported to the CIO at the quarterly Priva
 
 | Control Area | Framework Reference |
 | --- | --- |
-| Data subject rights management | ISO/IEC 27701:2019 §7.3; CSA CCM v5 PRI-04 |
+| Data subject rights management | ISO/IEC 27701:2019 §7.3; CSA CCM v4.1 PRI-04 |
 | Access and transparency | GDPR Art. 15; UK GDPR Art. 15; CPPA s.63; PIPL Art. 45 |
 | Correction and rectification | GDPR Art. 16; UK GDPR Art. 16; CPPA s.66; PIPL Art. 46 |
 | Deletion and erasure | GDPR Art. 17; UK GDPR Art. 17; CPPA s.69 |

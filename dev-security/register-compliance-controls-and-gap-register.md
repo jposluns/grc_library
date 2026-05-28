@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register is the primary traceability artefact for audit, insurance, board reporting, and regulatory purposes. It maps security and compliance controls to CSA CCM v5, AICM v1.0.3, and COBIT 2025 process identifiers, and records implementation status, evidence type, and responsible party for each control.
+This register is the primary traceability artefact for audit, insurance, board reporting, and regulatory purposes. It maps security and compliance controls to CSA CCM v4.1, AICM v1.0.3, and COBIT 2019 process identifiers, and records implementation status, evidence type, and responsible party for each control.
 
 Organizations should populate this template with their specific implementation status, evidence references, and responsible parties. The register must be updated when implementation status changes and reviewed quarterly at minimum.
 
@@ -51,7 +51,7 @@ Organizations should populate this template with their specific implementation s
 
 ---
 
-## CSA CCM v5 control mapping
+## CSA CCM v4.1 control mapping
 
 ### Audit and assurance (a&a)
 
@@ -297,7 +297,7 @@ Applies to any AI or ML system in production. See [`ai/standard-ai-security-and-
 
 ---
 
-## COBIT 2025 process alignment
+## COBIT 2019 process alignment
 
 | COBIT Process | Description | Status | Lead Role | Notes |
 | --- | --- | --- | --- | --- |

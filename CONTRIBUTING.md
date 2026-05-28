@@ -30,6 +30,7 @@ Thank you for considering a contribution. This library is released under CC0 1.0
    python3 tools/lint-language.py
    python3 tools/lint-links.py
    python3 tools/lint-structure.py
+   python3 tools/lint-citations.py
    python3 tools/check-review-cadence.py
    python3 tools/build-taxonomy.py --check
    python3 tools/build-portal.py --check

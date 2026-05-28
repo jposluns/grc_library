@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This policy establishes the enterprise governance and risk management framework, principles, roles, and control requirements that guide consistent identification, assessment, treatment, monitoring, and reporting of risk across the organization. It is aligned with ISO 31000 Clauses 5 and 6, COBIT 2025 APO12, CSA CCM v5 GRM domain, NIST SP 800-39, ISO 23894 for AI risk, and the NIST AI RMF. The policy integrates risk, compliance, privacy, security, resilience, ethics, and sustainability across business, technology, data, and AI systems.
+This policy establishes the enterprise governance and risk management framework, principles, roles, and control requirements that guide consistent identification, assessment, treatment, monitoring, and reporting of risk across the organization. It is aligned with ISO 31000 Clauses 5 and 6, COBIT 2019 APO12, CSA CCM v4.1 GRM domain, NIST SP 800-39, ISO 23894 for AI risk, and the NIST AI RMF. The policy integrates risk, compliance, privacy, security, resilience, ethics, and sustainability across business, technology, data, and AI systems.
 
 ---
 
@@ -73,7 +73,7 @@ The Board shall approve risk appetite statements for each material risk category
 
 ### 4.5 Risk treatment
 
-Risk treatment plans shall document the selected option (avoid, mitigate, transfer, accept, or exploit), the accountable owner, required budget, expected residual risk, and acceptance criteria, consistent with COBIT 2025 APO12.06. Accepted risks shall follow the Risk Acceptance Procedure.
+Risk treatment plans shall document the selected option (avoid, mitigate, transfer, accept, or exploit), the accountable owner, required budget, expected residual risk, and acceptance criteria, consistent with COBIT 2019 APO12.06. Accepted risks shall follow the Risk Acceptance Procedure.
 
 ### 4.6 AI risk controls
 
@@ -131,8 +131,8 @@ Consolidated enterprise risk reporting shall be presented to executive leadershi
 | ISO 31000:2018 | Clause 5, Framework; Clause 6, Process |
 | ISO 23894:2023 | AI Risk Management |
 | ISO/IEC 42001:2023 | AI Management System |
-| COBIT 2025 | APO12 Manage Risk; APO10 Manage Suppliers; MEA01; DSS04 |
-| CSA CCM v5 | GRM domain; BCR domain; GOV domain; AIS domain |
+| COBIT 2019 | APO12 Manage Risk; APO10 Manage Suppliers; MEA01; DSS04 |
+| CSA CCM v4.1 | GRM domain; BCR domain; GOV domain; AIS domain |
 | NIST SP 800-39 | Managing Information Security Risk |
 | NIST AI RMF | Govern, Map, Measure, Manage |
 | OECD AI Principles | Transparency, robustness, accountability |

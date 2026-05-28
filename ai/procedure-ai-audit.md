@@ -150,7 +150,7 @@ Applies to all AI systems in the AI System Inventory, including production AI mo
 | ISO 19011:2018 | Guidelines for Auditing Management Systems | Audit methodology |
 | EU AI Act (2024) | Article 43: Conformity Assessment | High-risk AI audit obligations |
 | NIST AI RMF (2023) | MEASURE function | AI audit and measurement |
-| COBIT 2025 | MEA02: Manage System of Internal Controls | Internal control assurance |
+| COBIT 2019 | MEA02: Manage System of Internal Controls | Internal control assurance |
 
 ---
 

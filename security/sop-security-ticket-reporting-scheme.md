@@ -92,7 +92,7 @@ The ticket must link to:
 | --- | --- | --- |
 | ISO/IEC 27035:2023 | Information Security Incident Management | Incident recording and reporting |
 | NIST SP 800-61r3 | Computer Security Incident Handling Guide | Incident documentation standards |
-| COBIT 2025 | DSS02: Manage Service Requests and Incidents | Incident tracking and reporting |
+| COBIT 2019 | DSS02: Manage Service Requests and Incidents | Incident tracking and reporting |
 
 ---
 

@@ -238,7 +238,7 @@ When referencing standards and frameworks, the AI must only reference publicly r
 - NIST SP 800-37: Risk Management Framework
 - NIST SP 800-218: Secure Software Development Framework (SSDF)
 - NIST AI RMF: AI Risk Management Framework
-- COBIT 2019 / COBIT 2025: IT governance and management
+- COBIT 2019: IT governance and management
 - CSA CCM v4: Cloud Controls Matrix
 - CIS Benchmarks: Configuration security baselines
 - MITRE ATT&CK: Adversarial tactics and techniques

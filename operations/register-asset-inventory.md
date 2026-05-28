@@ -121,8 +121,8 @@ Each asset record must contain the following fields:
 | ISO/IEC 27001:2022 | Annex A.5.9: Inventory of Information and Other Assets | Asset inventory requirement |
 | ISO/IEC 27002:2022 | §5.9 to 5.10 | Asset ownership and acceptable use |
 | NIST SP 800-53 | CM-8: Information System Component Inventory | Asset inventory controls |
-| COBIT 2025 | BAI09: Manage Assets | IT asset lifecycle management |
-| CSA CCM v5 | AIS-01 / HRS-01 | Cloud asset inventory and management |
+| COBIT 2019 | BAI09: Manage Assets | IT asset lifecycle management |
+| CSA CCM v4.1 | AIS-01 / HRS-01 | Cloud asset inventory and management |
 
 ---
 

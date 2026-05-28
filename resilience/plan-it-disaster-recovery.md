@@ -140,9 +140,9 @@ A ransomware incident resulted in approximately a 30-day recovery window. Key le
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO 22301:2019 | Business Continuity Management Systems | DR governance and testing |
-| COBIT 2025 | DSS04: Manage Continuity | IT continuity management |
+| COBIT 2019 | DSS04: Manage Continuity | IT continuity management |
 | NIST SP 800-34r1 | Contingency Planning Guide for Federal Information Systems | DR plan structure |
-| CSA CCM v5 | BCR-01 through BCR-07: Business Continuity and Resilience | Cloud resilience controls |
+| CSA CCM v4.1 | BCR-01 through BCR-07: Business Continuity and Resilience | Cloud resilience controls |
 
 ---
 

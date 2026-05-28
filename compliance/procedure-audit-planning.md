@@ -461,7 +461,7 @@ After the 7-year retention period, records are disposed of in accordance with th
 | ISO 19011:2018 | §6.2 Establishing the audit programme; §6.3 Managing the audit programme; §6.4 Maintaining and improving the audit programme | Primary procedural reference; this procedure operationalizes these clauses |
 | ISO 19011:2018 | §6.5.2 Initiating the audit; §6.5.3 Preparing audit activities | Individual audit planning steps (Sections 4 and 5) |
 | ISO/IEC 27001:2022 | §9.2 Internal Audit | Annual programme and individual audit requirements |
-| COBIT 2025 | MEA02 (Managed Assurance) | Audit programme planning, resource allocation, and assurance reporting |
+| COBIT 2019 | MEA02 (Managed Assurance) | Audit programme planning, resource allocation, and assurance reporting |
 | BASC Standard | §9.2 Internal Audit | Annual audit of BASC programme scope; evidence collection and reporting requirements |
 | AEO-S IT Control Requirements | IT control testing and documentation | Third-party and technical security audit procedures applicable to AEO-S scope |
 

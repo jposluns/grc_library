@@ -279,7 +279,7 @@ The following metrics are reported to the CISO quarterly and reviewed annually a
 
 ## 11. Framework alignment
 
-| Control Area | ISO/IEC 27001:2022 | NIST SP 800-88 | CSA CCM v5 | COBIT 2025 |
+| Control Area | ISO/IEC 27001:2022 | NIST SP 800-88 | CSA CCM v4.1 | COBIT 2019 |
 | --- | --- | --- | --- | --- |
 | Media handling and classification | A.8.10 | §2: Overview | DSP-07 | DSS05.06 |
 | Physical transport and chain of custody | A.8.10, A.7.10 | §4.2: Clear | DSP-07 | DSS05.06 |

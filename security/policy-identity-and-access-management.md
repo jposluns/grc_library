@@ -113,7 +113,7 @@ To ensure that all users, human, service, and machine, are uniquely identified, 
 
 ## Framework alignment
 
-| Control Area | ISO/IEC 27001 | ISO/IEC 27002 | NIST | COBIT 2025 | CSA CCM v5 |
+| Control Area | ISO/IEC 27001 | ISO/IEC 27002 | NIST | COBIT 2019 | CSA CCM v4.1 |
 | --- | --- | --- | --- | --- | --- |
 | Identity Management | A.5.15 to A.5.20 | 9.1 to 9.4 | SP 800-63 | DSS05 | IAM-01 to 09 |
 | Authentication | A.8.5 | §8.3 | SP 800-63B | DSS05.04 | IAM-06, IAM-08 |

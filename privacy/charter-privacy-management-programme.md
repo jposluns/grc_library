@@ -97,7 +97,7 @@ Results are reported to the CIO and included in the annual GRC programme report 
 | PIPEDA | Personal Information Protection and Electronic Documents Act (Canada) |
 | Quebec Law 25 | Act Respecting the Protection of Personal Information in the Private Sector |
 | UK GDPR / Data Protection Act 2018 | United Kingdom data protection law |
-| CSA CCM v5 PRI-01 through PRI-07 | Privacy controls |
+| CSA CCM v4.1 PRI-01 through PRI-07 | Privacy controls |
 | NIST Privacy Framework v1.0 | Privacy risk management |
 
 ---

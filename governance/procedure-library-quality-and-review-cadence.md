@@ -192,7 +192,7 @@ The Governance Library Maintainer is not the sole reviewer; the role coordinates
 | --- | --- | --- |
 | ISO/IEC 27001:2022 | A.5.36 Compliance with policies; A.5.37 Documented operating procedures | Information security cross-walk |
 | ISO 9001:2015 | §7.5 Documented information; §9 Performance evaluation | Quality management |
-| COBIT 2025 | APO01 Manage the I&T management framework | Governance of enterprise IT |
+| COBIT 2019 | APO01 Manage the I&T management framework | Governance of enterprise IT |
 | ITIL 4 | Continual improvement practice | Service management |
 | ISO/IEC 42001:2023 | §9 Performance evaluation; §10 Improvement | AI management system cross-walk |
 | NIST CSF 2.0 | Govern function | Risk integration |

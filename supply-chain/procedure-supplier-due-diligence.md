@@ -20,7 +20,7 @@
 
 This procedure defines the methodology for pre-qualification, risk assessment, and ongoing compliance review of suppliers, vendors, and third-party partners. It establishes a consistent, evidence-based approach to evaluating supplier fitness prior to engagement and at defined reassessment intervals throughout the supplier lifecycle.
 
-This procedure is aligned with ISO/IEC 27036-2, COBIT 2025 BAI05, CSA CCM v5 STA-01, and BASC International Standard v6 2023.
+This procedure is aligned with ISO/IEC 27036-2, COBIT 2019 BAI05, CSA CCM v4.1 STA-01, and BASC International Standard v6 2023.
 
 ---
 
@@ -156,7 +156,7 @@ Regional Compliance Officers must maintain a BASC Supplier Compliance Log that i
 ## References
 
 - ISO/IEC 27036-2:2014: Information security for supplier relationships: Requirements.
-- COBIT 2025 BAI05: Managed Organizational Change.
+- COBIT 2019 BAI05: Managed Organizational Change.
 - CSA Cloud Controls Matrix v5, STA-01: Supply Chain Management, Transparency, and Accountability.
 - BASC International Standard v6 2023: Business Alliance for Secure Commerce.
 - WCO SAFE Framework of Standards 2021: World Customs Organization.

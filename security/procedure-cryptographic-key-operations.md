@@ -165,8 +165,8 @@ Dual control is required for all key generation, export, and destruction operati
 | ISO/IEC 27002:2022 | §8.24 to §8.28: Cryptographic Controls | Key operation controls |
 | NIST SP 800-57 Parts 1 to 3 | Key Management Guidelines | Key operational procedures |
 | NIST FIPS 140-3 | Security Requirements for Cryptographic Modules | HSM and module requirements |
-| COBIT 2025 | DSS05: Manage Security Services | Security service operations |
-| CSA CCM v5 | EKM-01 through EKM-04 | Cloud key management operations |
+| COBIT 2019 | DSS05: Manage Security Services | Security service operations |
+| CSA CCM v4.1 | EKM-01 through EKM-04 | Cloud key management operations |
 
 ---
 

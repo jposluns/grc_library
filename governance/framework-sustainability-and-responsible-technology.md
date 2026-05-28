@@ -20,7 +20,7 @@
 
 This framework defines the organization's approach to environmental sustainability, ethical technology development, and human rights due diligence across all operations and digital systems. It consolidates the Sustainability Framework, Ethical Technology Use Framework, and Human Rights Due Diligence Framework into a unified enterprise structure.
 
-Aligned with ISO 50001 (Energy Management), ISO 26000 (Social Responsibility), OECD Digital Security Framework, UN SDGs, GPAI Model Governance Playbook, and CSA CCM v5 GOV-10.
+Aligned with ISO 50001 (Energy Management), ISO 26000 (Social Responsibility), OECD Digital Security Framework, UN SDGs, GPAI Model Governance Playbook, and CSA CCM v4.1 GOV-10.
 
 ---
 
@@ -96,8 +96,8 @@ Reporting aligns with GRI Standards, TCFD recommendations, and ISO 50001 formats
 | OECD Digital Security Framework | Resilient and sustainable digital infrastructure | Digital security sustainability |
 | UN SDGs | Sustainable Development Goals | Strategic sustainability alignment |
 | GPAI Model Governance Playbook | AI sustainability and ethics | Responsible AI development |
-| COBIT 2025 | APO02: Manage Strategy | Sustainable technology strategy |
-| CSA CCM v5 | GOV-10: Sustainability and Responsible Technology | Cloud sustainability governance |
+| COBIT 2019 | APO02: Manage Strategy | Sustainable technology strategy |
+| CSA CCM v4.1 | GOV-10: Sustainability and Responsible Technology | Cloud sustainability governance |
 
 ---
 

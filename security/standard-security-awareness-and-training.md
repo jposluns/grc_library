@@ -93,7 +93,7 @@ The CISO reviews programme effectiveness annually using: training completion rat
 
 ## Framework alignment
 
-| Control | ISO/IEC 27001 | NIST SP 800-53 | CSA CCM v5 | Trade Compliance |
+| Control | ISO/IEC 27001 | NIST SP 800-53 | CSA CCM v4.1 | Trade Compliance |
 | --- | --- | --- | --- | --- |
 | Security awareness | A.6.3 | AT-2 | HRS-06 | CTPAT, Canada PIP |
 | Role-based training | A.6.3 | AT-3 | HRS-07 | BASC v6 §7.2 |

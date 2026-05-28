@@ -20,7 +20,7 @@ This standard defines the classification, labelling, protection, retention, and 
 
 ## Purpose
 
-To ensure that consistent handling of information according to its sensitivity, regulatory obligations, and business impact, while supporting confidentiality, integrity, and availability. Aligns with ISO/IEC 27002:2022 §§5.12 to 5.15, COBIT 2025 DSS05, CSA CCM v5 DSP-02, GDPR Article 32, ISO/IEC 27701:2019 §8.8, and BASC International Standard (v6 2023).
+To ensure that consistent handling of information according to its sensitivity, regulatory obligations, and business impact, while supporting confidentiality, integrity, and availability. Aligns with ISO/IEC 27002:2022 §§5.12 to 5.15, COBIT 2019 DSS05, CSA CCM v4.1 DSP-02, GDPR Article 32, ISO/IEC 27701:2019 §8.8, and BASC International Standard (v6 2023).
 
 ---
 
@@ -141,7 +141,7 @@ Encryption keys must be managed under the Encryption and Key Management Policy.
 
 ## Framework alignment
 
-| Control Area | ISO/IEC 27002 | COBIT 2025 | CSA CCM v5 | Legal / Regulatory |
+| Control Area | ISO/IEC 27002 | COBIT 2019 | CSA CCM v4.1 | Legal / Regulatory |
 | --- | --- | --- | --- | --- |
 | Classification and labelling | §§5.12 to 5.15 | DSS05 | DSP-02 | GDPR Art. 32, CPPA |
 | Encryption | §8.24 | DSS05.03 | CEK-01 to 21 | BASC §6 |

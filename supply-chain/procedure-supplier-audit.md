@@ -20,7 +20,7 @@
 
 This procedure defines the process for conducting periodic audits of suppliers, vendors, and third-party service providers to verify adherence to contractual obligations, security standards, regulatory requirements, and ethical conduct principles.
 
-It is aligned with ISO/IEC 27036-4, COBIT 2025 BAI05.02, CSA CCM v5 STA-05, BASC International Standard v6 2023, and the ENISA AI Cybersecurity Certification Scheme 2026.
+It is aligned with ISO/IEC 27036-4, COBIT 2019 BAI05.02, CSA CCM v4.1 STA-05, BASC International Standard v6 2023, and the ENISA AI Cybersecurity Certification Scheme 2026.
 
 ---
 
@@ -87,8 +87,8 @@ Prior to conducting the audit, the audit team must:
 2. Confirm currency of applicable certificates (ISO/IEC 27001, SOC 2, BASC, AI certification where applicable).
 3. Prepare an audit checklist aligned to the applicable frameworks and control families, including:
  - ISO/IEC 27036-4 Annex A controls.
- - COBIT 2025 BAI05.02 governance practices.
- - CSA CCM v5 STA-05 supply chain assurance controls.
+ - COBIT 2019 BAI05.02 governance practices.
+ - CSA CCM v4.1 STA-05 supply chain assurance controls.
  - BASC International Standard v6 2023, Sections 1 to 7 (for trade and logistics suppliers).
  - ENISA AI Cybersecurity Certification Scheme 2026 control families (for AI system suppliers).
 
@@ -169,7 +169,7 @@ BASC compliance metrics must be reported to the Regional Compliance Officer and 
 ## References
 
 - ISO/IEC 27036-4:2013: Information security for supplier relationships: Guidelines for security of cloud services.
-- COBIT 2025 BAI05.02: Manage Organizational Change.
+- COBIT 2019 BAI05.02: Manage Organizational Change.
 - CSA Cloud Controls Matrix v5, STA-05: Supply Chain Management, Transparency, and Accountability.
 - ENISA AI Cybersecurity Certification Scheme 2026.
 - BASC International Standard v6 2023: Business Alliance for Secure Commerce.

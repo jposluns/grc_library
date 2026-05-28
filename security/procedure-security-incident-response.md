@@ -22,7 +22,7 @@
 
 This procedure defines the end-to-end lifecycle for managing information security incidents: from initial detection and triage through containment, eradication, recovery, regulatory notification, and post-incident review. It establishes mandatory roles, response timeframes, evidence-handling requirements, and escalation obligations that apply to all confirmed and suspected security incidents.
 
-The procedure is aligned to ISO/IEC 27035 (Information Security Incident Management), NIST SP 800-61 Rev 2 (Computer Security Incident Handling Guide), COBIT 2025 DSS02, and CSA CCM v5 SEF-01 through SEF-10.
+The procedure is aligned to ISO/IEC 27035 (Information Security Incident Management), NIST SP 800-61 Rev 2 (Computer Security Incident Handling Guide), COBIT 2019 DSS02, and CSA CCM v4.1 SEF-01 through SEF-10.
 
 ### 1.2 Scope
 
@@ -287,7 +287,7 @@ The SOC shall track and report the following metrics at the monthly security ope
 
 ## 10. Framework alignment
 
-| Control Area | ISO/IEC 27035 | NIST SP 800-61 | ISO/IEC 27001:2022 | COBIT 2025 | CSA CCM v5 |
+| Control Area | ISO/IEC 27035 | NIST SP 800-61 | ISO/IEC 27001:2022 | COBIT 2019 | CSA CCM v4.1 |
 | --- | --- | --- | --- | --- | --- |
 | Incident management policy and planning | Clause 5 | §2.3, §3.1 | A.5.24 | DSS02.01 | SEF-01, SEF-02 |
 | Detection and reporting | Clause 6.3 | §3.2 | A.5.25 | DSS02.02 | SEF-03 |

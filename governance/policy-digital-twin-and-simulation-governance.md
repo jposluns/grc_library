@@ -96,7 +96,7 @@ Digital twin systems are reviewed annually by the system owner to confirm: conti
 | ISO/IEC 27001:2022 | Annex A | Security controls for digital twins |
 | ISO 23247 | Digital Twin Framework for Manufacturing | Digital twin reference architecture |
 | NIST SP 800-82r3 | OT security guidelines | OT-connected digital twin security |
-| COBIT 2025 | APO14: Manage Data | Data governance for digital twins |
+| COBIT 2019 | APO14: Manage Data | Data governance for digital twins |
 
 ---
 

@@ -20,7 +20,7 @@
 
 This policy defines the organization-wide process for managing security, risk, compliance, and operational exceptions. It consolidates the former Exception Process, Risk Acceptance Memo Procedure, Temporary Waiver Procedure, and Exception Tracking Log into one cohesive governance artefact.
 
-Its purpose is to ensure that all deviations from policy, control, or standard requirements are risk assessed, time bound, approved at the appropriate authority level, and tracked to closure. The policy aligns with **ISO/IEC 27001:2022 Annex A.5.36 Policy on Exceptions**, **COBIT 2025 APO12.06 Respond to Risk**, **Cloud Security Alliance (CSA)** guidance (CCM v5 GRM-12 Exception Management), and **NIST SP 800-37 Revision 2 RMF Step 6 Authorize the System**.
+Its purpose is to ensure that all deviations from policy, control, or standard requirements are risk assessed, time bound, approved at the appropriate authority level, and tracked to closure. The policy aligns with **ISO/IEC 27001:2022 Annex A.5.36 Policy on Exceptions**, **COBIT 2019 APO12.06 Respond to Risk**, **Cloud Security Alliance (CSA)** guidance (CCM v4.1 GRM-12 Exception Management), and **NIST SP 800-37 Revision 2 RMF Step 6 Authorize the System**.
 
 
 
@@ -93,7 +93,7 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 6.2 Internal Audit, the CISO, and the CCO must validate closure before record archival. 
 
 ### 7. Machine-readable exception registry (future readiness)
-7.1 [Unverified] The organization shall implement a machine-readable, API-enabled exception registry mapped to CSA CCM v5 GRM-12. 
+7.1 [Unverified] The organization shall implement a machine-readable, API-enabled exception registry mapped to CSA CCM v4.1 GRM-12. 
 7.2 Automated expiry alerts, metadata tagging, and integration with risk dashboards shall support near real-time oversight.
 
 ### 8. Continual improvement
@@ -106,10 +106,10 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 
 - **ISO/IEC 27001:2022** Annex A.5.36 Policy on Exceptions 
 - **ISO 31000:2018** Risk Management 
-- **COBIT 2025** APO12.06 Respond to Risk; APO12.03 Assess Risk; MEA01 Monitor Evaluate and Assess 
-- **Cloud Security Alliance (CSA)** guidance including CCM v5 GRM-12 Exception Management 
+- **COBIT 2019** APO12.06 Respond to Risk; APO12.03 Assess Risk; MEA01 Monitor Evaluate and Assess 
+- **Cloud Security Alliance (CSA)** guidance including CCM v4.1 GRM-12 Exception Management 
 - **NIST SP 800-37 Rev 2** RMF Step 6 Authorize the System; **NIST SP 800-53 Rev 5** CA-6 Authorization 
-- **NIST AI RMF 1.1** Govern Function [Unverified] 
+- **NIST AI RMF 1.0** Govern Function [Unverified] 
 - **OECD AI Principles** Accountability and Transparency 
 - **Trade and Supply Chain Programs:** WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalents
 
@@ -117,7 +117,7 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 
 ## Compliance mapping table
 
-| Control Area | ISO/IEC 27001 | COBIT 2025 | CSA | NIST | Legal and Regulatory | Trade and Supply Chain Programs |
+| Control Area | ISO/IEC 27001 | COBIT 2019 | CSA | NIST | Legal and Regulatory | Trade and Supply Chain Programs |
 |---------------|----------------|-------------|-----|------|----------------------|---------------------------------|
 | Governance and oversight | Annex A.5.36 | APO12.06 | CCM GRM-12 | SP 800-37 Step 6 | SOX, GDPR Article 32 Accountability | WCO SAFE equivalence |
 | Risk assessment and approval | Clause 6 and ISO 31000 | APO12.03 | CCM GRM-02 | SP 800-30, SP 800-37 Step 3 | CPPA, AIDA | WCO SAFE equivalence |

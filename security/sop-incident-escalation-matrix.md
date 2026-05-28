@@ -97,8 +97,8 @@ Any incident where escalation did not occur within the required timeline must be
 | --- | --- | --- |
 | ISO/IEC 27035:2023 | Information Security Incident Management | Incident classification and escalation |
 | NIST SP 800-61r3 | Computer Security Incident Handling Guide | Escalation and notification guidance |
-| COBIT 2025 | DSS02: Manage Service Requests and Incidents | Incident management governance |
-| CSA CCM v5 | SEF-02: Incident Management | Cloud incident escalation |
+| COBIT 2019 | DSS02: Manage Service Requests and Incidents | Incident management governance |
+| CSA CCM v4.1 | SEF-02: Incident Management | Cloud incident escalation |
 
 ---
 

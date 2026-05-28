@@ -94,7 +94,7 @@ Exceptions to any requirement in this standard require CISO approval and must be
 
 ## Framework alignment
 
-| Control | NIST SP 800-63B | ISO/IEC 27001 | CSA CCM v5 | CIS |
+| Control | NIST SP 800-63B | ISO/IEC 27001 | CSA CCM v4.1 | CIS |
 | --- | --- | --- | --- | --- |
 | Password requirements | §5.1.1 | A.8.5 | IAM-06 | Control 5 |
 | MFA | §6.3 | A.8.5 | IAM-08 | Control 6 |

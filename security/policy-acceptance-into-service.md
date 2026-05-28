@@ -22,7 +22,7 @@ This policy establishes a standardized framework for evaluating, approving, and 
 
 The policy replaces the AIS Lifecycle Process, Readiness Review Procedure, and Post-Implementation Review Procedure, providing a unified acceptance model for IT, cloud, and AI-enabled services.
 
-It aligns with ISO/IEC 42001 §8 Operation, NIST SP 800-37 Risk Management Framework (RMF) Step 6: Authorize the System, COBIT 2025 BAI07 Manage Change Acceptance and Transitioning, and CSA CCM v5 AIS-01 Acceptance Into Service.
+It aligns with ISO/IEC 42001 §8 Operation, NIST SP 800-37 Risk Management Framework (RMF) Step 6: Authorize the System, COBIT 2019 BAI07 Manage Change Acceptance and Transitioning, and CSA CCM v4.1 AIS-01 Acceptance Into Service.
 
 Mandatory AI risk classification and impact validation are required as a prerequisite for production deployment.
 
@@ -142,9 +142,9 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 | ISO/IEC 42001:2023 | §8: AI Management System Operation | AI acceptance and risk classification |
 | ISO/IEC 27001:2022 | Annex A.5.36 to A.5.37 | Change and handover controls |
 | NIST SP 800-37 Rev. 2 | RMF Step 6: Authorize the System | Risk-based production authorization |
-| COBIT 2025 | BAI07: Manage Change Acceptance and Transitioning | Controlled transition and handover |
-| COBIT 2025 | DSS01: Manage Operations | Operational readiness validation |
-| CSA CCM v5 | AIS-01: Acceptance Into Service | Cloud service handover and validation |
+| COBIT 2019 | BAI07: Manage Change Acceptance and Transitioning | Controlled transition and handover |
+| COBIT 2019 | DSS01: Manage Operations | Operational readiness validation |
+| CSA CCM v4.1 | AIS-01: Acceptance Into Service | Cloud service handover and validation |
 | OECD AI Principles | Safety and Accountability | AI readiness and impact validation |
 | EU AI Act | Annex III and Annex IV | High-risk AI system acceptance criteria |
 

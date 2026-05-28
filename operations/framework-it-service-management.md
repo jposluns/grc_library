@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This framework defines the structure, principles, and processes of the organization's IT Service Management (ITSM) function. It consolidates all ITIL-based processes, Incident, Problem, Change, Release, Request, Capacity, Availability, and Service Level Management, into a unified governance model. It aligns with ISO/IEC 20000-1:2018, ITIL 4, COBIT 2025 DSS02 and DSS03, and EU NIS 2 Directive requirements.
+This framework defines the structure, principles, and processes of the organization's IT Service Management (ITSM) function. It consolidates all ITIL-based processes, Incident, Problem, Change, Release, Request, Capacity, Availability, and Service Level Management, into a unified governance model. It aligns with ISO/IEC 20000-1:2018, ITIL 4, COBIT 2019 DSS02 and DSS03, and EU NIS 2 Directive requirements.
 
 ---
 
@@ -91,10 +91,10 @@ ITIL 4 continual improvement cycles are adopted. Service improvement plans are d
 | --- | --- | --- |
 | ISO/IEC 20000-1:2018 | IT Service Management Systems | ITSM framework compliance |
 | ITIL 4 | Foundation, Practices, and Guiding Principles | Service management process model |
-| COBIT 2025 | DSS02: Manage Service Requests and Incidents | Incident and request management |
-| COBIT 2025 | DSS03: Manage Problems | Problem management |
+| COBIT 2019 | DSS02: Manage Service Requests and Incidents | Incident and request management |
+| COBIT 2019 | DSS03: Manage Problems | Problem management |
 | EU NIS 2 Directive | Incident Reporting and Business Continuity | Cybersecurity incident notification |
-| CSA CCM v5 | SEF and GOV Domains | Service and governance controls |
+| CSA CCM v4.1 | SEF and GOV Domains | Service and governance controls |
 | NIST SP 800-61r3 | Computer Security Incident Handling Guide | Incident handling integration |
 
 ---

@@ -101,8 +101,8 @@ All personnel must sign or electronically acknowledge this policy upon hire and 
 |---|---|
 | ISO/IEC 27001:2022 | A.5.10: Acceptable Use of Information and Other Associated Assets |
 | NIST SP 800-53 | PL-4: Rules of Behaviour |
-| CSA CCM v5 | HRS-04: Acceptable Use Policy |
-| COBIT 2025 | APO01.08: Manage People, Skills and Behaviour |
+| CSA CCM v4.1 | HRS-04: Acceptable Use Policy |
+| COBIT 2019 | APO01.08: Manage People, Skills and Behaviour |
 
 ---
 

@@ -177,8 +177,8 @@ Audit logs are forwarded to SIEM via endpoint management diagnostic settings int
 | RFC 5280 | Internet X.509 PKI Certificate and CRL Profile |
 | CA/Browser Forum Baseline Requirements | Code Signing Certificate Validity (1-year maximum as of December 2025) |
 | S/MIME Baseline Requirements | Updated June 2025 |
-| CSA CCM v5 | EKM-03: Encryption and Key Management: PKI |
-| COBIT 2025 | DSS05: Manage Security Services |
+| CSA CCM v4.1 | EKM-03: Encryption and Key Management: PKI |
+| COBIT 2019 | DSS05: Manage Security Services |
 
 ---
 

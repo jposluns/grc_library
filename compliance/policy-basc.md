@@ -202,7 +202,7 @@ All exceptions are logged and assigned an expiry or review date. Owners are resp
 | BASC International Standard v6 (2023) | Chapter 6: IT and Information Security | Primary source of control requirements |
 | ISO/IEC 27001:2022 | A.5 to A.8: Security controls | Information security management alignment |
 | NIST SP 800-53 r5 | AC, IA, SI, IR: Access, identity, integrity, incident | Control family mapping |
-| CSA CCM v5 | IAM, HRS, TVM, LOG | Cloud control alignment |
+| CSA CCM v4.1 | IAM, HRS, TVM, LOG | Cloud control alignment |
 | WCO SAFE Framework (2021) | AEO Security | Trade and customs information security |
 
 ---

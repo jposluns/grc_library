@@ -144,8 +144,8 @@ Records any active "do not modify" or restricted-change constraints on productio
 | --- | --- | --- |
 | ISO/IEC 27001:2022 | §9.1: Monitoring, Measurement, Analysis and Evaluation | Operational security monitoring |
 | NIST SP 800-53 | CA-7: Continuous Monitoring | Continuous operational assurance |
-| COBIT 2025 | DSS05: Manage Security Services | Security operations governance |
-| CSA CCM v5 | SEF: Security Engineering and Development | Cloud security operations |
+| COBIT 2019 | DSS05: Manage Security Services | Security operations governance |
+| CSA CCM v4.1 | SEF: Security Engineering and Development | Cloud security operations |
 
 ---
 

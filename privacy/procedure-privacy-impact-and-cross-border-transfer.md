@@ -152,7 +152,7 @@ Processing of children's personal data requires enhanced safeguards including ve
 | Data Protection Impact Assessments | GDPR Article 35 |
 | Conformity Assessment Information Requirements | EU AI Act Annex IV |
 | AI Impact Assessment Obligations (Canada) | AIDA §29 |
-| Privacy Impact and Risk Assessment Control | CSA CCM v5 PRI-05 |
+| Privacy Impact and Risk Assessment Control | CSA CCM v4.1 PRI-05 |
 | AI Impact Assessment | ISO 42006 |
 
 ---

@@ -154,8 +154,8 @@ Applies to all user identities, service accounts, and machine identities across 
 | ISO/IEC 27002:2022 | §5.16 to 5.17: Identity Management | Identity and authentication controls |
 | NIST SP 800-53 | IA: Identification and Authentication Family | Identity assurance controls |
 | NIST SP 800-207 | Zero Trust Architecture | Continuous identity validation |
-| COBIT 2025 | DSS05: Manage Security Services | Identity security operations |
-| CSA CCM v5 | IAM-01 through IAM-14 | Cloud identity and access management |
+| COBIT 2019 | DSS05: Manage Security Services | Identity security operations |
+| CSA CCM v4.1 | IAM-01 through IAM-14 | Cloud identity and access management |
 
 ---
 

@@ -20,7 +20,7 @@ This policy establishes the overarching framework for protecting the confidentia
 
 ## Purpose
 
-To ensure that information security is systematically managed, risks are mitigated through proportionate controls, and the organization maintains compliance with ISO/IEC 27001:2022, ISO/IEC 27002:2022, NIST Cybersecurity Framework 2.0, COBIT 2025, and CSA CCM v5.
+To ensure that information security is systematically managed, risks are mitigated through proportionate controls, and the organization maintains compliance with ISO/IEC 27001:2022, ISO/IEC 27002:2022, NIST Cybersecurity Framework 2.0, COBIT 2019, and CSA CCM v4.1.
 
 ---
 
@@ -131,7 +131,7 @@ To ensure that information security is systematically managed, risks are mitigat
 
 ## Framework alignment
 
-| Control Area | ISO/IEC 27001 | ISO/IEC 27002 | NIST CSF 2.0 | COBIT 2025 | CSA CCM v5 |
+| Control Area | ISO/IEC 27001 | ISO/IEC 27002 | NIST CSF 2.0 | COBIT 2019 | CSA CCM v4.1 |
 | --- | --- | --- | --- | --- | --- |
 | Governance and ISMS | Clauses 4 to 10 | A.5 | Identify, Protect | DSS01.01 | ISM-01 |
 | Asset Management | A.5.9 to A.5.11 | 8.1 to 8.3 | Identify | DSS01.02 | ISM-02 |

@@ -432,7 +432,7 @@ Records are stored in the designated secure GRC document repository. Access is r
 |----------------------|---------------------------|---------|
 | ISO 9001:2015 | §10.2 Nonconformity and corrective action; §10.3 Continual improvement | Primary source for corrective and preventive action requirements; this procedure operationalizes these clauses |
 | ISO/IEC 27001:2022 | §10.1 Continual improvement; §10.2 Nonconformity and corrective action | ISMS-specific requirements for nonconformity treatment and improvement |
-| COBIT 2025 | MEA02 (Managed Assurance) | Assurance-linked corrective action and monitoring requirements |
+| COBIT 2019 | MEA02 (Managed Assurance) | Assurance-linked corrective action and monitoring requirements |
 | CSA Cloud Controls Matrix | A&A-06 (Audit and Assurance: Remediation) | Requirements for tracking and remediating audit findings |
 | BASC Standard | §10 Improvement | Corrective action and improvement requirements within the BASC management system |
 | NIST Cybersecurity Framework 2.0 | RC.IM (Recovery: Improvements) | Incorporating lessons learned into recovery strategy and GRC programme improvement |

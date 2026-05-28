@@ -137,8 +137,8 @@ It ensures that legal, regulatory, and contractual requirements, including those
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO 37301:2021 | Compliance Management Systems | CMS structure, obligations register, CAPA |
-| COBIT 2025 | MEA03, Monitor Compliance; APO12, Managed Risk | Regulatory governance, compliance metrics |
-| CSA CCM v5 | GOV-01 to GOV-07, GOV-08: Compliance governance | Control mapping and compliance reporting |
+| COBIT 2019 | MEA03, Monitor Compliance; APO12, Managed Risk | Regulatory governance, compliance metrics |
+| CSA CCM v4.1 | GOV-01 to GOV-07, GOV-08: Compliance governance | Control mapping and compliance reporting |
 | ISO/IEC 27001:2022 | Annex A: Information security controls | Security compliance evidence |
 | ISO 28000:2022 | Supply-Chain Security and Resilience | Trade compliance controls |
 | BASC v6 (2023) | Trade and Customs Compliance | BASC obligations, Chapter reporting |

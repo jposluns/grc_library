@@ -167,7 +167,7 @@ The approval set confirms that the offboarding evidence record is complete, veri
 | ISO/IEC 27036 | Information security for supplier relationships | Termination |
 | ISO 28000 | Security management for supply chains | Termination |
 | NIST SP 800-88 Rev 1 | Guidelines for Media Sanitization | Destruction method |
-| CSA CCM v5 | IPY-04, IPY-05 (interoperability and portability) | Exit assistance |
+| CSA CCM v4.1 | IPY-04, IPY-05 (interoperability and portability) | Exit assistance |
 | ISO/IEC 27001:2022 | A.5.22 (information security in supplier relationships) | Closure |
 
 ---

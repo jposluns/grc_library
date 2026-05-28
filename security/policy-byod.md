@@ -121,7 +121,7 @@ Exceptions to this policy require CISO approval, documented business justificati
 | --- | --- | --- |
 | ISO/IEC 27001:2022 | A.6.2, Teleworking; A.8.1, User Endpoint Devices | BYOD controls, endpoint security requirements |
 | NIST SP 800-124r2 | Guidelines for Managing the Security of Mobile Devices in the Enterprise | MAM-without-MDM architecture, mobile security controls |
-| CSA CCM v5 | UEM-03, UEM-06: Mobile Device Management and BYOD | Mobile endpoint management, BYOD access controls |
+| CSA CCM v4.1 | UEM-03, UEM-06: Mobile Device Management and BYOD | Mobile endpoint management, BYOD access controls |
 | NIST SP 800-63B | Digital Identity Guidelines: Authentication | MFA and conditional access requirements |
 
 ---

@@ -63,7 +63,7 @@ IT ownership covers the controls listed above. Physical facility security, cargo
 
 - BASC International Standard v6: All chapters
 - ISO/IEC 27001:2022
-- COBIT 2025
+- COBIT 2019
 
 ---
 

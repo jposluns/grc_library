@@ -123,7 +123,7 @@ The CISO retains final approval authority over vendor selection for all penetrat
 
 ## Framework alignment
 
-| Control Area | ISO/IEC 27001:2022 | NIST SP 800-53 | CSA CCM v5 | Other |
+| Control Area | ISO/IEC 27001:2022 | NIST SP 800-53 | CSA CCM v4.1 | Other |
 | --- | --- | --- | --- | --- |
 | Penetration testing programme | A.8.8 | SA-11 | TVM-07 | PTES |
 | Web application security testing | A.8.8 | SA-11(1) | TVM-07 | OWASP Testing Guide v4.2 |

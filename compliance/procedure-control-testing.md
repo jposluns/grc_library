@@ -24,7 +24,7 @@ This procedure defines the processes for testing the design and operating effect
 
 ## Scope
 
-Applies to all controls defined in the organization's control frameworks including ISO 27001 Annex A, COBIT 2025, CSA CCM v5, NIST SP 800-53, and any applicable regulatory control requirements. Encompasses preventive, detective, and corrective controls across all domains.
+Applies to all controls defined in the organization's control frameworks including ISO 27001 Annex A, COBIT 2019, CSA CCM v4.1, NIST SP 800-53, and any applicable regulatory control requirements. Encompasses preventive, detective, and corrective controls across all domains.
 
 ---
 
@@ -143,8 +143,8 @@ Sample sizes for inspection-based tests follow a risk-based sampling methodology
 | ISO/IEC 27001:2022 | §9.1: Monitoring, Measurement, Analysis and Evaluation | Control effectiveness measurement |
 | ISO 19011:2018 | Guidelines for Auditing Management Systems | Control testing methodology |
 | NIST SP 800-53A | Assessing Security and Privacy Controls | Control testing guidance |
-| COBIT 2025 | MEA01: Monitor, Evaluate, and Assess Performance | Control monitoring and assurance |
-| CSA CCM v5 | GOV-09: Governance and Continuous Improvement | Continuous control assurance |
+| COBIT 2019 | MEA01: Monitor, Evaluate, and Assess Performance | Control monitoring and assurance |
+| CSA CCM v4.1 | GOV-09: Governance and Continuous Improvement | Continuous control assurance |
 
 ---
 

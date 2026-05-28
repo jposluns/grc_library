@@ -102,7 +102,7 @@ Screening records, adverse finding decisions, and conditional access approvals a
 
 ## Framework alignment
 
-| Requirement Area | ISO/IEC 27001:2022 | NIST SP 800-53 | CSA CCM v5 | CTPAT / PIP / BASC |
+| Requirement Area | ISO/IEC 27001:2022 | NIST SP 800-53 | CSA CCM v4.1 | CTPAT / PIP / BASC |
 | --- | --- | --- | --- | --- |
 | Pre-employment screening | A.6.1 | PS-3 | HRS-01, HRS-02 | CTPAT Personnel Security; Canada PIP: Personnel and Staffing; BASC v6 §8.3 |
 | Contractor screening | A.6.6 | PS-7 | HRS-06 | CTPAT Personnel Security |

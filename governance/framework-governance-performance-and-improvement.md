@@ -32,7 +32,7 @@ Applies to all governance domains: governance, risk, compliance, security, priva
 
 ### 1. Governance performance measurement
 
-All governance domains define measurable KPIs aligned with organizational goals and compliance requirements. Metrics include risk reduction, compliance rate, audit closure rate, control effectiveness, and incident response time. Governance maturity is tracked using COBIT 2025 maturity models and Digital Trust Indicators.
+All governance domains define measurable KPIs aligned with organizational goals and compliance requirements. Metrics include risk reduction, compliance rate, audit closure rate, control effectiveness, and incident response time. Governance maturity is tracked using COBIT 2019 maturity models and Digital Trust Indicators.
 
 ### 2. Maturity assessment
 
@@ -64,7 +64,7 @@ AI governance KPIs per ISO/IEC 42001 Clause 10 include:
 - Bias mitigation and fairness testing frequency.
 - AI incident response timeliness.
 
-COBIT 2025 Digital Trust Indicators are applied across data, process, and technology domains.
+COBIT 2019 Digital Trust Indicators are applied across data, process, and technology domains.
 
 ---
 
@@ -99,9 +99,9 @@ COBIT 2025 Digital Trust Indicators are applied across data, process, and techno
 | ISO 9001:2015 | §9 to 10: Performance Evaluation and Improvement | PDCA cycle, management review |
 | ISO/IEC 27001:2022 | §10: Continual Improvement | Security governance improvement |
 | ISO/IEC 42001:2023 | §10: AI Governance Improvement | AI maturity KPIs |
-| COBIT 2025 | MEA01: Monitor, Evaluate, and Assess Performance | Performance governance |
-| COBIT 2025 | Digital Trust Indicators | Maturity and stakeholder confidence |
-| CSA CCM v5 | GOV-09: Governance Metrics and Monitoring | Cloud governance metrics |
+| COBIT 2019 | MEA01: Monitor, Evaluate, and Assess Performance | Performance governance |
+| COBIT 2019 | Digital Trust Indicators | Maturity and stakeholder confidence |
+| CSA CCM v4.1 | GOV-09: Governance Metrics and Monitoring | Cloud governance metrics |
 
 ---
 

@@ -4,6 +4,20 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 12.1 (2026-05-28): Framework citation corrections
+
+Corrects three repository-wide framework citation hallucinations identified by the comprehensive audit (Phase 11 follow-up).
+
+- **COBIT 2025 → COBIT 2019**: 132 replacements across 78 files. ISACA's current published COBIT version is COBIT 2019; "COBIT 2025" does not exist. Process identifiers cited alongside (APO01, APO14, BAI09, MEA01, MEA02, APO06, APO07, etc.) are valid COBIT 2019 process IDs.
+- **CSA CCM v5 → CSA CCM v4.1**: 115 replacements across 75 files. CSA's current Cloud Controls Matrix version is v4.1; "CCM v5" does not exist. Domain identifiers cited alongside (AIS, DSP, GOV, GRM, SEF, IVS, IAM, LOG, IPY, TIM, EKM, END, TVM, SR) are valid CCM v4 domain prefixes.
+- **NIST AI RMF 1.1 → NIST AI RMF 1.0 (with AI 600-1 GenAI Profile)**: 1 replacement in `governance/policy-exception-and-risk-acceptance-management.md`. NIST AI RMF was published as version 1.0; the Generative AI Profile is published as NIST AI 600-1.
+
+New tool: `tools/lint-citations.py` — stdlib-only Python linter that pins known-hallucinated framework strings on a denylist and reports any reintroduction. Exits non-zero on findings; suitable for CI integration. Denylist currently covers the three patterns above. `CONTRIBUTING.md` updated to list the linter in the local audit suite (now 8 audits).
+
+Historical CHANGELOG entries are preserved verbatim; their descriptions reference the strings as they existed at the time, which the linter exempts.
+
+Source verification: ISACA COBIT page, CSA CCM artifacts page, NIST CSRC.
+
 ## Phase 11 (2026-05-28): Continuous quality and review cadence (3 new documents + cadence checker)
 
 Codifies the library maintenance practice with three new governance artefacts and a new audit tool. Closes the continuous-quality phase of the advisory review.

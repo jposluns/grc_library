@@ -20,7 +20,7 @@
 
 This procedure governs the annual GRC programme management cycle. It defines how the GRC library is reviewed, updated, version-controlled, reported on, and presented to the Enterprise Risk Committee (ERC). It establishes the cadence and accountability framework for annual governance reviews, quarterly reporting, policy owner attestation, control testing scheduling, risk treatment status updates, and ERC reporting.
 
-This procedure aligns to ISO 37301:2021 §9 (Performance evaluation), ISO/IEC 27001:2022 §9.3 (Management review), ISO 31000:2018 §6.7 (Monitoring and review), and COBIT 2025 APO01 (Managed IT Management Framework).
+This procedure aligns to ISO 37301:2021 §9 (Performance evaluation), ISO/IEC 27001:2022 §9.3 (Management review), ISO 31000:2018 §6.7 (Monitoring and review), and COBIT 2019 APO01 (Managed IT Management Framework).
 
 ---
 
@@ -179,8 +179,8 @@ All GRC library documents follow semantic versioning using the format MAJOR.MINO
 
 | Control Domain | Minimum Test Frequency |
 | --- | --- |
-| CSA CCM v5 controls | Quarterly |
-| COBIT 2025 processes | Annually |
+| CSA CCM v4.1 controls | Quarterly |
+| COBIT 2019 processes | Annually |
 | ISO/IEC 27001:2022 Annex A controls | Annually (or more frequently for high-risk controls as determined by the CISO) |
 | Regulatory compliance controls | Per applicable regulatory cadence |
 
@@ -332,9 +332,9 @@ Each quarterly report must include the following:
 | ISO/IEC 27001:2022 | §10.2 Continual improvement | CAPA process integration; triggered reviews; version control |
 | ISO 31000:2018 | §6.7 Monitoring and review | Risk register quarterly review; risk treatment status updates; residual risk acceptance |
 | ISO 31000:2018 | §6.5 Risk treatment | Treatment plan tracking and risk owner accountability |
-| COBIT 2025 | APO01 Managed IT Management Framework | Programme management governance, roles and responsibilities, document lifecycle |
-| COBIT 2025 | APO12 Managed Risk | Risk treatment status updates; ERC reporting; quarterly risk register reviews |
-| COBIT 2025 | APO14 Managed Data | Records retention requirements for attestation and deprovisioning evidence |
+| COBIT 2019 | APO01 Managed IT Management Framework | Programme management governance, roles and responsibilities, document lifecycle |
+| COBIT 2019 | APO12 Managed Risk | Risk treatment status updates; ERC reporting; quarterly risk register reviews |
+| COBIT 2019 | APO14 Managed Data | Records retention requirements for attestation and deprovisioning evidence |
 | NIST CSF 2.0 | GV.OC (Organizational Context) | ERC governance reporting and programme scorecard |
 | NIST CSF 2.0 | GV.RM (Risk Management Strategy) | Residual risk acceptance and quarterly risk review |
 

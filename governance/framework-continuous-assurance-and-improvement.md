@@ -28,7 +28,7 @@ It ensures that ongoing monitoring, evaluation, and improvement activities are c
 
 1. Applies to all enterprise governance domains, including information security, privacy, AI ethics, sustainability, ESG, and BASC trade compliance.
 2. Covers assurance mechanisms for control effectiveness, process maturity, and regulatory compliance.
-3. Includes AI governance maturity monitoring under ISO 42001 §10 and digital trust indicators per COBIT 2025.
+3. Includes AI governance maturity monitoring under ISO 42001 §10 and digital trust indicators per COBIT 2019.
 4. Encompasses global operations, including BASC-certified trade and logistics activities.
 
 ---
@@ -90,7 +90,7 @@ This structure provides a continuous feedback loop ensuring organizational learn
 
 ## 4. Performance evaluation
 
-### 4.1 Digital trust indicators (COBIT 2025)
+### 4.1 Digital trust indicators (COBIT 2019)
 
 The organization shall track and improve:
 - Governance effectiveness and transparency.
@@ -174,9 +174,9 @@ Performance data from all assurance activities feed into the Governance Performa
 | ISO 9001:2015 | §10: Continual Improvement | Improvement cycle structure |
 | ISO/IEC 42001:2023 | §10: AI Management System Performance and Improvement | AI governance maturity KPIs |
 | ISO/IEC 27001:2022 | §10: Continual Improvement | Security assurance integration |
-| COBIT 2025 | MEA01: Monitor, Evaluate, and Assess Performance | Performance governance, digital trust |
-| COBIT 2025 | Digital Trust Indicators | Governance maturity metrics |
-| CSA CCM v5 | GOV-09: Governance and Continuous Improvement | Cloud governance assurance |
+| COBIT 2019 | MEA01: Monitor, Evaluate, and Assess Performance | Performance governance, digital trust |
+| COBIT 2019 | Digital Trust Indicators | Governance maturity metrics |
+| CSA CCM v4.1 | GOV-09: Governance and Continuous Improvement | Cloud governance assurance |
 | BASC v6 (2023) | Trade and Customs Assurance Governance | Regional trade compliance integration |
 
 ---
