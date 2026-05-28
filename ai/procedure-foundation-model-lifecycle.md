@@ -2,7 +2,7 @@
 
 **Document Title:** Foundation Model Lifecycle Procedure 
 **Document Type:** Procedure 
-**Version:** 0.0.1 
+**Version:** 0.0.2 
 **Date:** 2026-05-28 
 **Owner:** AI Governance Approver 
 **Approving Authority:** Governance Library Maintainer 
@@ -106,7 +106,7 @@ For open-source self-hosted models, the contractual layer is replaced by an inte
 
 | Monitoring activity | Cadence |
 | --- | --- |
-| Eval suite regression run | At least monthly for production foundation models; on every provider version notification |
+| Eval suite regression run | At minimum quarterly for production foundation models; monthly where the eval-suite cost and infrastructure permit; on every provider version notification regardless of base cadence. The eval scope, sample size, and the metrics evaluated are documented per model so the cadence is substantive rather than nominal. |
 | Safety classifier review | Quarterly |
 | Cost and capacity review | Monthly |
 | Supplier incident monitoring | Continuous; subscribe to the provider's security advisory channel |

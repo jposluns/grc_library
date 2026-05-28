@@ -2,7 +2,7 @@
 
 **Document Title:** Training Data Governance Procedure 
 **Document Type:** Procedure 
-**Version:** 0.0.1 
+**Version:** 0.0.2 
 **Date:** 2026-05-28 
 **Owner:** AI Data Steward 
 **Approving Authority:** Governance Library Maintainer 
@@ -115,6 +115,22 @@ When a data subject exercises a right to deletion, or when a corpus is retired u
 | 6 | Update the AI risk register where derived-artefact retention is risk-accepted | Same cycle as step 4 |
 
 The procedure recognises that derived models often cannot be perfectly "unlearned" today. Where retraining is not feasible, the residual exposure is documented and the risk acceptance is reviewed at every model lifecycle event.
+
+#### Limits of deletion propagation (honest scope)
+
+The procedure guarantees the following deletion outcomes within the stated SLAs:
+
+| Outcome | Guarantee level |
+| --- | --- |
+| Dataset and dataset-version-store removal | Guaranteed - verifiable by hash and version absence |
+| Embeddings derived from the dataset in active vector stores | Guaranteed - verifiable by re-indexing or vector-store version |
+| Backup copies of the dataset | Guaranteed within the backup-retention cycle (verifiable by next-cycle attestation) |
+| Production-served models trained on the dataset | Best-effort - retraining is scheduled where economically feasible; residual exposure is risk-accepted with documented rationale where not |
+| Fine-tunes and adapters derived from the dataset | Best-effort - same as above |
+| Logs of past inferences that reflected the deleted data | Per the logging retention policy; not retroactively scrubbed unless the inference logs themselves are personal data |
+| External models the organisation does not control | Out of scope; addressed contractually via no-training and right-to-deletion clauses with providers |
+
+Adopting organisations honestly distinguish what they can guarantee from what is best-effort when communicating to data subjects and regulators.
 
 ### Step 7: Supplier-provided training data
 

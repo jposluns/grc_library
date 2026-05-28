@@ -2,7 +2,7 @@
 
 **Document Title:** AI Governance and Risk Framework 
 **Document Type:** Framework 
-**Version:** 1.0.0 
+**Version:** 1.1.0 
 **Date:** 2026-05-27 
 **Owner:** AI Governance Approver 
 **Approving Authority:** Governance Library Maintainer 
@@ -69,8 +69,25 @@ It applies to:
 | Approval | Accountable roles approve use, conditions, controls, and residual risk. | Approval record, exception record where applicable. |
 | Deployment | System is released with monitoring, support, incident response, and change control. | Deployment record, monitoring plan. |
 | Monitoring | Performance, drift, misuse, leakage, incidents, and control exceptions are reviewed. | Monitoring log, incident record, periodic review. |
-| Change | Material changes trigger reassessment. | Change record, reassessment, approval update. |
+| Change | Material changes trigger reassessment. See "Material change thresholds" below. | Change record, reassessment, approval update. |
 | Retirement | Access, data, integrations, model endpoints, retrieval stores, and logs are retired or retained under defined rules. | Retirement checklist, deletion or retention attestation. |
+
+### Material change thresholds
+
+A change is "material" for the purposes of triggering reassessment if any of the following applies. These thresholds are the library default; an organisation may calibrate them in its own configuration.
+
+| Dimension | Default material-change threshold |
+| --- | --- |
+| Capability performance | A drop or rise of ≥5% in headline accuracy, F1, or other defining metric on the evaluation suite |
+| Cost | Projected change in per-unit or aggregate inference cost of ≥20% (consistent with the AI inference cost governance standard) |
+| User population | Addition of a materially different user cohort (new jurisdiction, new sector, new sensitive population, new age band) |
+| Data category | New category of input or training data with a different classification or privacy implication |
+| Tool surface | Addition of new tools, MCP servers, or autonomous capabilities to an agentic system |
+| Provider version | Foundation-model version change communicated by the provider; any change classified by the provider as material |
+| Regulatory environment | New regulation in any in-scope jurisdiction directly affecting the system |
+| Supplier change | Provider change, ownership change, restricted-list designation, or contractual change affecting the service |
+
+Where two or more dimensions cross threshold simultaneously, the change is material regardless of individual magnitude. Cost-only changes route through the cost-governance standard's material-change path; combined changes route through the AI Governance Approver.
 
 ---
 

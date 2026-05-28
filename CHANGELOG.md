@@ -4,6 +4,40 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 12.9 (2026-05-28): AI procedure realism
+
+Resolves six AI realism findings from the comprehensive audit. The AI domain now reads as more operationally honest about what is enforceable, what is best-effort, and what the procedure mechanics actually look like.
+
+### Eval cadence realism
+
+- `ai/procedure-foundation-model-lifecycle.md` (v0.0.1 → v0.0.2) Step 5: "Eval suite regression run at least monthly" recalibrated to "at minimum quarterly; monthly where the eval-suite cost and infrastructure permit". Eval scope, sample size, and the metrics evaluated are explicitly required to be documented per model so the cadence is substantive rather than nominal.
+
+### Material change thresholds harmonised
+
+- `ai/framework-ai-governance-and-risk.md` (v1.0.0 → v1.1.0): new "Material change thresholds" sub-section under the lifecycle model. Defaults specified across eight dimensions: capability performance (≥5%), cost (≥20%, consistent with the AI cost governance standard), user population, data category, tool surface, provider version, regulatory environment, supplier change. Two or more dimensions crossing simultaneously is material regardless of individual magnitude.
+
+### Agent self-protection threat model
+
+- `ai/standard-ai-access-and-agent-permissions.md` (v0.0.1 → v0.0.2): new §4.1.1 "Agent self-protection (defence in depth)". Seven controls covering allow-list enforcement point (outside the model, not by it), tool-registration boundary, schema validation, untrusted-content marker, cross-tool data-flow control, privilege-escalation prevention, and high-priority logging. Cross-reference to OWASP MCP Top 10 risk categories added.
+
+### Identity propagation mechanics
+
+- `ai/standard-ai-access-and-agent-permissions.md` §4.3.1: four concrete propagation patterns documented (Token Exchange RFC 8693, OAuth On-Behalf-Of, workload-identity-with-claim-propagation, step-up at the boundary), each with a "when appropriate" guideline. Boundary-validation requirements expanded with signature/issuer, audience, lifetime, subject-vs-agent, tenant scoping, replay protection. Token-format defaults documented (JWT per RFC 7519 with JWT BCP per RFC 8725; alternatives permitted).
+
+### Deletion-propagation honest scope
+
+- `ai/procedure-training-data-governance.md` (v0.0.1 → v0.0.2) Step 6: new "Limits of deletion propagation (honest scope)" table distinguishing guaranteed outcomes (dataset removal, embeddings in active vector stores, backup copies at cycle) from best-effort outcomes (production-served models trained on the data, fine-tunes and adapters) from out-of-scope (external models the organisation does not control). Adopting organisations are explicitly enjoined to distinguish what they can guarantee from what is best-effort when communicating to data subjects and regulators.
+
+### Hard cost ceiling enforcement architecture
+
+- `ai/standard-ai-inference-cost-governance.md` (v0.0.1 → v0.0.2): new §3.1 "Enforcement architecture". Four layers documented in ordering preference: application middleware per-request gating (required and primary), provider rate-limit configuration (secondary safeguard), provider commitment ceiling (backstop), post-billing reconciliation (detective). Hard kill switch implementation explicitly placed in the application middleware layer; documented fallback behaviour (non-AI response, cached value, explicit message) when the switch is toggled. Kill-switch operation tested per the resilience programme.
+
+### Coordination
+
+The five AI documents touched in this phase are now individually operationally executable; an adopting organisation reading any one of them finds explicit mechanism, not just intent.
+
+Taxonomy, portal, and maturity scorecard regenerated.
+
 ## Phase 12.8 (2026-05-28): AI Governance Maintainer role split
 
 Resolves the role-bandwidth-overload finding by splitting the overloaded `AI Governance Maintainer` role into three named roles, each with a clearly bounded scope. The umbrella `AI Governance Lead` role retained as the secretariat / chair function on the AI Governance Council.

@@ -2,7 +2,7 @@
 
 **Document Title:** AI Access and Agent Permissions Standard 
 **Document Type:** Standard 
-**Version:** 0.0.1 
+**Version:** 0.0.2 
 **Date:** 2026-05-28 
 **Owner:** AI Security Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -91,6 +91,22 @@ Agentic systems where a model invokes tools (functions, APIs, scripts) on behalf
 | Tools rated Write Sensitive or Destructive require human confirmation per invocation by default |
 | Tool definitions explicitly document expected input schema, side effects, and rollback behaviour where applicable |
 
+#### 4.1.1 Agent self-protection (defence in depth)
+
+The tool allow-list is enforced outside the model, not by the model. Prompt injection can attempt to convince a model to call tools outside its declared list; the controls below assume the model may be coerced and therefore enforce the allow-list at a layer the model cannot bypass:
+
+| Control area | Requirement |
+| --- | --- |
+| Allow-list enforcement point | Enforced at the agent-runtime or gateway layer that mediates between the model and the tool; not by the model itself |
+| Tool registration | Tools are registered out-of-band; the agent cannot register or expand its own tool set at runtime |
+| Schema validation | The runtime validates every tool invocation's arguments against the registered schema; arguments outside the schema are rejected |
+| Untrusted-content marker | Content that originated outside the trusted prompt boundary (retrieved documents, user uploads, web content) is marked as untrusted; tool invocations derived from instructions inside untrusted content are blocked or require step-up |
+| Cross-tool data flow | Data returned by one tool is not silently fed as instructions to the next; the runtime treats inter-tool data as content, not instruction |
+| Privilege escalation | The agent cannot upgrade its own scope (Bounded → Operational → Cross-system) at runtime; scope is set at session start and is immutable until the next approval |
+| Logging | Attempts to invoke tools outside the allow-list, attempts to construct out-of-schema arguments, and prompt-injection markers are logged at high priority and route to security monitoring |
+
+See also the OWASP MCP Top 10 risk categories (tool poisoning, context contamination, permission escalation) and the AI agent threat model in the agentic development security standard.
+
 ### 4.2 Agent capability scopes
 
 Each agent runs within a defined capability scope. Three levels are recognized:
@@ -112,6 +128,30 @@ Cross-system agents must additionally satisfy the agentic development security s
 | Agent identity for unauthenticated paths | Where the agent acts without a user (scheduled tasks, autonomous workflows), the agent has its own service identity scoped per the operational or cross-system rules above |
 | Token forwarding restrictions | The agent does not pass bearer tokens beyond what the downstream tool requires |
 | Sensitive credential handling | The agent does not store credentials beyond a session; secrets are retrieved from the secrets management service per invocation |
+
+#### 4.3.1 Identity propagation mechanics
+
+The high-level requirements above are realised by one of the following patterns; each agent's choice is documented in its architecture record.
+
+| Mechanism | Description | When appropriate |
+| --- | --- | --- |
+| Token exchange (OAuth 2.0 Token Exchange, RFC 8693) | The agent exchanges its own credential for a downscoped, user-bound token at the tool boundary | The downstream tool supports token exchange and the user's authentication context is rich enough to authorise the downscoped token |
+| On-behalf-of (OBO) | The agent forwards a user-authenticated token (with the agent as the OBO principal) to the downstream tool | The downstream tool authenticates against the same identity provider as the user |
+| Workload-identity-with-claim-propagation | The agent authenticates as itself; the user identity is carried as a verified claim in a service-mesh header or signed envelope; the downstream tool re-authorises against that claim | High-throughput internal service-mesh deployments |
+| Step-up at the boundary | The downstream tool challenges for a fresh user authentication; the agent does not propagate identity at all | Highly sensitive actions where the cost of an explicit user prompt is acceptable |
+
+Validation at the tool boundary:
+
+| Element | Requirement |
+| --- | --- |
+| Signature and issuer | Verified against an allow-listed issuer set |
+| Audience | The token's audience matches the tool's expected audience |
+| Lifetime | Tokens are short-lived; renewal is explicit |
+| Subject | The subject is the user, not the agent (or the agent identity is recorded as a separate claim alongside the user subject) |
+| Tenant scoping | Multi-tenant tools verify the token's tenant claim against the resource's tenant; cross-tenant operations are not implicit |
+| Replay protection | Per the API security standard's replay-protection controls |
+
+Token format defaults to JWT with signature verification per RFC 7519 and JWT BCP per RFC 8725; alternative formats (e.g. PASETO, opaque tokens with introspection) are permitted where the platform supports them.
 
 ### 4.4 Human-in-the-loop confirmation
 

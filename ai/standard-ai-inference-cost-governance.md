@@ -2,7 +2,7 @@
 
 **Document Title:** AI Inference Cost Governance Standard 
 **Document Type:** Standard 
-**Version:** 0.0.1 
+**Version:** 0.0.2 
 **Date:** 2026-05-28 
 **Owner:** AI Governance Approver 
 **Approving Authority:** Governance Library Maintainer 
@@ -75,6 +75,19 @@ Every production AI feature enforces:
 | Hard kill switch | Each feature has a documented kill switch that disables AI processing while preserving non-AI service continuity |
 
 The ceilings are configured per the cost-tier classification and reviewed at minimum quarterly.
+
+### 3.1 Enforcement architecture
+
+Cost ceilings are enforced at the most reliable point available; reliance on provider-side billing alone is not sufficient because billing data typically lags by hours to days. The standard recognises four enforcement layers in decreasing reliability and ordering preference:
+
+| Layer | Description | Notes |
+| --- | --- | --- |
+| Application middleware (per-request gating) | The application's AI client wraps each provider call with a request-cost estimator and a per-session running total; calls that would exceed a ceiling are short-circuited before the provider call is made | Required for every production AI feature; provides per-request and per-session enforcement |
+| Provider rate-limit configuration | Provider-side rate limits configured to align with the organisation's session and daily ceilings; provider rejects calls beyond the rate limit | Acts as a secondary safeguard; provider rate limits are coarser than middleware controls |
+| Provider commitment ceiling | Provider account configured with a hard spend ceiling where the provider supports it; alternatively a tagged budget with auto-disable | Backstop for the day-level and feature-level ceilings |
+| Post-billing reconciliation | Daily ingestion of provider billing data; comparison against the ceiling; manual remediation where automated layers were bypassed | Detective rather than preventive; the gap between automated enforcement and reality is documented as residual risk |
+
+The hard kill switch is implemented in the application middleware (the same layer that enforces per-request gating). It is a feature-flag-style control that, when toggled, causes the AI client to return a documented fallback (non-AI response, cached value, or explicit "AI disabled" message) without invoking the provider. Kill-switch operation is tested per the resilience programme.
 
 ---
 
