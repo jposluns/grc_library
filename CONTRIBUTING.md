@@ -59,7 +59,22 @@ This statement is informational; contributors are not required to declare whethe
 4. **Update the index and domain README.** Every new active document must appear in `governance/register-document-index-and-classification.md` and in its domain's `README.md` Active Documents table.
 5. **Bump versions appropriately.** Patch (`x.y.z` increments the patch segment) for minor corrections; minor (`x.y.0`) for substantive content additions or structural changes; major (`x.0.0`) for breaking structural or material policy revisions. See [`specification-ingestion.md`](specification-ingestion.md) Version numbering.
 6. **Open a pull request.** Reference the issue. Describe what changed and why. Note any version flags raised. List any new external framework references.
-7. **CI must pass.** The same four audits run in GitHub Actions.
+7. **CI must pass.** All ten audits listed in step 3 also run in GitHub Actions.
+
+## Reporting content issues without contributing a fix
+
+Readers who notice issues but do not want to submit a code change can report content concerns by opening an issue on the repository. Useful issue categories include:
+
+| Category | Examples |
+| --- | --- |
+| Factual error | A framework citation is incorrect; a control identifier doesn't exist; a regulatory reference is stale or wrong. |
+| Cross-document inconsistency | Two documents disagree about the same control, responsibility, or threshold. |
+| Sanitisation residue | A document contains a real company name, internal hostname, real IP address, customer or vendor name, or other identifying detail. |
+| Ambiguous responsibility | The library assigns a responsibility without naming a clear role, or two roles overlap in a way that creates confusion. |
+| Unsafe guidance | Guidance that, if followed literally, could create a security or operational hazard. |
+| Operational unrealism | A control or procedure that is not realistically executable. |
+
+For security-related defects (CC0 license concerns, security flaws in code samples, leakage of organisational identifiers), use the path in [`SECURITY.md`](SECURITY.md) instead.
 
 ## Metadata block
 

@@ -4,6 +4,33 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 17 (2026-05-28): Adopter-facing content
+
+Adds the adopter-facing content identified by the next-passes list. Closes items 5.2 (decision tree), 5.3 (maturity progression), 5.5 (library health report template), and 5.6 (content feedback channel).
+
+### Adopter guide enhancements
+
+`docs/adopter-guide.md`: two new substantial sections added.
+
+- **Applicability decision tree**: a table of yes/no questions mapping organisational characteristics (handles personal data? operates AI? cloud workloads? customer-facing services? BASC certification? sector regulation?) to the library domains and sector annexes that apply. Enables adopters to quickly determine which subset of the library is relevant to their operating context.
+- **Maturity progression**: explicit guidance keyed to the three tiers from the minimum-viable governance structure guideline. Tier 1 starter set lists 15 specific documents to adopt first; Tier 2 growth set adds the next layer; Tier 3 enterprise set adopts the full library. Each tier maps to the corresponding governance forum structure.
+- **Sectors directory note**: brief sub-section noting that most organisations will skip `/sectors/` entirely.
+
+### New artefact
+
+- `governance/template-library-health-report.md` (v0.0.1): eleven-section template for the quarterly library health report referenced (but previously not templated) by the Phase 11 library quality and review cadence procedure. Sections cover identification, executive summary, the ten-audit status table, content additions and retirements, review cadence state, drift hot-spots, incidents and lessons, contributor activity, adopter signal, next-period plan, and sign-off. Worked example fragment included.
+
+### Content feedback channel
+
+- `CONTRIBUTING.md`: new "Reporting content issues without contributing a fix" section. Defines six issue categories (factual error, cross-document inconsistency, sanitisation residue, ambiguous responsibility, unsafe guidance, operational unrealism). Provides a non-PR channel for readers to raise concerns. Security-related defects continue to route through `SECURITY.md`.
+
+### Registry updates
+
+- `governance/README.md` (v1.2.0 → v1.3.0): new template added.
+- `governance/register-document-index-and-classification.md` (v1.23.0 → v1.24.0): new row.
+
+Taxonomy, portal, and maturity scorecard regenerated.
+
 ## Phase 16 (2026-05-28): CCM v4.1 domain code corrections
 
 Resolves four CCM domain-code findings surfaced by the Phase 15 citation deep-dive. The Phase 12.1 corrective pass fixed the version string ("CSA CCM v5" → "CSA CCM v4.1") but did not migrate the v3-era domain codes that CSA renamed during the v3 → v4 transition. Three documents also used a domain code (TIM) that has never existed in any CCM version.

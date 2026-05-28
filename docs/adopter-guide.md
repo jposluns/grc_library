@@ -16,6 +16,76 @@ You are not required to adopt the entire library. Most organisations will adopt 
 4. **Validate applicability.** Each artefact contains framework references, regulatory citations, and review-frequency expectations. Validate that each applies to your jurisdiction, sector, processing role, and risk appetite before adopting it.
 5. **Track upstream.** If you forked, periodically pull from upstream. Most upstream changes are corrections and additions; conflicts are rare in practice because the corpus uses stable filenames and a controlled metadata block.
 
+## Applicability decision tree
+
+Use this to decide which domains and sector annexes your organisation needs.
+
+| Question | If yes, adopt | If no, skip |
+| --- | --- | --- |
+| Does the organisation handle any personal data of identifiable individuals? | `privacy/` domain + applicable jurisdiction annexes in `privacy/jurisdictions/` | All of privacy/ |
+| Does the organisation operate AI systems, services, or agents in production? | `ai/` domain | All of ai/ (but keep the framework as reference) |
+| Does the organisation operate cloud workloads? | `dev-security/standard-cloud-hardening-baseline-{aws,azure,gcp}.md` for the platforms in use | The non-relevant cloud baselines |
+| Does the organisation deliver customer-facing services? | `operations/standard-site-reliability-engineering.md`, `operations/standard-observability-and-telemetry.md`, `resilience/` domain | The SLA-related operations content |
+| Does the organisation participate in BASC trade-security certification? | `sectors/basc/` | All of sectors/basc/ |
+| Does the organisation participate in CTPAT, AEO, AEO-S, or PIP trade programmes? | The relevant programme annexes in `compliance/` | The non-relevant trade-compliance annexes |
+| Does the organisation operate in a sector with sector-specific regulation (financial services, healthcare, transportation/logistics, telecoms, energy/utilities, public sector)? | The corresponding `compliance/annex-*` | Non-relevant sector annexes |
+| Does the organisation operate under SOX or equivalent financial reporting controls? | `compliance/annex-sox-itgc.md` | This annex |
+| Does the organisation operate under DORA, NIS 2, or equivalent EU resilience regulation? | The corresponding implementation annex in `compliance/` | These annexes |
+| Does the organisation have a software development practice? | `dev-security/` domain | Most of dev-security/ (keep the policy as reference) |
+| Does the organisation have a formal architecture practice? | `architecture/` domain | Most of architecture/ (keep ADR standard as a useful reference regardless) |
+| Does the organisation have suppliers with material operational or data access? | `supply-chain/` domain + `risk/standard-third-party-and-supply-chain-risk.md` | Most of supply-chain/ |
+
+The cross-cutting documents (`governance/`, top-level `README.md`, `risk/` core artefacts, `security/` core policies) apply to virtually every organisation and are the starting baseline.
+
+## Maturity progression
+
+Most adopting organisations cannot operate all of the library's controls on day one. The library is meant to be a progressive adoption target, not a one-shot implementation. Use the maturity tiers from [`governance/guideline-minimum-viable-governance-structure.md`](../governance/guideline-minimum-viable-governance-structure.md) to choose a target tier and progress towards it.
+
+### Tier 1 starter set (minimum viable)
+
+If your organisation is small (under approximately 200 staff, low regulatory exposure, no high-risk AI in production), start with these 15 documents and operate them well before adding more:
+
+| Type | Document |
+| --- | --- |
+| Charter | `governance/charter-governance-library.md` |
+| Framework | `governance/framework-document-architecture-and-interrelationship.md` |
+| Register | `governance/register-role-authority.md` |
+| Register | `governance/register-key-terms-and-definitions.md` |
+| Policy | `risk/policy-enterprise-governance-and-risk-management.md` |
+| Standard | `risk/standard-enterprise-risk-management.md` |
+| Procedure | `risk/procedure-risk-assessment-methodology.md` |
+| Procedure | `risk/procedure-risk-acceptance.md` |
+| Policy | `security/policy-information-security.md` |
+| Standard | `security/standard-logging-and-monitoring.md` |
+| Procedure | `security/procedure-security-incident-response.md` |
+| Policy | `privacy/policy-privacy-and-data-governance.md` |
+| Procedure | `privacy/procedure-data-subject-rights-management.md` |
+| Procedure | `privacy/procedure-data-protection-and-privacy-breach-response.md` |
+| Standard | `dev-security/standard-developer-security-requirements.md` (if you do software development) |
+
+Use [`governance/guideline-minimum-viable-governance-structure.md`](../governance/guideline-minimum-viable-governance-structure.md) Tier 1 forum structure to operate them.
+
+### Tier 2 growth set (mid-market addition)
+
+When you have the starter set operating reliably and your organisation has grown to mid-market complexity, add these:
+
+- `ai/` core artefacts: framework, governance council charter, model registry, foundation-model lifecycle procedure, AI security and risk standard.
+- `supply-chain/` core artefacts: third-party risk standard (now consolidated in `risk/standard-third-party-and-supply-chain-risk.md`), supplier due-diligence procedure, supplier ongoing monitoring procedure.
+- `resilience/` core artefacts: business continuity and disaster recovery policy, framework, IT disaster recovery plan, recovery runbook template.
+- `compliance/` core artefacts: compliance and audit management policy, internal audit standard, the sector annexes relevant to your context.
+- `operations/` core artefacts: change management procedure, patch management procedure, observability and telemetry standard.
+- `dev-security/` core artefacts: secure development policy, API security standard, the cloud hardening baselines for your platforms.
+
+Use Tier 2 forum structure.
+
+### Tier 3 enterprise set
+
+The full library is intended to be operable at Tier 3 by a large, regulated, multi-jurisdiction organisation. Every active document in the index is in scope.
+
+## The sectors directory
+
+The library includes a `/sectors/` directory for sector-conditional content. Most organisations will skip this directory entirely. It currently contains BASC (Business Alliance for Secure Commerce) content for organisations pursuing BASC certification in Latin American trade and logistics operations. If your organisation does not participate in BASC, the directory is informational only.
+
 ## What to change after copying
 
 These items almost always need adapting before the artefacts become operational in your organisation:

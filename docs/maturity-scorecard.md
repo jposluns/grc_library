@@ -17,7 +17,7 @@ This classification is a heuristic derived from semver; it does not reflect audi
 
 ---
 
-_Summary as of last regeneration: Mature: 57, Baseline: 138, Draft: 71, Unknown: 0._
+_Summary as of last regeneration: Mature: 57, Baseline: 138, Draft: 72, Unknown: 0._
 
 ## Mature
 
@@ -35,7 +35,7 @@ _57 documents._
 | [governance/framework-document-architecture-and-interrelationship.md](../governance/framework-document-architecture-and-interrelationship.md) | Document Architecture and Interrelationship Framework | Framework | 1.1.0 | 2026-05-28 |
 | [governance/framework-sustainability-and-responsible-technology.md](../governance/framework-sustainability-and-responsible-technology.md) | Sustainability and Responsible Technology Framework | Framework | 1.1.0 | 2026-05-28 |
 | [governance/matrix-cross-framework-alignment.md](../governance/matrix-cross-framework-alignment.md) | Cross-Framework Alignment Matrix | Matrix | 1.1.1 | 2026-05-28 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.23.0 | 2026-05-28 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.24.0 | 2026-05-28 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.0 | 2026-05-28 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.2.0 | 2026-05-27 |
 | [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.3.0 | 2026-05-27 |
@@ -234,7 +234,7 @@ _138 documents._
 
 ## Draft
 
-_71 documents._
+_72 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
@@ -275,6 +275,7 @@ _71 documents._
 | [governance/procedure-library-quality-and-review-cadence.md](../governance/procedure-library-quality-and-review-cadence.md) | Library Quality and Review Cadence Procedure | Procedure | 0.0.1 | 2026-05-28 |
 | [governance/register-document-review-schedule.md](../governance/register-document-review-schedule.md) | Document Review Schedule Register | Register | 0.0.1 | 2026-05-28 |
 | [governance/template-document-review-record.md](../governance/template-document-review-record.md) | Document Review Record Template | Template | 0.0.1 | 2026-05-28 |
+| [governance/template-library-health-report.md](../governance/template-library-health-report.md) | Library Health Report Template | Template | 0.0.1 | 2026-05-28 |
 | [operations/procedure-release-management.md](../operations/procedure-release-management.md) | Release Management Procedure | Procedure | 0.0.1 | 2026-05-28 |
 | [operations/standard-capacity-and-performance-management.md](../operations/standard-capacity-and-performance-management.md) | Capacity and Performance Management Standard | Standard | 0.0.1 | 2026-05-28 |
 | [operations/standard-it-financial-management.md](../operations/standard-it-financial-management.md) | IT Financial Management Standard | Standard | 0.0.1 | 2026-05-28 |
