@@ -28,7 +28,7 @@ The procedure is aligned to ISO/IEC 27701:2019 §8.9, GDPR Articles 33 to 34, UK
 
 1. Applies to all confirmed or suspected personal data breaches involving personal data held or processed by the organization, its processors, or its sub-processors.
 2. Covers trade and customs data breaches where personal data is embedded in supply chain or customs records, including BASC-certified logistics environments.
-3. Covers AI training data leakage where personal data used to train or fine-tune AI models is exposed to unauthorised parties.
+3. Covers AI training data leakage where personal data used to train or fine-tune AI models is exposed to unauthorized parties.
 4. Applies across all jurisdictions in which the organization operates, including the European Union, United Kingdom, Canada (federal and provincial), China, Brazil, and United States.
 5. This procedure operates alongside [`security/procedure-incident-response.md`](../security/procedure-incident-response.md), which governs the technical containment and investigation lifecycle. This procedure governs the privacy-specific assessment, notification, and post-breach obligations.
 
@@ -65,7 +65,7 @@ All suspected personal data breaches are classified at the point of initial dete
 | Severity | Classification Criteria | Examples |
 | --- | --- | --- |
 | **P1: Critical** | Large-scale personal data exposure affecting more than 1,000 individuals; Restricted or sensitive personal data (health, financial, biometric, children's data) exfiltrated or exposed; BASC trade data breach with embedded personal data; credentials or encryption keys protecting personal data stores confirmed compromised; ransomware or destructive attack affecting systems holding personal data | Exfiltration of customer PII database; ransomware encrypting HR and payroll systems; confirmed compromise of credentials for the identity provider protecting personal data repositories; BASC cargo manifest breach disclosing shipper personal data at scale |
-| **P2: High** | Moderate personal data exposure affecting fewer than 1,000 individuals; unauthorised access to Confidential personal data without confirmed exfiltration; accidental disclosure to an unintended recipient; supplier breach confirmed to have affected personal data held on the organization's behalf | Single employee medical record emailed to wrong recipient; supplier notification of unauthorised access to a CRM extract; unauthorised internal access to payroll records |
+| **P2: High** | Moderate personal data exposure affecting fewer than 1,000 individuals; unauthorized access to Confidential personal data without confirmed exfiltration; accidental disclosure to an unintended recipient; supplier breach confirmed to have affected personal data held on the organization's behalf | Single employee medical record emailed to wrong recipient; supplier notification of unauthorized access to a CRM extract; unauthorized internal access to payroll records |
 | **P3: Medium** | Internal data only with no personal data; limited scope with no confirmed external disclosure; technical misconfiguration corrected before any confirmed access; minor policy violations | Configuration error exposing internal-only operational data to authenticated internal users; log file with non-personal technical data briefly publicly accessible |
 
 Severity is reassessed at each phase of the breach response lifecycle. Any team member may escalate severity upward. Downgrading from P1 requires CIO approval.
@@ -82,7 +82,7 @@ For all P1 incidents, evidence preservation takes priority. Systems must not be 
 
 Personal data breaches may be detected from any of the following sources:
 
-- SIEM alerts or SOC investigations revealing unauthorised access to systems holding personal data.
+- SIEM alerts or SOC investigations revealing unauthorized access to systems holding personal data.
 - Endpoint detection and response (EDR) platform alerts indicating data exfiltration behaviour.
 - Employee or contractor reports of lost devices, misaddressed email, or accidental disclosure.
 - Supplier or processor notification of a breach affecting organizational data: suppliers must notify within 24 hours of a breach affecting organizational personal data per contractual data processing agreements.
@@ -96,7 +96,7 @@ Within 24 hours of a potential personal data breach being identified, the Privac
 
 1. **Is personal data involved?** Confirm whether the affected data includes information that identifies or is capable of identifying natural persons.
 2. **What is the likely scope?** Estimate the number of individuals affected, the categories of data involved, and the approximate volume of records.
-3. **Has data been accessed or exfiltrated?** Determine whether the breach is limited to availability impact (e.g., system outage) or includes confidentiality impact (unauthorised access or disclosure).
+3. **Has data been accessed or exfiltrated?** Determine whether the breach is limited to availability impact (e.g., system outage) or includes confidentiality impact (unauthorized access or disclosure).
 4. **What is the risk to individuals?** Assess the likely consequences for affected individuals, including risk of identity theft, financial harm, discrimination, reputational damage, or physical harm.
 5. **What is the applicable jurisdiction?** Identify which privacy laws govern the affected individuals and data.
 6. **Is notification likely to be required?** Make a preliminary determination on whether regulatory or individual notification thresholds appear to be met, and in which jurisdictions.
@@ -121,7 +121,7 @@ Containment actions vary by breach type:
 
 | Breach Type | Typical Containment Actions |
 | --- | --- |
-| Unauthorised system access | Revoke compromised credentials; terminate active sessions; restrict access to affected systems; preserve authentication and access logs |
+| Unauthorized system access | Revoke compromised credentials; terminate active sessions; restrict access to affected systems; preserve authentication and access logs |
 | Data exfiltration | Block egress channels identified as exfiltration routes; engage endpoint detection; preserve SIEM and network flow evidence |
 | Accidental disclosure (email / file) | Request return or deletion of disclosed data from recipient; document recipient details; confirm whether data was accessed |
 | Lost or stolen device | Initiate remote wipe via endpoint management platform if device is enrolled and reachable; document device contents and encryption status |
@@ -245,7 +245,7 @@ Each breach register entry includes:
 | Breach ID | Unique identifier |
 | Date and time of discovery | UTC |
 | Date and time of occurrence (if known) | UTC or estimated range |
-| Breach type | Unauthorised access / Accidental disclosure / Exfiltration / Lost device / Supplier breach / Other |
+| Breach type | Unauthorized access / Accidental disclosure / Exfiltration / Lost device / Supplier breach / Other |
 | Data categories affected | e.g., Contact details, financial, health, credentials, biometric, children's data |
 | Approximate number of individuals affected | Confirmed or estimated |
 | Severity classification | P1 / P2 / P3 |

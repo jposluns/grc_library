@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable laws and regulatory authorities
 
-- **Privacy Act 2020**: In force 1 December 2020, replacing the Privacy Act 1993. Administered by the Office of the Privacy Commissioner (OPC).
+- **Privacy Act 2020**: In force 2020-12-01, replacing the Privacy Act 1993. Administered by the Office of the Privacy Commissioner (OPC).
 - 13 Information Privacy Principles (IPPs) govern collection, use, disclosure, storage, and security of personal information.
 - **Mandatory breach notification:** Agencies must notify the OPC and affected individuals of privacy breaches likely to cause serious harm as soon as practicable after becoming aware.
 - **Extraterritorial reach:** Applies to any agency carrying on business in New Zealand, regardless of where they are based.

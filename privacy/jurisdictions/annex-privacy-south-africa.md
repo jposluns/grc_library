@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable laws and regulatory authorities
 
-- **Protection of Personal Information Act, 2013 (POPIA)**: Act No. 4 of 2013, fully in effect since 1 July 2021. The most comprehensive privacy law in Africa, closely modelled on GDPR. Applies to processing of personal information by responsible parties established in South Africa, or not established in South Africa but who make use of automated or non-automated means in South Africa.
+- **Protection of Personal Information Act, 2013 (POPIA)**: Act No. 4 of 2013, fully in effect since 2021-07-01. The most comprehensive privacy law in Africa, closely modelled on GDPR. Applies to processing of personal information by responsible parties established in South Africa, or not established in South Africa but who make use of automated or non-automated means in South Africa.
 - **Eight conditions for lawful processing:** Accountability; Processing Limitation; Purpose Specification; Further Processing Limitation; Information Quality; Openness; Security Safeguards; Data Subject Participation.
 - **Special personal information:** Additional restrictions apply to health, sexual orientation, religious beliefs, racial origin, biometric information, criminal behaviour, political views, trade union membership, children's information, and financial services information.
 - **Regulatory authority:** Information Regulator.

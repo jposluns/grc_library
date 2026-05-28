@@ -24,8 +24,8 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable laws and regulatory authorities
 
-- **EU General Data Protection Regulation (GDPR)**: Regulation (EU) 2016/679, effective 25 May 2018. The primary EU data protection law governing the processing of personal data of individuals in the EU.
-- **EU AI Act**: Regulation (EU) 2024/1689, entered into force 1 August 2024, with phased application through 2027. The world's first comprehensive horizontal AI regulation, classifying AI systems by risk level (unacceptable, high, limited, minimal).
+- **EU General Data Protection Regulation (GDPR)**: Regulation (EU) 2016/679, effective 2018-05-25. The primary EU data protection law governing the processing of personal data of individuals in the EU.
+- **EU AI Act**: Regulation (EU) 2024/1689, entered into force 2024-08-01, with phased application through 2027. The world's first comprehensive horizontal AI regulation, classifying AI systems by risk level (unacceptable, high, limited, minimal).
 - **Regulatory authorities:** National supervisory authorities in each EU member state (e.g., CNIL in France, BfDI/LfDI in Germany, AEPD in Spain, DPC in Ireland). The European Data Protection Board (EDPB) provides binding decisions and guidelines. The one-stop-shop mechanism applies to organizations with cross-border processing; lead supervisory authority determined by location of main establishment.
 
 ---

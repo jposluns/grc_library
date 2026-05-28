@@ -80,7 +80,7 @@ This policy defines principles, governance structure, and control framework for 
 ### 3. Data quality and accuracy
 
 - Data must be accurate, complete, and kept up to date in accordance with ISO 8000-8.
-- Periodic validation processes shall verify data integrity, detect anomalies, and prevent unauthorised modification.
+- Periodic validation processes shall verify data integrity, detect anomalies, and prevent unauthorized modification.
 
 ### 4. Records and retention management
 

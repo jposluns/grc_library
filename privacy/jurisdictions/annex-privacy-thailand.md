@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable laws and regulatory authorities
 
-- **Personal Data Protection Act B.E. 2562 (2019) (PDPA)**: In force for general compliance obligations since 1 June 2022. Closely modelled on GDPR.
+- **Personal Data Protection Act B.E. 2562 (2019) (PDPA)**: In force for general compliance obligations since 2022-06-01. Closely modelled on GDPR.
 - Lawful bases: consent, vital interests, legitimate interests, public task, legal obligation, and contract performance.
 - Mandatory breach notification within 72 hours where feasible.
 - Sensitive personal data categories: health, biometric, genetic, political opinion, religious or philosophical belief, sexual behaviour, criminal records, and disability data.

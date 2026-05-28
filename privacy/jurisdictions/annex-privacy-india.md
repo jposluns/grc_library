@@ -24,8 +24,8 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable laws and regulatory authorities
 
-- **Digital Personal Data Protection Act 2023 (DPDPA)**: Signed 11 August 2023. India's first comprehensive data protection law.
-- **Digital Personal Data Protection Rules 2025**: Published February 2025, in force 1 April 2025. Operationalized the principal Act, bringing the full compliance framework into effect.
+- **Digital Personal Data Protection Act 2023 (DPDPA)**: Signed 2023-08-11. India's first comprehensive data protection law.
+- **Digital Personal Data Protection Rules 2025**: Published February 2025, in force 2025-04-01. Operationalized the principal Act, bringing the full compliance framework into effect.
 - Scope: applies to processing of digital personal data of individuals in India; also applies to processing outside India where data of Indian residents is processed for the purpose of offering goods or services to individuals in India.
 - **Key concepts:** Data Principals (data subjects); Data Fiduciaries (data controllers); Consent Managers (accredited entities managing consent on behalf of Data Principals); Significant Data Fiduciaries (SDFs): large-scale or high-risk data fiduciaries designated by the Indian government and subject to enhanced obligations.
 - **Regulatory authority:** Data Protection Board of India (DPBI): an independent adjudicatory body that receives complaints and imposes financial penalties.

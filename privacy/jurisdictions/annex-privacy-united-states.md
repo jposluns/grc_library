@@ -42,7 +42,7 @@ The United States does not have a single comprehensive federal privacy law. Obli
 
 ### State laws
 
-- **California CCPA/CPRA (effective 1 January 2023):** Rights to know, delete, correct, and opt out of sale or sharing. Sensitive personal information opt-out rights. California Privacy Protection Agency (CPPA) as independent enforcement agency. Automated decision-making technology (ADMT) regulations under development.
+- **California CCPA/CPRA (effective 2023-01-01):** Rights to know, delete, correct, and opt out of sale or sharing. Sensitive personal information opt-out rights. California Privacy Protection Agency (CPPA) as independent enforcement agency. Automated decision-making technology (ADMT) regulations under development.
 - **Other state comprehensive privacy laws:** Virginia (VCDPA), Colorado (CPA), Connecticut (CTDPA), Utah (UCPA), Texas (TDPSA), Oregon, Montana, Iowa, Indiana, Tennessee, Florida, and others. Common elements: access, correction, deletion, opt-out from targeted advertising and profiling; DPIAs for high-risk processing; opt-in consent for sensitive data.
 - **Illinois BIPA:** Requires informed written consent before collecting biometric identifiers. Private right of action: USD 1,000 to 5,000 per violation.
 - **Colorado AI Act (SB 205, effective February 2026):** Requires developers and deployers of high-risk AI to use reasonable care to avoid algorithmic discrimination; requires DPIAs, transparency notices, and right to appeal automated decisions.

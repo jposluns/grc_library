@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable laws and regulatory authorities
 
-- **Personal Data Protection Act 2012 (PDPA)**: Administered by the Personal Data Protection Commission (PDPC). Governs collection, use, disclosure, and care of personal data by private organizations. Significantly amended in 2020 (effective 1 February 2021) to introduce mandatory data breach notification, enhanced consent exceptions, data portability, and expanded enforcement powers.
+- **Personal Data Protection Act 2012 (PDPA)**: Administered by the Personal Data Protection Commission (PDPC). Governs collection, use, disclosure, and care of personal data by private organizations. Significantly amended in 2020 (effective 2021-02-01) to introduce mandatory data breach notification, enhanced consent exceptions, data portability, and expanded enforcement powers.
 - **PDPC Advisory Guidelines on AI Recommendations (2022):** Advisory guidelines on the use of personal data in AI recommendation systems and on responsible use of AI in decision-making.
 - **Regulatory authority:** Personal Data Protection Commission (PDPC).
 

@@ -73,7 +73,7 @@ Identify and document:
 
 Evaluate risks to data subjects:
 
-- Unauthorised access, disclosure, modification, loss, or misuse.
+- Unauthorized access, disclosure, modification, loss, or misuse.
 - Assess likelihood and impact using ISO/IEC 31000 criteria.
 
 For AI systems, identify risks related to:

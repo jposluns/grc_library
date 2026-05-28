@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable laws and regulatory authorities
 
-- **UAE Personal Data Protection Law (PDPL)**: Federal Decree-Law No. 45 of 2021, effective 2 January 2022 (implementing regulations issued 2023). The UAE's first comprehensive federal data protection law. Extraterritorial application where data of UAE residents is processed outside the UAE.
+- **UAE Personal Data Protection Law (PDPL)**: Federal Decree-Law No. 45 of 2021, effective 2022-01-02 (implementing regulations issued 2023). The UAE's first comprehensive federal data protection law. Extraterritorial application where data of UAE residents is processed outside the UAE.
 - Key rights: access, correction, erasure, objection to processing, and withdrawal of consent.
 - Sensitive data categories: biometric, health, financial, and data of children under 18.
 - **UAE AI Strategy 2031:** National AI strategy with published AI Ethics Principles (2019). Sector-specific AI guidance is being issued by the Securities and Commodities Authority, Central Bank of the UAE, and Health Authority.
@@ -51,7 +51,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Enforcement and fines
 
-- **UAE PDPL:** Administrative fines up to AED 5 million (approximately USD 1.36 million) for violations. Criminal penalties for unauthorised disclosure of sensitive personal data.
+- **UAE PDPL:** Administrative fines up to AED 5 million (approximately USD 1.36 million) for violations. Criminal penalties for unauthorized disclosure of sensitive personal data.
 - **DIFC:** Fines up to USD 100,000 for significant violations.
 
 ---

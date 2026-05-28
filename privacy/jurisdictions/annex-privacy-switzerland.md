@@ -24,7 +24,7 @@ This annex defines privacy regulatory requirements applicable to the processing 
 
 ## Applicable laws and regulatory authorities
 
-- **New Federal Act on Data Protection (nFADP / revDSG)**: entered into force 1 September 2023, replacing the 1992 Federal Act on Data Protection (FADP). Switzerland is not an EU member state; the nFADP is closely aligned with GDPR but is a distinct instrument.
+- **New Federal Act on Data Protection (nFADP / revDSG)**: entered into force 2023-09-01, replacing the 1992 Federal Act on Data Protection (FADP). Switzerland is not an EU member state; the nFADP is closely aligned with GDPR but is a distinct instrument.
 - Key provisions: mandatory records of processing activities; DPIA mandatory for high-risk processing; mandatory data breach notification to the FDPIC within 72 hours where feasible; right to data portability; expanded scope to data processors through accountability obligations; enhanced transparency requirements.
 - **Regulatory authority:** Federal Data Protection and Information Commissioner (FDPIC). The FDPIC issues recommendations and can refer matters to federal authorities for enforcement.
 

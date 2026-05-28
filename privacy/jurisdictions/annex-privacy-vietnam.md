@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable laws and regulatory authorities
 
-- **Decree No. 13/2023/ND-CP on Personal Data Protection**: Effective 1 July 2023. Vietnam's first dedicated personal data protection regulation.
+- **Decree No. 13/2023/ND-CP on Personal Data Protection**: Effective 2023-07-01. Vietnam's first dedicated personal data protection regulation.
 - Classifies personal data as basic and sensitive. Sensitive categories include: political views, religion, health, genetic, biometric, financial, location, and nationality data.
 - Consent required for most processing. Sensitive personal data of Vietnamese citizens must be stored within Vietnam for a minimum period; transfers abroad require consent and meeting additional conditions.
 - Mandatory breach notification within 72 hours to Department A05.
