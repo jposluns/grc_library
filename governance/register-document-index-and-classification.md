@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register 
 **Document Type:** Register 
-**Version:** 1.8.2 
+**Version:** 1.8.3 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -162,7 +162,6 @@ All active repository documents should be Public.
 | Resilience | Procedure | Continuity and Recovery Testing Procedure | [`resilience/procedure-continuity-and-recovery-testing.md`](../resilience/procedure-continuity-and-recovery-testing.md) | Resilience Owner | Annual | Testing, recovery validation, corrective actions |
 | Resilience | Procedure | Cross-Domain Incident Coordination Procedure | [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md) | Resilience Owner | Annual | ISO 22301, cross-domain coordination, handoffs, recovery, evidence |
 | Resilience | Procedure | Security Incident Reporting and Escalation Procedure | [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md) | Security Owner | Annual | Reporting, triage, escalation, evidence preservation |
-| Resilience | Procedure | Data Protection and Privacy Breach Response Procedure | [`resilience/procedure-data-protection-and-privacy-breach-response.md`](../resilience/procedure-data-protection-and-privacy-breach-response.md) | Privacy Owner | Annual | GDPR Arts 33 to 34, breach assessment, notification decision, remediation |
 | Resilience | Procedure | Backup and Recovery Procedure | [`resilience/procedure-backup-and-recovery.md`](../resilience/procedure-backup-and-recovery.md) | Resilience Owner | Annual | Backup, recovery validation, restoration evidence |
 | Resilience | Guideline | Emergency Response and Protective Actions Guideline | [`resilience/guideline-emergency-response-and-protective-actions.md`](../resilience/guideline-emergency-response-and-protective-actions.md) | Resilience Owner | Annual | Protective actions, emergency response, transition to crisis governance |
 | Resilience | Template | Departmental Continuity Plan Template | [`resilience/template-departmental-continuity-plan.md`](../resilience/template-departmental-continuity-plan.md) | Resilience Owner | Annual | Continuity planning, dependencies, restoration evidence |

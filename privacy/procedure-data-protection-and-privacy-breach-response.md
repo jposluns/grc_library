@@ -2,8 +2,8 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure 
 **Document Type:** Procedure 
-**Version:** 1.3.0 
-**Date:** 2026-05-27 
+**Version:** 1.4.0 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md) 
@@ -102,6 +102,20 @@ Within 24 hours of a potential personal data breach being identified, the Privac
 6. **Is notification likely to be required?** Make a preliminary determination on whether regulatory or individual notification thresholds appear to be met, and in which jurisdictions.
 
 The assessment is documented and retained as part of the breach record.
+
+### 4.3 AI and data-specific assessment considerations
+
+Where the breach involves an AI system, an AI-supported workflow, or AI-related data assets, the Privacy Officer additionally assesses each of the following dimensions during the initial assessment and revises the assessment as facts develop:
+
+- Prompt or attached file data exposure to the model provider, intermediate logging tier, or downstream caller.
+- Output disclosure of personal or regulated data, including hallucinated identifiers that may match real individuals.
+- Retrieval leakage from a connected vector store, knowledge base, or document index.
+- Training or fine-tuning data exposure, including review of contractual non-training clauses with the model provider.
+- Model inversion or membership inference risk for any model trained or fine-tuned on personal data.
+- Data poisoning effects on impacted individuals, including downstream decisions that may have been influenced.
+- Supplier model or platform retention, including whether prompts, outputs, embeddings, or telemetry are retained beyond the contractual purpose.
+- Logs, embeddings, vectors, caches, monitoring records, and the technical feasibility of deletion across each storage location.
+- Provenance and lineage gaps that prevent a complete impact assessment, and the compensating evidence required to close the assessment.
 
 ---
 

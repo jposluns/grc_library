@@ -36,7 +36,7 @@ This directory contains organization-neutral business continuity, disaster recov
 | Procedure | Continuity and Recovery Testing Procedure | [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md) |
 | Procedure | Cross-Domain Incident Coordination Procedure | [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md) |
 | Procedure | Security Incident Reporting and Escalation Procedure | [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md) |
-| Procedure | Data Protection and Privacy Breach Response Procedure | [`resilience/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md) |
+| Procedure | Data Protection and Privacy Breach Response Procedure | [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) |
 | Procedure | Backup and Recovery Procedure | [`resilience/procedure-backup-and-recovery.md`](procedure-backup-and-recovery.md) |
 | Guideline | Emergency Response and Protective Actions Guideline | [`resilience/guideline-emergency-response-and-protective-actions.md`](guideline-emergency-response-and-protective-actions.md) |
 | Template | Departmental Continuity Plan Template | [`resilience/template-departmental-continuity-plan.md`](template-departmental-continuity-plan.md) |
