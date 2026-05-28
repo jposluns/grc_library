@@ -4,6 +4,62 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 20.1 (2026-05-28): Logistics sector consolidation
+
+First sub-phase of Phase 20 (compliance sub-directory restructure). Phase 12.3 had moved BASC into a new `/sectors/` top-level directory, which was inconsistent with the established pattern of sector-specific content living in `/compliance/` (where AEO-UK, CTPAT, PIP, and the sector annexes already lived). Phase 20.1 reverses that misstep and establishes the `compliance/<sector>/` sub-directory pattern, beginning with logistics.
+
+### What changed
+
+The library now hosts all trade-and-logistics sector-conditional content in a single `compliance/logistics/` sub-directory. The `/sectors/` directory has been deleted entirely.
+
+### Files moved into `compliance/logistics/`
+
+| Origin | Destination | Notes |
+| --- | --- | --- |
+| `sectors/basc/policy-basc-information-security.md` | `compliance/logistics/policy-basc-information-security.md` | Path move; version 1.1.1 |
+| `sectors/basc/register-basc-it-responsibilities.md` | `compliance/logistics/register-basc-it-responsibilities.md` | Path move; version 1.1.1 |
+| `sectors/basc/register-basc-it-compliance-kpis.md` | `compliance/logistics/register-basc-it-compliance-kpis.md` | Path move; version 1.1.1 |
+| `sectors/basc/README.md` | `compliance/logistics/annex-basc-programme-overview.md` | Doctype conversion (Register → Annex); content preserved; version 1.1.0 |
+| `compliance/annex-transportation-and-logistics-sector-requirements.md` | `compliance/logistics/annex-logistics-sector-requirements.md` | Renamed; sector overview; title shortened to "Logistics Sector GRC Requirements Annex"; version 1.0.1 |
+| `compliance/annex-aeo-s-it-cybersecurity-requirements.md` | `compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md` | Renamed for jurisdiction clarity; title "UK AEO-S IT and Cybersecurity Requirements"; version 1.0.1 |
+| `compliance/procedure-aeo-it-self-assessment.md` | `compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md` | Renamed; title "UK AEO IT Self-Assessment Procedure"; version 1.0.1 |
+| `compliance/register-ctpat-it-controls.md` | `compliance/logistics/register-ctpat-united-states-it-controls.md` | Renamed; title "US CTPAT IT and Cybersecurity Compliance Controls Register"; version 1.0.2 |
+| `compliance/register-pip-compliance-controls.md` | `compliance/logistics/register-pip-canada-controls.md` | Renamed; title "Canada PIP IT and Cybersecurity Compliance Controls Register"; version 1.0.1 |
+| `supply-chain/register-ctpat-full-msc-controls.md` | `compliance/logistics/register-ctpat-united-states-msc-controls.md` | Cross-domain move; renamed; title "US CTPAT Full Minimum Security Criteria Controls Register"; version 1.0.2 |
+| `compliance/template-trade-compliance-gap-assessment.md` | `compliance/logistics/template-trade-compliance-gap-assessment.md` | Path move; version 1.0.1 |
+
+### New files
+
+- `compliance/logistics/README.md` (new, v1.0.0): sector home, programme index, applicability, future-coverage placeholders.
+
+### Files deleted
+
+- `sectors/README.md` and `sectors/basc/README.md`: content preserved as `annex-basc-programme-overview.md` and consolidated into the new `compliance/logistics/README.md`.
+- `sectors/` directory removed entirely.
+
+### Library-wide cross-reference updates
+
+- All `[\`sectors/\`](../sectors/)` pointers (44 across the library, introduced in Phase 19.1/19.4) updated to point to `[\`compliance/\`](../compliance/)`.
+- All references to renamed files (CTPAT/AEO/PIP/transport-annex/trade-template) updated to new paths and filenames.
+- `supply-chain/README.md` (1.2.0 → 1.3.0): CTPAT MSC register row removed (file moved to compliance/logistics/); trusted-trader programme list replaced with a pointer to `compliance/logistics/`.
+- `compliance/README.md` (1.2.0 → 1.3.0): restructured to describe the root-vs-sector layer separation; logistics sub-directory artefacts listed; pending Phase 20.2 sector moves flagged.
+- `governance/register-document-index-and-classification.md` (1.24.2 → 1.25.0): all moved/renamed entries updated; category labels normalised from "Sectors" to "Compliance" for the BASC artefacts.
+- `README.md` (1.5.3 → 1.5.4): document-count description updated to reference compliance sub-directories rather than `/sectors/`.
+- `specification-master-project.md` (1.2.6 → 1.2.7): repository directory listing and domain table updated.
+- `docs/adopter-guide.md`: "The sectors directory" section replaced with "Sector-conditional content".
+
+### Tooling update
+
+- `tools/lint-structure.py`: removed `sectors` from the `DOMAINS` list (the directory no longer exists). The structural-membership rule now requires that all `compliance/logistics/*` files are referenced by `compliance/README.md`, which they are.
+
+### Result
+
+The library now has one consistent home for sector-conditional compliance content. The logistics sub-directory pattern is established and ready to scale to the 90+ AEO/equivalent trusted-trader programmes globally. Future country-specific programme additions (Mexico NEEC, Australia ATT, Singapore STP, EU AEO, Japan AEO, etc.) drop into `compliance/logistics/` with no additional structural change.
+
+The Phase 20.2 sub-phase will apply the same sub-directory pattern to the other industry sectors (financial-services, healthcare, energy-and-utilities, telecommunications, public-sector).
+
+All ten audits clean. Taxonomy and portal regenerated.
+
 ## Phase 19.6 (2026-05-28): ISO/IEC 42005 and 42006 topic-attribution correction
 
 Phase 19 sub-phase 6, resolving the topic-attribution concern flagged in the Phase 19.4 changelog. ISO/IEC 42006:2025 covers "Requirements for bodies providing audit and certification of artificial intelligence management systems" — that is, requirements for accreditation bodies who audit and certify AIMS implementations against ISO/IEC 42001. It is the AIMS analogue of ISO/IEC 27006 (which provides the equivalent requirements for ISO/IEC 27001 audit bodies). The standard covering AI impact assessment guidance is ISO/IEC 42005:2025, published in May 2025.
@@ -77,7 +133,7 @@ Files updated:
 - `operations/register-asset-inventory.md` (1.0.0 → 1.0.1): 1 body usage (table row label).
 - `resilience/README.md`: section heading "Licence boundary".
 - `sectors/README.md`: section heading "Licence and neutrality posture".
-- `sectors/basc/README.md`: section heading "Licence boundary".
+- `compliance/logistics/annex-basc-programme-overview.md`: section heading "Licence boundary".
 - `security/README.md`: section heading "Licence boundary".
 - `security/procedure-security-incident-response.md` (1.3.2 → 1.3.3): section heading "Licence".
 - `security/procedure-onboarding-and-offboarding.md` (1.0.0 → 1.0.1): 1 body usage.
@@ -132,7 +188,7 @@ Phase 12.3 moved BASC to a sector overlay, and Phase 19.1 closed four files. The
 
 ### Result
 
-Across the four post-12.3 cleanup phases (12.3 initial, 19.1, 19.4), the BASC overlay is now consistently positioned: BASC appears as a named example of a sector programme in the running text, never as a baseline role, scoping assumption, or unconditional framework requirement. Where the user's organisation participates in BASC, the `sectors/basc/` annex remains the authoritative source for the additional controls, roles, and timeframes.
+Across the four post-12.3 cleanup phases (12.3 initial, 19.1, 19.4), the BASC overlay is now consistently positioned: BASC appears as a named example of a sector programme in the running text, never as a baseline role, scoping assumption, or unconditional framework requirement. Where the user's organisation participates in BASC, the `compliance/logistics/` annex remains the authoritative source for the additional controls, roles, and timeframes.
 
 Taxonomy and portal regenerated. All ten audits clean.
 
@@ -540,13 +596,13 @@ Resolves the organisation-neutrality violation identified by the comprehensive a
 New top-level directory `/sectors/` created for optional, programme-conditional governance content. Organisations not participating in a covered sector programme can omit the corresponding annex entirely without affecting the main library.
 
 - `sectors/README.md` (new, v1.0.0): domain register describing the sector-annex pattern, applicability rules, and relationship to the main library.
-- `sectors/basc/README.md` (new, v1.0.0): BASC sub-register describing applicability and listing active BASC documents.
+- `compliance/logistics/annex-basc-programme-overview.md` (new, v1.0.0): BASC sub-register describing applicability and listing active BASC documents.
 
 ### Files moved (git history preserved via `git mv`)
 
-- `compliance/policy-basc.md` → `sectors/basc/policy-basc-information-security.md` (v1.0.0 → v1.1.0; renamed to reflect canonical naming; Category updated from "Compliance Management" to "Sector Annex"; cross-references updated)
-- `compliance/register-basc-it-responsibilities.md` → `sectors/basc/register-basc-it-responsibilities.md` (v1.0.0 → v1.1.0; same updates)
-- `compliance/register-basc-it-compliance-kpis.md` → `sectors/basc/register-basc-it-compliance-kpis.md` (v1.0.0 → v1.1.0; same updates)
+- `compliance/policy-basc.md` → `compliance/logistics/policy-basc-information-security.md` (v1.0.0 → v1.1.0; renamed to reflect canonical naming; Category updated from "Compliance Management" to "Sector Annex"; cross-references updated)
+- `compliance/register-basc-it-responsibilities.md` → `compliance/logistics/register-basc-it-responsibilities.md` (v1.0.0 → v1.1.0; same updates)
+- `compliance/register-basc-it-compliance-kpis.md` → `compliance/logistics/register-basc-it-compliance-kpis.md` (v1.0.0 → v1.1.0; same updates)
 
 ### BASC scoping stripped from main-domain documents
 

@@ -117,7 +117,7 @@ DORA applies to approximately 22 categories of EU financial entities and to ICT 
 | **Important Business Services identification** | Map all services important to customers and financial stability | [`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md): supplement with Important Business Services register |
 | **Impact tolerances** | Set maximum tolerable disruption for each Important Business Service (time and quality thresholds) | [`resilience/standard-business-continuity-and-disaster-recovery.md`](../resilience/standard-business-continuity-and-disaster-recovery.md); [`resilience/procedure-business-impact-analysis.md`](../resilience/procedure-business-impact-analysis.md) |
 | **Mapping and testing** | Map people, processes, technology, facilities, and information supporting each service; stress test against disruption scenarios | [`resilience/procedure-continuity-and-recovery-testing.md`](../resilience/procedure-continuity-and-recovery-testing.md); [`resilience/procedure-business-impact-analysis.md`](../resilience/procedure-business-impact-analysis.md) |
-| **Self-assessment** | Annual self-assessment of operational resilience capability against impact tolerances | [`compliance/procedure-aeo-it-self-assessment.md`](procedure-aeo-it-self-assessment.md): adapt template |
+| **Self-assessment** | Annual self-assessment of operational resilience capability against impact tolerances | [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](logistics/procedure-aeo-united-kingdom-self-assessment.md): adapt template |
 
 ### OSFI b-13 (canada: frfis)
 

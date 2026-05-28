@@ -1,16 +1,16 @@
-# AEO IT Self-Assessment Procedure
+# UK AEO IT Self-Assessment Procedure
 
-**Document Title:** AEO IT Self-Assessment Procedure 
+**Document Title:** UK AEO IT Self-Assessment Procedure 
 **Document Type:** Procedure 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../operations/procedure-security-monitoring-and-alert-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`resilience/procedure-backup-and-recovery.md`](../resilience/procedure-backup-and-recovery.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) 
+**Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`operations/standard-network-security-and-segmentation.md`](../../operations/standard-network-security-and-segmentation.md), [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../../operations/procedure-endpoint-management-and-device-compliance.md), [`resilience/procedure-backup-and-recovery.md`](../../resilience/procedure-backup-and-recovery.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md) 
 **Classification:** Public 
-**Category:** Compliance Management 
-**Review Frequency:** 6 to 12 months and upon material AI governance or regulatory change 
-**Repository Path:** [`compliance/procedure-aeo-it-self-assessment.md`](procedure-aeo-it-self-assessment.md) 
+**Category:** Compliance: Logistics Sector 
+**Review Frequency:** Annual and upon material regulatory or framework change 
+**Repository Path:** [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](procedure-aeo-united-kingdom-self-assessment.md) 
 **Confidentiality:** Public 
 **License:** CC0 1.0 Universal 
 
@@ -36,7 +36,7 @@ This procedure covers only the IT and cybersecurity elements of the AEO-S self-a
 
 Those domains are outside IT scope and are governed by the AEO Compliance function (Legal / Finance / Compliance). The CISO's role is to provide the IT evidence package described in this procedure to the AEO Compliance function for inclusion in the overall submission.
 
-The IT control areas covered by this procedure are drawn from the eight AEO-S IT controls mapped in [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md).
+The IT control areas covered by this procedure are drawn from the eight AEO-S IT controls mapped in [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md).
 
 ---
 
@@ -93,7 +93,7 @@ The AEO IT self-assessment is conducted annually. The HMRC submission window is 
 
 ## 4. IT control evidence collection
 
-Evidence is collected across the eight IT control areas defined in [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md). Evidence must be:
+Evidence is collected across the eight IT control areas defined in [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md). Evidence must be:
 
 - Current as of the assessment date (generated within the preceding 12 months unless a longer period is specified).
 - Anonymized or aggregated where it would otherwise contain personally identifiable information.
@@ -108,7 +108,7 @@ Evidence is collected across the eight IT control areas defined in [`compliance/
 | MFA coverage metric | Percentage of users with multi-factor authentication enabled for access to trade-relevant IT systems; confirmation that MFA is enforced for all Tier 2 and above roles | Identity and Access Management team |
 | PAM audit log summary | Summary of privileged access management controls for trade-relevant systems; confirmation that privileged sessions are logged; no individual session detail | Security Operations team |
 
-Governing documents: [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md); [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md); [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md)
+Governing documents: [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md); [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md); [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md)
 
 ### 4.2 System protection
 
@@ -118,7 +118,7 @@ Governing documents: [`security/policy-identity-and-access-management.md`](../se
 | Network segmentation evidence | Documentation confirming that trade-relevant IT systems operate within segmented network zones; architecture summary without IP address detail or topology diagrams | Infrastructure / Network team |
 | Endpoint protection coverage report | Percentage of endpoints running current endpoint protection software; confirmation of coverage across trade-relevant systems | IT Operations team |
 
-Governing documents: [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md); [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md); [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md); [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md)
+Governing documents: [`operations/standard-network-security-and-segmentation.md`](../../operations/standard-network-security-and-segmentation.md); [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md); [`operations/standard-production-security-requirements.md`](../../operations/standard-production-security-requirements.md); [`operations/procedure-endpoint-management-and-device-compliance.md`](../../operations/procedure-endpoint-management-and-device-compliance.md)
 
 ### 4.3 Incident detection and response
 
@@ -127,7 +127,7 @@ Governing documents: [`operations/standard-network-security-and-segmentation.md`
 | SIEM alert coverage report | Confirmation that trade-relevant IT systems are monitored by the SIEM platform; alert coverage metrics; no individual alert or incident detail | Security Operations team |
 | Incident register summary | Aggregated summary of security incidents detected and responded to during the preceding 12 months; total count by severity; average response time; confirmation that an incident response process is in place. No individual incident names, descriptions, or affected parties | CISO |
 
-Governing documents: [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md); [`operations/procedure-security-monitoring-and-alert-management.md`](../operations/procedure-security-monitoring-and-alert-management.md); [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)
+Governing documents: [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md); [`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md); [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md)
 
 ### 4.4 Personnel screening
 
@@ -144,7 +144,7 @@ Governing documents: Personnel Security Screening Standard
 | Backup job completion report | Summary of backup job completion rates for trade-relevant systems over the preceding 12 months; percentage of successful backups; confirmation of backup scope | Infrastructure / IT Operations team |
 | Last successful restore test date | Date of the most recent successful restore test for trade-relevant systems; confirmation that the restore was validated; no detail on system contents restored | Infrastructure / IT Operations team |
 
-Governing documents: [`resilience/procedure-backup-and-recovery.md`](../resilience/procedure-backup-and-recovery.md)
+Governing documents: [`resilience/procedure-backup-and-recovery.md`](../../resilience/procedure-backup-and-recovery.md)
 
 ### 4.6 Risk assessment
 
@@ -152,7 +152,7 @@ Governing documents: [`resilience/procedure-backup-and-recovery.md`](../resilien
 |---|---|---|
 | Risk register summary | Summary of current information security risk register entries rated High; confirmation that a formal risk assessment process is in place and was conducted within the preceding 12 months. High-risk items listed by risk category only: no detail on specific systems, vulnerabilities, or control gaps | CISO |
 
-Governing documents: [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md)
+Governing documents: [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md)
 
 ### 4.7 Control testing
 
@@ -161,7 +161,7 @@ Governing documents: [`risk/standard-enterprise-risk-management.md`](../risk/sta
 | Internal audit report summary | Summary of the most recent internal IT security audit: audit date; scope (trade-relevant systems confirmed as in scope); overall findings count by severity; confirmation that findings are tracked to remediation. No individual finding detail | CISO / Internal Audit |
 | Penetration test summary | Date of most recent penetration test; scope confirmation (trade-relevant systems included); overall result (pass / conditional pass / fail); confirmation that critical and high findings were remediated. No individual finding detail, vulnerability names, or test methodology detail | CISO / External Penetration Test provider |
 
-Governing documents: [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)
+Governing documents: [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md)
 
 ### 4.8 Records retention
 
@@ -170,7 +170,7 @@ Governing documents: [`compliance/policy-compliance-and-audit-management.md`](po
 | Retention policy evidence | Reference to the organisation's records retention policy confirming that trade records are retained for required periods and that the policy is current | Legal / Compliance / CISO |
 | Audit log retention confirmation | Confirmation that audit logs for trade-relevant IT systems are retained for the required minimum period and are protected from tampering | CISO |
 
-Governing documents: [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md); [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)
+Governing documents: [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md); [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md)
 
 ---
 
@@ -224,7 +224,7 @@ The AEO Compliance function is responsible for integrating the IT evidence packa
 
 ## 8. Post-submission: retention of IT evidence package
 
-The CISO retains a complete copy of the IT evidence package as submitted (the version integrated into the HMRC submission) for a minimum of 7 years from the date of submission. Retention is managed in accordance with [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md).
+The CISO retains a complete copy of the IT evidence package as submitted (the version integrated into the HMRC submission) for a minimum of 7 years from the date of submission. Retention is managed in accordance with [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md).
 
 The retained package must include:
 
@@ -259,21 +259,21 @@ The CISO aims to provide the IT response to the AEO Compliance function within 1
 
 | Document | Relevance |
 |---|---|
-| [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md) | Defines the eight IT control areas and their mapping to AEO-S requirements; primary reference for evidence collection |
-| [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md) | Governs the overall compliance and audit programme; CAPA management |
-| [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md) | Confirms AEO-S as an applicable regulatory obligation |
-| [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md) | Access control evidence source |
-| [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md) | PAM evidence source |
-| [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md) | MFA coverage evidence source |
-| [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) | SIEM and audit log retention evidence source |
-| [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) | Incident detection and response evidence source |
-| [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md) | Network segmentation evidence source |
-| [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md) | Change management evidence source |
-| [`operations/procedure-security-monitoring-and-alert-management.md`](../operations/procedure-security-monitoring-and-alert-management.md) | SIEM alert coverage evidence source |
-| [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md) | Endpoint protection coverage evidence source |
-| [`resilience/procedure-backup-and-recovery.md`](../resilience/procedure-backup-and-recovery.md) | Backup and recovery evidence source |
-| [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) | Risk register evidence source |
-| [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) | Records retention evidence source |
+| [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md) | Defines the eight IT control areas and their mapping to AEO-S requirements; primary reference for evidence collection |
+| [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md) | Governs the overall compliance and audit programme; CAPA management |
+| [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md) | Confirms AEO-S as an applicable regulatory obligation |
+| [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md) | Access control evidence source |
+| [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md) | PAM evidence source |
+| [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md) | MFA coverage evidence source |
+| [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md) | SIEM and audit log retention evidence source |
+| [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) | Incident detection and response evidence source |
+| [`operations/standard-network-security-and-segmentation.md`](../../operations/standard-network-security-and-segmentation.md) | Network segmentation evidence source |
+| [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md) | Change management evidence source |
+| [`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md) | SIEM alert coverage evidence source |
+| [`operations/procedure-endpoint-management-and-device-compliance.md`](../../operations/procedure-endpoint-management-and-device-compliance.md) | Endpoint protection coverage evidence source |
+| [`resilience/procedure-backup-and-recovery.md`](../../resilience/procedure-backup-and-recovery.md) | Backup and recovery evidence source |
+| [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md) | Risk register evidence source |
+| [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md) | Records retention evidence source |
 
 ### 10.2 External framework alignment
 

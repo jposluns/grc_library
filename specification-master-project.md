@@ -2,7 +2,7 @@
 
 **Document Title:** Master Project Specification 
 **Document Type:** Specification 
-**Version:** 1.2.6 
+**Version:** 1.2.7 
 **Date:** 2026-05-28 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Chief Risk Officer 
@@ -95,8 +95,9 @@ Top-level structure for governance artefacts:
 /dev-security/
 /operations/
 /architecture/
-/sectors/
 ```
+
+The `/compliance/` domain contains sector-specific sub-directories (`logistics/`, `financial-services/`, `healthcare/`, `energy-and-utilities/`, `telecommunications/`, `public-sector/`) for sector-conditional content; see the compliance README for the structure.
 
 Repository infrastructure directories and files that are not used for governance artefacts but are part of the repository:
 
@@ -143,7 +144,7 @@ Documents subject to this specification are placed only in the governance-artefa
 | `dev-security/` | Secure development standards, DevOps security, software composition analysis, developer quick references, and AI coding agent rule files |
 | `operations/` | IT operations, asset management, change management, configuration management, and security operations registers |
 | `architecture/` | Enterprise architecture practice: framework, decision records, reference architectures, technology radar, architecture review, API design, data architecture, and integration architecture |
-| `sectors/` | Optional sector annexes for organisations participating in sector-specific programmes (e.g. BASC). Sector content is conditional. |
+| `compliance/<sector>/` | Sector-conditional sub-directories within compliance (`logistics/`, `financial-services/`, `healthcare/`, `energy-and-utilities/`, `telecommunications/`, `public-sector/`) hold sector-specific annexes, programme overlays (CTPAT, PIP, AEO, BASC, etc.), and sector-conditional artefacts. Organisations not participating in a covered sector or programme can ignore the corresponding sub-directory. |
 
 ### 4.3 Document-type definitions
 

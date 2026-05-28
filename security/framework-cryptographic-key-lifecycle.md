@@ -86,7 +86,7 @@ All cryptographic keys must be registered in the Key Lifecycle Register with the
 | **IT Operations** | Executes key rotation, distribution, and revocation procedures. |
 | **Internal Audit** | Verifies KLR completeness and control adherence annually. |
 
-Sector-conditional roles (for example, a BASC Regional Compliance Officer who maintains trade-system key registrations and validates keys during BASC audits) apply where the organisation participates in a covered sector programme; see [`sectors/`](../sectors/).
+Sector-conditional roles (for example, a BASC Regional Compliance Officer who maintains trade-system key registrations and validates keys during BASC audits) apply where the organisation participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 ---
 
@@ -100,7 +100,7 @@ Where the organisation participates in a sector programme that imposes additiona
 - Be validated during sector-programme audits.
 - Have audit evidence retained for the period stated by the annex (default: 7 years).
 
-See [`sectors/`](../sectors/) for the sector annex applicable to the organisation's covered programmes.
+See [`compliance/`](../compliance/) for the sector annex applicable to the organisation's covered programmes.
 
 ---
 

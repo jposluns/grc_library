@@ -44,7 +44,7 @@ To ensure that consistent handling of information according to its sensitivity, 
 | Privacy Officer | Ensures that alignment with privacy and data protection laws. |
 | AI Governance Council | Oversees classification and protection of AI datasets and model data. |
 
-Sector-conditional roles (for example, a BASC Regional Compliance Officer who ensures that classification of customs, trade, and cargo data meets BASC confidentiality standards) apply where the organisation participates in a covered sector programme; see [`sectors/`](../sectors/).
+Sector-conditional roles (for example, a BASC Regional Compliance Officer who ensures that classification of customs, trade, and cargo data meets BASC confidentiality standards) apply where the organisation participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 ---
 
@@ -123,7 +123,7 @@ Encryption keys must be managed under the Encryption and Key Management Policy.
 
 ## 6. Sector-programme data handling overlays
 
-Where the organisation participates in a sector programme that imposes additional handling requirements on programme-specific data (for example, BASC for customs, cargo, and personnel data classified as Restricted by default; healthcare regulation for PHI; financial-services regulation for payment-card or fraud data), the corresponding sector annex states the additional classification, storage, physical-copy, and incident-treatment requirements. See [`sectors/`](../sectors/).
+Where the organisation participates in a sector programme that imposes additional handling requirements on programme-specific data (for example, BASC for customs, cargo, and personnel data classified as Restricted by default; healthcare regulation for PHI; financial-services regulation for payment-card or fraud data), the corresponding sector annex states the additional classification, storage, physical-copy, and incident-treatment requirements. See [`compliance/`](../compliance/).
 
 ---
 

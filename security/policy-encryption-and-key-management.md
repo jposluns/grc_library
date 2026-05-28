@@ -42,7 +42,7 @@ Defines mandatory encryption and cryptographic key management requirements. Ensu
 | Compliance / GRC Manager | Monitors adherence and maintains evidence for audit and certification. |
 | AI Governance Council (AIGC) | Oversees encryption of AI datasets, model artifacts, and explainability data. |
 
-Sector-conditional roles (for example, a BASC Regional Compliance Officer who verifies trade-data encryption and customs-communication security for organisations participating in BASC) apply where the organisation participates in a covered sector programme; see [`sectors/`](../sectors/).
+Sector-conditional roles (for example, a BASC Regional Compliance Officer who verifies trade-data encryption and customs-communication security for organisations participating in BASC) apply where the organisation participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 ---
 
@@ -160,7 +160,7 @@ Model explainability files (e.g., SHAP/LIME outputs) must be encrypted and acces
 |---|---|---|
 | Continuous encryption compliance monitoring via SIEM and KMS dashboards | Ongoing | CISO / IT Operations |
 | Encryption compliance audit | Quarterly | CISO and Compliance Manager |
-| Sector-programme audit of programme-specific encryption (for example, customs data and cargo communications encryption under BASC where the organisation participates) | At the cadence stated by the relevant sector annex | Sector-conditional role per the annex; see [`sectors/`](../sectors/) |
+| Sector-programme audit of programme-specific encryption (for example, customs data and cargo communications encryption under BASC where the organisation participates) | At the cadence stated by the relevant sector annex | Sector-conditional role per the annex; see [`compliance/`](../compliance/) |
 | Findings and remediation actions logged in CAPA Register | Per finding | Compliance / GRC Manager |
 
 ---
@@ -177,7 +177,7 @@ Exceptions require:
 
 ### 8.2 Sector-programme exceptions
 
-Where the organisation participates in a sector programme that imposes additional encryption requirements (for example, BASC for customs-data encryption), exceptions to those programme-specific controls are not permitted unless explicitly authorised by the sector-conditional role defined by the relevant sector annex and the Enterprise Risk Committee; see [`sectors/`](../sectors/).
+Where the organisation participates in a sector programme that imposes additional encryption requirements (for example, BASC for customs-data encryption), exceptions to those programme-specific controls are not permitted unless explicitly authorised by the sector-conditional role defined by the relevant sector annex and the Enterprise Risk Committee; see [`compliance/`](../compliance/).
 
 ---
 

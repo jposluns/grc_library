@@ -50,7 +50,7 @@ This procedure applies to:
 | **Privacy Lead / Acting DPO** | Assesses privacy impact of incidents involving personal data. Coordinates regulatory breach notifications under GDPR, CPPA, and PIPL. |
 | **All Employees** | Responsible for immediately reporting any suspected security incident to the SOC or security operations team. No silent remediation is permitted. |
 
-Sector-conditional roles (for example, a BASC Regional Compliance Officer who is notified for any incident affecting trade, customs, or cargo systems and coordinates sector-programme reporting and corrective actions) apply where the organisation participates in a covered sector programme; see [`sectors/`](../sectors/).
+Sector-conditional roles (for example, a BASC Regional Compliance Officer who is notified for any incident affecting trade, customs, or cargo systems and coordinates sector-programme reporting and corrective actions) apply where the organisation participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 ### 2.2 Incident commander authority
 
@@ -173,7 +173,7 @@ Once the scope of compromise is confirmed, the SOC and IT Operations shall:
 | **Quebec Law 25** | Confirmed breach of personal information with serious risk of injury | 72 hours to Commission d'accès à l'information | CIO (acting DPO) |
 | **PIPL (China)** | Confirmed breach of personal data of China data subjects | Immediately / without delay | CISO / Privacy Lead to relevant authority |
 
-Sector-programme notification obligations (for example, BASC requirements for trade, cargo, or customs anomalies meeting the BASC breach threshold) apply where the organisation participates in a covered sector programme. The relevant sector annex states the trigger, timeframe, and notification path; see [`sectors/`](../sectors/).
+Sector-programme notification obligations (for example, BASC requirements for trade, cargo, or customs anomalies meeting the BASC breach threshold) apply where the organisation participates in a covered sector programme. The relevant sector annex states the trigger, timeframe, and notification path; see [`compliance/`](../compliance/).
 
 ### 6.2 GDPR and CPPA notification process
 
@@ -184,7 +184,7 @@ Sector-programme notification obligations (for example, BASC requirements for tr
 
 ### 6.3 Sector-programme anomalies
 
-Where the organisation participates in a sector programme that defines elevated-trigger anomaly categories (for example, BASC for cargo, customs, or trade systems with a 2-hour initial response SLA for unauthorized access to shipment data, tampering with customs records, or suspected cargo integrity compromise), the corresponding sector annex states the triage timeframe, the sector-conditional role notified, and the supplementary documentation maintained. See [`sectors/`](../sectors/).
+Where the organisation participates in a sector programme that defines elevated-trigger anomaly categories (for example, BASC for cargo, customs, or trade systems with a 2-hour initial response SLA for unauthorized access to shipment data, tampering with customs records, or suspected cargo integrity compromise), the corresponding sector annex states the triage timeframe, the sector-conditional role notified, and the supplementary documentation maintained. See [`compliance/`](../compliance/).
 
 ### 6.4 Notification confidentiality
 

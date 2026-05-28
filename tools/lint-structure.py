@@ -36,7 +36,6 @@ DOMAINS = [
     "privacy",
     "resilience",
     "risk",
-    "sectors",
     "security",
     "supply-chain",
 ]

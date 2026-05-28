@@ -31,7 +31,7 @@ To ensure that information security is systematically managed, risks are mitigat
 3. Applies to all methods of access whether on-premises, remote, or hybrid, including cross-border data exchange.
 4. Includes all security controls necessary to maintain compliance with ISO/IEC 27001 Annex A and related frameworks.
 
-Sector-specific overlays (for example, BASC-certified trade and logistics operations) apply where the organisation participates in a programme covered by a sector annex; see [`sectors/`](../sectors/).
+Sector-specific overlays (for example, BASC-certified trade and logistics operations) apply where the organisation participates in a programme covered by a sector annex; see [`compliance/`](../compliance/).
 
 ---
 
@@ -58,7 +58,7 @@ Sector-specific overlays (for example, BASC-certified trade and logistics operat
 | Employees and Contractors | Adhere to acceptable use and data protection requirements; promptly report incidents or policy violations. |
 | Internal Audit | Evaluates ISMS effectiveness and verifies compliance with ISO/IEC 27001. |
 
-Where the organisation participates in a sector-specific security programme (for example, BASC for trade and logistics operations), the corresponding sector annex defines additional oversight roles and reporting cadences. See [`sectors/`](../sectors/).
+Where the organisation participates in a sector-specific security programme (for example, BASC for trade and logistics operations), the corresponding sector annex defines additional oversight roles and reporting cadences. See [`compliance/`](../compliance/).
 
 ---
 
@@ -142,7 +142,7 @@ Where the organisation participates in a sector-specific security programme (for
 | AI Model Security | A.8 (emerging) | N/A | Protect, Detect | DSS01.06 | ISM-10 |
 | Continuous Improvement | Clause 10 | 18.1 | Recover | MEA01 | ISM-12 |
 
-**Additional alignments:** ISO 28000:2022; PIPEDA; AIDA. Sector-specific overlays including BASC International Standard (v6 2023) and WCO SAFE Framework (2021) apply where the organisation participates in those programmes; see [`sectors/`](../sectors/).
+**Additional alignments:** ISO 28000:2022; PIPEDA; AIDA. Sector-specific overlays including BASC International Standard (v6 2023) and WCO SAFE Framework (2021) apply where the organisation participates in those programmes; see [`compliance/`](../compliance/).
 
 
 
