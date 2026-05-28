@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register 
 **Document Type:** Register 
-**Version:** 1.12.0 
+**Version:** 1.13.0 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -243,6 +243,11 @@ All active repository documents should be Public.
 | Supply Chain | Template | Supplier Security Questionnaire | [`supply-chain/template-supplier-security-questionnaire.md`](../supply-chain/template-supplier-security-questionnaire.md) | Supplier Risk Maintainer | Annual | ISO 27001, SOC 2, CTPAT MSC, AEO-S (UK/HMRC), PIP, BASC v6 |
 | Supply Chain | Register | CTPAT Full Minimum Security Criteria Controls Register | [`supply-chain/register-ctpat-full-msc-controls.md`](../supply-chain/register-ctpat-full-msc-controls.md) | Supplier Risk Maintainer | Annual | CTPAT MSC 2020 (all domains), AEO-S (UK/HMRC), PIP (CBSA), ISO 28000 |
 | Supply Chain | Matrix | Supply Chain Security Programme Alignment Matrix | [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md) | Supplier Risk Maintainer | Annual | CTPAT, AEO-S (UK), AEO (EU), PIP, BASC, NEEC, OEA, WCO SAFE, ISO 28000/28001 |
+| Supply Chain | Procedure | Fourth-Party and Nth-Party Risk Procedure | [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](../supply-chain/procedure-fourth-party-and-nth-party-risk.md) | Supplier Risk Maintainer | Annual | DORA Arts 28 to 44, GDPR Art 28, NIS 2 Art 21(2)(d), NIST CSF 2.0 GV.SC, NIST SP 800-161r1, ISO 28000, ISO 27036, FSB toolkit |
+| Supply Chain | Register | Concentration Risk Register | [`supply-chain/register-concentration-risk.md`](../supply-chain/register-concentration-risk.md) | Supplier Risk Maintainer | Quarterly | DORA Arts 29/31/35-40, EBA/GL/2019/02 §76-80, FSB toolkit, NIS 2 Arts 21(2)(d)/22, NIST SP 800-161r1, ISO 28000 |
+| Supply Chain | Register | Software Bill of Materials Register | [`supply-chain/register-sbom.md`](../supply-chain/register-sbom.md) | Supplier Risk Maintainer | Quarterly | NTIA Minimum Elements, US EO 14028, CISA SBOM guidance, EU CRA, NIST SSDF PW.4/PW.7/PW.8, CycloneDX, SPDX, VEX, SLSA |
+| Supply Chain | Template | Supplier Offboarding Evidence Template | [`supply-chain/template-supplier-offboarding-evidence.md`](../supply-chain/template-supplier-offboarding-evidence.md) | Supplier Risk Maintainer | Annual | GDPR Art 28(3)(g), DORA Art 28, EBA/GL/2019/02, ISO 27036, ISO 28000, NIST SP 800-88r1, CSA CCM IPY-04/05 |
+| Supply Chain | Standard | Supplier Resilience Monitoring Standard | [`supply-chain/standard-supplier-resilience-monitoring.md`](../supply-chain/standard-supplier-resilience-monitoring.md) | Supplier Risk Maintainer | Annual | DORA Arts 28/30/33-34, EBA/GL/2019/02 §82-95, NIST SP 800-161r1, ISO 28000, ISO 27036, FSB toolkit, CSA STAR |
 | Privacy | Register | Cross-Border Data Flow Register | [`privacy/register-cross-border-data-flow.md`](../privacy/register-cross-border-data-flow.md) | Chief Privacy Officer | Annual | GDPR Chapter V, UK GDPR Sch 21, PIPEDA, Quebec Law 25, LGPD Art 33, PIPL Art 38 |
 | Dev Security | Standard | Software Composition Analysis Standard | [`dev-security/standard-software-composition-analysis.md`](../dev-security/standard-software-composition-analysis.md) | Chief Information Security Officer | 6 to 12 months | NIST SSDF SP 800-218, NIST SP 800-53 SR, SLSA, EU Cyber Resilience Act, EO 14028 SBOM |
 | Compliance | Annex | Financial Services Sector GRC Requirements Annex | [`compliance/annex-financial-services-sector-requirements.md`](../compliance/annex-financial-services-sector-requirements.md) | Chief Compliance Officer | Annual | DORA, FCA/PRA PS21/3, OSFI B-13, NY DFS 23 NYCRR 500, GLBA, PCI DSS v4.0, FATF |

@@ -2,7 +2,7 @@
 
 **Document Title:** Supply Chain Domain README 
 **Document Type:** Register 
-**Version:** 1.0.1 
+**Version:** 1.1.0 
 **Date:** 2026-05-28 
 **Owner:** Supplier Risk Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -42,6 +42,11 @@ This directory contains organization-neutral supplier governance, third-party ri
 | Template | Supplier Security Questionnaire | [`supply-chain/template-supplier-security-questionnaire.md`](template-supplier-security-questionnaire.md) |
 | Register | CTPAT Full Minimum Security Criteria Controls Register | [`supply-chain/register-ctpat-full-msc-controls.md`](register-ctpat-full-msc-controls.md) |
 | Matrix | Supply Chain Security Programme Alignment Matrix | [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](matrix-supply-chain-security-programme-alignment.md) |
+| Procedure | Fourth-Party and Nth-Party Risk Procedure | [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](procedure-fourth-party-and-nth-party-risk.md) |
+| Register | Concentration Risk Register | [`supply-chain/register-concentration-risk.md`](register-concentration-risk.md) |
+| Register | Software Bill of Materials Register | [`supply-chain/register-sbom.md`](register-sbom.md) |
+| Template | Supplier Offboarding Evidence Template | [`supply-chain/template-supplier-offboarding-evidence.md`](template-supplier-offboarding-evidence.md) |
+| Standard | Supplier Resilience Monitoring Standard | [`supply-chain/standard-supplier-resilience-monitoring.md`](standard-supplier-resilience-monitoring.md) |
 
 ---
 
