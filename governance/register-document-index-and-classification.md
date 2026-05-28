@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register 
 **Document Type:** Register 
-**Version:** 1.11.0 
+**Version:** 1.12.0 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -177,6 +177,11 @@ All active repository documents should be Public.
 | Resilience | Register | Resilience Metrics and Testing Log Register | [`resilience/register-resilience-metrics-and-testing-log.md`](../resilience/register-resilience-metrics-and-testing-log.md) | Resilience Owner | Annual | Resilience metrics, testing log, corrective action tracking |
 | Resilience | Register | Resilience Terms and Definitions Register | [`resilience/register-resilience-terms-and-definitions.md`](../resilience/register-resilience-terms-and-definitions.md) | Resilience Owner | Annual | Resilience terminology and definitions |
 | Resilience | Register | Emergency Operations Contact Directory Register | [`resilience/register-eoc-contact-directory.md`](../resilience/register-eoc-contact-directory.md) | Resilience Owner | Annual | Emergency contact structure, restricted completed records |
+| Resilience | Template | Tabletop Exercise Template | [`resilience/template-tabletop-exercise.md`](../resilience/template-tabletop-exercise.md) | Resilience Owner | Annual | ISO 22301 §8.5, ISO 27001 A.5.30, NIST SP 800-84, DORA Arts 24 to 27, NIS 2 Art 21(2)(f), TIBER-EU |
+| Resilience | Template | Recovery Runbook Template | [`resilience/template-recovery-runbook.md`](../resilience/template-recovery-runbook.md) | Resilience Owner | Annual | ISO 22301 §8.4, ISO/IEC 27031, NIST SP 800-34r1, DORA Art 12, NIS 2 Art 21(2)(c), ITIL 4 |
+| Resilience | Template | Lessons Learned Template | [`resilience/template-lessons-learned.md`](../resilience/template-lessons-learned.md) | Resilience Owner | Annual | ISO/IEC 27035-3, ISO 22301 §10, NIST SP 800-61 §3.5, DORA Art 13, NIS 2 Art 21(2)(f), ISO 9001 §10.2 |
+| Resilience | Plan | Pandemic Continuity Plan | [`resilience/plan-pandemic-continuity.md`](../resilience/plan-pandemic-continuity.md) | Resilience Owner | Annual | ISO 22301, ISO 22332, WHO Pandemic Influenza Risk Management, OSHA, HSE, NIS 2 Art 21(2)(c), DORA Art 12 |
+| Resilience | Plan | Physical Site Continuity Plan | [`resilience/plan-physical-site-continuity.md`](../resilience/plan-physical-site-continuity.md) | Resilience Owner | Annual | ISO 22301 §8.4, ISO 22322, ISO 22320, local fire and building codes, OHS law, insurance |
 | Supply Chain | Framework | Supplier and Cloud Governance Framework | [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md) | Supplier Risk Maintainer | 6 to 12 months | ISO 28000, WCO SAFE, BASC v6, third-party risk, cloud assurance |
 | Supply Chain | Annex | Trade and Supply-Chain Continuity Controls Annex | [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../supply-chain/annex-trade-and-supply-chain-continuity-controls.md) | Supplier Risk Maintainer | Annual | BASC, WCO, trade continuity, supplier dependencies, customs data |
 | Supply Chain | Standard | Third-Party Risk Management Standard | [`supply-chain/standard-third-party-risk.md`](../supply-chain/standard-third-party-risk.md) | Supplier Risk Maintainer | 6 to 12 months | ISO 28000, WCO SAFE, BASC v6, four-tier supplier classification |

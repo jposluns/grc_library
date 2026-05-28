@@ -2,7 +2,7 @@
 
 **Document Title:** Resilience Domain README 
 **Document Type:** Register 
-**Version:** 1.1.1 
+**Version:** 1.2.0 
 **Date:** 2026-05-28 
 **Owner:** Resilience Owner 
 **Approving Authority:** Governance Library Maintainer 
@@ -45,6 +45,11 @@ This directory contains organization-neutral business continuity, disaster recov
 | Register | Resilience Terms and Definitions Register | [`resilience/register-resilience-terms-and-definitions.md`](register-resilience-terms-and-definitions.md) |
 | Register | Emergency Operations Contact Directory Register | [`resilience/register-eoc-contact-directory.md`](register-eoc-contact-directory.md) |
 | Plan | IT Disaster Recovery Plan | [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md) |
+| Plan | Pandemic Continuity Plan | [`resilience/plan-pandemic-continuity.md`](plan-pandemic-continuity.md) |
+| Plan | Physical Site Continuity Plan | [`resilience/plan-physical-site-continuity.md`](plan-physical-site-continuity.md) |
+| Template | Tabletop Exercise Template | [`resilience/template-tabletop-exercise.md`](template-tabletop-exercise.md) |
+| Template | Recovery Runbook Template | [`resilience/template-recovery-runbook.md`](template-recovery-runbook.md) |
+| Template | Lessons Learned Template | [`resilience/template-lessons-learned.md`](template-lessons-learned.md) |
 
 ---
 
