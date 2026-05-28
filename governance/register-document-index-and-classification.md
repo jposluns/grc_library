@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register 
 **Document Type:** Register 
-**Version:** 1.21.0 
+**Version:** 1.22.0 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -184,7 +184,6 @@ All active repository documents should be Public.
 | Resilience | Plan | Physical Site Continuity Plan | [`resilience/plan-physical-site-continuity.md`](../resilience/plan-physical-site-continuity.md) | Resilience Owner | Annual | ISO 22301 §8.4, ISO 22322, ISO 22320, local fire and building codes, OHS law, insurance |
 | Supply Chain | Framework | Supplier and Cloud Governance Framework | [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md) | Supplier Risk Maintainer | 6 to 12 months | ISO 28000, WCO SAFE, BASC v6, third-party risk, cloud assurance |
 | Supply Chain | Annex | Trade and Supply-Chain Continuity Controls Annex | [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../supply-chain/annex-trade-and-supply-chain-continuity-controls.md) | Supplier Risk Maintainer | Annual | BASC, WCO, trade continuity, supplier dependencies, customs data |
-| Supply Chain | Standard | Third-Party Risk Management Standard | [`supply-chain/standard-third-party-risk.md`](../supply-chain/standard-third-party-risk.md) | Supplier Risk Maintainer | 6 to 12 months | ISO 28000, WCO SAFE, BASC v6, four-tier supplier classification |
 | Supply Chain | Procedure | Supplier Due Diligence Procedure | [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md) | Supplier Risk Maintainer | Annual | ISO 28000, BASC v6, PIP, CTPAT, third-party risk assessment |
 | Supply Chain | Procedure | Supplier Audit Procedure | [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md) | Supplier Risk Maintainer | Annual | ISO 19011:2018, ISO 28000, BASC §9.2, tiered audit cadence |
 | Supply Chain | Procedure | Third-Party AI Due Diligence Procedure | [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md) | Supplier Risk Maintainer | 6 to 12 months | EU AI Act, ISO 42001, NIST AI RMF, OWASP LLM Top 10, AI supply chain |

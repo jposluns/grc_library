@@ -4,6 +4,31 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 12.4 (2026-05-28): Third-party risk standard consolidation
+
+Resolves the duplicate-authority finding identified by the comprehensive audit. Per the user's decision to merge, the two parallel third-party risk standards are consolidated into a single document in the risk domain.
+
+### Merged
+
+- `risk/standard-third-party-and-supply-chain-risk.md` (v1.0.0 → v1.1.0): becomes the sole, master third-party-and-supply-chain risk standard for the library. Augmented with the supply-chain document's lifecycle content: an explicit AI service-provider contract-clause sub-section (dataset lineage, model validation per ISO/IEC 42001 §9, ethical sourcing, no-training-on-customer-data, deprecation notice, cross-border mechanism); supporting-tooling references in the monitoring section (TPRAQ, security-rating services, threat intelligence); a dedicated Offboarding and contract termination section; framework alignment expanded with ISO/IEC 27036-3, NIST SP 800-161r2, COBIT 2019 APO10, and CSA CCM v4.1 STA-02. A `supersedes` sentence references the deleted file.
+
+### Deleted
+
+- `supply-chain/standard-third-party-risk.md` (was v1.0.0): consolidated into the risk-domain master per the audit recommendation.
+
+### Cross-references updated
+
+21 files updated to point at the consolidated risk-domain standard. Affected directories: compliance/, dev-security/, governance/, operations/, security/, supply-chain/.
+
+- Governance index `governance/register-document-index-and-classification.md` (v1.21.0 → v1.22.0): the supply-chain duplicate row removed; risk-domain row retained.
+- Supply-chain README (v1.1.0 → v1.2.0): supply-chain TPR row removed from active documents.
+
+### Result
+
+A reader looking for the third-party risk standard now finds one canonical document, with consistent tier criteria, lifecycle, and ownership. The CRO is the named owner. The operational procedures in `supply-chain/` continue to implement the lifecycle steps.
+
+Taxonomy, portal, and maturity scorecard regenerated.
+
 ## Phase 12.3 (2026-05-28): BASC migration to /sectors/ domain (organisation-neutrality)
 
 Resolves the organisation-neutrality violation identified by the comprehensive audit. The library declared itself "organization-neutral" in `README.md` while three core policy documents explicitly scoped themselves to "BASC-certified logistics operations in Latin America (Colombia, Mexico, Peru, Chile)" and the compliance domain hosted a BASC-specific policy and two BASC registers as if universal content.

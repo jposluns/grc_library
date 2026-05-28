@@ -2,7 +2,7 @@
 
 **Document Title:** Supply Chain Domain README 
 **Document Type:** Register 
-**Version:** 1.1.0 
+**Version:** 1.2.0 
 **Date:** 2026-05-28 
 **Owner:** Supplier Risk Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -28,7 +28,6 @@ This directory contains organization-neutral supplier governance, third-party ri
 | --- | --- | --- |
 | Framework | Supplier and Cloud Governance Framework | [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md) |
 | Annex | Trade and Supply-Chain Continuity Controls | [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md) |
-| Standard | Third-Party Risk Management Standard | [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md) |
 | Procedure | Supplier Due Diligence Procedure | [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md) |
 | Procedure | Supplier Audit Procedure | [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md) |
 | Procedure | Third-Party AI Due Diligence Procedure | [`supply-chain/procedure-third-party-ai-due-diligence.md`](procedure-third-party-ai-due-diligence.md) |
