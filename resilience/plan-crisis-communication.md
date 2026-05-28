@@ -2,8 +2,8 @@
 
 **Document Title:** Crisis Communication Plan 
 **Document Type:** Plan 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Communications Owner 
 **Approving Authority:** Executive Management 
 **Related Documents:** [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/procedure-crisis-management-eoc-activation.md`](procedure-crisis-management-eoc-activation.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) 
@@ -56,31 +56,31 @@ This plan applies to internal communications, customer communications, supplier 
 
 ## Procedure
 
-### Step 1: determine communication need
+### Step 1: Determine communication need
 
 Assess audience, impact, obligations, timing, facts available, approval requirements, and risks from delayed, incomplete, or premature communication.
 
-### Step 2: define audience
+### Step 2: Define audience
 
 Classify audiences such as employees, customers, suppliers, regulators, insurers, law enforcement, governing body, public, media, or affected individuals.
 
-### Step 3: prepare message
+### Step 3: Prepare message
 
 Draft message content using confirmed facts, known impact, actions underway, contact path, next update timing, and limitations. Avoid internal system names, personal names, unverified cause, exploit details, and sensitive operational information unless explicitly approved.
 
-### Step 4: review and approve
+### Step 4: Review and approve
 
 Route messages for review by communications, legal, privacy, security, compliance, supplier, executive, or other accountable roles according to impact and audience.
 
-### Step 5: distribute
+### Step 5: Distribute
 
 Distribute through approved channels. Record time, audience, channel, version, approver, sender role, and follow-up commitment.
 
-### Step 6: update
+### Step 6: Update
 
 Issue updates when facts materially change, recovery milestones occur, obligations require update, or a stated update interval arrives.
 
-### Step 7: close
+### Step 7: Close
 
 Close crisis communications when normal communication ownership resumes, all required notifications are complete, public or customer updates are closed, and the message log is archived internally.
 

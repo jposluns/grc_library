@@ -2,8 +2,8 @@
 
 **Document Title:** Quantitative Risk Analysis Guideline 
 **Document Type:** Guideline 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Risk Officer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) 
@@ -108,14 +108,14 @@ Expected Value = (Min + 4 × Most Likely + Max) / 6
 
 ## Step-by-step quantitative analysis process
 
-### Step 1: define the risk scenario
+### Step 1: Define the risk scenario
 Start from a qualitatively identified risk in the enterprise risk register. Define:
 - Asset at risk (system, data set, service, revenue stream)
 - Threat actor (internal, external, environmental)
 - Threat type (malicious attack, error, natural event)
 - Effect (confidentiality breach, availability loss, integrity compromise)
 
-### Step 2: estimate loss event frequency
+### Step 2: Estimate loss event frequency
 
 | Sub-Step | Action |
 |---|---|
@@ -128,7 +128,7 @@ Start from a qualitatively identified risk in the enterprise risk register. Defi
 - Vulnerability: 2% to 15% (ML: 6%)
 - LEF: 0.04 to 1.8 events per year (ML: 0.36)
 
-### Step 3: estimate primary loss magnitude
+### Step 3: Estimate primary loss magnitude
 
 | Sub-Step | Action |
 |---|---|
@@ -143,7 +143,7 @@ Start from a qualitatively identified risk in the enterprise risk register. Defi
 - Recovery costs: system rebuild; data restoration from backup
 - Primary loss range: *[example figures to be populated with organizational data]*
 
-### Step 4: estimate secondary loss magnitude
+### Step 4: Estimate secondary loss magnitude
 
 | Sub-Step | Action |
 |---|---|
@@ -156,7 +156,7 @@ Start from a qualitatively identified risk in the enterprise risk register. Defi
 - Litigation: Class action probability × settlement estimate
 - Reputation: Customer attrition rate × customer lifetime value
 
-### Step 5: calculate annualized loss expectancy (ALE)
+### Step 5: Calculate annualized loss expectancy (ALE)
 
 ```
 ALE = LEF × (Primary Loss Magnitude + Secondary Loss Magnitude)
@@ -164,7 +164,7 @@ ALE = LEF × (Primary Loss Magnitude + Secondary Loss Magnitude)
 
 ALE represents the expected annual financial cost of the risk scenario.
 
-### Step 6: evaluate treatment options
+### Step 6: Evaluate treatment options
 
 For each proposed treatment:
 1. Re-estimate LEF or LM with the control in place (post-control scenario)
@@ -173,7 +173,7 @@ For each proposed treatment:
 4. Compare Risk Reduction Value against cost of implementing and maintaining the control
 5. Controls where Cost < Risk Reduction Value are economically justified
 
-### Step 7: document and report
+### Step 7: Document and report
 
 | Output | Content |
 |---|---|

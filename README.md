@@ -151,7 +151,7 @@ The library uses the following artefact types:
 | Plan | Defines coordinated actions for continuity, crisis, incident, recovery, or migration events. |
 | Roadmap | Defines a multi-phase forward strategy tied to a strategic outcome with phased milestones and dependencies. |
 | Guideline | Provides advisory interpretation of a policy or standard requirement. |
-| Guide | Provides technical reference material organised for adoption such as patterns, examples, configuration models, or implementation walkthroughs. |
+| Guide | Provides technical reference material organized for adoption such as patterns, examples, configuration models, or implementation walkthroughs. |
 | Checklist | Provides a structured verification list for a specific process or gate. |
 | Register | Records authoritative metadata, ownership, risks, obligations, assets, systems, exceptions, metrics, or evidence. |
 | Matrix | Maps relationships among controls, risks, obligations, frameworks, lifecycle stages, and evidence. |
@@ -163,7 +163,7 @@ Type selection notes:
 
 - Procedure versus SOP: a Procedure coordinates several roles. An SOP is a single-actor or narrow team sequence for one repeatable task.
 - Plan versus Roadmap: a Plan is event-triggered or schedule-bound coordination. A Roadmap is a multi-phase forward strategy tied to a strategic outcome.
-- Guideline versus Guide: a Guideline is advisory interpretation. A Guide is technical reference material organised for adoption.
+- Guideline versus Guide: a Guideline is advisory interpretation. A Guide is technical reference material organized for adoption.
 
 ---
 

@@ -176,7 +176,7 @@ The following metrics shall be tracked and reported to the CISO at least quarter
 | Tier 1 and Tier 2 suppliers with current penetration test attestation | At least 90% |
 | Supplier corrective actions closed within their agreed deadline | At least 90% |
 
-Metric definitions and supporting data collection are operationalised in [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md).
+Metric definitions and supporting data collection are operationalized in [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md).
 
 ---
 

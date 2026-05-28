@@ -1,6 +1,6 @@
 # Master Project Specification
 
-**Version:** 1.2.0 
+**Version:** 1.2.1 
 **Date:** 2026-05-28 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Chief Risk Officer 
@@ -143,7 +143,7 @@ No additional types may be created without approval.
 
 - Procedure versus SOP: a Procedure is a multi-actor or cross-functional workflow that coordinates several roles. An SOP is a single-actor or narrow team sequence with explicit step ownership for one repeatable task.
 - Plan versus Roadmap: a Plan is event-triggered or schedule-bound coordination such as incident, recovery, migration, or communication. A Roadmap is a multi-phase forward strategy tied to a strategic outcome with phased milestones and dependencies.
-- Guideline versus Guide: a Guideline is advisory interpretation of a policy or standard requirement and reads as governance commentary. A Guide is technical reference material organised for adoption such as patterns, examples, configuration models, or implementation walkthroughs.
+- Guideline versus Guide: a Guideline is advisory interpretation of a policy or standard requirement and reads as governance commentary. A Guide is technical reference material organized for adoption such as patterns, examples, configuration models, or implementation walkthroughs.
 
 ---
 
@@ -186,6 +186,10 @@ Rules:
 6. Section order must follow the canonical order defined in the Ingestion Specification.
 7. All text must be globally reusable and must not contain organization-specific references.
 8. Apply the sanitization substitution table in Appendix A of the Ingestion Specification to all content.
+9. Use Oxford English with `-ize` forms where applicable.
+10. Do not use em dashes or en dashes.
+11. Pair `ensure` with `that`; do not use bare `ensure` or `ensures`.
+12. Use sentence case for all section headings (H2 through H6). The first word is capitalised; subsequent words are lowercase except proper nouns and acronyms. Section identifiers such as `A1.`, `Step 1:`, and `Category 1:` count as numbering, not as the first word, so the word that follows must be capitalised. H1 document titles may use Title Case where they name a controlled artefact (e.g. policy or standard title).
 
 ---
 

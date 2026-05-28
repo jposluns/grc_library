@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Impact and Cross-Border Transfer Procedure 
 **Document Type:** Procedure 
-**Version:** 1.3.0 
-**Date:** 2026-05-27 
+**Version:** 1.3.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) 
@@ -45,7 +45,7 @@ High-risk processing activities require CIO approval and ERC escalation.
 
 ## Procedure
 
-### Step 1: initiation
+### Step 1: Initiation
 
 **Trigger events:**
 
@@ -58,7 +58,7 @@ The Project Owner must notify the Privacy Office or CIO (acting DPO) before data
 
 ---
 
-### Step 2: scoping and data mapping
+### Step 2: Scoping and data mapping
 
 Identify and document:
 
@@ -69,7 +69,7 @@ Identify and document:
 
 ---
 
-### Step 3: risk identification and evaluation
+### Step 3: Risk identification and evaluation
 
 Evaluate risks to data subjects:
 
@@ -86,7 +86,7 @@ Assign risk level: **Low**, **Medium**, **High**, or **Critical**.
 
 ---
 
-### Step 4: control selection and mitigation
+### Step 4: Control selection and mitigation
 
 Define and implement:
 
@@ -106,7 +106,7 @@ For EU transfers involving AI systems:
 
 ---
 
-### Step 5: consultation and approval
+### Step 5: Consultation and approval
 
 - The CIO (acting DPO) reviews all completed PIAs and transfer assessments.
 - For AI systems or high-risk processing, the AIGC conducts additional review per ISO 42006 and EU AI Act Annex IV.
@@ -114,7 +114,7 @@ For EU transfers involving AI systems:
 
 ---
 
-### Step 6: record keeping and documentation
+### Step 6: Record keeping and documentation
 
 Maintain in the compliance repository:
 
@@ -128,7 +128,7 @@ All records retained for a minimum of **7 years**.
 
 ---
 
-### Step 7: review and update
+### Step 7: Review and update
 
 PIAs and cross-border transfer records are reviewed:
 

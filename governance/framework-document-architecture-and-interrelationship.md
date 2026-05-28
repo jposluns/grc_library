@@ -53,7 +53,7 @@ It governs:
 | 7 | Plan | Defines coordinated response or recovery actions. | Implements resilience, incident, migration, or continuity requirements. | Activation criteria, roles, communications, recovery actions. |
 | 8 | Roadmap | Defines a multi-phase forward strategy tied to a strategic outcome. | Derived from a policy, framework, or charter that sets the strategic direction. | Phased milestones, dependencies, decision points, target state. |
 | 9 | Guideline | Provides advisory implementation detail. | Interprets policy or standard requirements. | Options, examples, interpretation support. |
-| 10 | Guide | Provides technical reference material organised for adoption. | Supports a policy, standard, or guideline with reference patterns. | Patterns, examples, configuration models, implementation walkthroughs. |
+| 10 | Guide | Provides technical reference material organized for adoption. | Supports a policy, standard, or guideline with reference patterns. | Patterns, examples, configuration models, implementation walkthroughs. |
 | 11 | Register | Records authoritative structured data. | Supports frameworks, policies, standards, and procedures. | Inventory, obligation, risk, exception, evidence, or metric records. |
 | 12 | Matrix | Maps relationships. | Supports assurance and traceability. | Control, risk, obligation, evidence, and lifecycle mapping. |
 | 13 | Specification | Defines technical or structural requirements. | Supports artefact creation, interface definition, or evidence structure. | Field definitions, schema, structural rules, acceptance criteria. |
@@ -69,7 +69,7 @@ It governs:
 2. Every policy must identify the framework or charter that authorizes it.
 3. Every standard must identify at least one parent policy.
 4. Every procedure must identify the standard or policy that it implements.
-5. Every SOP must identify the procedure, standard, or policy whose task it operationalises.
+5. Every SOP must identify the procedure, standard, or policy whose task it operationalizes.
 6. Every plan must identify the event, condition, or lifecycle stage that activates it.
 7. Every roadmap must identify the policy, framework, or charter that sets its strategic outcome.
 8. Every guideline must identify the policy or standard requirement it interprets.

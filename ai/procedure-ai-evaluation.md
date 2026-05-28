@@ -2,8 +2,8 @@
 
 **Document Title:** AI Evaluation Procedure 
 **Document Type:** Procedure 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Chief Information Officer 
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md) 
@@ -101,18 +101,18 @@ An AI evaluation is required when:
 
 ## 3. Evaluation process
 
-### Step 1: evaluation planning (5 business days before evaluation)
+### Step 1: Evaluation planning (5 business days before evaluation)
 
 - Define evaluation scope, timeline, and responsible parties.
 - Confirm test data, evaluation tooling, and access requirements.
 - Notify AIGC of upcoming evaluation.
 
-### Step 2: technical evaluation (per agreed timeline)
+### Step 2: Technical evaluation (per agreed timeline)
 
 - Execute all evaluation dimensions defined in Section 2.
 - Document results with supporting evidence (test outputs, logs, screenshots).
 
-### Step 3: draft evaluation report (within 5 business days of evaluation completion)
+### Step 3: Draft evaluation report (within 5 business days of evaluation completion)
 
 Report includes:
 - Executive summary.
@@ -127,7 +127,7 @@ Report includes:
 - AIGC reviews within 10 business days for High-risk systems.
 - AIGC issues approval, conditional approval, or rejection.
 
-### Step 5: deployment or remediation
+### Step 5: Deployment or remediation
 
 - Approved systems proceed through the Acceptance Into Service Policy.
 - Conditionally approved systems address specified conditions before deployment.

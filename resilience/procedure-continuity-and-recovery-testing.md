@@ -2,8 +2,8 @@
 
 **Document Title:** Continuity and Recovery Testing Procedure 
 **Document Type:** Procedure 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Resilience Owner 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`resilience/procedure-backup-and-recovery.md`](procedure-backup-and-recovery.md), [`resilience/register-resilience-metrics-and-testing-log.md`](register-resilience-metrics-and-testing-log.md) 
@@ -44,35 +44,35 @@ This procedure applies to critical processes, systems, data stores, suppliers, f
 
 ## Procedure
 
-### Step 1: define test scope
+### Step 1: Define test scope
 
 Identify the service, process, supplier, system, data set, AI system, facility, or scenario being tested. Define objectives, assumptions, participants by role, and exclusions.
 
-### Step 2: define success criteria
+### Step 2: Define success criteria
 
 Define measurable criteria including recovery time, recovery point, minimum service level, data integrity, security control restoration, communication timing, supplier response, and business acceptance.
 
-### Step 3: prepare test plan
+### Step 3: Prepare test plan
 
 Document scenario, schedule, roles, evidence requirements, communication plan, rollback method, safety constraints, privacy considerations, and approval to execute.
 
-### Step 4: execute test
+### Step 4: Execute test
 
 Perform the test according to the approved plan. Record actions, timing, decisions, deviations, failures, manual workarounds, supplier responses, and observed control issues.
 
-### Step 5: validate results
+### Step 5: Validate results
 
 Validate whether success criteria were met. Confirm recovered data, restored services, access control, logging, monitoring, integrations, AI system behaviour, and business acceptance.
 
-### Step 6: record findings
+### Step 6: Record findings
 
 Classify findings by severity, owner, corrective action, target date, dependency, and residual risk.
 
-### Step 7: report and approve
+### Step 7: Report and approve
 
 Prepare a test report with scope, results, evidence, limitations, failed assumptions, corrective actions, residual risk, and approval or acceptance.
 
-### Step 8: track improvement
+### Step 8: Track improvement
 
 Track corrective actions to closure. Update continuity plans, recovery plans, supplier records, BIA outputs, risk records, and recovery objectives where required.
 

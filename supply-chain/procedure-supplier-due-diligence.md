@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Due Diligence Procedure 
 **Document Type:** Procedure 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Supplier Risk Maintainer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) 
@@ -50,7 +50,7 @@ This procedure is aligned with ISO/IEC 27036-2, COBIT 2025 BAI05, CSA CCM v5 STA
 
 ## Procedure
 
-### Step 1: supplier pre-qualification
+### Step 1: Supplier pre-qualification
 
 All suppliers must complete a Supplier Pre-Qualification Questionnaire (SPQ) before contract initiation. The SPQ must address the following domains:
 
@@ -68,7 +68,7 @@ Suppliers providing AI or cloud services must additionally submit:
 
 Suppliers failing to meet the minimum baseline requirements defined in the SPQ scoring rubric must be rejected or formally flagged for remediation prior to any engagement proceeding.
 
-### Step 2: risk assessment and tier classification
+### Step 2: Risk assessment and tier classification
 
 Each supplier must be assessed and assigned a risk tier based on business impact, sensitivity of data accessed, and geographic or regulatory exposure. Tier assignment determines the applicable audit cadence.
 
@@ -79,7 +79,7 @@ Each supplier must be assessed and assigned a risk tier based on business impact
 | Tier 3 | Moderate | Non-sensitive, indirect services with limited organizational impact. | Biennial. |
 | Tier 4 | Low | Low-value, non-sensitive relationships with negligible data or system access. | Biennial or attestation. |
 
-### Step 3: due diligence evaluation
+### Step 3: Due diligence evaluation
 
 Assessments must be conducted across all applicable domains. Suppliers scoring below 70% of the maximum assessment score require documented remediation plans before engagement may proceed.
 
@@ -93,7 +93,7 @@ Assessments must be conducted across all applicable domains. Suppliers scoring b
 | Trade Security | Supply chain security programme compliance. | WCO SAFE Framework 2021, ISO 28000:2022. |
 | Sustainability | Energy management and environmental responsibility. | ISO 50001 Addendum 2026. |
 
-### Step 4: contractual review
+### Step 4: Contractual review
 
 All supplier contracts must include, at minimum:
 
@@ -106,7 +106,7 @@ All supplier contracts must include, at minimum:
 
 Legal Counsel must review and approve all third-party contracts prior to execution.
 
-### Step 5: compliance assessment and re-audit
+### Step 5: Compliance assessment and re-audit
 
 All Tier 1 and Tier 2 suppliers must undergo periodic compliance audits in accordance with the Supplier Audit Procedure. Re-audits may be triggered by any of the following events:
 

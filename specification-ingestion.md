@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library CC0 Ingestion and Transformation Specification 
 **Document Type:** Specification 
-**Version:** 1.4.0 
+**Version:** 1.4.1 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -172,7 +172,7 @@ Allowed document types are:
 
 - Procedure versus SOP: a Procedure is a multi-actor or cross-functional workflow that coordinates several roles. An SOP is a single-actor or narrow team sequence with explicit step ownership for one repeatable task.
 - Plan versus Roadmap: a Plan is event-triggered or schedule-bound coordination such as incident, recovery, migration, or communication. A Roadmap is a multi-phase forward strategy tied to a strategic outcome with phased milestones and dependencies.
-- Guideline versus Guide: a Guideline is advisory interpretation of a policy or standard requirement and reads as governance commentary. A Guide is technical reference material organised for adoption such as patterns, examples, configuration models, or implementation walkthroughs.
+- Guideline versus Guide: a Guideline is advisory interpretation of a policy or standard requirement and reads as governance commentary. A Guide is technical reference material organized for adoption such as patterns, examples, configuration models, or implementation walkthroughs.
 
 The canonical filename prefix must match the Document Type field. Filenames use lowercase: `sop-`, `roadmap-`, and `guide-` are valid prefixes for the corresponding types.
 
@@ -242,7 +242,9 @@ Documents must use `---` to separate major sections and must end with:
 
 Documents must use precise, organization-neutral language. They must avoid vendor-marketing language, unsupported maturity claims, and statements implying compliance, certification, regulatory approval, or operating effectiveness without implementation evidence.
 
-Use Oxford English with `-ize` forms where applicable.
+Use Oxford English with `-ize` forms where applicable. Do not use em dashes or en dashes. Pair `ensure` with `that`; do not use bare `ensure` or `ensures`.
+
+Use sentence case for all section headings (H2 through H6). The first word of the heading text is capitalised and subsequent words are lowercase except proper nouns and acronyms. Section identifiers such as `A1.`, `Step 1:`, and `Category 1:` count as numbering rather than as the first word, so the word that follows must be capitalised. H1 document titles may use Title Case where they name a controlled artefact such as a policy, standard, or charter title.
 
 Do not state that a document ensures that compliance. State that it provides a baseline, structure, evidence class, or control model that adopting organizations must validate.
 

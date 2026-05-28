@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Exit and Data Return Procedure 
 **Document Type:** Procedure 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Supplier Risk Maintainer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](standard-cloud-exit-and-data-portability.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`supply-chain/register-subprocessor-template.md`](register-subprocessor-template.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md) 
@@ -50,7 +50,7 @@ This procedure defines the steps for managing the termination of a supplier rela
 
 ## Exit planning
 
-### Step 1: exit decision and notification
+### Step 1: Exit decision and notification
 
 | Action | Responsible | Timeframe |
 |---|---|---|
@@ -61,7 +61,7 @@ This procedure defines the steps for managing the termination of a supplier rela
 | 1.5 Notify internal stakeholders: IT, Finance, Operations, DPO, HR where relevant | Contract Owner / Supplier Risk Manager | Within 3 business days of decision |
 | 1.6 Initiate contingency planning: identify alternate supplier or transition path | Resilience Manager / Operations | Immediately for Tier 1 |
 
-### Step 2: transition planning
+### Step 2: Transition planning
 
 | Action | Responsible | Timeframe |
 |---|---|---|
@@ -77,7 +77,7 @@ This procedure defines the steps for managing the termination of a supplier rela
 
 ## Data return and deletion
 
-### Step 3: data retrieval
+### Step 3: Data retrieval
 
 | Action | Responsible | Timeframe |
 |---|---|---|
@@ -88,7 +88,7 @@ This procedure defines the steps for managing the termination of a supplier rela
 | 3.5 For personal data: confirm the returned data includes all personal data categories identified in the DPA | DPO | Within 5 business days |
 | 3.6 Escalate to Legal if supplier fails to return data within the contractual deadline | Legal / DPO | Immediately on deadline breach |
 
-### Step 4: supplier data deletion
+### Step 4: Supplier data deletion
 
 | Action | Responsible | Timeframe |
 |---|---|---|
@@ -102,7 +102,7 @@ This procedure defines the steps for managing the termination of a supplier rela
 
 ## Access revocation
 
-### Step 5: access and credential removal
+### Step 5: Access and credential removal
 
 | Action | Responsible | Timeframe |
 |---|---|---|
@@ -118,7 +118,7 @@ This procedure defines the steps for managing the termination of a supplier rela
 
 ## Contract closure
 
-### Step 6: contractual and compliance closure
+### Step 6: Contractual and compliance closure
 
 | Action | Responsible | Timeframe |
 |---|---|---|
@@ -133,7 +133,7 @@ This procedure defines the steps for managing the termination of a supplier rela
 
 ## Post-exit review
 
-### Step 7: lessons learned
+### Step 7: Lessons learned
 
 | Action | Responsible | Timeframe |
 |---|---|---|

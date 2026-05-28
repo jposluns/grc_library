@@ -65,7 +65,7 @@ It governs:
 | 7 | Plan | Defines coordinated incident, continuity, recovery, migration, or response actions. |
 | 8 | Roadmap | Defines a multi-phase forward strategy tied to a strategic outcome with phased milestones and dependencies. |
 | 9 | Guideline | Provides advisory implementation interpretation of a policy or standard requirement. |
-| 10 | Guide | Provides technical reference material organised for adoption such as patterns, examples, configuration models, or implementation walkthroughs. |
+| 10 | Guide | Provides technical reference material organized for adoption such as patterns, examples, configuration models, or implementation walkthroughs. |
 | 11 | Register | Records authoritative metadata, obligations, risks, assets, systems, exceptions, or evidence. |
 | 12 | Matrix | Maps relationships among controls, risks, obligations, frameworks, lifecycle stages, and evidence. |
 | 13 | Specification | Defines technical or structural requirements for artefact creation, data fields, interfaces, or evidence. |
