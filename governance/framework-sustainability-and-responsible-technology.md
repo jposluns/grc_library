@@ -2,8 +2,8 @@
 
 **Document Title:** Sustainability and Responsible Technology Framework 
 **Document Type:** Framework 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.1.0 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Chief Information Officer 
 **Related Documents:** [`governance/policy-governance-and-risk-management.md`](policy-governance-and-risk-management.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md) 
@@ -59,7 +59,7 @@ Human rights due diligence is performed for all technology and AI projects per U
 
 ### 6. Sustainable procurement
 
-All procurement decisions consider supplier sustainability performance and environmental impact. AI and cloud service contracts include energy transparency and ethical sourcing obligations where practicable.
+All procurement decisions shall include a documented assessment of supplier sustainability performance and environmental impact. AI and cloud service contracts shall include energy transparency and ethical sourcing obligations; any omission shall be approved by the contract owner with documented justification recorded in the supplier risk record.
 
 ### 7. Measurement and reporting
 

@@ -377,6 +377,10 @@ Apply all substitutions below before producing any output. Substitution is case-
 
 The following are public standards, frameworks, regulatory citations, and programme names that must not be substituted: ISO, NIST, COBIT, CSA CCM, BASC, WCO, ISO 28000, GDPR, PIPEDA, AIDA, CPPA, PIPL, LGPD, Quebec Law 25, UK GDPR, EU AI Act, FIDO2, MITRE ATT&CK, OWASP, PTES, OSCP, CREST, CVSS, CTPAT, PIP, AEO, AEO-S, HMRC, NEEC, OEA, DORA, NIS 2, PCI DSS, HIPAA, HITECH, SOX, FedRAMP, SLSA, FAIR, VEX, SBOM, HL7, FHIR, IEC 62443, IMO, ICAO, TSA, and all other recognized public regulatory, standards, or programme acronyms.
 
+### Named open-source projects
+
+Open-source projects whose canonical name includes a vendor parent (for example PyRIT, originating from a vendor) may be referenced by the project name alone, without the vendor parent, qualified by an explanatory phrase such as "open-source AI red team automation framework". Do not retain the vendor name in body text. Vendor-only proprietary products remain subject to the sanitization substitution table above.
+
 ---
 
 **End of Document**

@@ -1,9 +1,9 @@
 # Security Ticket Reporting Scheme
 
 **Document Title:** Security Ticket Reporting Scheme 
-**Document Type:** Procedure 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Document Type:** SOP 
+**Version:** 1.1.0 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Chief Information Security Officer 
 **Related Documents:** [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md), [`security/procedure-incident-response.md`](procedure-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md) 
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This SoP defines the standard naming and reporting scheme for security incident tickets. A consistent naming convention allows the SOC and management to rapidly identify the vendor, ITSM ticket, and incident type without opening the full ticket record, improving communication speed during incident response.
+This SOP defines the standard naming and reporting scheme for security incident tickets. A consistent naming convention allows the SOC and management to rapidly identify the vendor, ITSM ticket, and incident type without opening the full ticket record, improving communication speed during incident response.
 
 ---
 

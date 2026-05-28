@@ -1,12 +1,12 @@
 # Incident Escalation Matrix
 
 **Document Title:** Incident Escalation Matrix 
-**Document Type:** Procedure 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Document Type:** SOP 
+**Version:** 1.1.0 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Chief Information Officer 
-**Related Documents:** [`security/procedure-incident-response.md`](procedure-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/business-continuity-and-crisis-management.md`](../resilience/business-continuity-and-crisis-management.md) 
+**Related Documents:** [`security/procedure-incident-response.md`](procedure-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/plan-business-continuity-and-crisis-management.md`](../resilience/plan-business-continuity-and-crisis-management.md) 
 **Classification:** Public 
 **Category:** Information Security 
 **Review Frequency:** Annual or following significant organizational or contact change 
@@ -22,7 +22,7 @@
 
 ## Purpose
 
-This SoP defines the incident escalation matrix for security incidents. It specifies severity levels, notification paths, timelines, and responsible parties to ensure that every incident is escalated to the right people at the right time. It is a companion document to the Incident Response Procedure and the Security Incident Reporting and Escalation Procedure. Those documents govern the full IR lifecycle; this SoP provides a quick-reference escalation guide for the SOC and IR team.
+This SOP defines the incident escalation matrix for security incidents. It specifies severity levels, notification paths, timelines, and responsible parties to ensure that every incident is escalated to the right people at the right time. It is a companion document to the Incident Response Procedure and the Security Incident Reporting and Escalation Procedure. Those documents govern the full IR lifecycle; this SOP provides a quick-reference escalation guide for the SOC and IR team.
 
 ---
 
@@ -60,7 +60,7 @@ This SoP defines the incident escalation matrix for security incidents. It speci
 | Privacy Officer / DPO | Email / collaboration platform | Phone |
 | External IR Partner | Hotline | Partner portal |
 
-Actual contact details (names, numbers, emails) are maintained in the confidential IR Contact Register held by the CISO. This SoP references roles only.
+Actual contact details (names, numbers, emails) are maintained in the confidential IR Contact Register held by the CISO. This SOP references roles only.
 
 ---
 

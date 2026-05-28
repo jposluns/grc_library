@@ -24,7 +24,7 @@ The repository provides reusable artefacts across the following domains:
 - Supplier, third-party, cloud, and supply-chain governance.
 - Cross-framework mapping, regulatory applicability analysis, and metrics.
 
-The library currently contains **197 documents** across 10 governance domains.
+The library currently contains approximately **200 documents** across 10 governance domains. Automated counts will replace this approximation in a future repository release.
 
 ---
 

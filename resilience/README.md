@@ -2,8 +2,8 @@
 
 **Document Title:** Resilience Domain README 
 **Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.1.0 
+**Date:** 2026-05-28 
 **Owner:** Resilience Owner 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md) 
@@ -29,7 +29,7 @@ This directory contains organization-neutral business continuity, disaster recov
 | Framework | Business Continuity and Resilience Framework | [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md) |
 | Policy | Business Continuity and Disaster Recovery Policy | [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md) |
 | Standard | Business Continuity and Disaster Recovery Standard | [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md) |
-| Plan | Business Continuity and Crisis Management Plan | [`resilience/business-continuity-and-crisis-management.md`](business-continuity-and-crisis-management.md) |
+| Plan | Business Continuity and Crisis Management Plan | [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md) |
 | Plan | Crisis Communication Plan | [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md) |
 | Procedure | Crisis Management and Emergency Operations Activation Procedure | [`resilience/procedure-crisis-management-eoc-activation.md`](procedure-crisis-management-eoc-activation.md) |
 | Procedure | Business Impact Analysis Procedure | [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md) |
@@ -39,11 +39,11 @@ This directory contains organization-neutral business continuity, disaster recov
 | Procedure | Data Protection and Privacy Breach Response Procedure | [`resilience/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md) |
 | Procedure | Backup and Recovery Procedure | [`resilience/procedure-backup-and-recovery.md`](procedure-backup-and-recovery.md) |
 | Guideline | Emergency Response and Protective Actions Guideline | [`resilience/guideline-emergency-response-and-protective-actions.md`](guideline-emergency-response-and-protective-actions.md) |
-| Template | Departmental Continuity Plan Template | [`resilience/guideline-departmental-continuity-plan-template.md`](guideline-departmental-continuity-plan-template.md) |
+| Template | Departmental Continuity Plan Template | [`resilience/template-departmental-continuity-plan.md`](template-departmental-continuity-plan.md) |
 | Annex | Trade and Supply-Chain Continuity Controls Annex | [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../supply-chain/annex-trade-and-supply-chain-continuity-controls.md) |
-| Template | Resilience Metrics and Testing Log Template | [`resilience/register-resilience-metrics-and-testing-log.md`](register-resilience-metrics-and-testing-log.md) |
+| Register | Resilience Metrics and Testing Log Register | [`resilience/register-resilience-metrics-and-testing-log.md`](register-resilience-metrics-and-testing-log.md) |
 | Register | Resilience Terms and Definitions Register | [`resilience/register-resilience-terms-and-definitions.md`](register-resilience-terms-and-definitions.md) |
-| Template | Emergency Operations Contact Directory Template | [`resilience/register-eoc-contact-directory.md`](register-eoc-contact-directory.md) |
+| Register | Emergency Operations Contact Directory Register | [`resilience/register-eoc-contact-directory.md`](register-eoc-contact-directory.md) |
 | Plan | IT Disaster Recovery Plan | [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md) |
 
 ---

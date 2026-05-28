@@ -6,7 +6,7 @@
 **Date:** 2026-05-27 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Chief Information Officer 
-**Related Documents:** [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/business-continuity-and-crisis-management.md`](business-continuity-and-crisis-management.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`security/procedure-incident-response.md`](../security/procedure-incident-response.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) 
+**Related Documents:** [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`security/procedure-incident-response.md`](../security/procedure-incident-response.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) 
 **Classification:** Public 
 **Category:** Resilience 
 **Review Frequency:** Annual or following any major infrastructure change or DR exercise 
