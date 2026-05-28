@@ -4,6 +4,27 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 21.1 (2026-05-28): Backlog file established
+
+First sub-phase of Phase 21 (project foundations before content expansion). Introduces `TODO.md` at the repository root as the canonical living backlog. Completed work is recorded here in `CHANGELOG.md`; pending work is recorded in `TODO.md`. The two files together form the project's working history-and-future record.
+
+### New file
+
+- `TODO.md` (root, no metadata block per convention for root meta-files): seeded with the prioritised enhancement list discussed during Phase 20 review. Six priority tiers from foundations (glossary, standards-currency checker) through content expansion (logistics country additions, financial-services regulators, healthcare/energy/telecom/public-sector country overlays, AI jurisdictions, privacy jurisdiction gaps) to domain-level expansion (cloud, OT/ICS, identity, PQC, cross-framework matrix expansion).
+
+### Rationale
+
+The project has been growing in scope across Phases 19 and 20 with a number of deferred items captured only in conversation. Capturing them in a tracked file in the repository ensures:
+- Continuity across sessions, contributors, and AI-assisted authorship cycles.
+- Honest disclosure of what's queued versus what's done.
+- A natural prioritisation framework before scaling country and sector content.
+
+### Convention established
+
+Root-level meta-files (`README.md`, `NOTICE.md`, `CONTRIBUTING.md`, `SECURITY.md`, `CHANGELOG.md`, `TODO.md`) are maintained at a simpler standard than tracked governance artefacts: no full 13-field metadata block, no per-document version tracking, no taxonomy or portal inclusion. They are informational and operate as project meta-infrastructure rather than tracked GRC content.
+
+All ten audits clean.
+
 ## Phase 20.2 (2026-05-28): Other industry-sector sub-directories
 
 Second sub-phase of Phase 20. Phase 20.1 established the `compliance/<sector>/` sub-directory pattern for logistics. Phase 20.2 applies the same pattern to the remaining five industry sectors so that all sector-conditional compliance content lives under its respective sector sub-directory.
