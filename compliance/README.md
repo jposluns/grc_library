@@ -2,7 +2,7 @@
 
 **Document Title:** Compliance Domain README 
 **Document Type:** Register 
-**Version:** 1.1.0 
+**Version:** 1.2.0 
 **Date:** 2026-05-28 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Governance Library Maintainer 
@@ -28,10 +28,7 @@ This directory contains compliance management policies, registers, and audit gov
 | --- | --- | --- |
 | Policy | Compliance, Audit, and CAPA Management Policy | [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md) |
 | Policy | Legal and Regulatory Compliance Policy | [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md) |
-| Policy | BASC Information Security Policy | [`compliance/policy-basc.md`](policy-basc.md) |
 | Register | Global Regulatory Applicability Register | [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md) |
-| Register | BASC IT and Information Security Responsibilities | [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md) |
-| Register | BASC IT Compliance Monitoring and KPIs | [`compliance/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md) |
 | Annex | UK AEO-S IT and Cybersecurity Security Requirements | [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md) |
 | Matrix | GRC Library Compliance Alignment | [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md) |
 | Standard | Internal Audit Standard | [`compliance/standard-internal-audit.md`](standard-internal-audit.md) |
@@ -70,8 +67,8 @@ The compliance domain covers:
 
 ## Planned expansion
 
-- ~~BASC IT and Information Security Responsibilities register~~ *(active)*
-- ~~BASC IT Compliance Monitoring and KPIs register~~ *(active)*
+- ~~BASC IT and Information Security Responsibilities register~~ *(active in the BASC sector annex; see [`sectors/basc/`](../sectors/basc/))*
+- ~~BASC IT Compliance Monitoring and KPIs register~~ *(active in the BASC sector annex; see [`sectors/basc/`](../sectors/basc/))*
 - ~~UK AEO-S IT and Cybersecurity Security Requirements annex~~ *(active)*
 - ~~GRC compliance alignment matrix~~ *(active)*
 - ~~Internal audit standard~~ *(active)*

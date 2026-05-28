@@ -26,10 +26,12 @@ To ensure that information security is systematically managed, risks are mitigat
 
 ## Scope
 
-1. Applies to all business units, employees, contractors, and third parties who access, process, or store organizational or trade data, including personnel supporting BASC-certified logistics and customs operations in Latin America (Colombia, Mexico, Peru, Chile).
-2. Covers all information assets including data, systems, networks, hardware, software, cloud environments, AI models, and mobile devices, as well as cargo, customs, and supply-chain systems governed by BASC International Standard v6.
-3. Applies to all methods of access whether on-premises, remote, or hybrid, including cross-border data exchange between logistics facilities and customs authorities.
-4. Includes all security controls necessary to maintain compliance with ISO/IEC 27001 Annex A, BASC trade-security requirements, and related frameworks.
+1. Applies to all business units, employees, contractors, and third parties who access, process, or store organizational data.
+2. Covers all information assets including data, systems, networks, hardware, software, cloud environments, AI models, and mobile devices.
+3. Applies to all methods of access whether on-premises, remote, or hybrid, including cross-border data exchange.
+4. Includes all security controls necessary to maintain compliance with ISO/IEC 27001 Annex A and related frameworks.
+
+Sector-specific overlays (for example, BASC-certified trade and logistics operations) apply where the organization participates in a programme covered by a sector annex; see [`sectors/`](../sectors/).
 
 ---
 
@@ -56,9 +58,7 @@ To ensure that information security is systematically managed, risks are mitigat
 | Employees and Contractors | Adhere to acceptable use and data protection requirements; promptly report incidents or policy violations. |
 | Internal Audit | Evaluates ISMS effectiveness and verifies compliance with ISO/IEC 27001. |
 
-**BASC Compliance Oversight**
-- Regional BASC Compliance Officers oversee implementation of BASC International Standard (v6 2023) controls across trade, logistics, and customs environments in Latin America.
-- BASC audit findings and corrective actions are tracked in the Continuous Improvement Register and reported to the Enterprise Risk Committee quarterly.
+Where the organization participates in a sector-specific security programme (for example, BASC for trade and logistics operations), the corresponding sector annex defines additional oversight roles and reporting cadences. See [`sectors/`](../sectors/).
 
 ---
 
@@ -85,10 +85,10 @@ To ensure that information security is systematically managed, risks are mitigat
 
 ### 4. Network and infrastructure security
 
-4.1 The network shall be segmented according to sensitivity, criticality, and regulatory or trade-compliance requirements, including BASC logistics-network segregation between operational, administrative, and customs zones.
+4.1 The network shall be segmented according to sensitivity, criticality, and regulatory requirements.
 4.2 Firewalls, intrusion prevention systems, and secure gateways shall be configured, monitored, and updated regularly.
-4.3 Cloud environments shall implement shared responsibility models and continuous monitoring aligned to CSA CCM IVS controls and BASC International Standard Section 6.
-4.4 All network traffic, including cargo, customs, and trade data, shall be logged and retained per the Logging and Monitoring Standard and BASC record keeping obligations.
+4.3 Cloud environments shall implement shared responsibility models and continuous monitoring aligned to CSA CCM IVS controls.
+4.4 All network traffic shall be logged and retained per the Logging and Monitoring Standard.
 
 ### 5. Endpoint and mobile security
 
@@ -104,21 +104,21 @@ To ensure that information security is systematically managed, risks are mitigat
 
 ### 7. Information handling and data protection
 
-7.1 Data classification and labelling shall follow the Data Classification Standard, assigning all trade and customs data a minimum classification of Restricted under BASC Section 6.
-7.2 Data at rest and in transit shall be encrypted using approved algorithms (AES-256 or stronger), including BASC-required PKI validation for customs and cargo data transmissions.
-7.3 Backups shall be performed daily, tested quarterly, and stored securely in geographically diverse locations, with BASC-governed trade and customs data stored only in BASC-approved or validated facilities.
+7.1 Data classification and labelling shall follow the Data Classification Standard.
+7.2 Data at rest and in transit shall be encrypted using approved algorithms (AES-256 or stronger).
+7.3 Backups shall be performed daily, tested quarterly, and stored securely in geographically diverse locations.
 
 ### 8. AI model and system security
 
 8.1 AI systems and models shall be protected against unauthorized access, modification, or data poisoning.
 8.2 Model artifacts shall be version-controlled, integrity-checked, and logged.
 8.3 Validation and verification procedures shall be implemented to ensure that accuracy, fairness, and reproducibility.
-8.4 AI model risk metrics shall align with NIST CSF 2.0 and AI RMF 1.1.
+8.4 AI model risk metrics shall align with NIST CSF 2.0 and NIST AI RMF 1.0 (with the AI 600-1 Generative AI Profile).
 
 ### 9. Incident response and reporting
 
-9.1 All suspected or confirmed information security incidents, including trade and customs data breaches or BASC control failures, must be reported immediately to the security operations team and the Regional BASC Compliance Officer.
-9.2 Incident response shall follow the NIST 800-61 framework, COBIT DSS02, and BASC incident-handling procedures aligned to WCO SAFE.
+9.1 All suspected or confirmed information security incidents must be reported immediately to the security operations team.
+9.2 Incident response shall follow the NIST 800-61 framework and COBIT DSS02.
 9.3 Root cause analysis and lessons learned must be completed within ten business days of incident closure.
 
 ### 10. Monitoring and continuous improvement
@@ -142,7 +142,7 @@ To ensure that information security is systematically managed, risks are mitigat
 | AI Model Security | A.8 (emerging) | N/A | Protect, Detect | DSS01.06 | ISM-10 |
 | Continuous Improvement | Clause 10 | 18.1 | Recover | MEA01 | ISM-12 |
 
-**Additional alignments:** BASC International Standard (v6 2023); WCO SAFE Framework (2021); ISO 28000:2022; PIPEDA; AIDA.
+**Additional alignments:** ISO 28000:2022; PIPEDA; AIDA. Sector-specific overlays including BASC International Standard (v6 2023) and WCO SAFE Framework (2021) apply where the organization participates in those programmes; see [`sectors/`](../sectors/).
 
 
 

@@ -141,16 +141,11 @@ Retention ensures that traceability under EU AI Act Annex IV, OECD AI Principles
 
 ---
 
-## Section 6: BASC trade and customs records
+## Section 6: sector-specific retention overlays
 
-For operations governed by BASC International Standards in Latin America, retention must include:
+Where the organization participates in a sector-specific programme that imposes its own retention obligations (for example, BASC for trade and logistics operations, sector-specific financial-services or healthcare regulations), the corresponding sector annex defines the additional retention categories, minimum retention periods, and destruction requirements. See [`sectors/`](../sectors/) and the sector-specific compliance annexes in [`compliance/`](../compliance/).
 
-- Cargo and shipment manifests.
-- Inspection logs and security seal records.
-- Personnel background verification records.
-- Customs communications and export declarations.
-
-Minimum retention is 5 years or as required by the applicable national customs authority. Once retention obligations expire, trade data must be destroyed using the approved secure methods defined in Section 4.
+Sector overlays extend (do not contradict) the retention requirements defined elsewhere in this standard. Where the overlay specifies a longer retention period than the base requirement, the longer period applies.
 
 ---
 

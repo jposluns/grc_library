@@ -24,10 +24,10 @@ This policy establishes the enterprise governance and risk management framework,
 
 ## 2. Scope
 
-1. This policy applies to all business units, regions, subsidiaries, and joint ventures where the organization has operational control, including BASC-certified logistics operations in Latin America (Colombia, Mexico, Peru, and Chile).
+1. This policy applies to all business units, regions, subsidiaries, and joint ventures where the organization has operational control.
 2. It covers strategic, operational, financial, compliance, information security, privacy, safety, environmental, AI, and supply-chain risks across on-premises, cloud, multi-cloud, edge, and supplier-hosted services.
-3. It applies to all employees, contractors, suppliers, and partners who process organizational or trade data, handle cargo, or operate customs-facing systems.
-4. It encompasses trade-security and supply-chain risk management aligned to globally recognized programmes including WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), AEO-S (United Kingdom), NEEC (Mexico), OEA (Brazil), and equivalent frameworks.
+3. It applies to all employees, contractors, suppliers, and partners who process organizational data or operate organization-controlled systems.
+4. Where the organization participates in trade-security and supply-chain programmes (for example, WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO, AEO-S, NEEC, OEA, and equivalent frameworks), the relevant sector annex extends this policy with programme-specific obligations; see [`sectors/`](../sectors/) and the transportation and logistics sector annex.
 
 ---
 

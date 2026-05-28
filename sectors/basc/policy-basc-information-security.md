@@ -2,15 +2,15 @@
 
 **Document Title:** BASC Information Security Policy 
 **Document Type:** Policy 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.1.0 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) 
+**Related Documents:** [`sectors/README.md`](../README.md), [`sectors/basc/README.md`](README.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`sectors/basc/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`sectors/basc/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md), [`compliance/policy-compliance-and-audit-management.md`](../../compliance/policy-compliance-and-audit-management.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md) 
 **Classification:** Public 
-**Category:** Compliance Management 
+**Category:** Sector Annex 
 **Review Frequency:** Annual and upon material BASC framework or infrastructure change 
-**Repository Path:** [`compliance/policy-basc.md`](policy-basc.md) 
+**Repository Path:** [`sectors/basc/policy-basc-information-security.md`](policy-basc-information-security.md) 
 **Confidentiality:** Public 
 **License:** CC0 1.0 Universal 
 

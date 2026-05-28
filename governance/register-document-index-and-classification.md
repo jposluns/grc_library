@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register 
 **Document Type:** Register 
-**Version:** 1.20.0 
+**Version:** 1.21.0 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -60,10 +60,10 @@ All active repository documents should be Public.
 | Risk | Procedure | Risk Acceptance Procedure | [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md) | Chief Risk Officer | Annual | Residual risk, acceptance authority, compensating controls |
 | Compliance | Policy | Compliance and Audit Management Policy | [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) | Chief Compliance Officer | Annual | Compliance, audit, control testing, corrective action |
 | Compliance | Policy | Legal and Regulatory Compliance Policy | [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md) | Chief Compliance Officer | Annual | ISO 37301, COBIT MEA03, GDPR, NIS 2, EU AI Act, BASC v6, WCO SAFE |
-| Compliance | Policy | BASC Information Security Policy | [`compliance/policy-basc.md`](../compliance/policy-basc.md) | Chief Information Security Officer | Annual | BASC v6 Chapter 6, IT security controls, access management, threat response |
+| Sectors | Policy | BASC Information Security Policy | [`sectors/basc/policy-basc-information-security.md`](../sectors/basc/policy-basc-information-security.md) | Chief Information Security Officer | Annual | BASC v6 Chapter 6, IT security controls, access management, threat response |
 | Compliance | Register | Global Regulatory Applicability Register | [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md) | Compliance Maintainer | 6 to 12 months | Privacy, cybersecurity, AI, resilience, supplier, trade, and sector regimes |
-| Compliance | Register | BASC IT and Information Security Responsibilities | [`compliance/register-basc-it-responsibilities.md`](../compliance/register-basc-it-responsibilities.md) | Compliance Maintainer | Annual | BASC v6 §5.1 to §10, IT security obligations, supply-chain trusted-trader |
-| Compliance | Register | BASC IT Compliance Monitoring and KPIs | [`compliance/register-basc-it-compliance-kpis.md`](../compliance/register-basc-it-compliance-kpis.md) | Compliance Maintainer | Annual | BASC v6 §9.1, KPI monitoring, continuous improvement |
+| Sectors | Register | BASC IT and Information Security Responsibilities | [`sectors/basc/register-basc-it-responsibilities.md`](../sectors/basc/register-basc-it-responsibilities.md) | Compliance Maintainer | Annual | BASC v6 §5.1 to §10, IT security obligations, supply-chain trusted-trader |
+| Sectors | Register | BASC IT Compliance Monitoring and KPIs | [`sectors/basc/register-basc-it-compliance-kpis.md`](../sectors/basc/register-basc-it-compliance-kpis.md) | Compliance Maintainer | Annual | BASC v6 §9.1, KPI monitoring, continuous improvement |
 | Compliance | Annex | UK AEO-S IT and Cybersecurity Security Requirements | [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](../compliance/annex-aeo-s-it-cybersecurity-requirements.md) | Compliance Maintainer | Annual | HMRC AEO-S, WCO SAFE, ISO 27001, trusted-trader IT controls |
 | Compliance | Matrix | GRC Library Compliance Alignment Matrix | [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md) | Governance Library Maintainer | Annual | CSA CCM v4.1, ISO 27001, NIST CSF, CTPAT, PIP, BASC v6, WCO SAFE, AEO/AEO-S |
 | Compliance | Standard | Internal Audit Standard | [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md) | Chief Compliance Officer | Annual | ISO 19011:2018, ISO 27001 §9.2, audit principles, independence, CAPA |

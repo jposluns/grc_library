@@ -2,7 +2,7 @@
 
 **Document Title:** Master Project Specification 
 **Document Type:** Specification 
-**Version:** 1.2.4 
+**Version:** 1.2.5 
 **Date:** 2026-05-28 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Chief Risk Officer 
@@ -95,6 +95,7 @@ Top-level structure for governance artefacts:
 /dev-security/
 /operations/
 /architecture/
+/sectors/
 ```
 
 Repository infrastructure directories and files that are not used for governance artefacts but are part of the repository:
@@ -141,6 +142,8 @@ Documents subject to this specification are placed only in the governance-artefa
 | `risk/` | Enterprise risk management, risk registers, KRIs, risk appetite, quantitative analysis, AI risk methodology, and third-party risk standards |
 | `dev-security/` | Secure development standards, DevOps security, software composition analysis, developer quick references, and AI coding agent rule files |
 | `operations/` | IT operations, asset management, change management, configuration management, and security operations registers |
+| `architecture/` | Enterprise architecture practice: framework, decision records, reference architectures, technology radar, architecture review, API design, data architecture, and integration architecture |
+| `sectors/` | Optional sector annexes for organisations participating in sector-specific programmes (e.g. BASC). Sector content is conditional. |
 
 ### 4.3 Document-type definitions
 

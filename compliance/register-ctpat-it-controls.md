@@ -6,7 +6,7 @@
 **Date:** 2026-05-28 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md), [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/standard-third-party-risk.md`](../supply-chain/standard-third-party-risk.md), [`supply-chain/register-ctpat-full-msc-controls.md`](../supply-chain/register-ctpat-full-msc-controls.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md) 
+**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md), [`sectors/basc/register-basc-it-responsibilities.md`](../sectors/basc/register-basc-it-responsibilities.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/standard-third-party-risk.md`](../supply-chain/standard-third-party-risk.md), [`supply-chain/register-ctpat-full-msc-controls.md`](../supply-chain/register-ctpat-full-msc-controls.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md) 
 **Classification:** Public 
 **Category:** Trade Compliance: IT and Cybersecurity Controls 
 **Review Frequency:** Annual and upon material CTPAT criteria update, audit finding, or certification renewal 
@@ -79,7 +79,7 @@ See [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-c
 
 ## CTPAT-BASC control alignment
 
-BASC (Business Alliance for Secure Commerce) requires comparable IT security controls for Latin American trade routes. See [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md) for the detailed BASC IT mapping. Key overlapping criteria:
+BASC (Business Alliance for Secure Commerce) requires comparable IT security controls for Latin American trade routes. See [`sectors/basc/register-basc-it-responsibilities.md`](../sectors/basc/register-basc-it-responsibilities.md) for the detailed BASC IT mapping. Key overlapping criteria:
 
 | CTPAT Criterion | BASC Equivalent |
 |---|---|
