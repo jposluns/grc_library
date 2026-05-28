@@ -137,7 +137,7 @@ For suppliers in scope of a sector programme (for example, BASC for Latin Americ
 - Adequacy of cargo inspection procedures, seal integrity controls, and tamper-evidence mechanisms.
 - Security of communication channels with customs authorities and regulatory systems.
 
-Sector-programme compliance metrics must be reported to the sector-conditional role defined by the relevant sector annex (for example, a BASC Regional Compliance Officer where the BASC annex defines that role) and the Enterprise Risk Committee on a quarterly basis; see [`sectors/`](../sectors/).
+Sector-programme compliance metrics must be reported to the sector-conditional role defined by the relevant sector annex (for example, a BASC Regional Compliance Officer where the BASC annex defines that role) and the Enterprise Risk Committee on a quarterly basis; see [`compliance/`](../compliance/).
 
 ---
 

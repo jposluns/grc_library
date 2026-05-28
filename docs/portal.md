@@ -153,17 +153,18 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 ### Annex
 
 - [AI-Specific Risk Methodology Annex](../risk/annex-ai-risk-methodology.md)
+- [BASC Programme Overview Annex](../compliance/logistics/annex-basc-programme-overview.md)
 - [DORA Implementation Annex](../compliance/annex-dora-implementation.md)
 - [Energy and Utilities Sector Requirements Annex](../compliance/annex-energy-and-utilities-sector-requirements.md)
 - [FedRAMP Sector Requirements Annex](../compliance/annex-fedramp-requirements.md)
 - [Financial Services Sector GRC Requirements Annex](../compliance/annex-financial-services-sector-requirements.md)
 - [Healthcare Sector GRC Requirements Annex](../compliance/annex-healthcare-sector-requirements.md)
+- [Logistics Sector GRC Requirements Annex](../compliance/logistics/annex-logistics-sector-requirements.md)
 - [NIS 2 Implementation Annex](../compliance/annex-nis-2-implementation.md)
 - [Public Sector GRC Requirements Annex](../compliance/annex-public-sector-requirements.md)
 - [SOX IT General Controls Annex](../compliance/annex-sox-itgc.md)
 - [Telecommunications Sector Requirements Annex](../compliance/annex-telecommunications-sector-requirements.md)
-- [Transportation and Logistics Sector GRC Requirements Annex](../compliance/annex-transportation-and-logistics-sector-requirements.md)
-- [UK AEO-S IT and Cybersecurity Security Requirements](../compliance/annex-aeo-s-it-cybersecurity-requirements.md)
+- [UK AEO-S IT and Cybersecurity Requirements](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md)
 
 ### Charter
 
@@ -192,6 +193,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 
 ### Policy
 
+- [BASC Information Security Policy](../compliance/logistics/policy-basc-information-security.md)
 - [Compliance, Audit, and CAPA Management Policy](../compliance/policy-compliance-and-audit-management.md)
 - [Digital Twin and Simulation Governance Policy](../governance/policy-digital-twin-and-simulation-governance.md)
 - [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md)
@@ -199,7 +201,6 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 
 ### Procedure
 
-- [AEO IT Self-Assessment Procedure](../compliance/procedure-aeo-it-self-assessment.md)
 - [Audit Planning Procedure](../compliance/procedure-audit-planning.md)
 - [Continuous Improvement Register Procedure](../governance/procedure-continuous-improvement-register.md)
 - [Control Testing Procedure](../compliance/procedure-control-testing.md)
@@ -209,12 +210,15 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [Risk Acceptance Procedure](../risk/procedure-risk-acceptance.md)
 - [Risk Assessment Methodology Procedure](../risk/procedure-risk-assessment-methodology.md)
 - [Risk Register Procedure](../risk/procedure-risk-register.md)
+- [UK AEO IT Self-Assessment Procedure](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md)
 - [Whistleblower and Incident Reporting Procedure](../governance/procedure-whistleblower-and-incident-reporting.md)
 
 ### Register
 
 - [Assurance Map Register](../risk/register-assurance-map.md)
-- [CTPAT IT and Cybersecurity Compliance Controls Register](../compliance/register-ctpat-it-controls.md)
+- [BASC IT Compliance Monitoring and KPIs](../compliance/logistics/register-basc-it-compliance-kpis.md)
+- [BASC IT and Information Security Responsibilities](../compliance/logistics/register-basc-it-responsibilities.md)
+- [Canada PIP IT and Cybersecurity Compliance Controls Register](../compliance/logistics/register-pip-canada-controls.md)
 - [Compliance Obligations Register Template](../compliance/register-compliance-obligations-template.md)
 - [Data Retention Schedule](../governance/register-data-retention-schedule.md)
 - [Digital Trust and Assurance Metrics Register](../governance/register-digital-trust-and-assurance-metrics.md)
@@ -223,9 +227,10 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [Global Regulatory Applicability Register](../compliance/register-global-regulatory-applicability.md)
 - [Key Risk Indicator Catalogue](../risk/register-key-risk-indicators.md)
 - [Key Terms and Definitions Register](../governance/register-key-terms-and-definitions.md)
-- [PIP IT and Cybersecurity Compliance Controls Register](../compliance/register-pip-compliance-controls.md)
 - [Role Authority Register](../governance/register-role-authority.md)
 - [Scenario Risk Catalogue](../risk/register-scenario-risk-catalogue.md)
+- [US CTPAT Full Minimum Security Criteria Controls Register](../compliance/logistics/register-ctpat-united-states-msc-controls.md)
+- [US CTPAT IT and Cybersecurity Compliance Controls Register](../compliance/logistics/register-ctpat-united-states-it-controls.md)
 
 ### Standard
 
@@ -242,7 +247,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [Library Health Report Template](../governance/template-library-health-report.md)
 - [Operational Risk Register Template](../risk/template-operational-risk-register.md)
 - [Risk Appetite Statement Template](../risk/template-risk-appetite-statement.md)
-- [Trade Compliance Programme Gap Assessment Template](../compliance/template-trade-compliance-gap-assessment.md)
+- [Trade Compliance Programme Gap Assessment Template](../compliance/logistics/template-trade-compliance-gap-assessment.md)
 
 ---
 
@@ -408,17 +413,18 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 
 ### Annex
 
+- [BASC Programme Overview Annex](../compliance/logistics/annex-basc-programme-overview.md)
 - [DORA Implementation Annex](../compliance/annex-dora-implementation.md)
 - [Energy and Utilities Sector Requirements Annex](../compliance/annex-energy-and-utilities-sector-requirements.md)
 - [FedRAMP Sector Requirements Annex](../compliance/annex-fedramp-requirements.md)
 - [Financial Services Sector GRC Requirements Annex](../compliance/annex-financial-services-sector-requirements.md)
 - [Healthcare Sector GRC Requirements Annex](../compliance/annex-healthcare-sector-requirements.md)
+- [Logistics Sector GRC Requirements Annex](../compliance/logistics/annex-logistics-sector-requirements.md)
 - [NIS 2 Implementation Annex](../compliance/annex-nis-2-implementation.md)
 - [Public Sector GRC Requirements Annex](../compliance/annex-public-sector-requirements.md)
 - [SOX IT General Controls Annex](../compliance/annex-sox-itgc.md)
 - [Telecommunications Sector Requirements Annex](../compliance/annex-telecommunications-sector-requirements.md)
-- [Transportation and Logistics Sector GRC Requirements Annex](../compliance/annex-transportation-and-logistics-sector-requirements.md)
-- [UK AEO-S IT and Cybersecurity Security Requirements](../compliance/annex-aeo-s-it-cybersecurity-requirements.md)
+- [UK AEO-S IT and Cybersecurity Requirements](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md)
 
 ### Matrix
 
@@ -426,22 +432,26 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 
 ### Policy
 
+- [BASC Information Security Policy](../compliance/logistics/policy-basc-information-security.md)
 - [Compliance, Audit, and CAPA Management Policy](../compliance/policy-compliance-and-audit-management.md)
 - [Legal and Regulatory Compliance Policy](../compliance/policy-legal-and-regulatory-compliance.md)
 
 ### Procedure
 
-- [AEO IT Self-Assessment Procedure](../compliance/procedure-aeo-it-self-assessment.md)
 - [Audit Planning Procedure](../compliance/procedure-audit-planning.md)
 - [Control Testing Procedure](../compliance/procedure-control-testing.md)
 - [Corrective and Preventive Action (CAPA) Procedure](../compliance/procedure-capa.md)
+- [UK AEO IT Self-Assessment Procedure](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md)
 
 ### Register
 
-- [CTPAT IT and Cybersecurity Compliance Controls Register](../compliance/register-ctpat-it-controls.md)
+- [BASC IT Compliance Monitoring and KPIs](../compliance/logistics/register-basc-it-compliance-kpis.md)
+- [BASC IT and Information Security Responsibilities](../compliance/logistics/register-basc-it-responsibilities.md)
+- [Canada PIP IT and Cybersecurity Compliance Controls Register](../compliance/logistics/register-pip-canada-controls.md)
 - [Compliance Obligations Register Template](../compliance/register-compliance-obligations-template.md)
 - [Global Regulatory Applicability Register](../compliance/register-global-regulatory-applicability.md)
-- [PIP IT and Cybersecurity Compliance Controls Register](../compliance/register-pip-compliance-controls.md)
+- [US CTPAT Full Minimum Security Criteria Controls Register](../compliance/logistics/register-ctpat-united-states-msc-controls.md)
+- [US CTPAT IT and Cybersecurity Compliance Controls Register](../compliance/logistics/register-ctpat-united-states-it-controls.md)
 
 ### Standard
 
@@ -449,7 +459,7 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 
 ### Template
 
-- [Trade Compliance Programme Gap Assessment Template](../compliance/template-trade-compliance-gap-assessment.md)
+- [Trade Compliance Programme Gap Assessment Template](../compliance/logistics/template-trade-compliance-gap-assessment.md)
 
 ---
 

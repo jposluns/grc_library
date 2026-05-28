@@ -1,16 +1,16 @@
-# CTPAT Full Minimum Security Criteria Controls Register
+# US CTPAT Full Minimum Security Criteria Controls Register
 
-**Document Title:** CTPAT Full Minimum Security Criteria Controls Register 
+**Document Title:** US CTPAT Full Minimum Security Criteria Controls Register 
 **Document Type:** Register 
-**Version:** 1.0.1 
+**Version:** 1.0.2 
 **Date:** 2026-05-28 
 **Owner:** Supplier Risk Maintainer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](matrix-supply-chain-security-programme-alignment.md), [`compliance/register-ctpat-it-controls.md`](../compliance/register-ctpat-it-controls.md), [`compliance/register-pip-compliance-controls.md`](../compliance/register-pip-compliance-controls.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](../compliance/annex-aeo-s-it-cybersecurity-requirements.md), [`sectors/basc/register-basc-it-responsibilities.md`](../sectors/basc/register-basc-it-responsibilities.md), [`compliance/template-trade-compliance-gap-assessment.md`](../compliance/template-trade-compliance-gap-assessment.md) 
+**Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../../supply-chain/annex-trade-and-supply-chain-continuity-controls.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md) 
 **Classification:** Public 
-**Category:** Supply Chain Governance: Trade Security 
+**Category:** Compliance: Logistics Sector 
 **Review Frequency:** Annual and upon CTPAT criteria revision, CBP validation visit, or material supply chain change 
-**Repository Path:** [`supply-chain/register-ctpat-full-msc-controls.md`](register-ctpat-full-msc-controls.md) 
+**Repository Path:** [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](register-ctpat-united-states-msc-controls.md) 
 **Confidentiality:** Public 
 **License:** CC0 1.0 Universal 
 
@@ -18,11 +18,11 @@
 
 ## Purpose
 
-This register documents the organisation's implementation status against the full set of CTPAT Minimum Security Criteria (2020 revision) across all security domains: physical security, personnel security, cargo security, conveyance security, business partner security, information technology, and procedural controls. It complements [`compliance/register-ctpat-it-controls.md`](../compliance/register-ctpat-it-controls.md), which focuses specifically on IT and cybersecurity criteria.
+This register documents the organisation's implementation status against the full set of CTPAT Minimum Security Criteria (2020 revision) across all security domains: physical security, personnel security, cargo security, conveyance security, business partner security, information technology, and procedural controls. It complements [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), which focuses specifically on IT and cybersecurity criteria.
 
 **Programme authority:** U.S. Customs and Border Protection (CBP) 
-**UK equivalent:** Authorized Economic Operator to Security and Safety (AEO-S): see [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](../compliance/annex-aeo-s-it-cybersecurity-requirements.md) 
-**Canada equivalent:** Partners in Protection (PIP): see [`compliance/register-pip-compliance-controls.md`](../compliance/register-pip-compliance-controls.md) 
+**UK equivalent:** Authorized Economic Operator to Security and Safety (AEO-S): see [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md) 
+**Canada equivalent:** Partners in Protection (PIP): see [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md) 
 **Mutual recognition:** CTPAT maintains mutual recognition arrangements with AEO (EU), UK AEO-S, and Canada PIP, providing reciprocal facilitation benefits for qualifying members.
 
 ---
@@ -45,8 +45,8 @@ CTPAT membership requires organisations to meet Minimum Security Criteria (MSC) 
 |---|---|---|---|---|---|
 | CS-1 | Written security policies and procedures covering supply chain security | Security policy and supply chain security procedures documented and approved | Policy register | Implemented | |
 | CS-2 | Designated security point of contact responsible for CTPAT programme | Trade Compliance Manager designated as CTPAT Security Officer | Role description; org chart | Implemented | |
-| CS-3 | Security assessment conducted to identify vulnerabilities | Annual trade compliance gap assessment completed per [`compliance/template-trade-compliance-gap-assessment.md`](../compliance/template-trade-compliance-gap-assessment.md) | Gap assessment record | Implemented | |
-| CS-4 | Corrective action plans for identified vulnerabilities | CAPA process in place per [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) | CAPA records | Implemented | |
+| CS-3 | Security assessment conducted to identify vulnerabilities | Annual trade compliance gap assessment completed per [`compliance/logistics/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md) | Gap assessment record | Implemented | |
+| CS-4 | Corrective action plans for identified vulnerabilities | CAPA process in place per [`compliance/procedure-capa.md`](../procedure-capa.md) | CAPA records | Implemented | |
 | CS-5 | Security training for relevant personnel | Annual supply chain security awareness training delivered | Training records | Implemented | |
 
 ---
@@ -80,7 +80,7 @@ CTPAT membership requires organisations to meet Minimum Security Criteria (MSC) 
 | Control ID | CTPAT Criterion | Implementation Description | Evidence Location | Status | Last Reviewed |
 |---|---|---|---|---|---|
 | PE-1 | Pre-employment background screening: as permitted by law | Background check process for supply chain roles | HR screening procedure | Implemented | |
-| PE-2 | Personnel termination procedures: access removal, credential recovery | Access revocation procedure per [`security/procedure-access-control.md`](../security/procedure-access-control.md) | Revocation procedure | Implemented | |
+| PE-2 | Personnel termination procedures: access removal, credential recovery | Access revocation procedure per [`security/procedure-access-control.md`](../../security/procedure-access-control.md) | Revocation procedure | Implemented | |
 | PE-3 | Employee reporting mechanism for suspicious activity | Anonymous reporting channel available | Reporting channel documentation | Implemented | |
 | PE-4 | Ongoing training and security awareness | Annual security awareness training including supply chain threats | Training completion records | Implemented | |
 
@@ -103,16 +103,16 @@ CTPAT membership requires organisations to meet Minimum Security Criteria (MSC) 
 
 | Control ID | CTPAT Criterion | Implementation Description | Evidence Location | Status | Last Reviewed |
 |---|---|---|---|---|---|
-| BP-1 | Security vetting of trading partners | Due diligence process per [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md) | Assessment records | Implemented | |
+| BP-1 | Security vetting of trading partners | Due diligence process per [`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md) | Assessment records | Implemented | |
 | BP-2 | Written security requirements in partner contracts | Security obligations in freight and logistics contracts | Contract templates | Implemented | |
 | BP-3 | Process for verifying partner CTPAT / AEO-S / PIP membership | Verification via CBP portal; HMRC; CBSA directory | Verification records | Implemented | |
-| BP-4 | Periodic reassessment of partner security posture | Ongoing monitoring per [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md) | Monitoring records | Implemented | |
+| BP-4 | Periodic reassessment of partner security posture | Ongoing monitoring per [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../../supply-chain/procedure-supplier-ongoing-monitoring.md) | Monitoring records | Implemented | |
 
 ---
 
 ## Domain 7: information technology
 
-*For detailed IT and cybersecurity criteria mapping, see [`compliance/register-ctpat-it-controls.md`](../compliance/register-ctpat-it-controls.md).*
+*For detailed IT and cybersecurity criteria mapping, see [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md).*
 
 | Control ID | CTPAT Criterion | Status | Last Reviewed |
 |---|---|---|---|
@@ -143,7 +143,7 @@ For each of the seven CTPAT domains, the equivalent AEO-S requirement exists und
 | Business Partner Security | Verify partner UK AEO-S status via HMRC; EU AEO for EU-routed shipments |
 | Information Technology | HMRC incident notification supplement; UK data protection law compliance |
 
-See [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](../compliance/annex-aeo-s-it-cybersecurity-requirements.md) and [`compliance/procedure-aeo-it-self-assessment.md`](../compliance/procedure-aeo-it-self-assessment.md) for AEO-S operational procedures.
+See [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md) and [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](procedure-aeo-united-kingdom-self-assessment.md) for AEO-S operational procedures.
 
 ---
 

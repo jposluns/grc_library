@@ -45,7 +45,7 @@ Effective security monitoring reduces mean time to detect (MTTD) threats, ensure
 | **IT Operations** | Ensures that log source connectivity and agent health; resolves log ingestion failures within defined SLAs; assists with infrastructure-level investigation of alerts. |
 | **Internal Audit** | Reviews SOC operational records, SLA adherence, and rule maintenance logs annually. |
 
-Sector-conditional roles (for example, a BASC Regional Compliance Officer who receives escalated notifications for trade-security anomalies and coordinates with customs authorities where required) apply where the organisation participates in a covered sector programme; see [`sectors/`](../sectors/).
+Sector-conditional roles (for example, a BASC Regional Compliance Officer who receives escalated notifications for trade-security anomalies and coordinates with customs authorities where required) apply where the organisation participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 ---
 
@@ -196,7 +196,7 @@ In the absence of a clear indicator, the SOC lead escalates ambiguous high-sever
 
 ### 7.3 Sector-programme anomaly escalation
 
-Where the organisation participates in a sector programme that defines elevated-escalation alert categories (for example, BASC for trade and customs, healthcare-sector escalation for PHI access anomalies, financial-sector escalation for payment-rail anomalies), SIEM alerts tagged with the sector scope indicator that are triaged as true positives within the annex-defined trigger categories are escalated to the sector-conditional role defined by the relevant sector annex (for example, a BASC Regional Compliance Officer for the BASC programme) within the annex's stated timeframe. The sector-conditional role determines whether onward sector-authority notification is required. See [`sectors/`](../sectors/) for sector-specific escalation paths, triggers, and timeframes.
+Where the organisation participates in a sector programme that defines elevated-escalation alert categories (for example, BASC for trade and customs, healthcare-sector escalation for PHI access anomalies, financial-sector escalation for payment-rail anomalies), SIEM alerts tagged with the sector scope indicator that are triaged as true positives within the annex-defined trigger categories are escalated to the sector-conditional role defined by the relevant sector annex (for example, a BASC Regional Compliance Officer for the BASC programme) within the annex's stated timeframe. The sector-conditional role determines whether onward sector-authority notification is required. See [`compliance/`](../compliance/) for sector-specific escalation paths, triggers, and timeframes.
 
 ### 7.4 Identity threat escalation
 

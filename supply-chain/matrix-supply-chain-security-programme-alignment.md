@@ -6,7 +6,7 @@
 **Date:** 2026-05-27 
 **Owner:** Supplier Risk Maintainer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`supply-chain/register-ctpat-full-msc-controls.md`](register-ctpat-full-msc-controls.md), [`compliance/register-ctpat-it-controls.md`](../compliance/register-ctpat-it-controls.md), [`compliance/register-pip-compliance-controls.md`](../compliance/register-pip-compliance-controls.md), [`sectors/basc/register-basc-it-responsibilities.md`](../sectors/basc/register-basc-it-responsibilities.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](../compliance/annex-aeo-s-it-cybersecurity-requirements.md), [`compliance/procedure-aeo-it-self-assessment.md`](../compliance/procedure-aeo-it-self-assessment.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`compliance/template-trade-compliance-gap-assessment.md`](../compliance/template-trade-compliance-gap-assessment.md) 
+**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](../compliance/logistics/register-ctpat-united-states-msc-controls.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](../compliance/logistics/register-pip-canada-controls.md), [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](../compliance/logistics/template-trade-compliance-gap-assessment.md) 
 **Classification:** Public 
 **Category:** Supply Chain Governance: Programme Alignment 
 **Review Frequency:** Annual and upon material programme criteria update or new programme membership 
@@ -85,10 +85,10 @@ The following matrix maps the common supply chain security domains against each 
 | Audit logging | ✓ | ✓ | ~ | ~ | N/A |
 
 **Detailed IT mapping documents:**
-- CTPAT IT: [`compliance/register-ctpat-it-controls.md`](../compliance/register-ctpat-it-controls.md)
-- AEO-S IT: [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](../compliance/annex-aeo-s-it-cybersecurity-requirements.md)
-- PIP IT: [`compliance/register-pip-compliance-controls.md`](../compliance/register-pip-compliance-controls.md)
-- BASC IT: [`sectors/basc/register-basc-it-responsibilities.md`](../sectors/basc/register-basc-it-responsibilities.md)
+- CTPAT IT: [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md)
+- AEO-S IT: [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md)
+- PIP IT: [`compliance/logistics/register-pip-canada-controls.md`](../compliance/logistics/register-pip-canada-controls.md)
+- BASC IT: [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md)
 
 ---
 

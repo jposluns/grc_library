@@ -44,7 +44,7 @@ It ensures that ongoing monitoring, evaluation, and improvement activities are c
 | **AI Governance Council (AIGC)** | Monitors AI maturity, ethics performance, and digital trust indicators. |
 | **Enterprise Risk Committee (ERC)** | Reviews assurance outcomes and approves improvement initiatives. |
 
-Sector-conditional roles (for example, a BASC Regional Compliance Officer for trade, customs, and supply-chain assurance) apply where the organisation participates in a covered sector programme; see [`sectors/`](../sectors/).
+Sector-conditional roles (for example, a BASC Regional Compliance Officer for trade, customs, and supply-chain assurance) apply where the organisation participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 ---
 
@@ -133,7 +133,7 @@ Performance data from all assurance activities feed into the Governance Performa
 
 ## 6. Sector-programme integration
 
-6.1 Where the organisation participates in a sector programme (for example, BASC for trade and logistics, CTPAT for US trade, AEO for EU trade), the corresponding sector annex defines additional assurance cycles. Sector-programme assurance is incorporated into the calendar in section 4 alongside enterprise assurance. See [`sectors/`](../sectors/).
+6.1 Where the organisation participates in a sector programme (for example, BASC for trade and logistics, CTPAT for US trade, AEO for EU trade), the corresponding sector annex defines additional assurance cycles. Sector-programme assurance is incorporated into the calendar in section 4 alongside enterprise assurance. See [`compliance/`](../compliance/).
 
 6.2 Sector-conditional roles (for example, a BASC Regional Compliance Officer where the relevant sector annex defines that role) maintain the sector-programme assurance logs and ensure that dual reporting to the sector body and the ERC follows the annex's cadence and channels.
 

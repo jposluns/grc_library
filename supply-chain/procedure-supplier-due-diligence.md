@@ -20,7 +20,7 @@
 
 This procedure defines the methodology for pre-qualification, risk assessment, and ongoing compliance review of suppliers, vendors, and third-party partners. It establishes a consistent, evidence-based approach to evaluating supplier fitness prior to engagement and at defined reassessment intervals throughout the supplier lifecycle.
 
-This procedure is aligned with ISO/IEC 27036-2, COBIT 2019 BAI05, and CSA CCM v4.1 STA-01. Sector-specific framework alignments (for example, BASC International Standard v6 2023 for trade and logistics suppliers) apply where the organisation participates in a covered programme; see [`sectors/`](../sectors/).
+This procedure is aligned with ISO/IEC 27036-2, COBIT 2019 BAI05, and CSA CCM v4.1 STA-01. Sector-specific framework alignments (for example, BASC International Standard v6 2023 for trade and logistics suppliers) apply where the organisation participates in a covered programme; see [`compliance/`](../compliance/).
 
 ---
 
@@ -28,7 +28,7 @@ This procedure is aligned with ISO/IEC 27036-2, COBIT 2019 BAI05, and CSA CCM v4
 
 1. Applies to all suppliers and third-party entities engaged to provide goods or services to the organisation.
 2. Covers pre-engagement due diligence, contract validation, and periodic compliance reassessment.
-3. Applies globally; sector-specific overlays (for example, BASC for trade and logistics partners) apply where the organisation participates in a covered programme, per [`sectors/`](../sectors/).
+3. Applies globally; sector-specific overlays (for example, BASC for trade and logistics partners) apply where the organisation participates in a covered programme, per [`compliance/`](../compliance/).
 4. Applies to suppliers providing AI systems, cloud services, logistics solutions, or data-handling activities.
 
 ---
@@ -45,7 +45,7 @@ This procedure is aligned with ISO/IEC 27036-2, COBIT 2019 BAI05, and CSA CCM v4
 | Sustainability Officer | Reviews environmental and social responsibility disclosures submitted by suppliers. |
 | AI Governance Council | Reviews AI-enabled vendors for ethical, transparency, security, and regulatory compliance. |
 
-Sector-specific reviewer roles (for example, Regional Compliance Officers for sector-regulated operations) apply where the organisation participates in a covered programme; see [`sectors/`](../sectors/).
+Sector-specific reviewer roles (for example, Regional Compliance Officers for sector-regulated operations) apply where the organisation participates in a covered programme; see [`compliance/`](../compliance/).
 
 ---
 
@@ -57,7 +57,7 @@ All suppliers must complete a Supplier Pre-Qualification Questionnaire (SPQ) bef
 
 - Corporate registration, ownership structure, and beneficial ownership disclosure.
 - Financial stability and credit standing.
-- Applicable security certifications (for example, ISO/IEC 27001, SOC 2; plus sector-specific certifications such as BASC where the supplier is in scope of a covered programme, per [`sectors/`](../sectors/)).
+- Applicable security certifications (for example, ISO/IEC 27001, SOC 2; plus sector-specific certifications such as BASC where the supplier is in scope of a covered programme, per [`compliance/`](../compliance/)).
 - Data privacy compliance posture (GDPR, CPPA, PIPL, LGPD).
 - Environmental, social, and governance (ESG) and sustainability disclosures.
 
@@ -90,7 +90,7 @@ Assessments must be conducted across all applicable domains. Suppliers scoring b
 | Privacy Compliance | Data protection obligations, consent management, cross-border transfer controls. | GDPR, CPPA, LGPD, PIPL. |
 | Business Continuity | Recovery capabilities, resilience planning, dependency management. | ISO 22301, COBIT DSS04. |
 | AI Governance | Model transparency, bias controls, fairness, auditability. | ISO/IEC 42001, CSA AICM. |
-| Trade Security | Supply chain security programme compliance (where the supplier is in scope). | WCO SAFE Framework 2021, ISO 28000:2022; plus sector-specific overlays per [`sectors/`](../sectors/). |
+| Trade Security | Supply chain security programme compliance (where the supplier is in scope). | WCO SAFE Framework 2021, ISO 28000:2022; plus sector-specific overlays per [`compliance/`](../compliance/). |
 | Sustainability | Energy management and environmental responsibility. | ISO 50001. |
 
 ### Step 4: Contractual review
@@ -100,7 +100,7 @@ All supplier contracts must include, at minimum:
 - Data protection and confidentiality clauses aligned to applicable jurisdictional requirements.
 - Right-to-audit provisions exercisable by the organisation or its appointed representative.
 - AI ethics and transparency requirements for AI service providers.
-- Sector-specific obligations (for example, BASC, CTPAT, AEO, PIP compliance clauses) where the supplier is in scope of a covered programme; see [`sectors/`](../sectors/).
+- Sector-specific obligations (for example, BASC, CTPAT, AEO, PIP compliance clauses) where the supplier is in scope of a covered programme; see [`compliance/`](../compliance/).
 - Environmental and sustainability obligations consistent with the organisation's ESG commitments.
 - Mandatory reporting timelines for security incidents, privacy breaches, or compliance failures.
 
@@ -122,7 +122,7 @@ All corrective actions identified through due diligence or re-audit must be logg
 For suppliers in scope of a sector-specific programme (for example, BASC for trade and logistics, CTPAT for US trade, AEO for EU trade, PIP for Canadian trade), the following additional integration applies:
 
 - Sector certification status must be verified prior to engagement and tracked for renewal throughout the supplier relationship.
-- Sector-specific compliance requirements (per the corresponding sector annex in [`sectors/`](../sectors/) or the relevant compliance annex in [`compliance/`](../compliance/)) must be confirmed.
+- Sector-specific compliance requirements (per the corresponding sector annex in [`compliance/`](../compliance/) or the relevant compliance annex in [`compliance/`](../compliance/)) must be confirmed.
 - Sector-specific documentation, integrity practices, and reporting accuracy must be reviewed as part of the periodic assessment.
 
 A sector-supplier compliance log maintained by the appropriate sector-conditional role (for example, BASC Regional Compliance Officer where the sector annex defines that role) must be synchronised with the global Supplier Risk Register at least quarterly.
@@ -161,7 +161,7 @@ A sector-supplier compliance log maintained by the appropriate sector-conditiona
 - WCO SAFE Framework of Standards 2021: World Customs Organization.
 - ISO 28000:2022, Security and resilience, Security management systems for the supply chain.
 
-Sector-specific references (for example, BASC International Standard v6 2023 for trade and logistics) apply where the organisation participates in a covered programme; see [`sectors/`](../sectors/).
+Sector-specific references (for example, BASC International Standard v6 2023 for trade and logistics) apply where the organisation participates in a covered programme; see [`compliance/`](../compliance/).
 
 ---
 

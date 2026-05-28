@@ -27,7 +27,7 @@ This policy establishes the enterprise governance and risk management framework,
 1. This policy applies to all business units, regions, subsidiaries, and joint ventures where the organisation has operational control.
 2. It covers strategic, operational, financial, compliance, information security, privacy, safety, environmental, AI, and supply-chain risks across on-premises, cloud, multi-cloud, edge, and supplier-hosted services.
 3. It applies to all employees, contractors, suppliers, and partners who process organisational data or operate organisation-controlled systems.
-4. Where the organisation participates in trade-security and supply-chain programmes (for example, WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO, AEO-S, NEEC, OEA, and equivalent frameworks), the relevant sector annex extends this policy with programme-specific obligations; see [`sectors/`](../sectors/) and the transportation and logistics sector annex.
+4. Where the organisation participates in trade-security and supply-chain programmes (for example, WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO, AEO-S, NEEC, OEA, and equivalent frameworks), the relevant sector annex extends this policy with programme-specific obligations; see [`compliance/`](../compliance/) and the transportation and logistics sector annex.
 
 ---
 

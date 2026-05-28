@@ -20,7 +20,7 @@
 
 This standard defines requirements for network security architecture, segmentation, and perimeter controls across on-premises and cloud environments. It establishes technical and procedural controls for securing organisational networks, including requirements for network segmentation, firewall configuration, intrusion detection and prevention, and secure connectivity.
 
-Network design must limit blast radius and systematically close lateral movement pathways commonly exploited in major security incidents. Requirements cover corporate, cloud, and hybrid network environments. Sector-specific overlays apply per [`sectors/`](../sectors/).
+Network design must limit blast radius and systematically close lateral movement pathways commonly exploited in major security incidents. Requirements cover corporate, cloud, and hybrid network environments. Sector-specific overlays apply per [`compliance/`](../compliance/).
 
 ---
 
@@ -32,7 +32,7 @@ Network design must limit blast radius and systematically close lateral movement
 4. Applies to all employees, contractors, and third parties who connect to corporate or third-party certified networks.
 5. Applies to the infrastructure programme from initial design. All new network architecture must conform before production deployment.
 
-Sector-specific overlays (for example, BASC for trade and logistics operations) apply where the organisation participates in a programme covered by a sector annex; see [`sectors/`](../sectors/).
+Sector-specific overlays (for example, BASC for trade and logistics operations) apply where the organisation participates in a programme covered by a sector annex; see [`compliance/`](../compliance/).
 
 ---
 
@@ -61,7 +61,7 @@ All zone boundaries operate on a **default-deny** basis. Inter-zone communicatio
 | Test / Dev (TEST / DEV) | Non-production environments | No inbound from PROD; no outbound to PROD except via approved change-controlled deployment paths |
 | User (Corporate) | End-user endpoints | Access to approved services in PROD and internet via proxy |
 
-Sector-specific zone overlays (for example, dedicated zones for trade, customs, or operational technology systems) apply where the organisation participates in a sector programme that requires them; see [`sectors/`](../sectors/) for sector-specific zone requirements.
+Sector-specific zone overlays (for example, dedicated zones for trade, customs, or operational technology systems) apply where the organisation participates in a sector programme that requires them; see [`compliance/`](../compliance/) for sector-specific zone requirements.
 
 ### 4.1 Key segmentation requirements
 
@@ -88,7 +88,7 @@ Sector-specific zone overlays (for example, dedicated zones for trade, customs, 
 
 ### 5.3 Sector-specific channel overlays
 
-Where the organisation participates in a sector programme that requires specific channel hardening for inter-organisation data exchange (for example, customs API gateways, healthcare data exchange, financial-services messaging), the corresponding sector annex states the additional requirements. See [`sectors/`](../sectors/).
+Where the organisation participates in a sector programme that requires specific channel hardening for inter-organisation data exchange (for example, customs API gateways, healthcare data exchange, financial-services messaging), the corresponding sector annex states the additional requirements. See [`compliance/`](../compliance/).
 
 ---
 
@@ -110,7 +110,7 @@ Where the organisation participates in a sector programme that requires specific
 
 ### 7.2 Sector-specific intrusion detection overlays
 
-Sector programmes may require additional intrusion-detection coverage with specific signatures, retention periods, and alert-escalation paths. See [`sectors/`](../sectors/) for sector-specific overlays where the organisation participates in a covered programme.
+Sector programmes may require additional intrusion-detection coverage with specific signatures, retention periods, and alert-escalation paths. See [`compliance/`](../compliance/) for sector-specific overlays where the organisation participates in a covered programme.
 
 ### 7.3 AI-assisted network defence
 
@@ -158,7 +158,7 @@ Where the organisation participates in a sector programme that mandates addition
 - Quarterly reviews must validate ZTNA configuration effectiveness.
 - Lessons learned and audit findings must be recorded in the risk register and fed into the continual improvement cycle.
 
-Sector-specific testing or inspection cadences (for example, sector-mandated trade-security audits) apply where the organisation participates in a covered programme; see [`sectors/`](../sectors/).
+Sector-specific testing or inspection cadences (for example, sector-mandated trade-security audits) apply where the organisation participates in a covered programme; see [`compliance/`](../compliance/).
 
 ---
 
@@ -177,7 +177,7 @@ Sector-specific testing or inspection cadences (for example, sector-mandated tra
 | CIS Controls v8 | Control 12: Network Infrastructure Management |
 | EU NIS 2 Directive (2023) | Network and Information Systems Security |
 
-Sector-specific framework alignments (for example, BASC International Standard v6 2023 for trade and customs network security; WCO SAFE Framework for supply chain security; ISO 28000:2022 for supply chain security management) apply where the organisation participates in a covered programme; see [`sectors/`](../sectors/).
+Sector-specific framework alignments (for example, BASC International Standard v6 2023 for trade and customs network security; WCO SAFE Framework for supply chain security; ISO 28000:2022 for supply chain security management) apply where the organisation participates in a covered programme; see [`compliance/`](../compliance/).
 
 ---
 

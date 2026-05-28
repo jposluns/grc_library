@@ -1,6 +1,6 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Version:** 1.5.3 
+**Version:** 1.5.4 
 **Date:** 2026-05-28 
 **Classification:** Public 
 **Confidentiality:** Public 
@@ -24,7 +24,7 @@ The repository provides reusable artefacts across the following domains:
 - Supplier, third-party, cloud, and supply-chain governance.
 - Cross-framework mapping, regulatory applicability analysis, and metrics.
 
-The library currently contains approximately **280 documents** across 11 governance domains plus an optional sector-annex domain (`/sectors/`) for organisations participating in sector-specific programmes. Automated counts will replace this approximation in a future repository release.
+The library currently contains approximately **280 documents** across 11 governance domains. The `compliance/` domain hosts sector-conditional sub-directories (`logistics/`, `financial-services/`, `healthcare/`, and others) for organisations operating in those sectors or participating in covered programmes. Automated counts will replace this approximation in a future repository release.
 
 ---
 

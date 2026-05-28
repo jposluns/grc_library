@@ -2,7 +2,7 @@
 
 **Document Title:** Supply Chain Domain README 
 **Document Type:** Register 
-**Version:** 1.2.0 
+**Version:** 1.3.0 
 **Date:** 2026-05-28 
 **Owner:** Supplier Risk Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -39,7 +39,6 @@ This directory contains organisation-neutral supplier governance, third-party ri
 | Register | Supplier Risk Register Template | [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md) |
 | Register | Subprocessor Register Template | [`supply-chain/register-subprocessor-template.md`](register-subprocessor-template.md) |
 | Template | Supplier Security Questionnaire | [`supply-chain/template-supplier-security-questionnaire.md`](template-supplier-security-questionnaire.md) |
-| Register | CTPAT Full Minimum Security Criteria Controls Register | [`supply-chain/register-ctpat-full-msc-controls.md`](register-ctpat-full-msc-controls.md) |
 | Matrix | Supply Chain Security Programme Alignment Matrix | [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](matrix-supply-chain-security-programme-alignment.md) |
 | Procedure | Fourth-Party and Nth-Party Risk Procedure | [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](procedure-fourth-party-and-nth-party-risk.md) |
 | Register | Concentration Risk Register | [`supply-chain/register-concentration-risk.md`](register-concentration-risk.md) |
@@ -57,17 +56,12 @@ The supply chain domain covers two complementary areas:
 Intake, classification, due diligence, contract control alignment, onboarding, monitoring, reassessment, incident management, resilience, exit, and evidence retention for all third-party relationships. AI service providers, cloud services, managed services, processors, subprocessors, software providers, and critical operational suppliers should be assessed for security, privacy, data use, resilience, deletion, breach notification, audit support, and exit capability.
 
 ### Trade security and supply-chain continuity
-Operational controls for internationally recognized trusted-trader and supply-chain security programmes:
+General supply-chain security governance that applies regardless of sector. Trusted-trader programme-specific overlays (CTPAT, PIP, AEO, BASC, NEEC, OEA, and others) live in the logistics sector sub-directory of compliance ([`compliance/logistics/`](../compliance/logistics/)). The supply-chain domain references those programme overlays as needed via the Supply Chain Security Programme Alignment Matrix.
+
+Standards referenced for cross-programme alignment:
 
 - **WCO SAFE Framework**: World Customs Organization standards for customs-to-customs and customs-to-business cooperation
 - **ISO 28000**: Supply chain security management systems
-- **CTPAT**: U.S. Customs-Trade Partnership Against Terrorism
-- **BASC**: Business Alliance for Secure Commerce (Latin America)
-- **PIP**: Canada's Partners in Protection programme
-- **AEO**: EU Authorized Economic Operator
-- **AEO-S**: UK Authorized Economic Operator (Security and Safety)
-- **NEEC**: Mexico's New Scheme of Certified Companies
-- **OEA**: Brazil's Operador Econômico Autorizado
 - **ISO 28001**: Customs clearance verification and supply chain continuity requirements
 
 ---
@@ -85,9 +79,9 @@ Operational controls for internationally recognized trusted-trader and supply-ch
 - ~~Register: Supplier Risk Register Template~~ *(active)*
 - ~~Register: Subprocessor Register Template~~ *(active)*
 - ~~Template: Supplier Security Questionnaire~~ *(active)*
-- ~~Register: CTPAT Compliance Controls~~ *(active)*
-- ~~Register: BASC IT and Information Security Responsibilities~~ *(active: see [`sectors/basc/register-basc-it-responsibilities.md`](../sectors/basc/register-basc-it-responsibilities.md))*
-- ~~Register: AEO / AEO-S IT and Cybersecurity Requirements~~ *(active: see [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](../compliance/annex-aeo-s-it-cybersecurity-requirements.md))*
+- ~~Register: CTPAT Compliance Controls~~ *(active: relocated to [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md) and [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](../compliance/logistics/register-ctpat-united-states-msc-controls.md))*
+- ~~Register: BASC IT and Information Security Responsibilities~~ *(active: see [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md))*
+- ~~Register: AEO / AEO-S IT and Cybersecurity Requirements~~ *(active: see [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md))*
 - ~~Matrix: Supply Chain Security Programme Alignment~~ *(active)*
 
 ---

@@ -28,7 +28,7 @@ To ensure that consistent, auditable, and secure handling of log data aligned wi
 
 1. Applies to all systems, applications, services, network devices, cloud environments, and AI systems that process or store organisational data.
 2. Includes infrastructure managed internally or by third parties, including SaaS, PaaS, and IaaS services.
-3. Applies to logs generated for security, operational, compliance, and AI accountability purposes. Where the organisation participates in a sector-specific programme (for example, BASC trade-security), the corresponding sector annex extends this standard with programme-specific log categories and retention overlays; see [`sectors/`](../sectors/).
+3. Applies to logs generated for security, operational, compliance, and AI accountability purposes. Where the organisation participates in a sector-specific programme (for example, BASC trade-security), the corresponding sector annex extends this standard with programme-specific log categories and retention overlays; see [`compliance/`](../compliance/).
 
 ### Scope boundary with the operations observability and telemetry standard
 
@@ -55,7 +55,7 @@ Where an event is genuinely dual-purpose, the producer service emits the securit
 - The CIO ensures that integration with enterprise infrastructure and business systems.
 - System owners and third-party service providers are responsible for compliant logging configurations.
 
-Sector-conditional roles (for example, a BASC Regional Compliance Officer who oversees logging for BASC-certified logistics and customs systems, with trade-security logs capturing cargo inspection results, customs-transaction records, and personnel screening activities) apply where the organisation participates in a covered sector programme; see [`sectors/`](../sectors/).
+Sector-conditional roles (for example, a BASC Regional Compliance Officer who oversees logging for BASC-certified logistics and customs systems, with trade-security logs capturing cargo inspection results, customs-transaction records, and personnel screening activities) apply where the organisation participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 ---
 
@@ -117,7 +117,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ov
 
 8.1 SOC analysts shall review critical event logs daily.
 8.2 Weekly reviews shall validate that correlation rules, thresholds, and data normalization remain effective.
-8.3 Findings must feed into the risk register and continual improvement cycle. Sector-programme log anomalies (for example, BASC-related log anomalies where the organisation participates in BASC) shall be reported to the sector-conditional role defined by the relevant sector annex for sector-programme audit follow-up; see [`sectors/`](../sectors/).
+8.3 Findings must feed into the risk register and continual improvement cycle. Sector-programme log anomalies (for example, BASC-related log anomalies where the organisation participates in BASC) shall be reported to the sector-conditional role defined by the relevant sector annex for sector-programme audit follow-up; see [`compliance/`](../compliance/).
 
 ### 9. Automation and AI integration
 

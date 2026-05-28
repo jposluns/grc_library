@@ -24,7 +24,7 @@ This standard defines the enterprise-wide risk management framework, taxonomy, a
 
 ## 2. Scope
 
-1. This standard applies to all business, operational, financial, security, privacy, AI, and technology risks managed within the organisation and its subsidiaries. Sector-specific risk overlays (for example, BASC for trade and logistics operations) apply where the organisation participates in a covered programme; see [`sectors/`](../sectors/).
+1. This standard applies to all business, operational, financial, security, privacy, AI, and technology risks managed within the organisation and its subsidiaries. Sector-specific risk overlays (for example, BASC for trade and logistics operations) apply where the organisation participates in a covered programme; see [`compliance/`](../compliance/).
 2. It covers both strategic and operational risk management activities across enterprise, project, and system levels.
 3. It applies to all employees, contractors, and third parties responsible for risk identification, analysis, reporting, or control execution.
 

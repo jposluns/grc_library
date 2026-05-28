@@ -1,16 +1,16 @@
-# Transportation and Logistics Sector GRC Requirements Annex
+# Logistics Sector GRC Requirements Annex
 
-**Document Title:** Transportation and Logistics Sector GRC Requirements Annex 
+**Document Title:** Logistics Sector GRC Requirements Annex 
 **Document Type:** Annex 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`compliance/register-ctpat-it-controls.md`](register-ctpat-it-controls.md), [`compliance/register-pip-compliance-controls.md`](register-pip-compliance-controls.md), [`sectors/basc/register-basc-it-responsibilities.md`](../sectors/basc/register-basc-it-responsibilities.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../supply-chain/annex-trade-and-supply-chain-continuity-controls.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md) 
+**Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](register-ctpat-united-states-msc-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../../supply-chain/annex-trade-and-supply-chain-continuity-controls.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md) 
 **Classification:** Public 
-**Category:** Compliance: Sector-Specific 
+**Category:** Compliance: Logistics Sector 
 **Review Frequency:** Annual and upon material regulatory change, new TSA directive, or significant security incident in the sector 
-**Repository Path:** [`compliance/annex-transportation-and-logistics-sector-requirements.md`](annex-transportation-and-logistics-sector-requirements.md) 
+**Repository Path:** [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md) 
 **Confidentiality:** Public 
 **License:** CC0 1.0 Universal 
 
@@ -109,12 +109,12 @@ TSA Security Directives for surface transportation (freight rail, highway) and p
 
 | Requirement | Detail | GRC Library Mapping |
 |---|---|---|
-| **Cybersecurity Incident Reporting** | Report cybersecurity incidents to CISA within 24 hours | [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md): supplement with CISA reporting procedure |
+| **Cybersecurity Incident Reporting** | Report cybersecurity incidents to CISA within 24 hours | [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md): supplement with CISA reporting procedure |
 | **Cybersecurity Point of Contact** | Designate and report to TSA a primary and alternative cybersecurity point of contact | Role designation procedure |
-| **Cybersecurity Gap Assessment** | Complete TSA-prescribed cybersecurity gap assessment | [`compliance/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md): supplement with TSA-specific assessment |
-| **Cybersecurity Incident Response Plan** | Develop and implement a cybersecurity incident response plan | [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md) |
-| **Cybersecurity Management Plan** | Implement specific measures including: (1) network segmentation; (2) access controls; (3) continuous monitoring; (4) patch management | [`security/policy-information-security.md`](../security/policy-information-security.md); [`security/procedure-access-control.md`](../security/procedure-access-control.md); [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md) |
-| **Annual assessment** | Annual cybersecurity assessment and update | [`compliance/standard-internal-audit.md`](standard-internal-audit.md) |
+| **Cybersecurity Gap Assessment** | Complete TSA-prescribed cybersecurity gap assessment | [`compliance/logistics/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md): supplement with TSA-specific assessment |
+| **Cybersecurity Incident Response Plan** | Develop and implement a cybersecurity incident response plan | [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md) |
+| **Cybersecurity Management Plan** | Implement specific measures including: (1) network segmentation; (2) access controls; (3) continuous monitoring; (4) patch management | [`security/policy-information-security.md`](../../security/policy-information-security.md); [`security/procedure-access-control.md`](../../security/procedure-access-control.md); [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md) |
+| **Annual assessment** | Annual cybersecurity assessment and update | [`compliance/standard-internal-audit.md`](../standard-internal-audit.md) |
 
 **CISA Reporting Timeline:** Cybersecurity incidents affecting transportation critical infrastructure must be reported to CISA within 24 hours of discovery under CIRCIA (Cyber Incident Reporting for Critical Infrastructure Act).
 
@@ -132,18 +132,18 @@ Under NIS 2, transportation entities in the following sub-sectors are classified
 
 | NIS 2 Article | Obligation | GRC Library Mapping |
 |---|---|---|
-| Art 21: Cybersecurity risk management | Risk-proportionate technical and organisational measures across 10 minimum areas | [`security/policy-information-security.md`](../security/policy-information-security.md); [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) |
-| Art 21(2)(a): Policies on risk analysis | Documented policies on risk analysis and information system security | [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md) |
-| Art 21(2)(b): Incident handling | Incident detection and response | [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md) |
-| Art 21(2)(c): Business continuity | BCM, backup management, DR, crisis management | [`resilience/standard-business-continuity-and-disaster-recovery.md`](../resilience/standard-business-continuity-and-disaster-recovery.md); [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md) |
-| Art 21(2)(d): Supply chain security | Security policies for suppliers and service providers | [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md); [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md) |
-| Art 21(2)(e): Secure development | Security in network and information systems acquisition, development, maintenance | [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md) |
-| Art 21(2)(f): Vulnerability handling | Vulnerability disclosure and patch management | [`dev-security/standard-software-composition-analysis.md`](../dev-security/standard-software-composition-analysis.md) |
-| Art 21(2)(g): Cybersecurity training | Cybersecurity hygiene and training | [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md) |
-| Art 21(2)(h): Cryptography | Policies on use of cryptography and encryption | [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md) |
-| Art 21(2)(i): Human resources security | Personnel security, access control, asset management | [`security/procedure-access-control.md`](../security/procedure-access-control.md); [`security/procedure-identity-management.md`](../security/procedure-identity-management.md) |
-| Art 21(2)(j): Multi-factor authentication | MFA / continuous authentication where appropriate | [`security/procedure-identity-management.md`](../security/procedure-identity-management.md) |
-| Art 23, Incident notification | Report significant incidents to national CSIRT within 24 hours (initial); 72 hours (assessment); 1 month (final report) | [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), supplement with NIS 2 notification templates |
+| Art 21: Cybersecurity risk management | Risk-proportionate technical and organisational measures across 10 minimum areas | [`security/policy-information-security.md`](../../security/policy-information-security.md); [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md) |
+| Art 21(2)(a): Policies on risk analysis | Documented policies on risk analysis and information system security | [`risk/procedure-risk-assessment-methodology.md`](../../risk/procedure-risk-assessment-methodology.md) |
+| Art 21(2)(b): Incident handling | Incident detection and response | [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md) |
+| Art 21(2)(c): Business continuity | BCM, backup management, DR, crisis management | [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md); [`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md) |
+| Art 21(2)(d): Supply chain security | Security policies for suppliers and service providers | [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md); [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md) |
+| Art 21(2)(e): Secure development | Security in network and information systems acquisition, development, maintenance | [`dev-security/policy-secure-development-and-engineering.md`](../../dev-security/policy-secure-development-and-engineering.md) |
+| Art 21(2)(f): Vulnerability handling | Vulnerability disclosure and patch management | [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) |
+| Art 21(2)(g): Cybersecurity training | Cybersecurity hygiene and training | [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md) |
+| Art 21(2)(h): Cryptography | Policies on use of cryptography and encryption | [`security/framework-cryptographic-key-lifecycle.md`](../../security/framework-cryptographic-key-lifecycle.md) |
+| Art 21(2)(i): Human resources security | Personnel security, access control, asset management | [`security/procedure-access-control.md`](../../security/procedure-access-control.md); [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) |
+| Art 21(2)(j): Multi-factor authentication | MFA / continuous authentication where appropriate | [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) |
+| Art 23, Incident notification | Report significant incidents to national CSIRT within 24 hours (initial); 72 hours (assessment); 1 month (final report) | [`resilience/procedure-security-incident-reporting-and-escalation.md`](../../resilience/procedure-security-incident-reporting-and-escalation.md), supplement with NIS 2 notification templates |
 
 **NIS 2 Penalties:** Essential entities: up to €10M or 2% of global annual turnover (whichever is higher).
 
@@ -153,11 +153,11 @@ IMO Resolution MSC-FAL.1/Circ.3 (incorporated into ISM Code as of 2021-01-01) re
 
 | IMO Requirement | GRC Library Mapping |
 |---|---|
-| Identify systems and assets supporting shipping operations | [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md): supplement for OT/operational technology assets |
-| Assess cyber risks to identified systems | [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md) |
-| Protect against identified risks | [`security/policy-information-security.md`](../security/policy-information-security.md) |
-| Detect cyber events | [`operations/register-it-security-operations.md`](../operations/register-it-security-operations.md) |
-| Respond and recover from cyber incidents | [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md); [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md) |
+| Identify systems and assets supporting shipping operations | [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md): supplement for OT/operational technology assets |
+| Assess cyber risks to identified systems | [`risk/procedure-risk-assessment-methodology.md`](../../risk/procedure-risk-assessment-methodology.md) |
+| Protect against identified risks | [`security/policy-information-security.md`](../../security/policy-information-security.md) |
+| Detect cyber events | [`operations/register-it-security-operations.md`](../../operations/register-it-security-operations.md) |
+| Respond and recover from cyber incidents | [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md); [`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md) |
 | Incorporate into ISM Code and Document of Compliance | Supplement: ISM Code cyber annex |
 
 **Critical OT systems requiring risk assessment:** ECDIS (navigation); GPS/AIS; GMDSS (communications); cargo management systems; engine monitoring; access control systems.
@@ -168,12 +168,12 @@ ICAO's Aviation Cybersecurity Strategy requires states and aviation organisation
 
 | ICAO Area | Requirement | GRC Library Mapping |
 |---|---|---|
-| Governance | Cybersecurity governance framework; designated accountable executive | [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) |
-| Risk management | Cyber risk identification and mitigation | [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) |
-| Incident management | Aviation-specific incident response; reporting to national aviation authority | [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md): supplement with CAA/FAA notification procedure |
-| Supply chain | Cybersecurity requirements for aviation suppliers | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md) |
-| Training and awareness | Aviation-specific cybersecurity training | [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md) |
-| Resilience | Cyber resilience for safety-critical systems | [`resilience/standard-business-continuity-and-disaster-recovery.md`](../resilience/standard-business-continuity-and-disaster-recovery.md) |
+| Governance | Cybersecurity governance framework; designated accountable executive | [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md) |
+| Risk management | Cyber risk identification and mitigation | [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md) |
+| Incident management | Aviation-specific incident response; reporting to national aviation authority | [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md): supplement with CAA/FAA notification procedure |
+| Supply chain | Cybersecurity requirements for aviation suppliers | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md) |
+| Training and awareness | Aviation-specific cybersecurity training | [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md) |
+| Resilience | Cyber resilience for safety-critical systems | [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md) |
 
 **CAA CAP 1753 (UK):** The UK Civil Aviation Authority's aviation cybersecurity framework aligns with ICAO Doc 10055 and maps to the CAF (Cyber Assessment Framework). UK aviation organisations must demonstrate compliance through CAF self-assessment.
 
@@ -185,9 +185,9 @@ Following the UK's departure from the EU, all organisations moving goods between
 |---|---|---|
 | **Customs Declaration Service (CDS)** | Electronic customs declarations must be filed through CDS | Systems compliance with CDS API requirements |
 | **CHIEF to CDS migration** | All declarants must have migrated from CHIEF to CDS | Systems audit and update |
-| **AEO-S status maintenance** | UK AEO-S requires ongoing compliance with HMRC security criteria | [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md); [`compliance/procedure-aeo-it-self-assessment.md`](procedure-aeo-it-self-assessment.md) |
+| **AEO-S status maintenance** | UK AEO-S requires ongoing compliance with HMRC security criteria | [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md); [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](procedure-aeo-united-kingdom-self-assessment.md) |
 | **TSP (Trusted Smart Freight)** | HMRC's Trusted Smart Freight partnerships for digital customs | Emerging obligation: monitor HMRC guidance |
-| **GDPR / UK GDPR for shipment data** | Personal data in shipping documents (consignee names, etc.) | [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) |
+| **GDPR / UK GDPR for shipment data** | Personal data in shipping documents (consignee names, etc.) | [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md) |
 
 ---
 
@@ -197,11 +197,11 @@ Transportation and logistics operators frequently operate Operational Technology
 
 | OT Security Area | Requirement | Key Standards |
 |---|---|---|
-| **OT asset inventory** | Separate inventory for OT/ICS assets; asset classification including safety-critical designation | [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md): supplement with OT asset schema |
-| **IT/OT network segmentation** | Strict network segmentation between IT and OT environments; unidirectional gateways where feasible | [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md): supplement with OT segmentation controls |
+| **OT asset inventory** | Separate inventory for OT/ICS assets; asset classification including safety-critical designation | [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md): supplement with OT asset schema |
+| **IT/OT network segmentation** | Strict network segmentation between IT and OT environments; unidirectional gateways where feasible | [`dev-security/standard-devops-security-requirements.md`](../../dev-security/standard-devops-security-requirements.md): supplement with OT segmentation controls |
 | **OT patch management** | Modified patch management considering OT availability requirements; vendor-approved patches; extended testing cycles | Supplement SCA standard with OT patching procedure |
-| **OT incident response** | Separate or integrated incident response procedures accounting for OT safety implications | Supplement [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md) with OT safety overlay |
-| **Supply chain for OT** | Security assessment of OT vendors; software integrity verification | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md): supplement with OT vendor criteria |
+| **OT incident response** | Separate or integrated incident response procedures accounting for OT safety implications | Supplement [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md) with OT safety overlay |
+| **Supply chain for OT** | Security assessment of OT vendors; software integrity verification | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md): supplement with OT vendor criteria |
 
 **Applicable OT standards:**
 - IEC 62443 (Industrial Automation and Control Systems Security): primary OT security standard
@@ -228,7 +228,7 @@ For organisations operating or managing connected vehicle fleets:
 
 | Gap Area | Applicable Regulation | Action Required |
 |---|---|---|
-| TSA cybersecurity incident reporting to CISA (24-hour) | TSA Security Directives; CIRCIA | Supplement [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md) with CISA reporting runbook |
+| TSA cybersecurity incident reporting to CISA (24-hour) | TSA Security Directives; CIRCIA | Supplement [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md) with CISA reporting runbook |
 | NIS 2 incident notification templates and reporting to national CSIRT | EU NIS 2 Art 23 | Create NIS 2 incident notification templates per Member State |
 | CAF self-assessment procedure | UK CAA CAP 1753 | Create CAF self-assessment procedure aligned to CAP 1753 |
 | IMO ISM Code cyber annex | IMO MSC-FAL.1/Circ.3 | Create ISM Code cyber risk management annex (maritime operators) |
@@ -247,12 +247,12 @@ The transportation and logistics sector is the primary sector affected by truste
 
 | Programme | Documents |
 |---|---|
-| CTPAT (US) | [`compliance/register-ctpat-it-controls.md`](register-ctpat-it-controls.md); [`supply-chain/register-ctpat-full-msc-controls.md`](../supply-chain/register-ctpat-full-msc-controls.md) |
-| AEO-S (UK) | [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md); [`compliance/procedure-aeo-it-self-assessment.md`](procedure-aeo-it-self-assessment.md) |
-| PIP (Canada) | [`compliance/register-pip-compliance-controls.md`](register-pip-compliance-controls.md) |
-| BASC (Latin America) | [`sectors/basc/register-basc-it-responsibilities.md`](../sectors/basc/register-basc-it-responsibilities.md); [`sectors/basc/register-basc-it-compliance-kpis.md`](../sectors/basc/register-basc-it-compliance-kpis.md); [`sectors/basc/policy-basc-information-security.md`](../sectors/basc/policy-basc-information-security.md) |
-| All programmes: alignment matrix | [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md) |
-| Trade compliance gap assessment | [`compliance/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md) |
+| CTPAT (US) | [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md); [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](register-ctpat-united-states-msc-controls.md) |
+| AEO-S (UK) | [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md); [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](procedure-aeo-united-kingdom-self-assessment.md) |
+| PIP (Canada) | [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md) |
+| BASC (Latin America) | [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md); [`compliance/logistics/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md); [`compliance/logistics/policy-basc-information-security.md`](policy-basc-information-security.md) |
+| All programmes: alignment matrix | [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md) |
+| Trade compliance gap assessment | [`compliance/logistics/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md) |
 
 ---
 

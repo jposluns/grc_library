@@ -68,7 +68,7 @@ Actual contact details (names, numbers, emails) are maintained in the confidenti
 | Ransomware deployment | CEO, CFO, Board notification pathway; external IR partner engaged immediately |
 | Threat actor in production environment | External IR partner activated; affected systems isolated immediately |
 | Customer system or data impacted | Legal Counsel for contract obligations review; customer notification assessment |
-| Sector-programme data involved (where the organisation participates in a covered programme) | Sector-conditional role per the relevant sector annex (for example, a BASC Regional Compliance Officer for trade or customs data) notified per the annex's stated timeframe; see [`sectors/`](../sectors/) |
+| Sector-programme data involved (where the organisation participates in a covered programme) | Sector-conditional role per the relevant sector annex (for example, a BASC Regional Compliance Officer for trade or customs data) notified per the annex's stated timeframe; see [`compliance/`](../compliance/) |
 | Media or external parties involved | Communications Director and CEO manage all external statements |
 
 ---

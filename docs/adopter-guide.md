@@ -26,7 +26,7 @@ Use this to decide which domains and sector annexes your organisation needs.
 | Does the organisation operate AI systems, services, or agents in production? | `ai/` domain | All of ai/ (but keep the framework as reference) |
 | Does the organisation operate cloud workloads? | `dev-security/standard-cloud-hardening-baseline-{aws,azure,gcp}.md` for the platforms in use | The non-relevant cloud baselines |
 | Does the organisation deliver customer-facing services? | `operations/standard-site-reliability-engineering.md`, `operations/standard-observability-and-telemetry.md`, `resilience/` domain | The SLA-related operations content |
-| Does the organisation participate in BASC trade-security certification? | `sectors/basc/` | All of sectors/basc/ |
+| Does the organisation participate in BASC trade-security certification? | `compliance/logistics/` | All of compliance/logistics/ |
 | Does the organisation participate in CTPAT, AEO, AEO-S, or PIP trade programmes? | The relevant programme annexes in `compliance/` | The non-relevant trade-compliance annexes |
 | Does the organisation operate in a sector with sector-specific regulation (financial services, healthcare, transportation/logistics, telecoms, energy/utilities, public sector)? | The corresponding `compliance/annex-*` | Non-relevant sector annexes |
 | Does the organisation operate under SOX or equivalent financial reporting controls? | `compliance/annex-sox-itgc.md` | This annex |
@@ -82,9 +82,9 @@ Use Tier 2 forum structure.
 
 The full library is intended to be operable at Tier 3 by a large, regulated, multi-jurisdiction organisation. Every active document in the index is in scope.
 
-## The sectors directory
+## Sector-conditional content
 
-The library includes a `/sectors/` directory for sector-conditional content. Most organisations will skip this directory entirely. It currently contains BASC (Business Alliance for Secure Commerce) content for organisations pursuing BASC certification in Latin American trade and logistics operations. If your organisation does not participate in BASC, the directory is informational only.
+Sector-conditional content lives in sub-directories of `compliance/` (`compliance/logistics/`, and others as they are introduced). Most organisations adopt only the sub-directories matching their industry sector. For example, the `compliance/logistics/` sub-directory contains industry-wide logistics annexes plus trusted-trader programme overlays (CTPAT, PIP, AEO, BASC). If your organisation does not operate in the logistics sector, the directory is informational only.
 
 ## What to change after copying
 

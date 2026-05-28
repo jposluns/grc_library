@@ -43,7 +43,7 @@ To protect information held on physical and digital media from unauthorized disc
 | **Data Owners** | Classify data held on media under their domain; authorize transfers of Confidential or Restricted data; confirm retention holds before disposal is initiated. |
 | **All Employees and Contractors** | Handle media in accordance with the classification of the information it contains; report loss or suspected compromise of media immediately to IT Operations and the CISO. |
 
-Sector-conditional roles (for example, a BASC Regional Compliance Officer who confirms destruction of trade and customs data per BASC and applicable national customs authority obligations) apply where the organisation participates in a covered sector programme; see [`sectors/`](../sectors/).
+Sector-conditional roles (for example, a BASC Regional Compliance Officer who confirms destruction of trade and customs data per BASC and applicable national customs authority obligations) apply where the organisation participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 ---
 
@@ -261,7 +261,7 @@ Where media holds data governed by a sector programme (for example, BASC-governe
 - No sector authority hold or audit request (for example, no outstanding customs authority hold or audit request under BASC) is outstanding.
 - The destruction method satisfies the relevant sector annex's data-security requirements.
 
-See [`sectors/`](../sectors/) for the sector annex applicable to the organisation's covered programmes.
+See [`compliance/`](../compliance/) for the sector annex applicable to the organisation's covered programmes.
 
 ---
 
