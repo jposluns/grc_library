@@ -101,7 +101,7 @@ A system is registered when any of the following is true:
 
 ## Coordination with the AI governance programme
 
-Where an ADM system is also an AI system (most modern cases), the AI System Register is the primary inventory and this register cross-references it. The Privacy Officer and the AI Governance Maintainer jointly own the consistency between the two registers. The AI System Impact Assessment Procedure governs the impact analysis; the DPIA covers the privacy dimension.
+Where an ADM system is also an AI system (most modern cases), the AI System Register is the primary inventory and this register cross-references it. The Privacy Officer and the AI System Inventory Keeper jointly own the consistency between the two registers. The AI System Impact Assessment Procedure governs the impact analysis; the DPIA covers the privacy dimension.
 
 ---
 

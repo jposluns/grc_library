@@ -4,6 +4,42 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 12.8 (2026-05-28): AI Governance Maintainer role split
+
+Resolves the role-bandwidth-overload finding by splitting the overloaded `AI Governance Maintainer` role into three named roles, each with a clearly bounded scope. The umbrella `AI Governance Lead` role retained as the secretariat / chair function on the AI Governance Council.
+
+### New roles defined in `governance/register-role-authority.md` (v1.0.0 → v1.1.0)
+
+- **AI Governance Approver** — approval decisions for AI policies, frameworks, standards, deployment gates, foundation-model selection, risk-classification approvals, and material lifecycle changes.
+- **AI Data Steward** — training-data governance, dataset acceptance, deletion-propagation, lineage tracking, sensitive-content controls, and dataset documentation (datasheets).
+- **AI System Inventory Keeper** — maintenance of the AI System Register, Model Registry, MCP server register, model cards, system cards, and cross-references between AI inventories and adjacent registers (ADM, resilience, supplier).
+
+The umbrella `AI Governance Lead` role description updated to declare it as the AIGC secretariat role coordinating the three sub-roles.
+
+### Documents reassigned
+
+40 occurrences of `AI Governance Maintainer` across 19 files mapped to the appropriate new role.
+
+Owner-field reassignments by responsibility area:
+
+- **AI Governance Approver** (the policy/framework/decision standards): `ai/README.md`, `ai/framework-ai-governance-and-risk.md`, `ai/framework-ai-model-risk.md`, `ai/standard-ai-model-risk.md`, `ai/standard-ai-inference-cost-governance.md`, `ai/procedure-foundation-model-lifecycle.md`, `ai/procedure-ai-model-risk-assessment.md`, `supply-chain/procedure-third-party-ai-due-diligence.md`. Governance index rows for `ai/policy-ai-compliance.md`, `ai/framework-ai-system-audit-certification.md`, `ai/checklist-ai-algorithmic-compliance.md` also reassigned.
+- **AI Data Steward** (training-data, datasheet): `ai/procedure-training-data-governance.md`, `ai/template-dataset-datasheet.md`.
+- **AI System Inventory Keeper** (registries, cards, lifecycle mapping): `ai/register-model-registry.md`, `ai/template-ai-system-register.md`, `ai/template-model-card.md`, `ai/template-system-card.md`, `ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md`.
+
+Body-content references in seven files retargeted to the appropriate sub-role per responsibility area:
+
+- `ai/procedure-foundation-model-lifecycle.md`: candidate-list maintenance → AI System Inventory Keeper.
+- `ai/procedure-training-data-governance.md`: dataset acceptance and recording → AI Data Steward.
+- `ai/standard-ai-inference-cost-governance.md`: cost-dashboard ownership and anomaly summary → AI Governance Approver.
+- `ai/template-dataset-datasheet.md`: dataset sign-off role → AI Data Steward.
+- `ai/register-model-registry.md`: quarterly registry review → AI System Inventory Keeper.
+- `privacy/register-automated-decision-making.md`: cross-register consistency owner → AI System Inventory Keeper.
+- `resilience/register-resilience-metrics-and-testing-log.md`: AI resilience metric owner → AI System Inventory Keeper.
+
+A reader of any AI document now sees a single, scope-appropriate role; no role is asked to be the owner of approvals, data stewardship, and inventory maintenance simultaneously.
+
+Taxonomy, portal, and maturity scorecard regenerated.
+
 ## Phase 12.7 (2026-05-28): Scope matrices for paired standards
 
 Resolves three scope-collision findings from the comprehensive audit by adding explicit scope-boundary clauses to each affected document pair.

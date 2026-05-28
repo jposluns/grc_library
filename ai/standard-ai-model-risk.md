@@ -4,7 +4,7 @@
 **Document Type:** Standard 
 **Version:** 1.0.0 
 **Date:** 2026-05-27 
-**Owner:** AI Governance Maintainer 
+**Owner:** AI Governance Approver 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) 
 **Classification:** Public 

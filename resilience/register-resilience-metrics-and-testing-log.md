@@ -52,7 +52,7 @@ Completed versions must not be published under CC0 unless sanitized. Real test r
 | Recovery Testing | Tests meeting recovery objectives | Count or percentage of recovery tests meeting approved RTO and RPO. | | | | Test report, restoration log. | Resilience Owner |
 | Supplier Resilience | Critical suppliers with current resilience assessment | Count or percentage of critical suppliers assessed within required cadence. | | | | Supplier assessment, contract control schedule. | Supplier Owner |
 | Corrective Action | Corrective actions closed within target | Count or percentage of corrective actions closed within approved target. | | | | Corrective action log. | Process Owner |
-| AI Resilience | AI systems with fallback or disablement method | Count or percentage of AI systems with documented fallback, emergency disablement, or recovery plan. | | | | AI system register, system card, resilience test. | AI Governance Maintainer |
+| AI Resilience | AI systems with fallback or disablement method | Count or percentage of AI systems with documented fallback, emergency disablement, or recovery plan. | | | | AI system register, system card, resilience test. | AI System Inventory Keeper |
 | Data Recovery | Critical data stores with tested restoration | Count or percentage of critical data stores with recent restoration validation. | | | | Backup record, restoration test. | Data Owner |
 
 ---

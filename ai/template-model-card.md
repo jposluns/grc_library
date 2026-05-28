@@ -4,7 +4,7 @@
 **Document Type:** Template 
 **Version:** 1.0.0 
 **Date:** 2026-05-27 
-**Owner:** AI Governance Maintainer 
+**Owner:** AI System Inventory Keeper 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) 
 **Classification:** Public 

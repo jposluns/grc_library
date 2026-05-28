@@ -4,7 +4,7 @@
 **Document Type:** Procedure 
 **Version:** 0.0.1 
 **Date:** 2026-05-28 
-**Owner:** AI Governance Maintainer 
+**Owner:** AI Governance Approver 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/template-ai-vendor-security-questionnaire.md`](template-ai-vendor-security-questionnaire.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](../supply-chain/standard-cloud-exit-and-data-portability.md) 
 **Classification:** Public 
@@ -38,7 +38,7 @@ It does not cover narrow, organisation-trained, task-specific models; those foll
 
 ### Step 1: Identify the candidate foundation model
 
-The AI Governance Maintainer maintains a candidate list with the following per-candidate fields:
+The AI System Inventory Keeper maintains a candidate list with the following per-candidate fields:
 
 | Field | Description |
 | --- | --- |
