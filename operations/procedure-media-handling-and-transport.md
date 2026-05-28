@@ -22,7 +22,7 @@ This procedure defines the minimum requirements for classifying, storing, transp
 
 ### 1.1 Purpose
 
-To protect information held on physical and digital media from unauthorised disclosure, loss, or tampering during storage, internal movement, external transfer, and disposal. This procedure implements the media controls required by the Data Classification and Handling Standard and the Records Retention and Destruction Standard, ensuring that the method of media protection is always proportionate to the sensitivity classification of the information it contains.
+To protect information held on physical and digital media from unauthorized disclosure, loss, or tampering during storage, internal movement, external transfer, and disposal. This procedure implements the media controls required by the Data Classification and Handling Standard and the Records Retention and Destruction Standard, ensuring that the method of media protection is always proportionate to the sensitivity classification of the information it contains.
 
 ### 1.2 Scope
 
@@ -270,7 +270,7 @@ The following metrics are reported to the CISO quarterly and reviewed annually a
 | --- | --- |
 | Disposal events with Certificate of Destruction (where required) | 100% |
 | Media inventory accuracy (registered portable media vs. actual) | 100% quarterly reconciliation |
-| Unauthorised media removal incidents (count) | Zero target; each incident investigated |
+| Unauthorized media removal incidents (count) | Zero target; each incident investigated |
 | Transfers of Confidential/Restricted data via unapproved channels (count) | Zero target; each incident investigated |
 | Chain-of-custody log completion rate for qualifying physical transports | 100% |
 | BASC trade data destruction confirmations completed on schedule | 100% |

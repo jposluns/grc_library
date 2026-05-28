@@ -20,7 +20,7 @@ This procedure defines the end-to-end process for classifying, approving, schedu
 
 ## Purpose
 
-To ensure that changes to production systems are controlled, traceable, and reversible, minimizing disruption to services and preventing unauthorised modifications to security-critical configurations.
+To ensure that changes to production systems are controlled, traceable, and reversible, minimizing disruption to services and preventing unauthorized modifications to security-critical configurations.
 
 ---
 

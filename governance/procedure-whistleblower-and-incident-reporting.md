@@ -81,7 +81,7 @@ Good faith is defined as a genuine belief that the reported concern may be true.
 ## 3. Incident reporting
 
 All staff are required to report actual or suspected:
-- Information security incidents (data breaches, malware, phishing, unauthorised access).
+- Information security incidents (data breaches, malware, phishing, unauthorized access).
 - Privacy breaches or data loss events.
 - Physical security incidents.
 - AI ethics or safety concerns.

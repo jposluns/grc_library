@@ -146,7 +146,7 @@ Non-compliant devices detected by the endpoint management platform are subject t
 | Missing baseline configuration item | Automatic re-application of policy via endpoint management platform; IT Operations notified. |
 | Endpoint protection offline or tampered | IT Operations notified immediately; device flagged for investigation; Conditional Access blocks access pending resolution. |
 | EOL OS detected | Escalated to System Owner and CISO; EOL handling per §5.5. |
-| Unauthorised software installed | Alert raised; software quarantined if possible; IT Operations investigates. |
+| Unauthorized software installed | Alert raised; software quarantined if possible; IT Operations investigates. |
 
 ### 5.5 EOL operating system prohibition
 

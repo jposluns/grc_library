@@ -103,7 +103,7 @@ The following alert categories must be configured, tested, and active before any
 | Backup deletion attempt: immutable repository | Any attempt to delete or modify backup data in the immutable backup repository. | Critical | 15 minutes |
 | SIEM workspace deletion attempt | Any attempt to delete or modify the SIEM workspace or its log retention policies. | Critical | 15 minutes |
 | Identity threat detection platform alert | Any high or critical alert from the identity threat detection platform, including lateral movement, pass-the-hash, Kerberoasting, and suspicious replication indicators. | Critical | 15 minutes |
-| BASC environment anomaly | Unauthorised access attempt to BASC-certified customs or cargo systems, or anomalous cargo manifest modification. | High | 1 hour |
+| BASC environment anomaly | Unauthorized access attempt to BASC-certified customs or cargo systems, or anomalous cargo manifest modification. | High | 1 hour |
 
 All rules in the catalogue are tested for correct alerting before production deployment and after any SIEM configuration change. Test results are documented and retained as evidence.
 
@@ -172,7 +172,7 @@ High severity alerts generate automated tickets with P2 priority. Medium and Low
 
 ### 7.1 Escalation to incident response
 
-Any alert triaged as a confirmed true positive indicating active compromise, data exfiltration, unauthorised privileged access, or a threat to system availability must be immediately escalated to the Incident Response Procedure. The SOC analyst:
+Any alert triaged as a confirmed true positive indicating active compromise, data exfiltration, unauthorized privileged access, or a threat to system availability must be immediately escalated to the Incident Response Procedure. The SOC analyst:
 
 1. Sets the ITSM ticket to "Escalated: Incident Response."
 2. Notifies the Incident Commander per the Incident Response Procedure notification chain.
@@ -195,7 +195,7 @@ In the absence of a clear indicator, the SOC lead escalates ambiguous high-sever
 
 ### 7.3 BASC anomaly escalation
 
-SIEM alerts tagged with the BASC scope indicator that are triaged as true positives involving unauthorised access to customs or cargo systems, cargo manifest tampering, or suspicious data export from BASC-regulated environments are escalated to the Regional BASC Compliance Officer within 1 hour of triage confirmation. The Regional Compliance Officer determines whether customs authority notification is required.
+SIEM alerts tagged with the BASC scope indicator that are triaged as true positives involving unauthorized access to customs or cargo systems, cargo manifest tampering, or suspicious data export from BASC-regulated environments are escalated to the Regional BASC Compliance Officer within 1 hour of triage confirmation. The Regional Compliance Officer determines whether customs authority notification is required.
 
 ### 7.4 Identity threat escalation
 

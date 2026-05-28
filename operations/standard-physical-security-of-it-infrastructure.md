@@ -24,7 +24,7 @@ Covers physical security controls for IT infrastructure owned and operated by th
 
 ## Purpose
 
-Defines minimum physical security requirements for IT infrastructure areas under direct control of the CIO. Ensures that hardware, cabling, and IT equipment are protected from unauthorised physical access, tampering, environmental hazards, and theft. Supports the Information Security Policy and the Standard: Cloud Security Configuration Baseline (which governs logical controls). Aligns to ISO/IEC 27001:2022 Annex A.7 (Physical Controls) within IT scope.
+Defines minimum physical security requirements for IT infrastructure areas under direct control of the CIO. Ensures that hardware, cabling, and IT equipment are protected from unauthorized physical access, tampering, environmental hazards, and theft. Supports the Information Security Policy and the Standard: Cloud Security Configuration Baseline (which governs logical controls). Aligns to ISO/IEC 27001:2022 Annex A.7 (Physical Controls) within IT scope.
 
 ---
 

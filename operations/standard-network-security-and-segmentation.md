@@ -110,9 +110,9 @@ All zone boundaries operate on a **default-deny** basis. Inter-zone communicatio
 ### 7.2 BASC logistics and customs networks
 
 - BASC logistics and customs networks must have dedicated intrusion-detection sensors monitoring for:
- - Unauthorised customs system access
+ - Unauthorized customs system access
  - Cargo manifest tampering
- - Unauthorised network segmentation bypass
+ - Unauthorized network segmentation bypass
 - All BASC intrusion logs must be retained for at least seven years in tamper-evident archives.
 
 ### 7.3 AI-assisted network defence

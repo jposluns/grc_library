@@ -85,7 +85,7 @@ Each asset record must contain the following fields:
 ### Automated discovery
 
 - Automated discovery tools scan the network and cloud environments continuously to detect new, changed, or removed assets.
-- Unregistered assets detected by automated discovery are flagged as unauthorised and reviewed within 2 business days.
+- Unregistered assets detected by automated discovery are flagged as unauthorized and reviewed within 2 business days.
 - Cloud resource tagging standards enforce mandatory owner, classification, and environment tags on all cloud assets.
 
 ### Manual validation
@@ -94,11 +94,11 @@ Each asset record must contain the following fields:
 - IT Operations conducts a full inventory reconciliation annually, comparing automated discovery results against the registered inventory.
 - Discrepancies are investigated and resolved within 10 business days.
 
-### Unauthorised assets
+### Unauthorized assets
 
-- Assets detected in the environment that are not in the inventory are treated as potentially unauthorised.
-- Unauthorised assets are quarantined from network access pending investigation.
-- Investigation determines whether the asset is approved (and must be registered) or unauthorised (and must be removed).
+- Assets detected in the environment that are not in the inventory are treated as potentially unauthorized.
+- Unauthorized assets are quarantined from network access pending investigation.
+- Investigation determines whether the asset is approved (and must be registered) or unauthorized (and must be removed).
 
 ---
 
