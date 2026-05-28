@@ -1,18 +1,18 @@
 # Cross-Framework Alignment Matrix
 
-**Document Title:** Cross-Framework Alignment Matrix  
-**Document Type:** Matrix  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Control Framework Maintainer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`NOTICE.md`](../NOTICE.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md), [`governance/guideline-esg-and-ai-ethics-disclosure.md`](guideline-esg-and-ai-ethics-disclosure.md), [`risk/guideline-quantitative-risk-analysis.md`](../risk/guideline-quantitative-risk-analysis.md)  
-**Classification:** Public  
-**Category:** Core Governance  
-**Review Frequency:** 6 to 12 months and upon material source-framework change  
-**Repository Path:** [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Cross-Framework Alignment Matrix 
+**Document Type:** Matrix 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Control Framework Maintainer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`NOTICE.md`](../NOTICE.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md), [`governance/guideline-esg-and-ai-ethics-disclosure.md`](guideline-esg-and-ai-ethics-disclosure.md), [`risk/guideline-quantitative-risk-analysis.md`](../risk/guideline-quantitative-risk-analysis.md) 
+**Classification:** Public 
+**Category:** Core Governance 
+**Review Frequency:** 6 to 12 months and upon material source-framework change 
+**Repository Path:** [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -50,7 +50,7 @@ This matrix provides an original, non-verbatim alignment structure for mapping r
 | Supply Chain | Supplier and Cloud Governance Framework | Supplier risk, cloud assurance, NIST SP 800-161 SCRM, security, privacy, and resilience families | Industry practice or contractual requirement | External providers process data, host workloads, operate critical services, or provide AI capabilities. | Due diligence record, contractual control schedule, supplier risk register, exit plan. |
 | Supply Chain | Trade and Supply-Chain Continuity Controls | WCO SAFE, ISO 28000, CTPAT, BASC, PIP, AEO, AEO-S, NEEC, OEA | Regulatory interpretation or contractual requirement | Organization participates in customs, logistics, or trade-security programmes. | Programme audit record, gap assessment, corrective action evidence. |
 | Resilience | Business Continuity and Resilience Framework | ISO 22301 continuity, NIST SP 800-34 continuity planning, COBIT DSS04, operational resilience families | Industry practice or regulatory interpretation | Services have recovery, availability, regulatory, or customer-impact obligations. | BIA, RTO/RPO register, test report, recovery plan, corrective action log. |
-| Dev Security | Developer Security Requirements Standard | OWASP Top 10, OWASP ASVS, OWASP LLM Top 10, NIST SSDF (SP 800-218), NIST SP 800-53 SA/SI families, ISO 27001 Annex A.8.25–A.8.34, SLSA | Architectural recommendation | Organization develops or maintains software, AI systems, or automated pipelines. | Secure code review, SAST/DAST results, dependency scan, pipeline gate evidence. |
+| Dev Security | Developer Security Requirements Standard | OWASP Top 10, OWASP ASVS, OWASP LLM Top 10, NIST SSDF (SP 800-218), NIST SP 800-53 SA/SI families, ISO 27001 Annex A.8.25 to A.8.34, SLSA | Architectural recommendation | Organization develops or maintains software, AI systems, or automated pipelines. | Secure code review, SAST/DAST results, dependency scan, pipeline gate evidence. |
 
 ---
 

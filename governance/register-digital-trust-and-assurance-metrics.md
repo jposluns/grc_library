@@ -1,18 +1,18 @@
 # Digital Trust and Assurance Metrics Register
 
-**Document Title:** Digital Trust and Assurance Metrics Register  
-**Document Type:** Register  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Assurance Metrics Maintainer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)  
-**Classification:** Public  
-**Category:** Core Governance  
-**Review Frequency:** 6 to 12 months and upon material assurance model change  
-**Repository Path:** [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Digital Trust and Assurance Metrics Register 
+**Document Type:** Register 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Assurance Metrics Maintainer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md) 
+**Classification:** Public 
+**Category:** Core Governance 
+**Review Frequency:** 6 to 12 months and upon material assurance model change 
+**Repository Path:** [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -52,7 +52,7 @@ The following KPI categories define the primary measurement dimensions for the G
 
 ## Digital Trust Index (DTI)
 
-The DTI is calculated annually as the weighted average of five dimensions, each scored 0–5 by the GRC Programme Manager and reviewed by the ERC.
+The DTI is calculated annually as the weighted average of five dimensions, each scored 0 to 5 by the GRC Programme Manager and reviewed by the ERC.
 
 | Dimension | Description |
 | --- | --- |
@@ -62,7 +62,7 @@ The DTI is calculated annually as the weighted average of five dimensions, each 
 | Resilience | Recoverability, continuity testing, and supplier dependency management |
 | Ethical Responsibility | AI ethics, privacy compliance, and third-party accountability |
 
-**DTI Thresholds:** 0.0–2.4 = Developing; 2.5–3.4 = Managed; 3.5–4.4 = Integrated; 4.5–5.0 = Optimised.
+**DTI Thresholds:** 0.0 to 2.4 = Developing; 2.5 to 3.4 = Managed; 3.5 to 4.4 = Integrated; 4.5 to 5.0 = Optimized.
 
 ---
 
@@ -122,17 +122,17 @@ Each metric should define:
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| COBIT 2025 | MEA01, MEA02 — Performance, compliance, and assurance management | KPI governance, digital trust indicators |
-| ISO 9001:2015 | §9–10 — Measurement, analysis, and improvement | Continual improvement metrics |
-| ISO/IEC 42001:2023 | §10 — AI performance and continual improvement | AI governance KPIs |
+| COBIT 2025 | MEA01, MEA02: Performance, compliance, and assurance management | KPI governance, digital trust indicators |
+| ISO 9001:2015 | §9 to 10: Measurement, analysis, and improvement | Continual improvement metrics |
+| ISO/IEC 42001:2023 | §10: AI performance and continual improvement | AI governance KPIs |
 | ISO/IEC 27014 | Governance of information security | Security governance performance measurement |
-| CSA CCM v5 | GOV-09, GOV-10 — Governance and digital trust | Control coverage and assurance metrics |
+| CSA CCM v5 | GOV-09, GOV-10: Governance and digital trust | Control coverage and assurance metrics |
 
 ---
 
 ## Limitations
 
-Metrics are not proof of compliance by themselves. They require reliable source data, defined ownership, review, supporting evidence, and meaningful thresholds. Poorly designed metrics can industrialise self-deception with charts, which is still self-deception.
+Metrics are not proof of compliance by themselves. They require reliable source data, defined ownership, review, supporting evidence, and meaningful thresholds. Poorly designed metrics can industrialize self-deception with charts, which is still self-deception.
 
 ---
 

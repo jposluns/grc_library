@@ -1,30 +1,30 @@
 # Records Retention and Destruction Standard
 
-**Document Title:** Records Retention and Destruction Standard  
-**Document Type:** Standard  
-**Version:** 1.3.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)  
-**Classification:** Public  
-**Category:** Governance  
-**Review Frequency:** Annual or as required by regulatory or framework changes  
-**Repository Path:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Records Retention and Destruction Standard 
+**Document Type:** Standard 
+**Version:** 1.3.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) 
+**Classification:** Public 
+**Category:** Governance 
+**Review Frequency:** Annual or as required by regulatory or framework changes 
+**Repository Path:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This standard establishes controls, retention schedules, destruction methods, and documentation requirements for managing information and records throughout their lifecycle. It ensures records — both physical and digital — are retained, secured, and disposed of in compliance with legal, regulatory, contractual, and operational requirements, including those governing privacy, AI governance, supply-chain trade compliance (BASC), and data protection.
+This standard establishes controls, retention schedules, destruction methods, and documentation requirements for managing information and records throughout their lifecycle. It ensures that records, both physical and digital, are retained, secured, and disposed of in compliance with legal, regulatory, contractual, and operational requirements, including those governing privacy, AI governance, supply-chain trade compliance (BASC), and data protection.
 
 ---
 
 ## Scope
 
-1. Applies to all organisational records including business documents, electronic files, system logs, datasets, AI model artifacts, and contractual records.
+1. Applies to all organizational records including business documents, electronic files, system logs, datasets, AI model artifacts, and contractual records.
 2. Covers all systems, storage media, and cloud environments that hold information subject to regulatory, audit, or contractual retention obligations.
 3. Applies globally across all entities and regional subsidiaries, including BASC-governed logistics and customs operations.
 4. Includes AI-specific content such as model training datasets, testing results, and explainability documentation.
@@ -35,13 +35,13 @@ This standard establishes controls, retention schedules, destruction methods, an
 
 | Role | Responsibility |
 |---|---|
-| **Chief Information Officer (CIO)** | Provides executive oversight of information lifecycle management and ensures resources for compliance. |
+| **Chief Information Officer (CIO)** | Provides executive oversight of information lifecycle management and ensures that resources for compliance. |
 | **Chief Information Security Officer (CISO)** | Enforces technical and security controls for data retention, backup, and secure destruction. |
 | **Compliance Manager / Records Officer** | Maintains the Records Retention Schedule (RRS), tracks retention obligations, and coordinates audits. |
 | **Department Heads / Data Owners** | Classify and manage records according to business and regulatory requirements. |
 | **Legal Counsel** | Validates retention periods based on jurisdictional and contractual obligations. |
 | **AI Governance Council (AIGC)** | Defines retention and destruction controls for AI datasets, model versions, and audit logs. |
-| **Regional Compliance Officers** | Ensure BASC-specific retention for customs, trade, and cargo-related records. |
+| **Regional Compliance Officers** | Ensure that BASC-specific retention for customs, trade, and cargo-related records. |
 
 ---
 
@@ -57,7 +57,7 @@ This standard establishes controls, retention schedules, destruction methods, an
 
 ---
 
-## Section 1 — Records Retention Schedule
+## Section 1: Records Retention Schedule
 
 The Records Retention Schedule (RRS) defines minimum retention periods based on:
 
@@ -73,7 +73,7 @@ The Records Retention Schedule (RRS) defines minimum retention periods based on:
 | Corporate Governance | 7 years |
 | Financial | 7 years |
 | Human Resources | 7 years after separation |
-| IT / Security | 1–3 years |
+| IT / Security | 1 to 3 years |
 | Legal and Compliance | 7 years |
 | Privacy / Data Subject Requests (DSR) | 2 years post-closure |
 | AI Systems | 5 years post-decommission |
@@ -83,7 +83,7 @@ The Records Retention Schedule (RRS) defines minimum retention periods based on:
 
 ---
 
-## Section 2 — Secure Storage and Access
+## Section 2: Secure Storage and Access
 
 Records must be stored in secure, access-controlled systems with encryption applied at rest and in transit. Requirements include:
 
@@ -93,7 +93,7 @@ Records must be stored in secure, access-controlled systems with encryption appl
 
 ---
 
-## Section 3 — Retention Hold and Litigation Freeze
+## Section 3: Retention Hold and Litigation Freeze
 
 When a record is subject to audit, investigation, or litigation, a retention hold must be applied immediately. The following controls apply:
 
@@ -103,7 +103,7 @@ When a record is subject to audit, investigation, or litigation, a retention hol
 
 ---
 
-## Section 4 — Secure Destruction
+## Section 4: Secure Destruction
 
 Upon expiration of the applicable retention period and confirmation that no active hold exists, records must be securely destroyed using an approved method.
 
@@ -128,7 +128,7 @@ Certificates of Destruction must be retained for a minimum of 7 years.
 
 ---
 
-## Section 5 — AI Dataset and Model Record Retention
+## Section 5: AI Dataset and Model Record Retention
 
 All AI training datasets, test results, and model versions must be retained to support audit and reproducibility obligations per ISO/IEC 42001 §9. Required records include:
 
@@ -137,11 +137,11 @@ All AI training datasets, test results, and model versions must be retained to s
 - Training parameters, bias testing results, and validation metrics.
 - Explainability reports and decision logs.
 
-Retention ensures traceability under EU AI Act Annex IV, OECD AI Principles 2026, and Canada AIDA §29. AI datasets containing personal data must follow anonymisation or deletion requirements upon expiry of the retention period, in accordance with ISO/IEC 27701 §8.8.
+Retention ensures that traceability under EU AI Act Annex IV, OECD AI Principles 2026, and Canada AIDA §29. AI datasets containing personal data must follow anonymization or deletion requirements upon expiry of the retention period, in accordance with ISO/IEC 27701 §8.8.
 
 ---
 
-## Section 6 — BASC Trade and Customs Records
+## Section 6: BASC Trade and Customs Records
 
 For operations governed by BASC International Standards in Latin America, retention must include:
 
@@ -154,7 +154,7 @@ Minimum retention is 5 years or as required by the applicable national customs a
 
 ---
 
-## Section 7 — Monitoring and Compliance
+## Section 7: Monitoring and Compliance
 
 ### Quarterly Reviews
 

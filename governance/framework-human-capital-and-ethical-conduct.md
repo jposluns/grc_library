@@ -1,24 +1,24 @@
 # Human Capital and Ethical Conduct Framework
 
-**Document Title:** Human Capital and Ethical Conduct Framework  
-**Document Type:** Framework  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`governance/policy-governance-and-risk-management.md`](policy-governance-and-risk-management.md), [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](../security/procedure-onboarding-and-offboarding.md), [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md)  
-**Classification:** Public  
-**Category:** Governance  
-**Review Frequency:** Annual and upon material HR, legal, or regulatory change  
-**Repository Path:** [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Human Capital and Ethical Conduct Framework 
+**Document Type:** Framework 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`governance/policy-governance-and-risk-management.md`](policy-governance-and-risk-management.md), [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](../security/procedure-onboarding-and-offboarding.md), [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md) 
+**Classification:** Public 
+**Category:** Governance 
+**Review Frequency:** Annual and upon material HR, legal, or regulatory change 
+**Repository Path:** [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This framework defines the organisation's approach to ethical conduct, workforce integrity, and responsible innovation. It integrates human resource governance, ethical behaviour standards, and professional conduct expectations for all employees and affiliates.
+This framework defines the organization's approach to ethical conduct, workforce integrity, and responsible innovation. It integrates human resource governance, ethical behaviour standards, and professional conduct expectations for all employees and affiliates.
 
 It consolidates the HR Security Policy, Security Awareness and Training Policy, Corporate Culture Framework, Whistleblower Procedure, and Anti-Bribery and Corruption Policy into a unified governance model. Aligned with ISO 37001, ISO 37301, OECD AI Principles, ISO/PAS 8800, and CSA CCM v5 SEF-01.
 
@@ -26,7 +26,7 @@ It consolidates the HR Security Policy, Security Awareness and Training Policy, 
 
 ## Scope
 
-Applies to all employees, contractors, consultants, and partners representing the organisation across all global operations, subsidiaries, and joint ventures.
+Applies to all employees, contractors, consultants, and partners representing the organization across all global operations, subsidiaries, and joint ventures.
 
 ---
 
@@ -34,16 +34,16 @@ Applies to all employees, contractors, consultants, and partners representing th
 
 ### 1. Ethical Conduct and Integrity
 
-All personnel must perform duties honestly and transparently. Bribery, corruption, insider trading, conflicts of interest, and coercive practices are strictly prohibited. Personnel are expected to act in the organisation's best interests and in accordance with applicable law at all times.
+All personnel must perform duties honestly and transparently. Bribery, corruption, insider trading, conflicts of interest, and coercive practices are strictly prohibited. Personnel are expected to act in the organization's best interests and in accordance with applicable law at all times.
 
 ### 2. Anti-Bribery and Corruption Controls
 
-The organisation operates an anti-bribery management system compliant with ISO 37001. Key controls include:
+The organization operates an anti-bribery management system compliant with ISO 37001. Key controls include:
 
 - All gifts, hospitality, and donations must be recorded and pre-approved above defined thresholds.
 - Facilitation payments are prohibited in all circumstances.
 - Suspected bribery or corruption is reported immediately through the whistleblower channel.
-- Third parties acting on behalf of the organisation are subject to anti-bribery due diligence.
+- Third parties acting on behalf of the organization are subject to anti-bribery due diligence.
 
 ### 3. Whistleblower Protection
 
@@ -58,7 +58,7 @@ Employees may report misconduct, ethical violations, or legal breaches through c
 Annual information security and data privacy awareness training is mandatory for all personnel. Training covers:
 
 - Social engineering and phishing recognition.
-- Acceptable use of organisational systems and data.
+- Acceptable use of organizational systems and data.
 - Data protection obligations under applicable privacy law.
 - Incident reporting obligations.
 
@@ -75,7 +75,7 @@ Personnel involved in AI development, data science, or AI-enabled decision-makin
 
 ### 6. Diversity, Inclusion, and Equity
 
-The organisation is committed to inclusive hiring, equitable treatment, and non-discrimination in all employment practices. Diversity and inclusion metrics are monitored and reported to leadership quarterly.
+The organization is committed to inclusive hiring, equitable treatment, and non-discrimination in all employment practices. Diversity and inclusion metrics are monitored and reported to leadership quarterly.
 
 ### 7. Training and Competency
 
@@ -107,11 +107,11 @@ Training completion is tracked and reported annually to the ERC and relevant com
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO 37001:2016 | Anti-Bribery Management Systems | Anti-bribery controls |
-| ISO 37301:2021 | §7.4 — Competence and Awareness | Compliance training and competency |
+| ISO 37301:2021 | §7.4: Competence and Awareness | Compliance training and competency |
 | ISO/PAS 8800:2023 | Responsible Innovation Management | Ethical AI and responsible innovation |
 | OECD AI Principles (2023) | Human-centric, fair, accountable AI | Responsible AI training |
-| COBIT 2025 | APO07 — Manage Human Resources | HR governance and competency |
-| CSA CCM v5 | SEF-01 — Security and Ethics Framework | Ethics and conduct framework |
+| COBIT 2025 | APO07: Manage Human Resources | HR governance and competency |
+| CSA CCM v5 | SEF-01: Security and Ethics Framework | Ethics and conduct framework |
 
 ---
 

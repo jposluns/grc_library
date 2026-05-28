@@ -1,24 +1,24 @@
 # Digital Twin and Simulation Governance Policy
 
-**Document Title:** Digital Twin and Simulation Governance Policy  
-**Document Type:** Policy  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`governance/policy-governance-and-risk-management.md`](policy-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)  
-**Classification:** Public  
-**Category:** Governance  
-**Review Frequency:** Annual and upon material technology or regulatory change  
-**Repository Path:** [`governance/policy-digital-twin-and-simulation-governance.md`](policy-digital-twin-and-simulation-governance.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Digital Twin and Simulation Governance Policy 
+**Document Type:** Policy 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`governance/policy-governance-and-risk-management.md`](policy-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) 
+**Classification:** Public 
+**Category:** Governance 
+**Review Frequency:** Annual and upon material technology or regulatory change 
+**Repository Path:** [`governance/policy-digital-twin-and-simulation-governance.md`](policy-digital-twin-and-simulation-governance.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This policy establishes the governance requirements for the development, deployment, and operation of digital twins, simulation environments, and virtual replicas of physical systems, processes, or organisations. It ensures that these technologies are governed with appropriate oversight of data use, AI integration, security, and operational risk.
+This policy establishes the governance requirements for the development, deployment, and operation of digital twins, simulation environments, and virtual replicas of physical systems, processes, or organizations. It ensures that these technologies are governed with appropriate oversight of data use, AI integration, security, and operational risk.
 
 A digital twin is a real-time or near-real-time digital representation of a physical asset, system, or process, used for monitoring, simulation, predictive analytics, or decision support.
 
@@ -29,7 +29,7 @@ A digital twin is a real-time or near-real-time digital representation of a phys
 Applies to all digital twin and simulation initiatives including:
 - Digital twins of operational infrastructure, logistics systems, or supply chain networks.
 - Simulation environments used for decision modelling, scenario planning, or predictive analytics.
-- AI-enabled digital twins integrating machine learning for prediction or optimisation.
+- AI-enabled digital twins integrating machine learning for prediction or optimization.
 
 Excludes development and test environments that replicate production for software testing purposes (governed by the Secure Development and Engineering Policy).
 
@@ -39,7 +39,7 @@ Excludes development and test environments that replicate production for softwar
 
 | Role | Responsibility |
 | --- | --- |
-| **CIO** | Approves digital twin initiatives; ensures integration with enterprise architecture. |
+| **CIO** | Approves digital twin initiatives; ensures that integration with enterprise architecture. |
 | **CISO** | Validates security controls for digital twin deployments. |
 | **AI Governance Council (AIGC)** | Reviews digital twins incorporating AI decision-making. |
 | **Privacy Officer / DPO** | Assesses privacy implications where personal data is processed. |
@@ -56,8 +56,8 @@ All digital twin systems must complete the Acceptance Into Service process befor
 ### 2. Data Governance
 
 Data used in digital twin systems must be:
-- Sourced from authorised data feeds with documented provenance.
-- Classified according to the organisation's data classification policy.
+- Sourced from authorized data feeds with documented provenance.
+- Classified according to the organization's data classification policy.
 - Processed in compliance with privacy obligations where personal data is involved.
 - Retained according to the Data Retention Schedule.
 
@@ -66,7 +66,7 @@ Real-time data feeds into digital twins must be validated for accuracy and integ
 ### 3. Security Requirements
 
 Digital twin systems must meet the same security baseline requirements as production systems at the equivalent classification tier. Key requirements include:
-- Access controls limiting digital twin access to authorised users.
+- Access controls limiting digital twin access to authorized users.
 - Audit logging of all queries, modifications, and export events.
 - Encryption of data in transit and at rest.
 - Network isolation from production operational technology (OT) systems where applicable.
@@ -92,11 +92,11 @@ Digital twin systems are reviewed annually by the system owner to confirm: conti
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 42001:2023 | §8 — AI system operation | AI-enabled digital twin governance |
+| ISO/IEC 42001:2023 | §8: AI system operation | AI-enabled digital twin governance |
 | ISO/IEC 27001:2022 | Annex A | Security controls for digital twins |
 | ISO 23247 | Digital Twin Framework for Manufacturing | Digital twin reference architecture |
 | NIST SP 800-82r3 | OT security guidelines | OT-connected digital twin security |
-| COBIT 2025 | APO14 — Manage Data | Data governance for digital twins |
+| COBIT 2025 | APO14: Manage Data | Data governance for digital twins |
 
 ---
 

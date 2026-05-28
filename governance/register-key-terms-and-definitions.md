@@ -1,18 +1,18 @@
 # Key Terms and Definitions Register
 
-**Document Title:** Key Terms and Definitions Register  
-**Document Type:** Register  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Governance Library Maintainer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md)  
-**Classification:** Public  
-**Category:** Core Governance  
-**Review Frequency:** Annual and upon material terminology change  
-**Repository Path:** [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Key Terms and Definitions Register 
+**Document Type:** Register 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Governance Library Maintainer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md) 
+**Classification:** Public 
+**Category:** Core Governance 
+**Review Frequency:** Annual and upon material terminology change 
+**Repository Path:** [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 

@@ -1,18 +1,18 @@
 # GRC Programme Management and Annual Review Procedure
 
-**Document Title:** GRC Programme Management and Annual Review Procedure  
-**Document Type:** Procedure  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** GRC Programme Manager  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`dev-security/register-compliance-controls-and-gap-register.md`](../dev-security/register-compliance-controls-and-gap-register.md)  
-**Classification:** Public  
-**Category:** Core Governance  
-**Review Frequency:** Annual and upon material change  
-**Repository Path:** [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** GRC Programme Management and Annual Review Procedure 
+**Document Type:** Procedure 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** GRC Programme Manager 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`dev-security/register-compliance-controls-and-gap-register.md`](../dev-security/register-compliance-controls-and-gap-register.md) 
+**Classification:** Public 
+**Category:** Core Governance 
+**Review Frequency:** Annual and upon material change 
+**Repository Path:** [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -42,9 +42,9 @@ This procedure aligns to ISO 37301:2021 §9 (Performance evaluation), ISO/IEC 27
 | --- | --- |
 | GRC Programme Manager | Coordinates the annual review cycle. Maintains the document index and version register. Collates review attestations. Drafts the annual GRC programme report. Publishes approved changes. Maintains the rolling control testing schedule. Produces quarterly GRC metrics reports. |
 | Chief Information Security Officer (CISO) | Approving authority for security and AI governance domain documents. Reviews and approves security and AI-related changes. Receives quarterly GRC metrics reports. |
-| Privacy Officer | Approving authority for privacy domain documents. Reviews privacy-related changes and ensures alignment with applicable data protection law. |
+| Privacy Officer | Approving authority for privacy domain documents. Reviews privacy-related changes and ensures that alignment with applicable data protection law. |
 | Chief Risk Officer | Approving authority for risk domain documents. Reviews risk treatment status updates. Receives quarterly GRC metrics reports. Co-chairs risk register quarterly reviews. |
-| Chief Compliance Officer | Approving authority for compliance domain documents. Monitors regulatory change log. Ensures compliance domain documents remain current with applicable law and regulation. |
+| Chief Compliance Officer | Approving authority for compliance domain documents. Monitors regulatory change log. Ensures that compliance domain documents remain current with applicable law and regulation. |
 | AI Governance Council | Approving authority for AI governance domain documents. Reviews AI policy, standard, and procedure changes. |
 | Document Owners | Complete annual attestation for each document they own. Submit change requests by the deadline. Collaborate with the GRC Programme Manager on draft revisions. |
 | Enterprise Risk Committee (ERC) | Annual approval authority for the GRC programme report and material policy or framework changes. Provides strategic direction for the GRC programme. |
@@ -60,20 +60,20 @@ The following milestones govern each annual review cycle. All dates refer to cal
 
 | Month | Milestone | Responsible Party | Output |
 | --- | --- | --- | --- |
-| January (1st – 31st) | All document owners complete the annual review attestation form for each document they own | All Document Owners | Completed attestation forms submitted to GRC Programme Manager |
+| January (1st to 31st) | All document owners complete the annual review attestation form for each document they own | All Document Owners | Completed attestation forms submitted to GRC Programme Manager |
 | 31 January | Deadline: all attestation forms and change requests submitted to GRC Programme Manager | Document Owners | Change request log compiled |
-| February – March | GRC Programme Manager collates attestation outcomes; drafts revisions for approved change requests; prepares annual GRC programme report | GRC Programme Manager | Draft revisions; draft annual GRC programme report |
+| February to March | GRC Programme Manager collates attestation outcomes; drafts revisions for approved change requests; prepares annual GRC programme report | GRC Programme Manager | Draft revisions; draft annual GRC programme report |
 | 31 March | Annual GRC programme report submitted to ERC for review | GRC Programme Manager | Annual GRC programme report (draft) |
 | April | ERC reviews and approves the annual GRC programme report; approves material policy or framework changes | ERC | Approved annual report; approved change list |
 | 30 April | All approved changes incorporated into library documents; version numbers incremented; documents published | GRC Programme Manager | Updated GRC library; version register updated; change log closed |
-| May – December | Continuous monitoring; triggered reviews upon material regulatory change or significant event | GRC Programme Manager; Domain Approvers | Triggered review records; updated documents as required |
+| May to December | Continuous monitoring; triggered reviews upon material regulatory change or significant event | GRC Programme Manager; Domain Approvers | Triggered review records; updated documents as required |
 
 ### 4.2 Attestation Form Content
 
 Each attestation must address the following:
 
 - Document identifier and current version
-- Attestation decision: (a) still current — no changes required; (b) minor update required — description provided; (c) material change required — change request submitted
+- Attestation decision: (a) still current, no changes required; (b) minor update required, description provided; (c) material change required: change request submitted
 - Domain approver sign-off
 - Date of attestation
 
@@ -89,7 +89,7 @@ A triggered review is required outside the annual cycle when any of the followin
 | --- | --- |
 | Material regulatory change | New legislation, amended regulation, new supervisory guidance that affects one or more GRC library documents |
 | Significant security incident | Incident classified at severity 1 or 2 that exposes a gap in existing policy, standard, or procedure |
-| Major organisational change | Merger, acquisition, divestiture, significant change in business model or operating geography |
+| Major organizational change | Merger, acquisition, divestiture, significant change in business model or operating geography |
 | New framework adoption | Adoption of a new compliance framework, certification standard, or industry code that requires GRC library additions or changes |
 | ERC instruction | ERC directs a specific document or domain review outside the annual cycle |
 
@@ -119,7 +119,7 @@ All GRC library documents follow semantic versioning using the format MAJOR.MINO
 
 ### 6.2 Change Approval Requirements
 
-6.2.1 All version increments — including patch fixes — require sign-off from the document's approving authority before publication.
+6.2.1 All version increments, including patch fixes, require sign-off from the document's approving authority before publication.
 
 6.2.2 MAJOR changes additionally require ERC notification (and ERC approval where they relate to policy-level or framework-level documents).
 
@@ -136,7 +136,7 @@ All GRC library documents follow semantic versioning using the format MAJOR.MINO
 - Marked as deprecated in the document index register with a cross-reference to the superseding document
 - Archived in the designated document archive location with read-only access
 - Cross-referenced from the superseding document with the retirement date
-- Not deleted — archived copies must be retained per the Records Retention and Destruction Standard
+- Not deleted: archived copies must be retained per the Records Retention and Destruction Standard
 
 ---
 
@@ -186,7 +186,7 @@ All GRC library documents follow semantic versioning using the format MAJOR.MINO
 
 ### 8.3 Results Recording
 
-8.3.1 All control test results — pass, fail, or exception — must be recorded in the Compliance Controls and Gap Register.
+8.3.1 All control test results, pass, fail, or exception, must be recorded in the Compliance Controls and Gap Register.
 
 8.3.2 Failed control tests must generate a CAPA in accordance with the CAPA Procedure within 5 business days of the test result being confirmed.
 
@@ -200,7 +200,7 @@ All GRC library documents follow semantic versioning using the format MAJOR.MINO
 
 9.1.1 The GRC Programme Manager produces a quarterly GRC metrics report for the CISO and Chief Risk Officer. The report provides a concise, data-driven view of the health of the GRC programme across all domains.
 
-9.1.2 The quarterly report is used by the CISO and Chief Risk Officer to identify trends, prioritise resources, and escalate material issues to the ERC.
+9.1.2 The quarterly report is used by the CISO and Chief Risk Officer to identify trends, prioritize resources, and escalate material issues to the ERC.
 
 ### 9.2 Report Contents
 
@@ -208,7 +208,7 @@ Each quarterly report must include the following:
 
 | Section | Content |
 | --- | --- |
-| Executive summary | 1–2 paragraph summary of programme health; material changes since last quarter |
+| Executive summary | 1 to 2 paragraph summary of programme health; material changes since last quarter |
 | Domain status table | Per-domain summary (see template in Section 9.3) |
 | Open gaps | Count of open control gaps by domain and severity; comparison with prior quarter |
 | CAPA status | Open CAPAs, overdue CAPAs, CAPAs closed in the quarter |
@@ -259,7 +259,7 @@ Each quarterly report must include the following:
 
 ### 10.3 Residual Risk Acceptance
 
-10.3.1 Where a risk treatment plan is concluded and a residual risk remains above the organisation's risk appetite threshold, the residual risk must be formally accepted in writing by the CIO or above.
+10.3.1 Where a risk treatment plan is concluded and a residual risk remains above the organization's risk appetite threshold, the residual risk must be formally accepted in writing by the CIO or above.
 
 10.3.2 Written risk acceptance records are retained as evidence of informed decision-making. They are retained for 7 years and referenced in the risk register.
 
@@ -301,7 +301,7 @@ Each quarterly report must include the following:
 
 ## 12. Document Retirement and Archival
 
-12.1 A document is retired when it is superseded by a new or revised document, when the organisational obligation it addressed no longer exists, or when directed by the ERC.
+12.1 A document is retired when it is superseded by a new or revised document, when the organizational obligation it addressed no longer exists, or when directed by the ERC.
 
 12.2 Retirement process:
 
@@ -311,7 +311,7 @@ Each quarterly report must include the following:
 | 2 | Update the superseding document to include a reference to the retired document and retirement date | GRC Programme Manager |
 | 3 | Move the retired document to the designated document archive; set access to read-only | GRC Programme Manager |
 | 4 | Notify all document owners and domain approvers of the retirement | GRC Programme Manager |
-| 5 | Confirm no active compliance obligations reference the retired document; if they do, ensure the superseding document addresses them | GRC Programme Manager / Domain Approver |
+| 5 | Confirm no active compliance obligations reference the retired document; if they do, ensure that the superseding document addresses them | GRC Programme Manager / Domain Approver |
 
 12.3 Physical copies of retired documents, where they exist, must be securely destroyed via cross-cut shredding or equivalent.
 
@@ -335,7 +335,7 @@ Each quarterly report must include the following:
 | COBIT 2025 | APO01 Managed IT Management Framework | Programme management governance, roles and responsibilities, document lifecycle |
 | COBIT 2025 | APO12 Managed Risk | Risk treatment status updates; ERC reporting; quarterly risk register reviews |
 | COBIT 2025 | APO14 Managed Data | Records retention requirements for attestation and deprovisioning evidence |
-| NIST CSF 2.0 | GV.OC (Organisational Context) | ERC governance reporting and programme scorecard |
+| NIST CSF 2.0 | GV.OC (Organizational Context) | ERC governance reporting and programme scorecard |
 | NIST CSF 2.0 | GV.RM (Risk Management Strategy) | Residual risk acceptance and quarterly risk review |
 
 ---

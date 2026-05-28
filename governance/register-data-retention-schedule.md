@@ -1,24 +1,24 @@
 # Data Retention Schedule
 
-**Document Title:** Data Retention Schedule  
-**Document Type:** Register  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Privacy Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md), [`governance/policy-governance-and-risk-management.md`](policy-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md)  
-**Classification:** Public  
-**Category:** Governance  
-**Review Frequency:** Annual and upon material regulatory or operational change  
-**Repository Path:** [`governance/register-data-retention-schedule.md`](register-data-retention-schedule.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Data Retention Schedule 
+**Document Type:** Register 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Privacy Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md), [`governance/policy-governance-and-risk-management.md`](policy-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md) 
+**Classification:** Public 
+**Category:** Governance 
+**Review Frequency:** Annual and upon material regulatory or operational change 
+**Repository Path:** [`governance/register-data-retention-schedule.md`](register-data-retention-schedule.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This register defines the mandatory retention periods for each category of organisational data and records. It implements the Records Retention and Destruction Standard and ensures compliance with applicable privacy laws (GDPR, PIPEDA, Quebec Law 25, UK GDPR, LGPD, PIPL), regulatory requirements, and contractual obligations.
+This register defines the mandatory retention periods for each category of organizational data and records. It implements the Records Retention and Destruction Standard and ensures that compliance with applicable privacy laws (GDPR, PIPEDA, Quebec Law 25, UK GDPR, LGPD, PIPL), regulatory requirements, and contractual obligations.
 
 ---
 
@@ -144,7 +144,7 @@ When litigation, regulatory investigation, or audit is anticipated or underway:
 Records reaching the end of their retention period are destroyed per the Records Retention and Destruction Standard:
 - Electronic records: secure deletion using approved methods (NIST SP 800-88 or equivalent).
 - Physical records: cross-cut shredding or certified destruction service.
-- Destruction is documented with: record type, volume, destruction date, method, and authorising role.
+- Destruction is documented with: record type, volume, destruction date, method, and authorizing role.
 
 ---
 
@@ -155,10 +155,10 @@ Records reaching the end of their retention period are destroyed per the Records
 | GDPR (2018) | Articles 5, 17, 30 | Personal data retention and deletion |
 | PIPEDA / Quebec Law 25 | Accountability and retention | Canadian privacy obligations |
 | UK GDPR | Articles 5, 17 | UK retention requirements |
-| ISO/IEC 27001:2022 | Annex A.5.33 — Protection of Records | Records protection and retention |
-| ISO/IEC 27002:2022 | §5.33–5.34 | Records management controls |
-| BASC International Standard v6 | Chapter 3 — Document Retention | Trade record retention |
-| COBIT 2025 | APO14 — Manage Data | Data governance and retention |
+| ISO/IEC 27001:2022 | Annex A.5.33: Protection of Records | Records protection and retention |
+| ISO/IEC 27002:2022 | §5.33 to 5.34 | Records management controls |
+| BASC International Standard v6 | Chapter 3: Document Retention | Trade record retention |
+| COBIT 2025 | APO14: Manage Data | Data governance and retention |
 
 ---
 

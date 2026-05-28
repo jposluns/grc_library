@@ -1,18 +1,18 @@
 # Whistleblower and Incident Reporting Procedure
 
-**Document Title:** Whistleblower and Incident Reporting Procedure  
-**Document Type:** Procedure  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Compliance Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`governance/policy-governance-and-risk-management.md`](policy-governance-and-risk-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`security/procedure-security-disciplinary-process.md`](../security/procedure-security-disciplinary-process.md)  
-**Classification:** Public  
-**Category:** Governance  
-**Review Frequency:** Annual and upon material legal or regulatory change  
-**Repository Path:** [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Whistleblower and Incident Reporting Procedure 
+**Document Type:** Procedure 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Compliance Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`governance/policy-governance-and-risk-management.md`](policy-governance-and-risk-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`security/procedure-security-disciplinary-process.md`](../security/procedure-security-disciplinary-process.md) 
+**Classification:** Public 
+**Category:** Governance 
+**Review Frequency:** Annual and upon material legal or regulatory change 
+**Repository Path:** [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -24,7 +24,7 @@ This procedure defines the channels, protections, investigation processes, and r
 
 ## Scope
 
-Applies to all employees, contractors, temporary workers, and third parties who access organisational systems or resources and who have concerns about:
+Applies to all employees, contractors, temporary workers, and third parties who access organizational systems or resources and who have concerns about:
 - Ethical violations or misconduct.
 - Legal or regulatory breaches.
 - Safety or security incidents.
@@ -66,7 +66,7 @@ Anonymous disclosures are accepted and investigated to the extent possible given
 
 ## 2. Whistleblower Protections
 
-The organisation prohibits any retaliation against individuals who make a disclosure in good faith. Protections include:
+The organization prohibits any retaliation against individuals who make a disclosure in good faith. Protections include:
 
 - Employment protection: no dismissal, demotion, suspension, or unfavourable treatment.
 - Confidentiality: reporter identity is protected to the maximum extent possible.
@@ -140,10 +140,10 @@ The Chief Compliance Officer reviews the whistleblower programme annually and re
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO 37001:2016 | §8.9 — Reporting, Monitoring, and Investigation | Anti-bribery whistleblower requirements |
-| ISO 37301:2021 | §8.9 — Reporting Obligations | Compliance reporting channels |
+| ISO 37001:2016 | §8.9: Reporting, Monitoring, and Investigation | Anti-bribery whistleblower requirements |
+| ISO 37301:2021 | §8.9: Reporting Obligations | Compliance reporting channels |
 | EU Whistleblowing Directive (2019/1937) | Protection for whistleblowers | EU member state transposition requirements |
-| GDPR (2018) | Article 33 — Notification of Breach | Personal data breach notification |
+| GDPR (2018) | Article 33: Notification of Breach | Personal data breach notification |
 | ISO/IEC 27001:2022 | Annex A.6.4 and A.5.28 | Incident reporting and disciplinary process |
 
 ---

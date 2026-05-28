@@ -1,24 +1,24 @@
 # Continuous Improvement Register Procedure
 
-**Document Title:** Continuous Improvement Register Procedure  
-**Document Type:** Procedure  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** GRC Programme Manager  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md)  
-**Classification:** Public  
-**Category:** Governance  
-**Review Frequency:** Annual and upon material governance or process change  
-**Repository Path:** [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Continuous Improvement Register Procedure 
+**Document Type:** Procedure 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** GRC Programme Manager 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md) 
+**Classification:** Public 
+**Category:** Governance 
+**Review Frequency:** Annual and upon material governance or process change 
+**Repository Path:** [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This procedure defines the process for capturing, tracking, and managing improvement initiatives across all governance domains through the Continuous Improvement Register (CIR). The CIR is the organisation's central record of proactive improvement actions — distinct from reactive CAPA actions — and supports the PDCA (Plan–Do–Check–Act) continual improvement cycle across GRC, security, compliance, and operational domains.
+This procedure defines the process for capturing, tracking, and managing improvement initiatives across all governance domains through the Continuous Improvement Register (CIR). The CIR is the organization's central record of proactive improvement actions, distinct from reactive CAPA actions, and supports the PDCA (Plan-Do-Check-Act) continual improvement cycle across GRC, security, compliance, and operational domains.
 
 ---
 
@@ -135,11 +135,11 @@ Improvement actions arising from audit observations (non-nonconformity) are reco
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO 9001:2015 | §10.3 — Continual Improvement | Improvement register and PDCA |
-| ISO/IEC 27001:2022 | §10.2 — Continual Improvement | Security management improvement |
-| ISO/IEC 42001:2023 | §10 — Improvement | AI governance improvement |
-| COBIT 2025 | MEA01 — Monitor, Evaluate, and Assess Performance | Performance governance improvement |
-| COBIT 2025 | APO11 — Manage Quality | Quality improvement management |
+| ISO 9001:2015 | §10.3: Continual Improvement | Improvement register and PDCA |
+| ISO/IEC 27001:2022 | §10.2: Continual Improvement | Security management improvement |
+| ISO/IEC 42001:2023 | §10: Improvement | AI governance improvement |
+| COBIT 2025 | MEA01: Monitor, Evaluate, and Assess Performance | Performance governance improvement |
+| COBIT 2025 | APO11: Manage Quality | Quality improvement management |
 
 ---
 

@@ -1,18 +1,18 @@
 # Continuous Assurance and Improvement Framework
 
-**Document Title:** Continuous Assurance and Improvement Framework  
-**Document Type:** Framework  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** GRC Programme Manager  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](../compliance/procedure-audit-planning.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)  
-**Classification:** Public  
-**Category:** Core Governance  
-**Review Frequency:** Annual and upon material governance, AI, or regulatory change  
-**Repository Path:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Continuous Assurance and Improvement Framework 
+**Document Type:** Framework 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** GRC Programme Manager 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](../compliance/procedure-audit-planning.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md) 
+**Classification:** Public 
+**Category:** Core Governance 
+**Review Frequency:** Annual and upon material governance, AI, or regulatory change 
+**Repository Path:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -37,13 +37,13 @@ It ensures that ongoing monitoring, evaluation, and improvement activities are c
 
 | Role | Responsibility |
 | --- | --- |
-| **Chief Information Officer (CIO)** | Provides executive oversight and ensures continuous assurance aligns with enterprise strategy. |
+| **Chief Information Officer (CIO)** | Provides executive oversight and ensures that continuous assurance aligns with enterprise strategy. |
 | **Chief Information Security Officer (CISO)** | Oversees assurance in information security, risk, and compliance management systems. |
 | **GRC Programme Manager** | Coordinates the assurance calendar, tracks performance metrics, and manages dashboards. |
 | **Internal Audit** | Performs independent verification of framework execution and effectiveness. |
 | **AI Governance Council (AIGC)** | Monitors AI maturity, ethics performance, and digital trust indicators. |
 | **Enterprise Risk Committee (ERC)** | Reviews assurance outcomes and approves improvement initiatives. |
-| **Regional BASC Compliance Officers** | Ensure trade, customs, and supply-chain assurance compliance. |
+| **Regional BASC Compliance Officers** | Ensure that trade, customs, and supply-chain assurance compliance. |
 
 ---
 
@@ -58,7 +58,7 @@ The Continuous Assurance and Improvement Framework integrates four interrelated 
 | **Performance Evaluation** | Measure KPIs, digital trust, and AI governance maturity. | GRC programme management procedure, metrics register |
 | **Improvement Implementation** | Execute corrective and preventive actions. | CAPA procedure, risk register |
 
-This structure provides a continuous feedback loop ensuring organisational learning, resilience, and compliance evolution.
+This structure provides a continuous feedback loop ensuring organizational learning, resilience, and compliance evolution.
 
 ---
 
@@ -92,7 +92,7 @@ This structure provides a continuous feedback loop ensuring organisational learn
 
 ### 4.1 Digital Trust Indicators (COBIT 2025)
 
-The organisation shall track and improve:
+The organization shall track and improve:
 - Governance effectiveness and transparency.
 - Data reliability and system integrity.
 - Security resilience and service availability.
@@ -137,7 +137,7 @@ Performance data from all assurance activities feed into the Governance Performa
 - Personnel vetting and cargo inspection compliance.
 - Customs documentation and audit traceability.
 
-6.2 Regional BASC Compliance Officers maintain BASC Trade Assurance Logs and ensure dual reporting to national chapters and the ERC.
+6.2 Regional BASC Compliance Officers maintain BASC Trade Assurance Logs and ensure that dual reporting to national chapters and the ERC.
 
 ---
 
@@ -163,7 +163,7 @@ Performance data from all assurance activities feed into the Governance Performa
 - Stakeholder feedback and maturity self-assessments.
 - Alignment with ISO, COBIT, CSA, and BASC revisions.
 
-8.3 Updates are approved by the ERC and published organisation-wide.
+8.3 Updates are approved by the ERC and published organization-wide.
 
 ---
 
@@ -171,12 +171,12 @@ Performance data from all assurance activities feed into the Governance Performa
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO 9001:2015 | §10 — Continual Improvement | Improvement cycle structure |
-| ISO/IEC 42001:2023 | §10 — AI Management System Performance and Improvement | AI governance maturity KPIs |
-| ISO/IEC 27001:2022 | §10 — Continual Improvement | Security assurance integration |
-| COBIT 2025 | MEA01 — Monitor, Evaluate, and Assess Performance | Performance governance, digital trust |
+| ISO 9001:2015 | §10: Continual Improvement | Improvement cycle structure |
+| ISO/IEC 42001:2023 | §10: AI Management System Performance and Improvement | AI governance maturity KPIs |
+| ISO/IEC 27001:2022 | §10: Continual Improvement | Security assurance integration |
+| COBIT 2025 | MEA01: Monitor, Evaluate, and Assess Performance | Performance governance, digital trust |
 | COBIT 2025 | Digital Trust Indicators | Governance maturity metrics |
-| CSA CCM v5 | GOV-09 — Governance and Continuous Improvement | Cloud governance assurance |
+| CSA CCM v5 | GOV-09: Governance and Continuous Improvement | Cloud governance assurance |
 | BASC v6 (2023) | Trade and Customs Assurance Governance | Regional trade compliance integration |
 
 ---

@@ -1,18 +1,18 @@
 # Governance Library Charter
 
-**Document Title:** Governance Library Charter  
-**Document Type:** Charter  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Governance Library Maintainer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`governance/policy-digital-twin-and-simulation-governance.md`](policy-digital-twin-and-simulation-governance.md)  
-**Classification:** Public  
-**Category:** Core Governance  
-**Review Frequency:** Annual and upon material framework, regulatory, or licence change  
-**Repository Path:** [`governance/charter-governance-library.md`](charter-governance-library.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Governance Library Charter 
+**Document Type:** Charter 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Governance Library Maintainer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`governance/policy-digital-twin-and-simulation-governance.md`](policy-digital-twin-and-simulation-governance.md) 
+**Classification:** Public 
+**Category:** Core Governance 
+**Review Frequency:** Annual and upon material framework, regulatory, or licence change 
+**Repository Path:** [`governance/charter-governance-library.md`](charter-governance-library.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 

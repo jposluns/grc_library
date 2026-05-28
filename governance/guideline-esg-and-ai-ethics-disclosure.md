@@ -1,24 +1,24 @@
 # ESG and AI Ethics Disclosure Guideline
 
-**Document Title:** ESG and AI Ethics Disclosure Guideline  
-**Document Type:** Guideline  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)  
-**Classification:** Public  
-**Category:** Governance  
-**Review Frequency:** Annual and upon material ESG, AI, or regulatory disclosure requirement change  
-**Repository Path:** [`governance/guideline-esg-and-ai-ethics-disclosure.md`](guideline-esg-and-ai-ethics-disclosure.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** ESG and AI Ethics Disclosure Guideline 
+**Document Type:** Guideline 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md) 
+**Classification:** Public 
+**Category:** Governance 
+**Review Frequency:** Annual and upon material ESG, AI, or regulatory disclosure requirement change 
+**Repository Path:** [`governance/guideline-esg-and-ai-ethics-disclosure.md`](guideline-esg-and-ai-ethics-disclosure.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This guideline defines the organisation's approach to disclosing Environmental, Social, and Governance (ESG) performance and AI ethics commitments to external stakeholders. It provides direction on what to disclose, how to disclose it, and which standards and frameworks govern disclosure content.
+This guideline defines the organization's approach to disclosing Environmental, Social, and Governance (ESG) performance and AI ethics commitments to external stakeholders. It provides direction on what to disclose, how to disclose it, and which standards and frameworks govern disclosure content.
 
 ---
 
@@ -32,7 +32,7 @@ Applies to all external ESG and AI ethics disclosures including: annual sustaina
 
 ### 1. Materiality
 
-Disclosures focus on matters that are material to stakeholders — those that could reasonably influence their decisions. The organisation applies a double materiality lens: impact on society and environment (impact materiality) and financial implications (financial materiality).
+Disclosures focus on matters that are material to stakeholders: those that could reasonably influence their decisions. The organization applies a double materiality lens: impact on society and environment (impact materiality) and financial implications (financial materiality).
 
 ### 2. Accuracy and Verifiability
 
@@ -44,7 +44,7 @@ Disclosures cover all significant ESG dimensions: environmental performance, soc
 
 ### 4. Comparability
 
-Disclosures use standardised frameworks (GRI, TCFD, SASB) to enable stakeholder comparison across periods and peers.
+Disclosures use standardized frameworks (GRI, TCFD, SASB) to enable stakeholder comparison across periods and peers.
 
 ---
 
@@ -69,7 +69,7 @@ Disclosures use standardised frameworks (GRI, TCFD, SASB) to enable stakeholder 
 | Security awareness training completion rate | ISO 27001 §7.3 | Annual |
 | Responsible AI training completion rate | ISO/PAS 8800 | Annual |
 | Human rights due diligence coverage | UN GPs on Business and Human Rights | Annual |
-| Whistleblower report summary (anonymised) | GRI 205 | Annual |
+| Whistleblower report summary (anonymized) | GRI 205 | Annual |
 
 ---
 
@@ -99,7 +99,7 @@ Disclosures use standardised frameworks (GRI, TCFD, SASB) to enable stakeholder 
 
 ## Disclosure Standards and Frameworks
 
-The organisation aligns its ESG and AI ethics disclosures with the following standards:
+The organization aligns its ESG and AI ethics disclosures with the following standards:
 
 | Standard / Framework | Application |
 | --- | --- |
@@ -117,7 +117,7 @@ The organisation aligns its ESG and AI ethics disclosures with the following sta
 
 The annual ESG and AI Ethics Report is:
 - Reviewed by the ERC before publication.
-- Published on the organisation's external website.
+- Published on the organization's external website.
 - Aligned with the annual governance review cycle.
 - Retained in the governance document repository per the Data Retention Schedule.
 
@@ -130,7 +130,7 @@ The annual ESG and AI Ethics Report is:
 | GRI Standards | Universal and topic-specific standards | ESG disclosure structure |
 | TCFD | Climate-related financial disclosures | Climate and environment |
 | OECD AI Principles (2023) | Transparency and accountability | AI ethics disclosure |
-| ISO/IEC 42001:2023 | §9 — Performance Evaluation | AI governance performance |
+| ISO/IEC 42001:2023 | §9: Performance Evaluation | AI governance performance |
 | ISO 26000:2010 | Guidance on Social Responsibility | Social disclosures |
 | EU AI Act (2024) | Articles 13 and 50 | AI transparency obligations |
 
