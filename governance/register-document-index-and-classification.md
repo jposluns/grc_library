@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register 
 **Document Type:** Register 
-**Version:** 1.8.4 
+**Version:** 1.8.5 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -51,7 +51,6 @@ All active repository documents should be Public.
 | Governance | Matrix | Cross-Framework Alignment Matrix | [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md) | Control Framework Maintainer | 6 to 12 months | ISO, NIST, COBIT, CCM, OWASP, MITRE ATLAS |
 | Governance | Policy | Exception and Risk Acceptance Management Policy | [`governance/policy-exception-and-risk-acceptance-management.md`](policy-exception-and-risk-acceptance-management.md) | Chief Risk Officer | Annual | Exceptions, deviations, compensating controls, expiry |
 | Governance | Standard | Records Retention and Destruction Standard | [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) | Governance Library Maintainer | Annual | ISO 15489, NIST SP 800-88, GDPR Art 17, BASC 5-year retention |
-| Governance | Procedure | Supplier Security and Privacy Assurance Procedure | [`governance/procedure-supplier-security-and-privacy-assurance.md`](procedure-supplier-security-and-privacy-assurance.md) | Chief Risk Officer | Annual | ISO 27001 A.5.19 to 22, ISO 28000, BASC v6, WCO SAFE Framework |
 | Governance | Procedure | GRC Programme Management and Annual Review Procedure | [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md) | GRC Programme Manager | Annual | ISO 37301 §9, ISO 27001 §9.3, ISO 31000 §6.7, COBIT 2025 APO01 |
 | Governance | Register | Digital Trust and Assurance Metrics Register | [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md) | Assurance Metrics Maintainer | 6 to 12 months | COBIT 2025 MEA01/MEA02, ISO 9001 §9 to 10, ISO 42001 §10, Digital Trust Index |
 | Risk | Policy | Enterprise Governance and Risk Management Policy | [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | Chief Risk Officer | Annual | ISO 31000, ISO 23894, NIST AI RMF, COBIT APO12, BASC Latin America |

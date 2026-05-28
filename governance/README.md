@@ -2,7 +2,7 @@
 
 **Document Title:** Governance Domain README 
 **Document Type:** Register 
-**Version:** 1.0.1 
+**Version:** 1.0.2 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -38,7 +38,6 @@ This directory contains the enterprise-wide governance foundation of the GRC Doc
 | Register | Key Terms and Definitions Register | [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md) |
 | Register | Digital Trust and Assurance Metrics Register | [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md) |
 | Standard | Records Retention and Destruction Standard | [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) |
-| Procedure | Supplier Security and Privacy Assurance Procedure | [`governance/procedure-supplier-security-and-privacy-assurance.md`](procedure-supplier-security-and-privacy-assurance.md) |
 | Procedure | GRC Programme Management and Annual Review Procedure | [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md) |
 | Framework | Human Capital and Ethical Conduct Framework | [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md) |
 | Framework | Sustainability and Responsible Technology Framework | [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md) |

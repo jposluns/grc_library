@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Security and Privacy Assurance Standard 
 **Document Type:** Standard 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.1.0 
+**Date:** 2026-05-28 
 **Owner:** Supplier Risk Maintainer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/template-supplier-security-questionnaire.md`](template-supplier-security-questionnaire.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) 
@@ -159,6 +159,24 @@ Where a supplier fails to meet the requirements of this standard:
 3. **Escalate to senior management** if the supplier does not remediate within the agreed timeframe
 4. **Initiate exit proceedings** if the supplier is unwilling or unable to meet minimum requirements: follow [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md)
 5. **Notify the Data Protection Officer** if the gap involves a personal data processing risk
+
+---
+
+## Metrics
+
+The following metrics shall be tracked and reported to the CISO at least quarterly:
+
+| Metric | Target |
+| --- | --- |
+| Tier 1 suppliers with current security and privacy questionnaire on file | 100% |
+| Tier 1 suppliers with valid independent certification (ISO 27001, SOC 2 Type II, or equivalent) | At least 90% |
+| Supplier breach notifications received within the contractual notification window | 100% |
+| Supplier offboarding completed with a destruction or return certificate | 100% |
+| Critical-tier supplier risk exceptions open longer than 90 days | Zero |
+| Tier 1 and Tier 2 suppliers with current penetration test attestation | At least 90% |
+| Supplier corrective actions closed within their agreed deadline | At least 90% |
+
+Metric definitions and supporting data collection are operationalised in [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md).
 
 ---
 
