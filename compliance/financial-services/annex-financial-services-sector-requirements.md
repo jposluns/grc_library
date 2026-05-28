@@ -2,15 +2,15 @@
 
 **Document Title:** Financial Services Sector GRC Requirements Annex 
 **Document Type:** Annex 
-**Version:** 1.0.1 
+**Version:** 1.0.2 
 **Date:** 2026-05-28 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../resilience/standard-business-continuity-and-disaster-recovery.md) 
+**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md) 
 **Classification:** Public 
 **Category:** Compliance: Sector-Specific 
 **Review Frequency:** Annual and upon material regulatory change in applicable jurisdictions 
-**Repository Path:** [`compliance/annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md) 
+**Repository Path:** [`compliance/financial-services/annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md) 
 **Confidentiality:** Public 
 **License:** CC0 1.0 Universal 
 
@@ -96,10 +96,10 @@ DORA applies to approximately 22 categories of EU financial entities and to ICT 
 
 | DORA Pillar | Requirement | GRC Library Mapping |
 |---|---|---|
-| **ICT Risk Management (Arts 5 to 16)** | Documented ICT risk management framework; asset inventory; protection and prevention measures; detection; response and recovery; communication | [`security/policy-information-security.md`](../security/policy-information-security.md); [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md); [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md); [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md) |
-| **ICT Incident Classification and Reporting (Arts 17 to 23)** | Classify incidents as major or non-major; report major ICT incidents to competent authority within 4 hours (initial), 72 hours (intermediate), 1 month (final) | [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md); [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md): supplement with DORA reporting templates |
-| **Digital Operational Resilience Testing (Arts 24 to 27)** | Threat-Led Penetration Testing (TLPT) every 3 years for significant entities; regular vulnerability assessments and scenario-based testing | [`resilience/procedure-continuity-and-recovery-testing.md`](../resilience/procedure-continuity-and-recovery-testing.md): supplement with TLPT protocol; penetration test programme |
-| **Third-Party ICT Risk (Arts 28 to 44)** | Documented ICT third-party risk management strategy; due diligence; contractual provisions; exit strategies; CTPP oversight framework | [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md); [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md); [`supply-chain/standard-cloud-exit-and-data-portability.md`](../supply-chain/standard-cloud-exit-and-data-portability.md) |
+| **ICT Risk Management (Arts 5 to 16)** | Documented ICT risk management framework; asset inventory; protection and prevention measures; detection; response and recovery; communication | [`security/policy-information-security.md`](../../security/policy-information-security.md); [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md); [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md); [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md) |
+| **ICT Incident Classification and Reporting (Arts 17 to 23)** | Classify incidents as major or non-major; report major ICT incidents to competent authority within 4 hours (initial), 72 hours (intermediate), 1 month (final) | [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md); [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md): supplement with DORA reporting templates |
+| **Digital Operational Resilience Testing (Arts 24 to 27)** | Threat-Led Penetration Testing (TLPT) every 3 years for significant entities; regular vulnerability assessments and scenario-based testing | [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md): supplement with TLPT protocol; penetration test programme |
+| **Third-Party ICT Risk (Arts 28 to 44)** | Documented ICT third-party risk management strategy; due diligence; contractual provisions; exit strategies; CTPP oversight framework | [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md); [`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md); [`supply-chain/standard-cloud-exit-and-data-portability.md`](../../supply-chain/standard-cloud-exit-and-data-portability.md) |
 | **Information Sharing (Art 45)** | Voluntary cyber threat intelligence sharing arrangements | Supplement with threat intelligence sharing policy |
 
 **DORA Contract Provisions (Art 30):** ICT contracts with ICT third-party providers must include:
@@ -114,10 +114,10 @@ DORA applies to approximately 22 categories of EU financial entities and to ICT 
 
 | Requirement | Core Obligation | GRC Library Mapping |
 |---|---|---|
-| **Important Business Services identification** | Map all services important to customers and financial stability | [`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md): supplement with Important Business Services register |
-| **Impact tolerances** | Set maximum tolerable disruption for each Important Business Service (time and quality thresholds) | [`resilience/standard-business-continuity-and-disaster-recovery.md`](../resilience/standard-business-continuity-and-disaster-recovery.md); [`resilience/procedure-business-impact-analysis.md`](../resilience/procedure-business-impact-analysis.md) |
-| **Mapping and testing** | Map people, processes, technology, facilities, and information supporting each service; stress test against disruption scenarios | [`resilience/procedure-continuity-and-recovery-testing.md`](../resilience/procedure-continuity-and-recovery-testing.md); [`resilience/procedure-business-impact-analysis.md`](../resilience/procedure-business-impact-analysis.md) |
-| **Self-assessment** | Annual self-assessment of operational resilience capability against impact tolerances | [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](logistics/procedure-aeo-united-kingdom-self-assessment.md): adapt template |
+| **Important Business Services identification** | Map all services important to customers and financial stability | [`operations/framework-it-service-management.md`](../../operations/framework-it-service-management.md): supplement with Important Business Services register |
+| **Impact tolerances** | Set maximum tolerable disruption for each Important Business Service (time and quality thresholds) | [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md); [`resilience/procedure-business-impact-analysis.md`](../../resilience/procedure-business-impact-analysis.md) |
+| **Mapping and testing** | Map people, processes, technology, facilities, and information supporting each service; stress test against disruption scenarios | [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md); [`resilience/procedure-business-impact-analysis.md`](../../resilience/procedure-business-impact-analysis.md) |
+| **Self-assessment** | Annual self-assessment of operational resilience capability against impact tolerances | [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](../logistics/procedure-aeo-united-kingdom-self-assessment.md): adapt template |
 
 ### OSFI b-13 (canada: frfis)
 
@@ -125,24 +125,24 @@ OSFI B-13 applies to all federally regulated financial institutions in Canada. K
 
 | B-13 Domain | Outcome Required | GRC Library Mapping |
 |---|---|---|
-| **Governance** | Technology and cyber risk oversight at Board level; CRO accountability; technology risk appetite | [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md); [`risk/template-risk-appetite-statement.md`](../risk/template-risk-appetite-statement.md) |
-| **Technology Asset Management** | Complete, accurate technology asset inventory | [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md) |
-| **Technology and Cyber Risk Management** | Risk identification, assessment, treatment aligned to enterprise framework | [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md); [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md) |
-| **Cyber Resilience** | Cyber resilience strategy; incident response; threat intelligence; recovery capability | [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md); [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md) |
-| **Third-Party Technology Risk** | Technology risk management for all third-party technology arrangements | [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md); [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md) |
+| **Governance** | Technology and cyber risk oversight at Board level; CRO accountability; technology risk appetite | [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md); [`risk/template-risk-appetite-statement.md`](../../risk/template-risk-appetite-statement.md) |
+| **Technology Asset Management** | Complete, accurate technology asset inventory | [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md) |
+| **Technology and Cyber Risk Management** | Risk identification, assessment, treatment aligned to enterprise framework | [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md); [`risk/procedure-risk-assessment-methodology.md`](../../risk/procedure-risk-assessment-methodology.md) |
+| **Cyber Resilience** | Cyber resilience strategy; incident response; threat intelligence; recovery capability | [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md); [`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md) |
+| **Third-Party Technology Risk** | Technology risk management for all third-party technology arrangements | [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md); [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md) |
 
 ### NY DFS 23 NYCRR 500 (US)
 
 | Requirement | Detail | GRC Library Mapping |
 |---|---|---|
 | **CISO appointment** | Qualified CISO; annual report to Board | Role definition in security domain |
-| **Penetration testing** | Annual penetration test; bi-annual vulnerability assessment | [`resilience/procedure-continuity-and-recovery-testing.md`](../resilience/procedure-continuity-and-recovery-testing.md): supplement with pen test programme |
-| **Multi-factor authentication** | MFA required for access to non-public information systems | [`security/procedure-identity-management.md`](../security/procedure-identity-management.md) |
-| **Encryption** | Encryption of non-public information in transit and at rest | [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md) |
-| **Incident notification** | Notice to NYDFS within 72 hours of determining a Cybersecurity Event occurred | [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md): supplement with NYDFS notification runbook |
-| **Cybersecurity policy** | Documented policy covering all 15 required areas | [`security/policy-information-security.md`](../security/policy-information-security.md): verify coverage of all 15 areas |
-| **Access controls** | Privileged access management; periodic review | [`security/procedure-access-control.md`](../security/procedure-access-control.md); [`security/procedure-identity-management.md`](../security/procedure-identity-management.md) |
-| **Third-party service provider policy** | Written policy governing third-party security | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md) |
+| **Penetration testing** | Annual penetration test; bi-annual vulnerability assessment | [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md): supplement with pen test programme |
+| **Multi-factor authentication** | MFA required for access to non-public information systems | [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) |
+| **Encryption** | Encryption of non-public information in transit and at rest | [`security/framework-cryptographic-key-lifecycle.md`](../../security/framework-cryptographic-key-lifecycle.md) |
+| **Incident notification** | Notice to NYDFS within 72 hours of determining a Cybersecurity Event occurred | [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md): supplement with NYDFS notification runbook |
+| **Cybersecurity policy** | Documented policy covering all 15 required areas | [`security/policy-information-security.md`](../../security/policy-information-security.md): verify coverage of all 15 areas |
+| **Access controls** | Privileged access management; periodic review | [`security/procedure-access-control.md`](../../security/procedure-access-control.md); [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) |
+| **Third-party service provider policy** | Written policy governing third-party security | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md) |
 
 ### PCI DSS v4.0
 
@@ -150,13 +150,13 @@ PCI DSS applies to any organisation that stores, processes, or transmits payment
 
 | PCI DSS Requirement Group | Core Obligation | GRC Library Mapping |
 |---|---|---|
-| **Req 1 to 2: Network Security** | Firewalls; secure configurations; no vendor defaults | [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md) |
-| **Req 3 to 4: Protect Cardholder Data** | Encryption of stored PAN; TLS in transit | [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md) |
-| **Req 5 to 6: Vulnerability Management** | Antivirus; secure development; patch management | [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md); [`dev-security/standard-software-composition-analysis.md`](../dev-security/standard-software-composition-analysis.md) |
-| **Req 7 to 8: Access Control** | Least privilege; unique user IDs; MFA | [`security/procedure-access-control.md`](../security/procedure-access-control.md); [`security/procedure-identity-management.md`](../security/procedure-identity-management.md) |
+| **Req 1 to 2: Network Security** | Firewalls; secure configurations; no vendor defaults | [`dev-security/standard-devops-security-requirements.md`](../../dev-security/standard-devops-security-requirements.md) |
+| **Req 3 to 4: Protect Cardholder Data** | Encryption of stored PAN; TLS in transit | [`security/framework-cryptographic-key-lifecycle.md`](../../security/framework-cryptographic-key-lifecycle.md) |
+| **Req 5 to 6: Vulnerability Management** | Antivirus; secure development; patch management | [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md); [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) |
+| **Req 7 to 8: Access Control** | Least privilege; unique user IDs; MFA | [`security/procedure-access-control.md`](../../security/procedure-access-control.md); [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) |
 | **Req 9: Physical Security** | Physical access controls to cardholder data environments | Physical security controls |
-| **Req 10: Logging and Monitoring** | Audit logs; log review; SIEM | [`operations/register-it-security-operations.md`](../operations/register-it-security-operations.md) |
-| **Req 11: Security Testing** | Penetration testing; internal and external vulnerability scans | [`resilience/procedure-continuity-and-recovery-testing.md`](../resilience/procedure-continuity-and-recovery-testing.md) |
+| **Req 10: Logging and Monitoring** | Audit logs; log review; SIEM | [`operations/register-it-security-operations.md`](../../operations/register-it-security-operations.md) |
+| **Req 11: Security Testing** | Penetration testing; internal and external vulnerability scans | [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md) |
 | **Req 12: Security Policy** | Information security policy; risk assessment; incident response | Core GRC library policies |
 
 **PCI DSS v4.0 new requirements (effective 2025):**
@@ -175,8 +175,8 @@ For organisations subject to AML obligations (banks, money service businesses, c
 | **Enhanced Due Diligence (EDD)** | Enhanced measures for high-risk customers, PEPs, high-risk countries | Supplement: EDD procedure |
 | **Transaction Monitoring** | Monitor transactions for suspicious activity | Supplement: Transaction monitoring programme |
 | **Suspicious Activity Reporting (SAR)** | File SARs with FINTRAC / FinCEN / NCA within prescribed timelines | Supplement: SAR filing procedure |
-| **Record Retention** | AML records retained for 5 to 7 years depending on jurisdiction | [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md): verify AML retention periods |
-| **Staff Training** | AML training for all relevant staff | [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md): ensure that AML training included |
+| **Record Retention** | AML records retained for 5 to 7 years depending on jurisdiction | [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md): verify AML retention periods |
+| **Staff Training** | AML training for all relevant staff | [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md): ensure that AML training included |
 
 ---
 

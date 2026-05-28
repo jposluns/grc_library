@@ -4,6 +4,50 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 20.2 (2026-05-28): Other industry-sector sub-directories
+
+Second sub-phase of Phase 20. Phase 20.1 established the `compliance/<sector>/` sub-directory pattern for logistics. Phase 20.2 applies the same pattern to the remaining five industry sectors so that all sector-conditional compliance content lives under its respective sector sub-directory.
+
+### Sub-directories created
+
+- `compliance/financial-services/` — banks, investment firms, insurers, payment institutions, financial-market infrastructures.
+- `compliance/healthcare/` — healthcare providers, payers, medical-device manufacturers, healthcare technology platforms.
+- `compliance/energy-and-utilities/` — electricity, gas, water, district heating, renewable-energy operators.
+- `compliance/telecommunications/` — telecom network operators, ISPs, internet exchange points, electronic communications service providers.
+- `compliance/public-sector/` — government agencies, public bodies, and cloud-service providers to public sector.
+
+Each sub-directory has a `README.md` (v1.0.0) describing the sector, applicability, the artefacts within, and future-coverage placeholders for country/regulator-specific overlays.
+
+### Files moved
+
+| Origin | Destination | Notes |
+| --- | --- | --- |
+| `compliance/annex-financial-services-sector-requirements.md` | `compliance/financial-services/annex-financial-services-sector-requirements.md` | Path move; version bump |
+| `compliance/annex-dora-implementation.md` | `compliance/financial-services/annex-dora-implementation.md` | EU financial-services regulation; path move |
+| `compliance/annex-sox-itgc.md` | `compliance/financial-services/annex-sox-itgc.md` | US financial-services regulation; path move |
+| `compliance/annex-healthcare-sector-requirements.md` | `compliance/healthcare/annex-healthcare-sector-requirements.md` | Path move |
+| `compliance/annex-energy-and-utilities-sector-requirements.md` | `compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md` | Path move |
+| `compliance/annex-telecommunications-sector-requirements.md` | `compliance/telecommunications/annex-telecommunications-sector-requirements.md` | Path move |
+| `compliance/annex-public-sector-requirements.md` | `compliance/public-sector/annex-public-sector-requirements.md` | Path move |
+| `compliance/annex-fedramp-requirements.md` | `compliance/public-sector/annex-fedramp-requirements.md` | US federal cloud regulation; path move |
+
+### Held at `compliance/` root (horizontal cross-sector regulation)
+
+- `compliance/annex-nis-2-implementation.md` — EU NIS 2 Directive applies to "essential and important entities" across energy, transport, banking, healthcare, digital infrastructure, and other sectors. Not naturally one sector. Stays at root.
+
+### Library-wide cross-reference updates
+
+- All references to the eight moved files (across ~10 documents) updated to new paths.
+- Internal sibling references within moved files updated from `../security/` to `../../security/` style (the files are now one level deeper).
+- Internal compliance-sibling references in moved files updated from `(filename.md)` to `(../filename.md)`.
+- `compliance/README.md` (1.3.0 → 1.4.0): sector sub-directory table expanded to list all six sectors; per-sector artefact tables added.
+
+### Result
+
+The compliance domain now consistently organises sector-specific content under sub-directories: `logistics/`, `financial-services/`, `healthcare/`, `energy-and-utilities/`, `telecommunications/`, `public-sector/`. The pattern scales to new sectors (when added) and to country-specific regulator overlays within each sector (as adopters require).
+
+All ten audits clean. Taxonomy and portal regenerated.
+
 ## Phase 20.1 (2026-05-28): Logistics sector consolidation
 
 First sub-phase of Phase 20 (compliance sub-directory restructure). Phase 12.3 had moved BASC into a new `/sectors/` top-level directory, which was inconsistent with the established pattern of sector-specific content living in `/compliance/` (where AEO-UK, CTPAT, PIP, and the sector annexes already lived). Phase 20.1 reverses that misstep and establishes the `compliance/<sector>/` sub-directory pattern, beginning with logistics.
@@ -117,7 +161,7 @@ Files updated:
 - `governance/matrix-cross-framework-alignment.md` (1.1.1 → 1.1.2): 1 body usage.
 - `risk/standard-enterprise-risk-management.md` (1.3.1 → 1.3.2): section heading "Licence" and 1 body usage.
 - `risk/policy-enterprise-governance-and-risk-management.md` (1.4.0 → 1.4.1): section heading "Licence".
-- `compliance/annex-financial-services-sector-requirements.md` (1.0.0 → 1.0.1): 1 body usage.
+- `compliance/financial-services/annex-financial-services-sector-requirements.md` (1.0.0 → 1.0.1): 1 body usage.
 - `compliance/register-compliance-obligations-template.md` (1.0.1 → 1.0.2): 1 body usage.
 - `dev-security/standard-developer-security-requirements.md` (1.0.0 → 1.0.1): 1 body usage.
 - `dev-security/standard-security-quick-reference.md` (1.0.0 → 1.0.1): 2 body usages.
@@ -785,13 +829,13 @@ Document index `governance/register-document-index-and-classification.md` bumped
 
 Closes seven sector and regime content gaps identified in the advisory review. Each new annex starts at version 0.0.1 per the ingestion specification.
 
-- `compliance/annex-fedramp-requirements.md`: applicability triggers, authorisation route selection (JAB, Agency, FedRAMP Tailored, FedRAMP Ready), baseline selection mapped to FIPS 199, library coverage per NIST SP 800-53 Rev 5 control family, eight named library gaps requiring additional documentation (SSP, ConMon, POA&M, SAR/SAP, OMB M-22-09 reporting, FIPS-validated cryptography, federal personnel investigations, CUI handling).
-- `compliance/annex-dora-implementation.md`: per-pillar mapping for ICT risk management (Articles 5 to 16), ICT-related incident reporting (Articles 17 to 23 with 4-hour, 72-hour, one-month windows), digital operational resilience testing including TLPT under TIBER-EU, ICT third-party risk including Article 30 minimum clauses and the critical-ICT-third-party Oversight Framework, information and intelligence sharing.
+- `compliance/public-sector/annex-fedramp-requirements.md`: applicability triggers, authorisation route selection (JAB, Agency, FedRAMP Tailored, FedRAMP Ready), baseline selection mapped to FIPS 199, library coverage per NIST SP 800-53 Rev 5 control family, eight named library gaps requiring additional documentation (SSP, ConMon, POA&M, SAR/SAP, OMB M-22-09 reporting, FIPS-validated cryptography, federal personnel investigations, CUI handling).
+- `compliance/financial-services/annex-dora-implementation.md`: per-pillar mapping for ICT risk management (Articles 5 to 16), ICT-related incident reporting (Articles 17 to 23 with 4-hour, 72-hour, one-month windows), digital operational resilience testing including TLPT under TIBER-EU, ICT third-party risk including Article 30 minimum clauses and the critical-ICT-third-party Oversight Framework, information and intelligence sharing.
 - `compliance/annex-nis-2-implementation.md`: entity classification (Essential and Important under Annexes I and II), per-sub-measure mapping of Article 21 risk-management measures, Article 20 management body responsibilities and training, the four-stage incident reporting regime under Articles 23 to 25 (early warning, incident notification, intermediate, final), six library gaps requiring additional documentation.
-- `compliance/annex-public-sector-requirements.md`: eight overlay areas (freedom of information, accessibility under WCAG 2.2 AA and EN 301 549, public procurement, records management, audit and external scrutiny, ethics and lobbying, AI in the public sector, official languages), library coverage per overlay, seven library gaps.
-- `compliance/annex-telecommunications-sector-requirements.md`: seven overlay areas (sector cybersecurity, lawful interception, data retention, sector customer privacy, emergency calling and resilience, vendor and supply-chain restrictions, numbering and addressing resources), regime references for EU EECC, EU NIS 2, UK Telecommunications (Security) Act 2021, US CALEA, FCC, and equivalents.
-- `compliance/annex-energy-and-utilities-sector-requirements.md`: six overlay areas (critical-infrastructure cybersecurity baselines, OT and ICS cybersecurity, physical-cyber convergence, sector incident reporting, supplier and component security, resilience and continuity), per-control area mapping for OT including network segmentation, OT vulnerability management, vendor remote access to OT, OT incident response.
-- `compliance/annex-sox-itgc.md`: ICFR scope determination, four ITGC domains (access to programs and data, program changes, program development, computer operations) with library coverage per control objective, auditor-expected artefacts beyond the library, coordination with adjacent regimes (SOC 1, PCI DSS, GDPR, NIST CSF, ISO 27001).
+- `compliance/public-sector/annex-public-sector-requirements.md`: eight overlay areas (freedom of information, accessibility under WCAG 2.2 AA and EN 301 549, public procurement, records management, audit and external scrutiny, ethics and lobbying, AI in the public sector, official languages), library coverage per overlay, seven library gaps.
+- `compliance/telecommunications/annex-telecommunications-sector-requirements.md`: seven overlay areas (sector cybersecurity, lawful interception, data retention, sector customer privacy, emergency calling and resilience, vendor and supply-chain restrictions, numbering and addressing resources), regime references for EU EECC, EU NIS 2, UK Telecommunications (Security) Act 2021, US CALEA, FCC, and equivalents.
+- `compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`: six overlay areas (critical-infrastructure cybersecurity baselines, OT and ICS cybersecurity, physical-cyber convergence, sector incident reporting, supplier and component security, resilience and continuity), per-control area mapping for OT including network segmentation, OT vulnerability management, vendor remote access to OT, OT incident response.
+- `compliance/financial-services/annex-sox-itgc.md`: ICFR scope determination, four ITGC domains (access to programs and data, program changes, program development, computer operations) with library coverage per control objective, auditor-expected artefacts beyond the library, coordination with adjacent regimes (SOC 1, PCI DSS, GDPR, NIST CSF, ISO 27001).
 
 Document index `governance/register-document-index-and-classification.md` bumped 1.10.0 to 1.11.0 (minor: seven substantive new rows). Compliance README bumped 1.0.1 to 1.1.0 (minor: substantive section expansion). Taxonomy, portal, and maturity scorecard regenerated.
 

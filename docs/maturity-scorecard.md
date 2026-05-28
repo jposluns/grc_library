@@ -114,8 +114,8 @@ _136 documents._
 | [ai/template-ai-system-register.md](../ai/template-ai-system-register.md) | AI System Register Template | Template | 1.0.0 | 2026-05-27 |
 | [ai/template-model-card.md](../ai/template-model-card.md) | Model Card Template | Template | 1.0.0 | 2026-05-27 |
 | [ai/template-system-card.md](../ai/template-system-card.md) | System Card Template | Template | 1.0.0 | 2026-05-27 |
-| [compliance/annex-financial-services-sector-requirements.md](../compliance/annex-financial-services-sector-requirements.md) | Financial Services Sector GRC Requirements Annex | Annex | 1.0.1 | 2026-05-28 |
-| [compliance/annex-healthcare-sector-requirements.md](../compliance/annex-healthcare-sector-requirements.md) | Healthcare Sector GRC Requirements Annex | Annex | 1.0.0 | 2026-05-27 |
+| [compliance/financial-services/annex-financial-services-sector-requirements.md](../compliance/financial-services/annex-financial-services-sector-requirements.md) | Financial Services Sector GRC Requirements Annex | Annex | 1.0.2 | 2026-05-28 |
+| [compliance/healthcare/annex-healthcare-sector-requirements.md](../compliance/healthcare/annex-healthcare-sector-requirements.md) | Healthcare Sector GRC Requirements Annex | Annex | 1.0.1 | 2026-05-28 |
 | [compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md) | UK AEO-S IT and Cybersecurity Requirements | Annex | 1.0.1 | 2026-05-28 |
 | [compliance/logistics/annex-logistics-sector-requirements.md](../compliance/logistics/annex-logistics-sector-requirements.md) | Logistics Sector GRC Requirements Annex | Annex | 1.0.1 | 2026-05-28 |
 | [compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md) | UK AEO IT Self-Assessment Procedure | Procedure | 1.0.1 | 2026-05-28 |
@@ -257,13 +257,13 @@ _72 documents._
 | [architecture/standard-integration-architecture.md](../architecture/standard-integration-architecture.md) | Integration Architecture Standard | Standard | 0.0.1 | 2026-05-28 |
 | [architecture/standard-reference-architecture.md](../architecture/standard-reference-architecture.md) | Reference Architecture Standard | Standard | 0.0.1 | 2026-05-28 |
 | [architecture/standard-technology-radar.md](../architecture/standard-technology-radar.md) | Technology Radar Standard | Standard | 0.0.1 | 2026-05-28 |
-| [compliance/annex-dora-implementation.md](../compliance/annex-dora-implementation.md) | DORA Implementation Annex | Annex | 0.0.1 | 2026-05-28 |
-| [compliance/annex-energy-and-utilities-sector-requirements.md](../compliance/annex-energy-and-utilities-sector-requirements.md) | Energy and Utilities Sector Requirements Annex | Annex | 0.0.1 | 2026-05-28 |
-| [compliance/annex-fedramp-requirements.md](../compliance/annex-fedramp-requirements.md) | FedRAMP Sector Requirements Annex | Annex | 0.0.1 | 2026-05-28 |
 | [compliance/annex-nis-2-implementation.md](../compliance/annex-nis-2-implementation.md) | NIS 2 Implementation Annex | Annex | 0.0.1 | 2026-05-28 |
-| [compliance/annex-public-sector-requirements.md](../compliance/annex-public-sector-requirements.md) | Public Sector GRC Requirements Annex | Annex | 0.0.1 | 2026-05-28 |
-| [compliance/annex-sox-itgc.md](../compliance/annex-sox-itgc.md) | SOX IT General Controls Annex | Annex | 0.0.1 | 2026-05-28 |
-| [compliance/annex-telecommunications-sector-requirements.md](../compliance/annex-telecommunications-sector-requirements.md) | Telecommunications Sector Requirements Annex | Annex | 0.0.1 | 2026-05-28 |
+| [compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md](../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md) | Energy and Utilities Sector Requirements Annex | Annex | 0.0.2 | 2026-05-28 |
+| [compliance/financial-services/annex-dora-implementation.md](../compliance/financial-services/annex-dora-implementation.md) | DORA Implementation Annex | Annex | 0.0.2 | 2026-05-28 |
+| [compliance/financial-services/annex-sox-itgc.md](../compliance/financial-services/annex-sox-itgc.md) | SOX IT General Controls Annex | Annex | 0.0.2 | 2026-05-28 |
+| [compliance/public-sector/annex-fedramp-requirements.md](../compliance/public-sector/annex-fedramp-requirements.md) | FedRAMP Sector Requirements Annex | Annex | 0.0.2 | 2026-05-28 |
+| [compliance/public-sector/annex-public-sector-requirements.md](../compliance/public-sector/annex-public-sector-requirements.md) | Public Sector GRC Requirements Annex | Annex | 0.0.2 | 2026-05-28 |
+| [compliance/telecommunications/annex-telecommunications-sector-requirements.md](../compliance/telecommunications/annex-telecommunications-sector-requirements.md) | Telecommunications Sector Requirements Annex | Annex | 0.0.2 | 2026-05-28 |
 | [dev-security/procedure-secure-code-review.md](../dev-security/procedure-secure-code-review.md) | Secure Code Review Procedure | Procedure | 0.0.1 | 2026-05-28 |
 | [dev-security/standard-api-security.md](../dev-security/standard-api-security.md) | API Security Standard | Standard | 0.0.2 | 2026-05-28 |
 | [dev-security/standard-cloud-hardening-baseline-aws.md](../dev-security/standard-cloud-hardening-baseline-aws.md) | AWS Cloud Hardening Baseline Standard | Standard | 0.0.2 | 2026-05-28 |
