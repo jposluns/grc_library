@@ -105,7 +105,7 @@ Complete the following fields for each gap assessment.
 | Requirement Area | Programme Source | Current Control or Evidence | Gap Description | Gap Severity | Remediation Action | Target Date | Owner |
 |---|---|---|---|---|---|---|---|
 | Security vetting of trading partners | CTPAT; PIP; AEO-S; BASC | [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md) | | | | | |
-| Written security requirements in partner contracts | CTPAT; AEO-S | [`supply-chain/standard-third-party-risk.md`](../supply-chain/standard-third-party-risk.md) | | | | | |
+| Written security requirements in partner contracts | CTPAT; AEO-S | [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md) | | | | | |
 | Process for verifying partner AEO/CTPAT/PIP status | CTPAT; AEO-S | | | | | | |
 | Periodic reassessment of existing partners | CTPAT; AEO-S; BASC | [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md) | | | | | |
 
@@ -122,7 +122,7 @@ Complete the following fields for each gap assessment.
 | Cyber incident response procedures | CTPAT IT-5; PIP-IT-6; AEO-S | [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md) | | | | | |
 | Cybersecurity awareness training | CTPAT IT-6; PIP-IT-7; AEO-S | [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md) | | | | | |
 | IT asset inventory | CTPAT IT-7; PIP-IT-8; AEO-S | [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md) | | | | | |
-| Third-party IT security controls | CTPAT IT-8; PIP-IT-9; AEO-S | [`supply-chain/standard-third-party-risk.md`](../supply-chain/standard-third-party-risk.md) | | | | | |
+| Third-party IT security controls | CTPAT IT-8; PIP-IT-9; AEO-S | [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md) | | | | | |
 | Business continuity and IT recovery | CTPAT IT-9; PIP-IT-10; AEO-S | [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md) | | | | | |
 | Audit logging and monitoring | CTPAT IT-10; AEO-S | [`operations/register-it-security-operations.md`](../operations/register-it-security-operations.md) | | | | | |
 

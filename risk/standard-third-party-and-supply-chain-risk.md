@@ -2,11 +2,11 @@
 
 **Document Title:** Third-Party and Supply Chain Risk Standard 
 **Document Type:** Standard 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.1.0 
+**Date:** 2026-05-28 
 **Owner:** Chief Risk Officer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`supply-chain/standard-third-party-risk.md`](../supply-chain/standard-third-party-risk.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) 
+**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../supply-chain/procedure-supplier-ongoing-monitoring.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](../supply-chain/procedure-supplier-exit-and-data-return.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) 
 **Classification:** Public 
 **Category:** Risk Management: Third-Party and Supply Chain 
 **Review Frequency:** Annual and upon material supply chain change, significant third-party incident, or regulatory update 
@@ -18,13 +18,15 @@
 
 ## Purpose
 
-This standard defines the enterprise risk management requirements for identifying, assessing, treating, and monitoring risks arising from third-party relationships and supply chain dependencies. It complements the operational supplier governance procedures in the supply-chain domain by establishing the risk management lens through which all third-party and supply chain risks are evaluated, escalated, and reported.
+This standard defines the framework, methodology, and control requirements for identifying, assessing, treating, and monitoring risks arising from third-party relationships and supply chain dependencies. It is the master third-party and supply-chain risk standard for the library: the enterprise risk-management lens, the lifecycle expectations, and the contracting controls are all defined here. Operational procedures in the supply-chain domain implement the lifecycle steps; this standard governs them.
+
+This standard supersedes the prior `supply-chain/standard-third-party-risk.md` (removed in the same change). All cross-references previously pointing at that document point here.
 
 ---
 
 ## Scope
 
-This standard applies to all third-party relationships including:
+This standard applies to all third-party relationships involving access to the organization's data, systems, networks, facilities, or operational continuity, including:
 
 - Logistics and freight service providers
 - Technology and software vendors
@@ -32,9 +34,12 @@ This standard applies to all third-party relationships including:
 - Managed service providers
 - Professional services and consultants
 - Data processors and subprocessors
+- AI model, data, and inference-service suppliers
 - Critical infrastructure and utilities
 - Trade compliance and customs agents
 - Subcontractors and second-tier suppliers with material operational impact
+
+The standard applies globally across all business units and regional operations and covers the full supplier lifecycle from onboarding to contract termination, including subcontractors engaged by third parties.
 
 ---
 
@@ -44,8 +49,8 @@ All third-party relationships must be classified into one of the following tiers
 
 | Tier | Classification | Criteria | Review Frequency |
 |---|---|---|---|
-| **Tier 1: Critical** | Single point of failure; direct access to sensitive data or critical systems; regulatory or trade compliance dependency; revenue impact if unavailable | Processes personal data at scale; sole-source provider; no contractual substitute; CTPAT / AEO-S / BASC dependency | Quarterly |
-| **Tier 2: High** | Significant operational dependency; access to systems or data; material revenue or compliance impact if unavailable | Provides important but substitutable services; processes limited personal data; available alternatives exist | Semi-annually |
+| **Tier 1: Critical** | Single point of failure; direct access to sensitive data or critical systems; regulatory or trade-compliance dependency; revenue impact if unavailable; AI model or training-data supply for high-risk AI systems | Processes personal data at scale; sole-source provider; no contractual substitute; CTPAT / AEO-S / BASC dependency where the organisation participates | Quarterly |
+| **Tier 2: High** | Significant operational dependency; access to systems or data; material revenue or compliance impact if unavailable; cloud or key service dependencies | Provides important but substitutable services; processes limited personal data; available alternatives exist | Semi-annually |
 | **Tier 3: Moderate** | Indirect operational dependency; limited data access; manageable impact if unavailable | Commercial relationships without system integration; standard commoditized services | Annually |
 | **Tier 4: Low** | Minimal operational dependency; no data access; low impact if relationship ends | Transactional suppliers; easily substituted; no integration | At renewal or every 2 years |
 
@@ -97,9 +102,22 @@ All contracts with third parties must include risk-aligned provisions. Minimum c
 | Business continuity requirements | Documented BCP; tested annually | Documented BCP | Where applicable | Not required |
 | Sub-contractor approval | Written consent required | Written consent required | Notification | Not required |
 | Data return and deletion on exit | Mandatory; timelines defined | Mandatory | Mandatory if data shared | Not required |
-| Trade compliance programme membership | Mandatory for in-scope logistics | Mandatory where applicable | Where applicable | Not required |
+| Trade compliance programme membership | Mandatory for in-scope logistics where the organisation participates | Mandatory where applicable | Where applicable | Not required |
 | Right to terminate for cause | Mandatory | Mandatory | Mandatory | Standard |
 | Liability and indemnification | Negotiated; minimum defined | Negotiated; minimum defined | Standard | Standard |
+
+### AI service-provider contract requirements
+
+For third parties providing AI models, inference services, training data, or other AI capabilities, contracts must additionally require:
+
+- Dataset lineage documentation demonstrating data provenance.
+- Model validation and explainability evidence per ISO/IEC 42001 §9.
+- Assurance of ethical data sourcing and absence of prohibited training data.
+- No-training-on-customer-data commitment unless explicit opt-in is documented, per the AI vendor security questionnaire.
+- Notice period for material model behaviour changes; the provider's deprecation policy.
+- Cross-border data-transfer mechanism per the privacy framework.
+
+See [`ai/template-ai-vendor-security-questionnaire.md`](../ai/template-ai-vendor-security-questionnaire.md) and [`ai/procedure-foundation-model-lifecycle.md`](../ai/procedure-foundation-model-lifecycle.md) for the operational vehicle.
 
 ---
 
@@ -120,6 +138,13 @@ Continuous or periodic monitoring activities for critical and high-tier third pa
 | Business continuity test participation | Annually | Where applicable | Joint continuity exercises |
 
 Procedures: [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../supply-chain/procedure-supplier-ongoing-monitoring.md)
+
+Monitoring is supported by:
+
+- A Third-Party Risk Assessment Questionnaire (TPRAQ) re-issued per the cadence above.
+- Security-rating and threat-intelligence services where the cost-benefit profile justifies.
+- SLA compliance tracking and incident-reporting metrics.
+- Vulnerability scanning results and audit attestation reviews.
 
 ### Concentration risk monitoring
 
@@ -166,6 +191,21 @@ Where an incident or performance failure necessitates terminating a supplier rel
 
 ---
 
+## Offboarding and contract termination
+
+Upon contract termination or expiry, the third party must:
+
+1. Return or securely delete all organizational data in accordance with the contracted retention schedule.
+2. Revoke all system access credentials within 24 hours of termination.
+3. Provide written confirmation of data destruction or return.
+4. Transfer or destroy any model artefacts, embeddings, fine-tuned weights, or evaluation data derived from the organisation's data, where the contract is AI-related.
+
+Residual risks identified during offboarding must be reviewed, documented, and logged in the appropriate risk register for closure validation. The supplier offboarding evidence template ([`supply-chain/template-supplier-offboarding-evidence.md`](../supply-chain/template-supplier-offboarding-evidence.md)) records the evidence collected.
+
+The full offboarding workflow is described in [`supply-chain/procedure-supplier-exit-and-data-return.md`](../supply-chain/procedure-supplier-exit-and-data-return.md).
+
+---
+
 ## Reporting
 
 | Report | Frequency | Audience |
@@ -183,9 +223,13 @@ Where an incident or performance failure necessitates terminating a supplier rel
 | Framework | Relevant Section |
 |---|---|
 | ISO 27001:2022 | A.5.19 to A.5.22 Information security in supplier relationships |
+| ISO/IEC 27036-3:2013 | Information security for supplier relationships: ICT supply chain security |
 | ISO 28000 | Supply chain security management; risk and threat assessment |
 | NIST SP 800-53 Rev 5 | SA-9 External System Services; SR Supply Chain Risk Management |
+| NIST SP 800-161r2 | Cybersecurity Supply Chain Risk Management Practices for Systems and Organizations |
 | NIST CSF 2.0 | GV.SC Supply Chain Risk Management; ID.SC Supply Chain Cybersecurity |
+| COBIT 2019 | APO10 Managed Vendors |
+| CSA CCM v4.1 | STA-02 Supply Chain Management, Transparency, and Accountability |
 | WCO SAFE Framework | Pillar 2: Customs-to-Business partnerships; supply chain security standards |
 | CTPAT | Business Partner Requirements; IT security requirements for partners |
 | AEO-S (UK) | Criterion 1(e): Practical standards of competence including partner management |

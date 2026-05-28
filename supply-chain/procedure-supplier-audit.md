@@ -6,7 +6,7 @@
 **Date:** 2026-05-28 
 **Owner:** Supplier Risk Maintainer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) 
+**Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) 
 **Classification:** Public 
 **Category:** Supply Chain Governance | Third-Party Risk 
 **Review Frequency:** Annual and upon material supplier, regulatory, or framework change 
@@ -158,7 +158,7 @@ BASC compliance metrics must be reported to the Regional Compliance Officer and 
 ## Related documents
 
 - Supplier and Cloud Governance Framework: [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md)
-- Third-Party Risk Management Standard: [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md)
+- Third-Party Risk Management Standard: [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md)
 - Supplier Due Diligence Procedure: [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md)
 - Trade and Supply-Chain Continuity Controls Annex: [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md)
 - Risk Register Procedure: [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md)

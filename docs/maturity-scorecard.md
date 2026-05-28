@@ -17,11 +17,11 @@ This classification is a heuristic derived from semver; it does not reflect audi
 
 ---
 
-_Summary as of last regeneration: Mature: 51, Baseline: 145, Draft: 70, Unknown: 0._
+_Summary as of last regeneration: Mature: 52, Baseline: 143, Draft: 70, Unknown: 0._
 
 ## Mature
 
-_51 documents._
+_52 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
@@ -34,7 +34,7 @@ _51 documents._
 | [governance/framework-document-architecture-and-interrelationship.md](../governance/framework-document-architecture-and-interrelationship.md) | Document Architecture and Interrelationship Framework | Framework | 1.1.0 | 2026-05-28 |
 | [governance/framework-sustainability-and-responsible-technology.md](../governance/framework-sustainability-and-responsible-technology.md) | Sustainability and Responsible Technology Framework | Framework | 1.1.0 | 2026-05-28 |
 | [governance/matrix-cross-framework-alignment.md](../governance/matrix-cross-framework-alignment.md) | Cross-Framework Alignment Matrix | Matrix | 1.1.1 | 2026-05-28 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.21.0 | 2026-05-28 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.22.0 | 2026-05-28 |
 | [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.3.0 | 2026-05-27 |
 | [operations/procedure-change-management-and-configuration-control.md](../operations/procedure-change-management-and-configuration-control.md) | Change Management and Configuration Control Procedure | Procedure | 1.3.0 | 2026-05-27 |
 | [operations/procedure-endpoint-management-and-device-compliance.md](../operations/procedure-endpoint-management-and-device-compliance.md) | Endpoint Management and Device Compliance Procedure | Procedure | 1.3.0 | 2026-05-27 |
@@ -58,6 +58,7 @@ _51 documents._
 | [resilience/template-departmental-continuity-plan.md](../resilience/template-departmental-continuity-plan.md) | Departmental Continuity Plan Template | Template | 1.1.0 | 2026-05-28 |
 | [risk/policy-enterprise-governance-and-risk-management.md](../risk/policy-enterprise-governance-and-risk-management.md) | Enterprise Governance and Risk Management Policy | Policy | 1.4.0 | 2026-05-28 |
 | [risk/standard-enterprise-risk-management.md](../risk/standard-enterprise-risk-management.md) | Enterprise Risk Management Standard | Standard | 1.3.1 | 2026-05-28 |
+| [risk/standard-third-party-and-supply-chain-risk.md](../risk/standard-third-party-and-supply-chain-risk.md) | Third-Party and Supply Chain Risk Standard | Standard | 1.1.0 | 2026-05-28 |
 | [sectors/basc/policy-basc-information-security.md](../sectors/basc/policy-basc-information-security.md) | BASC Information Security Policy | Policy | 1.1.0 | 2026-05-28 |
 | [sectors/basc/register-basc-it-compliance-kpis.md](../sectors/basc/register-basc-it-compliance-kpis.md) | BASC IT Compliance Monitoring and KPIs | Register | 1.1.0 | 2026-05-28 |
 | [sectors/basc/register-basc-it-responsibilities.md](../sectors/basc/register-basc-it-responsibilities.md) | BASC IT and Information Security Responsibilities | Register | 1.1.0 | 2026-05-28 |
@@ -81,7 +82,7 @@ _51 documents._
 
 ## Baseline
 
-_145 documents._
+_143 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
@@ -197,7 +198,6 @@ _145 documents._
 | [risk/procedure-risk-assessment-methodology.md](../risk/procedure-risk-assessment-methodology.md) | Risk Assessment Methodology Procedure | Procedure | 1.0.0 | 2026-05-27 |
 | [risk/procedure-risk-register.md](../risk/procedure-risk-register.md) | Risk Register Procedure | Procedure | 1.0.0 | 2026-05-27 |
 | [risk/register-key-risk-indicators.md](../risk/register-key-risk-indicators.md) | Key Risk Indicator Catalogue | Register | 1.0.0 | 2026-05-27 |
-| [risk/standard-third-party-and-supply-chain-risk.md](../risk/standard-third-party-and-supply-chain-risk.md) | Third-Party and Supply Chain Risk Standard | Standard | 1.0.0 | 2026-05-27 |
 | [risk/template-enterprise-risk-register.md](../risk/template-enterprise-risk-register.md) | Enterprise Risk Register Template | Template | 1.0.1 | 2026-05-28 |
 | [risk/template-risk-appetite-statement.md](../risk/template-risk-appetite-statement.md) | Risk Appetite Statement Template | Template | 1.0.0 | 2026-05-27 |
 | [security/framework-cryptographic-key-lifecycle.md](../security/framework-cryptographic-key-lifecycle.md) | Cryptographic Key Lifecycle Management Framework | Framework | 1.0.0 | 2026-05-27 |
@@ -228,7 +228,6 @@ _145 documents._
 | [supply-chain/register-subprocessor-template.md](../supply-chain/register-subprocessor-template.md) | Subprocessor Register Template | Register | 1.0.0 | 2026-05-27 |
 | [supply-chain/register-supplier-risk-template.md](../supply-chain/register-supplier-risk-template.md) | Supplier Risk Register Template | Register | 1.0.0 | 2026-05-27 |
 | [supply-chain/standard-cloud-exit-and-data-portability.md](../supply-chain/standard-cloud-exit-and-data-portability.md) | Cloud Exit and Data Portability Standard | Standard | 1.0.0 | 2026-05-27 |
-| [supply-chain/standard-third-party-risk.md](../supply-chain/standard-third-party-risk.md) | Third-Party Risk Management Standard | Standard | 1.0.0 | 2026-05-27 |
 | [supply-chain/template-supplier-security-questionnaire.md](../supply-chain/template-supplier-security-questionnaire.md) | Supplier Security Questionnaire | Template | 1.0.0 | 2026-05-27 |
 
 ---
