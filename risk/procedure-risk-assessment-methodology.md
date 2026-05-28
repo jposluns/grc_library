@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material risk framework or regulatory change 
 **Repository Path:** [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ Applies to all risk assessments conducted within the organization including: ann
 
 ---
 
-## Roles and Responsibilities
+## Roles and responsibilities
 
 | Role | Responsibility |
 | --- | --- |
@@ -40,7 +40,7 @@ Applies to all risk assessments conducted within the organization including: ann
 
 ---
 
-## 1. Risk Assessment Process Overview
+## 1. Risk assessment process overview
 
 The risk assessment process follows the ISO 31000 framework:
 
@@ -50,7 +50,7 @@ Establish Context → Identify Risks → Analyse Risks → Evaluate Risks → Tr
 
 ---
 
-## 2. Establish Context
+## 2. Establish context
 
 2.1 Define the scope: systems, processes, assets, or domains in scope.
 
@@ -62,7 +62,7 @@ Establish Context → Identify Risks → Analyse Risks → Evaluate Risks → Tr
 
 ---
 
-## 3. Risk Identification
+## 3. Risk identification
 
 3.1 Identify risks using a combination of:
 - Asset and process inventory review.
@@ -80,7 +80,7 @@ Establish Context → Identify Risks → Analyse Risks → Evaluate Risks → Tr
 
 ---
 
-## 4. Risk Analysis
+## 4. Risk analysis
 
 4.1 Likelihood and impact are assessed using the following scales:
 
@@ -112,7 +112,7 @@ Residual risk score = Inherent risk × (1 − Control effectiveness factor)
 
 ---
 
-## 5. Risk Evaluation
+## 5. Risk evaluation
 
 5.1 Risks are classified against the risk tolerance matrix:
 
@@ -127,7 +127,7 @@ Residual risk score = Inherent risk × (1 − Control effectiveness factor)
 
 ---
 
-## 6. Risk Treatment
+## 6. Risk treatment
 
 6.1 Risk treatment options:
 
@@ -146,7 +146,7 @@ Residual risk score = Inherent risk × (1 − Control effectiveness factor)
 
 ---
 
-## 7. Risk Register
+## 7. Risk register
 
 7.1 All identified risks are recorded in the organizational Risk Register.
 
@@ -158,7 +158,7 @@ Residual risk score = Inherent risk × (1 − Control effectiveness factor)
 
 ---
 
-## 8. Monitoring and Review
+## 8. Monitoring and review
 
 8.1 Risk assessments are reviewed:
 - Annually as part of the GRC Programme Management Procedure.
@@ -169,7 +169,7 @@ Residual risk score = Inherent risk × (1 − Control effectiveness factor)
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

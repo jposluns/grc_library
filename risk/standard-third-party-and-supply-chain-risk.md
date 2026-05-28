@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material supply chain change, significant third-party incident, or regulatory update 
 **Repository Path:** [`risk/standard-third-party-and-supply-chain-risk.md`](standard-third-party-and-supply-chain-risk.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -38,7 +38,7 @@ This standard applies to all third-party relationships including:
 
 ---
 
-## Risk Classification
+## Risk classification
 
 All third-party relationships must be classified into one of the following tiers at onboarding and reassessed at least annually.
 
@@ -51,9 +51,9 @@ All third-party relationships must be classified into one of the following tiers
 
 ---
 
-## Risk Assessment Requirements
+## Risk assessment requirements
 
-### 1. Due Diligence Assessment
+### 1. Due diligence assessment
 
 All Tier 1 and Tier 2 third parties must complete a due diligence assessment before onboarding. Due diligence must evaluate the following risk domains:
 
@@ -70,7 +70,7 @@ All Tier 1 and Tier 2 third parties must complete a due diligence assessment bef
 
 Operational procedures: [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md)
 
-### 2. Risk Scoring
+### 2. Risk scoring
 
 Third-party risks are scored using the same 5×5 likelihood × impact matrix as enterprise risks. See [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md).
 
@@ -79,13 +79,13 @@ In addition to inherent and residual scores, third-party risk assessments must c
 - **Fourth-party risk:** Key sub-dependencies of the third party that could cascade to the organization
 - **Substitutability:** Estimated time and cost to replace the supplier if the relationship fails
 
-### 3. Risk Register Integration
+### 3. Risk register integration
 
 All Tier 1 third-party risks rated High or Critical must be entered into the enterprise risk register ([`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md)) under the Supplier risk category. Tier 2 risks rated High should be entered. Lower-rated risks may be tracked in the operational supplier risk register ([`supply-chain/register-supplier-risk-template.md`](../supply-chain/register-supplier-risk-template.md)).
 
 ---
 
-## Contract Requirements
+## Contract requirements
 
 All contracts with third parties must include risk-aligned provisions. Minimum contract clauses by tier:
 
@@ -103,9 +103,9 @@ All contracts with third parties must include risk-aligned provisions. Minimum c
 
 ---
 
-## Ongoing Monitoring
+## Ongoing monitoring
 
-### Tier 1 and Tier 2 Monitoring Requirements
+### Tier 1 and tier 2 monitoring requirements
 
 Continuous or periodic monitoring activities for critical and high-tier third parties:
 
@@ -121,7 +121,7 @@ Continuous or periodic monitoring activities for critical and high-tier third pa
 
 Procedures: [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../supply-chain/procedure-supplier-ongoing-monitoring.md)
 
-### Concentration Risk Monitoring
+### Concentration risk monitoring
 
 The Chief Risk Officer must maintain visibility of concentration risk across the supplier portfolio:
 
@@ -131,7 +131,7 @@ The Chief Risk Officer must maintain visibility of concentration risk across the
 
 ---
 
-## Supply Chain Continuity Risk
+## Supply chain continuity risk
 
 For all Tier 1 suppliers and critical trade lanes, a supply chain continuity risk assessment must be completed as part of the business impact analysis process:
 
@@ -147,9 +147,9 @@ Reference: [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](
 
 ---
 
-## Incident and Breach Management
+## Incident and breach management
 
-### Supplier Security Incident Response
+### Supplier security incident response
 
 When a Tier 1 or Tier 2 supplier experiences a security incident or data breach that may affect the organization:
 
@@ -160,7 +160,7 @@ When a Tier 1 or Tier 2 supplier experiences a security incident or data breach 
 5. Document the incident in the supplier's risk record; reassess residual risk rating
 6. Initiate a CAPA if the incident reveals systemic control gaps: [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)
 
-### Supplier Exit Triggered by Incident or Performance Failure
+### Supplier exit triggered by incident or performance failure
 
 Where an incident or performance failure necessitates terminating a supplier relationship, initiate the supplier exit procedure: [`supply-chain/procedure-supplier-exit-and-data-return.md`](../supply-chain/procedure-supplier-exit-and-data-return.md).
 
@@ -178,7 +178,7 @@ Where an incident or performance failure necessitates terminating a supplier rel
 
 ---
 
-## Framework Alignment
+## Framework alignment
 
 | Framework | Relevant Section |
 |---|---|

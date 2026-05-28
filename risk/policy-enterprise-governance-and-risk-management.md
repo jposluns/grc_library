@@ -12,7 +12,7 @@
 **Review Frequency:** Annual or as required by regulatory or framework changes 
 **Repository Path:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -30,7 +30,7 @@ This policy establishes the enterprise governance and risk management framework,
 
 ---
 
-## 3. Governance and Accountability
+## 3. Governance and accountability
 
 | Role | Responsibility |
 |---|---|
@@ -52,29 +52,29 @@ The organization operates the **Three Lines Model**:
 
 ---
 
-## 4. Policy Statements
+## 4. Policy statements
 
-### 4.1 Risk Framework
+### 4.1 Risk framework
 
 The organization shall maintain a standard risk management framework aligned to ISO 31000 with a common taxonomy, scoring criteria, and risk registers used consistently across all units and regions.
 
-### 4.2 Risk Identification
+### 4.2 Risk identification
 
 Risk identification shall cover strategic, financial, operational, compliance, information security, privacy, third-party, business continuity, and AI-specific risks as defined in ISO 23894. Identification activities shall be conducted at programme inception, upon material change, and at each scheduled review cycle.
 
-### 4.3 Risk Analysis
+### 4.3 Risk analysis
 
 Risk analysis shall use both qualitative and quantitative methods. Where AI-driven business processes are involved, FAIR-AI methodologies shall be applied to support quantitative loss estimation and scenario analysis.
 
-### 4.4 Risk Appetite
+### 4.4 Risk appetite
 
 The Board shall approve risk appetite statements for each material risk category, including defined AI usage classes. Appetite statements shall set boundaries for acceptable risk exposure and escalation thresholds.
 
-### 4.5 Risk Treatment
+### 4.5 Risk treatment
 
 Risk treatment plans shall document the selected option (avoid, mitigate, transfer, accept, or exploit), the accountable owner, required budget, expected residual risk, and acceptance criteria, consistent with COBIT 2025 APO12.06. Accepted risks shall follow the Risk Acceptance Procedure.
 
-### 4.6 AI Risk Controls
+### 4.6 AI risk controls
 
 Controls governing AI systems shall address, at minimum:
 
@@ -88,7 +88,7 @@ Controls governing AI systems shall address, at minimum:
 
 These requirements are aligned with ISO 23894 and the NIST AI RMF (Govern, Map, Measure, Manage functions).
 
-### 4.7 Risk Monitoring and Key Risk Indicators
+### 4.7 Risk monitoring and key risk indicators
 
 Key Risk Indicators (KRIs) and control performance indicators shall be defined, baselined, and reviewed at minimum quarterly. Material changes in KRI trend shall be escalated to the ERC within the reporting cycle in which they are detected.
 
@@ -98,7 +98,7 @@ Consolidated enterprise risk reporting shall be presented to executive leadershi
 
 ---
 
-## 5. Roles and Responsibilities Summary
+## 5. Roles and responsibilities summary
 
 | Activity | Responsible | Accountable | Consulted | Informed |
 |---|---|---|---|---|
@@ -111,7 +111,7 @@ Consolidated enterprise risk reporting shall be presented to executive leadershi
 
 ---
 
-## 6. Related Documents
+## 6. Related documents
 
 - Enterprise Risk Management Standard: methodology, taxonomy, and scoring
 - Risk Register Procedure
@@ -123,7 +123,7 @@ Consolidated enterprise risk reporting shall be presented to executive leadershi
 
 ---
 
-## 7. Framework Alignment
+## 7. Framework alignment
 
 | Framework | Relevant Clauses or Functions |
 |---|---|
@@ -155,7 +155,7 @@ Non-compliance with this policy may result in disciplinary action up to and incl
 
 ---
 
-## 10. Licence
+## 10. License
 
 This document is released under the **CC0 1.0 Universal** public domain dedication. To the extent possible under law, the organization waives all copyright and related rights to this document.
 

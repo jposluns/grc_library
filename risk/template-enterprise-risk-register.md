@@ -12,7 +12,7 @@
 **Review Frequency:** Quarterly review of register entries; annual template review 
 **Repository Path:** [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This template defines the schema, field definitions, population guidance, and go
 
 ---
 
-## Risk Record Schema
+## Risk record schema
 
 Each risk entry in the register captures the following fields.
 
@@ -38,7 +38,7 @@ Each risk entry in the register captures the following fields.
 | **Date Last Reviewed** | Date of most recent review | 2026-04-01 |
 | **Next Review Date** | Scheduled next review | 2026-07-01 |
 
-### Risk Description
+### Risk description
 
 | Field | Description | Example |
 |---|---|---|
@@ -48,7 +48,7 @@ Each risk entry in the register captures the following fields.
 | **Affected Assets / Processes** | Systems, processes, or data at risk | Logistics management system; customs declarations platform |
 | **Triggering Conditions** | Circumstances under which risk may materialize | Successful phishing leading to credential theft; unpatched vulnerability exploited |
 
-### Inherent Risk Assessment
+### Inherent risk assessment
 
 Assessed before any controls are applied, based on the likelihood × impact matrix in [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md).
 
@@ -59,7 +59,7 @@ Assessed before any controls are applied, based on the likelihood × impact matr
 | **Inherent Risk Score** | Likelihood × Impact (1 to 25) | |
 | **Inherent Risk Rating** | Low (1 to 4) / Medium (5 to 9) / High (10 to 16) / Critical (17 to 25) | |
 
-### Current Controls
+### Current controls
 
 | Field | Description |
 |---|---|
@@ -67,7 +67,7 @@ Assessed before any controls are applied, based on the likelihood × impact matr
 | **Control Effectiveness** | Strong / Adequate / Weak / Not Tested |
 | **Control References** | Links to relevant policy, standard, or procedure documents |
 
-### Residual Risk Assessment
+### Residual risk assessment
 
 Assessed after existing controls are applied.
 
@@ -115,7 +115,7 @@ If residual risk is not within appetite and is being formally accepted, complete
 
 ---
 
-## Risk Categories and Definitions
+## Risk categories and definitions
 
 | Category | Description |
 |---|---|
@@ -134,7 +134,7 @@ If residual risk is not within appetite and is being formally accepted, complete
 
 ---
 
-## Risk Rating Matrix
+## Risk rating matrix
 
 The full 5×5 matrix is defined in [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md). Summary:
 
@@ -148,7 +148,7 @@ The full 5×5 matrix is defined in [`risk/procedure-risk-assessment-methodology.
 
 ---
 
-## Register Governance
+## Register governance
 
 | Obligation | Frequency | Responsibility |
 |---|---|---|
@@ -161,7 +161,7 @@ The full 5×5 matrix is defined in [`risk/procedure-risk-assessment-methodology.
 
 ---
 
-## Sample Risk Entries
+## Sample risk entries
 
 The following examples illustrate correctly populated risk records.
 

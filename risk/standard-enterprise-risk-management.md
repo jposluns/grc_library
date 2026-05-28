@@ -12,7 +12,7 @@
 **Review Frequency:** Annual or as required by regulatory or framework changes 
 **Repository Path:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -43,7 +43,7 @@ This standard defines the enterprise-wide risk management framework, taxonomy, a
 
 ---
 
-## 4. Risk Taxonomy
+## 4. Risk taxonomy
 
 The organization maintains the following risk taxonomy. Each category contains subcategories used to classify risks consistently in the risk register.
 
@@ -62,9 +62,9 @@ The organization maintains the following risk taxonomy. Each category contains s
 
 ---
 
-## 5. Risk Assessment and Scoring
+## 5. Risk assessment and scoring
 
-### 5.1 Assessment Process
+### 5.1 Assessment process
 
 Each material risk assessment must record:
 
@@ -76,11 +76,11 @@ Each material risk assessment must record:
 - Treatment decision and owner.
 - Review date and evidence references.
 
-### 5.2 Scoring Matrix
+### 5.2 Scoring matrix
 
 Risk scores are calculated as **Likelihood (1 to 5) × Impact (1 to 5) = Risk Score (1 to 25)**.
 
-#### Likelihood Scale
+#### Likelihood scale
 
 | Score | Label | Description |
 |---|---|---|
@@ -90,7 +90,7 @@ Risk scores are calculated as **Likelihood (1 to 5) × Impact (1 to 5) = Risk Sc
 | 4 | Likely | Will probably occur in most circumstances (once in 1 to 2 years) |
 | 5 | Almost Certain | Expected to occur in most circumstances (more than once per year) |
 
-#### Impact Scale
+#### Impact scale
 
 | Score | Label | Description |
 |---|---|---|
@@ -98,9 +98,9 @@ Risk scores are calculated as **Likelihood (1 to 5) × Impact (1 to 5) = Risk Sc
 | 2 | Minor | Limited disruption; minor financial loss; no regulatory action |
 | 3 | Moderate | Significant operational disruption; measurable financial loss; possible regulatory inquiry |
 | 4 | Major | Serious harm to operations, customers, or data subjects; regulatory investigation likely |
-| 5 | Catastrophic | Existential financial or reputational impact; regulatory sanctions; loss of operating licence |
+| 5 | Catastrophic | Existential financial or reputational impact; regulatory sanctions; loss of operating license |
 
-#### 5×5 Risk Scoring Matrix
+#### 5×5 risk scoring matrix
 
 | | **Impact 1** | **Impact 2** | **Impact 3** | **Impact 4** | **Impact 5** |
 |---|---|---|---|---|---|
@@ -110,7 +110,7 @@ Risk scores are calculated as **Likelihood (1 to 5) × Impact (1 to 5) = Risk Sc
 | **Likelihood 2** | 2 | 4 | 6 | 8 | 10 |
 | **Likelihood 1** | 1 | 2 | 3 | 4 | 5 |
 
-#### Score Thresholds and Required Response
+#### Score thresholds and required response
 
 | Score Range | Rating | Required Response |
 |---|---|---|
@@ -121,7 +121,7 @@ Risk scores are calculated as **Likelihood (1 to 5) × Impact (1 to 5) = Risk Sc
 
 ---
 
-## 6. Risk Treatment
+## 6. Risk treatment
 
 Treatment decisions must be documented with one of the following options:
 
@@ -137,11 +137,11 @@ Each treatment plan must include: accountable owner, target completion date, req
 
 ---
 
-## 7. Risk Register Entry Fields
+## 7. Risk register entry fields
 
 Each risk register entry must include the following fields.
 
-### 7.1 Standard Fields
+### 7.1 Standard fields
 
 | Field | Description |
 |---|---|
@@ -166,7 +166,7 @@ Each risk register entry must include the following fields.
 | Next Review | Date |
 | AI Flag | Yes / No |
 
-### 7.2 Additional Fields for AI-Specific Risks
+### 7.2 Additional fields for AI-specific risks
 
 When the AI Flag is set to Yes, the following additional fields are required:
 
@@ -180,9 +180,9 @@ When the AI Flag is set to Yes, the following additional fields are required:
 
 ---
 
-## 8. Risk Monitoring and Reporting
+## 8. Risk monitoring and reporting
 
-### 8.1 Monitoring Cadence
+### 8.1 Monitoring cadence
 
 - Departmental risk reviews are conducted quarterly by process and system owners.
 - AI risk trends (bias recurrence, model drift, ethical deviations) are monitored on an ongoing basis and summarized quarterly.
@@ -197,7 +197,7 @@ When the AI Flag is set to Yes, the following additional fields are required:
 
 ---
 
-## 9. Evidence Requirements
+## 9. Evidence requirements
 
 Required evidence for audit and assurance purposes includes, but is not limited to:
 
@@ -214,7 +214,7 @@ Required evidence for audit and assurance purposes includes, but is not limited 
 
 ---
 
-## 10. Framework Alignment
+## 10. Framework alignment
 
 | Framework | Relevant Reference |
 |---|---|
@@ -234,7 +234,7 @@ Required evidence for audit and assurance purposes includes, but is not limited 
 
 ---
 
-## 11. Licence
+## 11. License
 
 This document is released under the **CC0 1.0 Universal** public domain dedication. To the extent possible under law, the organization waives all copyright and related rights to this document.
 

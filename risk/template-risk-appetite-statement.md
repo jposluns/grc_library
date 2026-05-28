@@ -12,7 +12,7 @@
 **Review Frequency:** Annual; and upon material strategic change, significant incident, or Board direction 
 **Repository Path:** [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This template defines the structure for the organization's Risk Appetite Stateme
 
 ---
 
-## Part 1: Overall Risk Philosophy
+## Part 1: overall risk philosophy
 
 *Populate this section with a brief statement of the organization's overall approach to risk-taking. This should reflect the Board's mandate.*
 
@@ -32,7 +32,7 @@ The organization pursues a **conservative to moderate** overall risk appetite: s
 
 ---
 
-## Part 2: Risk Appetite by Category
+## Part 2: risk appetite by category
 
 For each risk category, the RAS defines:
 - **Appetite Level:** None / Low / Moderate / High
@@ -57,7 +57,7 @@ For each risk category, the RAS defines:
 
 ---
 
-## Part 3: Risk Tolerance Boundaries
+## Part 3: risk tolerance boundaries
 
 The following quantitative boundaries define the outer limits of acceptable residual risk. Risks exceeding these boundaries require immediate escalation and treatment or formal acceptance by the Board.
 
@@ -71,7 +71,7 @@ The following quantitative boundaries define the outer limits of acceptable resi
 
 ---
 
-## Part 4: Appetite vs. Tolerance vs. Capacity
+## Part 4: appetite vs. tolerance vs. capacity
 
 | Term | Definition | Governance Use |
 |---|---|---|
@@ -81,7 +81,7 @@ The following quantitative boundaries define the outer limits of acceptable resi
 
 ---
 
-## Part 5: Changes to Risk Appetite
+## Part 5: changes to risk appetite
 
 Risk appetite thresholds are reviewed annually as part of the Board's strategic planning cycle. Interim revisions may be triggered by:
 
@@ -95,13 +95,13 @@ All changes to the Risk Appetite Statement require Board approval before taking 
 
 ---
 
-## Part 6: Linkage to Risk Register
+## Part 6: linkage to risk register
 
 Risk owners must compare each risk's residual risk score against this statement when completing [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md). The field "Within Risk Appetite?" must be completed for every risk entry. Risks rated as outside appetite must have an active treatment plan or a formal acceptance record ([`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md)).
 
 ---
 
-## Approval and Review Record
+## Approval and review record
 
 | Version | Date | Approved By | Summary of Changes |
 |---|---|---|---|

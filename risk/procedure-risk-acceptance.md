@@ -2,7 +2,7 @@
 
 **Document Title:** Risk Acceptance Procedure 
 **Document Type:** Procedure 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Risk Officer 
 **Approving Authority:** Executive Management 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material risk governance change 
 **Repository Path:** [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -36,7 +36,7 @@ This procedure defines how residual risk is formally accepted, reviewed, monitor
 
 ---
 
-## Approval Guidance
+## Approval guidance
 
 | Residual Risk Level | Typical Approval Authority |
 | --- | --- |
@@ -47,7 +47,7 @@ This procedure defines how residual risk is formally accepted, reviewed, monitor
 
 ---
 
-## Required Record Fields
+## Required record fields
 
 - Risk acceptance ID.
 - Risk statement.

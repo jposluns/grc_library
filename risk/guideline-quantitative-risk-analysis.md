@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material methodology update 
 **Repository Path:** [`risk/guideline-quantitative-risk-analysis.md`](guideline-quantitative-risk-analysis.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -24,7 +24,7 @@ The primary methodology referenced is **FAIR (Factor Analysis of Information Ris
 
 ---
 
-## When to Use Quantitative Analysis
+## When to use quantitative analysis
 
 Quantitative analysis is appropriate when:
 
@@ -39,7 +39,7 @@ Quantitative analysis is not required for Low or Medium risks unless specificall
 
 ---
 
-## FAIR Model Overview
+## FAIR model overview
 
 FAIR decomposes risk into two primary factors:
 
@@ -47,7 +47,7 @@ FAIR decomposes risk into two primary factors:
 Risk = Loss Event Frequency × Loss Magnitude
 ```
 
-### Loss Event Frequency (LEF)
+### Loss event frequency (LEF)
 
 LEF estimates how often a loss event is expected to occur per year. It is derived from:
 
@@ -57,7 +57,7 @@ LEF estimates how often a loss event is expected to occur per year. It is derive
 | **Vulnerability (Vuln)** | Probability that the threat succeeds given contact |
 | **Loss Event Frequency (LEF)** | TEF × Vuln = expected loss events per year |
 
-### Loss Magnitude (LM)
+### Loss magnitude (LM)
 
 LM estimates the expected financial impact per loss event. It is composed of:
 
@@ -66,7 +66,7 @@ LM estimates the expected financial impact per loss event. It is composed of:
 | **Primary Loss** | Direct losses experienced by the organization | Response costs; system recovery; downtime; data reconstruction |
 | **Secondary Loss** | Downstream losses from secondary stakeholders | Regulatory fines; litigation; customer compensation; reputational damage |
 
-#### Primary Loss Components
+#### Primary loss components
 
 | Component | Definition |
 |---|---|
@@ -75,7 +75,7 @@ LM estimates the expected financial impact per loss event. It is composed of:
 | **Replacement costs** | Hardware, software, or data restoration costs |
 | **Competitive advantage loss** | Loss of intellectual property or market position |
 
-#### Secondary Loss Components
+#### Secondary loss components
 
 | Component | Definition |
 |---|---|
@@ -86,7 +86,7 @@ LM estimates the expected financial impact per loss event. It is composed of:
 
 ---
 
-## Estimating Ranges (Monte Carlo Approach)
+## Estimating ranges (monte carlo approach)
 
 Rather than single-point estimates, FAIR uses probabilistic ranges. For each factor, estimate:
 
@@ -96,7 +96,7 @@ Rather than single-point estimates, FAIR uses probabilistic ranges. For each fac
 
 These three values define a PERT distribution suitable for Monte Carlo simulation.
 
-### Simplified Manual Estimation
+### Simplified manual estimation
 
 For teams without simulation tools, use the following approximation:
 
@@ -106,16 +106,16 @@ Expected Value = (Min + 4 × Most Likely + Max) / 6
 
 ---
 
-## Step-by-Step Quantitative Analysis Process
+## Step-by-step quantitative analysis process
 
-### Step 1: Define the Risk Scenario
+### Step 1: define the risk scenario
 Start from a qualitatively identified risk in the enterprise risk register. Define:
 - Asset at risk (system, data set, service, revenue stream)
 - Threat actor (internal, external, environmental)
 - Threat type (malicious attack, error, natural event)
 - Effect (confidentiality breach, availability loss, integrity compromise)
 
-### Step 2: Estimate Loss Event Frequency
+### Step 2: estimate loss event frequency
 
 | Sub-Step | Action |
 |---|---|
@@ -128,7 +128,7 @@ Start from a qualitatively identified risk in the enterprise risk register. Defi
 - Vulnerability: 2% to 15% (ML: 6%)
 - LEF: 0.04 to 1.8 events per year (ML: 0.36)
 
-### Step 3: Estimate Primary Loss Magnitude
+### Step 3: estimate primary loss magnitude
 
 | Sub-Step | Action |
 |---|---|
@@ -143,7 +143,7 @@ Start from a qualitatively identified risk in the enterprise risk register. Defi
 - Recovery costs: system rebuild; data restoration from backup
 - Primary loss range: *[example figures to be populated with organizational data]*
 
-### Step 4: Estimate Secondary Loss Magnitude
+### Step 4: estimate secondary loss magnitude
 
 | Sub-Step | Action |
 |---|---|
@@ -156,7 +156,7 @@ Start from a qualitatively identified risk in the enterprise risk register. Defi
 - Litigation: Class action probability × settlement estimate
 - Reputation: Customer attrition rate × customer lifetime value
 
-### Step 5: Calculate Annualized Loss Expectancy (ALE)
+### Step 5: calculate annualized loss expectancy (ALE)
 
 ```
 ALE = LEF × (Primary Loss Magnitude + Secondary Loss Magnitude)
@@ -164,7 +164,7 @@ ALE = LEF × (Primary Loss Magnitude + Secondary Loss Magnitude)
 
 ALE represents the expected annual financial cost of the risk scenario.
 
-### Step 6: Evaluate Treatment Options
+### Step 6: evaluate treatment options
 
 For each proposed treatment:
 1. Re-estimate LEF or LM with the control in place (post-control scenario)
@@ -173,7 +173,7 @@ For each proposed treatment:
 4. Compare Risk Reduction Value against cost of implementing and maintaining the control
 5. Controls where Cost < Risk Reduction Value are economically justified
 
-### Step 7: Document and Report
+### Step 7: document and report
 
 | Output | Content |
 |---|---|
@@ -184,7 +184,7 @@ For each proposed treatment:
 
 ---
 
-## Data Sources for Estimation
+## Data sources for estimation
 
 | Source Type | Examples |
 |---|---|
@@ -196,7 +196,7 @@ For each proposed treatment:
 
 ---
 
-## Cyber Insurance Integration
+## Cyber insurance integration
 
 Quantitative risk analysis outputs directly support cyber insurance procurement:
 

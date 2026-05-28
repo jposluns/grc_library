@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material change to risk landscape or strategic objectives 
 **Repository Path:** [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This catalogue defines Key Risk Indicators (KRIs) for monitoring enterprise risk
 
 ---
 
-## KRI Schema
+## KRI schema
 
 Each KRI is defined by the following fields.
 
@@ -44,7 +44,7 @@ Each KRI is defined by the following fields.
 
 ---
 
-## Cybersecurity KRIs
+## Cybersecurity kris
 
 | KRI ID | KRI Name | Indicator | Unit | Green | Amber | Red | Owner | Frequency |
 |---|---|---|---|---|---|---|---|---|
@@ -59,7 +59,7 @@ Each KRI is defined by the following fields.
 
 ---
 
-## Privacy KRIs
+## Privacy kris
 
 | KRI ID | KRI Name | Indicator | Unit | Green | Amber | Red | Owner | Frequency |
 |---|---|---|---|---|---|---|---|---|
@@ -71,7 +71,7 @@ Each KRI is defined by the following fields.
 
 ---
 
-## Supplier and Third-Party KRIs
+## Supplier and third-party kris
 
 | KRI ID | KRI Name | Indicator | Unit | Green | Amber | Red | Owner | Frequency |
 |---|---|---|---|---|---|---|---|---|
@@ -83,7 +83,7 @@ Each KRI is defined by the following fields.
 
 ---
 
-## Resilience KRIs
+## Resilience kris
 
 | KRI ID | KRI Name | Indicator | Unit | Green | Amber | Red | Owner | Frequency |
 |---|---|---|---|---|---|---|---|---|
@@ -94,7 +94,7 @@ Each KRI is defined by the following fields.
 
 ---
 
-## Legal and Regulatory KRIs
+## Legal and regulatory kris
 
 | KRI ID | KRI Name | Indicator | Unit | Green | Amber | Red | Owner | Frequency |
 |---|---|---|---|---|---|---|---|---|
@@ -106,7 +106,7 @@ Each KRI is defined by the following fields.
 
 ---
 
-## AI KRIs
+## AI kris
 
 | KRI ID | KRI Name | Indicator | Unit | Green | Amber | Red | Owner | Frequency |
 |---|---|---|---|---|---|---|---|---|
@@ -117,7 +117,7 @@ Each KRI is defined by the following fields.
 
 ---
 
-## Operational KRIs
+## Operational kris
 
 | KRI ID | KRI Name | Indicator | Unit | Green | Amber | Red | Owner | Frequency |
 |---|---|---|---|---|---|---|---|---|
@@ -127,7 +127,7 @@ Each KRI is defined by the following fields.
 
 ---
 
-## KRI Reporting and Escalation
+## KRI reporting and escalation
 
 | Threshold Breached | Required Action | Timeframe |
 |---|---|---|
@@ -135,7 +135,7 @@ Each KRI is defined by the following fields.
 | **Amber** | KRI owner to investigate and report root cause; increase monitoring frequency | Within 5 business days |
 | **Green** | No action required; include in standard risk reporting | Per reporting cycle |
 
-### Reporting Cadence
+### Reporting cadence
 
 | Report | Frequency | Audience |
 |---|---|---|

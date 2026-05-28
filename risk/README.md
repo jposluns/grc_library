@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material risk methodology change 
 **Repository Path:** [`risk/README.md`](README.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This directory contains enterprise risk management standards, registers, and pro
 
 ---
 
-## Active Documents
+## Active documents
 
 | Type | Title | Path |
 | --- | --- | --- |
@@ -40,7 +40,7 @@ This directory contains enterprise risk management standards, registers, and pro
 
 ---
 
-## Domain Coverage
+## Domain coverage
 
 The risk domain implements the enterprise risk management framework established in the governance domain. It provides the operational methodology for maintaining risk registers, conducting risk assessments, selecting treatment options, obtaining formal acceptance of residual risk, and monitoring risk over time.
 
@@ -48,7 +48,7 @@ Content in this domain applies across all risk categories: strategic, operationa
 
 ---
 
-## Planned Expansion
+## Planned expansion
 
 - ~~Enterprise risk register template~~ *(active)*
 - ~~Third-party and supply chain risk standard~~ *(active)*

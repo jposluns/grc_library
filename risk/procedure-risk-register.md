@@ -2,7 +2,7 @@
 
 **Document Title:** Risk Register Procedure 
 **Document Type:** Procedure 
-**Version:** 0.0.1 
+**Version:** 1.0.0 
 **Date:** 2026-05-27 
 **Owner:** Chief Risk Officer 
 **Approving Authority:** Executive Management 
@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material risk process change 
 **Repository Path:** [`risk/procedure-risk-register.md`](procedure-risk-register.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -38,7 +38,7 @@ This procedure defines how risks are recorded, maintained, reviewed, escalated, 
 
 ---
 
-## Minimum Register Fields
+## Minimum register fields
 
 | Field | Description |
 | --- | --- |
@@ -61,7 +61,7 @@ This procedure defines how risks are recorded, maintained, reviewed, escalated, 
 
 ---
 
-## Quality Rules
+## Quality rules
 
 Risk statements must be specific enough to support decision-making. “Cyber risk exists” is not a risk statement; it is the sort of fog bank that turns governance into theatre. A usable risk statement identifies cause, event, impact, and affected objective.
 

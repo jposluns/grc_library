@@ -12,7 +12,7 @@
 **Review Frequency:** Annual and upon material AI regulatory change or significant AI incident 
 **Repository Path:** [`risk/annex-ai-risk-methodology.md`](annex-ai-risk-methodology.md) 
 **Confidentiality:** Public 
-**Licence:** CC0 1.0 Universal 
+**License:** CC0 1.0 Universal 
 
 ---
 
@@ -22,7 +22,7 @@ This annex extends the enterprise risk assessment methodology in [`risk/procedur
 
 ---
 
-## AI Risk Taxonomy
+## AI risk taxonomy
 
 AI risks span multiple enterprise risk categories. This annex organizes them into seven AI-specific risk clusters that map to the broader enterprise risk register categories.
 
@@ -38,7 +38,7 @@ AI risks span multiple enterprise risk categories. This annex organizes them int
 
 ---
 
-## AI System Risk Classification
+## AI system risk classification
 
 Before applying the risk assessment methodology, each AI system must be assigned a risk tier based on its use case, decision impact, and applicable regulatory classification.
 
@@ -53,11 +53,11 @@ Tier classification must be documented in the AI system's model card ([`ai/frame
 
 ---
 
-## AI Risk Assessment Dimensions
+## AI risk assessment dimensions
 
 In addition to the standard 5×5 likelihood × impact matrix, AI system risk assessments must evaluate the following AI-specific dimensions.
 
-### Dimension 1: Decision Autonomy and Human Oversight
+### Dimension 1: decision autonomy and human oversight
 
 | Level | Description | Risk Modifier |
 |---|---|---|
@@ -66,7 +66,7 @@ In addition to the standard 5×5 likelihood × impact matrix, AI system risk ass
 | **Human-on-the-loop** | AI acts autonomously; human can intervene after action | +2 to impact for high-stakes decisions |
 | **Fully autonomous** | AI acts without human oversight | +3 to both; requires Tier 2 minimum classification |
 
-### Dimension 2: Affected Population Scale
+### Dimension 2: affected population scale
 
 | Scale | Criterion | Risk Modifier |
 |---|---|---|
@@ -75,7 +75,7 @@ In addition to the standard 5×5 likelihood × impact matrix, AI system risk ass
 | **Moderate external** | AI decisions affect 1,000 to 100,000 individuals annually | +1 to impact |
 | **Large-scale external** | AI decisions affect more than 100,000 individuals | +2 to impact |
 
-### Dimension 3: Decision Reversibility
+### Dimension 3: decision reversibility
 
 | Reversibility | Description | Risk Modifier |
 |---|---|---|
@@ -84,7 +84,7 @@ In addition to the standard 5×5 likelihood × impact matrix, AI system risk ass
 | **Difficult to reverse** | AI decisions have lasting consequences (e.g., credit denial, employment action, fraud flag) | +2 to impact |
 | **Irreversible** | AI decisions cannot be undone (e.g., physical actions, data deletion) | +3 to impact |
 
-### Dimension 4: Data Sensitivity
+### Dimension 4: data sensitivity
 
 | Sensitivity | Description | Risk Modifier |
 |---|---|---|
@@ -95,7 +95,7 @@ In addition to the standard 5×5 likelihood × impact matrix, AI system risk ass
 
 ---
 
-## Composite AI Risk Score
+## Composite AI risk score
 
 The composite AI risk score is derived by:
 
@@ -108,7 +108,7 @@ The composite AI risk score is derived by:
 
 ---
 
-## AI-Specific Risk Treatment Options
+## AI-specific risk treatment options
 
 In addition to standard Avoid / Reduce / Transfer / Accept treatment options, AI risks may be treated through:
 
@@ -124,7 +124,7 @@ In addition to standard Avoid / Reduce / Transfer / Accept treatment options, AI
 
 ---
 
-## AI Risk Review Triggers
+## AI risk review triggers
 
 The following events must trigger an unscheduled AI risk review:
 
@@ -138,7 +138,7 @@ The following events must trigger an unscheduled AI risk review:
 
 ---
 
-## Regulatory Context
+## Regulatory context
 
 | Regulation | Key AI Risk Obligations | Applicability |
 |---|---|---|
@@ -151,7 +151,7 @@ The following events must trigger an unscheduled AI risk review:
 
 ---
 
-## Integration with AI Governance
+## Integration with AI governance
 
 | Governance Process | Integration Point |
 |---|---|
