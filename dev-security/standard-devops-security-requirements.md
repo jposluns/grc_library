@@ -2,8 +2,8 @@
 
 **Document Title:** DevOps Security Requirements 
 **Document Type:** Standard 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Chief Information Officer 
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`operations/README.md`](../operations/README.md) 
@@ -138,7 +138,7 @@ All DevOps teams must comply with cloud security configuration requirements when
 
 - RBAC reviewed across all accounts and subscriptions in a single consolidated quarterly review.
 - Service principal or service account assignments spanning multiple accounts documented with business justification.
-- Governance policy applied at organization level where possible.
+- Governance policy applied at organization level; deviations from organization-level enforcement require documented justification and a compensating-control plan.
 - Sandbox accounts must have no network path to production data. Cross-account connectivity from production to sandbox is prohibited.
 
 ---
