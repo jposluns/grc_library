@@ -1,18 +1,18 @@
 # Supply Chain Domain
 
-**Document Title:** Supply Chain Domain README  
-**Document Type:** Register  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Supplier Risk Maintainer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md)  
-**Classification:** Public  
-**Category:** Supply Chain Governance  
-**Review Frequency:** 6 to 12 months and upon material supplier, cloud, AI service, or regulatory change  
-**Repository Path:** [`supply-chain/README.md`](README.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Supply Chain Domain README 
+**Document Type:** Register 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Supplier Risk Maintainer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) 
+**Classification:** Public 
+**Category:** Supply Chain Governance 
+**Review Frequency:** 6 to 12 months and upon material supplier, cloud, AI service, or regulatory change 
+**Repository Path:** [`supply-chain/README.md`](README.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -55,16 +55,16 @@ Intake, classification, due diligence, contract control alignment, onboarding, m
 ### Trade Security and Supply-Chain Continuity
 Operational controls for internationally recognized trusted-trader and supply-chain security programmes:
 
-- **WCO SAFE Framework** — World Customs Organization standards for customs-to-customs and customs-to-business cooperation
-- **ISO 28000** — Supply chain security management systems
-- **CTPAT** — U.S. Customs-Trade Partnership Against Terrorism
-- **BASC** — Business Alliance for Secure Commerce (Latin America)
-- **PIP** — Canada's Partners in Protection programme
-- **AEO** — EU Authorised Economic Operator
-- **AEO-S** — UK Authorised Economic Operator (Security and Safety)
-- **NEEC** — Mexico's New Scheme of Certified Companies
-- **OEA** — Brazil's Operador Econômico Autorizado
-- **ISO 28001** — Customs clearance verification and supply chain continuity requirements
+- **WCO SAFE Framework**: World Customs Organization standards for customs-to-customs and customs-to-business cooperation
+- **ISO 28000**: Supply chain security management systems
+- **CTPAT**: U.S. Customs-Trade Partnership Against Terrorism
+- **BASC**: Business Alliance for Secure Commerce (Latin America)
+- **PIP**: Canada's Partners in Protection programme
+- **AEO**: EU Authorized Economic Operator
+- **AEO-S**: UK Authorized Economic Operator (Security and Safety)
+- **NEEC**: Mexico's New Scheme of Certified Companies
+- **OEA**: Brazil's Operador Econômico Autorizado
+- **ISO 28001**: Customs clearance verification and supply chain continuity requirements
 
 ---
 
@@ -82,8 +82,8 @@ Operational controls for internationally recognized trusted-trader and supply-ch
 - ~~Register: Subprocessor Register Template~~ *(active)*
 - ~~Template: Supplier Security Questionnaire~~ *(active)*
 - ~~Register: CTPAT Compliance Controls~~ *(active)*
-- ~~Register: BASC IT and Information Security Responsibilities~~ *(active — see [`compliance/register-basc-it-responsibilities.md`](../compliance/register-basc-it-responsibilities.md))*
-- ~~Register: AEO / AEO-S IT and Cybersecurity Requirements~~ *(active — see [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](../compliance/annex-aeo-s-it-cybersecurity-requirements.md))*
+- ~~Register: BASC IT and Information Security Responsibilities~~ *(active: see [`compliance/register-basc-it-responsibilities.md`](../compliance/register-basc-it-responsibilities.md))*
+- ~~Register: AEO / AEO-S IT and Cybersecurity Requirements~~ *(active: see [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](../compliance/annex-aeo-s-it-cybersecurity-requirements.md))*
 - ~~Matrix: Supply Chain Security Programme Alignment~~ *(active)*
 
 ---

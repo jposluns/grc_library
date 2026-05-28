@@ -1,30 +1,30 @@
 # Subprocessor Register Template
 
-**Document Title:** Subprocessor Register Template  
-**Document Type:** Register  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Supplier Risk Maintainer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/register-cross-border-data-flow.md`](../privacy/register-cross-border-data-flow.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md)  
-**Classification:** Public  
-**Category:** Supply Chain Governance — Data Processing  
-**Review Frequency:** Updated upon each new subprocessor engagement or change; full register review annually  
-**Repository Path:** [`supply-chain/register-subprocessor-template.md`](register-subprocessor-template.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Subprocessor Register Template 
+**Document Type:** Register 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Supplier Risk Maintainer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/register-cross-border-data-flow.md`](../privacy/register-cross-border-data-flow.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md) 
+**Classification:** Public 
+**Category:** Supply Chain Governance: Data Processing 
+**Review Frequency:** Updated upon each new subprocessor engagement or change; full register review annually 
+**Repository Path:** [`supply-chain/register-subprocessor-template.md`](register-subprocessor-template.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This template defines the schema for the organisation's Subprocessor Register. The register records all third-party organisations that process personal data on behalf of the organisation as data processors or subprocessors. It supports GDPR Article 28 compliance, enables transparency with data subjects and supervisory authorities, and provides the basis for subprocessor notifications to customers where contractually required.
+This template defines the schema for the organization's Subprocessor Register. The register records all third-party organizations that process personal data on behalf of the organization as data processors or subprocessors. It supports GDPR Article 28 compliance, enables transparency with data subjects and supervisory authorities, and provides the basis for subprocessor notifications to customers where contractually required.
 
 ---
 
 ## Legal Context
 
-Under GDPR and UK GDPR Article 28, a controller must engage processors only where the processor can provide sufficient guarantees about technical and organisational measures. Where a processor engages a subprocessor, the controller retains responsibility for the subprocessor's compliance. This register enables the organisation to:
+Under GDPR and UK GDPR Article 28, a controller must engage processors only where the processor can provide sufficient guarantees about technical and organizational measures. Where a processor engages a subprocessor, the controller retains responsibility for the subprocessor's compliance. This register enables the organization to:
 
 - Meet its Article 30 Record of Processing Activities obligations with respect to processors
 - Discharge notification obligations to customers who have subprocessor notification clauses in their contracts
@@ -41,7 +41,7 @@ Under GDPR and UK GDPR Article 28, a controller must engage processors only wher
 |---|---|---|
 | **Subprocessor ID** | Unique identifier: `SP-[YYYY]-[NNN]` | `SP-2026-001` |
 | **Entity Name** | Legal name of the processing entity | [Entity Legal Name] |
-| **Parent Organisation** | Parent company if entity is a subsidiary | [Parent Legal Name] |
+| **Parent Organization** | Parent company if entity is a subsidiary | [Parent Legal Name] |
 | **Supplier Risk Register ID** | Cross-reference to [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md) | `SUP-2026-004` |
 | **Status** | Active / Pending Approval / Terminated | Active |
 | **Date Added** | Date subprocessor was approved | |
@@ -51,10 +51,10 @@ Under GDPR and UK GDPR Article 28, a controller must engage processors only wher
 
 | Field | Description | Example |
 |---|---|---|
-| **Processing Purpose** | Specific purpose(s) for which personal data is processed | HR system — employee payroll; time and attendance |
+| **Processing Purpose** | Specific purpose(s) for which personal data is processed | HR system: employee payroll; time and attendance |
 | **Processing Activities** | Specific operations (storage, retrieval, analysis, transmission, deletion) | Storage; retrieval; reporting |
 | **Data Categories Processed** | Categories of personal data in scope | Employee names; salaries; national identification numbers; bank account details |
-| **Special Category Data?** | Yes / No — if Yes, specify categories | No |
+| **Special Category Data?** | Yes / No: if Yes, specify categories | No |
 | **Data Subjects** | Who the personal data belongs to | Employees; contractors |
 | **Approximate Record Count** | Estimated volume of data subject records | Approx. [X] records |
 
@@ -64,10 +64,10 @@ Under GDPR and UK GDPR Article 28, a controller must engage processors only wher
 |---|---|---|
 | **Processing Location(s)** | Country/countries where data is processed and stored | Canada; United States |
 | **Data Residency Commitment** | Contractual commitment on data location | Data stored in Canada; US access for support only |
-| **Cross-Border Transfer?** | Yes / No | Yes — transfers to US |
+| **Cross-Border Transfer?** | Yes / No | Yes: transfers to US |
 | **Transfer Mechanism** | Adequacy / SCCs / IDTA / BCRs / Other | Standard Contractual Clauses (EU SCC 2021) |
 | **Transfer Register Reference** | Link to cross-border data flow register entry | [`privacy/register-cross-border-data-flow.md`](../privacy/register-cross-border-data-flow.md) entry TRF-2026-001 |
-| **Transfer Impact Assessment** | Completed / Not Required / In Progress | Completed — see TIA-2026-001 |
+| **Transfer Impact Assessment** | Completed / Not Required / In Progress | Completed: see TIA-2026-001 |
 
 ### Contractual
 
@@ -106,7 +106,7 @@ For subprocessors where customer contracts include subprocessor notification cla
 
 ## Sub-Subprocessor Section
 
-Where a subprocessor engages its own sub-subprocessors that will process the organisation's personal data, these must be documented:
+Where a subprocessor engages its own sub-subprocessors that will process the organization's personal data, these must be documented:
 
 | Sub-Subprocessor Name | Relationship | Processing Purpose | Location | Approved? | Date |
 |---|---|---|---|---|---|
@@ -129,7 +129,7 @@ Where a subprocessor engages its own sub-subprocessors that will process the org
 
 ## Connection to Records of Processing Activities (Article 30)
 
-This register forms the processor annex to the organisation's Article 30 Records of Processing Activities. The DPO must ensure that:
+This register forms the processor annex to the organization's Article 30 Records of Processing Activities. The DPO must ensure that:
 - Each subprocessor entry is reflected in the relevant processing activity record in the Article 30 register
 - Changes to subprocessors are updated in both registers concurrently
 
@@ -143,11 +143,11 @@ Where customer contracts require subprocessor notification, the following minimu
 >
 > In accordance with our Data Processing Agreement, we are providing [X] days advance notice of our intent to engage the following new subprocessor:
 >
-> **Entity name:** [Legal name]  
-> **Processing purpose:** [Purpose]  
-> **Data categories:** [Categories]  
-> **Processing location:** [Country/countries]  
-> **Transfer mechanism:** [Mechanism, if cross-border]  
+> **Entity name:** [Legal name] 
+> **Processing purpose:** [Purpose] 
+> **Data categories:** [Categories] 
+> **Processing location:** [Country/countries] 
+> **Transfer mechanism:** [Mechanism, if cross-border] 
 > **Effective date:** [Date]
 >
 > You have the right to object to this engagement within [X] days of this notice. If no objection is received, we will proceed with the engagement as of the stated effective date.

@@ -1,55 +1,55 @@
 # Supplier Ongoing Monitoring Procedure
 
-**Document Title:** Supplier Ongoing Monitoring Procedure  
-**Document Type:** Procedure  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Supplier Risk Maintainer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`risk/register-key-risk-indicators.md`](../risk/register-key-risk-indicators.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md)  
-**Classification:** Public  
-**Category:** Supply Chain Governance — Ongoing Monitoring  
-**Review Frequency:** Annual and upon significant monitoring finding or regulatory update  
-**Repository Path:** [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Supplier Ongoing Monitoring Procedure 
+**Document Type:** Procedure 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Supplier Risk Maintainer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`risk/register-key-risk-indicators.md`](../risk/register-key-risk-indicators.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md) 
+**Classification:** Public 
+**Category:** Supply Chain Governance: Ongoing Monitoring 
+**Review Frequency:** Annual and upon significant monitoring finding or regulatory update 
+**Repository Path:** [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This procedure defines the activities, frequencies, and escalation steps for ongoing monitoring of active supplier relationships. Monitoring ensures that supplier risk ratings remain current, contractual obligations are being met, and emerging risks are identified before they cause harm to the organisation's operations, data, or compliance posture.
+This procedure defines the activities, frequencies, and escalation steps for ongoing monitoring of active supplier relationships. Monitoring ensures that supplier risk ratings remain current, contractual obligations are being met, and emerging risks are identified before they cause harm to the organization's operations, data, or compliance posture.
 
 ---
 
 ## Monitoring Principles
 
-- Risk-proportionate — Tier 1 suppliers receive more intensive monitoring than Tier 3 and Tier 4 suppliers
-- Evidence-based — monitoring activities produce documented evidence that is retained in the supplier risk register
-- Continuous where cost-effective — automated signals (security ratings, financial alerts) supplement periodic reviews
-- Trigger-aware — events outside scheduled cycles must initiate unscheduled reviews
+- Risk-proportionate: Tier 1 suppliers receive more intensive monitoring than Tier 3 and Tier 4 suppliers
+- Evidence-based: monitoring activities produce documented evidence that is retained in the supplier risk register
+- Continuous where cost-effective: automated signals (security ratings, financial alerts) supplement periodic reviews
+- Trigger-aware: events outside scheduled cycles must initiate unscheduled reviews
 
 ---
 
 ## Scheduled Monitoring Activities
 
-### Tier 1 — Critical Suppliers
+### Tier 1: Critical Suppliers
 
 | Activity | Frequency | Method | Responsible |
 |---|---|---|---|
-| Security posture update — refresh questionnaire or obtain updated certification/audit report | Quarterly | Questionnaire; request for updated evidence | Supplier Risk Manager |
+| Security posture update: refresh questionnaire or obtain updated certification/audit report | Quarterly | Questionnaire; request for updated evidence | Supplier Risk Manager |
 | Financial health check | Quarterly | Credit rating service; review of public financial indicators | Supplier Risk Manager / Finance |
 | SLA and performance review | Monthly | Review SLA reports submitted by supplier; compare against contractual thresholds | Contract Owner |
 | Trade compliance programme status verification (CTPAT / AEO-S / PIP / BASC where applicable) | Quarterly | Verify via CBP C-TPAT portal; HMRC AEO portal; CBSA PIP directory; BASC registry | Trade Compliance Manager |
 | Sub-contractor disclosure review | Semi-annually | Request updated list of material sub-contractors; compare against last-known list | Supplier Risk Manager |
 | Incident and vulnerability intelligence review | Monthly | Review public breach disclosures; threat intelligence feeds; security ratings service | Information Security |
-| Access review — verify access grants remain appropriate | Quarterly | Review access logs and account inventory | IT Operations |
+| Access review: verify access grants remain appropriate | Quarterly | Review access logs and account inventory | IT Operations |
 | Contract compliance review | Quarterly | Verify key contractual obligations are being met; review invoices and reports | Contract Owner |
 | Fourth-party risk review | Semi-annually | Review sub-contractor security posture; identify new concentration risks | Supplier Risk Manager |
 | Business continuity test invitation | Annually | Invite Tier 1 suppliers to participate in or demonstrate continuity testing | Resilience Manager |
 | Full periodic reassessment | Annually | Comprehensive reassessment covering all risk domains (security, privacy, financial, operational, trade compliance) | Supplier Risk Manager |
 
-### Tier 2 — High Suppliers
+### Tier 2: High Suppliers
 
 | Activity | Frequency | Method | Responsible |
 |---|---|---|---|
@@ -62,7 +62,7 @@ This procedure defines the activities, frequencies, and escalation steps for ong
 | Contract compliance review | Semi-annually | Key clause verification | Contract Owner |
 | Full periodic reassessment | Annually | All domains | Supplier Risk Manager |
 
-### Tier 3 — Moderate Suppliers (where data access exists)
+### Tier 3: Moderate Suppliers (where data access exists)
 
 | Activity | Frequency | Method | Responsible |
 |---|---|---|---|
@@ -71,12 +71,12 @@ This procedure defines the activities, frequencies, and escalation steps for ong
 | Access review | Annually | Account inventory | IT Operations |
 | Full periodic reassessment | Every 2 years (or at contract renewal) | Scoped reassessment | Supplier Risk Manager |
 
-### Tier 4 — Low Suppliers
+### Tier 4: Low Suppliers
 
 | Activity | Frequency | Method | Responsible |
 |---|---|---|---|
 | Contract renewal check | At renewal | Standard procurement review | Procurement |
-| No formal security monitoring required | — | — | — |
+| No formal security monitoring required | N/A |: | N/A |
 
 ---
 
@@ -89,7 +89,7 @@ In addition to scheduled activities, the following continuous signals should be 
 | **Security ratings** | External security rating drops materially (e.g., by one grade or 10+ points) | Initiate unscheduled security posture review |
 | **Dark web / threat intelligence** | Supplier's credentials or data appear in threat intelligence or breach notifications | Initiate immediate review; assess impact; notify DPO if personal data involved |
 | **Financial distress signals** | Credit rating downgrade; county court judgements; news of financial difficulty | Initiate contingency planning review; escalate to CRO |
-| **Regulatory sanctions** | Supplier named in regulatory enforcement action | Assess impact on organisation; escalate to CCO and CRO |
+| **Regulatory sanctions** | Supplier named in regulatory enforcement action | Assess impact on organization; escalate to CCO and CRO |
 | **Adverse media** | Significant negative news coverage involving security, privacy, or ethical conduct | Review and assess relevance; escalate if material |
 | **Trade compliance alerts** | Supplier loses CTPAT / AEO-S / PIP / BASC certification; enters customs sanctions list | Immediate escalation to Trade Compliance Manager and CRO; assess operational impact |
 
@@ -118,7 +118,7 @@ When a full periodic reassessment or trigger-based reassessment is required:
 2. Request updated assurance evidence (certificates, audit reports, pen test)
 3. Conduct a gap analysis against [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md)
 4. Update residual risk score in [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md)
-5. Re-confirm tier classification — escalate if tier has changed
+5. Re-confirm tier classification: escalate if tier has changed
 6. Where personal data processing is in scope, re-confirm DPA adequacy and check for new sub-processors
 7. Where trade compliance is relevant, re-confirm programme membership and certification status
 

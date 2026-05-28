@@ -1,18 +1,18 @@
 # Supplier Audit Procedure
 
-**Document Title:** Supplier Audit Procedure  
-**Document Type:** Procedure  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Supplier Risk Maintainer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)  
-**Classification:** Public  
-**Category:** Supply Chain Governance | Third-Party Risk  
-**Review Frequency:** Annual and upon material supplier, regulatory, or framework change  
-**Repository Path:** [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Supplier Audit Procedure 
+**Document Type:** Procedure 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Supplier Risk Maintainer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) 
+**Classification:** Public 
+**Category:** Supply Chain Governance | Third-Party Risk 
+**Review Frequency:** Annual and upon material supplier, regulatory, or framework change 
+**Repository Path:** [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -26,7 +26,7 @@ It is aligned with ISO/IEC 27036-4, COBIT 2025 BAI05.02, CSA CCM v5 STA-05, BASC
 
 ## Scope
 
-1. Applies to all suppliers, vendors, contractors, logistics partners, and service providers engaged by the organisation.
+1. Applies to all suppliers, vendors, contractors, logistics partners, and service providers engaged by the organization.
 2. Covers both IT and non-IT suppliers, including logistics, customs, AI, and cloud service providers.
 3. Applies globally, with additional regional audit requirements for BASC-certified operations in Latin America.
 
@@ -38,7 +38,7 @@ It is aligned with ISO/IEC 27036-4, COBIT 2025 BAI05.02, CSA CCM v5 STA-05, BASC
 | --- | --- |
 | Chief Information Officer | Provides executive oversight of the supplier audit programme and approves the annual audit plan. |
 | Chief Information Security Officer | Defines audit scope for information security, privacy, and AI risk controls. |
-| Procurement Director | Coordinates audit logistics, schedules audits with suppliers, and ensures supplier cooperation. |
+| Procurement Director | Coordinates audit logistics, schedules audits with suppliers, and ensures that supplier cooperation. |
 | Compliance and GRC Manager | Maintains the Supplier Audit Register, records audit evidence, and reports programme performance metrics. |
 | Legal Counsel | Verifies adherence to contractual obligations, data protection law, trade regulations, and BASC requirements. |
 | AI Governance Council | Reviews audit findings involving AI-enabled services or AI system vendors. |
@@ -86,11 +86,11 @@ Prior to conducting the audit, the audit team must:
 1. Review the supplier's current contracts, Data Processing Agreements (DPAs), and prior audit reports.
 2. Confirm currency of applicable certificates (ISO/IEC 27001, SOC 2, BASC, AI certification where applicable).
 3. Prepare an audit checklist aligned to the applicable frameworks and control families, including:
-   - ISO/IEC 27036-4 Annex A controls.
-   - COBIT 2025 BAI05.02 governance practices.
-   - CSA CCM v5 STA-05 supply chain assurance controls.
-   - BASC International Standard v6 2023, Sections 1–7 (for trade and logistics suppliers).
-   - ENISA AI Cybersecurity Certification Scheme 2026 control families (for AI system suppliers).
+ - ISO/IEC 27036-4 Annex A controls.
+ - COBIT 2025 BAI05.02 governance practices.
+ - CSA CCM v5 STA-05 supply chain assurance controls.
+ - BASC International Standard v6 2023, Sections 1 to 7 (for trade and logistics suppliers).
+ - ENISA AI Cybersecurity Certification Scheme 2026 control families (for AI system suppliers).
 
 ### Step 3: Evaluation and Scoring
 
@@ -111,9 +111,9 @@ Overall audit scores are interpreted as follows:
 
 | Score Range | Risk Rating | Required Action |
 | --- | --- | --- |
-| 90–100% | Fully Compliant | No mandatory corrective action; schedule next routine audit. |
-| 75–89% | Partially Compliant | Minor corrective actions required; track in CAPA Register. |
-| 60–74% | Moderate Risk | Improvement plan required within 30 days; follow-up review scheduled. |
+| 90 to 100% | Fully Compliant | No mandatory corrective action; schedule next routine audit. |
+| 75 to 89% | Partially Compliant | Minor corrective actions required; track in CAPA Register. |
+| 60 to 74% | Moderate Risk | Improvement plan required within 30 days; follow-up review scheduled. |
 | Below 60% | Noncompliant | Subject to re-audit within 60 days or suspension pending remediation. |
 
 ### Step 4: Reporting and Findings Management
@@ -157,24 +157,24 @@ BASC compliance metrics must be reported to the Regional Compliance Officer and 
 
 ## Related Documents
 
-- Supplier and Cloud Governance Framework — [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md)
-- Third-Party Risk Management Standard — [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md)
-- Supplier Due Diligence Procedure — [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md)
-- Trade and Supply-Chain Continuity Controls Annex — [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md)
-- Risk Register Procedure — [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md)
-- Corrective and Preventive Action Procedure — [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)
+- Supplier and Cloud Governance Framework: [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md)
+- Third-Party Risk Management Standard: [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md)
+- Supplier Due Diligence Procedure: [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md)
+- Trade and Supply-Chain Continuity Controls Annex: [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md)
+- Risk Register Procedure: [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md)
+- Corrective and Preventive Action Procedure: [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)
 
 ---
 
 ## References
 
-- ISO/IEC 27036-4:2013 — Information security for supplier relationships: Guidelines for security of cloud services.
-- COBIT 2025 BAI05.02 — Manage Organisational Change.
-- CSA Cloud Controls Matrix v5, STA-05 — Supply Chain Management, Transparency, and Accountability.
+- ISO/IEC 27036-4:2013: Information security for supplier relationships: Guidelines for security of cloud services.
+- COBIT 2025 BAI05.02: Manage Organizational Change.
+- CSA Cloud Controls Matrix v5, STA-05: Supply Chain Management, Transparency, and Accountability.
 - ENISA AI Cybersecurity Certification Scheme 2026.
-- BASC International Standard v6 2023 — Business Alliance for Secure Commerce.
-- WCO SAFE Framework of Standards 2021 — World Customs Organization.
-- ISO 28000:2022 — Security and resilience — Security management systems for the supply chain.
+- BASC International Standard v6 2023: Business Alliance for Secure Commerce.
+- WCO SAFE Framework of Standards 2021: World Customs Organization.
+- ISO 28000:2022, Security and resilience, Security management systems for the supply chain.
 
 ---
 

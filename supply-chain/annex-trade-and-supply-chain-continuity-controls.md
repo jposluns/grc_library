@@ -1,18 +1,18 @@
 # Trade and Supply-Chain Continuity Controls Annex
 
-**Document Title:** Trade and Supply-Chain Continuity Controls Annex  
-**Document Type:** Annex  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Supplier Risk Maintainer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](../resilience/policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../resilience/standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-business-impact-analysis.md`](../resilience/procedure-business-impact-analysis.md), [`resilience/procedure-continuity-and-recovery-testing.md`](../resilience/procedure-continuity-and-recovery-testing.md), [`supply-chain/register-ctpat-compliance-controls.md`](register-ctpat-compliance-controls.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](matrix-supply-chain-security-programme-alignment.md)  
-**Classification:** Public  
-**Category:** Resilience  
-**Review Frequency:** Annual and upon material supplier, trade, regulatory, route, service, or resilience change  
-**Repository Path:** [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Trade and Supply-Chain Continuity Controls Annex 
+**Document Type:** Annex 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Supplier Risk Maintainer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](../resilience/policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../resilience/standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-business-impact-analysis.md`](../resilience/procedure-business-impact-analysis.md), [`resilience/procedure-continuity-and-recovery-testing.md`](../resilience/procedure-continuity-and-recovery-testing.md), [`supply-chain/register-ctpat-compliance-controls.md`](register-ctpat-compliance-controls.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](matrix-supply-chain-security-programme-alignment.md) 
+**Classification:** Public 
+**Category:** Resilience 
+**Review Frequency:** Annual and upon material supplier, trade, regulatory, route, service, or resilience change 
+**Repository Path:** [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 

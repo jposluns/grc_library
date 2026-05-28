@@ -1,30 +1,30 @@
 # Supplier Risk Register Template
 
-**Document Title:** Supplier Risk Register Template  
-**Document Type:** Register  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Supplier Risk Maintainer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`risk/template-enterprise-risk-register.md`](../risk/template-enterprise-risk-register.md)  
-**Classification:** Public  
-**Category:** Supply Chain Governance — Risk Register  
-**Review Frequency:** Quarterly review of active entries; annual template review  
-**Repository Path:** [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Supplier Risk Register Template 
+**Document Type:** Register 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Supplier Risk Maintainer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`risk/template-enterprise-risk-register.md`](../risk/template-enterprise-risk-register.md) 
+**Classification:** Public 
+**Category:** Supply Chain Governance: Risk Register 
+**Review Frequency:** Quarterly review of active entries; annual template review 
+**Repository Path:** [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This template defines the schema for the organisation's Supplier Risk Register — the operational record of all active supplier relationships, their risk classifications, assurance status, monitoring history, and contract details. It serves as the single source of truth for supplier governance and feeds into the enterprise risk register for Tier 1 and High-rated Tier 2 risks.
+This template defines the schema for the organization's Supplier Risk Register: the operational record of all active supplier relationships, their risk classifications, assurance status, monitoring history, and contract details. It serves as the single source of truth for supplier governance and feeds into the enterprise risk register for Tier 1 and High-rated Tier 2 risks.
 
 ---
 
 ## Supplier Record Schema
 
-### Part A — Supplier Identification
+### Part A: Supplier Identification
 
 | Field | Description | Example |
 |---|---|---|
@@ -32,35 +32,35 @@ This template defines the schema for the organisation's Supplier Risk Register �
 | **Supplier Name** | Legal name of the supplier entity | [Supplier Legal Name] |
 | **Supplier Type** | Logistics / Technology / Cloud / Managed Service / Professional Services / Data Processor / Trade Compliance / Other | Logistics |
 | **Primary Contact** | Supplier-side primary contact (role title, not name) | Account Manager |
-| **Organisation Contact** | Internal contract owner (role title) | Head of Procurement |
+| **Organization Contact** | Internal contract owner (role title) | Head of Procurement |
 | **Onboarding Date** | Date relationship was approved and onboarded | |
 | **Last Review Date** | Date of most recent risk review | |
 | **Status** | Active / Under Review / Exiting / Exited | Active |
 
-### Part B — Services and Scope
+### Part B: Services and Scope
 
 | Field | Description |
 |---|---|
 | **Services Provided** | Description of services delivered |
 | **Geographic Scope** | Countries and regions where services are delivered |
-| **Data Access Scope** | Categories of organisation data the supplier can access (if any) |
+| **Data Access Scope** | Categories of organization data the supplier can access (if any) |
 | **System Integration** | Specific systems or platforms to which the supplier has access |
-| **Personal Data Processing** | Yes / No — if Yes, link to DPA and subprocessor register entry |
-| **Trade Compliance Relevance** | Yes / No — if Yes, specify programme(s): CTPAT / AEO-S / PIP / BASC / Other |
+| **Personal Data Processing** | Yes / No: if Yes, link to DPA and subprocessor register entry |
+| **Trade Compliance Relevance** | Yes / No: if Yes, specify programme(s): CTPAT / AEO-S / PIP / BASC / Other |
 
-### Part C — Risk Classification
+### Part C: Risk Classification
 
 | Field | Scale / Options | Value |
 |---|---|---|
-| **Tier Classification** | Tier 1 — Critical / Tier 2 — High / Tier 3 — Moderate / Tier 4 — Low | |
+| **Tier Classification** | Tier 1, Critical / Tier 2, High / Tier 3: Moderate / Tier 4: Low | |
 | **Classification Rationale** | Why this tier was assigned | |
 | **Last Tier Review Date** | Date tier was last confirmed or revised | |
-| **Inherent Risk Score** | 1–25 (Likelihood × Impact from [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md)) | |
-| **Residual Risk Score** | 1–25 after controls | |
+| **Inherent Risk Score** | 1 to 25 (Likelihood × Impact from [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md)) | |
+| **Residual Risk Score** | 1 to 25 after controls | |
 | **Residual Risk Rating** | Low / Medium / High / Critical | |
 | **Within Risk Appetite?** | Yes / No / Borderline | |
 
-### Part D — Assurance and Compliance
+### Part D: Assurance and Compliance
 
 | Field | Description | Current Status |
 |---|---|---|
@@ -77,7 +77,7 @@ This template defines the schema for the organisation's Supplier Risk Register �
 | **Data Processing Agreement** | Executed / Not Required; date executed | |
 | **Sub-Contractor Disclosure** | Date of last sub-contractor list; number of material sub-contractors | |
 
-### Part E — Contract Details
+### Part E: Contract Details
 
 | Field | Description |
 |---|---|
@@ -92,7 +92,7 @@ This template defines the schema for the organisation's Supplier Risk Register �
 | **Data Return Obligation** | Format and timeline for data return on exit |
 | **Deletion Obligation** | Format and timeline for secure deletion on exit |
 
-### Part F — Monitoring Log
+### Part F: Monitoring Log
 
 Each monitoring activity must be recorded as a log entry:
 
@@ -102,13 +102,13 @@ Each monitoring activity must be recorded as a log entry:
 
 **Activity types:** Questionnaire review; Certification review; Financial check; Trade compliance verification; SLA review; Access review; Incident review; Unscheduled triggered review; Full reassessment
 
-### Part G — Issues and Corrective Actions
+### Part G: Issues and Corrective Actions
 
 | Issue ID | Date Identified | Issue Description | Severity | CAPA Reference | Status | Resolved Date |
 |---|---|---|---|---|---|---|
 | | | | | | | |
 
-### Part H — Relationship History
+### Part H: Relationship History
 
 | Event | Date | Description |
 |---|---|---|
@@ -126,10 +126,10 @@ Each monitoring activity must be recorded as a log entry:
 
 | Score | Rating | Monitoring Frequency (Tier 1) |
 |---|---|---|
-| 1–4 | Low | Annual |
-| 5–9 | Medium | Semi-annual |
-| 10–16 | High | Quarterly |
-| 17–25 | Critical | Monthly + immediate escalation |
+| 1 to 4 | Low | Annual |
+| 5 to 9 | Medium | Semi-annual |
+| 10 to 16 | High | Quarterly |
+| 17 to 25 | Critical | Monthly + immediate escalation |
 
 For detailed scoring criteria see [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md).
 
@@ -152,7 +152,7 @@ For detailed scoring criteria see [`risk/procedure-risk-assessment-methodology.m
 
 | Supplier ID | Type | Tier | Residual Risk | Trade Compliance | Status |
 |---|---|---|---|---|---|
-| SUP-2026-001 | Logistics — primary freight forwarder | Tier 1 | High (12) | CTPAT Active; AEO-S Active; PIP Active | Active |
+| SUP-2026-001 | Logistics: primary freight forwarder | Tier 1 | High (12) | CTPAT Active; AEO-S Active; PIP Active | Active |
 | SUP-2026-002 | Cloud infrastructure provider | Tier 1 | Medium (8) | Not applicable | Active |
 | SUP-2026-003 | Customs broker | Tier 2 | Medium (6) | AEO-S Active | Active |
 | SUP-2026-004 | HR management system | Tier 1 | Medium (9) | Not applicable | Active |

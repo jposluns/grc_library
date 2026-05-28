@@ -1,45 +1,45 @@
 # CTPAT Supply Chain Security Compliance Controls Register
 
-**Document Title:** CTPAT Supply Chain Security Compliance Controls Register  
-**Document Type:** Register  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Supplier Risk Maintainer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](matrix-supply-chain-security-programme-alignment.md), [`compliance/register-ctpat-compliance-controls.md`](../compliance/register-ctpat-compliance-controls.md), [`compliance/register-pip-compliance-controls.md`](../compliance/register-pip-compliance-controls.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](../compliance/annex-aeo-s-it-cybersecurity-requirements.md), [`compliance/register-basc-it-responsibilities.md`](../compliance/register-basc-it-responsibilities.md), [`compliance/template-trade-compliance-gap-assessment.md`](../compliance/template-trade-compliance-gap-assessment.md)  
-**Classification:** Public  
-**Category:** Supply Chain Governance — Trade Security  
-**Review Frequency:** Annual and upon CTPAT criteria revision, CBP validation visit, or material supply chain change  
-**Repository Path:** [`supply-chain/register-ctpat-compliance-controls.md`](register-ctpat-compliance-controls.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** CTPAT Supply Chain Security Compliance Controls Register 
+**Document Type:** Register 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Supplier Risk Maintainer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](matrix-supply-chain-security-programme-alignment.md), [`compliance/register-ctpat-compliance-controls.md`](../compliance/register-ctpat-compliance-controls.md), [`compliance/register-pip-compliance-controls.md`](../compliance/register-pip-compliance-controls.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](../compliance/annex-aeo-s-it-cybersecurity-requirements.md), [`compliance/register-basc-it-responsibilities.md`](../compliance/register-basc-it-responsibilities.md), [`compliance/template-trade-compliance-gap-assessment.md`](../compliance/template-trade-compliance-gap-assessment.md) 
+**Classification:** Public 
+**Category:** Supply Chain Governance: Trade Security 
+**Review Frequency:** Annual and upon CTPAT criteria revision, CBP validation visit, or material supply chain change 
+**Repository Path:** [`supply-chain/register-ctpat-compliance-controls.md`](register-ctpat-compliance-controls.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This register documents the organisation's implementation status against the full set of CTPAT Minimum Security Criteria (2020 revision) across all security domains — physical security, personnel security, cargo security, conveyance security, business partner security, information technology, and procedural controls. It complements [`compliance/register-ctpat-compliance-controls.md`](../compliance/register-ctpat-compliance-controls.md), which focuses specifically on IT and cybersecurity criteria.
+This register documents the organization's implementation status against the full set of CTPAT Minimum Security Criteria (2020 revision) across all security domains: physical security, personnel security, cargo security, conveyance security, business partner security, information technology, and procedural controls. It complements [`compliance/register-ctpat-compliance-controls.md`](../compliance/register-ctpat-compliance-controls.md), which focuses specifically on IT and cybersecurity criteria.
 
-**Programme authority:** U.S. Customs and Border Protection (CBP)  
-**UK equivalent:** Authorised Economic Operator – Security and Safety (AEO-S) — see [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](../compliance/annex-aeo-s-it-cybersecurity-requirements.md)  
-**Canada equivalent:** Partners in Protection (PIP) — see [`compliance/register-pip-compliance-controls.md`](../compliance/register-pip-compliance-controls.md)  
+**Programme authority:** U.S. Customs and Border Protection (CBP) 
+**UK equivalent:** Authorized Economic Operator to Security and Safety (AEO-S): see [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](../compliance/annex-aeo-s-it-cybersecurity-requirements.md) 
+**Canada equivalent:** Partners in Protection (PIP): see [`compliance/register-pip-compliance-controls.md`](../compliance/register-pip-compliance-controls.md) 
 **Mutual recognition:** CTPAT maintains mutual recognition arrangements with AEO (EU), UK AEO-S, and Canada PIP, providing reciprocal facilitation benefits for qualifying members.
 
 ---
 
 ## Programme Overview
 
-CTPAT membership requires organisations to meet Minimum Security Criteria (MSC) across all applicable supply chain security domains. The 2020 MSC apply to all CTPAT entity types. This register is structured around the seven MSC security domains.
+CTPAT membership requires organizations to meet Minimum Security Criteria (MSC) across all applicable supply chain security domains. The 2020 MSC apply to all CTPAT entity types. This register is structured around the seven MSC security domains.
 
-**Organisation CTPAT entity type:** *[Select: Importer; Exporter; Customs Broker; Freight Forwarder; Air, Sea, or Land Carrier; Contract Logistics Provider; Other]*  
-**CTPAT membership number:** *[Complete with organisation's CBP-assigned number]*  
-**Current tier:** Certified / Validated / Status Member  
-**Last CBP SCSS validation:** *[Date]*  
+**Organization CTPAT entity type:** *[Select: Importer; Exporter; Customs Broker; Freight Forwarder; Air, Sea, or Land Carrier; Contract Logistics Provider; Other]* 
+**CTPAT membership number:** *[Complete with organization's CBP-assigned number]* 
+**Current tier:** Certified / Validated / Status Member 
+**Last CBP SCSS validation:** *[Date]* 
 **Next annual profile update due:** *[Date]*
 
 ---
 
-## Domain 1 — Corporate Security
+## Domain 1: Corporate Security
 
 | Control ID | CTPAT Criterion | Implementation Description | Evidence Location | Status | Last Reviewed |
 |---|---|---|---|---|---|
@@ -51,55 +51,55 @@ CTPAT membership requires organisations to meet Minimum Security Criteria (MSC) 
 
 ---
 
-## Domain 2 — Physical Security
+## Domain 2: Physical Security
 
 | Control ID | CTPAT Criterion | Implementation Description | Evidence Location | Status | Last Reviewed |
 |---|---|---|---|---|---|
 | PS-1 | Adequate perimeter fencing at cargo facilities | Perimeter security in place at all cargo handling locations | Site inspection records | Implemented | |
-| PS-2 | Gates and gatehouses — vehicle and pedestrian access control | Controlled entry points with documented access procedures | Access procedure; gate logs | Implemented | |
+| PS-2 | Gates and gatehouses: vehicle and pedestrian access control | Controlled entry points with documented access procedures | Access procedure; gate logs | Implemented | |
 | PS-3 | Adequate lighting for all areas including loading docks and parking | Lighting assessment completed | Site survey records | Implemented | |
 | PS-4 | Internal and external surveillance (CCTV or equivalent) | Camera coverage of cargo handling, storage, and perimeter areas | Camera coverage map; recording logs | Implemented | |
-| PS-5 | Locks — high-security padlocks and locked facilities | High-security locking on cargo doors and storage areas | Equipment inventory | Implemented | |
+| PS-5 | Locks: high-security padlocks and locked facilities | High-security locking on cargo doors and storage areas | Equipment inventory | Implemented | |
 | PS-6 | Locking devices for all exterior doors and windows | All exterior access points secured | Site inspection | Implemented | |
-| PS-7 | Parking controls — separation of employee and visitor vehicles | Separate designated parking areas | Site layout | Implemented | |
+| PS-7 | Parking controls: separation of employee and visitor vehicles | Separate designated parking areas | Site layout | Implemented | |
 
 ---
 
-## Domain 3 — Access Controls
+## Domain 3: Access Controls
 
 | Control ID | CTPAT Criterion | Implementation Description | Evidence Location | Status | Last Reviewed |
 |---|---|---|---|---|---|
-| AC-1 | Personnel identification — photo ID badges for all employees | Photo ID programme in place | Badge issuance records | Implemented | |
-| AC-2 | Visitor and vendor access controls — sign-in, escort, identification | Visitor management procedure; sign-in log | Visitor log; escort policy | Implemented | |
+| AC-1 | Personnel identification: photo ID badges for all employees | Photo ID programme in place | Badge issuance records | Implemented | |
+| AC-2 | Visitor and vendor access controls: sign-in, escort, identification | Visitor management procedure; sign-in log | Visitor log; escort policy | Implemented | |
 | AC-3 | Challenging and removing unauthorised persons | Policy and training for challenging unidentified individuals | Security training records | Implemented | |
 
 ---
 
-## Domain 4 — Personnel Security
+## Domain 4: Personnel Security
 
 | Control ID | CTPAT Criterion | Implementation Description | Evidence Location | Status | Last Reviewed |
 |---|---|---|---|---|---|
-| PE-1 | Pre-employment background screening — as permitted by law | Background check process for supply chain roles | HR screening procedure | Implemented | |
-| PE-2 | Personnel termination procedures — access removal, credential recovery | Access revocation procedure per [`security/procedure-access-control.md`](../security/procedure-access-control.md) | Revocation procedure | Implemented | |
+| PE-1 | Pre-employment background screening: as permitted by law | Background check process for supply chain roles | HR screening procedure | Implemented | |
+| PE-2 | Personnel termination procedures: access removal, credential recovery | Access revocation procedure per [`security/procedure-access-control.md`](../security/procedure-access-control.md) | Revocation procedure | Implemented | |
 | PE-3 | Employee reporting mechanism for suspicious activity | Anonymous reporting channel available | Reporting channel documentation | Implemented | |
 | PE-4 | Ongoing training and security awareness | Annual security awareness training including supply chain threats | Training completion records | Implemented | |
 
 ---
 
-## Domain 5 — Procedural Security (Cargo Handling)
+## Domain 5: Procedural Security (Cargo Handling)
 
 | Control ID | CTPAT Criterion | Implementation Description | Evidence Location | Status | Last Reviewed |
 |---|---|---|---|---|---|
 | PR-1 | Documentation and cargo verification at point of origin | Verification procedures for outbound shipments | Shipping procedure | Implemented | |
 | PR-2 | Manifest and cargo documentation accuracy | Accuracy review process for all trade documents | QA procedure; error log | Implemented | |
 | PR-3 | Pre-departure inspection procedure | Inspection and departure confirmation procedure | Inspection checklist | Implemented | |
-| PR-4 | Seal management — ISO 17712-compliant high-security seals | Use of ISO 17712-compliant seals; seal application and verification | Seal register; SOP | Implemented | |
+| PR-4 | Seal management: ISO 17712-compliant high-security seals | Use of ISO 17712-compliant seals; seal application and verification | Seal register; SOP | Implemented | |
 | PR-5 | Discrepancy identification and reporting | Procedure for identifying and reporting manifest or cargo discrepancies | Discrepancy log; escalation SOP | Implemented | |
 | PR-6 | Segregation and security of high-value cargo | Separate secure storage and handling for high-value or sensitive cargo | Storage procedure | Implemented | |
 
 ---
 
-## Domain 6 — Business Partner Security
+## Domain 6: Business Partner Security
 
 | Control ID | CTPAT Criterion | Implementation Description | Evidence Location | Status | Last Reviewed |
 |---|---|---|---|---|---|
@@ -110,19 +110,19 @@ CTPAT membership requires organisations to meet Minimum Security Criteria (MSC) 
 
 ---
 
-## Domain 7 — Information Technology
+## Domain 7: Information Technology
 
 *For detailed IT and cybersecurity criteria mapping, see [`compliance/register-ctpat-compliance-controls.md`](../compliance/register-ctpat-compliance-controls.md).*
 
 | Control ID | CTPAT Criterion | Status | Last Reviewed |
 |---|---|---|---|
-| IT-1 | Access control — least privilege; account management | Implemented | |
+| IT-1 | Access control: least privilege; account management | Implemented | |
 | IT-2 | Password and authentication management; MFA for remote access | Implemented | |
 | IT-3 | Vulnerability and security management | Implemented | |
-| IT-4 | Network security — firewalls; IDS/IPS; segmentation | Implemented | |
+| IT-4 | Network security: firewalls; IDS/IPS; segmentation | Implemented | |
 | IT-5 | Incident response and CBP notification | Implemented | |
 | IT-6 | Cybersecurity awareness training | Implemented | |
-| IT-7 | Asset management — hardware and software inventory | Implemented | |
+| IT-7 | Asset management: hardware and software inventory | Implemented | |
 | IT-8 | Third-party IT security controls | Implemented | |
 | IT-9 | Business continuity and IT recovery | Implemented | |
 | IT-10 | Audit logging and monitoring | Implemented | |
@@ -139,7 +139,7 @@ For each of the seven CTPAT domains, the equivalent AEO-S requirement exists und
 | Physical Security | UK site-specific evidence; HMRC criteria reference |
 | Access Controls | No significant supplement required |
 | Personnel Security | UK employment law compliance for background checks |
-| Procedural Security | UK customs procedure codes; HMRC authorisation references |
+| Procedural Security | UK customs procedure codes; HMRC authorization references |
 | Business Partner Security | Verify partner UK AEO-S status via HMRC; EU AEO for EU-routed shipments |
 | Information Technology | HMRC incident notification supplement; UK data protection law compliance |
 
@@ -152,7 +152,7 @@ See [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](../compliance/an
 | Activity | Frequency | Responsible |
 |---|---|---|
 | Update all status and evidence fields | Quarterly | Trade Compliance Manager |
-| Submit annual Trade Partner Profile update to CBP | Annually — before CBP deadline | Trade Compliance Manager |
+| Submit annual Trade Partner Profile update to CBP | Annually: before CBP deadline | Trade Compliance Manager |
 | Prepare readiness pack for SCSS validation visit | On notice from CBP | Trade Compliance Manager |
 | Cross-reference with AEO-S self-assessment | Annually | Trade Compliance Manager |
 | Full register review after MSC revision | Within 60 days of CBP publication | Chief Compliance Officer |

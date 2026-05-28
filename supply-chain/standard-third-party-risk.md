@@ -1,18 +1,18 @@
 # Third-Party Risk Management Standard
 
-**Document Title:** Third-Party Risk Management Standard  
-**Document Type:** Standard  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Supplier Risk Maintainer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)  
-**Classification:** Public  
-**Category:** Supply Chain Governance | Third-Party Risk  
-**Review Frequency:** Annual and upon material supplier, regulatory, or framework change  
-**Repository Path:** [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Third-Party Risk Management Standard 
+**Document Type:** Standard 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Supplier Risk Maintainer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) 
+**Classification:** Public 
+**Category:** Supply Chain Governance | Third-Party Risk 
+**Review Frequency:** Annual and upon material supplier, regulatory, or framework change 
+**Repository Path:** [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -26,7 +26,7 @@ It integrates with the Supplier and Cloud Governance Framework, the Enterprise R
 
 ## Scope
 
-1. Applies to all third-party relationships involving access to the organisation's data, systems, networks, or facilities.
+1. Applies to all third-party relationships involving access to the organization's data, systems, networks, or facilities.
 2. Includes suppliers, contractors, managed service providers, software vendors, cloud service providers, and AI model or data suppliers.
 3. Covers the full supplier lifecycle from onboarding to contract termination, including subcontractors engaged by third parties.
 4. Applies globally across all business units and regional operations.
@@ -38,7 +38,7 @@ It integrates with the Supplier and Cloud Governance Framework, the Enterprise R
 | Role | Responsibility |
 | --- | --- |
 | Chief Information Officer | Executive oversight and final approval of supplier risk posture and engagement decisions. |
-| Chief Information Security Officer | Ensures supplier security assessments, ongoing monitoring, and incident escalation are performed to standard. |
+| Chief Information Security Officer | Ensures that supplier security assessments, ongoing monitoring, and incident escalation are performed to standard. |
 | Procurement | Manages onboarding, due diligence, and contract lifecycle in coordination with the CISO. |
 | Legal Counsel | Reviews data protection, liability, and regulatory compliance clauses in all third-party contracts. |
 | Supplier Relationship Owner | Monitors supplier performance and adherence to contractual obligations on an ongoing basis. |
@@ -56,8 +56,8 @@ All third parties must be classified into one of four tiers prior to engagement.
 | --- | --- | --- |
 | Tier 1 | Critical | Access to sensitive or regulated data, core infrastructure, AI model supply, or mission-critical processing. |
 | Tier 2 | High | Material operational impact or limited access to sensitive data; cloud or key service dependencies. |
-| Tier 3 | Moderate | Minimal data or system access; indirect service dependencies with limited organisational impact. |
-| Tier 4 | Low | No direct data or system access; negligible organisational impact. |
+| Tier 3 | Moderate | Minimal data or system access; indirect service dependencies with limited organizational impact. |
+| Tier 4 | Low | No direct data or system access; negligible organizational impact. |
 
 ### 2. Due Diligence and Risk Assessment
 
@@ -101,7 +101,7 @@ Tier 1 Critical suppliers must undergo semi-annual formal assessments and indepe
 
 ### 5. Incident Management
 
-All third parties must report security incidents or data breaches to the organisation within 24 hours of discovery. Incidents involving personal data or regulated data categories must be escalated in accordance with the Data Protection and Privacy Breach Response Procedure.
+All third parties must report security incidents or data breaches to the organization within 24 hours of discovery. Incidents involving personal data or regulated data categories must be escalated in accordance with the Data Protection and Privacy Breach Response Procedure.
 
 Suppliers that fail to comply with breach notification requirements may be subject to contract suspension or termination.
 
@@ -109,7 +109,7 @@ Suppliers that fail to comply with breach notification requirements may be subje
 
 Upon contract termination or expiry, the supplier must:
 
-1. Return or securely delete all organisational data in accordance with the contracted retention schedule.
+1. Return or securely delete all organizational data in accordance with the contracted retention schedule.
 2. Revoke all system access credentials within 24 hours of termination.
 3. Provide written confirmation of data destruction or return.
 
@@ -130,21 +130,21 @@ Residual risks identified during offboarding must be reviewed, documented, and l
 
 ## Related Documents
 
-- Supplier and Cloud Governance Framework — [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md)
-- Supplier Due Diligence Procedure — [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md)
-- Supplier Audit Procedure — [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md)
-- Enterprise Risk Management Standard — [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md)
-- Risk Register Procedure — [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md)
-- Corrective and Preventive Action Procedure — [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)
+- Supplier and Cloud Governance Framework: [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md)
+- Supplier Due Diligence Procedure: [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md)
+- Supplier Audit Procedure: [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md)
+- Enterprise Risk Management Standard: [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md)
+- Risk Register Procedure: [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md)
+- Corrective and Preventive Action Procedure: [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)
 
 ---
 
 ## References
 
-- ISO/IEC 27036-3:2013 — Information security for supplier relationships: Guidelines for information and communication technology supply chain security.
-- COBIT 2025 APO10 — Managed Vendors.
-- CSA Cloud Controls Matrix v5, STA-02 — Supply Chain Management, Transparency, and Accountability.
-- NIST SP 800-161r2 — Cybersecurity Supply Chain Risk Management Practices for Systems and Organizations.
+- ISO/IEC 27036-3:2013: Information security for supplier relationships: Guidelines for information and communication technology supply chain security.
+- COBIT 2025 APO10: Managed Vendors.
+- CSA Cloud Controls Matrix v5, STA-02: Supply Chain Management, Transparency, and Accountability.
+- NIST SP 800-161r2: Cybersecurity Supply Chain Risk Management Practices for Systems and Organizations.
 
 ---
 

@@ -1,34 +1,34 @@
 # Cloud Exit and Data Portability Standard
 
-**Document Title:** Cloud Exit and Data Portability Standard  
-**Document Type:** Standard  
-**Version:** 0.1.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md), [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)  
-**Classification:** Public  
-**Category:** Supply Chain  
-**Review Frequency:** Annual  
-**Repository Path:** [`supply-chain/standard-cloud-exit-and-data-portability.md`](standard-cloud-exit-and-data-portability.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Cloud Exit and Data Portability Standard 
+**Document Type:** Standard 
+**Version:** 0.1.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-third-party-risk.md`](standard-third-party-risk.md), [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) 
+**Classification:** Public 
+**Category:** Supply Chain 
+**Review Frequency:** Annual 
+**Repository Path:** [`supply-chain/standard-cloud-exit-and-data-portability.md`](standard-cloud-exit-and-data-portability.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
-> **Document Status — Provisional:** This document is a provisional draft added to the GRC library in May 2026. Content is based on standard frameworks and best-practice assumptions. It has not yet been reviewed or formally approved by all stakeholders. Target formal review: Q3 2026.
+> **Document Status: Provisional:** This document is a provisional draft added to the GRC library in May 2026. Content is based on standard frameworks and best-practice assumptions. It has not yet been reviewed or formally approved by all stakeholders. Target formal review: Q3 2026.
 
 ---
 
 ## Purpose
 
-This standard defines the requirements for planning, managing, and executing the exit from any cloud service provider or SaaS platform, and for ensuring portability of organisational data and workloads between platforms. It ensures the organisation is not locked into any single cloud provider without a documented exit path, and that all cloud contracts include minimum data portability and deletion rights.
+This standard defines the requirements for planning, managing, and executing the exit from any cloud service provider or SaaS platform, and for ensuring portability of organizational data and workloads between platforms. It ensures that the organization is not locked into any single cloud provider without a documented exit path, and that all cloud contracts include minimum data portability and deletion rights.
 
 ---
 
 ## Scope
 
-1. Applies to all cloud services, SaaS platforms, and managed services hosting organisational data or running organisational workloads.
+1. Applies to all cloud services, SaaS platforms, and managed services hosting organizational data or running organizational workloads.
 2. Covers data portability requirements, exit planning obligations for new and existing contracts, and the process for executing a planned or emergency exit.
 3. Applies to IT Operations, infrastructure programme teams, and Procurement when evaluating or contracting new cloud services.
 
@@ -40,7 +40,7 @@ This standard defines the requirements for planning, managing, and executing the
 | --- | --- |
 | **CISO** | Owns this standard; approves cloud exit plans and any waiver of portability requirements. |
 | **IT Operations / Cloud Team** | Maintains exit plans for all in-scope cloud services; executes exit procedures when required. |
-| **Procurement / Legal** | Ensures data portability and exit rights are included in all cloud and SaaS contracts before signature. |
+| **Procurement / Legal** | Ensures that data portability and exit rights are included in all cloud and SaaS contracts before signature. |
 | **Internal Audit** | Reviews exit plan currency and contract compliance annually. |
 
 ---
@@ -49,9 +49,9 @@ This standard defines the requirements for planning, managing, and executing the
 
 All new cloud and SaaS contracts must include the following provisions before signature. Procurement must confirm their presence; contracts without these provisions require CISO approval before execution.
 
-1. **Data export right:** The provider must allow the organisation to export all data in a documented, machine-readable, non-proprietary format at any time during the contract term and for a minimum of 90 days following contract termination.
+1. **Data export right:** The provider must allow the organization to export all data in a documented, machine-readable, non-proprietary format at any time during the contract term and for a minimum of 90 days following contract termination.
 
-2. **Data deletion confirmation:** Upon contract termination, the provider must confirm in writing that all organisational data has been deleted from their systems within a defined period, including backups.
+2. **Data deletion confirmation:** Upon contract termination, the provider must confirm in writing that all organizational data has been deleted from their systems within a defined period, including backups.
 
 3. **Exit assistance:** For Tier 1 and Tier 2 services (per the Asset Inventory Register), the contract must include a minimum 90-day exit assistance period during which the provider supports migration activities.
 
@@ -96,7 +96,7 @@ An exit plan must be activated when any of the following occur:
 - A provider announces service discontinuation.
 - A provider is acquired and the acquirer is assessed as a security or compliance risk.
 - Contractual terms change materially and negotiation fails.
-- A security incident at the provider results in confirmed or suspected organisational data exposure.
+- A security incident at the provider results in confirmed or suspected organizational data exposure.
 - The CISO determines that continued use of the service presents unacceptable risk.
 
 Emergency exits follow the Incident Response and Crisis Management escalation paths as appropriate.
@@ -105,7 +105,7 @@ Emergency exits follow the Incident Response and Crisis Management escalation pa
 
 ## 5. Exceptions
 
-Where a cloud provider cannot meet the contract requirements in this standard — for example, a commodity SaaS tool with no data export capability — the service may still be used for non-Confidential, non-Restricted data with CISO approval and a documented risk acceptance in the Exception Register.
+Where a cloud provider cannot meet the contract requirements in this standard, for example, a commodity SaaS tool with no data export capability, the service may still be used for non-Confidential, non-Restricted data with CISO approval and a documented risk acceptance in the Exception Register.
 
 ---
 
@@ -113,10 +113,10 @@ Where a cloud provider cannot meet the contract requirements in this standard �
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| CSA CCM v5 | IPY-01 through IPY-05 — Interoperability and Portability | Cloud exit and portability controls |
-| ISO/IEC 27001:2022 | Annex A.5.20 — Addressing Security in Supplier Agreements | Supplier contract requirements |
-| NIST SP 800-53 | SA-9 — External System Services | Third-party cloud service controls |
-| GDPR (2018) | Article 20 — Data Portability | Personal data portability rights |
+| CSA CCM v5 | IPY-01 through IPY-05: Interoperability and Portability | Cloud exit and portability controls |
+| ISO/IEC 27001:2022 | Annex A.5.20: Addressing Security in Supplier Agreements | Supplier contract requirements |
+| NIST SP 800-53 | SA-9: External System Services | Third-party cloud service controls |
+| GDPR (2018) | Article 20: Data Portability | Personal data portability rights |
 | ENISA Cloud Computing | Exit and Portability Recommendations | Cloud exit planning guidance |
 
 ---
