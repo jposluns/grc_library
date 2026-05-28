@@ -1,18 +1,18 @@
 # Global Regulatory Applicability Register
 
-**Document Title:** Global Regulatory Applicability Register  
-**Document Type:** Register  
-**Version:** 0.0.1  
-**Date:** 2026-05-27  
-**Owner:** Compliance Maintainer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`compliance/annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md), [`compliance/annex-healthcare-sector-requirements.md`](annex-healthcare-sector-requirements.md), [`compliance/annex-transportation-and-logistics-sector-requirements.md`](annex-transportation-and-logistics-sector-requirements.md)  
-**Classification:** Public  
-**Category:** Core Governance  
-**Review Frequency:** 6 to 12 months and upon material regulatory change  
-**Repository Path:** [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Global Regulatory Applicability Register 
+**Document Type:** Register 
+**Version:** 0.0.1 
+**Date:** 2026-05-27 
+**Owner:** Compliance Maintainer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`compliance/annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md), [`compliance/annex-healthcare-sector-requirements.md`](annex-healthcare-sector-requirements.md), [`compliance/annex-transportation-and-logistics-sector-requirements.md`](annex-transportation-and-logistics-sector-requirements.md) 
+**Classification:** Public 
+**Category:** Core Governance 
+**Review Frequency:** 6 to 12 months and upon material regulatory change 
+**Repository Path:** [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 

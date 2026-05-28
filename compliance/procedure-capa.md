@@ -1,18 +1,18 @@
 # Corrective and Preventive Action (CAPA) Procedure
 
-**Document Title:** Corrective and Preventive Action (CAPA) Procedure  
-**Document Type:** Procedure  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** compliance/standard-internal-audit.md, compliance/procedure-audit-planning.md, compliance/policy-compliance-and-audit-management.md  
-**Classification:** Public  
-**Category:** Compliance Management  
-**Review Frequency:** Annual and upon material audit methodology or regulatory change  
-**Repository Path:** compliance/procedure-capa.md  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Corrective and Preventive Action (CAPA) Procedure 
+**Document Type:** Procedure 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** compliance/standard-internal-audit.md, compliance/procedure-audit-planning.md, compliance/policy-compliance-and-audit-management.md 
+**Classification:** Public 
+**Category:** Compliance Management 
+**Review Frequency:** Annual and upon material audit methodology or regulatory change 
+**Repository Path:** compliance/procedure-capa.md 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -38,12 +38,12 @@
 
 ### 1.1 Purpose
 
-This procedure governs the identification, recording, assessment, treatment, verification, and closure of nonconformities and opportunities for improvement across all GRC domains. It defines the Corrective and Preventive Action (CAPA) process that the organisation uses to:
+This procedure governs the identification, recording, assessment, treatment, verification, and closure of nonconformities and opportunities for improvement across all GRC domains. It defines the Corrective and Preventive Action (CAPA) process that the organization uses to:
 
 - Systematically address control failures, compliance gaps, and identified weaknesses before they recur or escalate;
 - Require root cause analysis for material findings so that actions address underlying causes rather than symptoms;
 - Ensure that accountability, target dates, and verification requirements are clearly assigned for every nonconformity;
-- Provide senior leadership with a consolidated, reliable view of the organisation's nonconformity landscape and remediation status;
+- Provide senior leadership with a consolidated, reliable view of the organization's nonconformity landscape and remediation status;
 - Drive measurable, sustained improvement in the GRC programme over time.
 
 ### 1.2 Scope
@@ -113,7 +113,7 @@ The **Executive Risk Committee (ERC)** receives a quarterly CAPA status report t
 
 ### 3.1 Raising a Nonconformity
 
-Any individual across the organisation may raise a nonconformity or improvement opportunity. Nonconformities are raised through the designated CAPA submission mechanism (e.g., a GRC platform, shared register, or submission form). Identifying and raising a potential nonconformity is a positive act and must not carry negative consequences for the person raising it.
+Any individual across the organization may raise a nonconformity or improvement opportunity. Nonconformities are raised through the designated CAPA submission mechanism (e.g., a GRC platform, shared register, or submission form). Identifying and raising a potential nonconformity is a positive act and must not carry negative consequences for the person raising it.
 
 ### 3.2 Minimum Required Fields
 
@@ -125,7 +125,7 @@ Every nonconformity record must include the following minimum information at the
 | Domain | The GRC domain to which the nonconformity relates (see Internal Audit Standard §1.2) |
 | Source | The mechanism through which the nonconformity was identified (see Section 1.2 table) |
 | Description | A clear, factual statement of what the nonconformity is, including the applicable requirement or criterion it fails to meet |
-| Root Cause Category | Preliminary categorisation of the likely root cause (e.g., process gap, people/training, technology failure, third-party failure, governance gap) — to be refined through root cause analysis |
+| Root Cause Category | Preliminary categorization of the likely root cause (e.g., process gap, people/training, technology failure, third-party failure, governance gap): to be refined through root cause analysis |
 | Risk Level | Preliminary classification per Section 5; to be confirmed by the GRC Manager and domain owner |
 | Owner | The individual responsible for implementing the corrective action |
 | Target Date | The date by which corrective action is to be completed, aligned to the classification timelines in Section 5 |
@@ -147,20 +147,20 @@ A **formal root cause analysis** is required for all Critical and High classifie
 | Methodology | Description |
 |-------------|-------------|
 | **5-Whys** | Iteratively asks "why" five or more times to trace from the observable symptom back to the root cause. Suited to simpler, linear causal chains. |
-| **Ishikawa / Fishbone Diagram** | A structured cause-and-effect diagram that organises potential causes into categories (e.g., people, process, technology, environment). Suited to multifactorial nonconformities. |
+| **Ishikawa / Fishbone Diagram** | A structured cause-and-effect diagram that organizes potential causes into categories (e.g., people, process, technology, environment). Suited to multifactorial nonconformities. |
 | **Fault Tree Analysis (FTA)** | A top-down, deductive logical model that maps combinations of events or conditions that could produce the failure. Suited to complex technical nonconformities or those with multiple contributing causes. |
 
-The chosen methodology and its outputs must be documented in the CAPA record. The root cause statement must be specific and actionable — it must identify what failed, why it failed, and what condition or absence allowed the failure to go undetected or unresolved.
+The chosen methodology and its outputs must be documented in the CAPA record. The root cause statement must be specific and actionable: it must identify what failed, why it failed, and what condition or absence allowed the failure to go undetected or unresolved.
 
 The root cause analysis for Critical findings must be completed and submitted to the GRC Manager within **5 business days** of CAPA opening. For High findings, within **10 business days**.
 
 ### 4.2 Moderate and Low Findings
 
-For Moderate and Low classified nonconformities, a **concise root cause statement** (1–3 sentences) is sufficient. The statement must still identify the primary cause and the condition that allowed it to persist. A formal methodology is not required, though teams may use one if it aids analysis.
+For Moderate and Low classified nonconformities, a **concise root cause statement** (1 to 3 sentences) is sufficient. The statement must still identify the primary cause and the condition that allowed it to persist. A formal methodology is not required, though teams may use one if it aids analysis.
 
 ### 4.3 Root Cause Categories
 
-Root causes are categorised using the following taxonomy to enable pattern analysis:
+Root causes are categorized using the following taxonomy to enable pattern analysis:
 
 | Category | Examples |
 |----------|---------|
@@ -180,7 +180,7 @@ CAPA classification aligns to the finding classification scheme defined in the I
 
 ### 5.1 Critical
 
-**Definition:** A material control failure or nonconformity that exposes the organisation to significant risk of harm, regulatory sanction, certification failure, or operational disruption. The control is absent, has failed completely, or is being actively circumvented.
+**Definition:** A material control failure or nonconformity that exposes the organization to significant risk of harm, regulatory sanction, certification failure, or operational disruption. The control is absent, has failed completely, or is being actively circumvented.
 
 **Response requirements:**
 
@@ -303,7 +303,7 @@ A CAPA is marked as **Closed** in the register when:
 - Closure evidence is documented and retained in the CAPA record;
 - For CAPAs linked to an internal audit finding: the corresponding finding in the audit register is also marked as closed.
 
-CAPAs are not closed until verification is complete. The domain owner's assertion that actions are complete is not sufficient — objective evidence is required.
+CAPAs are not closed until verification is complete. The domain owner's assertion that actions are complete is not sufficient: objective evidence is required.
 
 ---
 
@@ -311,7 +311,7 @@ CAPAs are not closed until verification is complete. The domain owner's assertio
 
 ### 8.1 Register Structure
 
-The GRC Manager maintains a centralised CAPA register. Each record contains the following fields:
+The GRC Manager maintains a centralized CAPA register. Each record contains the following fields:
 
 | Field | Description |
 |-------|-------------|
@@ -373,7 +373,7 @@ The pattern analysis is documented as a component of the annual GRC management r
 
 ### 10.1 Purpose of Preventive Action
 
-Preventive action addresses potential nonconformities — issues that have not yet occurred but that analysis or intelligence suggests may occur if no action is taken. Effective preventive action reduces the frequency and severity of future nonconformities and supports the organisation's shift from reactive to proactive risk management.
+Preventive action addresses potential nonconformities: issues that have not yet occurred but that analysis or intelligence suggests may occur if no action is taken. Effective preventive action reduces the frequency and severity of future nonconformities and supports the organization's shift from reactive to proactive risk management.
 
 ### 10.2 Triggers for Preventive Action
 
@@ -381,15 +381,15 @@ Preventive action may be initiated from:
 
 - Threat intelligence that indicates emerging risks to current control designs;
 - Near-miss events (an event that had the potential to be a security incident but did not result in harm);
-- External audit or regulatory findings at peer organisations in the same sector;
-- Significant changes to the organisational environment that may affect control effectiveness before those effects are detected;
+- External audit or regulatory findings at peer organizations in the same sector;
+- Significant changes to the organizational environment that may affect control effectiveness before those effects are detected;
 - Lessons learned from CAPA pattern analysis showing precursor conditions.
 
 ### 10.3 Preventive Action Process
 
 Preventive action items are recorded in the same CAPA register as corrective actions, with the Source field designated as "Preventive Action" and the Description field explaining the potential nonconformity being prevented. The same classification, action planning, ownership, and verification process applies.
 
-Preventive action items are classified based on the potential severity of the nonconformity they are intended to prevent, using the same Critical / High / Moderate / Low scheme. Target dates reflect the urgency of implementing the preventive control before the potential nonconformity materialises.
+Preventive action items are classified based on the potential severity of the nonconformity they are intended to prevent, using the same Critical / High / Moderate / Low scheme. Target dates reflect the urgency of implementing the preventive control before the potential nonconformity materializes.
 
 ---
 
@@ -422,7 +422,7 @@ All CAPA records, including root cause analysis documentation, corrective action
 
 For CAPAs that remain open at the time of any regulatory inspection, certification audit, or legal proceeding, records must be preserved until the relevant matter is fully resolved, regardless of the standard 7-year retention period.
 
-Records are stored in the designated secure GRC document repository. Access is restricted to the GRC team, CISO, domain owners with records in scope, and authorised senior leadership. Disposal after the retention period is conducted in accordance with the organisation's data retention and disposal policy.
+Records are stored in the designated secure GRC document repository. Access is restricted to the GRC team, CISO, domain owners with records in scope, and authorized senior leadership. Disposal after the retention period is conducted in accordance with the organization's data retention and disposal policy.
 
 ---
 
@@ -430,12 +430,12 @@ Records are stored in the designated secure GRC document repository. Access is r
 
 | Framework / Standard | Relevant Clause or Section | Mapping |
 |----------------------|---------------------------|---------|
-| ISO 9001:2015 | §10.2 Nonconformity and corrective action; §10.3 Continual improvement | Primary source for corrective and preventive action requirements; this procedure operationalises these clauses |
+| ISO 9001:2015 | §10.2 Nonconformity and corrective action; §10.3 Continual improvement | Primary source for corrective and preventive action requirements; this procedure operationalizes these clauses |
 | ISO/IEC 27001:2022 | §10.1 Continual improvement; §10.2 Nonconformity and corrective action | ISMS-specific requirements for nonconformity treatment and improvement |
 | COBIT 2025 | MEA02 (Managed Assurance) | Assurance-linked corrective action and monitoring requirements |
-| CSA Cloud Controls Matrix | A&A-06 (Audit and Assurance — Remediation) | Requirements for tracking and remediating audit findings |
+| CSA Cloud Controls Matrix | A&A-06 (Audit and Assurance: Remediation) | Requirements for tracking and remediating audit findings |
 | BASC Standard | §10 Improvement | Corrective action and improvement requirements within the BASC management system |
-| NIST Cybersecurity Framework 2.0 | RC.IM (Recovery — Improvements) | Incorporating lessons learned into recovery strategy and GRC programme improvement |
+| NIST Cybersecurity Framework 2.0 | RC.IM (Recovery: Improvements) | Incorporating lessons learned into recovery strategy and GRC programme improvement |
 
 ---
 

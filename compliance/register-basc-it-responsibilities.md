@@ -1,18 +1,18 @@
 # BASC IT and Information Security Responsibilities
 
-**Document Title:** BASC IT and Information Security Responsibilities  
-**Document Type:** Register  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-incident-response.md`](../security/procedure-incident-response.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)  
-**Classification:** Public  
-**Category:** Compliance Management  
-**Review Frequency:** Annual and upon material regulatory or framework change  
-**Repository Path:** [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** BASC IT and Information Security Responsibilities 
+**Document Type:** Register 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-incident-response.md`](../security/procedure-incident-response.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md) 
+**Classification:** Public 
+**Category:** Compliance Management 
+**Review Frequency:** Annual and upon material regulatory or framework change 
+**Repository Path:** [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -32,17 +32,17 @@ This register covers only the IT and information security elements of BASC compl
 
 | BASC v6 Control Domain | IT / Cybersecurity Element | IT Owner | Governing GRC Document(s) |
 | --- | --- | --- | --- |
-| §5.1 — Leadership and Commitment | CIO / CISO accountable for cybersecurity posture | Chief Information Officer (CIO) | [`governance/charter-governance-library.md`](../governance/charter-governance-library.md); [`security/policy-information-security.md`](../security/policy-information-security.md) |
-| §6.1 — Risk Assessment | IT risk assessment methodology and risk register | Chief Information Security Officer (CISO) | [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) |
-| §7.2 — Competence and Training | Security awareness training for all IT-adjacent roles | Chief Information Security Officer (CISO) | [`security/standard-security-awareness-and-training.md`](../security/standard-security-awareness-and-training.md) |
-| §7.5 — Documented Information | GRC library maintenance and document control | Chief Information Officer (CIO) | [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md) |
-| §8.1 — Operational Planning | Change management; configuration control | IT Operations | [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md) |
-| §8.3 — Personnel Security | Background screening; identity verification; access provisioning and revocation | IT Operations | [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md); [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md) |
-| §8.4 — IT and Cybersecurity | Network security; endpoint protection; access controls; SIEM and monitoring; incident response | Chief Information Security Officer (CISO) | [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md); [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md); [`security/procedure-incident-response.md`](../security/procedure-incident-response.md) |
-| §8.5 — Access Control | IAM; MFA; PAM; account lifecycle | IAM Team | [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md); [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md); [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md) |
-| §9.1 — Monitoring and Measurement | Security metrics; compliance monitoring; alert management | Chief Information Security Officer (CISO) | [`operations/procedure-security-monitoring-and-alert-management.md`](../operations/procedure-security-monitoring-and-alert-management.md) |
-| §9.2 — Internal Audit | IT control testing; audit planning | Chief Information Security Officer (CISO) | [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md) |
-| §10 — Nonconformity and Corrective Action | CAPA for IT and security nonconformities | Chief Information Security Officer (CISO) | [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md) |
+| §5.1: Leadership and Commitment | CIO / CISO accountable for cybersecurity posture | Chief Information Officer (CIO) | [`governance/charter-governance-library.md`](../governance/charter-governance-library.md); [`security/policy-information-security.md`](../security/policy-information-security.md) |
+| §6.1: Risk Assessment | IT risk assessment methodology and risk register | Chief Information Security Officer (CISO) | [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) |
+| §7.2: Competence and Training | Security awareness training for all IT-adjacent roles | Chief Information Security Officer (CISO) | [`security/standard-security-awareness-and-training.md`](../security/standard-security-awareness-and-training.md) |
+| §7.5: Documented Information | GRC library maintenance and document control | Chief Information Officer (CIO) | [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md) |
+| §8.1: Operational Planning | Change management; configuration control | IT Operations | [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md) |
+| §8.3: Personnel Security | Background screening; identity verification; access provisioning and revocation | IT Operations | [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md); [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md) |
+| §8.4: IT and Cybersecurity | Network security; endpoint protection; access controls; SIEM and monitoring; incident response | Chief Information Security Officer (CISO) | [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md); [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md); [`security/procedure-incident-response.md`](../security/procedure-incident-response.md) |
+| §8.5: Access Control | IAM; MFA; PAM; account lifecycle | IAM Team | [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md); [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md); [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md) |
+| §9.1: Monitoring and Measurement | Security metrics; compliance monitoring; alert management | Chief Information Security Officer (CISO) | [`operations/procedure-security-monitoring-and-alert-management.md`](../operations/procedure-security-monitoring-and-alert-management.md) |
+| §9.2: Internal Audit | IT control testing; audit planning | Chief Information Security Officer (CISO) | [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md) |
+| §10: Nonconformity and Corrective Action | CAPA for IT and security nonconformities | Chief Information Security Officer (CISO) | [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md) |
 
 ---
 
@@ -54,14 +54,14 @@ IT ownership covers the controls listed above. Physical facility security, cargo
 
 ## Related Standards and Procedures
 
-1. Register: BASC IT Compliance Monitoring and KPIs — [`compliance/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md)
-2. Framework: Supplier and Cloud Governance Framework — [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)
+1. Register: BASC IT Compliance Monitoring and KPIs: [`compliance/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md)
+2. Framework: Supplier and Cloud Governance Framework: [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)
 
 ---
 
 ## References
 
-- BASC International Standard v6 — All chapters
+- BASC International Standard v6: All chapters
 - ISO/IEC 27001:2022
 - COBIT 2025
 

@@ -1,30 +1,30 @@
 # Control Testing Procedure
 
-**Document Title:** Control Testing Procedure  
-**Document Type:** Procedure  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Compliance Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md)  
-**Classification:** Public  
-**Category:** Compliance Management  
-**Review Frequency:** Annual and upon material control framework change  
-**Repository Path:** [`compliance/procedure-control-testing.md`](procedure-control-testing.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Control Testing Procedure 
+**Document Type:** Procedure 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Compliance Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md) 
+**Classification:** Public 
+**Category:** Compliance Management 
+**Review Frequency:** Annual and upon material control framework change 
+**Repository Path:** [`compliance/procedure-control-testing.md`](procedure-control-testing.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This procedure defines the processes for testing the design and operating effectiveness of internal controls across the organisation's governance, risk, compliance, security, and operational domains. Control testing provides objective evidence that controls are functioning as intended and supports certification, audit readiness, and continuous assurance activities.
+This procedure defines the processes for testing the design and operating effectiveness of internal controls across the organization's governance, risk, compliance, security, and operational domains. Control testing provides objective evidence that controls are functioning as intended and supports certification, audit readiness, and continuous assurance activities.
 
 ---
 
 ## Scope
 
-Applies to all controls defined in the organisation's control frameworks including ISO 27001 Annex A, COBIT 2025, CSA CCM v5, NIST SP 800-53, and any applicable regulatory control requirements. Encompasses preventive, detective, and corrective controls across all domains.
+Applies to all controls defined in the organization's control frameworks including ISO 27001 Annex A, COBIT 2025, CSA CCM v5, NIST SP 800-53, and any applicable regulatory control requirements. Encompasses preventive, detective, and corrective controls across all domains.
 
 ---
 
@@ -44,7 +44,7 @@ Applies to all controls defined in the organisation's control frameworks includi
 
 1.1 The annual Control Testing Calendar is prepared by the GRC Programme Manager in alignment with the Audit Planning Procedure.
 
-1.2 Controls are prioritised for testing based on:
+1.2 Controls are prioritized for testing based on:
 - Risk rating (high-risk controls tested at minimum annually).
 - Certification scope (ISO 27001, SOC 2, BASC, etc.).
 - Prior year findings and remediation outcomes.
@@ -83,9 +83,9 @@ Operating testing methods:
 | **Automated testing** | Continuous monitoring outputs; automated evidence collection |
 
 Sample sizes for inspection-based tests follow a risk-based sampling methodology:
-- High-risk controls: 25–40 samples or 100% population if feasible.
-- Medium-risk controls: 15–25 samples.
-- Low-risk controls: 5–15 samples.
+- High-risk controls: 25 to 40 samples or 100% population if feasible.
+- Medium-risk controls: 15 to 25 samples.
+- Low-risk controls: 5 to 15 samples.
 
 ---
 
@@ -140,11 +140,11 @@ Sample sizes for inspection-based tests follow a risk-based sampling methodology
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 27001:2022 | §9.1 — Monitoring, Measurement, Analysis and Evaluation | Control effectiveness measurement |
+| ISO/IEC 27001:2022 | §9.1: Monitoring, Measurement, Analysis and Evaluation | Control effectiveness measurement |
 | ISO 19011:2018 | Guidelines for Auditing Management Systems | Control testing methodology |
 | NIST SP 800-53A | Assessing Security and Privacy Controls | Control testing guidance |
-| COBIT 2025 | MEA01 — Monitor, Evaluate, and Assess Performance | Control monitoring and assurance |
-| CSA CCM v5 | GOV-09 — Governance and Continuous Improvement | Continuous control assurance |
+| COBIT 2025 | MEA01: Monitor, Evaluate, and Assess Performance | Control monitoring and assurance |
+| CSA CCM v5 | GOV-09: Governance and Continuous Improvement | Continuous control assurance |
 
 ---
 

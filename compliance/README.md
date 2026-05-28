@@ -1,18 +1,18 @@
 # Compliance Domain
 
-**Document Title:** Compliance Domain README  
-**Document Type:** Register  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Compliance Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)  
-**Classification:** Public  
-**Category:** Compliance Management  
-**Review Frequency:** Annual and upon material regulatory or framework change  
-**Repository Path:** [`compliance/README.md`](README.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Compliance Domain README 
+**Document Type:** Register 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Compliance Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md) 
+**Classification:** Public 
+**Category:** Compliance Management 
+**Review Frequency:** Annual and upon material regulatory or framework change 
+**Repository Path:** [`compliance/README.md`](README.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -53,11 +53,11 @@ This directory contains compliance management policies, registers, and audit gov
 
 The compliance domain covers:
 
-- **Compliance management systems** — obligations registers, legal and regulatory tracking, compliance risk assessment, and performance reporting.
-- **Internal audit governance** — audit planning, audit execution criteria, independence requirements, finding classification, corrective and preventive action (CAPA) lifecycle.
-- **Trade compliance programmes** — alignment to internationally recognized supply-chain security and trusted-trader frameworks including CTPAT (United States), BASC (Latin America), PIP (Canada), AEO and AEO-S (European Union and United Kingdom), NEEC (Mexico), OEA (Brazil), WCO SAFE Framework, and ISO 28000.
-- **AI and algorithmic compliance auditing** — audit trails, transparency, bias assessment, and regulatory alignment for AI systems.
-- **Regulatory applicability analysis** — structured approach to determining which legal regimes apply across jurisdictions, data categories, and processing roles.
+- **Compliance management systems**: obligations registers, legal and regulatory tracking, compliance risk assessment, and performance reporting.
+- **Internal audit governance**: audit planning, audit execution criteria, independence requirements, finding classification, corrective and preventive action (CAPA) lifecycle.
+- **Trade compliance programmes**: alignment to internationally recognized supply-chain security and trusted-trader frameworks including CTPAT (United States), BASC (Latin America), PIP (Canada), AEO and AEO-S (European Union and United Kingdom), NEEC (Mexico), OEA (Brazil), WCO SAFE Framework, and ISO 28000.
+- **AI and algorithmic compliance auditing**: audit trails, transparency, bias assessment, and regulatory alignment for AI systems.
+- **Regulatory applicability analysis**: structured approach to determining which legal regimes apply across jurisdictions, data categories, and processing roles.
 
 ---
 

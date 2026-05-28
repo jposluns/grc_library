@@ -1,30 +1,30 @@
 # BASC Information Security Policy
 
-**Document Title:** BASC Information Security Policy  
-**Document Type:** Policy  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)  
-**Classification:** Public  
-**Category:** Compliance Management  
-**Review Frequency:** Annual and upon material BASC framework or infrastructure change  
-**Repository Path:** [`compliance/policy-basc.md`](policy-basc.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** BASC Information Security Policy 
+**Document Type:** Policy 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) 
+**Classification:** Public 
+**Category:** Compliance Management 
+**Review Frequency:** Annual and upon material BASC framework or infrastructure change 
+**Repository Path:** [`compliance/policy-basc.md`](policy-basc.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This policy establishes the framework for managing and protecting the organisation's information assets and supporting infrastructure in alignment with the Business Alliance for Secure Commerce (BASC) International Security Standards. It ensures the confidentiality, integrity, and availability of data across all BASC-certified operations.
+This policy establishes the framework for managing and protecting the organization's information assets and supporting infrastructure in alignment with the Business Alliance for Secure Commerce (BASC) International Security Standards. It ensures that the confidentiality, integrity, and availability of data across all BASC-certified operations.
 
 ---
 
 ## Scope
 
-Applies to all employees, contractors, and third parties accessing the organisation's information systems, data, and technology resources.
+Applies to all employees, contractors, and third parties accessing the organization's information systems, data, and technology resources.
 
 ---
 
@@ -49,21 +49,21 @@ Applies to all employees, contractors, and third parties accessing the organisat
 | **Chief Information Security Officer (CISO)** | Co-approves the policy; leads enhancement of IT, security, and privacy policies and standards. |
 | **IT Operations Manager** | Manages technical configuration and change management requests; monitors compliance; declares incidents when necessary. |
 | **Service Desk Manager** | Handles user and change management requests via the ITSM portal; monitors compliance; declares incidents when necessary. |
-| **Department Heads** | Ensures departmental compliance with security practices; declares incidents when necessary. |
+| **Department Heads** | Ensures that departmental compliance with security practices; declares incidents when necessary. |
 | **All Users** | Adhere to this policy and report any concerns or policy violations. |
 
 ---
 
 ## BASC Information Security Requirements
 
-All requirements identified in Chapter 6 of the BASC International Security Standard are mapped below to the organisation's control areas.
+All requirements identified in Chapter 6 of the BASC International Security Standard are mapped below to the organization's control areas.
 
 | ID | Description | Control Area |
 | --- | --- | --- |
 | 6.1.a | Manage and protect information and IT resources, including response measures for non-compliance. | Asset Management; Threat Response |
 | 6.1.b | Safeguard confidentiality, integrity, and availability of information in all forms. | Governance; Access Management; Asset Management; System Integrity; Threat Response |
 | 6.1.c | Protect IT infrastructure. | Access Management; Asset Management; System Integrity; Threat Response |
-| 6.2.a | Establish security criteria for IT systems and ensure recovery capabilities. | Threat Response |
+| 6.2.a | Establish security criteria for IT systems and ensure that recovery capabilities. | Threat Response |
 | 6.2.b | Communicate cybersecurity threats to relevant parties. | Threat Response |
 | 6.2.c | Identify critical stakeholders in IT infrastructure. | Access Management |
 | 6.2.d | Classify information, systems, and access levels based on criticality. | Governance |
@@ -80,7 +80,7 @@ All requirements identified in Chapter 6 of the BASC International Security Stan
 | 6.2.o | Review and update cybersecurity policies annually or as needed. | Governance |
 | 6.2.p | Use VPN or MFA for remote access. | Access Management |
 | 6.2.q | Prevent unauthorised remote access from personal or other devices. | System Integrity |
-| 6.2.r | Inventory IT infrastructure media and equipment; ensure legal disposal. | Asset Management |
+| 6.2.r | Inventory IT infrastructure media and equipment; ensure that legal disposal. | Asset Management |
 | 6.2.s | Restrict unauthorised devices from connecting to IT infrastructure. | System Integrity; Access Management |
 | 6.2.t | Monitor cybersecurity policy compliance in digital content and tools. | System Integrity; Threat Response |
 | 6.2.u | Conduct cybersecurity drills to test response effectiveness. | Threat Response |
@@ -94,7 +94,7 @@ All requirements identified in Chapter 6 of the BASC International Security Stan
 
 An Information Security Manager is formally appointed and assigned responsibility for information security.
 
-This policy is reviewed at least annually, or following any significant changes to the organisation's environment, with all revisions documented and approved by the CIO.
+This policy is reviewed at least annually, or following any significant changes to the organization's environment, with all revisions documented and approved by the CIO.
 
 Information assets are classified by sensitivity: Confidential, Internal, Public.
 
@@ -106,7 +106,7 @@ Mandatory annual security awareness training is required for all personnel, cove
 
 Access rights are granted based on the principle of least privilege.
 
-Access rights are reviewed at least annually to ensure they remain aligned with assigned functions and tasks.
+Access rights are reviewed at least annually to ensure that they remain aligned with assigned functions and tasks.
 
 User accounts are individually assigned and protected by passwords and MFA.
 
@@ -140,13 +140,13 @@ The installation of unauthorised software on corporate devices is strictly prohi
 
 Compliance with this policy for all sanctioned applications and platforms is actively monitored through the change management process.
 
-Personal device connections to internal systems are restricted unless explicitly authorised through the endpoint management platform.
+Personal device connections to internal systems are restricted unless explicitly authorized through the endpoint management platform.
 
 *Requirement IDs: 6.1.b, 6.1.c, 6.2.h, 6.2.i, 6.2.q, 6.2.s, 6.2.t*
 
 ### Threat Response
 
-Cybersecurity incidents are documented, analysed, and communicated according to the established incident response process.
+Cybersecurity incidents are documented, analyzed, and communicated according to the established incident response process.
 
 Unauthorised data manipulation or policy violations are monitored and investigated.
 
@@ -188,9 +188,9 @@ All exceptions are logged and assigned an expiry or review date. Owners are resp
 | Area | Evidence Required |
 | --- | --- |
 | Governance | IT Security Manager appointed; policy reviewed annually; information assets classified (Confidential, Internal, Public); security awareness training completed with attendance records. |
-| Access Management | Access rights based on roles in the enterprise identity provider; MFA enforced; administrator access traceability controls enforced; third-party access authorised through supplier evaluation; access revocation within 2 hours of termination. |
+| Access Management | Access rights based on roles in the enterprise identity provider; MFA enforced; administrator access traceability controls enforced; third-party access authorized through supplier evaluation; access revocation within 2 hours of termination. |
 | Asset Management | Managed computer inventory maintained; unattended computers locked via policy; offsite backups implemented and tested; secure media and hardware disposal procedures followed. |
-| System Integrity | Personal device access managed through endpoint management platform; only authorised devices on the network; only licensed and supported systems and software in use; controls prevent unauthorised software installation. |
+| System Integrity | Personal device access managed through endpoint management platform; only authorized devices on the network; only licensed and supported systems and software in use; controls prevent unauthorised software installation. |
 | Threat Response | Cybersecurity incidents tracked and reported; security incident response process documented and followed; logs and audit trails reviewed regularly; annual IT infrastructure evaluation conducted. |
 
 ---
@@ -199,9 +199,9 @@ All exceptions are logged and assigned an expiry or review date. Owners are resp
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| BASC International Standard v6 (2023) | Chapter 6 — IT and Information Security | Primary source of control requirements |
-| ISO/IEC 27001:2022 | A.5–A.8 — Security controls | Information security management alignment |
-| NIST SP 800-53 r5 | AC, IA, SI, IR — Access, identity, integrity, incident | Control family mapping |
+| BASC International Standard v6 (2023) | Chapter 6: IT and Information Security | Primary source of control requirements |
+| ISO/IEC 27001:2022 | A.5 to A.8: Security controls | Information security management alignment |
+| NIST SP 800-53 r5 | AC, IA, SI, IR: Access, identity, integrity, incident | Control family mapping |
 | CSA CCM v5 | IAM, HRS, TVM, LOG | Cloud control alignment |
 | WCO SAFE Framework (2021) | AEO Security | Trade and customs information security |
 

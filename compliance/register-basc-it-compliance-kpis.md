@@ -1,24 +1,24 @@
 # BASC IT Compliance Monitoring and KPIs
 
-**Document Title:** BASC IT Compliance Monitoring and KPIs  
-**Document Type:** Register  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../operations/procedure-security-monitoring-and-alert-management.md), [`security/procedure-incident-response.md`](../security/procedure-incident-response.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md)  
-**Classification:** Public  
-**Category:** Compliance Management  
-**Review Frequency:** Annual and upon material regulatory or framework change  
-**Repository Path:** [`compliance/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** BASC IT Compliance Monitoring and KPIs 
+**Document Type:** Register 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../operations/procedure-security-monitoring-and-alert-management.md), [`security/procedure-incident-response.md`](../security/procedure-incident-response.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md) 
+**Classification:** Public 
+**Category:** Compliance Management 
+**Review Frequency:** Annual and upon material regulatory or framework change 
+**Repository Path:** [`compliance/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This register defines the key performance indicators (KPIs) used to monitor IT and cybersecurity obligations under the BASC International Standard v6. BASC §9.1 requires that the organisation establish, implement, and maintain monitoring and measurement processes. This register operationalises that requirement for IT-owned controls. Results are reported to the CISO monthly and to the BASC Compliance function quarterly.
+This register defines the key performance indicators (KPIs) used to monitor IT and cybersecurity obligations under the BASC International Standard v6. BASC §9.1 requires that the organization establish, implement, and maintain monitoring and measurement processes. This register operationalizes that requirement for IT-owned controls. Results are reported to the CISO monthly and to the BASC Compliance function quarterly.
 
 ---
 
@@ -47,7 +47,7 @@ The CISO consolidates IT and cybersecurity KPI results monthly. Quarterly result
 
 ## Related Documents
 
-- Register: BASC IT and Information Security Responsibilities — [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md)
+- Register: BASC IT and Information Security Responsibilities: [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md)
 
 ---
 

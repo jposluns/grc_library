@@ -1,24 +1,24 @@
 # Trade Compliance Programme Gap Assessment Template
 
-**Document Title:** Trade Compliance Programme Gap Assessment Template  
-**Document Type:** Template  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Compliance Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-ctpat-compliance-controls.md`](register-ctpat-compliance-controls.md), [`compliance/register-pip-compliance-controls.md`](register-pip-compliance-controls.md), [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md), [`compliance/procedure-aeo-it-self-assessment.md`](procedure-aeo-it-self-assessment.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`compliance/procedure-capa.md`](procedure-capa.md)  
-**Classification:** Public  
-**Category:** Trade Compliance — Gap Assessment  
-**Review Frequency:** Annual and upon programme criteria revision, new programme application, or material change to supply chain operations  
-**Repository Path:** [`compliance/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Trade Compliance Programme Gap Assessment Template 
+**Document Type:** Template 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Compliance Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-ctpat-compliance-controls.md`](register-ctpat-compliance-controls.md), [`compliance/register-pip-compliance-controls.md`](register-pip-compliance-controls.md), [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md), [`compliance/procedure-aeo-it-self-assessment.md`](procedure-aeo-it-self-assessment.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`compliance/procedure-capa.md`](procedure-capa.md) 
+**Classification:** Public 
+**Category:** Trade Compliance: Gap Assessment 
+**Review Frequency:** Annual and upon programme criteria revision, new programme application, or material change to supply chain operations 
+**Repository Path:** [`compliance/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This template provides a structured approach for assessing the organisation's current security controls against the requirements of one or more internationally recognised trade compliance and trusted-trader programmes. It is used for:
+This template provides a structured approach for assessing the organization's current security controls against the requirements of one or more internationally recognized trade compliance and trusted-trader programmes. It is used for:
 
 - Initial gap assessment prior to applying for a new programme certification
 - Annual readiness reviews for existing programme memberships
@@ -36,13 +36,13 @@ Complete the following fields for each gap assessment.
 | **Assessment ID** | `TCGA-[YYYY]-[NNN]` |
 | **Assessment Date** | |
 | **Programme(s) in Scope** | *(check all that apply)* |
-| | ☐ CTPAT (US – CBP) |
-| | ☐ PIP (Canada – CBSA) |
-| | ☐ AEO-S (UK – HMRC) |
+| | ☐ CTPAT (US to CBP) |
+| | ☐ PIP (Canada to CBSA) |
+| | ☐ AEO-S (UK to HMRC) |
 | | ☐ AEO (EU) |
 | | ☐ BASC (Latin America) |
-| | ☐ NEEC (Mexico – SAT) |
-| | ☐ OEA (Brazil – RFB) |
+| | ☐ NEEC (Mexico to SAT) |
+| | ☐ OEA (Brazil to RFB) |
 | | ☐ ISO 28000 Supply Chain Security Management |
 | **Assessment Scope** | *(describe the supply chain segments, facilities, and operations included)* |
 | **Assessor(s)** | *(role titles)* |
@@ -51,7 +51,7 @@ Complete the following fields for each gap assessment.
 
 ---
 
-## Section 1 — Corporate Security and Governance
+## Section 1: Corporate Security and Governance
 
 | Requirement Area | Programme Source | Current Control or Evidence | Gap Description | Gap Severity | Remediation Action | Target Date | Owner |
 |---|---|---|---|---|---|---|---|
@@ -63,11 +63,11 @@ Complete the following fields for each gap assessment.
 
 ---
 
-## Section 2 — Physical Security
+## Section 2: Physical Security
 
 | Requirement Area | Programme Source | Current Control or Evidence | Gap Description | Gap Severity | Remediation Action | Target Date | Owner |
 |---|---|---|---|---|---|---|---|
-| Perimeter security — fencing, barriers, lighting | CTPAT; PIP; AEO-S; BASC | | | | | | |
+| Perimeter security: fencing, barriers, lighting | CTPAT; PIP; AEO-S; BASC | | | | | | |
 | Access controls to cargo storage and handling areas | CTPAT; PIP; AEO-S; BASC; NEEC | | | | | | |
 | CCTV or equivalent monitoring of cargo areas | CTPAT; AEO-S; BASC | | | | | | |
 | Inspection of incoming and outgoing conveyances | CTPAT; PIP; AEO-S | | | | | | |
@@ -76,7 +76,7 @@ Complete the following fields for each gap assessment.
 
 ---
 
-## Section 3 — Personnel Security
+## Section 3: Personnel Security
 
 | Requirement Area | Programme Source | Current Control or Evidence | Gap Description | Gap Severity | Remediation Action | Target Date | Owner |
 |---|---|---|---|---|---|---|---|
@@ -88,19 +88,19 @@ Complete the following fields for each gap assessment.
 
 ---
 
-## Section 4 — Cargo and Conveyance Security
+## Section 4: Cargo and Conveyance Security
 
 | Requirement Area | Programme Source | Current Control or Evidence | Gap Description | Gap Severity | Remediation Action | Target Date | Owner |
 |---|---|---|---|---|---|---|---|
 | Cargo receiving and verification procedures | CTPAT; PIP; AEO-S; BASC | | | | | | |
-| Documentation accuracy — manifests, declarations, bills of lading | CTPAT; PIP; AEO-S; NEEC | | | | | | |
+| Documentation accuracy: manifests, declarations, bills of lading | CTPAT; PIP; AEO-S; NEEC | | | | | | |
 | Outbound cargo inspection before loading | CTPAT; PIP; AEO-S | | | | | | |
 | Chain of custody documentation across handoffs | CTPAT; AEO-S; ISO 28000 | | | | | | |
 | Procedures for detecting and reporting anomalies | CTPAT; PIP; BASC | | | | | | |
 
 ---
 
-## Section 5 — Business Partner and Supplier Security
+## Section 5: Business Partner and Supplier Security
 
 | Requirement Area | Programme Source | Current Control or Evidence | Gap Description | Gap Severity | Remediation Action | Target Date | Owner |
 |---|---|---|---|---|---|---|---|
@@ -111,11 +111,11 @@ Complete the following fields for each gap assessment.
 
 ---
 
-## Section 6 — IT and Cybersecurity
+## Section 6: IT and Cybersecurity
 
 | Requirement Area | Programme Source | Current Control or Evidence | Gap Description | Gap Severity | Remediation Action | Target Date | Owner |
 |---|---|---|---|---|---|---|---|
-| Access control — least privilege, account management | CTPAT IT-1; PIP-IT-1; AEO-S | [`security/procedure-access-control.md`](../security/procedure-access-control.md) | | | | | |
+| Access control: least privilege, account management | CTPAT IT-1; PIP-IT-1; AEO-S | [`security/procedure-access-control.md`](../security/procedure-access-control.md) | | | | | |
 | Multi-factor authentication for remote and privileged access | CTPAT IT-2; PIP-IT-1; AEO-S | [`security/procedure-identity-management.md`](../security/procedure-identity-management.md) | | | | | |
 | Vulnerability management and patch cycle | CTPAT IT-3; PIP-IT-5; AEO-S | [`operations/register-it-security-operations.md`](../operations/register-it-security-operations.md) | | | | | |
 | Network segmentation and firewall controls | CTPAT IT-4; PIP-IT-4; AEO-S | | | | | | |
@@ -130,7 +130,7 @@ Complete the following fields for each gap assessment.
 
 ---
 
-## Section 7 — Incident Response and Reporting
+## Section 7: Incident Response and Reporting
 
 | Requirement Area | Programme Source | Current Control or Evidence | Gap Description | Gap Severity | Remediation Action | Target Date | Owner |
 |---|---|---|---|---|---|---|---|
@@ -140,11 +140,11 @@ Complete the following fields for each gap assessment.
 
 ---
 
-## Section 8 — Regulatory and Customs Compliance Record
+## Section 8: Regulatory and Customs Compliance Record
 
 | Requirement Area | Programme Source | Current Control or Evidence | Gap Description | Gap Severity | Remediation Action | Target Date | Owner |
 |---|---|---|---|---|---|---|---|
-| History of customs compliance — declarations, duty payments | AEO-S (mandatory); AEO (mandatory); CTPAT | | | | | | |
+| History of customs compliance: declarations, duty payments | AEO-S (mandatory); AEO (mandatory); CTPAT | | | | | | |
 | No serious or repeated infringements of customs rules | AEO-S; AEO; NEEC; OEA | | | | | | |
 | Adequate record-keeping systems with audit trail | AEO-S; AEO; CTPAT | | | | | | |
 | Financial solvency evidence | AEO-S; AEO; CTPAT | | | | | | |
@@ -155,7 +155,7 @@ Complete the following fields for each gap assessment.
 
 | Severity | Definition | Response Timeline |
 |---|---|---|
-| **Critical** | Gap would result in programme disqualification or enforcement action; no compensating control exists | Immediate — resolve before certification submission or renewal |
+| **Critical** | Gap would result in programme disqualification or enforcement action; no compensating control exists | Immediate: resolve before certification submission or renewal |
 | **High** | Gap significantly undermines programme requirement; compensating control partially addresses it | 30 days |
 | **Medium** | Partial implementation; programme requirement substantially met but evidence gaps exist | 90 days |
 | **Low** | Minor documentation or administrative gap; control is implemented but not formally evidenced | 180 days |
@@ -179,9 +179,9 @@ Complete after all sections are assessed.
 | **Total** | | | | | |
 
 **Overall Readiness Assessment:**
-- ☐ Ready for programme application or renewal — no Critical or High gaps
-- ☐ Conditional readiness — remediation plan required for High gaps before submission
-- ☐ Not ready — Critical gaps require resolution; do not proceed with application
+- ☐ Ready for programme application or renewal: no Critical or High gaps
+- ☐ Conditional readiness: remediation plan required for High gaps before submission
+- ☐ Not ready: Critical gaps require resolution; do not proceed with application
 
 ---
 

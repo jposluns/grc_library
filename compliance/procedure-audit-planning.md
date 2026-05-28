@@ -1,18 +1,18 @@
 # Audit Planning Procedure
 
-**Document Title:** Audit Planning Procedure  
-**Document Type:** Procedure  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Audit Executive  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** compliance/standard-internal-audit.md, compliance/procedure-capa.md, compliance/policy-compliance-and-audit-management.md  
-**Classification:** Public  
-**Category:** Compliance Management  
-**Review Frequency:** Annual and upon material audit methodology or regulatory change  
-**Repository Path:** compliance/procedure-audit-planning.md  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Audit Planning Procedure 
+**Document Type:** Procedure 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Audit Executive 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** compliance/standard-internal-audit.md, compliance/procedure-capa.md, compliance/policy-compliance-and-audit-management.md 
+**Classification:** Public 
+**Category:** Compliance Management 
+**Review Frequency:** Annual and upon material audit methodology or regulatory change 
+**Repository Path:** compliance/procedure-audit-planning.md 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -36,9 +36,9 @@
 
 ### 1.1 Purpose
 
-This procedure operationalises the Internal Audit Standard (compliance/standard-internal-audit.md) by defining the specific steps, responsibilities, templates, and timelines required to plan, prepare, execute, and report on individual internal audits and the overall annual audit programme.
+This procedure operationalizes the Internal Audit Standard (compliance/standard-internal-audit.md) by defining the specific steps, responsibilities, templates, and timelines required to plan, prepare, execute, and report on individual internal audits and the overall annual audit programme.
 
-It provides practical guidance to the GRC Manager, audit team members, and auditees on what to do at each stage of the audit lifecycle, ensuring consistency, completeness, and alignment with ISO 19011:2018 §6.2–6.4.
+It provides practical guidance to the GRC Manager, audit team members, and auditees on what to do at each stage of the audit lifecycle, ensuring consistency, completeness, and alignment with ISO 19011:2018 §6.2 to 6.4.
 
 ### 1.2 Scope
 
@@ -92,32 +92,32 @@ Independence verification is documented in the audit planning record for each en
 
 ## 3. Annual Audit Plan Development
 
-### 3.1 Risk-Based Prioritisation
+### 3.1 Risk-Based Prioritization
 
 The Annual Audit Plan is developed using a risk-based approach. The CAE/GRC Manager, in collaboration with the CISO and domain owners, assesses:
 
-a. **Enterprise Risk Register linkage:** Domains and processes associated with high-rated or critical risks in the Enterprise Risk Register are prioritised for more frequent audit coverage. The risk rating used is the current residual risk score, not the inherent risk.
+a. **Enterprise Risk Register linkage:** Domains and processes associated with high-rated or critical risks in the Enterprise Risk Register are prioritized for more frequent audit coverage. The risk rating used is the current residual risk score, not the inherent risk.
 
 b. **Historical finding severity:** Domains that produced Critical or High findings in the preceding audit cycle are scheduled for re-audit in the following year, regardless of their current risk rating.
 
 c. **Control maturity:** Domains where control maturity assessments indicate a lower maturity level receive higher audit priority.
 
-d. **Significant changes:** Domains that have undergone material changes (new systems, process redesign, personnel changes in key control roles, outsourcing) since the last audit are prioritised.
+d. **Significant changes:** Domains that have undergone material changes (new systems, process redesign, personnel changes in key control roles, outsourcing) since the last audit are prioritized.
 
 e. **Time since last audit:** No domain may remain unaudited for more than three consecutive years. As domains approach this threshold, they are elevated in scheduling priority.
 
 ### 3.2 Regulatory and Certification Triggers
 
-The following certification and regulatory requirements mandate minimum audit frequencies that must be reflected in the Annual Audit Plan regardless of risk-based prioritisation:
+The following certification and regulatory requirements mandate minimum audit frequencies that must be reflected in the Annual Audit Plan regardless of risk-based prioritization:
 
 | Certification / Requirement | Minimum Internal Audit Frequency | Domains / Scope Items |
 |-----------------------------|-----------------------------------|-----------------------|
 | BASC Certification | Annual | BASC programme scope |
-| AEO-S (Authorised Economic Operator – Security) | Annual | AEO-S IT control scope |
+| AEO-S (Authorized Economic Operator to Security) | Annual | AEO-S IT control scope |
 | ISO/IEC 27001 ISMS | Annual | ISMS scope |
 | SOC 2 Type II | Annual | SOC 2 Trust Services Criteria scope |
 
-Additional regulatory requirements applicable to the organisation's jurisdictions of operation are identified in the Regulatory Applicability Register and must be reviewed during Annual Audit Plan development.
+Additional regulatory requirements applicable to the organization's jurisdictions of operation are identified in the Regulatory Applicability Register and must be reviewed during Annual Audit Plan development.
 
 ### 3.3 ERC Approval
 
@@ -126,7 +126,7 @@ The draft Annual Audit Plan is submitted to the **Executive Risk Committee (ERC)
 The submission package includes:
 
 - Draft Annual Audit Plan table (see Section 3.4 for required contents);
-- Summary of the risk-based prioritisation methodology applied;
+- Summary of the risk-based prioritization methodology applied;
 - Proposed audit resource allocation and estimated effort;
 - Identification of any domains that will not receive full audit coverage in the current year with documented rationale;
 - Any proposed use of external auditors or technical specialists.
@@ -153,7 +153,7 @@ The Annual Audit Plan is maintained as a structured document or register contain
 
 The CAE/GRC Manager reviews and updates the Annual Audit Plan at mid-year (no later than 31 July). The mid-year review considers:
 
-- Changes in organisational risk profile;
+- Changes in organizational risk profile;
 - Material incidents or control failures that may trigger unplanned audits;
 - Significant regulatory or framework changes;
 - Resource constraints that may affect delivery.
@@ -169,7 +169,7 @@ Material changes to the plan resulting from the mid-year review are reported to 
 The lead auditor, in consultation with the CAE/GRC Manager and the auditee, formally defines:
 
 - **Audit objectives:** What the audit is intended to determine (e.g., "Determine whether access control procedures for privileged accounts conform to the Access Control Standard and are operating effectively");
-- **Audit scope:** The specific processes, systems, organisational units, locations, and time period to be covered;
+- **Audit scope:** The specific processes, systems, organizational units, locations, and time period to be covered;
 - **Audit criteria:** The policies, standards, procedures, legal requirements, and contractual obligations against which the audit will be assessed;
 - **Audit boundaries:** Explicit statement of what is out of scope, to avoid scope creep and auditee confusion.
 
@@ -223,7 +223,7 @@ The lead auditor requests a pre-audit documentation package from the auditee. Th
 - Evidence of the most recent management review or risk assessment for the domain;
 - Previous audit reports and open finding trackers for the domain;
 - Relevant records demonstrating control operation (e.g., access review logs, training completion records, change management records);
-- Organisational charts and role descriptions for key personnel in scope.
+- Organizational charts and role descriptions for key personnel in scope.
 
 The lead auditor reviews the pre-audit documentation package to:
 
@@ -275,7 +275,7 @@ All evidence collection must adhere to the requirements defined in the Internal 
 - Evidence is collected systematically against the audit programme;
 - Each piece of evidence is recorded promptly in the audit working papers;
 - The collection method, date, and responsible auditor are noted for each item;
-- Evidence is stored securely and access is restricted to the audit team and authorised reviewers.
+- Evidence is stored securely and access is restricted to the audit team and authorized reviewers.
 
 ### 6.2 Sampling Methodology
 
@@ -297,7 +297,7 @@ Audit working papers must:
 - Be titled and cross-referenced to the relevant audit programme item;
 - Record the evidence reference, collection date, and collector;
 - Include a brief narrative describing what was reviewed and what it demonstrated;
-- Be completed contemporaneously — not reconstructed after fieldwork;
+- Be completed contemporaneously: not reconstructed after fieldwork;
 - Be stored in the designated audit evidence repository before the draft findings are issued.
 
 ---
@@ -334,7 +334,7 @@ A closing meeting is held at the conclusion of fieldwork, before draft findings 
 - Presents a verbal summary of preliminary findings to the auditee;
 - Allows the auditee to raise factual corrections at the earliest opportunity;
 - Confirms the timeline for draft findings, management response, and final report;
-- Does not constitute a formal presentation of final conclusions — findings remain draft until management responses are received.
+- Does not constitute a formal presentation of final conclusions: findings remain draft until management responses are received.
 
 ---
 
@@ -424,7 +424,7 @@ Overdue remediation tracking is maintained in the audit register. Items that are
 
 ### 10.1 Audit Register
 
-The CAE/GRC Manager maintains a centralised audit register covering all planned and completed audit engagements. The register includes, for each engagement:
+The CAE/GRC Manager maintains a centralized audit register covering all planned and completed audit engagements. The register includes, for each engagement:
 
 | Field | Description |
 |-------|-------------|
@@ -448,9 +448,9 @@ All audit working papers, evidence artefacts, draft findings, management respons
 
 Retention applies regardless of whether the audit produced findings. Working papers for audits with no findings are retained for the same period.
 
-Evidence is stored in the designated secure audit evidence repository. Access is restricted to the audit team, CAE/GRC Manager, and authorised senior leadership. Access by external parties (e.g., regulatory inspectors, certification body auditors) requires approval from the CAE/GRC Manager and, where sensitive, the CISO.
+Evidence is stored in the designated secure audit evidence repository. Access is restricted to the audit team, CAE/GRC Manager, and authorized senior leadership. Access by external parties (e.g., regulatory inspectors, certification body auditors) requires approval from the CAE/GRC Manager and, where sensitive, the CISO.
 
-After the 7-year retention period, records are disposed of in accordance with the organisation's data retention and disposal policy.
+After the 7-year retention period, records are disposed of in accordance with the organization's data retention and disposal policy.
 
 ---
 
@@ -458,7 +458,7 @@ After the 7-year retention period, records are disposed of in accordance with th
 
 | Framework / Standard | Relevant Clause or Section | Mapping |
 |----------------------|---------------------------|---------|
-| ISO 19011:2018 | §6.2 Establishing the audit programme; §6.3 Managing the audit programme; §6.4 Maintaining and improving the audit programme | Primary procedural reference; this procedure operationalises these clauses |
+| ISO 19011:2018 | §6.2 Establishing the audit programme; §6.3 Managing the audit programme; §6.4 Maintaining and improving the audit programme | Primary procedural reference; this procedure operationalizes these clauses |
 | ISO 19011:2018 | §6.5.2 Initiating the audit; §6.5.3 Preparing audit activities | Individual audit planning steps (Sections 4 and 5) |
 | ISO/IEC 27001:2022 | §9.2 Internal Audit | Annual programme and individual audit requirements |
 | COBIT 2025 | MEA02 (Managed Assurance) | Audit programme planning, resource allocation, and assurance reporting |
