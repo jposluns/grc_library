@@ -2,7 +2,7 @@
 
 **Document Title:** Information Security Domain README 
 **Document Type:** Register 
-**Version:** 1.1.0 
+**Version:** 1.1.1 
 **Date:** 2026-05-28 
 **Owner:** Information Security Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -38,7 +38,7 @@ This directory contains organization-neutral information security governance art
 | Standard | Data Loss Prevention Standard | [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md) |
 | Policy | Acceptable Use Policy | [`security/policy-acceptable-use.md`](policy-acceptable-use.md) |
 | Policy | Encryption and Key Management Policy | [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md) |
-| Procedure | Incident Response Procedure | [`security/procedure-incident-response.md`](procedure-incident-response.md) |
+| Procedure | Security Incident Response Procedure | [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) |
 | Procedure | Vulnerability Management Procedure | [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md) |
 | Standard | Personnel Security Screening Standard | [`security/standard-personnel-security-screening.md`](standard-personnel-security-screening.md) |
 | Standard | Penetration Testing and Red Team Standard | [`security/standard-penetration-testing-and-red-team.md`](standard-penetration-testing-and-red-team.md) |

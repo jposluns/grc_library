@@ -6,7 +6,7 @@
 **Date:** 2026-05-28 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Chief Information Security Officer 
-**Related Documents:** [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md), [`security/procedure-incident-response.md`](procedure-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md) 
+**Related Documents:** [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md) 
 **Classification:** Public 
 **Category:** Information Security 
 **Review Frequency:** Annual or upon significant change to vendor or tooling landscape 

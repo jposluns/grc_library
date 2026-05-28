@@ -6,7 +6,7 @@
 **Date:** 2026-05-27 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md), [`security/procedure-incident-response.md`](../security/procedure-incident-response.md) 
+**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) 
 **Classification:** Public 
 **Category:** Governance 
 **Review Frequency:** Annual or as required by regulatory or framework changes 

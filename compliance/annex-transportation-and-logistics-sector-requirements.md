@@ -6,7 +6,7 @@
 **Date:** 2026-05-27 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`compliance/register-ctpat-compliance-controls.md`](register-ctpat-compliance-controls.md), [`compliance/register-pip-compliance-controls.md`](register-pip-compliance-controls.md), [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../supply-chain/annex-trade-and-supply-chain-continuity-controls.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md) 
+**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`compliance/register-ctpat-it-controls.md`](register-ctpat-it-controls.md), [`compliance/register-pip-compliance-controls.md`](register-pip-compliance-controls.md), [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../supply-chain/annex-trade-and-supply-chain-continuity-controls.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md) 
 **Classification:** Public 
 **Category:** Compliance: Sector-Specific 
 **Review Frequency:** Annual and upon material regulatory change, new TSA directive, or significant security incident in the sector 
@@ -112,7 +112,7 @@ TSA Security Directives for surface transportation (freight rail, highway) and p
 | **Cybersecurity Incident Reporting** | Report cybersecurity incidents to CISA within 24 hours | [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md): supplement with CISA reporting procedure |
 | **Cybersecurity Point of Contact** | Designate and report to TSA a primary and alternative cybersecurity point of contact | Role designation procedure |
 | **Cybersecurity Gap Assessment** | Complete TSA-prescribed cybersecurity gap assessment | [`compliance/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md): supplement with TSA-specific assessment |
-| **Cybersecurity Incident Response Plan** | Develop and implement a cybersecurity incident response plan | [`resilience/procedure-incident-response.md`](../resilience/procedure-incident-response.md) |
+| **Cybersecurity Incident Response Plan** | Develop and implement a cybersecurity incident response plan | [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md) |
 | **Cybersecurity Management Plan** | Implement specific measures including: (1) network segmentation; (2) access controls; (3) continuous monitoring; (4) patch management | [`security/policy-information-security.md`](../security/policy-information-security.md); [`security/procedure-access-control.md`](../security/procedure-access-control.md); [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md) |
 | **Annual assessment** | Annual cybersecurity assessment and update | [`compliance/standard-internal-audit.md`](standard-internal-audit.md) |
 
@@ -134,7 +134,7 @@ Under NIS 2, transportation entities in the following sub-sectors are classified
 |---|---|---|
 | Art 21: Cybersecurity risk management | Risk-proportionate technical and organizational measures across 10 minimum areas | [`security/policy-information-security.md`](../security/policy-information-security.md); [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) |
 | Art 21(2)(a): Policies on risk analysis | Documented policies on risk analysis and information system security | [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md) |
-| Art 21(2)(b): Incident handling | Incident detection and response | [`resilience/procedure-incident-response.md`](../resilience/procedure-incident-response.md) |
+| Art 21(2)(b): Incident handling | Incident detection and response | [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md) |
 | Art 21(2)(c): Business continuity | BCM, backup management, DR, crisis management | [`resilience/standard-business-continuity-and-disaster-recovery.md`](../resilience/standard-business-continuity-and-disaster-recovery.md); [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md) |
 | Art 21(2)(d): Supply chain security | Security policies for suppliers and service providers | [`supply-chain/standard-third-party-risk.md`](../supply-chain/standard-third-party-risk.md); [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md) |
 | Art 21(2)(e): Secure development | Security in network and information systems acquisition, development, maintenance | [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md) |
@@ -157,7 +157,7 @@ IMO Resolution MSC-FAL.1/Circ.3 (incorporated into ISM Code as of 2021-01-01) re
 | Assess cyber risks to identified systems | [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md) |
 | Protect against identified risks | [`security/policy-information-security.md`](../security/policy-information-security.md) |
 | Detect cyber events | [`operations/register-it-security-operations.md`](../operations/register-it-security-operations.md) |
-| Respond and recover from cyber incidents | [`resilience/procedure-incident-response.md`](../resilience/procedure-incident-response.md); [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md) |
+| Respond and recover from cyber incidents | [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md); [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md) |
 | Incorporate into ISM Code and Document of Compliance | Supplement: ISM Code cyber annex |
 
 **Critical OT systems requiring risk assessment:** ECDIS (navigation); GPS/AIS; GMDSS (communications); cargo management systems; engine monitoring; access control systems.
@@ -170,7 +170,7 @@ ICAO's Aviation Cybersecurity Strategy requires states and aviation organization
 |---|---|---|
 | Governance | Cybersecurity governance framework; designated accountable executive | [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md) |
 | Risk management | Cyber risk identification and mitigation | [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) |
-| Incident management | Aviation-specific incident response; reporting to national aviation authority | [`resilience/procedure-incident-response.md`](../resilience/procedure-incident-response.md): supplement with CAA/FAA notification procedure |
+| Incident management | Aviation-specific incident response; reporting to national aviation authority | [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md): supplement with CAA/FAA notification procedure |
 | Supply chain | Cybersecurity requirements for aviation suppliers | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md) |
 | Training and awareness | Aviation-specific cybersecurity training | [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md) |
 | Resilience | Cyber resilience for safety-critical systems | [`resilience/standard-business-continuity-and-disaster-recovery.md`](../resilience/standard-business-continuity-and-disaster-recovery.md) |
@@ -200,7 +200,7 @@ Transportation and logistics operators frequently operate Operational Technology
 | **OT asset inventory** | Separate inventory for OT/ICS assets; asset classification including safety-critical designation | [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md): supplement with OT asset schema |
 | **IT/OT network segmentation** | Strict network segmentation between IT and OT environments; unidirectional gateways where feasible | [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md): supplement with OT segmentation controls |
 | **OT patch management** | Modified patch management considering OT availability requirements; vendor-approved patches; extended testing cycles | Supplement SCA standard with OT patching procedure |
-| **OT incident response** | Separate or integrated incident response procedures accounting for OT safety implications | Supplement [`resilience/procedure-incident-response.md`](../resilience/procedure-incident-response.md) with OT safety overlay |
+| **OT incident response** | Separate or integrated incident response procedures accounting for OT safety implications | Supplement [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md) with OT safety overlay |
 | **Supply chain for OT** | Security assessment of OT vendors; software integrity verification | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md): supplement with OT vendor criteria |
 
 **Applicable OT standards:**
@@ -247,7 +247,7 @@ The transportation and logistics sector is the primary sector affected by truste
 
 | Programme | Documents |
 |---|---|
-| CTPAT (US) | [`compliance/register-ctpat-compliance-controls.md`](register-ctpat-compliance-controls.md); [`supply-chain/register-ctpat-compliance-controls.md`](../supply-chain/register-ctpat-compliance-controls.md) |
+| CTPAT (US) | [`compliance/register-ctpat-it-controls.md`](register-ctpat-it-controls.md); [`supply-chain/register-ctpat-full-msc-controls.md`](../supply-chain/register-ctpat-full-msc-controls.md) |
 | AEO-S (UK) | [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md); [`compliance/procedure-aeo-it-self-assessment.md`](procedure-aeo-it-self-assessment.md) |
 | PIP (Canada) | [`compliance/register-pip-compliance-controls.md`](register-pip-compliance-controls.md) |
 | BASC (Latin America) | [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md); [`compliance/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md); [`compliance/policy-basc.md`](policy-basc.md) |

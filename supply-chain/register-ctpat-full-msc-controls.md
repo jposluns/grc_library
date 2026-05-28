@@ -1,16 +1,16 @@
-# CTPAT Supply Chain Security Compliance Controls Register
+# CTPAT Full Minimum Security Criteria Controls Register
 
-**Document Title:** CTPAT Supply Chain Security Compliance Controls Register 
+**Document Title:** CTPAT Full Minimum Security Criteria Controls Register 
 **Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Supplier Risk Maintainer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](matrix-supply-chain-security-programme-alignment.md), [`compliance/register-ctpat-compliance-controls.md`](../compliance/register-ctpat-compliance-controls.md), [`compliance/register-pip-compliance-controls.md`](../compliance/register-pip-compliance-controls.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](../compliance/annex-aeo-s-it-cybersecurity-requirements.md), [`compliance/register-basc-it-responsibilities.md`](../compliance/register-basc-it-responsibilities.md), [`compliance/template-trade-compliance-gap-assessment.md`](../compliance/template-trade-compliance-gap-assessment.md) 
+**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](matrix-supply-chain-security-programme-alignment.md), [`compliance/register-ctpat-it-controls.md`](../compliance/register-ctpat-it-controls.md), [`compliance/register-pip-compliance-controls.md`](../compliance/register-pip-compliance-controls.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](../compliance/annex-aeo-s-it-cybersecurity-requirements.md), [`compliance/register-basc-it-responsibilities.md`](../compliance/register-basc-it-responsibilities.md), [`compliance/template-trade-compliance-gap-assessment.md`](../compliance/template-trade-compliance-gap-assessment.md) 
 **Classification:** Public 
 **Category:** Supply Chain Governance: Trade Security 
 **Review Frequency:** Annual and upon CTPAT criteria revision, CBP validation visit, or material supply chain change 
-**Repository Path:** [`supply-chain/register-ctpat-compliance-controls.md`](register-ctpat-compliance-controls.md) 
+**Repository Path:** [`supply-chain/register-ctpat-full-msc-controls.md`](register-ctpat-full-msc-controls.md) 
 **Confidentiality:** Public 
 **License:** CC0 1.0 Universal 
 
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register documents the organization's implementation status against the full set of CTPAT Minimum Security Criteria (2020 revision) across all security domains: physical security, personnel security, cargo security, conveyance security, business partner security, information technology, and procedural controls. It complements [`compliance/register-ctpat-compliance-controls.md`](../compliance/register-ctpat-compliance-controls.md), which focuses specifically on IT and cybersecurity criteria.
+This register documents the organization's implementation status against the full set of CTPAT Minimum Security Criteria (2020 revision) across all security domains: physical security, personnel security, cargo security, conveyance security, business partner security, information technology, and procedural controls. It complements [`compliance/register-ctpat-it-controls.md`](../compliance/register-ctpat-it-controls.md), which focuses specifically on IT and cybersecurity criteria.
 
 **Programme authority:** U.S. Customs and Border Protection (CBP) 
 **UK equivalent:** Authorized Economic Operator to Security and Safety (AEO-S): see [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](../compliance/annex-aeo-s-it-cybersecurity-requirements.md) 
@@ -112,7 +112,7 @@ CTPAT membership requires organizations to meet Minimum Security Criteria (MSC) 
 
 ## Domain 7: information technology
 
-*For detailed IT and cybersecurity criteria mapping, see [`compliance/register-ctpat-compliance-controls.md`](../compliance/register-ctpat-compliance-controls.md).*
+*For detailed IT and cybersecurity criteria mapping, see [`compliance/register-ctpat-it-controls.md`](../compliance/register-ctpat-it-controls.md).*
 
 | Control ID | CTPAT Criterion | Status | Last Reviewed |
 |---|---|---|---|

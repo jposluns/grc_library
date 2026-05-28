@@ -6,7 +6,7 @@
 **Date:** 2026-05-27 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-ctpat-compliance-controls.md`](register-ctpat-compliance-controls.md), [`compliance/register-pip-compliance-controls.md`](register-pip-compliance-controls.md), [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md), [`compliance/procedure-aeo-it-self-assessment.md`](procedure-aeo-it-self-assessment.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`compliance/procedure-capa.md`](procedure-capa.md) 
+**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-ctpat-it-controls.md`](register-ctpat-it-controls.md), [`compliance/register-pip-compliance-controls.md`](register-pip-compliance-controls.md), [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md), [`compliance/procedure-aeo-it-self-assessment.md`](procedure-aeo-it-self-assessment.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`compliance/procedure-capa.md`](procedure-capa.md) 
 **Classification:** Public 
 **Category:** Trade Compliance: Gap Assessment 
 **Review Frequency:** Annual and upon programme criteria revision, new programme application, or material change to supply chain operations 
@@ -119,14 +119,14 @@ Complete the following fields for each gap assessment.
 | Multi-factor authentication for remote and privileged access | CTPAT IT-2; PIP-IT-1; AEO-S | [`security/procedure-identity-management.md`](../security/procedure-identity-management.md) | | | | | |
 | Vulnerability management and patch cycle | CTPAT IT-3; PIP-IT-5; AEO-S | [`operations/register-it-security-operations.md`](../operations/register-it-security-operations.md) | | | | | |
 | Network segmentation and firewall controls | CTPAT IT-4; PIP-IT-4; AEO-S | | | | | | |
-| Cyber incident response procedures | CTPAT IT-5; PIP-IT-6; AEO-S | [`resilience/procedure-incident-response.md`](../resilience/procedure-incident-response.md) | | | | | |
+| Cyber incident response procedures | CTPAT IT-5; PIP-IT-6; AEO-S | [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md) | | | | | |
 | Cybersecurity awareness training | CTPAT IT-6; PIP-IT-7; AEO-S | [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md) | | | | | |
 | IT asset inventory | CTPAT IT-7; PIP-IT-8; AEO-S | [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md) | | | | | |
 | Third-party IT security controls | CTPAT IT-8; PIP-IT-9; AEO-S | [`supply-chain/standard-third-party-risk.md`](../supply-chain/standard-third-party-risk.md) | | | | | |
 | Business continuity and IT recovery | CTPAT IT-9; PIP-IT-10; AEO-S | [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md) | | | | | |
 | Audit logging and monitoring | CTPAT IT-10; AEO-S | [`operations/register-it-security-operations.md`](../operations/register-it-security-operations.md) | | | | | |
 
-**Detailed IT controls mapping:** See [`compliance/register-ctpat-compliance-controls.md`](register-ctpat-compliance-controls.md), [`compliance/register-pip-compliance-controls.md`](register-pip-compliance-controls.md), and [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md).
+**Detailed IT controls mapping:** See [`compliance/register-ctpat-it-controls.md`](register-ctpat-it-controls.md), [`compliance/register-pip-compliance-controls.md`](register-pip-compliance-controls.md), and [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md).
 
 ---
 

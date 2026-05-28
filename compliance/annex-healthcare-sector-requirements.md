@@ -106,7 +106,7 @@ The HIPAA Security Rule establishes three categories of safeguards for ePHI:
 | Workforce training and awareness | Required | [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md) |
 | Access management: authorization and supervision | Addressable | [`security/procedure-access-control.md`](../security/procedure-access-control.md) |
 | Workforce clearance procedure | Addressable | Personnel security controls |
-| Security incident procedures: response and reporting | Required | [`resilience/procedure-incident-response.md`](../resilience/procedure-incident-response.md) |
+| Security incident procedures: response and reporting | Required | [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md) |
 | Contingency plan: data backup | Required | [`resilience/procedure-backup-and-recovery.md`](../resilience/procedure-backup-and-recovery.md) |
 | Contingency plan: disaster recovery | Required | [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md) |
 | Contingency plan: emergency mode operations | Required | [`resilience/procedure-crisis-management-eoc-activation.md`](../resilience/procedure-crisis-management-eoc-activation.md) |
@@ -156,7 +156,7 @@ The NHS Data Security and Protection Toolkit is mandatory for all organizations 
 | 3. Training | Data security training completed annually | Training completion records |
 | 4. Managing data access | Access based on legitimate relationship | [`security/procedure-access-control.md`](../security/procedure-access-control.md) |
 | 5. Process reviews | Annual review of processes involving patient data | [`compliance/standard-internal-audit.md`](standard-internal-audit.md) |
-| 6. Responding to incidents | Processes in place for data security incidents | [`resilience/procedure-incident-response.md`](../resilience/procedure-incident-response.md); [`resilience/procedure-data-protection-and-privacy-breach-response.md`](../resilience/procedure-data-protection-and-privacy-breach-response.md) |
+| 6. Responding to incidents | Processes in place for data security incidents | [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md); [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) |
 | 7. Continuity planning | Continuity planning incorporating data security | [`resilience/standard-business-continuity-and-disaster-recovery.md`](../resilience/standard-business-continuity-and-disaster-recovery.md) |
 | 8. Unsupported systems | Handles risks from unsupported systems | [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md); lifecycle management |
 | 9. IT protection | Cyber security measures deployed | [`security/policy-information-security.md`](../security/policy-information-security.md) |
@@ -190,7 +190,7 @@ Processing health data as special category data under GDPR requires additional s
 | **Data minimization** | Only collect and process health data actually necessary | Privacy-by-design requirements |
 | **Pseudonymization** | Apply pseudonymization where possible | [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md); [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md) |
 | **Access controls** | Strict access controls; logs of all access to health records | [`security/procedure-access-control.md`](../security/procedure-access-control.md); [`operations/register-it-security-operations.md`](../operations/register-it-security-operations.md) |
-| **Breach notification** | High risk health data breaches require notification within 72 hours | [`resilience/procedure-data-protection-and-privacy-breach-response.md`](../resilience/procedure-data-protection-and-privacy-breach-response.md) |
+| **Breach notification** | High risk health data breaches require notification within 72 hours | [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) |
 
 ### Caldicott principles (UK NHS)
 

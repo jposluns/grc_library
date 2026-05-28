@@ -156,7 +156,7 @@ When a Tier 1 or Tier 2 supplier experiences a security incident or data breach 
 1. Require the supplier to notify the organization within the contractually defined notification window
 2. Initiate the supplier incident assessment within 4 hours of notification
 3. Evaluate whether the incident triggers the organization's own incident response obligations (regulatory notification, customer notification)
-4. Escalate to the enterprise incident response team if the incident affects the organization's systems or data: follow [`resilience/procedure-incident-response.md`](../resilience/procedure-incident-response.md)
+4. Escalate to the enterprise incident response team if the incident affects the organization's systems or data: follow [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md)
 5. Document the incident in the supplier's risk record; reassess residual risk rating
 6. Initiate a CAPA if the incident reveals systemic control gaps: [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)
 
