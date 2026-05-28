@@ -1,6 +1,6 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Version:** 1.4.0 
+**Version:** 1.4.1 
 **Date:** 2026-05-28 
 **Classification:** Public 
 **Confidentiality:** Public 
@@ -133,6 +133,17 @@ Three root-level files govern how the library is maintained and extended:
 | [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md) | AI-assisted ingestion instructions: step-by-step rules for ingesting documents using an AI coding assistant. |
 
 Contributors and maintainers must read these files before adding or modifying library content.
+
+Additional repository hygiene files:
+
+| File | Purpose |
+| --- | --- |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Contribution workflow, metadata block requirements, style rules, filename rules, and review path. |
+| [`CHANGELOG.md`](CHANGELOG.md) | Phase-level history of repository changes. |
+| [`SECURITY.md`](SECURITY.md) | How to report content accuracy defects, CC0 licence concerns, organisation or personal data leakage, and tooling defects. |
+| [`docs/adopter-guide.md`](docs/adopter-guide.md) | How to fork, adapt, and operate the library inside an adopting organisation. |
+| [`docs/worked-example.md`](docs/worked-example.md) | End-to-end walkthrough of converting a draft into a CC0-compliant artefact. |
+| [`tools/README.md`](tools/README.md) | Repository quality tooling: metadata, language, link, and structural audits. |
 
 ---
 
