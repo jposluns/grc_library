@@ -1,24 +1,24 @@
 # AI Coding Assistant Security Guideline
 
-**Document Title:** AI Coding Assistant Security Guideline  
-**Document Type:** Guideline  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/claude-rules/README.md`](claude-rules/README.md), [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)  
-**Classification:** Public  
-**Category:** Developer Security  
-**Review Frequency:** 6 to 12 months and upon material change to AI coding tooling, threat landscape, or regulatory guidance  
-**Repository Path:** [`dev-security/guideline-ai-coding-assistant-security.md`](guideline-ai-coding-assistant-security.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** AI Coding Assistant Security Guideline 
+**Document Type:** Guideline 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/claude-rules/README.md`](claude-rules/README.md), [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) 
+**Classification:** Public 
+**Category:** Developer Security 
+**Review Frequency:** 6 to 12 months and upon material change to AI coding tooling, threat landscape, or regulatory guidance 
+**Repository Path:** [`dev-security/guideline-ai-coding-assistant-security.md`](guideline-ai-coding-assistant-security.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This guideline defines requirements and best practices for the secure use of AI coding assistants — tools such as Claude Code, GitHub Copilot, Cursor, Windsurf, and equivalent products — within the software development lifecycle.
+This guideline defines requirements and best practices for the secure use of AI coding assistants, tools such as Claude Code, GitHub Copilot, Cursor, Windsurf, and equivalent products, within the software development lifecycle.
 
 AI coding assistants introduce distinct risks that differ from conventional development tooling: they generate code that must be reviewed for correctness and security; they may access, transmit, or retain code and data from the development environment; they can be manipulated through prompt injection; and they may hallucinate package names, APIs, or library versions that do not exist. This guideline addresses those risks while enabling productive use.
 
@@ -66,7 +66,7 @@ These are fetched via WebFetch and applied in addition to the local rules.
 
 **For other tools (Copilot, Cursor, Windsurf):**
 - Load the relevant rule files from `dev-security/claude-rules/` as the tool's equivalent context (custom instructions, rules files, or workspace settings).
-- Ensure the tool's memory or context is not shared across unrelated projects.
+- Ensure that the tool's memory or context is not shared across unrelated projects.
 
 ---
 
@@ -80,8 +80,8 @@ These are fetched via WebFetch and applied in addition to the local rules.
 | Source code (public or open source) | Yes | No restrictions |
 | Configuration files (no secrets) | Yes | Verify no credentials embedded |
 | Test data (synthetic or anonymized) | Yes | Confirm no real PII in dataset |
-| Personal data (customer PII) | No | Never — regardless of tool |
-| Authentication credentials, tokens, keys | No | Never — treat any accidental send as a credential leak |
+| Personal data (customer PII) | No | Never: regardless of tool |
+| Authentication credentials, tokens, keys | No | Never: treat any accidental send as a credential leak |
 | Confidential business data (contracts, financials) | No | Requires explicit approval and DPA |
 | Restricted data (as defined by data classification standard) | No | Never |
 
@@ -104,16 +104,16 @@ AI-generated code is not automatically correct or secure. It must be reviewed wi
 
 Before committing AI-generated code:
 
-- [ ] **Correctness** — the code does what was intended; edge cases are handled.
-- [ ] **No hallucinated dependencies** — verify every import and package reference exists in approved registries under the exact name suggested.
-- [ ] **No hardcoded credentials** — scan for API keys, passwords, tokens, or connection strings.
-- [ ] **Injection vulnerabilities** — SQL, command, template, and LDAP injection patterns reviewed.
-- [ ] **Authentication and authorization** — all endpoints enforce authentication; all authorization decisions are server-side.
-- [ ] **Input validation** — all external input is validated server-side before use.
-- [ ] **Cryptography** — only approved algorithms used; no custom crypto; no deprecated algorithms.
-- [ ] **Logging** — no sensitive data in logs; required security events logged.
-- [ ] **Error handling** — internal error details not exposed to callers.
-- [ ] **Licence** — AI-generated code may reproduce training data; verify no unlicensed verbatim reproductions of copyrighted material.
+- [ ] **Correctness**: the code does what was intended; edge cases are handled.
+- [ ] **No hallucinated dependencies**: verify every import and package reference exists in approved registries under the exact name suggested.
+- [ ] **No hardcoded credentials**: scan for API keys, passwords, tokens, or connection strings.
+- [ ] **Injection vulnerabilities**: SQL, command, template, and LDAP injection patterns reviewed.
+- [ ] **Authentication and authorization**: all endpoints enforce authentication; all authorization decisions are server-side.
+- [ ] **Input validation**: all external input is validated server-side before use.
+- [ ] **Cryptography**: only approved algorithms used; no custom crypto; no deprecated algorithms.
+- [ ] **Logging**: no sensitive data in logs; required security events logged.
+- [ ] **Error handling**: internal error details not exposed to callers.
+- [ ] **Licence**: AI-generated code may reproduce training data; verify no unlicensed verbatim reproductions of copyrighted material.
 
 ### SAST Gate
 
@@ -139,12 +139,12 @@ The following uses of AI coding assistants are prohibited without explicit CIO/C
 
 Developers using AI coding assistants must be aware that prompt injection can be introduced through:
 
-- **Documents and code comments** — adversarial instructions embedded in code comments, documentation, or dependency changelogs that the assistant reads.
-- **Test data and fixtures** — malicious instructions in test input files or database fixtures.
-- **Dependency sources** — compromised packages may contain adversarial comments designed to influence AI code generation.
-- **Issue trackers and wikis** — AI assistants reading linked content may process instructions embedded in that content.
+- **Documents and code comments**: adversarial instructions embedded in code comments, documentation, or dependency changelogs that the assistant reads.
+- **Test data and fixtures**: malicious instructions in test input files or database fixtures.
+- **Dependency sources**: compromised packages may contain adversarial comments designed to influence AI code generation.
+- **Issue trackers and wikis**: AI assistants reading linked content may process instructions embedded in that content.
 
-If an AI coding assistant behaves unexpectedly — generates code that seems designed to exfiltrate data, bypass security controls, or perform unusual actions — treat it as a potential prompt injection event and report it.
+If an AI coding assistant behaves unexpectedly, generates code that seems designed to exfiltrate data, bypass security controls, or perform unusual actions, treat it as a potential prompt injection event and report it.
 
 ---
 
@@ -198,8 +198,8 @@ The following publicly available resources provide additional guidance for AI co
 | --- | --- | --- | --- | --- |
 | AI tool authorization | A.5.36 | PO.1, PO.3 | AI-GOV-01 | EU AI Act Art. 9 |
 | Data handling for AI inputs | A.5.12, A.8.10 | PS.1 | AI-DATA-01 | GDPR, CPPA |
-| Code review of AI output | A.8.27, A.8.29 | PW.7 | AI-SEC-02 | — |
-| Prompt injection awareness | A.5.30 | — | AI-SEC-03 | — |
+| Code review of AI output | A.8.27, A.8.29 | PW.7 | AI-SEC-02 | N/A |
+| Prompt injection awareness | A.5.30 | N/A | AI-SEC-03 | N/A |
 | Agentic use controls | A.5.18, A.8.2 | PW.1 | AI-GOV-03 | EU AI Act Art. 14 |
 | Incident reporting | A.5.26 | RV.1 | AI-INC-01 | PIPEDA, GDPR |
 

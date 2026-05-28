@@ -4,7 +4,7 @@ These rules apply to all TypeScript and JavaScript code including browser, Node.
 
 ---
 
-## Secrets — TypeScript/Node Specific
+## Secrets: TypeScript/Node Specific
 
 ```typescript
 // NEVER — hardcoded values
@@ -50,7 +50,7 @@ res.cookie('session', token, {
 
 ---
 
-## SQL Injection — Node Specific
+## SQL Injection: Node Specific
 
 ```typescript
 // NEVER — string concatenation or template literals in queries
@@ -73,7 +73,7 @@ await prisma.$queryRawUnsafe(`SELECT * FROM users WHERE id = ${userId}`);  // UN
 
 ---
 
-## XSS Prevention — TypeScript Specific
+## XSS Prevention: TypeScript Specific
 
 ```typescript
 // NEVER — innerHTML with user data
@@ -96,7 +96,7 @@ element.innerHTML = DOMPurify.sanitize(userInput);
 
 ---
 
-## Command Injection — Node Specific
+## Command Injection: Node Specific
 
 ```typescript
 // NEVER — shell: true with user input
@@ -113,7 +113,7 @@ spawn('process', [userInput]);
 
 ---
 
-## Cryptography — Node Specific
+## Cryptography: Node Specific
 
 ```typescript
 // CORRECT — AES-256-GCM via Node crypto
@@ -139,7 +139,7 @@ const token = randomBytes(32).toString('hex');
 
 ---
 
-## SSRF — Node Specific
+## SSRF: Node Specific
 
 ```typescript
 // NEVER — fetching user-supplied URLs without validation
@@ -168,7 +168,7 @@ const response = await fetch(url.toString());
 }
 ```
 
-Always commit `package-lock.json` or `yarn.lock`. Run `npm audit` or `yarn audit` in CI/CD. Verify new packages before installing — check npm for typosquatting.
+Always commit `package-lock.json` or `yarn.lock`. Run `npm audit` or `yarn audit` in CI/CD. Verify new packages before installing: check npm for typosquatting.
 
 ---
 

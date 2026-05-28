@@ -1,18 +1,18 @@
 # Secure Development and Engineering Policy
 
-**Document Title:** Secure Development and Engineering Policy  
-**Document Type:** Policy  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md)  
-**Classification:** Public  
-**Category:** Developer Security  
-**Review Frequency:** Annual and upon material framework or regulatory change  
-**Repository Path:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Secure Development and Engineering Policy 
+**Document Type:** Policy 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md) 
+**Classification:** Public 
+**Category:** Developer Security 
+**Review Frequency:** Annual and upon material framework or regulatory change 
+**Repository Path:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -30,7 +30,7 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 ## Scope
 
-1. Applies to all software, scripts, infrastructure-as-code, AI models, APIs, and automation developed, maintained, or integrated by the organisation.
+1. Applies to all software, scripts, infrastructure-as-code, AI models, APIs, and automation developed, maintained, or integrated by the organization.
 2. Covers both internal and outsourced development, including open-source and third-party components.
 3. Applies to all personnel involved in software design, coding, testing, deployment, and maintenance.
 4. Encompasses both traditional and AI-assisted development environments.
@@ -50,8 +50,8 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 | Role | Responsibility |
 | --- | --- |
-| **CISO** | Defines secure coding standards, ensures vulnerability remediation, and enforces compliance with NIST SSDF and ISO 27034. |
-| **CIO** | Oversees policy enforcement and ensures secure design principles are embedded across all engineering teams. |
+| **CISO** | Defines secure coding standards, ensures that vulnerability remediation, and enforces compliance with NIST SSDF and ISO 27034. |
+| **CIO** | Oversees policy enforcement and ensures that secure design principles are embedded across all engineering teams. |
 | **Development Team Leads** | Implement secure SDLC controls, manage peer review workflows, and track remediation timelines. |
 | **Developers / Engineers** | Follow approved secure coding practices, maintain code integrity, and complete annual secure coding training. |
 | **QA and Testing Teams** | Conduct security testing, validate vulnerabilities, and confirm code meets ASVS v5 assurance levels. |
@@ -104,7 +104,7 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 5.2 Only components with permissive and compatible licences (e.g., MIT, Apache 2.0) may be used.
 
-5.3 Vulnerable components must be patched or replaced within defined SLAs: Critical — 7 days; High — 14 days.
+5.3 Vulnerable components must be patched or replaced within defined SLAs: Critical, 7 days; High, 14 days.
 
 5.4 A Software Bill of Materials (SBOM) shall be maintained for all applications per NIST Executive Order 14028 guidance.
 
@@ -157,12 +157,12 @@ It incorporates forward-looking controls for AI-generated code verification and 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO/IEC 27034:2011 | Application Security Framework | Secure SDLC governance and assurance |
-| ISO/IEC 27002:2022 | Annex A — Application Security Controls | Secure coding and testing controls |
+| ISO/IEC 27002:2022 | Annex A: Application Security Controls | Secure coding and testing controls |
 | NIST SSDF | Secure Software Development Framework | Secure development lifecycle |
 | OWASP ASVS v5 | Application Security Verification Standard | Secure coding requirements |
-| COBIT 2025 | BAI03 — Manage Solutions Identification and Build | Solution design and build |
-| COBIT 2025 | BAI07 — Manage Change Acceptance and Transitioning | Release and deployment controls |
-| CSA CCM v5 | SEF — Software Engineering and Development | Software engineering and security controls |
+| COBIT 2025 | BAI03: Manage Solutions Identification and Build | Solution design and build |
+| COBIT 2025 | BAI07: Manage Change Acceptance and Transitioning | Release and deployment controls |
+| CSA CCM v5 | SEF: Software Engineering and Development | Software engineering and security controls |
 | EU AI Act | Annex IV | AI-generated code governance |
 
 ---

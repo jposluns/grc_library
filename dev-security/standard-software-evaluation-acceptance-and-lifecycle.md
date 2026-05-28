@@ -1,24 +1,24 @@
 # Software Evaluation, Acceptance and Lifecycle Management Standard
 
-**Document Title:** Software Evaluation, Acceptance and Lifecycle Management Standard  
-**Document Type:** Standard  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md)  
-**Classification:** Public  
-**Category:** Developer Security  
-**Review Frequency:** Annual and upon material platform or regulatory change  
-**Repository Path:** [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Software Evaluation, Acceptance and Lifecycle Management Standard 
+**Document Type:** Standard 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`governance/policy-governance-and-risk-management.md`](../governance/policy-governance-and-risk-management.md) 
+**Classification:** Public 
+**Category:** Developer Security 
+**Review Frequency:** Annual and upon material platform or regulatory change 
+**Repository Path:** [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This standard defines the governance, evaluation, and control requirements for acquiring, testing, approving, deploying, maintaining, and retiring software across the organisation. It ensures that all software introduced into the environment is secure, licensed, compliant, and operationally validated before enterprise use, in accordance with the organisation's risk, compliance, and change management framework.
+This standard defines the governance, evaluation, and control requirements for acquiring, testing, approving, deploying, maintaining, and retiring software across the organization. It ensures that all software introduced into the environment is secure, licensed, compliant, and operationally validated before enterprise use, in accordance with the organization's risk, compliance, and change management framework.
 
 ---
 
@@ -40,7 +40,7 @@ Applies to:
 | **CIO** | Approves software categories, enterprise standards, and lifecycle governance. |
 | **CISO** | Validates cybersecurity and compliance requirements for all software. |
 | **IT Operations / Endpoint Management** | Tests deployment, patch, and rollback procedures; manages packaging and rollout. |
-| **Procurement** | Ensures licensing, vendor due diligence, and contract compliance. |
+| **Procurement** | Ensures that licensing, vendor due diligence, and contract compliance. |
 | **Application or System Owner** | Maintains documentation, configuration records, and lifecycle compliance. |
 | **Internal Audit** | Conducts periodic reviews of AIS adherence and operational controls. |
 
@@ -89,7 +89,7 @@ Formal sign-off is required by the CIO or delegated authority before enterprise 
 
 All deployment activities must comply with the Change Management and Configuration Control Procedure. Requirements include:
 
-- Deployment through authorised automation and endpoint management platforms.
+- Deployment through authorized automation and endpoint management platforms.
 - Phased releases: pilot → controlled → production.
 - Rollback and recovery plans validated in testing prior to deployment.
 
@@ -137,9 +137,9 @@ Obsolete or unsupported software must be retired following the AIS lifecycle ter
 | ISO/IEC 27001:2022 | Information Security Management | Security controls for software |
 | ISO/IEC 27002:2022 | Operations and Vulnerability Management | Software security controls |
 | ISO/IEC 25010 | System and Software Quality Models | Quality evaluation criteria |
-| COBIT 2025 | BAI03 — Manage Solutions Identification and Build | Software evaluation and approval |
-| COBIT 2025 | BAI07 — Manage Change Acceptance and Transitioning | Deployment and acceptance |
-| COBIT 2025 | BAI09 — Manage Assets | Software asset management |
+| COBIT 2025 | BAI03: Manage Solutions Identification and Build | Software evaluation and approval |
+| COBIT 2025 | BAI07: Manage Change Acceptance and Transitioning | Deployment and acceptance |
+| COBIT 2025 | BAI09: Manage Assets | Software asset management |
 | COBIT 2025 | DSS05 / DSS06 | Security and operational controls |
 | NIST SP 800-53 | SA, CM, SI Control Families | Software assurance controls |
 | CSA CCM v5 | AIS, SEF, TVM Domains | Cloud software security evaluation |

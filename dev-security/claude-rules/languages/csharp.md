@@ -4,7 +4,7 @@ These rules apply to all C# and .NET code including ASP.NET Core, Azure Function
 
 ---
 
-## Secrets — C# / .NET Specific
+## Secrets: C# / .NET Specific
 
 ```csharp
 // NEVER — hardcoded in source
@@ -35,7 +35,7 @@ Configuration injection via `IConfiguration` / `IOptions<T>`: secret values shou
 
 ---
 
-## SQL Injection — C# / .NET Specific
+## SQL Injection: C# / .NET Specific
 
 ```csharp
 // NEVER — string concatenation
@@ -63,7 +63,7 @@ var users = context.Users.FromSqlRaw("SELECT * FROM Users WHERE Id = {0}", userI
 
 ---
 
-## Command Injection — C# / .NET Specific
+## Command Injection: C# / .NET Specific
 
 ```csharp
 // NEVER — Process.Start with shell and user input
@@ -88,7 +88,7 @@ var compilation = CSharpCompilation.Create(...)...;  // Never with user-supplied
 
 ---
 
-## Cryptography — C# / .NET Specific
+## Cryptography: C# / .NET Specific
 
 ```csharp
 // CORRECT — AES-256-GCM
@@ -121,7 +121,7 @@ var token = rng.Next().ToString();
 
 ---
 
-## XSS Prevention — ASP.NET Core Specific
+## XSS Prevention: ASP.NET Core Specific
 
 Razor pages and Blazor HTML-encode output by default. Dangerous patterns:
 
@@ -168,7 +168,7 @@ var settings = new JsonSerializerSettings
 
 ---
 
-## SSRF — C# / .NET Specific
+## SSRF: C# / .NET Specific
 
 ```csharp
 // NEVER — HttpClient with user-supplied URL without validation

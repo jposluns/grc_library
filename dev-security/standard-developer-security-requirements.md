@@ -1,18 +1,18 @@
 # Developer Security Requirements
 
-**Document Title:** Developer Security Requirements  
-**Document Type:** Standard  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)  
-**Classification:** Public  
-**Category:** Developer Security  
-**Review Frequency:** 6 to 12 months and upon material threat, tooling, or framework change  
-**Repository Path:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Developer Security Requirements 
+**Document Type:** Standard 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) 
+**Classification:** Public 
+**Category:** Developer Security 
+**Review Frequency:** 6 to 12 months and upon material threat, tooling, or framework change 
+**Repository Path:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -39,8 +39,8 @@ Mandatory for: any new application or service; any new API endpoint handling Con
 Before production promotion, the following must be demonstrated:
 
 1. All threat model findings addressed or formally accepted with documented rationale.
-2. SAST results reviewed — no unmitigated Critical or High findings.
-3. SCA results reviewed — no unmitigated Critical CVEs in dependencies.
+2. SAST results reviewed: no unmitigated Critical or High findings.
+3. SCA results reviewed: no unmitigated Critical CVEs in dependencies.
 4. Security test evidence present in pipeline.
 5. Data classification confirmed and enforced in code.
 6. Secrets confirmed absent from code, config files, and build artefacts.
@@ -67,9 +67,9 @@ Mandatory. Enforced at the identity platform layer. Applications must not provid
 
 Use one of: platform managed identity (preferred for cloud workloads); PAM-vaulted service account with credential injection; OAuth 2.0 client credentials flow with registered application identity. Shared secrets in code or config are prohibited.
 
-### 2.4 Application Onboarding — Authentication Gate
+### 2.4 Application Onboarding: Authentication Gate
 
-Any application onboarding to a production environment must meet the following authentication requirements before production access is granted. These are hard gates — production access is denied without them.
+Any application onboarding to a production environment must meet the following authentication requirements before production access is granted. These are hard gates: production access is denied without them.
 
 - UPN/SSO authentication fully implemented and tested. SAMAccountName-only authentication is prohibited.
 - All directory integration binds use LDAPS (port 636). Plain LDAP binds on port 389 are prohibited.
@@ -84,7 +84,7 @@ Any application onboarding to a production environment must meet the following a
 
 **Mobile applications:** Platform-provided authentication SDK (e.g., MSAL or equivalent) with secure token storage only. Authentication tokens must not be stored in unencrypted local storage. Refresh token rotation must be implemented.
 
-**API gateway integrations:** OAuth 2.0 client credentials flow validated by IdP token validation policy at the gateway layer. App roles defined per operation. Every operation enforces the minimum required role. API subscription keys are an additional layer only — not the sole authentication mechanism.
+**API gateway integrations:** OAuth 2.0 client credentials flow validated by IdP token validation policy at the gateway layer. App roles defined per operation. Every operation enforces the minimum required role. API subscription keys are an additional layer only: not the sole authentication mechanism.
 
 ### 2.6 Session Management
 
@@ -97,7 +97,7 @@ Tokens: minimum 128 bits entropy; invalidated on logout; absolute timeouts (8 ho
 ## 3. Authorization Requirements
 
 - All RBAC enforced server-side. Client-side checks are UI affordances, not security controls.
-- Authorization decisions made on every call — no implicit allow.
+- Authorization decisions made on every call: no implicit allow.
 - Default deny: access is denied unless explicitly granted.
 - Separation of duties for financial, operational, and security-critical functions.
 
@@ -112,7 +112,7 @@ Tokens: minimum 128 bits entropy; invalidated on logout; absolute timeouts (8 ho
 | Environment | Approved Store |
 | --- | --- |
 | Cloud workloads | Platform secrets management service (e.g., cloud key vault) via managed identity |
-| On-premises applications | PAM vault — per PAM standard |
+| On-premises applications | PAM vault: per PAM standard |
 | CI/CD pipelines | CI/CD platform service connections or equivalent pipeline secrets mechanism |
 | Application runtime | Managed identity for secrets access, or PAM credential injection |
 | Workflow automation | Secrets management references or platform-native secure secret injection. Never plain-text in configuration files tracked in version control. |
@@ -128,7 +128,7 @@ Secret rotation must work without a code deployment. Hard-coded secrets that req
 
 ## 5. Input Validation and Output Encoding
 
-- Validate all external input: type, length, format, range. Reject malformed input — do not sanitize it.
+- Validate all external input: type, length, format, range. Reject malformed input: do not sanitize it.
 - Server-side validation is mandatory. Client-side is UX only.
 - Parameterized queries only. String concatenation to build SQL, LDAP, or XPath queries is prohibited.
 - Context-aware output encoding for all output contexts (HTML, JSON, XML, SQL, command-line, log).
@@ -308,7 +308,7 @@ OAuth-based platform connections expire periodically (typically every 90 days). 
 
 ---
 
-## 16. Framework and Runtime EOL — Developer Requirements
+## 16. Framework and Runtime EOL: Developer Requirements
 
 The EOL classification policy and remediation SLAs are defined in the Security Baseline Standard. Developer obligations:
 
@@ -321,9 +321,9 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 
 ---
 
-## 17. Application Production Onboarding — Security Prerequisites
+## 17. Application Production Onboarding: Security Prerequisites
 
-All of the following must be validated before any application onboards to a production environment. These are hard gates — production access is denied until each item is confirmed.
+All of the following must be validated before any application onboards to a production environment. These are hard gates: production access is denied until each item is confirmed.
 
 - UPN/SSO authentication fully implemented and tested (no SAMAccountName-only dependency)
 - All directory binds use LDAPS (port 636). No plain LDAP.
@@ -343,16 +343,16 @@ All of the following must be validated before any application onboards to a prod
 
 | Control Area | ISO 27001/27002 | CSA CCM v4 | NIST SSDF | OWASP ASVS | OWASP Top 10 |
 | --- | --- | --- | --- | --- | --- |
-| Secure SDLC | A.8.25–8.26 | AIS-01–06 | PW.1–PW.4 | V1 | — |
-| Authentication | A.5.15–5.18 | IAM-13–15 | — | V2 | A01, A07 |
-| Secrets management | A.8.10–8.11 | CEK-10–21 | PW.8 | V3 | A02 |
-| Input validation | A.8.28 | AIS-02 | — | V5 | A03 |
-| Cryptography | A.8.24 | CEK-01–21 | — | V6 | A02 |
-| Error handling and logging | A.8.16 | LOG-01–13 | — | V7 | A09 |
-| Security testing | A.8.29 | AIS-05, TVM-07 | VE.1–VE.3 | All levels | All |
+| Secure SDLC | A.8.25 to 8.26 | AIS-01 to 06 | PW.1 to PW.4 | V1 | N/A |
+| Authentication | A.5.15 to 5.18 | IAM-13 to 15 | N/A | V2 | A01, A07 |
+| Secrets management | A.8.10 to 8.11 | CEK-10 to 21 | PW.8 | V3 | A02 |
+| Input validation | A.8.28 | AIS-02 | N/A | V5 | A03 |
+| Cryptography | A.8.24 | CEK-01 to 21 | N/A | V6 | A02 |
+| Error handling and logging | A.8.16 | LOG-01 to 13 | N/A | V7 | A09 |
+| Security testing | A.8.29 | AIS-05, TVM-07 | VE.1 to VE.3 | All levels | All |
 | Dependency management | A.8.8 | TVM-06, AIS-04 | PO.5 | V3 | A06 |
-| API security | A.8.24 | AIS-08 | — | V3, V13 | A01, A02 |
-| AI/ML security | — | AICM TVM-12 | — | — | OWASP LLM Top 10 |
+| API security | A.8.24 | AIS-08 | N/A | V3, V13 | A01, A02 |
+| AI/ML security | N/A | AICM TVM-12 | N/A |: | OWASP LLM Top 10 |
 
 ---
 

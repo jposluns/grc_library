@@ -1,18 +1,18 @@
 # Security Quick Reference
 
-**Document Title:** Security Quick Reference  
-**Document Type:** Standard  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md)  
-**Classification:** Public  
-**Category:** Developer Security  
-**Review Frequency:** 6 to 12 months and upon material threat, regulatory, or framework change  
-**Repository Path:** [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Security Quick Reference 
+**Document Type:** Standard 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md) 
+**Classification:** Public 
+**Category:** Developer Security 
+**Review Frequency:** 6 to 12 months and upon material threat, regulatory, or framework change 
+**Repository Path:** [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -64,24 +64,24 @@ Absolute prohibitions. No exception exists without written CIO or CISO approval,
 
 ## Authentication Decision Tree
 
-**Human user accessing the system?**  
-Use the enterprise IdP. MFA is mandatory. No bypass permitted.  
+**Human user accessing the system?** 
+Use the enterprise IdP. MFA is mandatory. No bypass permitted. 
 For Tier 0 (identity systems, PAM, PKI): phishing-resistant MFA (FIDO2 or certificate-based) required.
 
-**Service-to-service call?**  
-Cloud workload caller: use platform managed identity with minimum RBAC.  
-Non-cloud caller: PAM-vaulted service account with credential injection, or OAuth 2.0 client credentials with registered application identity.  
+**Service-to-service call?** 
+Cloud workload caller: use platform managed identity with minimum RBAC. 
+Non-cloud caller: PAM-vaulted service account with credential injection, or OAuth 2.0 client credentials with registered application identity. 
 Either way: no hard-coded credentials. No shared secrets.
 
-**Directory integration (LDAP bind)?**  
+**Directory integration (LDAP bind)?** 
 LDAPS (port 636) only. Simple binds on port 389 prohibited. Kerberos AES-256 preferred. RC4 Kerberos: not in new systems.
 
-**External API / gateway integration?**  
-OAuth 2.0 client credentials flow validated by IdP token validation policy at the gateway layer. Gateway subscription keys are an additional layer — not the sole mechanism.
+**External API / gateway integration?** 
+OAuth 2.0 client credentials flow validated by IdP token validation policy at the gateway layer. Gateway subscription keys are an additional layer: not the sole mechanism.
 
 ---
 
-## Data Classification — What to Do
+## Data Classification: What to Do
 
 | Classification | Encryption at Rest | Encryption in Transit | Who Can Access | Can It Leave the Primary Region? |
 | --- | --- | --- | --- | --- |
@@ -118,10 +118,10 @@ Secret rotation must work without a code deployment. If rotating requires a depl
 | Test → Prod | Yes | Acceptance-into-service gate + CAB/CIO approval + manual pipeline approval |
 | Prod → Dev or Test | Never | Back-promotion prohibited |
 | Production data → Test | Never | Masking/synthetic data only |
-| Production data → Dev | Never | — |
+| Production data → Dev | Never | N/A |
 
-Access in Dev: normal access, limited blast radius.  
-Access in Test: elevated review. Security team can be consulted.  
+Access in Dev: normal access, limited blast radius. 
+Access in Test: elevated review. Security team can be consulted. 
 Access in Prod: PAM only. Time-bound. Session recorded. Alert fires.
 
 ---
@@ -130,19 +130,19 @@ Access in Prod: PAM only. Time-bound. Session recorded. Alert fires.
 
 Every pipeline touching Test or Production must include these checks in order. Pipeline fails on Critical findings unless a tracked exception exists.
 
-1. Secret scanning — fail on any secret detected
-2. SAST — fail on Critical/High
-3. SCA (dependency scan) — fail on Critical CVE; High requires tracked issue
-4. Container image scan (if containers used) — fail on Critical CVE in image
-5. IaC scan (if IaC present) — fail on Critical misconfiguration
-6. Licence check — fail on unapproved copyleft licence
-7. Runtime EOL check — fail on deployment to EOL runtime version
-8. SBOM generation (production builds only) — must generate and archive
-9. Manual approval gate (production deployments) — human approval required
+1. Secret scanning: fail on any secret detected
+2. SAST: fail on Critical/High
+3. SCA (dependency scan): fail on Critical CVE; High requires tracked issue
+4. Container image scan (if containers used): fail on Critical CVE in image
+5. IaC scan (if IaC present): fail on Critical misconfiguration
+6. Licence check: fail on unapproved copyleft licence
+7. Runtime EOL check: fail on deployment to EOL runtime version
+8. SBOM generation (production builds only): must generate and archive
+9. Manual approval gate (production deployments): human approval required
 
 ---
 
-## Change Management — Quick Reference
+## Change Management: Quick Reference
 
 | Change Type | Approval | CAB Review |
 | --- | --- | --- |
@@ -155,14 +155,14 @@ Every CAB-reviewed change must include a tested rollback plan. Emergency changes
 
 ---
 
-## Patch and Vulnerability SLA — Quick Reference
+## Patch and Vulnerability SLA: Quick Reference
 
 | Severity | SLA |
 | --- | --- |
-| Critical (CVSS 9.0–10.0) | 24 hours if actively exploited; 72 hours if publicly disclosed; 7 days otherwise |
-| High (CVSS 7.0–8.9) | 14 days |
-| Medium (CVSS 4.0–6.9) | 30 days |
-| Low (CVSS 0.1–3.9) | 90 days or next maintenance window |
+| Critical (CVSS 9.0 to 10.0) | 24 hours if actively exploited; 72 hours if publicly disclosed; 7 days otherwise |
+| High (CVSS 7.0 to 8.9) | 14 days |
+| Medium (CVSS 4.0 to 6.9) | 30 days |
+| Low (CVSS 0.1 to 3.9) | 90 days or next maintenance window |
 
 These are mandatory SLAs, not targets. Critical findings trigger immediate alert regardless of exploitation status.
 
@@ -254,12 +254,12 @@ Before any automation workflow deploys to production:
 Before any customer-facing portal, external user interface, or AI-enabled feature goes to production:
 
 - [ ] Authentication tokens NOT stored in browser local storage (use httpOnly cookies or in-memory)
-- [ ] Customer or tenant data isolation enforced server-side on every API call — not reliant on frontend claims
+- [ ] Customer or tenant data isolation enforced server-side on every API call: not reliant on frontend claims
 - [ ] External users authenticate via external identity management platform with MFA enforced
 - [ ] Mobile application uses approved authentication SDK with secure token storage
 - [ ] For AI features: AI risk classification completed
 - [ ] For AI features: threat model updated for prompt injection and adversarial inputs
-- [ ] For AI features: output validation implemented — AI output treated as untrusted before use
+- [ ] For AI features: output validation implemented: AI output treated as untrusted before use
 - [ ] For AI features: human confirmation required for any write to operational data
 - [ ] For AI features: input and output logging configured in SIEM
 - [ ] For AI features: rate limiting on all AI endpoints
@@ -267,7 +267,7 @@ Before any customer-facing portal, external user interface, or AI-enabled featur
 
 ---
 
-## Incident Response — What to Do
+## Incident Response: What to Do
 
 1. Do not try to fix it quietly. Silent remediation of a security incident is a serious policy violation.
 2. Do not reimage, restart, or modify the affected system.
@@ -295,7 +295,7 @@ Personal data breach? CIO must be notified immediately. Quebec Law 25 requires n
 | Data retention requirements | Data Retention Schedule Register |
 | Privacy programme | Privacy and Data Governance Policy |
 | Cloud exit and portability | Cloud Exit and Data Portability Standard |
-| Exception request | CIO or CISO — document in Exception Register |
+| Exception request | CIO or CISO: document in Exception Register |
 | Privacy Impact Assessment | Privacy Officer / Legal |
 
 ---

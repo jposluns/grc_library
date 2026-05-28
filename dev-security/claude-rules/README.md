@@ -1,4 +1,4 @@
-# Claude Code Security Rules — Usage Guide
+# Claude Code Security Rules: Usage Guide
 
 **Document Title:** Claude Code Security Rules Usage Guide
 **Document Type:** Guideline
@@ -18,7 +18,7 @@
 
 ## What Are These Files?
 
-The `claude-rules/` directory contains a set of Markdown files designed to be loaded into [Claude Code](https://docs.anthropic.com/en/docs/claude-code) sessions as security context. When Claude Code reads these files — either via a `CLAUDE.md` in your project root or via explicit `/add-files` — they encode security and compliance requirements as persistent context that the AI coding assistant applies during development.
+The `claude-rules/` directory contains a set of Markdown files designed to be loaded into [Claude Code](https://docs.anthropic.com/en/docs/claude-code) sessions as security context. When Claude Code reads these files, either via a `CLAUDE.md` in your project root or via explicit `/add-files`, they encode security and compliance requirements as persistent context that the AI coding assistant applies during development.
 
 These are **draggable rule files**: copy any subset into your project's Claude Code context and Claude will apply those security requirements to code it writes, reviews, and suggests.
 
@@ -113,8 +113,8 @@ Copy the content of specific rule files into your existing `CLAUDE.md` under a `
 `CLAUDE.md` instructs Claude Code to fetch supplementary rule sets from external repositories at session start using WebFetch. These external sources are fetched and applied in addition to the local rules. If a fetch fails, the local rules remain in force.
 
 The CLAUDE.md fetches from:
-- **TikiTribe** `rules/_core/` — AI, agent, MCP, and RAG security rules (see TikiTribe section below)
-- **Wiz** `secure-rules-files` — language and framework baseline rules
+- **TikiTribe** `rules/_core/`: AI, agent, MCP, and RAG security rules (see TikiTribe section below)
+- **Wiz** `secure-rules-files`: language and framework baseline rules
 
 This means a single `CLAUDE.md` in your project root gives Claude Code access to both the GRC library rules and the latest external rule sets without manually copying each file.
 
@@ -126,22 +126,22 @@ These rule files draw on and are aligned to the following external projects and 
 
 ### AI Coding Assistant Rule Repositories
 
-**TikiTribe — Secure Coding Rules for AI Coding Assistants**
+**TikiTribe: Secure Coding Rules for AI Coding Assistants**
 - Repository: `https://github.com/TikiTribe/claude-secure-coding-rules`
 - Coverage: 100+ rule sets covering 12 programming languages, 5+ backend frameworks, 11 AI/ML frameworks, 51 RAG tools, IaC, containers, CI/CD, OWASP Top 10, OWASP MCP Top 10, MITRE ATLAS, NIST AI RMF, Google SAIF, agentic AI
 - Key paths fetched by CLAUDE.md:
-  - `rules/_core/ai-security.md`
-  - `rules/_core/agent-security.md`
-  - `rules/_core/mcp-security.md`
-  - `rules/_core/rag-security.md`
+ - `rules/_core/ai-security.md`
+ - `rules/_core/agent-security.md`
+ - `rules/_core/mcp-security.md`
+ - `rules/_core/rag-security.md`
 - Integration: See [`ai/guide-ai-adversarial-test-reference.md`](../../ai/guide-ai-adversarial-test-reference.md) §B4 for test case overlap rules
 
-**Wiz — Secure Rules Files**
+**Wiz: Secure Rules Files**
 - Repository: `https://github.com/wiz-sec-public/secure-rules-files`
 - Coverage: Baseline rules compatible with Claude, Cursor, and Copilot; organized by programming language and framework; open source; AI-generated and human-verified
 - Use: Language-specific rules as a second layer over this library's language files
 
-**Kariedo — Claude Code Security Rules**
+**Kariedo: Claude Code Security Rules**
 - Repository: `https://github.com/kariedo/claude-code-security-rules`
 - Coverage: Core universal security practices, language-specific rules (Python, JavaScript, Java, PHP, Ruby, Rust, C), common vulnerability prevention, uses `@`-syntax import system for modular organization
 - Use: Alternative modular rule set for projects needing broader language coverage
@@ -182,12 +182,12 @@ These rule files draw on and are aligned to the following external projects and 
 
 ### NIST Frameworks
 
-**NIST SSDF — Secure Software Development Framework (SP 800-218)**
+**NIST SSDF: Secure Software Development Framework (SP 800-218)**
 - URL: `https://csrc.nist.gov/pubs/sp/800/218/final`
 - Coverage: Prepare the Organization (PO), Protect the Software (PS), Produce Well-Secured Software (PW), Respond to Vulnerabilities (RV)
 - Direct application: all rule files in `core/` and `pipeline/`
 
-**NIST SP 800-218A — Generative AI Profile**
+**NIST SP 800-218A: Generative AI Profile**
 - URL: `https://csrc.nist.gov/pubs/sp/800/218/a/final`
 - Coverage: Augments SP 800-218 with AI model development practices; AI-specific secure development tasks
 - Direct application: all rule files in `ai/`
@@ -217,10 +217,10 @@ These rule files draw on and are aligned to the following external projects and 
 
 **CISA Secure by Design**
 - URL: `https://www.cisa.gov/resources-tools/resources/secure-by-design`
-- Coverage: Three principles — take ownership of customer security outcomes, embrace radical transparency, lead from the top; shift-left approach; secure default configuration
+- Coverage: Three principles: take ownership of customer security outcomes, embrace radical transparency, lead from the top; shift-left approach; secure default configuration
 - Direct application: `pipeline/cicd-gates.md`, `core/owasp.md`
 
-**SLSA — Supply-chain Levels for Software Artifacts**
+**SLSA: Supply-chain Levels for Software Artifacts**
 - URL: `https://slsa.dev/`
 - Coverage: Four levels of build provenance and supply-chain integrity; source integrity, build integrity, dependency tracking
 - Direct application: `pipeline/cicd-gates.md`
@@ -255,7 +255,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 All content in this directory is released under CC0 1.0 Universal. Copy, modify, and redistribute freely.
 
-External repositories (TikiTribe, Wiz, Kariedo) maintain their own licences — check each repository before redistribution.
+External repositories (TikiTribe, Wiz, Kariedo) maintain their own licences: check each repository before redistribution.
 
 ---
 

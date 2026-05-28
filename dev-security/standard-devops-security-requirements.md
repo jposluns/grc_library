@@ -1,24 +1,24 @@
 # DevOps Security Requirements
 
-**Document Title:** DevOps Security Requirements  
-**Document Type:** Standard  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`operations/README.md`](../operations/README.md)  
-**Classification:** Public  
-**Category:** Developer Security  
-**Review Frequency:** 6 to 12 months and upon material tooling, threat, or infrastructure change  
-**Repository Path:** [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** DevOps Security Requirements 
+**Document Type:** Standard 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`operations/README.md`](../operations/README.md) 
+**Classification:** Public 
+**Category:** Developer Security 
+**Review Frequency:** 6 to 12 months and upon material tooling, threat, or infrastructure change 
+**Repository Path:** [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This standard defines security requirements for DevOps engineering — CI/CD pipelines, infrastructure as code, environment management, container security, and automation platform operational security. For production and infrastructure operations controls, see the operations domain. For developer security requirements, see the Developer Security Requirements Standard.
+This standard defines security requirements for DevOps engineering: CI/CD pipelines, infrastructure as code, environment management, container security, and automation platform operational security. For production and infrastructure operations controls, see the operations domain. For developer security requirements, see the Developer Security Requirements Standard.
 
 ---
 
@@ -36,7 +36,7 @@ The following gates are mandatory in every pipeline deploying to Test or Product
 | --- | --- |
 | Secret scanning | Any secret pattern detected: fail immediately |
 | SAST | Critical or High: fail. Medium: warn and log. |
-| SCA — dependency scan | Critical CVE: fail. High CVE: fail unless tracked issue exists with 14-day grace. |
+| SCA: dependency scan | Critical CVE: fail. High CVE: fail unless tracked issue exists with 14-day grace. |
 | Container image scanning | Critical CVE in base image or layer: fail. |
 | IaC scanning | Critical misconfiguration: fail. |
 | Licence compliance | GPL/AGPL without Legal approval: fail. |
@@ -78,7 +78,7 @@ All build artefacts deployed to Production must be signed (signing key in the or
 - IaC scanning must pass with no Critical findings.
 - Encryption explicitly configured. Network access explicitly restricted. Logging and diagnostic settings configured for every resource.
 - Resource tagging: environment, owner, classification level, and cost centre.
-- No secrets in IaC code — use secrets management references or managed identity.
+- No secrets in IaC code: use secrets management references or managed identity.
 
 ### State Management
 
@@ -115,7 +115,7 @@ Test consolidates all pre-production testing (integration, QA, UAT). Multiple se
 
 **Image versioning:** No `:latest` tag in Test or Production. Digest-pinned or specific version tags only. All images deployed to Production must be signed.
 
-**Runtime security:** EDR tooling mandatory on all servers. Resource limits (CPU, memory) set. Network policies restrict container-to-container communication to required flows. Secrets must not be passed as plain-text environment variables — use platform secrets management integration.
+**Runtime security:** EDR tooling mandatory on all servers. Resource limits (CPU, memory) set. Network policies restrict container-to-container communication to required flows. Secrets must not be passed as plain-text environment variables: use platform secrets management integration.
 
 **Image registry:** Private container registry only. No runtime pulls from public registries in production.
 
@@ -155,7 +155,7 @@ All automation platform runtimes must be on a supported, non-EOL version. A runt
 
 Before any automation workflow deploys to production:
 
-- Workflow configuration files contain no plain-text secrets — verified by automated secret scan in pipeline.
+- Workflow configuration files contain no plain-text secrets: verified by automated secret scan in pipeline.
 - Runtime version is supported (not EOL).
 - No cross-account resource references from production to sandbox.
 - All vendor API endpoint URLs are production endpoints, not development or staging.
@@ -185,7 +185,7 @@ An application service owner registry must be populated before any application o
 
 ---
 
-## 11. Framework and Runtime EOL — DevOps Requirements
+## 11. Framework and Runtime EOL: DevOps Requirements
 
 The EOL classification policy and remediation SLAs are defined in the Security Baseline Standard. DevOps obligations:
 
@@ -203,14 +203,14 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 
 | Control Area | ISO 27001/27002 | CSA CCM v4 | NIST SSDF | NIST SP 800-53 | SLSA |
 | --- | --- | --- | --- | --- | --- |
-| CI/CD pipeline security | A.8.25–8.27 | CCC-01–09, AIS-04 | PW.8 | SA-10, SA-15 | Level 2–3 |
-| Pipeline secret scanning | A.8.10 | CEK-10–21 | PW.8.2 | IA-5 | Level 2 |
-| Artifact signing and integrity | A.8.27 | CCC-04–05 | DS.2 | SA-12 | Level 3 |
-| IaC security | A.8.25 | CCC-06 | PW.4 | CM-2, CM-3 | — |
-| Environment separation | A.8.31 | I&S-05 | PO.5 | SC-3, SC-7 | — |
-| Container security | A.8.25 | I&S-04 | PW.2 | CM-7, SI-3 | — |
-| EOL and patch management | A.8.8 | TVM-01–10 | PW.4.4 | SI-2 | — |
-| Change management | A.8.32 | CCC-01–09 | — | CM-3 | — |
+| CI/CD pipeline security | A.8.25 to 8.27 | CCC-01 to 09, AIS-04 | PW.8 | SA-10, SA-15 | Level 2 to 3 |
+| Pipeline secret scanning | A.8.10 | CEK-10 to 21 | PW.8.2 | IA-5 | Level 2 |
+| Artifact signing and integrity | A.8.27 | CCC-04 to 05 | DS.2 | SA-12 | Level 3 |
+| IaC security | A.8.25 | CCC-06 | PW.4 | CM-2, CM-3 | N/A |
+| Environment separation | A.8.31 | I&S-05 | PO.5 | SC-3, SC-7 | N/A |
+| Container security | A.8.25 | I&S-04 | PW.2 | CM-7, SI-3 | N/A |
+| EOL and patch management | A.8.8 | TVM-01 to 10 | PW.4.4 | SI-2 | N/A |
+| Change management | A.8.32 | CCC-01 to 09 | N/A | CM-3 | N/A |
 
 ---
 

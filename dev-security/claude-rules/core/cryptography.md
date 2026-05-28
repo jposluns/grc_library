@@ -2,7 +2,7 @@
 
 ---
 
-## Algorithm Selection — Use These
+## Algorithm Selection: Use These
 
 | Purpose | Required Algorithm | Prohibited |
 | --- | --- | --- |
@@ -20,7 +20,7 @@
 
 ## AES Modes
 
-- **GCM (Galois/Counter Mode)**: Use this. Provides authenticated encryption — integrity is built in. Required for all new development.
+- **GCM (Galois/Counter Mode)**: Use this. Provides authenticated encryption: integrity is built in. Required for all new development.
 - **CBC**: Permitted only for legacy interoperability where GCM is not possible. Requires a separate HMAC for authentication. Requires unpredictable IVs.
 - **ECB**: Prohibited. ECB does not use an IV and reveals data patterns. Never use for any purpose.
 
@@ -52,11 +52,11 @@ hashlib.md5(password.encode()).hexdigest()       # Broken
 Keys must never be hardcoded in source code, configuration files, or build artefacts. Store keys in the organization's approved secrets management service.
 
 Key lifecycle requirements:
-- **Generate** keys using a cryptographically secure random number generator (CSPRNG) — not `random`, not `Math.random()`
-- **Store** keys in the approved key vault or HSM — never in code, config, or databases in plaintext
+- **Generate** keys using a cryptographically secure random number generator (CSPRNG): not `random`, not `Math.random()`
+- **Store** keys in the approved key vault or HSM: never in code, config, or databases in plaintext
 - **Rotate** keys on a defined schedule and on suspected compromise
 - **Rotation without downtime**: the application must support reading a new key while decrypting legacy data with the old key
-- **Retire** keys that are no longer needed — delete from vault after confirming no data remains encrypted with that key
+- **Retire** keys that are no longer needed: delete from vault after confirming no data remains encrypted with that key
 
 ---
 
@@ -114,8 +114,8 @@ This is a planning requirement, not an immediate implementation requirement, exc
 
 | Requirement | OWASP ASVS | NIST SP 800-131A | CSA CCM | ISO 27001 |
 | --- | --- | --- | --- | --- |
-| Algorithm selection | V6.2 | Full document | CEK-01–03 | A.8.24 |
-| Key management | V6.4 | SP 800-57 | CEK-09–21 | A.8.24 |
-| Password hashing | V2.4 | — | IAM-07 | A.5.17 |
-| TLS configuration | V9.1–V9.3 | SP 800-52 | IVS-09 | A.8.24 |
-| Random number generation | V6.3 | — | CEK-03 | A.8.24 |
+| Algorithm selection | V6.2 | Full document | CEK-01 to 03 | A.8.24 |
+| Key management | V6.4 | SP 800-57 | CEK-09 to 21 | A.8.24 |
+| Password hashing | V2.4 | N/A | IAM-07 | A.5.17 |
+| TLS configuration | V9.1 to V9.3 | SP 800-52 | IVS-09 | A.8.24 |
+| Random number generation | V6.3 | N/A | CEK-03 | A.8.24 |

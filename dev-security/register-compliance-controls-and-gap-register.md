@@ -1,18 +1,18 @@
 # Compliance Controls and Gap Register Template
 
-**Document Title:** Compliance Controls and Gap Register Template  
-**Document Type:** Register  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Security Architecture Maintainer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md)  
-**Classification:** Public  
-**Category:** Developer Security  
-**Review Frequency:** Quarterly and upon material control implementation change  
-**Repository Path:** [`dev-security/register-compliance-controls-and-gap-register.md`](register-compliance-controls-and-gap-register.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Compliance Controls and Gap Register Template 
+**Document Type:** Register 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Security Architecture Maintainer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) 
+**Classification:** Public 
+**Category:** Developer Security 
+**Review Frequency:** Quarterly and upon material control implementation change 
+**Repository Path:** [`dev-security/register-compliance-controls-and-gap-register.md`](register-compliance-controls-and-gap-register.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -20,7 +20,7 @@
 
 This register is the primary traceability artefact for audit, insurance, board reporting, and regulatory purposes. It maps security and compliance controls to CSA CCM v5, AICM v1.0.3, and COBIT 2025 process identifiers, and records implementation status, evidence type, and responsible party for each control.
 
-Organisations should populate this template with their specific implementation status, evidence references, and responsible parties. The register must be updated when implementation status changes and reviewed quarterly at minimum.
+Organizations should populate this template with their specific implementation status, evidence references, and responsible parties. The register must be updated when implementation status changes and reviewed quarterly at minimum.
 
 ---
 
@@ -32,7 +32,7 @@ Organisations should populate this template with their specific implementation s
 | In Progress | Control is being implemented. Target date must be set. |
 | Planned | Control is in the roadmap but not yet started. Target date must be set. |
 | Deferred | Explicitly deferred. Documented rationale and owner required. |
-| Gap — Action Required | Control is not implemented and no plan exists. Requires CIO / CISO decision. |
+| Gap: Action Required | Control is not implemented and no plan exists. Requires CIO / CISO decision. |
 | Not Applicable | Not applicable; documented justification required. |
 | Inherited | Satisfied by a platform or service provider. Provider compliance documentation required. |
 
@@ -40,12 +40,12 @@ Organisations should populate this template with their specific implementation s
 
 ## How to Use This Register
 
-1. Copy this template into your organisation's documentation system.
+1. Copy this template into your organization's documentation system.
 2. For each control row, set the Status field using the definitions above.
 3. Record the Evidence Reference (document title, system configuration, test result, or other artefact).
 4. Assign a Responsible party (role title, not personal name).
 5. Add Notes for context, deferred rationale, or open items.
-6. For any control with status Gap — Action Required, create a CAPA record per the CAPA Procedure.
+6. For any control with status Gap: Action Required, create a CAPA record per the CAPA Procedure.
 7. Review the register quarterly and update status when changes occur.
 8. Archive completed versions of this register for a minimum of 7 years.
 
@@ -191,7 +191,7 @@ Organisations should populate this template with their specific implementation s
 | IAM-14 | Credentials Management | | | | |
 | IAM-15 | Authorization Mechanisms | | | | |
 
-### Infrastructure and Virtualisation Security (IVS)
+### Infrastructure and Virtualization Security (IVS)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -271,7 +271,7 @@ Organisations should populate this template with their specific implementation s
 
 ---
 
-## AICM v1.0.3 — AI-Specific Controls
+## AICM v1.0.3: AI-Specific Controls
 
 Applies to any AI or ML system in production. See [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) for detailed requirements.
 
@@ -320,7 +320,7 @@ Applies to any AI or ML system in production. See [`ai/standard-ai-security-and-
 
 ## Open Items and Gap Register
 
-Use this section to track controls with status Gap — Action Required, In Progress (overdue), or Deferred. Each entry must have a confirmed owner and target resolution date.
+Use this section to track controls with status Gap: Action Required, In Progress (overdue), or Deferred. Each entry must have a confirmed owner and target resolution date.
 
 | Item ID | Description | Control ID(s) | Risk Level | Owner | Target Date | Status | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -334,18 +334,18 @@ Use this section to document controls that have been explicitly deferred, with r
 
 | Control ID | Control Title | Deferral Rationale | Interim Control | Owner | Target Activation |
 | --- | --- | --- | --- | --- | --- |
-| *(example)* | *(Control title)* | *(Reason for deferral — e.g. dependency on infrastructure programme)* | *(Compensating control in place)* | *(Role)* | *(Target date or milestone)* |
+| *(example)* | *(Control title)* | *(Reason for deferral: e.g. dependency on infrastructure programme)* | *(Compensating control in place)* | *(Role)* | *(Target date or milestone)* |
 
 ---
 
 ## Maintenance Rules
 
 1. This register must be reviewed quarterly and updated when any control status changes.
-2. Every Gap — Action Required item must have a CAPA record per the CAPA Procedure.
+2. Every Gap: Action Required item must have a CAPA record per the CAPA Procedure.
 3. Every Deferred item must have documented rationale, an interim compensating control, and an owner.
 4. Evidence references must be specific and retrievable (document title, system name, or test report reference).
-5. This register must not contain personal names — use role titles only.
-6. This register must not contain specific vulnerability details, incident case references, or credentials — use the incident register and vulnerability management system for those records.
+5. This register must not contain personal names: use role titles only.
+6. This register must not contain specific vulnerability details, incident case references, or credentials: use the incident register and vulnerability management system for those records.
 7. Archive completed quarterly snapshots for 7 years.
 
 ---

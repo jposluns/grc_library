@@ -1,24 +1,24 @@
 # Quality Assurance and Testing Standard
 
-**Document Title:** Quality Assurance and Testing Standard  
-**Document Type:** Standard  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)  
-**Classification:** Public  
-**Category:** Developer Security  
-**Review Frequency:** Annual and upon material framework or platform change  
-**Repository Path:** [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Quality Assurance and Testing Standard 
+**Document Type:** Standard 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) 
+**Classification:** Public 
+**Category:** Developer Security 
+**Review Frequency:** Annual and upon material framework or platform change 
+**Repository Path:** [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
 ## Purpose
 
-This standard defines the Quality Assurance (QA) and testing framework for software, infrastructure, and system changes to ensure consistent reliability, performance, and compliance across all organisational technology environments. It establishes testing lifecycle stages, quality gates, acceptance criteria, and validation requirements for projects and releases.
+This standard defines the Quality Assurance (QA) and testing framework for software, infrastructure, and system changes to ensure that consistent reliability, performance, and compliance across all organizational technology environments. It establishes testing lifecycle stages, quality gates, acceptance criteria, and validation requirements for projects and releases.
 
 ---
 
@@ -36,10 +36,10 @@ This standard defines the Quality Assurance (QA) and testing framework for softw
 | Role | Responsibility |
 | --- | --- |
 | **CIO** | Provides executive oversight of QA programme effectiveness and resourcing. |
-| **CISO** | Ensures security testing integration, vulnerability management, and compliance. |
-| **QA Manager** | Owns QA framework, defines testing standards, ensures adherence to lifecycle requirements. |
+| **CISO** | Ensures that security testing integration, vulnerability management, and compliance. |
+| **QA Manager** | Owns QA framework, defines testing standards, ensures that adherence to lifecycle requirements. |
 | **Developers / Engineers** | Perform unit, integration, and regression testing per QA standards. |
-| **Project Managers** | Ensure QA milestones are achieved before release; coordinate test planning. |
+| **Project Managers** | Ensure that QA milestones are achieved before release; coordinate test planning. |
 | **Business Owners** | Approve UAT completion and verify functional acceptance. |
 | **AI Governance Council (AIGC)** | Reviews AI-related testing for explainability, fairness, and performance validation. |
 | **Internal Audit** | Reviews test documentation and evidence for compliance and quality verification. |
@@ -50,12 +50,12 @@ This standard defines the Quality Assurance (QA) and testing framework for softw
 
 | Stage | Objective | Responsible Party |
 | --- | --- | --- |
-| **1 — Planning** | Define testing strategy, scope, and acceptance criteria | QA Manager / Project Manager |
-| **2 — Design** | Develop test cases, scripts, and test data | QA / Development Team |
-| **3 — Execution** | Run manual and automated tests across environments | QA / Engineers |
-| **4 — Defect Management** | Identify, log, and resolve issues before release | QA / Developers |
-| **5 — Acceptance and Sign-Off** | Confirm successful test results and stakeholder approval | Business Owner / Project Manager |
-| **6 — Continuous Improvement** | Review lessons learned and update QA artefacts | QA Manager / Internal Audit |
+| **1: Planning** | Define testing strategy, scope, and acceptance criteria | QA Manager / Project Manager |
+| **2: Design** | Develop test cases, scripts, and test data | QA / Development Team |
+| **3: Execution** | Run manual and automated tests across environments | QA / Engineers |
+| **4: Defect Management** | Identify, log, and resolve issues before release | QA / Developers |
+| **5: Acceptance and Sign-Off** | Confirm successful test results and stakeholder approval | Business Owner / Project Manager |
+| **6: Continuous Improvement** | Review lessons learned and update QA artefacts | QA Manager / Internal Audit |
 
 ---
 
@@ -113,7 +113,7 @@ AI model testing is governed by the AI Testing, Validation and Documentation Sta
 ## Test Environment Requirements
 
 - Test environments must be logically isolated from production.
-- Production data must not be used in non-production environments unless it has been fully anonymised.
+- Production data must not be used in non-production environments unless it has been fully anonymized.
 - Test environment configuration must mirror production security controls where technically feasible.
 
 ---
@@ -122,11 +122,11 @@ AI model testing is governed by the AI Testing, Validation and Documentation Sta
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO 9001:2015 | §8.6 — Release of Products and Services | Quality gate and release requirements |
+| ISO 9001:2015 | §8.6: Release of Products and Services | Quality gate and release requirements |
 | ISO/IEC 27001:2022 | Annex A.8.29 | Security testing in development |
-| COBIT 2025 | BAI03 — Manage Solutions Identification and Build | Solution quality assurance |
-| CSA CCM v5 | SEF-06 — Testing and Quality Assurance | Cloud software testing controls |
-| NIST SP 800-53 | SA — System and Services Acquisition Family | Software assurance controls |
+| COBIT 2025 | BAI03: Manage Solutions Identification and Build | Solution quality assurance |
+| CSA CCM v5 | SEF-06: Testing and Quality Assurance | Cloud software testing controls |
+| NIST SP 800-53 | SA: System and Services Acquisition Family | Software assurance controls |
 
 ---
 

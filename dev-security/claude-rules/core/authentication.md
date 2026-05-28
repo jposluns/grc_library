@@ -18,7 +18,7 @@ Multi-factor authentication is mandatory for all human access. Applications must
 - "Remember this device for 30 days" options that eliminate the second factor entirely
 - Administrative bypass paths that skip MFA
 
-For Tier 0 access (identity systems, PAM, PKI infrastructure): phishing-resistant MFA only — FIDO2 security key or certificate-based authentication.
+For Tier 0 access (identity systems, PAM, PKI infrastructure): phishing-resistant MFA only: FIDO2 security key or certificate-based authentication.
 
 ## Service-to-Service Authentication
 
@@ -27,7 +27,7 @@ For Tier 0 access (identity systems, PAM, PKI infrastructure): phishing-resistan
 | Cloud workload to cloud service | Platform managed identity (no credentials in code) |
 | On-premises to cloud | OAuth 2.0 client credentials with registered application identity stored in PAM vault |
 | Service to service (general) | OAuth 2.0 client credentials flow, not API keys as sole mechanism |
-| API gateway calls | OAuth 2.0 validated by IdP at gateway — subscription keys are additive, not primary |
+| API gateway calls | OAuth 2.0 validated by IdP at gateway: subscription keys are additive, not primary |
 
 Shared secrets and hardcoded service account passwords are prohibited for service-to-service authentication.
 
@@ -44,9 +44,9 @@ Refresh tokens:       Rotation on each use; revocable on logout or compromise
 
 ## Directory Integration
 
-- LDAPS (port 636) only — plain LDAP (port 389) is prohibited
-- UPN-based authentication — SAMAccountName-only is prohibited in new code
-- Kerberos AES-256 — RC4 Kerberos prohibited in new builds
+- LDAPS (port 636) only: plain LDAP (port 389) is prohibited
+- UPN-based authentication: SAMAccountName-only is prohibited in new code
+- Kerberos AES-256: RC4 Kerberos prohibited in new builds
 - Service account directory binds must use dedicated service accounts in the PAM vault
 
 ## Authentication Error Handling
@@ -72,7 +72,7 @@ All login endpoints must implement:
 | Requirement | OWASP ASVS | OWASP Top 10 | CSA CCM | ISO 27001 |
 | --- | --- | --- | --- | --- |
 | MFA enforcement | V2.1 | A07 | IAM-15 | A.5.17 |
-| Session management | V3.1–V3.5 | A07 | IAM-13–14 | A.8.2 |
+| Session management | V3.1 to V3.5 | A07 | IAM-13 to 14 | A.8.2 |
 | Service auth | V2.10 | A07 | IAM-09 | A.5.15 |
 | Directory integration | V2.8 | A07 | IAM-01 | A.5.15 |
 | Brute force | V2.2 | A07 | IAM-15 | A.8.3 |

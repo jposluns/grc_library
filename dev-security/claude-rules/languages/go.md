@@ -4,7 +4,7 @@ These rules apply to all Go code including HTTP services, CLI tools, gRPC servic
 
 ---
 
-## Secrets — Go Specific
+## Secrets: Go Specific
 
 ```go
 // NEVER — hardcoded in source
@@ -27,7 +27,7 @@ if apiKey == "" {
 
 ---
 
-## SQL Injection — Go Specific
+## SQL Injection: Go Specific
 
 ```go
 // NEVER — string concatenation in queries
@@ -111,7 +111,7 @@ if !strings.HasPrefix(requestedPath, baseDir+string(os.PathSeparator)) &&
 
 ---
 
-## Cryptography — Go Specific
+## Cryptography: Go Specific
 
 ```go
 // NEVER — MD5 or SHA-1 for security purposes
@@ -276,10 +276,10 @@ result, _ := doSomethingImportant()  // silent failure risk
 
 ## SAST Tools for Go
 
-- **govulncheck** — official Go vulnerability scanner: `golang.org/x/vuln/cmd/govulncheck`
-- **gosec** — Go security checker: `github.com/securego/gosec`
-- **Semgrep** with Go ruleset — pattern-based security scanning
-- **staticcheck** — comprehensive Go static analysis (includes security checks)
+- **govulncheck**: official Go vulnerability scanner: `golang.org/x/vuln/cmd/govulncheck`
+- **gosec**: Go security checker: `github.com/securego/gosec`
+- **Semgrep** with Go ruleset: pattern-based security scanning
+- **staticcheck**: comprehensive Go static analysis (includes security checks)
 
 ---
 
@@ -292,7 +292,7 @@ result, _ := doSomethingImportant()  // silent failure risk
 | Template injection / XSS | V5.3 | PW.6 | A.8.28 |
 | Command injection | V5.3 | PW.6 | A.8.28 |
 | Path traversal | V5.3 | PW.6 | A.8.28 |
-| Cryptography | V6 | PW.7 | A.8.24–8.25 |
-| TLS configuration | V9 | — | A.8.24 |
+| Cryptography | V6 | PW.7 | A.8.24 to 8.25 |
+| TLS configuration | V9 | N/A | A.8.24 |
 | Error handling | V7 | RV.1 | A.8.15 |
 | Dependency management | V1.14 | PO.5, PW.4 | A.8.8 |

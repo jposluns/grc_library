@@ -4,7 +4,7 @@
 
 ## Core Principle
 
-All external input is untrusted. Validate before processing. Encode before output. The boundary between trusted and untrusted is the application perimeter — everything that crosses it is untrusted.
+All external input is untrusted. Validate before processing. Encode before output. The boundary between trusted and untrusted is the application perimeter: everything that crosses it is untrusted.
 
 ---
 
@@ -18,7 +18,7 @@ All external input is untrusted. Validate before processing. Encode before outpu
 - Data from external APIs and third-party services
 - Data from databases where data may have originated externally
 - Data from message queues, event streams, and webhooks
-- AI/LLM-generated output (treated as untrusted — see ai/ai-security.md)
+- AI/LLM-generated output (treated as untrusted: see ai/ai-security.md)
 
 ### Validation Rules
 
@@ -30,7 +30,7 @@ Range:   Enforce minimum and maximum on all numeric inputs
 Charset: Restrict character sets where applicable (alphanumeric only for IDs)
 ```
 
-**Reject invalid input — do not sanitize and continue.** Sanitization is complex, error-prone, and creates a false sense of safety. Return a 400 Bad Request with a generic error message.
+**Reject invalid input: do not sanitize and continue.** Sanitization is complex, error-prone, and creates a false sense of safety. Return a 400 Bad Request with a generic error message.
 
 ### Server-Side Validation is Mandatory
 
@@ -82,11 +82,11 @@ Output encoding must be **context-aware**. The encoding required depends on wher
 | JavaScript string context | JavaScript/JSON string encoding |
 | URL query parameters | URL percent encoding |
 | CSS values | CSS hex encoding for non-alphanumeric characters |
-| SQL strings (if not using parameterized) | Database-specific escaping — prefer parameterized |
+| SQL strings (if not using parameterized) | Database-specific escaping: prefer parameterized |
 | Log output containing user data | Strip or escape control characters and newlines |
 | HTTP headers | Validate no CR/LF injection |
 
-Use a well-maintained library for output encoding — do not implement encoding functions manually.
+Use a well-maintained library for output encoding: do not implement encoding functions manually.
 
 ---
 
@@ -120,8 +120,8 @@ All API endpoints must validate:
 
 | Requirement | OWASP ASVS | OWASP Top 10 | CSA CCM | NIST SSDF |
 | --- | --- | --- | --- | --- |
-| Input validation | V5.1–V5.3 | A03 | AIS-02 | PW.6 |
+| Input validation | V5.1 to V5.3 | A03 | AIS-02 | PW.6 |
 | SQL injection | V5.3 | A03 | AIS-02 | PW.6 |
 | Command injection | V5.3 | A03 | AIS-02 | PW.6 |
 | Output encoding | V5.3 | A03 | AIS-02 | PW.6 |
-| File upload | V12.1–V12.3 | A04 | AIS-02 | PW.6 |
+| File upload | V12.1 to V12.3 | A04 | AIS-02 | PW.6 |

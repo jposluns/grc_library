@@ -1,18 +1,18 @@
 # Security Baseline and Standards Reference
 
-**Document Title:** Security Baseline and Standards Reference  
-**Document Type:** Standard  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Officer  
-**Approving Authority:** Chief Information Officer  
-**Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)  
-**Classification:** Public  
-**Category:** Developer Security  
-**Review Frequency:** Annual or upon material threat, regulatory, or framework change  
-**Repository Path:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Security Baseline and Standards Reference 
+**Document Type:** Standard 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Officer 
+**Approving Authority:** Chief Information Officer 
+**Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md) 
+**Classification:** Public 
+**Category:** Developer Security 
+**Review Frequency:** Annual or upon material threat, regulatory, or framework change 
+**Repository Path:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -28,7 +28,7 @@ All requirements in the developer security requirements, DevOps security require
 
 In the event of conflict, higher layers take precedence.
 
-### Layer 1 — Statute and Regulation
+### Layer 1: Statute and Regulation
 
 | Obligation | Jurisdiction | Relevance |
 | --- | --- | --- |
@@ -41,7 +41,7 @@ In the event of conflict, higher layers take precedence.
 | WCO SAFE Framework | Global | Customs data integrity and trade security |
 | CTPAT | USA | Cross-border trade security |
 
-### Layer 2 — Primary Security Frameworks
+### Layer 2: Primary Security Frameworks
 
 | Framework | Version | Role |
 | --- | --- | --- |
@@ -53,11 +53,11 @@ In the event of conflict, higher layers take precedence.
 | NIST SSDF | SP 800-218 and SP 800-218A (Generative AI Profile) | Secure-by-design development. Mandatory for all net-new development. SP 800-218A applies to all AI and ML workloads. |
 | OWASP ASVS | v5.0.0 | Application security testing baseline. |
 
-### Layer 3 — Internal Governance Documents
+### Layer 3: Internal Governance Documents
 
 The governance library includes authoritative artefacts in the following areas: information security policy; secure development and engineering policy; acceptance into service policy; identity and access management policy; privileged access management standard; authentication and password management standard; encryption and key management policy; privacy and data governance policy; network security and segmentation standard; logging and monitoring standard; physical security of IT infrastructure standard; remote working security standard; penetration testing and red team programme standard; bring-your-own-device policy; media handling and transport procedure; cloud exit and data portability standard; change management procedure; vulnerability management procedure; incident response procedure; AI compliance policy; AI governance and ethics framework; AI security and risk standard; post-quantum cryptography readiness roadmap.
 
-### Layer 4 — Architectural Standards
+### Layer 4: Architectural Standards
 
 Current architectural authority documents define infrastructure delivery standards, network design, and approved tooling. Adopting organizations should maintain a current-state register of approved platforms, tooling, and vendor assignments.
 
@@ -146,7 +146,7 @@ Just-in-time privileged access, approval workflows, and audit trails must be imp
 | Tier | Assets | Controls |
 | --- | --- | --- |
 | **Tier 0** | Domain Controllers, PKI, PAM, identity services | Privileged access workstation (PAW) only. Approval mandatory. Session recording mandatory. Rotate every checkout, max 24 hours. |
-| **Tier 1** | Hypervisor, storage, backup, virtualization infrastructure | No Tier 0 access. MFA and session recording mandatory. Rotate every 24–48 hours. |
+| **Tier 1** | Hypervisor, storage, backup, virtualization infrastructure | No Tier 0 access. MFA and session recording mandatory. Rotate every 24 to 48 hours. |
 | **Tier 2** | Application and database servers | No Tier 0/1 access unless explicitly approved. MFA mandatory. Rotate every 7 days. |
 
 ### 6.4 Service Identities
@@ -175,7 +175,7 @@ Logging is mandatory and is not a post-deployment activity. A SIEM is the primar
 | Dev | 30 days | N/A |
 | Security logs | 12 months minimum | 24 months recommended |
 
-### Required Log Sources — All Systems
+### Required Log Sources: All Systems
 
 Authentication events; privileged access events; administrative actions; network boundary events; application errors and security exceptions; backup events; certificate lifecycle events.
 
@@ -206,9 +206,9 @@ Running application frameworks, language runtimes, or middleware that have reach
 
 | Class | Definition | Remediation SLA | Interim Controls |
 | --- | --- | --- | --- |
-| **Class 1 — Critical** | Runtime EOL for more than 12 months AND a CVE rated CVSS 7.0 or above published against it since EOL | 30 days. No extension without CIO approval and documented compensating controls. | Network isolation where feasible; enhanced monitoring; no new features on the affected service. |
-| **Class 2 — High** | Runtime EOL date has passed with no qualifying CVE yet, OR runtime reaches EOL within 90 days | 90 days for already-EOL. Upgrade initiated before EOL date for imminent EOL. | Upgrade plan documented and tracked. Interim monitoring in place. |
-| **Class 3 — Medium** | Runtime reaches EOL within 180 days | Upgrade plan must exist before the 90-day threshold is reached. | Planning and procurement only. |
+| **Class 1: Critical** | Runtime EOL for more than 12 months AND a CVE rated CVSS 7.0 or above published against it since EOL | 30 days. No extension without CIO approval and documented compensating controls. | Network isolation where feasible; enhanced monitoring; no new features on the affected service. |
+| **Class 2: High** | Runtime EOL date has passed with no qualifying CVE yet, OR runtime reaches EOL within 90 days | 90 days for already-EOL. Upgrade initiated before EOL date for imminent EOL. | Upgrade plan documented and tracked. Interim monitoring in place. |
+| **Class 3: Medium** | Runtime reaches EOL within 180 days | Upgrade plan must exist before the 90-day threshold is reached. | Planning and procurement only. |
 
 ### EOL Tracking and Enforcement
 
@@ -220,15 +220,15 @@ A runtime EOL tracking register is maintained by the DevOps lead and reviewed qu
 
 | Control Area | ISO 27001/27002 | CSA CCM v4 | NIST SP 800-218 | OWASP ASVS | Regulatory |
 | --- | --- | --- | --- | --- | --- |
-| Security governance and principles | A.5 | GOV-01–06 | PW.1–PW.4 | — | ISO 37301, COBIT |
-| Data classification | A.5.10–5.13 | DSP-01–07 | — | V9 | PIPEDA, Law 25, GDPR |
-| Identity and access | A.5.15–5.18 | IAM-01–14 | — | V2, V4 | PIPEDA, BASC |
-| Network security | A.8.20–8.23 | NET-01–09 | — | V9 | CTPAT |
-| Logging and monitoring | A.8.15–8.16 | LOG-01–13 | RV.1–RV.2 | V7 | Quebec Law 25 |
-| Cryptography | A.8.24–8.25 | CEK-01–21 | — | V6 | FIPS 140-3 guidance |
-| Incident response | A.5.26 | SEF-01–06 | RS.1–RS.2 | — | PIPEDA, Law 25 |
-| Supplier and third-party | A.5.19–5.22 | STA-01–09 | — | — | CTPAT, BASC, WCO SAFE |
-| EOL and vulnerability management | A.8.8 | TVM-01–10 | PW.4.4 | — | BASC |
+| Security governance and principles | A.5 | GOV-01 to 06 | PW.1 to PW.4 | N/A | ISO 37301, COBIT |
+| Data classification | A.5.10 to 5.13 | DSP-01 to 07 | N/A | V9 | PIPEDA, Law 25, GDPR |
+| Identity and access | A.5.15 to 5.18 | IAM-01 to 14 | N/A | V2, V4 | PIPEDA, BASC |
+| Network security | A.8.20 to 8.23 | NET-01 to 09 | N/A | V9 | CTPAT |
+| Logging and monitoring | A.8.15 to 8.16 | LOG-01 to 13 | RV.1 to RV.2 | V7 | Quebec Law 25 |
+| Cryptography | A.8.24 to 8.25 | CEK-01 to 21 | N/A | V6 | FIPS 140-3 guidance |
+| Incident response | A.5.26 | SEF-01 to 06 | RS.1 to RS.2 | N/A | PIPEDA, Law 25 |
+| Supplier and third-party | A.5.19 to 5.22 | STA-01 to 09 | N/A |: | CTPAT, BASC, WCO SAFE |
+| EOL and vulnerability management | A.8.8 | TVM-01 to 10 | PW.4.4 | N/A | BASC |
 
 ---
 

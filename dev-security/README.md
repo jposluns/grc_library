@@ -1,18 +1,18 @@
 # Developer Security Domain
 
-**Document Title:** Developer Security Domain README  
-**Document Type:** Register  
-**Version:** 1.0.0  
-**Date:** 2026-05-27  
-**Owner:** Chief Information Security Officer  
-**Approving Authority:** Governance Library Maintainer  
-**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)  
-**Classification:** Public  
-**Category:** Developer Security  
-**Review Frequency:** 6 to 12 months and upon material threat, tooling, or framework change  
-**Repository Path:** [`dev-security/README.md`](README.md)  
-**Confidentiality:** Public  
-**Licence:** CC0 1.0 Universal  
+**Document Title:** Developer Security Domain README 
+**Document Type:** Register 
+**Version:** 1.0.0 
+**Date:** 2026-05-27 
+**Owner:** Chief Information Security Officer 
+**Approving Authority:** Governance Library Maintainer 
+**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) 
+**Classification:** Public 
+**Category:** Developer Security 
+**Review Frequency:** 6 to 12 months and upon material threat, tooling, or framework change 
+**Repository Path:** [`dev-security/README.md`](README.md) 
+**Confidentiality:** Public 
+**Licence:** CC0 1.0 Universal 
 
 ---
 
@@ -46,13 +46,13 @@ The `claude-rules/` subdirectory provides a set of draggable CLAUDE.md and rule 
 ### Standards
 Developer-facing security requirements covering:
 
-- **Security baseline** — minimum security requirements that apply to all development activities regardless of stack or platform
-- **Developer security requirements** — secure coding standards: input validation, output encoding, secrets management, authentication, session handling, cryptographic use, dependency management, logging, and error handling
-- **DevOps security requirements** — CI/CD pipeline security, infrastructure as code controls, secrets in pipelines, container image integrity, deployment gates, and environment separation
-- **Security quick reference** — concise cheat-sheet format covering the most common development security failures with immediate do/do-not guidance
+- **Security baseline**: minimum security requirements that apply to all development activities regardless of stack or platform
+- **Developer security requirements**: secure coding standards: input validation, output encoding, secrets management, authentication, session handling, cryptographic use, dependency management, logging, and error handling
+- **DevOps security requirements**: CI/CD pipeline security, infrastructure as code controls, secrets in pipelines, container image integrity, deployment gates, and environment separation
+- **Security quick reference**: concise cheat-sheet format covering the most common development security failures with immediate do/do-not guidance
 
 ### Registers
-- **Compliance controls and gap register** — template for tracking development security control gaps against applicable standards and frameworks
+- **Compliance controls and gap register**: template for tracking development security control gaps against applicable standards and frameworks
 
 ### claude-rules/
 Draggable rule files for Claude Code sessions and AI-assisted development environments. See [`dev-security/claude-rules/README.md`](claude-rules/README.md) for usage guidance.
@@ -64,40 +64,40 @@ Draggable rule files for Claude Code sessions and AI-assisted development enviro
 This domain draws on and references the following external projects. These references are for alignment and awareness; their content is not reproduced here.
 
 ### OWASP Projects
-- **OWASP Top 10** — Ten most critical web application security risks
-- **OWASP LLM Top 10** — Ten most critical risks specific to Large Language Model applications
-- **OWASP ASVS** (Application Security Verification Standard) — Detailed security requirements for web applications across three levels of assurance
-- **OWASP WSTG** (Web Security Testing Guide) — Testing methodology and test cases for web application security
-- **OWASP Cheat Sheet Series** — Concise developer-facing guidance on specific security topics (authentication, session management, injection, etc.)
-- **OWASP SAMM** (Software Assurance Maturity Model) — Framework for assessing and improving software security practices
+- **OWASP Top 10**: Ten most critical web application security risks
+- **OWASP LLM Top 10**: Ten most critical risks specific to Large Language Model applications
+- **OWASP ASVS** (Application Security Verification Standard): Detailed security requirements for web applications across three levels of assurance
+- **OWASP WSTG** (Web Security Testing Guide): Testing methodology and test cases for web application security
+- **OWASP Cheat Sheet Series**: Concise developer-facing guidance on specific security topics (authentication, session management, injection, etc.)
+- **OWASP SAMM** (Software Assurance Maturity Model): Framework for assessing and improving software security practices
 
 ### AI and Agentic Development References
-- **OWASP Generative AI Security Project** — Risks and controls specific to generative AI applications and pipelines: `https://genai.owasp.org/`
-- **OWASP LLM Top 10** — Ten most critical risks for Large Language Model applications: `https://owasp.org/www-project-top-10-for-large-language-model-applications/`
-- **OWASP MCP Top 10** — Security risks for Model Context Protocol integrations: `https://owasp.org/www-project-mcp-top-10/`
-- **MITRE ATLAS** — Adversarial threat landscape for AI systems; attack technique taxonomy for AI-specific threats: `https://atlas.mitre.org/`
-- **NIST AI RMF** — AI risk management framework covering Govern, Map, Measure, and Manage functions: `https://www.nist.gov/itl/ai-risk-management-framework`
-- **NIST SP 800-218A** — Generative AI Profile augmenting SSDF with AI model development practices: `https://csrc.nist.gov/pubs/sp/800/218/a/final`
-- **Google SAIF** — Secure AI Framework for secure development, deployment, execution, and monitoring: `https://saif.google/`
-- **TikiTribe** — Open-source rule sets for AI coding assistants; covers AI, agent, MCP, and RAG security; aligns to OWASP LLM Top 10, OWASP MCP Top 10, MITRE ATLAS, and NIST AI RMF: `https://github.com/TikiTribe/claude-secure-coding-rules`
+- **OWASP Generative AI Security Project**: Risks and controls specific to generative AI applications and pipelines: `https://genai.owasp.org/`
+- **OWASP LLM Top 10**: Ten most critical risks for Large Language Model applications: `https://owasp.org/www-project-top-10-for-large-language-model-applications/`
+- **OWASP MCP Top 10**: Security risks for Model Context Protocol integrations: `https://owasp.org/www-project-mcp-top-10/`
+- **MITRE ATLAS**: Adversarial threat landscape for AI systems; attack technique taxonomy for AI-specific threats: `https://atlas.mitre.org/`
+- **NIST AI RMF**: AI risk management framework covering Govern, Map, Measure, and Manage functions: `https://www.nist.gov/itl/ai-risk-management-framework`
+- **NIST SP 800-218A**: Generative AI Profile augmenting SSDF with AI model development practices: `https://csrc.nist.gov/pubs/sp/800/218/a/final`
+- **Google SAIF**: Secure AI Framework for secure development, deployment, execution, and monitoring: `https://saif.google/`
+- **TikiTribe**: Open-source rule sets for AI coding assistants; covers AI, agent, MCP, and RAG security; aligns to OWASP LLM Top 10, OWASP MCP Top 10, MITRE ATLAS, and NIST AI RMF: `https://github.com/TikiTribe/claude-secure-coding-rules`
 
 ### AI Coding Assistant Rule Repositories
-- **Wiz Secure Rules Files** — Baseline security rules compatible with Claude Code, Cursor, and Copilot; organized by language and framework: `https://github.com/wiz-sec-public/secure-rules-files`
-- **Kariedo Claude Code Security Rules** — Modular rules for Claude Code using `@`-syntax import system: `https://github.com/kariedo/claude-code-security-rules`
+- **Wiz Secure Rules Files**: Baseline security rules compatible with Claude Code, Cursor, and Copilot; organized by language and framework: `https://github.com/wiz-sec-public/secure-rules-files`
+- **Kariedo Claude Code Security Rules**: Modular rules for Claude Code using `@`-syntax import system: `https://github.com/kariedo/claude-code-security-rules`
 
 ### DevSecOps References
-- **NIST SP 800-218** — Secure Software Development Framework (SSDF); maps to NIST CSF and provides secure development practices: `https://csrc.nist.gov/pubs/sp/800/218/final`
-- **SLSA** — Supply-chain Levels for Software Artifacts; framework for software supply-chain integrity levels: `https://slsa.dev/`
-- **CIS Benchmarks** — Configuration security baselines for OS, container, cloud, and application platforms: `https://www.cisecurity.org/cis-benchmarks`
-- **CISA Secure by Design** — Principles for shifting security burden to manufacturers; secure default configuration: `https://www.cisa.gov/resources-tools/resources/secure-by-design`
-- **MITRE CWE Top 25** — Most dangerous software weaknesses from the Common Weakness Enumeration catalogue: `https://cwe.mitre.org/top25/`
+- **NIST SP 800-218**: Secure Software Development Framework (SSDF); maps to NIST CSF and provides secure development practices: `https://csrc.nist.gov/pubs/sp/800/218/final`
+- **SLSA**: Supply-chain Levels for Software Artifacts; framework for software supply-chain integrity levels: `https://slsa.dev/`
+- **CIS Benchmarks**: Configuration security baselines for OS, container, cloud, and application platforms: `https://www.cisecurity.org/cis-benchmarks`
+- **CISA Secure by Design**: Principles for shifting security burden to manufacturers; secure default configuration: `https://www.cisa.gov/resources-tools/resources/secure-by-design`
+- **MITRE CWE Top 25**: Most dangerous software weaknesses from the Common Weakness Enumeration catalogue: `https://cwe.mitre.org/top25/`
 
 ### Compliance Frameworks Addressed
-- ISO/IEC 27001:2022 — Information security management (development-relevant controls)
-- ISO/IEC 27002:2022 — Secure development controls (Annex A.8.25–A.8.34)
-- NIST SP 800-53 Rev 5 — SA (System and Services Acquisition) and SI (System and Information Integrity) families
-- CSA CCM v4 — Application and Interface Security (AIS) domain
-- SOC 2 CC6 — Logical and physical access controls, change management
+- ISO/IEC 27001:2022: Information security management (development-relevant controls)
+- ISO/IEC 27002:2022: Secure development controls (Annex A.8.25 to A.8.34)
+- NIST SP 800-53 Rev 5: SA (System and Services Acquisition) and SI (System and Information Integrity) families
+- CSA CCM v4: Application and Interface Security (AIS) domain
+- SOC 2 CC6: Logical and physical access controls, change management
 
 ---
 

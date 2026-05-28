@@ -4,7 +4,7 @@ These rules apply to all Python code. They supplement the core rules in `core/`.
 
 ---
 
-## Secrets — Python Specific
+## Secrets: Python Specific
 
 ```python
 # NEVER — hardcoded in code
@@ -32,7 +32,7 @@ secret = client.get_secret("api-key").value
 
 ---
 
-## SQL Injection — Python Specific
+## SQL Injection: Python Specific
 
 ```python
 # NEVER — string formatting
@@ -51,7 +51,7 @@ user = session.query(User).filter(User.id == user_id).first()
 
 ---
 
-## Command Injection — Python Specific
+## Command Injection: Python Specific
 
 ```python
 # NEVER — shell=True with user input
@@ -69,7 +69,7 @@ exec(user_code)         # Code injection
 
 ---
 
-## Cryptography — Python Specific
+## Cryptography: Python Specific
 
 ```python
 # CORRECT — use the cryptography library
@@ -156,7 +156,7 @@ ET.fromstring(untrusted_xml)  # Protects against XXE
 ## Flask / Django Security Notes
 
 **Flask:**
-- Set `SECRET_KEY` from environment, not hardcoded — used for session signing
+- Set `SECRET_KEY` from environment, not hardcoded: used for session signing
 - Enable CSRF protection (`flask-wtf` or equivalent)
 - Use `flask-talisman` or set security headers manually
 - Never set `debug=True` in production
@@ -164,7 +164,7 @@ ET.fromstring(untrusted_xml)  # Protects against XXE
 **Django:**
 - Never commit `SECRET_KEY` to version control
 - Set `DEBUG = False` in production settings
-- Use `ALLOWED_HOSTS` — never `['*']` in production
+- Use `ALLOWED_HOSTS`: never `['*']` in production
 - Enable `SECURE_SSL_REDIRECT`, `SESSION_COOKIE_SECURE`, `CSRF_COOKIE_SECURE`
 
 ---

@@ -4,7 +4,7 @@ These rules apply to all Java and Kotlin code including Spring Boot, Jakarta EE,
 
 ---
 
-## Secrets — Java Specific
+## Secrets: Java Specific
 
 ```java
 // NEVER — hardcoded in source
@@ -30,7 +30,7 @@ if (apiKey == null || apiKey.isBlank()) {
 
 ---
 
-## SQL Injection — Java Specific
+## SQL Injection: Java Specific
 
 ```java
 // NEVER — string concatenation in queries
@@ -153,7 +153,7 @@ if (!target.startsWith(baseDir)) {
 
 ---
 
-## Cryptography — Java Specific
+## Cryptography: Java Specific
 
 ```java
 // NEVER — MD5 or SHA-1 for integrity or password hashing
@@ -223,7 +223,7 @@ public class SecurityConfig {
 
 ---
 
-## Logging — Java Specific
+## Logging: Java Specific
 
 ```java
 // NEVER — log sensitive data
@@ -277,10 +277,10 @@ implementation 'org.springframework.boot:spring-boot-starter-security:3.2.5'
 
 ## SAST Tools for Java
 
-- **SpotBugs + Find Security Bugs plugin** — static analysis for security bugs
-- **Semgrep** with Java ruleset — pattern-based security scanning
-- **SonarQube** — code quality and security hotspot detection
-- **OWASP Dependency Check** — SCA for known CVEs in dependencies
+- **SpotBugs + Find Security Bugs plugin**: static analysis for security bugs
+- **Semgrep** with Java ruleset: pattern-based security scanning
+- **SonarQube**: code quality and security hotspot detection
+- **OWASP Dependency Check**: SCA for known CVEs in dependencies
 
 ---
 
@@ -292,7 +292,7 @@ implementation 'org.springframework.boot:spring-boot-starter-security:3.2.5'
 | SQL injection prevention | V5.3 | PW.6 | A.8.28 |
 | XML/XXE prevention | V5.3 | PW.6 | A.8.28 |
 | Deserialization | V1.5, V5.5 | PW.6 | A.8.28 |
-| Cryptography | V6 | PW.7 | A.8.24–8.25 |
-| Authentication (Spring Security) | V2, V3 | — | A.5.17 |
-| Logging | V7 | RV.1 | A.8.15–8.16 |
+| Cryptography | V6 | PW.7 | A.8.24 to 8.25 |
+| Authentication (Spring Security) | V2, V3 | N/A | A.5.17 |
+| Logging | V7 | RV.1 | A.8.15 to 8.16 |
 | Dependency management | V1.14 | PO.5, PW.4 | A.8.8 |
