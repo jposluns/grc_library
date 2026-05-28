@@ -317,6 +317,11 @@ The Chief Privacy Officer or Data Protection Officer needs the privacy programme
 
 - [Privacy Management Programme Charter](../privacy/charter-privacy-management-programme.md)
 
+### Framework
+
+- [Children's Data Framework](../privacy/framework-childrens-data.md)
+- [Consent Management Framework](../privacy/framework-consent-management.md)
+
 ### Policy
 
 - [Privacy and Data Governance Policy](../privacy/policy-privacy-and-data-governance.md)
@@ -329,7 +334,19 @@ The Chief Privacy Officer or Data Protection Officer needs the privacy programme
 
 ### Register
 
+- [Automated Decision-Making and Profiling Register](../privacy/register-automated-decision-making.md)
+- [Cookie and Tracker Register](../privacy/register-cookie-and-tracker.md)
 - [Cross-Border Data Flow Register](../privacy/register-cross-border-data-flow.md)
+
+### Standard
+
+- [Pseudonymisation and Anonymisation Standard](../privacy/standard-pseudonymisation-and-anonymisation.md)
+
+### Template
+
+- [Data Subject Access Request Workflow Template](../privacy/template-dsar-workflow.md)
+- [Privacy Notice Template](../privacy/template-privacy-notice.md)
+- [Record of Processing Activities Template](../privacy/template-record-of-processing-activities.md)
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Domain README 
 **Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.1.0 
+**Date:** 2026-05-28 
 **Owner:** Chief Information Officer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md) 
@@ -33,6 +33,14 @@ This directory contains privacy governance artefacts covering data protection po
 | Procedure | Data Protection and Privacy Breach Response Procedure | [`privacy/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md) |
 | Annex | Privacy Jurisdiction Index | [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md) |
 | Register | Cross-Border Data Flow Register | [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md) |
+| Framework | Consent Management Framework | [`privacy/framework-consent-management.md`](framework-consent-management.md) |
+| Framework | Children's Data Framework | [`privacy/framework-childrens-data.md`](framework-childrens-data.md) |
+| Standard | Pseudonymisation and Anonymisation Standard | [`privacy/standard-pseudonymisation-and-anonymisation.md`](standard-pseudonymisation-and-anonymisation.md) |
+| Register | Automated Decision-Making and Profiling Register | [`privacy/register-automated-decision-making.md`](register-automated-decision-making.md) |
+| Register | Cookie and Tracker Register | [`privacy/register-cookie-and-tracker.md`](register-cookie-and-tracker.md) |
+| Template | Record of Processing Activities Template | [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md) |
+| Template | Privacy Notice Template | [`privacy/template-privacy-notice.md`](template-privacy-notice.md) |
+| Template | Data Subject Access Request Workflow Template | [`privacy/template-dsar-workflow.md`](template-dsar-workflow.md) |
 
 ### Jurisdiction-specific annexes (`privacy/jurisdictions/`)
 

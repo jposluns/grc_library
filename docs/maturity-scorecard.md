@@ -17,7 +17,7 @@ This classification is a heuristic derived from semver; it does not reflect audi
 
 ---
 
-_Summary as of last regeneration: Mature: 47, Baseline: 149, Draft: 1, Unknown: 0._
+_Summary as of last regeneration: Mature: 47, Baseline: 149, Draft: 9, Unknown: 0._
 
 ## Mature
 
@@ -33,7 +33,7 @@ _47 documents._
 | [governance/framework-document-architecture-and-interrelationship.md](../governance/framework-document-architecture-and-interrelationship.md) | Document Architecture and Interrelationship Framework | Framework | 1.1.0 | 2026-05-28 |
 | [governance/framework-sustainability-and-responsible-technology.md](../governance/framework-sustainability-and-responsible-technology.md) | Sustainability and Responsible Technology Framework | Framework | 1.1.0 | 2026-05-28 |
 | [governance/matrix-cross-framework-alignment.md](../governance/matrix-cross-framework-alignment.md) | Cross-Framework Alignment Matrix | Matrix | 1.1.1 | 2026-05-28 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.9.0 | 2026-05-28 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.10.0 | 2026-05-28 |
 | [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.3.0 | 2026-05-27 |
 | [operations/procedure-change-management-and-configuration-control.md](../operations/procedure-change-management-and-configuration-control.md) | Change Management and Configuration Control Procedure | Procedure | 1.3.0 | 2026-05-27 |
 | [operations/procedure-endpoint-management-and-device-compliance.md](../operations/procedure-endpoint-management-and-device-compliance.md) | Endpoint Management and Device Compliance Procedure | Procedure | 1.3.0 | 2026-05-27 |
@@ -69,8 +69,8 @@ _47 documents._
 | [security/standard-data-classification-and-handling.md](../security/standard-data-classification-and-handling.md) | Data Classification and Handling Standard | Standard | 1.3.0 | 2026-05-27 |
 | [security/standard-data-loss-prevention.md](../security/standard-data-loss-prevention.md) | Data Loss Prevention Standard | Standard | 1.3.0 | 2026-05-27 |
 | [security/standard-logging-and-monitoring.md](../security/standard-logging-and-monitoring.md) | Logging and Monitoring Standard | Standard | 1.3.0 | 2026-05-27 |
-| [specification-ingestion.md](../specification-ingestion.md) | GRC Library CC0 Ingestion and Transformation Specification | Specification | 1.4.1 | 2026-05-28 |
-| [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.2.2 | 2026-05-28 |
+| [specification-ingestion.md](../specification-ingestion.md) | GRC Library CC0 Ingestion and Transformation Specification | Specification | 1.4.2 | 2026-05-28 |
+| [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.2.3 | 2026-05-28 |
 | [supply-chain/standard-supplier-security-and-privacy-assurance.md](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | Supplier Security and Privacy Assurance Standard | Standard | 1.1.0 | 2026-05-28 |
 
 ---
@@ -235,11 +235,19 @@ _149 documents._
 
 ## Draft
 
-_1 documents._
+_9 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
 | [governance/matrix-reverse-framework-control-crosswalk.md](../governance/matrix-reverse-framework-control-crosswalk.md) | Reverse Framework Control Crosswalk Matrix | Matrix | 0.0.1 | 2026-05-28 |
+| [privacy/framework-childrens-data.md](../privacy/framework-childrens-data.md) | Children's Data Framework | Framework | 0.0.1 | 2026-05-28 |
+| [privacy/framework-consent-management.md](../privacy/framework-consent-management.md) | Consent Management Framework | Framework | 0.0.1 | 2026-05-28 |
+| [privacy/register-automated-decision-making.md](../privacy/register-automated-decision-making.md) | Automated Decision-Making and Profiling Register | Register | 0.0.1 | 2026-05-28 |
+| [privacy/register-cookie-and-tracker.md](../privacy/register-cookie-and-tracker.md) | Cookie and Tracker Register | Register | 0.0.1 | 2026-05-28 |
+| [privacy/standard-pseudonymisation-and-anonymisation.md](../privacy/standard-pseudonymisation-and-anonymisation.md) | Pseudonymisation and Anonymisation Standard | Standard | 0.0.1 | 2026-05-28 |
+| [privacy/template-dsar-workflow.md](../privacy/template-dsar-workflow.md) | Data Subject Access Request Workflow Template | Template | 0.0.1 | 2026-05-28 |
+| [privacy/template-privacy-notice.md](../privacy/template-privacy-notice.md) | Privacy Notice Template | Template | 0.0.1 | 2026-05-28 |
+| [privacy/template-record-of-processing-activities.md](../privacy/template-record-of-processing-activities.md) | Record of Processing Activities Template | Template | 0.0.1 | 2026-05-28 |
 
 ---
 

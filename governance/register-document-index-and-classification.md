@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register 
 **Document Type:** Register 
-**Version:** 1.9.0 
+**Version:** 1.10.0 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -104,6 +104,14 @@ All active repository documents should be Public.
 | Privacy | Procedure | Privacy Impact and Cross-Border Transfer Procedure | [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | Privacy Officer | Annual | GDPR Art 35, ISO 27701 §7.4, PIPL Arts 38 to 40, AIDA §29 |
 | Privacy | Procedure | Data Subject Rights Management Procedure | [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md) | Privacy Officer | Annual | GDPR Arts 15 to 22, CPPA, PIPL Arts 44 to 47, ISO 27701 §7.3 |
 | Privacy | Procedure | Data Protection and Privacy Breach Response Procedure | [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Privacy Officer | Annual | GDPR Arts 33 to 34, CPPA, PIPL Art 57, LGPD, Quebec Law 25, breach assessment, notification |
+| Privacy | Template | Record of Processing Activities Template | [`privacy/template-record-of-processing-activities.md`](../privacy/template-record-of-processing-activities.md) | Chief Privacy Officer | Annual | GDPR Art 30, UK GDPR, LGPD Art 37, CPPA, PIPL Art 55, ISO 27701 §7.2.8 / §8.2.6 |
+| Privacy | Template | Privacy Notice Template | [`privacy/template-privacy-notice.md`](../privacy/template-privacy-notice.md) | Chief Privacy Officer | Annual | GDPR Arts 12 to 14, UK GDPR, LGPD Arts 6/9/18, PIPL Arts 17 to 21, CCPA/CPRA, ISO/IEC 29184 |
+| Privacy | Template | Data Subject Access Request Workflow Template | [`privacy/template-dsar-workflow.md`](../privacy/template-dsar-workflow.md) | Chief Privacy Officer | Annual | GDPR Arts 12 to 23, LGPD Arts 17 to 22, PIPL Arts 44 to 50, CCPA/CPRA, ISO 27701 §7.3 |
+| Privacy | Framework | Consent Management Framework | [`privacy/framework-consent-management.md`](../privacy/framework-consent-management.md) | Chief Privacy Officer | Annual | GDPR Arts 4(11)/6/7/8/9, ePrivacy Directive, LGPD Arts 7/8, PIPL Arts 13/14, COPPA, ISO/IEC 29184 |
+| Privacy | Register | Automated Decision-Making and Profiling Register | [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md) | Chief Privacy Officer | Quarterly | GDPR Art 22, EU AI Act Arts 6/14/26, LGPD Art 20, PIPL Art 24, NIST AI RMF |
+| Privacy | Register | Cookie and Tracker Register | [`privacy/register-cookie-and-tracker.md`](../privacy/register-cookie-and-tracker.md) | Chief Privacy Officer | Quarterly | ePrivacy Directive Art 5(3), UK PECR, GDPR, LGPD, PIPL, CCPA/CPRA |
+| Privacy | Standard | Pseudonymisation and Anonymisation Standard | [`privacy/standard-pseudonymisation-and-anonymisation.md`](../privacy/standard-pseudonymisation-and-anonymisation.md) | Chief Privacy Officer | Annual | GDPR Art 4(5)/25/Recital 26, ISO/IEC 20889, ISO/IEC 27559, NIST SP 800-188, EDPB Opinion 05/2014 |
+| Privacy | Framework | Children's Data Framework | [`privacy/framework-childrens-data.md`](../privacy/framework-childrens-data.md) | Chief Privacy Officer | Annual | GDPR Art 8, UK ICO AADC, COPPA, California AB 1394, LGPD Art 14, PIPL Art 31, EU AI Act Art 5(1)(b), UNCRC GC25 |
 | Privacy | Annex | Privacy Jurisdiction Index | [`privacy/annex-privacy-jurisdiction-index.md`](../privacy/annex-privacy-jurisdiction-index.md) | Chief Privacy Officer | Annual | GDPR, EU AI Act, UK GDPR, CCPA/CPRA, LGPD, PIPL, PDPA, POPIA, UAE PDPL, DPDPA, APEC CBPR 2.0 |
 | Privacy | Annex | EU Privacy Requirements | [`privacy/jurisdictions/annex-privacy-european-union.md`](../privacy/jurisdictions/annex-privacy-european-union.md) | Chief Privacy Officer | Annual | GDPR, EU AI Act |
 | Privacy | Annex | UK Privacy Requirements | [`privacy/jurisdictions/annex-privacy-united-kingdom.md`](../privacy/jurisdictions/annex-privacy-united-kingdom.md) | Chief Privacy Officer | Annual | UK GDPR, DPA 2018 |

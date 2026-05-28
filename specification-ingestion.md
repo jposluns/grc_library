@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library CC0 Ingestion and Transformation Specification 
 **Document Type:** Specification 
-**Version:** 1.4.1 
+**Version:** 1.4.2 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
@@ -121,6 +121,21 @@ dev-security/  Secure development standards, DevOps security, software compositi
 operations/    IT operations, asset management, change management, configuration management,
                and security operations registers.
 ```
+
+The following directories and files exist in the repository but are not used for governance artefacts and are not in scope of this ingestion specification:
+
+```text
+CONTRIBUTING.md       Contribution workflow and rules.
+CHANGELOG.md          Phase-level history.
+SECURITY.md           Defect reporting path.
+.pre-commit-config.yaml  Local pre-commit hooks.
+.github/              GitHub Actions workflow.
+tools/                Audit scripts and taxonomy / portal generators.
+docs/                 Adopter documentation (not subject to canonical metadata).
+taxonomy.yml          Auto-generated machine-readable registry of artefact metadata.
+```
+
+The structural auditor exempts these paths from the requirement that every markdown file appear in a domain README and in the document index register.
 
 ---
 

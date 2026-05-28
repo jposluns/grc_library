@@ -2,7 +2,7 @@
 
 **Document Title:** Master Project Specification 
 **Document Type:** Specification 
-**Version:** 1.2.2 
+**Version:** 1.2.3 
 **Date:** 2026-05-28 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Chief Risk Officer 
@@ -75,7 +75,7 @@ When working in a git repository via direct file tooling (read, write, edit oper
 
 ## 4. Repository architecture
 
-Top-level structure:
+Top-level structure for governance artefacts:
 
 ```text
 /specification-master-project.md
@@ -95,6 +95,27 @@ Top-level structure:
 /dev-security/
 /operations/
 ```
+
+Repository infrastructure directories and files that are not used for governance artefacts but are part of the repository:
+
+```text
+/CONTRIBUTING.md       Contribution workflow, metadata block, style and filename rules.
+/CHANGELOG.md          Phase-level history of repository changes.
+/SECURITY.md           How to report content accuracy defects, CC0 licence concerns,
+                       organisation or personal data leakage, broken links, tooling defects.
+/.pre-commit-config.yaml  Local pre-commit hooks wiring the audit scripts.
+/.github/              GitHub Actions workflow that runs the audits on push to main
+                       and on every pull request.
+/tools/                Stdlib-only Python audit scripts and taxonomy / portal generators.
+/docs/                 Adopter-facing documentation not subject to the canonical governance
+                       artefact metadata block (adopter guide, worked example, auto-generated
+                       portal and maturity scorecard).
+/taxonomy.yml          Auto-generated machine-readable registry of every active artefact's
+                       canonical metadata. Regenerated from document metadata by
+                       tools/build-taxonomy.py.
+```
+
+Documents subject to this specification are placed only in the governance-artefact directories above. The infrastructure directories are exempt from the 13-field canonical metadata block and from the structural-membership rules (see Section 5 and the structural auditor exemption list).
 
 ### 4.1 Directory rules
 
