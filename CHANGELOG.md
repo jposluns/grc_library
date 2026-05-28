@@ -4,6 +4,33 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 21.2 (2026-05-28): Glossary and acronym index
+
+Second sub-phase of Phase 21 (foundations before content expansion). Introduces a single canonical resolved reference for the acronyms and external-domain terms used throughout the library.
+
+### New file
+
+- `governance/register-glossary.md` (v1.0.0, Register doctype): alphabetical glossary covering ~150 acronyms and external terms used by the library, including regulatory bodies (HMRC, CBSA, CBP, OCC, PRA, FCA, MAS, FSA, NERC, TSA, etc.), regulations (GDPR, CPPA, CCPA, PIPL, LGPD, AIDA, DORA, HIPAA, HITECH, MDR, IVDR, SOX, etc.), frameworks and standards (WCO SAFE, ISO 27001 family, NIST AI RMF, COBIT, MITRE ATT&CK, MITRE ATLAS), sector programmes (AEO-UK, CTPAT, PIP, BASC, NEEC, ATT, STP, SES), CSA CCM domain codes (AAC, AIS, BCR, CCC, CEK, DCS, DSP, GRC, HRS, IAM, IPY, IVS, LOG, SEF, STA, TVM, UEM), CSA AICM, library role acronyms (AIGC, ERC, BCM, DPO), and common technical/security/governance acronyms (IAM, PAM, ZTNA, SBOM, SCA, SAST, SIEM, MFA, PKI, HSM, RPO, RTO, KRI, KPI, RACI, etc.).
+
+The glossary also includes a doctype reference section explaining the library's doctype vocabulary (Annex, Charter, Framework, Guideline, Matrix, Plan, Policy, Procedure, Register, Roadmap, SOP, Specification, Standard, Template).
+
+### Scope distinction established
+
+Two related registers now serve complementary purposes:
+
+- **[`register-glossary.md`](governance/register-glossary.md)** (new): acronyms and external-domain terms (regulations, standards, frameworks, regulators, sector programmes, technical concepts).
+- **[`register-key-terms-and-definitions.md`](governance/register-key-terms-and-definitions.md)** (existing, 1.1.0 → 1.1.1): library-internal GRC concepts (Audit, Authorize, Control, Owner roles, Exception, etc.).
+
+Both registers now cross-reference each other and explain their scope distinction in their Purpose sections.
+
+### Cross-references updated
+
+- `governance/README.md`: glossary entry added to the Active Documents table.
+- `governance/register-document-index-and-classification.md` (1.25.0 → 1.25.1): glossary entry added.
+- `TODO.md`: P1.1 (glossary) removed; remaining P1 items renumbered.
+
+All ten audits clean.
+
 ## Phase 21.1 (2026-05-28): Backlog file established
 
 First sub-phase of Phase 21 (project foundations before content expansion). Introduces `TODO.md` at the repository root as the canonical living backlog. Completed work is recorded here in `CHANGELOG.md`; pending work is recorded in `TODO.md`. The two files together form the project's working history-and-future record.

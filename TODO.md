@@ -10,13 +10,7 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These prevent drift across the library as content scales. Doing them before country/sector content expansion means later additions are auto-audited and consistent.
 
-### 1.1 Glossary / acronym index
-
-`governance/register-glossary.md` — single resolved reference for the 60+ acronyms the library uses (CTPAT, AEO, BASC, NIS 2, DORA, OEA, PIP, MSC, AIMS, AIDA, SBOM, KRI, RTO, RPO, IAM, PAM, ZTNA, etc.) and the canonical terms behind them.
-
-Rationale: every reader hits acronyms; every new country/sector annex introduces new ones. A single resolved source prevents inconsistent expansions across documents.
-
-### 1.2 Standards-currency checker + canonical citations catalogue
+### 1.1 Standards-currency checker + canonical citations catalogue
 
 Two artefacts working together:
 - `governance/register-canonical-citations.md` — positive list of standards with current versions, publication dates, scope summaries, and replacement notes for superseded versions (e.g., "ISO/IEC 42006:2025 — Requirements for bodies providing audit and certification of AI management systems"; "ISO/IEC 27006:2015 — successor: ISO/IEC 27006:2024").

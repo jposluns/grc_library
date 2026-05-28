@@ -2,11 +2,11 @@
 
 **Document Title:** Key Terms and Definitions Register 
 **Document Type:** Register 
-**Version:** 1.1.0 
+**Version:** 1.1.1 
 **Date:** 2026-05-28 
 **Owner:** Governance Library Maintainer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md) 
+**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/register-glossary.md`](register-glossary.md) 
 **Classification:** Public 
 **Category:** Core Governance 
 **Review Frequency:** Annual and upon material terminology change 
@@ -18,7 +18,14 @@
 
 ## Purpose
 
-This register defines common terminology used across the GRC Documentation Library. Definitions are written for organisation-neutral reuse and do not incorporate restricted wording from external standards or framework materials.
+This register defines **library-internal GRC concepts** used across the GRC Documentation Library: terms whose specific meaning within the library's governance vocabulary differs from generic usage and that anchor how the library writes about governance, risk, and compliance. Definitions are written for organisation-neutral reuse and do not incorporate restricted wording from external standards or framework materials.
+
+### Scope distinction
+
+- This register (**Key Terms and Definitions**) defines **internal** GRC concepts (Audit, Authorize, Control, Owner roles, Exception, etc.) as the library uses them.
+- The companion [`register-glossary.md`](register-glossary.md) (**Glossary and Acronym Index**) resolves **acronyms and external-domain terms** (regulations, standards, frameworks, regulators, sector programmes, technical concepts).
+
+When in doubt: external term or acronym → the glossary. Internal governance concept → this register.
 
 ---
 
