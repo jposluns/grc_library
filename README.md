@@ -1,6 +1,6 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Version:** 1.4.1 
+**Version:** 1.4.2 
 **Date:** 2026-05-28 
 **Classification:** Public 
 **Confidentiality:** Public 
@@ -143,7 +143,9 @@ Additional repository hygiene files:
 | [`SECURITY.md`](SECURITY.md) | How to report content accuracy defects, CC0 licence concerns, organisation or personal data leakage, and tooling defects. |
 | [`docs/adopter-guide.md`](docs/adopter-guide.md) | How to fork, adapt, and operate the library inside an adopting organisation. |
 | [`docs/worked-example.md`](docs/worked-example.md) | End-to-end walkthrough of converting a draft into a CC0-compliant artefact. |
-| [`tools/README.md`](tools/README.md) | Repository quality tooling: metadata, language, link, and structural audits. |
+| [`docs/portal.md`](docs/portal.md) | Auto-generated audience-keyed navigation page (CIO, CISO, GRC, Security Architecture, Privacy, Compliance, Audit, Resilience, Engineering). |
+| [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md) | Auto-generated per-document maturity classification (Mature, Baseline, Draft). |
+| [`tools/README.md`](tools/README.md) | Repository quality tooling: metadata, language, link, structural, taxonomy, and portal generators. |
 
 ---
 

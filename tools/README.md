@@ -11,6 +11,7 @@ This directory contains repository quality tooling. The scripts are intentionall
 | `lint-links.py` | Validates that every relative markdown link target inside the repository resolves to a file that exists. External links (http, https, mailto, tel, ftp) and fragment-only anchors are ignored. Skips fenced code blocks. |
 | `lint-structure.py` | Asserts that every active markdown file appears in its domain README's Active Documents table and in `governance/register-document-index-and-classification.md`, and that every reference in those tables points to a file that exists. |
 | `build-taxonomy.py` | Generates the machine-readable `taxonomy.yml` registry from the canonical metadata block of every active artefact. Running with `--check` asserts the on-disk taxonomy is in sync with current document metadata; suitable for CI and pre-commit. |
+| `build-portal.py` | Generates `docs/portal.md` (adopter portal keyed by audience) and `docs/maturity-scorecard.md` (per-document maturity classification) from `taxonomy.yml`. Running with `--check` asserts both derived files are in sync; suitable for CI and pre-commit. |
 
 ## Running
 
@@ -34,7 +35,10 @@ To regenerate the taxonomy after editing artefact metadata, run without `--check
 
 ```
 python3 tools/build-taxonomy.py
+python3 tools/build-portal.py
 ```
+
+The portal generator depends on the taxonomy; always regenerate the taxonomy first.
 
 ## Pre-commit integration
 

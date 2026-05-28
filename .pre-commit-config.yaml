@@ -42,3 +42,10 @@ repos:
         language: system
         pass_filenames: false
         types: [markdown]
+
+      - id: portal-in-sync
+        name: Adopter portal and maturity scorecard in sync
+        entry: python3 tools/build-portal.py --check
+        language: system
+        pass_filenames: false
+        types: [markdown]
