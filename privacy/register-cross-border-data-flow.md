@@ -2,8 +2,8 @@
 
 **Document Title:** Cross-Border Data Flow Register 
 **Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Privacy Officer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`privacy/README.md`](README.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md) 
@@ -70,7 +70,7 @@ Cross-border data transfer restrictions apply when personal data is transmitted,
 |---|---|---|
 | **Originating Jurisdiction(s)** | Country/countries from which data originates | Canada (Quebec); United States |
 | **Destination Country** | Country receiving the data | United States |
-| **Data Residency** | Where data is ultimately stored | US East data centre |
+| **Data Residency** | Where data is ultimately stored | Cloud region in destination country (specify provider and region) |
 | **Onward Transfer?** | Does the recipient further transfer to other countries? | No |
 | **Onward Transfer Countries** | If yes, destination countries | N/A |
 

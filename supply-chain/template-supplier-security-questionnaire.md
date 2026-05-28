@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Security Questionnaire 
 **Document Type:** Template 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Supplier Risk Maintainer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`compliance/register-ctpat-it-controls.md`](../compliance/register-ctpat-it-controls.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](../compliance/annex-aeo-s-it-cybersecurity-requirements.md) 
@@ -32,8 +32,8 @@ This questionnaire is issued to suppliers and third-party service providers to g
 | 1.2 Primary business address and registered jurisdiction | |
 | 1.3 Does your organisation have a parent company? If yes, provide name. | |
 | 1.4 Number of employees | |
-| 1.5 Describe the services you provide to our organisation | |
-| 1.6 What countries and regions will you process or store our data in? | |
+| 1.5 Describe the services you provide to the Organisation | |
+| 1.6 What countries and regions will you process or store the Organisation's data in? | |
 
 ---
 
@@ -110,7 +110,7 @@ This questionnaire is issued to suppliers and third-party service providers to g
 | 7.1 Does your organisation process personal data on behalf of your clients? | | |
 | 7.2 Does your organisation have a documented privacy policy and data protection procedures? | | |
 | 7.3 Is your organisation subject to GDPR or UK GDPR? If yes, is a Data Protection Officer (DPO) appointed? | | |
-| 7.4 Are you willing to sign a Data Processing Agreement (DPA) with our organisation? | | |
+| 7.4 Are you willing to sign a Data Processing Agreement (DPA) with the Organisation? | | |
 | 7.5 Will any personal data be transferred to countries outside the EEA or UK? If yes, what transfer mechanism is used (adequacy, SCCs, IDTA, BCRs)? | | |
 | 7.6 Does your organisation have a documented data breach notification procedure? | | |
 | 7.7 Have you had any personal data breaches in the past 24 months? If yes, briefly describe. | | |
@@ -124,7 +124,7 @@ This questionnaire is issued to suppliers and third-party service providers to g
 |---|---|---|
 | 8.1 Does your organisation have a documented Business Continuity Plan (BCP)? | | |
 | 8.2 Has the BCP been tested in the past 12 months? | | |
-| 8.3 What are your target Recovery Time Objective (RTO) and Recovery Point Objective (RPO) for services provided to our organisation? | | |
+| 8.3 What are your target Recovery Time Objective (RTO) and Recovery Point Objective (RPO) for services provided to the Organisation? | | |
 | 8.4 Do you have an IT Disaster Recovery Plan? | | |
 | 8.5 Are backups performed and tested regularly? What is your backup retention period? | | |
 | 8.6 Do you have redundant data centre or cloud region capability? | | |
@@ -135,11 +135,11 @@ This questionnaire is issued to suppliers and third-party service providers to g
 
 | Question | Yes/No | Evidence / Comment |
 |---|---|---|
-| 9.1 Will you use sub-contractors to deliver services to our organisation? | | |
+| 9.1 Will you use sub-contractors to deliver services to the Organisation? | | |
 | 9.2 If yes, please list material sub-contractors and the services they provide. | | |
 | 9.3 Do you require sub-contractors to meet equivalent security standards? | | |
 | 9.4 Do you conduct security assessments of material sub-contractors? | | |
-| 9.5 Will any sub-contractors process our personal data? If yes, identify them. | | |
+| 9.5 Will any sub-contractors process personal data on behalf of the Organisation? If yes, identify them. | | |
 
 ---
 
