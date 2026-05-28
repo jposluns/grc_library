@@ -2,15 +2,15 @@
 
 **Document Title:** CTPAT IT and Cybersecurity Compliance Controls Register 
 **Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md), [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/standard-third-party-risk.md`](../supply-chain/standard-third-party-risk.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md) 
+**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md), [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/standard-third-party-risk.md`](../supply-chain/standard-third-party-risk.md), [`supply-chain/register-ctpat-full-msc-controls.md`](../supply-chain/register-ctpat-full-msc-controls.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md) 
 **Classification:** Public 
 **Category:** Trade Compliance: IT and Cybersecurity Controls 
 **Review Frequency:** Annual and upon material CTPAT criteria update, audit finding, or certification renewal 
-**Repository Path:** [`compliance/register-ctpat-compliance-controls.md`](register-ctpat-compliance-controls.md) 
+**Repository Path:** [`compliance/register-ctpat-it-controls.md`](register-ctpat-it-controls.md) 
 **Confidentiality:** Public 
 **License:** CC0 1.0 Universal 
 

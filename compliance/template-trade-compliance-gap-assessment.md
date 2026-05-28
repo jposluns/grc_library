@@ -6,7 +6,7 @@
 **Date:** 2026-05-27 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-ctpat-compliance-controls.md`](register-ctpat-compliance-controls.md), [`compliance/register-pip-compliance-controls.md`](register-pip-compliance-controls.md), [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md), [`compliance/procedure-aeo-it-self-assessment.md`](procedure-aeo-it-self-assessment.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`compliance/procedure-capa.md`](procedure-capa.md) 
+**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-ctpat-it-controls.md`](register-ctpat-it-controls.md), [`compliance/register-pip-compliance-controls.md`](register-pip-compliance-controls.md), [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md), [`compliance/procedure-aeo-it-self-assessment.md`](procedure-aeo-it-self-assessment.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`compliance/procedure-capa.md`](procedure-capa.md) 
 **Classification:** Public 
 **Category:** Trade Compliance: Gap Assessment 
 **Review Frequency:** Annual and upon programme criteria revision, new programme application, or material change to supply chain operations 
@@ -126,7 +126,7 @@ Complete the following fields for each gap assessment.
 | Business continuity and IT recovery | CTPAT IT-9; PIP-IT-10; AEO-S | [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md) | | | | | |
 | Audit logging and monitoring | CTPAT IT-10; AEO-S | [`operations/register-it-security-operations.md`](../operations/register-it-security-operations.md) | | | | | |
 
-**Detailed IT controls mapping:** See [`compliance/register-ctpat-compliance-controls.md`](register-ctpat-compliance-controls.md), [`compliance/register-pip-compliance-controls.md`](register-pip-compliance-controls.md), and [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md).
+**Detailed IT controls mapping:** See [`compliance/register-ctpat-it-controls.md`](register-ctpat-it-controls.md), [`compliance/register-pip-compliance-controls.md`](register-pip-compliance-controls.md), and [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md).
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Supply Chain Domain README 
 **Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Supplier Risk Maintainer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) 
@@ -40,7 +40,7 @@ This directory contains organization-neutral supplier governance, third-party ri
 | Register | Supplier Risk Register Template | [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md) |
 | Register | Subprocessor Register Template | [`supply-chain/register-subprocessor-template.md`](register-subprocessor-template.md) |
 | Template | Supplier Security Questionnaire | [`supply-chain/template-supplier-security-questionnaire.md`](template-supplier-security-questionnaire.md) |
-| Register | CTPAT Supply Chain Security Compliance Controls Register | [`supply-chain/register-ctpat-compliance-controls.md`](register-ctpat-compliance-controls.md) |
+| Register | CTPAT Full Minimum Security Criteria Controls Register | [`supply-chain/register-ctpat-full-msc-controls.md`](register-ctpat-full-msc-controls.md) |
 | Matrix | Supply Chain Security Programme Alignment Matrix | [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](matrix-supply-chain-security-programme-alignment.md) |
 
 ---

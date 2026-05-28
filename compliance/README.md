@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance Domain README 
 **Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
+**Version:** 1.0.1 
+**Date:** 2026-05-28 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Governance Library Maintainer 
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md) 
@@ -39,7 +39,7 @@ This directory contains compliance management policies, registers, and audit gov
 | Procedure | Corrective and Preventive Action (CAPA) Procedure | [`compliance/procedure-capa.md`](procedure-capa.md) |
 | Procedure | AEO IT Self-Assessment Procedure | [`compliance/procedure-aeo-it-self-assessment.md`](procedure-aeo-it-self-assessment.md) |
 | Procedure | Control Testing Procedure | [`compliance/procedure-control-testing.md`](procedure-control-testing.md) |
-| Register | CTPAT IT and Cybersecurity Compliance Controls Register | [`compliance/register-ctpat-compliance-controls.md`](register-ctpat-compliance-controls.md) |
+| Register | CTPAT IT and Cybersecurity Compliance Controls Register | [`compliance/register-ctpat-it-controls.md`](register-ctpat-it-controls.md) |
 | Register | PIP IT and Cybersecurity Compliance Controls Register | [`compliance/register-pip-compliance-controls.md`](register-pip-compliance-controls.md) |
 | Register | Compliance Obligations Register Template | [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md) |
 | Template | Trade Compliance Programme Gap Assessment Template | [`compliance/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md) |

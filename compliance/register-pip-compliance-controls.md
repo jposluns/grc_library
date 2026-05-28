@@ -6,7 +6,7 @@
 **Date:** 2026-05-27 
 **Owner:** Chief Compliance Officer 
 **Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md), [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/register-ctpat-compliance-controls.md`](register-ctpat-compliance-controls.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md) 
+**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-cybersecurity-requirements.md), [`compliance/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/register-ctpat-it-controls.md`](register-ctpat-it-controls.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md) 
 **Classification:** Public 
 **Category:** Trade Compliance: IT and Cybersecurity Controls 
 **Review Frequency:** Annual and upon material CBSA criteria update, audit finding, or certification renewal 
@@ -78,7 +78,7 @@ See [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](annex-aeo-s-it-c
 
 ## PIP-CTPAT cross-reference
 
-CTPAT (US) and PIP (Canada) maintain a mutual recognition arrangement. Evidence collected for CTPAT IT criteria may be reused for PIP with minimal supplementation. See [`compliance/register-ctpat-compliance-controls.md`](register-ctpat-compliance-controls.md) for the CTPAT mapping.
+CTPAT (US) and PIP (Canada) maintain a mutual recognition arrangement. Evidence collected for CTPAT IT criteria may be reused for PIP with minimal supplementation. See [`compliance/register-ctpat-it-controls.md`](register-ctpat-it-controls.md) for the CTPAT mapping.
 
 | PIP Requirement | CTPAT Equivalent | Shared Evidence |
 |---|---|---|
