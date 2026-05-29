@@ -1,0 +1,40 @@
+cff-version: 1.2.0
+title: "Governance, Risk, and Compliance Documentation Library"
+abstract: >-
+  A CC0-licensed public-domain reference set for building an
+  organisation-neutral governance, risk, compliance, security, privacy,
+  resilience, supplier, and artificial-intelligence governance
+  programme. Includes ~280 documents across 11 domains plus
+  jurisdiction-specific privacy annexes and sector-specific compliance
+  sub-directories.
+message: >-
+  If you find this library useful, citation is appreciated but is not
+  required. The library is released under CC0 1.0 Universal, which
+  imposes no attribution obligation; this CITATION file is a request,
+  not a licence condition.
+type: dataset
+authors:
+  - family-names: "Posluns"
+    given-names: "Jeffrey"
+    email: "jeff@posluns.ca"
+    orcid: "https://orcid.org/0009-0000-7775-2233"
+    website: "https://linkedin.com/in/jposluns"
+    alias: "jposluns"
+license: CC0-1.0
+repository-code: "https://github.com/jposluns/grc_library"
+url: "https://github.com/jposluns/grc_library"
+keywords:
+  - governance
+  - risk
+  - compliance
+  - GRC
+  - information security
+  - privacy
+  - artificial intelligence
+  - AI governance
+  - resilience
+  - supply chain
+  - audit
+  - cybersecurity
+  - public domain
+  - CC0
