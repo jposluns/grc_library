@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.0\
+**Version:** 1.27.1\
 **Date:** 2026-05-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -50,7 +50,8 @@ All active repository documents should be Public.
 | Governance | Register | Glossary and Acronym Index | [`governance/register-glossary.md`](register-glossary.md) | Governance Library Maintainer | Annual | Acronyms, external standards, regulations, frameworks, regulators, sector programmes |
 | Governance | Register | Canonical Citations Register | [`governance/register-canonical-citations.md`](register-canonical-citations.md) | Governance Library Maintainer | Quarterly | Positive list of cited standards with current versions, publication dates, superseded versions; source for the standards-currency linter |
 | Governance | Specification | Citation Verification Specification | [`governance/specification-citation-verification.md`](specification-citation-verification.md) | Governance Library Maintainer | Annual | Methodology for verifying canonical citations against publisher canonical sources with Wayback snapshot capture and confidence ratings |
-| Governance | Register | Citation Verifications Register | [`governance/register-citation-verifications.md`](register-citation-verifications.md) | Governance Library Maintainer | Per Citation Verification Specification §11 | Append-only verification log for canonical citations: publisher URL, captured text, Wayback snapshot, confidence rating, date checked |
+| Governance | Register | Citation Verifications Register | [`governance/register-citation-verifications.md`](register-citation-verifications.md) | Governance Library Maintainer | Per Citation Verification Specification §12 | Append-only verification log for canonical citations: publisher URL, captured text, Wayback snapshot, confidence rating, date checked, captured-by identifier |
+| Governance | Template | Citation Verification Worklist Template | [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md) | Governance Library Maintainer | Annual | Per-batch working artefact enforcing the AI/human verifier split in Citation Verification Specification §3 |
 | Governance | Register | Coverage Gap Analysis Register | [`governance/register-coverage-gaps.md`](register-coverage-gaps.md) | Governance Library Maintainer | Quarterly | Honest disclosure of sectors, jurisdictions, regulations, cloud providers, and capabilities not covered by the library |
 | Governance | Register | Role Authority Register | [`governance/register-role-authority.md`](register-role-authority.md) | Governance Library Maintainer | Annual | Accountability, RACI, approval authority |
 | Governance | Matrix | Cross-Framework Alignment Matrix | [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md) | Control Framework Maintainer | 6 to 12 months | ISO, NIST, COBIT, CCM, OWASP, MITRE ATLAS |
