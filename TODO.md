@@ -20,13 +20,9 @@ This file is informational and is not subject to the library's metadata-block, a
 
 ## Priority 3 — strategic capability
 
-### 3.1 Coverage gap analysis register
+### 3.1 Adopter decision tree
 
-`governance/register-coverage-gaps.md` — structured catalogue of known coverage gaps: sectors not covered (manufacturing, retail, hospitality, education, defence, mining, agriculture), jurisdictions not covered, regulations referenced but not detailed, and AI capabilities not addressed. Honest disclosure helps adopters set expectations and helps contributors target gaps.
-
-### 3.2 Adopter decision tree
-
-`docs/decision-tree.md` — "I'm a 50-person fintech in the EU — what do I read first?" structured navigation. Uses glossary (Priority 1.1) and coverage gaps (Priority 3.1) as inputs.
+`docs/decision-tree.md` — "I'm a 50-person fintech in the EU — what do I read first?" structured navigation. Uses the governance glossary and coverage gap register as inputs.
 
 ---
 

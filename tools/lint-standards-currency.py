@@ -175,8 +175,12 @@ def check_file(path: Path, entries: list[dict[str, object]]) -> list[tuple[int, 
                 sup_re = re.escape(superseded)
                 # Two patterns: "<id>:<version>" and "<id> <version>" and
                 # "<id> (<version>)". We combine in a single regex.
+                # The negative lookahead (?![.\-][\d\w]) prevents the match
+                # from triggering inside a longer version string. For example,
+                # "PCI DSS 4.0" must NOT match within "PCI DSS 4.0.1" because
+                # 4.0 is followed by .1 (a version-continuation pattern).
                 pattern = re.compile(
-                    rf"\b{std_id_re}\b\s*(?::|\(|\s+)\s*{sup_re}\b",
+                    rf"\b{std_id_re}\b\s*(?::|\(|\s+)\s*{sup_re}\b(?![.\-][\d\w])",
                     flags=re.IGNORECASE,
                 )
                 if pattern.search(line):
