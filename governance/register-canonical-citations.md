@@ -2,11 +2,11 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.2.0\
+**Version:** 1.3.0\
 **Date:** 2026-05-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
+**Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/register-citation-verifications.md`](register-citation-verifications.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
 **Classification:** Public\
 **Category:** Core Governance\
 **Review Frequency:** Quarterly, and upon publication of a superseding version of any listed standard\
@@ -32,6 +32,8 @@ The companion linter [`tools/lint-standards-currency.py`](../tools/lint-standard
 - References including "(draft)" markers where the current version has been published.
 
 The register is the single source of truth. When a new version of a standard is published, update this register first; the linter will then flag remaining references to the prior version across the library.
+
+Entries in this register are subject to publisher-source verification under the Citation Verification Specification ([`specification-citation-verification.md`](specification-citation-verification.md)). Verification results are recorded row-by-row in the Citation Verifications Register ([`register-citation-verifications.md`](register-citation-verifications.md)). Until an entry is verified there, it carries no recorded factual provenance beyond having been written into this register; the verification process is the control that converts written entries into evidence-bearing entries.
 
 ---
 

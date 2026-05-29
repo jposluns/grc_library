@@ -4,6 +4,63 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase Q1 (2026-05-29, Library Version 2026.05.14): Citation Verification Methodology and Register
+
+First sub-phase of a quality-system track (Phase Q, distinct from numbered content phases). Establishes a factual-verification control over the Canonical Citations Register: every citation is to be verified against the publisher's own canonical domain with verbatim text capture and a Wayback Machine snapshot URL recorded as a third-party evidence anchor.
+
+This phase adds the methodology and the empty register. Actual verification of the 96 existing canonical citations is performed in subsequent sub-phases (Phase Q2 onward), batched by publisher cluster to keep PRs reviewable.
+
+### Why this exists
+
+Audit assessment identified that the twelve automated linters verify structural integrity but not factual accuracy. A citation can pass every linter while being factually wrong about a standard's existence, version, or publication date. Standards-currency linter trusts the Canonical Citations Register as the source of truth; the register itself was populated by the maintainer and carries no recorded factual provenance. This control closes that gap.
+
+### Decision: full verification, not sampling
+
+An earlier proposal to spot-sample N citations per phase was rejected. Sampling has the wrong failure mode for a reference library: a citation that is wrong but un-sampled stays wrong and propagates to every adopter, invisible under a "sample clean" report. Every entry will be verified.
+
+### Threat model addressed
+
+The methodology explicitly defends against:
+
+- Adversarial AI-knowledge poisoning (content seeded to corrupt LLM knowledge of standards).
+- SEO and content-farm spam producing confident-sounding wrong claims.
+- Lookalike domains mimicking publisher sites.
+- AI summarisation drift (paraphrased content that diverges from the source).
+- Honest staleness in mirrors or caches.
+- Publisher silently amending pages after verification (mitigated by Wayback snapshot capture).
+- Verifier-side hallucination (mitigated by verbatim text capture and human spot-check).
+- Single-source dependency (mitigated by Tier 2 corroboration where available).
+
+### New files
+
+- `governance/specification-citation-verification.md` (v1.0.0, Specification doctype): 14 sections covering purpose, scope, threat model, trust tiers, publisher allow-list (28 publishers initially), verification procedure (pre-verification, fetch, compare, record, reconcile, spot-check), verifications register schema, confidence ratings (A/B/C/D), disposition of D-rated entries, verification freshness (12-month re-verification cadence), non-deferrable rules, and out-of-scope acknowledgements.
+- `governance/register-citation-verifications.md` (v1.0.0, Register doctype): append-only verification log with the 14-field schema, D-rated resolutions log, and coverage-summary table. Initially empty.
+
+### Non-deferrable rules established
+
+- Publisher canonical domain is the only primary source.
+- Captured text is the publisher's actual words, not a summary.
+- Wayback snapshot URL is recorded for every verification.
+- Human spot-check (5+ entries per batch) follows every verification batch.
+- D-rated entries are resolved (corrected or removed), not retained.
+- AI-generated content is never a verification source.
+- The verifier's prior belief is not a verification.
+
+### Cross-references updated
+
+- `governance/register-canonical-citations.md` (1.2.0 to 1.3.0): related-documents updated; forward reference to the verification specification and register added to the Purpose section.
+- `governance/register-document-index-and-classification.md` (1.26.5 to 1.27.0): both new documents indexed.
+
+### Library version
+
+`2026.05.13` to `2026.05.14`. README `1.7.6` to `1.7.7`.
+
+### Next
+
+Phase Q2: verification batch 1 (ISO/IEC and ISO standards, approximately 24 entries) against the publisher's catalogue pages.
+
+All 12 audits clean.
+
 ## Phase 22.6 (2026-05-29, Library Version 2026.05.13): Building Management Systems (BMS) Overlay Annex
 
 Sixth and final sub-phase of the Phase 22 OT depth track. Adds the BMS overlay annex, which identifies BMS-specific positions over the OT/ICS Security Standard rather than duplicating it. BMS are a subset of OT and remain governed by the OT/ICS Security Standard; this annex captures the deltas driven by life-safety integration, tenant impact, AHJ oversight, and the multi-vendor smart-building integration pattern.
