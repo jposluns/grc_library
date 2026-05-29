@@ -2,7 +2,7 @@
 
 **Document Title:** Operations Domain README\
 **Document Type:** Register\
-**Version:** 1.2.4\
+**Version:** 1.2.5\
 **Date:** 2026-05-29\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -65,6 +65,7 @@ This directory contains production and infrastructure security standards, proced
 | Procedure | OT Incident Response Procedure | [`operations/ot/procedure-ot-incident-response.md`](ot/procedure-ot-incident-response.md) |
 | Procedure | OT Change Management Procedure | [`operations/ot/procedure-ot-change-management.md`](ot/procedure-ot-change-management.md) |
 | Register | OT Asset Inventory and Lifecycle Register | [`operations/ot/register-ot-asset-inventory-and-lifecycle.md`](ot/register-ot-asset-inventory-and-lifecycle.md) |
+| Annex | Building Management Systems (BMS) Overlay Annex | [`operations/ot/annex-bms-overlay.md`](ot/annex-bms-overlay.md) |
 
 ---
 

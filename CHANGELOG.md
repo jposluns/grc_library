@@ -4,6 +4,52 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 22.6 (2026-05-29, Library Version 2026.05.13): Building Management Systems (BMS) Overlay Annex
+
+Sixth and final sub-phase of the Phase 22 OT depth track. Adds the BMS overlay annex, which identifies BMS-specific positions over the OT/ICS Security Standard rather than duplicating it. BMS are a subset of OT and remain governed by the OT/ICS Security Standard; this annex captures the deltas driven by life-safety integration, tenant impact, AHJ oversight, and the multi-vendor smart-building integration pattern.
+
+### New file
+
+- `operations/ot/annex-bms-overlay.md` (v1.0.0, Annex doctype): 12 numbered sections covering purpose, scope (in-scope, out-of-scope, boundary cases), BMS-vs-process-control differences, life-safety integration (non-interference principle, fire-system integration constraints, emergency operation override), AHJ coordination, BMS protocol governance (BACnet incl. BACnet/SC, LON, KNX, Modbus in BMS, proprietary protocols), multi-vendor coordination, tenant and occupancy data privacy, smart-building cloud integration, asset / change / incident overlay specifics, framework alignment, and cross-reference summary.
+
+### Key overlay positions established
+
+- **Non-interference principle**: cyber controls must not interfere with operation or response time of life-safety functions; containment actions affecting fire alarm, evacuation, or emergency lighting require Facilities Manager and (where required) AHJ authorisation.
+- **AHJ as approval authority**: changes to AHJ-regulated fire and life-safety equipment are at minimum Normal (typically Safety-related) in the change category model; AHJ notification or approval status is tracked on the change record.
+- **BACnet/SC preference**: where BACnet/SC is supported by deployed equipment, it must be enabled and unauthenticated BACnet/IP disabled at the conduit.
+- **OT-1 + S-B default for life-safety-integrated BMS**: BMS controllers integrated with fire or life-safety functions are OT-1 (critical control) and at least S-B (safety-adjacent); engineered life-safety functions are S-A.
+- **Smart-building cloud through OT DMZ**: cloud integration terminates at Purdue level 3.5, never directly in OT zones.
+- **Tenant and occupancy data are privacy-relevant**: BMS that captures identifiable presence, badge events, or per-tenant data is subject to the privacy policy and records-of-processing inventory.
+
+### Multi-vendor coordination codified
+
+BMS deployments are routinely multi-vendor (primary BMS, HVAC, fire, access, lighting, metering vendors). Security responsibility per subsystem is captured in the supplier register and contracts; each vendor has separate remote-access credentials, sessions, and audit trails; coordinated changes are managed jointly through the OT Change Management Procedure.
+
+### Framework alignment additions
+
+ISO 16484, ASHRAE 135 (BACnet), NIST SP 1900 series (smart buildings), NFPA 72 (US fire alarm code, 2025 edition), EN 54 series (European fire detection and fire alarm), TSA Pipeline Security Directive, ISO/IEC 27018 / 27701 (privacy in cloud / PIMS), GDPR / UK GDPR / CCPA.
+
+### Cross-references updated
+
+- `operations/ot/README.md` (1.4.0 to 1.5.0): annex added to Active documents; Phase 22 marked complete.
+- `operations/README.md` (1.2.4 to 1.2.5): annex added to OT sub-directory artefacts table.
+- `governance/register-document-index-and-classification.md` (1.26.4 to 1.26.5): annex added.
+- `governance/register-canonical-citations.md` (1.1.0 to 1.2.0): ISO 16484, ASHRAE 135, NIST SP 1900 series, NFPA 72, EN 54, TSA Pipeline Security Directive added.
+
+### Library version
+
+`2026.05.12` to `2026.05.13`. README `1.7.5` to `1.7.6`.
+
+### Phase 22 status
+
+Phase 22 (OT depth) complete: six sub-phases delivered (overview annex, OT/ICS Security Standard, OT Incident Response, OT Change Management, OT Asset Inventory and Lifecycle Register, BMS overlay). Subsequent OT expansion will be driven by adopter feedback and sector-specific requirements.
+
+### Next
+
+Tier 6 remaining items (cloud overlays beyond OT, identity depth, PQC deepening, cross-framework matrix expansion) or sector-track work, at user direction.
+
+All 12 audits clean.
+
 ## Phase 22.5 (2026-05-29, Library Version 2026.05.12): OT Asset Inventory and Lifecycle Register
 
 Fifth sub-phase of Phase 22. Defines the schema, governance, classification, and lifecycle model for OT assets, supplementing the general operations asset inventory and providing the authoritative record on which zone-and-conduit governance, OT change management, OT incident response, and OT vulnerability and patch management depend.

@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.1.0\
+**Version:** 1.2.0\
 **Date:** 2026-05-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -185,6 +185,12 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | IEC 62443-4-2 | 2019 | 2019 | Security for industrial automation and control systems: Part 4-2: Technical security requirements for IACS components | - |
 | IEC 61511 | 2016 (Edition 2, Amendment 1 in 2017) | 2016 | Functional safety: Safety instrumented systems for the process industry sector | Edition 1 (2003) |
 | IEC 61508 | 2010 | 2010 | Functional safety of electrical/electronic/programmable electronic safety-related systems | 1998 |
+| ISO 16484 | parts published 2010 to 2020 | various | Building automation and control systems (BACS) | - |
+| ASHRAE 135 | 2020 (with subsequent addenda) | 2020 | BACnet protocol for building automation and control networks (incl. BACnet/SC) | - |
+| NIST SP 1900 series | 2023 | 2023 | Smart-building cybersecurity and IoT guidance | - |
+| NFPA 72 | 2025 | 2025 | National Fire Alarm and Signaling Code | 2022, 2019 |
+| EN 54 | series, current parts published 2017 to 2023 | various | Fire detection and fire alarm systems (European standard series) | - |
+| TSA Pipeline Security Directive | SD02 (with subsequent revisions) | 2021 (initial; revised through 2024) | US Transportation Security Administration pipeline cybersecurity requirements | - |
 | Basel III | 2017 (with 2023 finalisation, in force 2025) | - | Banking regulation framework | Basel II |
 
 ## OECD and global
