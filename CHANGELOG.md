@@ -4,6 +4,59 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 22.4 (2026-05-29, Library Version 2026.05.11): OT Change Management Procedure
+
+Fourth sub-phase of Phase 22. Extends the general change management and configuration control procedure with OT-specific requirements: extended change windows aligned to production-maintenance schedules, mandatory vendor coordination, regression testing for safety-critical functions, and integration with safety management of change (MOC) under IEC 61511 where the change affects Safety Instrumented Systems.
+
+### New file
+
+- `operations/ot/procedure-ot-change-management.md` (v1.0.0, Procedure doctype): 15 numbered sections covering purpose, scope (with safety-management precedence rule), roles, guiding principles, change categories, change-request content and timeline, OT risk assessment, OT-specific testing, OT-CAB approval, implementation, verification, backout, documentation and audit trail, metrics, and framework alignment.
+
+### Guiding principles established
+
+- **Production-first scheduling**: changes are scheduled into existing production maintenance windows; cyber-driven windows outside production maintenance require explicit business and safety justification.
+- **Mandatory vendor coordination**: for vendor-controlled systems (DCS, PLC firmware, BMS controllers), no change without documented vendor approval or vendor-supplied patch package.
+- **Test before production**: every change tested in sandbox, test bench, or representative non-production zone before production deployment, with cyber, safety, and performance regression suites.
+- **Reversibility**: every change has a documented backout plan tested in non-production where feasible.
+- **Safety integration**: where a change affects a Safety Instrumented System, the safety-management-of-change (MOC) process under IEC 61511 takes precedence over IT-style change governance.
+- **No silent change**: undocumented field changes are tracked and remediated; cumulative drift drives baseline-reconciliation activity.
+
+### Change categories codified
+
+Five categories defined: Standard (pre-approved low-risk), Normal (assessed and OT-CAB-approved), Emergency (containment or safety-driven, expedited), Vendor-driven (vendor patch or firmware), and Safety-related (any change touching SIS, safety functions, or interlocks).
+
+### OT-CAB approval
+
+OT Change Advisory Board defined with composition (OT Security Lead, Plant Manager, Process Safety Engineer for safety-related, Control System Engineer, Vendor Liaison where applicable, CISO delegate). Decision criteria: production maintenance window alignment, risk-tier appropriate testing, vendor concurrence, backout plan tested, safety MOC closed where required.
+
+### Risk assessment framework
+
+Four-dimension risk model: cyber impact, safety impact, availability impact, vendor-support impact. Four-tier classification (low, moderate, high, critical) with mandatory testing depth and approval routing per tier.
+
+### Testing framework
+
+Three test environment types codified: sandbox (lab-isolated, vendor-supplied or self-built), test bench (replica of production for HMI / historian / engineering workstation changes), and non-production zone (live mirror for end-to-end validation). Cyber regression, safety-function regression, and performance regression suites required per tier.
+
+### Framework alignment
+
+IEC 62443-2-1 (programme element), IEC 62443-3-3 (system requirements where change introduces new controls), NIST SP 800-82 Rev 3 (configuration management section), ISO/IEC 27001 A.5.37 and A.8.32, IEC 61511 (mandatory MOC integration for SIS), NERC CIP-010, ITIL 4 (change-enablement practice), EU NIS 2.
+
+### Cross-references updated
+
+- `operations/ot/README.md` (1.2.0 to 1.3.0): procedure added to Active documents; Phase 22.4 removed from Planned section.
+- `operations/README.md` (1.2.2 to 1.2.3): procedure added to OT sub-directory artefacts table.
+- `governance/register-document-index-and-classification.md` (1.26.2 to 1.26.3): procedure added.
+
+### Library version
+
+`2026.05.10` to `2026.05.11`. README `1.7.3` to `1.7.4`.
+
+### Next
+
+Phase 22.5: OT Asset Inventory and Lifecycle Register (long-lifecycle assets, legacy OS handling, vendor-support state).
+
+All 12 audits clean.
+
 ## Phase 22.3 (2026-05-29, Library Version 2026.05.10): OT Incident Response Procedure
 
 Third sub-phase of Phase 22. Adds the operational sequence for responding to OT security incidents, extending the general security incident response procedure with OT-specific considerations.

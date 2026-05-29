@@ -2,7 +2,7 @@
 
 **Document Title:** Operational Technology (OT) Sub-Directory README\
 **Document Type:** Register\
-**Version:** 1.2.0\
+**Version:** 1.3.0\
 **Date:** 2026-05-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -50,12 +50,12 @@ The sub-directory does **not** duplicate IT security content already in the libr
 | Annex | OT Security Overview Annex | [`operations/ot/annex-ot-security-overview.md`](annex-ot-security-overview.md) |
 | Standard | OT/ICS Security Standard | [`operations/ot/standard-ot-ics-security.md`](standard-ot-ics-security.md) |
 | Procedure | OT Incident Response Procedure | [`operations/ot/procedure-ot-incident-response.md`](procedure-ot-incident-response.md) |
+| Procedure | OT Change Management Procedure | [`operations/ot/procedure-ot-change-management.md`](procedure-ot-change-management.md) |
 
 ---
 
-## Planned documents (Phase 22.4 onward)
+## Planned documents (Phase 22.5 onward)
 
-- **Procedure**: OT Change Management Procedure (extended change windows, vendor approval, regression testing for safety-critical functions). Phase 22.4.
 - **Register**: OT Asset Inventory and Lifecycle Register (long-lifecycle assets, legacy OS handling). Phase 22.5.
 - **Annex**: BMS-specific overlay (HVAC, access control, fire/life-safety integration considerations). Phase 22.6.
 
