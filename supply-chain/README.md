@@ -1,18 +1,18 @@
 # Supply Chain Domain
 
-**Document Title:** Supply Chain Domain README 
-**Document Type:** Register 
-**Version:** 1.3.0 
-**Date:** 2026-05-28 
-**Owner:** Supplier Risk Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) 
-**Classification:** Public 
-**Category:** Supply Chain Governance 
-**Review Frequency:** 6 to 12 months and upon material supplier, cloud, AI service, or regulatory change 
-**Repository Path:** [`supply-chain/README.md`](README.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Supply Chain Domain README\
+**Document Type:** Register\
+**Version:** 1.3.0\
+**Date:** 2026-05-28\
+**Owner:** Supplier Risk Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md)\
+**Classification:** Public\
+**Category:** Supply Chain Governance\
+**Review Frequency:** 6 to 12 months and upon material supplier, cloud, AI service, or regulatory change\
+**Repository Path:** [`supply-chain/README.md`](README.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

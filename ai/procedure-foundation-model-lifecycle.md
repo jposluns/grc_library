@@ -1,18 +1,18 @@
 # Foundation Model Lifecycle Procedure
 
-**Document Title:** Foundation Model Lifecycle Procedure 
-**Document Type:** Procedure 
-**Version:** 0.0.2 
-**Date:** 2026-05-28 
-**Owner:** AI Governance Approver 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/template-ai-vendor-security-questionnaire.md`](template-ai-vendor-security-questionnaire.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](../supply-chain/standard-cloud-exit-and-data-portability.md) 
-**Classification:** Public 
-**Category:** AI Governance 
-**Review Frequency:** Annual and upon material change to foundation-model providers, regulatory expectation, or risk posture 
-**Repository Path:** [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Foundation Model Lifecycle Procedure\
+**Document Type:** Procedure\
+**Version:** 0.0.2\
+**Date:** 2026-05-28\
+**Owner:** AI Governance Approver\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/template-ai-vendor-security-questionnaire.md`](template-ai-vendor-security-questionnaire.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](../supply-chain/standard-cloud-exit-and-data-portability.md)\
+**Classification:** Public\
+**Category:** AI Governance\
+**Review Frequency:** Annual and upon material change to foundation-model providers, regulatory expectation, or risk posture\
+**Repository Path:** [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

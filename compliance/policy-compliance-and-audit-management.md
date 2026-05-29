@@ -1,18 +1,18 @@
 # Compliance, Audit, and CAPA Management Policy
 
-**Document Title:** Compliance, Audit, and CAPA Management Policy 
-**Document Type:** Policy 
-**Version:** 1.0.1 
-**Date:** 2026-05-27 
-**Owner:** Chief Compliance Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md) 
-**Classification:** Public 
-**Category:** Compliance Management 
-**Review Frequency:** Annual or as required by regulatory or framework changes 
-**Repository Path:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Compliance, Audit, and CAPA Management Policy\
+**Document Type:** Policy\
+**Version:** 1.0.1\
+**Date:** 2026-05-27\
+**Owner:** Chief Compliance Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md)\
+**Classification:** Public\
+**Category:** Compliance Management\
+**Review Frequency:** Annual or as required by regulatory or framework changes\
+**Repository Path:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

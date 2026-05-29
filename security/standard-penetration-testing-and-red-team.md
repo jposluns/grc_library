@@ -1,18 +1,18 @@
 # Penetration Testing and Red Team Standard
 
-**Document Title:** Penetration Testing and Red Team Standard 
-**Document Type:** Standard 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md) 
-**Classification:** Public 
-**Category:** Information Security 
-**Review Frequency:** Annual and upon material threat, framework, or regulatory change 
-**Repository Path:** [`security/standard-penetration-testing-and-red-team.md`](standard-penetration-testing-and-red-team.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Penetration Testing and Red Team Standard\
+**Document Type:** Standard\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change\
+**Repository Path:** [`security/standard-penetration-testing-and-red-team.md`](standard-penetration-testing-and-red-team.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

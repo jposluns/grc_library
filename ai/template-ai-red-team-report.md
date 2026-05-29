@@ -1,18 +1,18 @@
 # AI Red Team Report Template
 
-**Document Title:** AI Red Team Report Template 
-**Document Type:** Template 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** AI Security Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md), [`security/standard-penetration-testing-and-red-team.md`](../security/standard-penetration-testing-and-red-team.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) 
-**Classification:** Public 
-**Category:** AI Governance 
-**Review Frequency:** Annual and upon material change to red team methodology or to threat catalogues 
-**Repository Path:** [`ai/template-ai-red-team-report.md`](template-ai-red-team-report.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** AI Red Team Report Template\
+**Document Type:** Template\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** AI Security Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md), [`security/standard-penetration-testing-and-red-team.md`](../security/standard-penetration-testing-and-red-team.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
+**Classification:** Public\
+**Category:** AI Governance\
+**Review Frequency:** Annual and upon material change to red team methodology or to threat catalogues\
+**Repository Path:** [`ai/template-ai-red-team-report.md`](template-ai-red-team-report.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

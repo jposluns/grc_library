@@ -1,18 +1,18 @@
 # Security Ticket Reporting Scheme
 
-**Document Title:** Security Ticket Reporting Scheme 
-**Document Type:** SOP 
-**Version:** 1.1.0 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Chief Information Security Officer 
-**Related Documents:** [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md) 
-**Classification:** Public 
-**Category:** Information Security 
-**Review Frequency:** Annual or upon significant change to vendor or tooling landscape 
-**Repository Path:** [`security/sop-security-ticket-reporting-scheme.md`](sop-security-ticket-reporting-scheme.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Security Ticket Reporting Scheme\
+**Document Type:** SOP\
+**Version:** 1.1.0\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Chief Information Security Officer\
+**Related Documents:** [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual or upon significant change to vendor or tooling landscape\
+**Repository Path:** [`security/sop-security-ticket-reporting-scheme.md`](sop-security-ticket-reporting-scheme.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

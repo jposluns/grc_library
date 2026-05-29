@@ -1,18 +1,18 @@
 # Energy and Utilities Sector Requirements Annex
 
-**Document Title:** Energy and Utilities Sector Requirements Annex 
-**Document Type:** Annex 
-**Version:** 0.0.2 
-**Date:** 2026-05-28 
-**Owner:** Chief Compliance Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/annex-nis-2-implementation.md`](../annex-nis-2-implementation.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`operations/standard-network-security-and-segmentation.md`](../../operations/standard-network-security-and-segmentation.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md) 
-**Classification:** Public 
-**Category:** Compliance: Sector-Specific 
-**Review Frequency:** Annual and upon material sector-regulator, IEC 62443, or critical-infrastructure-protection-standard change 
-**Repository Path:** [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](annex-energy-and-utilities-sector-requirements.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Energy and Utilities Sector Requirements Annex\
+**Document Type:** Annex\
+**Version:** 0.0.2\
+**Date:** 2026-05-28\
+**Owner:** Chief Compliance Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/annex-nis-2-implementation.md`](../annex-nis-2-implementation.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`operations/standard-network-security-and-segmentation.md`](../../operations/standard-network-security-and-segmentation.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md)\
+**Classification:** Public\
+**Category:** Compliance: Sector-Specific\
+**Review Frequency:** Annual and upon material sector-regulator, IEC 62443, or critical-infrastructure-protection-standard change\
+**Repository Path:** [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](annex-energy-and-utilities-sector-requirements.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

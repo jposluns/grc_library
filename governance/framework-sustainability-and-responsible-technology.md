@@ -1,18 +1,18 @@
 # Sustainability and Responsible Technology Framework
 
-**Document Title:** Sustainability and Responsible Technology Framework 
-**Document Type:** Framework 
-**Version:** 1.1.0 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Officer 
-**Approving Authority:** Chief Information Officer 
-**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md) 
-**Classification:** Public 
-**Category:** Governance 
-**Review Frequency:** Annual and upon material ESG, regulatory, or AI sustainability change 
-**Repository Path:** [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Sustainability and Responsible Technology Framework\
+**Document Type:** Framework\
+**Version:** 1.1.0\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)\
+**Classification:** Public\
+**Category:** Governance\
+**Review Frequency:** Annual and upon material ESG, regulatory, or AI sustainability change\
+**Repository Path:** [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

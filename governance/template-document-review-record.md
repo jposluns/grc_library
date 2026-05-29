@@ -1,18 +1,18 @@
 # Document Review Record Template
 
-**Document Title:** Document Review Record Template 
-**Document Type:** Template 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Governance Library Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`governance/register-document-review-schedule.md`](register-document-review-schedule.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md) 
-**Classification:** Public 
-**Category:** Core Governance 
-**Review Frequency:** Annual and upon material change to the review procedure or schedule schema 
-**Repository Path:** [`governance/template-document-review-record.md`](template-document-review-record.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Document Review Record Template\
+**Document Type:** Template\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`governance/register-document-review-schedule.md`](register-document-review-schedule.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** Annual and upon material change to the review procedure or schedule schema\
+**Repository Path:** [`governance/template-document-review-record.md`](template-document-review-record.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

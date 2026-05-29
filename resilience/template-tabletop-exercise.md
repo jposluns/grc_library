@@ -1,18 +1,18 @@
 # Tabletop Exercise Template
 
-**Document Title:** Tabletop Exercise Template 
-**Document Type:** Template 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Resilience Owner 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`resilience/register-resilience-metrics-and-testing-log.md`](register-resilience-metrics-and-testing-log.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) 
-**Classification:** Public 
-**Category:** Resilience 
-**Review Frequency:** Annual and upon material change to scenario library, regulatory expectation, or organisational structure 
-**Repository Path:** [`resilience/template-tabletop-exercise.md`](template-tabletop-exercise.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Tabletop Exercise Template\
+**Document Type:** Template\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Resilience Owner\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`resilience/register-resilience-metrics-and-testing-log.md`](register-resilience-metrics-and-testing-log.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md)\
+**Classification:** Public\
+**Category:** Resilience\
+**Review Frequency:** Annual and upon material change to scenario library, regulatory expectation, or organisational structure\
+**Repository Path:** [`resilience/template-tabletop-exercise.md`](template-tabletop-exercise.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

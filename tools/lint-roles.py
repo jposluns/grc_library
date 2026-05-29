@@ -115,16 +115,23 @@ def check_file(path: Path, known: set[str]) -> list[tuple[str, str]]:
     """Return list of (field, value) findings where the value is not a known role."""
     text = path.read_text(encoding="utf-8")
     findings: list[tuple[str, str]] = []
-    for m in OWNER_PATTERN.finditer(text):
-        value = m.group(1).strip().rstrip()
-        # Trim trailing whitespace and trailing pipe characters
+
+    def normalise(value: str) -> str:
+        value = value.strip().rstrip()
         value = value.rstrip(" ").rstrip()
+        # Strip CommonMark hard-line-break backslash if present.
+        if value.endswith("\\"):
+            value = value[:-1].rstrip()
+        return value
+
+    for m in OWNER_PATTERN.finditer(text):
+        value = normalise(m.group(1))
         if is_placeholder(value):
             continue
         if value not in known:
             findings.append(("Owner", value))
     for m in APPROVER_PATTERN.finditer(text):
-        value = m.group(1).strip().rstrip()
+        value = normalise(m.group(1))
         if is_placeholder(value):
             continue
         if value not in known:

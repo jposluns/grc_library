@@ -1,18 +1,18 @@
 # Software Evaluation, Acceptance and Lifecycle Management Standard
 
-**Document Title:** Software Evaluation, Acceptance and Lifecycle Management Standard 
-**Document Type:** Standard 
-**Version:** 1.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Officer 
-**Approving Authority:** Chief Information Officer 
-**Related Documents:** [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) 
-**Classification:** Public 
-**Category:** Developer Security 
-**Review Frequency:** Annual and upon material platform or regulatory change 
-**Repository Path:** [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Software Evaluation, Acceptance and Lifecycle Management Standard\
+**Document Type:** Standard\
+**Version:** 1.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
+**Classification:** Public\
+**Category:** Developer Security\
+**Review Frequency:** Annual and upon material platform or regulatory change\
+**Repository Path:** [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

@@ -1,18 +1,18 @@
 # BASC Programme Overview Annex
 
-**Document Title:** BASC Programme Overview Annex 
-**Document Type:** Annex 
-**Version:** 1.1.0 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`compliance/logistics/policy-basc-information-security.md`](policy-basc-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) 
-**Classification:** Public 
-**Category:** Compliance: Logistics Sector 
-**Review Frequency:** Annual and upon material change to the BASC International Standard or its regional implementation 
-**Repository Path:** [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** BASC Programme Overview Annex\
+**Document Type:** Annex\
+**Version:** 1.1.0\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`compliance/logistics/policy-basc-information-security.md`](policy-basc-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
+**Classification:** Public\
+**Category:** Compliance: Logistics Sector\
+**Review Frequency:** Annual and upon material change to the BASC International Standard or its regional implementation\
+**Repository Path:** [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

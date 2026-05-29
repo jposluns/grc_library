@@ -1,18 +1,18 @@
 # Network Security and Segmentation Standard
 
-**Document Title:** Network Security and Segmentation Standard 
-**Document Type:** Standard 
-**Version:** 1.4.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`operations/standard-cloud-security-configuration-baseline.md`](standard-cloud-security-configuration-baseline.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) 
-**Classification:** Public 
-**Category:** Operations 
-**Review Frequency:** Annual and upon material platform or regulatory change 
-**Repository Path:** [`operations/standard-network-security-and-segmentation.md`](standard-network-security-and-segmentation.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Network Security and Segmentation Standard\
+**Document Type:** Standard\
+**Version:** 1.4.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`operations/standard-cloud-security-configuration-baseline.md`](standard-cloud-security-configuration-baseline.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
+**Classification:** Public\
+**Category:** Operations\
+**Review Frequency:** Annual and upon material platform or regulatory change\
+**Repository Path:** [`operations/standard-network-security-and-segmentation.md`](standard-network-security-and-segmentation.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

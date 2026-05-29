@@ -1,18 +1,18 @@
 # Canonical Citations Register
 
-**Document Title:** Canonical Citations Register 
-**Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-28 
-**Owner:** Governance Library Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py) 
-**Classification:** Public 
-**Category:** Core Governance 
-**Review Frequency:** Quarterly, and upon publication of a superseding version of any listed standard 
-**Repository Path:** [`governance/register-canonical-citations.md`](register-canonical-citations.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Canonical Citations Register\
+**Document Type:** Register\
+**Version:** 1.0.0\
+**Date:** 2026-05-28\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** Quarterly, and upon publication of a superseding version of any listed standard\
+**Repository Path:** [`governance/register-canonical-citations.md`](register-canonical-citations.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

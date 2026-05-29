@@ -1,18 +1,18 @@
 # Patch Management Procedure
 
-**Document Title:** Patch Management Procedure 
-**Document Type:** Procedure 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** IT Operations Lead 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`security/policy-information-security.md`](../security/policy-information-security.md) 
-**Classification:** Public 
-**Category:** Operations Security 
-**Review Frequency:** Annual and upon material threat, framework, or regulatory change 
-**Repository Path:** [`operations/procedure-patch-management.md`](procedure-patch-management.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Patch Management Procedure\
+**Document Type:** Procedure\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** IT Operations Lead\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
+**Classification:** Public\
+**Category:** Operations Security\
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change\
+**Repository Path:** [`operations/procedure-patch-management.md`](procedure-patch-management.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

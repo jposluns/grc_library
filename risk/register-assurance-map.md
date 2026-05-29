@@ -1,18 +1,18 @@
 # Assurance Map Register
 
-**Document Title:** Assurance Map Register 
-**Document Type:** Register 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Risk Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-operational-risk-register.md`](template-operational-risk-register.md), [`risk/template-board-risk-report.md`](template-board-risk-report.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) 
-**Classification:** Public 
-**Category:** Risk Management 
-**Review Frequency:** Annual and upon material change to lines of defence, assurance providers, or risk methodology 
-**Repository Path:** [`risk/register-assurance-map.md`](register-assurance-map.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Assurance Map Register\
+**Document Type:** Register\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Risk Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-operational-risk-register.md`](template-operational-risk-register.md), [`risk/template-board-risk-report.md`](template-board-risk-report.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md)\
+**Classification:** Public\
+**Category:** Risk Management\
+**Review Frequency:** Annual and upon material change to lines of defence, assurance providers, or risk methodology\
+**Repository Path:** [`risk/register-assurance-map.md`](register-assurance-map.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

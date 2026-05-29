@@ -97,7 +97,11 @@ def extract_metadata(text: str) -> dict[str, str]:
         m = FIELD_PATTERN.match(line)
         if m:
             name, value = m.groups()
-            fields[name.strip()] = value.strip()
+            value = value.strip()
+            # Strip CommonMark hard-line-break backslash if present.
+            if value.endswith("\\"):
+                value = value[:-1].rstrip()
+            fields[name.strip()] = value
             seen = True
     return fields
 

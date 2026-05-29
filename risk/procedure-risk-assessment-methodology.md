@@ -1,18 +1,18 @@
 # Risk Assessment Methodology Procedure
 
-**Document Title:** Risk Assessment Methodology Procedure 
-**Document Type:** Procedure 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** GRC Programme Manager 
-**Approving Authority:** Chief Information Officer 
-**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md) 
-**Classification:** Public 
-**Category:** Risk 
-**Review Frequency:** Annual and upon material risk framework or regulatory change 
-**Repository Path:** [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Risk Assessment Methodology Procedure\
+**Document Type:** Procedure\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** GRC Programme Manager\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md)\
+**Classification:** Public\
+**Category:** Risk\
+**Review Frequency:** Annual and upon material risk framework or regulatory change\
+**Repository Path:** [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

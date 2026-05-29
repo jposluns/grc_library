@@ -1,18 +1,18 @@
 # Automated Decision-Making and Profiling Register
 
-**Document Title:** Automated Decision-Making and Profiling Register 
-**Document Type:** Register 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Privacy Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md) 
-**Classification:** Public 
-**Category:** Privacy 
-**Review Frequency:** Quarterly and upon material change to any registered ADM system 
-**Repository Path:** [`privacy/register-automated-decision-making.md`](register-automated-decision-making.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Automated Decision-Making and Profiling Register\
+**Document Type:** Register\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Privacy Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md)\
+**Classification:** Public\
+**Category:** Privacy\
+**Review Frequency:** Quarterly and upon material change to any registered ADM system\
+**Repository Path:** [`privacy/register-automated-decision-making.md`](register-automated-decision-making.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

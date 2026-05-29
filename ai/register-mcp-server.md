@@ -1,18 +1,18 @@
 # Model Context Protocol Server Register
 
-**Document Title:** Model Context Protocol Server Register 
-**Document Type:** Register 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** AI Security Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`dev-security/claude-rules/ai/mcp-security.md`](../dev-security/claude-rules/ai/mcp-security.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md) 
-**Classification:** Public 
-**Category:** AI Governance 
-**Review Frequency:** Quarterly and continuously updated upon server registration, change, or retirement 
-**Repository Path:** [`ai/register-mcp-server.md`](register-mcp-server.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Model Context Protocol Server Register\
+**Document Type:** Register\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** AI Security Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`dev-security/claude-rules/ai/mcp-security.md`](../dev-security/claude-rules/ai/mcp-security.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
+**Classification:** Public\
+**Category:** AI Governance\
+**Review Frequency:** Quarterly and continuously updated upon server registration, change, or retirement\
+**Repository Path:** [`ai/register-mcp-server.md`](register-mcp-server.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

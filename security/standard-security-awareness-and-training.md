@@ -1,18 +1,18 @@
 # Security Awareness and Training Standard
 
-**Document Title:** Security Awareness and Training Standard 
-**Document Type:** Standard 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md) 
-**Classification:** Public 
-**Category:** Information Security 
-**Review Frequency:** Annual and upon material threat, framework, or regulatory change 
-**Repository Path:** [`security/standard-security-awareness-and-training.md`](standard-security-awareness-and-training.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Security Awareness and Training Standard\
+**Document Type:** Standard\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change\
+**Repository Path:** [`security/standard-security-awareness-and-training.md`](standard-security-awareness-and-training.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 This standard defines the requirements for a security awareness and training programme. It establishes minimum training obligations, content requirements, delivery frequency, completion tracking, and role-based training requirements for personnel with elevated security responsibilities.
 

@@ -1,18 +1,18 @@
 # Cloud Exit and Data Portability Standard
 
-**Document Title:** Cloud Exit and Data Portability Standard 
-**Document Type:** Standard 
-**Version:** 1.1.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Chief Information Officer 
-**Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) 
-**Classification:** Public 
-**Category:** Supply Chain 
-**Review Frequency:** Annual 
-**Repository Path:** [`supply-chain/standard-cloud-exit-and-data-portability.md`](standard-cloud-exit-and-data-portability.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Cloud Exit and Data Portability Standard\
+**Document Type:** Standard\
+**Version:** 1.1.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
+**Classification:** Public\
+**Category:** Supply Chain\
+**Review Frequency:** Annual\
+**Repository Path:** [`supply-chain/standard-cloud-exit-and-data-portability.md`](standard-cloud-exit-and-data-portability.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

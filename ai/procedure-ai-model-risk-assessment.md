@@ -1,18 +1,18 @@
 # AI Model Risk Assessment Procedure
 
-**Document Title:** AI Model Risk Assessment Procedure 
-**Document Type:** Procedure 
-**Version:** 1.0.1 
-**Date:** 2026-05-28 
-**Owner:** AI Governance Approver 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) 
-**Classification:** Public 
-**Category:** AI Governance 
-**Review Frequency:** 6 to 12 months and upon material model, data, supplier, threat, or regulatory change 
-**Repository Path:** [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** AI Model Risk Assessment Procedure\
+**Document Type:** Procedure\
+**Version:** 1.0.1\
+**Date:** 2026-05-28\
+**Owner:** AI Governance Approver\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\
+**Classification:** Public\
+**Category:** AI Governance\
+**Review Frequency:** 6 to 12 months and upon material model, data, supplier, threat, or regulatory change\
+**Repository Path:** [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

@@ -1,18 +1,18 @@
 # Telecommunications Sector Compliance
 
-**Document Title:** Telecommunications Sector Compliance README 
-**Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-28 
-**Owner:** Chief Compliance Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`compliance/README.md`](../README.md), [`compliance/telecommunications/annex-telecommunications-sector-requirements.md`](annex-telecommunications-sector-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) 
-**Classification:** Public 
-**Category:** Compliance: Telecommunications Sector 
-**Review Frequency:** Annual and upon material change to a covered regulation 
-**Repository Path:** [`compliance/telecommunications/README.md`](README.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Telecommunications Sector Compliance README\
+**Document Type:** Register\
+**Version:** 1.0.0\
+**Date:** 2026-05-28\
+**Owner:** Chief Compliance Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`compliance/README.md`](../README.md), [`compliance/telecommunications/annex-telecommunications-sector-requirements.md`](annex-telecommunications-sector-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
+**Classification:** Public\
+**Category:** Compliance: Telecommunications Sector\
+**Review Frequency:** Annual and upon material change to a covered regulation\
+**Repository Path:** [`compliance/telecommunications/README.md`](README.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

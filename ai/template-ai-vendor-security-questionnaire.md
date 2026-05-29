@@ -1,18 +1,18 @@
 # AI Vendor Security Questionnaire Template
 
-**Document Title:** AI Vendor Security Questionnaire Template 
-**Document Type:** Template 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** AI Security Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`supply-chain/template-supplier-security-questionnaire.md`](../supply-chain/template-supplier-security-questionnaire.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/register-model-registry.md`](register-model-registry.md) 
-**Classification:** Public 
-**Category:** AI Governance 
-**Review Frequency:** Annual and upon material AI provider, threat-pattern, or regulatory change 
-**Repository Path:** [`ai/template-ai-vendor-security-questionnaire.md`](template-ai-vendor-security-questionnaire.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** AI Vendor Security Questionnaire Template\
+**Document Type:** Template\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** AI Security Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`supply-chain/template-supplier-security-questionnaire.md`](../supply-chain/template-supplier-security-questionnaire.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/register-model-registry.md`](register-model-registry.md)\
+**Classification:** Public\
+**Category:** AI Governance\
+**Review Frequency:** Annual and upon material AI provider, threat-pattern, or regulatory change\
+**Repository Path:** [`ai/template-ai-vendor-security-questionnaire.md`](template-ai-vendor-security-questionnaire.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

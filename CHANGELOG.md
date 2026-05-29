@@ -4,7 +4,48 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 21.9 (2026-05-29, Library Version 2026.05.5): Metadata line-break convention library-wide
+
+Library-wide rollout of the metadata-block line-break convention pilot tested in Library Version 2026.05.4 (PR #50). All governance documents now use the CommonMark §6.7 backslash-newline hard-line-break marker (`\`) between metadata fields, replacing the previous single-trailing-space pattern that GitHub correctly rendered as a soft line break (collapsing the metadata block into one paragraph).
+
+### Why this change
+
+Before this phase, every metadata block in every document ended each line with a single trailing space, which is **not** a valid CommonMark hard line break. CommonMark §6.7 requires either two-or-more trailing spaces or a literal backslash. GitHub correctly rendered the broken markup as one continuous paragraph, with metadata fields running together. The defect was invisible until viewed on GitHub.
+
+### Why backslash-newline rather than two trailing spaces
+
+A pure-CommonMark alternative without HTML mixing. The two-trailing-space variant is invisible in source and gets stripped by most editors on save (this is almost certainly how the original defect was introduced). The backslash is a real character, visible in source, and editor-safe. Pure-markdown renderers (Pandoc, LaTeX converters, static-site generators with HTML disabled) preserve hard line breaks via backslash but may strip raw `<br>` tags.
+
+### Scope of change
+
+- **290 files** had their metadata-block line endings converted from `Value ` (trailing space) to `Value\` (backslash before newline). The final line of each block does not require the marker because the following blank line and `---` separator create a paragraph break.
+- The conversion was mechanical; no content semantics changed.
+
+### Tooling updates
+
+- **`tools/lint-metadata.py`**: new `check_line_break_markers` function asserts every metadata line (except the last) ends with `\`. Applied to every active document and to domain README files. `extract_metadata` updated to strip the trailing backslash when capturing field values.
+- **`tools/build-taxonomy.py`**: `extract_metadata` updated to strip the trailing backslash.
+- **`tools/check-review-cadence.py`**: same fix.
+- **`tools/lint-roles.py`**: role-extraction normalisation strips trailing backslash.
+- **`tools/lint-filename-title-alignment.py`**: title parser strips trailing backslash.
+
+### Specification updates
+
+- **`specification-ingestion.md`** (1.4.3 → 1.5.0): canonical metadata template updated to show the backslash-newline convention. Explanatory notes added: marker required on every line except the last; do not use two trailing spaces (invisible and fragile); the audit enforces.
+
+### Pilot before rollout
+
+Library Version 2026.05.4 (PR #50) applied the convention only to the main README so the rendering could be visually verified on GitHub before library-wide application. With confirmation, this phase applied the convention to all 290 remaining documents.
+
+### Library version
+
+`2026.05.4` → `2026.05.5`. README `1.6.4` → `1.6.5`. Specification-ingestion `1.4.3` → `1.5.0` (minor version bump because of the convention change).
+
+All 12 audits clean.
+
 ## Phase 21.8 (2026-05-29, Library Version 2026.05.3): Adopter decision tree
+
+Eighth sub-phase of Phase 21 (foundations before content expansion).
 
 Eighth sub-phase of Phase 21 (foundations before content expansion). Second of two Priority 3 strategic-capability items. Closes the Priority 3 tier.
 

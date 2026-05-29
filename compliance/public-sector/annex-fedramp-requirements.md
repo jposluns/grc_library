@@ -1,18 +1,18 @@
 # FedRAMP Sector Requirements Annex
 
-**Document Title:** FedRAMP Sector Requirements Annex 
-**Document Type:** Annex 
-**Version:** 0.0.2 
-**Date:** 2026-05-28 
-**Owner:** Chief Compliance Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`operations/standard-cloud-security-configuration-baseline.md`](../../operations/standard-cloud-security-configuration-baseline.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md) 
-**Classification:** Public 
-**Category:** Compliance: Sector-Specific 
-**Review Frequency:** Annual and upon material FedRAMP baseline, OMB guidance, or authorisation status change 
-**Repository Path:** [`compliance/public-sector/annex-fedramp-requirements.md`](annex-fedramp-requirements.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** FedRAMP Sector Requirements Annex\
+**Document Type:** Annex\
+**Version:** 0.0.2\
+**Date:** 2026-05-28\
+**Owner:** Chief Compliance Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`operations/standard-cloud-security-configuration-baseline.md`](../../operations/standard-cloud-security-configuration-baseline.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
+**Classification:** Public\
+**Category:** Compliance: Sector-Specific\
+**Review Frequency:** Annual and upon material FedRAMP baseline, OMB guidance, or authorisation status change\
+**Repository Path:** [`compliance/public-sector/annex-fedramp-requirements.md`](annex-fedramp-requirements.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

@@ -1,18 +1,18 @@
 # Authentication and Password Management Standard
 
-**Document Title:** Authentication and Password Management Standard 
-**Document Type:** Standard 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md) 
-**Classification:** Public 
-**Category:** Information Security 
-**Review Frequency:** Annual and upon material threat, framework, or regulatory change 
-**Repository Path:** [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Authentication and Password Management Standard\
+**Document Type:** Standard\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change\
+**Repository Path:** [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 This standard defines authentication and password management requirements across all systems, applications, and services. It consolidates requirements referenced across the PAM Standard, Cloud Security Configuration Baseline, and IAM Policy into a single authoritative reference.
 

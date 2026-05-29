@@ -1,18 +1,18 @@
 # AI Model Documentation and Transparency Framework
 
-**Document Title:** AI Model Documentation and Transparency Framework 
-**Document Type:** Framework 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Information Officer 
-**Approving Authority:** Chief Information Officer 
-**Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md) 
-**Classification:** Public 
-**Category:** AI Governance 
-**Review Frequency:** Annual and upon material AI framework or regulatory change 
-**Repository Path:** [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** AI Model Documentation and Transparency Framework\
+**Document Type:** Framework\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md)\
+**Classification:** Public\
+**Category:** AI Governance\
+**Review Frequency:** Annual and upon material AI framework or regulatory change\
+**Repository Path:** [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

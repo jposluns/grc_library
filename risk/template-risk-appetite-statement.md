@@ -1,18 +1,18 @@
 # Risk Appetite Statement Template
 
-**Document Title:** Risk Appetite Statement Template 
-**Document Type:** Template 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Risk Officer 
-**Approving Authority:** Board of Directors 
-**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) 
-**Classification:** Public 
-**Category:** Risk Management 
-**Review Frequency:** Annual; and upon material strategic change, significant incident, or Board direction 
-**Repository Path:** [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Risk Appetite Statement Template\
+**Document Type:** Template\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Risk Officer\
+**Approving Authority:** Board of Directors\
+**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
+**Classification:** Public\
+**Category:** Risk Management\
+**Review Frequency:** Annual; and upon material strategic change, significant incident, or Board direction\
+**Repository Path:** [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

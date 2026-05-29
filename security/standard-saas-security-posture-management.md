@@ -1,18 +1,18 @@
 # SaaS Security Posture Management Standard
 
-**Document Title:** SaaS Security Posture Management Standard 
-**Document Type:** Standard 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../supply-chain/procedure-supplier-ongoing-monitoring.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md) 
-**Classification:** Public 
-**Category:** Information Security 
-**Review Frequency:** Annual and upon material change to SaaS portfolio, threat-pattern, or platform-native posture controls 
-**Repository Path:** [`security/standard-saas-security-posture-management.md`](standard-saas-security-posture-management.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** SaaS Security Posture Management Standard\
+**Document Type:** Standard\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../supply-chain/procedure-supplier-ongoing-monitoring.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material change to SaaS portfolio, threat-pattern, or platform-native posture controls\
+**Repository Path:** [`security/standard-saas-security-posture-management.md`](standard-saas-security-posture-management.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

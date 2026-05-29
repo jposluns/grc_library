@@ -1,18 +1,18 @@
 # IT Disaster Recovery Plan
 
-**Document Title:** IT Disaster Recovery Plan 
-**Document Type:** Plan 
-**Version:** 1.2.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Information Officer 
-**Approving Authority:** Chief Information Officer 
-**Related Documents:** [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) 
-**Classification:** Public 
-**Category:** Resilience 
-**Review Frequency:** Annual or following any major infrastructure change or DR exercise 
-**Repository Path:** [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** IT Disaster Recovery Plan\
+**Document Type:** Plan\
+**Version:** 1.2.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
+**Classification:** Public\
+**Category:** Resilience\
+**Review Frequency:** Annual or following any major infrastructure change or DR exercise\
+**Repository Path:** [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

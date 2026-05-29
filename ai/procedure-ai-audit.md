@@ -1,18 +1,18 @@
 # AI Audit Procedure
 
-**Document Title:** AI Audit Procedure 
-**Document Type:** Procedure 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Information Officer 
-**Approving Authority:** Chief Information Officer 
-**Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) 
-**Classification:** Public 
-**Category:** AI Governance 
-**Review Frequency:** Annual and upon material AI framework or regulatory change 
-**Repository Path:** [`ai/procedure-ai-audit.md`](procedure-ai-audit.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** AI Audit Procedure\
+**Document Type:** Procedure\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
+**Classification:** Public\
+**Category:** AI Governance\
+**Review Frequency:** Annual and upon material AI framework or regulatory change\
+**Repository Path:** [`ai/procedure-ai-audit.md`](procedure-ai-audit.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

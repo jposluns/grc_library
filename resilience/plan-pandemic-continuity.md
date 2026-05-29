@@ -1,18 +1,18 @@
 # Pandemic Continuity Plan
 
-**Document Title:** Pandemic Continuity Plan 
-**Document Type:** Plan 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Resilience Owner 
-**Approving Authority:** Executive Management 
-**Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`security/standard-remote-working-security.md`](../security/standard-remote-working-security.md), [`security/policy-byod.md`](../security/policy-byod.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md) 
-**Classification:** Public 
-**Category:** Resilience 
-**Review Frequency:** Annual and upon material public-health, supplier, workforce, or facility change 
-**Repository Path:** [`resilience/plan-pandemic-continuity.md`](plan-pandemic-continuity.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Pandemic Continuity Plan\
+**Document Type:** Plan\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Resilience Owner\
+**Approving Authority:** Executive Management\
+**Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`security/standard-remote-working-security.md`](../security/standard-remote-working-security.md), [`security/policy-byod.md`](../security/policy-byod.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)\
+**Classification:** Public\
+**Category:** Resilience\
+**Review Frequency:** Annual and upon material public-health, supplier, workforce, or facility change\
+**Repository Path:** [`resilience/plan-pandemic-continuity.md`](plan-pandemic-continuity.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

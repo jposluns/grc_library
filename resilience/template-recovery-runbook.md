@@ -1,18 +1,18 @@
 # Recovery Runbook Template
 
-**Document Title:** Recovery Runbook Template 
-**Document Type:** Template 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Resilience Owner 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`resilience/procedure-backup-and-recovery.md`](procedure-backup-and-recovery.md), [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) 
-**Classification:** Public 
-**Category:** Resilience 
-**Review Frequency:** Annual and upon material change to the system, its dependencies, or its recovery objectives 
-**Repository Path:** [`resilience/template-recovery-runbook.md`](template-recovery-runbook.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Recovery Runbook Template\
+**Document Type:** Template\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Resilience Owner\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`resilience/procedure-backup-and-recovery.md`](procedure-backup-and-recovery.md), [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
+**Classification:** Public\
+**Category:** Resilience\
+**Review Frequency:** Annual and upon material change to the system, its dependencies, or its recovery objectives\
+**Repository Path:** [`resilience/template-recovery-runbook.md`](template-recovery-runbook.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

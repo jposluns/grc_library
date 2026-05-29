@@ -1,18 +1,18 @@
 # Email Security Standard
 
-**Document Title:** Email Security Standard 
-**Document Type:** Standard 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`security/standard-security-awareness-and-training.md`](standard-security-awareness-and-training.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`privacy/template-privacy-notice.md`](../privacy/template-privacy-notice.md) 
-**Classification:** Public 
-**Category:** Information Security 
-**Review Frequency:** Annual and upon material change to email infrastructure, threat-pattern, or regulator-expected posture 
-**Repository Path:** [`security/standard-email-security.md`](standard-email-security.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Email Security Standard\
+**Document Type:** Standard\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`security/standard-security-awareness-and-training.md`](standard-security-awareness-and-training.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`privacy/template-privacy-notice.md`](../privacy/template-privacy-notice.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material change to email infrastructure, threat-pattern, or regulator-expected posture\
+**Repository Path:** [`security/standard-email-security.md`](standard-email-security.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

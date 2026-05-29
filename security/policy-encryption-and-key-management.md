@@ -1,18 +1,18 @@
 # Encryption and Key Management Policy
 
-**Document Title:** Encryption and Key Management Policy 
-**Document Type:** Policy 
-**Version:** 1.3.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) 
-**Classification:** Public 
-**Category:** Information Security 
-**Review Frequency:** Annual and upon material threat, framework, or regulatory change 
-**Repository Path:** [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Encryption and Key Management Policy\
+**Document Type:** Policy\
+**Version:** 1.3.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change\
+**Repository Path:** [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

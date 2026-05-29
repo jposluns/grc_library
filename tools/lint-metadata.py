@@ -137,6 +137,9 @@ REQUIRED_FIELDS = [
 ]
 
 FIELD_PATTERN = re.compile(r"^\*\*([^*]+):\*\*\s*(.*?)\s*$")
+# Detects metadata lines as they appear on disk (with their raw line-ending
+# characters). Used by the line-break-marker check.
+FIELD_RAW_PATTERN = re.compile(r"^\*\*([^*]+):\*\*\s+.+$")
 VERSION_RE = re.compile(r"^\d+\.\d+\.\d+$")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 LINK_RE = re.compile(r"\[`([^`]+)`\]\(([^)]+)\)")
@@ -182,7 +185,12 @@ def iter_markdown_files(paths: list[str]) -> list[Path]:
 
 
 def extract_metadata(text: str) -> dict[str, str]:
-    """Return the metadata block parsed as a field name to value dict."""
+    """Return the metadata block parsed as a field name to value dict.
+
+    Strips the CommonMark backslash-newline hard-line-break marker
+    (``\\`` at end of line) when present, so the captured value is the
+    user-facing content only.
+    """
     fields: dict[str, str] = {}
     # The block ends at the first `---` separator line or first empty line
     # after at least one field has been seen.
@@ -196,9 +204,56 @@ def extract_metadata(text: str) -> dict[str, str]:
         m = FIELD_PATTERN.match(line)
         if m:
             name, value = m.groups()
-            fields[name.strip()] = value.strip()
+            value = value.strip()
+            # Strip trailing backslash (CommonMark hard line break marker).
+            if value.endswith("\\"):
+                value = value[:-1].rstrip()
+            fields[name.strip()] = value
             seen_field = True
     return fields
+
+
+def check_line_break_markers(text: str) -> list[str]:
+    """Verify metadata block line breaks use the backslash-newline convention.
+
+    Each metadata line (a line matching ``**Field:** value``) at the top of
+    the file must end with a literal ``\\`` character so that GitHub
+    renders the field as a hard line break (per CommonMark §6.7). The final
+    line of the block does not require the marker, since it is followed by
+    a paragraph break.
+
+    Returns a list of findings (line-number-prefixed messages).
+    """
+    findings: list[str] = []
+    lines = text.splitlines()
+    metadata_indices: list[int] = []
+    started = False
+    for i, line in enumerate(lines):
+        if FIELD_RAW_PATTERN.match(line):
+            metadata_indices.append(i)
+            started = True
+        elif started:
+            break
+        elif i > 10:
+            break
+    if not metadata_indices:
+        return findings
+    # Every metadata line except the last must end with a literal backslash.
+    for idx_in_block, line_idx in enumerate(metadata_indices):
+        line = lines[line_idx]
+        is_last = idx_in_block == len(metadata_indices) - 1
+        stripped = line.rstrip()
+        ends_with_backslash = stripped.endswith("\\")
+        if is_last:
+            # Last line: no backslash required, but if present, allow it.
+            continue
+        if not ends_with_backslash:
+            findings.append(
+                f"L{line_idx + 1}: metadata line missing backslash-newline "
+                f"marker (expected line to end with '\\\\' per CommonMark "
+                f"§6.7 hard line-break convention)"
+            )
+    return findings
 
 
 def looks_role_based(value: str) -> bool:
@@ -258,6 +313,8 @@ def check_file(path: Path) -> list[str]:
         for required in ("Document Title", "License"):
             if required not in meta:
                 findings.append(f"domain README missing field: {required}")
+        # Line-break markers apply to domain READMEs too.
+        findings.extend(check_line_break_markers(text))
         return findings
 
     try:
@@ -267,6 +324,9 @@ def check_file(path: Path) -> list[str]:
         return findings
 
     meta = extract_metadata(text)
+
+    # 0. Backslash-newline line-break markers on metadata block.
+    findings.extend(check_line_break_markers(text))
 
     # 1. All required fields present.
     for f in REQUIRED_FIELDS:

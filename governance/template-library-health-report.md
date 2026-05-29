@@ -1,18 +1,18 @@
 # Library Health Report Template
 
-**Document Title:** Library Health Report Template 
-**Document Type:** Template 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Governance Library Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`governance/register-document-review-schedule.md`](register-document-review-schedule.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md) 
-**Classification:** Public 
-**Category:** Core Governance 
-**Review Frequency:** Annual and upon material change to the library quality and review cadence procedure 
-**Repository Path:** [`governance/template-library-health-report.md`](template-library-health-report.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Library Health Report Template\
+**Document Type:** Template\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`governance/register-document-review-schedule.md`](register-document-review-schedule.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** Annual and upon material change to the library quality and review cadence procedure\
+**Repository Path:** [`governance/template-library-health-report.md`](template-library-health-report.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

@@ -1,18 +1,18 @@
 # Role Authority Register
 
-**Document Title:** Role Authority Register 
-**Document Type:** Register 
-**Version:** 1.3.0 
-**Date:** 2026-05-28 
-**Owner:** Governance Library Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md) 
-**Classification:** Public 
-**Category:** Core Governance 
-**Review Frequency:** Annual 
-**Repository Path:** [`governance/register-role-authority.md`](register-role-authority.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Role Authority Register\
+**Document Type:** Register\
+**Version:** 1.3.0\
+**Date:** 2026-05-28\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** Annual\
+**Repository Path:** [`governance/register-role-authority.md`](register-role-authority.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

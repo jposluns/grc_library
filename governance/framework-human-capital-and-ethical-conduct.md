@@ -1,18 +1,18 @@
 # Human Capital and Ethical Conduct Framework
 
-**Document Title:** Human Capital and Ethical Conduct Framework 
-**Document Type:** Framework 
-**Version:** 1.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Officer 
-**Approving Authority:** Chief Information Officer 
-**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](../security/procedure-onboarding-and-offboarding.md), [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md) 
-**Classification:** Public 
-**Category:** Governance 
-**Review Frequency:** Annual and upon material HR, legal, or regulatory change 
-**Repository Path:** [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Human Capital and Ethical Conduct Framework\
+**Document Type:** Framework\
+**Version:** 1.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](../security/procedure-onboarding-and-offboarding.md), [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md)\
+**Classification:** Public\
+**Category:** Governance\
+**Review Frequency:** Annual and upon material HR, legal, or regulatory change\
+**Repository Path:** [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

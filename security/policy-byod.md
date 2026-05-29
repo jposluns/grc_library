@@ -1,18 +1,18 @@
 # Bring Your Own Device (BYOD) Policy
 
-**Document Title:** Bring Your Own Device (BYOD) Policy 
-**Document Type:** Policy 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-remote-working-security.md`](standard-remote-working-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md) 
-**Classification:** Public 
-**Category:** Information Security 
-**Review Frequency:** Annual and upon material platform, regulatory, or organisational change 
-**Repository Path:** [`security/policy-byod.md`](policy-byod.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Bring Your Own Device (BYOD) Policy\
+**Document Type:** Policy\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-remote-working-security.md`](standard-remote-working-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material platform, regulatory, or organisational change\
+**Repository Path:** [`security/policy-byod.md`](policy-byod.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

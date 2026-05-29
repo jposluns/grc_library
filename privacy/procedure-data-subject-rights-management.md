@@ -1,18 +1,18 @@
 # Data Subject Rights Management Procedure
 
-**Document Title:** Data Subject Rights Management Procedure 
-**Document Type:** Procedure 
-**Version:** 1.3.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Information Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) 
-**Classification:** Public 
-**Category:** Privacy 
-**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change 
-**Repository Path:** [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Data Subject Rights Management Procedure\
+**Document Type:** Procedure\
+**Version:** 1.3.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
+**Classification:** Public\
+**Category:** Privacy\
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change\
+**Repository Path:** [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

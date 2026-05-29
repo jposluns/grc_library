@@ -1,18 +1,18 @@
 # Master Project Specification
 
-**Document Title:** Master Project Specification 
-**Document Type:** Specification 
-**Version:** 1.3.0 
-**Date:** 2026-05-28 
-**Owner:** Chief Compliance Officer 
-**Approving Authority:** Chief Risk Officer 
-**Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md) 
-**Classification:** Public 
-**Category:** Meta-Governance 
-**Review Frequency:** Annual and upon material repository structure, governance, or licence change 
-**Repository Path:** [`specification-master-project.md`](specification-master-project.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Master Project Specification\
+**Document Type:** Specification\
+**Version:** 1.3.0\
+**Date:** 2026-05-28\
+**Owner:** Chief Compliance Officer\
+**Approving Authority:** Chief Risk Officer\
+**Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
+**Classification:** Public\
+**Category:** Meta-Governance\
+**Review Frequency:** Annual and upon material repository structure, governance, or licence change\
+**Repository Path:** [`specification-master-project.md`](specification-master-project.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

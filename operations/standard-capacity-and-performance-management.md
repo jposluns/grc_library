@@ -1,18 +1,18 @@
 # Capacity and Performance Management Standard
 
-**Document Title:** Capacity and Performance Management Standard 
-**Document Type:** Standard 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/standard-site-reliability-engineering.md`](standard-site-reliability-engineering.md), [`operations/standard-observability-and-telemetry.md`](standard-observability-and-telemetry.md), [`operations/standard-it-financial-management.md`](standard-it-financial-management.md), [`ai/standard-ai-inference-cost-governance.md`](../ai/standard-ai-inference-cost-governance.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](../resilience/policy-business-continuity-and-disaster-recovery.md) 
-**Classification:** Public 
-**Category:** IT Operations 
-**Review Frequency:** Annual and upon material change to demand profile, platform, or service architecture 
-**Repository Path:** [`operations/standard-capacity-and-performance-management.md`](standard-capacity-and-performance-management.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Capacity and Performance Management Standard\
+**Document Type:** Standard\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/standard-site-reliability-engineering.md`](standard-site-reliability-engineering.md), [`operations/standard-observability-and-telemetry.md`](standard-observability-and-telemetry.md), [`operations/standard-it-financial-management.md`](standard-it-financial-management.md), [`ai/standard-ai-inference-cost-governance.md`](../ai/standard-ai-inference-cost-governance.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](../resilience/policy-business-continuity-and-disaster-recovery.md)\
+**Classification:** Public\
+**Category:** IT Operations\
+**Review Frequency:** Annual and upon material change to demand profile, platform, or service architecture\
+**Repository Path:** [`operations/standard-capacity-and-performance-management.md`](standard-capacity-and-performance-management.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

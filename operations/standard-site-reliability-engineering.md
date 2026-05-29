@@ -1,18 +1,18 @@
 # Site Reliability Engineering Standard
 
-**Document Title:** Site Reliability Engineering Standard 
-**Document Type:** Standard 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/standard-observability-and-telemetry.md`](standard-observability-and-telemetry.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](../resilience/policy-business-continuity-and-disaster-recovery.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) 
-**Classification:** Public 
-**Category:** IT Operations 
-**Review Frequency:** Annual and upon material change to reliability practice, platform, or service architecture 
-**Repository Path:** [`operations/standard-site-reliability-engineering.md`](standard-site-reliability-engineering.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Site Reliability Engineering Standard\
+**Document Type:** Standard\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/standard-observability-and-telemetry.md`](standard-observability-and-telemetry.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](../resilience/policy-business-continuity-and-disaster-recovery.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
+**Classification:** Public\
+**Category:** IT Operations\
+**Review Frequency:** Annual and upon material change to reliability practice, platform, or service architecture\
+**Repository Path:** [`operations/standard-site-reliability-engineering.md`](standard-site-reliability-engineering.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

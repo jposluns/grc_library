@@ -1,18 +1,18 @@
 # Security Operations Centre Operating Model Standard
 
-**Document Title:** Security Operations Centre Operating Model Standard 
-**Document Type:** Standard 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](sop-security-ticket-reporting-scheme.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../operations/procedure-security-monitoring-and-alert-management.md), [`operations/procedure-threat-intelligence-and-siem-operations.md`](../operations/procedure-threat-intelligence-and-siem-operations.md), [`security/standard-penetration-testing-and-red-team.md`](standard-penetration-testing-and-red-team.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md), [`ai/plan-ai-incident-response.md`](../ai/plan-ai-incident-response.md) 
-**Classification:** Public 
-**Category:** Information Security 
-**Review Frequency:** Annual and upon material change to capability tier, supplier model, or detection portfolio 
-**Repository Path:** [`security/standard-soc-operating-model.md`](standard-soc-operating-model.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Security Operations Centre Operating Model Standard\
+**Document Type:** Standard\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](sop-security-ticket-reporting-scheme.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../operations/procedure-security-monitoring-and-alert-management.md), [`operations/procedure-threat-intelligence-and-siem-operations.md`](../operations/procedure-threat-intelligence-and-siem-operations.md), [`security/standard-penetration-testing-and-red-team.md`](standard-penetration-testing-and-red-team.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md), [`ai/plan-ai-incident-response.md`](../ai/plan-ai-incident-response.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material change to capability tier, supplier model, or detection portfolio\
+**Repository Path:** [`security/standard-soc-operating-model.md`](standard-soc-operating-model.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

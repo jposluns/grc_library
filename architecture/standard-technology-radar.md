@@ -1,18 +1,18 @@
 # Technology Radar Standard
 
-**Document Title:** Technology Radar Standard 
-**Document Type:** Standard 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Technology Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-reference-architecture.md`](standard-reference-architecture.md), [`architecture/procedure-architecture-review.md`](procedure-architecture-review.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) 
-**Classification:** Public 
-**Category:** Architecture 
-**Review Frequency:** Quarterly 
-**Repository Path:** [`architecture/standard-technology-radar.md`](standard-technology-radar.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Technology Radar Standard\
+**Document Type:** Standard\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Technology Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-reference-architecture.md`](standard-reference-architecture.md), [`architecture/procedure-architecture-review.md`](procedure-architecture-review.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md)\
+**Classification:** Public\
+**Category:** Architecture\
+**Review Frequency:** Quarterly\
+**Repository Path:** [`architecture/standard-technology-radar.md`](standard-technology-radar.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

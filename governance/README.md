@@ -1,18 +1,18 @@
 # Governance Domain
 
-**Document Title:** Governance Domain README 
-**Document Type:** Register 
-**Version:** 1.3.0 
-**Date:** 2026-05-28 
-**Owner:** Governance Library Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md) 
-**Classification:** Public 
-**Category:** Governance 
-**Review Frequency:** Annual and upon material repository structure change 
-**Repository Path:** [`governance/README.md`](README.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Governance Domain README\
+**Document Type:** Register\
+**Version:** 1.3.0\
+**Date:** 2026-05-28\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md)\
+**Classification:** Public\
+**Category:** Governance\
+**Review Frequency:** Annual and upon material repository structure change\
+**Repository Path:** [`governance/README.md`](README.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

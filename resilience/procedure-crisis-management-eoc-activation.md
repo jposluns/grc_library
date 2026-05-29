@@ -1,18 +1,18 @@
 # Crisis Management and Emergency Operations Activation Procedure
 
-**Document Title:** Crisis Management and Emergency Operations Activation Procedure 
-**Document Type:** Procedure 
-**Version:** 1.0.1 
-**Date:** 2026-05-28 
-**Owner:** Resilience Owner 
-**Approving Authority:** Executive Management 
-**Related Documents:** [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`resilience/register-eoc-contact-directory.md`](register-eoc-contact-directory.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md) 
-**Classification:** Public 
-**Category:** Resilience 
-**Review Frequency:** Annual and upon material incident, exercise, structure, supplier, or communication change 
-**Repository Path:** [`resilience/procedure-crisis-management-eoc-activation.md`](procedure-crisis-management-eoc-activation.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Crisis Management and Emergency Operations Activation Procedure\
+**Document Type:** Procedure\
+**Version:** 1.0.1\
+**Date:** 2026-05-28\
+**Owner:** Resilience Owner\
+**Approving Authority:** Executive Management\
+**Related Documents:** [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`resilience/register-eoc-contact-directory.md`](register-eoc-contact-directory.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md)\
+**Classification:** Public\
+**Category:** Resilience\
+**Review Frequency:** Annual and upon material incident, exercise, structure, supplier, or communication change\
+**Repository Path:** [`resilience/procedure-crisis-management-eoc-activation.md`](procedure-crisis-management-eoc-activation.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

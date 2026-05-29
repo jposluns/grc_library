@@ -1,18 +1,18 @@
 # Third-Party and Supply Chain Risk Standard
 
-**Document Title:** Third-Party and Supply Chain Risk Standard 
-**Document Type:** Standard 
-**Version:** 1.1.0 
-**Date:** 2026-05-28 
-**Owner:** Chief Risk Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../supply-chain/procedure-supplier-ongoing-monitoring.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](../supply-chain/procedure-supplier-exit-and-data-return.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) 
-**Classification:** Public 
-**Category:** Risk Management: Third-Party and Supply Chain 
-**Review Frequency:** Annual and upon material supply chain change, significant third-party incident, or regulatory update 
-**Repository Path:** [`risk/standard-third-party-and-supply-chain-risk.md`](standard-third-party-and-supply-chain-risk.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Third-Party and Supply Chain Risk Standard\
+**Document Type:** Standard\
+**Version:** 1.1.0\
+**Date:** 2026-05-28\
+**Owner:** Chief Risk Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../supply-chain/procedure-supplier-ongoing-monitoring.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](../supply-chain/procedure-supplier-exit-and-data-return.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
+**Classification:** Public\
+**Category:** Risk Management: Third-Party and Supply Chain\
+**Review Frequency:** Annual and upon material supply chain change, significant third-party incident, or regulatory update\
+**Repository Path:** [`risk/standard-third-party-and-supply-chain-risk.md`](standard-third-party-and-supply-chain-risk.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

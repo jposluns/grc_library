@@ -1,18 +1,18 @@
 # Reverse Framework Control Crosswalk Matrix
 
-**Document Title:** Reverse Framework Control Crosswalk Matrix 
-**Document Type:** Matrix 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Control Framework Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`NOTICE.md`](../NOTICE.md) 
-**Classification:** Public 
-**Category:** Core Governance 
-**Review Frequency:** 6 to 12 months and upon material source-framework or document index change 
-**Repository Path:** [`governance/matrix-reverse-framework-control-crosswalk.md`](matrix-reverse-framework-control-crosswalk.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Reverse Framework Control Crosswalk Matrix\
+**Document Type:** Matrix\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Control Framework Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`NOTICE.md`](../NOTICE.md)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** 6 to 12 months and upon material source-framework or document index change\
+**Repository Path:** [`governance/matrix-reverse-framework-control-crosswalk.md`](matrix-reverse-framework-control-crosswalk.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

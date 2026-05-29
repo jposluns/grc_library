@@ -1,18 +1,18 @@
 # Continuous Assurance and Improvement Framework
 
-**Document Title:** Continuous Assurance and Improvement Framework 
-**Document Type:** Framework 
-**Version:** 1.0.1 
-**Date:** 2026-05-28 
-**Owner:** GRC Programme Manager 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](../compliance/procedure-audit-planning.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md) 
-**Classification:** Public 
-**Category:** Core Governance 
-**Review Frequency:** Annual and upon material governance, AI, or regulatory change 
-**Repository Path:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Continuous Assurance and Improvement Framework\
+**Document Type:** Framework\
+**Version:** 1.0.1\
+**Date:** 2026-05-28\
+**Owner:** GRC Programme Manager\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](../compliance/procedure-audit-planning.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** Annual and upon material governance, AI, or regulatory change\
+**Repository Path:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

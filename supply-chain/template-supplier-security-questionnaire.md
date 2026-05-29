@@ -1,18 +1,18 @@
 # Supplier Security Questionnaire
 
-**Document Title:** Supplier Security Questionnaire 
-**Document Type:** Template 
-**Version:** 1.0.1 
-**Date:** 2026-05-28 
-**Owner:** Supplier Risk Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md) 
-**Classification:** Public 
-**Category:** Supply Chain Governance: Assessment 
-**Review Frequency:** Annual and upon significant standards revision 
-**Repository Path:** [`supply-chain/template-supplier-security-questionnaire.md`](template-supplier-security-questionnaire.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Supplier Security Questionnaire\
+**Document Type:** Template\
+**Version:** 1.0.1\
+**Date:** 2026-05-28\
+**Owner:** Supplier Risk Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md)\
+**Classification:** Public\
+**Category:** Supply Chain Governance: Assessment\
+**Review Frequency:** Annual and upon significant standards revision\
+**Repository Path:** [`supply-chain/template-supplier-security-questionnaire.md`](template-supplier-security-questionnaire.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

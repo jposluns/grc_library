@@ -1,18 +1,18 @@
 # Data Subject Access Request Workflow Template
 
-**Document Title:** Data Subject Access Request Workflow Template 
-**Document Type:** Template 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Privacy Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md) 
-**Classification:** Public 
-**Category:** Privacy 
-**Review Frequency:** Annual and upon material privacy, jurisdictional, or system-of-record change 
-**Repository Path:** [`privacy/template-dsar-workflow.md`](template-dsar-workflow.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Data Subject Access Request Workflow Template\
+**Document Type:** Template\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Privacy Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md)\
+**Classification:** Public\
+**Category:** Privacy\
+**Review Frequency:** Annual and upon material privacy, jurisdictional, or system-of-record change\
+**Repository Path:** [`privacy/template-dsar-workflow.md`](template-dsar-workflow.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

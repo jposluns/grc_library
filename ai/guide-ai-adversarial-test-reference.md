@@ -1,18 +1,18 @@
 # AI Adversarial Test Reference
 
-**Document Title:** AI Adversarial Test Reference 
-**Document Type:** Guide 
-**Version:** 1.3.0 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md) 
-**Classification:** Public 
-**Category:** AI Governance 
-**Review Frequency:** Annual and upon material AI framework or regulatory change 
-**Repository Path:** [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** AI Adversarial Test Reference\
+**Document Type:** Guide\
+**Version:** 1.3.0\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md)\
+**Classification:** Public\
+**Category:** AI Governance\
+**Review Frequency:** Annual and upon material AI framework or regulatory change\
+**Repository Path:** [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 This annex provides the adversarial test case library, red team methodology, and tooling guidance supporting the AI and Agentic Development Security Standard §§21 to 23. Test cases must be maintained quarterly per ADTEST-SEC-01.
 

@@ -1,18 +1,18 @@
 # Privileged Access Management Standard
 
-**Document Title:** Privileged Access Management Standard 
-**Document Type:** Standard 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md) 
-**Classification:** Public 
-**Category:** Information Security 
-**Review Frequency:** Annual and upon material threat, framework, or regulatory change 
-**Repository Path:** [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Privileged Access Management Standard\
+**Document Type:** Standard\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change\
+**Repository Path:** [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 This standard defines the requirements for managing privileged access across systems and environments. It establishes controls for the identification, provisioning, monitoring, and revocation of privileged accounts to minimize the risk of unauthorized access, credential abuse, and lateral movement.
 

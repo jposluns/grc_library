@@ -1,18 +1,18 @@
 # Supply Chain Security Programme Alignment Matrix
 
-**Document Title:** Supply Chain Security Programme Alignment Matrix 
-**Document Type:** Matrix 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** Supplier Risk Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](../compliance/logistics/register-ctpat-united-states-msc-controls.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](../compliance/logistics/register-pip-canada-controls.md), [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](../compliance/logistics/template-trade-compliance-gap-assessment.md) 
-**Classification:** Public 
-**Category:** Supply Chain Governance: Programme Alignment 
-**Review Frequency:** Annual and upon material programme criteria update or new programme membership 
-**Repository Path:** [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](matrix-supply-chain-security-programme-alignment.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Supply Chain Security Programme Alignment Matrix\
+**Document Type:** Matrix\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** Supplier Risk Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](../compliance/logistics/register-ctpat-united-states-msc-controls.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](../compliance/logistics/register-pip-canada-controls.md), [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](../compliance/logistics/template-trade-compliance-gap-assessment.md)\
+**Classification:** Public\
+**Category:** Supply Chain Governance: Programme Alignment\
+**Review Frequency:** Annual and upon material programme criteria update or new programme membership\
+**Repository Path:** [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](matrix-supply-chain-security-programme-alignment.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

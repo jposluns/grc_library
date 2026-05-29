@@ -1,18 +1,18 @@
 # Records Retention and Destruction Standard
 
-**Document Title:** Records Retention and Destruction Standard 
-**Document Type:** Standard 
-**Version:** 1.4.0 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) 
-**Classification:** Public 
-**Category:** Governance 
-**Review Frequency:** Annual or as required by regulatory or framework changes 
-**Repository Path:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Records Retention and Destruction Standard\
+**Document Type:** Standard\
+**Version:** 1.4.0\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
+**Classification:** Public\
+**Category:** Governance\
+**Review Frequency:** Annual or as required by regulatory or framework changes\
+**Repository Path:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

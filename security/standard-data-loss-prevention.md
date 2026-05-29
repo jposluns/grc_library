@@ -1,18 +1,18 @@
 # Data Loss Prevention Standard
 
-**Document Title:** Data Loss Prevention Standard 
-**Document Type:** Standard 
-**Version:** 1.3.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) 
-**Classification:** Public 
-**Category:** Information Security 
-**Review Frequency:** Annual and upon material threat, framework, or regulatory change 
-**Repository Path:** [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Data Loss Prevention Standard\
+**Document Type:** Standard\
+**Version:** 1.3.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change\
+**Repository Path:** [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

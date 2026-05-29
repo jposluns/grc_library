@@ -1,18 +1,18 @@
 # Developer Security Domain
 
-**Document Title:** Developer Security Domain README 
-**Document Type:** Register 
-**Version:** 1.1.0 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) 
-**Classification:** Public 
-**Category:** Developer Security 
-**Review Frequency:** 6 to 12 months and upon material threat, tooling, or framework change 
-**Repository Path:** [`dev-security/README.md`](README.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Developer Security Domain README\
+**Document Type:** Register\
+**Version:** 1.1.0\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
+**Classification:** Public\
+**Category:** Developer Security\
+**Review Frequency:** 6 to 12 months and upon material threat, tooling, or framework change\
+**Repository Path:** [`dev-security/README.md`](README.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

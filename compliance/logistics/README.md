@@ -1,18 +1,18 @@
 # Logistics Sector Compliance
 
-**Document Title:** Logistics Sector Compliance README 
-**Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-28 
-**Owner:** Chief Compliance Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`compliance/README.md`](README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) 
-**Classification:** Public 
-**Category:** Compliance: Logistics Sector 
-**Review Frequency:** Annual and upon material change to any covered programme or addition of a new programme 
-**Repository Path:** [`compliance/logistics/README.md`](README.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Logistics Sector Compliance README\
+**Document Type:** Register\
+**Version:** 1.0.0\
+**Date:** 2026-05-28\
+**Owner:** Chief Compliance Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`compliance/README.md`](README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
+**Classification:** Public\
+**Category:** Compliance: Logistics Sector\
+**Review Frequency:** Annual and upon material change to any covered programme or addition of a new programme\
+**Repository Path:** [`compliance/logistics/README.md`](README.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

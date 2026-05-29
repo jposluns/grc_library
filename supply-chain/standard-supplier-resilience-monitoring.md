@@ -1,18 +1,18 @@
 # Supplier Resilience Monitoring Standard
 
-**Document Title:** Supplier Resilience Monitoring Standard 
-**Document Type:** Standard 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Supplier Risk Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/register-concentration-risk.md`](register-concentration-risk.md), [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](procedure-fourth-party-and-nth-party-risk.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md) 
-**Classification:** Public 
-**Category:** Supply Chain Governance 
-**Review Frequency:** Annual and upon material change to the supplier portfolio, signals catalogue, or regulator-expected monitoring posture 
-**Repository Path:** [`supply-chain/standard-supplier-resilience-monitoring.md`](standard-supplier-resilience-monitoring.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Supplier Resilience Monitoring Standard\
+**Document Type:** Standard\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Supplier Risk Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/register-concentration-risk.md`](register-concentration-risk.md), [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](procedure-fourth-party-and-nth-party-risk.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md)\
+**Classification:** Public\
+**Category:** Supply Chain Governance\
+**Review Frequency:** Annual and upon material change to the supplier portfolio, signals catalogue, or regulator-expected monitoring posture\
+**Repository Path:** [`supply-chain/standard-supplier-resilience-monitoring.md`](standard-supplier-resilience-monitoring.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

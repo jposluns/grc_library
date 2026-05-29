@@ -1,18 +1,18 @@
 # Supplier Exit and Data Return Procedure
 
-**Document Title:** Supplier Exit and Data Return Procedure 
-**Document Type:** Procedure 
-**Version:** 1.0.1 
-**Date:** 2026-05-28 
-**Owner:** Supplier Risk Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](standard-cloud-exit-and-data-portability.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`supply-chain/register-subprocessor-template.md`](register-subprocessor-template.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md) 
-**Classification:** Public 
-**Category:** Supply Chain Governance: Exit Management 
-**Review Frequency:** Annual and upon significant change to supplier landscape or regulatory requirements 
-**Repository Path:** [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Supplier Exit and Data Return Procedure\
+**Document Type:** Procedure\
+**Version:** 1.0.1\
+**Date:** 2026-05-28\
+**Owner:** Supplier Risk Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](standard-cloud-exit-and-data-portability.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`supply-chain/register-subprocessor-template.md`](register-subprocessor-template.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md)\
+**Classification:** Public\
+**Category:** Supply Chain Governance: Exit Management\
+**Review Frequency:** Annual and upon significant change to supplier landscape or regulatory requirements\
+**Repository Path:** [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

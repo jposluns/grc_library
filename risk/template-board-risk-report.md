@@ -1,18 +1,18 @@
 # Board Risk Report Template
 
-**Document Title:** Board Risk Report Template 
-**Document Type:** Template 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Risk Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-operational-risk-register.md`](template-operational-risk-register.md), [`risk/register-scenario-risk-catalogue.md`](register-scenario-risk-catalogue.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/register-assurance-map.md`](register-assurance-map.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md), [`governance/framework-metrics-monitoring-and-performance-reporting.md`](../governance/framework-metrics-monitoring-and-performance-reporting.md) 
-**Classification:** Public 
-**Category:** Risk Management 
-**Review Frequency:** Annual and upon material change to the board's reporting expectations 
-**Repository Path:** [`risk/template-board-risk-report.md`](template-board-risk-report.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Board Risk Report Template\
+**Document Type:** Template\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Risk Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-operational-risk-register.md`](template-operational-risk-register.md), [`risk/register-scenario-risk-catalogue.md`](register-scenario-risk-catalogue.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/register-assurance-map.md`](register-assurance-map.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md), [`governance/framework-metrics-monitoring-and-performance-reporting.md`](../governance/framework-metrics-monitoring-and-performance-reporting.md)\
+**Classification:** Public\
+**Category:** Risk Management\
+**Review Frequency:** Annual and upon material change to the board's reporting expectations\
+**Repository Path:** [`risk/template-board-risk-report.md`](template-board-risk-report.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

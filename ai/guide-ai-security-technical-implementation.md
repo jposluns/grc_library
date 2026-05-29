@@ -1,18 +1,18 @@
 # AI Security Technical Implementation Guide
 
-**Document Title:** AI Security Technical Implementation Guide 
-**Document Type:** Guide 
-**Version:** 1.3.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) 
-**Classification:** Public 
-**Category:** AI Governance 
-**Review Frequency:** Annual and upon material AI framework or regulatory change 
-**Repository Path:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** AI Security Technical Implementation Guide\
+**Document Type:** Guide\
+**Version:** 1.3.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
+**Classification:** Public\
+**Category:** AI Governance\
+**Review Frequency:** Annual and upon material AI framework or regulatory change\
+**Repository Path:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 This guide contains implementation patterns, code examples, CI/CD configurations, and reference architectures supporting the AI and Agentic Development Security Standard. This is a technical reference, not a policy document. Requirements are stated in the parent standard.
 

@@ -1,18 +1,18 @@
 # AI Coding Assistant Security Guideline
 
-**Document Title:** AI Coding Assistant Security Guideline 
-**Document Type:** Guideline 
-**Version:** 1.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/claude-rules/README.md`](claude-rules/README.md), [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) 
-**Classification:** Public 
-**Category:** Developer Security 
-**Review Frequency:** 6 to 12 months and upon material change to AI coding tooling, threat landscape, or regulatory guidance 
-**Repository Path:** [`dev-security/guideline-ai-coding-assistant-security.md`](guideline-ai-coding-assistant-security.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** AI Coding Assistant Security Guideline\
+**Document Type:** Guideline\
+**Version:** 1.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/claude-rules/README.md`](claude-rules/README.md), [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
+**Classification:** Public\
+**Category:** Developer Security\
+**Review Frequency:** 6 to 12 months and upon material change to AI coding tooling, threat landscape, or regulatory guidance\
+**Repository Path:** [`dev-security/guideline-ai-coding-assistant-security.md`](guideline-ai-coding-assistant-security.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

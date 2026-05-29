@@ -1,18 +1,18 @@
 # Coverage Gap Analysis Register
 
-**Document Title:** Coverage Gap Analysis Register 
-**Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-29 
-**Owner:** Governance Library Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-glossary.md`](register-glossary.md), [`README.md`](../README.md), [`TODO.md`](../TODO.md) 
-**Classification:** Public 
-**Category:** Core Governance 
-**Review Frequency:** Quarterly, and upon completion of any phase that closes a recorded gap 
-**Repository Path:** [`governance/register-coverage-gaps.md`](register-coverage-gaps.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Coverage Gap Analysis Register\
+**Document Type:** Register\
+**Version:** 1.0.0\
+**Date:** 2026-05-29\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-glossary.md`](register-glossary.md), [`README.md`](../README.md), [`TODO.md`](../TODO.md)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** Quarterly, and upon completion of any phase that closes a recorded gap\
+**Repository Path:** [`governance/register-coverage-gaps.md`](register-coverage-gaps.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

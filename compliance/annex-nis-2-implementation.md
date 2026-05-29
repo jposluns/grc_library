@@ -1,18 +1,18 @@
 # NIS 2 Implementation Annex
 
-**Document Title:** NIS 2 Implementation Annex 
-**Document Type:** Annex 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Compliance Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md) 
-**Classification:** Public 
-**Category:** Compliance: Sector-Specific 
-**Review Frequency:** Annual and upon material national NIS 2 transposition, supervisory guidance, or sector designation change 
-**Repository Path:** [`compliance/annex-nis-2-implementation.md`](annex-nis-2-implementation.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** NIS 2 Implementation Annex\
+**Document Type:** Annex\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Compliance Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md)\
+**Classification:** Public\
+**Category:** Compliance: Sector-Specific\
+**Review Frequency:** Annual and upon material national NIS 2 transposition, supervisory guidance, or sector designation change\
+**Repository Path:** [`compliance/annex-nis-2-implementation.md`](annex-nis-2-implementation.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

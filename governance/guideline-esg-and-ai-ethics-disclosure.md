@@ -1,18 +1,18 @@
 # ESG and AI Ethics Disclosure Guideline
 
-**Document Title:** ESG and AI Ethics Disclosure Guideline 
-**Document Type:** Guideline 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Information Officer 
-**Approving Authority:** Chief Information Officer 
-**Related Documents:** [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md) 
-**Classification:** Public 
-**Category:** Governance 
-**Review Frequency:** Annual and upon material ESG, AI, or regulatory disclosure requirement change 
-**Repository Path:** [`governance/guideline-esg-and-ai-ethics-disclosure.md`](guideline-esg-and-ai-ethics-disclosure.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** ESG and AI Ethics Disclosure Guideline\
+**Document Type:** Guideline\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)\
+**Classification:** Public\
+**Category:** Governance\
+**Review Frequency:** Annual and upon material ESG, AI, or regulatory disclosure requirement change\
+**Repository Path:** [`governance/guideline-esg-and-ai-ethics-disclosure.md`](guideline-esg-and-ai-ethics-disclosure.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

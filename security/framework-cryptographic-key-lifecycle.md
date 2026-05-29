@@ -1,18 +1,18 @@
 # Cryptographic Key Lifecycle Management Framework
 
-**Document Title:** Cryptographic Key Lifecycle Management Framework 
-**Document Type:** Framework 
-**Version:** 1.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Chief Information Officer 
-**Related Documents:** [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md) 
-**Classification:** Public 
-**Category:** Information Security 
-**Review Frequency:** Annual and upon material cryptographic standard or regulatory change 
-**Repository Path:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Cryptographic Key Lifecycle Management Framework\
+**Document Type:** Framework\
+**Version:** 1.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material cryptographic standard or regulatory change\
+**Repository Path:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

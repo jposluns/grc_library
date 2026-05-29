@@ -1,18 +1,18 @@
 # Operational Risk Register Template
 
-**Document Title:** Operational Risk Register Template 
-**Document Type:** Template 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Risk Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/guideline-quantitative-risk-analysis.md`](guideline-quantitative-risk-analysis.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md) 
-**Classification:** Public 
-**Category:** Risk Management 
-**Review Frequency:** Annual and upon material change to risk methodology or business operations 
-**Repository Path:** [`risk/template-operational-risk-register.md`](template-operational-risk-register.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Operational Risk Register Template\
+**Document Type:** Template\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Risk Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/guideline-quantitative-risk-analysis.md`](guideline-quantitative-risk-analysis.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md)\
+**Classification:** Public\
+**Category:** Risk Management\
+**Review Frequency:** Annual and upon material change to risk methodology or business operations\
+**Repository Path:** [`risk/template-operational-risk-register.md`](template-operational-risk-register.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

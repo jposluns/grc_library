@@ -1,18 +1,18 @@
 # Operations Domain
 
-**Document Title:** Operations Domain README 
-**Document Type:** Register 
-**Version:** 1.1.0 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md) 
-**Classification:** Public 
-**Category:** IT Operations Security 
-**Review Frequency:** Annual and upon material infrastructure, cloud, or threat change 
-**Repository Path:** [`operations/README.md`](README.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Operations Domain README\
+**Document Type:** Register\
+**Version:** 1.1.0\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
+**Classification:** Public\
+**Category:** IT Operations Security\
+**Review Frequency:** Annual and upon material infrastructure, cloud, or threat change\
+**Repository Path:** [`operations/README.md`](README.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

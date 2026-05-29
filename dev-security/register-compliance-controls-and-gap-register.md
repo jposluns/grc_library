@@ -1,18 +1,18 @@
 # Compliance Controls and Gap Register Template
 
-**Document Title:** Compliance Controls and Gap Register Template 
-**Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** Security Architecture Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) 
-**Classification:** Public 
-**Category:** Developer Security 
-**Review Frequency:** Quarterly and upon material control implementation change 
-**Repository Path:** [`dev-security/register-compliance-controls-and-gap-register.md`](register-compliance-controls-and-gap-register.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Compliance Controls and Gap Register Template\
+**Document Type:** Register\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** Security Architecture Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md)\
+**Classification:** Public\
+**Category:** Developer Security\
+**Review Frequency:** Quarterly and upon material control implementation change\
+**Repository Path:** [`dev-security/register-compliance-controls-and-gap-register.md`](register-compliance-controls-and-gap-register.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

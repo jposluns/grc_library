@@ -1,18 +1,18 @@
 # Digital Twin and Simulation Governance Policy
 
-**Document Title:** Digital Twin and Simulation Governance Policy 
-**Document Type:** Policy 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Information Officer 
-**Approving Authority:** Chief Information Officer 
-**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) 
-**Classification:** Public 
-**Category:** Governance 
-**Review Frequency:** Annual and upon material technology or regulatory change 
-**Repository Path:** [`governance/policy-digital-twin-and-simulation-governance.md`](policy-digital-twin-and-simulation-governance.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Digital Twin and Simulation Governance Policy\
+**Document Type:** Policy\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
+**Classification:** Public\
+**Category:** Governance\
+**Review Frequency:** Annual and upon material technology or regulatory change\
+**Repository Path:** [`governance/policy-digital-twin-and-simulation-governance.md`](policy-digital-twin-and-simulation-governance.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

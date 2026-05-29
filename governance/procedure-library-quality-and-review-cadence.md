@@ -1,18 +1,18 @@
 # Library Quality and Review Cadence Procedure
 
-**Document Title:** Library Quality and Review Cadence Procedure 
-**Document Type:** Procedure 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Governance Library Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-document-review-schedule.md`](register-document-review-schedule.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`specification-master-project.md`](../specification-master-project.md), [`specification-ingestion.md`](../specification-ingestion.md) 
-**Classification:** Public 
-**Category:** Core Governance 
-**Review Frequency:** Annual and upon material change to library structure, tooling, or maintenance practice 
-**Repository Path:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Library Quality and Review Cadence Procedure\
+**Document Type:** Procedure\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-document-review-schedule.md`](register-document-review-schedule.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`specification-master-project.md`](../specification-master-project.md), [`specification-ingestion.md`](../specification-ingestion.md)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** Annual and upon material change to library structure, tooling, or maintenance practice\
+**Repository Path:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

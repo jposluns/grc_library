@@ -1,18 +1,18 @@
 # Information Security Domain
 
-**Document Title:** Information Security Domain README 
-**Document Type:** Register 
-**Version:** 1.2.0 
-**Date:** 2026-05-28 
-**Owner:** Information Security Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](policy-information-security.md) 
-**Classification:** Public 
-**Category:** Information Security 
-**Review Frequency:** Annual and upon material security, threat, architecture, or regulatory change 
-**Repository Path:** [`security/README.md`](README.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Information Security Domain README\
+**Document Type:** Register\
+**Version:** 1.2.0\
+**Date:** 2026-05-28\
+**Owner:** Information Security Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](policy-information-security.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material security, threat, architecture, or regulatory change\
+**Repository Path:** [`security/README.md`](README.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

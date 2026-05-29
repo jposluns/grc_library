@@ -1,18 +1,18 @@
 # Endpoint Management and Device Compliance Procedure
 
-**Document Title:** Endpoint Management and Device Compliance Procedure 
-**Document Type:** Procedure 
-**Version:** 1.3.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md) 
-**Classification:** Public 
-**Category:** Operations 
-**Review Frequency:** Annual and upon material platform or regulatory change 
-**Repository Path:** [`operations/procedure-endpoint-management-and-device-compliance.md`](procedure-endpoint-management-and-device-compliance.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Endpoint Management and Device Compliance Procedure\
+**Document Type:** Procedure\
+**Version:** 1.3.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md)\
+**Classification:** Public\
+**Category:** Operations\
+**Review Frequency:** Annual and upon material platform or regulatory change\
+**Repository Path:** [`operations/procedure-endpoint-management-and-device-compliance.md`](procedure-endpoint-management-and-device-compliance.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 This procedure defines the end-to-end lifecycle for provisioning, hardening, monitoring, and decommissioning endpoints and servers to ensure that a consistent, auditable, and compliant device estate.
 

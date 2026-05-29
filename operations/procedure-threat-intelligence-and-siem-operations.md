@@ -1,18 +1,18 @@
 # Threat Intelligence and SIEM Operations Procedure
 
-**Document Title:** Threat Intelligence and SIEM Operations Procedure 
-**Document Type:** Procedure 
-**Version:** 1.3.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) 
-**Classification:** Public 
-**Category:** Operations 
-**Review Frequency:** Annual and upon material platform or regulatory change 
-**Repository Path:** [`operations/procedure-threat-intelligence-and-siem-operations.md`](procedure-threat-intelligence-and-siem-operations.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Threat Intelligence and SIEM Operations Procedure\
+**Document Type:** Procedure\
+**Version:** 1.3.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
+**Classification:** Public\
+**Category:** Operations\
+**Review Frequency:** Annual and upon material platform or regulatory change\
+**Repository Path:** [`operations/procedure-threat-intelligence-and-siem-operations.md`](procedure-threat-intelligence-and-siem-operations.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

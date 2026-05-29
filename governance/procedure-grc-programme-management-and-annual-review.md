@@ -1,18 +1,18 @@
 # GRC Programme Management and Annual Review Procedure
 
-**Document Title:** GRC Programme Management and Annual Review Procedure 
-**Document Type:** Procedure 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** GRC Programme Manager 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`dev-security/register-compliance-controls-and-gap-register.md`](../dev-security/register-compliance-controls-and-gap-register.md) 
-**Classification:** Public 
-**Category:** Core Governance 
-**Review Frequency:** Annual and upon material change 
-**Repository Path:** [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** GRC Programme Management and Annual Review Procedure\
+**Document Type:** Procedure\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** GRC Programme Manager\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`dev-security/register-compliance-controls-and-gap-register.md`](../dev-security/register-compliance-controls-and-gap-register.md)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** Annual and upon material change\
+**Repository Path:** [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

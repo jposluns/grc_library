@@ -1,18 +1,18 @@
 # IT Onboarding and Offboarding Procedure
 
-**Document Title:** IT Onboarding and Offboarding Procedure 
-**Document Type:** Procedure 
-**Version:** 1.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) 
-**Classification:** Public 
-**Category:** Information Security 
-**Review Frequency:** Annual and upon material change 
-**Repository Path:** [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** IT Onboarding and Offboarding Procedure\
+**Document Type:** Procedure\
+**Version:** 1.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material change\
+**Repository Path:** [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

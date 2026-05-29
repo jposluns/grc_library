@@ -1,18 +1,18 @@
 # Data Retention Schedule
 
-**Document Title:** Data Retention Schedule 
-**Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Privacy Officer 
-**Approving Authority:** Chief Information Officer 
-**Related Documents:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md) 
-**Classification:** Public 
-**Category:** Governance 
-**Review Frequency:** Annual and upon material regulatory or operational change 
-**Repository Path:** [`governance/register-data-retention-schedule.md`](register-data-retention-schedule.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Data Retention Schedule\
+**Document Type:** Register\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Privacy Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md)\
+**Classification:** Public\
+**Category:** Governance\
+**Review Frequency:** Annual and upon material regulatory or operational change\
+**Repository Path:** [`governance/register-data-retention-schedule.md`](register-data-retention-schedule.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

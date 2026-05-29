@@ -1,18 +1,18 @@
 # Media Handling and Transport Procedure
 
-**Document Title:** Media Handling and Transport Procedure 
-**Document Type:** Procedure 
-**Version:** 1.3.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`operations/standard-physical-security-of-it-infrastructure.md`](standard-physical-security-of-it-infrastructure.md) 
-**Classification:** Public 
-**Category:** Operations 
-**Review Frequency:** Annual and upon material platform or regulatory change 
-**Repository Path:** [`operations/procedure-media-handling-and-transport.md`](procedure-media-handling-and-transport.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Media Handling and Transport Procedure\
+**Document Type:** Procedure\
+**Version:** 1.3.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`operations/standard-physical-security-of-it-infrastructure.md`](standard-physical-security-of-it-infrastructure.md)\
+**Classification:** Public\
+**Category:** Operations\
+**Review Frequency:** Annual and upon material platform or regulatory change\
+**Repository Path:** [`operations/procedure-media-handling-and-transport.md`](procedure-media-handling-and-transport.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 This procedure defines the minimum requirements for classifying, storing, transporting, transferring, sanitizing, and disposing of physical and digital media throughout its lifecycle.
 

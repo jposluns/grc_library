@@ -1,18 +1,18 @@
 # Enterprise Risk Management Standard
 
-**Document Title:** Enterprise Risk Management Standard 
-**Document Type:** Standard 
-**Version:** 1.3.2 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) 
-**Classification:** Public 
-**Category:** Risk Management 
-**Review Frequency:** Annual or as required by regulatory or framework changes 
-**Repository Path:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Enterprise Risk Management Standard\
+**Document Type:** Standard\
+**Version:** 1.3.2\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
+**Classification:** Public\
+**Category:** Risk Management\
+**Review Frequency:** Annual or as required by regulatory or framework changes\
+**Repository Path:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 
