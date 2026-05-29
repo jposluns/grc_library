@@ -4,6 +4,52 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase Q2-prep (2026-05-29, Library Version 2026.05.16): Q2 worklist prepared; Worklist doctype added
+
+Prepares the first verification batch under the Citation Verification Specification. The AI verifier has pre-filled the worklist for 24 ISO and ISO/IEC entries; the human verifier will execute the browser fetches, capture verbatim text, and assign confidence ratings per Citation Verification Specification §3.4 and §8.2 to §8.3.
+
+### What this phase includes
+
+- Adds the `Worklist` doctype to the library (17th doctype). Worklists are per-batch working artefacts derived from a Template; distinct from Templates (which are reusable blanks) and from Registers (which are persistent authoritative records).
+- Updates the metadata linter (`tools/lint-metadata.py`) to accept the new doctype with the `worklist-` filename prefix.
+- Updates the master project specification and ingestion specification to list the new doctype and provide selection guidance.
+- Adds the first batch worklist itself: 24 ISO and ISO/IEC entries pre-filled with publisher, expected primary URLs (best-effort), expected values from the canonical citations register, and parsing gotchas (URL patterns, status field interpretation, multi-part standards handling, entries warranting particular human attention).
+
+### What this phase does NOT include
+
+- No actual verification has been performed. The captured-text columns in the worklist are empty and will be filled by the human verifier.
+- No corrections to the Canonical Citations Register. Corrections (if any) are proposed at batch close after the human verifier's captured text is in hand.
+- No rows in the Citation Verifications Register. Rows are appended at batch close after human verification.
+
+### Six entries flagged for particular human attention
+
+The AI verifier has called out six register entries where its training-time confidence is lowest and the human's verification is most consequential: ISO/IEC 42005 (publication date claim), ISO/IEC 42006 (post-draft publication state), ISO 37001 (2025 edition claim), ISO/IEC 38500 (2024 edition claim), ISO/IEC 5259 (multi-part series year handling), ISO/IEC 27033 (multi-part series with later editions on some parts). These flags are orientation for the human verifier; the publisher page remains authoritative.
+
+### New file
+
+- `governance/worklist-citation-verification-batch-q2-iso-iec.md` (v1.0.0, Worklist doctype): 5 numbered sections including the 24-row worklist table.
+
+### Doctype change
+
+- `tools/lint-metadata.py`: `ALLOWED_TYPES` extended from 16 to 17; `TYPE_TO_PREFIX` adds `Worklist: worklist-`.
+- `specification-ingestion.md` (1.5.0 to 1.6.0): doctype list extended; Template-vs-Worklist selection guidance added.
+- `specification-master-project.md` (1.3.1 to 1.4.0): doctype list extended.
+
+### Cross-references updated
+
+- `governance/README.md` (1.5.0 to 1.6.0): worklist listed in Active documents.
+- `governance/register-document-index-and-classification.md` (1.27.1 to 1.27.2): worklist indexed.
+
+### Library version
+
+`2026.05.15` to `2026.05.16`. README `1.7.8` to `1.7.9`.
+
+### Next
+
+Phase Q2 execution: human verifier (maintainer) fills the captured-text and confidence columns in the worklist by browsing to each publisher page, capturing verbatim text, and submitting Wayback snapshots. At batch close, the AI verifier transcribes into the Citation Verifications Register and proposes any Canonical Citations Register corrections for human approval.
+
+All 12 audits clean.
+
 ## Phase Q1.1 (2026-05-29, Library Version 2026.05.15): AI/Human Verifier Operating Model
 
 Sub-phase of the quality-system track. Formalises the AI/human split in the Citation Verification methodology after empirical testing revealed environmental constraints in the AI verifier's sandbox.

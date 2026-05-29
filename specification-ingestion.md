@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library CC0 Ingestion and Transformation Specification\
 **Document Type:** Specification\
-**Version:** 1.5.0\
+**Version:** 1.6.0\
 **Date:** 2026-05-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -182,12 +182,14 @@ Allowed document types are:
 - Template
 - Annex
 - Checklist
+- Worklist
 
 ### Type selection guidance
 
 - Procedure versus SOP: a Procedure is a multi-actor or cross-functional workflow that coordinates several roles. An SOP is a single-actor or narrow team sequence with explicit step ownership for one repeatable task.
 - Plan versus Roadmap: a Plan is event-triggered or schedule-bound coordination such as incident, recovery, migration, or communication. A Roadmap is a multi-phase forward strategy tied to a strategic outcome with phased milestones and dependencies.
 - Guideline versus Guide: a Guideline is advisory interpretation of a policy or standard requirement and reads as governance commentary. A Guide is technical reference material organized for adoption such as patterns, examples, configuration models, or implementation walkthroughs.
+- Template versus Worklist: a Template is a reusable blank skeleton meant to be copied into instances. A Worklist is a per-instance working artefact derived from a template, scoped to one batch or task, and typically retired or archived when the work is closed (the authoritative record migrates to a register or log).
 
 The canonical filename prefix must match the Document Type field. Filenames use lowercase: `sop-`, `roadmap-`, and `guide-` are valid prefixes for the corresponding types.
 

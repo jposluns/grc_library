@@ -262,6 +262,10 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [Risk Appetite Statement Template](../risk/template-risk-appetite-statement.md)
 - [Trade Compliance Programme Gap Assessment Template](../compliance/logistics/template-trade-compliance-gap-assessment.md)
 
+### Worklist
+
+- [Citation Verification Worklist: Batch Q2 (ISO and ISO/IEC)](../governance/worklist-citation-verification-batch-q2-iso-iec.md)
+
 ---
 
 ## Security architecture
