@@ -20,7 +20,7 @@ document:
 
 Additional checks:
 
-- Document Type is one of the 16 allowed types.
+- Document Type is one of the 17 allowed types.
 - Version follows semantic versioning (`x.y.z`).
 - Date follows ISO 8601 (`YYYY-MM-DD`).
 - Owner and Approving Authority are role-based (no obvious person names).
@@ -68,6 +68,7 @@ ALLOWED_TYPES = {
     "Template",
     "Annex",
     "Checklist",
+    "Worklist",
 }
 
 # Map document type -> allowed filename prefix(es).
@@ -88,6 +89,7 @@ TYPE_TO_PREFIX = {
     "Template": ["template-"],
     "Annex": ["annex-"],
     "Checklist": ["checklist-"],
+    "Worklist": ["worklist-"],
 }
 
 # Files that do not require the full canonical metadata block.

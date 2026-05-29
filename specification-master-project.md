@@ -2,7 +2,7 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.3.1\
+**Version:** 1.4.0\
 **Date:** 2026-05-29\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
@@ -166,6 +166,7 @@ Allowed types:
 - Template
 - Annex
 - Checklist
+- Worklist
 
 No additional types may be created without approval.
 
