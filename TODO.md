@@ -14,9 +14,7 @@ This file is informational and is not subject to the library's metadata-block, a
 
 ## Priority 2 — consistency and structural improvements
 
-### 2.1 Filename ↔ Document Title alignment audit
-
-New linter that warns when a file's filename (after the doctype prefix) and its Document Title diverge significantly. Catches cases like `annex-aeo-s-it-cybersecurity-requirements.md` with title `UK AEO-S IT and Cybersecurity Security Requirements` (the "Security Security" mistake we caught manually in Phase 20.1). Not strictly enforceable but useful as a warning.
+*(Tier 2 consistency items completed in Phases 21.4 reciprocity-decision, 21.5 library versioning, and 21.6 filename/title alignment audit.)*
 
 ---
 
