@@ -1,7 +1,7 @@
 # Notice: External Reference Materials and Licence Boundaries
 
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.1.0\
+**Date:** 2026-05-29\
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC0 1.0 Universal for original repository content only
@@ -65,6 +65,10 @@ The following patterns are permitted where they are independently written and do
 ## Attribution and source tracking
 
 Where an artefact is informed by external materials, the document may identify the external reference family by name. The document must avoid implying endorsement, certification, official mapping approval, or reproduction permission.
+
+### Attribution to the library itself
+
+The library is released under CC0 1.0 Universal, which imposes no attribution requirement on adopters. Citation of the library is appreciated but not required. See [`CITATION.cff`](CITATION.cff) for machine-readable citation metadata and [`AUTHORS.md`](AUTHORS.md) for the author's attribution preference. These are requests, not licence conditions, and do not modify the CC0 dedication.
 
 External references should be expressed as framework families or public identifiers, not copied text. Examples include:
 

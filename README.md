@@ -1,7 +1,7 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Library Version:** 2026.05.6\
-**README Version:** 1.6.5\
+**Library Version:** 2026.05.7\
+**README Version:** 1.7.0\
 **Date:** 2026-05-29\
 **Classification:** Public\
 **Confidentiality:** Public\
@@ -321,6 +321,14 @@ Contributions must satisfy the following conditions:
 The library should be reviewed at least annually and upon material change to major standards, regulatory expectations, assurance models, AI threat patterns, cloud control frameworks, privacy obligations, or operational resilience requirements.
 
 AI, data security, privacy, and cloud assurance content should be reviewed on a 6 to 12 month cadence because control expectations and attack patterns change faster than conventional policy review cycles.
+
+---
+
+## Maintained by
+
+Originally created and maintained by **Jeffrey Posluns** ([@jposluns](https://github.com/jposluns), <jeff@posluns.ca>, [LinkedIn](https://linkedin.com/in/jposluns), [ORCID](https://orcid.org/0009-0000-7775-2233)).
+
+The library is released under CC0 1.0 Universal. CC0 imposes **no attribution requirement**; adopters may use, fork, adapt, and redistribute without crediting the original author. Citation is appreciated but not required. For machine-readable citation metadata see [`CITATION.cff`](CITATION.cff); for full attribution context and acknowledgement of contributors see [`AUTHORS.md`](AUTHORS.md).
 
 ---
 
