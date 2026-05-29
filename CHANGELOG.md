@@ -4,6 +4,48 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 22.2 (2026-05-29, Library Version 2026.05.9): OT/ICS Security Standard
+
+Second sub-phase of Phase 22. Codifies the concepts introduced in the Phase 22.1 overview annex into auditable control requirements.
+
+### New file
+
+- `operations/ot/standard-ot-ics-security.md` (v1.0.0, Standard doctype): 15 numbered sections covering purpose, scope, governance, definitions, zone-and-conduit architecture, security-level achievement, OT-specific access control, network controls, endpoint and host hardening, monitoring/logging/detection, vendor and supplier requirements, safety integration, recovery, audit and assurance, framework alignment.
+
+### Key requirements established
+
+- **Zone-and-conduit architecture** (IEC 62443-3-2): every OT asset assigned to a zone; every inter-zone communication modelled as a conduit; risk assessment per zone and conduit; SL-T setting with CISO approval; annual review.
+- **Security level achievement** (IEC 62443-3-3): SL-T set per risk; SL-A measured at least annually against the seven foundational requirements; SL-A < SL-T tracked in CAPA register; SL-C required of procured components.
+- **OT-specific access control**: unique attributable accounts; MFA mandatory for remote access, engineering workstations, safety-system configuration, and IT-to-OT DMZ ingress; vendor remote access prohibited by default with explicit approval, time-bounding, jump-host enforcement, and session recording.
+- **Network controls**: segmentation at conduit boundaries (firewalls, data diodes, protocol-aware OT firewalls); IT-OT DMZ mandatory; enumerated protocol allowlist; wireless prohibited to SIS.
+- **Endpoint hardening**: configuration baselines; default vendor credentials changed; removable media via sanctioned media-staging only; passive vulnerability scanning required.
+- **Patching**: cadence aligned with planned production windows, not monthly; test in representative non-production before production deployment; compensating controls where patching infeasible.
+- **Monitoring**: authentication events, configuration changes, conduit-boundary traffic, process-anomaly indicators, SIS bypass conditions all into central SIEM; SOC analysts trained in OT; OT alerts escalated within 15 minutes.
+- **Vendor governance**: IEC 62443-2-4 alignment required; vendor product SL-C documented; right-to-audit, vulnerability-disclosure, and incident-cooperation contractual requirements.
+- **Safety integration**: SIS-BPCS separation; SL-T of at least SL 3 for SIS conduits; safety-engineering review for SIS changes; cyber considerations folded into HAZOP and LOPA.
+- **Recovery**: configuration backups offline or in isolated zone; quarterly minimum cadence; restore testing; OT-specific RTO that may extend to days for cyber incidents requiring vendor coordination.
+- **Audit**: SL-T ≥ SL 3 zones audited annually; SL-T ≤ SL 2 zones audited every 18 months; independent SL-A verification every three years for SL-T ≥ SL 3.
+
+### Convention captured
+
+The standard accepts that safety-regulation precedence applies where conflict arises (IEC 61511 management of change overrides general change-management requirements where the safety regulation is more restrictive).
+
+### Cross-references updated
+
+- `operations/ot/README.md` (1.0.0 → 1.1.0): standard added to Active documents; Phase 22.2 removed from Planned section.
+- `operations/README.md` (1.2.0 → 1.2.1): standard added to OT sub-directory artefacts table.
+- `governance/register-document-index-and-classification.md` (1.26.0 → 1.26.1): standard added to index.
+
+### Library version
+
+`2026.05.8` → `2026.05.9`. README `1.7.1` → `1.7.2`.
+
+### Next
+
+Phase 22.3: OT Incident Response Procedure (safety-first response, vendor coordination, longer recovery windows).
+
+All 12 audits clean.
+
 ## Phase 22.1 (2026-05-29, Library Version 2026.05.8): OT security overview and foundations
 
 First sub-phase of Phase 22 (operational technology depth). Establishes the foundation for OT security content: a new `operations/ot/` sub-directory, an overview annex, expanded glossary entries, and expanded canonical-citations entries for the IEC 62443 family and NIST SP 800-82 Rev 3.
