@@ -4,6 +4,39 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 21.7 (2026-05-29, Library Version 2026.05.2): Coverage gap analysis register
+
+Seventh sub-phase of Phase 21 (foundations before content expansion). First of two Priority 3 strategic-capability items. Introduces the library's honest disclosure of what it does **not** yet cover so adopters can set expectations and contributors can target gaps.
+
+### New file
+
+- `governance/register-coverage-gaps.md` (v1.0.0, Register doctype): structured catalogue of gaps across five dimensions.
+
+### Coverage dimensions
+
+1. **Industry sectors**: six sectors with `compliance/<sector>/` sub-directories recorded as Substantive; manufacturing, retail, hospitality, education recorded as Deferred (TODO P6); defence, mining, agriculture, real estate, media, gaming, cannabis recorded as Out of scope with rationale.
+2. **Jurisdictions** (privacy, trade-security trusted-trader programmes, financial services, healthcare, AI): explicit Coverage and Status per jurisdiction. 25 privacy jurisdictions Substantive; 4 of approximately 94 trusted-trader programmes Substantive; the remaining 90+ Planned (TODO P5.1) or Deferred.
+3. **Regulations and frameworks referenced but not detailed**: 12 instruments with their depth of treatment.
+4. **Cloud and platform providers**: provider-agnostic content Substantive; AWS/Azure/GCP/Kubernetes/SaaS-specific overlays Deferred (TODO P6.1).
+5. **Technical capability areas**: 19 capabilities with Coverage classification (Substantive / Partial / Referenced / None).
+6. **Document-type capability gaps**: 7 doctype gaps recorded (adopter quickstart templates, interactive maturity assessment, implementation roadmaps, decision tree, etc.).
+
+### Convention established
+
+Coverage status uses four values: *Substantive*, *Partial*, *Referenced*, *None*. Lifecycle status uses *In library*, *Planned*, *Deferred*, *Out of scope*. The register is the source of truth for "is X covered?" questions.
+
+### Cross-references updated
+
+- `governance/README.md`: register entry added to Active Documents.
+- `governance/register-document-index-and-classification.md` (1.25.2 → 1.25.3): entry added.
+- `TODO.md`: P3.1 (coverage gap register) removed; remaining P3.2 (adopter decision tree) renumbered to P3.1.
+
+### Library version
+
+`2026.05.1` → `2026.05.2`.
+
+All 12 audits clean.
+
 ## Phase 21.6 (2026-05-28, Library Version 2026.05.1): Filename and Document Title alignment audit
 
 Sixth sub-phase of Phase 21. Closes the final Priority 2 item: an audit that catches typos and copy-paste defects where a file's name and its Document Title diverge.
