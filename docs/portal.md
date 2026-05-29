@@ -89,6 +89,7 @@ The Chief Information Security Officer needs policies, standards, and procedures
 - [Identity Management Procedure](../security/procedure-identity-management.md)
 - [Key Escrow and Recovery Procedure](../security/procedure-key-escrow-and-recovery.md)
 - [Media Handling and Transport Procedure](../operations/procedure-media-handling-and-transport.md)
+- [OT Change Management Procedure](../operations/ot/procedure-ot-change-management.md)
 - [OT Incident Response Procedure](../operations/ot/procedure-ot-incident-response.md)
 - [Patch Management Procedure](../operations/procedure-patch-management.md)
 - [Release Management Procedure](../operations/procedure-release-management.md)

@@ -2,8 +2,8 @@
 
 **Document Title:** Operations Domain README\
 **Document Type:** Register\
-**Version:** 1.2.2\
-**Date:** 2026-05-28\
+**Version:** 1.2.3\
+**Date:** 2026-05-29\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -63,6 +63,7 @@ This directory contains production and infrastructure security standards, proced
 | Annex | OT Security Overview Annex | [`operations/ot/annex-ot-security-overview.md`](ot/annex-ot-security-overview.md) |
 | Standard | OT/ICS Security Standard | [`operations/ot/standard-ot-ics-security.md`](ot/standard-ot-ics-security.md) |
 | Procedure | OT Incident Response Procedure | [`operations/ot/procedure-ot-incident-response.md`](ot/procedure-ot-incident-response.md) |
+| Procedure | OT Change Management Procedure | [`operations/ot/procedure-ot-change-management.md`](ot/procedure-ot-change-management.md) |
 
 ---
 
