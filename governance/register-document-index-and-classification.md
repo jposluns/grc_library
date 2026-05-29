@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.25.3\
+**Version:** 1.26.0\
 **Date:** 2026-05-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -232,6 +232,7 @@ All active repository documents should be Public.
 | Operations | Standard | Capacity and Performance Management Standard | [`operations/standard-capacity-and-performance-management.md`](../operations/standard-capacity-and-performance-management.md) | Chief Information Officer | Annual | ITIL 4 capacity and performance management, ISO 20000-1, FinOps Foundation, Google SRE, ISO 27001 A.8.6, NIST SP 800-53 SC-5/CP-2 |
 | Operations | Procedure | Release Management Procedure | [`operations/procedure-release-management.md`](../operations/procedure-release-management.md) | Chief Information Officer | Annual | ITIL 4 release and deployment management, ISO 20000-1, ISO 27001 A.8.32, NIST SP 800-218 SSDF, OWASP SAMM, Google SRE, DORA accelerate metrics |
 | Operations | Standard | IT Financial Management Standard | [`operations/standard-it-financial-management.md`](../operations/standard-it-financial-management.md) | Chief Information Officer | Annual | FinOps Foundation, ITIL 4 service financial management, ISO 20000-1, COBIT 2019 APO06, ISO 27001 A.5.13/A.5.14, ISO 14001, GAAP/IFRS |
+| Operations | Annex | OT Security Overview Annex | [`operations/ot/annex-ot-security-overview.md`](../operations/ot/annex-ot-security-overview.md) | Chief Information Security Officer | Annual | IEC 62443 family, NIST SP 800-82 Rev 3, IEC 61511 / IEC 61508, NERC CIP |
 | AI | Charter | AI Governance Council Charter | [`ai/charter-ai-governance-council.md`](../ai/charter-ai-governance-council.md) | Chief Information Officer | Annual | ISO 42001 §5, EU AI Act Chapter III, NIST AI RMF GOVERN, OECD AI Principles |
 | AI | Standard | AI Testing, Validation and Documentation Standard | [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md) | Chief Information Officer | Annual | ISO 42001 §8, ISO/IEC 42005:2025, EU AI Act Annex IV, NIST AI RMF, OWASP LLM Top 10 |
 | AI | Framework | AI Model Documentation and Transparency Framework | [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md) | Chief Information Officer | Annual | ISO 42001 §8.4, EU AI Act Annex IV, NIST AI RMF, OECD AI Principles, GDPR Art 22 |

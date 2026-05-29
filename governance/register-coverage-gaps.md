@@ -193,7 +193,7 @@ The library is cloud-provider-agnostic. Provider-specific guidance is recorded a
 
 | Area | Coverage | Status | Planned target | Notes |
 | --- | --- | --- | --- | --- |
-| Operational Technology / ICS security | Referenced | Planned | TODO P6.2 | IEC 62443, OT incident response, building management systems |
+| Operational Technology (OT) security | Partial | In library | Phase 22 in progress | [`operations/ot/`](../operations/ot/): overview annex live (Phase 22.1); standard, procedures, and registers in Phases 22.2-22.6. IEC 62443 family and NIST SP 800-82 Rev 3 catalogued in canonical citations. |
 | Identity governance (workforce IAM) | Substantive | In library | n/a | Throughout security domain |
 | Customer Identity (CIAM) | Referenced | Deferred | TODO P6.3 | Adopter UX and consumer-data dimensions |
 | Federated identity (SAML, OIDC) | Partial | In library | n/a | Referenced in IAM standards; dedicated patterns deferred |
