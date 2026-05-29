@@ -2,7 +2,7 @@
 
 **Document Title:** OT/ICS Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.0\
+**Version:** 1.0.1\
 **Date:** 2026-05-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -88,7 +88,7 @@ Terms used in this standard are defined in the library glossary ([`governance/re
 - A documented security policy stating permitted activities within the zone and at the boundary.
 - A risk assessment per IEC 62443-3-2 producing the zone's Security Level Target (SL-T).
 
-5.1.3 The zone inventory must be maintained in the OT Asset Inventory and Lifecycle Register (Phase 22.5 deliverable). Until that register is established, the zone inventory is maintained in the operations asset register ([`operations/register-asset-inventory.md`](../register-asset-inventory.md)) with OT-zone fields populated.
+5.1.3 The zone inventory must be maintained in the OT Asset Inventory and Lifecycle Register ([`operations/ot/register-ot-asset-inventory-and-lifecycle.md`](register-ot-asset-inventory-and-lifecycle.md)).
 
 5.1.4 Zones must be reviewed at least annually, on any material change to the underlying system, and following any cyber or safety incident affecting the zone.
 
