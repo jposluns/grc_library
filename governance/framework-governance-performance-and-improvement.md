@@ -1,18 +1,18 @@
 # Governance Performance and Improvement Framework
 
-**Document Title:** Governance Performance and Improvement Framework 
-**Document Type:** Framework 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** GRC Programme Manager 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) 
-**Classification:** Public 
-**Category:** Core Governance 
-**Review Frequency:** Annual and upon material governance or regulatory change 
-**Repository Path:** [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Governance Performance and Improvement Framework\
+**Document Type:** Framework\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** GRC Programme Manager\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** Annual and upon material governance or regulatory change\
+**Repository Path:** [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

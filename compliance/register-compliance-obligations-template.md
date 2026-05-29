@@ -1,18 +1,18 @@
 # Compliance Obligations Register Template
 
-**Document Title:** Compliance Obligations Register Template 
-**Document Type:** Register 
-**Version:** 1.0.2 
-**Date:** 2026-05-28 
-**Owner:** Chief Compliance Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md) 
-**Classification:** Public 
-**Category:** Compliance Management 
-**Review Frequency:** Annual and upon material regulatory or framework change 
-**Repository Path:** [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Compliance Obligations Register Template\
+**Document Type:** Register\
+**Version:** 1.0.2\
+**Date:** 2026-05-28\
+**Owner:** Chief Compliance Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
+**Classification:** Public\
+**Category:** Compliance Management\
+**Review Frequency:** Annual and upon material regulatory or framework change\
+**Repository Path:** [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

@@ -1,18 +1,18 @@
 # Training Data Governance Procedure
 
-**Document Title:** Training Data Governance Procedure 
-**Document Type:** Procedure 
-**Version:** 0.0.2 
-**Date:** 2026-05-28 
-**Owner:** AI Data Steward 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/standard-pseudonymisation-and-anonymisation.md`](../privacy/standard-pseudonymisation-and-anonymisation.md), [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md) 
-**Classification:** Public 
-**Category:** AI Governance 
-**Review Frequency:** Annual and upon material change to training-data sources, regulation, or supplier landscape 
-**Repository Path:** [`ai/procedure-training-data-governance.md`](procedure-training-data-governance.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Training Data Governance Procedure\
+**Document Type:** Procedure\
+**Version:** 0.0.2\
+**Date:** 2026-05-28\
+**Owner:** AI Data Steward\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/standard-pseudonymisation-and-anonymisation.md`](../privacy/standard-pseudonymisation-and-anonymisation.md), [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md)\
+**Classification:** Public\
+**Category:** AI Governance\
+**Review Frequency:** Annual and upon material change to training-data sources, regulation, or supplier landscape\
+**Repository Path:** [`ai/procedure-training-data-governance.md`](procedure-training-data-governance.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

@@ -1,18 +1,18 @@
 # Public Sector Compliance
 
-**Document Title:** Public Sector Compliance README 
-**Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-28 
-**Owner:** Chief Compliance Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`compliance/README.md`](../README.md), [`compliance/public-sector/annex-public-sector-requirements.md`](annex-public-sector-requirements.md), [`compliance/public-sector/annex-fedramp-requirements.md`](annex-fedramp-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) 
-**Classification:** Public 
-**Category:** Compliance: Public Sector 
-**Review Frequency:** Annual and upon material change to a covered regulation 
-**Repository Path:** [`compliance/public-sector/README.md`](README.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Public Sector Compliance README\
+**Document Type:** Register\
+**Version:** 1.0.0\
+**Date:** 2026-05-28\
+**Owner:** Chief Compliance Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`compliance/README.md`](../README.md), [`compliance/public-sector/annex-public-sector-requirements.md`](annex-public-sector-requirements.md), [`compliance/public-sector/annex-fedramp-requirements.md`](annex-fedramp-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
+**Classification:** Public\
+**Category:** Compliance: Public Sector\
+**Review Frequency:** Annual and upon material change to a covered regulation\
+**Repository Path:** [`compliance/public-sector/README.md`](README.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

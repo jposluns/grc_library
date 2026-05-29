@@ -1,18 +1,18 @@
 # AI and Agentic Development Security Standard
 
-**Document Title:** AI and Agentic Development Security Standard 
-**Document Type:** Standard 
-**Version:** 1.2.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md) 
-**Classification:** Public 
-**Category:** AI Governance 
-**Review Frequency:** Annual and upon material AI framework or regulatory change 
-**Repository Path:** [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** AI and Agentic Development Security Standard\
+**Document Type:** Standard\
+**Version:** 1.2.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md)\
+**Classification:** Public\
+**Category:** AI Governance\
+**Review Frequency:** Annual and upon material AI framework or regulatory change\
+**Repository Path:** [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

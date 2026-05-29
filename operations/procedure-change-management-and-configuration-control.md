@@ -1,18 +1,18 @@
 # Change Management and Configuration Control Procedure
 
-**Document Title:** Change Management and Configuration Control Procedure 
-**Document Type:** Procedure 
-**Version:** 1.3.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Information Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md) 
-**Classification:** Public 
-**Category:** Operations 
-**Review Frequency:** Annual and upon material platform or regulatory change 
-**Repository Path:** [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Change Management and Configuration Control Procedure\
+**Document Type:** Procedure\
+**Version:** 1.3.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md)\
+**Classification:** Public\
+**Category:** Operations\
+**Review Frequency:** Annual and upon material platform or regulatory change\
+**Repository Path:** [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 This procedure defines the end-to-end process for classifying, approving, scheduling, implementing, and reviewing changes to production infrastructure, applications, and security configurations.
 

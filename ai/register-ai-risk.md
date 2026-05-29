@@ -1,18 +1,18 @@
 # AI Risk Register
 
-**Document Title:** AI Risk Register 
-**Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** GRC Programme Manager 
-**Approving Authority:** Chief Information Officer 
-**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) 
-**Classification:** Public 
-**Category:** AI Governance 
-**Review Frequency:** Quarterly and upon material AI system change or incident 
-**Repository Path:** [`ai/register-ai-risk.md`](register-ai-risk.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** AI Risk Register\
+**Document Type:** Register\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** GRC Programme Manager\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
+**Classification:** Public\
+**Category:** AI Governance\
+**Review Frequency:** Quarterly and upon material AI system change or incident\
+**Repository Path:** [`ai/register-ai-risk.md`](register-ai-risk.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

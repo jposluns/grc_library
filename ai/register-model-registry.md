@@ -1,18 +1,18 @@
 # Model Registry
 
-**Document Title:** Model Registry 
-**Document Type:** Register 
-**Version:** 0.0.2 
-**Date:** 2026-05-28 
-**Owner:** AI System Inventory Keeper 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/register-ai-risk.md`](register-ai-risk.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md) 
-**Classification:** Public 
-**Category:** AI Governance 
-**Review Frequency:** Continuous; entries created at registration and updated at every material change 
-**Repository Path:** [`ai/register-model-registry.md`](register-model-registry.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Model Registry\
+**Document Type:** Register\
+**Version:** 0.0.2\
+**Date:** 2026-05-28\
+**Owner:** AI System Inventory Keeper\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/register-ai-risk.md`](register-ai-risk.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md)\
+**Classification:** Public\
+**Category:** AI Governance\
+**Review Frequency:** Continuous; entries created at registration and updated at every material change\
+**Repository Path:** [`ai/register-model-registry.md`](register-model-registry.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

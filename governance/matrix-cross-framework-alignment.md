@@ -1,18 +1,18 @@
 # Cross-Framework Alignment Matrix
 
-**Document Title:** Cross-Framework Alignment Matrix 
-**Document Type:** Matrix 
-**Version:** 1.1.2 
-**Date:** 2026-05-28 
-**Owner:** Control Framework Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/matrix-reverse-framework-control-crosswalk.md`](matrix-reverse-framework-control-crosswalk.md), [`NOTICE.md`](../NOTICE.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md), [`governance/guideline-esg-and-ai-ethics-disclosure.md`](guideline-esg-and-ai-ethics-disclosure.md), [`risk/guideline-quantitative-risk-analysis.md`](../risk/guideline-quantitative-risk-analysis.md) 
-**Classification:** Public 
-**Category:** Core Governance 
-**Review Frequency:** 6 to 12 months and upon material source-framework change 
-**Repository Path:** [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Cross-Framework Alignment Matrix\
+**Document Type:** Matrix\
+**Version:** 1.1.2\
+**Date:** 2026-05-28\
+**Owner:** Control Framework Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/matrix-reverse-framework-control-crosswalk.md`](matrix-reverse-framework-control-crosswalk.md), [`NOTICE.md`](../NOTICE.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md), [`governance/guideline-esg-and-ai-ethics-disclosure.md`](guideline-esg-and-ai-ethics-disclosure.md), [`risk/guideline-quantitative-risk-analysis.md`](../risk/guideline-quantitative-risk-analysis.md)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** 6 to 12 months and upon material source-framework change\
+**Repository Path:** [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

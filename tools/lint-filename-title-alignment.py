@@ -146,7 +146,11 @@ def parse_title(path: Path) -> str | None:
     m = TITLE_PATTERN.search(text)
     if not m:
         return None
-    return m.group(1).strip()
+    title = m.group(1).strip()
+    # Strip CommonMark hard-line-break backslash if present.
+    if title.endswith("\\"):
+        title = title[:-1].rstrip()
+    return title
 
 
 def normalise_tokens(text: str) -> set[str]:

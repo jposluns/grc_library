@@ -1,18 +1,18 @@
 # Integration Architecture Standard
 
-**Document Title:** Integration Architecture Standard 
-**Document Type:** Standard 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Technology Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-api-design.md`](standard-api-design.md), [`architecture/standard-data-architecture.md`](standard-data-architecture.md), [`dev-security/standard-api-security.md`](../dev-security/standard-api-security.md), [`operations/standard-observability-and-telemetry.md`](../operations/standard-observability-and-telemetry.md), [`operations/standard-site-reliability-engineering.md`](../operations/standard-site-reliability-engineering.md) 
-**Classification:** Public 
-**Category:** Architecture 
-**Review Frequency:** Annual and upon material change to integration platforms, transports, or patterns 
-**Repository Path:** [`architecture/standard-integration-architecture.md`](standard-integration-architecture.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Integration Architecture Standard\
+**Document Type:** Standard\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Technology Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-api-design.md`](standard-api-design.md), [`architecture/standard-data-architecture.md`](standard-data-architecture.md), [`dev-security/standard-api-security.md`](../dev-security/standard-api-security.md), [`operations/standard-observability-and-telemetry.md`](../operations/standard-observability-and-telemetry.md), [`operations/standard-site-reliability-engineering.md`](../operations/standard-site-reliability-engineering.md)\
+**Classification:** Public\
+**Category:** Architecture\
+**Review Frequency:** Annual and upon material change to integration platforms, transports, or patterns\
+**Repository Path:** [`architecture/standard-integration-architecture.md`](standard-integration-architecture.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

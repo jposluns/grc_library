@@ -1,18 +1,18 @@
 # AI System Audit and Certification Framework
 
-**Document Title:** AI System Audit and Certification Framework 
-**Document Type:** Framework 
-**Version:** 1.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md) 
-**Classification:** Public 
-**Category:** AI Governance 
-**Review Frequency:** 6 to 12 months and upon material AI governance or regulatory change 
-**Repository Path:** [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** AI System Audit and Certification Framework\
+**Document Type:** Framework\
+**Version:** 1.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)\
+**Classification:** Public\
+**Category:** AI Governance\
+**Review Frequency:** 6 to 12 months and upon material AI governance or regulatory change\
+**Repository Path:** [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

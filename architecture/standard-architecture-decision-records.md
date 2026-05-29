@@ -1,18 +1,18 @@
 # Architecture Decision Records Standard
 
-**Document Title:** Architecture Decision Records Standard 
-**Document Type:** Standard 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Technology Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/procedure-architecture-review.md`](procedure-architecture-review.md), [`dev-security/procedure-secure-code-review.md`](../dev-security/procedure-secure-code-review.md), [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md) 
-**Classification:** Public 
-**Category:** Architecture 
-**Review Frequency:** Annual and upon material change to architecture documentation practice 
-**Repository Path:** [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Architecture Decision Records Standard\
+**Document Type:** Standard\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Technology Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/procedure-architecture-review.md`](procedure-architecture-review.md), [`dev-security/procedure-secure-code-review.md`](../dev-security/procedure-secure-code-review.md), [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md)\
+**Classification:** Public\
+**Category:** Architecture\
+**Review Frequency:** Annual and upon material change to architecture documentation practice\
+**Repository Path:** [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

@@ -1,18 +1,18 @@
 # Data Architecture Standard
 
-**Document Title:** Data Architecture Standard 
-**Document Type:** Standard 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Technology Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-integration-architecture.md`](standard-integration-architecture.md), [`architecture/standard-api-design.md`](standard-api-design.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/procedure-training-data-governance.md`](../ai/procedure-training-data-governance.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md) 
-**Classification:** Public 
-**Category:** Architecture 
-**Review Frequency:** Annual and upon material change to data platforms, sources, or governance practice 
-**Repository Path:** [`architecture/standard-data-architecture.md`](standard-data-architecture.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Data Architecture Standard\
+**Document Type:** Standard\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Technology Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-integration-architecture.md`](standard-integration-architecture.md), [`architecture/standard-api-design.md`](standard-api-design.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/procedure-training-data-governance.md`](../ai/procedure-training-data-governance.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)\
+**Classification:** Public\
+**Category:** Architecture\
+**Review Frequency:** Annual and upon material change to data platforms, sources, or governance practice\
+**Repository Path:** [`architecture/standard-data-architecture.md`](standard-data-architecture.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

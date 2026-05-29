@@ -1,18 +1,18 @@
 # AI Incident Response Plan
 
-**Document Title:** AI Incident Response Plan 
-**Document Type:** Plan 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** AI Security Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md) 
-**Classification:** Public 
-**Category:** AI Governance 
-**Review Frequency:** Annual and upon material AI threat-pattern, regulation, or system-architecture change 
-**Repository Path:** [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** AI Incident Response Plan\
+**Document Type:** Plan\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** AI Security Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md)\
+**Classification:** Public\
+**Category:** AI Governance\
+**Review Frequency:** Annual and upon material AI threat-pattern, regulation, or system-architecture change\
+**Repository Path:** [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

@@ -1,18 +1,18 @@
 # Asset Inventory Register
 
-**Document Title:** Asset Inventory Register 
-**Document Type:** Register 
-**Version:** 1.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Officer 
-**Approving Authority:** Chief Information Officer 
-**Related Documents:** [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md) 
-**Classification:** Public 
-**Category:** Operations 
-**Review Frequency:** Continuous (automated) with quarterly manual validation 
-**Repository Path:** [`operations/register-asset-inventory.md`](register-asset-inventory.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Asset Inventory Register\
+**Document Type:** Register\
+**Version:** 1.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md)\
+**Classification:** Public\
+**Category:** Operations\
+**Review Frequency:** Continuous (automated) with quarterly manual validation\
+**Repository Path:** [`operations/register-asset-inventory.md`](register-asset-inventory.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

@@ -1,10 +1,10 @@
 # Notice: External Reference Materials and Licence Boundaries
 
-**Version:** 1.0.1 
-**Date:** 2026-05-28 
-**Classification:** Public 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal for original repository content only 
+**Version:** 1.0.1\
+**Date:** 2026-05-28\
+**Classification:** Public\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal for original repository content only
 
 ---
 

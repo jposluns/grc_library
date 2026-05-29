@@ -1,18 +1,18 @@
 # Document Index and Classification Register
 
-**Document Title:** Document Index and Classification Register 
-**Document Type:** Register 
-**Version:** 1.25.3 
-**Date:** 2026-05-29 
-**Owner:** Governance Library Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md) 
-**Classification:** Public 
-**Category:** Core Governance 
-**Review Frequency:** Annual and upon material repository structure change 
-**Repository Path:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Document Index and Classification Register\
+**Document Type:** Register\
+**Version:** 1.25.3\
+**Date:** 2026-05-29\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** Annual and upon material repository structure change\
+**Repository Path:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

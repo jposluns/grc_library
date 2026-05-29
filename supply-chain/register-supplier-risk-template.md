@@ -1,18 +1,18 @@
 # Supplier Risk Register Template
 
-**Document Title:** Supplier Risk Register Template 
-**Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** Supplier Risk Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`risk/template-enterprise-risk-register.md`](../risk/template-enterprise-risk-register.md) 
-**Classification:** Public 
-**Category:** Supply Chain Governance: Risk Register 
-**Review Frequency:** Quarterly review of active entries; annual template review 
-**Repository Path:** [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Supplier Risk Register Template\
+**Document Type:** Register\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** Supplier Risk Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`risk/template-enterprise-risk-register.md`](../risk/template-enterprise-risk-register.md)\
+**Classification:** Public\
+**Category:** Supply Chain Governance: Risk Register\
+**Review Frequency:** Quarterly review of active entries; annual template review\
+**Repository Path:** [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

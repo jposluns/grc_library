@@ -1,18 +1,18 @@
 # Model Card Template
 
-**Document Title:** Model Card Template 
-**Document Type:** Template 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** AI System Inventory Keeper 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) 
-**Classification:** Public 
-**Category:** AI Governance 
-**Review Frequency:** 6 to 12 months and upon material AI governance, model risk, or documentation change 
-**Repository Path:** [`ai/template-model-card.md`](template-model-card.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Model Card Template\
+**Document Type:** Template\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** AI System Inventory Keeper\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md)\
+**Classification:** Public\
+**Category:** AI Governance\
+**Review Frequency:** 6 to 12 months and upon material AI governance, model risk, or documentation change\
+**Repository Path:** [`ai/template-model-card.md`](template-model-card.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

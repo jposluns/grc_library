@@ -1,18 +1,18 @@
 # Metrics, Monitoring and Performance Reporting Framework
 
-**Document Title:** Metrics, Monitoring and Performance Reporting Framework 
-**Document Type:** Framework 
-**Version:** 1.0.1 
-**Date:** 2026-05-28 
-**Owner:** GRC Programme Manager 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md), [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md) 
-**Classification:** Public 
-**Category:** Core Governance 
-**Review Frequency:** Annual and upon material governance, regulatory, or measurement change 
-**Repository Path:** [`governance/framework-metrics-monitoring-and-performance-reporting.md`](framework-metrics-monitoring-and-performance-reporting.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Metrics, Monitoring and Performance Reporting Framework\
+**Document Type:** Framework\
+**Version:** 1.0.1\
+**Date:** 2026-05-28\
+**Owner:** GRC Programme Manager\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md), [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** Annual and upon material governance, regulatory, or measurement change\
+**Repository Path:** [`governance/framework-metrics-monitoring-and-performance-reporting.md`](framework-metrics-monitoring-and-performance-reporting.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

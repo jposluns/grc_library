@@ -1,18 +1,18 @@
 # Risk Acceptance Procedure
 
-**Document Title:** Risk Acceptance Procedure 
-**Document Type:** Procedure 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Risk Officer 
-**Approving Authority:** Executive Management 
-**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md) 
-**Classification:** Public 
-**Category:** Core Governance 
-**Review Frequency:** Annual and upon material risk governance change 
-**Repository Path:** [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Risk Acceptance Procedure\
+**Document Type:** Procedure\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Risk Officer\
+**Approving Authority:** Executive Management\
+**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** Annual and upon material risk governance change\
+**Repository Path:** [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

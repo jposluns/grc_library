@@ -1,18 +1,18 @@
 # SOX IT General Controls Annex
 
-**Document Title:** SOX IT General Controls Annex 
-**Document Type:** Annex 
-**Version:** 0.0.2 
-**Date:** 2026-05-28 
-**Owner:** Chief Compliance Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`compliance/standard-internal-audit.md`](../standard-internal-audit.md), [`compliance/procedure-control-testing.md`](../procedure-control-testing.md), [`compliance/procedure-capa.md`](../procedure-capa.md), [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md), [`operations/framework-it-service-management.md`](../../operations/framework-it-service-management.md), [`dev-security/policy-secure-development-and-engineering.md`](../../dev-security/policy-secure-development-and-engineering.md), [`resilience/procedure-backup-and-recovery.md`](../../resilience/procedure-backup-and-recovery.md) 
-**Classification:** Public 
-**Category:** Compliance: Sector-Specific 
-**Review Frequency:** Annual and upon material PCAOB guidance, COSO framework, or regulator change 
-**Repository Path:** [`compliance/financial-services/annex-sox-itgc.md`](annex-sox-itgc.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** SOX IT General Controls Annex\
+**Document Type:** Annex\
+**Version:** 0.0.2\
+**Date:** 2026-05-28\
+**Owner:** Chief Compliance Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`compliance/standard-internal-audit.md`](../standard-internal-audit.md), [`compliance/procedure-control-testing.md`](../procedure-control-testing.md), [`compliance/procedure-capa.md`](../procedure-capa.md), [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md), [`operations/framework-it-service-management.md`](../../operations/framework-it-service-management.md), [`dev-security/policy-secure-development-and-engineering.md`](../../dev-security/policy-secure-development-and-engineering.md), [`resilience/procedure-backup-and-recovery.md`](../../resilience/procedure-backup-and-recovery.md)\
+**Classification:** Public\
+**Category:** Compliance: Sector-Specific\
+**Review Frequency:** Annual and upon material PCAOB guidance, COSO framework, or regulator change\
+**Repository Path:** [`compliance/financial-services/annex-sox-itgc.md`](annex-sox-itgc.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

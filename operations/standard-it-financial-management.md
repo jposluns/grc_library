@@ -1,18 +1,18 @@
 # IT Financial Management Standard
 
-**Document Title:** IT Financial Management Standard 
-**Document Type:** Standard 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-capacity-and-performance-management.md`](standard-capacity-and-performance-management.md), [`operations/register-asset-inventory.md`](register-asset-inventory.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`ai/standard-ai-inference-cost-governance.md`](../ai/standard-ai-inference-cost-governance.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](../governance/procedure-grc-programme-management-and-annual-review.md) 
-**Classification:** Public 
-**Category:** IT Operations 
-**Review Frequency:** Annual and upon material change to financial reporting, cloud commitment posture, or AI cost profile 
-**Repository Path:** [`operations/standard-it-financial-management.md`](standard-it-financial-management.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** IT Financial Management Standard\
+**Document Type:** Standard\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-capacity-and-performance-management.md`](standard-capacity-and-performance-management.md), [`operations/register-asset-inventory.md`](register-asset-inventory.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`ai/standard-ai-inference-cost-governance.md`](../ai/standard-ai-inference-cost-governance.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](../governance/procedure-grc-programme-management-and-annual-review.md)\
+**Classification:** Public\
+**Category:** IT Operations\
+**Review Frequency:** Annual and upon material change to financial reporting, cloud commitment posture, or AI cost profile\
+**Repository Path:** [`operations/standard-it-financial-management.md`](standard-it-financial-management.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

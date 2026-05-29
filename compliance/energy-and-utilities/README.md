@@ -1,18 +1,18 @@
 # Energy and Utilities Sector Compliance
 
-**Document Title:** Energy and Utilities Sector Compliance README 
-**Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-28 
-**Owner:** Chief Compliance Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`compliance/README.md`](../README.md), [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](annex-energy-and-utilities-sector-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) 
-**Classification:** Public 
-**Category:** Compliance: Energy and Utilities Sector 
-**Review Frequency:** Annual and upon material change to a covered regulation 
-**Repository Path:** [`compliance/energy-and-utilities/README.md`](README.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Energy and Utilities Sector Compliance README\
+**Document Type:** Register\
+**Version:** 1.0.0\
+**Date:** 2026-05-28\
+**Owner:** Chief Compliance Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`compliance/README.md`](../README.md), [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](annex-energy-and-utilities-sector-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
+**Classification:** Public\
+**Category:** Compliance: Energy and Utilities Sector\
+**Review Frequency:** Annual and upon material change to a covered regulation\
+**Repository Path:** [`compliance/energy-and-utilities/README.md`](README.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

@@ -1,18 +1,18 @@
 # Departmental Continuity Plan Template
 
-**Document Title:** Departmental Continuity Plan Template 
-**Document Type:** Template 
-**Version:** 1.1.0 
-**Date:** 2026-05-28 
-**Owner:** Resilience Owner 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md) 
-**Classification:** Public 
-**Category:** Resilience 
-**Review Frequency:** Annual and upon material process, service, supplier, data, workforce, facility, or system change 
-**Repository Path:** [`resilience/template-departmental-continuity-plan.md`](template-departmental-continuity-plan.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Departmental Continuity Plan Template\
+**Document Type:** Template\
+**Version:** 1.1.0\
+**Date:** 2026-05-28\
+**Owner:** Resilience Owner\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md)\
+**Classification:** Public\
+**Category:** Resilience\
+**Review Frequency:** Annual and upon material process, service, supplier, data, workforce, facility, or system change\
+**Repository Path:** [`resilience/template-departmental-continuity-plan.md`](template-departmental-continuity-plan.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

@@ -1,18 +1,18 @@
 # Enterprise Risk Register Template
 
-**Document Title:** Enterprise Risk Register Template 
-**Document Type:** Template 
-**Version:** 1.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Risk Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) 
-**Classification:** Public 
-**Category:** Risk Management 
-**Review Frequency:** Quarterly review of register entries; annual template review 
-**Repository Path:** [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Enterprise Risk Register Template\
+**Document Type:** Template\
+**Version:** 1.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Risk Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
+**Classification:** Public\
+**Category:** Risk Management\
+**Review Frequency:** Quarterly review of register entries; annual template review\
+**Repository Path:** [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

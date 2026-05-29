@@ -1,18 +1,18 @@
 # Enterprise Architecture Framework
 
-**Document Title:** Enterprise Architecture Framework 
-**Document Type:** Framework 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Technology Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-reference-architecture.md`](standard-reference-architecture.md), [`architecture/standard-technology-radar.md`](standard-technology-radar.md), [`architecture/procedure-architecture-review.md`](procedure-architecture-review.md), [`architecture/standard-api-design.md`](standard-api-design.md), [`architecture/standard-data-architecture.md`](standard-data-architecture.md), [`architecture/standard-integration-architecture.md`](standard-integration-architecture.md), [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) 
-**Classification:** Public 
-**Category:** Architecture 
-**Review Frequency:** Annual and upon material change to architecture practice, technology strategy, or organisational structure 
-**Repository Path:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Enterprise Architecture Framework\
+**Document Type:** Framework\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Technology Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-reference-architecture.md`](standard-reference-architecture.md), [`architecture/standard-technology-radar.md`](standard-technology-radar.md), [`architecture/procedure-architecture-review.md`](procedure-architecture-review.md), [`architecture/standard-api-design.md`](standard-api-design.md), [`architecture/standard-data-architecture.md`](standard-data-architecture.md), [`architecture/standard-integration-architecture.md`](standard-integration-architecture.md), [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md)\
+**Classification:** Public\
+**Category:** Architecture\
+**Review Frequency:** Annual and upon material change to architecture practice, technology strategy, or organisational structure\
+**Repository Path:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

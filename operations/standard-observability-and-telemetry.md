@@ -1,18 +1,18 @@
 # Observability and Telemetry Standard
 
-**Document Title:** Observability and Telemetry Standard 
-**Document Type:** Standard 
-**Version:** 0.0.2 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/procedure-ai-evaluation.md`](../ai/procedure-ai-evaluation.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md) 
-**Classification:** Public 
-**Category:** IT Operations 
-**Review Frequency:** Annual and upon material change to platform stack, telemetry tooling, or service architecture 
-**Repository Path:** [`operations/standard-observability-and-telemetry.md`](standard-observability-and-telemetry.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Observability and Telemetry Standard\
+**Document Type:** Standard\
+**Version:** 0.0.2\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/procedure-ai-evaluation.md`](../ai/procedure-ai-evaluation.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md)\
+**Classification:** Public\
+**Category:** IT Operations\
+**Review Frequency:** Annual and upon material change to platform stack, telemetry tooling, or service architecture\
+**Repository Path:** [`operations/standard-observability-and-telemetry.md`](standard-observability-and-telemetry.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

@@ -1,18 +1,18 @@
 # Continuous Improvement Register Procedure
 
-**Document Title:** Continuous Improvement Register Procedure 
-**Document Type:** Procedure 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** GRC Programme Manager 
-**Approving Authority:** Chief Information Officer 
-**Related Documents:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md) 
-**Classification:** Public 
-**Category:** Governance 
-**Review Frequency:** Annual and upon material governance or process change 
-**Repository Path:** [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Continuous Improvement Register Procedure\
+**Document Type:** Procedure\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** GRC Programme Manager\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md)\
+**Classification:** Public\
+**Category:** Governance\
+**Review Frequency:** Annual and upon material governance or process change\
+**Repository Path:** [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

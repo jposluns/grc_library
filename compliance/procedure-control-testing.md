@@ -1,18 +1,18 @@
 # Control Testing Procedure
 
-**Document Title:** Control Testing Procedure 
-**Document Type:** Procedure 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Compliance Officer 
-**Approving Authority:** Chief Information Officer 
-**Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md) 
-**Classification:** Public 
-**Category:** Compliance Management 
-**Review Frequency:** Annual and upon material control framework change 
-**Repository Path:** [`compliance/procedure-control-testing.md`](procedure-control-testing.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Control Testing Procedure\
+**Document Type:** Procedure\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Compliance Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md)\
+**Classification:** Public\
+**Category:** Compliance Management\
+**Review Frequency:** Annual and upon material control framework change\
+**Repository Path:** [`compliance/procedure-control-testing.md`](procedure-control-testing.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

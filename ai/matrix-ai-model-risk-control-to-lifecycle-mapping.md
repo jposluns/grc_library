@@ -1,18 +1,18 @@
 # AI Model Risk Control to Lifecycle Mapping Matrix
 
-**Document Title:** AI Model Risk Control to Lifecycle Mapping Matrix 
-**Document Type:** Matrix 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** AI System Inventory Keeper 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) 
-**Classification:** Public 
-**Category:** AI Governance 
-**Review Frequency:** 6 to 12 months and upon material model, data, framework, threat, or assurance change 
-**Repository Path:** [`ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md`](matrix-ai-model-risk-control-to-lifecycle-mapping.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** AI Model Risk Control to Lifecycle Mapping Matrix\
+**Document Type:** Matrix\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** AI System Inventory Keeper\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\
+**Classification:** Public\
+**Category:** AI Governance\
+**Review Frequency:** 6 to 12 months and upon material model, data, framework, threat, or assurance change\
+**Repository Path:** [`ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md`](matrix-ai-model-risk-control-to-lifecycle-mapping.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

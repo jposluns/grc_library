@@ -1,18 +1,18 @@
 # Document Review Schedule Register
 
-**Document Title:** Document Review Schedule Register 
-**Document Type:** Register 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Governance Library Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md) 
-**Classification:** Public 
-**Category:** Core Governance 
-**Review Frequency:** Continuous; refreshed in line with document additions, retirements, and conducted reviews 
-**Repository Path:** [`governance/register-document-review-schedule.md`](register-document-review-schedule.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Document Review Schedule Register\
+**Document Type:** Register\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** Continuous; refreshed in line with document additions, retirements, and conducted reviews\
+**Repository Path:** [`governance/register-document-review-schedule.md`](register-document-review-schedule.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

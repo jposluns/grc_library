@@ -1,18 +1,18 @@
 # Resilience Terms and Definitions Register
 
-**Document Title:** Resilience Terms and Definitions Register 
-**Document Type:** Register 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** Resilience Owner 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`resilience/README.md`](README.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`governance/register-key-terms-and-definitions.md`](../governance/register-key-terms-and-definitions.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md) 
-**Classification:** Public 
-**Category:** Resilience 
-**Review Frequency:** Annual and upon material resilience terminology, framework, or regulatory change 
-**Repository Path:** [`resilience/register-resilience-terms-and-definitions.md`](register-resilience-terms-and-definitions.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Resilience Terms and Definitions Register\
+**Document Type:** Register\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** Resilience Owner\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`resilience/README.md`](README.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`governance/register-key-terms-and-definitions.md`](../governance/register-key-terms-and-definitions.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md)\
+**Classification:** Public\
+**Category:** Resilience\
+**Review Frequency:** Annual and upon material resilience terminology, framework, or regulatory change\
+**Repository Path:** [`resilience/register-resilience-terms-and-definitions.md`](register-resilience-terms-and-definitions.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

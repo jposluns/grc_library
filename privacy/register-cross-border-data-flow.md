@@ -1,18 +1,18 @@
 # Cross-Border Data Flow Register
 
-**Document Title:** Cross-Border Data Flow Register 
-**Document Type:** Register 
-**Version:** 1.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Privacy Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`privacy/README.md`](README.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md) 
-**Classification:** Public 
-**Category:** Privacy: Cross-Border Transfer 
-**Review Frequency:** Updated upon each new or changed transfer; full register review annually and upon material regulatory change 
-**Repository Path:** [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Cross-Border Data Flow Register\
+**Document Type:** Register\
+**Version:** 1.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Privacy Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`privacy/README.md`](README.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)\
+**Classification:** Public\
+**Category:** Privacy: Cross-Border Transfer\
+**Review Frequency:** Updated upon each new or changed transfer; full register review annually and upon material regulatory change\
+**Repository Path:** [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

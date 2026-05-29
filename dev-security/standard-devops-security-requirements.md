@@ -1,18 +1,18 @@
 # DevOps Security Requirements
 
-**Document Title:** DevOps Security Requirements 
-**Document Type:** Standard 
-**Version:** 1.0.2 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Chief Information Officer 
-**Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`operations/README.md`](../operations/README.md) 
-**Classification:** Public 
-**Category:** Developer Security 
-**Review Frequency:** 6 to 12 months and upon material tooling, threat, or infrastructure change 
-**Repository Path:** [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** DevOps Security Requirements\
+**Document Type:** Standard\
+**Version:** 1.0.2\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`operations/README.md`](../operations/README.md)\
+**Classification:** Public\
+**Category:** Developer Security\
+**Review Frequency:** 6 to 12 months and upon material tooling, threat, or infrastructure change\
+**Repository Path:** [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

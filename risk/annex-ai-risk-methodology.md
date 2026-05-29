@@ -1,18 +1,18 @@
 # AI-Specific Risk Methodology Annex
 
-**Document Title:** AI-Specific Risk Methodology Annex 
-**Document Type:** Annex 
-**Version:** 1.0.0 
-**Date:** 2026-05-27 
-**Owner:** Chief Risk Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](../ai/procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-audit.md`](../ai/procedure-ai-audit.md), [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) 
-**Classification:** Public 
-**Category:** Risk Management: AI 
-**Review Frequency:** Annual and upon material AI regulatory change or significant AI incident 
-**Repository Path:** [`risk/annex-ai-risk-methodology.md`](annex-ai-risk-methodology.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** AI-Specific Risk Methodology Annex\
+**Document Type:** Annex\
+**Version:** 1.0.0\
+**Date:** 2026-05-27\
+**Owner:** Chief Risk Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](../ai/procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-audit.md`](../ai/procedure-ai-audit.md), [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
+**Classification:** Public\
+**Category:** Risk Management: AI\
+**Review Frequency:** Annual and upon material AI regulatory change or significant AI incident\
+**Repository Path:** [`risk/annex-ai-risk-methodology.md`](annex-ai-risk-methodology.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

@@ -1,18 +1,18 @@
 # Cookie and Tracker Register
 
-**Document Title:** Cookie and Tracker Register 
-**Document Type:** Register 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Privacy Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`privacy/framework-consent-management.md`](framework-consent-management.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md) 
-**Classification:** Public 
-**Category:** Privacy 
-**Review Frequency:** Quarterly and upon material change to website, mobile application, or marketing technology stack 
-**Repository Path:** [`privacy/register-cookie-and-tracker.md`](register-cookie-and-tracker.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Cookie and Tracker Register\
+**Document Type:** Register\
+**Version:** 0.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Privacy Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`privacy/framework-consent-management.md`](framework-consent-management.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md)\
+**Classification:** Public\
+**Category:** Privacy\
+**Review Frequency:** Quarterly and upon material change to website, mobile application, or marketing technology stack\
+**Repository Path:** [`privacy/register-cookie-and-tracker.md`](register-cookie-and-tracker.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

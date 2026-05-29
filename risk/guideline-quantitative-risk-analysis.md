@@ -1,18 +1,18 @@
 # Quantitative Risk Analysis Guideline
 
-**Document Title:** Quantitative Risk Analysis Guideline 
-**Document Type:** Guideline 
-**Version:** 1.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Risk Officer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) 
-**Classification:** Public 
-**Category:** Risk Management: Quantitative Analysis 
-**Review Frequency:** Annual and upon material methodology update 
-**Repository Path:** [`risk/guideline-quantitative-risk-analysis.md`](guideline-quantitative-risk-analysis.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Quantitative Risk Analysis Guideline\
+**Document Type:** Guideline\
+**Version:** 1.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Risk Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
+**Classification:** Public\
+**Category:** Risk Management: Quantitative Analysis\
+**Review Frequency:** Annual and upon material methodology update\
+**Repository Path:** [`risk/guideline-quantitative-risk-analysis.md`](guideline-quantitative-risk-analysis.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

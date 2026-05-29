@@ -1,18 +1,18 @@
 # GRC Library CC0 Ingestion and Transformation Specification
 
-**Document Title:** GRC Library CC0 Ingestion and Transformation Specification 
-**Document Type:** Specification 
-**Version:** 1.4.3 
-**Date:** 2026-05-28 
-**Owner:** Governance Library Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md) 
-**Classification:** Public 
-**Category:** Core Governance 
-**Review Frequency:** Annual and upon material repository, licence, or source-framework change 
-**Repository Path:** [`specification-ingestion.md`](specification-ingestion.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** GRC Library CC0 Ingestion and Transformation Specification\
+**Document Type:** Specification\
+**Version:** 1.5.0\
+**Date:** 2026-05-29\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** Annual and upon material repository, licence, or source-framework change\
+**Repository Path:** [`specification-ingestion.md`](specification-ingestion.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 
@@ -195,25 +195,32 @@ The canonical filename prefix must match the Document Type field. Filenames use 
 
 ## Canonical metadata
 
-Every document must start with this metadata pattern:
+Every document must start with this metadata pattern. Every line of the metadata block except the last ends with a backslash character (`\`), which is CommonMark §6.7 syntax for a hard line break. This ensures GitHub and other CommonMark renderers display each metadata field on its own line:
 
 ```markdown
 # Document Title
 
-**Document Title:** Document Title
-**Document Type:** Policy
-**Version:** 1.0.0
-**Date:** YYYY-MM-DD
-**Owner:** Role Name
-**Approving Authority:** Role Name
-**Related Documents:** [`domain/related.md`](relative-path/related.md), [`domain/other.md`](../other-domain/other.md)
-**Classification:** Public
-**Category:** Domain Name
-**Review Frequency:** Annual and upon material change
-**Repository Path:** [`domain/file-name.md`](file-name.md)
-**Confidentiality:** Public
+**Document Title:** Document Title\
+**Document Type:** Policy\
+**Version:** 1.0.0\
+**Date:** YYYY-MM-DD\
+**Owner:** Role Name\
+**Approving Authority:** Role Name\
+**Related Documents:** [`domain/related.md`](relative-path/related.md), [`domain/other.md`](../other-domain/other.md)\
+**Classification:** Public\
+**Category:** Domain Name\
+**Review Frequency:** Annual and upon material change\
+**Repository Path:** [`domain/file-name.md`](file-name.md)\
+**Confidentiality:** Public\
 **License:** CC0 1.0 Universal
 ```
+
+Notes on the backslash-newline convention:
+
+- Every metadata line except the last must end with `\` immediately before the line terminator.
+- The last line (typically `License`) does not require the marker because the following blank line and `---` separator already create a paragraph break.
+- Do not use two trailing spaces; that variant is also valid CommonMark but is invisible in source and is fragile against editor whitespace-stripping. The backslash is visible and editor-safe.
+- The `lint-metadata.py` audit enforces this convention.
 
 Related Documents and Repository Path use markdown links. The display text is the root-relative path. The link target is relative to the current file's directory: same-directory files use the bare filename; cross-directory files use `../` traversal.
 

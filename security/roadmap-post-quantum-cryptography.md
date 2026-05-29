@@ -1,18 +1,18 @@
 # Post-Quantum Cryptography Readiness Roadmap
 
-**Document Title:** Post-Quantum Cryptography Readiness Roadmap 
-**Document Type:** Roadmap 
-**Version:** 1.1.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Chief Information Officer 
-**Related Documents:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) 
-**Classification:** Public 
-**Category:** Information Security 
-**Review Frequency:** Annual and upon significant NIST, ETSI, or national standards developments 
-**Repository Path:** [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Post-Quantum Cryptography Readiness Roadmap\
+**Document Type:** Roadmap\
+**Version:** 1.1.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon significant NIST, ETSI, or national standards developments\
+**Repository Path:** [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

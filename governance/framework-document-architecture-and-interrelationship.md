@@ -1,18 +1,18 @@
 # Document Architecture and Interrelationship Framework
 
-**Document Title:** Document Architecture and Interrelationship Framework 
-**Document Type:** Framework 
-**Version:** 1.1.0 
-**Date:** 2026-05-28 
-**Owner:** Governance Library Maintainer 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-role-authority.md`](register-role-authority.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md), [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md) 
-**Classification:** Public 
-**Category:** Core Governance 
-**Review Frequency:** Annual and upon material repository structure change 
-**Repository Path:** [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Document Architecture and Interrelationship Framework\
+**Document Type:** Framework\
+**Version:** 1.1.0\
+**Date:** 2026-05-28\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-role-authority.md`](register-role-authority.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md), [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** Annual and upon material repository structure change\
+**Repository Path:** [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

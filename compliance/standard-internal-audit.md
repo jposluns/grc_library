@@ -1,18 +1,18 @@
 # Internal Audit Standard
 
-**Document Title:** Internal Audit Standard 
-**Document Type:** Standard 
-**Version:** 1.0.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Audit Executive 
-**Approving Authority:** Governance Library Maintainer 
-**Related Documents:** [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md) 
-**Classification:** Public 
-**Category:** Compliance Management 
-**Review Frequency:** Annual and upon material audit methodology or regulatory change 
-**Repository Path:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Internal Audit Standard\
+**Document Type:** Standard\
+**Version:** 1.0.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Audit Executive\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
+**Classification:** Public\
+**Category:** Compliance Management\
+**Review Frequency:** Annual and upon material audit methodology or regulatory change\
+**Repository Path:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 

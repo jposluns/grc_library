@@ -1,18 +1,18 @@
 # Incident Escalation Matrix
 
-**Document Title:** Incident Escalation Matrix 
-**Document Type:** SOP 
-**Version:** 1.2.1 
-**Date:** 2026-05-28 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Chief Information Officer 
-**Related Documents:** [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/plan-business-continuity-and-crisis-management.md`](../resilience/plan-business-continuity-and-crisis-management.md) 
-**Classification:** Public 
-**Category:** Information Security 
-**Review Frequency:** Annual or following significant organisational or contact change 
-**Repository Path:** [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md) 
-**Confidentiality:** Public 
-**License:** CC0 1.0 Universal 
+**Document Title:** Incident Escalation Matrix\
+**Document Type:** SOP\
+**Version:** 1.2.1\
+**Date:** 2026-05-28\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/plan-business-continuity-and-crisis-management.md`](../resilience/plan-business-continuity-and-crisis-management.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual or following significant organisational or contact change\
+**Repository Path:** [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md)\
+**Confidentiality:** Public\
+**License:** CC0 1.0 Universal
 
 ---
 
