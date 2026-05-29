@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.3.0\
-**Date:** 2026-05-28\
+**Version:** 1.3.1\
+**Date:** 2026-05-29\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -212,7 +212,9 @@ The version bump is the author's responsibility on the PR that introduces the ch
 
 #### Relationship to per-document versioning
 
-Per-document versions (section 5, semantic versioning) remain unchanged. A document may move from `1.2.0` to `1.2.1` within library version `2026.05.7`, and another document in the same PR may move from `0.0.1` to `1.0.0`. The library version aggregates these into a single point-in-time identifier.
+Per-document versions (section 5, semantic versioning) remain unchanged and continue independently. The library version is the **snapshot identifier** for the corpus as a whole; per-document SemVer is the **evolution marker** for each artefact and carries change-severity signal (major = breaking, minor = additive, patch = correction). The two schemes are deliberately different formats so a reader can tell at a glance which is which: `2026.05.7` is always a library version; `1.2.1` is always a document version. They are not substitutes for each other.
+
+A document may move from `1.2.0` to `1.2.1` within library version `2026.05.7`, and another document in the same PR may move from `0.0.1` to `1.0.0`. The library version aggregates these into a single point-in-time identifier for the corpus.
 
 ---
 
