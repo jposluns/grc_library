@@ -20,9 +20,7 @@ This file is informational and is not subject to the library's metadata-block, a
 
 ## Priority 3 — strategic capability
 
-### 3.1 Adopter decision tree
-
-`docs/decision-tree.md` — "I'm a 50-person fintech in the EU — what do I read first?" structured navigation. Uses the governance glossary and coverage gap register as inputs.
+*(Tier 3 strategic capability items completed in Phases 21.7 coverage gap register and 21.8 adopter decision tree.)*
 
 ---
 

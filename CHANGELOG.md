@@ -4,6 +4,46 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 21.8 (2026-05-29, Library Version 2026.05.3): Adopter decision tree
+
+Eighth sub-phase of Phase 21 (foundations before content expansion). Second of two Priority 3 strategic-capability items. Closes the Priority 3 tier.
+
+### New file
+
+- `docs/decision-tree.md`: structured navigator answering "I have these characteristics; which library documents should I read first, in what order?". Eight sections:
+  1. Adopter dimensions (size, sector, jurisdiction, regulated activities, technology footprint).
+  2. Universal baseline (23 documents every adopter reads, in order).
+  3. Sector-conditional content (7 sector profiles).
+  4. Jurisdiction-conditional content (privacy jurisdictions, cross-sector horizontal regulations, trusted-trader programmes).
+  5. Capability-conditional content (AI, cloud, software development, identity, OT).
+  6. Phased adoption suggestions (30-day starter, 90-day implementation, 180-day expansion).
+  7. Frequently asked navigation questions with concrete worked examples (50-person fintech in EU; 200-person 3PL in US/Canada/Mexico; 5-person UK SaaS; multinational healthcare; AI product builder).
+  8. Pointer to gap register and TODO for unanswered questions.
+
+### Convention
+
+The decision tree references the glossary (Phase 21.2), the coverage gap register (Phase 21.7), and the document index register so that adopters can navigate between the structured reading order and the underlying source documents. It is informational and is not a tracked governance artefact (lives in `docs/` alongside the adopter guide).
+
+### Result
+
+The library now has a complete adopter-facing navigation stack:
+
+- `README.md` for overview.
+- `docs/adopter-guide.md` for general adoption principles.
+- `docs/decision-tree.md` for structured reading order based on adopter profile (this PR).
+- `docs/portal.md` and `docs/maturity-scorecard.md` for the auto-generated portal and scorecard.
+- `governance/register-glossary.md`, `governance/register-coverage-gaps.md`, and `governance/register-document-index-and-classification.md` for reference.
+
+### TODO
+
+Priority 3.1 (adopter decision tree) removed. Priority 3 tier complete. Tier 4 (adopter UX) and Tier 5 (content expansion) remain.
+
+### Library version
+
+`2026.05.2` → `2026.05.3`.
+
+All 12 audits clean.
+
 ## Phase 21.7 (2026-05-29, Library Version 2026.05.2): Coverage gap analysis register
 
 Seventh sub-phase of Phase 21 (foundations before content expansion). First of two Priority 3 strategic-capability items. Introduces the library's honest disclosure of what it does **not** yet cover so adopters can set expectations and contributors can target gaps.
