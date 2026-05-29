@@ -4,6 +4,56 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 22.3 (2026-05-29, Library Version 2026.05.10): OT Incident Response Procedure
+
+Third sub-phase of Phase 22. Adds the operational sequence for responding to OT security incidents, extending the general security incident response procedure with OT-specific considerations.
+
+### New file
+
+- `operations/ot/procedure-ot-incident-response.md` (v1.0.0, Procedure doctype): 13 numbered sections covering purpose, scope, guiding principles, roles, severity classification, the five response phases (detection and triage, containment, eradication, recovery, post-incident), communications, forensics in OT, and framework alignment.
+
+### Guiding principles established
+
+- **Safety first**: any response action that could create a safety hazard is paused and escalated to the Process Safety Engineer. Production-safety risk is not exchanged for cyber-containment speed.
+- **Availability constraints**: forensic actions planned to minimize production disruption; trade-offs documented when preservation and availability conflict.
+- **Vendor coordination**: vendor involvement begins at triage, not at recovery.
+- **Evidence preservation**: volatile OT evidence captured where lawful and operationally safe before containment commands alter state.
+- **No silent remediation**: operators and engineers report rather than attempt silent fix.
+
+### Five phases codified
+
+1. **Detection and triage**: 15-minute SOC acknowledgement, 30-minute OT Security Lead engagement, immediate Process Safety Engineer notification for safety-implicated incidents.
+2. **Containment**: six-option decision framework (isolate at conduit, block protocols, revoke credentials, manual control, controlled shutdown, monitor closely) with explicit trade-offs; SIS containment requires Process Safety Engineer approval; vendor remote-access sessions terminated on P1/P2 declaration.
+3. **Eradication**: vendor-coordinated adversary removal; configuration rebuild from baselines; credential rotation; verification before recovery exit.
+4. **Recovery**: sequenced restoration prioritising SIS verification, then monitoring, then control integrity, then conduits; Incident Commander approval required; joint approval with Process Safety Engineer for safety-implicated recoveries. Indicative recovery windows acknowledging OT-extended timelines (hours to weeks).
+5. **Post-incident**: 10-business-day lessons-learned review; CAPA register entries; HAZOP and LOPA integration where safety implicated.
+
+### Communications and forensics frameworks
+
+- **Regulatory reporting**: NERC CIP EOP-004-4 and CIP-008 (North American electricity), EU NIS 2 timelines (24-hour early warning, 72-hour report, 1-month final), TSA pipeline directives, IMO maritime cyber, ICAO aviation cyber, privacy regulators where personal data affected.
+- **Sector coordinators**: E-ISAC, WaterISAC, sector ISAC participation.
+- **OT forensics constraints**: production cannot generally be paused for imaging; vendor cooperation required; some components have no persistent storage; volatile evidence is the rule.
+
+### Severity classification extended
+
+OT-specific triggers added to base P1–P4 scale: SIS compromise, loss-of-view/loss-of-control events, anomalous control commands, OT vendor compromise, OT DMZ compromise.
+
+### Cross-references updated
+
+- `operations/ot/README.md` (1.1.0 → 1.2.0): procedure added to Active documents; Phase 22.3 removed from Planned section.
+- `operations/README.md` (1.2.1 → 1.2.2): procedure added to OT sub-directory artefacts table.
+- `governance/register-document-index-and-classification.md` (1.26.1 → 1.26.2): procedure added.
+
+### Library version
+
+`2026.05.9` → `2026.05.10`. README `1.7.2` → `1.7.3`.
+
+### Next
+
+Phase 22.4: OT Change Management Procedure (extended change windows, vendor approval, regression testing for safety-critical functions).
+
+All 12 audits clean.
+
 ## Phase 22.2 (2026-05-29, Library Version 2026.05.9): OT/ICS Security Standard
 
 Second sub-phase of Phase 22. Codifies the concepts introduced in the Phase 22.1 overview annex into auditable control requirements.
