@@ -254,6 +254,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 ### Template
 
 - [Board Risk Report Template](../risk/template-board-risk-report.md)
+- [Citation Verification Worklist Template](../governance/template-citation-verification-worklist.md)
 - [Document Review Record Template](../governance/template-document-review-record.md)
 - [Enterprise Risk Register Template](../risk/template-enterprise-risk-register.md)
 - [Library Health Report Template](../governance/template-library-health-report.md)

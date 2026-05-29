@@ -2,14 +2,14 @@
 
 **Document Title:** Citation Verifications Register\
 **Document Type:** Register\
-**Version:** 1.0.0\
+**Version:** 1.1.0\
 **Date:** 2026-05-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md)\
 **Classification:** Public\
 **Category:** Core Governance\
-**Review Frequency:** Per the verification freshness rule in [`governance/specification-citation-verification.md`](specification-citation-verification.md) §11: each entry re-verified every 12 months from its last Date checked\
+**Review Frequency:** Per the verification freshness rule in [`governance/specification-citation-verification.md`](specification-citation-verification.md) §12: each entry re-verified every 12 months from its last Date checked\
 **Repository Path:** [`governance/register-citation-verifications.md`](register-citation-verifications.md)\
 **Confidentiality:** Public\
 **License:** CC0 1.0 Universal
@@ -44,22 +44,23 @@ For audit purposes, every row remains in the register indefinitely. Removing a r
 
 ## Schema
 
-Each row carries the following fields (per Citation Verification Specification §8):
+Each row carries the following fields (per Citation Verification Specification §9). The schema reflects the AI/human operating model defined in Citation Verification Specification §3: the `Captured by` field identifies the human verifier who fetched the publisher page; the `Recorded by` field identifies the actor (typically the AI verifier in a clerical role) who appended the row to this register.
 
 | Field | Description |
 | --- | --- |
-| **Standard ID** | Identifier as it appears in the Canonical Citations Register. |
-| **Verified Field** | Which field of the canonical-citations entry was verified (existence / version / publication-date / supersedence / topic / ID format). For full-row verification: "all". |
+| **Standard ID** | Identifier as it appears in the Canonical Citations Register. For allow-list domain-mapping verifications, the publisher name. |
+| **Verified Field** | Which field of the canonical-citations entry was verified (existence / version / publication-date / supersedence / topic / ID format / allow-list domain mapping). For full-row verification: "all". |
 | **Publisher** | Publisher name. |
 | **Primary URL** | The publisher's canonical-domain URL fetched. |
 | **Wayback URL** | The `web.archive.org` snapshot URL captured at verification time. |
 | **Secondary URL** | Optional Tier 2 corroborating URL. Empty where no corroborating source was found. |
 | **Captured text** | Verbatim publisher page text supporting the claim. The publisher's actual words. |
+| **Captured by** | Identifier of the human verifier who fetched the page and captured the text (per Citation Verification Specification §3.4). A row whose `Captured by` field implies AI primary capture is invalid and not a verification. |
 | **Result** | Match / Diverged / Not found. |
 | **Divergence detail** | If Diverged: register said X; publisher said Y. Empty otherwise. |
-| **Confidence** | A (publisher + Tier 2 corroborating), B (publisher only), C (secondary-only), D (un-verifiable). Per Citation Verification Specification §9. |
+| **Confidence** | A (publisher + Tier 2 corroborating), B (publisher only), C (secondary-only), D (un-verifiable). Per Citation Verification Specification §10. |
 | **Date checked** | ISO 8601 date of the verification. |
-| **Verifier** | Identifier of the verifier (role, system identifier, or "maintainer"). |
+| **Recorded by** | Identifier of the actor who appended the row (typically the AI verifier acting as recorder; may be the same human as `Captured by` when the human recorded the row directly). |
 | **Notes** | Anything else worth recording: caveats, ambiguities, methodology divergences. |
 | **Resolution** | For D-rated rows: what was done (corrected / removed / pending). Empty for A, B, C ratings. |
 
@@ -71,8 +72,8 @@ Rows are recorded in the verification log below in chronological order of verifi
 
 The register is initially empty. Verifications begin in the first verification sub-phase under the Citation Verification Specification.
 
-| Standard ID | Verified Field | Publisher | Primary URL | Wayback URL | Secondary URL | Captured text | Result | Divergence detail | Confidence | Date checked | Verifier | Notes | Resolution |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Standard ID | Verified Field | Publisher | Primary URL | Wayback URL | Secondary URL | Captured text | Captured by | Result | Divergence detail | Confidence | Date checked | Recorded by | Notes | Resolution |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 
 *No verifications recorded yet. First verification sub-phase pending.*
 

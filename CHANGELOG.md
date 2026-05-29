@@ -4,6 +4,60 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase Q1.1 (2026-05-29, Library Version 2026.05.15): AI/Human Verifier Operating Model
+
+Sub-phase of the quality-system track. Formalises the AI/human split in the Citation Verification methodology after empirical testing revealed environmental constraints in the AI verifier's sandbox.
+
+### Why this exists
+
+Empirical test of the AI verifier's environment found:
+
+- `WebFetch` to publisher canonical domains (iso.org, nist.gov, iec.ch, ietf.org) returns HTTP 403 Forbidden.
+- `WebFetch` to `web.archive.org` is explicitly blocked at the harness level.
+- `WebSearch` is available but returns search snippets and possibly AI-generated summaries, neither of which qualifies as a primary verification source under §6.4 of the specification.
+
+Continuing with the AI verifier as primary would have meant assembling verification rows from search snippets and AI judgement — exactly the AI-mediated verification the methodology explicitly forbids. That would put a false-confidence seal on the register. The honest path is to disclose the split, codify it in the specification, and treat the AI/human division as a feature of the methodology rather than a workaround.
+
+### Methodology changes
+
+- **Specification updated to v1.1.0**: new §3 "Operating model and verifier roles" with six subsections covering rationale, role definitions, AI verifier responsibilities, human verifier responsibilities, environmental constraints disclosure, and the worklist artefact.
+- **Verification procedure (§8) restructured per step**: each procedure step now identifies whether AI or human verifier performs it. Pre-verification and recording are AI; fetch, compare, and spot-check are human; reconcile is AI-proposes-human-approves.
+- **Verifications register schema (§9) extended**: two new fields, `Captured by` (identifies the human verifier who fetched the publisher page) and `Recorded by` (identifies the actor who appended the row, typically the AI verifier acting clerically). A row whose `Captured by` value implies AI primary capture is invalid.
+- **Threat model (§5) extended**: new "role conflation" threat row addressing the risk that a verification row obscures whether primary text was captured by human or AI.
+- **Non-deferrable rules (§13) extended**: rule 8 "AI verifier does not perform primary verification"; rule 9 "Environmental capability of the AI verifier is disclosed, not worked around silently."
+- **Confidence ratings (§10) and verification freshness (§12) renumbered**: was §9 and §11 in v1.0.0.
+
+### New file
+
+- `governance/template-citation-verification-worklist.md` (v1.0.0, Template doctype): per-batch worklist enforcing the AI/human split. AI pre-fills Standard ID, Publisher, Expected primary URL, Field(s) to verify, Expected value. Human fills Captured text (verbatim), Wayback URL, Secondary URL, Result, Captured by, Confidence. AI transcribes into the verifications register at batch close.
+
+### Credibility framing
+
+The split is documented in the specification itself rather than as an implementation note, so that any future reader can see:
+
+- Which verification steps were performed by an AI and which by a human.
+- The specific environmental constraints that necessitated the split at the time of writing.
+- That the methodology survives capability changes (the AI verifier's role expands or shrinks per §3.5 disclosures over time).
+
+The Citation Verifications Register's `Captured by` field is the in-row evidence of which actor performed the integrity-bearing step on each row.
+
+### Cross-references updated
+
+- `governance/specification-citation-verification.md` (1.0.0 to 1.1.0): operating-model section added; procedure restructured; schema extended; threat model extended; non-deferrable rules extended; internal section numbering shifted by 1 from §4 onward.
+- `governance/register-citation-verifications.md` (1.0.0 to 1.1.0): schema updated for `Captured by` and `Recorded by`; section references updated to renumbered specification sections.
+- `governance/README.md` (1.4.0 to 1.5.0): worklist template added.
+- `governance/register-document-index-and-classification.md` (1.27.0 to 1.27.1): worklist template indexed; verifications-register references updated.
+
+### Library version
+
+`2026.05.14` to `2026.05.15`. README `1.7.7` to `1.7.8`.
+
+### Next
+
+Phase Q2: the first verification batch (ISO/IEC and ISO standards, approximately 24 entries). AI verifier prepares the batch worklist; human verifier (maintainer or delegate) executes the fetches and captures.
+
+All 12 audits clean.
+
 ## Phase Q1 (2026-05-29, Library Version 2026.05.14): Citation Verification Methodology and Register
 
 First sub-phase of a quality-system track (Phase Q, distinct from numbered content phases). Establishes a factual-verification control over the Canonical Citations Register: every citation is to be verified against the publisher's own canonical domain with verbatim text capture and a Wayback Machine snapshot URL recorded as a third-party evidence anchor.
