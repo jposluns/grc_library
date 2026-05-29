@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.26.1\
+**Version:** 1.26.2\
 **Date:** 2026-05-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -234,6 +234,7 @@ All active repository documents should be Public.
 | Operations | Standard | IT Financial Management Standard | [`operations/standard-it-financial-management.md`](../operations/standard-it-financial-management.md) | Chief Information Officer | Annual | FinOps Foundation, ITIL 4 service financial management, ISO 20000-1, COBIT 2019 APO06, ISO 27001 A.5.13/A.5.14, ISO 14001, GAAP/IFRS |
 | Operations | Annex | OT Security Overview Annex | [`operations/ot/annex-ot-security-overview.md`](../operations/ot/annex-ot-security-overview.md) | Chief Information Security Officer | Annual | IEC 62443 family, NIST SP 800-82 Rev 3, IEC 61511 / IEC 61508, NERC CIP |
 | Operations | Standard | OT/ICS Security Standard | [`operations/ot/standard-ot-ics-security.md`](../operations/ot/standard-ot-ics-security.md) | Chief Information Security Officer | Annual | IEC 62443 (1-1, 2-1, 2-4, 3-2, 3-3, 4-1, 4-2), NIST SP 800-82 Rev 3, IEC 61511 / IEC 61508, NERC CIP, ISO 27019 |
+| Operations | Procedure | OT Incident Response Procedure | [`operations/ot/procedure-ot-incident-response.md`](../operations/ot/procedure-ot-incident-response.md) | Chief Information Security Officer | Annual | IEC 62443-2-1, NIST SP 800-82 Rev 3, NIST SP 800-61 Rev 2, ISO/IEC 27035, IEC 61511, NERC CIP-008, EU NIS 2 |
 | AI | Charter | AI Governance Council Charter | [`ai/charter-ai-governance-council.md`](../ai/charter-ai-governance-council.md) | Chief Information Officer | Annual | ISO 42001 §5, EU AI Act Chapter III, NIST AI RMF GOVERN, OECD AI Principles |
 | AI | Standard | AI Testing, Validation and Documentation Standard | [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md) | Chief Information Officer | Annual | ISO 42001 §8, ISO/IEC 42005:2025, EU AI Act Annex IV, NIST AI RMF, OWASP LLM Top 10 |
 | AI | Framework | AI Model Documentation and Transparency Framework | [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md) | Chief Information Officer | Annual | ISO 42001 §8.4, EU AI Act Annex IV, NIST AI RMF, OECD AI Principles, GDPR Art 22 |
