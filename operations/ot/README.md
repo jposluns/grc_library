@@ -2,7 +2,7 @@
 
 **Document Title:** Operational Technology (OT) Sub-Directory README\
 **Document Type:** Register\
-**Version:** 1.4.0\
+**Version:** 1.5.0\
 **Date:** 2026-05-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -52,12 +52,13 @@ The sub-directory does **not** duplicate IT security content already in the libr
 | Procedure | OT Incident Response Procedure | [`operations/ot/procedure-ot-incident-response.md`](procedure-ot-incident-response.md) |
 | Procedure | OT Change Management Procedure | [`operations/ot/procedure-ot-change-management.md`](procedure-ot-change-management.md) |
 | Register | OT Asset Inventory and Lifecycle Register | [`operations/ot/register-ot-asset-inventory-and-lifecycle.md`](register-ot-asset-inventory-and-lifecycle.md) |
+| Annex | Building Management Systems (BMS) Overlay Annex | [`operations/ot/annex-bms-overlay.md`](annex-bms-overlay.md) |
 
 ---
 
-## Planned documents (Phase 22.6 onward)
+## Phase 22 status
 
-- **Annex**: BMS-specific overlay (HVAC, access control, fire/life-safety integration considerations). Phase 22.6.
+Phase 22 (OT depth) is complete with the addition of the BMS overlay annex (Phase 22.6). Subsequent OT expansion will be driven by adopter feedback and sector-specific OT requirements rather than the original Phase 22 sub-phase plan.
 
 ---
 
