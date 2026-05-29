@@ -4,6 +4,56 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 22.5 (2026-05-29, Library Version 2026.05.12): OT Asset Inventory and Lifecycle Register
+
+Fifth sub-phase of Phase 22. Defines the schema, governance, classification, and lifecycle model for OT assets, supplementing the general operations asset inventory and providing the authoritative record on which zone-and-conduit governance, OT change management, OT incident response, and OT vulnerability and patch management depend.
+
+### New file
+
+- `operations/ot/register-ot-asset-inventory-and-lifecycle.md` (v1.0.0, Register doctype): 12 numbered sections covering purpose, scope, roles, governance principles, classification (operational criticality, safety relevance, zone trust level), asset record schema (8 field groups), lifecycle states with explicit end-of-support and legacy-OS handling, inventory operations (discovery, reconciliation, unauthorized assets, secure decommissioning), retention, metrics, framework alignment, and cross-reference summary.
+
+### Three-dimension OT classification
+
+- **Operational criticality**: OT-1 (Critical control) to OT-4 (Peripheral).
+- **Safety relevance**: S-A (Safety-Instrumented) / S-B (Safety-Adjacent) / S-C (Safety-Independent), independent of criticality.
+- **Zone trust level**: Security Level Target (SL-T 1 to 4) of hosting zone with asset-level Security Level Capability (SL-C) tracking.
+
+### Lifecycle states codified
+
+Planned, Commissioning, Active, End-of-Support, Decommissioning, Decommissioned. End-of-Support is a managed state, not a defect: vendor end-of-support routinely precedes economic replacement by years in OT. Required artefacts when an asset enters End-of-Support: vendor announcement citation, compensating-controls package, risk-register entry, refresh-plan record. Legacy-OS handling codified separately with explicit network minimisation, allowlisting preference over signature AV, and heightened detection.
+
+### Discovery and reconciliation
+
+- **Passive discovery** is the default for live OT networks; active scanning restricted to vendor-confirmed safe paths and prohibited on SIS without Process Safety Engineer approval.
+- **Reconciliation cadence**: monthly for OT-1 and OT-2, quarterly for OT-3 and OT-4.
+- **Unauthorized assets**: investigation pathway with safety-preserving isolation; production-safe isolation only.
+- **Secure decommissioning**: 6-step sequence preserving final configuration backup, credential revocation, topology update, and physical removal aligned with the media handling procedure.
+
+### Asset record schema (8 field groups)
+
+Identification, Location and zone, Classification, Ownership and operation, Lifecycle, Security state, Backup and recovery, Administrative. Vendor-managed and vendor end-of-support tracking are first-class fields.
+
+### Framework alignment
+
+IEC 62443-2-1, IEC 62443-3-2, IEC 62443-3-3, NIST SP 800-82 Rev 3, ISO/IEC 27001:2022 A.5.9, ISO/IEC 27019:2017, NERC CIP-002, NERC CIP-010, IEC 61511, EU NIS 2, TSA Pipeline Security Directive.
+
+### Cross-references updated
+
+- `operations/ot/standard-ot-ics-security.md` (1.0.0 to 1.0.1): §5.1.3 placeholder replaced with direct link to the new register.
+- `operations/ot/README.md` (1.3.0 to 1.4.0): register added to Active documents; Phase 22.5 removed from Planned section.
+- `operations/README.md` (1.2.3 to 1.2.4): register added to OT sub-directory artefacts table.
+- `governance/register-document-index-and-classification.md` (1.26.3 to 1.26.4): register added.
+
+### Library version
+
+`2026.05.11` to `2026.05.12`. README `1.7.4` to `1.7.5`.
+
+### Next
+
+Phase 22.6: BMS-specific overlay annex (HVAC, access control, fire/life-safety integration considerations).
+
+All 12 audits clean.
+
 ## Phase 22.4 (2026-05-29, Library Version 2026.05.11): OT Change Management Procedure
 
 Fourth sub-phase of Phase 22. Extends the general change management and configuration control procedure with OT-specific requirements: extended change windows aligned to production-maintenance schedules, mandatory vendor coordination, regression testing for safety-critical functions, and integration with safety management of change (MOC) under IEC 61511 where the change affects Safety Instrumented Systems.
