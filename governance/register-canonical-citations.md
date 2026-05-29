@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.0.0\
-**Date:** 2026-05-28\
+**Version:** 1.1.0\
+**Date:** 2026-05-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -89,6 +89,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | NIST AI 600-1 | 1.0 | 2024-07 | Generative AI Profile for AI RMF | - |
 | NIST SP 800-218 | 1.1 | 2022-02 | Secure Software Development Framework (SSDF) | 1.0 |
 | NIST SP 800-161 | Rev 1 | 2022-05 | Cybersecurity Supply Chain Risk Management | Rev 0 |
+| NIST SP 800-82 | Rev 3 | 2023-09 | Guide to Operational Technology (OT) Security (formerly Guide to Industrial Control Systems Security) | Rev 2, Rev 1 |
 
 ## EU regulations and directives
 
@@ -175,7 +176,15 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | --- | --- | --- | --- | --- |
 | NERC CIP | 014-3 (latest revision) | various | North American Electric Reliability Corporation Critical Infrastructure Protection standards | - |
 | PCI DSS | 4.0.1 | 2024-06 | Payment Card Industry Data Security Standard | 3.2.1, 4.0 |
-| IEC 62443 | 2018 onwards | - | Industrial automation and control systems security | - |
+| IEC 62443-1-1 | 2009 | 2009 | Industrial communication networks: Security: Part 1-1: Concepts and models | - |
+| IEC 62443-2-1 | 2024 | 2024 | Security for industrial automation and control systems: Part 2-1: Establishing an IACS security programme | 2010 |
+| IEC 62443-2-4 | 2023 | 2023 | Security for industrial automation and control systems: Part 2-4: Security programme requirements for IACS service providers | 2015 |
+| IEC 62443-3-2 | 2020 | 2020 | Security for industrial automation and control systems: Part 3-2: Security risk assessment for system design | - |
+| IEC 62443-3-3 | 2013 | 2013 | Security for industrial automation and control systems: Part 3-3: System security requirements and security levels | - |
+| IEC 62443-4-1 | 2018 | 2018 | Security for industrial automation and control systems: Part 4-1: Secure product development lifecycle requirements | - |
+| IEC 62443-4-2 | 2019 | 2019 | Security for industrial automation and control systems: Part 4-2: Technical security requirements for IACS components | - |
+| IEC 61511 | 2016 (Edition 2, Amendment 1 in 2017) | 2016 | Functional safety: Safety instrumented systems for the process industry sector | Edition 1 (2003) |
+| IEC 61508 | 2010 | 2010 | Functional safety of electrical/electronic/programmable electronic safety-related systems | 1998 |
 | Basel III | 2017 (with 2023 finalisation, in force 2025) | - | Banking regulation framework | Basel II |
 
 ## OECD and global

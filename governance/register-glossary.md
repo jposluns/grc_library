@@ -2,7 +2,7 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.0.0\
+**Version:** 1.1.0\
 **Date:** 2026-05-28\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -65,6 +65,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **BCP** | Business Continuity Plan. |
 | **BIA** | Business Impact Analysis. |
 | **BAI** | (COBIT 2019) Build, Acquire, and Implement. One of the five COBIT process domains. |
+| **BMS** | Building Management System. A category of OT covering automated control of HVAC, lighting, fire/life-safety, physical access control, and other facility systems. Adjacent to but distinct from ICS. |
 
 ## C
 
@@ -98,7 +99,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 
 | Term | Expansion / definition |
 | --- | --- |
-| **DCS** | (CSA CCM domain) Data Security and Privacy Lifecycle Management. |
+| **DCS** | Two distinct meanings disambiguated by context: (1) (CSA CCM domain) Data Security and Privacy Lifecycle Management; (2) (OT) Distributed Control System. The library uses CCM-DCS for the cloud-control-matrix domain and OT-DCS or "Distributed Control System" spelled out where the OT meaning is intended. |
 | **DLP** | Data Loss Prevention. |
 | **DORA** | Digital Operational Resilience Act (EU). Financial-services regulation. See [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md). |
 | **DPA** | Data Processing Agreement. |
@@ -146,6 +147,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | --- | --- |
 | **HIPAA** | Health Insurance Portability and Accountability Act (U.S.). |
 | **HITECH** | Health Information Technology for Economic and Clinical Health Act (U.S.). |
+| **HMI** | Human-Machine Interface. The graphical operator interface to ICS/OT systems, typically running on a workstation that displays process state and accepts operator commands. |
 | **HMRC** | His Majesty's Revenue and Customs (UK). Administers UK AEO and AEO-S. |
 | **HSM** | Hardware Security Module. |
 
@@ -153,9 +155,10 @@ When in doubt: external term or acronym → this register. Internal governance c
 
 | Term | Expansion / definition |
 | --- | --- |
+| **IACS** | Industrial Automation and Control Systems. The scope term used by IEC 62443. A subset of OT focused on industrial automation. |
 | **IAM** | Identity and Access Management. |
 | **ICAO** | International Civil Aviation Organization. |
-| **ICS** | Industrial Control System. |
+| **ICS** | Industrial Control System. A category within OT covering systems that control industrial processes (manufacturing, energy generation, water treatment, transportation). Common ICS types include SCADA, DCS (Distributed Control System), and PLC-based local control. |
 | **ICT** | Information and Communications Technology. |
 | **IDS** | Intrusion Detection System. |
 | **IEC** | International Electrotechnical Commission. Co-publishes ISO/IEC standards. |
@@ -167,6 +170,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **ISO** | International Organization for Standardization. |
 | **ITGC** | Information Technology General Controls (SOX context). |
 | **ITSM** | IT Service Management. |
+| **IT/OT convergence** | The progressive integration of Information Technology (IT) and Operational Technology (OT) networks, identities, and management tooling. Drives joint governance, network segmentation discipline, and unified incident response. |
 | **IVDR** | In-Vitro Diagnostic Regulation (EU). |
 | **IVS** | (CSA CCM domain) Infrastructure and Virtualization Security. |
 
@@ -222,7 +226,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **OEA** | Operador Económico Autorizado. Spanish/Portuguese term for AEO-equivalent programmes in Latin American countries (Mexico, Brazil, Argentina, Chile, Colombia, Peru, etc.). |
 | **OECD** | Organisation for Economic Co-operation and Development. Publishes the OECD AI Principles. |
 | **OSFI** | Office of the Superintendent of Financial Institutions (Canada). |
-| **OT** | Operational Technology. |
+| **OT** | Operational Technology. Hardware and software that detects or causes change through direct monitoring and/or control of physical devices, processes, and events. Distinct from Information Technology (IT) by its real-world physical impact, safety implications, and typically longer asset lifecycles. Includes ICS, SCADA, DCS, PLCs, BMS, and other operational control systems. |
 | **OWASP** | Open Web Application Security Project. Publishes OWASP Top 10, OWASP LLM Top 10. |
 
 ## P
@@ -240,11 +244,13 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **PIPEDA** | Personal Information Protection and Electronic Documents Act (Canada). Being superseded by CPPA. |
 | **PIPL** | Personal Information Protection Law (China). |
 | **PKI** | Public Key Infrastructure. |
+| **PLC** | Programmable Logic Controller. An industrial computer used in OT/ICS to automate electromechanical processes. PLCs are foundational components of most ICS deployments. |
 | **PoPIA** | Protection of Personal Information Act (South Africa). |
 | **PPC** | Personal Information Protection Commission (Japan). |
 | **PQC** | Post-Quantum Cryptography. |
 | **PRA** | Prudential Regulation Authority (UK). |
 | **PSPF** | Protective Security Policy Framework (Australia). |
+| **Purdue model** | Reference architecture for ICS network segmentation, originally developed at Purdue University. Defines hierarchical zones: Level 0 (physical processes), Level 1 (basic control), Level 2 (area supervisory control), Level 3 (site operations), Level 3.5 (DMZ between OT and IT), Level 4 (site business network), Level 5 (enterprise IT). Foundational to IEC 62443 zone-and-conduit thinking. |
 
 ## R
 
@@ -264,16 +270,23 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **SAST** | Static Application Security Testing. |
 | **SBOM** | Software Bill of Materials. |
 | **SCA** | Software Composition Analysis. |
+| **SCADA** | Supervisory Control and Data Acquisition. A class of ICS used for high-level supervision and control of distributed industrial processes (oil and gas pipelines, electricity grids, water systems, rail networks). |
 | **SCC** | Standard Contractual Clauses (GDPR cross-border transfers). |
 | **SDLC** | Software Development Lifecycle. |
 | **SEC** | U.S. Securities and Exchange Commission. |
 | **SES** | Secure Exports Scheme (New Zealand). NZ's trusted-trader programme. |
 | **SIEM** | Security Information and Event Management. |
+| **SIL** | Safety Integrity Level. A safety classification from IEC 61508/IEC 61511 (SIL 1 through SIL 4) measuring the reliability required of a Safety Instrumented System. Distinct from IEC 62443 Security Levels (SL). |
+| **SIS** | Safety Instrumented System. An OT/ICS system specifically designed to bring a process to a safe state when defined hazardous conditions are detected. SIS reliability is measured by SIL (Safety Integrity Level). |
+| **SL-A** | Security Level Achieved (IEC 62443). The actual security level attained by a deployed zone or component. |
+| **SL-C** | Security Level Capability (IEC 62443). The security level a component is capable of supporting when correctly configured. |
+| **SL-T** | Security Level Target (IEC 62443). The security level a zone or conduit is required to achieve given its risk profile. SL-T values range from SL 1 (protection against casual or coincidental violation) through SL 4 (protection against intentional violation by skilled, well-resourced adversaries). |
 | **SLA** | Service Level Agreement. |
 | **SOC** | Security Operations Centre (operational context). Also used as the auditing standard SOC 2 (System and Organization Controls Type 2). The library disambiguates by context. |
 | **SOC 2** | System and Organization Controls Type 2 audit report (AICPA standard). |
 | **SOX** | Sarbanes-Oxley Act (U.S.). See [`compliance/financial-services/annex-sox-itgc.md`](../compliance/financial-services/annex-sox-itgc.md). |
 | **SP 800-53** | NIST Special Publication 800-53: Security and Privacy Controls. |
+| **SP 800-82** | NIST Special Publication 800-82: Guide to Operational Technology (OT) Security. Renamed from "Industrial Control Systems (ICS) Security" in Rev 3 (2023) to reflect broader OT scope. |
 | **SP 800-88** | NIST Special Publication 800-88: Media Sanitization. |
 | **SSPL** | Server Side Public License. |
 | **STA** | (CSA CCM domain) Supply Chain Management, Transparency, and Accountability. |

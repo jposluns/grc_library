@@ -4,6 +4,49 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 22.1 (2026-05-29, Library Version 2026.05.8): OT security overview and foundations
+
+First sub-phase of Phase 22 (operational technology depth). Establishes the foundation for OT security content: a new `operations/ot/` sub-directory, an overview annex, expanded glossary entries, and expanded canonical-citations entries for the IEC 62443 family and NIST SP 800-82 Rev 3.
+
+### New sub-directory
+
+- `operations/ot/` — Operational Technology home under the existing operations domain. Sub-directory selected over a new top-level `/ot/` domain because OT is operationally related to IT and integrating them into one domain reflects the IT/OT convergence reality.
+
+### New files
+
+- `operations/ot/README.md` (v1.0.0, Register doctype): sub-directory home, applicability, scope, planned-content roadmap, cross-domain relationships, reference-standards index, adopter guidance.
+- `operations/ot/annex-ot-security-overview.md` (v1.0.0, Annex doctype): foundational concepts annex. Eight sections covering OT scope and definitions, OT-versus-IT critical differences, primary reference frameworks (IEC 62443, NIST SP 800-82, IEC 61511/61508, NERC CIP), the zone-and-conduit model, OT-specific risk considerations, cross-domain relationships, frequently asked questions, and framework alignment.
+
+### Glossary additions
+
+- `governance/register-glossary.md` (1.0.0 → 1.1.0): added IACS, BMS, HMI, IT/OT convergence, PLC, Purdue model, SCADA, SIL, SIS, SL-A, SL-C, SL-T, SP 800-82. Expanded ICS and OT entries with full definitions. Disambiguated DCS (CCM domain vs Distributed Control System).
+
+### Canonical citations additions
+
+- `governance/register-canonical-citations.md` (1.0.0 → 1.1.0): added NIST SP 800-82 Rev 3, IEC 62443-1-1, 2-1, 2-4, 3-2, 3-3, 4-1, 4-2, IEC 61511, IEC 61508. Replaced the single placeholder IEC 62443 entry with the family.
+
+### Other updates
+
+- `operations/README.md` (1.1.0 → 1.2.0): added "Sub-directories" section listing `operations/ot/`.
+- `governance/register-document-index-and-classification.md` (1.25.3 → 1.26.0): new index row for the OT overview annex.
+- `governance/register-coverage-gaps.md`: OT/ICS row updated from `Referenced / Planned / TODO P6.2` to `Partial / In library / Phase 22 in progress` with link to `operations/ot/`.
+
+### Doctrinal choices recorded
+
+- **Sub-directory under operations**, not new top-level `/ot/` domain. Reflects the IT/OT convergence reality that the modern adopter governs both.
+- **OT (not OT/ICS) as the umbrella term**, following NIST SP 800-82 Rev 3 nomenclature (renamed from "ICS Security" to "OT Security" in 2023). ICS, SCADA, DCS, PLC, BMS, SIS are all subsumed.
+- **IEC 62443 as primary alignment**, NIST SP 800-82 Rev 3 as secondary. Both authoritative; IEC 62443 has broader international applicability.
+
+### Library version
+
+`2026.05.7` → `2026.05.8`. README `1.7.0` → `1.7.1`.
+
+### Next
+
+Phase 22.2 (OT/ICS Security Standard) will codify the segmentation, zone-and-conduit, security-level, and access-control requirements introduced conceptually in the overview annex.
+
+All 12 audits clean.
+
 ## Phase 21.9 (2026-05-29, Library Version 2026.05.5): Metadata line-break convention library-wide
 
 Library-wide rollout of the metadata-block line-break convention pilot tested in Library Version 2026.05.4 (PR #50). All governance documents now use the CommonMark §6.7 backslash-newline hard-line-break marker (`\`) between metadata fields, replacing the previous single-trailing-space pattern that GitHub correctly rendered as a soft line break (collapsing the metadata block into one paragraph).

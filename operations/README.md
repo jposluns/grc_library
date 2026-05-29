@@ -2,7 +2,7 @@
 
 **Document Title:** Operations Domain README\
 **Document Type:** Register\
-**Version:** 1.1.0\
+**Version:** 1.2.0\
 **Date:** 2026-05-28\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -47,6 +47,20 @@ This directory contains production and infrastructure security standards, proced
 | Standard | Capacity and Performance Management Standard | [`operations/standard-capacity-and-performance-management.md`](standard-capacity-and-performance-management.md) |
 | Procedure | Release Management Procedure | [`operations/procedure-release-management.md`](procedure-release-management.md) |
 | Standard | IT Financial Management Standard | [`operations/standard-it-financial-management.md`](standard-it-financial-management.md) |
+
+---
+
+## Sub-directories
+
+| Sub-directory | Coverage |
+| --- | --- |
+| [`operations/ot/`](ot/) | Operational Technology (OT) security: ICS, SCADA, DCS, PLC, HMI, BMS, SIS. Aligned to IEC 62443 and NIST SP 800-82 Rev 3. |
+
+### Operational Technology sub-directory artefacts
+
+| Type | Title | Path |
+| --- | --- | --- |
+| Annex | OT Security Overview Annex | [`operations/ot/annex-ot-security-overview.md`](ot/annex-ot-security-overview.md) |
 
 ---
 
