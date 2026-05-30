@@ -67,6 +67,9 @@ jobs:
       - name: Stub document audit
         run: python3 tools/lint-stub-documents.py
 
+      - name: Section anchor reference audit
+        run: python3 tools/lint-section-anchors.py
+
       - name: Machine-readable taxonomy in sync
         run: python3 tools/build-taxonomy.py --check
 

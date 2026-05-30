@@ -4,6 +4,39 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.18 (2026-05-30, Library Version 2026.05.34): Section anchor reference audit
+
+First Tier 2 linter (structural coherence). Adds [`tools/lint-section-anchors.py`](tools/lint-section-anchors.py), the 19th linter. Validates that markdown links of the form `[text](path#anchor)` resolve to a real heading in the target file.
+
+### What the linter does
+
+Parses all markdown links in artefact documents. For each link containing a `#anchor`:
+
+1. Resolves the link target (same-document anchors use the current file; cross-document anchors use the relative path).
+2. Reads the target file and extracts all headings (h1-h6).
+3. Slugifies each heading per GitHub-flavoured markdown rules: lowercase, spaces → hyphens, strip non-alphanumeric (except hyphens, underscores), collapse consecutive hyphens.
+4. Fails if the `#anchor` does not match any heading slug in the target.
+
+Skips external links (http/https/mailto) and links to files that don't exist (already caught by [`lint-links.py`](tools/lint-links.py)).
+
+### Why it exists
+
+The existing [`lint-links.py`](tools/lint-links.py) checks that the target file exists but not the section anchor. Section renumbers or heading rewrites silently break navigation. Phase 23.4 renumbered §33 → §34 — that was caught only because I checked manually. With this linter, future renumber-without-update would fail at PR time.
+
+### CI integration
+
+Added to [`.github/workflows/quality.yml`](.github/workflows/quality.yml). Audit suite is now 19 gates.
+
+### Verification
+
+Positive case: 333 files scanned, 35 `#anchor` links all resolve. Negative case: synthetic file with `#nonexistent-section` correctly fails with "no heading slugifies to #nonexistent-section".
+
+### Library version
+
+`2026.05.33` to `2026.05.34`. README `1.7.26` to `1.7.27`.
+
+All 19 audits clean.
+
 ## Phase 23.17 (2026-05-30, Library Version 2026.05.33): Stub document audit
 
 Tier 1 linter (final in tier) from the audit-roadmap. Adds [`tools/lint-stub-documents.py`](tools/lint-stub-documents.py), the 18th linter in the audit suite. Catches stub documents masquerading as production library content.
