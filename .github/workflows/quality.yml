@@ -70,6 +70,9 @@ jobs:
       - name: Section anchor reference audit
         run: python3 tools/lint-section-anchors.py
 
+      - name: Intra-document section reference audit
+        run: python3 tools/lint-intra-doc-refs.py
+
       - name: Machine-readable taxonomy in sync
         run: python3 tools/build-taxonomy.py --check
 

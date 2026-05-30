@@ -4,6 +4,39 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.19 (2026-05-30, Library Version 2026.05.35): Intra-document section reference audit
+
+Second Tier 2 linter. Adds [`tools/lint-intra-doc-refs.py`](tools/lint-intra-doc-refs.py), the 20th linter. Validates that intra-document references like "§5.4" or "Section 11.3" resolve to a real heading in the same document.
+
+### What the linter does
+
+- Extracts numeric section identifiers from headings of the form `## N. Title`, `### N.N Title`, `#### N.N.N Title`, `## Section N: title`.
+- Finds intra-document references of the form `§N`, `§N.N`, `§N.N.N`, `Section N`, `Section N.N`, `Section N.N.N` in the document body.
+- Skips references in cross-document contexts (heuristic): preceded by `.md`, `](`, doctype words like "Standard"/"Procedure"/"Specification", or framework-mapping table rows containing ISO/NIST/OWASP/COBIT/etc. keywords.
+- Fails if a remaining reference's identifier doesn't match a heading in the same document.
+
+### Why it exists
+
+A control referencing "per §5.1.2" is unenforceable if §5.1.2 was removed or renumbered. Caught Phase 23.4 manually; should be caught automatically going forward.
+
+### Source-content adjustment
+
+One table cell in [`governance/register-ai-security-tooling-landscape.md`](governance/register-ai-security-tooling-landscape.md) referenced "§20" in a way that the linter could not disambiguate (no doctype word on the line). Updated to read "AI agentic dev security standard §20" for clarity and to satisfy the linter's cross-doc detection.
+
+### CI integration
+
+Added to [`.github/workflows/quality.yml`](.github/workflows/quality.yml). Audit suite is now 20 gates.
+
+### Verification
+
+Positive case: 331 files scanned, all intra-doc refs resolve. Negative case: synthetic file with broken §5 reference correctly fails.
+
+### Library version
+
+`2026.05.34` to `2026.05.35`. README `1.7.27` to `1.7.28`.
+
+All 20 audits clean.
+
 ## Phase 23.18 (2026-05-30, Library Version 2026.05.34): Section anchor reference audit
 
 First Tier 2 linter (structural coherence). Adds [`tools/lint-section-anchors.py`](tools/lint-section-anchors.py), the 19th linter. Validates that markdown links of the form `[text](path#anchor)` resolve to a real heading in the target file.
