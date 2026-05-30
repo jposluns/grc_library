@@ -4,6 +4,64 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.1 (2026-05-30, Library Version 2026.05.17): Runtime input/output processing controls
+
+First content phase derived from the deep external-project assessment of 52 AI security tools. Adds six new mandatory controls to the AI and Agentic Development Security Standard codifying defensive techniques surfaced consistently across multiple independent projects (PROMPTPurify, llm-guard, ClawGuard, NeMo Guardrails, Vigil-LLM, Lasso MCP Gateway, Guardrails AI). The controls fill gaps where the standard previously named threats but did not mandate the specific defensive techniques.
+
+### Why these controls exist
+
+The library's prior `AI-SEC-INP-01` to `INP-05` and `AI-SEC-OUT-01` to `OUT-04` covered the main input/output boundaries with content-safety service, native role separation, structural delimiters, token budget, PII detection, schema validation, no-eval, HTML escape, and downstream-URL allow-listing. They did not codify:
+
+- Unicode-class normalisation as a proactive control (the threat is acknowledged in TC-01 and tested in DPI-08 and IPI-03, but normalisation as a mandate is absent).
+- Forged chat-template token neutralisation (`<|im_start|>`, `[INST]`, `<<SYS>>`, etc.) before tokenisation.
+- Per-call nonces for structural delimiters (static markers are vulnerable to adversary pre-inclusion).
+- A distinct flag-only tripwire-regex layer feeding rate limits and SIEM.
+- URL allow-list validation in rendered AI output (silent-exfil vectors via markdown images and tracking links).
+- Auto-fetch disabling at the rendering layer for markdown/HTML output.
+
+Cross-project evidence supporting each addition is recorded in the Phase Q2-prep aftermath research notes.
+
+### New controls
+
+- **AI-SEC-INP-06**: Unicode normalisation (NFKC + zero-width/format strip + BIDI removal + homoglyph folding + combining-mark collapse + per-sink length cap). Aligns with Unicode Technical Standard 39 and Annex 15.
+- **AI-SEC-INP-07**: Forged chat-template token neutralisation; non-exhaustive token list maintained per deployed model family.
+- **AI-SEC-INP-08**: Per-call nonce fences for structural delimiters, replacing static markers.
+- **AI-SEC-INP-09**: Flag-only tripwire-regex layer distinct from content safety filter and ML classifier.
+- **AI-SEC-OUT-05**: Outbound URL allow-list validation for rendered AI output across markdown, HTML, and CSS surfaces.
+- **AI-SEC-OUT-06**: Auto-fetch disabling or constrained allow-listing at the rendering layer for markdown/HTML output.
+
+### What this phase does NOT include
+
+Phase 23.1 deliberately limits scope to the runtime input/output processing controls. Subsequent phases per the agreed sequence cover:
+
+- 23.2: dev-side AI input/output scanning controls
+- 23.3: ML model file scanning (`SUPPLY-SEC-07`)
+- 23.4: agentic vulnerability taxonomy expansion, RAG test category split, tool-metadata poisoning, multimodal threat section
+- 23.5: classical ML adversarial taxonomy in `standard-ai-model-risk.md`
+- 23.6: framework alignment updates (AVID, MLCommons, UK AISI, OWASP Agents 2026, CyberSecEval, HarmBench)
+- 23.7: master project index register (the post-research artefact)
+- 23.8: AI observability OSS reference architecture
+- 23.9: AI pentest agent governance
+
+### Cross-references updated
+
+- `ai/standard-ai-and-agentic-development-security.md` (1.2.0 to 1.3.0): six new controls added to §7.
+- Main README (Library 2026.05.16 to 2026.05.17; README 1.7.9 to 1.7.10).
+
+### Citation note
+
+These new controls do not introduce new external citations; they implement defensive patterns from authoritative sources already cited (OWASP LLM Top 10, NIST AI RMF, Unicode Technical Standards). Specific external tool references will be added in Phase 23.6 (framework alignment updates) and queued for citation verification.
+
+### Library version
+
+`2026.05.16` to `2026.05.17`. README `1.7.9` to `1.7.10`.
+
+### Next
+
+Phase 23.2: dev-side AI input/output scanning controls in `guideline-ai-coding-assistant-security.md`.
+
+All 12 audits clean.
+
 ## Phase Q2-prep (2026-05-29, Library Version 2026.05.16): Q2 worklist prepared; Worklist doctype added
 
 Prepares the first verification batch under the Citation Verification Specification. The AI verifier has pre-filled the worklist for 24 ISO and ISO/IEC entries; the human verifier will execute the browser fetches, capture verbatim text, and assign confidence ratings per Citation Verification Specification §3.4 and §8.2 to §8.3.

@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.2.0\
-**Date:** 2026-05-27\
+**Version:** 1.3.0\
+**Date:** 2026-05-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md)\
@@ -132,6 +132,14 @@ Enforcement points: input validation before inference; output validation before 
 
 **AI-SEC-INP-05:** PII detection must run on all user inputs before logging. Detected PII must be masked before writing to any log system.
 
+**AI-SEC-INP-06:** Untrusted input must pass through a Unicode normalisation layer before reaching the LLM. The layer applies, at minimum: NFKC normalisation (Unicode Annex 15), zero-width and format-character stripping (Unicode general categories Cf, Cc, Co, Cn), bidirectional-control character removal, homoglyph folding to a canonical script, combining-mark collapse, and a per-sink length cap. Normalisation precedes any classifier-based detection so that adversarial steganographic content is reduced to a canonical form first. Aligns with Unicode Technical Standard 39 (Security Considerations).
+
+**AI-SEC-INP-07:** Untrusted input must have forged chat-template tokens neutralised before reaching the LLM. Examples for current deployed model families include `<|im_start|>`, `<|im_end|>`, `[INST]`, `[/INST]`, `<<SYS>>`, `<</SYS>>`, `<|system|>`, `<|user|>`, `<|assistant|>`, and `<|begin_of_text|>`. Neutralisation may be escape, removal, or HTML-style entity encoding; the requirement is that the token's role-boundary semantic is destroyed before tokenisation by the model. The set of neutralised tokens must be maintained per the deployed model family and reviewed when model versions change.
+
+**AI-SEC-INP-08:** Structural delimiters wrapping untrusted content in prompts must use per-call nonces rather than static markers. The nonce is a cryptographically unique session-scoped string generated at prompt construction time; static markers (for example, `[DOCUMENT_START]`) used across multiple calls allow adversaries to pre-include matching delimiters in retrieved or supplied content. The nonce is unique per call, embedded in both the system instruction and the surrounding delimiter pair, and discarded after the call.
+
+**AI-SEC-INP-09:** A tripwire layer matching known jailbreak and prompt-injection signatures must run on every untrusted input. The tripwire is flag-only by default (not authoritative block) and feeds rate-limiting, SIEM detection rules, and security-event logging. The tripwire is distinct from the content safety filter and the ML-based classifier; its purpose is signal generation and rate-control, not authoritative decisioning. Tripwire rule sets are reviewed and updated quarterly under the adversarial-testing cadence (`ADTEST-SEC-01`).
+
 **AI-SEC-OUT-01:** LLM output driving a tool call, API call, database operation, or file operation must be validated against a JSON Schema before the action executes. Schema failure results in action denial and a security event log.
 
 **AI-SEC-OUT-02:** LLM output must not be passed to eval(), exec(), subprocess, os.system(), or shell execution equivalents in any language.
@@ -139,6 +147,10 @@ Enforcement points: input validation before inference; output validation before 
 **AI-SEC-OUT-03:** LLM output rendered in a web interface must be HTML-escaped. dangerouslySetInnerHTML, innerHTML, and equivalents with unescaped LLM output are prohibited.
 
 **AI-SEC-OUT-04:** LLM outputs containing email addresses, URLs, or file paths must be validated against allow-lists before use in downstream operations.
+
+**AI-SEC-OUT-05:** LLM output rendered in any user-visible surface must have outbound URLs validated against an allow-list before rendering. The control applies to URLs embedded in markdown image references, markdown hyperlinks, embedded HTML resource tags (`img`, `iframe`, `video`, `audio`, `source`, `link`, `script`), and CSS url-function references. Non-allow-listed URLs must be stripped, rewritten to a non-functional substitute, or wrapped with an out-of-band warning. The control mitigates silent exfiltration via attacker-crafted image-fetch and tracking-link vectors in adversary-controlled output.
+
+**AI-SEC-OUT-06:** Where the deployed surface renders markdown or HTML produced by an LLM, automatic resource fetch (images, iframes, fonts, prefetched links) must be disabled by default or constrained to the same allow-list as `AI-SEC-OUT-05`. Lazy-load fallback and user-confirmation patterns are acceptable where the surface cannot disable auto-fetch globally.
 
 ---
 
