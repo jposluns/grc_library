@@ -91,7 +91,7 @@ DENYLIST: list[tuple[str, str, str]] = [
 # entries record what was committed at the time, including the defects that were later
 # corrected. Add as a relative posix path.
 PATH_EXEMPTIONS: dict[str, set[str]] = {
-    "COBIT 2025": {"CHANGELOG.md", "tools/lint-citations.py", "governance/register-canonical-citations.md"},
+    "COBIT 2025": {"CHANGELOG.md", "tools/lint-citations.py", "governance/register-canonical-citations.md", "governance/worklist-citation-verification-batch-q4-canonical-citations.md"},
     "CSA CCM v5": {"CHANGELOG.md", "tools/lint-citations.py", "governance/register-canonical-citations.md"},
     "CCM v5": {"CHANGELOG.md", "tools/lint-citations.py", "governance/register-canonical-citations.md"},
     "NIST AI RMF 1.1": {"CHANGELOG.md", "tools/lint-citations.py", "governance/register-canonical-citations.md"},

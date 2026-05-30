@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.5\
+**Version:** 1.27.6\
 **Date:** 2026-05-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -57,7 +57,7 @@ All active repository documents should be Public.
 | Governance | Worklist | Citation Verification Worklist: Batch Q3 (AI Tooling Provenance) | [`governance/worklist-citation-verification-batch-q3-ai-tooling.md`](worklist-citation-verification-batch-q3-ai-tooling.md) | Governance Library Maintainer | Per-batch (no recurring cadence) | Working worklist for Phase Q3 batch: 55 tooling-register Provenance blocks pre-filled by AI verifier with Source URL, Version at assessment, Date assessed; Integrity anchor and Wayback snapshot URL to be filled by human verifier |
 | Governance | Worklist | Citation Verification Worklist: Batch Q3.1 (New Canonical Citations) | [`governance/worklist-citation-verification-batch-q3-1-new-citations.md`](worklist-citation-verification-batch-q3-1-new-citations.md) | Governance Library Maintainer | Per-batch (no recurring cadence) | Working worklist for Phase Q3.1 batch: 6 new canonical citations added in Phase 23.6 (AVID, MLCommons AILuminate, OWASP GenAI Security Project, OWASP Agentic AI Top 10 2026, OWASP MCP Top 10 2025, NIST SP 800-218A) |
 | Governance | Worklist | Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations) | [`governance/worklist-citation-verification-batch-q4-canonical-citations.md`](worklist-citation-verification-batch-q4-canonical-citations.md) | Governance Library Maintainer | Per-batch (no recurring cadence) | Working worklist for Phase Q4 batch: 82 remaining canonical citations register entries (NIST, EU, North American, sector-specific, OWASP, customs/trade, OECD, ICAO/IMO, CSA, ISACA, MITRE, AICPA, jurisdiction-specific privacy regulations) |
-| Governance | Register | Citation Verification Bundle Index | [`governance/index-citation-verification-bundle.md`](index-citation-verification-bundle.md) | Governance Library Maintainer | Per-campaign | Master orchestration index consolidating Q2 / Q3 / Q3.1 / Q4 worklists into a single navigable verification campaign |
+| Governance | Register | Citation Verification Bundle Index | [`governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md) | Governance Library Maintainer | Per-campaign | Master orchestration index consolidating Q2 / Q3 / Q3.1 / Q4 worklists into a single navigable verification campaign |
 | Governance | Register | Coverage Gap Analysis Register | [`governance/register-coverage-gaps.md`](register-coverage-gaps.md) | Governance Library Maintainer | Quarterly | Honest disclosure of sectors, jurisdictions, regulations, cloud providers, and capabilities not covered by the library |
 | Governance | Register | Role Authority Register | [`governance/register-role-authority.md`](register-role-authority.md) | Governance Library Maintainer | Annual | Accountability, RACI, approval authority |
 | Governance | Matrix | Cross-Framework Alignment Matrix | [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md) | Control Framework Maintainer | 6 to 12 months | ISO, NIST, COBIT, CCM, OWASP, MITRE ATLAS |

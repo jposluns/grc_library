@@ -2,8 +2,8 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.0.0\
-**Date:** 2026-05-29\
+**Version:** 1.1.1\
+**Date:** 2026-05-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-glossary.md`](register-glossary.md), [`README.md`](../README.md), [`TODO.md`](../TODO.md)\
@@ -193,7 +193,7 @@ The library is cloud-provider-agnostic. Provider-specific guidance is recorded a
 
 | Area | Coverage | Status | Planned target | Notes |
 | --- | --- | --- | --- | --- |
-| Operational Technology (OT) security | Partial | In library | Phase 22 in progress | [`operations/ot/`](../operations/ot/): overview annex live (Phase 22.1); standard, procedures, and registers in Phases 22.2-22.6. IEC 62443 family and NIST SP 800-82 Rev 3 catalogued in canonical citations. |
+| Operational Technology (OT) security | Substantive | In library | n/a | [`operations/ot/`](../operations/ot/): overview annex (Phase 22.1), OT/ICS Security Standard (22.2), OT Incident Response Procedure (22.3), OT Change Management Procedure (22.4), OT Asset Inventory and Lifecycle Register (22.5), BMS Overlay Annex (22.6). IEC 62443 family and NIST SP 800-82 Rev 3 catalogued in canonical citations. |
 | Identity governance (workforce IAM) | Substantive | In library | n/a | Throughout security domain |
 | Customer Identity (CIAM) | Referenced | Deferred | TODO P6.3 | Adopter UX and consumer-data dimensions |
 | Federated identity (SAML, OIDC) | Partial | In library | n/a | Referenced in IAM standards; dedicated patterns deferred |
@@ -201,8 +201,16 @@ The library is cloud-provider-agnostic. Provider-specific guidance is recorded a
 | Post-quantum crypto migration playbook | None | Deferred | TODO P6.4 |  |
 | Crypto-agility patterns | None | Deferred | TODO P6.4 |  |
 | AI/ML governance | Substantive | In library | n/a | Throughout AI domain |
-| AI red-team methodology depth | Partial | In library | n/a | Template exists; methodology deepening possible |
-| MCP server security | Substantive | In library | n/a | Throughout AI domain |
+| AI red-team methodology depth | Substantive | In library | n/a | Adversarial test reference, red team report template, agentic security standard with 16 threat classes, classical ML adversarial taxonomy, AI-driven offensive tool governance (§33 of agentic standard) all expanded across Phase 23 sub-phases |
+| AI-driven offensive security tool governance | Substantive | In library | n/a | `standard-ai-and-agentic-development-security.md` §33 (OFFAI-SEC-01 to 10); tooling landscape register references PentestGPT, PentAGI, Strix, HexStrike AI, BurpGPT |
+| ML model file scanning (pickle, H5, Keras, SavedModel) | Substantive | In library | n/a | SUPPLY-SEC-07 control in agentic standard; references modelscan, picklescan, fickling patterns |
+| Multimodal AI threats (image, audio, video, OCR, PDF, QR) | Substantive | In library | n/a | RUNTIME-SEC-07 / 08 in agentic standard; TC-13 multimodal injection threat class |
+| Agent goal stability and inter-agent communication compromise | Substantive | In library | n/a | AGENT-SEC-15 / 16; TC-14 / TC-15 threat classes |
+| Classical ML adversarial taxonomy (evasion, poisoning, extraction, inference) | Substantive | In library | n/a | `standard-ai-model-risk.md` §5 restructured into 6 subsections covering ART/AIJack/HEART-equivalent threats |
+| Citation verification methodology and freshness governance | Substantive | In library | n/a | `specification-citation-verification.md`; `register-citation-verifications.md`; `register-canonical-citations.md`; `register-citation-verification-bundle.md`; `lint-citation-verification-freshness.py`; `lint-tooling-provenance-freshness.py` |
+| AI security tooling landscape (curated index) | Substantive | In library | n/a | `register-ai-security-tooling-landscape.md` with 55 entries across 9 categories, per-entry Provenance blocks |
+| Audit programme (automated linting and conformance) | Substantive | In library | n/a | 30 linter / build-check gates running in CI on every PR; covers metadata, language, links, structure, citations, currency, filename/title, roles, uncertainty, CHANGELOG link coverage, placeholders, version monotonicity, date format, license consistency, stubs, section anchors, intra-doc refs, required sections, acronym consistency, secrets, PII, internal references, external link domains, cross-doc numbers, orphan documents, citation freshness, tooling freshness, plus 3 build-sync gates |
+| MCP server security | Substantive | In library | n/a | Throughout AI domain; MCP-SEC-01 to 10 in agentic standard; `register-mcp-server.md`; Lasso MCP Gateway pattern referenced |
 | Generative AI specifically | Substantive | In library | n/a | Heavy coverage in AI domain |
 | Synthetic data governance | Referenced | Deferred | n/a | Touched in AI data governance; could be dedicated |
 | Data mesh / data product governance | None | Deferred | n/a | Architecture domain candidate |

@@ -169,6 +169,28 @@ The underlying concern (catching half-updated cross-references during refactors)
 
 Decision: dropped. Not pursued in narrower form (doctype-pair rules) because the marginal value over `lint-links.py` does not justify the maintenance cost of a curated rule set with many exemptions.
 
+### Phase 23.26 (2026-05-30): Cross-document numerical coherence shipped as scaffold
+
+Original plan in the audit-roadmap: a linter that flags numerical drift on canonical-term thresholds (RTO, RPO, P1/P2/P3/P4 acknowledgement times, retention periods) across documents.
+
+Empirical analysis found that incident-severity terminology (P1/P2/P3/P4) legitimately carries different numeric values per SLA dimension: acknowledgement time, resolution time, escalation interval, notification time. A naive "same Pn = same value" check would false-positive on legitimate per-dimension variation.
+
+Decision: ship as scaffold (regex framework with unit normalisation and aggregation, conservative initial term set narrow enough to currently track 0 terms). The linter passes vacuously; the framework is in place for future term curation when the maintainer is ready to define which specific (term, SLA-dimension) pairs to enforce. Honest scope-management was preferred over either (a) silently producing false positives or (b) defining the term set without sufficient operational data.
+
+### Phase 23.30 (2026-05-30): Phase-completion gating to require full 30-linter sweep
+
+Phase Q-bundle's pre-merge audit pass omitted several of the 30 linters and consequently merged 5 audit-gate violations (filename/doctype prefix mismatch on the bundle index, 15 em-dash language findings, one broken intra-repo link, one mislabelled hallucinated framework version, one unresolved intra-document reference). All were caught and corrected in the immediately following Phase 23.30 cleanup.
+
+Decision: phase-completion gating from this point forward requires the full 30-linter sweep to pass locally before any push. The planned Bucket A `tools/run_all_audits.sh` script will operationalise this with one command; the pre-commit hook configuration will operationalise it in git itself.
+
+Until those land, the convention is: at each phase-completion step, the maintainer (or AI verifier) runs all 30 linters in a single batch (not a selective subset) and only proceeds to commit/push when zero violations remain.
+
+### Phase 23.7 (2026-05-30): No verification of standard content versus library interpretation
+
+When the AI Security Tooling Landscape Register was created, it asserted capability claims for each project. The Citation Verification Specification §14 explicitly excludes "verification of standard content versus the library's interpretation of it" from the methodology scope.
+
+Decision: verification covers metadata (existence, version, publication date, supersedence, ID format) and integrity anchors (commit SHA, Wayback snapshot URL). It does NOT verify that the library's prose interpretation of a project's capabilities is accurate. That would require the library to engage in interpretation disputes with project authors; the methodology stays at the citation-metadata layer.
+
 ---
 
 ## Notes on maintenance

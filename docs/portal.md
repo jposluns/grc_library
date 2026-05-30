@@ -225,7 +225,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [BASC IT and Information Security Responsibilities](../compliance/logistics/register-basc-it-responsibilities.md)
 - [Canada PIP IT and Cybersecurity Compliance Controls Register](../compliance/logistics/register-pip-canada-controls.md)
 - [Canonical Citations Register](../governance/register-canonical-citations.md)
-- [Citation Verification Bundle Index](../governance/index-citation-verification-bundle.md)
+- [Citation Verification Bundle Index](../governance/register-citation-verification-bundle.md)
 - [Citation Verifications Register](../governance/register-citation-verifications.md)
 - [Compliance Obligations Register Template](../compliance/register-compliance-obligations-template.md)
 - [Coverage Gap Analysis Register](../governance/register-coverage-gaps.md)

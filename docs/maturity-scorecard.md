@@ -17,11 +17,11 @@ This classification is a heuristic derived from semver; it does not reflect audi
 
 ---
 
-_Summary as of last regeneration: Mature: 67, Baseline: 147, Draft: 72, Unknown: 0._
+_Summary as of last regeneration: Mature: 68, Baseline: 146, Draft: 72, Unknown: 0._
 
 ## Mature
 
-_67 documents._
+_68 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
@@ -44,7 +44,8 @@ _67 documents._
 | [governance/register-ai-security-tooling-landscape.md](../governance/register-ai-security-tooling-landscape.md) | AI Security Tooling Landscape Register | Register | 1.1.0 | 2026-05-30 |
 | [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.4.0 | 2026-05-30 |
 | [governance/register-citation-verifications.md](../governance/register-citation-verifications.md) | Citation Verifications Register | Register | 1.1.0 | 2026-05-29 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.5 | 2026-05-30 |
+| [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.1 | 2026-05-30 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.6 | 2026-05-30 |
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.2.0 | 2026-05-30 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.1 | 2026-05-28 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.3.0 | 2026-05-28 |
@@ -97,7 +98,7 @@ _67 documents._
 
 ## Baseline
 
-_147 documents._
+_146 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
@@ -151,20 +152,19 @@ _147 documents._
 | [governance/framework-human-capital-and-ethical-conduct.md](../governance/framework-human-capital-and-ethical-conduct.md) | Human Capital and Ethical Conduct Framework | Framework | 1.0.1 | 2026-05-28 |
 | [governance/framework-metrics-monitoring-and-performance-reporting.md](../governance/framework-metrics-monitoring-and-performance-reporting.md) | Metrics, Monitoring and Performance Reporting Framework | Framework | 1.0.1 | 2026-05-28 |
 | [governance/guideline-esg-and-ai-ethics-disclosure.md](../governance/guideline-esg-and-ai-ethics-disclosure.md) | ESG and AI Ethics Disclosure Guideline | Guideline | 1.0.0 | 2026-05-27 |
-| [governance/index-citation-verification-bundle.md](../governance/index-citation-verification-bundle.md) | Citation Verification Bundle Index | Register | 1.0.0 | 2026-05-30 |
 | [governance/policy-digital-twin-and-simulation-governance.md](../governance/policy-digital-twin-and-simulation-governance.md) | Digital Twin and Simulation Governance Policy | Policy | 1.0.0 | 2026-05-27 |
 | [governance/policy-exception-and-risk-acceptance-management.md](../governance/policy-exception-and-risk-acceptance-management.md) | Exception and Risk Acceptance Management Policy | Policy | 1.0.1 | 2026-05-27 |
 | [governance/procedure-continuous-improvement-register.md](../governance/procedure-continuous-improvement-register.md) | Continuous Improvement Register Procedure | Procedure | 1.0.0 | 2026-05-27 |
 | [governance/procedure-grc-programme-management-and-annual-review.md](../governance/procedure-grc-programme-management-and-annual-review.md) | GRC Programme Management and Annual Review Procedure | Procedure | 1.0.0 | 2026-05-27 |
 | [governance/procedure-whistleblower-and-incident-reporting.md](../governance/procedure-whistleblower-and-incident-reporting.md) | Whistleblower and Incident Reporting Procedure | Procedure | 1.0.1 | 2026-05-28 |
-| [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.0.0 | 2026-05-29 |
+| [governance/register-citation-verification-bundle.md](../governance/register-citation-verification-bundle.md) | Citation Verification Bundle Index | Register | 1.0.1 | 2026-05-30 |
 | [governance/register-data-retention-schedule.md](../governance/register-data-retention-schedule.md) | Data Retention Schedule | Register | 1.0.0 | 2026-05-27 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.0.0 | 2026-05-27 |
 | [governance/template-citation-verification-worklist.md](../governance/template-citation-verification-worklist.md) | Citation Verification Worklist Template | Template | 1.0.0 | 2026-05-29 |
 | [governance/worklist-citation-verification-batch-q2-iso-iec.md](../governance/worklist-citation-verification-batch-q2-iso-iec.md) | Citation Verification Worklist: Batch Q2 (ISO and ISO/IEC) | Worklist | 1.0.0 | 2026-05-29 |
-| [governance/worklist-citation-verification-batch-q3-1-new-citations.md](../governance/worklist-citation-verification-batch-q3-1-new-citations.md) | Citation Verification Worklist: Batch Q3.1 (New Canonical Citations) | Worklist | 1.0.0 | 2026-05-30 |
+| [governance/worklist-citation-verification-batch-q3-1-new-citations.md](../governance/worklist-citation-verification-batch-q3-1-new-citations.md) | Citation Verification Worklist: Batch Q3.1 (New Canonical Citations) | Worklist | 1.0.1 | 2026-05-30 |
 | [governance/worklist-citation-verification-batch-q3-ai-tooling.md](../governance/worklist-citation-verification-batch-q3-ai-tooling.md) | Citation Verification Worklist: Batch Q3 (AI Security Tooling Landscape Provenance) | Worklist | 1.0.0 | 2026-05-30 |
-| [governance/worklist-citation-verification-batch-q4-canonical-citations.md](../governance/worklist-citation-verification-batch-q4-canonical-citations.md) | Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations) | Worklist | 1.0.0 | 2026-05-30 |
+| [governance/worklist-citation-verification-batch-q4-canonical-citations.md](../governance/worklist-citation-verification-batch-q4-canonical-citations.md) | Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations) | Worklist | 1.0.1 | 2026-05-30 |
 | [operations/framework-it-service-management.md](../operations/framework-it-service-management.md) | IT Service Management Framework | Framework | 1.0.0 | 2026-05-27 |
 | [operations/ot/annex-bms-overlay.md](../operations/ot/annex-bms-overlay.md) | Building Management Systems (BMS) Overlay Annex | Annex | 1.0.0 | 2026-05-29 |
 | [operations/ot/annex-ot-security-overview.md](../operations/ot/annex-ot-security-overview.md) | Operational Technology Security Overview Annex | Annex | 1.0.0 | 2026-05-29 |

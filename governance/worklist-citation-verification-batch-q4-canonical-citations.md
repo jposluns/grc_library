@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.0\
+**Version:** 1.0.1\
 **Date:** 2026-05-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -41,20 +41,20 @@ At batch close: notify AI verifier with completed worklist. AI verifier transcri
 
 Particular-attention flags (entries where AI-verifier confidence is lowest):
 
-- **OWASP Agentic AI Top 10 2026** — confirm published; release timing uncertain.
-- **OWASP MCP Top 10 2025** — confirm published.
-- **Meta CyberSecEval v4** — confirm v4 is current (v3 was earlier).
-- **MITRE ATT&CK v15** — verify version (releases are quarterly; current may be later).
-- **MITRE ATLAS v4.7** — same caveat.
-- **CSA AICM v1.0.3** — verify current version.
-- **Basel III** — multiple amendments since 2017; verify current state.
-- **NFPA 72 2025** — confirm 2025 edition published.
+- **OWASP Agentic AI Top 10 2026**: confirm published; release timing uncertain.
+- **OWASP MCP Top 10 2025**: confirm published.
+- **Meta CyberSecEval v4**: confirm v4 is current (v3 was earlier).
+- **MITRE ATT&CK v15**: verify version (releases are quarterly; current may be later).
+- **MITRE ATLAS v4.7**: same caveat.
+- **CSA AICM v1.0.3**: verify current version.
+- **Basel III**: multiple amendments since 2017; verify current state.
+- **NFPA 72 2025**: confirm 2025 edition published.
 
 ---
 
 ## 3. Worklist (by publisher cluster)
 
-### 3.1 NIST cluster (10 entries) — `nvlpubs.nist.gov` / `csrc.nist.gov` / `nist.gov`
+### 3.1 NIST cluster (10 entries): publishers `nvlpubs.nist.gov`, `csrc.nist.gov`, `nist.gov`
 
 | Standard ID | Expected primary URL | Field(s) | Expected value | Captured text | Wayback URL | Result | Captured by | Confidence | Date |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -70,7 +70,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | NIST SP 800-161 | https://csrc.nist.gov/pubs/sp/800/161/r1/upd1/final | all | Rev 1, 2022-05, Cybersecurity Supply Chain Risk Management; supersedes Rev 0 |  |  |  |  |  |  |
 | NIST SP 800-82 | https://csrc.nist.gov/pubs/sp/800/82/r3/final | all | Rev 3, 2023-09, Guide to OT Security; supersedes Rev 2, Rev 1 |  |  |  |  |  |  |
 
-### 3.2 EU regulations and directives (9 entries) — `eur-lex.europa.eu`
+### 3.2 EU regulations and directives (9 entries): publisher `eur-lex.europa.eu`
 
 | Standard ID | Expected primary URL | Field(s) | Expected value | Captured text | Wayback URL | Result | Captured by | Confidence | Date |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -150,7 +150,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | BASC International Standard | https://www.wbasco.org/en/programs-of-certification | all | v6 (2023); supersedes v5 |  |  |  |  |  |  |
 | CTPAT MSC | https://www.cbp.gov/border-security/ports-entry/cargo-security/ctpat | all | 2020, Minimum Security Criteria |  |  |  |  |  |  |
 
-### 3.9 Sector-specific: IEC 62443 family (7 entries) — `webstore.iec.ch`
+### 3.9 Sector-specific: IEC 62443 family (7 entries): publisher `webstore.iec.ch`
 
 | Standard ID | Expected primary URL | Field(s) | Expected value | Captured text | Wayback URL | Result | Captured by | Confidence | Date |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -189,7 +189,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | ICAO Doc 10055 | https://store.icao.int/en/aviation-cybersecurity-strategy-doc-10055 | all | 2024, Aviation Cybersecurity Strategy |  |  |  |  |  |  |
 | IMO Resolution MSC-FAL.1/Circ.3 | https://www.imo.org/en/OurWork/Security/Pages/Cyber-security.aspx | all | Rev 2, 2022-06, Maritime cyber risk management guidelines; supersedes Rev 1 |  |  |  |  |  |  |
 
-### 3.12 AI safety evaluation programmes (3 entries) — note: AI tooling references cluster separately covered in Q3
+### 3.12 AI safety evaluation programmes (3 entries; note that AI tooling references cluster separately covered in Q3)
 
 | Standard ID | Expected primary URL | Field(s) | Expected value | Captured text | Wayback URL | Result | Captured by | Confidence | Date |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
