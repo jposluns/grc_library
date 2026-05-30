@@ -4,6 +4,39 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.26 (2026-05-30, Library Version 2026.05.42): Cross-document numerical coherence (scaffold)
+
+First Tier 4 linter (coherence and methodology enforcement). Adds [`tools/lint-cross-doc-numbers.py`](tools/lint-cross-doc-numbers.py), the 27th linter. Scaffold for detecting cross-document numerical drift on canonical-term thresholds.
+
+### Honest scoping note
+
+The user's roadmap scoped this linter at 10 hours with explicit "false-positive risk requires careful term curation". Empirically, the library's incident-severity terminology (P1/P2/P3/P4) carries legitimately different numeric values per SLA dimension: acknowledgement time, resolution time, escalation interval, notification time. A naive "same Pn = same value" check would false-positive.
+
+This phase ships a conservative scaffold:
+
+- Regex framework for tracking canonical-term + numeric-value patterns.
+- Unit normalisation (minutes / hours / days / business days → minutes).
+- Aggregation across documents with per-value occurrence tracking.
+- Conservative initial term set: `P1-acknowledgement`, `P2-acknowledgement`, `P3-acknowledgement` (the regex is narrow enough that the library does not currently match any).
+
+### Why ship a vacuously-passing linter
+
+- The framework is in place for future term additions.
+- The pass-state codifies "no cross-document divergence has been intentionally introduced" as a CI gate.
+- Future phases can extend `TERM_PATTERNS` as the library's numerical-coherence requirements become clearer.
+
+The linter is intentionally documented as a scaffold; it is not a strong claim of cross-document numerical correctness yet.
+
+### CI integration
+
+Added to [`.github/workflows/quality.yml`](.github/workflows/quality.yml). Audit suite is now 27 gates.
+
+### Library version
+
+`2026.05.41` to `2026.05.42`. README `1.7.34` to `1.7.35`.
+
+All 27 audits clean.
+
 ## Phase 23.25 (2026-05-30, Library Version 2026.05.41): External link domain audit
 
 Final Tier 3 linter (Tier 3 complete). Adds [`tools/lint-external-link-domains.py`](tools/lint-external-link-domains.py), the 26th linter. Validates external http(s) URLs in library content against an allow-list of trusted publisher domains.
