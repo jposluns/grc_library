@@ -49,6 +49,9 @@ jobs:
       - name: Per-document review cadence audit
         run: python3 tools/check-review-cadence.py
 
+      - name: CHANGELOG file-reference link coverage
+        run: python3 tools/lint-changelog-link-coverage.py
+
       - name: Machine-readable taxonomy in sync
         run: python3 tools/build-taxonomy.py --check
 
