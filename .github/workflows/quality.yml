@@ -64,6 +64,9 @@ jobs:
       - name: License consistency audit
         run: python3 tools/lint-license-consistency.py
 
+      - name: Stub document audit
+        run: python3 tools/lint-stub-documents.py
+
       - name: Machine-readable taxonomy in sync
         run: python3 tools/build-taxonomy.py --check
 
