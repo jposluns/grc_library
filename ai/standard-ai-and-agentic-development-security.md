@@ -2,7 +2,7 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.4.0\
+**Version:** 1.5.0\
 **Date:** 2026-05-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -117,6 +117,11 @@ Enforcement points: input validation before inference; output validation before 
 | **TC-09** MCP-Specific Threats | Tool poisoning via false tool descriptions. Context contamination through MCP tool results. Permission escalation via over-scoped MCP server access. |
 | **TC-10** Hallucinated Security Controls | AI-generated code that appears to implement a security control but does not: HMAC verification that skips signature checking, JWT validation that ignores expiry. |
 | **TC-11** Memory Poisoning | Injected summarization introducing false information into persistent memory. Cross-session memory contamination where one user's data affects another user's memory context. |
+| **TC-12** Tool Metadata Poisoning | An attacker-supplied tool exposes a description, parameter docstring, or schema text containing hidden instructions intended to influence the calling model. The injection vector is the tool definition itself, not its arguments or return values. Distinct from TC-09 in that the model never invokes the tool: it reads the catalogue. |
+| **TC-13** Multimodal Injection | Adversarial content carried in non-text modalities reaches the model: text rendered in images (visual jailbreak), instructions encoded in audio that the model transcribes, embedded instructions in PDF metadata or alternative text, OCR-extracted hidden text, QR codes carrying payloads, video frames carrying instruction overlays. |
+| **TC-14** Agentic Goal Theft and Drift | An agent is induced over a multi-turn session to pursue an objective different from the user-authorised goal. Goal Theft is acute substitution by adversarial input; Drift is gradual divergence driven by long-context pressure, accumulated tool feedback, or chained intermediate objectives. |
+| **TC-15** Inter-Agent Communication Compromise | In a multi-agent orchestration, an upstream agent injects directives into a downstream agent through the response channel; or a sibling agent is impersonated; or message authentication is bypassed by content shape that the receiver treats as instruction. Distinct from TC-08 in that no privilege escalation is required: lateral movement is sufficient. |
+| **TC-16** Adaptive / RL-Trained Adversary | An adversary uses reinforcement-learning-trained attacker models to generate payloads that adapt to observed defences. Static defensive test suites become insufficient at the rate at which adaptive attackers iterate. |
 
 ---
 
@@ -273,6 +278,12 @@ Rule deployment is verified in CI. Builds fail if required rule files are absent
 
 **AGENT-SEC-14:** Code-executing agents must run in an isolated sandbox with no network access except to explicitly allow-listed endpoints and no persistence between sessions.
 
+**AGENT-SEC-15:** Goal stability must be tested across multi-turn agent sessions. The test exercises whether sustained pressure (prolonged context, sequential tool feedback, chained intermediate objectives, role-play framing) causes the agent to pursue a different objective from the one authorised at session start. Goal-stability tests are part of the adversarial test suite per §22; failures are P1 or P2 incidents per the AI Incident Response Plan depending on production exposure.
+
+**AGENT-SEC-16:** Inter-agent communications must be authenticated and the receiving agent must validate the content shape before treating any portion as instruction. Specifically: an agent receiving output from another agent treats that output as Untrusted (per Trust zones §3), validates against schema before downstream use, and does not infer caller identity from content. Channel-level authentication (signed messages, mutual TLS in mesh deployments, signed envelopes with verified claims) is mandatory between any two agents that propagate authority.
+
+**AGENT-SEC-17:** Where the deployed surface uses multiple modalities (text, image, audio, video, document upload, OCR pipeline), content from each modality must pass through a modality-appropriate adversarial-content filter before reaching the model. Text-only content safety filters are insufficient for image, audio, and document inputs.
+
 ---
 
 ## 11. RAG security requirements
@@ -295,6 +306,12 @@ Rule deployment is verified in CI. Builds fail if required rule files are absent
 
 **RAG-SEC-09:** Cloud vector search services must use enterprise identity provider RBAC. API key authentication must be disabled in production. Private endpoint required.
 
+**RAG-SEC-10 (RAG Poisoning testing):** The adversarial test suite must include RAG-poisoning tests that simulate attacker-controlled documents entering the retrieval corpus and measure the influence on model behaviour. The test exercises both direct ingestion of adversarial documents (where ingestion governance is bypassed or relaxed) and embedding-space poisoning (crafted documents that achieve high similarity to legitimate context and displace it). RAG-poisoning tests are repeated at every material change to the ingestion pipeline or the embedding model.
+
+**RAG-SEC-11 (RAG Document Exfiltration testing):** The adversarial test suite must include tests that confirm retrieval cannot return chunks from tenants, users, classifications, or data-residency scopes other than the requestor's authorised scope. The test exercises crafted queries designed to bypass the retrieval scope binding (`RAG-SEC-04`) and crafted prompts designed to induce the model to reveal retrieved-but-not-rendered content.
+
+**RAG-SEC-12 (RAG Source Attribution testing):** The adversarial test suite must include tests that confirm retrieved-content attribution metadata (per `RAG-SEC-05`) is preserved and surfaced in user-visible output. The test exercises attempts to induce the model to misattribute content provenance, to attribute attacker-controlled content to a trusted source, or to omit attribution where attribution is required.
+
 ---
 
 ## 12. MCP security requirements
@@ -312,6 +329,12 @@ Rule deployment is verified in CI. Builds fail if required rule files are absent
 **MCP-SEC-06:** All MCP server access must be logged to the SIEM with tool name, calling identity, parameter hash, and result status.
 
 **MCP-SEC-07:** The number of MCP tools available in any given agent session must be the minimum required for the task.
+
+**MCP-SEC-08:** MCP tool descriptions, parameter docstrings, and schema text are content that the model reads. They must be scanned at server-load time and before any session that exposes the tool to the model. The scan looks for, at minimum: forged chat-template tokens (per `AI-SEC-INP-07`), instruction-override patterns ("ignore previous instructions", role re-binding), embedded URLs to non-allow-listed hosts, steganographic Unicode (per `AI-SEC-INP-06`), and references to sensitive file paths or exfiltration verbs. Findings block tool registration in the agent's tool allow-list pending review.
+
+**MCP-SEC-09:** Tool descriptions that change between sessions (rug-pull pattern: the server publishes one description at registration time and a different description on subsequent calls) must be detected. The agent runtime cryptographically pins the description hash at registration time and rejects any divergence on subsequent calls.
+
+**MCP-SEC-10:** Tool-name shadowing across MCP servers must be detected. Where two MCP servers in the same agent session expose tools with the same name, the agent runtime rejects the configuration; resolution requires explicit naming or namespacing.
 
 ---
 
@@ -370,6 +393,17 @@ Rule deployment is verified in CI. Builds fail if required rule files are absent
 **RUNTIME-SEC-05:** Token budget limits must be enforced per session, per user, and per day.
 
 **RUNTIME-SEC-06:** Anomalous usage must generate SIEM alerts.
+
+**RUNTIME-SEC-07 (Multimodal content filtering):** Where the deployed surface accepts non-text inputs (images, audio, video, PDF, Office documents, OCR pipelines, QR-code scanners), each modality must pass through a modality-appropriate adversarial-content filter before reaching the model. Filtering categories per modality, at minimum:
+
+- **Image**: visual jailbreak detection (text rendered in images), embedded-instruction detection (instruction-shaped overlays, alt-text injection), NSFW classifier, optical-character-recognition pass that subjects extracted text to the same controls as user input.
+- **Audio**: speech-to-text transcription pass that subjects extracted text to the same controls as user input; adversarial-audio detection where the model is known to be vulnerable to acoustic perturbations.
+- **Video**: per-frame visual filtering plus per-frame OCR pass; audio-track filtering.
+- **PDF / Office documents**: text-extraction pass subjecting extracted text to the same controls as user input; metadata field scanning; embedded-resource (images, attachments) scanning; macro detection and rejection where the surface does not execute macros.
+- **OCR**: extracted text is treated as Untrusted input (per Trust zones §3) and re-enters the input pipeline at `AI-SEC-INP-01`.
+- **QR codes**: decoded payloads are validated against URL allow-lists (`AI-SEC-OUT-05`) and instruction-pattern scanners before any tool action is taken on them.
+
+**RUNTIME-SEC-08 (Modality-cross-contamination):** Text controls do not transfer to images. A surface that filters text but accepts images without an image-aware filter is vulnerable. Adopting organisations document, per AI system, which modalities are accepted and which modality-specific filters apply.
 
 ---
 
