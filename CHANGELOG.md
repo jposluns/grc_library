@@ -4,6 +4,55 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase Q-bundle (2026-05-30, Library Version 2026.05.45): Citation verification bundle prepared
+
+Bundles all pending citation verification batches (Q2, Q3, Q3.1, Q4) into a single navigable campaign ready for the human verifier to execute over a few-day focused window.
+
+### What was prepared
+
+**New worklist: Q3.1 (6 entries)** — [`governance/worklist-citation-verification-batch-q3-1-new-citations.md`](governance/worklist-citation-verification-batch-q3-1-new-citations.md). Covers the truly-new canonical citations added in Phase 23.6 that do not overlap any Q3 tooling-register entry: AVID, MLCommons AILuminate, OWASP GenAI Security Project, OWASP Agentic AI Top 10 2026, OWASP MCP Top 10 2025, NIST SP 800-218A.
+
+**New worklist: Q4 (82 entries)** — [`governance/worklist-citation-verification-batch-q4-canonical-citations.md`](governance/worklist-citation-verification-batch-q4-canonical-citations.md). Covers the remaining canonical citations register entries (NIST publications, EU regulations, North American regulations, other privacy regulations, OWASP non-LLM publications, customs/trade, OECD, ICAO/IMO, CSA, ISACA, MITRE adversary frameworks, AICPA, jurisdiction-specific privacy regulations). Two source-URL corrections applied during integration: China PIPL row replaced suspicious CDN URL with publisher-search instruction; remaining publisher domains added to the external-link allow-list (`oag.ca.gov`, `dodcio.defense.gov`, `parl.ca`, `fedlex.admin.ch`, `harmbench.org`, `owaspsamm.org`, `wbasco.org`, `cbp.gov`, `pcisecuritystandards.org`, `oecd.ai`, `oecd.org`, `wto.org`).
+
+**Master bundle index** — [`governance/index-citation-verification-bundle.md`](governance/index-citation-verification-bundle.md). Consolidates Q2, Q3, Q3.1, Q4 with:
+
+- Recommended execution order (Day 1: Q2 ISO; Day 2: Q3.1; Days 3-4: Q3 tooling; Days 5-7: Q4 remaining canonical citations).
+- Per-batch quick reference (publisher, URL pattern, integrity anchor type).
+- Overlap mapping table (Q3 ↔ canonical citations register, 27 overlapping entries).
+- Workflow per verification session.
+- Tools and resources (Wayback submission, commit SHA capture, content hash).
+- Post-bundle status (what changes after the campaign completes).
+
+### Bundle scope
+
+Total unique entries to verify: **~167** (24 Q2 + 55 Q3 + 6 Q3.1 + 82 Q4, with 27 overlapping Q3 ↔ canonical-citations entries; one fetch satisfies both registrations). With Q4 included, the bundle covers the entire canonical citations register (162 entries) plus the AI Security Tooling Landscape Register's 55 Provenance blocks.
+
+### Source-URL corrections during bundling
+
+- Q3.1 worklist: removed `google.com` search-fallback URLs (replaced with "search the publisher's site" instruction) to satisfy the external-link allow-list rule.
+- Q4 worklist (China PIPL row): replaced a CDN-proxied URL (`en.npc.gov.cn.cdurl.cn`) with a publisher-search instruction because the CDN-rewritten URL was not a canonical publisher domain.
+
+### What this phase does NOT include
+
+- Actual verification work (human-verifier task; the campaign begins when the maintainer initiates the few-day window).
+- New canonical citations beyond what's currently in the register.
+
+### Cross-references updated
+
+- [`governance/worklist-citation-verification-batch-q3-1-new-citations.md`](governance/worklist-citation-verification-batch-q3-1-new-citations.md) (v1.0.0, new)
+- [`governance/worklist-citation-verification-batch-q4-canonical-citations.md`](governance/worklist-citation-verification-batch-q4-canonical-citations.md) (v1.0.0, new)
+- [`governance/index-citation-verification-bundle.md`](governance/index-citation-verification-bundle.md) (v1.0.0, new)
+- [`governance/README.md`](governance/README.md) (1.8.0 to 1.9.0)
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.27.4 to 1.27.5)
+- [`tools/lint-external-link-domains.py`](tools/lint-external-link-domains.py) (allow-list extended with 12 publisher domains)
+- Main [`README.md`](README.md) (Library 2026.05.44 to 2026.05.45; README 1.7.37 to 1.7.38)
+
+### Library version
+
+`2026.05.44` to `2026.05.45`. README `1.7.37` to `1.7.38`.
+
+All 30 audits clean.
+
 ## Phase 23.28 and 23.29 (2026-05-30, Library Version 2026.05.44): Verification freshness linters (Tier 4 complete; 17-linter roadmap complete)
 
 Final two Tier 4 linters, shipped together because they implement the freshness side of the Citation Verification Specification §12.
