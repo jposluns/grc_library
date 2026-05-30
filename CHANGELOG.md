@@ -4,6 +4,63 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.4 (2026-05-30, Library Version 2026.05.20): Agentic, RAG, MCP, and multimodal threat expansion
+
+Fourth content phase from the external-project assessment. Significantly expands the AI and Agentic Development Security Standard threat coverage in four areas where the previous threat model named risks at high level but did not codify the operational defences. All changes are additive to existing controls; no prior IDs are renumbered.
+
+### Why these expansions exist
+
+The Wave 1 and Wave 2 research surfaced four convergent gap areas across multiple independent projects (deepteam, promptfoo, agentdojo, Lasso MCP Gateway, garak, pyrit, llm-guard, NeMo Guardrails):
+
+1. **Agentic vulnerabilities at deepteam-level granularity**: the prior standard had TC-04 Tool Misuse and TC-08 Agent Privilege Escalation but did not name Goal Theft, Drift, Inter-Agent Communication Compromise, or RL-trained adaptive adversaries.
+2. **RAG test categories**: the prior standard had `RAG-SEC-01` to 09 covering ingestion governance but did not explicitly distinguish three test obligations (poisoning, document exfiltration, source attribution) that promptfoo and agentdojo treat as separate.
+3. **MCP tool metadata as a content surface**: the prior standard had `MCP-SEC-01` to 07 covering server access and tool authentication but did not address the tool description itself as an injection vector (the Lasso MCP Gateway pattern).
+4. **Multimodal threats**: the prior standard was text-LLM-centric. Image, audio, video, document, OCR, and QR-code inputs are increasingly used and were not addressed.
+
+### New threat classes
+
+Added to §6:
+
+- **TC-12 Tool Metadata Poisoning**: tool description as injection vector.
+- **TC-13 Multimodal Injection**: adversarial content in non-text modalities.
+- **TC-14 Agentic Goal Theft and Drift**: acute substitution and gradual divergence of agent objective.
+- **TC-15 Inter-Agent Communication Compromise**: lateral propagation between agents.
+- **TC-16 Adaptive / RL-Trained Adversary**: static defensive test suites insufficient at adaptive-attacker iteration rate.
+
+### New controls
+
+- **AGENT-SEC-15** Goal stability multi-turn testing.
+- **AGENT-SEC-16** Inter-agent communication authentication and content-shape validation.
+- **AGENT-SEC-17** Modality-appropriate filters required at each modality entry point.
+- **RAG-SEC-10** RAG poisoning test obligation.
+- **RAG-SEC-11** RAG document exfiltration test obligation.
+- **RAG-SEC-12** RAG source attribution test obligation.
+- **MCP-SEC-08** Tool description content scanning at server-load time.
+- **MCP-SEC-09** Tool description hash pinning to detect rug-pull pattern.
+- **MCP-SEC-10** Tool-name shadowing detection across MCP servers.
+- **RUNTIME-SEC-07** Multimodal content filtering per modality (image, audio, video, PDF/Office, OCR, QR).
+- **RUNTIME-SEC-08** Modality-cross-contamination acknowledgement.
+
+### What this phase does NOT include
+
+- No new external citations introduced (deferred to Phase 23.6 per the agreed sequence).
+- No expansion of `guide-ai-adversarial-test-reference.md` with new test categories yet — that follows in a later phase if test-case granularity in the standard alone proves insufficient.
+
+### Cross-references updated
+
+- `ai/standard-ai-and-agentic-development-security.md` (1.4.0 to 1.5.0): 5 new threat classes, 11 new controls.
+- Main README (Library 2026.05.19 to 2026.05.20; README 1.7.12 to 1.7.13).
+
+### Library version
+
+`2026.05.19` to `2026.05.20`. README `1.7.12` to `1.7.13`.
+
+### Next
+
+Phase 23.5: classical ML adversarial taxonomy in `standard-ai-model-risk.md` (ART, AIJack, HEART-derived); the library is currently LLM-centric and lacks codification of evasion, poisoning, extraction, inference attacks, and federated-learning attacks for classical ML deployments.
+
+All 12 audits clean.
+
 ## Phase 23.3 (2026-05-30, Library Version 2026.05.19): ML model file scanning
 
 Third content phase from the external-project assessment. Adds a new control `SUPPLY-SEC-07` to the AI and Agentic Development Security Standard §18, mandating byte-level scanning of serialized ML model files for unsafe operators before adoption or production load. This closes a long-standing gap where the library covered model artefact provenance and checksums (`SUPPLY-SEC-04`, `-05`, `-06`) and the `trust_remote_code=False` requirement (`P-14`) but did not codify content scanning of serialized model artefacts themselves.
