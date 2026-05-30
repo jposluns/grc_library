@@ -2,7 +2,7 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.6.0\
+**Version:** 1.7.0\
 **Date:** 2026-05-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -690,7 +690,33 @@ When an AI security incident is declared, the following steps apply in addition 
 
 ---
 
-## 33. Verification and enforcement
+## 33. AI-driven offensive security tooling governance
+
+AI-driven penetration testing and offensive security agents (PentestGPT, PentAGI, Strix, HexStrike AI, BurpGPT, and equivalent tools that run security testing autonomously or semi-autonomously) are a category that did not exist when the prior AI security standard was first written. They straddle two existing governance regimes: the Penetration Testing and Red Team Standard governs the offensive activity, and the agent-permissions and agentic-security controls in this standard govern the agent. The controls below specify how the two regimes combine for AI-driven offensive tooling.
+
+**OFFAI-SEC-01:** AI-driven offensive security tools must be authorised under the Penetration Testing and Red Team Standard before any use against any system in any environment. Authorisation includes scope (target list with explicit allow-list), time window, rules of engagement, and approver identity. Use of an AI-driven offensive tool without prior authorisation is treated as an unauthorised security testing incident.
+
+**OFFAI-SEC-02:** AI-driven offensive security tools are agents under §10 of this standard. Tool permissions, capability scopes (Bounded / Operational / Cross-system per the AI Access and Agent Permissions Standard), and human approval requirements apply without exception. Where the tool's vendor framing assumes broader autonomy than the library's agent permission model permits, the library's model takes precedence.
+
+**OFFAI-SEC-03:** AI-driven offensive tools that integrate with CI/CD pipelines (for example, Strix's GitHub Actions integration) execute under a dedicated service identity with PAM-vaulted credentials per the developer-security DevOps requirements. The service identity has explicit allow-list scope; it does not run against production targets except under authorised engagements.
+
+**OFFAI-SEC-04:** AI-driven offensive tool runs produce auditable evidence of every action taken. The audit log includes target host, action class, parameters (sanitised where they may contain secrets), result, and timestamp. The log is forwarded to the SIEM with retention per the logging and monitoring standard.
+
+**OFFAI-SEC-05:** AI-driven offensive tools that send organisational target details, code, or data to vendor LLM backends are subject to the vendor-telemetry inventory and data-residency controls in the AI Coding Assistant Security Guideline. Where the engagement covers regulated data or in-scope-of-regulation targets, the tool's data-handling posture must satisfy the regulatory regime before use.
+
+**OFFAI-SEC-06:** AI-driven offensive tool vendor-claimed metrics (detection rates, false-positive rates, success rates) are treated as marketing-grade and do not substitute for engagement-specific evidence of effectiveness. Where the vendor's metrics derive from published academic benchmarks with reproducible methodology, the metrics are recorded with the citation; vendor self-reported metrics without independent benchmark are recorded as such.
+
+**OFFAI-SEC-07:** AI-driven offensive tools that use LLM-driven planning are subject to the prompt-injection threat model. A target environment containing adversarial content can attempt to manipulate the planning model. Engagements run such tools in sandbox isolation per §32 and validate the tool's planned actions against the engagement scope before execution. Tools that act on plans without per-action validation are not permitted for engagements against production targets.
+
+**OFFAI-SEC-08:** Findings produced by AI-driven offensive tools are subject to the same triage as findings from human-driven offensive testing per the Penetration Testing and Red Team Standard. AI-driven tools have characteristic failure modes (hallucinated vulnerabilities, misidentified target systems, fabricated proof-of-concept artefacts) that require operator verification before findings are accepted into the remediation pipeline.
+
+**OFFAI-SEC-09:** Use of AI-driven offensive tools must not bypass the human-approval gates in §24 of this standard for any action the tool plans. Where the tool's autonomous mode would execute an action that requires human approval per §24, the autonomous mode must be configured to halt and request approval.
+
+**OFFAI-SEC-10:** AI-driven offensive tool licences are reviewed per the open-source licence policy. Tools under copyleft licences (AGPLv3, GPL-3.0) restrict downstream distribution and may not be embedded in proprietary tooling chains; tools under permissive licences (MIT, Apache 2.0) are preferred for embedding scenarios. The licence determination is recorded with the tool's approval.
+
+---
+
+## 34. Verification and enforcement
 
 Compliance with this standard is verified through: CI/CD pipeline gate results (automated, per commit); pre-production security checklist gate (per deployment); quarterly security review of AI systems (manual); and annual red team evaluation per §23.
 
