@@ -52,6 +52,9 @@ jobs:
       - name: CHANGELOG file-reference link coverage
         run: python3 tools/lint-changelog-link-coverage.py
 
+      - name: Placeholder leakage audit
+        run: python3 tools/lint-placeholder-leakage.py
+
       - name: Machine-readable taxonomy in sync
         run: python3 tools/build-taxonomy.py --check
 
