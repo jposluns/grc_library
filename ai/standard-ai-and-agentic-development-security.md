@@ -2,7 +2,7 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.5.0\
+**Version:** 1.6.0\
 **Date:** 2026-05-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -498,6 +498,10 @@ Every CI/CD pipeline for AI-enabled systems must include the following gates in 
 **OBS-SEC-01:** Full prompt content must not be logged. Log request hash and token count only.
 
 **OBS-SEC-02:** PII detected in prompts or responses must be masked in all log systems before writing.
+
+**OBS-SEC-03:** AI observability tooling used for the destinations above must support, at minimum: structured trace recording with semantic conventions for LLM and agent operations, hash-based content recording with selective unmasking limited to authorised operators, evaluator integration for continuous-risk-signal calculation (hallucination, toxicity, refusal-rate), data masking via SDK-side or proxy-side hooks before bytes leave the workload, and a self-hosting deployment option where data residency requires it. Reference open-source platforms implementing these requirements include Langfuse (Apache 2.0 / self-hostable), Arize Phoenix (Elastic License 2.0, OpenTelemetry/OpenInference-native), and Helicone (Apache 2.0; provider-key vault pattern). Vendor-hosted equivalents may be used where data-residency posture and contractual data-processing terms permit.
+
+**OBS-SEC-04:** Where AI dev tooling sessions transit a vendor proxy (such as an AI gateway that mediates between client and LLM provider), the proxy is itself an AI observability surface. Logs from the proxy must be inventoried, retention defined, and access controlled equivalently to the application telemetry platform.
 
 Log retention per Data Retention Schedule.
 

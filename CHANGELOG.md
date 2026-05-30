@@ -4,6 +4,39 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.8 (2026-05-30, Library Version 2026.05.24): AI observability OSS reference architecture
+
+Eighth content phase from the external-project assessment. Adds two new controls to `standard-ai-and-agentic-development-security.md` §20 (AI observability and telemetry) referencing open-source AI observability platforms as concrete reference architectures.
+
+### Why these controls exist
+
+The prior §20 codified what AI telemetry should be captured (per-event field requirements and destinations) and that PII must be masked. It did not articulate the capability requirements of the observability tooling itself, nor reference OSS platforms that implement the pattern. Wave 2 research surfaced LangSmith, Langfuse, Phoenix, and Helicone as the main open-source AI observability platforms. They share a structural pattern (OpenTelemetry / OpenInference tracing, evaluator integration, prompt versioning, data-masking hooks) that organisations adopting library content need codified.
+
+### New controls
+
+- **OBS-SEC-03**: AI observability tooling capability requirements. Structured trace recording with LLM/agent semantic conventions; hash-based content recording with authorised-operator unmasking; evaluator integration for continuous risk signals (hallucination, toxicity, refusal-rate); SDK-side or proxy-side data masking; self-hosting option for data-residency contexts. Reference platforms named (vendor-neutral phrasing): Langfuse (Apache 2.0, self-hostable), Phoenix (Elastic License 2.0, OpenTelemetry-native), Helicone (Apache 2.0, provider-key vault).
+- **OBS-SEC-04**: Vendor proxies acting as AI gateways are themselves observability surfaces. Logs from such proxies are inventoried with the same governance as the application telemetry platform.
+
+### What this phase does NOT include
+
+- No new external citations (already added in Phase 23.6).
+- No reference to commercial AI observability vendors in the standard (LangSmith is closed-source SaaS; mention deferred to the tooling landscape register).
+
+### Cross-references updated
+
+- `ai/standard-ai-and-agentic-development-security.md` (1.5.0 to 1.6.0).
+- Main README (Library 2026.05.23 to 2026.05.24; README 1.7.16 to 1.7.17).
+
+### Library version
+
+`2026.05.23` to `2026.05.24`. README `1.7.16` to `1.7.17`.
+
+### Next
+
+Phase 23.9: AI pentest agent governance. Final phase in the agreed sequence. Addresses PentestGPT, PentAGI, Strix, HexStrike, BurpGPT as a new governance category requiring positioning in the AI security standard and dev-security domain.
+
+All 12 audits clean.
+
 ## Phase 23.7 (2026-05-30, Library Version 2026.05.23): AI Security Tooling Landscape Register
 
 Seventh content phase from the external-project assessment. The post-research master index deliverable. Adds a new Register documenting the AI security tooling landscape as surveyed in Wave 1 and Wave 2 of the assessment — 55 entries across 9 categories with scope, license, library reference status, key capabilities, and GRC concern surfaced for each.
