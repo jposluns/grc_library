@@ -4,6 +4,41 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.15 (2026-05-30, Library Version 2026.05.31): Metadata date format audit
+
+Tier 1 linter from the audit-roadmap. Adds [`tools/lint-date-format.py`](tools/lint-date-format.py), the 16th linter in the audit suite. Enforces ISO 8601 (YYYY-MM-DD) format for `**Date:**` metadata fields across all artefact markdown files.
+
+### What the linter does
+
+Parses every line beginning with `**Date:**` in every markdown file. Strips CommonMark hard-break backslash. Validates the value:
+
+- Must match `YYYY-MM-DD` pattern.
+- Year must be in range 1900-2100.
+- Must be a real calendar date (rejects `2026-02-30`, `2026-13-01`).
+- Must have zero-padded month and day (rejects `2026-5-30`, `2026-05-3`).
+
+Exempts the literal placeholder values `YYYY-MM-DD` and `<YYYY-MM-DD>` (which appear in example/template metadata blocks documenting the expected format).
+
+Scope deliberately limited to metadata `Date:` fields. Does not enforce ISO format for inline dates in prose (which would produce false positives on legitimate phrasings like "the EU AI Act 2024").
+
+### Why it exists
+
+Machine-parseable dates enable downstream tooling (review-cadence tracking, age-based reporting). The existing metadata linter validates presence but not parseability.
+
+### CI integration
+
+Added to [`.github/workflows/quality.yml`](.github/workflows/quality.yml). Audit suite is now 16 gates.
+
+### Verification
+
+Positive case: linter passes on 333 scanned files. Negative case: synthetic metadata with `30/05/2026` correctly fails with "not ISO 8601 YYYY-MM-DD" finding.
+
+### Library version
+
+`2026.05.30` to `2026.05.31`. README `1.7.23` to `1.7.24`.
+
+All 16 audits clean.
+
 ## Phase 23.14 (2026-05-30, Library Version 2026.05.30): Library and document version monotonicity audit
 
 Tier 1 linter from the audit-roadmap. Adds [`tools/lint-library-version-monotonicity.py`](tools/lint-library-version-monotonicity.py), the 15th linter in the audit suite. Enforces that the library's CalVer in [`README.md`](README.md) and per-document SemVer in metadata never decrease relative to the prior committed state.

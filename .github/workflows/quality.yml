@@ -58,6 +58,9 @@ jobs:
       - name: Library and document version monotonicity audit
         run: python3 tools/lint-library-version-monotonicity.py
 
+      - name: Metadata date format audit
+        run: python3 tools/lint-date-format.py
+
       - name: Machine-readable taxonomy in sync
         run: python3 tools/build-taxonomy.py --check
 
