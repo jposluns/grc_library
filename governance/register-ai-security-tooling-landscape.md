@@ -76,7 +76,7 @@ Projects are grouped into nine categories. The grouping is for navigation; some 
 | 4.1 Application-side runtime defence (open-source) | 12 | AI-SEC-INP / AI-SEC-OUT / RUNTIME-SEC controls |
 | 4.2 Testing, red-team, and benchmark tools | 18 | ADTEST-SEC, REDTEAM-SEC, AGENT-SEC-15 controls; adversarial test reference |
 | 4.3 ML supply chain scanners | 3 | SUPPLY-SEC-07 control |
-| 4.4 AI observability platforms | 4 | §20 AI observability and telemetry |
+| 4.4 AI observability platforms | 4 | AI agentic dev security standard §20 (observability and telemetry) |
 | 4.5 MCP security | 1 | MCP-SEC-08 / MCP-SEC-09 / MCP-SEC-10 controls |
 | 4.6 Dev-rules / coding-assistant baselines | 3 | dev-security guideline and AI security standard §9 |
 | 4.7 AI pentest agents (open-source) | 7 | Pending Phase 23.9 governance |
