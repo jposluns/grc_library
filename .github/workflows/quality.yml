@@ -55,6 +55,9 @@ jobs:
       - name: Placeholder leakage audit
         run: python3 tools/lint-placeholder-leakage.py
 
+      - name: Library and document version monotonicity audit
+        run: python3 tools/lint-library-version-monotonicity.py
+
       - name: Machine-readable taxonomy in sync
         run: python3 tools/build-taxonomy.py --check
 

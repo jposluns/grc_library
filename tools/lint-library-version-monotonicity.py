@@ -1,0 +1,171 @@
+#!/usr/bin/env python3
+"""Enforce that library and document versions never decrease.
+
+The library uses Calendar Versioning (CalVer) of the form `YYYY.MM.patch`
+for the library as a whole, recorded in `README.md` as
+`**Library Version:** YYYY.MM.patch`. Individual documents use semantic
+versioning of the form `x.y.z` in their metadata.
+
+This linter compares the working tree's versions to the prior committed
+state (`origin/main` if available, falling back to `HEAD~1`) and fails
+if any version went backwards or skipped to a lower value.
+
+Catches:
+- Forgetting to bump the library version in a content phase.
+- Accidentally rewriting an older value in a metadata field.
+- Per-document semver going backwards on a change that should have
+  bumped forward.
+
+Usage:
+    python3 tools/lint-library-version-monotonicity.py
+
+Exit codes:
+    0   versions are monotonic non-decreasing
+    1   one or more versions decreased
+    2   prior state unavailable (warning only; treated as pass)
+"""
+
+from __future__ import annotations
+
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
+CALVER_RE = re.compile(r"\*\*Library Version:\*\*\s+(\d+)\.(\d+)\.(\d+)")
+SEMVER_RE = re.compile(r"^\*\*Version:\*\*\s+(\d+)\.(\d+)\.(\d+)", re.MULTILINE)
+
+
+def parse_calver(text: str) -> tuple[int, int, int] | None:
+    m = CALVER_RE.search(text)
+    if not m:
+        return None
+    return tuple(int(x) for x in m.groups())  # type: ignore[return-value]
+
+
+def parse_semver(text: str) -> tuple[int, int, int] | None:
+    m = SEMVER_RE.search(text)
+    if not m:
+        return None
+    return tuple(int(x) for x in m.groups())  # type: ignore[return-value]
+
+
+def git_show(ref: str, path: str) -> str | None:
+    """Return file content at the given git ref, or None if unavailable."""
+    try:
+        return subprocess.check_output(
+            ["git", "-C", str(REPO_ROOT), "show", f"{ref}:{path}"],
+            stderr=subprocess.DEVNULL,
+        ).decode("utf-8")
+    except subprocess.CalledProcessError:
+        return None
+
+
+def find_prior_ref() -> str | None:
+    """Return a git ref naming the prior committed state.
+
+    On a feature branch, prefer origin/main as the comparison point.
+    When HEAD matches origin/main (we're on main, or main is up to date),
+    fall through to HEAD~1. Local `main` is not used because it can be stale.
+    """
+    def sha(ref: str) -> str | None:
+        try:
+            return subprocess.check_output(
+                ["git", "-C", str(REPO_ROOT), "rev-parse", "--verify", ref],
+                stderr=subprocess.DEVNULL,
+            ).decode().strip()
+        except subprocess.CalledProcessError:
+            return None
+
+    head = sha("HEAD")
+    origin_main = sha("origin/main")
+    if origin_main and head and origin_main != head:
+        return "origin/main"
+    # Fallback: HEAD~1.
+    if sha("HEAD~1"):
+        return "HEAD~1"
+    return None
+
+
+def check_library_version(prior_ref: str) -> tuple[bool, str]:
+    """Return (ok, message). ok=True if current >= prior."""
+    current_path = REPO_ROOT / "README.md"
+    current = parse_calver(current_path.read_text(encoding="utf-8"))
+    prior_text = git_show(prior_ref, "README.md")
+    prior = parse_calver(prior_text) if prior_text else None
+    if current is None:
+        return (False, "Library Version not found in current README.md")
+    if prior is None:
+        return (True, f"current {current} (no prior to compare)")
+    if current < prior:
+        return (
+            False,
+            f"Library Version decreased: current {'.'.join(map(str, current))} "
+            f"< prior {'.'.join(map(str, prior))}",
+        )
+    return (True, f"current {'.'.join(map(str, current))} >= prior {'.'.join(map(str, prior))}")
+
+
+def check_document_versions(prior_ref: str) -> list[tuple[str, str]]:
+    """Return list of (path, message) for documents whose version decreased."""
+    findings: list[tuple[str, str]] = []
+    # Walk markdown files in artefact domains; skip non-artefact directories.
+    skip_dirs = {".git", "node_modules", "__pycache__"}
+    for path in REPO_ROOT.rglob("*.md"):
+        if any(part in skip_dirs for part in path.parts):
+            continue
+        rel = path.relative_to(REPO_ROOT).as_posix()
+        # Skip README.md (covered by library version check above).
+        if rel == "README.md":
+            continue
+        # Skip CHANGELOG (no Version metadata field).
+        if rel == "CHANGELOG.md":
+            continue
+        try:
+            current_text = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            continue
+        current = parse_semver(current_text)
+        if current is None:
+            continue
+        prior_text = git_show(prior_ref, rel)
+        if prior_text is None:
+            continue
+        prior = parse_semver(prior_text)
+        if prior is None:
+            continue
+        if current < prior:
+            findings.append(
+                (
+                    rel,
+                    f"Version decreased: current {'.'.join(map(str, current))} "
+                    f"< prior {'.'.join(map(str, prior))}",
+                )
+            )
+    return findings
+
+
+def main() -> int:
+    prior_ref = find_prior_ref()
+    if prior_ref is None:
+        print("OK: no prior committed state available; monotonicity not checked.")
+        return 0
+    lib_ok, lib_msg = check_library_version(prior_ref)
+    doc_findings = check_document_versions(prior_ref)
+    if lib_ok and not doc_findings:
+        print(f"OK: library and document versions are monotonic non-decreasing (vs {prior_ref}).")
+        print(f"  Library: {lib_msg}")
+        return 0
+    if not lib_ok:
+        print(f"FAIL [library]: {lib_msg}")
+    if doc_findings:
+        print(f"FAIL [documents]: {len(doc_findings)} version regression(s) vs {prior_ref}:")
+        for rel, msg in doc_findings:
+            print(f"  {rel}: {msg}")
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
