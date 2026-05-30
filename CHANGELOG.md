@@ -4,6 +4,59 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.6 (2026-05-30, Library Version 2026.05.22): Framework alignment updates
+
+Sixth content phase from the external-project assessment. Extends the Canonical Citations Register with new authoritative references and a new AI security tooling references section. All new entries are queued for citation verification under the Citation Verification Specification methodology (the Q-track).
+
+### Why this update exists
+
+Phases 23.1 through 23.5 added controls referencing defensive patterns and external standards in standard prose without adding the citations to the register. This phase brings the register up to date with what those standards now cite.
+
+### New citations added
+
+**Cybersecurity adversary frameworks** (4 additions):
+- AVID (AI Vulnerability Database, avidml.org)
+- MLCommons AILuminate v1.0
+- HarmBench
+- OWASP GenAI Security Project
+
+**OWASP** (2 additions):
+- OWASP Agentic AI Top 10 2026
+- OWASP MCP Top 10 2025
+
+**AI safety evaluation programmes** (new section, 3 entries):
+- UK AISI inspect_evals
+- Meta CyberSecEval v4
+- NIST SP 800-218A (Secure SDF GenAI profile)
+
+**AI security tooling references** (new section, 26 entries) — open-source AI security projects referenced by library content as defensive-pattern exemplars or concrete tooling choices: Trusted-AI ART, IBM HEART, AIJack, HarmBench framework, Meta PurpleLlama, NVIDIA NeMo Guardrails, Guardrails AI, Protect AI llm-guard, Protect AI rebuff (archived), Protect AI modelscan, picklescan, Trail of Bits fickling, Giskard, Confident AI deepteam, promptfoo, NVIDIA garak, Microsoft PyRIT, ETH Zurich AgentDojo, Vigil-LLM (archived), Stacklok CodeGate (archived), ClawGuard, Lasso MCP Gateway, jackhhao llm-warden, TikiTribe claude-secure-coding-rules, Wiz secure-rules-files, Kariedo claude-code-security-rules, awesome-ai-security (CC0-1.0; suitable for direct library reuse).
+
+### Verification status
+
+**Important caveat**: all new citations in this phase are recorded with the AI verifier's best-effort metadata from Wave 1 and Wave 2 research. Per the Citation Verification Specification §3.5, these are pending human-verifier confirmation through subsequent verification batches. The register entries are positive (they exist in the register) but they carry no verification log entry yet. Adoption of any citation should treat the register entry as a starting point pending verification.
+
+The AI tooling section is structurally different from the standards sections: it records software projects with versions current at registration time, archive/active status flagged for tools known to be no longer maintained, and license noted (LGPL-3.0 for fickling flagged for copyleft caution). Re-verification cadence for the tooling section is annual.
+
+### What this phase does NOT include
+
+- Verification rows in `register-citation-verifications.md` for the new entries. Those will be added when verification batches resume (originally scoped as Phase Q2 ISO/IEC batch, currently paused per the user's pause-and-ask instruction).
+- No content changes to any AI or dev-security standard. Citations recorded here exist to back the controls already added in Phases 23.1 through 23.5.
+
+### Cross-references updated
+
+- `governance/register-canonical-citations.md` (1.3.0 to 1.4.0): four new sections / extensions; 35+ new entries.
+- Main README (Library 2026.05.21 to 2026.05.22; README 1.7.14 to 1.7.15).
+
+### Library version
+
+`2026.05.21` to `2026.05.22`. README `1.7.14` to `1.7.15`.
+
+### Next
+
+Phase 23.7: master project index register. Documents every project surfaced across Wave 1 and Wave 2 research (52 projects) with scope, capabilities, library reference status, and GRC concern surfaced. This is the post-research artefact you requested separately and is itself a CC0 reference deliverable.
+
+All 12 audits clean.
+
 ## Phase 23.5 (2026-05-30, Library Version 2026.05.21): Classical ML adversarial taxonomy
 
 Fifth content phase from the external-project assessment. Significantly expands the AI Model Risk Standard §5 (Robustness and adversarial testing) with a structured taxonomy distinguishing LLM threats from classical ML threats, federated-learning threats, defence categories, adaptive-attacker testing, and operational robustness. Codifies the threat surface that ART (Trusted-AI Adversarial Robustness Toolbox), AIJack, HEART, and HarmBench collectively cover.
