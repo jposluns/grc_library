@@ -4,6 +4,38 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.12 (2026-05-30, Library Version 2026.05.28): CHANGELOG link enforcement linter
+
+Adds [`tools/lint-changelog-link-coverage.py`](tools/lint-changelog-link-coverage.py), the 13th linter in the audit suite. Enforces that every backtick-wrapped file reference in [`CHANGELOG.md`](CHANGELOG.md) is wrapped in a markdown link, locking in the navigation convention established in Phase 23.11.
+
+### What the linter does
+
+For [`CHANGELOG.md`](CHANGELOG.md):
+
+- Walks the file outside fenced code blocks (code-block examples are excluded).
+- Identifies backtick-wrapped strings that look like file paths: containing a directory separator and ending in a recognized extension (.md, .py, .yaml, .yml, .json, .txt, .cff, .toml), or matching a known top-level filename (README, NOTICE, LICENSE, etc.).
+- Flags every such reference that is NOT already wrapped in a markdown link.
+- Returns exit code 1 with per-line findings on failure; exit code 0 on success.
+
+### CI integration
+
+Added to [`.github/workflows/quality.yml`](.github/workflows/quality.yml) as a new gate after the review-cadence check and before the taxonomy / portal sync checks. The library's audit suite now has 13 gates running on every push to main and every pull request.
+
+### What this phase does NOT include
+
+- The linter is scoped to [`CHANGELOG.md`](CHANGELOG.md). It does not enforce link-coverage across the whole library. Other documents already use markdown links by convention, validated by `lint-links`; the CHANGELOG was the gap.
+- No retroactive enforcement on prior CHANGELOG entries (already done in Phase 23.11).
+
+### Library version
+
+`2026.05.27` to `2026.05.28`. README `1.7.20` to `1.7.21`.
+
+### Next
+
+Companion advisory (this turn) covers additional linter rules that would improve consistency, credibility, and security of the library. The maintainer chooses which to implement.
+
+All 13 audits clean.
+
 ## Phase 23.11 (2026-05-30, Library Version 2026.05.27): CHANGELOG file references converted to clickable links
 
 Maintenance phase. Converts every backtick-wrapped file reference in [`CHANGELOG.md`](CHANGELOG.md) to a markdown link, making it navigable to the referenced file from any GitHub or markdown-rendering interface.
