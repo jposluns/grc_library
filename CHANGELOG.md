@@ -2,7 +2,38 @@
 
 All notable changes to this repository are recorded in this file.
 
-The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5. The changelog records phase-level changes, not per-document version bumps.
+
+## Phase 23.11 (2026-05-30, Library Version 2026.05.27): CHANGELOG file references converted to clickable links
+
+Maintenance phase. Converts every backtick-wrapped file reference in [`CHANGELOG.md`](CHANGELOG.md) to a markdown link, making it navigable to the referenced file from any GitHub or markdown-rendering interface.
+
+### Why this update exists
+
+Earlier phases recorded file references in [`CHANGELOG.md`](CHANGELOG.md) as code-formatted text (backticks only). A reader wanting to navigate from a CHANGELOG entry to the referenced file had to copy the path and paste it elsewhere. The reference was visible but not actionable. This phase makes every file reference in the CHANGELOG a one-click navigation.
+
+### What was changed
+
+- Every backtick-wrapped path with at least one directory separator (`ai/...`, `governance/...`, `tools/...`, etc.) converted from `` `path` `` to `` [`path`](path) ``.
+- Bare filenames (no directory prefix) resolved against the repository file tree and linked to their actual paths. 328 unambiguous bare-filename references were resolved automatically; one ambiguous reference remained code-formatted (the underlying ambiguity will be handled if the reference is ever made specific).
+- The dotfile [`.pre-commit-config.yaml`](.pre-commit-config.yaml) was linked manually (file-system traversal skipped it by default).
+
+Total file references now linked in [`CHANGELOG.md`](CHANGELOG.md): 414. All 12 audits pass; the link linter validated that every new link resolves to an existing file.
+
+### What this phase does NOT include
+
+- No content changes to any phase entry. Wording is preserved exactly; only the markdown formatting changed.
+- No linter rule added to enforce this going forward. A future maintenance pass could add a CHANGELOG-link linter; for now the link linter catches broken links in CHANGELOG content the same way it catches broken links in any other markdown file.
+
+### Library version
+
+`2026.05.26` to `2026.05.27`. README `1.7.19` to `1.7.20`.
+
+### Next
+
+No further phase queued. The Phase 23 sequence and the Phase Q-track verification queues stand as previously described.
+
+All 12 audits clean.
 
 ## Phase 23.10 (2026-05-30, Library Version 2026.05.26): Tooling-register provenance and time-bounding
 
@@ -50,15 +81,15 @@ Status transition rules are codified explicitly.
 
 #### Citation Verification Specification update
 
-`specification-citation-verification.md` §12 (Verification freshness) restructured into 12.1 (Canonical Citations Register, 12-month cadence) and 12.2 (AI Security Tooling Landscape Register, 6-month cadence). The tooling register's shorter cadence reflects that tooling versions, capabilities, licenses, and lifecycle status change faster than standards.
+[`specification-citation-verification.md`](governance/specification-citation-verification.md) §12 (Verification freshness) restructured into 12.1 (Canonical Citations Register, 12-month cadence) and 12.2 (AI Security Tooling Landscape Register, 6-month cadence). The tooling register's shorter cadence reflects that tooling versions, capabilities, licenses, and lifecycle status change faster than standards.
 
 #### New worklist
 
-`governance/worklist-citation-verification-batch-q3-ai-tooling.md` (Worklist doctype, v1.0.0) created with all 55 entries pre-filled with the AI-captured fields. Human verifier fills the Captured commit SHA / page SHA-256, Wayback snapshot URL, Captured by, Verification status, and Date checked columns.
+[`governance/worklist-citation-verification-batch-q3-ai-tooling.md`](governance/worklist-citation-verification-batch-q3-ai-tooling.md) (Worklist doctype, v1.0.0) created with all 55 entries pre-filled with the AI-captured fields. Human verifier fills the Captured commit SHA / page SHA-256, Wayback snapshot URL, Captured by, Verification status, and Date checked columns.
 
 #### Planned linter
 
-A linter (`tools/lint-tooling-provenance-freshness.py`) is planned to flag entries whose latest `Date assessed` is past the cadence. The Citation Verification Specification §12 documents the planned linter. Implementation is queued and is not blocking for this phase.
+A linter ([`tools/lint-tooling-provenance-freshness.py`](tools/lint-tooling-provenance-freshness.py)) is planned to flag entries whose latest `Date assessed` is past the cadence. The Citation Verification Specification §12 documents the planned linter. Implementation is queued and is not blocking for this phase.
 
 ### Honest constraint
 
@@ -72,11 +103,11 @@ All 55 current Provenance blocks are therefore marked `AI-captured-pending-human
 
 ### Cross-references updated
 
-- `governance/register-ai-security-tooling-landscape.md` (1.0.0 to 1.1.0): 55 Provenance blocks injected; §3 schema description updated; §7 maintenance section now specifies cadence and status transitions.
-- `governance/specification-citation-verification.md` (1.1.0 to 1.2.0): §12 restructured into 12.1 (citations, 12-month) and 12.2 (tooling, 6-month).
-- `governance/worklist-citation-verification-batch-q3-ai-tooling.md` (v1.0.0, new): 55-entry worklist.
-- `governance/README.md` (1.7.0 to 1.8.0): worklist added.
-- `governance/register-document-index-and-classification.md` (1.27.3 to 1.27.4): worklist indexed; tooling-register index entry updated with provenance reference.
+- [`governance/register-ai-security-tooling-landscape.md`](governance/register-ai-security-tooling-landscape.md) (1.0.0 to 1.1.0): 55 Provenance blocks injected; §3 schema description updated; §7 maintenance section now specifies cadence and status transitions.
+- [`governance/specification-citation-verification.md`](governance/specification-citation-verification.md) (1.1.0 to 1.2.0): §12 restructured into 12.1 (citations, 12-month) and 12.2 (tooling, 6-month).
+- [`governance/worklist-citation-verification-batch-q3-ai-tooling.md`](governance/worklist-citation-verification-batch-q3-ai-tooling.md) (v1.0.0, new): 55-entry worklist.
+- [`governance/README.md`](governance/README.md) (1.7.0 to 1.8.0): worklist added.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.27.3 to 1.27.4): worklist indexed; tooling-register index entry updated with provenance reference.
 - Main README (Library 2026.05.25 to 2026.05.26; README 1.7.18 to 1.7.19).
 
 ### Library version
@@ -91,13 +122,13 @@ All 12 audits clean.
 
 ## Phase 23.9 (2026-05-30, Library Version 2026.05.25): AI-driven offensive security tooling governance
 
-Final phase of the Phase 23 sequence from the external-project assessment. Adds a new §33 to `standard-ai-and-agentic-development-security.md` codifying governance for AI-driven offensive security agents (PentestGPT, PentAGI, Strix, HexStrike AI, BurpGPT, and equivalents). The existing §33 "Verification and enforcement" renumbers to §34 (additive, no internal cross-references affected).
+Final phase of the Phase 23 sequence from the external-project assessment. Adds a new §33 to [`standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md) codifying governance for AI-driven offensive security agents (PentestGPT, PentAGI, Strix, HexStrike AI, BurpGPT, and equivalents). The existing §33 "Verification and enforcement" renumbers to §34 (additive, no internal cross-references affected).
 
 ### Why this section exists
 
 AI-driven penetration testing and offensive security agents are a category that did not exist when the prior AI security standard was first written. They straddle two existing governance regimes:
 
-- The Penetration Testing and Red Team Standard (`security/standard-penetration-testing-and-red-team.md`) governs the offensive activity.
+- The Penetration Testing and Red Team Standard ([`security/standard-penetration-testing-and-red-team.md`](security/standard-penetration-testing-and-red-team.md)) governs the offensive activity.
 - The agent-permissions and agentic-security controls in this standard govern the agent itself.
 
 Neither regime alone is sufficient for AI-driven offensive tools, which carry the threat surface of both. Wave 2 research surfaced seven concrete examples (PentestGPT, PentAGI, AI-OPS, HackSynth, HexStrike AI, BurpGPT, Strix), with diverse autonomy levels, CI/CD integration patterns, and vendor data-handling postures.
@@ -126,7 +157,7 @@ The previous §33 "Verification and enforcement" renumbers to §34. No internal 
 
 ### Cross-references updated
 
-- `ai/standard-ai-and-agentic-development-security.md` (1.6.0 to 1.7.0): new §33; previous §33 renumbered to §34.
+- [`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md) (1.6.0 to 1.7.0): new §33; previous §33 renumbered to §34.
 - Main README (Library 2026.05.24 to 2026.05.25; README 1.7.17 to 1.7.18).
 
 ### Library version
@@ -161,7 +192,7 @@ All 12 audits clean.
 
 ## Phase 23.8 (2026-05-30, Library Version 2026.05.24): AI observability OSS reference architecture
 
-Eighth content phase from the external-project assessment. Adds two new controls to `standard-ai-and-agentic-development-security.md` §20 (AI observability and telemetry) referencing open-source AI observability platforms as concrete reference architectures.
+Eighth content phase from the external-project assessment. Adds two new controls to [`standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md) §20 (AI observability and telemetry) referencing open-source AI observability platforms as concrete reference architectures.
 
 ### Why these controls exist
 
@@ -179,7 +210,7 @@ The prior §20 codified what AI telemetry should be captured (per-event field re
 
 ### Cross-references updated
 
-- `ai/standard-ai-and-agentic-development-security.md` (1.5.0 to 1.6.0).
+- [`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md) (1.5.0 to 1.6.0).
 - Main README (Library 2026.05.23 to 2026.05.24; README 1.7.16 to 1.7.17).
 
 ### Library version
@@ -254,9 +285,9 @@ Tools known to be archived, unmaintained, or facing license cautions are flagged
 
 ### Cross-references updated
 
-- `governance/register-ai-security-tooling-landscape.md` (v1.0.0, new): 55-entry landscape catalogue.
-- `governance/README.md` (1.6.0 to 1.7.0): new register listed.
-- `governance/register-document-index-and-classification.md` (1.27.2 to 1.27.3): new register indexed.
+- [`governance/register-ai-security-tooling-landscape.md`](governance/register-ai-security-tooling-landscape.md) (v1.0.0, new): 55-entry landscape catalogue.
+- [`governance/README.md`](governance/README.md) (1.6.0 to 1.7.0): new register listed.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.27.2 to 1.27.3): new register indexed.
 - Main README (Library 2026.05.22 to 2026.05.23; README 1.7.15 to 1.7.16).
 
 ### Library version
@@ -304,12 +335,12 @@ The AI tooling section is structurally different from the standards sections: it
 
 ### What this phase does NOT include
 
-- Verification rows in `register-citation-verifications.md` for the new entries. Those will be added when verification batches resume (originally scoped as Phase Q2 ISO/IEC batch, currently paused per the user's pause-and-ask instruction).
+- Verification rows in [`register-citation-verifications.md`](governance/register-citation-verifications.md) for the new entries. Those will be added when verification batches resume (originally scoped as Phase Q2 ISO/IEC batch, currently paused per the user's pause-and-ask instruction).
 - No content changes to any AI or dev-security standard. Citations recorded here exist to back the controls already added in Phases 23.1 through 23.5.
 
 ### Cross-references updated
 
-- `governance/register-canonical-citations.md` (1.3.0 to 1.4.0): four new sections / extensions; 35+ new entries.
+- [`governance/register-canonical-citations.md`](governance/register-canonical-citations.md) (1.3.0 to 1.4.0): four new sections / extensions; 35+ new entries.
 - Main README (Library 2026.05.21 to 2026.05.22; README 1.7.14 to 1.7.15).
 
 ### Library version
@@ -352,7 +383,7 @@ The deny-list of attack families in 5.2 is not exhaustive; it codifies the canon
 
 ### Cross-references updated
 
-- `ai/standard-ai-model-risk.md` (1.0.0 to 1.1.0): §5 substantially expanded.
+- [`ai/standard-ai-model-risk.md`](ai/standard-ai-model-risk.md) (1.0.0 to 1.1.0): §5 substantially expanded.
 - Main README (Library 2026.05.20 to 2026.05.21; README 1.7.13 to 1.7.14).
 
 ### Library version
@@ -361,7 +392,7 @@ The deny-list of attack families in 5.2 is not exhaustive; it codifies the canon
 
 ### Next
 
-Phase 23.6: framework alignment updates. Adds new entries to `register-canonical-citations.md` (AVID, MLCommons AILuminate, UK AISI inspect_evals, OWASP Agentic AI Top 10 2026, CyberSecEval, HarmBench, ART, modelscan, picklescan, fickling, NeMo Guardrails, Guardrails AI, llm-guard, Giskard, deepteam, awesome-ai-security). Each new citation enters the citation verifications queue per the Q-track methodology.
+Phase 23.6: framework alignment updates. Adds new entries to [`register-canonical-citations.md`](governance/register-canonical-citations.md) (AVID, MLCommons AILuminate, UK AISI inspect_evals, OWASP Agentic AI Top 10 2026, CyberSecEval, HarmBench, ART, modelscan, picklescan, fickling, NeMo Guardrails, Guardrails AI, llm-guard, Giskard, deepteam, awesome-ai-security). Each new citation enters the citation verifications queue per the Q-track methodology.
 
 All 12 audits clean.
 
@@ -405,11 +436,11 @@ Added to §6:
 ### What this phase does NOT include
 
 - No new external citations introduced (deferred to Phase 23.6 per the agreed sequence).
-- No expansion of `guide-ai-adversarial-test-reference.md` with new test categories yet — that follows in a later phase if test-case granularity in the standard alone proves insufficient.
+- No expansion of [`guide-ai-adversarial-test-reference.md`](ai/guide-ai-adversarial-test-reference.md) with new test categories yet — that follows in a later phase if test-case granularity in the standard alone proves insufficient.
 
 ### Cross-references updated
 
-- `ai/standard-ai-and-agentic-development-security.md` (1.4.0 to 1.5.0): 5 new threat classes, 11 new controls.
+- [`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md) (1.4.0 to 1.5.0): 5 new threat classes, 11 new controls.
 - Main README (Library 2026.05.19 to 2026.05.20; README 1.7.12 to 1.7.13).
 
 ### Library version
@@ -418,7 +449,7 @@ Added to §6:
 
 ### Next
 
-Phase 23.5: classical ML adversarial taxonomy in `standard-ai-model-risk.md` (ART, AIJack, HEART-derived); the library is currently LLM-centric and lacks codification of evasion, poisoning, extraction, inference attacks, and federated-learning attacks for classical ML deployments.
+Phase 23.5: classical ML adversarial taxonomy in [`standard-ai-model-risk.md`](ai/standard-ai-model-risk.md) (ART, AIJack, HEART-derived); the library is currently LLM-centric and lacks codification of evasion, poisoning, extraction, inference attacks, and federated-learning attacks for classical ML deployments.
 
 All 12 audits clean.
 
@@ -452,7 +483,7 @@ No tool-specific mandate (vendor-neutral as per library convention). Tool select
 
 ### Cross-references updated
 
-- `ai/standard-ai-and-agentic-development-security.md` (1.3.0 to 1.4.0): new `SUPPLY-SEC-07` control added to §18.
+- [`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md) (1.3.0 to 1.4.0): new `SUPPLY-SEC-07` control added to §18.
 - Main README (Library 2026.05.18 to 2026.05.19; README 1.7.11 to 1.7.12).
 
 ### Citation note
@@ -496,7 +527,7 @@ The dev-side scanning controls here mirror the application-side controls added i
 
 ### Cross-references updated
 
-- `dev-security/guideline-ai-coding-assistant-security.md` (1.0.1 to 1.1.0): three new sections added; existing "Prompt injection awareness" section retained as orientation.
+- [`dev-security/guideline-ai-coding-assistant-security.md`](dev-security/guideline-ai-coding-assistant-security.md) (1.0.1 to 1.1.0): three new sections added; existing "Prompt injection awareness" section retained as orientation.
 - Main README (Library 2026.05.17 to 2026.05.18; README 1.7.10 to 1.7.11).
 
 ### Library version
@@ -505,7 +536,7 @@ The dev-side scanning controls here mirror the application-side controls added i
 
 ### Next
 
-Phase 23.3: ML model file scanning (`SUPPLY-SEC-07` in `standard-ai-and-agentic-development-security.md` §18) covering serialized-model byte-level scanning with operator deny-list pattern from modelscan / picklescan / fickling.
+Phase 23.3: ML model file scanning (`SUPPLY-SEC-07` in [`standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md) §18) covering serialized-model byte-level scanning with operator deny-list pattern from modelscan / picklescan / fickling.
 
 All 12 audits clean.
 
@@ -542,7 +573,7 @@ Phase 23.1 deliberately limits scope to the runtime input/output processing cont
 - 23.2: dev-side AI input/output scanning controls
 - 23.3: ML model file scanning (`SUPPLY-SEC-07`)
 - 23.4: agentic vulnerability taxonomy expansion, RAG test category split, tool-metadata poisoning, multimodal threat section
-- 23.5: classical ML adversarial taxonomy in `standard-ai-model-risk.md`
+- 23.5: classical ML adversarial taxonomy in [`standard-ai-model-risk.md`](ai/standard-ai-model-risk.md)
 - 23.6: framework alignment updates (AVID, MLCommons, UK AISI, OWASP Agents 2026, CyberSecEval, HarmBench)
 - 23.7: master project index register (the post-research artefact)
 - 23.8: AI observability OSS reference architecture
@@ -550,7 +581,7 @@ Phase 23.1 deliberately limits scope to the runtime input/output processing cont
 
 ### Cross-references updated
 
-- `ai/standard-ai-and-agentic-development-security.md` (1.2.0 to 1.3.0): six new controls added to §7.
+- [`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md) (1.2.0 to 1.3.0): six new controls added to §7.
 - Main README (Library 2026.05.16 to 2026.05.17; README 1.7.9 to 1.7.10).
 
 ### Citation note
@@ -563,7 +594,7 @@ These new controls do not introduce new external citations; they implement defen
 
 ### Next
 
-Phase 23.2: dev-side AI input/output scanning controls in `guideline-ai-coding-assistant-security.md`.
+Phase 23.2: dev-side AI input/output scanning controls in [`guideline-ai-coding-assistant-security.md`](dev-security/guideline-ai-coding-assistant-security.md).
 
 All 12 audits clean.
 
@@ -574,7 +605,7 @@ Prepares the first verification batch under the Citation Verification Specificat
 ### What this phase includes
 
 - Adds the `Worklist` doctype to the library (17th doctype). Worklists are per-batch working artefacts derived from a Template; distinct from Templates (which are reusable blanks) and from Registers (which are persistent authoritative records).
-- Updates the metadata linter (`tools/lint-metadata.py`) to accept the new doctype with the `worklist-` filename prefix.
+- Updates the metadata linter ([`tools/lint-metadata.py`](tools/lint-metadata.py)) to accept the new doctype with the `worklist-` filename prefix.
 - Updates the master project specification and ingestion specification to list the new doctype and provide selection guidance.
 - Adds the first batch worklist itself: 24 ISO and ISO/IEC entries pre-filled with publisher, expected primary URLs (best-effort), expected values from the canonical citations register, and parsing gotchas (URL patterns, status field interpretation, multi-part standards handling, entries warranting particular human attention).
 
@@ -590,18 +621,18 @@ The AI verifier has called out six register entries where its training-time conf
 
 ### New file
 
-- `governance/worklist-citation-verification-batch-q2-iso-iec.md` (v1.0.0, Worklist doctype): 5 numbered sections including the 24-row worklist table.
+- [`governance/worklist-citation-verification-batch-q2-iso-iec.md`](governance/worklist-citation-verification-batch-q2-iso-iec.md) (v1.0.0, Worklist doctype): 5 numbered sections including the 24-row worklist table.
 
 ### Doctype change
 
-- `tools/lint-metadata.py`: `ALLOWED_TYPES` extended from 16 to 17; `TYPE_TO_PREFIX` adds `Worklist: worklist-`.
-- `specification-ingestion.md` (1.5.0 to 1.6.0): doctype list extended; Template-vs-Worklist selection guidance added.
-- `specification-master-project.md` (1.3.1 to 1.4.0): doctype list extended.
+- [`tools/lint-metadata.py`](tools/lint-metadata.py): `ALLOWED_TYPES` extended from 16 to 17; `TYPE_TO_PREFIX` adds `Worklist: worklist-`.
+- [`specification-ingestion.md`](specification-ingestion.md) (1.5.0 to 1.6.0): doctype list extended; Template-vs-Worklist selection guidance added.
+- [`specification-master-project.md`](specification-master-project.md) (1.3.1 to 1.4.0): doctype list extended.
 
 ### Cross-references updated
 
-- `governance/README.md` (1.5.0 to 1.6.0): worklist listed in Active documents.
-- `governance/register-document-index-and-classification.md` (1.27.1 to 1.27.2): worklist indexed.
+- [`governance/README.md`](governance/README.md) (1.5.0 to 1.6.0): worklist listed in Active documents.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.27.1 to 1.27.2): worklist indexed.
 
 ### Library version
 
@@ -638,7 +669,7 @@ Continuing with the AI verifier as primary would have meant assembling verificat
 
 ### New file
 
-- `governance/template-citation-verification-worklist.md` (v1.0.0, Template doctype): per-batch worklist enforcing the AI/human split. AI pre-fills Standard ID, Publisher, Expected primary URL, Field(s) to verify, Expected value. Human fills Captured text (verbatim), Wayback URL, Secondary URL, Result, Captured by, Confidence. AI transcribes into the verifications register at batch close.
+- [`governance/template-citation-verification-worklist.md`](governance/template-citation-verification-worklist.md) (v1.0.0, Template doctype): per-batch worklist enforcing the AI/human split. AI pre-fills Standard ID, Publisher, Expected primary URL, Field(s) to verify, Expected value. Human fills Captured text (verbatim), Wayback URL, Secondary URL, Result, Captured by, Confidence. AI transcribes into the verifications register at batch close.
 
 ### Credibility framing
 
@@ -652,10 +683,10 @@ The Citation Verifications Register's `Captured by` field is the in-row evidence
 
 ### Cross-references updated
 
-- `governance/specification-citation-verification.md` (1.0.0 to 1.1.0): operating-model section added; procedure restructured; schema extended; threat model extended; non-deferrable rules extended; internal section numbering shifted by 1 from §4 onward.
-- `governance/register-citation-verifications.md` (1.0.0 to 1.1.0): schema updated for `Captured by` and `Recorded by`; section references updated to renumbered specification sections.
-- `governance/README.md` (1.4.0 to 1.5.0): worklist template added.
-- `governance/register-document-index-and-classification.md` (1.27.0 to 1.27.1): worklist template indexed; verifications-register references updated.
+- [`governance/specification-citation-verification.md`](governance/specification-citation-verification.md) (1.0.0 to 1.1.0): operating-model section added; procedure restructured; schema extended; threat model extended; non-deferrable rules extended; internal section numbering shifted by 1 from §4 onward.
+- [`governance/register-citation-verifications.md`](governance/register-citation-verifications.md) (1.0.0 to 1.1.0): schema updated for `Captured by` and `Recorded by`; section references updated to renumbered specification sections.
+- [`governance/README.md`](governance/README.md) (1.4.0 to 1.5.0): worklist template added.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.27.0 to 1.27.1): worklist template indexed; verifications-register references updated.
 
 ### Library version
 
@@ -696,8 +727,8 @@ The methodology explicitly defends against:
 
 ### New files
 
-- `governance/specification-citation-verification.md` (v1.0.0, Specification doctype): 14 sections covering purpose, scope, threat model, trust tiers, publisher allow-list (28 publishers initially), verification procedure (pre-verification, fetch, compare, record, reconcile, spot-check), verifications register schema, confidence ratings (A/B/C/D), disposition of D-rated entries, verification freshness (12-month re-verification cadence), non-deferrable rules, and out-of-scope acknowledgements.
-- `governance/register-citation-verifications.md` (v1.0.0, Register doctype): append-only verification log with the 14-field schema, D-rated resolutions log, and coverage-summary table. Initially empty.
+- [`governance/specification-citation-verification.md`](governance/specification-citation-verification.md) (v1.0.0, Specification doctype): 14 sections covering purpose, scope, threat model, trust tiers, publisher allow-list (28 publishers initially), verification procedure (pre-verification, fetch, compare, record, reconcile, spot-check), verifications register schema, confidence ratings (A/B/C/D), disposition of D-rated entries, verification freshness (12-month re-verification cadence), non-deferrable rules, and out-of-scope acknowledgements.
+- [`governance/register-citation-verifications.md`](governance/register-citation-verifications.md) (v1.0.0, Register doctype): append-only verification log with the 14-field schema, D-rated resolutions log, and coverage-summary table. Initially empty.
 
 ### Non-deferrable rules established
 
@@ -711,8 +742,8 @@ The methodology explicitly defends against:
 
 ### Cross-references updated
 
-- `governance/register-canonical-citations.md` (1.2.0 to 1.3.0): related-documents updated; forward reference to the verification specification and register added to the Purpose section.
-- `governance/register-document-index-and-classification.md` (1.26.5 to 1.27.0): both new documents indexed.
+- [`governance/register-canonical-citations.md`](governance/register-canonical-citations.md) (1.2.0 to 1.3.0): related-documents updated; forward reference to the verification specification and register added to the Purpose section.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.26.5 to 1.27.0): both new documents indexed.
 
 ### Library version
 
@@ -730,7 +761,7 @@ Sixth and final sub-phase of the Phase 22 OT depth track. Adds the BMS overlay a
 
 ### New file
 
-- `operations/ot/annex-bms-overlay.md` (v1.0.0, Annex doctype): 12 numbered sections covering purpose, scope (in-scope, out-of-scope, boundary cases), BMS-vs-process-control differences, life-safety integration (non-interference principle, fire-system integration constraints, emergency operation override), AHJ coordination, BMS protocol governance (BACnet incl. BACnet/SC, LON, KNX, Modbus in BMS, proprietary protocols), multi-vendor coordination, tenant and occupancy data privacy, smart-building cloud integration, asset / change / incident overlay specifics, framework alignment, and cross-reference summary.
+- [`operations/ot/annex-bms-overlay.md`](operations/ot/annex-bms-overlay.md) (v1.0.0, Annex doctype): 12 numbered sections covering purpose, scope (in-scope, out-of-scope, boundary cases), BMS-vs-process-control differences, life-safety integration (non-interference principle, fire-system integration constraints, emergency operation override), AHJ coordination, BMS protocol governance (BACnet incl. BACnet/SC, LON, KNX, Modbus in BMS, proprietary protocols), multi-vendor coordination, tenant and occupancy data privacy, smart-building cloud integration, asset / change / incident overlay specifics, framework alignment, and cross-reference summary.
 
 ### Key overlay positions established
 
@@ -751,10 +782,10 @@ ISO 16484, ASHRAE 135 (BACnet), NIST SP 1900 series (smart buildings), NFPA 72 (
 
 ### Cross-references updated
 
-- `operations/ot/README.md` (1.4.0 to 1.5.0): annex added to Active documents; Phase 22 marked complete.
-- `operations/README.md` (1.2.4 to 1.2.5): annex added to OT sub-directory artefacts table.
-- `governance/register-document-index-and-classification.md` (1.26.4 to 1.26.5): annex added.
-- `governance/register-canonical-citations.md` (1.1.0 to 1.2.0): ISO 16484, ASHRAE 135, NIST SP 1900 series, NFPA 72, EN 54, TSA Pipeline Security Directive added.
+- [`operations/ot/README.md`](operations/ot/README.md) (1.4.0 to 1.5.0): annex added to Active documents; Phase 22 marked complete.
+- [`operations/README.md`](operations/README.md) (1.2.4 to 1.2.5): annex added to OT sub-directory artefacts table.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.26.4 to 1.26.5): annex added.
+- [`governance/register-canonical-citations.md`](governance/register-canonical-citations.md) (1.1.0 to 1.2.0): ISO 16484, ASHRAE 135, NIST SP 1900 series, NFPA 72, EN 54, TSA Pipeline Security Directive added.
 
 ### Library version
 
@@ -776,7 +807,7 @@ Fifth sub-phase of Phase 22. Defines the schema, governance, classification, and
 
 ### New file
 
-- `operations/ot/register-ot-asset-inventory-and-lifecycle.md` (v1.0.0, Register doctype): 12 numbered sections covering purpose, scope, roles, governance principles, classification (operational criticality, safety relevance, zone trust level), asset record schema (8 field groups), lifecycle states with explicit end-of-support and legacy-OS handling, inventory operations (discovery, reconciliation, unauthorized assets, secure decommissioning), retention, metrics, framework alignment, and cross-reference summary.
+- [`operations/ot/register-ot-asset-inventory-and-lifecycle.md`](operations/ot/register-ot-asset-inventory-and-lifecycle.md) (v1.0.0, Register doctype): 12 numbered sections covering purpose, scope, roles, governance principles, classification (operational criticality, safety relevance, zone trust level), asset record schema (8 field groups), lifecycle states with explicit end-of-support and legacy-OS handling, inventory operations (discovery, reconciliation, unauthorized assets, secure decommissioning), retention, metrics, framework alignment, and cross-reference summary.
 
 ### Three-dimension OT classification
 
@@ -805,10 +836,10 @@ IEC 62443-2-1, IEC 62443-3-2, IEC 62443-3-3, NIST SP 800-82 Rev 3, ISO/IEC 27001
 
 ### Cross-references updated
 
-- `operations/ot/standard-ot-ics-security.md` (1.0.0 to 1.0.1): §5.1.3 placeholder replaced with direct link to the new register.
-- `operations/ot/README.md` (1.3.0 to 1.4.0): register added to Active documents; Phase 22.5 removed from Planned section.
-- `operations/README.md` (1.2.3 to 1.2.4): register added to OT sub-directory artefacts table.
-- `governance/register-document-index-and-classification.md` (1.26.3 to 1.26.4): register added.
+- [`operations/ot/standard-ot-ics-security.md`](operations/ot/standard-ot-ics-security.md) (1.0.0 to 1.0.1): §5.1.3 placeholder replaced with direct link to the new register.
+- [`operations/ot/README.md`](operations/ot/README.md) (1.3.0 to 1.4.0): register added to Active documents; Phase 22.5 removed from Planned section.
+- [`operations/README.md`](operations/README.md) (1.2.3 to 1.2.4): register added to OT sub-directory artefacts table.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.26.3 to 1.26.4): register added.
 
 ### Library version
 
@@ -826,7 +857,7 @@ Fourth sub-phase of Phase 22. Extends the general change management and configur
 
 ### New file
 
-- `operations/ot/procedure-ot-change-management.md` (v1.0.0, Procedure doctype): 15 numbered sections covering purpose, scope (with safety-management precedence rule), roles, guiding principles, change categories, change-request content and timeline, OT risk assessment, OT-specific testing, OT-CAB approval, implementation, verification, backout, documentation and audit trail, metrics, and framework alignment.
+- [`operations/ot/procedure-ot-change-management.md`](operations/ot/procedure-ot-change-management.md) (v1.0.0, Procedure doctype): 15 numbered sections covering purpose, scope (with safety-management precedence rule), roles, guiding principles, change categories, change-request content and timeline, OT risk assessment, OT-specific testing, OT-CAB approval, implementation, verification, backout, documentation and audit trail, metrics, and framework alignment.
 
 ### Guiding principles established
 
@@ -859,9 +890,9 @@ IEC 62443-2-1 (programme element), IEC 62443-3-3 (system requirements where chan
 
 ### Cross-references updated
 
-- `operations/ot/README.md` (1.2.0 to 1.3.0): procedure added to Active documents; Phase 22.4 removed from Planned section.
-- `operations/README.md` (1.2.2 to 1.2.3): procedure added to OT sub-directory artefacts table.
-- `governance/register-document-index-and-classification.md` (1.26.2 to 1.26.3): procedure added.
+- [`operations/ot/README.md`](operations/ot/README.md) (1.2.0 to 1.3.0): procedure added to Active documents; Phase 22.4 removed from Planned section.
+- [`operations/README.md`](operations/README.md) (1.2.2 to 1.2.3): procedure added to OT sub-directory artefacts table.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.26.2 to 1.26.3): procedure added.
 
 ### Library version
 
@@ -879,7 +910,7 @@ Third sub-phase of Phase 22. Adds the operational sequence for responding to OT 
 
 ### New file
 
-- `operations/ot/procedure-ot-incident-response.md` (v1.0.0, Procedure doctype): 13 numbered sections covering purpose, scope, guiding principles, roles, severity classification, the five response phases (detection and triage, containment, eradication, recovery, post-incident), communications, forensics in OT, and framework alignment.
+- [`operations/ot/procedure-ot-incident-response.md`](operations/ot/procedure-ot-incident-response.md) (v1.0.0, Procedure doctype): 13 numbered sections covering purpose, scope, guiding principles, roles, severity classification, the five response phases (detection and triage, containment, eradication, recovery, post-incident), communications, forensics in OT, and framework alignment.
 
 ### Guiding principles established
 
@@ -909,9 +940,9 @@ OT-specific triggers added to base P1–P4 scale: SIS compromise, loss-of-view/l
 
 ### Cross-references updated
 
-- `operations/ot/README.md` (1.1.0 → 1.2.0): procedure added to Active documents; Phase 22.3 removed from Planned section.
-- `operations/README.md` (1.2.1 → 1.2.2): procedure added to OT sub-directory artefacts table.
-- `governance/register-document-index-and-classification.md` (1.26.1 → 1.26.2): procedure added.
+- [`operations/ot/README.md`](operations/ot/README.md) (1.1.0 → 1.2.0): procedure added to Active documents; Phase 22.3 removed from Planned section.
+- [`operations/README.md`](operations/README.md) (1.2.1 → 1.2.2): procedure added to OT sub-directory artefacts table.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.26.1 → 1.26.2): procedure added.
 
 ### Library version
 
@@ -929,7 +960,7 @@ Second sub-phase of Phase 22. Codifies the concepts introduced in the Phase 22.1
 
 ### New file
 
-- `operations/ot/standard-ot-ics-security.md` (v1.0.0, Standard doctype): 15 numbered sections covering purpose, scope, governance, definitions, zone-and-conduit architecture, security-level achievement, OT-specific access control, network controls, endpoint and host hardening, monitoring/logging/detection, vendor and supplier requirements, safety integration, recovery, audit and assurance, framework alignment.
+- [`operations/ot/standard-ot-ics-security.md`](operations/ot/standard-ot-ics-security.md) (v1.0.0, Standard doctype): 15 numbered sections covering purpose, scope, governance, definitions, zone-and-conduit architecture, security-level achievement, OT-specific access control, network controls, endpoint and host hardening, monitoring/logging/detection, vendor and supplier requirements, safety integration, recovery, audit and assurance, framework alignment.
 
 ### Key requirements established
 
@@ -951,9 +982,9 @@ The standard accepts that safety-regulation precedence applies where conflict ar
 
 ### Cross-references updated
 
-- `operations/ot/README.md` (1.0.0 → 1.1.0): standard added to Active documents; Phase 22.2 removed from Planned section.
-- `operations/README.md` (1.2.0 → 1.2.1): standard added to OT sub-directory artefacts table.
-- `governance/register-document-index-and-classification.md` (1.26.0 → 1.26.1): standard added to index.
+- [`operations/ot/README.md`](operations/ot/README.md) (1.0.0 → 1.1.0): standard added to Active documents; Phase 22.2 removed from Planned section.
+- [`operations/README.md`](operations/README.md) (1.2.0 → 1.2.1): standard added to OT sub-directory artefacts table.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.26.0 → 1.26.1): standard added to index.
 
 ### Library version
 
@@ -975,22 +1006,22 @@ First sub-phase of Phase 22 (operational technology depth). Establishes the foun
 
 ### New files
 
-- `operations/ot/README.md` (v1.0.0, Register doctype): sub-directory home, applicability, scope, planned-content roadmap, cross-domain relationships, reference-standards index, adopter guidance.
-- `operations/ot/annex-ot-security-overview.md` (v1.0.0, Annex doctype): foundational concepts annex. Eight sections covering OT scope and definitions, OT-versus-IT critical differences, primary reference frameworks (IEC 62443, NIST SP 800-82, IEC 61511/61508, NERC CIP), the zone-and-conduit model, OT-specific risk considerations, cross-domain relationships, frequently asked questions, and framework alignment.
+- [`operations/ot/README.md`](operations/ot/README.md) (v1.0.0, Register doctype): sub-directory home, applicability, scope, planned-content roadmap, cross-domain relationships, reference-standards index, adopter guidance.
+- [`operations/ot/annex-ot-security-overview.md`](operations/ot/annex-ot-security-overview.md) (v1.0.0, Annex doctype): foundational concepts annex. Eight sections covering OT scope and definitions, OT-versus-IT critical differences, primary reference frameworks (IEC 62443, NIST SP 800-82, IEC 61511/61508, NERC CIP), the zone-and-conduit model, OT-specific risk considerations, cross-domain relationships, frequently asked questions, and framework alignment.
 
 ### Glossary additions
 
-- `governance/register-glossary.md` (1.0.0 → 1.1.0): added IACS, BMS, HMI, IT/OT convergence, PLC, Purdue model, SCADA, SIL, SIS, SL-A, SL-C, SL-T, SP 800-82. Expanded ICS and OT entries with full definitions. Disambiguated DCS (CCM domain vs Distributed Control System).
+- [`governance/register-glossary.md`](governance/register-glossary.md) (1.0.0 → 1.1.0): added IACS, BMS, HMI, IT/OT convergence, PLC, Purdue model, SCADA, SIL, SIS, SL-A, SL-C, SL-T, SP 800-82. Expanded ICS and OT entries with full definitions. Disambiguated DCS (CCM domain vs Distributed Control System).
 
 ### Canonical citations additions
 
-- `governance/register-canonical-citations.md` (1.0.0 → 1.1.0): added NIST SP 800-82 Rev 3, IEC 62443-1-1, 2-1, 2-4, 3-2, 3-3, 4-1, 4-2, IEC 61511, IEC 61508. Replaced the single placeholder IEC 62443 entry with the family.
+- [`governance/register-canonical-citations.md`](governance/register-canonical-citations.md) (1.0.0 → 1.1.0): added NIST SP 800-82 Rev 3, IEC 62443-1-1, 2-1, 2-4, 3-2, 3-3, 4-1, 4-2, IEC 61511, IEC 61508. Replaced the single placeholder IEC 62443 entry with the family.
 
 ### Other updates
 
-- `operations/README.md` (1.1.0 → 1.2.0): added "Sub-directories" section listing `operations/ot/`.
-- `governance/register-document-index-and-classification.md` (1.25.3 → 1.26.0): new index row for the OT overview annex.
-- `governance/register-coverage-gaps.md`: OT/ICS row updated from `Referenced / Planned / TODO P6.2` to `Partial / In library / Phase 22 in progress` with link to `operations/ot/`.
+- [`operations/README.md`](operations/README.md) (1.1.0 → 1.2.0): added "Sub-directories" section listing `operations/ot/`.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.25.3 → 1.26.0): new index row for the OT overview annex.
+- [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md): OT/ICS row updated from `Referenced / Planned / TODO P6.2` to `Partial / In library / Phase 22 in progress` with link to `operations/ot/`.
 
 ### Doctrinal choices recorded
 
@@ -1027,15 +1058,15 @@ A pure-CommonMark alternative without HTML mixing. The two-trailing-space varian
 
 ### Tooling updates
 
-- **`tools/lint-metadata.py`**: new `check_line_break_markers` function asserts every metadata line (except the last) ends with `\`. Applied to every active document and to domain README files. `extract_metadata` updated to strip the trailing backslash when capturing field values.
-- **`tools/build-taxonomy.py`**: `extract_metadata` updated to strip the trailing backslash.
-- **`tools/check-review-cadence.py`**: same fix.
-- **`tools/lint-roles.py`**: role-extraction normalisation strips trailing backslash.
-- **`tools/lint-filename-title-alignment.py`**: title parser strips trailing backslash.
+- **[`tools/lint-metadata.py`](tools/lint-metadata.py)**: new `check_line_break_markers` function asserts every metadata line (except the last) ends with `\`. Applied to every active document and to domain README files. `extract_metadata` updated to strip the trailing backslash when capturing field values.
+- **[`tools/build-taxonomy.py`](tools/build-taxonomy.py)**: `extract_metadata` updated to strip the trailing backslash.
+- **[`tools/check-review-cadence.py`](tools/check-review-cadence.py)**: same fix.
+- **[`tools/lint-roles.py`](tools/lint-roles.py)**: role-extraction normalisation strips trailing backslash.
+- **[`tools/lint-filename-title-alignment.py`](tools/lint-filename-title-alignment.py)**: title parser strips trailing backslash.
 
 ### Specification updates
 
-- **`specification-ingestion.md`** (1.4.3 → 1.5.0): canonical metadata template updated to show the backslash-newline convention. Explanatory notes added: marker required on every line except the last; do not use two trailing spaces (invisible and fragile); the audit enforces.
+- **[`specification-ingestion.md`](specification-ingestion.md)** (1.4.3 → 1.5.0): canonical metadata template updated to show the backslash-newline convention. Explanatory notes added: marker required on every line except the last; do not use two trailing spaces (invisible and fragile); the audit enforces.
 
 ### Pilot before rollout
 
@@ -1055,7 +1086,7 @@ Eighth sub-phase of Phase 21 (foundations before content expansion). Second of t
 
 ### New file
 
-- `docs/decision-tree.md`: structured navigator answering "I have these characteristics; which library documents should I read first, in what order?". Eight sections:
+- [`docs/decision-tree.md`](docs/decision-tree.md): structured navigator answering "I have these characteristics; which library documents should I read first, in what order?". Eight sections:
   1. Adopter dimensions (size, sector, jurisdiction, regulated activities, technology footprint).
   2. Universal baseline (23 documents every adopter reads, in order).
   3. Sector-conditional content (7 sector profiles).
@@ -1073,11 +1104,11 @@ The decision tree references the glossary (Phase 21.2), the coverage gap registe
 
 The library now has a complete adopter-facing navigation stack:
 
-- `README.md` for overview.
-- `docs/adopter-guide.md` for general adoption principles.
-- `docs/decision-tree.md` for structured reading order based on adopter profile (this PR).
-- `docs/portal.md` and `docs/maturity-scorecard.md` for the auto-generated portal and scorecard.
-- `governance/register-glossary.md`, `governance/register-coverage-gaps.md`, and `governance/register-document-index-and-classification.md` for reference.
+- [`README.md`](README.md) for overview.
+- [`docs/adopter-guide.md`](docs/adopter-guide.md) for general adoption principles.
+- [`docs/decision-tree.md`](docs/decision-tree.md) for structured reading order based on adopter profile (this PR).
+- [`docs/portal.md`](docs/portal.md) and [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md) for the auto-generated portal and scorecard.
+- [`governance/register-glossary.md`](governance/register-glossary.md), [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md), and [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) for reference.
 
 ### TODO
 
@@ -1095,7 +1126,7 @@ Seventh sub-phase of Phase 21 (foundations before content expansion). First of t
 
 ### New file
 
-- `governance/register-coverage-gaps.md` (v1.0.0, Register doctype): structured catalogue of gaps across five dimensions.
+- [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md) (v1.0.0, Register doctype): structured catalogue of gaps across five dimensions.
 
 ### Coverage dimensions
 
@@ -1112,9 +1143,9 @@ Coverage status uses four values: *Substantive*, *Partial*, *Referenced*, *None*
 
 ### Cross-references updated
 
-- `governance/README.md`: register entry added to Active Documents.
-- `governance/register-document-index-and-classification.md` (1.25.2 → 1.25.3): entry added.
-- `TODO.md`: P3.1 (coverage gap register) removed; remaining P3.2 (adopter decision tree) renumbered to P3.1.
+- [`governance/README.md`](governance/README.md): register entry added to Active Documents.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.25.2 → 1.25.3): entry added.
+- [`TODO.md`](TODO.md): P3.1 (coverage gap register) removed; remaining P3.2 (adopter decision tree) renumbered to P3.1.
 
 ### Library version
 
@@ -1128,17 +1159,17 @@ Sixth sub-phase of Phase 21. Closes the final Priority 2 item: an audit that cat
 
 ### New file
 
-- `tools/lint-filename-title-alignment.py`: permissive linter. For each active document, normalises both the filename's stem (after the doctype prefix) and the Document Title into a token set, and flags files where the two sets share **no** significant content words after normalisation. Honours a synonym table for legitimate acronym-in-filename / expansion-in-title patterns (SBOM, CAPA, FedRAMP, SOX, AEO, CTPAT, PIP, BASC, DORA, NIS, AI, and others).
+- [`tools/lint-filename-title-alignment.py`](tools/lint-filename-title-alignment.py): permissive linter. For each active document, normalises both the filename's stem (after the doctype prefix) and the Document Title into a token set, and flags files where the two sets share **no** significant content words after normalisation. Honours a synonym table for legitimate acronym-in-filename / expansion-in-title patterns (SBOM, CAPA, FedRAMP, SOX, AEO, CTPAT, PIP, BASC, DORA, NIS, AI, and others).
 
 ### Result on initial run
 
-- One match initially detected: `supply-chain/register-sbom.md` (filename uses the acronym, title uses the expansion "Software Bill of Materials Register"). Resolved by adding the SBOM → "software bill of materials" mapping to the synonym table. All 269 active documents now pass.
+- One match initially detected: [`supply-chain/register-sbom.md`](supply-chain/register-sbom.md) (filename uses the acronym, title uses the expansion "Software Bill of Materials Register"). Resolved by adding the SBOM → "software bill of materials" mapping to the synonym table. All 269 active documents now pass.
 - No content changes to the corpus; the existing filenames and titles were already aligned once acronym synonyms were recognised.
 
 ### Tooling integration
 
-- `.github/workflows/quality.yml`: new "Filename and Document Title alignment audit" step added between the standards-currency audit and the role audit. The library now runs **12 audits** per PR.
-- `tools/README.md`: scripts table updated.
+- [`.github/workflows/quality.yml`](.github/workflows/quality.yml): new "Filename and Document Title alignment audit" step added between the standards-currency audit and the role audit. The library now runs **12 audits** per PR.
+- [`tools/README.md`](tools/README.md): scripts table updated.
 
 ### Convention captured
 
@@ -1171,9 +1202,9 @@ Rationale for CalVer over SemVer:
 
 ### Files updated
 
-- `specification-master-project.md` (1.2.7 → 1.3.0): new section 4.5 "Library versioning" documenting the scheme, rationale, recording location, maintenance procedure, and relationship to per-document semantic versioning.
-- `README.md` (1.5.4 → 1.6.0): metadata block restructured. The previous `**Version:**` field is renamed to `**README Version:**` (clarifying it tracks the README content, not the library). A new `**Library Version:**` field is introduced and set to the initial value `2026.05.0`. An explanatory sentence below the metadata block points to the specification.
-- `CHANGELOG.md` (this file): preamble updated to reference the new versioning scheme. Phase headings now include the Library Version in effect at the time of the phase's completion.
+- [`specification-master-project.md`](specification-master-project.md) (1.2.7 → 1.3.0): new section 4.5 "Library versioning" documenting the scheme, rationale, recording location, maintenance procedure, and relationship to per-document semantic versioning.
+- [`README.md`](README.md) (1.5.4 → 1.6.0): metadata block restructured. The previous `**Version:**` field is renamed to `**README Version:**` (clarifying it tracks the README content, not the library). A new `**Library Version:**` field is introduced and set to the initial value `2026.05.0`. An explanatory sentence below the metadata block points to the specification.
+- [`CHANGELOG.md`](CHANGELOG.md) (this file): preamble updated to reference the new versioning scheme. Phase headings now include the Library Version in effect at the time of the phase's completion.
 
 ### Initial value
 
@@ -1181,7 +1212,7 @@ The library version is initialised at `2026.05.0` by this Phase 21.5. Future PRs
 
 ### Maintenance
 
-Each PR that merges to `main` updates `README.md`'s `Library Version` field as part of the PR. The audit suite does not automatically enforce monotonicity, but reviewers verify the bump is present before approving the PR.
+Each PR that merges to `main` updates [`README.md`](README.md)'s `Library Version` field as part of the PR. The audit suite does not automatically enforce monotonicity, but reviewers verify the bump is present before approving the PR.
 
 ### TODO
 
@@ -1202,12 +1233,12 @@ The library's actual convention is **asymmetric** Related Documents: each docume
 The strict-reciprocity rule was dropped. Three reasons:
 
 1. The convention is established and reasonable; enforcing strict reciprocity would require either rewriting 1,269 cross-references (mostly noise) or adopting an exemption-marker mechanism on every legitimately one-way reference (also extensive).
-2. The underlying concern (catching half-updated cross-references during refactors) is already covered by `lint-links.py` (broken-link detection), which would catch the kind of file-rename mishap that drove this proposal.
-3. A narrower doctype-pair rule (Framework↔Standard, Policy↔Standard, Charter↔Framework) was considered but rejected: the marginal value over `lint-links.py` does not justify the maintenance cost of a curated rule set with many exemptions.
+2. The underlying concern (catching half-updated cross-references during refactors) is already covered by [`lint-links.py`](tools/lint-links.py) (broken-link detection), which would catch the kind of file-rename mishap that drove this proposal.
+3. A narrower doctype-pair rule (Framework↔Standard, Policy↔Standard, Charter↔Framework) was considered but rejected: the marginal value over [`lint-links.py`](tools/lint-links.py) does not justify the maintenance cost of a curated rule set with many exemptions.
 
 ### Recorded in TODO
 
-The decision is also recorded in a new `## Decisions log` section in `TODO.md` so the rationale is preserved if the question recurs.
+The decision is also recorded in a new `## Decisions log` section in [`TODO.md`](TODO.md) so the rationale is preserved if the question recurs.
 
 ### Result
 
@@ -1219,27 +1250,27 @@ Third sub-phase of Phase 21 (foundations before content expansion). Introduces a
 
 ### New files
 
-- `governance/register-canonical-citations.md` (v1.0.0, Register doctype): positive list of standards citations across ISO/IEC, NIST, EU regulations and directives, North-American regulations, other privacy regulations, CSA frameworks, ISACA frameworks, MITRE adversary frameworks, OWASP, customs and trade, sector-specific standards, OECD, and ICAO/IMO. ~81 standards entries. For each: current version, publication date, topic, and known superseded versions for the linter to flag.
-- `tools/lint-standards-currency.py` (new audit): permissive linter. Parses the canonical citations register and flags references to versions listed as superseded. The register is the source of truth; new standards added to the catalogue extend the linter's coverage automatically. Complementary to `lint-citations.py` (denylist for hallucinations) rather than replacing it.
+- [`governance/register-canonical-citations.md`](governance/register-canonical-citations.md) (v1.0.0, Register doctype): positive list of standards citations across ISO/IEC, NIST, EU regulations and directives, North-American regulations, other privacy regulations, CSA frameworks, ISACA frameworks, MITRE adversary frameworks, OWASP, customs and trade, sector-specific standards, OECD, and ICAO/IMO. ~81 standards entries. For each: current version, publication date, topic, and known superseded versions for the linter to flag.
+- [`tools/lint-standards-currency.py`](tools/lint-standards-currency.py) (new audit): permissive linter. Parses the canonical citations register and flags references to versions listed as superseded. The register is the source of truth; new standards added to the catalogue extend the linter's coverage automatically. Complementary to [`lint-citations.py`](tools/lint-citations.py) (denylist for hallucinations) rather than replacing it.
 
 ### Existing-content fixes triggered by the new linter
 
 Initial run of the new linter detected two stale citations:
 
-- `governance/framework-human-capital-and-ethical-conduct.md` (1.0.0 → 1.0.1): "ISO 37001:2016" → "ISO 37001:2025" (ISO 37001 was revised and republished in February 2025).
-- `governance/procedure-whistleblower-and-incident-reporting.md` (1.0.0 → 1.0.1): same correction.
+- [`governance/framework-human-capital-and-ethical-conduct.md`](governance/framework-human-capital-and-ethical-conduct.md) (1.0.0 → 1.0.1): "ISO 37001:2016" → "ISO 37001:2025" (ISO 37001 was revised and republished in February 2025).
+- [`governance/procedure-whistleblower-and-incident-reporting.md`](governance/procedure-whistleblower-and-incident-reporting.md) (1.0.0 → 1.0.1): same correction.
 
 ### Tooling integration
 
-- `.github/workflows/quality.yml`: new "Standards-currency audit" step added to the CI pipeline. The library now runs 11 audits on every PR and push.
-- `tools/README.md`: scripts table expanded to document all linters including the new standards-currency one (previously listed only 4 of the 8 scripts).
-- `tools/lint-citations.py`: PATH_EXEMPTIONS extended to include `governance/register-canonical-citations.md` (the canonical register intentionally documents hallucinated/superseded strings as part of its scope).
+- [`.github/workflows/quality.yml`](.github/workflows/quality.yml): new "Standards-currency audit" step added to the CI pipeline. The library now runs 11 audits on every PR and push.
+- [`tools/README.md`](tools/README.md): scripts table expanded to document all linters including the new standards-currency one (previously listed only 4 of the 8 scripts).
+- [`tools/lint-citations.py`](tools/lint-citations.py): PATH_EXEMPTIONS extended to include [`governance/register-canonical-citations.md`](governance/register-canonical-citations.md) (the canonical register intentionally documents hallucinated/superseded strings as part of its scope).
 
 ### Cross-references updated
 
-- `governance/README.md`: canonical citations register entry added to Active Documents.
-- `governance/register-document-index-and-classification.md` (1.25.1 → 1.25.2): canonical citations register entry added.
-- `TODO.md`: P1.1 (standards-currency checker + canonical citations catalogue) removed; Priority 1 tier now complete.
+- [`governance/README.md`](governance/README.md): canonical citations register entry added to Active Documents.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.25.1 → 1.25.2): canonical citations register entry added.
+- [`TODO.md`](TODO.md): P1.1 (standards-currency checker + canonical citations catalogue) removed; Priority 1 tier now complete.
 
 ### Result
 
@@ -1253,7 +1284,7 @@ Second sub-phase of Phase 21 (foundations before content expansion). Introduces 
 
 ### New file
 
-- `governance/register-glossary.md` (v1.0.0, Register doctype): alphabetical glossary covering ~150 acronyms and external terms used by the library, including regulatory bodies (HMRC, CBSA, CBP, OCC, PRA, FCA, MAS, FSA, NERC, TSA, etc.), regulations (GDPR, CPPA, CCPA, PIPL, LGPD, AIDA, DORA, HIPAA, HITECH, MDR, IVDR, SOX, etc.), frameworks and standards (WCO SAFE, ISO 27001 family, NIST AI RMF, COBIT, MITRE ATT&CK, MITRE ATLAS), sector programmes (AEO-UK, CTPAT, PIP, BASC, NEEC, ATT, STP, SES), CSA CCM domain codes (AAC, AIS, BCR, CCC, CEK, DCS, DSP, GRC, HRS, IAM, IPY, IVS, LOG, SEF, STA, TVM, UEM), CSA AICM, library role acronyms (AIGC, ERC, BCM, DPO), and common technical/security/governance acronyms (IAM, PAM, ZTNA, SBOM, SCA, SAST, SIEM, MFA, PKI, HSM, RPO, RTO, KRI, KPI, RACI, etc.).
+- [`governance/register-glossary.md`](governance/register-glossary.md) (v1.0.0, Register doctype): alphabetical glossary covering ~150 acronyms and external terms used by the library, including regulatory bodies (HMRC, CBSA, CBP, OCC, PRA, FCA, MAS, FSA, NERC, TSA, etc.), regulations (GDPR, CPPA, CCPA, PIPL, LGPD, AIDA, DORA, HIPAA, HITECH, MDR, IVDR, SOX, etc.), frameworks and standards (WCO SAFE, ISO 27001 family, NIST AI RMF, COBIT, MITRE ATT&CK, MITRE ATLAS), sector programmes (AEO-UK, CTPAT, PIP, BASC, NEEC, ATT, STP, SES), CSA CCM domain codes (AAC, AIS, BCR, CCC, CEK, DCS, DSP, GRC, HRS, IAM, IPY, IVS, LOG, SEF, STA, TVM, UEM), CSA AICM, library role acronyms (AIGC, ERC, BCM, DPO), and common technical/security/governance acronyms (IAM, PAM, ZTNA, SBOM, SCA, SAST, SIEM, MFA, PKI, HSM, RPO, RTO, KRI, KPI, RACI, etc.).
 
 The glossary also includes a doctype reference section explaining the library's doctype vocabulary (Annex, Charter, Framework, Guideline, Matrix, Plan, Policy, Procedure, Register, Roadmap, SOP, Specification, Standard, Template).
 
@@ -1268,19 +1299,19 @@ Both registers now cross-reference each other and explain their scope distinctio
 
 ### Cross-references updated
 
-- `governance/README.md`: glossary entry added to the Active Documents table.
-- `governance/register-document-index-and-classification.md` (1.25.0 → 1.25.1): glossary entry added.
-- `TODO.md`: P1.1 (glossary) removed; remaining P1 items renumbered.
+- [`governance/README.md`](governance/README.md): glossary entry added to the Active Documents table.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.25.0 → 1.25.1): glossary entry added.
+- [`TODO.md`](TODO.md): P1.1 (glossary) removed; remaining P1 items renumbered.
 
 All ten audits clean.
 
 ## Phase 21.1 (2026-05-28): Backlog file established
 
-First sub-phase of Phase 21 (project foundations before content expansion). Introduces `TODO.md` at the repository root as the canonical living backlog. Completed work is recorded here in `CHANGELOG.md`; pending work is recorded in `TODO.md`. The two files together form the project's working history-and-future record.
+First sub-phase of Phase 21 (project foundations before content expansion). Introduces [`TODO.md`](TODO.md) at the repository root as the canonical living backlog. Completed work is recorded here in [`CHANGELOG.md`](CHANGELOG.md); pending work is recorded in [`TODO.md`](TODO.md). The two files together form the project's working history-and-future record.
 
 ### New file
 
-- `TODO.md` (root, no metadata block per convention for root meta-files): seeded with the prioritised enhancement list discussed during Phase 20 review. Six priority tiers from foundations (glossary, standards-currency checker) through content expansion (logistics country additions, financial-services regulators, healthcare/energy/telecom/public-sector country overlays, AI jurisdictions, privacy jurisdiction gaps) to domain-level expansion (cloud, OT/ICS, identity, PQC, cross-framework matrix expansion).
+- [`TODO.md`](TODO.md) (root, no metadata block per convention for root meta-files): seeded with the prioritised enhancement list discussed during Phase 20 review. Six priority tiers from foundations (glossary, standards-currency checker) through content expansion (logistics country additions, financial-services regulators, healthcare/energy/telecom/public-sector country overlays, AI jurisdictions, privacy jurisdiction gaps) to domain-level expansion (cloud, OT/ICS, identity, PQC, cross-framework matrix expansion).
 
 ### Rationale
 
@@ -1291,7 +1322,7 @@ The project has been growing in scope across Phases 19 and 20 with a number of d
 
 ### Convention established
 
-Root-level meta-files (`README.md`, `NOTICE.md`, `CONTRIBUTING.md`, `SECURITY.md`, `CHANGELOG.md`, `TODO.md`) are maintained at a simpler standard than tracked governance artefacts: no full 13-field metadata block, no per-document version tracking, no taxonomy or portal inclusion. They are informational and operate as project meta-infrastructure rather than tracked GRC content.
+Root-level meta-files ([`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md), [`CHANGELOG.md`](CHANGELOG.md), [`TODO.md`](TODO.md)) are maintained at a simpler standard than tracked governance artefacts: no full 13-field metadata block, no per-document version tracking, no taxonomy or portal inclusion. They are informational and operate as project meta-infrastructure rather than tracked GRC content.
 
 All ten audits clean.
 
@@ -1307,31 +1338,31 @@ Second sub-phase of Phase 20. Phase 20.1 established the `compliance/<sector>/` 
 - `compliance/telecommunications/` — telecom network operators, ISPs, internet exchange points, electronic communications service providers.
 - `compliance/public-sector/` — government agencies, public bodies, and cloud-service providers to public sector.
 
-Each sub-directory has a `README.md` (v1.0.0) describing the sector, applicability, the artefacts within, and future-coverage placeholders for country/regulator-specific overlays.
+Each sub-directory has a [`README.md`](README.md) (v1.0.0) describing the sector, applicability, the artefacts within, and future-coverage placeholders for country/regulator-specific overlays.
 
 ### Files moved
 
 | Origin | Destination | Notes |
 | --- | --- | --- |
-| `compliance/annex-financial-services-sector-requirements.md` | `compliance/financial-services/annex-financial-services-sector-requirements.md` | Path move; version bump |
-| `compliance/annex-dora-implementation.md` | `compliance/financial-services/annex-dora-implementation.md` | EU financial-services regulation; path move |
-| `compliance/annex-sox-itgc.md` | `compliance/financial-services/annex-sox-itgc.md` | US financial-services regulation; path move |
-| `compliance/annex-healthcare-sector-requirements.md` | `compliance/healthcare/annex-healthcare-sector-requirements.md` | Path move |
-| `compliance/annex-energy-and-utilities-sector-requirements.md` | `compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md` | Path move |
-| `compliance/annex-telecommunications-sector-requirements.md` | `compliance/telecommunications/annex-telecommunications-sector-requirements.md` | Path move |
-| `compliance/annex-public-sector-requirements.md` | `compliance/public-sector/annex-public-sector-requirements.md` | Path move |
-| `compliance/annex-fedramp-requirements.md` | `compliance/public-sector/annex-fedramp-requirements.md` | US federal cloud regulation; path move |
+| [`compliance/annex-financial-services-sector-requirements.md`](compliance/annex-financial-services-sector-requirements.md) | [`compliance/financial-services/annex-financial-services-sector-requirements.md`](compliance/financial-services/annex-financial-services-sector-requirements.md) | Path move; version bump |
+| [`compliance/annex-dora-implementation.md`](compliance/annex-dora-implementation.md) | [`compliance/financial-services/annex-dora-implementation.md`](compliance/financial-services/annex-dora-implementation.md) | EU financial-services regulation; path move |
+| [`compliance/annex-sox-itgc.md`](compliance/annex-sox-itgc.md) | [`compliance/financial-services/annex-sox-itgc.md`](compliance/financial-services/annex-sox-itgc.md) | US financial-services regulation; path move |
+| [`compliance/annex-healthcare-sector-requirements.md`](compliance/annex-healthcare-sector-requirements.md) | [`compliance/healthcare/annex-healthcare-sector-requirements.md`](compliance/healthcare/annex-healthcare-sector-requirements.md) | Path move |
+| [`compliance/annex-energy-and-utilities-sector-requirements.md`](compliance/annex-energy-and-utilities-sector-requirements.md) | [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md) | Path move |
+| [`compliance/annex-telecommunications-sector-requirements.md`](compliance/annex-telecommunications-sector-requirements.md) | [`compliance/telecommunications/annex-telecommunications-sector-requirements.md`](compliance/telecommunications/annex-telecommunications-sector-requirements.md) | Path move |
+| [`compliance/annex-public-sector-requirements.md`](compliance/annex-public-sector-requirements.md) | [`compliance/public-sector/annex-public-sector-requirements.md`](compliance/public-sector/annex-public-sector-requirements.md) | Path move |
+| [`compliance/annex-fedramp-requirements.md`](compliance/annex-fedramp-requirements.md) | [`compliance/public-sector/annex-fedramp-requirements.md`](compliance/public-sector/annex-fedramp-requirements.md) | US federal cloud regulation; path move |
 
 ### Held at `compliance/` root (horizontal cross-sector regulation)
 
-- `compliance/annex-nis-2-implementation.md` — EU NIS 2 Directive applies to "essential and important entities" across energy, transport, banking, healthcare, digital infrastructure, and other sectors. Not naturally one sector. Stays at root.
+- [`compliance/annex-nis-2-implementation.md`](compliance/annex-nis-2-implementation.md) — EU NIS 2 Directive applies to "essential and important entities" across energy, transport, banking, healthcare, digital infrastructure, and other sectors. Not naturally one sector. Stays at root.
 
 ### Library-wide cross-reference updates
 
 - All references to the eight moved files (across ~10 documents) updated to new paths.
 - Internal sibling references within moved files updated from `../security/` to `../../security/` style (the files are now one level deeper).
 - Internal compliance-sibling references in moved files updated from `(filename.md)` to `(../filename.md)`.
-- `compliance/README.md` (1.3.0 → 1.4.0): sector sub-directory table expanded to list all six sectors; per-sector artefact tables added.
+- [`compliance/README.md`](compliance/README.md) (1.3.0 → 1.4.0): sector sub-directory table expanded to list all six sectors; per-sector artefact tables added.
 
 ### Result
 
@@ -1351,41 +1382,41 @@ The library now hosts all trade-and-logistics sector-conditional content in a si
 
 | Origin | Destination | Notes |
 | --- | --- | --- |
-| `sectors/basc/policy-basc-information-security.md` | `compliance/logistics/policy-basc-information-security.md` | Path move; version 1.1.1 |
-| `sectors/basc/register-basc-it-responsibilities.md` | `compliance/logistics/register-basc-it-responsibilities.md` | Path move; version 1.1.1 |
-| `sectors/basc/register-basc-it-compliance-kpis.md` | `compliance/logistics/register-basc-it-compliance-kpis.md` | Path move; version 1.1.1 |
-| `sectors/basc/README.md` | `compliance/logistics/annex-basc-programme-overview.md` | Doctype conversion (Register → Annex); content preserved; version 1.1.0 |
-| `compliance/annex-transportation-and-logistics-sector-requirements.md` | `compliance/logistics/annex-logistics-sector-requirements.md` | Renamed; sector overview; title shortened to "Logistics Sector GRC Requirements Annex"; version 1.0.1 |
-| `compliance/annex-aeo-s-it-cybersecurity-requirements.md` | `compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md` | Renamed for jurisdiction clarity; title "UK AEO-S IT and Cybersecurity Requirements"; version 1.0.1 |
-| `compliance/procedure-aeo-it-self-assessment.md` | `compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md` | Renamed; title "UK AEO IT Self-Assessment Procedure"; version 1.0.1 |
-| `compliance/register-ctpat-it-controls.md` | `compliance/logistics/register-ctpat-united-states-it-controls.md` | Renamed; title "US CTPAT IT and Cybersecurity Compliance Controls Register"; version 1.0.2 |
-| `compliance/register-pip-compliance-controls.md` | `compliance/logistics/register-pip-canada-controls.md` | Renamed; title "Canada PIP IT and Cybersecurity Compliance Controls Register"; version 1.0.1 |
-| `supply-chain/register-ctpat-full-msc-controls.md` | `compliance/logistics/register-ctpat-united-states-msc-controls.md` | Cross-domain move; renamed; title "US CTPAT Full Minimum Security Criteria Controls Register"; version 1.0.2 |
-| `compliance/template-trade-compliance-gap-assessment.md` | `compliance/logistics/template-trade-compliance-gap-assessment.md` | Path move; version 1.0.1 |
+| [`sectors/basc/policy-basc-information-security.md`](sectors/basc/policy-basc-information-security.md) | [`compliance/logistics/policy-basc-information-security.md`](compliance/logistics/policy-basc-information-security.md) | Path move; version 1.1.1 |
+| [`sectors/basc/register-basc-it-responsibilities.md`](sectors/basc/register-basc-it-responsibilities.md) | [`compliance/logistics/register-basc-it-responsibilities.md`](compliance/logistics/register-basc-it-responsibilities.md) | Path move; version 1.1.1 |
+| [`sectors/basc/register-basc-it-compliance-kpis.md`](sectors/basc/register-basc-it-compliance-kpis.md) | [`compliance/logistics/register-basc-it-compliance-kpis.md`](compliance/logistics/register-basc-it-compliance-kpis.md) | Path move; version 1.1.1 |
+| [`sectors/basc/README.md`](sectors/basc/README.md) | [`compliance/logistics/annex-basc-programme-overview.md`](compliance/logistics/annex-basc-programme-overview.md) | Doctype conversion (Register → Annex); content preserved; version 1.1.0 |
+| [`compliance/annex-transportation-and-logistics-sector-requirements.md`](compliance/annex-transportation-and-logistics-sector-requirements.md) | [`compliance/logistics/annex-logistics-sector-requirements.md`](compliance/logistics/annex-logistics-sector-requirements.md) | Renamed; sector overview; title shortened to "Logistics Sector GRC Requirements Annex"; version 1.0.1 |
+| [`compliance/annex-aeo-s-it-cybersecurity-requirements.md`](compliance/annex-aeo-s-it-cybersecurity-requirements.md) | [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md) | Renamed for jurisdiction clarity; title "UK AEO-S IT and Cybersecurity Requirements"; version 1.0.1 |
+| [`compliance/procedure-aeo-it-self-assessment.md`](compliance/procedure-aeo-it-self-assessment.md) | [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md) | Renamed; title "UK AEO IT Self-Assessment Procedure"; version 1.0.1 |
+| [`compliance/register-ctpat-it-controls.md`](compliance/register-ctpat-it-controls.md) | [`compliance/logistics/register-ctpat-united-states-it-controls.md`](compliance/logistics/register-ctpat-united-states-it-controls.md) | Renamed; title "US CTPAT IT and Cybersecurity Compliance Controls Register"; version 1.0.2 |
+| [`compliance/register-pip-compliance-controls.md`](compliance/register-pip-compliance-controls.md) | [`compliance/logistics/register-pip-canada-controls.md`](compliance/logistics/register-pip-canada-controls.md) | Renamed; title "Canada PIP IT and Cybersecurity Compliance Controls Register"; version 1.0.1 |
+| [`supply-chain/register-ctpat-full-msc-controls.md`](supply-chain/register-ctpat-full-msc-controls.md) | [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](compliance/logistics/register-ctpat-united-states-msc-controls.md) | Cross-domain move; renamed; title "US CTPAT Full Minimum Security Criteria Controls Register"; version 1.0.2 |
+| [`compliance/template-trade-compliance-gap-assessment.md`](compliance/template-trade-compliance-gap-assessment.md) | [`compliance/logistics/template-trade-compliance-gap-assessment.md`](compliance/logistics/template-trade-compliance-gap-assessment.md) | Path move; version 1.0.1 |
 
 ### New files
 
-- `compliance/logistics/README.md` (new, v1.0.0): sector home, programme index, applicability, future-coverage placeholders.
+- [`compliance/logistics/README.md`](compliance/logistics/README.md) (new, v1.0.0): sector home, programme index, applicability, future-coverage placeholders.
 
 ### Files deleted
 
-- `sectors/README.md` and `sectors/basc/README.md`: content preserved as `annex-basc-programme-overview.md` and consolidated into the new `compliance/logistics/README.md`.
+- [`sectors/README.md`](sectors/README.md) and [`sectors/basc/README.md`](sectors/basc/README.md): content preserved as [`annex-basc-programme-overview.md`](compliance/logistics/annex-basc-programme-overview.md) and consolidated into the new [`compliance/logistics/README.md`](compliance/logistics/README.md).
 - `sectors/` directory removed entirely.
 
 ### Library-wide cross-reference updates
 
 - All `[\`sectors/\`](../sectors/)` pointers (44 across the library, introduced in Phase 19.1/19.4) updated to point to `[\`compliance/\`](../compliance/)`.
 - All references to renamed files (CTPAT/AEO/PIP/transport-annex/trade-template) updated to new paths and filenames.
-- `supply-chain/README.md` (1.2.0 → 1.3.0): CTPAT MSC register row removed (file moved to compliance/logistics/); trusted-trader programme list replaced with a pointer to `compliance/logistics/`.
-- `compliance/README.md` (1.2.0 → 1.3.0): restructured to describe the root-vs-sector layer separation; logistics sub-directory artefacts listed; pending Phase 20.2 sector moves flagged.
-- `governance/register-document-index-and-classification.md` (1.24.2 → 1.25.0): all moved/renamed entries updated; category labels normalised from "Sectors" to "Compliance" for the BASC artefacts.
-- `README.md` (1.5.3 → 1.5.4): document-count description updated to reference compliance sub-directories rather than `/sectors/`.
-- `specification-master-project.md` (1.2.6 → 1.2.7): repository directory listing and domain table updated.
-- `docs/adopter-guide.md`: "The sectors directory" section replaced with "Sector-conditional content".
+- [`supply-chain/README.md`](supply-chain/README.md) (1.2.0 → 1.3.0): CTPAT MSC register row removed (file moved to compliance/logistics/); trusted-trader programme list replaced with a pointer to `compliance/logistics/`.
+- [`compliance/README.md`](compliance/README.md) (1.2.0 → 1.3.0): restructured to describe the root-vs-sector layer separation; logistics sub-directory artefacts listed; pending Phase 20.2 sector moves flagged.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.24.2 → 1.25.0): all moved/renamed entries updated; category labels normalised from "Sectors" to "Compliance" for the BASC artefacts.
+- [`README.md`](README.md) (1.5.3 → 1.5.4): document-count description updated to reference compliance sub-directories rather than `/sectors/`.
+- [`specification-master-project.md`](specification-master-project.md) (1.2.6 → 1.2.7): repository directory listing and domain table updated.
+- [`docs/adopter-guide.md`](docs/adopter-guide.md): "The sectors directory" section replaced with "Sector-conditional content".
 
 ### Tooling update
 
-- `tools/lint-structure.py`: removed `sectors` from the `DOMAINS` list (the directory no longer exists). The structural-membership rule now requires that all `compliance/logistics/*` files are referenced by `compliance/README.md`, which they are.
+- [`tools/lint-structure.py`](tools/lint-structure.py): removed `sectors` from the `DOMAINS` list (the directory no longer exists). The structural-membership rule now requires that all `compliance/logistics/*` files are referenced by [`compliance/README.md`](compliance/README.md), which they are.
 
 ### Result
 
@@ -1403,16 +1434,16 @@ Several documents in the library had been authored before ISO/IEC 42005 was publ
 
 ### Citations corrected (topic was impact-assessment, attribution moved to ISO/IEC 42005:2025)
 
-- `ai/procedure-ai-evaluation.md` (1.0.1 → 1.0.2): framework alignment row updated to "ISO/IEC 42005:2025 | AI system impact assessment | Risk and bias evaluation".
-- `ai/standard-ai-testing-validation-and-documentation.md` (1.0.0 → 1.0.1): Purpose paragraph alignment list and framework alignment row both updated to ISO/IEC 42005:2025.
-- `privacy/procedure-privacy-impact-and-cross-border-transfer.md` (1.3.1 → 1.3.2): Step 5 consultation rule ("AIGC conducts additional review per ISO 42006") and the framework-mapping table row ("AI Impact Assessment | ISO 42006") both updated to ISO/IEC 42005:2025.
-- `security/policy-acceptance-into-service.md` (1.0.0 → 1.0.1): rule 4.3 ("AI Impact Assessments must evaluate transparency, fairness, and explainability per ISO 42006") updated to ISO/IEC 42005:2025.
-- `governance/register-document-index-and-classification.md` (1.24.1 → 1.24.2): three index rows updated where the document's topic is impact assessment — AI System Impact Assessment Procedure, AI Testing/Validation/Documentation Standard, AI Evaluation Procedure.
+- [`ai/procedure-ai-evaluation.md`](ai/procedure-ai-evaluation.md) (1.0.1 → 1.0.2): framework alignment row updated to "ISO/IEC 42005:2025 | AI system impact assessment | Risk and bias evaluation".
+- [`ai/standard-ai-testing-validation-and-documentation.md`](ai/standard-ai-testing-validation-and-documentation.md) (1.0.0 → 1.0.1): Purpose paragraph alignment list and framework alignment row both updated to ISO/IEC 42005:2025.
+- [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](privacy/procedure-privacy-impact-and-cross-border-transfer.md) (1.3.1 → 1.3.2): Step 5 consultation rule ("AIGC conducts additional review per ISO 42006") and the framework-mapping table row ("AI Impact Assessment | ISO 42006") both updated to ISO/IEC 42005:2025.
+- [`security/policy-acceptance-into-service.md`](security/policy-acceptance-into-service.md) (1.0.0 → 1.0.1): rule 4.3 ("AI Impact Assessments must evaluate transparency, fairness, and explainability per ISO 42006") updated to ISO/IEC 42005:2025.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.24.1 → 1.24.2): three index rows updated where the document's topic is impact assessment — AI System Impact Assessment Procedure, AI Testing/Validation/Documentation Standard, AI Evaluation Procedure.
 
 ### Citations clarified (topic was audit/certification, attribution retained as ISO 42006 with status updated)
 
-- `ai/register-model-registry.md` (0.0.1 → 0.0.2): "ISO/IEC 42006 | AI system audit | Audit baseline" updated to "ISO/IEC 42006:2025 | Requirements for AIMS audit and certification bodies | Audit baseline" to make the actual scope of the standard explicit. The model registry's use of ISO 42006 for audit-baseline context is correct.
-- `governance/register-document-index-and-classification.md`: two index rows where the topic is audit/certification — AI System Audit and Certification Framework, Model Registry — kept ISO 42006 attribution and updated to "ISO/IEC 42006:2025".
+- [`ai/register-model-registry.md`](ai/register-model-registry.md) (0.0.1 → 0.0.2): "ISO/IEC 42006 | AI system audit | Audit baseline" updated to "ISO/IEC 42006:2025 | Requirements for AIMS audit and certification bodies | Audit baseline" to make the actual scope of the standard explicit. The model registry's use of ISO 42006 for audit-baseline context is correct.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md): two index rows where the topic is audit/certification — AI System Audit and Certification Framework, Model Registry — kept ISO 42006 attribution and updated to "ISO/IEC 42006:2025".
 
 ### Standards now correctly cited in the library
 
@@ -1430,61 +1461,61 @@ Phase 19 sub-phase 5. Two low-severity findings.
 
 ### L-1: README document count
 
-- `README.md` (1.5.2 → 1.5.3, patch-level per the main-README rule): the document count description said "approximately **240 documents**". Actual count: 282 documents in active domain directories (`ai/`, `architecture/`, `compliance/`, `dev-security/`, `governance/`, `operations/`, `privacy/`, `resilience/`, `risk/`, `security/`, `supply-chain/`, `sectors/`), excluding domain READMEs. Updated to "approximately **280 documents**" — still an approximation as the description states, with the actual count expected to fluctuate as Phase 19 sub-phases progress.
+- [`README.md`](README.md) (1.5.2 → 1.5.3, patch-level per the main-README rule): the document count description said "approximately **240 documents**". Actual count: 282 documents in active domain directories (`ai/`, `architecture/`, `compliance/`, `dev-security/`, `governance/`, `operations/`, `privacy/`, `resilience/`, `risk/`, `security/`, `supply-chain/`, `sectors/`), excluding domain READMEs. Updated to "approximately **280 documents**" — still an approximation as the description states, with the actual count expected to fluctuate as Phase 19 sub-phases progress.
 
 ### L-2: BrE licence noun normalisation (body content)
 
-The library uses Oxford English (BrE word stems + `-ize` verb endings). The noun `license` in body content was inconsistent with the convention — BrE uses `licence` for the noun and `license` for the verb. The metadata field name `License` and the `LICENSE` repository-root file are GitHub conventions left as-is.
+The library uses Oxford English (BrE word stems + `-ize` verb endings). The noun `license` in body content was inconsistent with the convention — BrE uses `licence` for the noun and `license` for the verb. The metadata field name `License` and the [`LICENSE`](LICENSE) repository-root file are GitHub conventions left as-is.
 
 Files updated:
 
-- `NOTICE.md` (1.0.0 → 1.0.1): title and 3 body usages (incl. document title "External Reference Materials and Licence Boundaries").
-- `README.md` (1.5.2 → 1.5.3): 2 body usages plus the L-1 count change.
-- `CONTRIBUTING.md`: 3 body usages (no metadata block; not version-tracked).
-- `specification-master-project.md` (1.2.5 → 1.2.6): Review Frequency field reference and one body usage.
-- `specification-ingestion.md` (1.4.2 → 1.4.3): Review Frequency field reference, section heading "Licence compatibility rules", and 2 body usages.
-- `instruction-ai-document-ingestion.md`: 2 body usages (no metadata block; not version-tracked).
-- `ai/framework-ai-governance-and-risk.md` (1.1.0 → 1.1.1): 1 body usage.
-- `ai/README.md`: section heading "Licence boundary".
-- `governance/register-document-index-and-classification.md` (1.24.0 → 1.24.1): 1 body usage.
-- `governance/README.md`: section heading "Licence boundary" and 1 body usage.
-- `governance/charter-governance-library.md` (1.1.0 → 1.1.1): Review Frequency field reference, 3 body usages, and 1 role-name body usage ("Licence Reviewer").
-- `governance/matrix-cross-framework-alignment.md` (1.1.1 → 1.1.2): 1 body usage.
-- `risk/standard-enterprise-risk-management.md` (1.3.1 → 1.3.2): section heading "Licence" and 1 body usage.
-- `risk/policy-enterprise-governance-and-risk-management.md` (1.4.0 → 1.4.1): section heading "Licence".
-- `compliance/financial-services/annex-financial-services-sector-requirements.md` (1.0.0 → 1.0.1): 1 body usage.
-- `compliance/register-compliance-obligations-template.md` (1.0.1 → 1.0.2): 1 body usage.
-- `dev-security/standard-developer-security-requirements.md` (1.0.0 → 1.0.1): 1 body usage.
-- `dev-security/standard-security-quick-reference.md` (1.0.0 → 1.0.1): 2 body usages.
-- `dev-security/standard-software-composition-analysis.md` (1.1.0 → 1.1.1): section heading and 11 body usages (table column header "Licence Category", row headers, and inventory obligations bullets).
-- `dev-security/standard-software-evaluation-acceptance-and-lifecycle.md` (1.0.0 → 1.0.1): 1 body usage.
-- `dev-security/standard-devops-security-requirements.md` (1.0.1 → 1.0.2): 1 body usage.
-- `dev-security/guideline-ai-coding-assistant-security.md` (1.0.1 → 1.0.1 — already bumped in Phase 19.4): 1 body usage (checklist label).
-- `dev-security/claude-rules/README.md`: section heading "Licence".
-- `dev-security/claude-rules/CLAUDE.md`: 1 body usage (no metadata block; not version-tracked).
-- `dev-security/claude-rules/pipeline/cicd-gates.md`: 1 body usage (no metadata block; not version-tracked).
-- `dev-security/claude-rules/ai/ai-security.md`: 2 body usages (no metadata block; not version-tracked).
-- `operations/standard-certificate-authority-management.md` (1.3.0 → 1.3.1): 2 body usages.
-- `operations/register-asset-inventory.md` (1.0.0 → 1.0.1): 1 body usage (table row label).
-- `resilience/README.md`: section heading "Licence boundary".
-- `sectors/README.md`: section heading "Licence and neutrality posture".
-- `compliance/logistics/annex-basc-programme-overview.md`: section heading "Licence boundary".
-- `security/README.md`: section heading "Licence boundary".
-- `security/procedure-security-incident-response.md` (1.3.2 → 1.3.3): section heading "Licence".
-- `security/procedure-onboarding-and-offboarding.md` (1.0.0 → 1.0.1): 1 body usage.
-- `supply-chain/README.md`: section heading "Licence boundary".
+- [`NOTICE.md`](NOTICE.md) (1.0.0 → 1.0.1): title and 3 body usages (incl. document title "External Reference Materials and Licence Boundaries").
+- [`README.md`](README.md) (1.5.2 → 1.5.3): 2 body usages plus the L-1 count change.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md): 3 body usages (no metadata block; not version-tracked).
+- [`specification-master-project.md`](specification-master-project.md) (1.2.5 → 1.2.6): Review Frequency field reference and one body usage.
+- [`specification-ingestion.md`](specification-ingestion.md) (1.4.2 → 1.4.3): Review Frequency field reference, section heading "Licence compatibility rules", and 2 body usages.
+- [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md): 2 body usages (no metadata block; not version-tracked).
+- [`ai/framework-ai-governance-and-risk.md`](ai/framework-ai-governance-and-risk.md) (1.1.0 → 1.1.1): 1 body usage.
+- [`ai/README.md`](ai/README.md): section heading "Licence boundary".
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.24.0 → 1.24.1): 1 body usage.
+- [`governance/README.md`](governance/README.md): section heading "Licence boundary" and 1 body usage.
+- [`governance/charter-governance-library.md`](governance/charter-governance-library.md) (1.1.0 → 1.1.1): Review Frequency field reference, 3 body usages, and 1 role-name body usage ("Licence Reviewer").
+- [`governance/matrix-cross-framework-alignment.md`](governance/matrix-cross-framework-alignment.md) (1.1.1 → 1.1.2): 1 body usage.
+- [`risk/standard-enterprise-risk-management.md`](risk/standard-enterprise-risk-management.md) (1.3.1 → 1.3.2): section heading "Licence" and 1 body usage.
+- [`risk/policy-enterprise-governance-and-risk-management.md`](risk/policy-enterprise-governance-and-risk-management.md) (1.4.0 → 1.4.1): section heading "Licence".
+- [`compliance/financial-services/annex-financial-services-sector-requirements.md`](compliance/financial-services/annex-financial-services-sector-requirements.md) (1.0.0 → 1.0.1): 1 body usage.
+- [`compliance/register-compliance-obligations-template.md`](compliance/register-compliance-obligations-template.md) (1.0.1 → 1.0.2): 1 body usage.
+- [`dev-security/standard-developer-security-requirements.md`](dev-security/standard-developer-security-requirements.md) (1.0.0 → 1.0.1): 1 body usage.
+- [`dev-security/standard-security-quick-reference.md`](dev-security/standard-security-quick-reference.md) (1.0.0 → 1.0.1): 2 body usages.
+- [`dev-security/standard-software-composition-analysis.md`](dev-security/standard-software-composition-analysis.md) (1.1.0 → 1.1.1): section heading and 11 body usages (table column header "Licence Category", row headers, and inventory obligations bullets).
+- [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) (1.0.0 → 1.0.1): 1 body usage.
+- [`dev-security/standard-devops-security-requirements.md`](dev-security/standard-devops-security-requirements.md) (1.0.1 → 1.0.2): 1 body usage.
+- [`dev-security/guideline-ai-coding-assistant-security.md`](dev-security/guideline-ai-coding-assistant-security.md) (1.0.1 → 1.0.1 — already bumped in Phase 19.4): 1 body usage (checklist label).
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): section heading "Licence".
+- [`dev-security/claude-rules/CLAUDE.md`](dev-security/claude-rules/CLAUDE.md): 1 body usage (no metadata block; not version-tracked).
+- [`dev-security/claude-rules/pipeline/cicd-gates.md`](dev-security/claude-rules/pipeline/cicd-gates.md): 1 body usage (no metadata block; not version-tracked).
+- [`dev-security/claude-rules/ai/ai-security.md`](dev-security/claude-rules/ai/ai-security.md): 2 body usages (no metadata block; not version-tracked).
+- [`operations/standard-certificate-authority-management.md`](operations/standard-certificate-authority-management.md) (1.3.0 → 1.3.1): 2 body usages.
+- [`operations/register-asset-inventory.md`](operations/register-asset-inventory.md) (1.0.0 → 1.0.1): 1 body usage (table row label).
+- [`resilience/README.md`](resilience/README.md): section heading "Licence boundary".
+- [`sectors/README.md`](sectors/README.md): section heading "Licence and neutrality posture".
+- [`compliance/logistics/annex-basc-programme-overview.md`](compliance/logistics/annex-basc-programme-overview.md): section heading "Licence boundary".
+- [`security/README.md`](security/README.md): section heading "Licence boundary".
+- [`security/procedure-security-incident-response.md`](security/procedure-security-incident-response.md) (1.3.2 → 1.3.3): section heading "Licence".
+- [`security/procedure-onboarding-and-offboarding.md`](security/procedure-onboarding-and-offboarding.md) (1.0.0 → 1.0.1): 1 body usage.
+- [`supply-chain/README.md`](supply-chain/README.md): section heading "Licence boundary".
 
-Additionally, the `Unlicenced` spelling in `standard-software-composition-analysis.md` was corrected to `Unlicensed` (BrE/AmE shared participle adjective form; `Unlicenced` is non-standard in both).
+Additionally, the `Unlicenced` spelling in [`standard-software-composition-analysis.md`](dev-security/standard-software-composition-analysis.md) was corrected to `Unlicensed` (BrE/AmE shared participle adjective form; `Unlicenced` is non-standard in both).
 
 ### Not converted
 
 - `License` as the metadata field name (defined library convention): kept (specification-master-project.md, specification-ingestion.md, instruction-ai-document-ingestion.md, docs/adopter-guide.md, tools/README.md).
-- The `LICENSE` repository-root file: GitHub convention; kept.
+- The [`LICENSE`](LICENSE) repository-root file: GitHub convention; kept.
 - `licensed` (past-participle adjective): same spelling in BrE and AmE; kept.
 
 ### Result
 
-Body content is now consistent BrE: `licence` (noun) and `license` (verb), parallel to the existing `practice/practise`, `defence/defend`, `analyse/analysis` patterns. The metadata field name `License` and the `LICENSE` file remain as GitHub-convention exceptions, documented above.
+Body content is now consistent BrE: `licence` (noun) and `license` (verb), parallel to the existing `practice/practise`, `defence/defend`, `analyse/analysis` patterns. The metadata field name `License` and the [`LICENSE`](LICENSE) file remain as GitHub-convention exceptions, documented above.
 
 Taxonomy and portal regenerated. All ten audits clean.
 
@@ -1494,32 +1525,32 @@ Phase 19 sub-phase 4. Three findings from the exhaustive re-audit: an obsolete I
 
 ### M-1: ISO/IEC 42006 status correction
 
-- `ai/framework-ai-system-audit-certification.md` (1.0.0 → 1.0.1): the framework cited "ISO/IEC 42006 (draft 2024)" in its framework alignment table and "the ISO/IEC 42006 draft AI audit requirements" in its Purpose. The standard was published in 2025; references updated to "ISO/IEC 42006:2025".
+- [`ai/framework-ai-system-audit-certification.md`](ai/framework-ai-system-audit-certification.md) (1.0.0 → 1.0.1): the framework cited "ISO/IEC 42006 (draft 2024)" in its framework alignment table and "the ISO/IEC 42006 draft AI audit requirements" in its Purpose. The standard was published in 2025; references updated to "ISO/IEC 42006:2025".
 
-A separate concern was flagged but not silently corrected: several documents (notably `procedure-ai-evaluation.md`, `standard-ai-testing-validation-and-documentation.md`, multiple register-document-index rows, `procedure-privacy-impact-and-cross-border-transfer.md`, and `policy-acceptance-into-service.md`) cite "ISO 42006" with the topic attribution "AI Impact Assessment". ISO/IEC 42006:2025 is the standard for bodies providing audit and certification of AI management systems; the AI-impact-assessment standard is ISO/IEC 42005:2025. Whether to retain the existing citations or correct them to ISO 42005 is left for the user's review in a subsequent pass — the topic-attribution correction is materially distinct from a status update.
+A separate concern was flagged but not silently corrected: several documents (notably [`procedure-ai-evaluation.md`](ai/procedure-ai-evaluation.md), [`standard-ai-testing-validation-and-documentation.md`](ai/standard-ai-testing-validation-and-documentation.md), multiple register-document-index rows, [`procedure-privacy-impact-and-cross-border-transfer.md`](privacy/procedure-privacy-impact-and-cross-border-transfer.md), and [`policy-acceptance-into-service.md`](security/policy-acceptance-into-service.md)) cite "ISO 42006" with the topic attribution "AI Impact Assessment". ISO/IEC 42006:2025 is the standard for bodies providing audit and certification of AI management systems; the AI-impact-assessment standard is ISO/IEC 42005:2025. Whether to retain the existing citations or correct them to ISO 42005 is left for the user's review in a subsequent pass — the topic-attribution correction is materially distinct from a status update.
 
 ### M-2: AI coding assistant guideline `must` → `should`
 
-- `dev-security/guideline-ai-coding-assistant-security.md` (1.0.0 → 1.0.1): 11 normative `must` statements softened to `should` so the document language matches its Guideline doctype. The substantive content (security rules loaded before generating code; tool access scoped to the minimum necessary; no standing write access to production; no direct push to main without human review; agentic sessions logged; destructive actions require human confirmation) is retained — only the modal verb is changed. Adopters who wish to enforce these requirements upgrade the document to a Standard or Policy in their own copy of the library.
+- [`dev-security/guideline-ai-coding-assistant-security.md`](dev-security/guideline-ai-coding-assistant-security.md) (1.0.0 → 1.0.1): 11 normative `must` statements softened to `should` so the document language matches its Guideline doctype. The substantive content (security rules loaded before generating code; tool access scoped to the minimum necessary; no standing write access to production; no direct push to main without human review; agentic sessions logged; destructive actions require human confirmation) is retained — only the modal verb is changed. Adopters who wish to enforce these requirements upgrade the document to a Standard or Policy in their own copy of the library.
 
 ### M-3: BASC baseline residue cleanup
 
 Phase 12.3 moved BASC to a sector overlay, and Phase 19.1 closed four files. The exhaustive re-audit found 13 additional documents that still treated `Regional BASC Compliance Officer` as a baseline role or that retained dedicated BASC sections. Phase 19.4 cleans those:
 
-- `governance/framework-metrics-monitoring-and-performance-reporting.md` (1.0.0 → 1.0.1)
-- `governance/framework-continuous-assurance-and-improvement.md` (1.0.0 → 1.0.1)
-- `compliance/policy-legal-and-regulatory-compliance.md` (1.0.0 → 1.0.1)
-- `supply-chain/procedure-supplier-audit.md` (1.0.1 → 1.0.2)
-- `operations/procedure-media-handling-and-transport.md` (1.3.0 → 1.3.1)
-- `operations/procedure-security-monitoring-and-alert-management.md` (1.3.0 → 1.3.1)
-- `privacy/procedure-data-protection-and-privacy-breach-response.md` (1.4.0 → 1.4.1)
-- `security/sop-incident-escalation-matrix.md` (1.2.0 → 1.2.1)
-- `security/framework-cryptographic-key-lifecycle.md` (1.0.0 → 1.0.1)
-- `security/standard-logging-and-monitoring.md` (1.4.0 → 1.4.1)
-- `security/policy-network-communications-security.md` (1.0.0 → 1.1.0): had a dedicated `BASC trade-network security controls` section with multiple programme-specific requirements; replaced with a `Sector-programme network security overlays` section that defers to `sectors/`. Minor version bump because the change replaced a numbered section.
-- `security/procedure-security-incident-response.md` (1.3.1 → 1.3.2)
-- `security/policy-encryption-and-key-management.md` (1.3.0 → 1.3.1)
-- `security/standard-data-classification-and-handling.md` (1.3.0 → 1.3.1): the dedicated `BASC and regional trade data handling` section was generalised to `Sector-programme data handling overlays` with deference to `sectors/`.
+- [`governance/framework-metrics-monitoring-and-performance-reporting.md`](governance/framework-metrics-monitoring-and-performance-reporting.md) (1.0.0 → 1.0.1)
+- [`governance/framework-continuous-assurance-and-improvement.md`](governance/framework-continuous-assurance-and-improvement.md) (1.0.0 → 1.0.1)
+- [`compliance/policy-legal-and-regulatory-compliance.md`](compliance/policy-legal-and-regulatory-compliance.md) (1.0.0 → 1.0.1)
+- [`supply-chain/procedure-supplier-audit.md`](supply-chain/procedure-supplier-audit.md) (1.0.1 → 1.0.2)
+- [`operations/procedure-media-handling-and-transport.md`](operations/procedure-media-handling-and-transport.md) (1.3.0 → 1.3.1)
+- [`operations/procedure-security-monitoring-and-alert-management.md`](operations/procedure-security-monitoring-and-alert-management.md) (1.3.0 → 1.3.1)
+- [`privacy/procedure-data-protection-and-privacy-breach-response.md`](privacy/procedure-data-protection-and-privacy-breach-response.md) (1.4.0 → 1.4.1)
+- [`security/sop-incident-escalation-matrix.md`](security/sop-incident-escalation-matrix.md) (1.2.0 → 1.2.1)
+- [`security/framework-cryptographic-key-lifecycle.md`](security/framework-cryptographic-key-lifecycle.md) (1.0.0 → 1.0.1)
+- [`security/standard-logging-and-monitoring.md`](security/standard-logging-and-monitoring.md) (1.4.0 → 1.4.1)
+- [`security/policy-network-communications-security.md`](security/policy-network-communications-security.md) (1.0.0 → 1.1.0): had a dedicated `BASC trade-network security controls` section with multiple programme-specific requirements; replaced with a `Sector-programme network security overlays` section that defers to `sectors/`. Minor version bump because the change replaced a numbered section.
+- [`security/procedure-security-incident-response.md`](security/procedure-security-incident-response.md) (1.3.1 → 1.3.2)
+- [`security/policy-encryption-and-key-management.md`](security/policy-encryption-and-key-management.md) (1.3.0 → 1.3.1)
+- [`security/standard-data-classification-and-handling.md`](security/standard-data-classification-and-handling.md) (1.3.0 → 1.3.1): the dedicated `BASC and regional trade data handling` section was generalised to `Sector-programme data handling overlays` with deference to `sectors/`.
 
 ### Result
 
@@ -1533,8 +1564,8 @@ Phase 19 sub-phase 3. Two high-severity findings from the exhaustive re-audit: d
 
 ### Changes
 
-- `governance/register-role-authority.md` (1.2.0 → 1.3.0): added three new authority-register entries — AI Security Maintainer (with explicit demarcation from CISO and AI Governance Approver), Board Risk Committee (board-level risk-appetite oversight, with consolidation pointer to the minimum-viable governance guideline), and Enterprise Risk Committee / ERC (executive-level forum delegated by the Board Risk Committee).
-- `tools/lint-roles.py`: removed the AI Security Maintainer linter exemption because the role is now in the register itself; known-role count rose from 40 to 42.
+- [`governance/register-role-authority.md`](governance/register-role-authority.md) (1.2.0 → 1.3.0): added three new authority-register entries — AI Security Maintainer (with explicit demarcation from CISO and AI Governance Approver), Board Risk Committee (board-level risk-appetite oversight, with consolidation pointer to the minimum-viable governance guideline), and Enterprise Risk Committee / ERC (executive-level forum delegated by the Board Risk Committee).
+- [`tools/lint-roles.py`](tools/lint-roles.py): removed the AI Security Maintainer linter exemption because the role is now in the register itself; known-role count rose from 40 to 42.
 
 ### Result
 
@@ -1548,8 +1579,8 @@ Phase 19 sub-phase 2. Three findings from the exhaustive re-audit involved conte
 
 ### Files updated
 
-- `privacy/register-cross-border-data-flow.md` (1.0.0 → 1.0.1): the Data Residency example column referenced "US East data centre", a specific cloud region tied to one organisation's deployment. Replaced with the generic placeholder "Cloud region in destination country (specify provider and region)" so adopters fill in their own residency without first having to overwrite a residual example.
-- `supply-chain/template-supplier-security-questionnaire.md` (1.0.0 → 1.0.1): five question rows used "our organisation" / "our data" / "our personal data" — first-person pronouns that read as residue from a specific organisation's internal version of the questionnaire. The document's own Purpose section already uses the formulation "the Organisation"; questions 1.5, 1.6, 7.4, 8.3, 9.1, and 9.5 are now consistent with that convention. Sample notification text in `register-subprocessor-template.md` was deliberately left in first person because the "we/our" appears inside a quoted email body the organisation sends to its customers — first-person pronouns are correct in that quoted speech.
+- [`privacy/register-cross-border-data-flow.md`](privacy/register-cross-border-data-flow.md) (1.0.0 → 1.0.1): the Data Residency example column referenced "US East data centre", a specific cloud region tied to one organisation's deployment. Replaced with the generic placeholder "Cloud region in destination country (specify provider and region)" so adopters fill in their own residency without first having to overwrite a residual example.
+- [`supply-chain/template-supplier-security-questionnaire.md`](supply-chain/template-supplier-security-questionnaire.md) (1.0.0 → 1.0.1): five question rows used "our organisation" / "our data" / "our personal data" — first-person pronouns that read as residue from a specific organisation's internal version of the questionnaire. The document's own Purpose section already uses the formulation "the Organisation"; questions 1.5, 1.6, 7.4, 8.3, 9.1, and 9.5 are now consistent with that convention. Sample notification text in [`register-subprocessor-template.md`](supply-chain/register-subprocessor-template.md) was deliberately left in first person because the "we/our" appears inside a quoted email body the organisation sends to its customers — first-person pronouns are correct in that quoted speech.
 
 ### Result
 
@@ -1563,10 +1594,10 @@ Phase 19 sub-phase 1. The Phase 12.3 sector annex migration (in which BASC was m
 
 ### Files updated
 
-- `operations/standard-network-security-and-segmentation.md` (1.3.0 → 1.4.0): removed BASC/Latin America scoping, the "BASC / Logistics" network zone row, the dedicated "BASC trade-network security controls" section, and the unconditional BASC/WCO SAFE/ISO 28000 framework rows; sector overlays now invoked via `sectors/` pointers throughout. Also generalised "prior ransomware incident" references to industry-experience phrasing.
-- `supply-chain/procedure-supplier-due-diligence.md` (1.0.1 → 1.1.0): removed BASC from baseline framework alignment statement, baseline security-certification list, and References section; removed "Regional Compliance Officers" governance row; converted "BASC Compliance" evidence row, "BASC and regional compliance integration" step, contractual review clauses, and re-audit triggers to sector-conditional formulations.
-- `resilience/plan-it-disaster-recovery.md` (1.1.0 → 1.2.0): generalised the Purpose paragraph that referenced "a prior security incident" requiring "approximately a 30-day phased recovery" to industry-experience phrasing about phased recovery from major security incidents, since adopting organisations must calibrate RTO/RPO, tier assignments, and phasing to their own incident history and risk appetite rather than to the original drafting organisation's history.
-- `governance/standard-records-retention-and-destruction.md` (1.3.0 → 1.4.0): removed BASC/Latin America scope item content, "Regional Compliance Officers" governance row, the "BASC Trade and Customs" retention row, and the unconditional BASC/WCO SAFE framework alignment rows; sector overlays now invoked via `sectors/` pointers throughout.
+- [`operations/standard-network-security-and-segmentation.md`](operations/standard-network-security-and-segmentation.md) (1.3.0 → 1.4.0): removed BASC/Latin America scoping, the "BASC / Logistics" network zone row, the dedicated "BASC trade-network security controls" section, and the unconditional BASC/WCO SAFE/ISO 28000 framework rows; sector overlays now invoked via `sectors/` pointers throughout. Also generalised "prior ransomware incident" references to industry-experience phrasing.
+- [`supply-chain/procedure-supplier-due-diligence.md`](supply-chain/procedure-supplier-due-diligence.md) (1.0.1 → 1.1.0): removed BASC from baseline framework alignment statement, baseline security-certification list, and References section; removed "Regional Compliance Officers" governance row; converted "BASC Compliance" evidence row, "BASC and regional compliance integration" step, contractual review clauses, and re-audit triggers to sector-conditional formulations.
+- [`resilience/plan-it-disaster-recovery.md`](resilience/plan-it-disaster-recovery.md) (1.1.0 → 1.2.0): generalised the Purpose paragraph that referenced "a prior security incident" requiring "approximately a 30-day phased recovery" to industry-experience phrasing about phased recovery from major security incidents, since adopting organisations must calibrate RTO/RPO, tier assignments, and phasing to their own incident history and risk appetite rather than to the original drafting organisation's history.
+- [`governance/standard-records-retention-and-destruction.md`](governance/standard-records-retention-and-destruction.md) (1.3.0 → 1.4.0): removed BASC/Latin America scope item content, "Regional Compliance Officers" governance row, the "BASC Trade and Customs" retention row, and the unconditional BASC/WCO SAFE framework alignment rows; sector overlays now invoked via `sectors/` pointers throughout.
 
 ### Result
 
@@ -1599,7 +1630,7 @@ Adds the adopter-facing content identified by the next-passes list. Closes items
 
 ### Adopter guide enhancements
 
-`docs/adopter-guide.md`: two new substantial sections added.
+[`docs/adopter-guide.md`](docs/adopter-guide.md): two new substantial sections added.
 
 - **Applicability decision tree**: a table of yes/no questions mapping organisational characteristics (handles personal data? operates AI? cloud workloads? customer-facing services? BASC certification? sector regulation?) to the library domains and sector annexes that apply. Enables adopters to quickly determine which subset of the library is relevant to their operating context.
 - **Maturity progression**: explicit guidance keyed to the three tiers from the minimum-viable governance structure guideline. Tier 1 starter set lists 15 specific documents to adopt first; Tier 2 growth set adds the next layer; Tier 3 enterprise set adopts the full library. Each tier maps to the corresponding governance forum structure.
@@ -1607,16 +1638,16 @@ Adds the adopter-facing content identified by the next-passes list. Closes items
 
 ### New artefact
 
-- `governance/template-library-health-report.md` (v0.0.1): eleven-section template for the quarterly library health report referenced (but previously not templated) by the Phase 11 library quality and review cadence procedure. Sections cover identification, executive summary, the ten-audit status table, content additions and retirements, review cadence state, drift hot-spots, incidents and lessons, contributor activity, adopter signal, next-period plan, and sign-off. Worked example fragment included.
+- [`governance/template-library-health-report.md`](governance/template-library-health-report.md) (v0.0.1): eleven-section template for the quarterly library health report referenced (but previously not templated) by the Phase 11 library quality and review cadence procedure. Sections cover identification, executive summary, the ten-audit status table, content additions and retirements, review cadence state, drift hot-spots, incidents and lessons, contributor activity, adopter signal, next-period plan, and sign-off. Worked example fragment included.
 
 ### Content feedback channel
 
-- `CONTRIBUTING.md`: new "Reporting content issues without contributing a fix" section. Defines six issue categories (factual error, cross-document inconsistency, sanitisation residue, ambiguous responsibility, unsafe guidance, operational unrealism). Provides a non-PR channel for readers to raise concerns. Security-related defects continue to route through `SECURITY.md`.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md): new "Reporting content issues without contributing a fix" section. Defines six issue categories (factual error, cross-document inconsistency, sanitisation residue, ambiguous responsibility, unsafe guidance, operational unrealism). Provides a non-PR channel for readers to raise concerns. Security-related defects continue to route through [`SECURITY.md`](SECURITY.md).
 
 ### Registry updates
 
-- `governance/README.md` (v1.2.0 → v1.3.0): new template added.
-- `governance/register-document-index-and-classification.md` (v1.23.0 → v1.24.0): new row.
+- [`governance/README.md`](governance/README.md) (v1.2.0 → v1.3.0): new template added.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (v1.23.0 → v1.24.0): new row.
 
 Taxonomy, portal, and maturity scorecard regenerated.
 
@@ -1639,11 +1670,11 @@ Primary CSA sources (Cloud Controls Matrix and CAIQ v4.1 artifact; CCM v4.1 tran
 
 25 replacements across 10 files. Specific numeric controls (GRM-12 → GRC-12, EKM-01 → CEK-01, etc.) substituted where the v3 control numbering plausibly maps to the v4 domain code with the same numeric sequence. TIM references — for which no number mapping is sound because the domain did not exist — rewritten to generic TVM domain references rather than swapping the prefix.
 
-Affected files: `governance/policy-exception-and-risk-acceptance-management.md`, `governance/register-document-index-and-classification.md`, `risk/procedure-risk-assessment-methodology.md`, `security/policy-encryption-and-key-management.md`, `security/procedure-cryptographic-key-operations.md`, `security/procedure-key-escrow-and-recovery.md`, `security/framework-cryptographic-key-lifecycle.md`, `operations/standard-certificate-authority-management.md`, `operations/procedure-threat-intelligence-and-siem-operations.md`, plus the framework alignment annotations on a small number of other files.
+Affected files: [`governance/policy-exception-and-risk-acceptance-management.md`](governance/policy-exception-and-risk-acceptance-management.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), [`risk/procedure-risk-assessment-methodology.md`](risk/procedure-risk-assessment-methodology.md), [`security/policy-encryption-and-key-management.md`](security/policy-encryption-and-key-management.md), [`security/procedure-cryptographic-key-operations.md`](security/procedure-cryptographic-key-operations.md), [`security/procedure-key-escrow-and-recovery.md`](security/procedure-key-escrow-and-recovery.md), [`security/framework-cryptographic-key-lifecycle.md`](security/framework-cryptographic-key-lifecycle.md), [`operations/standard-certificate-authority-management.md`](operations/standard-certificate-authority-management.md), [`operations/procedure-threat-intelligence-and-siem-operations.md`](operations/procedure-threat-intelligence-and-siem-operations.md), plus the framework alignment annotations on a small number of other files.
 
 ### Citation denylist extended
 
-`tools/lint-citations.py` extended with four new denylist entries (`CCM GRM`, `CCM EKM`, `CCM END`, `CCM TIM`) so the v3-era codes cannot be reintroduced silently.
+[`tools/lint-citations.py`](tools/lint-citations.py) extended with four new denylist entries (`CCM GRM`, `CCM EKM`, `CCM END`, `CCM TIM`) so the v3-era codes cannot be reintroduced silently.
 
 ### Not corrected (verified accurate)
 
@@ -1658,12 +1689,12 @@ Resolves the forum-proliferation audit finding by adding a new adopter-facing gu
 
 ### New document
 
-- `governance/guideline-minimum-viable-governance-structure.md` (v0.0.1): three-tier structure (Tier 1: 2-3 forums; Tier 2: 4-6 forums; Tier 3: 8-12 forums) mapping the library's formal forum names to consolidated bodies. Per-tier consolidation table, seat-name mapping by role group (senior executive, AI sub-roles, ownership, maintainer), and mapping-document worked example.
+- [`governance/guideline-minimum-viable-governance-structure.md`](governance/guideline-minimum-viable-governance-structure.md) (v0.0.1): three-tier structure (Tier 1: 2-3 forums; Tier 2: 4-6 forums; Tier 3: 8-12 forums) mapping the library's formal forum names to consolidated bodies. Per-tier consolidation table, seat-name mapping by role group (senior executive, AI sub-roles, ownership, maintainer), and mapping-document worked example.
 
 ### Registry updates
 
-- `governance/README.md` (v1.1.0 → v1.2.0): new guideline added to active documents.
-- `governance/register-document-index-and-classification.md` (v1.22.0 → v1.23.0): new row added.
+- [`governance/README.md`](governance/README.md) (v1.1.0 → v1.2.0): new guideline added to active documents.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (v1.22.0 → v1.23.0): new row added.
 
 Taxonomy, portal, and maturity scorecard regenerated.
 
@@ -1677,21 +1708,21 @@ Resolves three lingering status-uncertainty items and tightens AIGC ownership cl
 
 Three documents previously carried "Document Status: Provisional" banners with "Target formal review: Q3 2026" framing. The banners over-claimed uncertainty against the library's posture (every active document is intended as public-domain reference baseline). Removed; the substantive Limitations sections in each document remain.
 
-- `resilience/plan-it-disaster-recovery.md` (v1.0.0 → v1.1.0): banner removed.
-- `supply-chain/standard-cloud-exit-and-data-portability.md` (v1.0.0 → v1.1.0): banner removed.
-- `security/sop-incident-escalation-matrix.md` (v1.1.0 → v1.2.0): banner removed.
+- [`resilience/plan-it-disaster-recovery.md`](resilience/plan-it-disaster-recovery.md) (v1.0.0 → v1.1.0): banner removed.
+- [`supply-chain/standard-cloud-exit-and-data-portability.md`](supply-chain/standard-cloud-exit-and-data-portability.md) (v1.0.0 → v1.1.0): banner removed.
+- [`security/sop-incident-escalation-matrix.md`](security/sop-incident-escalation-matrix.md) (v1.1.0 → v1.2.0): banner removed.
 
 ### AIGC ownership reconciliation
 
-`ai/charter-ai-governance-council.md` (v1.1.0 → v1.2.0): new "Roles outside the council that report into it" sub-section in the Composition section. Documents how the three Phase 12.8 sub-roles (AI Governance Approver, AI Data Steward, AI System Inventory Keeper) report into the council via the AI Governance Lead secretariat. Charter administrative ownership (CIO), governance decisions (Council), and per-system approvals (Approver under delegated council authority) are explicitly disambiguated.
+[`ai/charter-ai-governance-council.md`](ai/charter-ai-governance-council.md) (v1.1.0 → v1.2.0): new "Roles outside the council that report into it" sub-section in the Composition section. Documents how the three Phase 12.8 sub-roles (AI Governance Approver, AI Data Steward, AI System Inventory Keeper) report into the council via the AI Governance Lead secretariat. Charter administrative ownership (CIO), governance decisions (Council), and per-system approvals (Approver under delegated council authority) are explicitly disambiguated.
 
 ### Material change cross-references
 
 Three operational triggers that say "material change" without specifying thresholds now point at the authoritative thresholds table:
 
-- `ai/charter-ai-governance-council.md` §1: "Review material changes to deployed AI models" → cross-references the Material change thresholds table in the AI governance framework.
-- `ai/standard-ai-security-and-risk.md` §6.1: "AI systems must be tested before release and after material change" → same cross-reference.
-- `ai/procedure-ai-evaluation.md` Step 5: "Rejected systems require material changes and full re-evaluation" → same cross-reference.
+- [`ai/charter-ai-governance-council.md`](ai/charter-ai-governance-council.md) §1: "Review material changes to deployed AI models" → cross-references the Material change thresholds table in the AI governance framework.
+- [`ai/standard-ai-security-and-risk.md`](ai/standard-ai-security-and-risk.md) §6.1: "AI systems must be tested before release and after material change" → same cross-reference.
+- [`ai/procedure-ai-evaluation.md`](ai/procedure-ai-evaluation.md) Step 5: "Rejected systems require material changes and full re-evaluation" → same cross-reference.
 
 Taxonomy, portal, and maturity scorecard regenerated.
 
@@ -1701,19 +1732,19 @@ Resolves the audit blind-spots that allowed the Phase 12 defect set to accrete: 
 
 ### New linters
 
-- `tools/lint-shall-near-uncertainty.py` (new): detects mandatory `shall`/`must`/`will` requirements within 2 lines of uncertainty markers (`[Unverified]`, `TBD`, `TODO`, `FIXME`, `XXX`, `Draft <year/proper-noun>`, `placeholder`, `[Draft N Reference]`). Would have caught the Phase 12.5 finding before merge. Returns non-zero on findings.
+- [`tools/lint-shall-near-uncertainty.py`](tools/lint-shall-near-uncertainty.py) (new): detects mandatory `shall`/`must`/`will` requirements within 2 lines of uncertainty markers (`[Unverified]`, `TBD`, `TODO`, `FIXME`, `XXX`, `Draft <year/proper-noun>`, `placeholder`, `[Draft N Reference]`). Would have caught the Phase 12.5 finding before merge. Returns non-zero on findings.
 
-- `tools/lint-roles.py` (new): parses every `**Owner:**` and `**Approving Authority:**` value from document metadata blocks and verifies the value is either defined in `governance/register-role-authority.md` or in the linter's `EXTRA_KNOWN_ROLES` exemption set (for cross-functional bodies, alias roles, and named maintainer functions). Detects undefined-role usage that creates governance ambiguity. Skips obvious template placeholders (`<role title>`, `Role Name`, bracketed text).
+- [`tools/lint-roles.py`](tools/lint-roles.py) (new): parses every `**Owner:**` and `**Approving Authority:**` value from document metadata blocks and verifies the value is either defined in [`governance/register-role-authority.md`](governance/register-role-authority.md) or in the linter's `EXTRA_KNOWN_ROLES` exemption set (for cross-functional bodies, alias roles, and named maintainer functions). Detects undefined-role usage that creates governance ambiguity. Skips obvious template placeholders (`<role title>`, `Role Name`, bracketed text).
 
 ### Role authority register expanded
 
-- `governance/register-role-authority.md` (v1.1.0 → v1.2.0): nine additional roles added that were used in document metadata but not previously defined: Board of Directors, Chief Technology Officer, Chief Audit Executive, Security Owner, Communications Owner, IT Operations Lead, AI Risk Maintainer, Assurance Metrics Maintainer, Control Framework Maintainer. Total known roles in scanned files: 40 (was 22).
+- [`governance/register-role-authority.md`](governance/register-role-authority.md) (v1.1.0 → v1.2.0): nine additional roles added that were used in document metadata but not previously defined: Board of Directors, Chief Technology Officer, Chief Audit Executive, Security Owner, Communications Owner, IT Operations Lead, AI Risk Maintainer, Assurance Metrics Maintainer, Control Framework Maintainer. Total known roles in scanned files: 40 (was 22).
 
 ### Tooling pipeline wire-up
 
-- `.pre-commit-config.yaml`: extended to run all 10 audits locally on commit. Previously ran 6 (missing the four newer linters added in Phases 11, 12.1, 13).
-- `.github/workflows/quality.yml`: extended to run all 10 audits in CI on push to main and on every PR.
-- `CONTRIBUTING.md`: local-audit instructions extended to list all 10 audits.
+- [`.pre-commit-config.yaml`](.pre-commit-config.yaml): extended to run all 10 audits locally on commit. Previously ran 6 (missing the four newer linters added in Phases 11, 12.1, 13).
+- [`.github/workflows/quality.yml`](.github/workflows/quality.yml): extended to run all 10 audits in CI on push to main and on every PR.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md): local-audit instructions extended to list all 10 audits.
 
 ### Result
 
@@ -1737,7 +1768,7 @@ Resolves the remaining medium and low-severity findings from the comprehensive a
 
 ### Term definitions added
 
-- `governance/register-key-terms-and-definitions.md` (v1.0.0 → v1.1.0): 18 new term definitions added to close terminology drift:
+- [`governance/register-key-terms-and-definitions.md`](governance/register-key-terms-and-definitions.md) (v1.0.0 → v1.1.0): 18 new term definitions added to close terminology drift:
   - AI lexicon: AI Agent, AI Capability, AI Service, AI System (refined), Foundation Model, Model — each formally distinguished so the reader can determine whether a ChatGPT API integration is an AI system, an AI service, a capability, or an agent.
   - Approval verbs: Approve, Audit, Authorize, Monitor, Review — each formally distinguished against the others.
   - Event vs Incident: Event = observation; Incident = triaged event meeting criteria.
@@ -1747,28 +1778,28 @@ Resolves the remaining medium and low-severity findings from the comprehensive a
 
 ### "Ensures compliance" phrasing replaced
 
-`governance/register-data-retention-schedule.md`, `compliance/policy-compliance-and-audit-management.md`, `privacy/policy-privacy-and-data-governance.md` (two instances): "ensures that compliance" replaced with "supports the organization's compliance" / "oversees compliance" so the library does not overclaim a guarantee CC0 baseline content cannot deliver.
+[`governance/register-data-retention-schedule.md`](governance/register-data-retention-schedule.md), [`compliance/policy-compliance-and-audit-management.md`](compliance/policy-compliance-and-audit-management.md), [`privacy/policy-privacy-and-data-governance.md`](privacy/policy-privacy-and-data-governance.md) (two instances): "ensures that compliance" replaced with "supports the organization's compliance" / "oversees compliance" so the library does not overclaim a guarantee CC0 baseline content cannot deliver.
 
 ### MASVS terminology clarification
 
-`dev-security/standard-mobile-application-security.md`: a note added clarifying that MASVS v2 reorganised operational test groupings into MAS Testing Profiles in MASTG; the L1/L2/R concepts remain as verification-level shorthand used by this standard.
+[`dev-security/standard-mobile-application-security.md`](dev-security/standard-mobile-application-security.md): a note added clarifying that MASVS v2 reorganised operational test groupings into MAS Testing Profiles in MASTG; the L1/L2/R concepts remain as verification-level shorthand used by this standard.
 
 ### RFC 7807 ↔ RFC 9457
 
-`architecture/standard-api-design.md`: RFC 7807 reference annotated with the note that RFC 9457 supersedes it; both are listed in the framework alignment table.
+[`architecture/standard-api-design.md`](architecture/standard-api-design.md): RFC 7807 reference annotated with the note that RFC 9457 supersedes it; both are listed in the framework alignment table.
 
 ### "Widely adopted" claims date-stamped
 
-`privacy/jurisdictions/annex-privacy-united-states.md`: "voluntary, widely adopted" → "voluntary; broadly adopted in US enterprise practice as of 2026".
-`privacy/jurisdictions/annex-privacy-singapore.md`: same pattern applied to the PDPC Model Governance Framework reference.
+[`privacy/jurisdictions/annex-privacy-united-states.md`](privacy/jurisdictions/annex-privacy-united-states.md): "voluntary, widely adopted" → "voluntary; broadly adopted in US enterprise practice as of 2026".
+[`privacy/jurisdictions/annex-privacy-singapore.md`](privacy/jurisdictions/annex-privacy-singapore.md): same pattern applied to the PDPC Model Governance Framework reference.
 
 ### AI-assistance transparency note
 
-`CONTRIBUTING.md`: new "AI-assisted authorship" section declaring that a substantial portion of the library was authored with AI assistance and then human-reviewed. Contributors are reminded that they remain accountable for content, that framework citations must be verified against primary sources (the citation linter prevents known-hallucination reintroduction but does not substitute for new-citation verification), and that organisation-neutrality must be preserved.
+[`CONTRIBUTING.md`](CONTRIBUTING.md): new "AI-assisted authorship" section declaring that a substantial portion of the library was authored with AI assistance and then human-reviewed. Contributors are reminded that they remain accountable for content, that framework citations must be verified against primary sources (the citation linter prevents known-hallucination reintroduction but does not substitute for new-citation verification), and that organisation-neutrality must be preserved.
 
 ### Supplier Risk Maintainer role formalised
 
-`governance/register-role-authority.md`: "Supplier Risk Maintainer" added as a role distinct from "Supplier Owner" (the latter is per-supplier; the former maintains the cross-supplier governance content). Resolves the audit finding that "Supplier Risk Maintainer" was used as a metadata owner in supply-chain documents without being defined in the role authority register.
+[`governance/register-role-authority.md`](governance/register-role-authority.md): "Supplier Risk Maintainer" added as a role distinct from "Supplier Owner" (the latter is per-supplier; the former maintains the cross-supplier governance content). Resolves the audit finding that "Supplier Risk Maintainer" was used as a metadata owner in supply-chain documents without being defined in the role authority register.
 
 Taxonomy, portal, and maturity scorecard regenerated.
 
@@ -1778,27 +1809,27 @@ Resolves six AI realism findings from the comprehensive audit. The AI domain now
 
 ### Eval cadence realism
 
-- `ai/procedure-foundation-model-lifecycle.md` (v0.0.1 → v0.0.2) Step 5: "Eval suite regression run at least monthly" recalibrated to "at minimum quarterly; monthly where the eval-suite cost and infrastructure permit". Eval scope, sample size, and the metrics evaluated are explicitly required to be documented per model so the cadence is substantive rather than nominal.
+- [`ai/procedure-foundation-model-lifecycle.md`](ai/procedure-foundation-model-lifecycle.md) (v0.0.1 → v0.0.2) Step 5: "Eval suite regression run at least monthly" recalibrated to "at minimum quarterly; monthly where the eval-suite cost and infrastructure permit". Eval scope, sample size, and the metrics evaluated are explicitly required to be documented per model so the cadence is substantive rather than nominal.
 
 ### Material change thresholds harmonised
 
-- `ai/framework-ai-governance-and-risk.md` (v1.0.0 → v1.1.0): new "Material change thresholds" sub-section under the lifecycle model. Defaults specified across eight dimensions: capability performance (≥5%), cost (≥20%, consistent with the AI cost governance standard), user population, data category, tool surface, provider version, regulatory environment, supplier change. Two or more dimensions crossing simultaneously is material regardless of individual magnitude.
+- [`ai/framework-ai-governance-and-risk.md`](ai/framework-ai-governance-and-risk.md) (v1.0.0 → v1.1.0): new "Material change thresholds" sub-section under the lifecycle model. Defaults specified across eight dimensions: capability performance (≥5%), cost (≥20%, consistent with the AI cost governance standard), user population, data category, tool surface, provider version, regulatory environment, supplier change. Two or more dimensions crossing simultaneously is material regardless of individual magnitude.
 
 ### Agent self-protection threat model
 
-- `ai/standard-ai-access-and-agent-permissions.md` (v0.0.1 → v0.0.2): new §4.1.1 "Agent self-protection (defence in depth)". Seven controls covering allow-list enforcement point (outside the model, not by it), tool-registration boundary, schema validation, untrusted-content marker, cross-tool data-flow control, privilege-escalation prevention, and high-priority logging. Cross-reference to OWASP MCP Top 10 risk categories added.
+- [`ai/standard-ai-access-and-agent-permissions.md`](ai/standard-ai-access-and-agent-permissions.md) (v0.0.1 → v0.0.2): new §4.1.1 "Agent self-protection (defence in depth)". Seven controls covering allow-list enforcement point (outside the model, not by it), tool-registration boundary, schema validation, untrusted-content marker, cross-tool data-flow control, privilege-escalation prevention, and high-priority logging. Cross-reference to OWASP MCP Top 10 risk categories added.
 
 ### Identity propagation mechanics
 
-- `ai/standard-ai-access-and-agent-permissions.md` §4.3.1: four concrete propagation patterns documented (Token Exchange RFC 8693, OAuth On-Behalf-Of, workload-identity-with-claim-propagation, step-up at the boundary), each with a "when appropriate" guideline. Boundary-validation requirements expanded with signature/issuer, audience, lifetime, subject-vs-agent, tenant scoping, replay protection. Token-format defaults documented (JWT per RFC 7519 with JWT BCP per RFC 8725; alternatives permitted).
+- [`ai/standard-ai-access-and-agent-permissions.md`](ai/standard-ai-access-and-agent-permissions.md) §4.3.1: four concrete propagation patterns documented (Token Exchange RFC 8693, OAuth On-Behalf-Of, workload-identity-with-claim-propagation, step-up at the boundary), each with a "when appropriate" guideline. Boundary-validation requirements expanded with signature/issuer, audience, lifetime, subject-vs-agent, tenant scoping, replay protection. Token-format defaults documented (JWT per RFC 7519 with JWT BCP per RFC 8725; alternatives permitted).
 
 ### Deletion-propagation honest scope
 
-- `ai/procedure-training-data-governance.md` (v0.0.1 → v0.0.2) Step 6: new "Limits of deletion propagation (honest scope)" table distinguishing guaranteed outcomes (dataset removal, embeddings in active vector stores, backup copies at cycle) from best-effort outcomes (production-served models trained on the data, fine-tunes and adapters) from out-of-scope (external models the organisation does not control). Adopting organisations are explicitly enjoined to distinguish what they can guarantee from what is best-effort when communicating to data subjects and regulators.
+- [`ai/procedure-training-data-governance.md`](ai/procedure-training-data-governance.md) (v0.0.1 → v0.0.2) Step 6: new "Limits of deletion propagation (honest scope)" table distinguishing guaranteed outcomes (dataset removal, embeddings in active vector stores, backup copies at cycle) from best-effort outcomes (production-served models trained on the data, fine-tunes and adapters) from out-of-scope (external models the organisation does not control). Adopting organisations are explicitly enjoined to distinguish what they can guarantee from what is best-effort when communicating to data subjects and regulators.
 
 ### Hard cost ceiling enforcement architecture
 
-- `ai/standard-ai-inference-cost-governance.md` (v0.0.1 → v0.0.2): new §3.1 "Enforcement architecture". Four layers documented in ordering preference: application middleware per-request gating (required and primary), provider rate-limit configuration (secondary safeguard), provider commitment ceiling (backstop), post-billing reconciliation (detective). Hard kill switch implementation explicitly placed in the application middleware layer; documented fallback behaviour (non-AI response, cached value, explicit message) when the switch is toggled. Kill-switch operation tested per the resilience programme.
+- [`ai/standard-ai-inference-cost-governance.md`](ai/standard-ai-inference-cost-governance.md) (v0.0.1 → v0.0.2): new §3.1 "Enforcement architecture". Four layers documented in ordering preference: application middleware per-request gating (required and primary), provider rate-limit configuration (secondary safeguard), provider commitment ceiling (backstop), post-billing reconciliation (detective). Hard kill switch implementation explicitly placed in the application middleware layer; documented fallback behaviour (non-AI response, cached value, explicit message) when the switch is toggled. Kill-switch operation tested per the resilience programme.
 
 ### Coordination
 
@@ -1810,7 +1841,7 @@ Taxonomy, portal, and maturity scorecard regenerated.
 
 Resolves the role-bandwidth-overload finding by splitting the overloaded `AI Governance Maintainer` role into three named roles, each with a clearly bounded scope. The umbrella `AI Governance Lead` role retained as the secretariat / chair function on the AI Governance Council.
 
-### New roles defined in `governance/register-role-authority.md` (v1.0.0 → v1.1.0)
+### New roles defined in [`governance/register-role-authority.md`](governance/register-role-authority.md) (v1.0.0 → v1.1.0)
 
 - **AI Governance Approver** — approval decisions for AI policies, frameworks, standards, deployment gates, foundation-model selection, risk-classification approvals, and material lifecycle changes.
 - **AI Data Steward** — training-data governance, dataset acceptance, deletion-propagation, lineage tracking, sensitive-content controls, and dataset documentation (datasheets).
@@ -1824,19 +1855,19 @@ The umbrella `AI Governance Lead` role description updated to declare it as the 
 
 Owner-field reassignments by responsibility area:
 
-- **AI Governance Approver** (the policy/framework/decision standards): `ai/README.md`, `ai/framework-ai-governance-and-risk.md`, `ai/framework-ai-model-risk.md`, `ai/standard-ai-model-risk.md`, `ai/standard-ai-inference-cost-governance.md`, `ai/procedure-foundation-model-lifecycle.md`, `ai/procedure-ai-model-risk-assessment.md`, `supply-chain/procedure-third-party-ai-due-diligence.md`. Governance index rows for `ai/policy-ai-compliance.md`, `ai/framework-ai-system-audit-certification.md`, `ai/checklist-ai-algorithmic-compliance.md` also reassigned.
-- **AI Data Steward** (training-data, datasheet): `ai/procedure-training-data-governance.md`, `ai/template-dataset-datasheet.md`.
-- **AI System Inventory Keeper** (registries, cards, lifecycle mapping): `ai/register-model-registry.md`, `ai/template-ai-system-register.md`, `ai/template-model-card.md`, `ai/template-system-card.md`, `ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md`.
+- **AI Governance Approver** (the policy/framework/decision standards): [`ai/README.md`](ai/README.md), [`ai/framework-ai-governance-and-risk.md`](ai/framework-ai-governance-and-risk.md), [`ai/framework-ai-model-risk.md`](ai/framework-ai-model-risk.md), [`ai/standard-ai-model-risk.md`](ai/standard-ai-model-risk.md), [`ai/standard-ai-inference-cost-governance.md`](ai/standard-ai-inference-cost-governance.md), [`ai/procedure-foundation-model-lifecycle.md`](ai/procedure-foundation-model-lifecycle.md), [`ai/procedure-ai-model-risk-assessment.md`](ai/procedure-ai-model-risk-assessment.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](supply-chain/procedure-third-party-ai-due-diligence.md). Governance index rows for [`ai/policy-ai-compliance.md`](ai/policy-ai-compliance.md), [`ai/framework-ai-system-audit-certification.md`](ai/framework-ai-system-audit-certification.md), [`ai/checklist-ai-algorithmic-compliance.md`](ai/checklist-ai-algorithmic-compliance.md) also reassigned.
+- **AI Data Steward** (training-data, datasheet): [`ai/procedure-training-data-governance.md`](ai/procedure-training-data-governance.md), [`ai/template-dataset-datasheet.md`](ai/template-dataset-datasheet.md).
+- **AI System Inventory Keeper** (registries, cards, lifecycle mapping): [`ai/register-model-registry.md`](ai/register-model-registry.md), [`ai/template-ai-system-register.md`](ai/template-ai-system-register.md), [`ai/template-model-card.md`](ai/template-model-card.md), [`ai/template-system-card.md`](ai/template-system-card.md), [`ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md`](ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md).
 
 Body-content references in seven files retargeted to the appropriate sub-role per responsibility area:
 
-- `ai/procedure-foundation-model-lifecycle.md`: candidate-list maintenance → AI System Inventory Keeper.
-- `ai/procedure-training-data-governance.md`: dataset acceptance and recording → AI Data Steward.
-- `ai/standard-ai-inference-cost-governance.md`: cost-dashboard ownership and anomaly summary → AI Governance Approver.
-- `ai/template-dataset-datasheet.md`: dataset sign-off role → AI Data Steward.
-- `ai/register-model-registry.md`: quarterly registry review → AI System Inventory Keeper.
-- `privacy/register-automated-decision-making.md`: cross-register consistency owner → AI System Inventory Keeper.
-- `resilience/register-resilience-metrics-and-testing-log.md`: AI resilience metric owner → AI System Inventory Keeper.
+- [`ai/procedure-foundation-model-lifecycle.md`](ai/procedure-foundation-model-lifecycle.md): candidate-list maintenance → AI System Inventory Keeper.
+- [`ai/procedure-training-data-governance.md`](ai/procedure-training-data-governance.md): dataset acceptance and recording → AI Data Steward.
+- [`ai/standard-ai-inference-cost-governance.md`](ai/standard-ai-inference-cost-governance.md): cost-dashboard ownership and anomaly summary → AI Governance Approver.
+- [`ai/template-dataset-datasheet.md`](ai/template-dataset-datasheet.md): dataset sign-off role → AI Data Steward.
+- [`ai/register-model-registry.md`](ai/register-model-registry.md): quarterly registry review → AI System Inventory Keeper.
+- [`privacy/register-automated-decision-making.md`](privacy/register-automated-decision-making.md): cross-register consistency owner → AI System Inventory Keeper.
+- [`resilience/register-resilience-metrics-and-testing-log.md`](resilience/register-resilience-metrics-and-testing-log.md): AI resilience metric owner → AI System Inventory Keeper.
 
 A reader of any AI document now sees a single, scope-appropriate role; no role is asked to be the owner of approvals, data stewardship, and inventory maintenance simultaneously.
 
@@ -1848,22 +1879,22 @@ Resolves three scope-collision findings from the comprehensive audit by adding e
 
 ### Cloud baselines — operations vs dev-security
 
-- `operations/standard-cloud-security-configuration-baseline.md` (v1.3.0 → v1.4.0): new §2.1 "Scope boundary with dev-security cloud hardening baselines" with a per-subject table mapping enterprise-tenant administration (this standard) to workload-level concerns (dev-security baselines).
-- `dev-security/standard-cloud-hardening-baseline-aws.md` (v0.0.1 → v0.0.2): new "Scope boundary with the operations cloud configuration baseline" sub-section.
-- `dev-security/standard-cloud-hardening-baseline-azure.md` (v0.0.1 → v0.0.2): same.
-- `dev-security/standard-cloud-hardening-baseline-gcp.md` (v0.0.1 → v0.0.2): same.
+- [`operations/standard-cloud-security-configuration-baseline.md`](operations/standard-cloud-security-configuration-baseline.md) (v1.3.0 → v1.4.0): new §2.1 "Scope boundary with dev-security cloud hardening baselines" with a per-subject table mapping enterprise-tenant administration (this standard) to workload-level concerns (dev-security baselines).
+- [`dev-security/standard-cloud-hardening-baseline-aws.md`](dev-security/standard-cloud-hardening-baseline-aws.md) (v0.0.1 → v0.0.2): new "Scope boundary with the operations cloud configuration baseline" sub-section.
+- [`dev-security/standard-cloud-hardening-baseline-azure.md`](dev-security/standard-cloud-hardening-baseline-azure.md) (v0.0.1 → v0.0.2): same.
+- [`dev-security/standard-cloud-hardening-baseline-gcp.md`](dev-security/standard-cloud-hardening-baseline-gcp.md) (v0.0.1 → v0.0.2): same.
 
 A workload now reads as conforming to both standards with a clear division of authority.
 
 ### Logging vs observability — routing rule
 
-- `security/standard-logging-and-monitoring.md` (v1.3.0 → v1.4.0): new "Scope boundary with the operations observability and telemetry standard" sub-section with an event-class routing table. Security-relevant events route to SIEM; operational signals route to observability; dual-purpose events emitted to both with shared trace identifiers. Also: BASC residue in the Scope section (caught here, missed by Phase 12.3) replaced with a sector-overlay pointer.
-- `operations/standard-observability-and-telemetry.md` (v0.0.1 → v0.0.2): reciprocal note pointing back to the security standard's routing table.
+- [`security/standard-logging-and-monitoring.md`](security/standard-logging-and-monitoring.md) (v1.3.0 → v1.4.0): new "Scope boundary with the operations observability and telemetry standard" sub-section with an event-class routing table. Security-relevant events route to SIEM; operational signals route to observability; dual-purpose events emitted to both with shared trace identifiers. Also: BASC residue in the Scope section (caught here, missed by Phase 12.3) replaced with a sector-overlay pointer.
+- [`operations/standard-observability-and-telemetry.md`](operations/standard-observability-and-telemetry.md) (v0.0.1 → v0.0.2): reciprocal note pointing back to the security standard's routing table.
 
 ### API design vs API security — approval sequence
 
-- `architecture/standard-api-design.md` (v0.0.1 → v0.0.2): new "Relationship to the API security standard and approval sequence" sub-section documenting the design-gate → threat-model-gate → implementation sequence.
-- `dev-security/standard-api-security.md` (v0.0.1 → v0.0.2): reciprocal sub-section with the same sequence; conditional-endorsement loop documented for cases where a security finding requires reshaping the contract.
+- [`architecture/standard-api-design.md`](architecture/standard-api-design.md) (v0.0.1 → v0.0.2): new "Relationship to the API security standard and approval sequence" sub-section documenting the design-gate → threat-model-gate → implementation sequence.
+- [`dev-security/standard-api-security.md`](dev-security/standard-api-security.md) (v0.0.1 → v0.0.2): reciprocal sub-section with the same sequence; conditional-endorsement loop documented for cases where a security finding requires reshaping the contract.
 
 Taxonomy, portal, and maturity scorecard regenerated.
 
@@ -1873,27 +1904,27 @@ Resolves the `[Unverified]`-tag-in-mandatory-policy finding, the phantom "IT Ope
 
 ### `[Unverified]` tags removed from mandatory policy text
 
-- `governance/policy-exception-and-risk-acceptance-management.md` (v1.0.0 → v1.0.1):
+- [`governance/policy-exception-and-risk-acceptance-management.md`](governance/policy-exception-and-risk-acceptance-management.md) (v1.0.0 → v1.0.1):
   - §7.1: removed `[Unverified]` marker and softened "shall implement" to "may implement"; the machine-readable exception registry is reclassified as a recommended practice rather than a mandatory `shall` obligation.
   - §7 heading updated from "(future readiness)" to "(recommended where automation is practical)".
   - References table: removed `[Unverified]` qualifier on the NIST AI RMF 1.0 entry.
   - Compliance mapping table: replaced `[Draft 2026 Reference]` / `[Unverified]` cells with concrete framework references for the recommended-registry row.
-- `compliance/policy-compliance-and-audit-management.md` (v1.0.0 → v1.0.1):
+- [`compliance/policy-compliance-and-audit-management.md`](compliance/policy-compliance-and-audit-management.md) (v1.0.0 → v1.0.1):
   - §5.3: removed `[Unverified]` marker; reframed as a where-cost-justifies recommendation.
   - References list: removed the "Draft 2026 ISO 37301 Revision" `[Unverified]` entry.
 
 ### Phantom "IT Operations Documentation Framework" dependency resolved
 
-- `compliance/policy-compliance-and-audit-management.md` §2.4: replaced the reference with concrete pointers to `governance/standard-records-retention-and-destruction.md` (for retention) and `operations/framework-it-service-management.md` (for ITSM-aligned documentation).
-- `resilience/plan-it-disaster-recovery.md`: same reference replaced with a concrete pointer to the recovery runbook template.
+- [`compliance/policy-compliance-and-audit-management.md`](compliance/policy-compliance-and-audit-management.md) §2.4: replaced the reference with concrete pointers to [`governance/standard-records-retention-and-destruction.md`](governance/standard-records-retention-and-destruction.md) (for retention) and [`operations/framework-it-service-management.md`](operations/framework-it-service-management.md) (for ITSM-aligned documentation).
+- [`resilience/plan-it-disaster-recovery.md`](resilience/plan-it-disaster-recovery.md): same reference replaced with a concrete pointer to the recovery runbook template.
 
 ### Internal hostname in AI code example replaced with generic placeholders
 
-- `ai/guide-ai-security-technical-implementation.md` (v1.3.0 → v1.3.1) line 493: `Server=db-server.internal;Database=AppDB` replaced with `Server=[DATABASE_HOSTNAME];Database=[DATABASE_NAME]`. The example continues to demonstrate the prohibited pattern but no longer reads as sanitisation residue from an internal codebase.
+- [`ai/guide-ai-security-technical-implementation.md`](ai/guide-ai-security-technical-implementation.md) (v1.3.0 → v1.3.1) line 493: `Server=db-server.internal;Database=AppDB` replaced with `Server=[DATABASE_HOSTNAME];Database=[DATABASE_NAME]`. The example continues to demonstrate the prohibited pattern but no longer reads as sanitisation residue from an internal codebase.
 
 ### Citation denylist extended
 
-`tools/lint-citations.py` denylist now also pins "Draft 2026 ISO 37301" and "IT Operations Documentation Framework" so neither can be reintroduced silently.
+[`tools/lint-citations.py`](tools/lint-citations.py) denylist now also pins "Draft 2026 ISO 37301" and "IT Operations Documentation Framework" so neither can be reintroduced silently.
 
 Taxonomy, portal, and maturity scorecard regenerated.
 
@@ -1903,17 +1934,17 @@ Resolves the duplicate-authority finding identified by the comprehensive audit. 
 
 ### Merged
 
-- `risk/standard-third-party-and-supply-chain-risk.md` (v1.0.0 → v1.1.0): becomes the sole, master third-party-and-supply-chain risk standard for the library. Augmented with the supply-chain document's lifecycle content: an explicit AI service-provider contract-clause sub-section (dataset lineage, model validation per ISO/IEC 42001 §9, ethical sourcing, no-training-on-customer-data, deprecation notice, cross-border mechanism); supporting-tooling references in the monitoring section (TPRAQ, security-rating services, threat intelligence); a dedicated Offboarding and contract termination section; framework alignment expanded with ISO/IEC 27036-3, NIST SP 800-161r2, COBIT 2019 APO10, and CSA CCM v4.1 STA-02. A `supersedes` sentence references the deleted file.
+- [`risk/standard-third-party-and-supply-chain-risk.md`](risk/standard-third-party-and-supply-chain-risk.md) (v1.0.0 → v1.1.0): becomes the sole, master third-party-and-supply-chain risk standard for the library. Augmented with the supply-chain document's lifecycle content: an explicit AI service-provider contract-clause sub-section (dataset lineage, model validation per ISO/IEC 42001 §9, ethical sourcing, no-training-on-customer-data, deprecation notice, cross-border mechanism); supporting-tooling references in the monitoring section (TPRAQ, security-rating services, threat intelligence); a dedicated Offboarding and contract termination section; framework alignment expanded with ISO/IEC 27036-3, NIST SP 800-161r2, COBIT 2019 APO10, and CSA CCM v4.1 STA-02. A `supersedes` sentence references the deleted file.
 
 ### Deleted
 
-- `supply-chain/standard-third-party-risk.md` (was v1.0.0): consolidated into the risk-domain master per the audit recommendation.
+- [`supply-chain/standard-third-party-risk.md`](supply-chain/standard-third-party-risk.md) (was v1.0.0): consolidated into the risk-domain master per the audit recommendation.
 
 ### Cross-references updated
 
 21 files updated to point at the consolidated risk-domain standard. Affected directories: compliance/, dev-security/, governance/, operations/, security/, supply-chain/.
 
-- Governance index `governance/register-document-index-and-classification.md` (v1.21.0 → v1.22.0): the supply-chain duplicate row removed; risk-domain row retained.
+- Governance index [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (v1.21.0 → v1.22.0): the supply-chain duplicate row removed; risk-domain row retained.
 - Supply-chain README (v1.1.0 → v1.2.0): supply-chain TPR row removed from active documents.
 
 ### Result
@@ -1924,40 +1955,40 @@ Taxonomy, portal, and maturity scorecard regenerated.
 
 ## Phase 12.3 (2026-05-28): BASC migration to /sectors/ domain (organisation-neutrality)
 
-Resolves the organisation-neutrality violation identified by the comprehensive audit. The library declared itself "organization-neutral" in `README.md` while three core policy documents explicitly scoped themselves to "BASC-certified logistics operations in Latin America (Colombia, Mexico, Peru, Chile)" and the compliance domain hosted a BASC-specific policy and two BASC registers as if universal content.
+Resolves the organisation-neutrality violation identified by the comprehensive audit. The library declared itself "organization-neutral" in [`README.md`](README.md) while three core policy documents explicitly scoped themselves to "BASC-certified logistics operations in Latin America (Colombia, Mexico, Peru, Chile)" and the compliance domain hosted a BASC-specific policy and two BASC registers as if universal content.
 
 ### Structural change
 
 New top-level directory `/sectors/` created for optional, programme-conditional governance content. Organisations not participating in a covered sector programme can omit the corresponding annex entirely without affecting the main library.
 
-- `sectors/README.md` (new, v1.0.0): domain register describing the sector-annex pattern, applicability rules, and relationship to the main library.
-- `compliance/logistics/annex-basc-programme-overview.md` (new, v1.0.0): BASC sub-register describing applicability and listing active BASC documents.
+- [`sectors/README.md`](sectors/README.md) (new, v1.0.0): domain register describing the sector-annex pattern, applicability rules, and relationship to the main library.
+- [`compliance/logistics/annex-basc-programme-overview.md`](compliance/logistics/annex-basc-programme-overview.md) (new, v1.0.0): BASC sub-register describing applicability and listing active BASC documents.
 
 ### Files moved (git history preserved via `git mv`)
 
-- `compliance/policy-basc.md` → `compliance/logistics/policy-basc-information-security.md` (v1.0.0 → v1.1.0; renamed to reflect canonical naming; Category updated from "Compliance Management" to "Sector Annex"; cross-references updated)
-- `compliance/register-basc-it-responsibilities.md` → `compliance/logistics/register-basc-it-responsibilities.md` (v1.0.0 → v1.1.0; same updates)
-- `compliance/register-basc-it-compliance-kpis.md` → `compliance/logistics/register-basc-it-compliance-kpis.md` (v1.0.0 → v1.1.0; same updates)
+- [`compliance/policy-basc.md`](compliance/policy-basc.md) → [`compliance/logistics/policy-basc-information-security.md`](compliance/logistics/policy-basc-information-security.md) (v1.0.0 → v1.1.0; renamed to reflect canonical naming; Category updated from "Compliance Management" to "Sector Annex"; cross-references updated)
+- [`compliance/register-basc-it-responsibilities.md`](compliance/register-basc-it-responsibilities.md) → [`compliance/logistics/register-basc-it-responsibilities.md`](compliance/logistics/register-basc-it-responsibilities.md) (v1.0.0 → v1.1.0; same updates)
+- [`compliance/register-basc-it-compliance-kpis.md`](compliance/register-basc-it-compliance-kpis.md) → [`compliance/logistics/register-basc-it-compliance-kpis.md`](compliance/logistics/register-basc-it-compliance-kpis.md) (v1.0.0 → v1.1.0; same updates)
 
 ### BASC scoping stripped from main-domain documents
 
-- `security/policy-information-security.md`: scope section, governance section, network section (4.1, 4.3, 4.4), data section (7.1, 7.2, 7.3), incident section (9.1, 9.2), framework alignment (line 145) — generalised; sector overlay pointer added. Inline NIST AI RMF 1.1 reference (missed by Phase 12.1 because of bare "AI RMF" form) corrected to NIST AI RMF 1.0.
-- `risk/policy-enterprise-governance-and-risk-management.md`: scope section generalised; sector overlay pointer added.
-- `risk/standard-enterprise-risk-management.md`: scope section generalised; sector overlay pointer added.
-- `governance/standard-records-retention-and-destruction.md`: BASC-specific Section 6 generalised into "sector-specific retention overlays" with pointer to `/sectors/` and the transportation-and-logistics sector annex in `/compliance/`.
+- [`security/policy-information-security.md`](security/policy-information-security.md): scope section, governance section, network section (4.1, 4.3, 4.4), data section (7.1, 7.2, 7.3), incident section (9.1, 9.2), framework alignment (line 145) — generalised; sector overlay pointer added. Inline NIST AI RMF 1.1 reference (missed by Phase 12.1 because of bare "AI RMF" form) corrected to NIST AI RMF 1.0.
+- [`risk/policy-enterprise-governance-and-risk-management.md`](risk/policy-enterprise-governance-and-risk-management.md): scope section generalised; sector overlay pointer added.
+- [`risk/standard-enterprise-risk-management.md`](risk/standard-enterprise-risk-management.md): scope section generalised; sector overlay pointer added.
+- [`governance/standard-records-retention-and-destruction.md`](governance/standard-records-retention-and-destruction.md): BASC-specific Section 6 generalised into "sector-specific retention overlays" with pointer to `/sectors/` and the transportation-and-logistics sector annex in `/compliance/`.
 
 ### Cross-references updated
 
-Cross-references to old BASC paths updated in: `compliance/README.md` (v1.1.0 → v1.2.0), `compliance/annex-transportation-and-logistics-sector-requirements.md`, `compliance/matrix-grc-compliance-alignment.md`, `compliance/register-ctpat-it-controls.md`, `compliance/register-pip-compliance-controls.md`, `compliance/template-trade-compliance-gap-assessment.md`, `governance/matrix-reverse-framework-control-crosswalk.md`, `governance/register-document-index-and-classification.md` (v1.20.0 → v1.21.0; three BASC rows reclassified from Compliance to Sectors domain), `supply-chain/README.md`, `supply-chain/matrix-supply-chain-security-programme-alignment.md`, `supply-chain/register-ctpat-full-msc-controls.md`.
+Cross-references to old BASC paths updated in: [`compliance/README.md`](compliance/README.md) (v1.1.0 → v1.2.0), [`compliance/annex-transportation-and-logistics-sector-requirements.md`](compliance/annex-transportation-and-logistics-sector-requirements.md), [`compliance/matrix-grc-compliance-alignment.md`](compliance/matrix-grc-compliance-alignment.md), [`compliance/register-ctpat-it-controls.md`](compliance/register-ctpat-it-controls.md), [`compliance/register-pip-compliance-controls.md`](compliance/register-pip-compliance-controls.md), [`compliance/template-trade-compliance-gap-assessment.md`](compliance/template-trade-compliance-gap-assessment.md), [`governance/matrix-reverse-framework-control-crosswalk.md`](governance/matrix-reverse-framework-control-crosswalk.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (v1.20.0 → v1.21.0; three BASC rows reclassified from Compliance to Sectors domain), [`supply-chain/README.md`](supply-chain/README.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](supply-chain/matrix-supply-chain-security-programme-alignment.md), [`supply-chain/register-ctpat-full-msc-controls.md`](supply-chain/register-ctpat-full-msc-controls.md).
 
 ### Tooling updates
 
-`sectors` added to the DOMAINS / scan-path lists in `tools/build-taxonomy.py`, `tools/lint-structure.py`, `tools/lint-metadata.py`, `tools/lint-language.py`, `tools/lint-links.py`, `tools/lint-citations.py`, `tools/check-review-cadence.py`. New denylist entry in `tools/lint-citations.py` for bare "AI RMF 1.1" form to complement the existing "NIST AI RMF 1.1" entry.
+`sectors` added to the DOMAINS / scan-path lists in [`tools/build-taxonomy.py`](tools/build-taxonomy.py), [`tools/lint-structure.py`](tools/lint-structure.py), [`tools/lint-metadata.py`](tools/lint-metadata.py), [`tools/lint-language.py`](tools/lint-language.py), [`tools/lint-links.py`](tools/lint-links.py), [`tools/lint-citations.py`](tools/lint-citations.py), [`tools/check-review-cadence.py`](tools/check-review-cadence.py). New denylist entry in [`tools/lint-citations.py`](tools/lint-citations.py) for bare "AI RMF 1.1" form to complement the existing "NIST AI RMF 1.1" entry.
 
 ### Top-level updates
 
-- `README.md` (v1.5.1 → v1.5.2, patch per the standing rule): new `/sectors/` directory entry added to the repository structure; document-count statement updated to mention the optional sector-annex domain.
-- `specification-master-project.md` (v1.2.4 → v1.2.5): `/sectors/` added to the directory listing and the domain purpose summary.
+- [`README.md`](README.md) (v1.5.1 → v1.5.2, patch per the standing rule): new `/sectors/` directory entry added to the repository structure; document-count statement updated to mention the optional sector-annex domain.
+- [`specification-master-project.md`](specification-master-project.md) (v1.2.4 → v1.2.5): `/sectors/` added to the directory listing and the domain purpose summary.
 
 Taxonomy, portal, and maturity scorecard regenerated.
 
@@ -1965,7 +1996,7 @@ Taxonomy, portal, and maturity scorecard regenerated.
 
 Resolves the charter status whereby the AI Governance Council was declared "in formation" with full operationalisation targeted for Q3 2026 while 16+ AI documents referenced its approval as binding. The council is now an active governance body.
 
-- `ai/charter-ai-governance-council.md` (v1.0.0 → v1.1.0): the "in formation" note removed. Composition table restated with eleven active seats: Chair (Chief Information Security Officer), Deputy Chair (Chief Information Officer), and members covering Chief Technology Officer, Chief Financial Officer, Chief Human Resources Officer, General Counsel, Chief Privacy Officer, Chief Risk Officer, AI Governance Lead (secretariat), Business Domain Representative (rotating), and Independent External Adviser (standing observer). The Chair confirms each meeting's roster; where a seat is unfilled the role's delegate or an acting appointee designated by the Chair exercises the responsibility. Quorum is the Chair (or Deputy Chair) plus four members.
+- [`ai/charter-ai-governance-council.md`](ai/charter-ai-governance-council.md) (v1.0.0 → v1.1.0): the "in formation" note removed. Composition table restated with eleven active seats: Chair (Chief Information Security Officer), Deputy Chair (Chief Information Officer), and members covering Chief Technology Officer, Chief Financial Officer, Chief Human Resources Officer, General Counsel, Chief Privacy Officer, Chief Risk Officer, AI Governance Lead (secretariat), Business Domain Representative (rotating), and Independent External Adviser (standing observer). The Chair confirms each meeting's roster; where a seat is unfilled the role's delegate or an acting appointee designated by the Chair exercises the responsibility. Quorum is the Chair (or Deputy Chair) plus four members.
 
 The charter now reads as an active body; all downstream AI documents that reference AIGC approval as binding are unblocked. No other document changes were required; the existing dependency chain assumes the council can act, which is now true.
 
@@ -1977,9 +2008,9 @@ Corrects three repository-wide framework citation hallucinations identified by t
 
 - **COBIT 2025 → COBIT 2019**: 132 replacements across 78 files. ISACA's current published COBIT version is COBIT 2019; "COBIT 2025" does not exist. Process identifiers cited alongside (APO01, APO14, BAI09, MEA01, MEA02, APO06, APO07, etc.) are valid COBIT 2019 process IDs.
 - **CSA CCM v5 → CSA CCM v4.1**: 115 replacements across 75 files. CSA's current Cloud Controls Matrix version is v4.1; "CCM v5" does not exist. Domain identifiers cited alongside (AIS, DSP, GOV, GRM, SEF, IVS, IAM, LOG, IPY, TIM, EKM, END, TVM, SR) are valid CCM v4 domain prefixes.
-- **NIST AI RMF 1.1 → NIST AI RMF 1.0 (with AI 600-1 GenAI Profile)**: 1 replacement in `governance/policy-exception-and-risk-acceptance-management.md`. NIST AI RMF was published as version 1.0; the Generative AI Profile is published as NIST AI 600-1.
+- **NIST AI RMF 1.1 → NIST AI RMF 1.0 (with AI 600-1 GenAI Profile)**: 1 replacement in [`governance/policy-exception-and-risk-acceptance-management.md`](governance/policy-exception-and-risk-acceptance-management.md). NIST AI RMF was published as version 1.0; the Generative AI Profile is published as NIST AI 600-1.
 
-New tool: `tools/lint-citations.py` — stdlib-only Python linter that pins known-hallucinated framework strings on a denylist and reports any reintroduction. Exits non-zero on findings; suitable for CI integration. Denylist currently covers the three patterns above. `CONTRIBUTING.md` updated to list the linter in the local audit suite (now 8 audits).
+New tool: [`tools/lint-citations.py`](tools/lint-citations.py) — stdlib-only Python linter that pins known-hallucinated framework strings on a denylist and reports any reintroduction. Exits non-zero on findings; suitable for CI integration. Denylist currently covers the three patterns above. [`CONTRIBUTING.md`](CONTRIBUTING.md) updated to list the linter in the local audit suite (now 8 audits).
 
 Historical CHANGELOG entries are preserved verbatim; their descriptions reference the strings as they existed at the time, which the linter exempts.
 
@@ -1989,20 +2020,20 @@ Source verification: ISACA COBIT page, CSA CCM artifacts page, NIST CSRC.
 
 Codifies the library maintenance practice with three new governance artefacts and a new audit tool. Closes the continuous-quality phase of the advisory review.
 
-- `governance/procedure-library-quality-and-review-cadence.md`: eight-step procedure covering schedule establishment, overdue detection, per-document review (currency, framework alignment, cross-reference, sanitisation, language, disposition, record), disposition application, derived-artefact maintenance, the standing audit suite (now seven audits), periodic library-level review (quarterly/semi-annual/annual cadences), and drift handling.
-- `governance/register-document-review-schedule.md`: schedule schema with eleven fields, review-frequency normalisation table, six status values (Current, Due-soon, Overdue, Action-threshold, Blocked, Retired), maintenance rules, operating cadence, integration with tooling, and reporting outputs.
-- `governance/template-document-review-record.md`: six-section per-document review record (identification, assessment of thirteen items, findings, disposition, actions, sign-off), style and length expectations, worked example.
+- [`governance/procedure-library-quality-and-review-cadence.md`](governance/procedure-library-quality-and-review-cadence.md): eight-step procedure covering schedule establishment, overdue detection, per-document review (currency, framework alignment, cross-reference, sanitisation, language, disposition, record), disposition application, derived-artefact maintenance, the standing audit suite (now seven audits), periodic library-level review (quarterly/semi-annual/annual cadences), and drift handling.
+- [`governance/register-document-review-schedule.md`](governance/register-document-review-schedule.md): schedule schema with eleven fields, review-frequency normalisation table, six status values (Current, Due-soon, Overdue, Action-threshold, Blocked, Retired), maintenance rules, operating cadence, integration with tooling, and reporting outputs.
+- [`governance/template-document-review-record.md`](governance/template-document-review-record.md): six-section per-document review record (identification, assessment of thirteen items, findings, disposition, actions, sign-off), style and length expectations, worked example.
 
 New tool:
 
-- `tools/check-review-cadence.py`: stdlib-only Python script that parses each active document's Date and Review Frequency metadata, computes next-review-due dates, and reports overdue and past-action-threshold entries with configurable warn-window and action-threshold parameters. Returns non-zero when documents are past the action threshold to gate CI.
+- [`tools/check-review-cadence.py`](tools/check-review-cadence.py): stdlib-only Python script that parses each active document's Date and Review Frequency metadata, computes next-review-due dates, and reports overdue and past-action-threshold entries with configurable warn-window and action-threshold parameters. Returns non-zero when documents are past the action threshold to gate CI.
 
 Supporting changes:
 
 - Governance README bumped 1.0.3 to 1.1.0 (minor: three substantive new rows).
-- Document index `governance/register-document-index-and-classification.md` bumped 1.19.0 to 1.20.0 (minor: three substantive new rows).
+- Document index [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) bumped 1.19.0 to 1.20.0 (minor: three substantive new rows).
 - Specification master bumped 1.2.3 to 1.2.4 (patch: architecture domain added to the repository structure listing).
-- `CONTRIBUTING.md` updated to list the full seven-audit suite local contributors should run.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) updated to list the full seven-audit suite local contributors should run.
 - Language linter exemption list extended to include the document review record template (which references the "ensure that" rule explicitly).
 - Taxonomy, portal, and maturity scorecard regenerated.
 
@@ -2012,133 +2043,133 @@ Baseline: 266 active documents scanned by the cadence checker; all current excep
 
 Establishes the new `/architecture/` domain. Each new artefact starts at version 0.0.1 per the ingestion specification.
 
-- `architecture/README.md`: domain register with 8 active documents and 6 domain-coverage areas.
-- `architecture/framework-enterprise-architecture.md`: ten-section framework (principles, viewpoints, capability model, target-state and transition, governance forum, roles, deliverables, integration with adjacent programmes, fitness functions, operating expectations) aligned to TOGAF, ISO/IEC/IEEE 42010, IT4IT, C4, DDD, Team Topologies, Wardley mapping, and Accelerate research.
-- `architecture/standard-architecture-decision-records.md`: ten-section ADR standard (principles, when to write, template, status lifecycle, review and approval, storage, integration with adjacent processes, AI-aware practice, quality expectations, anti-patterns).
-- `architecture/standard-reference-architecture.md`: ten-section reference-architecture practice (principles, classes, structure, maturity scale, authoring, consumption, deviation handling, maintenance, governance integration, quality expectations).
-- `architecture/standard-technology-radar.md`: ten-section radar standard (principles, four rings, quadrants, blip structure, lifecycle, governance, criteria, relationship to other artefacts, AI radar handling, exceptions).
-- `architecture/procedure-architecture-review.md`: eight-step architecture review procedure with reviewer assignment, dispositions, decision recording, implementation oversight, closure and learning, plus appeal process.
-- `architecture/standard-api-design.md`: fourteen-section API design standard (principles, style choice, REST conventions, contract and schema, identifiers, errors, versioning, time and units, documentation, pagination, idempotency, AI-callable APIs, customer-facing APIs, governance).
-- `architecture/standard-data-architecture.md`: fourteen-section data architecture standard (principles, domains and ownership, classification, schemas and contracts, integration, quality, lineage, lifecycle, analytical and AI platforms, sharing, master and reference data, governance forum, relationship to adjacent artefacts, anti-patterns).
-- `architecture/standard-integration-architecture.md`: fourteen-section integration standard (principles, pattern selection, classes, contracts, event-driven, synchronous, batch, webhooks, AI provider integration, observability, reliability patterns, security overlay, governance, anti-patterns).
+- [`architecture/README.md`](architecture/README.md): domain register with 8 active documents and 6 domain-coverage areas.
+- [`architecture/framework-enterprise-architecture.md`](architecture/framework-enterprise-architecture.md): ten-section framework (principles, viewpoints, capability model, target-state and transition, governance forum, roles, deliverables, integration with adjacent programmes, fitness functions, operating expectations) aligned to TOGAF, ISO/IEC/IEEE 42010, IT4IT, C4, DDD, Team Topologies, Wardley mapping, and Accelerate research.
+- [`architecture/standard-architecture-decision-records.md`](architecture/standard-architecture-decision-records.md): ten-section ADR standard (principles, when to write, template, status lifecycle, review and approval, storage, integration with adjacent processes, AI-aware practice, quality expectations, anti-patterns).
+- [`architecture/standard-reference-architecture.md`](architecture/standard-reference-architecture.md): ten-section reference-architecture practice (principles, classes, structure, maturity scale, authoring, consumption, deviation handling, maintenance, governance integration, quality expectations).
+- [`architecture/standard-technology-radar.md`](architecture/standard-technology-radar.md): ten-section radar standard (principles, four rings, quadrants, blip structure, lifecycle, governance, criteria, relationship to other artefacts, AI radar handling, exceptions).
+- [`architecture/procedure-architecture-review.md`](architecture/procedure-architecture-review.md): eight-step architecture review procedure with reviewer assignment, dispositions, decision recording, implementation oversight, closure and learning, plus appeal process.
+- [`architecture/standard-api-design.md`](architecture/standard-api-design.md): fourteen-section API design standard (principles, style choice, REST conventions, contract and schema, identifiers, errors, versioning, time and units, documentation, pagination, idempotency, AI-callable APIs, customer-facing APIs, governance).
+- [`architecture/standard-data-architecture.md`](architecture/standard-data-architecture.md): fourteen-section data architecture standard (principles, domains and ownership, classification, schemas and contracts, integration, quality, lineage, lifecycle, analytical and AI platforms, sharing, master and reference data, governance forum, relationship to adjacent artefacts, anti-patterns).
+- [`architecture/standard-integration-architecture.md`](architecture/standard-integration-architecture.md): fourteen-section integration standard (principles, pattern selection, classes, contracts, event-driven, synchronous, batch, webhooks, AI provider integration, observability, reliability patterns, security overlay, governance, anti-patterns).
 
-Document index `governance/register-document-index-and-classification.md` bumped 1.18.0 to 1.19.0 (minor: eight substantive new rows). Top-level README bumped 1.5.0 to 1.5.1 (patch: domain listing and document-count update). Tooling (`tools/build-taxonomy.py`, `tools/lint-structure.py`, `tools/lint-metadata.py`, `tools/lint-language.py`, `tools/lint-links.py`) updated to include the new domain in their scan lists. Taxonomy, portal, and maturity scorecard regenerated.
+Document index [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) bumped 1.18.0 to 1.19.0 (minor: eight substantive new rows). Top-level README bumped 1.5.0 to 1.5.1 (patch: domain listing and document-count update). Tooling ([`tools/build-taxonomy.py`](tools/build-taxonomy.py), [`tools/lint-structure.py`](tools/lint-structure.py), [`tools/lint-metadata.py`](tools/lint-metadata.py), [`tools/lint-language.py`](tools/lint-language.py), [`tools/lint-links.py`](tools/lint-links.py)) updated to include the new domain in their scan lists. Taxonomy, portal, and maturity scorecard regenerated.
 
 ## Phase 9.9 (2026-05-28): Risk and governance (4 new documents)
 
 Closes four risk and governance content gaps identified in the advisory review. Each new artefact starts at version 0.0.1 per the ingestion specification.
 
-- `risk/template-operational-risk-register.md`: ten-section operational risk register template (identification, scope and assumptions, risk entries, risk taxonomy, assessment scales, control linkage, scenario and emerging-risk linkage, loss events and near-misses, aggregation and reporting, integration), with a Basel-aligned taxonomy of thirteen categories and a worked example.
-- `risk/register-scenario-risk-catalogue.md`: scenario catalogue covering eleven classes (cyber attack, AI-specific, technology failure, supplier failure, people and conduct, external event, financial market, regulatory, reputational, climate-related, concurrent) with a reference set of fifty scenarios; severity calibration (moderate, severe-but-plausible, extreme); seven uses of the catalogue.
-- `risk/template-board-risk-report.md`: fourteen-section board-facing risk report template (cover, executive summary, risk appetite and tolerance, top enterprise risks, emerging risks, incidents and near-misses, regulatory and external environment, supplier and concentration, AI and emerging-technology risk, resilience and continuity, assurance, risk culture, board decisions requested, appendices) with style guidance, cadence, and preparation process.
-- `risk/register-assurance-map.md`: assurance map applying the three-lines model across twelve domains with a six-level assurance rating scale (green, amber-1, amber-2, red, not applicable, out of cycle), fourteen-activity taxonomy, governance forum, integration with the assurance plan, gap-management process, and a worked example.
+- [`risk/template-operational-risk-register.md`](risk/template-operational-risk-register.md): ten-section operational risk register template (identification, scope and assumptions, risk entries, risk taxonomy, assessment scales, control linkage, scenario and emerging-risk linkage, loss events and near-misses, aggregation and reporting, integration), with a Basel-aligned taxonomy of thirteen categories and a worked example.
+- [`risk/register-scenario-risk-catalogue.md`](risk/register-scenario-risk-catalogue.md): scenario catalogue covering eleven classes (cyber attack, AI-specific, technology failure, supplier failure, people and conduct, external event, financial market, regulatory, reputational, climate-related, concurrent) with a reference set of fifty scenarios; severity calibration (moderate, severe-but-plausible, extreme); seven uses of the catalogue.
+- [`risk/template-board-risk-report.md`](risk/template-board-risk-report.md): fourteen-section board-facing risk report template (cover, executive summary, risk appetite and tolerance, top enterprise risks, emerging risks, incidents and near-misses, regulatory and external environment, supplier and concentration, AI and emerging-technology risk, resilience and continuity, assurance, risk culture, board decisions requested, appendices) with style guidance, cadence, and preparation process.
+- [`risk/register-assurance-map.md`](risk/register-assurance-map.md): assurance map applying the three-lines model across twelve domains with a six-level assurance rating scale (green, amber-1, amber-2, red, not applicable, out of cycle), fourteen-activity taxonomy, governance forum, integration with the assurance plan, gap-management process, and a worked example.
 
-Document index `governance/register-document-index-and-classification.md` bumped 1.17.0 to 1.18.0 (minor: four substantive new rows). Risk README bumped 1.0.0 to 1.1.0 (minor: substantive section expansion). Taxonomy, portal, and maturity scorecard regenerated.
+Document index [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) bumped 1.17.0 to 1.18.0 (minor: four substantive new rows). Risk README bumped 1.0.0 to 1.1.0 (minor: substantive section expansion). Taxonomy, portal, and maturity scorecard regenerated.
 
 ## Phase 9.8 (2026-05-28): Operations (5 new documents)
 
 Closes five operations content gaps identified in the advisory review.
 
-- `operations/standard-observability-and-telemetry.md`: fourteen sections covering principles, service-level signals, metrics, logs, distributed tracing, error and exception telemetry, events, synthetic and real-user monitoring, dashboards and alerting, privacy and data classification, cost governance, AI and ML telemetry, tooling and platform, testing.
-- `operations/standard-site-reliability-engineering.md`: twelve sections covering principles, SLOs and SLIs, error budget policy, reliability practices, change-related risk, incident management, on-call, toil management, runbooks, AI service reliability, tooling and platform, governance.
-- `operations/standard-capacity-and-performance-management.md`: twelve sections covering principles, capacity classes (eight), demand forecasting, capacity planning, performance objectives and measurement, performance testing, scaling, capacity for resilience, third-party and vendor capacity, cost governance, governance forum, AI inference capacity.
-- `operations/procedure-release-management.md`: nine-step procedure (planning, build and packaging, pre-production validation, authorisation, deployment, verification, stabilisation, rollback or forward-fix, closure and learning), release classes (routine, expedited, emergency, standard repeatable), seven role definitions, coordination with seven adjacent procedures, six deployment strategies.
-- `operations/standard-it-financial-management.md`: twelve sections covering principles, cost taxonomy, attribution, budgeting, monitoring and forecasting, optimisation, vendor commitment management, AI cost governance, sustainability considerations, governance, integration with related programmes, financial reporting and compliance.
+- [`operations/standard-observability-and-telemetry.md`](operations/standard-observability-and-telemetry.md): fourteen sections covering principles, service-level signals, metrics, logs, distributed tracing, error and exception telemetry, events, synthetic and real-user monitoring, dashboards and alerting, privacy and data classification, cost governance, AI and ML telemetry, tooling and platform, testing.
+- [`operations/standard-site-reliability-engineering.md`](operations/standard-site-reliability-engineering.md): twelve sections covering principles, SLOs and SLIs, error budget policy, reliability practices, change-related risk, incident management, on-call, toil management, runbooks, AI service reliability, tooling and platform, governance.
+- [`operations/standard-capacity-and-performance-management.md`](operations/standard-capacity-and-performance-management.md): twelve sections covering principles, capacity classes (eight), demand forecasting, capacity planning, performance objectives and measurement, performance testing, scaling, capacity for resilience, third-party and vendor capacity, cost governance, governance forum, AI inference capacity.
+- [`operations/procedure-release-management.md`](operations/procedure-release-management.md): nine-step procedure (planning, build and packaging, pre-production validation, authorisation, deployment, verification, stabilisation, rollback or forward-fix, closure and learning), release classes (routine, expedited, emergency, standard repeatable), seven role definitions, coordination with seven adjacent procedures, six deployment strategies.
+- [`operations/standard-it-financial-management.md`](operations/standard-it-financial-management.md): twelve sections covering principles, cost taxonomy, attribution, budgeting, monitoring and forecasting, optimisation, vendor commitment management, AI cost governance, sustainability considerations, governance, integration with related programmes, financial reporting and compliance.
 
-Document index `governance/register-document-index-and-classification.md` bumped 1.16.0 to 1.17.0 (minor: five substantive new rows). Operations README bumped 1.0.0 to 1.1.0 (minor: substantive section expansion). Taxonomy, portal, and maturity scorecard regenerated.
+Document index [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) bumped 1.16.0 to 1.17.0 (minor: five substantive new rows). Operations README bumped 1.0.0 to 1.1.0 (minor: substantive section expansion). Taxonomy, portal, and maturity scorecard regenerated.
 
 ## Phase 9.7 (2026-05-28): DevSecOps (7 new documents)
 
 Closes seven developer-security content gaps identified in the advisory review.
 
-- `dev-security/standard-api-security.md`: twelve sections covering lifecycle gates, authentication, authorisation, input validation, transport, rate limiting and abuse prevention, observability and logging, gateway management, third-party API consumption, AI-exposed APIs, GraphQL-specific controls, event-driven and webhook security.
-- `dev-security/standard-container-and-image-security.md`: ten sections covering image build, registry management, runtime security, orchestrator hardening, developer workflow, serverless containers, supply-chain integrity (SBOM, signing, attestation), vulnerability management, data handling, incident readiness.
-- `dev-security/standard-mobile-application-security.md`: twelve sections aligned to OWASP MASVS v2 (L1, L2, R) with four-tier sensitivity mapping; covers storage, cryptography, authentication, network, platform interaction, code quality and resilience, third-party SDKs, store and distribution, privacy (including children's data), testing, incident readiness.
-- `dev-security/procedure-secure-code-review.md`: seven-step procedure (pre-review preparation, reviewer assignment, reviewer evaluation, reviewer dispositions, author response, merge gate, post-merge actions), ten evaluation categories (secrets, input handling, authentication and authorisation, cryptography, data, errors and logging, dependencies, IaC and platform, AI components, change hygiene), AI-assisted and AI-generated code considerations.
-- `dev-security/standard-cloud-hardening-baseline-aws.md`: thirteen sections covering account structure and identity, detective controls and logging, preventive controls, network, data protection, compute, storage, secrets and credentials, monitoring and detection, supplementary services, tagging and inventory, provisioning and change, incident readiness; aligned to CIS AWS Foundations Benchmark and AWS Well-Architected Security Pillar.
-- `dev-security/standard-cloud-hardening-baseline-azure.md`: thirteen sections covering tenant, subscription, and identity, detective controls and logging, preventive controls, network, data protection, compute, storage, secrets and credentials, monitoring and detection, supplementary services, tagging and inventory, provisioning and change, incident readiness; aligned to CIS Microsoft Azure Foundations Benchmark and the Microsoft Cloud Security Benchmark.
-- `dev-security/standard-cloud-hardening-baseline-gcp.md`: thirteen sections covering organisation, folder, and identity, detective controls and logging, preventive controls, network, data protection, compute, storage, secrets and credentials, monitoring and detection, supplementary services, labelling and inventory, provisioning and change, incident readiness; aligned to CIS Google Cloud Platform Foundations Benchmark and the Google Cloud Architecture Framework security pillar.
+- [`dev-security/standard-api-security.md`](dev-security/standard-api-security.md): twelve sections covering lifecycle gates, authentication, authorisation, input validation, transport, rate limiting and abuse prevention, observability and logging, gateway management, third-party API consumption, AI-exposed APIs, GraphQL-specific controls, event-driven and webhook security.
+- [`dev-security/standard-container-and-image-security.md`](dev-security/standard-container-and-image-security.md): ten sections covering image build, registry management, runtime security, orchestrator hardening, developer workflow, serverless containers, supply-chain integrity (SBOM, signing, attestation), vulnerability management, data handling, incident readiness.
+- [`dev-security/standard-mobile-application-security.md`](dev-security/standard-mobile-application-security.md): twelve sections aligned to OWASP MASVS v2 (L1, L2, R) with four-tier sensitivity mapping; covers storage, cryptography, authentication, network, platform interaction, code quality and resilience, third-party SDKs, store and distribution, privacy (including children's data), testing, incident readiness.
+- [`dev-security/procedure-secure-code-review.md`](dev-security/procedure-secure-code-review.md): seven-step procedure (pre-review preparation, reviewer assignment, reviewer evaluation, reviewer dispositions, author response, merge gate, post-merge actions), ten evaluation categories (secrets, input handling, authentication and authorisation, cryptography, data, errors and logging, dependencies, IaC and platform, AI components, change hygiene), AI-assisted and AI-generated code considerations.
+- [`dev-security/standard-cloud-hardening-baseline-aws.md`](dev-security/standard-cloud-hardening-baseline-aws.md): thirteen sections covering account structure and identity, detective controls and logging, preventive controls, network, data protection, compute, storage, secrets and credentials, monitoring and detection, supplementary services, tagging and inventory, provisioning and change, incident readiness; aligned to CIS AWS Foundations Benchmark and AWS Well-Architected Security Pillar.
+- [`dev-security/standard-cloud-hardening-baseline-azure.md`](dev-security/standard-cloud-hardening-baseline-azure.md): thirteen sections covering tenant, subscription, and identity, detective controls and logging, preventive controls, network, data protection, compute, storage, secrets and credentials, monitoring and detection, supplementary services, tagging and inventory, provisioning and change, incident readiness; aligned to CIS Microsoft Azure Foundations Benchmark and the Microsoft Cloud Security Benchmark.
+- [`dev-security/standard-cloud-hardening-baseline-gcp.md`](dev-security/standard-cloud-hardening-baseline-gcp.md): thirteen sections covering organisation, folder, and identity, detective controls and logging, preventive controls, network, data protection, compute, storage, secrets and credentials, monitoring and detection, supplementary services, labelling and inventory, provisioning and change, incident readiness; aligned to CIS Google Cloud Platform Foundations Benchmark and the Google Cloud Architecture Framework security pillar.
 
-Document index `governance/register-document-index-and-classification.md` bumped 1.15.0 to 1.16.0 (minor: seven substantive new rows). Dev-security README bumped 1.0.0 to 1.1.0 (minor: substantive section expansion; removed completed items from the planned expansion list). Taxonomy, portal, and maturity scorecard regenerated.
+Document index [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) bumped 1.15.0 to 1.16.0 (minor: seven substantive new rows). Dev-security README bumped 1.0.0 to 1.1.0 (minor: substantive section expansion; removed completed items from the planned expansion list). Taxonomy, portal, and maturity scorecard regenerated.
 
 ## Phase 9.6 (2026-05-28): Security (7 new documents)
 
 Closes seven security content gaps identified in the advisory review.
 
-- `security/framework-zero-trust-architecture.md`: seven principles, seven pillars (identity, devices, networks, applications and workloads, data, visibility and analytics, automation and orchestration), policy-engine input model, four-stage maturity ladder.
-- `security/standard-email-security.md`: eight sections covering outbound authentication (SPF/DKIM/DMARC/BIMI/MTA-STS), inbound controls, anti-phishing and BEC, outbound controls, user-facing controls, secure-email-gateway requirements, AI-generated and AI-processed considerations, incident response.
-- `security/standard-soc-operating-model.md`: four capability tiers, staffing model (nine roles), tool stack (fourteen tool categories), coverage hours, detection engineering practices, threat hunting, intelligence integration, on-call governance, metrics, supplier-managed-SOC requirements, continuous improvement.
-- `security/standard-saas-security-posture-management.md`: ten sections covering inventory, configuration baselines, continuous posture monitoring, SaaS-to-SaaS integration risk, third-party application access, shadow-SaaS detection, SaaS-to-SaaS supplier risk, data protection within SaaS, incident readiness, lifecycle.
-- `security/framework-insider-risk-programme.md`: five insider risk categories, governance model with Insider Risk Steering Committee, four pillars (prevention, detection, response, learning), eleven privacy and due-process safeguards, deliberate out-of-scope exclusions, coordination with eight adjacent programmes, metrics.
-- `security/standard-endpoint-hardening.md`: twelve sections covering identity and authentication, device integrity, software and configuration, EDR, data protection, network and connectivity, privileged access workstations, developer workstations, BYOD and unmanaged devices, mobile devices, kiosks and shared devices, lifecycle.
-- `security/procedure-key-escrow-and-recovery.md`: three key categories (productivity-data, operational service, root and signing), escrow architectures per category, recovery triggers, dual-control matrix, Category 3 ten-step ceremony, authorisation flow, post-recovery actions, lost or compromised key handling, post-quantum considerations.
+- [`security/framework-zero-trust-architecture.md`](security/framework-zero-trust-architecture.md): seven principles, seven pillars (identity, devices, networks, applications and workloads, data, visibility and analytics, automation and orchestration), policy-engine input model, four-stage maturity ladder.
+- [`security/standard-email-security.md`](security/standard-email-security.md): eight sections covering outbound authentication (SPF/DKIM/DMARC/BIMI/MTA-STS), inbound controls, anti-phishing and BEC, outbound controls, user-facing controls, secure-email-gateway requirements, AI-generated and AI-processed considerations, incident response.
+- [`security/standard-soc-operating-model.md`](security/standard-soc-operating-model.md): four capability tiers, staffing model (nine roles), tool stack (fourteen tool categories), coverage hours, detection engineering practices, threat hunting, intelligence integration, on-call governance, metrics, supplier-managed-SOC requirements, continuous improvement.
+- [`security/standard-saas-security-posture-management.md`](security/standard-saas-security-posture-management.md): ten sections covering inventory, configuration baselines, continuous posture monitoring, SaaS-to-SaaS integration risk, third-party application access, shadow-SaaS detection, SaaS-to-SaaS supplier risk, data protection within SaaS, incident readiness, lifecycle.
+- [`security/framework-insider-risk-programme.md`](security/framework-insider-risk-programme.md): five insider risk categories, governance model with Insider Risk Steering Committee, four pillars (prevention, detection, response, learning), eleven privacy and due-process safeguards, deliberate out-of-scope exclusions, coordination with eight adjacent programmes, metrics.
+- [`security/standard-endpoint-hardening.md`](security/standard-endpoint-hardening.md): twelve sections covering identity and authentication, device integrity, software and configuration, EDR, data protection, network and connectivity, privileged access workstations, developer workstations, BYOD and unmanaged devices, mobile devices, kiosks and shared devices, lifecycle.
+- [`security/procedure-key-escrow-and-recovery.md`](security/procedure-key-escrow-and-recovery.md): three key categories (productivity-data, operational service, root and signing), escrow architectures per category, recovery triggers, dual-control matrix, Category 3 ten-step ceremony, authorisation flow, post-recovery actions, lost or compromised key handling, post-quantum considerations.
 
-Document index `governance/register-document-index-and-classification.md` bumped 1.14.0 to 1.15.0 (minor: seven substantive new rows). Security README bumped 1.1.1 to 1.2.0 (minor: substantive section expansion).
+Document index [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) bumped 1.14.0 to 1.15.0 (minor: seven substantive new rows). Security README bumped 1.1.1 to 1.2.0 (minor: substantive section expansion).
 
 ## Phase 9.5 (2026-05-28): AI (10 new documents)
 
 Closes ten AI content gaps identified in the advisory review. Each new artefact starts at version 0.0.1 per the ingestion specification.
 
-- `ai/plan-ai-incident-response.md`: AI-specific incident classes and triggers, P1 to P4 severity criteria, seven-phase lifecycle with AI-specific actions at each phase, coordination with security and privacy streams, evidence requirements.
-- `ai/template-dataset-datasheet.md`: ten-section datasheets-for-datasets template covering motivation, composition, collection process, preprocessing and labelling, uses, distribution, maintenance, ethical considerations, provenance and lineage, signatures.
-- `ai/register-model-registry.md`: comprehensive model inventory with 30-field schema, six lifecycle states (Research, Evaluation, Staging, Production, Deprecated, Retired), backward and forward lineage tracking, integration with eleven adjacent governance artefacts.
-- `ai/procedure-foundation-model-lifecycle.md`: seven-step lifecycle for foundation-model consumption (identify, pre-engagement evaluation, contractual integration, deployment, ongoing monitoring, version transition, exit), seven AI-specific contract clauses, seven risk vectors with mitigations.
-- `ai/template-ai-vendor-security-questionnaire.md`: nine-section AI-specific extension to the general supplier questionnaire covering provider profile, training-data provenance, customer data handling, model security, tool and agent capabilities, evaluation and assurance, compliance and transparency, incident response, continuity and exit.
-- `ai/standard-ai-access-and-agent-permissions.md`: eight sections covering principles (six), human access to AI capabilities, service-to-AI access, AI-to-tool access for agentic systems (with tool allow-list, capability scopes, identity propagation, three confirmation modes, rate and chain-length limits, logging), AI-to-data access, AI-to-AI access, access review cadence, incident-time controls.
-- `ai/register-mcp-server.md`: MCP server inventory with 25-field schema, four-tier approval categories, server-security baseline (eleven control areas), coordination with seven adjacent governance artefacts.
-- `ai/procedure-training-data-governance.md`: ten-step procedure covering source identification, sensitive-content removal, consent and subject-rights mechanism, approval to train, lineage tracking, deletion propagation with SLAs, supplier-provided training data, synthetic data, retrieval index content, periodic review.
-- `ai/standard-ai-inference-cost-governance.md`: ten sections covering principles, budgeting and allocation, cost ceilings and rate limits, model-choice criteria, monitoring and anomaly response (dual-routed financial and security), feature lifecycle controls, agent and autonomous workflow controls, customer-facing transparency, provider-side cost-management, reporting.
-- `ai/template-ai-red-team-report.md`: nine-section red team engagement report covering engagement profile, methodology, structured findings (with twelve-field-per-finding schema), coverage assessment against OWASP LLM Top 10 and MITRE ATLAS, positive observations, recommendations, validation and retest, distribution, signatures.
+- [`ai/plan-ai-incident-response.md`](ai/plan-ai-incident-response.md): AI-specific incident classes and triggers, P1 to P4 severity criteria, seven-phase lifecycle with AI-specific actions at each phase, coordination with security and privacy streams, evidence requirements.
+- [`ai/template-dataset-datasheet.md`](ai/template-dataset-datasheet.md): ten-section datasheets-for-datasets template covering motivation, composition, collection process, preprocessing and labelling, uses, distribution, maintenance, ethical considerations, provenance and lineage, signatures.
+- [`ai/register-model-registry.md`](ai/register-model-registry.md): comprehensive model inventory with 30-field schema, six lifecycle states (Research, Evaluation, Staging, Production, Deprecated, Retired), backward and forward lineage tracking, integration with eleven adjacent governance artefacts.
+- [`ai/procedure-foundation-model-lifecycle.md`](ai/procedure-foundation-model-lifecycle.md): seven-step lifecycle for foundation-model consumption (identify, pre-engagement evaluation, contractual integration, deployment, ongoing monitoring, version transition, exit), seven AI-specific contract clauses, seven risk vectors with mitigations.
+- [`ai/template-ai-vendor-security-questionnaire.md`](ai/template-ai-vendor-security-questionnaire.md): nine-section AI-specific extension to the general supplier questionnaire covering provider profile, training-data provenance, customer data handling, model security, tool and agent capabilities, evaluation and assurance, compliance and transparency, incident response, continuity and exit.
+- [`ai/standard-ai-access-and-agent-permissions.md`](ai/standard-ai-access-and-agent-permissions.md): eight sections covering principles (six), human access to AI capabilities, service-to-AI access, AI-to-tool access for agentic systems (with tool allow-list, capability scopes, identity propagation, three confirmation modes, rate and chain-length limits, logging), AI-to-data access, AI-to-AI access, access review cadence, incident-time controls.
+- [`ai/register-mcp-server.md`](ai/register-mcp-server.md): MCP server inventory with 25-field schema, four-tier approval categories, server-security baseline (eleven control areas), coordination with seven adjacent governance artefacts.
+- [`ai/procedure-training-data-governance.md`](ai/procedure-training-data-governance.md): ten-step procedure covering source identification, sensitive-content removal, consent and subject-rights mechanism, approval to train, lineage tracking, deletion propagation with SLAs, supplier-provided training data, synthetic data, retrieval index content, periodic review.
+- [`ai/standard-ai-inference-cost-governance.md`](ai/standard-ai-inference-cost-governance.md): ten sections covering principles, budgeting and allocation, cost ceilings and rate limits, model-choice criteria, monitoring and anomaly response (dual-routed financial and security), feature lifecycle controls, agent and autonomous workflow controls, customer-facing transparency, provider-side cost-management, reporting.
+- [`ai/template-ai-red-team-report.md`](ai/template-ai-red-team-report.md): nine-section red team engagement report covering engagement profile, methodology, structured findings (with twelve-field-per-finding schema), coverage assessment against OWASP LLM Top 10 and MITRE ATLAS, positive observations, recommendations, validation and retest, distribution, signatures.
 
-Document index `governance/register-document-index-and-classification.md` bumped 1.13.0 to 1.14.0 (minor: ten substantive new rows). AI README bumped 1.0.1 to 1.1.0 (minor: substantive section expansion).
+Document index [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) bumped 1.13.0 to 1.14.0 (minor: ten substantive new rows). AI README bumped 1.0.1 to 1.1.0 (minor: substantive section expansion).
 
 ## Phase 9.4 (2026-05-28): supply chain (5 new documents)
 
 Closes five supply-chain content gaps identified in the advisory review.
 
-- `supply-chain/procedure-fourth-party-and-nth-party-risk.md`: tiered visibility expectations (T1 fourth-party plus selected nth-party; T2 material fourth-party; T3 sub-processor only); six-step procedure (identify, assess, monitor, escalate, treat, record).
-- `supply-chain/register-concentration-risk.md`: six concentration dimensions (service-class, shared sub-tier, geographical, jurisdiction, vendor-family, intra-group); register schema with treatment options; coordination with the critical-ICT-third-party regime.
-- `supply-chain/register-sbom.md`: three SBOM acquisition paths (build-time, supplier-provided, post-deployment); register schema with CycloneDX / SPDX / VEX support; linkage to vulnerability management and acceptance gates; customer transparency under EU CRA and EO 14028.
-- `supply-chain/template-supplier-offboarding-evidence.md`: eight-section offboarding record covering relationship identification, access revocation (ten access types), data return and destruction (eight categories), service-continuity handover, residual obligations (ten obligation types), contract closure, post-exit review, approval set.
-- `supply-chain/standard-supplier-resilience-monitoring.md`: five signal categories (continuity testing, incident, financial-health, control and assurance, external-environment); tier-based monitoring posture; signal source diversity; coordination with the concentration register and the critical-ICT-third-party regime.
+- [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](supply-chain/procedure-fourth-party-and-nth-party-risk.md): tiered visibility expectations (T1 fourth-party plus selected nth-party; T2 material fourth-party; T3 sub-processor only); six-step procedure (identify, assess, monitor, escalate, treat, record).
+- [`supply-chain/register-concentration-risk.md`](supply-chain/register-concentration-risk.md): six concentration dimensions (service-class, shared sub-tier, geographical, jurisdiction, vendor-family, intra-group); register schema with treatment options; coordination with the critical-ICT-third-party regime.
+- [`supply-chain/register-sbom.md`](supply-chain/register-sbom.md): three SBOM acquisition paths (build-time, supplier-provided, post-deployment); register schema with CycloneDX / SPDX / VEX support; linkage to vulnerability management and acceptance gates; customer transparency under EU CRA and EO 14028.
+- [`supply-chain/template-supplier-offboarding-evidence.md`](supply-chain/template-supplier-offboarding-evidence.md): eight-section offboarding record covering relationship identification, access revocation (ten access types), data return and destruction (eight categories), service-continuity handover, residual obligations (ten obligation types), contract closure, post-exit review, approval set.
+- [`supply-chain/standard-supplier-resilience-monitoring.md`](supply-chain/standard-supplier-resilience-monitoring.md): five signal categories (continuity testing, incident, financial-health, control and assurance, external-environment); tier-based monitoring posture; signal source diversity; coordination with the concentration register and the critical-ICT-third-party regime.
 
-Document index `governance/register-document-index-and-classification.md` bumped 1.12.0 to 1.13.0 (minor: five substantive new rows). Supply-chain README bumped 1.0.1 to 1.1.0 (minor: substantive section expansion).
+Document index [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) bumped 1.12.0 to 1.13.0 (minor: five substantive new rows). Supply-chain README bumped 1.0.1 to 1.1.0 (minor: substantive section expansion).
 
 ## Phase 9.3 (2026-05-28): resilience templates and plans
 
 Closes five resilience content gaps identified in the advisory review. Each new artefact starts at version 0.0.1 per the ingestion specification.
 
-- `resilience/template-tabletop-exercise.md`: scenario design, scenario library (eight classes from ransomware to crisis convergence), objectives, participants, format options, inject schedule template, six-criterion evaluation rubric, after-action report structure.
-- `resilience/template-recovery-runbook.md`: per-system runbook with ten sections (system identification, dependencies, detection and declaration, pre-recovery checks, recovery steps, validation, communications, rollback, closure and learning, test history).
-- `resilience/template-lessons-learned.md`: cross-stream lessons-learned report with eleven sections (event identification, executive summary, timeline reconstruction, root cause and contributing factors, what worked, gaps identified across twelve categories, corrective actions, procedure and control changes, communication of lessons, metric impact, approval).
-- `resilience/plan-pandemic-continuity.md`: five-stage activation model (Monitor, Prepare, Activate, Sustained operations, Recovery), workforce health, remote-work scaling, essential-service prioritisation, supplier and supply-chain impact, facility and operational adjustments, communications, deactivation and recovery.
-- `resilience/plan-physical-site-continuity.md`: four-posture model (Protective actions, Partial operations on site, Site closed, Restoration), activation criteria, protective actions (deferring to the emergency response guideline), alternate-site activation (ten-step procedure), restoration and return, workforce well-being.
+- [`resilience/template-tabletop-exercise.md`](resilience/template-tabletop-exercise.md): scenario design, scenario library (eight classes from ransomware to crisis convergence), objectives, participants, format options, inject schedule template, six-criterion evaluation rubric, after-action report structure.
+- [`resilience/template-recovery-runbook.md`](resilience/template-recovery-runbook.md): per-system runbook with ten sections (system identification, dependencies, detection and declaration, pre-recovery checks, recovery steps, validation, communications, rollback, closure and learning, test history).
+- [`resilience/template-lessons-learned.md`](resilience/template-lessons-learned.md): cross-stream lessons-learned report with eleven sections (event identification, executive summary, timeline reconstruction, root cause and contributing factors, what worked, gaps identified across twelve categories, corrective actions, procedure and control changes, communication of lessons, metric impact, approval).
+- [`resilience/plan-pandemic-continuity.md`](resilience/plan-pandemic-continuity.md): five-stage activation model (Monitor, Prepare, Activate, Sustained operations, Recovery), workforce health, remote-work scaling, essential-service prioritisation, supplier and supply-chain impact, facility and operational adjustments, communications, deactivation and recovery.
+- [`resilience/plan-physical-site-continuity.md`](resilience/plan-physical-site-continuity.md): four-posture model (Protective actions, Partial operations on site, Site closed, Restoration), activation criteria, protective actions (deferring to the emergency response guideline), alternate-site activation (ten-step procedure), restoration and return, workforce well-being.
 
-Document index `governance/register-document-index-and-classification.md` bumped 1.11.0 to 1.12.0 (minor: five substantive new rows). Resilience README bumped 1.1.1 to 1.2.0 (minor: substantive section expansion). Taxonomy, portal, and maturity scorecard regenerated.
+Document index [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) bumped 1.11.0 to 1.12.0 (minor: five substantive new rows). Resilience README bumped 1.1.1 to 1.2.0 (minor: substantive section expansion). Taxonomy, portal, and maturity scorecard regenerated.
 
 ## Phase 9.2 (2026-05-28): compliance sector and regime expansion
 
 Closes seven sector and regime content gaps identified in the advisory review. Each new annex starts at version 0.0.1 per the ingestion specification.
 
-- `compliance/public-sector/annex-fedramp-requirements.md`: applicability triggers, authorisation route selection (JAB, Agency, FedRAMP Tailored, FedRAMP Ready), baseline selection mapped to FIPS 199, library coverage per NIST SP 800-53 Rev 5 control family, eight named library gaps requiring additional documentation (SSP, ConMon, POA&M, SAR/SAP, OMB M-22-09 reporting, FIPS-validated cryptography, federal personnel investigations, CUI handling).
-- `compliance/financial-services/annex-dora-implementation.md`: per-pillar mapping for ICT risk management (Articles 5 to 16), ICT-related incident reporting (Articles 17 to 23 with 4-hour, 72-hour, one-month windows), digital operational resilience testing including TLPT under TIBER-EU, ICT third-party risk including Article 30 minimum clauses and the critical-ICT-third-party Oversight Framework, information and intelligence sharing.
-- `compliance/annex-nis-2-implementation.md`: entity classification (Essential and Important under Annexes I and II), per-sub-measure mapping of Article 21 risk-management measures, Article 20 management body responsibilities and training, the four-stage incident reporting regime under Articles 23 to 25 (early warning, incident notification, intermediate, final), six library gaps requiring additional documentation.
-- `compliance/public-sector/annex-public-sector-requirements.md`: eight overlay areas (freedom of information, accessibility under WCAG 2.2 AA and EN 301 549, public procurement, records management, audit and external scrutiny, ethics and lobbying, AI in the public sector, official languages), library coverage per overlay, seven library gaps.
-- `compliance/telecommunications/annex-telecommunications-sector-requirements.md`: seven overlay areas (sector cybersecurity, lawful interception, data retention, sector customer privacy, emergency calling and resilience, vendor and supply-chain restrictions, numbering and addressing resources), regime references for EU EECC, EU NIS 2, UK Telecommunications (Security) Act 2021, US CALEA, FCC, and equivalents.
-- `compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`: six overlay areas (critical-infrastructure cybersecurity baselines, OT and ICS cybersecurity, physical-cyber convergence, sector incident reporting, supplier and component security, resilience and continuity), per-control area mapping for OT including network segmentation, OT vulnerability management, vendor remote access to OT, OT incident response.
-- `compliance/financial-services/annex-sox-itgc.md`: ICFR scope determination, four ITGC domains (access to programs and data, program changes, program development, computer operations) with library coverage per control objective, auditor-expected artefacts beyond the library, coordination with adjacent regimes (SOC 1, PCI DSS, GDPR, NIST CSF, ISO 27001).
+- [`compliance/public-sector/annex-fedramp-requirements.md`](compliance/public-sector/annex-fedramp-requirements.md): applicability triggers, authorisation route selection (JAB, Agency, FedRAMP Tailored, FedRAMP Ready), baseline selection mapped to FIPS 199, library coverage per NIST SP 800-53 Rev 5 control family, eight named library gaps requiring additional documentation (SSP, ConMon, POA&M, SAR/SAP, OMB M-22-09 reporting, FIPS-validated cryptography, federal personnel investigations, CUI handling).
+- [`compliance/financial-services/annex-dora-implementation.md`](compliance/financial-services/annex-dora-implementation.md): per-pillar mapping for ICT risk management (Articles 5 to 16), ICT-related incident reporting (Articles 17 to 23 with 4-hour, 72-hour, one-month windows), digital operational resilience testing including TLPT under TIBER-EU, ICT third-party risk including Article 30 minimum clauses and the critical-ICT-third-party Oversight Framework, information and intelligence sharing.
+- [`compliance/annex-nis-2-implementation.md`](compliance/annex-nis-2-implementation.md): entity classification (Essential and Important under Annexes I and II), per-sub-measure mapping of Article 21 risk-management measures, Article 20 management body responsibilities and training, the four-stage incident reporting regime under Articles 23 to 25 (early warning, incident notification, intermediate, final), six library gaps requiring additional documentation.
+- [`compliance/public-sector/annex-public-sector-requirements.md`](compliance/public-sector/annex-public-sector-requirements.md): eight overlay areas (freedom of information, accessibility under WCAG 2.2 AA and EN 301 549, public procurement, records management, audit and external scrutiny, ethics and lobbying, AI in the public sector, official languages), library coverage per overlay, seven library gaps.
+- [`compliance/telecommunications/annex-telecommunications-sector-requirements.md`](compliance/telecommunications/annex-telecommunications-sector-requirements.md): seven overlay areas (sector cybersecurity, lawful interception, data retention, sector customer privacy, emergency calling and resilience, vendor and supply-chain restrictions, numbering and addressing resources), regime references for EU EECC, EU NIS 2, UK Telecommunications (Security) Act 2021, US CALEA, FCC, and equivalents.
+- [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md): six overlay areas (critical-infrastructure cybersecurity baselines, OT and ICS cybersecurity, physical-cyber convergence, sector incident reporting, supplier and component security, resilience and continuity), per-control area mapping for OT including network segmentation, OT vulnerability management, vendor remote access to OT, OT incident response.
+- [`compliance/financial-services/annex-sox-itgc.md`](compliance/financial-services/annex-sox-itgc.md): ICFR scope determination, four ITGC domains (access to programs and data, program changes, program development, computer operations) with library coverage per control objective, auditor-expected artefacts beyond the library, coordination with adjacent regimes (SOC 1, PCI DSS, GDPR, NIST CSF, ISO 27001).
 
-Document index `governance/register-document-index-and-classification.md` bumped 1.10.0 to 1.11.0 (minor: seven substantive new rows). Compliance README bumped 1.0.1 to 1.1.0 (minor: substantive section expansion). Taxonomy, portal, and maturity scorecard regenerated.
+Document index [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) bumped 1.10.0 to 1.11.0 (minor: seven substantive new rows). Compliance README bumped 1.0.1 to 1.1.0 (minor: substantive section expansion). Taxonomy, portal, and maturity scorecard regenerated.
 
 ## Drift fixes (2026-05-28): repository structure documentation and AI ingestion instruction refresh
 
 A post-Phase-9.1 drift audit identified six stale items in the meta files that had fallen out of sync with the repository state during Phases 1, 6, 7, and 9.1. Fixed in this commit:
 
-- `README.md`: Repository structure block now lists the infrastructure directories (`tools/`, `docs/`, `.github/`, `taxonomy.yml`, hygiene files). Document count claim refreshed from approximately 200 to approximately 215. Core reference set table expanded with three privacy templates (ROPA, privacy notice, DSAR workflow) added in Phase 9.1. Version 1.4.2 to 1.5.0 (minor).
-- `specification-master-project.md`: Section 4 expanded to distinguish governance-artefact directories from repository infrastructure directories. Version 1.2.2 to 1.2.3 (patch).
-- `specification-ingestion.md`: Repository domains section gained a note enumerating the infrastructure paths that are out of scope for ingestion and exempt from the structural audit. Version 1.4.1 to 1.4.2 (patch).
-- `instruction-ai-document-ingestion.md`: refreshed end to end. Now references the current 16-type vocabulary, the type-selection guidance, the audit scripts, the taxonomy and portal generators, the CHANGELOG update obligation, and the rules for retiring or superseding documents.
-- `tools/lint-language.py`: added the AI ingestion instruction file to the exempt list for the self-referential `ensure` rule, consistent with the existing exemptions for both specifications.
+- [`README.md`](README.md): Repository structure block now lists the infrastructure directories (`tools/`, `docs/`, `.github/`, [`taxonomy.yml`](taxonomy.yml), hygiene files). Document count claim refreshed from approximately 200 to approximately 215. Core reference set table expanded with three privacy templates (ROPA, privacy notice, DSAR workflow) added in Phase 9.1. Version 1.4.2 to 1.5.0 (minor).
+- [`specification-master-project.md`](specification-master-project.md): Section 4 expanded to distinguish governance-artefact directories from repository infrastructure directories. Version 1.2.2 to 1.2.3 (patch).
+- [`specification-ingestion.md`](specification-ingestion.md): Repository domains section gained a note enumerating the infrastructure paths that are out of scope for ingestion and exempt from the structural audit. Version 1.4.1 to 1.4.2 (patch).
+- [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md): refreshed end to end. Now references the current 16-type vocabulary, the type-selection guidance, the audit scripts, the taxonomy and portal generators, the CHANGELOG update obligation, and the rules for retiring or superseding documents.
+- [`tools/lint-language.py`](tools/lint-language.py): added the AI ingestion instruction file to the exempt list for the self-referential `ensure` rule, consistent with the existing exemptions for both specifications.
 
 The convention going forward is to update CHANGELOG.md in the same commit as the substantive phase change.
 
@@ -2146,62 +2177,62 @@ The convention going forward is to update CHANGELOG.md in the same commit as the
 
 Closes eight long-standing privacy content gaps identified in the advisory review. Each new artefact starts at version 0.0.1 per the ingestion specification.
 
-- `privacy/template-record-of-processing-activities.md`: GDPR Article 30 ROPA template with controller and processor views.
-- `privacy/template-privacy-notice.md`: twelve required content blocks satisfying GDPR Articles 13 and 14, UK GDPR, LGPD, CPPA, PIPL, CCPA, and equivalents; just-in-time variant included.
-- `privacy/template-dsar-workflow.md`: seven-stage DSAR lifecycle with identity verification trust levels, twenty-one-field request record schema, and six operational metrics.
-- `privacy/framework-consent-management.md`: consent capture, validity standard, granularity rules, withdrawal, refresh and expiry conditions, ePrivacy and cookie consent alignment.
-- `privacy/register-automated-decision-making.md`: ADM and profiling register schema, registration triggers, coordination with the AI System Register.
-- `privacy/register-cookie-and-tracker.md`: seven-category tracker taxonomy, eighteen-field schema, quarterly-scan operating expectation, dark-pattern prohibitions.
-- `privacy/standard-pseudonymisation-and-anonymisation.md`: permitted techniques including k-anonymity (k at minimum 5), l-diversity, t-closeness, differential privacy, synthetic data; five-tier residual-risk classification.
-- `privacy/framework-childrens-data.md`: per-jurisdiction age thresholds, age-assurance approaches, parental consent verification, ten design defaults, profiling and ADM restrictions.
+- [`privacy/template-record-of-processing-activities.md`](privacy/template-record-of-processing-activities.md): GDPR Article 30 ROPA template with controller and processor views.
+- [`privacy/template-privacy-notice.md`](privacy/template-privacy-notice.md): twelve required content blocks satisfying GDPR Articles 13 and 14, UK GDPR, LGPD, CPPA, PIPL, CCPA, and equivalents; just-in-time variant included.
+- [`privacy/template-dsar-workflow.md`](privacy/template-dsar-workflow.md): seven-stage DSAR lifecycle with identity verification trust levels, twenty-one-field request record schema, and six operational metrics.
+- [`privacy/framework-consent-management.md`](privacy/framework-consent-management.md): consent capture, validity standard, granularity rules, withdrawal, refresh and expiry conditions, ePrivacy and cookie consent alignment.
+- [`privacy/register-automated-decision-making.md`](privacy/register-automated-decision-making.md): ADM and profiling register schema, registration triggers, coordination with the AI System Register.
+- [`privacy/register-cookie-and-tracker.md`](privacy/register-cookie-and-tracker.md): seven-category tracker taxonomy, eighteen-field schema, quarterly-scan operating expectation, dark-pattern prohibitions.
+- [`privacy/standard-pseudonymisation-and-anonymisation.md`](privacy/standard-pseudonymisation-and-anonymisation.md): permitted techniques including k-anonymity (k at minimum 5), l-diversity, t-closeness, differential privacy, synthetic data; five-tier residual-risk classification.
+- [`privacy/framework-childrens-data.md`](privacy/framework-childrens-data.md): per-jurisdiction age thresholds, age-assurance approaches, parental consent verification, ten design defaults, profiling and ADM restrictions.
 
-Document index `governance/register-document-index-and-classification.md` bumped 1.9.0 to 1.10.0 (minor: eight substantive new rows). Privacy README bumped 1.0.0 to 1.1.0 (minor: substantive section expansion). Taxonomy, portal, and maturity scorecard regenerated.
+Document index [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) bumped 1.9.0 to 1.10.0 (minor: eight substantive new rows). Privacy README bumped 1.0.0 to 1.1.0 (minor: substantive section expansion). Taxonomy, portal, and maturity scorecard regenerated.
 
 ## Phase 8 (2026-05-28): operational usefulness uplift
 
-- `resilience/procedure-cross-domain-incident-coordination.md` expanded from 92 to 264 lines: domain ownership decision rule, joint command structure, coordination lifecycle, five hand-off checklists, severity rules across streams, joint decision log, cross-stream evidence handling, communication boundaries, joint post-incident review, joint exercises, metrics. Version 1.0.1 to 1.1.0 (minor).
+- [`resilience/procedure-cross-domain-incident-coordination.md`](resilience/procedure-cross-domain-incident-coordination.md) expanded from 92 to 264 lines: domain ownership decision rule, joint command structure, coordination lifecycle, five hand-off checklists, severity rules across streams, joint decision log, cross-stream evidence handling, communication boundaries, joint post-incident review, joint exercises, metrics. Version 1.0.1 to 1.1.0 (minor).
 - Tool acceptance criteria sections added with six-column purpose/output/integration/success/escalation tables:
-  - `dev-security/standard-software-composition-analysis.md` §8 (ten criteria). Version 1.0.0 to 1.1.0 (minor).
-  - `ai/guide-ai-adversarial-test-reference.md` Red team methodology subsection (PyRIT, Garak, promptfoo, manual practitioner). Version 1.2.2 to 1.3.0 (minor).
-  - `ai/guide-ai-security-technical-implementation.md` §A7 (SAST, prompt regression, LLM scanner, AI red team automation, cloud guardrails, AI-aware monitoring). Version 1.2.1 to 1.3.0 (minor).
+  - [`dev-security/standard-software-composition-analysis.md`](dev-security/standard-software-composition-analysis.md) §8 (ten criteria). Version 1.0.0 to 1.1.0 (minor).
+  - [`ai/guide-ai-adversarial-test-reference.md`](ai/guide-ai-adversarial-test-reference.md) Red team methodology subsection (PyRIT, Garak, promptfoo, manual practitioner). Version 1.2.2 to 1.3.0 (minor).
+  - [`ai/guide-ai-security-technical-implementation.md`](ai/guide-ai-security-technical-implementation.md) §A7 (SAST, prompt regression, LLM scanner, AI red team automation, cloud guardrails, AI-aware monitoring). Version 1.2.1 to 1.3.0 (minor).
 - Targeted measurable-verb pass on three Standards in `operations/`, `security/`, `dev-security/`. Defensible conditional usage left intact.
-- `tools/build-portal.py`: generates `docs/portal.md` (audience-keyed navigation) and `docs/maturity-scorecard.md` (per-document maturity classification) from `taxonomy.yml`. Wired into CI and pre-commit.
-- Phase 8.5 (per-document adoption notes) deliberately deferred; `docs/worked-example.md` already covers end-to-end adaptation.
+- [`tools/build-portal.py`](tools/build-portal.py): generates [`docs/portal.md`](docs/portal.md) (audience-keyed navigation) and [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md) (per-document maturity classification) from [`taxonomy.yml`](taxonomy.yml). Wired into CI and pre-commit.
+- Phase 8.5 (per-document adoption notes) deliberately deferred; [`docs/worked-example.md`](docs/worked-example.md) already covers end-to-end adaptation.
 
 ## Phase 7 (2026-05-28): machine-readable taxonomy and reverse framework crosswalk
 
-- `tools/build-taxonomy.py`: generates `taxonomy.yml` from canonical metadata of every active artefact (3,690+ lines). `--check` mode wired into CI and pre-commit.
-- `governance/matrix-reverse-framework-control-crosswalk.md` (v0.0.1): inverts the forward matrix to answer "given an external control identifier, which library documents address it". Coverage: ISO 27001:2022 Annex A, ISO 42001:2023, NIST CSF 2.0, NIST SP 800-53 Rev 5, NIST AI RMF, CSA CCM v5, EU AI Act, GDPR / UK GDPR, DORA, NIS 2, OWASP LLM Top 10, MITRE ATLAS, CTPAT MSC, BASC v6, WCO SAFE.
-- `governance/matrix-cross-framework-alignment.md` updated to cross-reference the reverse matrix; pair-consistent.
-- Document index `governance/register-document-index-and-classification.md` bumped 1.8.6 to 1.9.0 (minor: substantive new index row for the reverse crosswalk).
+- [`tools/build-taxonomy.py`](tools/build-taxonomy.py): generates [`taxonomy.yml`](taxonomy.yml) from canonical metadata of every active artefact (3,690+ lines). `--check` mode wired into CI and pre-commit.
+- [`governance/matrix-reverse-framework-control-crosswalk.md`](governance/matrix-reverse-framework-control-crosswalk.md) (v0.0.1): inverts the forward matrix to answer "given an external control identifier, which library documents address it". Coverage: ISO 27001:2022 Annex A, ISO 42001:2023, NIST CSF 2.0, NIST SP 800-53 Rev 5, NIST AI RMF, CSA CCM v5, EU AI Act, GDPR / UK GDPR, DORA, NIS 2, OWASP LLM Top 10, MITRE ATLAS, CTPAT MSC, BASC v6, WCO SAFE.
+- [`governance/matrix-cross-framework-alignment.md`](governance/matrix-cross-framework-alignment.md) updated to cross-reference the reverse matrix; pair-consistent.
+- Document index [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) bumped 1.8.6 to 1.9.0 (minor: substantive new index row for the reverse crosswalk).
 
 ## Phase 6 (2026-05-28): automation, validation, repository hygiene
 
-- Three new audit scripts added: `tools/lint-metadata.py` (13-field canonical metadata block, allowed types, semver, ISO 8601 dates, role-based ownership, License field, repository-path consistency, filename prefix), `tools/lint-links.py` (every relative markdown link resolves), `tools/lint-structure.py` (every active file appears in its domain README and in the document index, and every reference resolves). These complement `tools/lint-language.py` from Phase 5.
-- `.github/workflows/quality.yml`: GitHub Actions workflow running all four audits on push to `main` and on every pull request.
-- `.pre-commit-config.yaml`: local hooks wiring the same audits.
-- Repository hygiene files: `CONTRIBUTING.md` (contribution workflow, metadata rules, style rules, filename rules), `SECURITY.md` (how to report content accuracy defects, CC0 licence concerns, organisation or personal data leakage, broken external links, and tooling defects), `CHANGELOG.md` (this file), `docs/adopter-guide.md` (fork and adapt walkthrough), `docs/worked-example.md` (end-to-end draft-to-CC0-artefact walkthrough).
+- Three new audit scripts added: [`tools/lint-metadata.py`](tools/lint-metadata.py) (13-field canonical metadata block, allowed types, semver, ISO 8601 dates, role-based ownership, License field, repository-path consistency, filename prefix), [`tools/lint-links.py`](tools/lint-links.py) (every relative markdown link resolves), [`tools/lint-structure.py`](tools/lint-structure.py) (every active file appears in its domain README and in the document index, and every reference resolves). These complement [`tools/lint-language.py`](tools/lint-language.py) from Phase 5.
+- [`.github/workflows/quality.yml`](.github/workflows/quality.yml): GitHub Actions workflow running all four audits on push to `main` and on every pull request.
+- [`.pre-commit-config.yaml`](.pre-commit-config.yaml): local hooks wiring the same audits.
+- Repository hygiene files: [`CONTRIBUTING.md`](CONTRIBUTING.md) (contribution workflow, metadata rules, style rules, filename rules), [`SECURITY.md`](SECURITY.md) (how to report content accuracy defects, CC0 licence concerns, organisation or personal data leakage, broken external links, and tooling defects), [`CHANGELOG.md`](CHANGELOG.md) (this file), [`docs/adopter-guide.md`](docs/adopter-guide.md) (fork and adapt walkthrough), [`docs/worked-example.md`](docs/worked-example.md) (end-to-end draft-to-CC0-artefact walkthrough).
 - Conformance bugs surfaced by the new auditors fixed: three compliance files with plain-text Repository Path links converted to canonical markdown links, one risk template misclassified as Register corrected to Template, master specification gained the four missing canonical metadata fields, twenty-five privacy jurisdiction annexes had a broken self-folder reference repaired, two domain READMEs and one index row reconciled. All version increments patch.
 
 ## Phase 5 (2026-05-28): heading style normalisation, language audit, lint tooling
 
-Normalises section heading case across the corpus (24 lettered subsections in `ai/guide-ai-security-technical-implementation.md`, 5 in `ai/guide-ai-adversarial-test-reference.md`, and the `Step N:` and `Category N:` patterns in 17 procedure / guideline / plan / register files). Codifies the sentence-case rule and other language conventions in both specifications. Introduces `tools/lint-language.py`.
+Normalises section heading case across the corpus (24 lettered subsections in [`ai/guide-ai-security-technical-implementation.md`](ai/guide-ai-security-technical-implementation.md), 5 in [`ai/guide-ai-adversarial-test-reference.md`](ai/guide-ai-adversarial-test-reference.md), and the `Step N:` and `Category N:` patterns in 17 procedure / guideline / plan / register files). Codifies the sentence-case rule and other language conventions in both specifications. Introduces [`tools/lint-language.py`](tools/lint-language.py).
 
 ## Phase 4 (2026-05-28): near-duplicate reconciliation
 
-Retires the older, weaker governance-domain policy in favour of the newer risk-domain policy as the canonical enterprise governance and risk management policy. Migrates the control-area mapping table into `governance/matrix-cross-framework-alignment.md`. Retires the governance-domain supplier security and privacy assurance procedure; migrates its metrics block into the supply-chain Standard. 37 inbound references redirected; 2 files deleted; 40+ files modified.
+Retires the older, weaker governance-domain policy in favour of the newer risk-domain policy as the canonical enterprise governance and risk management policy. Migrates the control-area mapping table into [`governance/matrix-cross-framework-alignment.md`](governance/matrix-cross-framework-alignment.md). Retires the governance-domain supplier security and privacy assurance procedure; migrates its metrics block into the supply-chain Standard. 37 inbound references redirected; 2 files deleted; 40+ files modified.
 
 ## Phase 3 (2026-05-28): duplicate filename resolution
 
 Three duplicate-filename pairs resolved. Renames preserve git history.
 
-- `security/procedure-incident-response.md` and `resilience/procedure-incident-response.md` renamed to `security/procedure-security-incident-response.md` and `resilience/procedure-cross-domain-incident-coordination.md`. The resilience procedure refocused as the cross-domain coordination layer that delegates technical IR to the security procedure.
-- `privacy/procedure-data-protection-and-privacy-breach-response.md` and `resilience/procedure-data-protection-and-privacy-breach-response.md` consolidated: AI-specific assessment block migrated into a new section 4.3 of the privacy procedure; resilience-domain duplicate deleted.
-- `compliance/register-ctpat-compliance-controls.md` and `supply-chain/register-ctpat-compliance-controls.md` renamed to `compliance/register-ctpat-it-controls.md` and `supply-chain/register-ctpat-full-msc-controls.md` to make their distinct scopes explicit.
+- [`security/procedure-incident-response.md`](security/procedure-incident-response.md) and [`resilience/procedure-incident-response.md`](resilience/procedure-incident-response.md) renamed to [`security/procedure-security-incident-response.md`](security/procedure-security-incident-response.md) and [`resilience/procedure-cross-domain-incident-coordination.md`](resilience/procedure-cross-domain-incident-coordination.md). The resilience procedure refocused as the cross-domain coordination layer that delegates technical IR to the security procedure.
+- [`privacy/procedure-data-protection-and-privacy-breach-response.md`](privacy/procedure-data-protection-and-privacy-breach-response.md) and [`resilience/procedure-data-protection-and-privacy-breach-response.md`](resilience/procedure-data-protection-and-privacy-breach-response.md) consolidated: AI-specific assessment block migrated into a new section 4.3 of the privacy procedure; resilience-domain duplicate deleted.
+- [`compliance/register-ctpat-compliance-controls.md`](compliance/register-ctpat-compliance-controls.md) and [`supply-chain/register-ctpat-compliance-controls.md`](supply-chain/register-ctpat-compliance-controls.md) renamed to [`compliance/register-ctpat-it-controls.md`](compliance/register-ctpat-it-controls.md) and [`supply-chain/register-ctpat-full-msc-controls.md`](supply-chain/register-ctpat-full-msc-controls.md) to make their distinct scopes explicit.
 
 ## Phase 2 (2026-05-28): filename, type, and cross-reference reconciliation
 
-Brings every file into compliance with the now-expanded specification. Two files renamed via `git mv` to add correct type prefixes (`plan-` and `template-`). Seven files reclassified to their canonical Document Type. Three references to the superseded `privacy/annex-regional-privacy-requirements.md` redirected to `privacy/annex-privacy-jurisdiction-index.md`. Microsoft PyRIT references rewritten under open-source framing. 12 inbound references updated.
+Brings every file into compliance with the now-expanded specification. Two files renamed via `git mv` to add correct type prefixes (`plan-` and `template-`). Seven files reclassified to their canonical Document Type. Three references to the superseded [`privacy/annex-regional-privacy-requirements.md`](privacy/annex-regional-privacy-requirements.md) redirected to [`privacy/annex-privacy-jurisdiction-index.md`](privacy/annex-privacy-jurisdiction-index.md). Microsoft PyRIT references rewritten under open-source framing. 12 inbound references updated.
 
 ## Phase 1 (2026-05-28): document-type expansion
 
