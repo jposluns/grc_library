@@ -78,9 +78,12 @@ def looks_like_file_reference(text: str) -> bool:
         return True
     if text in TOP_LEVEL_FILES:
         return True
-    # bare filenames with recognized extensions
-    if "/" not in text and text.endswith(FILE_EXTENSIONS) and re.match(r"^[A-Za-z0-9_\-.]+$", text):
-        return True
+    # bare filenames with recognized extensions: require at least one
+    # alphanumeric character before the extension (rejects bare ".md" etc.)
+    if "/" not in text and text.endswith(FILE_EXTENSIONS):
+        base = text[: text.rindex(".")]
+        if base and re.match(r"^\.?[A-Za-z0-9][A-Za-z0-9_\-.]*$", base):
+            return True
     return False
 
 

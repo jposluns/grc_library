@@ -4,6 +4,34 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.13 (2026-05-30, Library Version 2026.05.29): Placeholder leakage detector
+
+Tier 1 linter from the audit-roadmap. Adds [`tools/lint-placeholder-leakage.py`](tools/lint-placeholder-leakage.py), the 14th linter in the audit suite. Catches `TODO`, `TBD`, `FIXME`, `XXX`, `<YYYY-MM-DD>`-style placeholder markers, `(placeholder)`, `[Unverified]`, and "Coming soon" in production library documents.
+
+### What the linter does
+
+Scans all `.md` files in the repo for placeholder markers. Templates, worklists, the [`TODO.md`](TODO.md) file itself, files describing the placeholder patterns (specifications, language linter, this linter source), the coverage-gaps register (which uses `TODO P5.x` as cross-references to priorities), the decision tree (which references both), and the `claude-rules` directory (code-syntax placeholders) are exempt by design.
+
+Detects each pattern via word-boundary regex; reports per-line findings with the matched marker label. Skips fenced code blocks. Returns exit code 1 on findings.
+
+### Why it exists
+
+A library that ships with `TODO: define threshold` in a security control is one adopter compliance failure away from reputational damage. The existing [`lint-shall-near-uncertainty.py`](tools/lint-shall-near-uncertainty.py) catches these only when adjacent to a mandatory verb. This linter catches them anywhere outside the exempt set.
+
+### CI integration
+
+Added to [`.github/workflows/quality.yml`](.github/workflows/quality.yml). Audit suite is now 14 gates.
+
+### Verification
+
+Linter passes on current library (284 files scanned, 0 findings). Negative-case test (synthetic file with `TODO: fix this`) correctly fails.
+
+### Library version
+
+`2026.05.28` to `2026.05.29`. README `1.7.21` to `1.7.22`.
+
+All 14 audits clean.
+
 ## Phase 23.12 (2026-05-30, Library Version 2026.05.28): CHANGELOG link enforcement linter
 
 Adds [`tools/lint-changelog-link-coverage.py`](tools/lint-changelog-link-coverage.py), the 13th linter in the audit suite. Enforces that every backtick-wrapped file reference in [`CHANGELOG.md`](CHANGELOG.md) is wrapped in a markdown link, locking in the navigation convention established in Phase 23.11.
