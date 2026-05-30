@@ -51,12 +51,16 @@ EXEMPT_FILES = {
     "lint-pii-in-content.py",
     "lint-language.py",  # contains sanitization-term list
     "lint-secrets-in-content.py",  # discusses secret/PII patterns
+    "lint-internal-references.py",  # discusses IP / hostname patterns
     # The adversarial test reference contains documentation of attack
     # patterns including fake emails used as prompt-injection test inputs.
     # The emails are intentional test data, not real PII.
     "guide-ai-adversarial-test-reference.md",
     # AI security technical implementation guide contains test/example emails.
     "guide-ai-security-technical-implementation.md",
+    # CHANGELOG describes linter patterns including test cases (e.g., CIDR
+    # examples) that incidentally match PII patterns.
+    "CHANGELOG.md",
 }
 
 # Domains acceptable in documentation examples.
