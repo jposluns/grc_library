@@ -70,11 +70,11 @@ run_gate "Framework citation hallucination audit"        python3 tools/lint-cita
 run_gate "Standards-currency audit"                      python3 tools/lint-standards-currency.py
 run_gate "Filename and Document Title alignment audit"   python3 tools/lint-filename-title-alignment.py
 run_gate "Owner and Approving Authority role audit"      python3 tools/lint-roles.py
-run_gate "Mandatory near uncertainty marker audit"       python3 tools/lint-shall-near-uncertainty.py
+run_gate "Mandatory requirement near uncertainty marker audit" python3 tools/lint-shall-near-uncertainty.py
 run_gate "Per-document review cadence audit"             python3 tools/check-review-cadence.py
 run_gate "CHANGELOG file-reference link coverage"        python3 tools/lint-changelog-link-coverage.py
 run_gate "Placeholder leakage audit"                     python3 tools/lint-placeholder-leakage.py
-run_gate "Library/document version monotonicity audit"   python3 tools/lint-library-version-monotonicity.py
+run_gate "Library and document version monotonicity audit" python3 tools/lint-library-version-monotonicity.py
 run_gate "Metadata date format audit"                    python3 tools/lint-date-format.py
 run_gate "License consistency audit"                     python3 tools/lint-license-consistency.py
 run_gate "Stub document audit"                           python3 tools/lint-stub-documents.py

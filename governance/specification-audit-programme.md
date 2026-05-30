@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Programme Specification\
 **Document Type:** Specification\
-**Version:** 1.0.0\
+**Version:** 1.0.1\
 **Date:** 2026-05-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -44,7 +44,7 @@ The audit programme rests on five principles:
 1. **Determinism over heuristic**. Every gate produces a deterministic pass/fail outcome from the repository state alone. No gate depends on network access, third-party services, or wall-clock state outside the repository.
 2. **Stdlib-only Python**. Every linter is implemented in Python 3.11 standard-library code with no third-party dependencies. This keeps the audit programme reproducible across local, CI, and pre-commit surfaces with zero environment setup beyond a Python interpreter.
 3. **One gate, one concern**. Each gate enforces a single, narrowly defined rule. Failure messages name the rule, the file, the line, and the offending content. When a rule's domain grows beyond one file, the gate is split rather than overloaded.
-4. **Conservative scope over false positives**. A gate that would produce legitimate false positives at scale is either scoped narrowly enough to track zero items (the [`tools/lint-cross-doc-numbers.py`](../tools/lint-cross-doc-numbers.py) scaffold pattern from Phase 23.26) or not shipped at all. Honest scope management is preferred over either silent false positives or blanket exemption lists.
+4. **Conservative scope over false positives**. A gate that would produce legitimate false positives at scale is either scoped narrowly enough to track zero items (the [`tools/lint-cross-doc-numbers.py`](../tools/lint-cross-doc-numbers.py) scaffold pattern from Phase 23.26) or not shipped at all. Honest scope management is preferred over either silent false positives or blanket exemption lists. A permitted exception is *meta-documents* whose purpose is to describe a linter's rule set (the linter script itself, the CHANGELOG, this specification, and the Citation Verification Specification): these documents inevitably contain the patterns the linter searches for and are exempted by name in the linter's exemption list, with an inline comment naming the reason.
 5. **CI parity**. The local audit runner and the pre-commit hook always run the same set of gates as the CI workflow. Drift between the three surfaces is itself a recoverable defect rather than a feature.
 
 ## 4. Enforcement surfaces
@@ -61,14 +61,14 @@ Of the three surfaces, only the GitHub Actions workflow is authoritative: a gree
 
 ## 5. Gate categories
 
-The 30 gates fall into seven functional categories:
+The gates fall into seven functional categories:
 
-1. **Metadata integrity** (gates 1, 7, 13, 14, 15, 16, 19): canonical metadata block presence and field validity; doctype-to-filename alignment; date format; license value; document-stub detection; required sections per doctype; version monotonicity.
-2. **Reference integrity** (gates 3, 17, 18, 23, 24, 26): intra-repo links resolve; section anchors resolve; intra-document section references resolve; internal-environment references absent; external-link domains on allow-list; orphan documents have at least one inbound reference.
+1. **Metadata integrity** (gates 1, 7, 8, 13, 14, 15, 16, 19): canonical metadata block presence and field validity; doctype-to-filename alignment; Owner and Approving Authority field validity against the role register; date format; license value; document-stub detection; required sections per doctype; version monotonicity.
+2. **Reference integrity** (gates 3, 11, 17, 18, 24, 26): intra-repo links resolve; CHANGELOG file-reference link coverage; section anchors resolve; intra-document section references resolve; external-link domains on allow-list; orphan documents have at least one inbound reference.
 3. **Content drift defence** (gates 5, 6, 25): external framework hallucinations; standards currency; cross-document numerical coherence.
 4. **Language and style** (gates 2, 9, 20): em-dashes, "ize/ization" Americanisms, "ensure that", sanitisation neologisms; mandatory requirements near uncertainty markers; acronym expansion consistency against the glossary.
-5. **Structural index** (gates 4, 8, 11, 26): repository-wide index integrity, role authority alignment, CHANGELOG file-reference link coverage, orphan registry coverage.
-6. **Security and privacy** (gates 12, 21, 22, 23): placeholder leakage, secret patterns, PII patterns, internal-environment references.
+5. **Structural index** (gate 4): repository-wide index integrity.
+6. **Security and privacy** (gates 12, 21, 22, 23): placeholder leakage, secret patterns, PII patterns, internal-environment leakage (cloud regions, hostnames, deployment identifiers).
 7. **Freshness and lifecycle** (gates 10, 27, 28, 29, 30): document review cadence, citation-verification freshness, tooling-provenance freshness, auto-generated taxonomy and portal/scorecard sync.
 
 Categorisation is descriptive, not prescriptive: a gate may bear on multiple categories. Categories exist to help reviewers reason about coverage.
@@ -82,7 +82,7 @@ The numbering matches the order in [`tools/run_all_audits.sh`](../tools/run_all_
 | 1 | Metadata audit | [`tools/lint-metadata.py`](../tools/lint-metadata.py) |
 | 2 | Language and style audit | [`tools/lint-language.py`](../tools/lint-language.py) |
 | 3 | Repository-internal link audit | [`tools/lint-links.py`](../tools/lint-links.py) |
-| 4 | Structural index integrity | [`tools/lint-structure.py`](../tools/lint-structure.py) |
+| 4 | Structural index integrity audit | [`tools/lint-structure.py`](../tools/lint-structure.py) |
 | 5 | Framework citation hallucination audit | [`tools/lint-citations.py`](../tools/lint-citations.py) |
 | 6 | Standards-currency audit | [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py) |
 | 7 | Filename and Document Title alignment audit | [`tools/lint-filename-title-alignment.py`](../tools/lint-filename-title-alignment.py) |
@@ -91,7 +91,7 @@ The numbering matches the order in [`tools/run_all_audits.sh`](../tools/run_all_
 | 10 | Per-document review cadence audit | [`tools/check-review-cadence.py`](../tools/check-review-cadence.py) |
 | 11 | CHANGELOG file-reference link coverage | [`tools/lint-changelog-link-coverage.py`](../tools/lint-changelog-link-coverage.py) |
 | 12 | Placeholder leakage audit | [`tools/lint-placeholder-leakage.py`](../tools/lint-placeholder-leakage.py) |
-| 13 | Library and document version monotonicity | [`tools/lint-library-version-monotonicity.py`](../tools/lint-library-version-monotonicity.py) |
+| 13 | Library and document version monotonicity audit | [`tools/lint-library-version-monotonicity.py`](../tools/lint-library-version-monotonicity.py) |
 | 14 | Metadata date format audit | [`tools/lint-date-format.py`](../tools/lint-date-format.py) |
 | 15 | License consistency audit | [`tools/lint-license-consistency.py`](../tools/lint-license-consistency.py) |
 | 16 | Stub document audit | [`tools/lint-stub-documents.py`](../tools/lint-stub-documents.py) |
@@ -118,7 +118,7 @@ A phase is complete when:
 
 1. All file edits intended for the phase are written.
 2. Auto-generated artefacts ([`taxonomy.yml`](../taxonomy.yml), [`docs/portal.md`](../docs/portal.md), [`docs/maturity-scorecard.md`](../docs/maturity-scorecard.md)) have been regenerated.
-3. The full 30-gate audit programme passes locally via [`tools/run_all_audits.sh`](../tools/run_all_audits.sh).
+3. The full audit programme passes locally via [`tools/run_all_audits.sh`](../tools/run_all_audits.sh).
 4. The CHANGELOG entry for the phase is written.
 5. The library calendar version is bumped (and the README version where appropriate).
 6. The change is committed and pushed; the pull request is opened.
@@ -153,7 +153,7 @@ The procedure for adding a gate:
 1. Write the linter as `tools/lint-<feature>.py` (Python 3.11, stdlib only).
 2. Confirm the linter exits 0 on the current corpus (zero false positives) or that its rule set is conservatively scaffolded.
 3. Add the gate to [`.github/workflows/quality.yml`](../.github/workflows/quality.yml), [`tools/run_all_audits.sh`](../tools/run_all_audits.sh), [`.pre-commit-config.yaml`](../.pre-commit-config.yaml), and the §6 inventory table above.
-4. Increment the gate count in this specification (§5 and §6).
+4. Add the new gate's row to the §6 inventory and update the gate count in §2.1; §5 places the gate in its functional category. The §6 inventory table is the canonical source of truth for the gate count.
 5. Record the addition in the CHANGELOG under a new phase entry.
 
 ## 10. Modifying or retiring a gate
@@ -161,7 +161,7 @@ The procedure for adding a gate:
 A gate is modified when its rule is found to be incorrect (Phase 23.20 pattern). The modification must include:
 
 1. The corrected linter code.
-2. A re-run of the full 30-gate sweep to confirm no new violations surface.
+2. A re-run of the full audit sweep to confirm no new violations surface.
 3. A CHANGELOG entry naming the gate, the rule that changed, and the rationale.
 4. An update to the linter's module docstring if the rule's substance changed.
 
@@ -176,7 +176,12 @@ The Audit Programme Specification and [`governance/specification-citation-verifi
 | Are the library's internal references, structure, naming, metadata, and language internally consistent? | Audit Programme Specification (this document) |
 | Are the library's claims about external standards accurate against publisher canonical sources? | Citation Verification Specification |
 
-Two of the 30 gates ([`tools/lint-citation-verification-freshness.py`](../tools/lint-citation-verification-freshness.py) and [`tools/lint-tooling-provenance-freshness.py`](../tools/lint-tooling-provenance-freshness.py)) sit at the boundary: they are determined automatically from repository state (so they belong to this programme) but enforce a freshness cadence defined in the Citation Verification Specification §12 (so their semantics derive from there).
+Three of the gates sit at the boundary between the two programmes:
+
+- [`tools/lint-citations.py`](../tools/lint-citations.py) (gate 5) detects literal-string drift on external framework versions (for example, the canonical "COBIT 2025" hallucination warning). Its substance is a claim about the world (what version of COBIT is current), which derives from the Citation Verification Specification; its mechanism is deterministic repository-state pattern matching, which is the audit programme.
+- [`tools/lint-citation-verification-freshness.py`](../tools/lint-citation-verification-freshness.py) (gate 27) and [`tools/lint-tooling-provenance-freshness.py`](../tools/lint-tooling-provenance-freshness.py) (gate 28) enforce the freshness cadences (12-month for canonical citations, 6-month for active tooling, 12-month for archived tooling) defined in Citation Verification Specification §12.
+
+These three gates are determined automatically from repository state (so they belong to this programme) but enforce semantics defined in the Citation Verification Specification (so their substance derives from there).
 
 When the two specifications conflict, the Citation Verification Specification governs the *substance* of what counts as "verified" and "fresh"; this specification governs the *enforcement mechanism* by which that substance is checked at every change.
 
