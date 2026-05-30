@@ -4,6 +4,49 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.5 (2026-05-30, Library Version 2026.05.21): Classical ML adversarial taxonomy
+
+Fifth content phase from the external-project assessment. Significantly expands the AI Model Risk Standard §5 (Robustness and adversarial testing) with a structured taxonomy distinguishing LLM threats from classical ML threats, federated-learning threats, defence categories, adaptive-attacker testing, and operational robustness. Codifies the threat surface that ART (Trusted-AI Adversarial Robustness Toolbox), AIJack, HEART, and HarmBench collectively cover.
+
+### Why this expansion exists
+
+The library has been overwhelmingly LLM-centric. The previous §5 named "data poisoning, model inversion, membership inference, training data leakage, input perturbation sensitivity, unauthorized model or data extraction" at one-line granularity. The Wave 2 research (ART, AIJack, HEART) demonstrated that the classical-ML adversarial surface has structure that organisations operating non-LLM models need codified.
+
+### What was added
+
+Section 5 restructured into six numbered subsections:
+
+- **5.1 LLM and generative-system threats** (12 named categories including agentic Goal Theft, Inter-Agent Communication Compromise, multimodal injection, hallucinated security controls).
+- **5.2 Classical ML threats** (4 named attack classes — evasion, poisoning, extraction, inference — with the canonical attack family enumeration that ART codifies: FGSM, PGD, Carlini-Wagner, BoundaryAttack, HopSkipJump, SquareAttack, AdversarialPatch, DPatch, BadDet variants, CopycatCNN, KnockoffNets, MIFace, membership inference variants, attribute inference, model inversion, database reconstruction).
+- **5.3 Federated-learning threats** (DBA, model replacement, free-rider, label-leakage via norm-attack, gradient inversion variants).
+- **5.4 Defence categories** (preprocessor, postprocessor, adversarial training, transformer defences, detectors, privacy defences, output egress controls, certified defences).
+- **5.5 Adaptive-attacker testing** (required where the deployed model class is vulnerable to RL-trained adversaries; cadence per ADTEST-SEC-01).
+- **5.6 Out-of-distribution and operational robustness** (across all model classes).
+
+### Coverage rationale
+
+The deny-list of attack families in 5.2 is not exhaustive; it codifies the canonical attack categories that converge across ART (the Linux Foundation flagship), AIJack (privacy + FL), and HEART (DoD MAITE T&E). Organisations operating classical ML can use this taxonomy as the structural basis for their adversarial test programme and then map specific tool choices below it. The control remains vendor-neutral: ART, AIJack, HEART, or equivalent tools may be used.
+
+### What this phase does NOT include
+
+- No new external citations in the framework-alignment list (deferred to Phase 23.6).
+- No per-attack control IDs (e.g., MODEL-RISK-EV-01) — the taxonomy is descriptive of test scope, not prescriptive at the per-attack level. Per-attack mandates would be excessive for a vendor-neutral baseline.
+
+### Cross-references updated
+
+- `ai/standard-ai-model-risk.md` (1.0.0 to 1.1.0): §5 substantially expanded.
+- Main README (Library 2026.05.20 to 2026.05.21; README 1.7.13 to 1.7.14).
+
+### Library version
+
+`2026.05.20` to `2026.05.21`. README `1.7.13` to `1.7.14`.
+
+### Next
+
+Phase 23.6: framework alignment updates. Adds new entries to `register-canonical-citations.md` (AVID, MLCommons AILuminate, UK AISI inspect_evals, OWASP Agentic AI Top 10 2026, CyberSecEval, HarmBench, ART, modelscan, picklescan, fickling, NeMo Guardrails, Guardrails AI, llm-guard, Giskard, deepteam, awesome-ai-security). Each new citation enters the citation verifications queue per the Q-track methodology.
+
+All 12 audits clean.
+
 ## Phase 23.4 (2026-05-30, Library Version 2026.05.20): Agentic, RAG, MCP, and multimodal threat expansion
 
 Fourth content phase from the external-project assessment. Significantly expands the AI and Agentic Development Security Standard threat coverage in four areas where the previous threat model named risks at high level but did not codify the operational defences. All changes are additive to existing controls; no prior IDs are renumbered.

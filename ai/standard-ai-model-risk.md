@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Risk Standard\
 **Document Type:** Standard\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.1.0\
+**Date:** 2026-05-30\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\
@@ -60,19 +60,62 @@ It applies to internally developed models, externally supplied models, fine-tune
 
 ### 5. Robustness and adversarial testing
 
-Model testing must address, proportionate to risk:
+Model testing must address, proportionate to risk and model class. The taxonomy below distinguishes LLM and generative-system threats from classical ML threats, federated-learning threats, and the defence categories that apply across them. Coverage depth follows model class and deployment context, not all threats apply to all models.
 
-- Prompt injection.
-- Indirect prompt injection.
-- Data poisoning.
-- Model inversion.
-- Membership inference.
-- Training data leakage.
-- Retrieval leakage.
-- Unsafe tool use.
-- Out-of-distribution behaviour.
-- Input perturbation sensitivity.
-- Unauthorized model or data extraction.
+#### 5.1 LLM and generative-system threats
+
+- Prompt injection (direct).
+- Indirect prompt injection (via retrieved or supplied content).
+- Jailbreak attempts and content-filter circumvention.
+- Training data poisoning of pre-training, fine-tuning, or alignment corpora.
+- Training data extraction or leakage in model output.
+- Retrieval leakage across users, tenants, classifications, or scopes.
+- Unsafe tool use and excessive agency in agentic systems.
+- Memory poisoning across sessions where persistent memory exists.
+- Agentic goal theft and gradual drift across multi-turn sessions.
+- Inter-agent communication compromise in multi-agent orchestrations.
+- Hallucinated security controls in AI-generated code.
+- Multimodal injection via image, audio, video, document, OCR, or QR-code inputs.
+
+#### 5.2 Classical ML threats (non-LLM models)
+
+Where the model is a classical ML model (image classifier, object detector, tabular predictor, audio model, speech recognition, time-series model), testing must address the following categories proportionate to risk and adversary capability:
+
+- **Evasion attacks**: gradient-based methods such as FGSM, PGD (projected gradient descent), Carlini-Wagner family (L0, L2, LInf), DeepFool, AutoAttack; decision-boundary methods such as BoundaryAttack and HopSkipJump; score-based methods such as SquareAttack and ZooAttack; patch and physical attacks such as AdversarialPatch, DPatch for object detection, RobustDPatch; universal perturbations; transformation attacks such as SpatialTransformation; audio-specific attacks such as ImperceptibleASR; video-specific attacks such as OverTheAirFlickering; tabular attacks such as LowProFool.
+- **Poisoning attacks**: data poisoning to induce backdoor behaviour (PoisoningAttackBackdoor, PoisoningAttackCleanLabelBackdoor); poisoning to induce class-targeted misclassification (FeatureCollisionAttack, BullseyePolytope); hidden-trigger backdoors; gradient-matching attacks; sleeper-agent attacks; object-detection-specific poisoning (BadDet global misclassification, regional misclassification, object generation, object disappearance).
+- **Extraction attacks** (model theft): CopycatCNN-style query-based extraction; KnockoffNets-style label-only extraction; functionally-equivalent extraction. Mitigations include query rate limiting, output randomisation, and watermarking.
+- **Inference attacks** (privacy): membership inference (black-box, label-only decision-boundary, label-only gap, shadow-model); attribute inference (black-box, white-box decision-tree variants); model inversion (MIFace and equivalents); training-data reconstruction (DatabaseReconstruction).
+
+#### 5.3 Federated-learning threats (where applicable)
+
+Where the model is trained or fine-tuned via federated learning or split learning, additional threats apply:
+
+- Distributed backdoor attacks (DBA) where multiple clients collude to embed backdoor triggers.
+- Model replacement attacks in federated aggregation.
+- Free-rider attacks where a participant contributes synthetic or replayed updates to extract the model while contributing nothing.
+- Label leakage via norm-attack on shared gradients.
+- Gradient inversion attacks (DLG, iDLG, GS, CPL, GradInversion, GAN attack) that reconstruct training data from shared gradients.
+
+#### 5.4 Defence categories
+
+Defences are applied proportionate to risk, threat class, and deployment context. Categories applicable across LLM and classical ML where the threat applies:
+
+- **Preprocessor defences**: feature squeezing, spatial smoothing, JPEG compression, total-variation minimisation, thermometer encoding, Gaussian augmentation.
+- **Postprocessor defences**: reverse sigmoid, high-confidence filtering, output rounding, Gaussian noise injection, label-set restriction.
+- **Adversarial training**: standard adversarial training, Madry-style PGD adversarial training, TRADES, fast-better-faster (FBF), differentially-private adversarial training.
+- **Transformer defences**: defensive distillation, NeuralCleanse for backdoor removal, STRIP, activation-defence for poisoning detection.
+- **Detectors**: binary input detectors, binary activation detectors, subset-scanning detectors.
+- **Privacy defences**: differential privacy (DP-SGD, AdaDPS, DPlis), homomorphic encryption, k-anonymity for tabular inputs, federated-learning aggregation defences (FoolsGold against Sybil patterns, Mondrian, MID).
+- **Output egress controls**: query rate limiting, watermarking, output randomisation against extraction.
+- **Certified defences**: where applicable to model class, certified-robustness training and certified adversarial training.
+
+#### 5.5 Adaptive-attacker testing
+
+Static defensive test suites become insufficient at the rate at which adaptive attackers iterate. Where the deployed model class is known to be vulnerable to reinforcement-learning-trained adversaries (per the AI threat model), adaptive-attacker testing is required at the cadence in `ADTEST-SEC-01` of the AI and Agentic Development Security Standard. The test exercises a trained-attacker model against the current defensive posture and measures attack success rate over time; baseline test suites that the production system has already passed are reused as the lower-bound floor.
+
+#### 5.6 Out-of-distribution and operational robustness
+
+Across all model classes, testing must address out-of-distribution behaviour, input perturbation sensitivity outside the adversarial threat model (sensor noise, image compression artefacts, audio bitrate variation, distribution shift between training and operational data), and operational degradation under load.
 
 ### 6. Alignment and human oversight
 
