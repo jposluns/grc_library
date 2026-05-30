@@ -1,7 +1,7 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Library Version:** 2026.05.37\
-**README Version:** 1.7.30\
+**Library Version:** 2026.05.38\
+**README Version:** 1.7.31\
 **Date:** 2026-05-30\
 **Classification:** Public\
 **Confidentiality:** Public\
