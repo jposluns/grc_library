@@ -4,6 +4,35 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.27 (2026-05-30, Library Version 2026.05.43): Orphan document audit
+
+Tier 4 linter. Adds [`tools/lint-orphan-documents.py`](tools/lint-orphan-documents.py), the 28th linter. Detects artefact documents with zero inbound markdown-link references.
+
+### What the linter does
+
+Builds the reverse-reference graph across all `.md` files (every markdown link `[text](path)` is recorded as an inbound reference for the target). Reports artefact documents with empty inbound sets.
+
+### Exemptions
+
+- Entry-point files reached by filename convention: [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`LICENSE`](LICENSE), [`AUTHORS.md`](AUTHORS.md), [`CITATION.cff`](CITATION.cff), [`CHANGELOG.md`](CHANGELOG.md), [`TODO.md`](TODO.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md).
+- Domain READMEs (any README.md in a subdirectory): reached by directory navigation.
+- Worklists: working artefacts.
+- The [`dev-security/claude-rules/`](dev-security/claude-rules/) directory: standalone drag-and-drop artefacts referenced by the claude-rules README's tree diagram (plain-text references that the linter does not parse as markdown links).
+
+### CI integration
+
+Added to [`.github/workflows/quality.yml`](.github/workflows/quality.yml). Audit suite is now 28 gates.
+
+### Verification
+
+288 artefacts checked against 333 files in the reference graph. All have at least one inbound reference.
+
+### Library version
+
+`2026.05.42` to `2026.05.43`. README `1.7.35` to `1.7.36`.
+
+All 28 audits clean.
+
 ## Phase 23.26 (2026-05-30, Library Version 2026.05.42): Cross-document numerical coherence (scaffold)
 
 First Tier 4 linter (coherence and methodology enforcement). Adds [`tools/lint-cross-doc-numbers.py`](tools/lint-cross-doc-numbers.py), the 27th linter. Scaffold for detecting cross-document numerical drift on canonical-term thresholds.
