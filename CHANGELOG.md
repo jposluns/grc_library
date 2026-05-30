@@ -4,6 +4,48 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.22 (2026-05-30, Library Version 2026.05.38): Secret pattern audit
+
+First Tier 3 linter (security defence). Adds [`tools/lint-secrets-in-content.py`](tools/lint-secrets-in-content.py), the 23rd linter. Scans library content for accidentally-committed secrets.
+
+### What the linter does
+
+Scans `.md`, `.py`, `.yaml`, `.yml`, `.json`, `.toml`, `.txt` files for high-confidence secret patterns:
+
+- AWS Access Key ID (full 20-char structure with required prefix and 16 base32 chars; avoids false positive on the word "AIDA").
+- GitHub tokens (`ghp_`, `gho_`, `ghu_`, `ghs_`, `ghr_` with 36+ chars).
+- GitLab personal access tokens (`glpat-` with 20+ chars).
+- Slack tokens (`xox[baprs]-` with three Base64URL segments).
+- Stripe live secret/restricted keys (`sk_live_`, `rk_live_`).
+- SendGrid API keys (`SG.` with two Base64URL segments).
+- Google API keys (`AIza` followed by 35 chars).
+- Private key blocks (RSA, DSA, EC, OPENSSH, PGP).
+- JWT (3-part Base64URL with realistic payload length).
+
+The regex set is informed by ClawGuard's published sanitiser-engine patterns and detect-secrets defaults.
+
+Findings show only the first 12 characters of the matched secret to avoid echoing the full value in linter output.
+
+Exempt: [`dev-security/claude-rules/core/secrets.md`](dev-security/claude-rules/core/secrets.md) (the "never hardcode secrets" rule file that documents the patterns by showing them in code-block examples).
+
+### Why it exists
+
+A CC0 public-domain library leaking real credentials would be a serious failure. This linter defends against that.
+
+### CI integration
+
+Added to [`.github/workflows/quality.yml`](.github/workflows/quality.yml). Audit suite is now 23 gates.
+
+### Verification
+
+Positive case: 357 files scanned, no suspected secrets. Negative case: synthetic AWS-shaped access-key-ID example and GitHub-shaped token correctly caught.
+
+### Library version
+
+`2026.05.37` to `2026.05.38`. README `1.7.30` to `1.7.31`.
+
+All 23 audits clean.
+
 ## Phase 23.21 (2026-05-30, Library Version 2026.05.37): Acronym expansion consistency audit
 
 Fourth Tier 2 linter (final in tier). Adds [`tools/lint-acronym-consistency.py`](tools/lint-acronym-consistency.py), the 22nd linter. Verifies that inline acronym expansions in artefact documents match the glossary.
