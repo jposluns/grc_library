@@ -2,8 +2,8 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.1.0\
-**Date:** 2026-05-28\
+**Version:** 1.2.0\
+**Date:** 2026-05-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`README.md`](../README.md)\
@@ -51,7 +51,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **AIDA** | Artificial Intelligence and Data Act. Canadian federal proposed legislation on AI. |
 | **AIGC** | AI Governance Council. Cross-functional governance forum defined in the library's AI charter. |
 | **AIMS** | Artificial Intelligence Management System (per ISO/IEC 42001:2023). |
-| **AIS** | AI System. A unit of AI capability tracked in the AI System Register. |
+| **AIS** | AI System. A unit of AI capability tracked in the AI System Register. (CSA CCM also uses AIS as Application and Interface Security, the CCM domain covering application-layer controls; the library cites that domain explicitly where used.) |
 | **AIDA** | (See above.) Distinct from "AI Data Act" in some contexts; the library uses AIDA for the Canadian Artificial Intelligence and Data Act only. |
 | **ASD** | Australian Signals Directorate. Authority for the Australian Information Security Manual (ISM). |
 | **ATT** | Australian Trusted Trader. Australia's AEO-equivalent trusted-trader programme. |
@@ -89,7 +89,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **CPPA** | Consumer Privacy Protection Act (Canada). Distinct from CCPA. |
 | **CRO** | Chief Risk Officer. |
 | **CSA** | Cloud Security Alliance. |
-| **CSP** | Cloud Service Provider. |
+| **CSP** | Cloud Service Provider. (In financial-services contexts, CSP also denotes SWIFT Customer Security Programme; that sector annex uses the SWIFT meaning explicitly.) |
 | **CSV** | Comma-Separated Values (file format). |
 | **CTO** | Chief Technology Officer. |
 | **CTPAT** | Customs-Trade Partnership Against Terrorism. U.S. CBP voluntary trusted-trader programme. See [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md). |

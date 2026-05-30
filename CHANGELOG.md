@@ -4,6 +4,52 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.21 (2026-05-30, Library Version 2026.05.37): Acronym expansion consistency audit
+
+Fourth Tier 2 linter (final in tier). Adds [`tools/lint-acronym-consistency.py`](tools/lint-acronym-consistency.py), the 22nd linter. Verifies that inline acronym expansions in artefact documents match the glossary.
+
+### What the linter does
+
+- Parses [`governance/register-glossary.md`](governance/register-glossary.md) into an acronym → expansion-words map (uses the entire expansion cell, including parenthetical alternate meanings).
+- Walks artefact documents looking for inline definitions of form "Expansion Phrase (ACRONYM)" where ACRONYM is 2-6 uppercase letters/digits.
+- For each inline definition, checks that the expansion's significant words overlap the glossary's words. Stopwords (a/an/the/of/for/in/on/to/etc.) are ignored.
+- Flags definitions where the overlap is empty (i.e., expansion phrase entirely different from glossary).
+
+The linter is conservative: stylistic variations (a/the/and) are tolerated. Only material divergence (no overlapping significant words) is flagged.
+
+### Library-content adjustments
+
+Two glossary entries extended with parenthetical alternate-meaning notes:
+
+- **AIS**: added note "CSA CCM also uses AIS as Application and Interface Security..."
+- **CSP**: added note "(In financial-services contexts, CSP also denotes SWIFT Customer Security Programme...)"
+
+These are legitimate overloaded acronyms (the same letters mean different things in different sectors). Recording the alternates in the glossary makes the glossary more accurate and satisfies the linter without forcing inline-definition rewrites.
+
+Glossary version bumped 1.1.0 → 1.2.0.
+
+### CI integration
+
+Added to [`.github/workflows/quality.yml`](.github/workflows/quality.yml). Audit suite is now 22 gates.
+
+### Verification
+
+Positive case: 331 files scanned, 163 glossary entries; all inline expansions match. Initial scan caught two real overloads (AIS, CSP); resolved by glossary updates.
+
+### Tier 2 complete
+
+Four linters added across phases 23.18-23.21: section anchors, intra-doc refs, required sections, acronym consistency. Library audit suite grew from 18 to 22 gates.
+
+### Library version
+
+`2026.05.36` to `2026.05.37`. README `1.7.29` to `1.7.30`.
+
+### Next
+
+Phase 23.22 begins Tier 3 (security defence). First: secret pattern detection.
+
+All 22 audits clean.
+
 ## Phase 23.20 (2026-05-30, Library Version 2026.05.36): Required sections audit
 
 Third Tier 2 linter. Adds [`tools/lint-required-sections.py`](tools/lint-required-sections.py), the 21st linter. Enforces that artefact documents include at least one orientation section (Purpose, Scope, Applicability, Introduction, Overview, etc.) based on their doctype.
