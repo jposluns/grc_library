@@ -2,7 +2,7 @@
 
 **Document Title:** Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.9.1\
+**Version:** 1.10.0\
 **Date:** 2026-05-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -40,6 +40,7 @@ This directory contains the enterprise-wide governance foundation of the GRC Doc
 | Register | Glossary and Acronym Index | [`governance/register-glossary.md`](register-glossary.md) |
 | Register | Canonical Citations Register | [`governance/register-canonical-citations.md`](register-canonical-citations.md) |
 | Specification | Citation Verification Specification | [`governance/specification-citation-verification.md`](specification-citation-verification.md) |
+| Specification | Audit Programme Specification | [`governance/specification-audit-programme.md`](specification-audit-programme.md) |
 | Register | Citation Verifications Register | [`governance/register-citation-verifications.md`](register-citation-verifications.md) |
 | Template | Citation Verification Worklist Template | [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md) |
 | Worklist | Citation Verification Worklist: Batch Q2 (ISO and ISO/IEC) | [`governance/worklist-citation-verification-batch-q2-iso-iec.md`](worklist-citation-verification-batch-q2-iso-iec.md) |

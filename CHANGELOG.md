@@ -4,6 +4,53 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.31 (2026-05-30, Library Version 2026.05.47): Audit programme operationalisation (Bucket A)
+
+Operationalises the 30-gate audit programme that had grown organically across Phases 23.12 through 23.29. Three deliverables:
+
+### Single-command audit runner
+
+[`tools/run_all_audits.sh`](tools/run_all_audits.sh) is a new bash script that runs every audit gate currently wired into [`.github/workflows/quality.yml`](.github/workflows/quality.yml), in the same order, with aggregated pass/fail output. Default behaviour aggregates all failures; `FAIL_FAST=1 tools/run_all_audits.sh` exits on the first failure. The runner is the local-surface implementation of the phase-completion gating rule defined in [`TODO.md`](TODO.md) Decisions log Phase 23.30.
+
+### Pre-commit hook expansion
+
+[`.pre-commit-config.yaml`](.pre-commit-config.yaml) is updated from 10 hooks to 30 hooks, one per audit gate, matching the CI workflow and audit runner exactly. Adopters who run `pre-commit install` once will get every gate enforced on every `git commit`. (The pre-commit config existed since the original Phase 21 work, but had not been updated as new gates were added in Phases 23.12 through 23.29.)
+
+### Audit Programme Specification
+
+[`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) (v1.0.0, new) documents the audit programme as an architectural artefact:
+
+- Design principles (determinism, stdlib-only, one-gate-one-concern, conservative scope, CI parity).
+- The three enforcement surfaces and which is authoritative when they diverge.
+- Gate categories (metadata integrity, reference integrity, content drift, language and style, structural index, security and privacy, freshness and lifecycle).
+- Gate inventory (numbered table of all 30 gates with script links).
+- Phase-completion gating rule.
+- Procedures for adding, modifying, and retiring gates.
+- Boundary with [`governance/specification-citation-verification.md`](governance/specification-citation-verification.md): this programme governs *internal consistency*, that specification governs *external standards accuracy*.
+- Out-of-scope acknowledgements (the audit programme cannot detect substantive correctness, architectural coherence, semantic duplication, or adopter usefulness).
+- Framework alignment notes (ISO 27001, NIST CSF 2.0, COBIT 2019, SSDF).
+
+### What this phase does NOT include
+
+- Bucket A items 4-6 (deferred): a shared linter helper module under tools/ (to be created in a later phase), linter regression tests, and cross-doc-numbers term curation.
+- Bucket B identity-depth content (deferred): Phases 23.A1 through 23.A6 (IGA, NHI, secrets management, federation/SSO, JIT privileged access, ITDR).
+- Citation verification execution (scheduled later this week as a human-verifier task).
+
+### Files updated
+
+- [`tools/run_all_audits.sh`](tools/run_all_audits.sh) (new, executable)
+- [`.pre-commit-config.yaml`](.pre-commit-config.yaml) (10 hooks to 30)
+- [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) (v1.0.0, new)
+- [`governance/README.md`](governance/README.md) (1.9.1 to 1.10.0, registry row added)
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.27.6 to 1.27.7, registry row added)
+- [`taxonomy.yml`](taxonomy.yml), [`docs/portal.md`](docs/portal.md), [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md) (auto-regenerated)
+
+### Library version
+
+`2026.05.46` to `2026.05.47`. README `1.7.39` to `1.7.40`.
+
+All 30 audits clean. Pre-commit hooks pass.
+
 ## Phase 23.30 (2026-05-30, Library Version 2026.05.46): Audit-clean cleanup of Phase Q-bundle artefacts
 
 Phase Q-bundle (commit 804c395, merged in PR #91) introduced five new audit-gate violations that escaped the pre-merge audit run. This cleanup phase makes all 30 audit gates pass cleanly and records the lessons in the Decisions log of [`TODO.md`](TODO.md) plus the closing-gap rows in [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md).
