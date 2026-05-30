@@ -4,6 +4,76 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.9 (2026-05-30, Library Version 2026.05.25): AI-driven offensive security tooling governance
+
+Final phase of the Phase 23 sequence from the external-project assessment. Adds a new §33 to `standard-ai-and-agentic-development-security.md` codifying governance for AI-driven offensive security agents (PentestGPT, PentAGI, Strix, HexStrike AI, BurpGPT, and equivalents). The existing §33 "Verification and enforcement" renumbers to §34 (additive, no internal cross-references affected).
+
+### Why this section exists
+
+AI-driven penetration testing and offensive security agents are a category that did not exist when the prior AI security standard was first written. They straddle two existing governance regimes:
+
+- The Penetration Testing and Red Team Standard (`security/standard-penetration-testing-and-red-team.md`) governs the offensive activity.
+- The agent-permissions and agentic-security controls in this standard govern the agent itself.
+
+Neither regime alone is sufficient for AI-driven offensive tools, which carry the threat surface of both. Wave 2 research surfaced seven concrete examples (PentestGPT, PentAGI, AI-OPS, HackSynth, HexStrike AI, BurpGPT, Strix), with diverse autonomy levels, CI/CD integration patterns, and vendor data-handling postures.
+
+### New controls (§33, 10 controls)
+
+- **OFFAI-SEC-01**: Authorisation under the Penetration Testing and Red Team Standard required before any use. Unauthorised use = security testing incident.
+- **OFFAI-SEC-02**: AI-driven offensive tools are agents; library's agent permission model takes precedence over vendor's assumed autonomy.
+- **OFFAI-SEC-03**: CI/CD-integrated AI-driven offensive tools (Strix-pattern) execute under dedicated service identities with PAM-vaulted credentials.
+- **OFFAI-SEC-04**: Auditable evidence of every action; SIEM forwarding.
+- **OFFAI-SEC-05**: Vendor telemetry and data residency posture must satisfy the regulatory regime of in-scope targets and data.
+- **OFFAI-SEC-06**: Vendor-claimed metrics treated as marketing-grade unless backed by reproducible academic benchmarks (the PentestGPT XBOW pattern vs the HexStrike vendor-claimed pattern).
+- **OFFAI-SEC-07**: LLM-driven planning subject to prompt-injection threat model. Sandbox isolation per §32; plan validation per action against engagement scope.
+- **OFFAI-SEC-08**: AI-driven findings subject to same triage as human-driven findings. Characteristic AI failure modes (hallucinated vulnerabilities, misidentified target systems, fabricated proof-of-concept artefacts) require operator verification.
+- **OFFAI-SEC-09**: Tool autonomous mode must not bypass §24 human-approval gates.
+- **OFFAI-SEC-10**: Licence review per open-source licence policy. AGPLv3 / GPL-3.0 tools restricted for embedding; permissive licences preferred (the HackSynth AGPLv3 caution surfaced in Wave 2).
+
+### Numbering note
+
+The previous §33 "Verification and enforcement" renumbers to §34. No internal cross-references reference these section numbers, so the renumber is safe; no downstream library document is affected.
+
+### What this phase does NOT include
+
+- No new tools cited beyond what's already in the canonical citations register and tooling landscape register.
+- No new doctype; controls live in the existing standard.
+
+### Cross-references updated
+
+- `ai/standard-ai-and-agentic-development-security.md` (1.6.0 to 1.7.0): new §33; previous §33 renumbered to §34.
+- Main README (Library 2026.05.24 to 2026.05.25; README 1.7.17 to 1.7.18).
+
+### Library version
+
+`2026.05.24` to `2026.05.25`. README `1.7.17` to `1.7.18`.
+
+### Phase 23 sequence status
+
+Phase 23 sequence complete. Final delivery summary:
+
+- 23.0 — collapsed (no current references needed correction)
+- 23.1 — Runtime input/output processing controls (AI-SEC-INP-06 through 09, AI-SEC-OUT-05 / 06)
+- 23.2 — Dev-side AI input/output scanning controls
+- 23.3 — ML model file scanning (SUPPLY-SEC-07)
+- 23.4 — Agentic, RAG, MCP, multimodal threat expansion (TC-12 through 16; AGENT-SEC-15 / 16 / 17; RAG-SEC-10 / 11 / 12; MCP-SEC-08 / 09 / 10; RUNTIME-SEC-07 / 08)
+- 23.5 — Classical ML adversarial taxonomy (§5 restructured into 6 subsections)
+- 23.6 — Framework alignment citations (35+ new register entries)
+- 23.7 — AI Security Tooling Landscape Register (55 entries, the post-research master index)
+- 23.8 — AI observability OSS reference architecture (OBS-SEC-03 / 04)
+- 23.9 — AI-driven offensive security tooling governance (§33, OFFAI-SEC-01 through 10)
+
+Total: 9 merged PRs (#63 through #71). Total new controls and threat classes: 47. New register: 1. New citations queued for verification: 35+.
+
+### Next
+
+The Phase 23 sequence is complete. Subsequent work depends on user direction:
+
+- Resume Phase Q2 citation verification (35+ new citations from Phase 23.6 are queued).
+- Or proceed with other tracks pending in the project roadmap.
+
+All 12 audits clean.
+
 ## Phase 23.8 (2026-05-30, Library Version 2026.05.24): AI observability OSS reference architecture
 
 Eighth content phase from the external-project assessment. Adds two new controls to `standard-ai-and-agentic-development-security.md` §20 (AI observability and telemetry) referencing open-source AI observability platforms as concrete reference architectures.
