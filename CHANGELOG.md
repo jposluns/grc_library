@@ -4,6 +4,45 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.17 (2026-05-30, Library Version 2026.05.33): Stub document audit
+
+Tier 1 linter (final in tier) from the audit-roadmap. Adds [`tools/lint-stub-documents.py`](tools/lint-stub-documents.py), the 18th linter in the audit suite. Catches stub documents masquerading as production library content.
+
+### What the linter does
+
+Counts substantive words in document body (after metadata block, excluding code blocks). Flags documents under the threshold (currently 100 words) or containing stub-indicator phrases like `[content to be added]`, `[to be defined]`, `details forthcoming`, `to be completed in a later phase`.
+
+Exemptions:
+- Templates, worklists (legitimately short with placeholder content).
+- Domain READMEs, [`NOTICE.md`](NOTICE.md), [`AUTHORS.md`](AUTHORS.md), [`CITATION.cff`](CITATION.cff) (indexes / short by design).
+- Documents marked `Classification: Deprecated` (deliberate short redirect notices).
+
+### Why it exists
+
+Catches abandoned stubs and "[to be added]" placeholders that escape into production. Closes the gap between "the file exists" and "the file is substantive."
+
+### Tier 1 complete
+
+This is the fifth and final Tier 1 linter (placeholder, monotonicity, date format, license consistency, stub documents). Library audit suite has grown from 12 to 18 gates across phases 23.12 through 23.17.
+
+### CI integration
+
+Added to [`.github/workflows/quality.yml`](.github/workflows/quality.yml). Audit suite is now 18 gates.
+
+### Verification
+
+Positive case: linter passes on 284 scanned files (the deprecated annex was exempted via `Classification: Deprecated` rule, not via filename exemption). Negative case: synthetic 6-word stub correctly fails.
+
+### Library version
+
+`2026.05.32` to `2026.05.33`. README `1.7.25` to `1.7.26`.
+
+### Next
+
+Phase 23.18 begins Tier 2 (structural coherence). First: section anchor validator.
+
+All 18 audits clean.
+
 ## Phase 23.16 (2026-05-30, Library Version 2026.05.32): License consistency audit
 
 Tier 1 linter from the audit-roadmap. Adds [`tools/lint-license-consistency.py`](tools/lint-license-consistency.py), the 17th linter in the audit suite. Enforces that every artefact document's `**License:**` field is exactly `CC0 1.0 Universal`.
