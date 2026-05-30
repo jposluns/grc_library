@@ -96,6 +96,18 @@ ALLOW_LIST = {
     "calypsoai.com", "mindgard.ai", "splx.ai",
     # Other commercial security vendors that may be referenced
     "checkpoint.com", "zscaler.com",
+    # Additional publisher canonical domains (Q4 worklist coverage)
+    "oag.ca.gov",  # California Attorney General
+    "dodcio.defense.gov",  # US DoD CIO
+    "parl.ca",  # Canadian Parliament
+    "fedlex.admin.ch",  # Swiss federal legislation
+    "harmbench.org",  # HarmBench official site
+    "owaspsamm.org",  # OWASP SAMM official site
+    "wbasco.org",  # WBASCO (Western Business Alliance Security Council)
+    "cbp.gov",  # US Customs and Border Protection
+    "pcisecuritystandards.org",  # PCI Security Standards Council
+    "oecd.ai", "oecd.org",  # OECD
+    "wto.org",  # World Trade Organization
 }
 
 

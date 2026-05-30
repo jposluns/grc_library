@@ -2,7 +2,7 @@
 
 **Document Title:** Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.8.0\
+**Version:** 1.9.0\
 **Date:** 2026-05-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -45,6 +45,9 @@ This directory contains the enterprise-wide governance foundation of the GRC Doc
 | Worklist | Citation Verification Worklist: Batch Q2 (ISO and ISO/IEC) | [`governance/worklist-citation-verification-batch-q2-iso-iec.md`](worklist-citation-verification-batch-q2-iso-iec.md) |
 | Register | AI Security Tooling Landscape Register | [`governance/register-ai-security-tooling-landscape.md`](register-ai-security-tooling-landscape.md) |
 | Worklist | Citation Verification Worklist: Batch Q3 (AI Security Tooling Landscape Provenance) | [`governance/worklist-citation-verification-batch-q3-ai-tooling.md`](worklist-citation-verification-batch-q3-ai-tooling.md) |
+| Worklist | Citation Verification Worklist: Batch Q3.1 (New Canonical Citations) | [`governance/worklist-citation-verification-batch-q3-1-new-citations.md`](worklist-citation-verification-batch-q3-1-new-citations.md) |
+| Worklist | Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations) | [`governance/worklist-citation-verification-batch-q4-canonical-citations.md`](worklist-citation-verification-batch-q4-canonical-citations.md) |
+| Register | Citation Verification Bundle Index | [`governance/index-citation-verification-bundle.md`](index-citation-verification-bundle.md) |
 | Register | Coverage Gap Analysis Register | [`governance/register-coverage-gaps.md`](register-coverage-gaps.md) |
 | Register | Digital Trust and Assurance Metrics Register | [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md) |
 | Standard | Records Retention and Destruction Standard | [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) |
