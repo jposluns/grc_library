@@ -4,6 +4,50 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.28 and 23.29 (2026-05-30, Library Version 2026.05.44): Verification freshness linters (Tier 4 complete; 17-linter roadmap complete)
+
+Final two Tier 4 linters, shipped together because they implement the freshness side of the Citation Verification Specification §12.
+
+### Phase 23.28: lint-citation-verification-freshness.py (29th linter)
+
+Per Citation Verification Specification §12.1, parses [`governance/register-citation-verifications.md`](governance/register-citation-verifications.md), computes per-entry age, and flags entries past the 12-month cadence. Currently the register is empty (Q-batch verifications pending); the linter passes vacuously and will engage when verifications begin.
+
+### Phase 23.29: lint-tooling-provenance-freshness.py (30th linter)
+
+Per Citation Verification Specification §12.2, parses [`governance/register-ai-security-tooling-landscape.md`](governance/register-ai-security-tooling-landscape.md) per-entry Provenance blocks, extracts Date assessed, applies 6-month cadence for active OSS / commercial entries and 12-month cadence for archived/unmaintained entries (detected via Status notes containing "archived" / "unmaintained" / "deprecated"). All 55 current entries are within the cadence window (assessed 2026-05-30).
+
+### CI integration
+
+Both added to [`.github/workflows/quality.yml`](.github/workflows/quality.yml). Audit suite is now **30 gates**.
+
+### 17-linter audit-roadmap complete
+
+The full Tier 1-4 roadmap from the audit-rules advisory is complete:
+
+| Tier | Phases | Linters | Audit suite |
+| --- | --- | --- | --- |
+| Pre | 23.12 | CHANGELOG link enforcement | 13 |
+| 1 (quick wins) | 23.13-23.17 | placeholder, monotonicity, date format, license, stubs | 14-18 |
+| 2 (structural) | 23.18-23.21 | section anchors, intra-doc refs, required sections, acronyms | 19-22 |
+| 3 (security defence) | 23.22-23.25 | secrets, PII, internal references, external link domains | 23-26 |
+| 4 (coherence) | 23.26-23.29 | numerical drift, orphans, citation freshness, tooling freshness | 27-30 |
+
+Audit suite grew from 12 gates (pre-Phase 23.12) to 30 gates. Net effect: every PR to main now runs 30 structural, security, and methodology checks before merge.
+
+### Library version
+
+`2026.05.43` to `2026.05.44`. README `1.7.36` to `1.7.37`.
+
+### Next
+
+The 17-linter roadmap is complete. Subsequent work depends on user direction:
+
+- Resume Phase Q citation verification (Q2 ISO/IEC and Q3 tooling-provenance batches are queued).
+- Extend the cross-doc-numbers scaffold (Phase 23.26) with curated terms as numerical-coherence requirements clarify.
+- Other tracks pending in the project roadmap.
+
+All 30 audits clean.
+
 ## Phase 23.27 (2026-05-30, Library Version 2026.05.43): Orphan document audit
 
 Tier 4 linter. Adds [`tools/lint-orphan-documents.py`](tools/lint-orphan-documents.py), the 28th linter. Detects artefact documents with zero inbound markdown-link references.
