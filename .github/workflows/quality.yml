@@ -73,6 +73,9 @@ jobs:
       - name: Intra-document section reference audit
         run: python3 tools/lint-intra-doc-refs.py
 
+      - name: Required sections audit
+        run: python3 tools/lint-required-sections.py
+
       - name: Machine-readable taxonomy in sync
         run: python3 tools/build-taxonomy.py --check
 

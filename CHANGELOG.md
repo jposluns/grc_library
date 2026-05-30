@@ -4,6 +4,41 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.20 (2026-05-30, Library Version 2026.05.36): Required sections audit
+
+Third Tier 2 linter. Adds [`tools/lint-required-sections.py`](tools/lint-required-sections.py), the 21st linter. Enforces that artefact documents include at least one orientation section (Purpose, Scope, Applicability, Introduction, Overview, etc.) based on their doctype.
+
+### What the linter does
+
+For documents with `Document Type:` of Standard, Procedure, Policy, Specification, Plan, Framework, Charter, Annex, Register, Guide, or Guideline, requires at least one heading matching the orientation set: Purpose, Scope, Applicability, Purpose and Scope, Introduction, Overview, Executive Summary, Summary.
+
+Exempts:
+- Domain READMEs, NOTICE, AUTHORS, CITATION, LICENSE, CHANGELOG, TODO, CONTRIBUTING, SECURITY (use simpler shapes).
+- Templates and worklists (their structure varies).
+- Documents marked `Classification: Deprecated`.
+
+### Source-content adjustment
+
+One document was missing any orientation section: [`operations/standard-production-security-requirements.md`](operations/standard-production-security-requirements.md) had its purpose statement as an inline paragraph rather than under a `## Purpose` heading. Added the heading. Version bumped 1.1.1 to 1.1.2.
+
+### Library convention note
+
+The linter deliberately accepts any of several orientation headings rather than requiring `Purpose` specifically and `Scope` specifically. Library convention is mixed: some artefacts have both, some combine into "Purpose and Scope", some have just Purpose. Forcing one specific structure would require rewriting ~17 documents. Future maintenance could narrow the requirement if the library converges on a single convention.
+
+### CI integration
+
+Added to [`.github/workflows/quality.yml`](.github/workflows/quality.yml). Audit suite is now 21 gates.
+
+### Verification
+
+Positive case: 280 files scanned, all artefacts have an orientation section. Negative case: synthetic file without orientation correctly fails.
+
+### Library version
+
+`2026.05.35` to `2026.05.36`. README `1.7.28` to `1.7.29`.
+
+All 21 audits clean.
+
 ## Phase 23.19 (2026-05-30, Library Version 2026.05.35): Intra-document section reference audit
 
 Second Tier 2 linter. Adds [`tools/lint-intra-doc-refs.py`](tools/lint-intra-doc-refs.py), the 20th linter. Validates that intra-document references like "§5.4" or "Section 11.3" resolve to a real heading in the same document.
