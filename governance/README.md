@@ -2,8 +2,8 @@
 
 **Document Title:** Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.6.0\
-**Date:** 2026-05-29\
+**Version:** 1.7.0\
+**Date:** 2026-05-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md)\
@@ -43,6 +43,7 @@ This directory contains the enterprise-wide governance foundation of the GRC Doc
 | Register | Citation Verifications Register | [`governance/register-citation-verifications.md`](register-citation-verifications.md) |
 | Template | Citation Verification Worklist Template | [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md) |
 | Worklist | Citation Verification Worklist: Batch Q2 (ISO and ISO/IEC) | [`governance/worklist-citation-verification-batch-q2-iso-iec.md`](worklist-citation-verification-batch-q2-iso-iec.md) |
+| Register | AI Security Tooling Landscape Register | [`governance/register-ai-security-tooling-landscape.md`](register-ai-security-tooling-landscape.md) |
 | Register | Coverage Gap Analysis Register | [`governance/register-coverage-gaps.md`](register-coverage-gaps.md) |
 | Register | Digital Trust and Assurance Metrics Register | [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md) |
 | Standard | Records Retention and Destruction Standard | [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) |
