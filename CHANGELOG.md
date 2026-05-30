@@ -4,6 +4,50 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.25 (2026-05-30, Library Version 2026.05.41): External link domain audit
+
+Final Tier 3 linter (Tier 3 complete). Adds [`tools/lint-external-link-domains.py`](tools/lint-external-link-domains.py), the 26th linter. Validates external http(s) URLs in library content against an allow-list of trusted publisher domains.
+
+### What the linter does
+
+Scans library text files for `http://` and `https://` URLs. Extracts the host. Validates against an allow-list of ~70 domains mirroring the citation-verification publisher allow-list plus:
+
+- OSS hosting (github.com, gitlab.com, huggingface.co, pypi.org)
+- Citation/DOI/ORCID (doi.org, orcid.org, arxiv.org)
+- AI/ML safety bodies (mlcommons.org, avidml.org, aisi.org.uk)
+- Open-source AI tooling canonical homes (promptfoo.dev)
+- Library maintainer profile and documentation (linkedin.com, anthropic.com)
+- Six commercial AI security vendors referenced in the tooling landscape register (lakera.ai, promptarmor.com, hiddenlayer.com, calypsoai.com, mindgard.ai, splx.ai)
+- Adjacent infrastructure (slsa.dev, openssf.org, cncf.io, schema.org, etc.)
+
+Subdomain match supported (subdomains of allow-listed parents pass).
+
+### Why it exists
+
+A library linking to an unexpected domain is a supply-chain attack vector for adopters. Adding new external domains requires explicit allow-list additions and review.
+
+### Tier 3 complete
+
+Four security linters added across phases 23.22-23.25: secrets, PII, internal references, external link domains. Library audit suite grew from 22 to 26 gates with security defence at the centre.
+
+### CI integration
+
+Added to [`.github/workflows/quality.yml`](.github/workflows/quality.yml). Audit suite is now 26 gates.
+
+### Verification
+
+Positive case: 362 files scanned, all external URLs on the allow-list. Negative case: synthetic URL to non-listed domain correctly caught.
+
+### Library version
+
+`2026.05.40` to `2026.05.41`. README `1.7.33` to `1.7.34`.
+
+### Next
+
+Phase 23.26 begins Tier 4 (coherence and methodology enforcement). First: cross-document numerical coherence.
+
+All 26 audits clean.
+
 ## Phase 23.24 (2026-05-30, Library Version 2026.05.40): Internal references audit
 
 Third Tier 3 linter. Adds [`tools/lint-internal-references.py`](tools/lint-internal-references.py), the 25th linter. Detects internal-deployment patterns that should not appear in a vendor-neutral CC0 library.

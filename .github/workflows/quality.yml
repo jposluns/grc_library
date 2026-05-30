@@ -88,6 +88,9 @@ jobs:
       - name: Internal references audit
         run: python3 tools/lint-internal-references.py
 
+      - name: External link domain audit
+        run: python3 tools/lint-external-link-domains.py
+
       - name: Machine-readable taxonomy in sync
         run: python3 tools/build-taxonomy.py --check
 
