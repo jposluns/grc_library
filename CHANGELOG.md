@@ -4,6 +4,46 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.2 (2026-05-30, Library Version 2026.05.18): Dev-side AI input/output scanning controls
+
+Second content phase from the external-project assessment. Extends the AI Coding Assistant Security Guideline with three new sections promoting prior "awareness" guidance to operational scanning controls, and codifying session isolation and vendor-telemetry monitoring as first-class concerns.
+
+### Why these controls exist
+
+The prior guideline acknowledged prompt-injection vectors in code comments, test data, dependencies, and issue trackers but stopped at developer awareness. The Wave 1 and Wave 2 project research confirmed that organisations operating AI coding assistants need active scanning controls operating on the files the assistant reads and the code it produces, regardless of developer attention. Equivalent runtime scanning is the architectural pattern of CodeGate, ClawGuard, Lasso MCP Gateway, llm-guard, and Vigil-LLM applied at the developer's pipeline rather than the application's.
+
+The previous guideline also addressed vendor telemetry as a policy concern only ("verify data residency before use"). Operating practice from CodeGate, Helicone, and similar tools indicates telemetry must be monitored as an ongoing operational concern, not a procurement checkbox.
+
+### New sections
+
+- **Defensive scanning of AI coding assistant inputs and outputs**:
+  - Input scanning of files before AI consumption (forged chat-template tokens, instruction-override patterns, steganographic Unicode, hidden HTML comments, embedded URLs)
+  - Output scanning of AI-generated code before commit (suspicious URLs, LLM-API key patterns, hallucinated imports, hallucinated security controls, exfiltration-style egress, comment-embedded instructions)
+- **Session isolation, vendor telemetry, and egress monitoring**:
+  - Session isolation across customer codebases / confidentiality classifications / regulated-data scopes
+  - Vendor telemetry inventory in the approved-tools register
+  - Egress monitoring at the network layer where operationally available
+  - Insider-bypass risk recognition
+
+### Cross-references with Phase 23.1
+
+The dev-side scanning controls here mirror the application-side controls added in Phase 23.1 (`AI-SEC-INP-06` through `INP-09`, `AI-SEC-OUT-05` and `OUT-06`). The pattern is consistent: the application standard governs runtime defences in production AI systems; the dev guideline governs equivalent defences in the developer pipeline.
+
+### Cross-references updated
+
+- `dev-security/guideline-ai-coding-assistant-security.md` (1.0.1 to 1.1.0): three new sections added; existing "Prompt injection awareness" section retained as orientation.
+- Main README (Library 2026.05.17 to 2026.05.18; README 1.7.10 to 1.7.11).
+
+### Library version
+
+`2026.05.17` to `2026.05.18`. README `1.7.10` to `1.7.11`.
+
+### Next
+
+Phase 23.3: ML model file scanning (`SUPPLY-SEC-07` in `standard-ai-and-agentic-development-security.md` §18) covering serialized-model byte-level scanning with operator deny-list pattern from modelscan / picklescan / fickling.
+
+All 12 audits clean.
+
 ## Phase 23.1 (2026-05-30, Library Version 2026.05.17): Runtime input/output processing controls
 
 First content phase derived from the deep external-project assessment of 52 AI security tools. Adds six new mandatory controls to the AI and Agentic Development Security Standard codifying defensive techniques surfaced consistently across multiple independent projects (PROMPTPurify, llm-guard, ClawGuard, NeMo Guardrails, Vigil-LLM, Lasso MCP Gateway, Guardrails AI). The controls fill gaps where the standard previously named threats but did not mandate the specific defensive techniques.
