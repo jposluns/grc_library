@@ -4,6 +4,53 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.3 (2026-05-30, Library Version 2026.05.19): ML model file scanning
+
+Third content phase from the external-project assessment. Adds a new control `SUPPLY-SEC-07` to the AI and Agentic Development Security Standard §18, mandating byte-level scanning of serialized ML model files for unsafe operators before adoption or production load. This closes a long-standing gap where the library covered model artefact provenance and checksums (`SUPPLY-SEC-04`, `-05`, `-06`) and the `trust_remote_code=False` requirement (`P-14`) but did not codify content scanning of serialized model artefacts themselves.
+
+### Why this control exists
+
+Serialized ML model files in pickle and pickle-derived formats execute arbitrary Python code at load time via the `__reduce__` mechanism. Three open-source scanners surfaced during Wave 1 and Wave 2 research codify the operator deny-list pattern at production-credible depth:
+
+- **modelscan** (Apache-2.0): four-tier severity covering pickle, H5, Keras, SavedModel; explicit Critical / High / Medium operator categories.
+- **picklescan** (MIT): pickle opcode-stream analyser with explicit unsafe-globals deny-list; underpins Hugging Face Hub-side scanning.
+- **fickling** (LGPL-3.0): pickle decompiler and symbolic tracer; runtime import-hook with severity tiers.
+
+The detection categories above are not exclusive to any one of these tools; the deny-list converges across them. The control codifies the converged minimum coverage.
+
+### What the control mandates
+
+- **In-scope file formats** explicitly enumerated: pickle and derivatives, PyTorch, H5, Keras V3, TensorFlow SavedModel, NumPy object arrays.
+- **Out-of-scope formats** explicitly acknowledged: ONNX, Safetensors, GGUF, TensorRT plan files (lower attack surface; weight manipulation theoretical but not addressed by file-content scanning).
+- **Critical-severity detection categories** (deployment blocking): Python builtins enabling code execution, OS/process/network modules, debug/runtime modules, serialisation re-entry, reflection, Keras Lambda layers with code objects.
+- **High and Medium tiers** with appropriate handling.
+- **Adoption gate** at model registry entry for every artefact from outside the organisation.
+- **Production-load gate** combining scanner-aware loaders with `trust_remote_code=False`.
+- **Exception path** with CISO approval and compensating controls.
+
+### What this phase does NOT include
+
+No tool-specific mandate (vendor-neutral as per library convention). Tool selection is at the organisation's discretion. The deny-list categories are the minimum coverage requirement.
+
+### Cross-references updated
+
+- `ai/standard-ai-and-agentic-development-security.md` (1.3.0 to 1.4.0): new `SUPPLY-SEC-07` control added to §18.
+- Main README (Library 2026.05.18 to 2026.05.19; README 1.7.11 to 1.7.12).
+
+### Citation note
+
+References to modelscan, picklescan, and fickling are in the CHANGELOG and rationale paragraphs, not in the standard's framework-alignment table. Direct external tool references will be added to the canonical citations register in Phase 23.6 (framework alignment updates) and queued for citation verification.
+
+### Library version
+
+`2026.05.18` to `2026.05.19`. README `1.7.11` to `1.7.12`.
+
+### Next
+
+Phase 23.4: agentic vulnerability taxonomy expansion, RAG test category split (poisoning + exfiltration + source-attribution), tool-metadata poisoning, multimodal threat section.
+
+All 12 audits clean.
+
 ## Phase 23.2 (2026-05-30, Library Version 2026.05.18): Dev-side AI input/output scanning controls
 
 Second content phase from the external-project assessment. Extends the AI Coding Assistant Security Guideline with three new sections promoting prior "awareness" guidance to operational scanning controls, and codifying session isolation and vendor-telemetry monitoring as first-class concerns.

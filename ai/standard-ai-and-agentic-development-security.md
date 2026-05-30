@@ -2,7 +2,7 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.3.0\
+**Version:** 1.4.0\
 **Date:** 2026-05-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -408,6 +408,25 @@ Rule deployment is verified in CI. Builds fail if required rule files are absent
 **SUPPLY-SEC-05:** Model artifacts must have a verified provider checksum validated before deployment.
 
 **SUPPLY-SEC-06:** Fine-tuned models must have documented dataset provenance. Training datasets from unvetted external sources require quality and bias review before production use. See Third-Party AI Due Diligence Procedure.
+
+**SUPPLY-SEC-07:** Serialized ML model files must be scanned for unsafe operators before being loaded by a production process or accepted into a model registry. Scope and pattern:
+
+1. **In-scope file formats**: pickle and pickle-derived (`.pkl`, `.pickle`, `cloudpickle`, `dill`, `joblib`), PyTorch (`.bin`, `.pt`, ZIP-based PyTorch archives), HDF5 (`.h5`), Keras V3, TensorFlow SavedModel (Protocol Buffer), NumPy object arrays (`.npy` with `allow_pickle=True`).
+2. **Out-of-scope (lower attack surface)**: ONNX, Safetensors, GGUF, TensorRT plan files. These restrict to ML computation without code execution at load time. Weight manipulation remains theoretically possible but is not addressed by file-content scanning.
+3. **Required detection categories** (Critical severity, deployment blocking unless explicitly accepted by CISO):
+   - Python builtins enabling code execution: `eval`, `exec`, `compile`, `open`, `breakpoint`, `__import__`, `getattr`, `apply`.
+   - OS / process / network modules: `os`, `nt`, `posix`, `sys`, `subprocess`, `socket`, `shutil`.
+   - Debug and runtime: `pdb`, `bdb`, `pty`, `asyncio`, `runpy`.
+   - Serialisation re-entry: `pickle`, `_pickle`.
+   - Reflection: `operator.attrgetter`, `getattr` chains.
+   - For Keras: `Lambda` layers carrying code objects.
+4. **High severity** (deployment requires documented justification): network/HTTP modules (`webbrowser`, `httplib`, `requests.api`, `aiohttp.client`), TensorFlow file-IO operations (`ReadFile`, `WriteFile`, `io.MatchingFiles`).
+5. **Medium severity** (review before adoption): unknown custom operators lacking a parent-library mapping.
+6. **Adoption gate**: every model artefact entering the model registry from outside the organisation (Hugging Face Hub, vendor download, supplier delivery) passes through this scan before the registry entry is approved. The scan is repeated when the artefact version changes.
+7. **Production-load gate**: production AI workloads loading model artefacts at runtime use scanner-aware loaders or run with `trust_remote_code=False` (per `P-14` in §8) and rely on the adoption-gate scan as the integrity record.
+8. **Exception path**: organisations may grant a CISO-approved exception for a model artefact that requires a Critical operator for legitimate reasons; the exception is recorded in the AI risk register with compensating controls (network isolation of the loading host, restricted-identity execution).
+
+The control is informed by the byte-level scanning patterns established by open-source tools modelscan (Apache-2.0), picklescan (MIT, the engine used by Hugging Face Hub-side scanning), and fickling (LGPL-3.0, pickle decompiler and symbolic tracer). Tool choice is at the organisation's discretion; the deny-list categories above are the minimum coverage. The scanner must produce a machine-readable report retained alongside the model registry entry.
 
 ---
 
