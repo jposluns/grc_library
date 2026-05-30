@@ -244,6 +244,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 
 ### Specification
 
+- [Audit Programme Specification](../governance/specification-audit-programme.md)
 - [Citation Verification Specification](../governance/specification-citation-verification.md)
 
 ### Standard

@@ -48,6 +48,9 @@ EXEMPT_FILES = {
     "CITATION.cff",
     # CHANGELOG.md describes phase changes including this linter's patterns.
     "CHANGELOG.md",
+    # The Audit Programme Specification names this gate in its inventory
+    # and therefore contains the literal phrase "stub document".
+    "specification-audit-programme.md",
 }
 
 # Stub indicator phrases. If a document has any of these AND is under threshold,

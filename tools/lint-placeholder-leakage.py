@@ -38,6 +38,9 @@ EXEMPT_FILES = {
     "specification-master-project.md",
     "specification-ingestion.md",
     "specification-citation-verification.md",
+    # The Audit Programme Specification discusses the placeholder linter's
+    # rule set and references TODO.md by name; both produce false positives.
+    "specification-audit-programme.md",
     "template-citation-verification-worklist.md",
     "lint-shall-near-uncertainty.py",
     "lint-placeholder-leakage.py",
