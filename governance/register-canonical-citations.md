@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.3.0\
-**Date:** 2026-05-29\
+**Version:** 1.4.0\
+**Date:** 2026-05-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/register-citation-verifications.md`](register-citation-verifications.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -154,6 +154,10 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | --- | --- | --- | --- | --- |
 | MITRE ATT&CK | v15 | 2024-10 | Adversary Tactics, Techniques, and Common Knowledge | - |
 | MITRE ATLAS | v4.7 | 2024 | Adversarial Threat Landscape for AI Systems | - |
+| AVID | continuous | 2023 | AI Vulnerability Database, an open knowledge base of AI failure modes and harms (avidml.org) | - |
+| MLCommons AILuminate | v1.0 | 2024 | AI risk taxonomy and benchmark, 14-category hazard taxonomy | - |
+| HarmBench | continuous | 2024-02 | Standardized evaluation framework for automated red-teaming methods against LLMs and defences | - |
+| OWASP GenAI Security Project | continuous | 2024 | Working-group output covering GenAI security risks, controls, and reference test cases (genai.owasp.org) | - |
 
 ## OWASP
 
@@ -161,6 +165,8 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | --- | --- | --- | --- | --- |
 | OWASP Top 10 | 2021 | 2021 | Top 10 web application security risks | 2017 |
 | OWASP LLM Top 10 | 2025 | 2025 | Top 10 LLM application risks | 2023 |
+| OWASP Agentic AI Top 10 | 2026 | 2026 | Top 10 risks for agentic AI systems | - |
+| OWASP MCP Top 10 | 2025 | 2025 | Security risks for Model Context Protocol integrations | - |
 | OWASP ASVS | 4.0.3 | 2021 | Application Security Verification Standard | 3.0 |
 | OWASP SAMM | 2.0 | 2020 | Software Assurance Maturity Model | 1.5 |
 
@@ -210,6 +216,48 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | ICAO Doc 10026 | 2nd edition | 2024 | Manual on Aviation Security | 1st edition |
 | ICAO Doc 10055 | 2024 | 2024 | Aviation Cybersecurity Strategy | - |
 | IMO Resolution MSC-FAL.1/Circ.3 | Rev 2 | 2022-06 | Maritime cyber risk management guidelines | Rev 1 |
+
+## AI safety evaluation programmes
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions |
+| --- | --- | --- | --- | --- |
+| UK AISI inspect_evals | continuous | 2024 | UK AI Safety Institute community evaluation catalogue running on Inspect AI harness; hosts third-party benchmarks including AgentDojo, AgentHarm, StrongREJECT | - |
+| Meta CyberSecEval | v4 | 2025 | Offensive cyber benchmark covering ATT&CK compliance, FRR, secure code generation, prompt injection, code interpreter abuse, X86-64 CTF, spear phishing, autonomous offensive cyber ops, AutoPatch, CyberSOCEval | v3, v2, v1 |
+| NIST SP 800-218A | Final | 2024 | Secure Software Development Practices for Generative AI and Dual-Use Foundation Models (SSDF profile) | - |
+
+## AI security tooling references
+
+This section records open-source AI security projects referenced by library content as defensive-pattern exemplars or as concrete tooling choices. Unlike standards, these are versioned software projects; the Current version column records the version current at registration. Re-verification cadence is annual per the Citation Verification Specification, with on-demand re-verification when a referencing library document is updated.
+
+| Project | Current version | Registration date | Topic | License | Status notes |
+| --- | --- | --- | --- | --- | --- |
+| Trusted-AI ART | v1.20.1 | 2025-07 | Adversarial Robustness Toolbox: evasion, poisoning, extraction, inference attacks and defences across classical ML and DL | MIT | Linux Foundation flagship |
+| IBM HEART | v0.7.0 | 2025-07 | Hardened Extension of ART for DoD MAITE-aligned T&E | MIT | Curated ART subset |
+| AIJack | continuous | 2024 | ML privacy and federated-learning attack/defence library | Apache 2.0 | - |
+| HarmBench framework | continuous | 2024-02 | 18-method automated red-team benchmark with R2D2 defence recipe | MIT | - |
+| Meta PurpleLlama | continuous | 2024 | Llama Guard safeguard models, Code Shield, CyberSecEval harness | MIT (SDK) + Llama Community License (Llama Guard / Prompt Guard weights) | - |
+| NVIDIA NeMo Guardrails | continuous | 2024 | Programmable rails framework (Input / Output / Dialog / Retrieval / Execution) | Apache 2.0 | - |
+| Guardrails AI | continuous | 2024 | RAIL validator framework with Hub of pluggable validators | Apache 2.0 | - |
+| Protect AI llm-guard | continuous | 2024 | 16 input + 22 output scanners covering PII, secrets, toxicity, prompt injection, malicious URLs | MIT | - |
+| Protect AI rebuff | archived | 2023 | Multi-layer prompt injection detector (heuristics, vector-DB, LLM detector, canary tokens) | Apache 2.0 | Archived May 2025 |
+| Protect AI modelscan | continuous | 2024 | ML model file scanner for pickle, H5, Keras, SavedModel | Apache 2.0 | - |
+| picklescan | continuous | 2024 | Pickle opcode-stream analyser; underpins Hugging Face Hub-side scanning | MIT | - |
+| Trail of Bits fickling | continuous | 2024 | Pickle decompiler, symbolic tracer, runtime import-hook with severity tiers | LGPL-3.0 | Copyleft caution for redistribution |
+| Giskard | continuous | 2024 | AI testing platform with 55 probes across 11 categories; native AVID export | Apache 2.0 | - |
+| Confident AI deepteam | continuous | 2025 | Open-source LLM red-team framework with 50+ vulnerability categories incl. agentic-specific | Apache 2.0 | - |
+| promptfoo | continuous | 2024 | LLM eval and red-team with 71 plugin categories + 30 attack strategies; multi-framework compliance mapping | MIT | - |
+| NVIDIA garak | continuous | 2024 | LLM vulnerability scanner with 40+ probe families | Apache 2.0 | - |
+| Microsoft PyRIT | continuous | 2024 | Python Risk Identification Tool for GenAI red teaming with 75+ converters | MIT | - |
+| ETH Zurich AgentDojo | continuous | 2024 | Benchmark of tool-using LLM agents in simulated environments under prompt injection | MIT | Hosted on inspect_evals |
+| Vigil-LLM | archived | 2023 | Prompt-injection and jailbreak detection toolkit; YARA + transformer + canary | Apache 2.0 | Alpha; archived |
+| Stacklok CodeGate | archived | 2024 | Local privacy and security gateway between IDE AI coding assistants and LLM providers | Apache 2.0 | Archived June 2025 |
+| ClawGuard | continuous | 2025 | Runtime security sidecar daemon for tool-augmented LLM agents (OpenClaw) | MIT | - |
+| Lasso MCP Gateway | continuous | 2024 | Plugin-based local intermediary between MCP clients and downstream MCP servers with guardrail plugins | MIT | - |
+| jackhhao llm-warden | continuous | 2024 | Single-purpose jailbreak-prompt classifier | MIT | - |
+| TikiTribe claude-secure-coding-rules | continuous | 2024 | Claude Code secure-coding-rules repository with AI/agent/MCP/RAG security baselines | MIT | Referenced in dev-security CI gates |
+| Wiz secure-rules-files | continuous | 2024 | Language and framework baseline rules for AI coding assistants | MIT | - |
+| Kariedo claude-code-security-rules | continuous | 2024 | Modular Claude Code rules using @-syntax import | MIT | - |
+| awesome-ai-security | continuous | 2024 | Curated index of AI security, LLM security, prompt injection, red teaming, guardrail, and ML supply chain resources (21 categories) | CC0-1.0 | CC0; suitable for direct library reuse |
 
 ---
 
