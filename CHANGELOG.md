@@ -4,6 +4,40 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.14 (2026-05-30, Library Version 2026.05.30): Library and document version monotonicity audit
+
+Tier 1 linter from the audit-roadmap. Adds [`tools/lint-library-version-monotonicity.py`](tools/lint-library-version-monotonicity.py), the 15th linter in the audit suite. Enforces that the library's CalVer in [`README.md`](README.md) and per-document SemVer in metadata never decrease relative to the prior committed state.
+
+### What the linter does
+
+Compares the working tree's versions against `origin/main` (when on a feature branch) or `HEAD~1` (when on main or when origin/main is unavailable). Returns failure if any version went backwards:
+
+- **Library CalVer**: parses `**Library Version:** YYYY.MM.patch` from [`README.md`](README.md) at both states; fails if current is strictly less than prior.
+- **Per-document SemVer**: parses `**Version:** x.y.z` from every artefact markdown file at both states; fails if any document's version decreased on a change that committed.
+
+Skip cases:
+- [`README.md`](README.md) — covered by the library check.
+- [`CHANGELOG.md`](CHANGELOG.md) — no version metadata field.
+- Files that didn't exist at the prior ref (new files; no comparison possible).
+
+### Why it exists
+
+CalVer is meaningful only if it can't go backwards. Forgetting to bump on a content change, or accidentally rewriting an older value, would silently corrupt the version sequence. The linter prevents either error from reaching main.
+
+### CI integration
+
+Added to [`.github/workflows/quality.yml`](.github/workflows/quality.yml). Audit suite is now 15 gates.
+
+### Verification
+
+Linter passes on current state (CalVer 2026.05.29 ≥ 2026.05.28). Parser logic verified against synthetic regression case (2026.05.05 < 2026.05.10 correctly detected).
+
+### Library version
+
+`2026.05.29` to `2026.05.30`. README `1.7.22` to `1.7.23`.
+
+All 15 audits clean.
+
 ## Phase 23.13 (2026-05-30, Library Version 2026.05.29): Placeholder leakage detector
 
 Tier 1 linter from the audit-roadmap. Adds [`tools/lint-placeholder-leakage.py`](tools/lint-placeholder-leakage.py), the 14th linter in the audit suite. Catches `TODO`, `TBD`, `FIXME`, `XXX`, `<YYYY-MM-DD>`-style placeholder markers, `(placeholder)`, `[Unverified]`, and "Coming soon" in production library documents.
