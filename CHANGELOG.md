@@ -4,6 +4,36 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.16 (2026-05-30, Library Version 2026.05.32): License consistency audit
+
+Tier 1 linter from the audit-roadmap. Adds [`tools/lint-license-consistency.py`](tools/lint-license-consistency.py), the 17th linter in the audit suite. Enforces that every artefact document's `**License:**` field is exactly `CC0 1.0 Universal`.
+
+### What the linter does
+
+Parses every line beginning with `**License:**` across all markdown files. Strips the CommonMark hard-break backslash. Fails on any value that differs from the canonical `CC0 1.0 Universal`.
+
+Catches drift like `CC0-1.0`, `CC0 1.0`, `Creative Commons Zero`, `Public Domain`.
+
+Exempts [`NOTICE.md`](NOTICE.md), which deliberately qualifies its License field ("CC0 1.0 Universal for original repository content only") to distinguish the library's CC0 dedication from external materials referenced by name. The exemption is documented in the linter source.
+
+### Why it exists
+
+The library's CC0 dedication is a legal commitment. License-claim drift weakens the commitment. Currently [`lint-metadata.py`](tools/lint-metadata.py) validates the field is present; this linter validates the value is canonical.
+
+### CI integration
+
+Added to [`.github/workflows/quality.yml`](.github/workflows/quality.yml). Audit suite is now 17 gates.
+
+### Verification
+
+Positive case: linter passes on 332 scanned files. Negative case: synthetic metadata with `CC0-1.0` correctly fails.
+
+### Library version
+
+`2026.05.31` to `2026.05.32`. README `1.7.24` to `1.7.25`.
+
+All 17 audits clean.
+
 ## Phase 23.15 (2026-05-30, Library Version 2026.05.31): Metadata date format audit
 
 Tier 1 linter from the audit-roadmap. Adds [`tools/lint-date-format.py`](tools/lint-date-format.py), the 16th linter in the audit suite. Enforces ISO 8601 (YYYY-MM-DD) format for `**Date:**` metadata fields across all artefact markdown files.

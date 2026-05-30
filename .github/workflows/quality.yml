@@ -61,6 +61,9 @@ jobs:
       - name: Metadata date format audit
         run: python3 tools/lint-date-format.py
 
+      - name: License consistency audit
+        run: python3 tools/lint-license-consistency.py
+
       - name: Machine-readable taxonomy in sync
         run: python3 tools/build-taxonomy.py --check
 
