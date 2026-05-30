@@ -97,6 +97,12 @@ jobs:
       - name: Orphan document audit
         run: python3 tools/lint-orphan-documents.py
 
+      - name: Citation verification freshness audit
+        run: python3 tools/lint-citation-verification-freshness.py
+
+      - name: Tooling provenance freshness audit
+        run: python3 tools/lint-tooling-provenance-freshness.py
+
       - name: Machine-readable taxonomy in sync
         run: python3 tools/build-taxonomy.py --check
 
