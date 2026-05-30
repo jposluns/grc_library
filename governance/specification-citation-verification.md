@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.1.0\
+**Version:** 1.2.0\
 **Date:** 2026-05-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -296,12 +296,25 @@ A D-rated entry is one the verifier could not confirm. The library does not sile
 
 ## 12. Verification freshness
 
-Citations age. Standards are revised, superseded, withdrawn, or renumbered.
+Citations age. Standards are revised, superseded, withdrawn, or renumbered. Tooling moves faster than standards; the cadence differs by register.
 
-- Each register entry is re-verified every 12 months from its last `Date checked`.
+### 12.1 Canonical Citations Register (12-month cadence)
+
+- Each entry in the Canonical Citations Register is re-verified every 12 months from its last `Date checked`.
 - A linter (`lint-citation-verification-freshness`) is added in a subsequent phase. It reads the Citation Verifications Register, computes per-entry age, and flags any entry whose latest verification is older than 12 months.
 - Re-verification produces a new row in the verifications log; the prior row is retained as historical evidence.
 - Re-verification on demand is also permitted: any change to the canonical-citations register entry, or any external report of a publisher revision, triggers re-verification.
+
+### 12.2 AI Security Tooling Landscape Register (6-month cadence)
+
+Provenance entries in the AI Security Tooling Landscape Register ([`register-ai-security-tooling-landscape.md`](register-ai-security-tooling-landscape.md)) use a shorter cadence because tooling versions, capabilities, licenses, and lifecycle status change faster than standards:
+
+- **Active open-source projects**: re-verification every 6 months.
+- **Archived or unmaintained projects**: re-verification every 12 months (archive status reconfirmed).
+- **Commercial vendor entries**: re-verification every 6 months (vendor product pages change frequently; Wayback snapshot is the integrity anchor).
+- **Triggering events forcing immediate re-verification**: project archival, license change, vendor acquisition, major version release with material capability change.
+
+A planned linter (`lint-tooling-provenance-freshness`) reads the tooling register's per-entry Provenance block and flags entries whose latest `Date assessed` is past the cadence above.
 
 ---
 

@@ -2,7 +2,7 @@
 
 **Document Title:** AI Security Tooling Landscape Register\
 **Document Type:** Register\
-**Version:** 1.0.0\
+**Version:** 1.1.0\
 **Date:** 2026-05-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -55,6 +55,15 @@ Each project block records:
 - **Key capabilities**: bulleted enumeration of the project's documented technical capabilities.
 - **GRC concern surfaced**: the specific gap or governance concern this project surfaced for the library.
 - **Status notes**: archive status, deprecation, acquisition, or other lifecycle information.
+- **Provenance** (added Phase 23.10): traceability anchors for the entry's claims:
+  - **Source URL**: the canonical project URL the assessment captured (project repository for open-source projects, vendor product page for commercial vendors).
+  - **Version at assessment**: the project release tag, version string, or "default branch HEAD" recorded at assessment time. Where the project does not publish stable versions, the marker indicates which branch state was assessed.
+  - **Date assessed**: ISO 8601 date the Wave 1 or Wave 2 agent fetched the source.
+  - **Integrity anchor**: for GitHub-hosted projects, the commit SHA of the default branch at assessment time. For non-GitHub sources, the SHA-256 of the captured page content. **This field is filled by the human verifier** under the Citation Verification Specification methodology; the AI verifier records "pending human verification" at entry creation.
+  - **Wayback snapshot URL**: `web.archive.org` snapshot of the source URL on the assessment date. **This field is filled by the human verifier**; `web.archive.org` is blocked in the AI verifier's sandbox.
+  - **Verification status**: one of "AI-captured-pending-human-verification" (Source URL and Date assessed are AI-captured; integrity anchors are pending), "human-verified" (a human verifier has populated all provenance fields and confirmed), or "re-verification-due" (the prior human-verified entry is past the 6-month re-verification cadence and needs refresh).
+
+The Provenance block makes the register's claims time-bounded and source-anchored: a reader in 2027 can determine that the entry reflects the project as it existed on the recorded assessment date, and can use the Wayback snapshot URL (once populated) to retrieve the publisher-attested state at that date.
 
 Projects are grouped into nine categories. The grouping is for navigation; some projects straddle categories (Mindgard is both a red-team tool and a runtime defence, for example), in which case the project appears in its primary category with cross-references.
 
@@ -97,6 +106,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Output guard removing markdown image URLs and tracking links to non-allow-listed domains.
 - **GRC concern surfaced**: Library codified AI content safety filter mandates at high level but did not require Unicode normalisation, per-call nonces, forged-token neutralisation, sink-policy framework, or output-side silent-exfil defences. Phase 23.1 closed these gaps.
 - **Status notes**: Signed npm provenance, Sigstore cosign signatures, SLSA provenance, CycloneDX SBOM. Live adversarial challenge at anton.securelayer7.net.
+- **Provenance**:
+  - Source URL: `https://github.com/securelayer7/PROMPTPurify`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.1.2 Protect AI llm-guard
 
@@ -115,6 +131,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Deanonymize: PII placeholder re-injection paired with Anonymize.
 - **GRC concern surfaced**: Demonstrates that input/output scanner inventory should be enumerated as discrete control categories rather than abstract "content safety filter". OWASP LLM Top 10 per-scanner mapping pattern.
 - **Status notes**: Ships as Python library and `llm_guard_api` HTTP service. ONNX optimisation supported.
+- **Provenance**:
+  - Source URL: `https://github.com/protectai/llm-guard`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.1.3 Protect AI rebuff
 
@@ -129,6 +152,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Python and JS/TS SDKs.
 - **GRC concern surfaced**: Demonstrates the multi-layer pattern that has converged across the field: deterministic + ML + similarity-to-known-attacks + canary tokens.
 - **Status notes**: Archived May 2025 (read-only).
+- **Provenance**:
+  - Source URL: `https://github.com/protectai/rebuff`
+  - Version at assessment: archived May 2025
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.1.4 ClawGuard
 
@@ -144,6 +174,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Web dashboard for approval queue, timeline, rule editing, audit export.
 - **GRC concern surfaced**: Library covered tool-call schema validation but did not articulate a sidecar/proxy interception pattern with bidirectional tool I/O sanitisation. Pattern reflected in MCP-SEC-08 (tool description scanning at load time).
 - **Status notes**: Active. Two plugin variants for OpenClaw API breakage.
+- **Provenance**:
+  - Source URL: `https://github.com/Claw-Guard/ClawGuard`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.1.5 CourtGuard
 
@@ -157,6 +194,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Reference wiring with Gemma-3-12b, Llama-3-8b, Phi-4-mini.
 - **GRC concern surfaced**: None requiring library change. Pattern is novel but not yet production-credible.
 - **Status notes**: Research artefact; sparse README.
+- **Provenance**:
+  - Source URL: `https://github.com/isaacwu2000/CourtGuard`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.1.6 NVIDIA NeMo Guardrails
 
@@ -173,6 +217,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Injection detection via YARA rules: code, sqli, template, xss.
 - **GRC concern surfaced**: Library treated input and output as the two boundaries. NeMo's framework added dialog, retrieval, and execution as discrete enforcement points. Pattern reflected in Phase 23.4 multimodal section and runtime controls.
 - **Status notes**: Active.
+- **Provenance**:
+  - Source URL: `https://github.com/NVIDIA/NeMo-Guardrails`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.1.7 Guardrails AI
 
@@ -184,6 +235,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Pydantic schema enforcement; RAIL XML spec; LLM-judge validators; reask / fix / filter / refrain / exception actions per validator.
 - **GRC concern surfaced**: Demonstrates the validator-as-discrete-control pattern. Each validator addresses a specific risk and ships independently: library control language could be similarly modular.
 - **Status notes**: Active.
+- **Provenance**:
+  - Source URL: `https://github.com/guardrails-ai/guardrails`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.1.8 Vigil-LLM
 
@@ -203,6 +261,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - REST API + Streamlit UI.
 - **GRC concern surfaced**: Multi-scanner layered approach reinforces the Phase 23.1 control pattern.
 - **Status notes**: Alpha (v0.10.3), archived. Explicit limitation in README: "Prompt injection attacks are currently unsolvable and there is no defense that will work 100% of the time."
+- **Provenance**:
+  - Source URL: `https://github.com/deadbits/vigil-llm`
+  - Version at assessment: v0.10.3 (alpha, archived)
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.1.9 Stacklok CodeGate
 
@@ -220,6 +285,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **Supported clients**: GitHub Copilot, Cline, Continue, Aider, Open Interpreter.
 - **GRC concern surfaced**: Library covered prohibited data categories for AI coding assistants but did not articulate the reversible-pseudonymisation pattern that lets developers benefit from AI on sensitive data with reduced leakage. Phase 23.2 referenced this pattern.
 - **Status notes**: Archived June 2025.
+- **Provenance**:
+  - Source URL: `https://github.com/stacklok/codegate`
+  - Version at assessment: archived June 2025
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.1.10 LLM Warden (jackhhao)
 
@@ -231,6 +303,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - 3 modes: HuggingFace transformers pipeline, Cohere classify, local training.
 - **GRC concern surfaced**: None requiring library change. Demonstrates the single-purpose classifier pattern.
 - **Status notes**: Active.
+- **Provenance**:
+  - Source URL: `https://github.com/jackhhao/llm-warden`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.1.11 KOKOSde LocalMod
 
@@ -244,6 +323,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Environment-flag-enforced offline mode.
 - **GRC concern surfaced**: Demonstrates that self-hosted moderation is a viable alternative for jurisdictions where vendor-AI telemetry is unacceptable. Relevant for the data-residency requirement in `guideline-ai-coding-assistant-security.md`.
 - **Status notes**: Active.
+- **Provenance**:
+  - Source URL: `https://github.com/KOKOSde/localmod`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.1.12 Meta PurpleLlama bundle (Llama Guard / Prompt Guard / Code Shield / CyberSecEval)
 
@@ -257,6 +343,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - CyberSecEval v4 test suite: MITRE ATT&CK compliance tests, False-Refusal-Rate (FRR), Secure Code Generation (Instruct + Autocomplete), Textual Prompt Injection, Visual (multimodal) Prompt Injection, Code Interpreter Abuse, Vulnerability Exploitation (X86-64 CTF), Spear Phishing Capability, Autonomous Offensive Cyber Operations, AutoPatch, CyberSOCEval (Malware Analysis MCQ + Threat Intelligence Reasoning).
 - **GRC concern surfaced**: Library did not reference MLCommons hazard taxonomy or CyberSecEval. Both added in Phase 23.6 framework alignment.
 - **Status notes**: Active. License caution: Llama Guard weights are Llama Community License, not MIT.
+- **Provenance**:
+  - Source URL: `https://github.com/meta-llama/PurpleLlama`
+  - Version at assessment: Llama Guard 3 + CyberSecEval v4
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 ### 5.2 Testing, red-team, and benchmark tools
 
@@ -272,6 +365,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Multi-input/multimodal attacks (image, audio, video).
 - **GRC concern surfaced**: Library cited promptfoo at the use-it level but did not reflect its plugin granularity. RAG-poisoning, RAG-document-exfiltration, and RAG-source-attribution as distinct categories drove Phase 23.4 RAG-SEC-10/11/12. Memory-poisoning plugin and excessive-agency plugin drove Phase 23.4 agentic threats.
 - **Status notes**: Active. Largest plugin catalog of the survey.
+- **Provenance**:
+  - Source URL: `https://github.com/promptfoo/promptfoo`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.2.2 NVIDIA garak
 
@@ -287,6 +387,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - leakreplay for training-data memorisation.
 - **GRC concern surfaced**: packagehallucination probe reinforces dev-security DEVSEC-AI-04 (already in library) and standard-developer-security-requirements §9 hallucinated-package coverage. ansiescape and visual_jailbreak surface multimodal and out-of-band-channel threats addressed in Phase 23.4 RUNTIME-SEC-07.
 - **Status notes**: Active. CI matrix Linux/Windows/macOS.
+- **Provenance**:
+  - Source URL: `https://github.com/NVIDIA/garak`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.2.3 Microsoft PyRIT
 
@@ -301,6 +408,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - AIRT scenarios: content_harms, cyber, jailbreak, leakage, psychosocial, rapid_response, scam.
 - **GRC concern surfaced**: PyRIT's 75+ converter library drove the encoding-bypass attack-taxonomy expansion identified for `guide-ai-adversarial-test-reference.md`. Multimodal converters (image/audio/video/QR/PDF/Word) drove Phase 23.4 RUNTIME-SEC-07 multimodal filtering requirements.
 - **Status notes**: Active. Notebook-driven docs; broadest converter library in the survey.
+- **Provenance**:
+  - Source URL: `https://github.com/microsoft/pyrit`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.2.4 Confident AI deepteam
 
@@ -313,6 +427,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Framework alignment: OWASP LLM Top 10 2025, OWASP Top 10 for Agents 2026, NIST AI RMF, MITRE ATLAS, BeaverTails, Aegis.
 - **GRC concern surfaced**: Agentic vulnerability taxonomy (Goal Theft, Recursive Hijacking, Inter-Agent Communication Compromise, Autonomous Agent Drift) drove Phase 23.4 TC-14, TC-15 and AGENT-SEC-15/16. Tool Metadata Poisoning drove Phase 23.4 TC-12 and MCP-SEC-08. OWASP Agentic AI 2026 cited in Phase 23.6.
 - **Status notes**: Active. Builds on DeepEval.
+- **Provenance**:
+  - Source URL: `https://github.com/confident-ai/deepteam`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.2.5 PISmith
 
@@ -326,6 +447,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Targets PIArena, AgentDojo (workspace/banking/travel/slack), AgentDyn (GitHub/DailyLife/Shopping), InjecAgent.
 - **GRC concern surfaced**: Library mandated static adversarial test updates quarterly but did not acknowledge RL-trained adaptive attackers. Drove Phase 23.4 TC-16 and Phase 23.5 §5.5.
 - **Status notes**: Research artefact; expects vLLM/local GPU for training.
+- **Provenance**:
+  - Source URL: `https://github.com/albert-y1n/PISmith`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.2.6 Promptmap
 
@@ -339,6 +467,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Native black-box HTTP testing with arbitrary headers/encoding/proxy.
 - **GRC concern surfaced**: GPL-3.0 license creates downstream redistribution concern for CC0 library. Not cited for that reason.
 - **Status notes**: Active. License caution.
+- **Provenance**:
+  - Source URL: `https://github.com/utkusen/promptmap`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.2.7 ETH Zurich AgentDojo
 
@@ -352,6 +487,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Defences supported: tool_filter, repeat_user_prompt, spotlighting_with_delimiters, transformers_pi_detector.
 - **GRC concern surfaced**: Library did not require agent benchmarking against stateful simulated environments. AgentDojo's pattern reflected in Phase 23.4 AGENT-SEC-15 (goal stability across multi-turn).
 - **Status notes**: Active. Adopted by UK AISI inspect_evals.
+- **Provenance**:
+  - Source URL: `https://github.com/ethz-spylab/agentdojo`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.2.8 HarmBench
 
@@ -365,6 +507,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - R2D2 (Robust Refusal Dynamic Defense) adversarial training recipe.
 - **GRC concern surfaced**: Library mandated red team evaluation but did not reference standardized method enumerations. HarmBench's 18-method matrix and R2D2 reflected in Phase 23.5 §5.4 defence categories.
 - **Status notes**: Active.
+- **Provenance**:
+  - Source URL: `https://github.com/centerforaisafety/HarmBench`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.2.9 Trusted-AI ART (Adversarial Robustness Toolbox)
 
@@ -379,6 +528,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Defences: 5 sub-types (preprocessor, postprocessor, trainer, transformer, detector) totalling 30+ defence classes.
 - **GRC concern surfaced**: Library is LLM-centric. Classical ML adversarial taxonomy at ART's depth was missing. Drove Phase 23.5 §5.2 classical ML threats and §5.4 defence categories.
 - **Status notes**: Active. v1.20.1 (Jul 2025). Underpins HEART.
+- **Provenance**:
+  - Source URL: `https://github.com/Trusted-AI/adversarial-robustness-toolbox`
+  - Version at assessment: v1.20.1 (Jul 2025)
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.2.10 IBM HEART (Hardened Extension of ART)
 
@@ -392,6 +548,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Gradio low-code front-end; Jupyter notebooks.
 - **GRC concern surfaced**: Demonstrates that ART-based attacks can be wrapped in a T&E governance shell. Relevant for adopters in regulated/DoD contexts.
 - **Status notes**: Active. v0.7.0 (Jul 2025). Aligned to DoD CDAO/JAIC T&E protocols and MAITE.
+- **Provenance**:
+  - Source URL: `https://github.com/IBM/heart-library`
+  - Version at assessment: v0.7.0 (Jul 2025)
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.2.11 Open-Prompt-Injection
 
@@ -404,6 +567,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Target tasks/datasets: SST-2, SMS Spam, HSOL, Jfleg, MRPC, RTE, Gigaword, SQuAD.
 - **GRC concern surfaced**: Canonical 5-attack / 8-defence matrix is a useful reference structure for adopters but not cited directly by the library.
 - **Status notes**: Academic reference implementation.
+- **Provenance**:
+  - Source URL: `https://github.com/liu00222/Open-Prompt-Injection`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.2.12 BCG-X ARTKIT
 
@@ -417,6 +587,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Q&A quality, brand-value alignment, demographic bias, safety, security (system-prompt extraction), equivalence/regression testing.
 - **GRC concern surfaced**: None requiring library change. Promotes programmable-pipeline pattern (vs config-YAML) for organisations with research-style testing teams.
 - **Status notes**: Active.
+- **Provenance**:
+  - Source URL: `https://github.com/BCG-X-Official/artkit`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.2.13 Giskard
 
@@ -430,6 +607,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - HuggingFace Hub bot, HTML scan reports.
 - **GRC concern surfaced**: Native AVID export drove the AVID reference in Phase 23.6.
 - **Status notes**: Active.
+- **Provenance**:
+  - Source URL: `https://github.com/Giskard-AI/giskard`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.2.14 CyberArk FuzzyAI
 
@@ -442,6 +626,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Enterprise-style logging.
 - **GRC concern surfaced**: ASCII smuggling and Unicode-tag attacks reinforce Phase 23.1 Unicode normalisation requirement.
 - **Status notes**: Active.
+- **Provenance**:
+  - Source URL: `https://github.com/cyberark/FuzzyAI`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.2.15 LLMFuzzer
 
@@ -455,6 +646,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - HTML report output.
 - **GRC concern surfaced**: None.
 - **Status notes**: Explicitly unmaintained.
+- **Provenance**:
+  - Source URL: `https://github.com/mnns/LLMFuzzer`
+  - Version at assessment: default branch HEAD (unmaintained)
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.2.16 AIJack
 
@@ -472,6 +670,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - FL schemes: FedAVG, FedProx, FedKD, FedGEMS, FedMD, DSFL, MOON, FedExP, SplitNN, SecureBoost.
 - **GRC concern surfaced**: Only surveyed project with both federated-learning attacks and HE+DP defences in one library. Drove Phase 23.5 §5.3 federated-learning threats.
 - **Status notes**: Active. C++/Python hybrid.
+- **Provenance**:
+  - Source URL: `https://github.com/Koukyosyumei/AIJack`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.2.17 AIAPwn (karimhabush/aiapwn)
 
@@ -483,6 +688,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Recon → payload-generation feedback loop.
 - **GRC concern surfaced**: Adaptive payload generation reinforces the PISmith-driven Phase 23.4 TC-16 RL-trained adversary threat class.
 - **Status notes**: Tiny project (~26 stars), sparse maintenance.
+- **Provenance**:
+  - Source URL: `https://github.com/karimhabush/aiapwn`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.2.18 UK AISI inspect_evals
 
@@ -495,6 +707,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Sandboxed Docker tool execution.
 - **GRC concern surfaced**: Library did not reference UK AISI as a framework. Drove Phase 23.6 AI safety evaluation programmes section.
 - **Status notes**: Active. Underpins UK Frontier AI Safety Commitments and EU AI Act Article 55 (GPAI systemic risk) testing.
+- **Provenance**:
+  - Source URL: `https://github.com/UKGovernmentBEIS/inspect_evals`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 ### 5.3 ML supply chain scanners
 
@@ -511,6 +730,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Medium: Keras Lambda layers, unknown/custom operators.
 - **GRC concern surfaced**: Library covered model provenance and trust_remote_code=False but did not mandate scanning. Drove Phase 23.3 SUPPLY-SEC-07.
 - **Status notes**: Active. Enterprise variant: Protect AI Guardian.
+- **Provenance**:
+  - Source URL: `https://github.com/protectai/modelscan`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.3.2 Picklescan
 
@@ -524,6 +750,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - CLI and library; can scan from URLs and Hugging Face repos.
 - **GRC concern surfaced**: Demonstrates the deny-list-of-operators pattern at production-credible depth.
 - **Status notes**: Active.
+- **Provenance**:
+  - Source URL: `https://github.com/mmaitre314/picklescan`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.3.3 Trail of Bits fickling
 
@@ -539,6 +772,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Runtime guards: fickling.always_check_safety(); import hook activate_safe_ml_environment() that monkey-patches pickle.load*, torch.load, numpy.load, joblib.load.
 - **GRC concern surfaced**: Severity-tier taxonomy and runtime import-hook pattern referenced in Phase 23.3 SUPPLY-SEC-07.
 - **Status notes**: Active. LGPL-3.0: copyleft caution for downstream embedding.
+- **Provenance**:
+  - Source URL: `https://github.com/trailofbits/fickling`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 ### 5.4 AI observability platforms
 
@@ -554,6 +794,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Webhooks and rules ("automations") firing on traces matching filters.
 - **GRC concern surfaced**: AI observability platforms with security-relevant features (PII detection, key vaulting, retention controls) are absent from library §20 references. Pending Phase 23.8.
 - **Status notes**: Active.
+- **Provenance**:
+  - Source URL: `https://github.com/langchain-ai/langsmith-sdk`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.4.2 Langfuse
 
@@ -569,6 +816,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Security features: SSO, RBAC, audit logs (EE), encryption at rest, data masking via SDK callbacks.
 - **GRC concern surfaced**: Self-hosting capability addresses data-residency constraints not explicitly handled in library AI observability content.
 - **Status notes**: Active. Open-source self-hostable.
+- **Provenance**:
+  - Source URL: `https://github.com/langfuse/langfuse`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.4.3 Arize Phoenix
 
@@ -581,6 +835,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Embeddings analysis with UMAP projections, drift / data-quality monitoring.
 - **GRC concern surfaced**: Hallucination and toxicity evaluators provide continuous-risk-signal capability not articulated in library §20.
 - **Status notes**: Active. Elastic License 2.0: not OSI-approved open source; check redistribution.
+- **Provenance**:
+  - Source URL: `https://github.com/Arize-ai/phoenix`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.4.4 Helicone
 
@@ -595,6 +856,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Caching, retries, moderations integration, alerts/webhooks.
 - **GRC concern surfaced**: Provider-key Vault pattern is a credential-segmentation control the library has not articulated for AI dev tooling.
 - **Status notes**: Active. SOC 2 + GDPR posture.
+- **Provenance**:
+  - Source URL: `https://github.com/Helicone/helicone`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 ### 5.5 MCP security
 
@@ -611,6 +879,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - xetrack plugin: audit logging to SQLite + DuckDB.
 - **GRC concern surfaced**: Tool-description-as-injection-vector pattern. Drove Phase 23.4 MCP-SEC-08 (tool description content scanning), MCP-SEC-09 (rug-pull detection via hash pinning), MCP-SEC-10 (tool-name shadowing detection).
 - **Status notes**: Active. Only MCP-specific defence in the awesome-ai-security index.
+- **Provenance**:
+  - Source URL: `https://github.com/lasso-security/mcp-gateway`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 ### 5.6 Dev-rules and coding-assistant baselines
 
@@ -629,6 +904,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Framework alignment: OWASP (LLM, MCP, ASVS, SAMM, API, Top 10), NIST (AI RMF, SSDF), MITRE ATLAS, Google SAIF, ISO/IEC 23894, CWE Top 25.
 - **GRC concern surfaced**: Already deeply integrated; the most comprehensive coding-assistant rule set in the survey.
 - **Status notes**: Active.
+- **Provenance**:
+  - Source URL: `https://github.com/TikiTribe/claude-secure-coding-rules`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.6.2 Wiz secure-rules-files
 
@@ -638,6 +920,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **Key capabilities**: Language and framework baselines (less extensive than TikiTribe).
 - **GRC concern surfaced**: Demonstrates the rule-file portability pattern across multiple AI coding assistants.
 - **Status notes**: Active.
+- **Provenance**:
+  - Source URL: `https://github.com/wiz-sec-public/secure-rules-files`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.6.3 Kariedo claude-code-security-rules
 
@@ -647,6 +936,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **Key capabilities**: Modular rules for Claude Code with @-syntax composition.
 - **GRC concern surfaced**: None requiring library change.
 - **Status notes**: Active.
+- **Provenance**:
+  - Source URL: `https://github.com/kariedo/claude-code-security-rules`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 ### 5.7 AI pentest agents (open-source)
 
@@ -658,6 +954,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **Key capabilities**: Agentic pipeline; session persistence; multi-category support (Web, Crypto, Reversing, Forensics, PWN, PrivEsc); 86.5% success on 104 XBOW benchmarks (reproducible).
 - **GRC concern surfaced**: AI-driven pentest agents are a new governance category. Pending Phase 23.9.
 - **Status notes**: Active. USENIX-published metrics.
+- **Provenance**:
+  - Source URL: `https://github.com/GreyDGL/PentestGPT`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.7.2 PentAGI (vxcontrol/pentagi)
 
@@ -667,6 +970,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **Key capabilities**: 20+ built-in security tools; vector memory (pgvector); Neo4j/Graphiti knowledge graph; isolated browser-based web intelligence; agent delegation.
 - **GRC concern surfaced**: Multi-agent autonomous orchestration pattern with knowledge graph.
 - **Status notes**: Active.
+- **Provenance**:
+  - Source URL: `https://github.com/vxcontrol/pentagi`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.7.3 AI-OPS (antoninoLorenzo/AI-OPS)
 
@@ -676,6 +986,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **Key capabilities**: Fully open-source LLM stack via Ollama; web search via Google; CLI + API.
 - **GRC concern surfaced**: Operator-augmentation framing rather than full autonomy.
 - **Status notes**: Active. URL corrected from `0v3rride/AI-OPS` (404) to canonical.
+- **Provenance**:
+  - Source URL: `https://github.com/antoninoLorenzo/AI-OPS`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.7.4 HackSynth (aielte-research/HackSynth)
 
@@ -685,6 +1002,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **Key capabilities**: Dual-module Planner + Summarizer; iterative command/feedback loop; CTF benchmark evaluation.
 - **GRC concern surfaced**: AGPLv3 license restricts downstream commercial use; not a candidate for direct library citation as exemplar.
 - **Status notes**: Active. AGPLv3 caution. URL corrected from `HSEcurity/hacksynth` (does not exist) to canonical.
+- **Provenance**:
+  - Source URL: `https://github.com/aielte-research/HackSynth`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.7.5 HexStrike AI (0x4m4/hexstrike-ai)
 
@@ -694,6 +1018,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **Key capabilities**: 12+ specialist agents; 150+ tool integrations (Nmap, Rustscan, Nuclei, SQLMap, John, Hashcat, GDB, Radare2, Ghidra, Prowler, etc.); 35+ attack categories.
 - **GRC concern surfaced**: Vendor-claimed metrics (98.7% detection, 2.1% FP) lack independent benchmark; treat with caution.
 - **Status notes**: Active.
+- **Provenance**:
+  - Source URL: `https://github.com/0x4m4/hexstrike-ai`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.7.6 BurpGPT (aress31/burpgpt)
 
@@ -703,6 +1034,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **Key capabilities**: Passive scan check; placeholder-based dynamic prompt customisation; multi-model OpenAI support.
 - **GRC concern surfaced**: Explicit data-privacy caveat (traffic sent to OpenAI for analysis): relevant to vendor-telemetry control in dev-security guideline.
 - **Status notes**: Active.
+- **Provenance**:
+  - Source URL: `https://github.com/aress31/burpgpt`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.7.7 Strix (usestrix/strix)
 
@@ -717,6 +1055,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Attack categories: Access Control, Injection, Server-Side, Client-Side, Business Logic, Auth, Infra misconfig.
 - **GRC concern surfaced**: CI/CD integration of AI pentest agents: pending Phase 23.9.
 - **Status notes**: Active.
+- **Provenance**:
+  - Source URL: `https://github.com/usestrix/strix`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 ### 5.8 Commercial runtime guardrails
 
@@ -730,6 +1075,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **Key capabilities**: Real-time prompt-injection detection, sensitive-data exposure, policy-violation enforcement, multilingual threat detection.
 - **Compliance mapping**: OWASP LLM Top 10 (contributor), AIVSS, MITRE ATLAS, NIST AI RMF.
 - **Status notes**: Acquired by Check Point Nov 2025 (~$300M).
+- **Provenance**:
+  - Source URL: `https://www.lakera.ai/lakera-guard`
+  - Version at assessment: product page content at assessment
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (SHA-256 of captured page content)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.8.2 PromptArmor
 
@@ -738,6 +1090,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **Library reference status**: Surveyed only.
 - **Key capabilities**: Auto-updating threat detection engine; input/output/action analysis; real-time flagging; consolidated dashboard; OAuth/SSO; RBAC.
 - **Status notes**: YC W24. Distinct from the research project of the same name (ICLR 2026, arXiv 2507.15219).
+- **Provenance**:
+  - Source URL: `https://www.promptarmor.com/`
+  - Version at assessment: product page content at assessment
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (SHA-256 of captured page content)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.8.3 HiddenLayer AIM / AI Runtime Security
 
@@ -747,6 +1106,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **Key capabilities**: AI Discovery; AI Supply Chain Security; AI Attack Simulation (ATLAS-aligned); AI Runtime Security (Detection Guardrails + Firewall); agentic runtime.
 - **Compliance mapping**: NIST AI RMF, MITRE ATLAS, ISO 42001, EU AI Act.
 - **Status notes**: AWS Marketplace listing.
+- **Provenance**:
+  - Source URL: `https://www.hiddenlayer.com/platform/ai-runtime-security`
+  - Version at assessment: product page content at assessment
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (SHA-256 of captured page content)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.8.4 CalypsoAI Moderator
 
@@ -754,6 +1120,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **License**: Commercial SaaS.
 - **Library reference status**: Surveyed only.
 - **Key capabilities**: DLP (PII, code, IP); malicious-code/malware detection; full auditability; customisable scanners; ML + rule-based; adversarial simulation; RL-driven red teaming; model-agnostic.
+- **Provenance**:
+  - Source URL: `https://moderator.calypsoai.com/solutions`
+  - Version at assessment: product page content at assessment
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (SHA-256 of captured page content)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.8.5 Mindgard
 
@@ -763,6 +1136,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **Key capabilities**: 170+ attack scenarios; AI reconnaissance (discovers models, agents, MCP/A2A servers, connected tools, shadow AI); runtime vulnerability detection; runtime detection-and-response.
 - **Compliance mapping**: SOC 2 Type II, GDPR.
 - **Status notes**: Spun out of Lancaster University.
+- **Provenance**:
+  - Source URL: `https://mindgard.ai/ai-security-platform`
+  - Version at assessment: product page content at assessment
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (SHA-256 of captured page content)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 #### 5.8.6 SplxAI / SPLX
 
@@ -772,6 +1152,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **Key capabilities**: Automated LLM pentest covering 20+ GenAI risks; up to 95% risk-surface discovery (vendor-claimed); dynamic mitigation; runtime protection for chatbots/agents.
 - **Compliance mapping**: MITRE ATLAS, OWASP LLM Top 10, EU AI Act.
 - **Status notes**: Being acquired by Zscaler (pending/announced).
+- **Provenance**:
+  - Source URL: `https://splx.ai/`
+  - Version at assessment: product page content at assessment
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (SHA-256 of captured page content)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 ### 5.9 Resource indexes
 
@@ -785,6 +1172,13 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **Status notes**: Active. Continuously updated.
 
 ---
+- **Provenance**:
+  - Source URL: `https://github.com/brinhosa/awesome-ai-security`
+  - Version at assessment: default branch HEAD
+  - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
+  - Integrity anchor: pending human verification (capture commit SHA of default branch)
+  - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
+  - Verification status: AI-captured-pending-human-verification
 
 ## 6. GRC gap summary
 
@@ -828,7 +1222,27 @@ The following table cross-references the gaps surfaced by projects in this regis
 - New projects entering the AI security landscape are added at the maintainer's discretion. Material additions trigger a minor version bump.
 - Project status changes (archival, license change, acquisition, major version) trigger an entry update with version bump.
 - Annual review confirms each entry's library reference status and capabilities, and identifies projects no longer relevant.
-- Citation verification for entries in this register is managed via the Citation Verifications Register (`register-citation-verifications.md`) under the Q-track methodology.
+- Citation verification for entries in this register is managed via the Citation Verifications Register ([`register-citation-verifications.md`](register-citation-verifications.md)) under the Q-track methodology.
+
+### Provenance re-verification cadence
+
+Tooling moves faster than standards. The Citation Verification Specification ([`specification-citation-verification.md`](specification-citation-verification.md)) §12 sets the re-verification cadence for canonical citations at 12 months. For this tooling register, the cadence is shorter:
+
+- **Active open-source projects**: 6 months. Re-verification confirms the project is still active, the source URL still resolves, the recorded license has not changed, and the recorded capability claims still match the current project documentation.
+- **Archived or unmaintained projects**: 12 months. The entry's archived status is reconfirmed; if the archive is removed or the project resumes maintenance, the entry transitions back to the active cadence.
+- **Commercial vendors**: 6 months. Vendor product pages change frequently; the captured page content and Wayback snapshot URL anchor what was assessed.
+- **Triggering events forcing immediate re-verification**: project archival, license change, vendor acquisition, major version release with material capability change, or any divergence between recorded capabilities and current project documentation.
+
+Per-entry verification status transitions:
+
+- `AI-captured-pending-human-verification` → `human-verified` when a human verifier populates the Integrity anchor and Wayback snapshot URL fields and confirms the captured text against the live source.
+- `human-verified` → `re-verification-due` when the recorded `Date assessed` is older than the cadence above and no triggering event has occurred.
+- `human-verified` → `human-verified` (with new Date assessed) when re-verification confirms the entry.
+- Any status → `pending-resolution` when a triggering event occurs; resolution may be correction, removal, or transition to archived status with cadence change.
+
+### Planned linter
+
+A linter (`tools/lint-tooling-provenance-freshness.py`, planned) will be added to flag entries whose latest provenance row is past the cadence above. The linter parses each entry's `Date assessed` and `Verification status` and computes age; output is structurally similar to `check-review-cadence.py`. Implementation is queued; the linter is not required at the time this register version is released.
 
 ---
 
