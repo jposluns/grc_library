@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Bundle Index\
 **Document Type:** Register\
-**Version:** 1.0.0\
+**Version:** 1.0.1\
 **Date:** 2026-05-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -10,7 +10,7 @@
 **Classification:** Public\
 **Category:** Core Governance\
 **Review Frequency:** Per-campaign; updated when new verification batches are queued or completed\
-**Repository Path:** [`governance/index-citation-verification-bundle.md`](index-citation-verification-bundle.md)\
+**Repository Path:** [`governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md)\
 **Confidentiality:** Public\
 **License:** CC0 1.0 Universal
 
@@ -33,7 +33,7 @@ The bundle covers everything in the library that requires human-verifier confirm
 | **Q3.1** | [`worklist-citation-verification-batch-q3-1-new-citations.md`](worklist-citation-verification-batch-q3-1-new-citations.md) | 6 | New canonical citations added in Phase 23.6 that do not overlap Q3 |
 | **Q4** | [`worklist-citation-verification-batch-q4-canonical-citations.md`](worklist-citation-verification-batch-q4-canonical-citations.md) | 82 | Remaining canonical citations register entries (NIST, EU, North American, sector-specific, OWASP, customs/trade, OECD, ICAO/IMO, CSA, ISACA, MITRE, AICPA, jurisdiction-specific privacy regulations) |
 
-**Total unique entries to verify: ~167.** (Three Phase-23.6 citations — HarmBench, Meta CyberSecEval, UK AISI inspect_evals — overlap Q3 tool entries; their verification work is performed once and recorded against both registers.)
+**Total unique entries to verify: ~167.** (Three Phase-23.6 citations - HarmBench, Meta CyberSecEval, UK AISI inspect_evals - overlap Q3 tool entries; their verification work is performed once and recorded against both registers.)
 
 ---
 
@@ -125,8 +125,8 @@ Three additional Phase 23.6 entries (HarmBench, Meta CyberSecEval, UK AISI inspe
 
 Recommended workflow for the human verifier:
 
-1. **Open the bundle index** ([this file](index-citation-verification-bundle.md)) — see batches and execution order.
-2. **Open the worklist for the current batch** — e.g., [Q2 worklist](worklist-citation-verification-batch-q2-iso-iec.md).
+1. **Open the bundle index** ([this file](register-citation-verification-bundle.md)) to see batches and execution order.
+2. **Open the worklist for the current batch** (e.g., [Q2 worklist](worklist-citation-verification-batch-q2-iso-iec.md)).
 3. **For each row**:
    1. Open the Expected primary URL in a browser.
    2. Capture the verbatim publisher text into the worklist row.
@@ -144,7 +144,7 @@ Recommended workflow for the human verifier:
 - **Wayback Machine submission**: `https://web.archive.org/save/<publisher-url>`. Wait for the snapshot to complete; record the resulting URL.
 - **GitHub commit SHA capture**: from the repo page, the latest commit on the default branch is shown at the top of the file listing. Copy the full 40-character SHA.
 - **Web page content hash**: for commercial vendor pages, save the page HTML and compute SHA-256 (e.g., `curl -L <url> | shasum -a 256`).
-- **Spot-check buddy**: at end of each batch, the human verifier (or a delegated reviewer) spot-checks 5+ rows from that batch by re-opening the URLs and confirming the captured text still matches the live page. This is the §8.6 requirement.
+- **Spot-check buddy**: at end of each batch, the human verifier (or a delegated reviewer) spot-checks 5+ rows from that batch by re-opening the URLs and confirming the captured text still matches the live page. This is the spot-check requirement defined in [`specification-citation-verification.md`](specification-citation-verification.md) §8.6.
 
 ---
 

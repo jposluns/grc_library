@@ -4,6 +4,41 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.30 (2026-05-30, Library Version 2026.05.46): Audit-clean cleanup of Phase Q-bundle artefacts
+
+Phase Q-bundle (commit 804c395, merged in PR #91) introduced five new audit-gate violations that escaped the pre-merge audit run. This cleanup phase makes all 30 audit gates pass cleanly and records the lessons in the Decisions log of [`TODO.md`](TODO.md) plus the closing-gap rows in [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md).
+
+### Audit findings reconciled
+
+1. **Filename / doctype prefix mismatch** ([`tools/lint-metadata.py`](tools/lint-metadata.py)). The bundle index was created with an `index-` filename prefix while its Document Type metadata field was `Register`. The metadata linter requires Document Type `Register` to map to filename prefix `register-`. Resolved by renaming the file to [`governance/register-citation-verification-bundle.md`](governance/register-citation-verification-bundle.md) (the Q4 worklist already linked to that intended name).
+2. **Em-dash language violations** ([`tools/lint-language.py`](tools/lint-language.py)). 15 occurrences of em-dash characters across the bundle index (3) and the Q4 worklist (12). Resolved by replacing each em-dash with the project's standard alternative punctuation (hyphen, colon, parentheses) per the established no-em-dash convention.
+3. **Broken intra-repo link** ([`tools/lint-links.py`](tools/lint-links.py)). The Q4 worklist's metadata block linked to the bundle's intended `register-` filename which did not exist at that path. Resolved by the rename above.
+4. **Hallucinated framework version flagged** ([`tools/lint-citations.py`](tools/lint-citations.py)). The Q4 worklist's COBIT row deliberately documents "COBIT 2025" as a hallucination warning, mirroring the canonical-citations register entry. Resolved by extending the `COBIT 2025` exemption in the citation linter to include the Q4 worklist (same documentary purpose).
+5. **Unresolved intra-document reference** ([`tools/lint-intra-doc-refs.py`](tools/lint-intra-doc-refs.py)). The bundle's "spot-check buddy" note referenced "§8.6 requirement" without naming the source document (which is the Citation Verification Specification, not the bundle itself). Resolved by qualifying the reference with the document name and link.
+
+### Lessons-learned recorded
+
+[`TODO.md`](TODO.md) Decisions log now carries an additional entry (Phase 23.30) noting that the Q-bundle pre-merge audit pass omitted the full 30-linter sweep, and that future phase-completion gates should run the full suite via the audit-runner script planned in the upcoming Bucket A work.
+
+### Files updated
+
+- [`governance/register-citation-verification-bundle.md`](governance/register-citation-verification-bundle.md) (1.0.0 → 1.0.1, rename + em-dash + intra-doc-ref + self-link fixes)
+- [`governance/worklist-citation-verification-batch-q4-canonical-citations.md`](governance/worklist-citation-verification-batch-q4-canonical-citations.md) (1.0.0 → 1.0.1, em-dash + bundle link target)
+- [`governance/worklist-citation-verification-batch-q3-1-new-citations.md`](governance/worklist-citation-verification-batch-q3-1-new-citations.md) (1.0.0 → 1.0.1, Related Documents repointed to renamed bundle)
+- [`governance/README.md`](governance/README.md) (1.9.0 → 1.9.1, table row repointed)
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.27.5 → 1.27.6, registry row repointed)
+- [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md) (1.1.0 → 1.1.1, citation-verification row file reference repointed)
+- [`tools/lint-citations.py`](tools/lint-citations.py) (COBIT-2025 exemption extended to Q4 worklist)
+- [`TODO.md`](TODO.md) (Decisions log entry added for Phase 23.30)
+- [`CHANGELOG.md`](CHANGELOG.md) (this entry; the prior Phase Q-bundle entry's references to the renamed bundle file repointed in place)
+- [`taxonomy.yml`](taxonomy.yml), [`docs/portal.md`](docs/portal.md), [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md) (auto-regenerated)
+
+### Library version
+
+`2026.05.45` to `2026.05.46`. README `1.7.38` to `1.7.39`.
+
+All 30 audits clean.
+
 ## Phase Q-bundle (2026-05-30, Library Version 2026.05.45): Citation verification bundle prepared
 
 Bundles all pending citation verification batches (Q2, Q3, Q3.1, Q4) into a single navigable campaign ready for the human verifier to execute over a few-day focused window.
@@ -14,7 +49,7 @@ Bundles all pending citation verification batches (Q2, Q3, Q3.1, Q4) into a sing
 
 **New worklist: Q4 (82 entries)** — [`governance/worklist-citation-verification-batch-q4-canonical-citations.md`](governance/worklist-citation-verification-batch-q4-canonical-citations.md). Covers the remaining canonical citations register entries (NIST publications, EU regulations, North American regulations, other privacy regulations, OWASP non-LLM publications, customs/trade, OECD, ICAO/IMO, CSA, ISACA, MITRE adversary frameworks, AICPA, jurisdiction-specific privacy regulations). Two source-URL corrections applied during integration: China PIPL row replaced suspicious CDN URL with publisher-search instruction; remaining publisher domains added to the external-link allow-list (`oag.ca.gov`, `dodcio.defense.gov`, `parl.ca`, `fedlex.admin.ch`, `harmbench.org`, `owaspsamm.org`, `wbasco.org`, `cbp.gov`, `pcisecuritystandards.org`, `oecd.ai`, `oecd.org`, `wto.org`).
 
-**Master bundle index** — [`governance/index-citation-verification-bundle.md`](governance/index-citation-verification-bundle.md). Consolidates Q2, Q3, Q3.1, Q4 with:
+**Master bundle index** — [`governance/register-citation-verification-bundle.md`](governance/register-citation-verification-bundle.md). Consolidates Q2, Q3, Q3.1, Q4 with:
 
 - Recommended execution order (Day 1: Q2 ISO; Day 2: Q3.1; Days 3-4: Q3 tooling; Days 5-7: Q4 remaining canonical citations).
 - Per-batch quick reference (publisher, URL pattern, integrity anchor type).
@@ -41,7 +76,7 @@ Total unique entries to verify: **~167** (24 Q2 + 55 Q3 + 6 Q3.1 + 82 Q4, with 2
 
 - [`governance/worklist-citation-verification-batch-q3-1-new-citations.md`](governance/worklist-citation-verification-batch-q3-1-new-citations.md) (v1.0.0, new)
 - [`governance/worklist-citation-verification-batch-q4-canonical-citations.md`](governance/worklist-citation-verification-batch-q4-canonical-citations.md) (v1.0.0, new)
-- [`governance/index-citation-verification-bundle.md`](governance/index-citation-verification-bundle.md) (v1.0.0, new)
+- [`governance/register-citation-verification-bundle.md`](governance/register-citation-verification-bundle.md) (v1.0.0, new)
 - [`governance/README.md`](governance/README.md) (1.8.0 to 1.9.0)
 - [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.27.4 to 1.27.5)
 - [`tools/lint-external-link-domains.py`](tools/lint-external-link-domains.py) (allow-list extended with 12 publisher domains)

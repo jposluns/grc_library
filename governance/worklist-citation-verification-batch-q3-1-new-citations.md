@@ -2,11 +2,11 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q3.1 (New Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.0\
+**Version:** 1.0.1\
 **Date:** 2026-05-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/index-citation-verification-bundle.md`](index-citation-verification-bundle.md)\
+**Related Documents:** [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md)\
 **Classification:** Public\
 **Category:** Core Governance\
 **Review Frequency:** This worklist is a per-batch working artefact; it does not have a recurring review cadence. The authoritative record is the Citation Verifications Register.\
