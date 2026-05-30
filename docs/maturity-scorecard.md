@@ -160,7 +160,7 @@ _147 documents._
 | [governance/register-citation-verification-bundle.md](../governance/register-citation-verification-bundle.md) | Citation Verification Bundle Index | Register | 1.0.1 | 2026-05-30 |
 | [governance/register-data-retention-schedule.md](../governance/register-data-retention-schedule.md) | Data Retention Schedule | Register | 1.0.0 | 2026-05-27 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.0.0 | 2026-05-27 |
-| [governance/specification-audit-programme.md](../governance/specification-audit-programme.md) | Audit Programme Specification | Specification | 1.0.0 | 2026-05-30 |
+| [governance/specification-audit-programme.md](../governance/specification-audit-programme.md) | Audit Programme Specification | Specification | 1.0.1 | 2026-05-30 |
 | [governance/template-citation-verification-worklist.md](../governance/template-citation-verification-worklist.md) | Citation Verification Worklist Template | Template | 1.0.0 | 2026-05-29 |
 | [governance/worklist-citation-verification-batch-q2-iso-iec.md](../governance/worklist-citation-verification-batch-q2-iso-iec.md) | Citation Verification Worklist: Batch Q2 (ISO and ISO/IEC) | Worklist | 1.0.0 | 2026-05-29 |
 | [governance/worklist-citation-verification-batch-q3-1-new-citations.md](../governance/worklist-citation-verification-batch-q3-1-new-citations.md) | Citation Verification Worklist: Batch Q3.1 (New Canonical Citations) | Worklist | 1.0.1 | 2026-05-30 |

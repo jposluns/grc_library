@@ -91,6 +91,11 @@ DENYLIST: list[tuple[str, str, str]] = [
 # entries record what was committed at the time, including the defects that were later
 # corrected. Add as a relative posix path.
 PATH_EXEMPTIONS: dict[str, set[str]] = {
+    # COBIT 2025 is exempt in documents that legitimately discuss the
+    # hallucination warning: CHANGELOG (phase history), this linter (rule
+    # definition), canonical-citations register (the warning's source of
+    # truth), Q4 worklist (verification campaign), and the Audit Programme
+    # Specification (which uses the exemption as a worked example in §8.3).
     "COBIT 2025": {"CHANGELOG.md", "tools/lint-citations.py", "governance/register-canonical-citations.md", "governance/worklist-citation-verification-batch-q4-canonical-citations.md", "governance/specification-audit-programme.md"},
     "CSA CCM v5": {"CHANGELOG.md", "tools/lint-citations.py", "governance/register-canonical-citations.md"},
     "CCM v5": {"CHANGELOG.md", "tools/lint-citations.py", "governance/register-canonical-citations.md"},

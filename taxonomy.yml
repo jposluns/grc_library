@@ -2359,7 +2359,7 @@ documents:
   domain: "governance"
   type: "Specification"
   title: "Audit Programme Specification"
-  version: "1.0.0"
+  version: "1.0.1"
   date: "2026-05-30"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"

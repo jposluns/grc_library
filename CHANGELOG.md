@@ -4,6 +4,41 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.32 (2026-05-30, Library Version 2026.05.48): Post-Bucket-A audit reconciliation
+
+Resolves two defects and five concerns surfaced by an independent post-implementation audit of Phase 23.31's audit-programme deliverables.
+
+### Defects fixed
+
+1. **Gate-name drift in the local audit runner.** Two `run_gate` labels in [`tools/run_all_audits.sh`](tools/run_all_audits.sh) had been abbreviated inconsistently with [`.github/workflows/quality.yml`](.github/workflows/quality.yml) and [`.pre-commit-config.yaml`](.pre-commit-config.yaml): "Mandatory near uncertainty marker audit" (missing "requirement"), and "Library/document version monotonicity audit" (slash instead of "and"). This is exactly the CI-parity drift that the Audit Programme Specification §3 principle 5 promises to prevent; the spec itself caught its own first regression. Both labels now match the workflow verbatim.
+2. **Spec inventory naming drift.** Rows 4 and 13 of the §6 gate inventory in [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) read "Structural index integrity" and "Library and document version monotonicity", missing the trailing `audit` word that appears in [`.github/workflows/quality.yml`](.github/workflows/quality.yml). Both rows now include the trailing word so they match the canonical CI-step name.
+
+### Concerns addressed
+
+3. **§5 category mis-mappings.** Gate 8 (Owner / Approving Authority role audit) is metadata-field validity, not Structural index; it now sits in Metadata integrity. Gate 11 (CHANGELOG file-reference link coverage) is reference integrity, not Structural index; it now sits in Reference integrity. Gate 23 (Internal references audit) detects deployment-environment leakage, not link integrity; it is removed from Reference integrity and remains under Security and privacy. The Structural index category now correctly contains only gate 4.
+4. **§11 boundary statement incomplete.** Gate 5 ([`tools/lint-citations.py`](tools/lint-citations.py)) detects literal-string drift on external framework versions and therefore sits at the boundary between this programme and the Citation Verification Specification, alongside gates 27 and 28. The boundary statement now names all three gates rather than only the two freshness gates.
+5. **§9 hard-coded gate count.** The literal `30` previously appeared in §2.1, §5, §7, §10, and §11. The §9 procedure for adding a new gate has been rewritten to name §2.1 and the §6 inventory as the canonical sources of truth; §5, §7, and §10 no longer pin the count. Adding a future gate no longer requires touching five places in the prose.
+6. **Linter exemption missing inline comment.** [`tools/lint-citations.py`](tools/lint-citations.py)'s COBIT 2025 exemption for the new audit-programme spec lacked the one-line justification that the equivalent stub-document and placeholder-leakage exemptions carry. Inline comment added.
+7. **Meta-document tension in §3 principle 4.** Principle 4 declared "blanket exemption lists" undesirable, but the audit-programme spec is itself added to three exemption lists. Principle 4 now acknowledges meta-documents (the linter script, CHANGELOG, this specification, and the Citation Verification Specification) as a permitted exemption class, with the inline-justification requirement.
+
+### Future work surfaced
+
+The audit also suggested a gate-name parity linter that parses the §6 inventory table and diffs against the [`.github/workflows/quality.yml`](.github/workflows/quality.yml) step names and the [`tools/run_all_audits.sh`](tools/run_all_audits.sh) `run_gate` calls. This is a strong candidate for a future Phase 23.33 because it would have caught defects 1 and 2 automatically. Recorded as a future-work item; not implemented in this phase.
+
+### Files updated
+
+- [`tools/run_all_audits.sh`](tools/run_all_audits.sh) (gate-name labels reconciled)
+- [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) (1.0.0 to 1.0.1)
+- [`tools/lint-citations.py`](tools/lint-citations.py) (inline justification on COBIT 2025 exemption)
+- [`CHANGELOG.md`](CHANGELOG.md) (this entry)
+- Auto-regenerated: [`taxonomy.yml`](taxonomy.yml), [`docs/portal.md`](docs/portal.md), [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md)
+
+### Library version
+
+`2026.05.47` to `2026.05.48`. README `1.7.40` to `1.7.41`.
+
+All 30 audits clean. Pre-commit hooks pass.
+
 ## Phase 23.31 (2026-05-30, Library Version 2026.05.47): Audit programme operationalisation (Bucket A)
 
 Operationalises the 30-gate audit programme that had grown organically across Phases 23.12 through 23.29. Three deliverables:
