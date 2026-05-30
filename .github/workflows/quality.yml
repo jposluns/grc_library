@@ -82,6 +82,9 @@ jobs:
       - name: Secret pattern audit
         run: python3 tools/lint-secrets-in-content.py
 
+      - name: PII pattern audit
+        run: python3 tools/lint-pii-in-content.py
+
       - name: Machine-readable taxonomy in sync
         run: python3 tools/build-taxonomy.py --check
 

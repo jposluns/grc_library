@@ -4,6 +4,48 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.23 (2026-05-30, Library Version 2026.05.39): PII pattern audit
+
+Second Tier 3 linter. Adds [`tools/lint-pii-in-content.py`](tools/lint-pii-in-content.py), the 24th linter. Scans library content for accidentally-committed personal data.
+
+### What the linter does
+
+Scans library text files (markdown, Python, YAML, JSON, TOML, plain text, CFF) for:
+
+- **Email addresses** not on the example-domain allow-list (example.com/org/net, localhost, test, invalid, yourcompany.com, attacker.com, posluns.com for the library maintainer).
+- **US Social Security Number** patterns (3-2-4 digit form).
+- **US phone numbers** (10-digit with separators, optional +1).
+- **Public IPv4 addresses** outside RFC 1918 (private), RFC 5737 (documentation), loopback, link-local, multicast, and reserved ranges. Distinguishes between IPv4 and OIDs by requiring no surrounding dot-digit context.
+- **Postal-address fragments** (street number + name + suffix like Street/Avenue/etc.).
+
+### Exempted files
+
+- [`AUTHORS.md`](AUTHORS.md) and [`CITATION.cff`](CITATION.cff) (intentionally contain maintainer contact info).
+- The AI adversarial test reference and AI security technical implementation guide (contain documentation of attack patterns including fake emails as prompt-injection test inputs).
+- Linter source files (discuss the patterns).
+
+### Why it exists
+
+The library is meant to be organisation-neutral and individual-neutral. Personal data in CC0-published content is a privacy issue: anyone adopting the library inherits whatever names, emails, phone numbers, or addresses appear in the source.
+
+### Notable false-positive resolved during development
+
+The operations CA-management standard contains X.509/ASN.1 Object Identifiers like `1.3.6.1.5.5.7.3.x`. The initial IPv4 regex caught `1.3.6.1` as an IPv4. Fixed by requiring negative lookbehind and lookahead for `.\d` — IPv4 must be exactly 4 dotted octets with no surrounding dot-digit context (which would indicate an OID or version number).
+
+### CI integration
+
+Added to [`.github/workflows/quality.yml`](.github/workflows/quality.yml). Audit suite is now 24 gates.
+
+### Verification
+
+Positive case: 354 files scanned, no suspected PII. Negative case: synthetic file with a non-example-domain email, US phone number, US SSN pattern, and a public IPv4 outside reserved ranges, all correctly caught.
+
+### Library version
+
+`2026.05.38` to `2026.05.39`. README `1.7.31` to `1.7.32`.
+
+All 24 audits clean.
+
 ## Phase 23.22 (2026-05-30, Library Version 2026.05.38): Secret pattern audit
 
 First Tier 3 linter (security defence). Adds [`tools/lint-secrets-in-content.py`](tools/lint-secrets-in-content.py), the 23rd linter. Scans library content for accidentally-committed secrets.
