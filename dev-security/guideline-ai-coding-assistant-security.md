@@ -2,8 +2,8 @@
 
 **Document Title:** AI Coding Assistant Security Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.1.0\
+**Date:** 2026-05-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/claude-rules/README.md`](claude-rules/README.md), [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -145,6 +145,65 @@ Developers using AI coding assistants should be aware that prompt injection can 
 - **Issue trackers and wikis**: AI assistants reading linked content may process instructions embedded in that content.
 
 If an AI coding assistant behaves unexpectedly, generates code that seems designed to exfiltrate data, bypass security controls, or perform unusual actions, treat it as a potential prompt injection event and report it.
+
+---
+
+## Defensive scanning of AI coding assistant inputs and outputs
+
+Awareness is necessary but not sufficient. The following are scanning controls that operate on the files an AI coding assistant reads and on the code it produces, regardless of developer attention.
+
+### Input scanning: files before AI consumption
+
+Where an AI coding assistant reads files the developer did not author (third-party dependencies, generated files, vendored samples, downloaded fixtures, retrieved web content, AI-output from a different session, issue-tracker or wiki content fetched at session start), those files should be scanned for prompt-injection content before the assistant processes them. The scan looks for, at minimum:
+
+- Forged chat-template tokens such as `im_start`, `INST`, `SYS`, `system`, `user`, `assistant` markers used in current model families.
+- Instruction-override patterns ("ignore previous instructions", "you are now", "your new role is", role-name re-binding).
+- Zero-width, BIDI, homoglyph, and other steganographic Unicode patterns.
+- Hidden HTML comments containing instruction-like content in markdown or documentation files.
+- Embedded URLs to non-allow-listed external hosts.
+
+The scan is advisory by default (flag for review) and may be blocking for repositories of high sensitivity. The scan output is logged and feeds the standard security-monitoring pipeline.
+
+### Output scanning: AI-generated code before commit
+
+AI-generated code committed to a repository should be automatically scanned, in addition to the standard SAST and SCA gates, for AI-specific concerns:
+
+- **Suspicious URLs**: tracker domains, image-tracker hosts, URL-shortener domains, paste-site hosts, low-reputation domains.
+- **Hardcoded credentials or secret patterns**: scoped beyond the standard secret scanner to include LLM-API key patterns (vendor token shapes), model-provider tokens, AI-platform credentials.
+- **Hallucinated import paths**: package names not present in approved registries (per [`standard-developer-security-requirements.md`](standard-developer-security-requirements.md) §9 and [`standard-software-composition-analysis.md`](standard-software-composition-analysis.md) §5).
+- **Insecure code patterns characteristic of AI generation**: hallucinated security controls (HMAC verification missing signature check; JWT validation missing expiry check; sanitisation routines that escape only one of several attack classes); deprecated cryptography; missing input validation on apparent endpoints.
+- **Exfiltration-style egress in generated code**: outbound HTTP calls to unexpected hosts, embedded analytics or telemetry calls to unrecognised endpoints, base64-encoded payloads in string literals.
+- **Comment-embedded instructions**: AI-generated comments containing instruction-like content that could influence a future AI session reading the file.
+
+Output scanning is a CI/CD gate distinct from standard SAST. Findings block merge by default; tracked exception requires CISO approval per the standard exception policy.
+
+---
+
+## Session isolation, vendor telemetry, and egress monitoring for AI coding assistants
+
+AI coding assistants are themselves a potential exfiltration channel. The following controls treat the tool as a remote-access session in the manner of a vendor remote-access connection.
+
+### Session isolation
+
+- An AI coding assistant session must not span multiple customer codebases, multiple confidentiality classifications, or multiple regulated-data scopes within a single context window. A developer working on customer A's codebase opens a separate session before switching to customer B's codebase.
+- Sessions reading Confidential or Restricted data must not run in parallel with sessions producing or modifying code in a different scope.
+- Where the AI tool supports project-scoped or workspace-scoped memory, that scoping must be configured at workspace creation time.
+
+### Vendor telemetry inventory
+
+- For each approved AI coding assistant, the vendor's published telemetry endpoints, data categories transmitted, retention period, and data-residency posture are inventoried and recorded in the approved-tools register.
+- Material changes to vendor telemetry (added endpoints, expanded data categories, residency changes) trigger reassessment of the tool's approval status.
+- Where the vendor cannot satisfy data residency for a project, the AI tool must not be used on that project.
+
+### Egress monitoring
+
+- AI coding assistant sessions on managed devices and managed cloud development environments are subject to egress logging at the network layer where this is operationally available.
+- Anomalous egress (unexpected destinations, unexpected volumes, unexpected timing) triggers a security-monitoring alert and, where the device permits, automatic session interruption pending review.
+- Where the AI tool runs locally with no network egress except to the vendor's documented endpoints, egress monitoring confirms that this constraint is operationally enforced.
+
+### Insider-bypass risk
+
+Use of AI coding assistants to generate code that bypasses, weakens, or evades security review or compliance controls is a prohibited use (see Prohibited uses §5). Indicators of insider bypass via AI include: a developer requesting an AI to generate code that disables a SAST rule, removes an authentication check, weakens a cryptographic parameter, or constructs a privilege-escalation pathway. Such requests, even if framed as "for testing," are reportable per the Incident reporting section.
 
 ---
 
