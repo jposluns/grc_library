@@ -4,6 +4,91 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.10 (2026-05-30, Library Version 2026.05.26): Tooling-register provenance and time-bounding
+
+Addresses a credibility concern raised after Phase 23.9: the AI Security Tooling Landscape Register asserted capabilities for 55 projects without recording when each project was assessed or how a future reader could verify what was assessed. Phase 23.10 adds a per-entry Provenance block to every entry with traceability anchors, and extends the Citation Verification Specification to govern the tooling register's re-verification cadence.
+
+### Why this update exists
+
+The tooling register (created Phase 23.7) recorded project scope, license, library reference status, capabilities, and GRC concerns surfaced. It did not record:
+
+- The URL each claim came from.
+- The date each project was assessed.
+- Which project version or branch state was reflected in the recorded capabilities.
+- Any integrity anchor (commit SHA, content hash) for the assessed state.
+- Any third-party-attested record (Wayback snapshot URL) for the assessed state.
+
+Without these, a reader in 2027 cannot tell whether an entry reflects the project as it existed at registration or as it has evolved. The user raised this concern; this phase addresses it.
+
+### What was added
+
+#### Per-entry Provenance block (55 entries)
+
+Each entry now carries a six-field Provenance block:
+
+- **Source URL**: canonical project URL captured at assessment (GitHub repository for OSS, vendor product page for commercial). AI-captured.
+- **Version at assessment**: release tag, version string, or "default branch HEAD" recorded at assessment. AI-captured.
+- **Date assessed**: ISO 8601 date the Wave 1 or Wave 2 agent fetched the source. AI-captured (2026-05-30 for all current entries).
+- **Integrity anchor**: commit SHA (GitHub) or SHA-256 of captured page content (web). **Human-pending** (the AI verifier records "pending human verification"; the human verifier fills this from the live source).
+- **Wayback snapshot URL**: `web.archive.org` snapshot of the source URL at assessment date. **Human-pending** (web.archive.org is blocked in the AI sandbox).
+- **Verification status**: `AI-captured-pending-human-verification` (all current entries), `human-verified` (terminal state after human verification), or `re-verification-due` (past the cadence).
+
+#### Schema description update
+
+The register's §3 (How to read this register) now describes the Provenance block with full field semantics and explains why each field exists.
+
+#### Re-verification cadence
+
+The register's §7 (Maintenance) now specifies:
+
+- Active open-source projects: 6 months.
+- Archived or unmaintained projects: 12 months.
+- Commercial vendor entries: 6 months.
+- Triggering events forcing immediate re-verification: project archival, license change, vendor acquisition, major version release with material capability change.
+
+Status transition rules are codified explicitly.
+
+#### Citation Verification Specification update
+
+`specification-citation-verification.md` §12 (Verification freshness) restructured into 12.1 (Canonical Citations Register, 12-month cadence) and 12.2 (AI Security Tooling Landscape Register, 6-month cadence). The tooling register's shorter cadence reflects that tooling versions, capabilities, licenses, and lifecycle status change faster than standards.
+
+#### New worklist
+
+`governance/worklist-citation-verification-batch-q3-ai-tooling.md` (Worklist doctype, v1.0.0) created with all 55 entries pre-filled with the AI-captured fields. Human verifier fills the Captured commit SHA / page SHA-256, Wayback snapshot URL, Captured by, Verification status, and Date checked columns.
+
+#### Planned linter
+
+A linter (`tools/lint-tooling-provenance-freshness.py`) is planned to flag entries whose latest `Date assessed` is past the cadence. The Citation Verification Specification §12 documents the planned linter. Implementation is queued and is not blocking for this phase.
+
+### Honest constraint
+
+The AI verifier (this assistant) cannot complete provenance verification because:
+
+- `web.archive.org` is blocked at the harness level.
+- Commit SHA capture against a live source requires authoritative-source access the AI verifier does not have.
+- The methodology bars AI from primary verification by design.
+
+All 55 current Provenance blocks are therefore marked `AI-captured-pending-human-verification`. The Q3 worklist is the handoff artefact for human verification. The register's claims do not become "verified" until the human verifier completes the worklist; at that point each entry's `Verification status` transitions to `human-verified`.
+
+### Cross-references updated
+
+- `governance/register-ai-security-tooling-landscape.md` (1.0.0 to 1.1.0): 55 Provenance blocks injected; §3 schema description updated; §7 maintenance section now specifies cadence and status transitions.
+- `governance/specification-citation-verification.md` (1.1.0 to 1.2.0): §12 restructured into 12.1 (citations, 12-month) and 12.2 (tooling, 6-month).
+- `governance/worklist-citation-verification-batch-q3-ai-tooling.md` (v1.0.0, new): 55-entry worklist.
+- `governance/README.md` (1.7.0 to 1.8.0): worklist added.
+- `governance/register-document-index-and-classification.md` (1.27.3 to 1.27.4): worklist indexed; tooling-register index entry updated with provenance reference.
+- Main README (Library 2026.05.25 to 2026.05.26; README 1.7.18 to 1.7.19).
+
+### Library version
+
+`2026.05.25` to `2026.05.26`. README `1.7.18` to `1.7.19`.
+
+### Next
+
+When human verification capacity is available, the Q3 worklist can be executed. The Q2 worklist (24 ISO/IEC citation verifications) remains in queue from earlier; the maintainer chooses whether to run Q2 or Q3 first.
+
+All 12 audits clean.
+
 ## Phase 23.9 (2026-05-30, Library Version 2026.05.25): AI-driven offensive security tooling governance
 
 Final phase of the Phase 23 sequence from the external-project assessment. Adds a new §33 to `standard-ai-and-agentic-development-security.md` codifying governance for AI-driven offensive security agents (PentestGPT, PentAGI, Strix, HexStrike AI, BurpGPT, and equivalents). The existing §33 "Verification and enforcement" renumbers to §34 (additive, no internal cross-references affected).

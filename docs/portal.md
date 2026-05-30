@@ -266,6 +266,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 ### Worklist
 
 - [Citation Verification Worklist: Batch Q2 (ISO and ISO/IEC)](../governance/worklist-citation-verification-batch-q2-iso-iec.md)
+- [Citation Verification Worklist: Batch Q3 (AI Security Tooling Landscape Provenance)](../governance/worklist-citation-verification-batch-q3-ai-tooling.md)
 
 ---
 
