@@ -4,6 +4,42 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.24 (2026-05-30, Library Version 2026.05.40): Internal references audit
+
+Third Tier 3 linter. Adds [`tools/lint-internal-references.py`](tools/lint-internal-references.py), the 25th linter. Detects internal-deployment patterns that should not appear in a vendor-neutral CC0 library.
+
+### What the linter does
+
+Pattern detection:
+
+- Internal-domain hostname suffixes (`.local`, `.internal`, `.corp`, `.lan`, `.intranet`, `home.arpa`).
+- AWS region identifiers (`us-east-1`-shape).
+- Azure region identifiers (`westeurope`-shape).
+- GCP region identifiers (`us-central1`-shape).
+- CIDR subnet notations outside RFC 1918 / RFC 5737 documentation ranges.
+
+### Why it exists
+
+Extends the existing hand-curated `SANITISATION_TERMS` list in [`tools/lint-language.py`](tools/lint-language.py) with generic structural patterns. Catches sanitisation gaps where a specific cloud region or internal hostname slipped into library content from a non-public source document.
+
+### Exemptions
+
+[`CHANGELOG.md`](CHANGELOG.md) is exempt because it describes prior sanitisation fixes by reference to the patterns that were removed.
+
+### CI integration
+
+Added to [`.github/workflows/quality.yml`](.github/workflows/quality.yml). Audit suite is now 25 gates.
+
+### Verification
+
+Positive case: 356 files scanned, no patterns. Negative case: synthetic content with `us-east-1`, `srv01.corp`, and `8.8.8.0/24` correctly caught.
+
+### Library version
+
+`2026.05.39` to `2026.05.40`. README `1.7.32` to `1.7.33`.
+
+All 25 audits clean.
+
 ## Phase 23.23 (2026-05-30, Library Version 2026.05.39): PII pattern audit
 
 Second Tier 3 linter. Adds [`tools/lint-pii-in-content.py`](tools/lint-pii-in-content.py), the 24th linter. Scans library content for accidentally-committed personal data.

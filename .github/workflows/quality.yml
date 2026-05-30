@@ -85,6 +85,9 @@ jobs:
       - name: PII pattern audit
         run: python3 tools/lint-pii-in-content.py
 
+      - name: Internal references audit
+        run: python3 tools/lint-internal-references.py
+
       - name: Machine-readable taxonomy in sync
         run: python3 tools/build-taxonomy.py --check
 
