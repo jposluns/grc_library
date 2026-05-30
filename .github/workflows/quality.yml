@@ -91,6 +91,9 @@ jobs:
       - name: External link domain audit
         run: python3 tools/lint-external-link-domains.py
 
+      - name: Cross-document numerical coherence audit
+        run: python3 tools/lint-cross-doc-numbers.py
+
       - name: Machine-readable taxonomy in sync
         run: python3 tools/build-taxonomy.py --check
 
