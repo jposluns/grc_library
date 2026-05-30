@@ -219,6 +219,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 
 ### Register
 
+- [AI Security Tooling Landscape Register](../governance/register-ai-security-tooling-landscape.md)
 - [Assurance Map Register](../risk/register-assurance-map.md)
 - [BASC IT Compliance Monitoring and KPIs](../compliance/logistics/register-basc-it-compliance-kpis.md)
 - [BASC IT and Information Security Responsibilities](../compliance/logistics/register-basc-it-responsibilities.md)

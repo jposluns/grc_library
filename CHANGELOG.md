@@ -4,6 +4,83 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see `specification-master-project.md` section 4.5. The changelog records phase-level changes, not per-document version bumps.
 
+## Phase 23.7 (2026-05-30, Library Version 2026.05.23): AI Security Tooling Landscape Register
+
+Seventh content phase from the external-project assessment. The post-research master index deliverable. Adds a new Register documenting the AI security tooling landscape as surveyed in Wave 1 and Wave 2 of the assessment — 55 entries across 9 categories with scope, license, library reference status, key capabilities, and GRC concern surfaced for each.
+
+### Purpose of this register
+
+Unlike the Canonical Citations Register (which records authoritative citations used in library content), this register is a landscape catalogue. It serves:
+
+- **Adopter orientation**: concrete tooling choices implementing the abstract controls in library standards.
+- **Future-content backing**: tools and threat-class definitions that converge across multiple independent projects.
+- **GRC gap traceability**: audit trail back to why each control or threat class exists in the library.
+
+It is **not** a recommendation list or endorsement.
+
+### Structure
+
+Nine categories covering 55 entries:
+
+- **5.1** Application-side runtime defence (open-source) - 12 projects: PROMPTPurify, llm-guard, rebuff, ClawGuard, CourtGuard, NeMo Guardrails, Guardrails AI, Vigil-LLM, CodeGate, llm-warden, LocalMod, Meta PurpleLlama bundle.
+- **5.2** Testing, red-team, and benchmark tools - 18 projects: promptfoo, garak, pyrit, deepteam, PISmith, promptmap, AgentDojo, HarmBench, ART, HEART, Open-Prompt-Injection, ARTKIT, Giskard, FuzzyAI, LLMFuzzer, AIJack, AIAPwn, inspect_evals.
+- **5.3** ML supply chain scanners - 3 projects: modelscan, picklescan, fickling.
+- **5.4** AI observability platforms - 4 projects: LangSmith, Langfuse, Phoenix, Helicone.
+- **5.5** MCP security - 1 project: Lasso MCP Gateway.
+- **5.6** Dev-rules and coding-assistant baselines - 3 projects: TikiTribe, Wiz, Kariedo.
+- **5.7** AI pentest agents (open-source) - 7 projects: PentestGPT, PentAGI, AI-OPS, HackSynth, HexStrike AI, BurpGPT, Strix.
+- **5.8** Commercial runtime guardrails - 6 vendors: Lakera Guard, PromptArmor, HiddenLayer AIM, CalypsoAI, Mindgard, SplxAI (public-doc depth only).
+- **5.9** Resource indexes - 1: awesome-ai-security.
+
+### GRC gap traceability table
+
+§6 of the register cross-references the 27 gaps surfaced by these projects against the phases that closed them (Phases 23.1 through 23.6) and identifies the projects surfacing each gap. Pending Phase 23.8 and 23.9 gaps are also enumerated with their source projects.
+
+### URL corrections recorded
+
+Three project URLs initially proposed during Wave 2 research turned out to be wrong; the register records the canonical URLs:
+- `0v3rride/AI-OPS` (404) → canonical: `antoninoLorenzo/AI-OPS`
+- `HSEcurity/hacksynth` (does not exist) → canonical: `aielte-research/HackSynth`
+- `c0d3-mast3r/AIAPwn` (the URL given to assess) → canonical: `karimhabush/aiapwn`
+
+Two project name collisions disambiguated:
+- "PromptArmor" the YC W24 startup vs "PromptArmor" the ICLR 2026 research defence (arXiv 2507.15219).
+- `Repello-AI/llm-warden` (404) and `Vectorial1024/LocalMod` (404) — canonical paths recorded.
+
+### Project status flags
+
+Tools known to be archived, unmaintained, or facing license cautions are flagged:
+- rebuff (archived May 2025)
+- CodeGate (archived June 2025)
+- Vigil-LLM (alpha, archived)
+- LLMFuzzer (unmaintained)
+- fickling (LGPL-3.0 copyleft caution)
+- HackSynth (AGPLv3 copyleft caution)
+- promptmap (GPL-3.0 license caution for CC0 library)
+- Phoenix (Elastic License 2.0; not OSI-approved)
+
+### Vendor acquisitions affecting positioning
+
+- Lakera → Check Point (Nov 2025)
+- SplxAI → Zscaler (pending/announced)
+
+### Cross-references updated
+
+- `governance/register-ai-security-tooling-landscape.md` (v1.0.0, new): 55-entry landscape catalogue.
+- `governance/README.md` (1.6.0 to 1.7.0): new register listed.
+- `governance/register-document-index-and-classification.md` (1.27.2 to 1.27.3): new register indexed.
+- Main README (Library 2026.05.22 to 2026.05.23; README 1.7.15 to 1.7.16).
+
+### Library version
+
+`2026.05.22` to `2026.05.23`. README `1.7.15` to `1.7.16`.
+
+### Next
+
+Phase 23.8: AI observability OSS reference architecture (LangSmith, Langfuse, Phoenix, Helicone) — small touch to operations and AI standards.
+
+All 12 audits clean.
+
 ## Phase 23.6 (2026-05-30, Library Version 2026.05.22): Framework alignment updates
 
 Sixth content phase from the external-project assessment. Extends the Canonical Citations Register with new authoritative references and a new AI security tooling references section. All new entries are queued for citation verification under the Citation Verification Specification methodology (the Q-track).

@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.2\
-**Date:** 2026-05-29\
+**Version:** 1.27.3\
+**Date:** 2026-05-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -53,6 +53,7 @@ All active repository documents should be Public.
 | Governance | Register | Citation Verifications Register | [`governance/register-citation-verifications.md`](register-citation-verifications.md) | Governance Library Maintainer | Per Citation Verification Specification §12 | Append-only verification log for canonical citations: publisher URL, captured text, Wayback snapshot, confidence rating, date checked, captured-by identifier |
 | Governance | Template | Citation Verification Worklist Template | [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md) | Governance Library Maintainer | Annual | Per-batch working artefact enforcing the AI/human verifier split in Citation Verification Specification §3 |
 | Governance | Worklist | Citation Verification Worklist: Batch Q2 (ISO and ISO/IEC) | [`governance/worklist-citation-verification-batch-q2-iso-iec.md`](worklist-citation-verification-batch-q2-iso-iec.md) | Governance Library Maintainer | Per-batch (no recurring cadence) | Working worklist for Phase Q2 batch: 24 ISO and ISO/IEC entries pre-filled by AI verifier, captures to be filled by human verifier |
+| Governance | Register | AI Security Tooling Landscape Register | [`governance/register-ai-security-tooling-landscape.md`](register-ai-security-tooling-landscape.md) | Governance Library Maintainer | Annual | Landscape catalogue of 55 AI security projects with scope, capabilities, library reference status, and GRC concerns surfaced |
 | Governance | Register | Coverage Gap Analysis Register | [`governance/register-coverage-gaps.md`](register-coverage-gaps.md) | Governance Library Maintainer | Quarterly | Honest disclosure of sectors, jurisdictions, regulations, cloud providers, and capabilities not covered by the library |
 | Governance | Register | Role Authority Register | [`governance/register-role-authority.md`](register-role-authority.md) | Governance Library Maintainer | Annual | Accountability, RACI, approval authority |
 | Governance | Matrix | Cross-Framework Alignment Matrix | [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md) | Control Framework Maintainer | 6 to 12 months | ISO, NIST, COBIT, CCM, OWASP, MITRE ATLAS |
