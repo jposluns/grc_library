@@ -2,7 +2,7 @@
 
 **Document Title:** Production Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.1\
+**Version:** 1.1.2\
 **Date:** 2026-05-28\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -13,6 +13,10 @@
 **Repository Path:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md)\
 **Confidentiality:** Public\
 **License:** CC0 1.0 Universal
+
+---
+
+## Purpose
 
 This standard defines security requirements for production infrastructure and operations. It covers the controls that govern how production systems are secured, monitored, changed, and recovered. For deployment pipeline and DevOps controls, see the DevOps Security Requirements Standard.
 
