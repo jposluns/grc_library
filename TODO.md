@@ -6,24 +6,6 @@ This file is informational and is not subject to the library's metadata-block, a
 
 ---
 
-## Priority 1 — foundations
-
-*(Tier 1 foundations completed in Phases 21.1 backlog, 21.2 glossary, and 21.3 standards-currency checker + canonical citations register.)*
-
----
-
-## Priority 2 — consistency and structural improvements
-
-*(Tier 2 consistency items completed in Phases 21.4 reciprocity-decision, 21.5 library versioning, 21.6 filename/title alignment audit, and 23.57-23.64 exemption-pattern audit and remediation.)*
-
----
-
-## Priority 3 — strategic capability
-
-*(Tier 3 strategic capability items completed in Phases 21.7 coverage gap register and 21.8 adopter decision tree.)*
-
----
-
 ## Priority 4 — adopter experience
 
 ### 4.1 Quickstart templates per adopter profile
@@ -46,7 +28,7 @@ The current `docs/maturity-scorecard.md` is auto-generated and static. An intera
 
 ---
 
-## Priority 5 — content expansion (deferred until Priority 1–3 foundations land)
+## Priority 5 — content expansion
 
 ### 5.1 Logistics country/programme expansion
 
@@ -106,44 +88,40 @@ Within `compliance/public-sector/`:
 ### 5.7 Privacy jurisdiction gaps
 
 Existing privacy domain covers 25 country annexes. Known gaps or stale entries:
-- Argentina (PDPA 2025 update pending)
-- Saudi Arabia PDPL (recent updates)
-- Mexico LFPDPPP
+- Argentina (PDPA 2025 update pending; currently covered in the Latin America annex)
+- Saudi Arabia PDPL (dedicated annex exists; recent updates pending)
+- Mexico LFPDPPP (currently covered in the Latin America annex; standalone annex possible)
 - Re-review of EU member state derogations where applicable
 
 ### 5.8 AI jurisdiction overlays
 
-The library cites EU AI Act extensively but lacks dedicated per-jurisdiction AI annexes (parallel to privacy/jurisdictions/). Candidates:
+The library cites EU AI Act extensively but lacks a dedicated `ai/jurisdictions/` subdirectory parallel to `privacy/jurisdictions/`. Candidates:
 - EU AI Act detailed annex (`ai/jurisdictions/annex-ai-european-union.md`)
 - Canada AIDA
 - UK AI policy framework
-- US state-by-state AI laws (Colorado AI Act, NYC bias audit law, etc.)
-- China generative AI rules
+- US state-by-state AI laws (Colorado AI Act, NYC bias audit law, etc.; partial coverage exists today inside the US privacy annex but a dedicated AI-jurisdiction annex would be cleaner)
+- China generative AI rules (partial coverage exists today inside the China privacy annex)
 - Korea AI framework
 
 ---
 
 ## Priority 6 — domain-level expansion (longer-term)
 
-### 6.1 Cloud-specific compliance overlays
+### 6.1 Multi-cloud governance overlay
 
-AWS, Azure, GCP, and multi-cloud-specific governance content. Could live in `operations/` or warrant a new `cloud/` domain.
+Per-cloud hardening baselines for AWS, Azure, and GCP exist in `dev-security/`. The remaining gap is multi-cloud governance (cross-cloud risk taxonomy, cross-cloud incident coordination, cloud-portfolio-level controls). Could live in `operations/` or warrant a new `cloud/` domain.
 
-### 6.2 Operational technology (OT) / ICS security depth
+### 6.2 Identity-specific content depth
 
-IEC 62443 mapping, ICS incident response, building management systems, OT-specific change management. Cross-cuts with energy, logistics, and any organisation with operational technology.
+Customer Identity (CIAM) governance, workforce identity governance, identity federation patterns, passwordless adoption playbooks. The library has an Identity and Access Management policy and procedure but no dedicated content for these patterns.
 
-### 6.3 Identity-specific content depth
+### 6.3 Quantum cryptography readiness deepening
 
-Customer Identity (CIAM) governance, workforce identity governance, identity federation patterns, passwordless adoption playbooks.
+The library has a PQC roadmap at phase level (`security/roadmap-post-quantum-cryptography.md`). The roadmap covers discovery, standards, pilot, and migration phases but not detailed implementation content. Pending additions: PQC migration playbook (operational steps per system class), crypto-agility patterns (key abstraction, algorithm switching, hybrid schemes), and post-quantum-ready CA / PKI management.
 
-### 6.4 Quantum cryptography readiness deepening
+### 6.4 Cross-framework matrix expansion
 
-Library has a PQC roadmap; could add a PQC migration playbook, crypto-agility patterns, and post-quantum-ready CA management.
-
-### 6.5 Cross-framework matrix expansion
-
-Current matrix covers major frameworks; could expand coverage to additional sectoral and regional frameworks as the country/sector content grows.
+Current matrix (`governance/matrix-cross-framework-alignment.md`) covers major frameworks; could expand coverage to additional sectoral and regional frameworks as the country/sector content under Priority 5 grows.
 
 ---
 
@@ -159,7 +137,7 @@ Items requiring user decision or external dependency before becoming actionable.
 
 Items considered and explicitly dropped, with rationale. Recorded here so the reasoning is preserved if the question recurs.
 
-### Phase 21.4 (2026-05-28): Strict Related-Documents reciprocity dropped
+### Strict Related-Documents reciprocity dropped
 
 Original plan: add a linter enforcing that if document A's Related Documents lists B, then B's Related Documents lists A. Empirical run found 1,269 non-reciprocal references across 266 of 280 active documents.
 
@@ -169,23 +147,23 @@ The underlying concern (catching half-updated cross-references during refactors)
 
 Decision: dropped. Not pursued in narrower form (doctype-pair rules) because the marginal value over `lint-links.py` does not justify the maintenance cost of a curated rule set with many exemptions.
 
-### Phase 23.26 (2026-05-30): Cross-document numerical coherence shipped as scaffold
+### Cross-document numerical coherence shipped as scaffold
 
 Original plan in the audit-roadmap: a linter that flags numerical drift on canonical-term thresholds (RTO, RPO, P1/P2/P3/P4 acknowledgement times, retention periods) across documents.
 
 Empirical analysis found that incident-severity terminology (P1/P2/P3/P4) legitimately carries different numeric values per SLA dimension: acknowledgement time, resolution time, escalation interval, notification time. A naive "same Pn = same value" check would false-positive on legitimate per-dimension variation.
 
-Decision: ship as scaffold (regex framework with unit normalisation and aggregation, conservative initial term set narrow enough to currently track 0 terms). The linter passes vacuously; the framework is in place for future term curation when the maintainer is ready to define which specific (term, SLA-dimension) pairs to enforce. Honest scope-management was preferred over either (a) silently producing false positives or (b) defining the term set without sufficient operational data.
+Decision: ship as scaffold (regex framework with unit normalisation and aggregation, conservative initial term set narrow enough to currently track 0 terms). The linter passes vacuously; the framework is in place for future term curation when the maintainer is ready to define which specific (term, SLA-dimension) pairs to enforce. Honest scope management was preferred over either (a) silently producing false positives or (b) defining the term set without sufficient operational data.
 
-### Phase 23.30 (2026-05-30): Phase-completion gating to require the full audit-programme sweep
+### Phase-completion gating requires the full audit-programme sweep
 
-Phase Q-bundle's pre-merge audit pass omitted several gates and consequently merged 5 audit-gate violations (filename/doctype prefix mismatch on the bundle index, 15 em-dash language findings, one broken intra-repo link, one mislabelled hallucinated framework version, one unresolved intra-document reference). All were caught and corrected in the immediately following Phase 23.30 cleanup.
+A prior bundled commit's pre-merge audit pass omitted several gates and consequently merged 5 audit-gate violations (filename/doctype prefix mismatch on the bundle index, 15 em-dash language findings, one broken intra-repo link, one mislabelled hallucinated framework version, one unresolved intra-document reference). All were caught and corrected in the immediately following cleanup.
 
-Decision: phase-completion gating from this point forward requires the full audit-programme sweep ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) — see [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) §6 for the canonical inventory) to pass locally before any push. The pre-commit hook configuration operationalises this in git itself.
+Decision: phase-completion gating requires the full audit-programme sweep ([`tools/run_all_audits.sh`](tools/run_all_audits.sh); see [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) §6 for the canonical inventory) to pass locally before any push. The pre-commit hook configuration operationalises this in git itself.
 
-The convention is: at each phase-completion step, the maintainer (or AI verifier) runs every gate in a single batch (not a selective subset) and only proceeds to commit/push when zero violations remain.
+The convention is: at each commit, the maintainer (or AI verifier) runs every gate in a single batch (not a selective subset) and only proceeds to push when zero violations remain.
 
-### Phase 23.7 (2026-05-30): No verification of standard content versus library interpretation
+### No verification of standard content versus library interpretation
 
 When the AI Security Tooling Landscape Register was created, it asserted capability claims for each project. The Citation Verification Specification §14 explicitly excludes "verification of standard content versus the library's interpretation of it" from the methodology scope.
 
@@ -197,5 +175,5 @@ Decision: verification covers metadata (existence, version, publication date, su
 
 - Add new items at the appropriate priority. Move items between priorities as context changes.
 - When an item is completed, remove it from this file and record the completion in `CHANGELOG.md`.
-- Sub-items can be promoted to their own phase if scope grows.
+- Sub-items can be promoted to their own priority section if scope grows.
 - This file is the source of truth for what's queued; conversation history is not.
