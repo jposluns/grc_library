@@ -1,0 +1,20 @@
+# Python bytecode and build artefacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Editor artefacts
+.vscode/
+.idea/
+*.swp
+*~
+
+# Local test artefacts
+/tmp-test/
+.DS_Store
+
+# Linter regression-test fixtures (created and removed per test run).
+# The directory exists for fixture isolation; its contents should never
+# be committed.
+/tests/tmp/

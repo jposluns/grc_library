@@ -1,0 +1,116 @@
+name: Repository quality checks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  lint:
+    name: Lint markdown corpus
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Metadata audit
+        run: python3 tools/lint-metadata.py
+
+      - name: Language and style audit
+        run: python3 tools/lint-language.py
+
+      - name: Repository-internal link audit
+        run: python3 tools/lint-links.py
+
+      - name: Structural index integrity audit
+        run: python3 tools/lint-structure.py
+
+      - name: Framework citation hallucination audit
+        run: python3 tools/lint-citations.py
+
+      - name: Standards-currency audit
+        run: python3 tools/lint-standards-currency.py
+
+      - name: Filename and Document Title alignment audit
+        run: python3 tools/lint-filename-title-alignment.py
+
+      - name: Owner and Approving Authority role audit
+        run: python3 tools/lint-roles.py
+
+      - name: Mandatory requirement near uncertainty marker audit
+        run: python3 tools/lint-shall-near-uncertainty.py
+
+      - name: Per-document review cadence audit
+        run: python3 tools/check-review-cadence.py
+
+      - name: CHANGELOG file-reference link coverage
+        run: python3 tools/lint-changelog-link-coverage.py
+
+      - name: Placeholder leakage audit
+        run: python3 tools/lint-placeholder-leakage.py
+
+      - name: Library and document version monotonicity audit
+        run: python3 tools/lint-library-version-monotonicity.py
+
+      - name: Metadata date format audit
+        run: python3 tools/lint-date-format.py
+
+      - name: License consistency audit
+        run: python3 tools/lint-license-consistency.py
+
+      - name: Stub document audit
+        run: python3 tools/lint-stub-documents.py
+
+      - name: Section anchor reference audit
+        run: python3 tools/lint-section-anchors.py
+
+      - name: Intra-document section reference audit
+        run: python3 tools/lint-intra-doc-refs.py
+
+      - name: Required sections audit
+        run: python3 tools/lint-required-sections.py
+
+      - name: Acronym expansion consistency audit
+        run: python3 tools/lint-acronym-consistency.py
+
+      - name: Secret pattern audit
+        run: python3 tools/lint-secrets-in-content.py
+
+      - name: PII pattern audit
+        run: python3 tools/lint-pii-in-content.py
+
+      - name: Internal references audit
+        run: python3 tools/lint-internal-references.py
+
+      - name: External link domain audit
+        run: python3 tools/lint-external-link-domains.py
+
+      - name: Cross-document numerical coherence audit
+        run: python3 tools/lint-cross-doc-numbers.py
+
+      - name: Orphan document audit
+        run: python3 tools/lint-orphan-documents.py
+
+      - name: Citation verification freshness audit
+        run: python3 tools/lint-citation-verification-freshness.py
+
+      - name: Tooling provenance freshness audit
+        run: python3 tools/lint-tooling-provenance-freshness.py
+
+      - name: Machine-readable taxonomy in sync
+        run: python3 tools/build-taxonomy.py --check
+
+      - name: Adopter portal and maturity scorecard in sync
+        run: python3 tools/build-portal.py --check
+
+      - name: Gate-name parity audit
+        run: python3 tools/lint-audit-gate-parity.py
+
+      - name: Linter regression test suite
+        run: python3 tools/run-linter-regression.py
