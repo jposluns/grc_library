@@ -1,0 +1,241 @@
+# Pre-commit configuration for the GRC Documentation Library.
+#
+# Install: pip install pre-commit && pre-commit install
+# Run on all files: pre-commit run --all-files
+#
+# Each hook invokes a stdlib-only Python script (or the single audit
+# runner) with no third-party dependencies. Hooks mirror the audit
+# programme defined in:
+#
+#   - .github/workflows/quality.yml (CI source of truth)
+#   - tools/run_all_audits.sh (local single-command equivalent)
+#   - governance/specification-audit-programme.md (architecture spec)
+#
+# When a new audit is added to quality.yml, add the same hook here.
+
+repos:
+  - repo: local
+    hooks:
+      - id: lint-metadata
+        name: Metadata audit
+        entry: python3 tools/lint-metadata.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-language
+        name: Language and style audit
+        entry: python3 tools/lint-language.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-links
+        name: Repository-internal link audit
+        entry: python3 tools/lint-links.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-structure
+        name: Structural index integrity audit
+        entry: python3 tools/lint-structure.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-citations
+        name: Framework citation hallucination audit
+        entry: python3 tools/lint-citations.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-standards-currency
+        name: Standards-currency audit
+        entry: python3 tools/lint-standards-currency.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-filename-title-alignment
+        name: Filename and Document Title alignment audit
+        entry: python3 tools/lint-filename-title-alignment.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-roles
+        name: Owner and Approving Authority role audit
+        entry: python3 tools/lint-roles.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-shall-near-uncertainty
+        name: Mandatory requirement near uncertainty marker audit
+        entry: python3 tools/lint-shall-near-uncertainty.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: check-review-cadence
+        name: Per-document review cadence audit
+        entry: python3 tools/check-review-cadence.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-changelog-link-coverage
+        name: CHANGELOG file-reference link coverage
+        entry: python3 tools/lint-changelog-link-coverage.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-placeholder-leakage
+        name: Placeholder leakage audit
+        entry: python3 tools/lint-placeholder-leakage.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-library-version-monotonicity
+        name: Library and document version monotonicity audit
+        entry: python3 tools/lint-library-version-monotonicity.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-date-format
+        name: Metadata date format audit
+        entry: python3 tools/lint-date-format.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-license-consistency
+        name: License consistency audit
+        entry: python3 tools/lint-license-consistency.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-stub-documents
+        name: Stub document audit
+        entry: python3 tools/lint-stub-documents.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-section-anchors
+        name: Section anchor reference audit
+        entry: python3 tools/lint-section-anchors.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-intra-doc-refs
+        name: Intra-document section reference audit
+        entry: python3 tools/lint-intra-doc-refs.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-required-sections
+        name: Required sections audit
+        entry: python3 tools/lint-required-sections.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-acronym-consistency
+        name: Acronym expansion consistency audit
+        entry: python3 tools/lint-acronym-consistency.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-secrets-in-content
+        name: Secret pattern audit
+        entry: python3 tools/lint-secrets-in-content.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-pii-in-content
+        name: PII pattern audit
+        entry: python3 tools/lint-pii-in-content.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-internal-references
+        name: Internal references audit
+        entry: python3 tools/lint-internal-references.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-external-link-domains
+        name: External link domain audit
+        entry: python3 tools/lint-external-link-domains.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-cross-doc-numbers
+        name: Cross-document numerical coherence audit
+        entry: python3 tools/lint-cross-doc-numbers.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-orphan-documents
+        name: Orphan document audit
+        entry: python3 tools/lint-orphan-documents.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-citation-verification-freshness
+        name: Citation verification freshness audit
+        entry: python3 tools/lint-citation-verification-freshness.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-tooling-provenance-freshness
+        name: Tooling provenance freshness audit
+        entry: python3 tools/lint-tooling-provenance-freshness.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: taxonomy-in-sync
+        name: Machine-readable taxonomy in sync
+        entry: python3 tools/build-taxonomy.py --check
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: portal-in-sync
+        name: Adopter portal and maturity scorecard in sync
+        entry: python3 tools/build-portal.py --check
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-audit-gate-parity
+        name: Gate-name parity audit
+        entry: python3 tools/lint-audit-gate-parity.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: linter-regression-tests
+        name: Linter regression test suite
+        entry: python3 tools/run-linter-regression.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
