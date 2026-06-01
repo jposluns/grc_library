@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide
 **Document Type:** Guideline
-**Version:** 1.9.0
+**Version:** 1.10.0
 **Date:** 2026-06-01
 **Owner:** Chief Information Security Officer
 **Approving Authority:** Governance Library Maintainer
@@ -29,7 +29,7 @@ These are **draggable rule files**: copy any subset into your project's Claude C
 Historically this pack covered security and compliance only. As of pack version 1.6.0 (Library 2026.05.139, 2026-06-01), the pack's contract broadened to cover both:
 
 1. **Security and compliance** (original and largest scope). Hardcoded-secrets prevention, input validation, cryptography, authentication, OWASP/ASVS alignment, AI/agent/MCP/RAG security, CI/CD pipeline gates, language-specific security patterns. This content lives under `core/`, `ai/`, `pipeline/`, and `languages/`.
-2. **Development-governance discipline** (expanding scope). Rules that govern how an AI coding assistant collaborates on a governed codebase: gate discipline (never weaken a check to silence a failure; fix the artefact), change-tracking discipline (CHANGELOG-on-PR with explicit opt-out trailers), evidence-grounded completion (no completion claims without enumerated, re-read, quoted, contradiction-searched evidence), clarify-before-acting on ambiguous requests, and artefact-and-branch discipline (no direct push to protected branches; version-monotonicity contract; never hand-edit generated artefacts). This content lives under the `governance/` subdirectory and is being delivered in a phased rollout. Pack version 1.7.0 (Library 2026.05.140) shipped [`governance/gate-discipline.md`](governance/gate-discipline.md); pack version 1.8.0 (Library 2026.05.141) shipped [`governance/change-tracking.md`](governance/change-tracking.md); pack version 1.9.0 (Library 2026.05.142) ships [`governance/evidence-grounded-completion.md`](governance/evidence-grounded-completion.md). Subsequent governance rules follow in later phases.
+2. **Development-governance discipline** (expanding scope). Rules that govern how an AI coding assistant collaborates on a governed codebase: gate discipline (never weaken a check to silence a failure; fix the artefact), change-tracking discipline (CHANGELOG-on-PR with explicit opt-out trailers), evidence-grounded completion (no completion claims without enumerated, re-read, quoted, contradiction-searched evidence), clarify-before-acting on ambiguous requests, and artefact-and-branch discipline (no direct push to protected branches; version-monotonicity contract; never hand-edit generated artefacts). This content lives under the `governance/` subdirectory and is being delivered in a phased rollout. Pack version 1.7.0 (Library 2026.05.140) shipped [`governance/gate-discipline.md`](governance/gate-discipline.md); pack version 1.8.0 (Library 2026.05.141) shipped [`governance/change-tracking.md`](governance/change-tracking.md); pack version 1.9.0 (Library 2026.05.142) shipped [`governance/evidence-grounded-completion.md`](governance/evidence-grounded-completion.md); pack version 1.10.0 (Library 2026.05.143) ships [`governance/clarify-before-acting.md`](governance/clarify-before-acting.md). The final rule in this phased rollout (artefact-and-branch discipline) follows next.
 
 The pack remains under `dev-security/` in the parent library because the discoverability assumption is that developers (and their AI agents) shop for *"security rules"*, not for *"GRC rules"* or *"development discipline"*. The directory name is the shelf label; this README is the table of contents and articulates the broader scope. If a future scope expansion outgrows this framing, the directory name will be revisited at that time, not pre-emptively.
 
@@ -50,9 +50,10 @@ claude-rules/
 │   ├── cryptography.md         Approved algorithms and key handling
 │   └── owasp.md                OWASP Top 10:2025 and ASVS v5 alignment rules
 ├── governance/                 Development-governance discipline (expanding scope; populated phase by phase)
-│   ├── gate-discipline.md             Never weaken a gate to silence a failure; fix the artefact
-│   ├── change-tracking.md             CHANGELOG-on-PR by default; documented opt-out trailer for genuine exceptions
-│   └── evidence-grounded-completion.md  No completion claim without enumerated, re-read, quoted, contradiction-searched evidence
+│   ├── gate-discipline.md              Never weaken a gate to silence a failure; fix the artefact
+│   ├── change-tracking.md              CHANGELOG-on-PR by default; documented opt-out trailer for genuine exceptions
+│   ├── evidence-grounded-completion.md No completion claim without enumerated, re-read, quoted, contradiction-searched evidence
+│   └── clarify-before-acting.md        Surface ambiguity in one sentence and ask; never silently pick
 ├── ai/
 │   ├── ai-security.md          LLM and AI application security requirements
 │   ├── agent-security.md       Agentic workflow security and trust boundaries
@@ -141,6 +142,7 @@ If your project already has an `AGENTS.md` for other coding agents (Codex, Curso
 | [`governance/gate-discipline.md`](governance/gate-discipline.md) | Any project with CI gates, audit programmes, or branch protections (i.e., all of them) |
 | [`governance/change-tracking.md`](governance/change-tracking.md) | Any project with a CHANGELOG (or that should have one); especially projects with downstream consumers who need to read change history |
 | [`governance/evidence-grounded-completion.md`](governance/evidence-grounded-completion.md) | Any project where an AI coding assistant participates (because the failure mode this rule prevents is dominant for AI assistants); doubly relevant for projects with audit programmes that gate completion claims |
+| [`governance/clarify-before-acting.md`](governance/clarify-before-acting.md) | Any project where an AI coding assistant participates; especially projects with multiple active branches, conventions that vary by request type, or trade-offs the user reasonably wants to weigh in on |
 | [`languages/python.md`](languages/python.md) | Python codebases |
 | [`languages/typescript.md`](languages/typescript.md) | TypeScript / Node.js codebases |
 | [`languages/csharp.md`](languages/csharp.md) | C# / .NET codebases |
