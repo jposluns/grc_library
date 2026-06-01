@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide
 **Document Type:** Guideline
-**Version:** 1.6.0
+**Version:** 1.7.0
 **Date:** 2026-06-01
 **Owner:** Chief Information Security Officer
 **Approving Authority:** Governance Library Maintainer
@@ -26,10 +26,10 @@ These are **draggable rule files**: copy any subset into your project's Claude C
 
 ## Pack scope
 
-Historically this pack covered security and compliance only. As of pack version 1.6.0 (Library 2026.05.139, 2026-06-01), the pack's contract is broadening to cover both:
+Historically this pack covered security and compliance only. As of pack version 1.6.0 (Library 2026.05.139, 2026-06-01), the pack's contract broadened to cover both:
 
 1. **Security and compliance** (original and largest scope). Hardcoded-secrets prevention, input validation, cryptography, authentication, OWASP/ASVS alignment, AI/agent/MCP/RAG security, CI/CD pipeline gates, language-specific security patterns. This content lives under `core/`, `ai/`, `pipeline/`, and `languages/`.
-2. **Development-governance discipline** (expanding scope). Rules that govern how an AI coding assistant collaborates on a governed codebase: gate discipline (never weaken a check to silence a failure; fix the artefact), change-tracking discipline (CHANGELOG-on-PR with explicit opt-out trailers), generated-artefact discipline (never hand-edit; regenerate via `--check`-mode generators), branch discipline (no direct push to protected branches; version-monotonicity contract), and agent-collaboration discipline (clarify before acting on ambiguous requests; evidence-grounded completion claims). This content will live under a new `governance/` subdirectory and is being delivered in a phased rollout starting in pack version 1.6.0; the governance subdirectory is announced here ahead of its population so the directory layout and the broader contract are visible at version 1.6.0.
+2. **Development-governance discipline** (expanding scope). Rules that govern how an AI coding assistant collaborates on a governed codebase: gate discipline (never weaken a check to silence a failure; fix the artefact), change-tracking discipline (CHANGELOG-on-PR with explicit opt-out trailers), generated-artefact discipline (never hand-edit; regenerate via `--check`-mode generators), branch discipline (no direct push to protected branches; version-monotonicity contract), and agent-collaboration discipline (clarify before acting on ambiguous requests; evidence-grounded completion claims). This content lives under the `governance/` subdirectory and is being delivered in a phased rollout. The first governance rule, [`governance/gate-discipline.md`](governance/gate-discipline.md), landed in pack version 1.7.0 (Library 2026.05.140); subsequent governance rules follow in later phases.
 
 The pack remains under `dev-security/` in the parent library because the discoverability assumption is that developers (and their AI agents) shop for *"security rules"*, not for *"GRC rules"* or *"development discipline"*. The directory name is the shelf label; this README is the table of contents and articulates the broader scope. If a future scope expansion outgrows this framing, the directory name will be revisited at that time, not pre-emptively.
 
@@ -49,7 +49,8 @@ claude-rules/
 │   ├── input-validation.md     Input validation and output encoding
 │   ├── cryptography.md         Approved algorithms and key handling
 │   └── owasp.md                OWASP Top 10:2025 and ASVS v5 alignment rules
-├── governance/                 Development-governance discipline (announced 1.6.0; populated in subsequent phased releases)
+├── governance/                 Development-governance discipline (expanding scope; populated phase by phase)
+│   └── gate-discipline.md       Never weaken a gate to silence a failure; fix the artefact
 ├── ai/
 │   ├── ai-security.md          LLM and AI application security requirements
 │   ├── agent-security.md       Agentic workflow security and trust boundaries
@@ -135,6 +136,7 @@ If your project already has an `AGENTS.md` for other coding agents (Codex, Curso
 | [`ai/rag-security.md`](ai/rag-security.md) | Retrieval-augmented generation (RAG) systems |
 | [`ai/mcp-security.md`](ai/mcp-security.md) | Projects building or consuming MCP servers |
 | [`pipeline/cicd-gates.md`](pipeline/cicd-gates.md) | DevOps/platform engineers configuring CI/CD |
+| [`governance/gate-discipline.md`](governance/gate-discipline.md) | Any project with CI gates, audit programmes, or branch protections (i.e., all of them) |
 | [`languages/python.md`](languages/python.md) | Python codebases |
 | [`languages/typescript.md`](languages/typescript.md) | TypeScript / Node.js codebases |
 | [`languages/csharp.md`](languages/csharp.md) | C# / .NET codebases |
