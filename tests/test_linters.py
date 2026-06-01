@@ -1156,6 +1156,64 @@ class LibraryVersionMonotonicityTests(LinterTestCase):
         self.assertLinterFails(result, "decreased")
 
 
+class VersionDateConsistencyTests(LinterTestCase):
+    """tools/lint-version-date-consistency.py
+
+    The linter enforces two invariants between CHANGELOG.md and
+    README.md. We exercise both with synthetic fixtures pointed at via
+    the ``--changelog`` and ``--readme`` flags so the test is isolated
+    from real repo state.
+    """
+
+    def test_date_version_month_mismatch_flagged(self) -> None:
+        # CHANGELOG entry dated 2026-06-01 but version says 2026.05.144.
+        # This is the exact failure mode the gate exists to catch.
+        changelog_fixture = self.make_fixture(
+            "fake-changelog-date-mismatch.md",
+            (
+                "# Changelog\n\n"
+                "## 2026-06-01, Library Version 2026.05.144\n\n"
+                "Stale month in the version.\n"
+            ),
+        )
+        readme_fixture = self.make_fixture(
+            "fake-readme-matching-stale.md",
+            "# Fake README\n\n**Library Version:** 2026.05.144\n",
+        )
+        result = run_linter(
+            "tools/lint-version-date-consistency.py",
+            "--changelog",
+            changelog_fixture,
+            "--readme",
+            readme_fixture,
+        )
+        self.assertLinterFails(result, "must match")
+
+    def test_readme_changelog_version_drift_flagged(self) -> None:
+        # CHANGELOG and date both say 2026.06.0 but README still records
+        # 2026.05.144. This is the README-CHANGELOG drift case.
+        changelog_fixture = self.make_fixture(
+            "fake-changelog-drift.md",
+            (
+                "# Changelog\n\n"
+                "## 2026-06-01, Library Version 2026.06.0\n\n"
+                "Correct month-version pair.\n"
+            ),
+        )
+        readme_fixture = self.make_fixture(
+            "fake-readme-stale.md",
+            "# Fake README\n\n**Library Version:** 2026.05.144\n",
+        )
+        result = run_linter(
+            "tools/lint-version-date-consistency.py",
+            "--changelog",
+            changelog_fixture,
+            "--readme",
+            readme_fixture,
+        )
+        self.assertLinterFails(result, "must agree")
+
+
 class StructureLinterTests(LinterTestCase):
     """tools/lint-structure.py
 
