@@ -39,7 +39,7 @@ This annex applies where the organisation is:
 
 ## ICFR scope determination
 
-The audit committee and management identify the significant in-scope systems based on materiality to financial-reporting accounts. Library support: `compliance/procedure-audit-planning.md`, `operations/register-asset-inventory.md`. Adopting entities maintain a SOX-scope register identifying:
+The audit committee and management identify the significant in-scope systems based on materiality to financial-reporting accounts. Library support: [`compliance/procedure-audit-planning.md`](../procedure-audit-planning.md), [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md). Adopting entities maintain a SOX-scope register identifying:
 
 1. Significant accounts and the relevant assertions.
 2. In-scope business processes and the IT-dependent steps.
@@ -57,14 +57,14 @@ ITGC are organized in four domains. Each domain has a stable set of control obje
 
 | Control objective | Library artefact |
 | --- | --- |
-| Access provisioning is authorised | `security/procedure-identity-management.md`, `security/procedure-access-control.md` |
-| Access deprovisioning is timely on termination or transfer | `security/procedure-onboarding-and-offboarding.md` |
-| Privileged access is restricted, monitored, and recertified | `security/standard-privileged-access-management.md` |
-| Segregation of duties between conflicting roles | `risk/standard-enterprise-risk-management.md`; entity-specific SoD ruleset |
-| Periodic access reviews | `security/procedure-access-control.md` extended with quarterly access certification |
-| Authentication strength | `security/standard-authentication-and-password-management.md` |
-| Direct database and operating-system access restricted | `operations/standard-production-security-requirements.md` |
-| Generic, shared, and service accounts controlled | `security/standard-privileged-access-management.md` |
+| Access provisioning is authorised | [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md), [`security/procedure-access-control.md`](../../security/procedure-access-control.md) |
+| Access deprovisioning is timely on termination or transfer | [`security/procedure-onboarding-and-offboarding.md`](../../security/procedure-onboarding-and-offboarding.md) |
+| Privileged access is restricted, monitored, and recertified | [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md) |
+| Segregation of duties between conflicting roles | [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md); entity-specific SoD ruleset |
+| Periodic access reviews | [`security/procedure-access-control.md`](../../security/procedure-access-control.md) extended with quarterly access certification |
+| Authentication strength | [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md) |
+| Direct database and operating-system access restricted | [`operations/standard-production-security-requirements.md`](../../operations/standard-production-security-requirements.md) |
+| Generic, shared, and service accounts controlled | [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md) |
 
 Typical auditor evidence: ticketed access requests with approvals, ticketed deprovisioning within SLA on termination, quarterly access reviews with reviewer sign-off and remediation, privileged-account log review, SoD analysis output with remediation.
 
@@ -72,14 +72,14 @@ Typical auditor evidence: ticketed access requests with approvals, ticketed depr
 
 | Control objective | Library artefact |
 | --- | --- |
-| Changes are authorised before development | `operations/procedure-change-management-and-configuration-control.md`, `dev-security/policy-secure-development-and-engineering.md` |
-| Changes are tested before production deployment | `dev-security/standard-quality-assurance-and-testing.md` |
-| Changes are approved by an authorised role before production deployment | `operations/procedure-change-management-and-configuration-control.md` |
-| Developers cannot deploy to production unsupervised | `dev-security/standard-devops-security-requirements.md` |
-| Emergency change procedure exists with post-implementation approval | `operations/procedure-change-management-and-configuration-control.md` |
-| Source-control history is the system of record for code changes | `dev-security/standard-developer-security-requirements.md`, `dev-security/standard-devops-security-requirements.md` |
-| Configuration changes (not just code) are subject to the same control | `operations/procedure-change-management-and-configuration-control.md` |
-| Vendor-applied changes (e.g. SaaS releases) are tracked | `supply-chain/procedure-supplier-ongoing-monitoring.md` |
+| Changes are authorised before development | [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md), [`dev-security/policy-secure-development-and-engineering.md`](../../dev-security/policy-secure-development-and-engineering.md) |
+| Changes are tested before production deployment | [`dev-security/standard-quality-assurance-and-testing.md`](../../dev-security/standard-quality-assurance-and-testing.md) |
+| Changes are approved by an authorised role before production deployment | [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md) |
+| Developers cannot deploy to production unsupervised | [`dev-security/standard-devops-security-requirements.md`](../../dev-security/standard-devops-security-requirements.md) |
+| Emergency change procedure exists with post-implementation approval | [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md) |
+| Source-control history is the system of record for code changes | [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../../dev-security/standard-devops-security-requirements.md) |
+| Configuration changes (not just code) are subject to the same control | [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md) |
+| Vendor-applied changes (e.g. SaaS releases) are tracked | [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../../supply-chain/procedure-supplier-ongoing-monitoring.md) |
 
 Typical auditor evidence: change tickets with approval, test evidence, production deployment audit log, segregation between developer and production deployer, post-implementation review of emergency changes, sample-based testing across the period.
 
@@ -87,11 +87,11 @@ Typical auditor evidence: change tickets with approval, test evidence, productio
 
 | Control objective | Library artefact |
 | --- | --- |
-| New systems and significant enhancements follow a documented development methodology | `dev-security/policy-secure-development-and-engineering.md`, `dev-security/standard-developer-security-requirements.md` |
-| User acceptance testing and sign-off before production cutover | `dev-security/standard-quality-assurance-and-testing.md` |
+| New systems and significant enhancements follow a documented development methodology | [`dev-security/policy-secure-development-and-engineering.md`](../../dev-security/policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md) |
+| User acceptance testing and sign-off before production cutover | [`dev-security/standard-quality-assurance-and-testing.md`](../../dev-security/standard-quality-assurance-and-testing.md) |
 | Data conversion is controlled and reconciled | Outside library scope; per-project conversion plan |
-| Acceptance into service before go-live | `security/policy-acceptance-into-service.md` |
-| Post-implementation review | `dev-security/standard-software-evaluation-acceptance-and-lifecycle.md` |
+| Acceptance into service before go-live | [`security/policy-acceptance-into-service.md`](../../security/policy-acceptance-into-service.md) |
+| Post-implementation review | [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) |
 
 Typical auditor evidence: project documentation, UAT sign-offs, conversion reconciliation, go-live approval.
 
@@ -99,13 +99,13 @@ Typical auditor evidence: project documentation, UAT sign-offs, conversion recon
 
 | Control objective | Library artefact |
 | --- | --- |
-| Production jobs and batch schedules are monitored | `operations/procedure-security-monitoring-and-alert-management.md` |
-| Job failures are detected and resolved per SLA | `operations/framework-it-service-management.md` |
-| Backups are run on schedule and verified | `resilience/procedure-backup-and-recovery.md` |
-| Restoration capability is tested | `resilience/procedure-continuity-and-recovery-testing.md` |
-| Disaster recovery for in-scope systems is documented and tested | `resilience/plan-it-disaster-recovery.md` |
-| Operational events are logged and reviewed | `security/standard-logging-and-monitoring.md` |
-| Capacity is managed to maintain availability | `operations/standard-service-level-management.md` |
+| Production jobs and batch schedules are monitored | [`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md) |
+| Job failures are detected and resolved per SLA | [`operations/framework-it-service-management.md`](../../operations/framework-it-service-management.md) |
+| Backups are run on schedule and verified | [`resilience/procedure-backup-and-recovery.md`](../../resilience/procedure-backup-and-recovery.md) |
+| Restoration capability is tested | [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md) |
+| Disaster recovery for in-scope systems is documented and tested | [`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md) |
+| Operational events are logged and reviewed | [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md) |
+| Capacity is managed to maintain availability | [`operations/standard-service-level-management.md`](../../operations/standard-service-level-management.md) |
 
 Typical auditor evidence: job-monitoring log review, ticketed failure resolution, backup-success log, restoration test evidence, DR test evidence, log review evidence.
 

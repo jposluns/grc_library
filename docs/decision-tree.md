@@ -284,7 +284,7 @@ Deliverable: an operating GRC programme covering the baseline.
 1. Add capability-conditional content (Section 5) for AI, cloud, software development, identity, OT as applicable.
 2. Add jurisdiction-conditional content for every jurisdiction in which you operate.
 3. Implement the resilience programme (Section 2.6) end-to-end including testing.
-4. Establish the metrics, KPIs, and assurance cycles documented in `governance/framework-metrics-monitoring-and-performance-reporting.md` and `governance/framework-continuous-assurance-and-improvement.md`.
+4. Establish the metrics, KPIs, and assurance cycles documented in [`governance/framework-metrics-monitoring-and-performance-reporting.md`](../governance/framework-metrics-monitoring-and-performance-reporting.md) and [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md).
 
 Deliverable: a substantive enterprise GRC implementation covering size, sector, jurisdictional, and capability dimensions.
 
@@ -294,11 +294,11 @@ Deliverable: a substantive enterprise GRC implementation covering size, sector, 
 
 **"I'm a 50-person fintech in the EU. What do I read first?"**
 
-Universal baseline (Section 2), then `compliance/financial-services/` (3.2), then `compliance/financial-services/annex-dora-implementation.md`, then `privacy/jurisdictions/annex-privacy-european-union.md`, then `compliance/annex-nis-2-implementation.md` if in scope. About 25 documents for a starter set.
+Universal baseline (Section 2), then `compliance/financial-services/` (3.2), then [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md), then [`privacy/jurisdictions/annex-privacy-european-union.md`](../privacy/jurisdictions/annex-privacy-european-union.md), then [`compliance/annex-nis-2-implementation.md`](../compliance/annex-nis-2-implementation.md) if in scope. About 25 documents for a starter set.
 
 **"I'm a 200-person 3PL operating in the US, Canada, and Mexico. What do I read first?"**
 
-Universal baseline (Section 2), then `compliance/logistics/` (3.1), then the CTPAT and PIP overlays (3.1 sub-bullets), then `privacy/jurisdictions/annex-privacy-united-states.md` and `annex-privacy-canada.md`. Mexico's NEEC/OEA programme is not yet covered (TODO P5.1); use the BASC programme overview as a structural reference until added.
+Universal baseline (Section 2), then `compliance/logistics/` (3.1), then the CTPAT and PIP overlays (3.1 sub-bullets), then [`privacy/jurisdictions/annex-privacy-united-states.md`](../privacy/jurisdictions/annex-privacy-united-states.md) and [`annex-privacy-canada.md`](../privacy/jurisdictions/annex-privacy-canada.md). Mexico's NEEC/OEA programme is not yet covered (TODO P5.1); use the BASC programme overview as a structural reference until added.
 
 **"I'm a 5-person early-stage SaaS in the UK with no specific sector. What do I read first?"**
 

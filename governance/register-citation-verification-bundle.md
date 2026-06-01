@@ -157,8 +157,8 @@ When all four batches are complete, the following library state updates apply:
 - **[`register-citation-verifications.md`](register-citation-verifications.md)**: ~85 new rows.
 - **[`register-canonical-citations.md`](register-canonical-citations.md)**: corrections applied where divergence was found.
 - **[`register-ai-security-tooling-landscape.md`](register-ai-security-tooling-landscape.md)**: 55 Provenance blocks transitioned from `AI-captured-pending-human-verification` to `human-verified`.
-- **`lint-citation-verification-freshness.py`** engages with real entries (currently passes vacuously).
-- **`lint-tooling-provenance-freshness.py`** transitions from "55 entries within window" to "55 entries human-verified within window".
+- **[`lint-citation-verification-freshness.py`](../tools/lint-citation-verification-freshness.py)** engages with real entries (currently passes vacuously).
+- **[`lint-tooling-provenance-freshness.py`](../tools/lint-tooling-provenance-freshness.py)** transitions from "55 entries within window" to "55 entries human-verified within window".
 
 The three worklist files can be retained for evidence or archived; the authoritative records are the registers.
 

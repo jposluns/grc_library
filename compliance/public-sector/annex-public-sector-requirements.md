@@ -42,7 +42,7 @@ Public sector bodies are typically subject to a freedom-of-information regime th
 
 | Obligation | Library support |
 | --- | --- |
-| Maintain records in a form that supports timely retrieval | `governance/standard-records-retention-and-destruction.md`, `governance/register-data-retention-schedule.md`, `operations/register-asset-inventory.md` |
+| Maintain records in a form that supports timely retrieval | [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md), [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md), [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md) |
 | Respond to access requests within the statutory window | Library does not provide a FOI workflow; adopting entities use a public-records-request workflow analogous to the DSAR template but adapted to FOI exemptions |
 | Apply statutory exemptions consistently | Requires legal-team workflow per jurisdiction |
 | Publish defined classes of information proactively | Requires a publication scheme specific to the entity |
@@ -73,7 +73,7 @@ Public procurement is highly regulated. The library supports supplier governance
 | Obligation | Library support |
 | --- | --- |
 | Procurement above threshold follows the statutory tender process | Outside library scope |
-| Tender documents include security, privacy, accessibility, sustainability requirements | `supply-chain/template-supplier-security-questionnaire.md` provides the security baseline; entities extend per procurement policy |
+| Tender documents include security, privacy, accessibility, sustainability requirements | [`supply-chain/template-supplier-security-questionnaire.md`](../../supply-chain/template-supplier-security-questionnaire.md) provides the security baseline; entities extend per procurement policy |
 | Supplier conflict-of-interest declarations | Requires per-procurement workflow |
 | Modern-slavery and labour-rights statements | Library supports as part of supplier due diligence |
 | Subcontracting transparency and prompt-payment obligations | Outside library scope |
@@ -89,7 +89,7 @@ Public sector records are subject to mandatory archival and destruction rules.
 
 | Obligation | Library support |
 | --- | --- |
-| Records retention schedule approved by the national archives authority | `governance/standard-records-retention-and-destruction.md`, `governance/register-data-retention-schedule.md` provide the structure; entities map to the archive-authority-approved schedule |
+| Records retention schedule approved by the national archives authority | [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md), [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md) provide the structure; entities map to the archive-authority-approved schedule |
 | Disposal scheduled with archival authority approval | Library disposal evidence supports this |
 | Permanent records transferred to the archive | Outside library scope; per-archive workflow |
 | Open data publication where appropriate | Per the entity's open-data strategy |
@@ -104,7 +104,7 @@ Public sector bodies face external audit by an auditor-general or equivalent.
 
 | Obligation | Library support |
 | --- | --- |
-| Internal audit consistent with public-sector standards | `compliance/standard-internal-audit.md`, `compliance/procedure-audit-planning.md` provide the baseline; entities extend per public-sector internal audit standards (e.g. IIA Public Sector Standards) |
+| Internal audit consistent with public-sector standards | [`compliance/standard-internal-audit.md`](../standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](../procedure-audit-planning.md) provide the baseline; entities extend per public-sector internal audit standards (e.g. IIA Public Sector Standards) |
 | External audit cooperation | Operational, not template-driven |
 | Reporting to legislative bodies | Per the entity's governance |
 | Performance audits | Per the auditor-general's programme |
@@ -117,7 +117,7 @@ Public sector roles attract ethics rules that exceed private-sector norms.
 
 | Obligation | Library support |
 | --- | --- |
-| Code of conduct and conflict-of-interest declaration | `governance/framework-human-capital-and-ethical-conduct.md` provides the baseline; entities adopt the specific civil-service or political-office code |
+| Code of conduct and conflict-of-interest declaration | [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md) provides the baseline; entities adopt the specific civil-service or political-office code |
 | Lobbying register and meetings disclosure | Outside library scope; per-jurisdiction register |
 | Post-employment restrictions | Per the entity's HR and ethics policy |
 | Gift and hospitality register | Per the entity's ethics policy |
@@ -130,9 +130,9 @@ AI used in public-sector decision-making attracts heightened expectations.
 
 | Obligation | Library support |
 | --- | --- |
-| AI impact assessment with public-interest test | `ai/procedure-ai-system-impact-assessment.md`, `privacy/register-automated-decision-making.md` provide the baseline; entities extend with public-interest test specific to their mandate |
-| Transparency on use of AI in decisions | `ai/framework-ai-model-documentation-and-transparency.md`, `privacy/template-privacy-notice.md` |
-| Human oversight on consequential decisions | `ai/charter-ai-governance-council.md`, `ai/standard-ai-and-agentic-development-security.md` |
+| AI impact assessment with public-interest test | [`ai/procedure-ai-system-impact-assessment.md`](../../ai/procedure-ai-system-impact-assessment.md), [`privacy/register-automated-decision-making.md`](../../privacy/register-automated-decision-making.md) provide the baseline; entities extend with public-interest test specific to their mandate |
+| Transparency on use of AI in decisions | [`ai/framework-ai-model-documentation-and-transparency.md`](../../ai/framework-ai-model-documentation-and-transparency.md), [`privacy/template-privacy-notice.md`](../../privacy/template-privacy-notice.md) |
+| Human oversight on consequential decisions | [`ai/charter-ai-governance-council.md`](../../ai/charter-ai-governance-council.md), [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md) |
 | Algorithmic transparency register publication | Outside library scope; per-jurisdiction register (e.g. UK Algorithmic Transparency Recording Standard, French Republic algorithm register) |
 
 ---

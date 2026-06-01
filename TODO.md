@@ -20,7 +20,7 @@ Debating the value of pre-configured starter sets for common adopter profiles:
 
 ### 4.2 Maturity assessment interactive template
 
-The current `docs/maturity-scorecard.md` is auto-generated and static. An interactive form (spreadsheet or guided markdown checklist) lets an adopter self-assess.
+The current [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md) is auto-generated and static. An interactive form (spreadsheet or guided markdown checklist) lets an adopter self-assess.
 
 ### 4.3 Implementation roadmap templates
 
@@ -117,11 +117,11 @@ Customer Identity (CIAM) governance, workforce identity governance, identity fed
 
 ### 6.3 Quantum cryptography readiness deepening
 
-The library has a PQC roadmap at phase level (`security/roadmap-post-quantum-cryptography.md`). The roadmap covers discovery, standards, pilot, and migration phases but not detailed implementation content. Pending additions: PQC migration playbook (operational steps per system class), crypto-agility patterns (key abstraction, algorithm switching, hybrid schemes), and post-quantum-ready CA / PKI management.
+The library has a PQC roadmap at phase level ([`security/roadmap-post-quantum-cryptography.md`](security/roadmap-post-quantum-cryptography.md)). The roadmap covers discovery, standards, pilot, and migration phases but not detailed implementation content. Pending additions: PQC migration playbook (operational steps per system class), crypto-agility patterns (key abstraction, algorithm switching, hybrid schemes), and post-quantum-ready CA / PKI management.
 
 ### 6.4 Cross-framework matrix expansion
 
-Current matrix (`governance/matrix-cross-framework-alignment.md`) covers major frameworks; could expand coverage to additional sectoral and regional frameworks as the country/sector content under Priority 5 grows.
+Current matrix ([`governance/matrix-cross-framework-alignment.md`](governance/matrix-cross-framework-alignment.md)) covers major frameworks; could expand coverage to additional sectoral and regional frameworks as the country/sector content under Priority 5 grows.
 
 ---
 
@@ -143,9 +143,9 @@ Original plan: add a linter enforcing that if document A's Related Documents lis
 
 The library's actual convention is **asymmetric** Related Documents: each document lists "what this document consumes / relates to from its own perspective", not "the complete bidirectional graph". This is a reasonable, content-author-friendly convention.
 
-The underlying concern (catching half-updated cross-references during refactors) is already covered by `lint-links.py` (broken-link detection).
+The underlying concern (catching half-updated cross-references during refactors) is already covered by [`lint-links.py`](tools/lint-links.py) (broken-link detection).
 
-Decision: dropped. Not pursued in narrower form (doctype-pair rules) because the marginal value over `lint-links.py` does not justify the maintenance cost of a curated rule set with many exemptions.
+Decision: dropped. Not pursued in narrower form (doctype-pair rules) because the marginal value over [`lint-links.py`](tools/lint-links.py) does not justify the maintenance cost of a curated rule set with many exemptions.
 
 ### Cross-document numerical coherence shipped as scaffold
 
@@ -174,6 +174,6 @@ Decision: verification covers metadata (existence, version, publication date, su
 ## Notes on maintenance
 
 - Add new items at the appropriate priority. Move items between priorities as context changes.
-- When an item is completed, remove it from this file and record the completion in `CHANGELOG.md`.
+- When an item is completed, remove it from this file and record the completion in [`CHANGELOG.md`](CHANGELOG.md).
 - Sub-items can be promoted to their own priority section if scope grows.
 - This file is the source of truth for what's queued; conversation history is not.

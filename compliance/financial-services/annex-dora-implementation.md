@@ -45,13 +45,13 @@ DORA requires a documented ICT risk management framework approved by the managem
 
 | DORA element | Library artefact |
 | --- | --- |
-| Management body responsibility and oversight | `risk/policy-enterprise-governance-and-risk-management.md`, `governance/charter-governance-library.md` |
-| ICT risk management framework | `risk/standard-enterprise-risk-management.md`, `risk/procedure-risk-assessment-methodology.md`, `risk/procedure-risk-register.md` |
-| ICT systems, protocols, and tools | `operations/framework-it-service-management.md`, `operations/register-asset-inventory.md` |
-| Information security policy | `security/policy-information-security.md`, supporting standards across `security/` |
-| Identification and classification of ICT-supported business functions | `operations/register-asset-inventory.md`, `risk/procedure-risk-register.md` |
-| Continuous monitoring of ICT-related risks | `security/standard-logging-and-monitoring.md`, `operations/procedure-security-monitoring-and-alert-management.md`, `operations/procedure-threat-intelligence-and-siem-operations.md` |
-| Learning and evolving | `governance/procedure-continuous-improvement-register.md`, `compliance/procedure-capa.md` |
+| Management body responsibility and oversight | [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md), [`governance/charter-governance-library.md`](../../governance/charter-governance-library.md) |
+| ICT risk management framework | [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](../../risk/procedure-risk-assessment-methodology.md), [`risk/procedure-risk-register.md`](../../risk/procedure-risk-register.md) |
+| ICT systems, protocols, and tools | [`operations/framework-it-service-management.md`](../../operations/framework-it-service-management.md), [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md) |
+| Information security policy | [`security/policy-information-security.md`](../../security/policy-information-security.md), supporting standards across `security/` |
+| Identification and classification of ICT-supported business functions | [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md), [`risk/procedure-risk-register.md`](../../risk/procedure-risk-register.md) |
+| Continuous monitoring of ICT-related risks | [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md), [`operations/procedure-threat-intelligence-and-siem-operations.md`](../../operations/procedure-threat-intelligence-and-siem-operations.md) |
+| Learning and evolving | [`governance/procedure-continuous-improvement-register.md`](../../governance/procedure-continuous-improvement-register.md), [`compliance/procedure-capa.md`](../procedure-capa.md) |
 
 Gap: DORA-specific RTS templates for the simplified ICT risk management framework (for in-scope smaller entities) require their own evidence outside the library.
 
@@ -63,11 +63,11 @@ DORA requires classification, management, and reporting of major ICT-related inc
 
 | DORA element | Library artefact |
 | --- | --- |
-| Incident management process | `security/procedure-security-incident-response.md`, `resilience/procedure-cross-domain-incident-coordination.md` |
+| Incident management process | [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md) |
 | Incident classification (Article 18 criteria) | The library provides severity criteria; entities must extend to DORA classification thresholds (clients affected, services affected, data losses, reputational impact, duration, geographical spread, economic impact) |
 | Reporting to competent authority | Library does not provide the regulator-specific reporting template; entities use the ITS-defined forms (initial, intermediate, final notification) within DORA-defined windows |
-| Major cyber threat voluntary reporting | Supported by `operations/procedure-threat-intelligence-and-siem-operations.md` |
-| Information about clients and counterparts | `resilience/plan-crisis-communication.md` |
+| Major cyber threat voluntary reporting | Supported by [`operations/procedure-threat-intelligence-and-siem-operations.md`](../../operations/procedure-threat-intelligence-and-siem-operations.md) |
+| Information about clients and counterparts | [`resilience/plan-crisis-communication.md`](../../resilience/plan-crisis-communication.md) |
 
 DORA-mandated reporting windows (subject to RTS / ITS): initial notification "no later than 4 hours from classification as major"; intermediate report within 72 hours; final report within one month. Adopting entities encode these in their per-incident severity playbooks.
 
@@ -79,11 +79,11 @@ DORA requires a comprehensive digital operational resilience testing programme. 
 
 | DORA element | Library artefact |
 | --- | --- |
-| ICT testing programme | `resilience/procedure-continuity-and-recovery-testing.md`, `resilience/register-resilience-metrics-and-testing-log.md` |
-| Vulnerability assessments, scans, source code reviews | `security/procedure-vulnerability-management.md`, `dev-security/standard-software-composition-analysis.md`, `dev-security/procedure-secure-code-review.md` (if adopted) |
-| Network security assessments, gap analyses, performance testing | `operations/standard-network-security-and-segmentation.md`, `security/standard-penetration-testing-and-red-team.md` |
-| End-to-end testing | `resilience/procedure-continuity-and-recovery-testing.md` |
-| Threat-led penetration testing (TLPT) | `security/standard-penetration-testing-and-red-team.md` provides the baseline; TLPT must additionally follow the TIBER-EU framework or equivalent as set by the ESAs |
+| ICT testing programme | [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md), [`resilience/register-resilience-metrics-and-testing-log.md`](../../resilience/register-resilience-metrics-and-testing-log.md) |
+| Vulnerability assessments, scans, source code reviews | [`security/procedure-vulnerability-management.md`](../../security/procedure-vulnerability-management.md), [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md), [`dev-security/procedure-secure-code-review.md`](../../dev-security/procedure-secure-code-review.md) (if adopted) |
+| Network security assessments, gap analyses, performance testing | [`operations/standard-network-security-and-segmentation.md`](../../operations/standard-network-security-and-segmentation.md), [`security/standard-penetration-testing-and-red-team.md`](../../security/standard-penetration-testing-and-red-team.md) |
+| End-to-end testing | [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md) |
+| Threat-led penetration testing (TLPT) | [`security/standard-penetration-testing-and-red-team.md`](../../security/standard-penetration-testing-and-red-team.md) provides the baseline; TLPT must additionally follow the TIBER-EU framework or equivalent as set by the ESAs |
 
 TLPT-scope entities are those identified by competent authorities based on their importance to the financial sector. Frequency: at minimum every three years.
 
@@ -95,13 +95,13 @@ This pillar materially extends standard third-party risk management. The library
 
 | DORA element | Library artefact |
 | --- | --- |
-| Third-party risk strategy | `risk/standard-third-party-and-supply-chain-risk.md`, `supply-chain/framework-supplier-and-cloud-governance.md` |
-| ICT third-party register | `supply-chain/register-supplier-risk-template.md`, `supply-chain/register-subprocessor-template.md` |
-| Pre-contractual analysis | `supply-chain/procedure-supplier-due-diligence.md`, `supply-chain/procedure-supplier-onboarding-security-review.md` |
-| Mandatory contract clauses (Article 30) | `supply-chain/standard-supplier-security-and-privacy-assurance.md` provides the structure; entities must verify all Article 30 minimum clauses are present including audit rights, exit strategy, subcontracting conditions, service-level descriptions, and incident notification commitments |
+| Third-party risk strategy | [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md) |
+| ICT third-party register | [`supply-chain/register-supplier-risk-template.md`](../../supply-chain/register-supplier-risk-template.md), [`supply-chain/register-subprocessor-template.md`](../../supply-chain/register-subprocessor-template.md) |
+| Pre-contractual analysis | [`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](../../supply-chain/procedure-supplier-onboarding-security-review.md) |
+| Mandatory contract clauses (Article 30) | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md) provides the structure; entities must verify all Article 30 minimum clauses are present including audit rights, exit strategy, subcontracting conditions, service-level descriptions, and incident notification commitments |
 | Concentration risk assessment | [`supply-chain/register-concentration-risk.md`](../../supply-chain/register-concentration-risk.md) |
-| Exit strategies | `supply-chain/procedure-supplier-exit-and-data-return.md`, `supply-chain/standard-cloud-exit-and-data-portability.md` |
-| Ongoing monitoring | `supply-chain/procedure-supplier-ongoing-monitoring.md` |
+| Exit strategies | [`supply-chain/procedure-supplier-exit-and-data-return.md`](../../supply-chain/procedure-supplier-exit-and-data-return.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](../../supply-chain/standard-cloud-exit-and-data-portability.md) |
+| Ongoing monitoring | [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../../supply-chain/procedure-supplier-ongoing-monitoring.md) |
 
 ### Critical ICT third-party service providers
 
@@ -115,7 +115,7 @@ Voluntary; DORA encourages financial entities to share cyber threat information 
 
 | DORA element | Library artefact |
 | --- | --- |
-| Threat intelligence operations | `operations/procedure-threat-intelligence-and-siem-operations.md` |
+| Threat intelligence operations | [`operations/procedure-threat-intelligence-and-siem-operations.md`](../../operations/procedure-threat-intelligence-and-siem-operations.md) |
 | Confidentiality, protection of personal data, antitrust safeguards | Library privacy and compliance artefacts |
 
 ---

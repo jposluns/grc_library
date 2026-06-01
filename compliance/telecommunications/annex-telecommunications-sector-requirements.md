@@ -42,12 +42,12 @@ Most jurisdictions impose telecoms-specific cybersecurity obligations that overl
 
 | Obligation | Library support |
 | --- | --- |
-| Sector-specific cybersecurity duty | `security/policy-information-security.md`, supporting standards |
-| Network and information system security (controls catalogue) | `operations/standard-network-security-and-segmentation.md`, `operations/standard-cloud-security-configuration-baseline.md`, `security/standard-data-loss-prevention.md` |
-| Security testing | `security/standard-penetration-testing-and-red-team.md` |
-| Vulnerability management with telecoms-specific severity criteria | `security/procedure-vulnerability-management.md` |
+| Sector-specific cybersecurity duty | [`security/policy-information-security.md`](../../security/policy-information-security.md), supporting standards |
+| Network and information system security (controls catalogue) | [`operations/standard-network-security-and-segmentation.md`](../../operations/standard-network-security-and-segmentation.md), [`operations/standard-cloud-security-configuration-baseline.md`](../../operations/standard-cloud-security-configuration-baseline.md), [`security/standard-data-loss-prevention.md`](../../security/standard-data-loss-prevention.md) |
+| Security testing | [`security/standard-penetration-testing-and-red-team.md`](../../security/standard-penetration-testing-and-red-team.md) |
+| Vulnerability management with telecoms-specific severity criteria | [`security/procedure-vulnerability-management.md`](../../security/procedure-vulnerability-management.md) |
 | Incident notification to the sector regulator | Library incident procedure plus regulator-specific reporting template |
-| Board accountability for security duty | `governance/charter-governance-library.md`, `governance/register-role-authority.md` |
+| Board accountability for security duty | [`governance/charter-governance-library.md`](../../governance/charter-governance-library.md), [`governance/register-role-authority.md`](../../governance/register-role-authority.md) |
 | Annual sector security report | Outside library scope; regulator-template |
 | Penalties for non-compliance | Jurisdiction-specific |
 
@@ -81,9 +81,9 @@ Many jurisdictions impose specific telecoms-data-retention rules that overlay ge
 
 | Obligation | Library support |
 | --- | --- |
-| Retain defined categories of communications metadata for the statutory period | `governance/standard-records-retention-and-destruction.md` provides the structure; the telecoms schedule is added as an overlay |
-| Restrict access to retained data to authorised purposes | `security/policy-identity-and-access-management.md`, `security/standard-privileged-access-management.md` |
-| Destroy after the statutory period | `governance/register-data-retention-schedule.md` |
+| Retain defined categories of communications metadata for the statutory period | [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md) provides the structure; the telecoms schedule is added as an overlay |
+| Restrict access to retained data to authorised purposes | [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md) |
+| Destroy after the statutory period | [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md) |
 | Provide statistics to the regulator | Per the regulator template |
 
 EU: Court of Justice case law (Tele2 Sverige, La Quadrature du Net) restricts general retention; targeted retention may be lawful. National laws diverge.
@@ -100,12 +100,12 @@ In addition to general privacy regimes (GDPR, UK GDPR, PIPEDA, equivalents), tel
 
 | Obligation | Library support |
 | --- | --- |
-| ePrivacy obligations (cookies, traffic data, location data, marketing communications) | `privacy/framework-consent-management.md`, `privacy/register-cookie-and-tracker.md` |
+| ePrivacy obligations (cookies, traffic data, location data, marketing communications) | [`privacy/framework-consent-management.md`](../../privacy/framework-consent-management.md), [`privacy/register-cookie-and-tracker.md`](../../privacy/register-cookie-and-tracker.md) |
 | Caller-line identification and presentation | Outside library scope |
 | Directory enquiry and subscriber-information rules | Per regulator |
-| Unsolicited marketing rules (PECR in UK; CAN-SPAM and TCPA in US; CASL in Canada) | `privacy/template-privacy-notice.md` for transparency; product-specific configuration outside library |
-| Location-based service consent | `privacy/framework-consent-management.md` |
-| Subscriber identifier protection | `security/standard-data-classification-and-handling.md` |
+| Unsolicited marketing rules (PECR in UK; CAN-SPAM and TCPA in US; CASL in Canada) | [`privacy/template-privacy-notice.md`](../../privacy/template-privacy-notice.md) for transparency; product-specific configuration outside library |
+| Location-based service consent | [`privacy/framework-consent-management.md`](../../privacy/framework-consent-management.md) |
+| Subscriber identifier protection | [`security/standard-data-classification-and-handling.md`](../../security/standard-data-classification-and-handling.md) |
 
 ---
 
@@ -118,7 +118,7 @@ Public communications providers must support emergency calling and operate to en
 | Emergency calls always free, prioritized, and accessible | Outside library scope; network design |
 | Caller location to emergency services per the national standard | Outside library scope |
 | Battery backup on customer premises equipment per regulator | Outside library scope |
-| Continuity targets and outage notification to regulator | `resilience/framework-business-continuity-and-resilience.md`, `resilience/standard-business-continuity-and-disaster-recovery.md`, `resilience/plan-it-disaster-recovery.md` |
+| Continuity targets and outage notification to regulator | [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md) |
 | Resilience reporting (e.g. ATIS Network Reliability Steering Committee) | Per regulator |
 
 ---
@@ -129,9 +129,9 @@ National security concerns have led to vendor- and country-specific restrictions
 
 | Obligation | Library support |
 | --- | --- |
-| Approved-vendor list per national security guidance | `supply-chain/framework-supplier-and-cloud-governance.md`, `risk/standard-third-party-and-supply-chain-risk.md` |
+| Approved-vendor list per national security guidance | [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md) |
 | Specific vendor or country exclusions | National regime; e.g. UK Designated Vendor Direction; US Section 889 NDAA, Rip-and-Replace; EU 5G Toolbox |
-| Lifecycle attestation for critical components | `dev-security/standard-software-composition-analysis.md` for SBOM elements |
+| Lifecycle attestation for critical components | [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) for SBOM elements |
 | Supply chain integrity reporting to the regulator | Per regulator |
 
 ---

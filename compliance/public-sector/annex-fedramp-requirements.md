@@ -67,23 +67,23 @@ The library provides architectural baselines that align with FedRAMP control fam
 
 | FedRAMP control family | Library coverage |
 | --- | --- |
-| AC Access Control | `security/policy-identity-and-access-management.md`, `security/procedure-access-control.md`, `security/standard-privileged-access-management.md` |
-| AT Awareness and Training | `security/standard-security-awareness-and-training.md` |
-| AU Audit and Accountability | `security/standard-logging-and-monitoring.md`, `operations/procedure-security-monitoring-and-alert-management.md` |
-| CA Assessment, Authorization, and Monitoring | `compliance/procedure-control-testing.md`, `compliance/standard-internal-audit.md`, `security/policy-acceptance-into-service.md` |
-| CM Configuration Management | `operations/procedure-change-management-and-configuration-control.md`, `operations/standard-production-security-requirements.md` |
-| CP Contingency Planning | `resilience/framework-business-continuity-and-resilience.md`, `resilience/standard-business-continuity-and-disaster-recovery.md`, `resilience/plan-it-disaster-recovery.md` |
-| IA Identification and Authentication | `security/standard-authentication-and-password-management.md`, `security/procedure-identity-management.md` |
-| IR Incident Response | `security/procedure-security-incident-response.md`, `resilience/procedure-cross-domain-incident-coordination.md` |
-| MA Maintenance | `operations/procedure-patch-management.md` |
-| MP Media Protection | `operations/procedure-media-handling-and-transport.md` |
-| PE Physical and Environmental Protection | `operations/standard-physical-security-of-it-infrastructure.md` |
-| PS Personnel Security | `security/standard-personnel-security-screening.md`, `security/procedure-onboarding-and-offboarding.md` |
-| RA Risk Assessment | `risk/procedure-risk-assessment-methodology.md`, `risk/standard-enterprise-risk-management.md` |
-| SA System and Services Acquisition | `supply-chain/standard-supplier-security-and-privacy-assurance.md`, `dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`, `security/policy-acceptance-into-service.md` |
-| SC System and Communications Protection | `security/policy-network-communications-security.md`, `security/policy-encryption-and-key-management.md` |
-| SI System and Information Integrity | `security/procedure-vulnerability-management.md`, `operations/procedure-patch-management.md`, `security/standard-data-loss-prevention.md` |
-| SR Supply Chain Risk Management | `risk/standard-third-party-and-supply-chain-risk.md`, `dev-security/standard-software-composition-analysis.md` |
+| AC Access Control | [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`security/procedure-access-control.md`](../../security/procedure-access-control.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md) |
+| AT Awareness and Training | [`security/standard-security-awareness-and-training.md`](../../security/standard-security-awareness-and-training.md) |
+| AU Audit and Accountability | [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md) |
+| CA Assessment, Authorization, and Monitoring | [`compliance/procedure-control-testing.md`](../procedure-control-testing.md), [`compliance/standard-internal-audit.md`](../standard-internal-audit.md), [`security/policy-acceptance-into-service.md`](../../security/policy-acceptance-into-service.md) |
+| CM Configuration Management | [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md), [`operations/standard-production-security-requirements.md`](../../operations/standard-production-security-requirements.md) |
+| CP Contingency Planning | [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md) |
+| IA Identification and Authentication | [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md), [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) |
+| IR Incident Response | [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md) |
+| MA Maintenance | [`operations/procedure-patch-management.md`](../../operations/procedure-patch-management.md) |
+| MP Media Protection | [`operations/procedure-media-handling-and-transport.md`](../../operations/procedure-media-handling-and-transport.md) |
+| PE Physical and Environmental Protection | [`operations/standard-physical-security-of-it-infrastructure.md`](../../operations/standard-physical-security-of-it-infrastructure.md) |
+| PS Personnel Security | [`security/standard-personnel-security-screening.md`](../../security/standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](../../security/procedure-onboarding-and-offboarding.md) |
+| RA Risk Assessment | [`risk/procedure-risk-assessment-methodology.md`](../../risk/procedure-risk-assessment-methodology.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md) |
+| SA System and Services Acquisition | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`security/policy-acceptance-into-service.md`](../../security/policy-acceptance-into-service.md) |
+| SC System and Communications Protection | [`security/policy-network-communications-security.md`](../../security/policy-network-communications-security.md), [`security/policy-encryption-and-key-management.md`](../../security/policy-encryption-and-key-management.md) |
+| SI System and Information Integrity | [`security/procedure-vulnerability-management.md`](../../security/procedure-vulnerability-management.md), [`operations/procedure-patch-management.md`](../../operations/procedure-patch-management.md), [`security/standard-data-loss-prevention.md`](../../security/standard-data-loss-prevention.md) |
+| SR Supply Chain Risk Management | [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) |
 
 Library gaps requiring additional documentation for a FedRAMP authorisation package:
 

@@ -36,7 +36,7 @@ This standard and the per-provider cloud hardening baselines in `dev-security/` 
 | Subject | Authoritative standard |
 | --- | --- |
 | Enterprise-tenant administration (identity provider tenant, organisation/management-group hierarchy, tenant-wide policies, cross-account trust, productivity SaaS, email and collaboration platforms) | This standard |
-| Workload accounts/subscriptions/projects and the IaC that provisions them | `dev-security/standard-cloud-hardening-baseline-aws.md`, `standard-cloud-hardening-baseline-azure.md`, `standard-cloud-hardening-baseline-gcp.md` |
+| Workload accounts/subscriptions/projects and the IaC that provisions them | [`dev-security/standard-cloud-hardening-baseline-aws.md`](../dev-security/standard-cloud-hardening-baseline-aws.md), [`standard-cloud-hardening-baseline-azure.md`](../dev-security/standard-cloud-hardening-baseline-azure.md), [`standard-cloud-hardening-baseline-gcp.md`](../dev-security/standard-cloud-hardening-baseline-gcp.md) |
 | Identity federation between the enterprise IdP and workload accounts | Both: federation is configured per this standard; consumption inside the workload is per the dev-security baseline |
 | Centralized audit log destination | This standard defines the destination; the dev-security baselines define what each workload emits |
 | Workload network segmentation, encryption, secrets handling, and infrastructure-as-code | The dev-security baselines |

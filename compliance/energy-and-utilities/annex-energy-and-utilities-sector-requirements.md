@@ -46,7 +46,7 @@ Subsector-specific obligations vary materially. The annex identifies overlay are
 | Regime | Applicability | Library support |
 | --- | --- | --- |
 | NERC CIP (CIP-002 through CIP-014) | Bulk Electric System in North America | Library provides NIST-aligned baselines; the entity layers the CIP requirements per Cyber Asset categorisation |
-| EU NIS 2 | Energy and water sectors as Essential entities | See `compliance/annex-nis-2-implementation.md` |
+| EU NIS 2 | Energy and water sectors as Essential entities | See [`compliance/annex-nis-2-implementation.md`](../annex-nis-2-implementation.md) |
 | US TSA Pipeline Security Directives and Rail Cybersecurity Directives | Critical pipelines and rail | Library supports; entities follow the directive's specific identification of measures and reporting |
 | IEC 62443 series | ICS / OT cybersecurity | Architectural alignment in library; per-zone and per-conduit requirements layered |
 | UK NIS (post-NIS 2 timeline) | Operators of essential services in energy, water | National competent authority guidance |
@@ -61,16 +61,16 @@ The IT-OT boundary is the defining technical risk of the sector. The library pro
 
 | OT control area | Library support and overlay |
 | --- | --- |
-| Network segmentation between corporate IT and OT (Purdue model zones) | `operations/standard-network-security-and-segmentation.md`; entities implement the Purdue Level 3.5 DMZ and below per IEC 62443-3-3 |
-| OT asset inventory including device firmware versions and PLC programme versions | `operations/register-asset-inventory.md` extended with OT-specific fields (vendor, firmware, last-patched, network address, function) |
-| OT vulnerability management with availability-first patching cadence | `security/procedure-vulnerability-management.md` and `operations/procedure-patch-management.md` extended; OT typically requires longer patching windows and pre-tested patches |
-| Privileged access to engineering workstations and HMIs | `security/standard-privileged-access-management.md`; jump-host and recorded sessions for OT access |
-| Removable media controls for OT engineering workstations | `operations/procedure-media-handling-and-transport.md` |
+| Network segmentation between corporate IT and OT (Purdue model zones) | [`operations/standard-network-security-and-segmentation.md`](../../operations/standard-network-security-and-segmentation.md); entities implement the Purdue Level 3.5 DMZ and below per IEC 62443-3-3 |
+| OT asset inventory including device firmware versions and PLC programme versions | [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md) extended with OT-specific fields (vendor, firmware, last-patched, network address, function) |
+| OT vulnerability management with availability-first patching cadence | [`security/procedure-vulnerability-management.md`](../../security/procedure-vulnerability-management.md) and [`operations/procedure-patch-management.md`](../../operations/procedure-patch-management.md) extended; OT typically requires longer patching windows and pre-tested patches |
+| Privileged access to engineering workstations and HMIs | [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md); jump-host and recorded sessions for OT access |
+| Removable media controls for OT engineering workstations | [`operations/procedure-media-handling-and-transport.md`](../../operations/procedure-media-handling-and-transport.md) |
 | Safety-instrumented system (SIS) independence | Outside library scope; sector engineering safety standard |
 | OT monitoring and anomaly detection | Library logging and monitoring extended with OT-specific protocols (Modbus, DNP3, IEC 61850, BACnet, ICCP, OPC UA) |
-| Backup and restore of PLC and HMI configurations | `resilience/procedure-backup-and-recovery.md` extended for OT configuration backup |
-| Vendor remote access to OT systems | `security/standard-remote-working-security.md`, `supply-chain/standard-supplier-security-and-privacy-assurance.md`; OT vendor access typically requires escorted, time-boxed, recorded sessions |
-| OT incident response with safety-first decision rules | `security/procedure-security-incident-response.md` extended; OT incident response prioritises safety and continuity over technical containment |
+| Backup and restore of PLC and HMI configurations | [`resilience/procedure-backup-and-recovery.md`](../../resilience/procedure-backup-and-recovery.md) extended for OT configuration backup |
+| Vendor remote access to OT systems | [`security/standard-remote-working-security.md`](../../security/standard-remote-working-security.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md); OT vendor access typically requires escorted, time-boxed, recorded sessions |
+| OT incident response with safety-first decision rules | [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) extended; OT incident response prioritises safety and continuity over technical containment |
 
 ---
 
@@ -80,8 +80,8 @@ Energy and utilities operations integrate physical and cyber security.
 
 | Obligation | Library support |
 | --- | --- |
-| Physical perimeter, access control, surveillance for substations and facilities | `operations/standard-physical-security-of-it-infrastructure.md` extended for industrial sites |
-| Combined physical-cyber incident playbook | `security/procedure-security-incident-response.md` and `resilience/procedure-cross-domain-incident-coordination.md` extended for converged incidents |
+| Physical perimeter, access control, surveillance for substations and facilities | [`operations/standard-physical-security-of-it-infrastructure.md`](../../operations/standard-physical-security-of-it-infrastructure.md) extended for industrial sites |
+| Combined physical-cyber incident playbook | [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) and [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md) extended for converged incidents |
 | Drone, intrusion, and tamper detection | Outside library scope; site-specific |
 | Coordination with law enforcement and national security services | Outside library scope |
 
@@ -99,7 +99,7 @@ Reporting obligations vary; the entity may be required to report to multiple aut
 | Privacy supervisor | Personal data breach | 72 hours under GDPR; equivalents elsewhere |
 | Stock-exchange disclosure | Material adverse event for listed entities | Per listing rules |
 
-Library coverage: `security/procedure-security-incident-response.md`, `resilience/procedure-security-incident-reporting-and-escalation.md`. Adopting entities maintain a per-incident reporting matrix mapping the regulatory recipients to the incident class and the report content required.
+Library coverage: [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../../resilience/procedure-security-incident-reporting-and-escalation.md). Adopting entities maintain a per-incident reporting matrix mapping the regulatory recipients to the incident class and the report content required.
 
 ---
 
@@ -109,10 +109,10 @@ Energy and utilities supply chains include vendor-specific national-security con
 
 | Obligation | Library support |
 | --- | --- |
-| Approved-vendor list for OT components (relays, PLCs, RTUs, IEDs, SCADA systems) | `supply-chain/framework-supplier-and-cloud-governance.md`, `risk/standard-third-party-and-supply-chain-risk.md` |
-| Vendor cybersecurity attestation per IEC 62443-4-1 (product development) and 4-2 (component requirements) | `supply-chain/standard-supplier-security-and-privacy-assurance.md` plus IEC-specific evidence |
-| SBOM for ICS and embedded components | `dev-security/standard-software-composition-analysis.md` |
-| Vendor escort and supervised access for maintenance | `supply-chain/procedure-supplier-ongoing-monitoring.md` |
+| Approved-vendor list for OT components (relays, PLCs, RTUs, IEDs, SCADA systems) | [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md) |
+| Vendor cybersecurity attestation per IEC 62443-4-1 (product development) and 4-2 (component requirements) | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md) plus IEC-specific evidence |
+| SBOM for ICS and embedded components | [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) |
+| Vendor escort and supervised access for maintenance | [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../../supply-chain/procedure-supplier-ongoing-monitoring.md) |
 | Country-of-origin restrictions where required by national security | Per national rules (US Executive Orders on bulk-power-system equipment, equivalents) |
 
 ---
@@ -123,10 +123,10 @@ Energy and utilities outages have direct safety and societal impact; resilience 
 
 | Obligation | Library support |
 | --- | --- |
-| Service continuity and restoration plans | `resilience/framework-business-continuity-and-resilience.md`, `resilience/plan-it-disaster-recovery.md` |
+| Service continuity and restoration plans | [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md), [`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md) |
 | Mutual-aid arrangements with peer operators | Outside library scope; sector agreement |
 | Black-start capability and grid restoration plans | Outside library scope; sector technical standard |
-| Annual exercise per the regulator (e.g. NERC GridEx) | `resilience/procedure-continuity-and-recovery-testing.md` |
+| Annual exercise per the regulator (e.g. NERC GridEx) | [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md) |
 | Reliability reporting | Per the reliability authority |
 
 ---
