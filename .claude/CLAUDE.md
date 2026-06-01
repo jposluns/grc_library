@@ -58,6 +58,17 @@ one must be added to all (the gate-parity audit enforces this).
 - Do not push directly to `main`; develop on a branch (rewriting shared history breaks
   open branches and the version-monotonicity audit).
 
+## Behavioral rule: clarify before acting
+When the request has more than one reasonable interpretation, or an external value
+(date, timezone, library version, README version, target branch, whether a change
+warrants a CHANGELOG entry, whether to bump per-document versions) is ambiguous,
+surface the ambiguity in one sentence and ask before proceeding. Don't silently pick.
+Adapted from Karpathy's "Think Before Coding" CLAUDE.md rule
+(<https://github.com/multica-ai/andrej-karpathy-skills>, MIT). The library's
+audit programme already enforces "surgical changes" and "goal-driven execution"
+mechanically through the 32 gates and the user-level verification rules; the gap
+this section closes is pre-implementation clarification.
+
 ## Security requirements
 Rules in `.claude/rules/` (sourced from this repo's own `dev-security/claude-rules/`
 pack, CC BY-SA 4.0):
