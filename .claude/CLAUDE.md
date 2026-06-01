@@ -89,14 +89,18 @@ pack, CC BY-SA 4.0):
   mechanical from semantic verification, state unverified items). Pack-distributable
   form of the user-level Rule 6 added 2026-05-31; reinforces this project's existing
   Rules 1-5 about verification before dependent actions.
+- `.claude/rules/governance/clarify-before-acting.md` — surface ambiguity in one
+  sentence and ask before proceeding. Pack-distributable form of this project's
+  `## Behavioral rule: clarify before acting` section; generalises that rule into a
+  project-agnostic discipline applicable wherever an AI coding assistant participates.
 
-As of pack version 1.9.0 (2026-06-01) the `dev-security/claude-rules/` pack covers
+As of pack version 1.10.0 (2026-06-01) the `dev-security/claude-rules/` pack covers
 security + development-governance discipline. Pack version 1.6.0 announced the
-broadened contract; pack versions 1.7.0, 1.8.0, and 1.9.0 delivered the first three
-governance rules (`governance/gate-discipline.md`, `governance/change-tracking.md`,
-`governance/evidence-grounded-completion.md`). Subsequent governance rules
-(clarify-before-acting, artefact-and-branch discipline) arrive in later phased releases
-and will be listed here as they land.
+broadened contract; pack versions 1.7.0, 1.8.0, 1.9.0, and 1.10.0 delivered the first
+four governance rules (`governance/gate-discipline.md`, `governance/change-tracking.md`,
+`governance/evidence-grounded-completion.md`, `governance/clarify-before-acting.md`).
+The final governance rule (artefact-and-branch discipline) arrives in the next phased
+release and will be listed here when it lands.
 
 The GRC Library pack above is the **primary** source. `.claude/rules/external/` holds a
 **supplementary** overlay from third-party sources (TikiTribe, Kariedo — both MIT, see
