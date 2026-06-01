@@ -66,6 +66,13 @@ PRECOMMIT_PATH = ".pre-commit-config.yaml"
 # excluded from the workflow's audit-gate list before comparison.
 WORKFLOW_SETUP_STEPS = {"Checkout", "Set up Python"}
 
+# Workflow steps that are PR-only delta gates documented in
+# governance/specification-audit-programme.md §6.1. These are not part
+# of the 32-gate corpus inventory in §6 and therefore are excluded from
+# the parity audit. Delta gates run only on pull_request events and
+# inspect the PR's change set rather than the repository state at HEAD.
+WORKFLOW_DELTA_GATE_STEPS = {"CHANGELOG-on-PR check"}
+
 # Regex to extract the tools/X.py portion of a `python3 tools/X.py ...`
 # style command. Captures the script's repository-relative path only,
 # discarding the `python3` prefix and any trailing arguments.
@@ -151,6 +158,9 @@ def parse_workflow(path: Path) -> list[tuple[int, str, str]]:
             if m_run and pending is not None:
                 step_lineno, step_name = pending
                 if step_name in WORKFLOW_SETUP_STEPS:
+                    pending = None
+                    continue
+                if step_name in WORKFLOW_DELTA_GATE_STEPS:
                     pending = None
                     continue
                 script_match = SCRIPT_RE.search(m_run.group(1))
