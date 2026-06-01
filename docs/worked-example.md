@@ -23,11 +23,11 @@ These notes contain everything you need to build a Procedure artefact, but they 
 
 ## Step 1: pick the document type
 
-The notes describe a recurring multi-actor workflow (Security Ops, System Owners, CISO). This is a Procedure, not an SOP (which would be a narrower single-actor sequence). See `specification-master-project.md` Section 4.4 for the type selection guidance.
+The notes describe a recurring multi-actor workflow (Security Ops, System Owners, CISO). This is a Procedure, not an SOP (which would be a narrower single-actor sequence). See [`specification-master-project.md`](../specification-master-project.md) Section 4.4 for the type selection guidance.
 
 ## Step 2: pick the domain and filename
 
-This procedure is about identity and access. It belongs in `security/`. Per the filename rules in `specification-ingestion.md`, the filename starts with the type prefix and uses lowercase words separated by single hyphens:
+This procedure is about identity and access. It belongs in `security/`. Per the filename rules in [`specification-ingestion.md`](../specification-ingestion.md), the filename starts with the type prefix and uses lowercase words separated by single hyphens:
 
 ```
 security/procedure-quarterly-privileged-access-review.md
@@ -35,7 +35,7 @@ security/procedure-quarterly-privileged-access-review.md
 
 ## Step 3: apply the sanitisation substitution table
 
-Use the Appendix A table in `specification-ingestion.md`:
+Use the Appendix A table in [`specification-ingestion.md`](../specification-ingestion.md):
 
 | Source term | Replacement |
 | --- | --- |
@@ -160,8 +160,8 @@ against their own policy and legal requirements.
 
 The new artefact must appear in two places:
 
-1. `governance/register-document-index-and-classification.md`: add a new row with Domain, Type, Title, Repository Path, Owner Role, Review Frequency, Primary Alignment Families. Bump the register's version (patch).
-2. `security/README.md`: add a new row in the Active Documents table.
+1. [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md): add a new row with Domain, Type, Title, Repository Path, Owner Role, Review Frequency, Primary Alignment Families. Bump the register's version (patch).
+2. [`security/README.md`](../security/README.md): add a new row in the Active Documents table.
 
 ## Step 8: run the local audits
 
