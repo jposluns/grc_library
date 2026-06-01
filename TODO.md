@@ -10,7 +10,7 @@ This file is informational and is not subject to the library's metadata-block, a
 
 ### 4.1 Quickstart templates per adopter profile
 
-Pre-configured starter sets for common adopter profiles:
+Debating the value of pre-configured starter sets for common adopter profiles:
 - Small business (under 50 employees, single jurisdiction)
 - Mid-market regulated industry (50-500 employees, sector compliance)
 - Multi-national enterprise (500+ employees, multiple jurisdictions)
