@@ -40,8 +40,13 @@ REPO_ROOT: Path = Path(__file__).resolve().parent.parent
 
 # Default directory parts that every linter skips when walking the
 # repository. Frozen so callers cannot mutate the shared default.
+# ``.claude`` holds this project's Claude Code AI-assistant config
+# (project CLAUDE.md and draggable rule files copied from the
+# dev-security/claude-rules/ pack); like that pack directory, its
+# contents are AI-context artefacts, not governed corpus documents,
+# so the corpus linters skip it.
 DEFAULT_EXEMPT_DIRS: frozenset[str] = frozenset(
-    {".git", "node_modules", "__pycache__"}
+    {".git", "node_modules", "__pycache__", ".claude"}
 )
 
 
