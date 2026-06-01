@@ -4,7 +4,7 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
-## 2026-06-01, Library Version 2026.05.137
+## 2026-05-31, Library Version 2026.05.137
 
 Corpus-wide hyperlink sweep and TODO.md cleanup.
 
