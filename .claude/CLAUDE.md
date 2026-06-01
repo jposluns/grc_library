@@ -57,6 +57,22 @@ one must be added to all (the gate-parity audit enforces this).
   `lint-pii-in-content.py` gate this, and history rewrites are costly.
 - Do not push directly to `main`; develop on a branch (rewriting shared history breaks
   open branches and the version-monotonicity audit).
+- No exception path is offered for the audit gates or the pack rules under
+  `.claude/rules/governance/`. The three pack rules that reference "the project's
+  exception register" as an opt-out channel (`gate-discipline`, `change-tracking`,
+  `evidence-grounded-completion`) find no such register in this project: if a gate
+  fails or a rule's protocol cannot be satisfied in a PR, the artefact is fixed or the
+  PR is descoped. This is the strict-mode stance that each pack rule's exception
+  section defaults to when no register exists; it is restated here so the absence is
+  explicit rather than inferred.
+- If a protected-branch force-push is ever genuinely necessary (credential leaked into
+  history, copyright violation must be expunged, malformed merge corrupted the branch),
+  follow the procedure in `dev-security/claude-rules/governance/artefact-and-branch-discipline.md`:
+  document the technical reason; obtain governance-authority approval; notify
+  collaborators in advance; preserve the pre-rewrite ref under
+  `refs/preservation/<short-reason>-<YYYY-MM-DD>/<original-ref-name>` so the original
+  history remains auditable; re-run the version-monotonicity audit after the rewrite
+  to confirm no version-bearing commits were dropped.
 
 ## Behavioral rule: clarify before acting
 When the request has more than one reasonable interpretation, or an external value
