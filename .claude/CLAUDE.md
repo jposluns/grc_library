@@ -69,13 +69,24 @@ audit programme already enforces "surgical changes" and "goal-driven execution"
 mechanically through the 32 gates and the user-level verification rules; the gap
 this section closes is pre-implementation clarification.
 
-## Security requirements
+## Security and governance requirements
 Rules in `.claude/rules/` (sourced from this repo's own `dev-security/claude-rules/`
 pack, CC BY-SA 4.0):
 - `.claude/rules/secrets.md` — never hardcode credentials (all files).
 - `.claude/rules/python.md` — Python patterns for `tools/` audit scripts.
 - `.claude/rules/input-validation.md` — input handling for the Markdown-parsing tooling.
 - `.claude/rules/cicd-gates.md` — CI/CD pipeline security for `quality.yml`.
+
+As of pack version 1.6.0 (2026-06-01) the `dev-security/claude-rules/` pack's contract
+broadens from security alone to security + development-governance discipline (gate
+discipline, change-tracking, generated-artefact discipline, branch discipline,
+agent-collaboration rules). The governance rules are being delivered in subsequent
+phased releases under `dev-security/claude-rules/governance/`. This project's own
+governance discipline is already encoded in the `## Boundaries` and `## Behavioral rule`
+sections above and in the 32-gate audit programme, so the pack expansion announces the
+broader contract for downstream adopters without changing this project's loaded rules
+yet; additional rule references will appear here as the governance content lands in
+later phases.
 
 The GRC Library pack above is the **primary** source. `.claude/rules/external/` holds a
 **supplementary** overlay from third-party sources (TikiTribe, Kariedo — both MIT, see
