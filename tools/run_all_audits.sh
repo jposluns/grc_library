@@ -14,7 +14,7 @@
 # Rationale (see TODO.md Decisions log, Phase 23.30): phase-completion
 # gating requires the full audit sweep to pass locally before any push.
 # This script provides a single deterministic invocation for that sweep.
-# The current sweep is 32 gates; see governance/specification-audit-programme.md
+# The current sweep is 33 gates; see governance/specification-audit-programme.md
 # section 6 for the canonical inventory.
 #
 # Keep this list in lock-step with .github/workflows/quality.yml. If a new
@@ -62,7 +62,7 @@ echo "Running full audit programme (${REPO_ROOT})"
 echo ""
 
 # ----------------------------------------------------------------------
-# Markdown linters (28 gates). Order mirrors quality.yml.
+# Markdown linters (29 gates). Order mirrors quality.yml.
 # ----------------------------------------------------------------------
 run_gate "Metadata audit"                                python3 tools/lint-metadata.py
 run_gate "Language and style audit"                      python3 tools/lint-language.py
@@ -92,6 +92,7 @@ run_gate "Cross-document numerical coherence audit"      python3 tools/lint-cros
 run_gate "Orphan document audit"                         python3 tools/lint-orphan-documents.py
 run_gate "Citation verification freshness audit"         python3 tools/lint-citation-verification-freshness.py
 run_gate "Tooling provenance freshness audit"            python3 tools/lint-tooling-provenance-freshness.py
+run_gate "Version-date consistency audit"                python3 tools/lint-version-date-consistency.py
 
 # ----------------------------------------------------------------------
 # Generator-output drift gates (2 gates). These ensure that the auto-
