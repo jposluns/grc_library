@@ -114,6 +114,16 @@ The numbering matches the order in [`tools/run_all_audits.sh`](../tools/run_all_
 
 Gates 1 through 28 are pure read-only linters that exit non-zero on the first violation. Gates 29 and 30 are generator-output drift checks: they re-run the generator in `--check` mode and exit non-zero if the regenerated output differs from the committed artefact. Gate 31 is the audit programme's self-check: it parses this §6 inventory and confirms that the workflow, the local audit runner, and the pre-commit config declare the same gates with the same names and scripts in the same order. Gate 32 is the linter regression test suite: for each in-scope linter it constructs a synthetic markdown fixture that should trigger exactly one rule, invokes the linter against the fixture, and asserts the linter exits non-zero. The test suite catches a defect class no other gate can catch (a regression in a linter's own detection logic).
 
+### 6.1 PR-only delta gates
+
+A delta gate inspects the change set of a pull request, not the repository state at HEAD. Delta gates are not part of the 32-gate corpus inventory above, because their inputs (git history range, PR base ref) are not available in [`tools/run_all_audits.sh`](../tools/run_all_audits.sh) or [`.pre-commit-config.yaml`](../.pre-commit-config.yaml) and they are therefore exempt from gate 31's parity audit. Delta gates run only in [`.github/workflows/quality.yml`](../.github/workflows/quality.yml) on `pull_request` events.
+
+| # | Gate | Script | Surface |
+| --- | --- | --- | --- |
+| D1 | CHANGELOG-on-PR check | [`tools/check-changelog-on-pr.py`](../tools/check-changelog-on-pr.py) | GitHub Actions (PR only) |
+
+Delta gate D1 mechanically enforces §7 step 4 below ("the CHANGELOG entry for the phase is written"): it compares the PR head to its merge-base with the target branch and fails when [`CHANGELOG.md`](../CHANGELOG.md) is not in the diff. An opt-out trailer `Changelog: <one-line-reason>` in any commit message body in the PR range satisfies the gate, for cases where the convention legitimately does not apply (trivial typo corrections, branch-mechanics fixes, content already covered by a CHANGELOG entry from an earlier commit in the same PR).
+
 ## 7. Phase-completion gating
 
 A phase is complete when:
