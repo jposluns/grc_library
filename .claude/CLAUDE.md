@@ -79,13 +79,18 @@ pack, CC BY-SA 4.0):
 - `.claude/rules/governance/gate-discipline.md` — never weaken a gate to silence a
   failure; fix the artefact. Reinforces this project's `## Boundaries` rule and applies
   to all 32 corpus gates plus the D1 CHANGELOG-on-PR delta gate.
+- `.claude/rules/governance/change-tracking.md` — every change to user-visible content
+  carries a CHANGELOG entry by default, with a documented `Changelog: skip` trailer the
+  only sanctioned opt-out. Generalises the D1 CHANGELOG-on-PR delta gate, the
+  link-coverage gate, and the version-monotonicity audit into a portable discipline.
 
-As of pack version 1.7.0 (2026-06-01) the `dev-security/claude-rules/` pack covers
+As of pack version 1.8.0 (2026-06-01) the `dev-security/claude-rules/` pack covers
 security + development-governance discipline. Pack version 1.6.0 announced the
 broadened contract; pack version 1.7.0 delivered the first governance rule
-(`governance/gate-discipline.md`). Subsequent governance rules (change-tracking,
-evidence-grounded completion, clarify-before-acting, artefact-and-branch discipline)
-arrive in later phased releases and will be listed here as they land.
+(`governance/gate-discipline.md`); pack version 1.8.0 delivered the second
+(`governance/change-tracking.md`). Subsequent governance rules (evidence-grounded
+completion, clarify-before-acting, artefact-and-branch discipline) arrive in later
+phased releases and will be listed here as they land.
 
 The GRC Library pack above is the **primary** source. `.claude/rules/external/` holds a
 **supplementary** overlay from third-party sources (TikiTribe, Kariedo — both MIT, see
