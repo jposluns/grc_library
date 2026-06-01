@@ -41,7 +41,7 @@ or via the audit programme:
 tools/run_all_audits.sh
 ```
 
-The regression suite runs as gate 32 of the audit programme. See
+The regression suite runs as gate 33 of the audit programme. See
 [`governance/specification-audit-programme.md`](../governance/specification-audit-programme.md) §6.
 
 ## Fixture isolation

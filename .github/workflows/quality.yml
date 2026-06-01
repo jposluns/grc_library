@@ -105,6 +105,9 @@ jobs:
       - name: Tooling provenance freshness audit
         run: python3 tools/lint-tooling-provenance-freshness.py
 
+      - name: Version-date consistency audit
+        run: python3 tools/lint-version-date-consistency.py
+
       - name: Machine-readable taxonomy in sync
         run: python3 tools/build-taxonomy.py --check
 
