@@ -130,8 +130,9 @@ When working on a governed codebase (one with CI gates, audit programmes, branch
 
 - [`governance/gate-discipline.md`](governance/gate-discipline.md): never weaken or delete a gate to silence a failure; fix the artefact. Targeted suppressions need a documented rationale on the same line; blanket suppressions are prohibited. Exception path is the project's exception register, not a unilateral suppression.
 - [`governance/change-tracking.md`](governance/change-tracking.md): every change to user-visible content carries a CHANGELOG entry by default. The entry records date, version, structured sections (Added/Changed/Removed/Fixed/Security), linked file references, the "why" (not only the "what"), and verification evidence. The opt-out path is a documented `Changelog: skip (reason: ...)` trailer, reviewer-approved; silence is never the answer.
+- [`governance/evidence-grounded-completion.md`](governance/evidence-grounded-completion.md): never declare work "done", "fixed", "ready", "shipped", or any synonym without first running the verification protocol (enumerate files in scope, re-read each in full, quote supporting lines, search for falsifying evidence, distinguish mechanical-gate verification from semantic verification, state unverified items explicitly). The vocabulary of completion is a flag that the protocol must precede; the protocol is mechanical so it can be checked without subjective judgement.
 
-Additional governance rules (evidence-grounded completion, clarify-before-acting, artefact-and-branch discipline) are delivered in subsequent pack releases under the same subdirectory.
+Additional governance rules (clarify-before-acting, artefact-and-branch discipline) are delivered in subsequent pack releases under the same subdirectory.
 
 ---
 
