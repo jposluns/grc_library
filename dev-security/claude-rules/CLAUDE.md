@@ -124,6 +124,16 @@ For RAG systems, see [`ai/rag-security.md`](ai/rag-security.md).
 
 ---
 
+## Development-governance discipline
+
+When working on a governed codebase (one with CI gates, audit programmes, branch protections, generated artefacts, or a change-tracking convention), apply the rules in `governance/`. The currently-shipped governance rules are:
+
+- [`governance/gate-discipline.md`](governance/gate-discipline.md): never weaken or delete a gate to silence a failure; fix the artefact. Targeted suppressions need a documented rationale on the same line; blanket suppressions are prohibited. Exception path is the project's exception register, not a unilateral suppression.
+
+Additional governance rules (change-tracking, evidence-grounded completion, clarify-before-acting, artefact-and-branch discipline) are delivered in subsequent pack releases under the same subdirectory.
+
+---
+
 ## Framework basis
 
 These requirements implement controls from:
