@@ -93,14 +93,22 @@ pack, CC BY-SA 4.0):
   sentence and ask before proceeding. Pack-distributable form of this project's
   `## Behavioral rule: clarify before acting` section; generalises that rule into a
   project-agnostic discipline applicable wherever an AI coding assistant participates.
+- `.claude/rules/governance/artefact-and-branch-discipline.md` — generated artefacts
+  are read-only (edit the source, run the generator, commit both halves together; CI
+  verifies via `--check` mode); protected branches are append-only (no direct push;
+  no force-push; PR-only merges). Pack-distributable form of this project's
+  `## Boundaries` rules on generated files (`taxonomy.yml`, the `docs/` portal,
+  scorecards) and on direct pushes to `main`; binds the version-monotonicity audit to
+  branch protection as its primary defence.
 
-As of pack version 1.10.0 (2026-06-01) the `dev-security/claude-rules/` pack covers
-security + development-governance discipline. Pack version 1.6.0 announced the
-broadened contract; pack versions 1.7.0, 1.8.0, 1.9.0, and 1.10.0 delivered the first
-four governance rules (`governance/gate-discipline.md`, `governance/change-tracking.md`,
-`governance/evidence-grounded-completion.md`, `governance/clarify-before-acting.md`).
-The final governance rule (artefact-and-branch discipline) arrives in the next phased
-release and will be listed here when it lands.
+As of pack version 1.11.0 (2026-06-01) the `dev-security/claude-rules/` pack covers
+security + development-governance discipline. The phased governance rollout announced
+at pack version 1.6.0 (security + governance contract) is complete: pack versions
+1.7.0, 1.8.0, 1.9.0, 1.10.0, and 1.11.0 delivered the five planned governance rules
+(`governance/gate-discipline.md`, `governance/change-tracking.md`,
+`governance/evidence-grounded-completion.md`, `governance/clarify-before-acting.md`,
+`governance/artefact-and-branch-discipline.md`). Future pack work may add rules under
+`governance/` as the discipline expands, but the planned set is now shipped.
 
 The GRC Library pack above is the **primary** source. `.claude/rules/external/` holds a
 **supplementary** overlay from third-party sources (TikiTribe, Kariedo — both MIT, see
