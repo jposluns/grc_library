@@ -28,7 +28,7 @@ The objective is that the library's maintainer (and, where applicable, contribut
 
 This template applies to:
 
-1. The quarterly library health report itself (the deliverable described in `governance/procedure-library-quality-and-review-cadence.md` Section 7).
+1. The quarterly library health report itself (the deliverable described in [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md) Section 7).
 2. Ad-hoc health reports produced in response to a material event.
 3. The annual health-summary report combining the four quarterly reports.
 
@@ -64,14 +64,14 @@ Aggregated output of the 32 automated audits (see [`governance/specification-aud
 
 | Audit | Status | Findings count | Notes |
 | --- | --- | --- | --- |
-| `lint-metadata.py` | Pass / Fail | 0 / N | Brief note on findings if any |
-| `lint-language.py` | Pass / Fail | 0 / N | |
-| `lint-links.py` | Pass / Fail | 0 / N | |
-| `lint-structure.py` | Pass / Fail | 0 / N | |
-| `lint-citations.py` | Pass / Fail | 0 / N | |
-| `lint-roles.py` | Pass / Fail | 0 / N | |
-| `lint-shall-near-uncertainty.py` | Pass / Fail | 0 / N | |
-| `check-review-cadence.py` | Pass / Action / Fail | Current / Due-soon / Overdue / Action-threshold | Summary of overdue documents |
+| [`lint-metadata.py`](../tools/lint-metadata.py) | Pass / Fail | 0 / N | Brief note on findings if any |
+| [`lint-language.py`](../tools/lint-language.py) | Pass / Fail | 0 / N | |
+| [`lint-links.py`](../tools/lint-links.py) | Pass / Fail | 0 / N | |
+| [`lint-structure.py`](../tools/lint-structure.py) | Pass / Fail | 0 / N | |
+| [`lint-citations.py`](../tools/lint-citations.py) | Pass / Fail | 0 / N | |
+| [`lint-roles.py`](../tools/lint-roles.py) | Pass / Fail | 0 / N | |
+| [`lint-shall-near-uncertainty.py`](../tools/lint-shall-near-uncertainty.py) | Pass / Fail | 0 / N | |
+| [`check-review-cadence.py`](../tools/check-review-cadence.py) | Pass / Action / Fail | Current / Due-soon / Overdue / Action-threshold | Summary of overdue documents |
 | `build-taxonomy.py --check` | In sync / Out of sync | n/a | |
 | `build-portal.py --check` | In sync / Out of sync | n/a | |
 
@@ -90,7 +90,7 @@ For each non-pass: brief description, file(s) affected, remediation plan, target
 
 ### Section E: review cadence state
 
-Aggregated from `check-review-cadence.py`:
+Aggregated from [`check-review-cadence.py`](../tools/check-review-cadence.py):
 
 | Status | Count | Notes |
 | --- | --- | --- |

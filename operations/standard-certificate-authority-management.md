@@ -182,7 +182,7 @@ Audit logs are forwarded to SIEM via endpoint management diagnostic settings int
 
 ---
 
-*Licence: CC BY-SA 4.0. See `LICENSE` in the repository root.*
+*Licence: CC BY-SA 4.0. See [`LICENSE`](../LICENSE) in the repository root.*
 
 
 

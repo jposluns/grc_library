@@ -140,7 +140,7 @@ Actions that exceed a defined ageing threshold escalate per the library quality 
 
 | Field | Example value |
 | --- | --- |
-| Document path | `security/standard-logging-and-monitoring.md` |
+| Document path | [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) |
 | Document version at review | 1.2.3 |
 | Document date at review | 2025-09-12 |
 | Review type | Periodic |

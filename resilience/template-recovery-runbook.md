@@ -28,8 +28,8 @@ A populated runbook contains organisation-specific system, supplier, and contact
 
 This template covers application and platform recovery from a degraded or failed state, returning the service to its declared recovery time and recovery point objectives. It does not cover:
 
-1. Cross-system disaster recovery orchestration; that lives in `resilience/plan-it-disaster-recovery.md`.
-2. Crisis-level governance; see `resilience/plan-business-continuity-and-crisis-management.md`.
+1. Cross-system disaster recovery orchestration; that lives in [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md).
+2. Crisis-level governance; see [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md).
 3. Forensic preservation; the runbook integrates with the security incident response procedure where preservation is required.
 
 ---

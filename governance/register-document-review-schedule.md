@@ -124,8 +124,8 @@ Schedule entries are kept consistent with document metadata; any divergence is a
 
 | Tool | Role |
 | --- | --- |
-| `tools/check-review-cadence.py` | Parses metadata, computes status, and reports overdue and action-threshold entries |
-| `tools/build-taxonomy.py` | Produces the taxonomy that feeds the schedule build |
+| [`tools/check-review-cadence.py`](../tools/check-review-cadence.py) | Parses metadata, computes status, and reports overdue and action-threshold entries |
+| [`tools/build-taxonomy.py`](../tools/build-taxonomy.py) | Produces the taxonomy that feeds the schedule build |
 | CI | Runs the cadence checker on every push |
 | Pre-commit | Optional cadence check in pre-commit |
 
@@ -161,11 +161,11 @@ Where this register and the checker disagree, the checker output is treated as p
 
 | Path | Owner | Last review | Frequency | Next due | Status |
 | --- | --- | --- | --- | --- | --- |
-| `governance/charter-governance-library.md` | Governance Library Maintainer | 2026-05-27 | 12 months | 2027-05-27 | Current |
-| `security/policy-information-security.md` | Chief Information Security Officer | 2026-05-27 | 12 months | 2027-05-27 | Current |
-| `ai/framework-ai-governance-and-risk.md` | Chief AI Officer | 2026-05-27 | 12 months | 2027-05-27 | Current |
-| `risk/template-operational-risk-register.md` | Chief Risk Officer | 2026-05-28 | 12 months | 2027-05-28 | Current |
-| `architecture/standard-technology-radar.md` | Chief Technology Officer | 2026-05-28 | 3 months | 2026-08-28 | Current |
+| [`governance/charter-governance-library.md`](charter-governance-library.md) | Governance Library Maintainer | 2026-05-27 | 12 months | 2027-05-27 | Current |
+| [`security/policy-information-security.md`](../security/policy-information-security.md) | Chief Information Security Officer | 2026-05-27 | 12 months | 2027-05-27 | Current |
+| [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md) | Chief AI Officer | 2026-05-27 | 12 months | 2027-05-27 | Current |
+| [`risk/template-operational-risk-register.md`](../risk/template-operational-risk-register.md) | Chief Risk Officer | 2026-05-28 | 12 months | 2027-05-28 | Current |
+| [`architecture/standard-technology-radar.md`](../architecture/standard-technology-radar.md) | Chief Technology Officer | 2026-05-28 | 3 months | 2026-08-28 | Current |
 
 The fragment above is illustrative; the actual schedule is produced by tooling.
 

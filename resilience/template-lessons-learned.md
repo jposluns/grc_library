@@ -137,7 +137,7 @@ Actions are SMART: specific, measurable, achievable, relevant, time-bound.
 
 | Change | Affected document | Type | Tracking |
 | --- | --- | --- | --- |
-| Procedure amendment | E.g. `security/procedure-security-incident-response.md` | Patch or minor version bump | Tracked in the document index |
+| Procedure amendment | E.g. [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) | Patch or minor version bump | Tracked in the document index |
 | New procedure or template | E.g. a new tabletop scenario | New artefact starting at 0.0.1 | Added to index and domain README |
 | Control update | E.g. new SIEM rule | Per the control's source of truth | Tracked in the control register |
 | Risk register entry | New or revised risk | Per risk procedure | Tracked in the risk register |

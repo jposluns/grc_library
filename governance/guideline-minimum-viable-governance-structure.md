@@ -94,7 +94,7 @@ A large or regulated organisation typically instantiates most of the library's n
 At this tier:
 
 - The Board has separate Risk and Audit Committees (or equivalent), each with documented terms of reference.
-- The AI Governance Council is a discrete body with the composition documented in `ai/charter-ai-governance-council.md`.
+- The AI Governance Council is a discrete body with the composition documented in [`ai/charter-ai-governance-council.md`](../ai/charter-ai-governance-council.md).
 - The Architecture Review Board, Technology Council, Data Council are discrete with documented decision rights.
 - The Insider Risk Steering Committee exists as a discrete cross-functional body.
 - The Change Advisory Board is a discrete operational body.

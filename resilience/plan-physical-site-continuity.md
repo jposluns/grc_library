@@ -28,7 +28,7 @@ Each in-scope site has its own instantiation of this plan with site-specific val
 
 This plan applies to disruptions affecting a specific site's ability to operate normally. In-scope events include but are not limited to: fire, power loss, water ingress, structural damage, HVAC failure, telecommunications outage at the site, security event affecting access, civil-disturbance access denial, extreme weather, evacuation order, environmental contamination, and prolonged site-utility failure.
 
-It does not cover pandemic-style workforce-unavailability events (see `resilience/plan-pandemic-continuity.md`) or pure IT failure where the site is operational but a system has failed (see `resilience/plan-it-disaster-recovery.md`).
+It does not cover pandemic-style workforce-unavailability events (see [`resilience/plan-pandemic-continuity.md`](plan-pandemic-continuity.md)) or pure IT failure where the site is operational but a system has failed (see [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md)).
 
 ---
 
@@ -80,7 +80,7 @@ The Resilience Owner declares the posture in consultation with the Executive Spo
 
 ## Protective actions
 
-This section defers to `resilience/guideline-emergency-response-and-protective-actions.md` for the operational steps. Each site's instantiation of this plan adds:
+This section defers to [`resilience/guideline-emergency-response-and-protective-actions.md`](guideline-emergency-response-and-protective-actions.md) for the operational steps. Each site's instantiation of this plan adds:
 
 | Item | Site-specific content |
 | --- | --- |
@@ -140,7 +140,7 @@ When the site is again usable:
 4. Phased return: essential functions first; others by tier.
 5. Workforce communication on return timing, transit support, and any temporary protocol changes.
 6. Closure check: confirm essential services were maintained throughout (continuity test pass) and document any service gaps.
-7. After-action lessons-learned cycle (see `resilience/template-lessons-learned.md`).
+7. After-action lessons-learned cycle (see [`resilience/template-lessons-learned.md`](template-lessons-learned.md)).
 8. Insurance claim and recovery accounting.
 9. Update the site profile and the plan if the event exposed gaps.
 
