@@ -77,7 +77,7 @@ The organisation obtains SBOMs through three paths.
 
 | Requirement | Detail |
 | --- | --- |
-| Build pipeline produces an SBOM artefact on every production build | Per `dev-security/standard-software-composition-analysis.md` |
+| Build pipeline produces an SBOM artefact on every production build | Per [`dev-security/standard-software-composition-analysis.md`](../dev-security/standard-software-composition-analysis.md) |
 | Format | CycloneDX or SPDX |
 | Coverage | All direct dependencies plus transitive dependencies present in the runtime artefact |
 | Container coverage | Where the artefact is a container, the SBOM covers base image layers and added layers |
@@ -120,7 +120,7 @@ Each SBOM is continuously cross-referenced against published vulnerability data:
 ## Linkage to procurement and acceptance
 
 1. New software is not accepted into the production environment without an SBOM (or a documented exception for path 3 cases).
-2. The acceptance-into-service gate (per `security/policy-acceptance-into-service.md`) includes SBOM presence and coverage verification.
+2. The acceptance-into-service gate (per [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md)) includes SBOM presence and coverage verification.
 3. Procurement contracts at Tier 1 and Tier 2 include the SBOM deliverable clause and the refresh cadence.
 
 ---

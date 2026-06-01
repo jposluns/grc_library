@@ -155,12 +155,12 @@ Filenames must:
 
 Examples:
 
-- `policy-information-security.md`
-- `standard-logging-and-monitoring.md`
-- `procedure-risk-register.md`
-- `framework-ai-governance-and-risk.md`
-- `template-ai-system-register.md`
-- `matrix-cross-framework-alignment.md`
+- [`policy-information-security.md`](security/policy-information-security.md)
+- [`standard-logging-and-monitoring.md`](security/standard-logging-and-monitoring.md)
+- [`procedure-risk-register.md`](risk/procedure-risk-register.md)
+- [`framework-ai-governance-and-risk.md`](ai/framework-ai-governance-and-risk.md)
+- [`template-ai-system-register.md`](ai/template-ai-system-register.md)
+- [`matrix-cross-framework-alignment.md`](governance/matrix-cross-framework-alignment.md)
 
 ---
 
@@ -224,7 +224,7 @@ Notes on the backslash-newline convention:
 - Every metadata line except the last must end with `\` immediately before the line terminator.
 - The last line (typically `License`) does not require the marker because the following blank line and `---` separator already create a paragraph break.
 - Do not use two trailing spaces; that variant is also valid CommonMark but is invisible in source and is fragile against editor whitespace-stripping. The backslash is visible and editor-safe.
-- The `lint-metadata.py` audit enforces this convention.
+- The [`lint-metadata.py`](tools/lint-metadata.py) audit enforces this convention.
 
 Related Documents and Repository Path use markdown links. The display text is the root-relative path. The link target is relative to the current file's directory: same-directory files use the bare filename; cross-directory files use `../` traversal.
 

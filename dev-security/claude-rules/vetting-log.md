@@ -4,7 +4,7 @@
 **Version:** 1.2.0\
 **Date:** 2026-05-31\
 **Owner:** Governance Library Maintainer\
-**Repository Path:** `dev-security/claude-rules/vetting-log.md`\
+**Repository Path:** [`dev-security/claude-rules/vetting-log.md`](vetting-log.md)\
 **License:** CC BY-SA 4.0
 
 ---
@@ -45,7 +45,7 @@ When a re-vet supersedes a prior entry, do not delete the prior entry. Append a 
 
 **Files reviewed:**
 
-- `README.md`
+- [`README.md`](README.md)
 - `CLAUDE.md` (root)
 - `security-rules/core-principles.md`
 - `security-rules/dangerous-flows.md`
@@ -88,7 +88,7 @@ When a re-vet supersedes a prior entry, do not delete the prior entry. Append a 
 
 **Files reviewed (representative sample across categories):**
 
-- `README.md`
+- [`README.md`](README.md)
 - `rules/_core/owasp-2025.md`
 - `rules/_core/ai-security.md`
 - `rules/_core/mcp-security.md`
@@ -147,7 +147,7 @@ The TikiTribe repository organizes 100+ rule sets across 12 language directories
 
 **Files reviewed (representative sample across categories):**
 
-- `README.md`
+- [`README.md`](README.md)
 - `prompt.md` (Wiz's upstream generator prompt, used to produce the per-stack rule files; not itself a file the overlay would place in a consumer's project)
 - `python/flask/CLAUDE.md`
 - `python/django/CLAUDE.md`

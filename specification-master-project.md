@@ -200,11 +200,11 @@ The library evolves continuously through small phased PRs rather than discrete v
 
 #### Where the version is recorded
 
-The current library version is displayed in `README.md`'s metadata block as the field `Library Version`. The CHANGELOG records the library version at the time of each phase's completion in the phase heading.
+The current library version is displayed in [`README.md`](README.md)'s metadata block as the field `Library Version`. The CHANGELOG records the library version at the time of each phase's completion in the phase heading.
 
 #### Maintenance
 
-Each PR that merges to `main` updates `README.md`'s `Library Version` field as part of the PR:
+Each PR that merges to `main` updates [`README.md`](README.md)'s `Library Version` field as part of the PR:
 
 - If the merge falls in the same calendar month as the current version, increment the patch.
 - If the calendar month has changed, set the new version to `YYYY.MM.0`.

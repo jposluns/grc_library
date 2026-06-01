@@ -13,7 +13,7 @@ You are running in the consumer's own Claude Code session, inside their project.
 You will:
 
 1. Detect this project's stack and existing AI-assistant configuration from on-disk evidence.
-2. Read the pack's "Rule files and their scope" table in `dev-security/claude-rules/README.md` and map applicable modules.
+2. Read the pack's "Rule files and their scope" table in [`dev-security/claude-rules/README.md`](README.md) and map applicable modules.
 3. Propose a file-by-file plan (project CLAUDE.md plus rule-file selection and placement) for the consumer to approve.
 4. Generate the approved files only after explicit consumer approval.
 5. Validate that nothing in the project broke and hand off with audit notes.
@@ -90,7 +90,7 @@ Before mapping any modules, decide which pack source to read from.
 
 1. **Probe for a local pack** at `dev-security/` in the project root, the parent directory, and other nearby common locations (`../grc_library/dev-security/`, `~/projects/grc_library/dev-security/`). Report what you find or do not find.
 
-2. **If a local pack is found**: fetch only `dev-security/claude-rules/README.md` from the canonical source (announce the canonical URL first; ask the consumer to confirm or substitute as described in "Source of truth and trust posture"). Extract the per-document `Version:` field from both the local and canonical `claude-rules/README.md`. Compare:
+2. **If a local pack is found**: fetch only [`dev-security/claude-rules/README.md`](README.md) from the canonical source (announce the canonical URL first; ask the consumer to confirm or substitute as described in "Source of truth and trust posture"). Extract the per-document `Version:` field from both the local and canonical [`claude-rules/README.md`](README.md). Compare:
    - **Canonical version equals local version**: announce match; use **local mode**; proceed.
    - **Canonical version is newer than local**: announce the version gap and ask the consumer to choose one of three options:
      1. Continue using the existing local pack (consumer accepts the staleness).
@@ -104,7 +104,7 @@ Before mapping any modules, decide which pack source to read from.
 For every subsequent step in this prompt that reads pack content:
 
 - In local mode, read from disk paths under the detected `dev-security/claude-rules/` directory.
-- In fetch mode, WebFetch the corresponding file from the confirmed canonical URL prefix (for example, the prefix plus `core/secrets.md`).
+- In fetch mode, WebFetch the corresponding file from the confirmed canonical URL prefix (for example, the prefix plus [`core/secrets.md`](core/secrets.md)).
 - If any fetch fails mid-generation, halt and ask the consumer to choose: (1) retry the failed fetch, (2) abort and re-run later, or (3) drop the failed module and continue with the partial set (not recommended; warn the consumer they will lose that module's coverage).
 
 ### Stack detection
@@ -141,17 +141,17 @@ Identify this project's own test, lint, and CI commands so the generated CLAUDE.
 
 ### Pack mapping
 
-Read the `claude-rules/README.md` "Rule files and their scope" table from whichever source the Pack location step selected (local disk in local mode, the canonical URL plus `README.md` in fetch mode; if you fetched it during the freshness check, reuse the result rather than fetching again). For each module, decide whether it applies to this project's detected profile. Examples:
+Read the [`claude-rules/README.md`](README.md) "Rule files and their scope" table from whichever source the Pack location step selected (local disk in local mode, the canonical URL plus [`README.md`](README.md) in fetch mode; if you fetched it during the freshness check, reuse the result rather than fetching again). For each module, decide whether it applies to this project's detected profile. Examples:
 
-- `core/secrets.md`: applies to all projects.
-- `core/authentication.md`: applies if the project has user login, service accounts, or APIs.
-- `core/input-validation.md`: applies if the project processes external input.
-- `core/cryptography.md`: applies if the project stores data, uses passwords, or transmits data.
-- `core/owasp.md`: applies to web applications and APIs.
-- `ai/ai-security.md`: applies if the project uses LLMs, AI APIs, or AI-generated content.
-- `ai/agent-security.md` / `rag-security.md` / `mcp-security.md`: applies if the corresponding pattern is detected.
+- [`core/secrets.md`](core/secrets.md): applies to all projects.
+- [`core/authentication.md`](core/authentication.md): applies if the project has user login, service accounts, or APIs.
+- [`core/input-validation.md`](core/input-validation.md): applies if the project processes external input.
+- [`core/cryptography.md`](core/cryptography.md): applies if the project stores data, uses passwords, or transmits data.
+- [`core/owasp.md`](core/owasp.md): applies to web applications and APIs.
+- [`ai/ai-security.md`](ai/ai-security.md): applies if the project uses LLMs, AI APIs, or AI-generated content.
+- [`ai/agent-security.md`](ai/agent-security.md) / [`rag-security.md`](ai/rag-security.md) / [`mcp-security.md`](ai/mcp-security.md): applies if the corresponding pattern is detected.
 - `languages/<lang>.md`: applies to the detected primary language(s).
-- `pipeline/cicd-gates.md`: applies if CI/CD configuration is detected.
+- [`pipeline/cicd-gates.md`](pipeline/cicd-gates.md): applies if CI/CD configuration is detected.
 
 Treat the README table as the source of truth for the module list; do not invent module names from memory.
 

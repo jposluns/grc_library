@@ -321,7 +321,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Image classifier: NSFW (Falconsai ViT).
   - REST API with batch and image endpoints.
   - Environment-flag-enforced offline mode.
-- **GRC concern surfaced**: Demonstrates that self-hosted moderation is a viable alternative for jurisdictions where vendor-AI telemetry is unacceptable. Relevant for the data-residency requirement in `guideline-ai-coding-assistant-security.md`.
+- **GRC concern surfaced**: Demonstrates that self-hosted moderation is a viable alternative for jurisdictions where vendor-AI telemetry is unacceptable. Relevant for the data-residency requirement in [`guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md).
 - **Status notes**: Active.
 - **Provenance**:
   - Source URL: `https://github.com/KOKOSde/localmod`
@@ -357,7 +357,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 
 - **Scope**: CLI/library for evaluating and red-teaming LLM apps with a large plugin catalog of vulnerabilities and attack strategies.
 - **License**: MIT.
-- **Library reference status**: Cited in Phase 23.6 register; cited in `standard-ai-and-agentic-development-security.md` §21 (security testing requirements).
+- **Library reference status**: Cited in Phase 23.6 register; cited in [`standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) §21 (security testing requirements).
 - **Key capabilities**:
   - 71 plugin vulnerability categories: aegis, age-bias, ascii-smuggling, beavertails, bfla, bias, bola, coding-agent, competitors, context-compliance-attack, contracts, coppa, cross-session-leak, custom, cyberseceval, data-exfil, debug-access, disability-bias, divergent-repetition, donotanswer, ecommerce, excessive-agency, ferpa, financial, gender-bias, goal-misalignment, hallucination, harmbench, harmful, hijacking, imitation, indirect-prompt-injection, insurance, intent, malicious-code, mcp, medical, memory-poisoning, model-identification, off-topic, overreliance, pharmacy, pii, pliny, policy, politics, prompt-extraction, race-bias, rag-document-exfiltration, rag-poisoning, rag-source-attribution, rbac, realestate, reasoning-dos, religion, shell-injection, special-token-injection, sql-injection, ssrf, system-prompt-override, teen-safety, telecom, tool-discovery, toxic-chat, unsafebench, unverifiable-claims, vlguard, vlsu, wordplay, xstest.
   - 30 attack strategies: audio, authoritative-markup-injection, base64, basic, best-of-n, citation, composite-jailbreaks, custom, custom-strategy, gcg, goat, hex, homoglyph, hydra, image, indirect-web-pwn, iterative, jailbreak-templates, layer, leetspeak, likert, math-prompt, meta, mischievous-user, multi-turn, other-encodings, prompt-injection, retry, rot13, tree, video.
@@ -377,7 +377,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 
 - **Scope**: Generative AI red-team scanner running named probe families paired with detectors.
 - **License**: Apache 2.0.
-- **Library reference status**: Cited in Phase 23.6 register; cited in `standard-ai-and-agentic-development-security.md` §21.
+- **Library reference status**: Cited in Phase 23.6 register; cited in [`standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) §21.
 - **Key capabilities**:
   - 40+ probe families: agent_breaker, ansiescape, apikey, atkgen, audio, av_spam_scanning, badchars, continuation, dan, divergence, doctor, donotanswer, dra, encoding, exploitation, fileformats, fitd, glitch, goat, goodside, grandma, latentinjection, leakreplay, lmrc, malwaregen, misleading, packagehallucination, phrasing, promptinject, propile, realtoxicityprompts, sata, smuggling, snowball, suffix, sysprompt_extraction, tap, test, topic, visual_jailbreak, web_injection.
   - atkgen: fine-tuned GPT-2 attacker auto-generates adversarial turns.
@@ -399,14 +399,14 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 
 - **Scope**: Python framework for security professionals to compose attack converters, orchestrators, scenarios, and scorers against generative AI systems.
 - **License**: MIT.
-- **Library reference status**: Cited in Phase 23.6 register; cited in `standard-ai-and-agentic-development-security.md` §22 / §23.
+- **Library reference status**: Cited in Phase 23.6 register; cited in [`standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) §22 / §23.
 - **Key capabilities**:
   - Single-turn attacks: context_compliance, flip_attack, many_shot_jailbreak, prompt_sending, role_play, skeleton_key.
   - Multi-turn attacks: chunked_request, crescendo, multi_prompt_sending, pair, red_teaming, simulated_conversation, tree_of_attacks.
   - 75+ converters: base64, base2048, binary, bin_ascii, hex, url, json_string, atbash, caesar, rot13, leetspeak, morse, braille, nato, unicode_confusable, unicode_replacement, unicode_sub, zero_width, zalgo, random_capital_letters, character_space, insert_punctuation, diacritic, flip, superscript, selective_text, string_join, suffix_append, search_replace, translation, random_translation, scientific_translation, colloquial_wordswap, tense, tone, variation, llm_generic_text, malicious_question_generator, toxic_sentence_generator, text_jailbreak, negation_trap, charswap_attack, transparency_attack, codechameleon, ask_to_decode, denylist, persuasion, add_image_text, add_text_image, image_compression, image_resizing, image_rotation, image_color_saturation, image_overlay, image_prompt_style, audio_echo, audio_frequency, audio_speed, audio_volume, audio_white_noise, azure_speech_audio_to_text, azure_speech_text_to_audio, pdf, word_doc, add_image_to_video, qr_code, ascii_art, emoji, ecoji, noise, math_obfuscation, math_prompt, repeat_token, template_segment, word_level, plus ansi_escape and token_smuggling sub-suites.
   - Scorers: true/false (19) and float-scale (8) including audio, credential_leak, markdown_injection, prompt_shield, regex, gandalf, plagiarism, insecure_code.
   - AIRT scenarios: content_harms, cyber, jailbreak, leakage, psychosocial, rapid_response, scam.
-- **GRC concern surfaced**: PyRIT's 75+ converter library drove the encoding-bypass attack-taxonomy expansion identified for `guide-ai-adversarial-test-reference.md`. Multimodal converters (image/audio/video/QR/PDF/Word) drove Phase 23.4 RUNTIME-SEC-07 multimodal filtering requirements.
+- **GRC concern surfaced**: PyRIT's 75+ converter library drove the encoding-bypass attack-taxonomy expansion identified for [`guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md). Multimodal converters (image/audio/video/QR/PDF/Word) drove Phase 23.4 RUNTIME-SEC-07 multimodal filtering requirements.
 - **Status notes**: Active. Notebook-driven docs; broadest converter library in the survey.
 - **Provenance**:
   - Source URL: `https://github.com/microsoft/pyrit`
@@ -893,7 +893,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 
 - **Scope**: Claude Code secure-coding-rules repository with AI/agent/MCP/RAG security baselines.
 - **License**: MIT.
-- **Library reference status**: Cited extensively in `dev-security/guideline-ai-coding-assistant-security.md` and `standard-ai-and-agentic-development-security.md`; cited in Phase 23.6 register.
+- **Library reference status**: Cited extensively in [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md) and [`standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md); cited in Phase 23.6 register.
 - **Key capabilities**:
   - 6 _core files: owasp-2025.md, ai-security.md, agent-security.md, mcp-security.md, rag-security.md, graph-database-security.md.
   - 12 languages: cpp, csharp, go, java, javascript, julia, python, r, ruby, rust, sql, typescript.
@@ -916,7 +916,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 
 - **Scope**: Baseline security rules compatible with Claude Code, Cursor, and Copilot; organized by language and framework.
 - **License**: MIT.
-- **Library reference status**: Cited in `dev-security/guideline-ai-coding-assistant-security.md`; cited in Phase 23.6 register.
+- **Library reference status**: Cited in [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md); cited in Phase 23.6 register.
 - **Key capabilities**: Language and framework baselines (less extensive than TikiTribe).
 - **GRC concern surfaced**: Demonstrates the rule-file portability pattern across multiple AI coding assistants.
 - **Status notes**: Active.
@@ -932,7 +932,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 
 - **Scope**: Modular Claude Code rules using @-syntax import system.
 - **License**: MIT.
-- **Library reference status**: Cited in `dev-security/guideline-ai-coding-assistant-security.md`; cited in Phase 23.6 register.
+- **Library reference status**: Cited in [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md); cited in Phase 23.6 register.
 - **Key capabilities**: Modular rules for Claude Code with @-syntax composition.
 - **GRC concern surfaced**: None requiring library change.
 - **Status notes**: Active.

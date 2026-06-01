@@ -7,7 +7,7 @@
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
 
-The library uses Calendar Versioning (CalVer) of the form `YYYY.MM.patch` for the library as a whole; see `specification-master-project.md` section 4.5. Per-document semantic versioning continues for individual artefacts. 
+The library uses Calendar Versioning (CalVer) of the form `YYYY.MM.patch` for the library as a whole; see [`specification-master-project.md`](specification-master-project.md) section 4.5. Per-document semantic versioning continues for individual artefacts. 
 
 ---
 
@@ -225,7 +225,7 @@ Every document begins with a metadata block in the following format and field or
 **License:** CC BY-SA 4.0
 ```
 
-Related Documents and Repository Path use markdown links. The display text is always the root-relative path (e.g., `security/policy-information-security.md`). The link target is the path relative to the current file's directory: same-directory files use the bare filename; cross-directory files use `../other-domain/file.md` traversal.
+Related Documents and Repository Path use markdown links. The display text is always the root-relative path (e.g., [`security/policy-information-security.md`](security/policy-information-security.md)). The link target is the path relative to the current file's directory: same-directory files use the bare filename; cross-directory files use `../other-domain/file.md` traversal.
 
 Owners and approving authorities must be role-based, not person-specific. Documents must not include real company names, personal names, internal system names, customer names, vendor names, proprietary service names, IP addresses, domains, tenant identifiers, phone numbers, physical addresses, contract details, incident details, or other identifying information.
 

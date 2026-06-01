@@ -101,7 +101,7 @@ This standard does not apply to external services where the organisation is the 
 - Open corrective actions from prior breaches.
 - Trend comparison against the prior three months.
 
-4.3 KPI results related to service levels must be recorded in the IT Operations KPI register (`operations/register-it-operations-kpis.md`) and reported to the CIO monthly.
+4.3 KPI results related to service levels must be recorded in the IT Operations KPI register ([`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md)) and reported to the CIO monthly.
 
 4.4 SLA measurement methodology must be consistent month-to-month. Changes to measurement method require Service Owner approval and must be documented in the service record.
 
@@ -150,7 +150,7 @@ This standard does not apply to external services where the organisation is the 
 
 ### 7: Supplier SLA governance
 
-7.1 Where an external supplier is responsible for delivering or supporting a service, the organisation must hold the supplier accountable to the contracted SLA through the supplier governance process defined in `supply-chain/standard-supplier-security-and-privacy-assurance.md`.
+7.1 Where an external supplier is responsible for delivering or supporting a service, the organisation must hold the supplier accountable to the contracted SLA through the supplier governance process defined in [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md).
 
 7.2 Supplier SLA performance must be reviewed at least quarterly. Material or repeated supplier SLA breaches must be escalated to the Supplier Owner and documented in the supplier risk register.
 

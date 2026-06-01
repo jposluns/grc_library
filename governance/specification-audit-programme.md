@@ -138,7 +138,7 @@ When an audit gate fails, the maintainer (or AI verifier) must:
 3. **Choose between three responses:**
     1. **Fix the content.** This is the default response. The content is in violation of a documented rule; the content is corrected.
     2. **Extend the linter's exemption list.** Only when the content is correct and the rule does not apply (e.g., the [`tools/lint-citations.py`](../tools/lint-citations.py) `COBIT 2025` exemption granted to documents that *deliberately* discuss the hallucinated framework version as a warning). The exemption must name the file by relative posix path and is recorded inline next to the existing exemption set.
-    3. **Modify the rule.** Only when the rule itself is wrong (e.g., the Phase 23.20 loosening of `lint-required-sections.py` to accept Purpose OR Scope OR Applicability OR Introduction OR Overview). Rule modifications require an entry in the CHANGELOG and a corresponding update to the linter's module docstring.
+    3. **Modify the rule.** Only when the rule itself is wrong (e.g., the Phase 23.20 loosening of [`lint-required-sections.py`](../tools/lint-required-sections.py) to accept Purpose OR Scope OR Applicability OR Introduction OR Overview). Rule modifications require an entry in the CHANGELOG and a corresponding update to the linter's module docstring.
 
 Bypassing a hook (`--no-verify`, `--no-gpg-sign`, etc.) is not a permitted response. If a hook fails, the underlying defect is fixed before commit, not bypassed.
 
