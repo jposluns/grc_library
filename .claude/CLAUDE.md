@@ -76,17 +76,16 @@ pack, CC BY-SA 4.0):
 - `.claude/rules/python.md` — Python patterns for `tools/` audit scripts.
 - `.claude/rules/input-validation.md` — input handling for the Markdown-parsing tooling.
 - `.claude/rules/cicd-gates.md` — CI/CD pipeline security for `quality.yml`.
+- `.claude/rules/governance/gate-discipline.md` — never weaken a gate to silence a
+  failure; fix the artefact. Reinforces this project's `## Boundaries` rule and applies
+  to all 32 corpus gates plus the D1 CHANGELOG-on-PR delta gate.
 
-As of pack version 1.6.0 (2026-06-01) the `dev-security/claude-rules/` pack's contract
-broadens from security alone to security + development-governance discipline (gate
-discipline, change-tracking, generated-artefact discipline, branch discipline,
-agent-collaboration rules). The governance rules are being delivered in subsequent
-phased releases under `dev-security/claude-rules/governance/`. This project's own
-governance discipline is already encoded in the `## Boundaries` and `## Behavioral rule`
-sections above and in the 32-gate audit programme, so the pack expansion announces the
-broader contract for downstream adopters without changing this project's loaded rules
-yet; additional rule references will appear here as the governance content lands in
-later phases.
+As of pack version 1.7.0 (2026-06-01) the `dev-security/claude-rules/` pack covers
+security + development-governance discipline. Pack version 1.6.0 announced the
+broadened contract; pack version 1.7.0 delivered the first governance rule
+(`governance/gate-discipline.md`). Subsequent governance rules (change-tracking,
+evidence-grounded completion, clarify-before-acting, artefact-and-branch discipline)
+arrive in later phased releases and will be listed here as they land.
 
 The GRC Library pack above is the **primary** source. `.claude/rules/external/` holds a
 **supplementary** overlay from third-party sources (TikiTribe, Kariedo — both MIT, see
