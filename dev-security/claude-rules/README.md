@@ -2,8 +2,8 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide
 **Document Type:** Guideline
-**Version:** 1.5.0
-**Date:** 2026-05-31
+**Version:** 1.6.0
+**Date:** 2026-06-01
 **Owner:** Chief Information Security Officer
 **Approving Authority:** Governance Library Maintainer
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](../standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../standard-devops-security-requirements.md), [`dev-security/guideline-ai-coding-assistant-security.md`](../guideline-ai-coding-assistant-security.md), [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md)
@@ -18,9 +18,20 @@
 
 ## What are these files?
 
-The `claude-rules/` directory contains a set of Markdown files designed to be loaded into [Claude Code](https://code.claude.com/docs/en/claude-code) sessions as security context. When Claude Code reads these files, either via a `CLAUDE.md` in your project root, via `.claude/rules/*.md` files with optional path-scoped frontmatter, or via explicit `/add-files`, they encode security and compliance requirements as persistent context that the AI coding assistant applies during development.
+The `claude-rules/` directory contains a set of Markdown files designed to be loaded into [Claude Code](https://code.claude.com/docs/en/claude-code) sessions as security and development-governance context. When Claude Code reads these files, either via a `CLAUDE.md` in your project root, via `.claude/rules/*.md` files with optional path-scoped frontmatter, or via explicit `/add-files`, they encode security, compliance, and development-governance requirements as persistent context that the AI coding assistant applies during development.
 
-These are **draggable rule files**: copy any subset into your project's Claude Code context and Claude will apply those security requirements to code it writes, reviews, and suggests.
+These are **draggable rule files**: copy any subset into your project's Claude Code context and Claude will apply those security and governance requirements to code it writes, reviews, and suggests.
+
+---
+
+## Pack scope
+
+Historically this pack covered security and compliance only. As of pack version 1.6.0 (Library 2026.05.139, 2026-06-01), the pack's contract is broadening to cover both:
+
+1. **Security and compliance** (original and largest scope). Hardcoded-secrets prevention, input validation, cryptography, authentication, OWASP/ASVS alignment, AI/agent/MCP/RAG security, CI/CD pipeline gates, language-specific security patterns. This content lives under `core/`, `ai/`, `pipeline/`, and `languages/`.
+2. **Development-governance discipline** (expanding scope). Rules that govern how an AI coding assistant collaborates on a governed codebase: gate discipline (never weaken a check to silence a failure; fix the artefact), change-tracking discipline (CHANGELOG-on-PR with explicit opt-out trailers), generated-artefact discipline (never hand-edit; regenerate via `--check`-mode generators), branch discipline (no direct push to protected branches; version-monotonicity contract), and agent-collaboration discipline (clarify before acting on ambiguous requests; evidence-grounded completion claims). This content will live under a new `governance/` subdirectory and is being delivered in a phased rollout starting in pack version 1.6.0; the governance subdirectory is announced here ahead of its population so the directory layout and the broader contract are visible at version 1.6.0.
+
+The pack remains under `dev-security/` in the parent library because the discoverability assumption is that developers (and their AI agents) shop for *"security rules"*, not for *"GRC rules"* or *"development discipline"*. The directory name is the shelf label; this README is the table of contents and articulates the broader scope. If a future scope expansion outgrows this framing, the directory name will be revisited at that time, not pre-emptively.
 
 ---
 
@@ -32,12 +43,13 @@ claude-rules/
 ├── CLAUDE.md                   Root file: drag this into a project for full coverage
 ├── setup-generator-prompt.md   AI-assisted setup generator prompt for downstream consumers
 ├── vetting-log.md              Maintainer vetting log for the external rule sources referenced below
-├── core/
+├── core/                       Security and compliance rules (secrets, auth, input validation, crypto, OWASP)
 │   ├── secrets.md              Never hardcode credentials, keys, or tokens
 │   ├── authentication.md       Secure authentication and session requirements
 │   ├── input-validation.md     Input validation and output encoding
 │   ├── cryptography.md         Approved algorithms and key handling
 │   └── owasp.md                OWASP Top 10:2025 and ASVS v5 alignment rules
+├── governance/                 Development-governance discipline (announced 1.6.0; populated in subsequent phased releases)
 ├── ai/
 │   ├── ai-security.md          LLM and AI application security requirements
 │   ├── agent-security.md       Agentic workflow security and trust boundaries
