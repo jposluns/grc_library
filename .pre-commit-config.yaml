@@ -212,6 +212,13 @@ repos:
         pass_filenames: false
         types: [markdown]
 
+      - id: lint-version-date-consistency
+        name: Version-date consistency audit
+        entry: python3 tools/lint-version-date-consistency.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
       - id: taxonomy-in-sync
         name: Machine-readable taxonomy in sync
         entry: python3 tools/build-taxonomy.py --check

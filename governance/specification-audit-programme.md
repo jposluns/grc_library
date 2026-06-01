@@ -67,7 +67,7 @@ The gates fall into seven functional categories:
 2. **Reference integrity** (gates 3, 11, 17, 18, 24, 26): intra-repo links resolve; CHANGELOG file-reference link coverage; section anchors resolve; intra-document section references resolve; external-link domains on allow-list; orphan documents have at least one inbound reference.
 3. **Content drift defence** (gates 5, 6, 25): external framework hallucinations; standards currency; cross-document numerical coherence.
 4. **Language and style** (gates 2, 9, 20): em-dashes, "ize/ization" Americanisms, "ensure that", sanitisation neologisms; mandatory requirements near uncertainty markers; acronym expansion consistency against the glossary.
-5. **Programme and index integrity** (gates 4, 31, 32): repository-wide index integrity (gate 4); audit-programme self-consistency across all four name-parity surfaces, which are the §6 inventory table plus the three runtime surfaces enumerated in §4 (gate 31); and linter regression tests that confirm each in-scope linter still detects its target rule class (gate 32).
+5. **Programme and index integrity** (gates 4, 32, 33): repository-wide index integrity (gate 4); audit-programme self-consistency across all four name-parity surfaces, which are the §6 inventory table plus the three runtime surfaces enumerated in §4 (gate 32); and linter regression tests that confirm each in-scope linter still detects its target rule class (gate 33).
 6. **Security and privacy** (gates 12, 21, 22, 23): placeholder leakage, secret patterns, PII patterns, internal-environment leakage (cloud regions, hostnames, deployment identifiers).
 7. **Freshness and lifecycle** (gates 10, 27, 28, 29, 30): document review cadence, citation-verification freshness, tooling-provenance freshness, auto-generated taxonomy and portal/scorecard sync.
 
@@ -107,16 +107,17 @@ The numbering matches the order in [`tools/run_all_audits.sh`](../tools/run_all_
 | 26 | Orphan document audit | [`tools/lint-orphan-documents.py`](../tools/lint-orphan-documents.py) |
 | 27 | Citation verification freshness audit | [`tools/lint-citation-verification-freshness.py`](../tools/lint-citation-verification-freshness.py) |
 | 28 | Tooling provenance freshness audit | [`tools/lint-tooling-provenance-freshness.py`](../tools/lint-tooling-provenance-freshness.py) |
-| 29 | Machine-readable taxonomy in sync | [`tools/build-taxonomy.py`](../tools/build-taxonomy.py) |
-| 30 | Adopter portal and maturity scorecard in sync | [`tools/build-portal.py`](../tools/build-portal.py) |
-| 31 | Gate-name parity audit | [`tools/lint-audit-gate-parity.py`](../tools/lint-audit-gate-parity.py) |
-| 32 | Linter regression test suite | [`tools/run-linter-regression.py`](../tools/run-linter-regression.py) |
+| 29 | Version-date consistency audit | [`tools/lint-version-date-consistency.py`](../tools/lint-version-date-consistency.py) |
+| 30 | Machine-readable taxonomy in sync | [`tools/build-taxonomy.py`](../tools/build-taxonomy.py) |
+| 31 | Adopter portal and maturity scorecard in sync | [`tools/build-portal.py`](../tools/build-portal.py) |
+| 32 | Gate-name parity audit | [`tools/lint-audit-gate-parity.py`](../tools/lint-audit-gate-parity.py) |
+| 33 | Linter regression test suite | [`tools/run-linter-regression.py`](../tools/run-linter-regression.py) |
 
-Gates 1 through 28 are pure read-only linters that exit non-zero on the first violation. Gates 29 and 30 are generator-output drift checks: they re-run the generator in `--check` mode and exit non-zero if the regenerated output differs from the committed artefact. Gate 31 is the audit programme's self-check: it parses this §6 inventory and confirms that the workflow, the local audit runner, and the pre-commit config declare the same gates with the same names and scripts in the same order. Gate 32 is the linter regression test suite: for each in-scope linter it constructs a synthetic markdown fixture that should trigger exactly one rule, invokes the linter against the fixture, and asserts the linter exits non-zero. The test suite catches a defect class no other gate can catch (a regression in a linter's own detection logic).
+Gates 1 through 29 are pure read-only linters that exit non-zero on the first violation. Gates 30 and 31 are generator-output drift checks: they re-run the generator in `--check` mode and exit non-zero if the regenerated output differs from the committed artefact. Gate 32 is the audit programme's self-check: it parses this §6 inventory and confirms that the workflow, the local audit runner, and the pre-commit config declare the same gates with the same names and scripts in the same order. Gate 33 is the linter regression test suite: for each in-scope linter it constructs a synthetic markdown fixture that should trigger exactly one rule, invokes the linter against the fixture, and asserts the linter exits non-zero. The test suite catches a defect class no other gate can catch (a regression in a linter's own detection logic).
 
 ### 6.1 PR-only delta gates
 
-A delta gate inspects the change set of a pull request, not the repository state at HEAD. Delta gates are not part of the 32-gate corpus inventory above, because their inputs (git history range, PR base ref) are not available in [`tools/run_all_audits.sh`](../tools/run_all_audits.sh) or [`.pre-commit-config.yaml`](../.pre-commit-config.yaml) and they are therefore exempt from gate 31's parity audit. Delta gates run only in [`.github/workflows/quality.yml`](../.github/workflows/quality.yml) on `pull_request` events.
+A delta gate inspects the change set of a pull request, not the repository state at HEAD. Delta gates are not part of the 33-gate corpus inventory above, because their inputs (git history range, PR base ref) are not available in [`tools/run_all_audits.sh`](../tools/run_all_audits.sh) or [`.pre-commit-config.yaml`](../.pre-commit-config.yaml) and they are therefore exempt from gate 32's parity audit. Delta gates run only in [`.github/workflows/quality.yml`](../.github/workflows/quality.yml) on `pull_request` events.
 
 | # | Gate | Script | Surface |
 | --- | --- | --- | --- |
