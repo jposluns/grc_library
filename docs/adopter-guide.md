@@ -25,17 +25,17 @@ Use this to decide which domains and sector annexes your organisation needs.
 | Does the organisation handle any personal data of identifiable individuals? | `privacy/` domain + applicable jurisdiction annexes in `privacy/jurisdictions/` | All of privacy/ |
 | Does the organisation operate AI systems, services, or agents in production? | `ai/` domain | All of ai/ (but keep the framework as reference) |
 | Does the organisation operate cloud workloads? | `dev-security/standard-cloud-hardening-baseline-{aws,azure,gcp}.md` for the platforms in use | The non-relevant cloud baselines |
-| Does the organisation deliver customer-facing services? | `operations/standard-site-reliability-engineering.md`, `operations/standard-observability-and-telemetry.md`, `resilience/` domain | The SLA-related operations content |
+| Does the organisation deliver customer-facing services? | [`operations/standard-site-reliability-engineering.md`](../operations/standard-site-reliability-engineering.md), [`operations/standard-observability-and-telemetry.md`](../operations/standard-observability-and-telemetry.md), `resilience/` domain | The SLA-related operations content |
 | Does the organisation participate in BASC trade-security certification? | `compliance/logistics/` | All of compliance/logistics/ |
 | Does the organisation participate in CTPAT, AEO, AEO-S, or PIP trade programmes? | The relevant programme annexes in `compliance/` | The non-relevant trade-compliance annexes |
 | Does the organisation operate in a sector with sector-specific regulation (financial services, healthcare, transportation/logistics, telecoms, energy/utilities, public sector)? | The corresponding `compliance/annex-*` | Non-relevant sector annexes |
-| Does the organisation operate under SOX or equivalent financial reporting controls? | `compliance/financial-services/annex-sox-itgc.md` | This annex |
+| Does the organisation operate under SOX or equivalent financial reporting controls? | [`compliance/financial-services/annex-sox-itgc.md`](../compliance/financial-services/annex-sox-itgc.md) | This annex |
 | Does the organisation operate under DORA, NIS 2, or equivalent EU resilience regulation? | The corresponding implementation annex in `compliance/` | These annexes |
 | Does the organisation have a software development practice? | `dev-security/` domain | Most of dev-security/ (keep the policy as reference) |
 | Does the organisation have a formal architecture practice? | `architecture/` domain | Most of architecture/ (keep ADR standard as a useful reference regardless) |
-| Does the organisation have suppliers with material operational or data access? | `supply-chain/` domain + `risk/standard-third-party-and-supply-chain-risk.md` | Most of supply-chain/ |
+| Does the organisation have suppliers with material operational or data access? | `supply-chain/` domain + [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md) | Most of supply-chain/ |
 
-The cross-cutting documents (`governance/`, top-level `README.md`, `risk/` core artefacts, `security/` core policies) apply to virtually every organisation and are the starting baseline.
+The cross-cutting documents (`governance/`, top-level [`README.md`](../README.md), `risk/` core artefacts, `security/` core policies) apply to virtually every organisation and are the starting baseline.
 
 ## Maturity progression
 
@@ -47,21 +47,21 @@ If your organisation is small (under approximately 200 staff, low regulatory exp
 
 | Type | Document |
 | --- | --- |
-| Charter | `governance/charter-governance-library.md` |
-| Framework | `governance/framework-document-architecture-and-interrelationship.md` |
-| Register | `governance/register-role-authority.md` |
-| Register | `governance/register-key-terms-and-definitions.md` |
-| Policy | `risk/policy-enterprise-governance-and-risk-management.md` |
-| Standard | `risk/standard-enterprise-risk-management.md` |
-| Procedure | `risk/procedure-risk-assessment-methodology.md` |
-| Procedure | `risk/procedure-risk-acceptance.md` |
-| Policy | `security/policy-information-security.md` |
-| Standard | `security/standard-logging-and-monitoring.md` |
-| Procedure | `security/procedure-security-incident-response.md` |
-| Policy | `privacy/policy-privacy-and-data-governance.md` |
-| Procedure | `privacy/procedure-data-subject-rights-management.md` |
-| Procedure | `privacy/procedure-data-protection-and-privacy-breach-response.md` |
-| Standard | `dev-security/standard-developer-security-requirements.md` (if you do software development) |
+| Charter | [`governance/charter-governance-library.md`](../governance/charter-governance-library.md) |
+| Framework | [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md) |
+| Register | [`governance/register-role-authority.md`](../governance/register-role-authority.md) |
+| Register | [`governance/register-key-terms-and-definitions.md`](../governance/register-key-terms-and-definitions.md) |
+| Policy | [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) |
+| Standard | [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) |
+| Procedure | [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md) |
+| Procedure | [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md) |
+| Policy | [`security/policy-information-security.md`](../security/policy-information-security.md) |
+| Standard | [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) |
+| Procedure | [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) |
+| Policy | [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) |
+| Procedure | [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md) |
+| Procedure | [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) |
+| Standard | [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md) (if you do software development) |
 
 Use [`governance/guideline-minimum-viable-governance-structure.md`](../governance/guideline-minimum-viable-governance-structure.md) Tier 1 forum structure to operate them.
 
@@ -70,7 +70,7 @@ Use [`governance/guideline-minimum-viable-governance-structure.md`](../governanc
 When you have the starter set operating reliably and your organisation has grown to mid-market complexity, add these:
 
 - `ai/` core artefacts: framework, governance council charter, model registry, foundation-model lifecycle procedure, AI security and risk standard.
-- `supply-chain/` core artefacts: third-party risk standard (now consolidated in `risk/standard-third-party-and-supply-chain-risk.md`), supplier due-diligence procedure, supplier ongoing monitoring procedure.
+- `supply-chain/` core artefacts: third-party risk standard (now consolidated in [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md)), supplier due-diligence procedure, supplier ongoing monitoring procedure.
 - `resilience/` core artefacts: business continuity and disaster recovery policy, framework, IT disaster recovery plan, recovery runbook template.
 - `compliance/` core artefacts: compliance and audit management policy, internal audit standard, the sector annexes relevant to your context.
 - `operations/` core artefacts: change management procedure, patch management procedure, observability and telemetry standard.
@@ -94,10 +94,10 @@ These items almost always need adapting before the artefacts become operational 
 | --- | --- | --- |
 | Owner and Approving Authority roles | Every document's metadata block | Map each role to a named function in your organisation, recorded in a private overlay. |
 | Risk appetite and thresholds | `risk/` and `governance/` policies and standards | Replace illustrative thresholds with values your board has approved. |
-| Severity definitions and notification windows | `security/procedure-security-incident-response.md`, `privacy/procedure-data-protection-and-privacy-breach-response.md` | Replace with the thresholds your incident commander uses. Regulatory windows (e.g. GDPR 72 hours) are fixed. |
+| Severity definitions and notification windows | [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Replace with the thresholds your incident commander uses. Regulatory windows (e.g. GDPR 72 hours) are fixed. |
 | Jurisdiction scope | `privacy/jurisdictions/` and `compliance/` sector annexes | Remove jurisdictions and sectors you do not operate in. Keep the relevant ones. Do not delete documents merely because they do not apply yet; mark them deprecated in the index so you do not lose the option. |
 | Framework references | Throughout | Confirm that each cited framework is current. Frameworks change versions; the corpus is reviewed annually for currency. |
-| Tier classification and supplier categories | `risk/standard-third-party-and-supply-chain-risk.md`, `supply-chain/standard-supplier-security-and-privacy-assurance.md` | Adapt the criteria to your supplier landscape. |
+| Tier classification and supplier categories | [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | Adapt the criteria to your supplier landscape. |
 | Trade-security programmes | `compliance/` and `supply-chain/` trade artefacts | Remove if your organisation is not involved in customs or international trade. |
 
 ## What not to change

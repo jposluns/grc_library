@@ -25,7 +25,7 @@ Individual scripts also run standalone:
 ```
 python3 tools/lint-metadata.py
 python3 tools/lint-language.py ai security    # restrict scope to specific paths
-python3 tools/build-taxonomy.py --check        # restrict scope to specific paths
+python3 tools/build-taxonomy.py --check        # regen-and-check
 ```
 
 Each script prints `OK: ...` on a clean run and exits zero. On findings it prints a grouped report and exits one (or two for environmental failure, e.g., a missing register).

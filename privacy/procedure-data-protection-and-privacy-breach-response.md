@@ -321,7 +321,7 @@ The following metrics are tracked and reported to the CIO and CISO at the quarte
 
 ---
 
-*This document is released under the CC BY-SA 4.0 licence. To the extent possible under law, all copyright and related rights are waived. See `LICENSE` in the repository root.*
+*This document is released under the CC BY-SA 4.0 licence. To the extent possible under law, all copyright and related rights are waived. See [`LICENSE`](../LICENSE) in the repository root.*
 
 ---
 

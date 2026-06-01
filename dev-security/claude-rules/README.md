@@ -113,21 +113,21 @@ If your project already has an `AGENTS.md` for other coding agents (Codex, Curso
 
 | File | When to Use |
 | --- | --- |
-| `core/secrets.md` | All projects. No exceptions. |
-| `core/authentication.md` | Any project with user login, service accounts, or APIs |
-| `core/input-validation.md` | Any project processing external input |
-| `core/cryptography.md` | Any project storing data, using passwords, or transmitting data |
-| `core/owasp.md` | Web applications and APIs (covers OWASP Top 10) |
-| `ai/ai-security.md` | Any project using LLMs, AI APIs, or AI-generated content |
-| `ai/agent-security.md` | Agentic systems, multi-agent workflows, autonomous task execution |
-| `ai/rag-security.md` | Retrieval-augmented generation (RAG) systems |
-| `ai/mcp-security.md` | Projects building or consuming MCP servers |
-| `pipeline/cicd-gates.md` | DevOps/platform engineers configuring CI/CD |
-| `languages/python.md` | Python codebases |
-| `languages/typescript.md` | TypeScript / Node.js codebases |
-| `languages/csharp.md` | C# / .NET codebases |
-| `languages/java.md` | Java / Spring Boot codebases |
-| `languages/go.md` | Go codebases |
+| [`core/secrets.md`](core/secrets.md) | All projects. No exceptions. |
+| [`core/authentication.md`](core/authentication.md) | Any project with user login, service accounts, or APIs |
+| [`core/input-validation.md`](core/input-validation.md) | Any project processing external input |
+| [`core/cryptography.md`](core/cryptography.md) | Any project storing data, using passwords, or transmitting data |
+| [`core/owasp.md`](core/owasp.md) | Web applications and APIs (covers OWASP Top 10) |
+| [`ai/ai-security.md`](ai/ai-security.md) | Any project using LLMs, AI APIs, or AI-generated content |
+| [`ai/agent-security.md`](ai/agent-security.md) | Agentic systems, multi-agent workflows, autonomous task execution |
+| [`ai/rag-security.md`](ai/rag-security.md) | Retrieval-augmented generation (RAG) systems |
+| [`ai/mcp-security.md`](ai/mcp-security.md) | Projects building or consuming MCP servers |
+| [`pipeline/cicd-gates.md`](pipeline/cicd-gates.md) | DevOps/platform engineers configuring CI/CD |
+| [`languages/python.md`](languages/python.md) | Python codebases |
+| [`languages/typescript.md`](languages/typescript.md) | TypeScript / Node.js codebases |
+| [`languages/csharp.md`](languages/csharp.md) | C# / .NET codebases |
+| [`languages/java.md`](languages/java.md) | Java / Spring Boot codebases |
+| [`languages/go.md`](languages/go.md) | Go codebases |
 
 ---
 
@@ -156,7 +156,7 @@ The library maintainer back-ports vetted improvements from external sources on t
 
 The generator works whether or not you have the pack on disk:
 
-- **Local mode** (when the generator detects a `dev-security/` directory near your project): reads pack content from disk. The generator fetches only `claude-rules/README.md` from the canonical source to compare versions and warn you if your local pack is stale.
+- **Local mode** (when the generator detects a `dev-security/` directory near your project): reads pack content from disk. The generator fetches only [`claude-rules/README.md`](README.md) from the canonical source to compare versions and warn you if your local pack is stale.
 - **Fetch mode** (when no local pack is detected, or you elect it after a staleness check): reads the pack live from the GRC Library's first-party canonical source on every needed file. No local download required. **Default canonical URL prefix**: `https://raw.githubusercontent.com/jposluns/grc_library/main/dev-security/claude-rules/`. The generator asks you to confirm or substitute this URL before any fetch, so the trust decision is explicit. If you have forked the GRC Library to your own org, substitute your fork's URL at the confirm prompt.
 
 ### Three ways to invoke
@@ -259,19 +259,19 @@ These rule files draw on and are aligned to the following external projects and 
 
 **OWASP Top 10 for Web Applications (2025 current; 2021 superseded)**
 - URL: `https://owasp.org/www-project-top-10/`
-- Direct application: `core/owasp.md`
+- Direct application: [`core/owasp.md`](core/owasp.md)
 
 **OWASP Top 10 for Large Language Model Applications**
 - URL: `https://owasp.org/www-project-top-10-for-large-language-model-applications/`
-- Direct application: `ai/ai-security.md`, `ai/agent-security.md`, `ai/rag-security.md`
+- Direct application: [`ai/ai-security.md`](ai/ai-security.md), [`ai/agent-security.md`](ai/agent-security.md), [`ai/rag-security.md`](ai/rag-security.md)
 
 **OWASP MCP Top 10 (Model Context Protocol)**
 - URL: `https://owasp.org/www-project-mcp-top-10/`
-- Direct application: `ai/mcp-security.md`, `core/owasp.md`
+- Direct application: [`ai/mcp-security.md`](ai/mcp-security.md), [`core/owasp.md`](core/owasp.md)
 
 **OWASP Application Security Verification Standard (ASVS) v5.0.0**
 - URL: `https://owasp.org/www-project-application-security-verification-standard/`
-- Direct application: `core/owasp.md`, `core/authentication.md`, `core/cryptography.md`
+- Direct application: [`core/owasp.md`](core/owasp.md), [`core/authentication.md`](core/authentication.md), [`core/cryptography.md`](core/cryptography.md)
 
 **OWASP Cheat Sheet Series**
 - URL: `https://cheatsheetseries.owasp.org/`
@@ -302,7 +302,7 @@ These rule files draw on and are aligned to the following external projects and 
 **NIST AI Risk Management Framework (AI RMF 1.0)**
 - URL: `https://www.nist.gov/system/files/documents/2023/01/26/AI%20RMF%201.0.pdf`
 - Coverage: Govern, Map, Measure, Manage functions for AI systems
-- Direct application: `ai/ai-security.md`, `ai/agent-security.md`
+- Direct application: [`ai/ai-security.md`](ai/ai-security.md), [`ai/agent-security.md`](ai/agent-security.md)
 
 ---
 
@@ -311,12 +311,12 @@ These rule files draw on and are aligned to the following external projects and 
 **MITRE ATLAS (Adversarial Threat Landscape for AI Systems)**
 - URL: `https://atlas.mitre.org/`
 - Coverage: 16 tactics and 84+ techniques for AI-specific attacks (data poisoning, adversarial examples, prompt injection, model extraction, ML supply chain)
-- Direct application: `ai/ai-security.md`, `ai/agent-security.md`, `ai/rag-security.md`, `ai/mcp-security.md`
+- Direct application: [`ai/ai-security.md`](ai/ai-security.md), [`ai/agent-security.md`](ai/agent-security.md), [`ai/rag-security.md`](ai/rag-security.md), [`ai/mcp-security.md`](ai/mcp-security.md)
 
 **MITRE CWE Top 25 Most Dangerous Software Weaknesses**
 - URL: `https://cwe.mitre.org/top25/`
 - Coverage: Annual list of the most dangerous software weaknesses based on CVE data
-- Direct application: `core/input-validation.md`, `core/cryptography.md`
+- Direct application: [`core/input-validation.md`](core/input-validation.md), [`core/cryptography.md`](core/cryptography.md)
 
 ---
 
@@ -325,17 +325,17 @@ These rule files draw on and are aligned to the following external projects and 
 **CISA Secure by Design**
 - URL: `https://www.cisa.gov/resources-tools/resources/secure-by-design`
 - Coverage: Three principles: take ownership of customer security outcomes, embrace radical transparency, lead from the top; shift-left approach; secure default configuration
-- Direct application: `pipeline/cicd-gates.md`, `core/owasp.md`
+- Direct application: [`pipeline/cicd-gates.md`](pipeline/cicd-gates.md), [`core/owasp.md`](core/owasp.md)
 
 **SLSA: Supply-chain Levels for Software Artifacts**
 - URL: `https://slsa.dev/`
 - Coverage: Four levels of build provenance and supply-chain integrity; source integrity, build integrity, dependency tracking
-- Direct application: `pipeline/cicd-gates.md`
+- Direct application: [`pipeline/cicd-gates.md`](pipeline/cicd-gates.md)
 
 **Google Secure AI Framework (SAIF)**
 - URL: `https://saif.google/`
 - Coverage: Secure development, deployment, execution, and monitoring for AI systems; mitigates model stealing, data poisoning, prompt injection, and information extraction
-- Direct application: `ai/ai-security.md`, `ai/agent-security.md`
+- Direct application: [`ai/ai-security.md`](ai/ai-security.md), [`ai/agent-security.md`](ai/agent-security.md)
 
 **CIS Benchmarks**
 - URL: `https://www.cisecurity.org/cis-benchmarks`

@@ -35,7 +35,7 @@ GET /api/documents/{id}   # Returns document for any authenticated user, regardl
 
 ## A02: cryptographic failures
 
-See `core/cryptography.md` for full requirements. Key rules:
+See [`core/cryptography.md`](cryptography.md) for full requirements. Key rules:
 - No plaintext storage of sensitive data (passwords, payment data, credentials)
 - No deprecated algorithms (MD5, SHA-1, DES, RC4)
 - No hardcoded keys or IVs
@@ -46,7 +46,7 @@ See `core/cryptography.md` for full requirements. Key rules:
 
 ## A03: injection
 
-See `core/input-validation.md` for full requirements. Key rules:
+See [`core/input-validation.md`](input-validation.md) for full requirements. Key rules:
 - Parameterized queries only: no string concatenation for SQL, LDAP, XPath
 - Reject invalid input: do not sanitize and continue
 - Context-aware output encoding for all output contexts
@@ -101,7 +101,7 @@ See `core/input-validation.md` for full requirements. Key rules:
 
 ## A07: identification and authentication failures
 
-See `core/authentication.md` for full requirements. Key rules:
+See [`core/authentication.md`](authentication.md) for full requirements. Key rules:
 - MFA mandatory: no bypass paths
 - Session tokens: 128-bit entropy minimum; expire on logout; never in URLs
 - Brute-force protection on all authentication endpoints
@@ -181,7 +181,7 @@ In the 2025 edition, supply chain failures are elevated to A03.
 
 ## OWASP MCP top 10 quick reference
 
-Security risks for systems using the Model Context Protocol (MCP). Full detail in `ai/mcp-security.md`.
+Security risks for systems using the Model Context Protocol (MCP). Full detail in [`ai/mcp-security.md`](../ai/mcp-security.md).
 
 | Risk | What Goes Wrong | Key Control |
 | --- | --- | --- |

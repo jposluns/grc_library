@@ -304,7 +304,7 @@ The SOC shall track and report the following metrics at the monthly security ope
 
 ## Licence
 
-This document is released under the **CC BY-SA 4.0** CC BY-SA 4.0 licence. To the extent possible under law, all copyright and related rights are waived. See `LICENSE` in the repository root.
+This document is released under the **CC BY-SA 4.0** CC BY-SA 4.0 licence. To the extent possible under law, all copyright and related rights are waived. See [`LICENSE`](../LICENSE) in the repository root.
 
 ---
 

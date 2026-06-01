@@ -259,7 +259,7 @@ This matrix does not reproduce restricted third-party framework text, does not e
 2. Cite library documents using markdown links in the canonical form, where the display text is the root-relative path and the target is relative to this file's directory.
 3. State alignment type on each row: Legal obligation, Regulatory interpretation, Contractual requirement, Industry practice, Architectural recommendation, or Evidence category.
 4. Bump the version of this matrix when a section is added or substantially revised.
-5. Regenerate `taxonomy.yml` and ensure that the document index register references this matrix.
+5. Regenerate [`taxonomy.yml`](../taxonomy.yml) and ensure that the document index register references this matrix.
 
 ---
 
