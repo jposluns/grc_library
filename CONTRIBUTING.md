@@ -10,7 +10,7 @@ Thank you for considering a contribution. This library is released under Creativ
 A substantial portion of this library was authored with AI assistance and then reviewed and edited by humans. AI assistance is acceptable for contributions provided that:
 
 - The contributor remains accountable for the content as if they wrote it directly.
-- Framework citations (ISO, NIST, OWASP, COBIT, CSA, regulatory references, etc.) are verified against primary sources before submission. The `tools/lint-citations.py` denylist prevents reintroduction of known hallucinations but is not a substitute for verification of new citations.
+- Framework citations (ISO, NIST, OWASP, COBIT, CSA, regulatory references, etc.) are verified against primary sources before submission. The [`tools/lint-citations.py`](tools/lint-citations.py) denylist prevents reintroduction of known hallucinations but is not a substitute for verification of new citations.
 - The contribution remains organisation-neutral and free of sanitisation residue.
 - The contribution passes the local audit suite (see Workflow below).
 
@@ -40,7 +40,7 @@ This statement is informational; contributors are not required to declare whethe
    tools/run_all_audits.sh
    ```
 
-   The script runs the full audit programme (every gate listed in `governance/specification-audit-programme.md` §6) in the same order as CI. `FAIL_FAST=1 tools/run_all_audits.sh` stops on first failure.
+   The script runs the full audit programme (every gate listed in [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) §6) in the same order as CI. `FAIL_FAST=1 tools/run_all_audits.sh` stops on first failure.
 
    Optionally install pre-commit to run the audit programme automatically on every commit:
 
@@ -49,7 +49,7 @@ This statement is informational; contributors are not required to declare whethe
    pre-commit install
    ```
 
-4. **Update the index and domain README.** Every new active document must appear in `governance/register-document-index-and-classification.md` and in its domain's `README.md` Active Documents table.
+4. **Update the index and domain README.** Every new active document must appear in [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) and in its domain's [`README.md`](README.md) Active Documents table.
 5. **Bump versions appropriately.** Patch (`x.y.z` increments the patch segment) for minor corrections; minor (`x.y.0`) for substantive content additions or structural changes; major (`x.0.0`) for breaking structural or material policy revisions. See [`specification-ingestion.md`](specification-ingestion.md) Version numbering.
 6. **Open a pull request.** Reference the issue. Describe what changed and why. Note any version flags raised. List any new external framework references.
 7. **CI must pass.** The same audit programme runs in GitHub Actions.
