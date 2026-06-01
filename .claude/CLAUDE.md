@@ -83,14 +83,20 @@ pack, CC BY-SA 4.0):
   carries a CHANGELOG entry by default, with a documented `Changelog: skip` trailer the
   only sanctioned opt-out. Generalises the D1 CHANGELOG-on-PR delta gate, the
   link-coverage gate, and the version-monotonicity audit into a portable discipline.
+- `.claude/rules/governance/evidence-grounded-completion.md` — never claim completion
+  ("done", "fixed", "ready", "shipped", "good catch") without running the verification
+  protocol first (enumerate, re-read, quote, contradiction-search, distinguish
+  mechanical from semantic verification, state unverified items). Pack-distributable
+  form of the user-level Rule 6 added 2026-05-31; reinforces this project's existing
+  Rules 1-5 about verification before dependent actions.
 
-As of pack version 1.8.0 (2026-06-01) the `dev-security/claude-rules/` pack covers
+As of pack version 1.9.0 (2026-06-01) the `dev-security/claude-rules/` pack covers
 security + development-governance discipline. Pack version 1.6.0 announced the
-broadened contract; pack version 1.7.0 delivered the first governance rule
-(`governance/gate-discipline.md`); pack version 1.8.0 delivered the second
-(`governance/change-tracking.md`). Subsequent governance rules (evidence-grounded
-completion, clarify-before-acting, artefact-and-branch discipline) arrive in later
-phased releases and will be listed here as they land.
+broadened contract; pack versions 1.7.0, 1.8.0, and 1.9.0 delivered the first three
+governance rules (`governance/gate-discipline.md`, `governance/change-tracking.md`,
+`governance/evidence-grounded-completion.md`). Subsequent governance rules
+(clarify-before-acting, artefact-and-branch discipline) arrive in later phased releases
+and will be listed here as they land.
 
 The GRC Library pack above is the **primary** source. `.claude/rules/external/` holds a
 **supplementary** overlay from third-party sources (TikiTribe, Kariedo — both MIT, see
