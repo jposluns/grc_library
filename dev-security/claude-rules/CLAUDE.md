@@ -100,9 +100,9 @@ When writing code that calls LLMs, builds AI applications, or processes AI-gener
 - **Require human confirmation** before writing to operational data based on AI decisions
 - **Do not send Confidential or Restricted data to external AI APIs** without a data processing agreement and explicit approval
 
-For agentic systems, see additional rules in `ai/agent-security.md`. 
-For MCP servers, see `ai/mcp-security.md`. 
-For RAG systems, see `ai/rag-security.md`.
+For agentic systems, see additional rules in [`ai/agent-security.md`](ai/agent-security.md). 
+For MCP servers, see [`ai/mcp-security.md`](ai/mcp-security.md). 
+For RAG systems, see [`ai/rag-security.md`](ai/rag-security.md).
 
 ---
 

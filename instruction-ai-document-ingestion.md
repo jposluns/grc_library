@@ -16,10 +16,10 @@ The assistant must treat the "GRC Library Ingestion and Transformation Specifica
 12. Never embed meta operational data, failure audit data, or system context into library documents.
 13. Follow all filename, directory, metadata, formatting, and licence-compatibility restrictions without deviation.
 14. Update the domain-level README.md Active Documents table for every new document added to the repository.
-15. Update the document index register (`governance/register-document-index-and-classification.md`) for every new active document; bump the index register's version.
+15. Update the document index register ([`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md)) for every new active document; bump the index register's version.
 16. After updating any artefact metadata or adding a new artefact, regenerate the machine-readable taxonomy (`python3 tools/build-taxonomy.py`) and the adopter portal and maturity scorecard (`python3 tools/build-portal.py`).
 17. Run the full audit programme (`tools/run_all_audits.sh`; see [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) §6 for the canonical gate inventory) and resolve every finding before declaring the ingestion complete.
-18. Update `CHANGELOG.md` at the phase level for any substantive batch of ingestion changes.
+18. Update [`CHANGELOG.md`](CHANGELOG.md) at the phase level for any substantive batch of ingestion changes.
 19. Where the change introduces a new document type, new domain directory, or new rule, update both specifications and the governance charter and document architecture framework hierarchy tables before adding artefacts that depend on the new vocabulary.
 20. Where the change retires or supersedes an existing document, redirect every inbound reference, classify the superseded document as Deprecated in its metadata, and document the supersession in the changelog.
 

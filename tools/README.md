@@ -25,7 +25,7 @@ Individual scripts also run standalone:
 ```
 python3 tools/lint-metadata.py
 python3 tools/lint-language.py ai security    # restrict scope to specific paths
-python3 tools/build-taxonomy.py --check        # regen-and-check
+python3 tools/build-taxonomy.py --check        # restrict scope to specific paths
 ```
 
 Each script prints `OK: ...` on a clean run and exits zero. On findings it prints a grouped report and exits one (or two for environmental failure, e.g., a missing register).
@@ -62,4 +62,4 @@ pre-commit run --all-files
 
 - Draggable AI-context rule files under `dev-security/claude-rules/` are exempt from the metadata and structural audits because they serve a different purpose (loaded into AI coding sessions, not consumed as governance documents).
 - Tooling docs in this directory and adopter docs in `docs/` are exempt from the structural audit.
-- The deprecated `privacy/annex-regional-privacy-requirements.md` is exempt from the structural audit (retained for history; superseded by `privacy/annex-privacy-jurisdiction-index.md` and the jurisdiction subfolder).
+- The deprecated [`privacy/annex-regional-privacy-requirements.md`](../privacy/annex-regional-privacy-requirements.md) is exempt from the structural audit (retained for history; superseded by [`privacy/annex-privacy-jurisdiction-index.md`](../privacy/annex-privacy-jurisdiction-index.md) and the jurisdiction subfolder).
