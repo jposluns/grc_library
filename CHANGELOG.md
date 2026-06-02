@@ -4,6 +4,29 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-02, Library Version 2026.06.4
+
+Mobile-app security work, Phase 2 of 8: first per-language pack rule file for mobile.
+
+### Added
+
+- [`dev-security/claude-rules/languages/swift.md`](dev-security/claude-rules/languages/swift.md) — new pack rule file for iOS applications written in Swift or Objective-C. Covers secure storage (Keychain accessibility classes, Data Protection classes, backup exclusion), cryptography (CryptoKit, Secure Enclave, `SecRandomCopyBytes`), authentication and local biometrics (biometry as step-up not sole credential, `ASWebAuthenticationSession`, biometry-current-set binding), network and ATS (scoped exceptions, certificate pinning via `URLSessionDelegate`), backend attestation (App Attest with backend verification), platform interaction (Universal Links over custom schemes, OSLog privacy markers), `WKWebView` hardening (origin allow-list, restricted bridges), App Tracking Transparency (honest prompts), code signing and distribution, in-app purchases (server-side `jwsRepresentation` verification per the new Section 14), and reverse-engineering resistance (jailbreak detection as a signal, compiler hardening defaults). Every section cross-references the implementing section of [`standard-mobile-application-security.md`](dev-security/standard-mobile-application-security.md).
+
+### Changed
+
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) bumped to pack version `1.12.0`. The directory-structure ASCII tree gains an entry for the new file [`languages/swift.md`](dev-security/claude-rules/languages/swift.md); the existing entries for [`languages/csharp.md`](dev-security/claude-rules/languages/csharp.md) and [`languages/java.md`](dev-security/claude-rules/languages/java.md) are clarified as "(server-side)" to distinguish them from the new mobile-language rule files arriving in this and subsequent phases. The "Rule files and their scope" table gains a new row for the swift rule.
+- [`README.md`](README.md): library version `2026.06.3 → 2026.06.4`; README version `1.7.141 → 1.7.142`.
+
+### Verification
+
+Full 33-gate audit programme passes standalone immediately before commit. Ran [`tools/lint-language.py`](tools/lint-language.py) standalone on the new pack file. Two findings caught and fixed pre-audit: one `-ise` verb (`recognising` → "with the caveat that") and one em-dash (replaced with a sentence break). Re-read the swift.md file in full to confirm each Section cross-reference points at the actual content of [`standard-mobile-application-security.md`](dev-security/standard-mobile-application-security.md): Section 2 storage, Section 3 cryptography, Section 4 auth, Section 5 network plus the new attestation row, Section 6 platform interaction, Section 7 MASVS-R, Section 9 distribution, Section 10 privacy, and Section 14 IAP (added in Phase 1). The version-date consistency audit (gate 29) confirms `2026.06.4` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate passes ([`CHANGELOG.md`](CHANGELOG.md) is in the diff).
+
+### Phased rollout context
+
+This is Phase 2 of 8 in the mobile-app security work. Phases 3-7 add the remaining per-language pack rule files: Kotlin, React Native, Flutter, .NET MAUI, Capacitor / Ionic.
+
+---
+
 ## 2026-06-02, Library Version 2026.06.3
 
 Mobile-app security work, Phase 1 of 8: expand the mobile standard with three substantive additions that close 2024-2026 currency gaps. Per-doc version bumped `1.0.1 → 1.1.0` (minor bump per semver for added sections).
