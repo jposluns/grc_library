@@ -108,6 +108,9 @@ jobs:
       - name: Version-date consistency audit
         run: python3 tools/lint-version-date-consistency.py
 
+      - name: Metadata-block line-break audit
+        run: python3 tools/lint-metadata-line-breaks.py
+
       - name: Machine-readable taxonomy in sync
         run: python3 tools/build-taxonomy.py --check
 

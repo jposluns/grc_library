@@ -1251,6 +1251,61 @@ class VersionDateConsistencyTests(LinterTestCase):
         self.assertLinterFails(result, "must agree")
 
 
+class MetadataLineBreaksTests(LinterTestCase):
+    """tools/lint-metadata-line-breaks.py
+
+    The linter detects metadata blocks (consecutive ``**Field:**`` lines)
+    whose non-last lines lack a Markdown hard-break marker, which causes
+    GitHub to soft-wrap the block into a single paragraph. Both ``\\`` and
+    two-trailing-spaces are accepted as valid markers. Fenced code blocks
+    are skipped so templates that demonstrate metadata format are not
+    false-positives.
+    """
+
+    def test_missing_hard_break_flagged(self) -> None:
+        # Three metadata lines, none with a hard-break marker: 2 non-last
+        # lines should be flagged. The block is OUTSIDE any code fence.
+        fixture = self.make_fixture(
+            "fake-missing-breaks.md",
+            (
+                "# Fake Document\n\n"
+                "**Document Title:** Test\n"
+                "**Document Type:** Standard\n"
+                "**Version:** 1.0.0\n\n"
+                "Body content here.\n"
+            ),
+        )
+        result = run_linter("tools/lint-metadata-line-breaks.py", fixture)
+        self.assertLinterFails(result, "missing-hard-break")
+
+    def test_code_fence_metadata_not_flagged(self) -> None:
+        # Same metadata block, but inside a fenced code region: must NOT
+        # be flagged (templates demonstrating proper format do not need
+        # hard-break markers because code-fence preserves line breaks).
+        fixture = self.make_fixture(
+            "fake-fenced-metadata.md",
+            (
+                "# Fake Document\n\n"
+                "Template:\n\n"
+                "```\n"
+                "**Document Title:** Test\n"
+                "**Document Type:** Standard\n"
+                "**Version:** 1.0.0\n"
+                "```\n\n"
+                "Body content here.\n"
+            ),
+        )
+        result = run_linter("tools/lint-metadata-line-breaks.py", fixture)
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=(
+                "fenced template metadata should not be flagged; "
+                f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+            ),
+        )
+
+
 class StructureLinterTests(LinterTestCase):
     """tools/lint-structure.py
 
