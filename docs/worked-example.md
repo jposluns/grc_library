@@ -54,18 +54,18 @@ Quebec is a legitimate jurisdictional reference, not a sanitisation target. It s
 ```
 # Quarterly Privileged Access Review Procedure
 
-**Document Title:** Quarterly Privileged Access Review Procedure 
-**Document Type:** Procedure 
-**Version:** 1.0.1 
-**Date:** 2026-06-02 
-**Owner:** Chief Information Security Officer 
-**Approving Authority:** Chief Information Security Officer 
-**Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/procedure-access-control.md`](procedure-access-control.md) 
-**Classification:** Public 
-**Category:** Information Security 
-**Review Frequency:** Annual and upon material identity-provider or audit-finding change 
-**Repository Path:** [`security/procedure-quarterly-privileged-access-review.md`](procedure-quarterly-privileged-access-review.md) 
-**Confidentiality:** Public 
+**Document Title:** Quarterly Privileged Access Review Procedure\
+**Document Type:** Procedure\
+**Version:** 1.0.1\
+**Date:** 2026-06-02\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Chief Information Security Officer\
+**Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/procedure-access-control.md`](procedure-access-control.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material identity-provider or audit-finding change\
+**Repository Path:** [`security/procedure-quarterly-privileged-access-review.md`](procedure-quarterly-privileged-access-review.md)\
+**Confidentiality:** Public\
 **License:** CC BY-SA 4.0 
 ```
 

@@ -1,17 +1,17 @@
 # Claude Code Security Rules: Usage Guide
 
-**Document Title:** Claude Code Security Rules Usage Guide
-**Document Type:** Guideline
-**Version:** 1.17.0
-**Date:** 2026-06-01
-**Owner:** Chief Information Security Officer
-**Approving Authority:** Governance Library Maintainer
-**Related Documents:** [`dev-security/standard-developer-security-requirements.md`](../standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../standard-devops-security-requirements.md), [`dev-security/guideline-ai-coding-assistant-security.md`](../guideline-ai-coding-assistant-security.md), [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md)
-**Repository Path:** [`dev-security/claude-rules/README.md`](README.md)
-**Classification:** Public
-**Category:** Developer Security
-**Review Frequency:** 6 to 12 months and upon material threat, tooling, or framework change
-**Confidentiality:** Public
+**Document Title:** Claude Code Security Rules Usage Guide\
+**Document Type:** Guideline\
+**Version:** 1.17.0\
+**Date:** 2026-06-02\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`dev-security/standard-developer-security-requirements.md`](../standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../standard-devops-security-requirements.md), [`dev-security/guideline-ai-coding-assistant-security.md`](../guideline-ai-coding-assistant-security.md), [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md)\
+**Repository Path:** [`dev-security/claude-rules/README.md`](README.md)\
+**Classification:** Public\
+**Category:** Developer Security\
+**Review Frequency:** 6 to 12 months and upon material threat, tooling, or framework change\
+**Confidentiality:** Public\
 **License:** CC BY-SA 4.0
 
 ---
