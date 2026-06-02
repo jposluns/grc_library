@@ -4,6 +4,25 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-02, Library Version 2026.06.10
+
+Fix metadata-rendering bug in two files where consecutive metadata lines lacked the trailing `\` line-break that this corpus uses to force hard wraps. Without it, GitHub soft-wraps the metadata block into a single paragraph, making it unreadable. A full-corpus scan found exactly three affected files; two are fixed in this PR ([`CONTRIBUTING.md`](CONTRIBUTING.md) follows in a separate PR because its metadata block is a contributor template with its own Version-field considerations).
+
+### Fixed
+
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) — 12 metadata lines (lines 3-14) gain the trailing `\` that the rest of the corpus uses. The `**License:** CC BY-SA 4.0` line at the bottom of the block correctly remains without a backslash because the next line is the `---` separator (paragraph break already implied). While in the file, the `**Date:**` field is also bumped `2026-06-01 → 2026-06-02` to reflect that today's seven mobile-app-security commits (Phases 2-7) substantively changed the file. The pack version `1.17.0` is unchanged because this is a presentation fix, not a content change to the pack's distributable rule files.
+- [`docs/worked-example.md`](docs/worked-example.md) — same `\` fix to lines 57-68. The metadata block here is INSIDE a worked-example region that demonstrates "this is what a proper metadata block looks like" to a reader following the adopter walkthrough; the rendering bug therefore taught the wrong lesson, which is doubly bad in an example. The illustrative field values (Document Title "Quarterly Privileged Access Review Procedure" etc.) are unchanged.
+
+### Changed
+
+- [`README.md`](README.md): library version `2026.06.9 → 2026.06.10`; README version `1.7.147 → 1.7.148`.
+
+### Verification
+
+Full 33-gate audit programme passes standalone immediately before commit. Re-ran the metadata-rendering scanner used to discover the bug; both files are now flagged "OK" (every non-last metadata line ends with `\`). The third file ([`CONTRIBUTING.md`](CONTRIBUTING.md)) is handled in the following PR. The version-date consistency audit (gate 29) confirms `2026.06.10` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate passes ([`CHANGELOG.md`](CHANGELOG.md) is in the diff).
+
+---
+
 ## 2026-06-02, Library Version 2026.06.9
 
 Mobile-app security work, Phase 7 of 8 (final): Capacitor / Ionic pack rule file. The mobile-app security work announced as the 8-phase plan is complete with this release.
