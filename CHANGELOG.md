@@ -4,6 +4,31 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-02, Library Version 2026.06.3
+
+Mobile-app security work, Phase 1 of 8: expand the mobile standard with three substantive additions that close 2024-2026 currency gaps. Per-doc version bumped `1.0.1 → 1.1.0` (minor bump per semver for added sections).
+
+### Added
+
+- [`dev-security/standard-mobile-application-security.md`](dev-security/standard-mobile-application-security.md) Section 5 gains a new "Backend attestation" row: iOS App Attest / DeviceCheck and Android Play Integrity for Tier 1 / Tier 2 backends, server-side verification, short-lived tokens, replay-protected. The attestation requirement is anchored to the existing sensitivity-tier model in Section 1; previously absent.
+- [`dev-security/standard-mobile-application-security.md`](dev-security/standard-mobile-application-security.md) **new Section 13: hybrid and cross-platform frameworks**, naming React Native, Flutter, .NET MAUI, Capacitor / Ionic explicitly. Eight control rows covering secure storage delegation (the `react-native-keychain` / `flutter_secure_storage` / MAUI `SecureStorage` pattern over framework defaults like `AsyncStorage`), JS-or-Dart bridge as a trust boundary, native module review, debug-tooling exclusion in release builds, over-the-air update integrity (CodePush, EAS Update, Shorebird, Appflow Live Updates), Content Security Policy in wrapped WebViews, framework currency, and framework-specific build hardening. The opening paragraph states the rule that hybrid frameworks shift layers but do not reduce the set of controls.
+- [`dev-security/standard-mobile-application-security.md`](dev-security/standard-mobile-application-security.md) **new Section 14: in-app purchases and receipt validation**. Eight control rows covering server-side validation against StoreKit / Google Play Developer API / Microsoft Store services, replay protection, price-tier validation, subscription state polling, sandbox-vs-production environment routing, refund / chargeback honour, restore-purchase flow constraints, and the boundary with side-loaded or web-checkout paths.
+
+### Changed
+
+- [`dev-security/standard-mobile-application-security.md`](dev-security/standard-mobile-application-security.md) per-document version `1.0.1 → 1.1.0`. "Operating expectations" section grows from 4 items to 7, adding bullets for annual attestation-flow verification (item 5), hybrid framework currency verification per release (item 6), and per-release IAP receipt-validation exercise (item 7).
+- [`README.md`](README.md): library version `2026.06.2 → 2026.06.3`; README version `1.7.140 → 1.7.141`.
+
+### Verification
+
+Full 33-gate audit programme passes standalone immediately before commit. Ran [`tools/lint-language.py`](tools/lint-language.py) standalone on the modified standard; no findings (no em-dashes, no `-ise` verbs, no bare "ensure", no sanitisation terms). Re-read the full standard after edits to confirm no contradiction between the new Section 5 attestation row, the new Section 13 hybrid-framework section, and the existing tier model in Section 1: Tier 1 and Tier 2 attestation requirements in Section 5 align with Section 1's sensitivity-tier definitions; Section 13's opening "do not reduce the set of controls" statement is consistent with Sections 2-10 remaining in force. The version-monotonicity audit (gate 13) confirms `1.0.1 < 1.1.0`. The version-date consistency audit (gate 29) confirms library `2026.06.3` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate passes ([`CHANGELOG.md`](CHANGELOG.md) is in the diff).
+
+### Phased rollout context
+
+This is Phase 1 of 8 in the mobile-app security work. Phase 0 ratified all v0.0.1 files to v1.0.1. Phases 2-7 add per-language pack rule files (Swift, Kotlin, React Native, Flutter, .NET MAUI, Capacitor / Ionic) that cite the now-complete standard.
+
+---
+
 ## 2026-06-02, Library Version 2026.06.2
 
 Mobile-app security work, Phase 0 of 8: project-wide ratification signal. All documents previously at v0.0.1 are bumped to v1.0.1 to signal that the content is no longer "first draft" status and is ratified for downstream use.
