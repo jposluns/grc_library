@@ -76,18 +76,18 @@ Every document begins with the canonical 13-field metadata block. The example be
 ```
 # Document Title
 
-**Document Title:** Document Title 
-**Document Type:** Policy 
-**Version:** 1.0.1 
-**Date:** YYYY-MM-DD 
-**Owner:** Role Name 
-**Approving Authority:** Role Name 
-**Related Documents:** [`domain/related.md`](relative-path/related.md), [`other-domain/other.md`](../other-domain/other.md) 
-**Classification:** Public 
-**Category:** Domain Name 
-**Review Frequency:** Annual and upon material change 
-**Repository Path:** [`domain/file-name.md`](file-name.md) 
-**Confidentiality:** Public 
+**Document Title:** Document Title\
+**Document Type:** Policy\
+**Version:** X.Y.Z\
+**Date:** YYYY-MM-DD\
+**Owner:** Role Name\
+**Approving Authority:** Role Name\
+**Related Documents:** [`domain/related.md`](relative-path/related.md), [`other-domain/other.md`](../other-domain/other.md)\
+**Classification:** Public\
+**Category:** Domain Name\
+**Review Frequency:** Annual and upon material change\
+**Repository Path:** [`domain/file-name.md`](file-name.md)\
+**Confidentiality:** Public\
 **License:** CC BY-SA 4.0 
 ```
 
