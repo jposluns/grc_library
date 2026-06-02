@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide
 **Document Type:** Guideline
-**Version:** 1.11.0
+**Version:** 1.12.0
 **Date:** 2026-06-01
 **Owner:** Chief Information Security Officer
 **Approving Authority:** Governance Library Maintainer
@@ -65,9 +65,10 @@ claude-rules/
 └── languages/
     ├── python.md                Python-specific security patterns and anti-patterns
     ├── typescript.md            TypeScript / Node.js security patterns
-    ├── csharp.md                C# / .NET security patterns
-    ├── java.md                  Java / Spring security patterns
-    └── go.md                    Go security patterns
+    ├── csharp.md                C# / .NET security patterns (server-side)
+    ├── java.md                  Java / Spring security patterns (server-side)
+    ├── go.md                    Go security patterns
+    └── swift.md                 Swift / iOS (and Objective-C) mobile security patterns
 ```
 
 ---
@@ -150,6 +151,7 @@ If your project already has an `AGENTS.md` for other coding agents (Codex, Curso
 | [`languages/csharp.md`](languages/csharp.md) | C# / .NET codebases |
 | [`languages/java.md`](languages/java.md) | Java / Spring Boot codebases |
 | [`languages/go.md`](languages/go.md) | Go codebases |
+| [`languages/swift.md`](languages/swift.md) | iOS applications written in Swift or Objective-C; implements the iOS-specific controls of [`standard-mobile-application-security.md`](../standard-mobile-application-security.md) |
 
 ---
 
