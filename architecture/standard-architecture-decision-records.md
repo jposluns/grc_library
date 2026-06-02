@@ -2,8 +2,8 @@
 
 **Document Title:** Architecture Decision Records Standard\
 **Document Type:** Standard\
-**Version:** 0.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.1\
+**Date:** 2026-06-02\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/procedure-architecture-review.md`](procedure-architecture-review.md), [`dev-security/procedure-secure-code-review.md`](../dev-security/procedure-secure-code-review.md), [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md)\

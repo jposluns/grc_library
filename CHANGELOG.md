@@ -4,6 +4,32 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-02, Library Version 2026.06.2
+
+Mobile-app security work, Phase 0 of 8: project-wide ratification signal. All documents previously at v0.0.1 are bumped to v1.0.1 to signal that the content is no longer "first draft" status and is ratified for downstream use.
+
+### Changed
+
+- 54 documents bumped from `v0.0.1` to `v1.0.1`. Mechanical version-string + date-field change only; no content edits. Domains touched: `ai/` (5), `architecture/` (6), `compliance/` (1), `dev-security/` (2), `docs/` (1), `governance/` (7), `operations/` (4), `privacy/` (8), `resilience/` (5), `risk/` (4), `security/` (6), `supply-chain/` (5), plus repo-root [`CONTRIBUTING.md`](CONTRIBUTING.md). Each file's `**Date:**` field updated to `2026-06-02` to anchor the next review cycle.
+- [`taxonomy.yml`](taxonomy.yml), [`docs/portal.md`](docs/portal.md), [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md) regenerated from the bumped metadata (CI `--check` mode would have failed otherwise per the gate-discipline rule).
+- [`README.md`](README.md): library version bumped `2026.06.1` to `2026.06.2`; README version bumped `1.7.139` to `1.7.140`; date updated `2026-06-01` to `2026-06-02` (calendar rolled over).
+
+### Why this is mechanical, not a content review
+
+A 54-file content re-read is impractical in a single phase. Per the [`evidence-grounded-completion`](.claude/rules/governance/evidence-grounded-completion.md) rule, the verification scope is stated explicitly: this PR is a ratification signal, not a quality review. The version bump asserts "the maintainer considers these documents ready for downstream use as of `2026-06-02`"; it does not assert "every line has been re-read and verified." Subsequent reviews on each document's own review cadence (per [`governance/procedure-library-quality-and-review-cadence.md`](governance/procedure-library-quality-and-review-cadence.md)) provide the per-document content audit.
+
+### Phased rollout context
+
+This is Phase 0 of 8 in the mobile-app security work. Phases 1-7 follow:
+1. Mobile standard expansion (App Attest, hybrid frameworks, IAP receipt validation).
+2-7. Per-language pack rule files: Swift, Kotlin, React Native, Flutter, .NET MAUI, Capacitor/Ionic.
+
+### Verification
+
+Full 33-gate audit programme passes standalone immediately before commit. The version-monotonicity audit (gate 13) confirms all 54 per-document bumps are increases (`0.0.1 < 1.0.1`). The version-date consistency audit (gate 29, shipped yesterday) confirms today's library version `2026.06.2` matches today's calendar month `2026-06`. The two generator-drift gates (30, 31) pass after regenerating [`taxonomy.yml`](taxonomy.yml) and the portal artefacts in this commit. The D1 CHANGELOG-on-PR delta gate passes ([`CHANGELOG.md`](CHANGELOG.md) is in the diff).
+
+---
+
 ## 2026-06-01, Library Version 2026.06.1
 
 Make the project's strict-mode stance on exceptions explicit in [`.claude/CLAUDE.md`](.claude/CLAUDE.md), and document the `refs/preservation/` convention for the rare case of a legitimate protected-branch force-push. Both additions close gaps identified by the new pack governance rules: three pack rules reference a project "exception register" that this project does not maintain (the absence was implicit; now it is explicit), and one pack rule names the `refs/preservation/` namespace as the audit-trail convention for force-push exceptions (the convention is now documented so it can be followed without invention).

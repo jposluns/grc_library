@@ -2,8 +2,8 @@
 
 **Document Title:** Scenario Risk Catalogue\
 **Document Type:** Register\
-**Version:** 0.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.1\
+**Date:** 2026-06-02\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-operational-risk-register.md`](template-operational-risk-register.md), [`risk/guideline-quantitative-risk-analysis.md`](guideline-quantitative-risk-analysis.md), [`resilience/template-tabletop-exercise.md`](../resilience/template-tabletop-exercise.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
