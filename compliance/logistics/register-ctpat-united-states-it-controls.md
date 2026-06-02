@@ -20,8 +20,8 @@
 
 This register documents the organisation's implementation status against the IT and cybersecurity-related minimum security criteria of the U.S. Customs-Trade Partnership Against Terrorism (CTPAT) programme. It supports CTPAT membership compliance, annual trade partner profile updates, and pre-certification readiness assessments.
 
-**Programme authority:** U.S. Customs and Border Protection (CBP) 
-**UK parallel programme:** Authorized Economic Operator to Security and Safety (AEO-S), administered by HMRC 
+**Programme authority:** U.S. Customs and Border Protection (CBP)\
+**UK parallel programme:** Authorized Economic Operator to Security and Safety (AEO-S), administered by HMRC\
 **Mutual recognition:** CTPAT and UK AEO-S maintain a mutual recognition arrangement under the UK-US Trade and Investment Working Group, providing reciprocal facilitation benefits for qualifying members at points of entry in both countries. See [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md) for AEO-S IT controls detail.
 
 ---

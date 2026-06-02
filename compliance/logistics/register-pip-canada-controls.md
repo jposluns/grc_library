@@ -20,9 +20,9 @@
 
 This register documents the organisation's implementation status against the IT and cybersecurity-related security requirements of Canada's Partners in Protection (PIP) programme administered by the Canada Border Services Agency (CBSA). It supports PIP membership compliance, annual partnership profile updates, and pre-certification readiness assessments.
 
-**Programme authority:** Canada Border Services Agency (CBSA) 
-**UK parallel programme:** Authorized Economic Operator to Security and Safety (AEO-S), administered by HMRC 
-**US parallel programme:** Customs-Trade Partnership Against Terrorism (CTPAT), administered by CBP 
+**Programme authority:** Canada Border Services Agency (CBSA)\
+**UK parallel programme:** Authorized Economic Operator to Security and Safety (AEO-S), administered by HMRC\
+**US parallel programme:** Customs-Trade Partnership Against Terrorism (CTPAT), administered by CBP\
 **Mutual recognition:** PIP maintains mutual recognition arrangements with CTPAT (US) and the EU AEO programme. The UK AEO-S programme, as the successor to the EU AEO scheme for UK operators, provides functionally equivalent security and safety certification. Organisations holding AEO-S or CTPAT certification can reference those programmes when demonstrating equivalent security standards to CBSA.
 
 ---
