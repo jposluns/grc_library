@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide
 **Document Type:** Guideline
-**Version:** 1.16.0
+**Version:** 1.17.0
 **Date:** 2026-06-01
 **Owner:** Chief Information Security Officer
 **Approving Authority:** Governance Library Maintainer
@@ -72,7 +72,8 @@ claude-rules/
     ├── kotlin.md                Kotlin / Android (and Java for Android) mobile security patterns
     ├── react-native.md          React Native (with or without Expo) cross-platform mobile security patterns
     ├── flutter.md               Flutter / Dart cross-platform mobile security patterns
-    └── dotnet-maui.md           .NET MAUI (and Blazor Hybrid) cross-platform mobile security patterns
+    ├── dotnet-maui.md           .NET MAUI (and Blazor Hybrid) cross-platform mobile security patterns
+    └── capacitor-ionic.md       Capacitor / Ionic (WebView-based hybrid) cross-platform mobile security patterns
 ```
 
 ---
@@ -160,6 +161,7 @@ If your project already has an `AGENTS.md` for other coding agents (Codex, Curso
 | [`languages/react-native.md`](languages/react-native.md) | React Native (with or without Expo) cross-platform mobile applications; implements Section 13 of [`standard-mobile-application-security.md`](../standard-mobile-application-security.md) and the relevant native-layer sections as applied through the JS bridge |
 | [`languages/flutter.md`](languages/flutter.md) | Flutter / Dart cross-platform mobile applications; implements Section 13 of [`standard-mobile-application-security.md`](../standard-mobile-application-security.md) and the relevant native-layer sections as applied through Flutter's platform-channel bridge |
 | [`languages/dotnet-maui.md`](languages/dotnet-maui.md) | .NET MAUI (and Blazor Hybrid) cross-platform mobile applications; implements Section 13 of [`standard-mobile-application-security.md`](../standard-mobile-application-security.md) and the relevant native-layer sections as applied through MAUI's handler architecture and the Mono / .NET runtime |
+| [`languages/capacitor-ionic.md`](languages/capacitor-ionic.md) | Capacitor / Ionic (WebView-based hybrid) cross-platform mobile applications; implements Section 13 of [`standard-mobile-application-security.md`](../standard-mobile-application-security.md) and the relevant native-layer sections as applied through Capacitor's WebView + plugin architecture; carries forward web-stack rules from [`languages/typescript.md`](languages/typescript.md) and `core/owasp.md` because the WebView is the application UI |
 
 ---
 
