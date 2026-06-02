@@ -4,6 +4,46 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-02, Library Version 2026.06.12
+
+Three additional files from a tightened metadata-rendering scan that my original scanner missed. Closes the metadata-rendering cleanup with **zero** remaining flagged files corpus-wide.
+
+### Why these files were missed by the original scan
+
+The scanner I used to produce the original "3 files" list had two false-negative paths:
+
+1. It returned on the **first** `**Field:**` run found in each file, not every run. A file whose first block was correctly formatted (with trailing `\`) but whose second block (mid-document) was not received an overall "OK" classification.
+2. It did not treat **two trailing spaces** as a Markdown hard break (only `\`), but this turned out to be moot for these files because the broken lines use a **single** trailing space (which is not a hard break in either syntax).
+
+The tightened scanner used for this PR checks every `**Field:**` run in the file, skips fenced code blocks, and recognises both `\` and two-trailing-spaces as valid hard breaks. It found zero remaining bugs after the fixes below.
+
+### Fixed
+
+- [`compliance/logistics/register-ctpat-united-states-it-controls.md`](compliance/logistics/register-ctpat-united-states-it-controls.md) — one inline-attribute block at lines 23-25 (Programme authority, UK parallel programme, Mutual recognition). Two trailing backslashes added to lines 23 and 24; line 25 is the last in the block.
+- [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](compliance/logistics/register-ctpat-united-states-msc-controls.md) — two blocks: one at lines 23-26 (Programme authority, UK equivalent, Canada equivalent, Mutual recognition) and one at lines 34-38 (Organisation entity type, membership number, current tier, last validation, next profile update due). Seven trailing backslashes added across the two blocks.
+- [`compliance/logistics/register-pip-canada-controls.md`](compliance/logistics/register-pip-canada-controls.md) — one block at lines 23-26 (Programme authority, UK parallel programme, US parallel programme, Mutual recognition). Three trailing backslashes added to lines 23-25; line 26 is the last in the block.
+
+These blocks are not metadata in the document-header sense; they are labelled facts at the start of each register's Purpose section (programme authority, parallel programmes in other jurisdictions, mutual-recognition arrangements). They are meant to render as a vertical list of attributes; under the previous formatting they soft-wrapped into a paragraph.
+
+### Changed
+
+- [`README.md`](README.md): library version `2026.06.11 → 2026.06.12`; README version `1.7.149 → 1.7.150`.
+
+### Verification
+
+Full 33-gate audit programme passes standalone immediately before commit. The tightened scanner reports zero remaining flagged files across the entire corpus (every `**Field:**` run in every non-exempt `.md` file either has all non-last lines terminated by `\` or two trailing spaces, OR is inside a fenced code block, OR is fewer than two lines and so doesn't form a renderable block). The version-date consistency audit (gate 29) confirms `2026.06.12` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate passes ([`CHANGELOG.md`](CHANGELOG.md) is in the diff).
+
+### Cleanup status: complete
+
+Three PRs total for the metadata-rendering cleanup:
+- [`2026.06.10`](#2026-06-02-library-version-20260610): pack README + worked-example.
+- [`2026.06.11`](#2026-06-02-library-version-20260611): CONTRIBUTING.md.
+- This PR: three compliance/logistics registers.
+
+The improved scanner methodology is documented in this CHANGELOG entry; it will catch this class of bug going forward when run as part of pre-PR review.
+
+---
+
 ## 2026-06-02, Library Version 2026.06.11
 
 Third and final file from the metadata-rendering scan: [`CONTRIBUTING.md`](CONTRIBUTING.md). Backslash fix plus a Version-field placeholder change that resolves an underlying gap exposed by today's investigation.
