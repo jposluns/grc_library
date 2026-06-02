@@ -2,7 +2,7 @@
 
 **Document Title:** Mobile Application Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
+**Version:** 1.1.0\
 **Date:** 2026-06-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -106,6 +106,7 @@ Applications classified by sensitivity tier determine the verification level app
 | HTTPS-only | iOS App Transport Security (ATS) and Android Network Security Configuration enforce HTTPS; exceptions documented |
 | Backend API security | Per the API security standard |
 | Domain restriction | Network requests restricted to declared backend domains |
+| Backend attestation | Tier 1 and Tier 2 application backends require platform attestation (iOS App Attest and DeviceCheck; Android Play Integrity) for sensitive operations; attestation tokens short-lived; verified server-side against the platform's authoritative attestation service; replay protection enforced |
 | WebView hardening | If WebView is used, JavaScript bridge restricted; URL allow-list applied; mixed content disabled |
 | Third-party SDK network access | SDKs are inventoried and reviewed for their network behaviour |
 | Offline operation | Sensitive operations require connectivity unless explicitly designed for offline; offline data follows the storage controls |
@@ -210,12 +211,49 @@ Resilience controls reduce ease of attack; they do not replace fundamental secur
 
 ---
 
+## Section 13: hybrid and cross-platform frameworks
+
+Hybrid and cross-platform mobile frameworks (React Native, Flutter, .NET MAUI, Capacitor / Ionic) shift the layer at which controls are implemented across the native-platform / framework-runtime / JavaScript-or-Dart-layer boundary; they do not reduce the set of controls. Sections 2 through 10 apply to all mobile applications regardless of framework choice. This section adds the framework-specific requirements that arise from the additional layer.
+
+| Control area | Requirement |
+| --- | --- |
+| Secure storage delegation | Framework-provided storage primitives that wrap native key stores (`react-native-keychain`, `flutter_secure_storage`, MAUI `SecureStorage`, Capacitor secure-storage plugins) used for sensitive data; the framework's default key-value store (`AsyncStorage`, `@capacitor/preferences`, equivalent) prohibited for any data covered by Section 2 |
+| JS or Dart bridge boundary | The bridge between native modules and the JS or Dart layer treated as a trust boundary; native modules validate all bridge inputs; the framework's eval-like APIs (where present) are not invoked on attacker-influenced strings |
+| Native module review | Custom native modules reviewed for the same controls applied to fully-native code; framework-provided native modules treated as third-party SDKs per Section 8 |
+| Debug-tooling exclusion | Framework-specific debug tools (React Native Flipper or react-native-debugger, Flutter Dart DevTools, MAUI hot reload, Capacitor or Ionic WebView inspector) excluded from release builds; the build process verifies exclusion |
+| Over-the-air update integrity | Framework over-the-air update channels (CodePush, EAS Update, Shorebird, Appflow Live Updates) deliver signed payloads only; signature verification non-bypassable; updates cannot modify native binary or grant capabilities the app did not have at install time |
+| Content Security Policy in wrapped WebViews | For WebView-wrapped hybrid frameworks (Capacitor, Ionic, MAUI Blazor), CSP enforced inside the WebView; local resources allow-listed; `unsafe-inline` and `unsafe-eval` prohibited |
+| Framework currency | Framework version is within the vendor's supported range; security patches applied per the patch management procedure; deprecated framework versions migrated within the vendor support window |
+| Framework-specific build hardening | iOS and Android release builds include the framework's documented production-hardening settings (`enableHermes` plus minification on React Native, `--obfuscate --split-debug-info` on Flutter, `<Optimize>true</Optimize>` and ProGuard on MAUI, Capacitor production CSP) |
+
+---
+
+## Section 14: in-app purchases and receipt validation
+
+Application stores (Apple App Store, Google Play, Microsoft Store) issue receipts cryptographically attesting that a purchase was completed. The application's backend validates every receipt before granting the corresponding entitlement.
+
+| Control area | Requirement |
+| --- | --- |
+| Server-side validation | Every entitlement-granting receipt validated against the platform's authoritative validation service (Apple StoreKit server API, Google Play Developer API, Microsoft Store services); client-side validation alone is insufficient |
+| Replay protection | Same receipt cannot be used to grant the same entitlement twice; backend stores transaction identifiers and rejects duplicates |
+| Price-tier validation | Price tier of the purchase verified server-side against the published product catalogue; client-supplied price values ignored |
+| Subscription state | Subscription receipts polled or webhooked at platform-recommended intervals; downgrades, refunds, grace-period transitions, and family-sharing changes reflected in the entitlement promptly |
+| Environment routing | Sandbox endpoints accept sandbox receipts only; production endpoints accept production receipts only; cross-environment receipt acceptance prohibited |
+| Refunds and chargebacks | Platform refund and chargeback notifications honoured; the entitlement is revoked within the platform-defined window |
+| Restore-purchase flow | Restore-purchase capability verifies receipts against the original purchasing account; cross-account restores prohibited where the platform supports the constraint |
+| Side-loaded or web-checkout paths | Purchase paths outside the store's purchasing mechanism follow a separate validation flow; this Section's rules apply to store-mediated purchases only |
+
+---
+
 ## Operating expectations
 
 1. New mobile applications target MASVS-L1 at minimum; tier classification determines whether L2 and R apply.
 2. Annual review against the current MASVS and platform-store policy.
 3. Third-party SDK inventory refreshed at every release.
 4. Code-signing material treated as high-sensitivity per the cryptographic key lifecycle.
+5. Backend attestation flows (App Attest, Play Integrity) for Tier 1 and Tier 2 apps verified annually against current platform documentation.
+6. Framework currency for hybrid and cross-platform applications confirmed at each release: the framework version is within its vendor's supported range.
+7. In-app-purchase receipt validation flow exercised in non-production environments per release cycle; sandbox-vs-production routing verified on every change to the validation service.
 
 ---
 
