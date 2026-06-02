@@ -4,6 +4,31 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-02, Library Version 2026.06.11
+
+Third and final file from the metadata-rendering scan: [`CONTRIBUTING.md`](CONTRIBUTING.md). Backslash fix plus a Version-field placeholder change that resolves an underlying gap exposed by today's investigation.
+
+### Fixed
+
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — 12 metadata lines (79-90) gain the trailing `\`. The block itself is a TEMPLATE inside a fenced code region (lines 76-92) demonstrating to new contributors what a metadata block should look like; it is not the file's own metadata. With backslashes now in place, contributors who copy the template into their new document will get a properly-rendering block by default.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) `**Version:**` field in the template changed from the post-Phase-0 value `1.0.1` to the explicit non-semver placeholder `X.Y.Z`. Rationale: a "starter values" template should show contributors the placeholder shape, not a misleading concrete version number. `X.Y.Z` is unambiguous as a placeholder and (deliberately) does not match the version-monotonicity audit's `SEMVER_RE` regex — which means the template is no longer subject to the same misinterpretation that caused Phase 0's bulk sweep to inadvertently change it from `0.0.1` to `1.0.1` in the first place.
+
+### Underlying gap (noted, not fixed in this PR)
+
+The version-monotonicity audit ([`tools/lint-library-version-monotonicity.py`](tools/lint-library-version-monotonicity.py)) does not skip fenced code blocks; its `SEMVER_RE` regex matches any `**Version:** X.Y.Z` line in a file regardless of context. This is what let the audit treat [`CONTRIBUTING.md`](CONTRIBUTING.md)'s template as the file's real version, and what let the Phase 0 bulk sed sweep wrongly include the file. Fixing the audit to skip fenced code blocks (matching the pattern already used in [`tools/lint-language.py`](tools/lint-language.py) via `iter_non_code_lines` from [`tools/lint_common.py`](tools/lint_common.py)) would close the gap properly. The `X.Y.Z` placeholder is sufficient to unblock this PR; the audit hardening is tracked as future work.
+
+### Changed
+
+- [`README.md`](README.md): library version `2026.06.10 → 2026.06.11`; README version `1.7.148 → 1.7.149`.
+
+### Verification
+
+Full 33-gate audit programme passes standalone immediately before commit. Specifically, the version-monotonicity audit (gate 13) reports `current 2026.6.11 >= prior 2026.6.10` for the library and no per-document regressions, confirming that the `X.Y.Z` placeholder does not look like a decrease vs the prior committed `1.0.1`. Re-ran the metadata-rendering scanner used to discover the original bug: zero remaining flagged files in the corpus. The version-date consistency audit (gate 29) confirms `2026.06.11` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate passes ([`CHANGELOG.md`](CHANGELOG.md) is in the diff).
+
+This is the second of two PRs in the metadata-rendering cleanup, following [`2026.06.10`](#2026-06-02-library-version-20260610). The corpus is now uniformly free of the soft-wrap rendering bug.
+
+---
+
 ## 2026-06-02, Library Version 2026.06.10
 
 Fix metadata-rendering bug in two files where consecutive metadata lines lacked the trailing `\` line-break that this corpus uses to force hard wraps. Without it, GitHub soft-wraps the metadata block into a single paragraph, making it unreadable. A full-corpus scan found exactly three affected files; two are fixed in this PR ([`CONTRIBUTING.md`](CONTRIBUTING.md) follows in a separate PR because its metadata block is a contributor template with its own Version-field considerations).
