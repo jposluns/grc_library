@@ -56,8 +56,8 @@ Quebec is a legitimate jurisdictional reference, not a sanitisation target. It s
 
 **Document Title:** Quarterly Privileged Access Review Procedure 
 **Document Type:** Procedure 
-**Version:** 0.0.1 
-**Date:** 2026-05-28 
+**Version:** 1.0.1 
+**Date:** 2026-06-02 
 **Owner:** Chief Information Security Officer 
 **Approving Authority:** Chief Information Security Officer 
 **Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/procedure-access-control.md`](procedure-access-control.md) 

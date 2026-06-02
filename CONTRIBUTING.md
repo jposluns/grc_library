@@ -78,7 +78,7 @@ Every document begins with the canonical 13-field metadata block. The example be
 
 **Document Title:** Document Title 
 **Document Type:** Policy 
-**Version:** 0.0.1 
+**Version:** 1.0.1 
 **Date:** YYYY-MM-DD 
 **Owner:** Role Name 
 **Approving Authority:** Role Name 
