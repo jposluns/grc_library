@@ -4,6 +4,39 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-02, Library Version 2026.06.15
+
+Phase C.1 of the follow-up plan: document the `main` branch-protection configuration as a governance register so it can be audited from the repository rather than from a privileged settings-page view.
+
+### Added
+
+- [`governance/register-main-branch-protection.md`](governance/register-main-branch-protection.md) — new register documenting the configured GitHub ruleset on the `main` branch as of `2026-06-02`. Records each enabled rule, each rule explicitly left off (with rationale), the bypass-actor list state, adjacent settings (the repo's "Automatically delete head branches" toggle), the drift-detection procedure, and the load-bearing dependency between the required `Lint markdown corpus` status check and the 34-gate audit programme.
+
+### Changed
+
+- [`governance/README.md`](governance/README.md) gains a row for the new register under the "Register" type so the domain-README inventory stays current.
+- [`README.md`](README.md): library version `2026.06.14 → 2026.06.15`; README version `1.7.152 → 1.7.153`.
+
+### Verified configuration
+
+The maintainer applied the following rules in the GitHub Rulesets UI on `main`:
+
+- Required: status check `Lint markdown corpus`; pull-request review (1 approval minimum); conversation resolution before merging; signed commits; "Dismiss stale PR approvals on new commits"; "Require branches to be up to date before merging"; "Restrict deletions"; "Block force pushes".
+- Repo-level "Automatically delete head branches" enabled in Settings → General → Pull Requests.
+- Bypass-actor list confirmed empty.
+
+This closes the gap where the pack rule [`dev-security/claude-rules/governance/artefact-and-branch-discipline.md`](dev-security/claude-rules/governance/artefact-and-branch-discipline.md) named expected settings but the project had no record of which settings were configured.
+
+### Verification
+
+Full 34-gate audit programme passes standalone immediately before commit. Pre-flight ran the language, metadata, and metadata-line-breaks audits standalone on the new register: zero findings on each. The new register's Date field anchors the next review per its declared Review Frequency. The version-date consistency audit (gate 29) confirms `2026.06.15` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate passes.
+
+### Phased follow-up context
+
+Phases A.1, B.1, C.1 complete. D.1 (metadata headers for the four repo-root files [`CONTRIBUTING.md`](CONTRIBUTING.md), [`docs/worked-example.md`](docs/worked-example.md), [`NOTICE.md`](NOTICE.md), [`SECURITY.md`](SECURITY.md)) follows next.
+
+---
+
 ## 2026-06-02, Library Version 2026.06.14
 
 Phase B.1 of the follow-up plan: promote the metadata-line-breaks scanner methodology developed during the rendering-cleanup PRs (#23, #24, #25) into a 34th audit gate. This catches the soft-wrap rendering bug class going forward in CI rather than relying on ad-hoc scans.
