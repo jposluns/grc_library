@@ -4,6 +4,29 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-02, Library Version 2026.06.7
+
+Mobile-app security work, Phase 5 of 8: Flutter pack rule file.
+
+### Added
+
+- [`dev-security/claude-rules/languages/flutter.md`](dev-security/claude-rules/languages/flutter.md) — new pack rule file for Flutter applications written in Dart. Covers secure-storage delegation (`flutter_secure_storage` + `sqflite_sqlcipher` over `shared_preferences` and unencrypted sqflite), platform channels and FFI as trust boundaries (with Kotlin native-side validation examples), network (`http_certificate_pinning` for Tier 1 / Tier 2), backend attestation forwarded through a Flutter package, debug-tooling exclusion (`kReleaseMode` gating, `--obfuscate --split-debug-info` for release builds, Dart DevTools restricted to debug / profile), OTA updates (Shorebird as the signed-payload option; raw code-OTA prohibited by Apple / Google store terms by default), deep links (App Links / Universal Links over custom schemes), permissions (narrow scope via `permission_handler`), in-app purchases (`in_app_purchase` plugin with backend verification of `serverVerificationData`), and logging / crash-reporter redaction.
+
+### Changed
+
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) bumped to pack version `1.15.0`. Directory-structure ASCII tree gains an entry for [`languages/flutter.md`](dev-security/claude-rules/languages/flutter.md); rule-files table gains a new row.
+- [`README.md`](README.md): library `2026.06.6 → 2026.06.7`; README `1.7.144 → 1.7.145`.
+
+### Verification
+
+Full 33-gate audit programme passes standalone immediately before commit. Ran [`tools/lint-language.py`](tools/lint-language.py) standalone on the new file: zero findings first attempt. Re-read the file in full to confirm cross-references to the standard's Sections 2, 5, 6, 10, 13, 14 point at actual content. The opening hybrid-framework rule mirrors the standard's Section 13 opener applied to Flutter's specific architecture (platform channels and Dart runtime). The version-date consistency audit (gate 29) confirms `2026.06.7` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate passes.
+
+### Phased rollout context
+
+Phase 5 of 8. Phases 6-7 add .NET MAUI and Capacitor / Ionic.
+
+---
+
 ## 2026-06-02, Library Version 2026.06.6
 
 Mobile-app security work, Phase 4 of 8: React Native pack rule file.
