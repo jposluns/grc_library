@@ -4,6 +4,39 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-02, Library Version 2026.06.9
+
+Mobile-app security work, Phase 7 of 8 (final): Capacitor / Ionic pack rule file. The mobile-app security work announced as the 8-phase plan is complete with this release.
+
+### Added
+
+- [`dev-security/claude-rules/languages/capacitor-ionic.md`](dev-security/claude-rules/languages/capacitor-ionic.md) — new pack rule file for Capacitor (modern Cordova successor) and Ionic Framework mobile applications. Notes that Cordova-only apps should migrate (per Apache's published maintenance-mode status). Covers secure-storage delegation (`capacitor-secure-storage-plugin` over `@capacitor/preferences`, `localStorage`, IndexedDB, Ionic Storage default), Content Security Policy inside the wrapped WebView (explicit allow-listed origins, no `unsafe-inline` or `unsafe-eval`), JS bridge / plugin trust boundary (narrow validated plugin APIs with Kotlin examples; treat every plugin call as untrusted), network (HTTPS-only; pinning at native layer via `CapacitorHttp`; `allowMixedContent` prohibited), backend attestation (App Attest / Play Integrity via native plugin code), deep links via App Links / Universal Links, permissions narrow scope, debug-tooling exclusion (`webContentsDebuggingEnabled: false` in release), OTA updates (Ionic Appflow / Capacitor Live Updates with signed payloads, no native code or new permissions), in-app purchases (`cordova-plugin-purchase`, `@capacitor-community/in-app-purchases` with backend verification of platform receipt or `purchaseToken`), and the carryover web-stack XSS rules because the WebView IS the application UI.
+
+### Changed
+
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) bumped to pack version `1.17.0`. Directory-structure ASCII tree gains an entry for [`languages/capacitor-ionic.md`](dev-security/claude-rules/languages/capacitor-ionic.md); rule-files table gains a new row noting the web-stack carryover from [`languages/typescript.md`](dev-security/claude-rules/languages/typescript.md) and the core OWASP pack rule [`core/owasp.md`](dev-security/claude-rules/core/owasp.md).
+- [`README.md`](README.md): library `2026.06.8 → 2026.06.9`; README `1.7.146 → 1.7.147`.
+
+### Verification
+
+Full 33-gate audit programme passes standalone immediately before commit. Ran [`tools/lint-language.py`](tools/lint-language.py) standalone on the new file: zero findings first attempt. Re-read the file in full to confirm cross-references to the standard's Sections 2, 5, 6, 10, 13, 14 point at actual content. The opening hybrid-framework rule emphasises that BOTH web-stack and mobile-stack security apply (because the WebView is the UI), which is the Capacitor-specific elaboration of Section 13's general rule. The version-date consistency audit (gate 29) confirms `2026.06.9` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate passes.
+
+### Phased rollout context: complete
+
+This is Phase 7 of 8, the final phase. With this release the mobile-app security work announced as an 8-phase plan is complete:
+- Phase 0 (Library `2026.06.2`): bulk version bump 0.0.1 → 1.0.1 across 54 files.
+- Phase 1 (Library `2026.06.3`, std `1.0.1 → 1.1.0`): mobile standard expansion (App Attest, hybrid frameworks, IAP).
+- Phase 2 (Library `2026.06.4`, pack `1.12.0`): [`languages/swift.md`](dev-security/claude-rules/languages/swift.md).
+- Phase 3 (Library `2026.06.5`, pack `1.13.0`): [`languages/kotlin.md`](dev-security/claude-rules/languages/kotlin.md).
+- Phase 4 (Library `2026.06.6`, pack `1.14.0`): [`languages/react-native.md`](dev-security/claude-rules/languages/react-native.md).
+- Phase 5 (Library `2026.06.7`, pack `1.15.0`): [`languages/flutter.md`](dev-security/claude-rules/languages/flutter.md).
+- Phase 6 (Library `2026.06.8`, pack `1.16.0`): [`languages/dotnet-maui.md`](dev-security/claude-rules/languages/dotnet-maui.md).
+- Phase 7 (Library `2026.06.9`, pack `1.17.0`): [`languages/capacitor-ionic.md`](dev-security/claude-rules/languages/capacitor-ionic.md).
+
+Coverage now spans native iOS (Swift, Objective-C), native Android (Kotlin, Java for Android), and the four mainstream cross-platform stacks (React Native, Flutter, .NET MAUI, Capacitor / Ionic) at the pack-rule layer, with the mobile standard providing the human-readable normative requirements those rules cite. Future pack work may add further mobile frameworks as they emerge.
+
+---
+
 ## 2026-06-02, Library Version 2026.06.8
 
 Mobile-app security work, Phase 6 of 8: .NET MAUI pack rule file.
