@@ -237,6 +237,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [Glossary and Acronym Index](../governance/register-glossary.md)
 - [Key Risk Indicator Catalogue](../risk/register-key-risk-indicators.md)
 - [Key Terms and Definitions Register](../governance/register-key-terms-and-definitions.md)
+- [Main Branch Protection Configuration Register](../governance/register-main-branch-protection.md)
 - [Role Authority Register](../governance/register-role-authority.md)
 - [Scenario Risk Catalogue](../risk/register-scenario-risk-catalogue.md)
 - [US CTPAT Full Minimum Security Criteria Controls Register](../compliance/logistics/register-ctpat-united-states-msc-controls.md)
