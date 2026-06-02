@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide
 **Document Type:** Guideline
-**Version:** 1.14.0
+**Version:** 1.15.0
 **Date:** 2026-06-01
 **Owner:** Chief Information Security Officer
 **Approving Authority:** Governance Library Maintainer
@@ -70,7 +70,8 @@ claude-rules/
     ├── go.md                    Go security patterns
     ├── swift.md                 Swift / iOS (and Objective-C) mobile security patterns
     ├── kotlin.md                Kotlin / Android (and Java for Android) mobile security patterns
-    └── react-native.md          React Native (with or without Expo) cross-platform mobile security patterns
+    ├── react-native.md          React Native (with or without Expo) cross-platform mobile security patterns
+    └── flutter.md               Flutter / Dart cross-platform mobile security patterns
 ```
 
 ---
@@ -156,6 +157,7 @@ If your project already has an `AGENTS.md` for other coding agents (Codex, Curso
 | [`languages/swift.md`](languages/swift.md) | iOS applications written in Swift or Objective-C; implements the iOS-specific controls of [`standard-mobile-application-security.md`](../standard-mobile-application-security.md) |
 | [`languages/kotlin.md`](languages/kotlin.md) | Android applications written in Kotlin or Java; implements the Android-specific controls of [`standard-mobile-application-security.md`](../standard-mobile-application-security.md) |
 | [`languages/react-native.md`](languages/react-native.md) | React Native (with or without Expo) cross-platform mobile applications; implements Section 13 of [`standard-mobile-application-security.md`](../standard-mobile-application-security.md) and the relevant native-layer sections as applied through the JS bridge |
+| [`languages/flutter.md`](languages/flutter.md) | Flutter / Dart cross-platform mobile applications; implements Section 13 of [`standard-mobile-application-security.md`](../standard-mobile-application-security.md) and the relevant native-layer sections as applied through Flutter's platform-channel bridge |
 
 ---
 
