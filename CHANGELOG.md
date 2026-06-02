@@ -4,6 +4,29 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-02, Library Version 2026.06.5
+
+Mobile-app security work, Phase 3 of 8: Android pack rule file.
+
+### Added
+
+- [`dev-security/claude-rules/languages/kotlin.md`](dev-security/claude-rules/languages/kotlin.md) — new pack rule file for Android applications written in Kotlin or Java. Covers secure storage (`EncryptedSharedPreferences`, `EncryptedFile`, manifest backup posture), cryptography (Android Keystore with StrongBox for Tier 1, AES-GCM, `SecureRandom`), authentication and local biometrics (`BiometricPrompt` with `CryptoObject` binding, `setInvalidatedByBiometricEnrollment`, Custom Tabs for OAuth), network and Network Security Configuration (cleartext denied, user-CA trust off, OkHttp `CertificatePinner` and `<pin-set>`), backend attestation (Play Integrity with backend verification), platform interaction (App Links over custom schemes, explicit intents for cross-app data, logging redaction), `WebView` hardening (origin allow-list, narrow `addJavascriptInterface`, file-access flags off), permissions and privacy (narrow scope, Photo Picker preference), distribution and signing (Play App Signing, ProGuard / R8, R8 mapping file preservation), in-app billing (`purchaseToken` server-side verification, acknowledgement gating), and reverse-engineering resistance (root detection as signal, R8 obfuscation, Frida / Xposed hook detection for Tier 1). Every section cross-references the implementing section of [`standard-mobile-application-security.md`](dev-security/standard-mobile-application-security.md). The opening note clarifies that [`languages/java.md`](dev-security/claude-rules/languages/java.md) remains the server-side Java rule file and is distinct from the Android-Java patterns documented here.
+
+### Changed
+
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) bumped to pack version `1.13.0`. The directory-structure ASCII tree gains an entry for [`languages/kotlin.md`](dev-security/claude-rules/languages/kotlin.md). The "Rule files and their scope" table gains a new row.
+- [`README.md`](README.md): library version `2026.06.4 → 2026.06.5`; README version `1.7.142 → 1.7.143`.
+
+### Verification
+
+Full 33-gate audit programme passes standalone immediately before commit. Ran [`tools/lint-language.py`](tools/lint-language.py) standalone on the new pack file: zero findings on first attempt (no em-dashes, no `-ise` verbs, no bare "ensure", no sanitisation terms). Re-read the file in full to confirm each Section cross-reference points at actual content of [`standard-mobile-application-security.md`](dev-security/standard-mobile-application-security.md): Sections 2, 3, 4, 5 (including the new attestation row from Phase 1), 6, 7, 9, 10, 14. The version-date consistency audit (gate 29) confirms `2026.06.5` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate passes ([`CHANGELOG.md`](CHANGELOG.md) is in the diff).
+
+### Phased rollout context
+
+This is Phase 3 of 8 in the mobile-app security work. Phases 4-7 add the cross-platform pack rule files: React Native, Flutter, .NET MAUI, Capacitor / Ionic.
+
+---
+
 ## 2026-06-02, Library Version 2026.06.4
 
 Mobile-app security work, Phase 2 of 8: first per-language pack rule file for mobile.
