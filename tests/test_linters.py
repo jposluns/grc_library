@@ -1155,6 +1155,43 @@ class LibraryVersionMonotonicityTests(LinterTestCase):
         )
         self.assertLinterFails(result, "decreased")
 
+    def test_library_version_in_code_block_ignored(self) -> None:
+        # Prior fixture has a high version inside a fenced code block
+        # (which is a template / example, not the file's metadata) and
+        # the real version outside the fence. The parser must skip the
+        # in-fence value and use the real one. Without this skip,
+        # template metadata blocks in CONTRIBUTING.md or worked-example.md
+        # could be misread as the file's actual version (the failure
+        # mode that bit Phase 0 on 2026-06-02).
+        prior_fixture = self.make_fixture(
+            "fake-prior-readme-fenced.md",
+            (
+                "# Fake README\n\n"
+                "Example template (do not parse):\n\n"
+                "```\n"
+                "**Library Version:** 9999.99.99\n"
+                "```\n\n"
+                "**Library Version:** 2026.01.0\n"
+            ),
+        )
+        result = run_linter(
+            "tools/lint-library-version-monotonicity.py",
+            "--prior-readme",
+            prior_fixture,
+        )
+        # The current working tree is well above 2026.01.0, so if the
+        # parser correctly skips the fenced 9999.99.99 the audit passes.
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=(
+                f"linter should have passed (current >> 2026.01.0) but "
+                f"appears to have read the fenced 9999.99.99 as the "
+                f"prior version.\nstdout:\n{result.stdout}\n"
+                f"stderr:\n{result.stderr}"
+            ),
+        )
+
 
 class VersionDateConsistencyTests(LinterTestCase):
     """tools/lint-version-date-consistency.py
