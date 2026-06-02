@@ -4,6 +4,36 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-02, Library Version 2026.06.13
+
+Phase A.1 of the follow-up plan: fix the underlying defect in the version-monotonicity audit that caused two real problems earlier today. The audit's regex previously matched any `**Version:** x.y.z` line in a Markdown file regardless of context, including lines inside fenced code blocks. This let (a) Phase 0's bulk sed sweep match a template field in [`CONTRIBUTING.md`](CONTRIBUTING.md), and (b) the audit block the cleaner revert in PR #24.
+
+### Fixed
+
+- [`tools/lint-library-version-monotonicity.py`](tools/lint-library-version-monotonicity.py) now reads versions via `iter_non_code_lines` from [`tools/lint_common.py`](tools/lint_common.py), the same fence-aware helper that [`tools/lint-language.py`](tools/lint-language.py) already uses. Both `CALVER_RE` (library version on [`README.md`](README.md)) and `SEMVER_RE` (per-document versions) now skip fenced code blocks. The matching otherwise unchanged: first match wins, file order preserved.
+
+### Added
+
+- [`tests/test_linters.py`](tests/test_linters.py) gains `test_library_version_in_code_block_ignored` in `LibraryVersionMonotonicityTests`. The fixture has a high version (`9999.99.99`) inside a fenced code block and the real version (`2026.01.0`) outside; the audit must skip the fence and pick the real value. The pre-existing `test_decreased_library_version_flagged` continues to pass, confirming the regression coverage on the prior behaviour did not change.
+
+### Changed
+
+- [`README.md`](README.md): library version `2026.06.12 → 2026.06.13`; README version `1.7.150 → 1.7.151`.
+
+### Why this matters
+
+Phase 0 (`2026.06.2`) bulk-bumped `0.0.1 → 1.0.1` across 54 files using a sed pattern that matched any line starting with `**Version:** 0.0.1`. It inadvertently matched a template metadata block inside [`CONTRIBUTING.md`](CONTRIBUTING.md)'s fenced code region. PR #24 (`2026.06.11`) tried to revert that template's Version to `0.0.1`, but the monotonicity audit (gate 13) refused because it saw the in-fence value as a per-document regression `1.0.1 → 0.0.1`. The fallback was to use a non-semver placeholder `X.Y.Z` instead — a workable solution but not the cleanest. With this PR's fix, future bulk sweeps and template reverts can use the natural `0.0.1` value without tripping the audit.
+
+### Verification
+
+Full 33-gate audit programme passes standalone immediately before commit. The new regression test passes; the existing one continues to pass. Re-ran the audit standalone on the current corpus: zero false-positive findings. The version-date consistency audit (gate 29) confirms `2026.06.13` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate passes.
+
+### Phased follow-up context
+
+This is Phase A.1 of the 4-phase follow-up plan (A.1 defect fix; B.1 new gate; C.1 branch-protection verification; D.1 metadata-header additions for the four repo-root files).
+
+---
+
 ## 2026-06-02, Library Version 2026.06.12
 
 Three additional files from a tightened metadata-rendering scan that my original scanner missed. Closes the metadata-rendering cleanup with **zero** remaining flagged files corpus-wide.

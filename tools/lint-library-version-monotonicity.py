@@ -43,26 +43,38 @@ import subprocess
 import sys
 from pathlib import Path
 
-from lint_common import DEFAULT_EXEMPT_DIRS
+from lint_common import DEFAULT_EXEMPT_DIRS, iter_non_code_lines
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 CALVER_RE = re.compile(r"\*\*Library Version:\*\*\s+(\d+)\.(\d+)\.(\d+)")
-SEMVER_RE = re.compile(r"^\*\*Version:\*\*\s+(\d+)\.(\d+)\.(\d+)", re.MULTILINE)
+SEMVER_RE = re.compile(r"^\*\*Version:\*\*\s+(\d+)\.(\d+)\.(\d+)")
 
 
 def parse_calver(text: str) -> tuple[int, int, int] | None:
-    m = CALVER_RE.search(text)
-    if not m:
-        return None
-    return tuple(int(x) for x in m.groups())  # type: ignore[return-value]
+    """Find the first ``**Library Version:** YYYY.MM.patch`` outside a fenced code block."""
+    for _, line in iter_non_code_lines(text):
+        m = CALVER_RE.search(line)
+        if m:
+            return tuple(int(x) for x in m.groups())  # type: ignore[return-value]
+    return None
 
 
 def parse_semver(text: str) -> tuple[int, int, int] | None:
-    m = SEMVER_RE.search(text)
-    if not m:
-        return None
-    return tuple(int(x) for x in m.groups())  # type: ignore[return-value]
+    """Find the first ``**Version:** x.y.z`` outside a fenced code block.
+
+    Reading the version only from non-code lines prevents template metadata
+    blocks (e.g. the contributor template inside ``CONTRIBUTING.md``'s fenced
+    code region, or the ``docs/worked-example.md`` walkthrough) from being
+    mistaken for the file's real metadata. See the regression fixture in
+    ``tests/test_linters.py::LibraryVersionMonotonicityTests`` for the
+    template-version-ignored case.
+    """
+    for _, line in iter_non_code_lines(text):
+        m = SEMVER_RE.match(line)
+        if m:
+            return tuple(int(x) for x in m.groups())  # type: ignore[return-value]
+    return None
 
 
 def git_show(ref: str, path: str) -> str | None:
