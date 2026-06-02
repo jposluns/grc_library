@@ -4,6 +4,29 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-02, Library Version 2026.06.8
+
+Mobile-app security work, Phase 6 of 8: .NET MAUI pack rule file.
+
+### Added
+
+- [`dev-security/claude-rules/languages/dotnet-maui.md`](dev-security/claude-rules/languages/dotnet-maui.md) — new pack rule file for .NET MAUI applications (including Blazor Hybrid). The existing [`languages/csharp.md`](dev-security/claude-rules/languages/csharp.md) remains the server-side C# rule file. Covers secure-storage delegation (`SecureStorage` and encrypted SQLite over `Preferences` and unencrypted SQLite), cross-platform handlers and dependency-service trust boundary (narrow validated APIs; Blazor Hybrid `IJSRuntime` interop boundary), network (certificate pinning via custom `RemoteCertificateValidationCallback`), backend attestation through platform-conditional `IAttestationService` implementations, build hardening and release configuration (csproj `PropertyGroup` settings for iOS / Android release; ProGuard / R8 enable; trimming review; hot-reload kept to debug), deep links via MAUI Shell with App Links / Universal Links, permissions (`Permissions.RequestAsync<>` with narrow scope), in-app purchases (`Plugin.InAppBilling` / `Xamarin.Essentials.InAppPurchase` with backend verification of platform receipt / `purchaseToken`), logging and crash-reporter redaction, and Blazor Hybrid WebView specifics (`MarkupString` hazards, CSP delivery via host page).
+
+### Changed
+
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) bumped to pack version `1.16.0`. Directory-structure ASCII tree gains an entry for [`languages/dotnet-maui.md`](dev-security/claude-rules/languages/dotnet-maui.md); rule-files table gains a new row.
+- [`README.md`](README.md): library `2026.06.7 → 2026.06.8`; README `1.7.145 → 1.7.146`.
+
+### Verification
+
+Full 33-gate audit programme passes standalone immediately before commit. Ran [`tools/lint-language.py`](tools/lint-language.py) standalone on the new file: zero findings first attempt. Re-read the file in full to confirm cross-references to the standard's Sections 2, 5, 6, 7, 10, 13, 14 point at actual content. The opening hybrid-framework rule restates Section 13's "shifts layers, doesn't remove controls" applied to MAUI's specific architecture (Mono / .NET runtime + handler pattern). The version-date consistency audit (gate 29) confirms `2026.06.8` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate passes.
+
+### Phased rollout context
+
+Phase 6 of 8. Phase 7 completes the mobile-app work with Capacitor / Ionic.
+
+---
+
 ## 2026-06-02, Library Version 2026.06.7
 
 Mobile-app security work, Phase 5 of 8: Flutter pack rule file.
