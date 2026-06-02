@@ -4,6 +4,36 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-02, Library Version 2026.06.14
+
+Phase B.1 of the follow-up plan: promote the metadata-line-breaks scanner methodology developed during the rendering-cleanup PRs (#23, #24, #25) into a 34th audit gate. This catches the soft-wrap rendering bug class going forward in CI rather than relying on ad-hoc scans.
+
+### Added
+
+- [`tools/lint-metadata-line-breaks.py`](tools/lint-metadata-line-breaks.py) — new audit gate 30 (Metadata-block line-break audit). Finds runs of 2+ consecutive `**Field:**` lines and confirms each non-last line ends with either `\` or two-or-more trailing spaces (both are valid Markdown hard-break markers). Skips fenced code blocks via `iter_non_code_lines` so templates demonstrating metadata format are not false-positives. Last line in each run is exempt because the next line is conventionally a blank line or `---` separator.
+- [`tests/test_linters.py`](tests/test_linters.py) gains `MetadataLineBreaksTests` with two cases: (a) a metadata block outside any code fence whose non-last lines lack hard-break markers (must be flagged), and (b) the same block inside a code fence (must NOT be flagged).
+
+### Changed
+
+- All four audit-programme surfaces gain the new gate at position 30; gates previously at positions 30-33 renumber to 31-34. The four surfaces are: [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) section 6 inventory, [`.github/workflows/quality.yml`](.github/workflows/quality.yml), [`tools/run_all_audits.sh`](tools/run_all_audits.sh), and [`.pre-commit-config.yaml`](.pre-commit-config.yaml). The gate-name parity audit (now gate 33) confirms all four declare the new gate at the same ordered position.
+- Inline `gate-33 regression test suite` comments in 9 linters renumbered to `gate-34` to track the regression suite's new position: [`tools/lint-acronym-consistency.py`](tools/lint-acronym-consistency.py), [`tools/lint-audit-gate-parity.py`](tools/lint-audit-gate-parity.py), [`tools/lint-citation-verification-freshness.py`](tools/lint-citation-verification-freshness.py), [`tools/lint-library-version-monotonicity.py`](tools/lint-library-version-monotonicity.py), [`tools/lint-roles.py`](tools/lint-roles.py), [`tools/lint-standards-currency.py`](tools/lint-standards-currency.py), [`tools/lint-structure.py`](tools/lint-structure.py), [`tools/lint-tooling-provenance-freshness.py`](tools/lint-tooling-provenance-freshness.py), [`tools/lint-version-date-consistency.py`](tools/lint-version-date-consistency.py), [`tools/run-linter-regression.py`](tools/run-linter-regression.py), and [`tests/README.md`](tests/README.md).
+- Gate-count references "33-gate / 33 gates" → "34-gate / 34 gates" in [`governance/procedure-library-quality-and-review-cadence.md`](governance/procedure-library-quality-and-review-cadence.md), [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), and the comments in [`tools/run_all_audits.sh`](tools/run_all_audits.sh) and [`tools/lint-audit-gate-parity.py`](tools/lint-audit-gate-parity.py).
+- [`README.md`](README.md): library version `2026.06.13 → 2026.06.14`; README version `1.7.151 → 1.7.152`.
+
+### Why this matters
+
+We've seen the soft-wrap rendering bug bite 6 files across the corpus during today's session: the pack [`README.md`](dev-security/claude-rules/README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`docs/worked-example.md`](docs/worked-example.md), and three [`compliance/logistics/`](compliance/logistics/) registers. Each was found by an ad-hoc Python scanner — a one-off discovery that doesn't run in CI. With the gate in place, any future PR that introduces or reintroduces the same bug fails CI before merge. The implementation reuses the methodology proven in those rendering-fix PRs, including the fenced-code-block skip that prevents false-positives on metadata-format-demonstration templates.
+
+### Verification
+
+Full 34-gate audit programme passes standalone. The new gate (gate 30) runs cleanly on the current corpus (zero findings). The gate-name parity audit (now gate 33) confirms the four surfaces all declare the new gate at the same ordered position. The two new regression tests pass under `python3 -m unittest tests.test_linters.MetadataLineBreaksTests`. The version-date consistency audit confirms `2026.06.14` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate passes.
+
+### Phased follow-up context
+
+This is Phase B.1 of the 4-phase plan: A.1 (defect fix, shipped in `2026.06.13`) and B.1 are now complete. C.1 (branch-protection verification) and D.1 (metadata headers for the four repo-root files) follow.
+
+---
+
 ## 2026-06-02, Library Version 2026.06.13
 
 Phase A.1 of the follow-up plan: fix the underlying defect in the version-monotonicity audit that caused two real problems earlier today. The audit's regex previously matched any `**Version:** x.y.z` line in a Markdown file regardless of context, including lines inside fenced code blocks. This let (a) Phase 0's bulk sed sweep match a template field in [`CONTRIBUTING.md`](CONTRIBUTING.md), and (b) the audit block the cleaner revert in PR #24.

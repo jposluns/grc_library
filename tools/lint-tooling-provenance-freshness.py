@@ -126,7 +126,7 @@ def main(argv: list[str]) -> int:
         type=Path,
         default=None,
         help="Override repository root the tooling-landscape register "
-             "is read from (used by the gate-33 regression test suite "
+             "is read from (used by the gate-34 regression test suite "
              "for synthetic-fixture isolation testing). Default: the "
              "actual repository root derived from this file's location.",
     )
