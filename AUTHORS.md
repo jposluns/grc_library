@@ -1,5 +1,21 @@
 # Authors and Acknowledgements
 
+**Document Title:** Authors and Acknowledgements\
+**Document Type:** Register\
+**Version:** 1.0.0\
+**Date:** 2026-06-02\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`README.md`](README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`NOTICE.md`](NOTICE.md)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** On every new contributor; annual review for accuracy of contact details and acknowledgements\
+**Repository Path:** [`AUTHORS.md`](AUTHORS.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
 ## Original creator and maintainer
 
 **Jeffrey Posluns**

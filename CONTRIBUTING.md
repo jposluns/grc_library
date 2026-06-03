@@ -1,5 +1,21 @@
 # Contributing to the GRC Documentation Library
 
+**Document Title:** Contributing to the GRC Documentation Library\
+**Document Type:** Guideline\
+**Version:** 1.0.0\
+**Date:** 2026-06-02\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`README.md`](README.md), [`specification-master-project.md`](specification-master-project.md), [`specification-ingestion.md`](specification-ingestion.md), [`SECURITY.md`](SECURITY.md), [`NOTICE.md`](NOTICE.md), [`AUTHORS.md`](AUTHORS.md), [`CHANGELOG.md`](CHANGELOG.md)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** Annual and upon material change to the contribution workflow, audit programme, or licence posture\
+**Repository Path:** [`CONTRIBUTING.md`](CONTRIBUTING.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
 Thank you for considering a contribution. This library is released under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0). By submitting a contribution, you license your contribution to the library and downstream adopters under the same CC BY-SA 4.0 terms (see Licence section below for full details). Before submitting a change, please read the two governing specifications:
 
 - [`specification-master-project.md`](specification-master-project.md): document model, type vocabulary, metadata block, formatting rules.
