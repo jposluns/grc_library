@@ -112,14 +112,16 @@ TYPE_TO_PREFIX = {
 # membership protects against drift in the default-paths logic.
 EXEMPT = {
     "README.md",
-    "NOTICE.md",
     "CHANGELOG.md",
-    "CONTRIBUTING.md",
-    "SECURITY.md",
     "TODO.md",
-    "AUTHORS.md",
     "instruction-ai-document-ingestion.md",
 }
+# Phase D.1 (2026-06-02): NOTICE.md, CONTRIBUTING.md, SECURITY.md, and
+# AUTHORS.md were removed from this set when they each acquired a full
+# 13-field metadata header. docs/worked-example.md was simultaneously
+# carved out of EXEMPT_PREFIXES via the FORCE_INCLUDE_PATHS override
+# below. The four remaining EXEMPT files have a documented reason to
+# remain exempt (see TODO.md "no per-file versioning" carve-out).
 # Phase 23.62 removed `LICENSE` from this set and from
 # PREFIX_EXEMPT_BASENAMES below. The linter scans `.md` files only,
 # so the suffix-less LICENSE file was unreachable in both places.
@@ -133,6 +135,15 @@ EXEMPT_PREFIXES = (
     "docs/",
 )
 
+# Specific files that ARE enforced even though their directory is in
+# EXEMPT_PREFIXES above. Phase D.1 (2026-06-02) added the worked-example
+# guide to the metadata-enforcement set without flipping the rest of
+# docs/ (which contains generated artefacts like portal.md and
+# maturity-scorecard.md that intentionally lack metadata).
+FORCE_INCLUDE_PATHS = {
+    "docs/worked-example.md",
+}
+
 # Domain README files: simpler shape; skipped from full block enforcement.
 DOMAIN_README_NAMES = {"README.md"}
 
@@ -140,6 +151,10 @@ DOMAIN_README_NAMES = {"README.md"}
 PREFIX_EXEMPT_BASENAMES = {
     "README.md",
     "NOTICE.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "AUTHORS.md",
+    "worked-example.md",
     "specification-master-project.md",
     "specification-ingestion.md",
     "instruction-ai-document-ingestion.md",
@@ -322,8 +337,10 @@ def check_file(path: Path) -> list[str]:
     if rel in EXEMPT:
         return findings
 
-    # Files in exempt directories (tooling docs, draggable rule files) are skipped.
-    if any(rel.startswith(p) for p in EXEMPT_PREFIXES):
+    # Files in exempt directories (tooling docs, draggable rule files) are
+    # skipped UNLESS they are listed in FORCE_INCLUDE_PATHS as specific
+    # carve-outs that the audit programme does want to enforce.
+    if any(rel.startswith(p) for p in EXEMPT_PREFIXES) and rel not in FORCE_INCLUDE_PATHS:
         return findings
 
     # Domain README files: enforce only the basic metadata header (loose check).

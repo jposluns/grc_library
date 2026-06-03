@@ -1,5 +1,21 @@
 # Security and content defect reporting
 
+**Document Title:** Security and Content Defect Reporting\
+**Document Type:** Procedure\
+**Version:** 1.0.0\
+**Date:** 2026-06-02\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`README.md`](README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`NOTICE.md`](NOTICE.md), [`governance/policy-exception-and-risk-acceptance-management.md`](governance/policy-exception-and-risk-acceptance-management.md), [`governance/specification-citation-verification.md`](governance/specification-citation-verification.md)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** Annual and upon material change to the defect-reporting channel or licence-concern escalation path\
+**Repository Path:** [`SECURITY.md`](SECURITY.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
 This file describes how to report problems with the contents of this repository.
 
 ## Scope
