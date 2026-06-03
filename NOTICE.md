@@ -1,10 +1,18 @@
 # Notice: External Reference Materials and Licence Boundaries
 
-**Version:** 1.2.0\
-**Date:** 2026-05-31\
+**Document Title:** Notice: External Reference Materials and Licence Boundaries\
+**Document Type:** Policy\
+**Version:** 1.3.0\
+**Date:** 2026-06-02\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`README.md`](README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md), [`governance/specification-citation-verification.md`](governance/specification-citation-verification.md), [`governance/register-canonical-citations.md`](governance/register-canonical-citations.md)\
 **Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** Annual and upon material change to the external reference policy, an added external content source, or a licence posture change\
+**Repository Path:** [`NOTICE.md`](NOTICE.md)\
 **Confidentiality:** Public\
-**License:** CC BY-SA 4.0 for original repository content only
+**License:** CC BY-SA 4.0
 
 ---
 

@@ -4,6 +4,34 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-02, Library Version 2026.06.16
+
+Phase D.1 of the follow-up plan: give five previously-exempt repo-root meta files their own canonical 13-field metadata block and bring them under the corpus metadata audit. Closes the inconsistency where [`README.md`](README.md) carried a metadata block but other adjacent repo-root files did not.
+
+### Added
+
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) gains a 13-field metadata block: Document Type **Guideline**, Version `1.0.0`, Category **Core Governance**, Owner / Approving Authority **Governance Library Maintainer**, Related Documents linking to the project's specifications, [`SECURITY.md`](SECURITY.md), and the new [`AUTHORS.md`](AUTHORS.md) metadata.
+- [`SECURITY.md`](SECURITY.md) gains a 13-field metadata block: Document Type **Procedure**, Version `1.0.0`, Category **Core Governance**, Related Documents linking to [`CONTRIBUTING.md`](CONTRIBUTING.md), [`NOTICE.md`](NOTICE.md), and the exception-management and citation-verification governance specs.
+- [`AUTHORS.md`](AUTHORS.md) gains a 13-field metadata block: Document Type **Register**, Version `1.0.0`, Category **Core Governance**, Review Frequency that includes "on every new contributor".
+- [`docs/worked-example.md`](docs/worked-example.md) gains a 13-field metadata block: Document Type **Guide**, Version `1.0.0`, Category **Documentation**, Related Documents linking to the two specifications, [`CONTRIBUTING.md`](CONTRIBUTING.md), and the other adopter guides under [`docs/`](docs/). This is the only enforced file under [`docs/`](docs/); the rest of the directory contains generated artefacts ([`docs/portal.md`](docs/portal.md), [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md)) that intentionally lack metadata.
+
+### Changed
+
+- [`NOTICE.md`](NOTICE.md) extended from a partial 5-field block (Version, Date, Classification, Confidentiality, License) to the full 13-field block: Document Type **Policy**, Version `1.2.0 → 1.3.0`, Category **Core Governance**, Related Documents pointing at the citation-verification specification and the new canonical-citations register. The License field was normalised from `CC BY-SA 4.0 for original repository content only` to the canonical value `CC BY-SA 4.0`; the "original-repository-only" qualifier is documented in the body of NOTICE.md itself, which is the correct place for it.
+- [`tools/lint-metadata.py`](tools/lint-metadata.py) updates the audit-rule set: NOTICE, CONTRIBUTING, SECURITY, and AUTHORS removed from the `EXEMPT` set; the new entries added to `PREFIX_EXEMPT_BASENAMES` so the filename-prefix-alignment check accepts the conventional repo-root names. A new `FORCE_INCLUDE_PATHS` set carves [`docs/worked-example.md`](docs/worked-example.md) out of the directory-level `docs/` exemption while leaving the rest of the directory exempt. Each change is anchored by a code comment naming "Phase D.1 (2026-06-02)" for future maintainers.
+- [`TODO.md`](TODO.md) line 5 carve-out statement updated. Was: "README, NOTICE, CONTRIBUTING, SECURITY, CHANGELOG, and this TODO file are all maintained at the same conventional level (no per-file versioning)." Now correctly enumerates the remaining exempt files ([`CHANGELOG.md`](CHANGELOG.md), [`TODO.md`](TODO.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md)) and names the six files that now carry the canonical metadata block.
+- [`README.md`](README.md): library version `2026.06.15 → 2026.06.16`; README version `1.7.153 → 1.7.154`.
+
+### Verification
+
+Full 34-gate audit programme passes standalone immediately before commit. The metadata audit (gate 1) now actively validates all five newly-headered files; previously it ignored them via `EXEMPT` / `EXEMPT_PREFIXES`. The filename-title-alignment audit (gate 7) accepts the repo-root basenames via the extended `PREFIX_EXEMPT_BASENAMES`. The metadata-block line-break audit (gate 30, shipped earlier today) ran clean on the five files — each new block's non-last lines carry the trailing `\` hard-break marker. The version-monotonicity audit (gate 13) confirms NOTICE's per-document `1.2.0 → 1.3.0` is an increase. The version-date consistency audit (gate 29) confirms `2026.06.16` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate passes.
+
+### Phased follow-up context
+
+This is Phase D.1 of the 4-phase plan. With this PR all four phases (A.1, B.1, C.1, D.1) are complete.
+
+---
+
 ## 2026-06-02, Library Version 2026.06.15
 
 Phase C.1 of the follow-up plan: document the `main` branch-protection configuration as a governance register so it can be audited from the repository rather than from a privileged settings-page view.
