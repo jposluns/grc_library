@@ -2,8 +2,8 @@
 
 **Document Title:** Main Branch Protection Configuration Register\
 **Document Type:** Register\
-**Version:** 1.0.0\
-**Date:** 2026-06-02\
+**Version:** 1.0.1\
+**Date:** 2026-06-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/claude-rules/governance/artefact-and-branch-discipline.md`](../dev-security/claude-rules/governance/artefact-and-branch-discipline.md), [`governance/specification-audit-programme.md`](specification-audit-programme.md), [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`README.md`](../README.md)\
@@ -70,9 +70,17 @@ Each is permitted by the pack rule as project preference; the deliberate-off sta
 
 ## Bypass list
 
-The ruleset's bypass-actor list is empty as of the **Date** above. No actor is exempt from the rules in the table above.
+| Actor | Bypass mode | Added | Rationale |
+| --- | --- | --- | --- |
+| `jposluns` (maintainer) | For pull requests | 2026-06-02 | Solo-maintainer posture: the project currently has one human maintainer, who is also the actor authoring PRs via the GitHub MCP / API. GitHub's hard-coded self-review prohibition prevents the maintainer from approving their own PR; without a bypass entry, no PR authored by the maintainer can be merged. The bypass enables in-chat / API-driven merges for maintainer-authored PRs while leaving the "≥1 approving review" rule in force for any future external contributor (whose PRs are not bypassed). This is a documented exception per the [`dev-security/claude-rules/governance/gate-discipline.md`](../dev-security/claude-rules/governance/gate-discipline.md) exception-handling protocol; review trigger: addition of any second maintainer to the repository. |
 
-If a bypass becomes necessary in future (for example, an embargoed security fix that cannot wait for a PR review), the exception is recorded per the protocol in [`dev-security/claude-rules/governance/artefact-and-branch-discipline.md`](../dev-security/claude-rules/governance/artefact-and-branch-discipline.md) section "Exception-handling protocol". That protocol includes the procedure to preserve the pre-rewrite ref under a `refs/preservation/`-prefixed namespace (with the short reason and the ISO date appended, then the original ref name) when a force-push is the only available remediation.
+### What the bypass affects
+
+In "For pull requests" mode the listed actor bypasses **all** rules in the table above when merging a PR they authored. That includes the `Lint markdown corpus` required status check: the maintainer can technically merge a PR whose CI is failing. The operational discipline that the maintainer continues to wait for CI green before merging is therefore behavioural, not gate-enforced; this is acceptable for the current solo-maintainer posture and is reviewed at the trigger above. Direct push to `main` is still prevented (the PR mechanism is still required, even with the bypass), and force-push and branch deletion remain blocked for the bypass actor by the lower-level `Block force pushes` and `Restrict deletions` rules (which are not part of the PR-merge bypass scope).
+
+### Exception-handling cross-reference
+
+The bypass is logged here in lieu of a separate exception register. The pack rule [`dev-security/claude-rules/governance/gate-discipline.md`](../dev-security/claude-rules/governance/gate-discipline.md) section "Exception-handling protocol" specifies that such exceptions are time-bounded; the time-bound for this bypass is the project's transition out of solo-maintainer posture (no calendar deadline because no second maintainer is yet planned). If the maintainer set grows beyond one, this entry is removed and PRs authored by that maintainer go through the standard review path the same as any other contributor's.
 
 ---
 

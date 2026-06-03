@@ -4,6 +4,27 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-03, Library Version 2026.06.17
+
+Update the main-branch-protection register to reflect the bypass-actor configuration added on 2026-06-02. Closes the silent-drift gap between the register's claim ("bypass-actor list is empty") and the live ruleset state.
+
+### Changed
+
+- [`governance/register-main-branch-protection.md`](governance/register-main-branch-protection.md) per-document version `1.0.0 → 1.0.1`. The "Bypass list" section rewritten: was a one-sentence claim that the list is empty; is now a table with one entry (`jposluns`, "For pull requests" mode, added 2026-06-02) plus rationale (solo-maintainer posture; the bypass exists because GitHub's hard-coded self-review prohibition prevents the maintainer from approving their own MCP-authored PRs and without the bypass no maintainer-authored PR can merge). A new "What the bypass affects" subsection makes the trade-off explicit: in "For pull requests" mode the listed actor bypasses **all** ruleset rules including the required CI check, so the maintainer's behavioural discipline of waiting for CI green is no longer gate-enforced (it remains in force operationally). Force-push and branch-deletion remain blocked even for the bypass actor because those rules are not part of the PR-merge bypass scope. A new "Exception-handling cross-reference" subsection logs the bypass against the pack rule [`dev-security/claude-rules/governance/gate-discipline.md`](dev-security/claude-rules/governance/gate-discipline.md) exception-handling protocol, with a review trigger (addition of any second maintainer to the repository) rather than a calendar deadline.
+- [`README.md`](README.md): library version `2026.06.16 → 2026.06.17`; README version `1.7.154 → 1.7.155`; Date `2026-06-02 → 2026-06-03` (calendar rolled).
+
+### Why this matters
+
+The [`evidence-grounded-completion`](.claude/rules/governance/evidence-grounded-completion.md) rule shipped 2026-06-01 says a register that makes a false claim about a snapshot is a defect. The register shipped in `2026.06.15` (PR #28) said the bypass list was empty. Within hours that became false (PR #29 was merged via the bypass), and the discrepancy has been outstanding since. This PR closes it.
+
+### Verification
+
+Full 34-gate audit programme passes standalone immediately before commit. The version-monotonicity audit (gate 13) confirms the per-document bump `1.0.0 → 1.0.1` is an increase. The version-date consistency audit (gate 29) confirms `2026.06.17` matches `2026-06`. The metadata-block line-break audit (gate 30) clean. The D1 CHANGELOG-on-PR delta gate passes.
+
+This is the only outstanding piece of work from the day's session. With this PR the registers and the live configuration are once again in sync.
+
+---
+
 ## 2026-06-02, Library Version 2026.06.16
 
 Phase D.1 of the follow-up plan: give five previously-exempt repo-root meta files their own canonical 13-field metadata block and bring them under the corpus metadata audit. Closes the inconsistency where [`README.md`](README.md) carried a metadata block but other adjacent repo-root files did not.
