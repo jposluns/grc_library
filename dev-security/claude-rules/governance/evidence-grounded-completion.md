@@ -26,6 +26,23 @@ Synonyms that count as completion claims include: done, complete, completed, fin
 
 ---
 
+## Beyond completion: claims about artefact state
+
+The verification protocol below is written for completion claims, but the discipline it encodes (a claim requires a read, not an inference) applies to any factual assertion about an artefact's contents, structure, or requirements, made in any phase: research, assessment, planning, or review, not only at completion.
+
+A *state assertion* is a claim about what an artefact is or needs. "This file contains X", "this template lacks field Y", "this document requires Z", and "the matrix maps controls at the identifier level" are all state assertions. Each is a claim a reader will rely on, and each requires the artefact to have been read. An assertion about an artefact that has not been opened is an inference, not a finding.
+
+The discipline for state assertions:
+
+- **Read before characterising.** Open the artefact before asserting what it contains, lacks, or requires. A plausible inference about an unread file is the failure mode this section exists to prevent.
+- **Label hypotheses explicitly.** Where the read has not happened yet, mark the statement as unverified (for example, "unverified: I have not read X") and do not let a downstream decision depend on it until the read is done.
+- **Separate findings from hypotheses in analysis.** In an assessment or review, present findings (grounded in a read, with a quote or a location reference) separately from hypotheses (inferences pending a read). Never present an unverified inference in the same register as a verified fact; a reader cannot tell the two apart unless the labelling does it for them.
+- **Own a caught inference plainly.** Where an assertion about an unread artefact has already been made, say so and read the artefact before anything depends on it. Do not retrofit the assertion as though it had been verified.
+
+This is the same machinery as the completion protocol: enumerate what is claimed, read the source, quote or locate the support, and label what remains unverified. Only the trigger is broader, reaching any state assertion rather than the vocabulary of completion alone.
+
+---
+
 ## The verification protocol
 
 Before stating a completion claim, perform every step:
@@ -86,6 +103,7 @@ If part of the claim is unverified, name the unverified part. Do not imply verif
 - **Hedging with "should" or "appears to" while still making a state assertion**. "The fix should work" or "the entry appears to be present" are still claims a reader will rely on. Either you ran the verification (state the result) or you did not (state the gap).
 - **Conflating "I edited the file" with "the file is correct"**. The edit happened; the file's correctness is a separate proposition that needs its own verification.
 - **Bypassing the verification protocol to make progress faster**. The protocol exists precisely because skipping it is the failure mode. The minute saved by skipping is paid back many times when the unsupported claim turns out to be wrong.
+- **Characterising an artefact you have not opened**. Asserting that a file, template, schema, or document contains, lacks, or requires something by inference rather than by reading it. If you have not read it, the statement is a hypothesis, not a finding; label it as such and read it before anything depends on it. This anti-pattern fires in analysis and assessment, not only at completion.
 
 ---
 

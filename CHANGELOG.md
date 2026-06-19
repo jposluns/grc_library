@@ -4,6 +4,38 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-19, Library Version 2026.06.32, PR #45
+
+Extend the [`evidence-grounded-completion`](dev-security/claude-rules/governance/evidence-grounded-completion.md) pack rule from "evidence before completion claims" to "evidence before any state assertion." A session failure prompted this: during a governance assessment the assistant asserted that two templates "need new fields" and that a cross-framework matrix "needs control mappings" without having read those files; a later read confirmed the templates but showed the matrix operated at a different granularity than asserted. The existing rule did not fire because these were mid-analysis state assertions, not completion claims ("done", "fixed", "ready"). The rule's machinery (read, quote, contradiction-search, label-the-unverified) was already the right discipline; only its stated trigger was too narrow.
+
+The change is deliberately scoped to the rule and its consumers; it does not attempt to restate the discipline across every summary surface (the rule's title and the pack summaries name it by its primary purpose, completion claims, which remains accurate). The canonical rule carries the broadened scope.
+
+### Added
+
+- New section **"Beyond completion: claims about artefact state"** in [`dev-security/claude-rules/governance/evidence-grounded-completion.md`](dev-security/claude-rules/governance/evidence-grounded-completion.md), placed between "What counts as a completion claim" and "The verification protocol". It defines a state assertion (a claim about what an artefact contains, lacks, or requires), states that such a claim requires a read rather than an inference, and gives the four-point discipline: read before characterising; label hypotheses explicitly; separate findings from hypotheses in analysis; own a caught inference plainly.
+- New bullet in the rule's "Prohibited anti-patterns" section: **"Characterising an artefact you have not opened"** — asserting contents, gaps, or requirements by inference rather than by reading, explicitly noting the anti-pattern fires in analysis and assessment, not only at completion.
+- New "When to Use" trigger and a description-line addition in [`dev-security/claude-rules/skills/evidence-grounded-completion/SKILL.md`](dev-security/claude-rules/skills/evidence-grounded-completion/SKILL.md) so the skill surfaces for state assertions in research, assessment, planning, or review, not only for completion claims.
+
+### Changed
+
+- [`.claude/rules/governance/evidence-grounded-completion.md`](.claude/rules/governance/evidence-grounded-completion.md) re-synced from the pack source (the project-local copy a session loads as context). Gate 37 (claude-rules local-copy sync) enforces byte-identity of the rule body, so the extension propagates to the loaded copy by construction; this is the drift class gate 37 was built to prevent.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.20.1 → 1.20.2`. Patch, consistent with the prior precedent (`1.20.0 → 1.20.1`) for adding a subsection to an existing rule: no new rule files, no structural change to the pack's content shape.
+- [`README.md`](README.md): library version `2026.06.31 → 2026.06.32`; README version `1.7.169 → 1.7.170`.
+
+### Relationship to the user-level rule layer
+
+This pack rule is the dogfooded, distributable home for the discipline. A parallel cross-project clause was added to the maintainer's user-level Claude Code rules (outside this repository) so the same discipline applies to the assistant's behaviour across all projects, not only this one. The two layers are complementary: the pack rule ships with the corpus and binds any project that adopts it; the user-level rule binds the assistant regardless of project.
+
+### Why this is a rule and not a lint
+
+The failure occurs in session reasoning (a chat assertion about an unread file), not in a committed artefact, so no corpus linter can detect it: a lint scans committed files, and the false assertion was never committed. The decidable subset of "assertion versus reality" is already gated (link existence, citation currency, internal references, version monotonicity, gate-name parity, claude-rules sync); this class is not mechanically decidable and its home is therefore a behavioural rule loaded as context, not a gate. This is mitigation, not a guarantee.
+
+### Verification
+
+Full 37-gate audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. Gate 37 (claude-rules local-copy sync) confirms the rule source and its `.claude/` mirror are byte-identical after the edit. Gate 2 (language and style) passes on the edited rule, which is in scope for that linter (no em-dashes or en-dashes introduced). Gate 32 (skill derives-from) confirms the skill's `derives_from` still resolves. The version-date consistency audit (gate 29) confirms `2026.06.32` matches `2026-06`. The library-version-monotonicity audit (gate 13) confirms `2026.06.31 → 2026.06.32` and the pack `1.20.1 → 1.20.2` are strictly increasing. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
+
+---
+
 ## 2026-06-19, Library Version 2026.06.31, PR #44
 
 New audit gate (gate 37), **Claude-rules local-copy sync audit**, closing the systemic drift class the regression audit identified. The project keeps copies of a subset of the [`dev-security/claude-rules/`](dev-security/claude-rules/) pack under `.claude/rules/` so a Claude Code session loads them as context. Both trees are exempt from the corpus linters, so until now nothing caught a local copy drifting from its pack source — the exact gap that let the evidence-grounded-completion local copy fall out of sync (fixed manually in PR #41) and would have re-opened on the next pack edit. This gate makes that drift class mechanically detectable.
