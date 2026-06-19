@@ -4,6 +4,30 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-19, Library Version 2026.06.22
+
+S.4 follow-up: move the speculative "fourth skill" narrative out of the merged S.3 and S.4 CHANGELOG entries (where it violated Keep a Changelog's retrospective-only convention) and into [`TODO.md`](TODO.md) as a proper plan with a decision trigger, the empirical evidence to weigh at the trigger, an enumerated candidate set, and a selection criterion. The original CHANGELOG sentences pre-committed the project to a specific candidate (`change-tracking-write-entry`) without acknowledging the equally-strong alternative (`artefact-discipline-check`) or defining what "proven their format in practice" actually means; the TODO entry now records both and the criterion for choosing.
+
+### Added
+
+- New section "Pack and tooling extension" in [`TODO.md`](TODO.md) with a single item, "Post-S.3 evaluation of the Claude Code Skills format", placed between Priority 6 and Investigation / blocked. The item records: decision trigger (next pack version bump, refactor of an existing skill, or annual tooling review — whichever comes first); empirical evidence to weigh (Skill-tool discovery behaviour, semantic-drift judgement, format-stability evidence, subjective maintainer judgement); candidate rules ([`change-tracking.md`](dev-security/claude-rules/governance/change-tracking.md) → `change-tracking-write-entry`; [`artefact-and-branch-discipline.md`](dev-security/claude-rules/governance/artefact-and-branch-discipline.md) → `artefact-discipline-check`); selection criterion (failure-frequency observation, workflow-shape clarity, concrete misstep evidence); possible outcomes (add one, add both, add neither, defer).
+
+### Changed
+
+- Removed the forward-looking sentence from the S.3 CHANGELOG entry ("The door is open for a fourth skill..."). The "Phased follow-up context" paragraph for S.3 now ends at the S.4 announcement sentence.
+- Removed the forward-looking sentence from the S.4 CHANGELOG entry ("...future work in this lineage would be a fourth skill..."). The "Phased follow-up context" paragraph for S.4 now ends at "With S.4 complete, the addyosmani integration is closed."
+- [`README.md`](README.md): library version `2026.06.21 → 2026.06.22`; README version `1.7.159 → 1.7.160`.
+
+### Why this cleanup
+
+Keep a Changelog is strictly retrospective — entries describe what changed, not what might change. The S.3 and S.4 CHANGELOG entries each carried a forward-looking sentence that recorded a speculative future skill (`change-tracking-write-entry`) without defining what "proven their format in practice" meant and without acknowledging the alternative candidate. That made the speculation neither a real plan (no criteria, no trigger, no decision date) nor a clean historical record (forward-looking content in a retrospective document). The right home for forward-looking content is [`TODO.md`](TODO.md), where the project's other planned-but-not-yet-actioned enhancements are tracked. This PR closes the gap by moving the content to its proper home and recasting it as a plan with the criteria a reader can act on.
+
+### Verification
+
+Full 35-gate audit programme passes standalone (`tools/run_all_audits.sh` exit code 0) immediately before commit. No changes to audit-gate inventory, audit-tooling code, or any document under the corpus linters' scope; the only changed files are [`README.md`](README.md), [`CHANGELOG.md`](CHANGELOG.md), and [`TODO.md`](TODO.md) (the last of which is exempt from corpus audits per its own preamble). The version-date consistency audit (gate 29) confirms `2026.06.22` matches `2026-06`. The library-version-monotonicity audit (gate 13) confirms `2026.06.21 → 2026.06.22` is a strictly-increasing patch bump. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry. The CHANGELOG link-coverage audit (gate 11) confirms every backticked path reference in the new entry is wrapped in a markdown link.
+
+---
+
 ## 2026-06-19, Library Version 2026.06.21
 
 Phase S.4 of the addyosmani agent-skills integration plan: add a new audit gate that enforces the derive-and-cite contract between skills and pack rules. The gate verifies that every skill document under [`dev-security/claude-rules/skills/`](dev-security/claude-rules/skills/) declares a `derives_from:` YAML frontmatter field whose value resolves to an existing pack rule, closing the maintenance loop opened in S.3 (skill workflows reference canonical rules rather than duplicate them).
@@ -27,7 +51,7 @@ Full 35-gate audit programme passes standalone (`tools/run_all_audits.sh` exit c
 
 ### Phased follow-up context
 
-S.4 is the final phase of the four-phase addyosmani integration plan. S.1 (external overlay) shipped in `2026.06.18`. S.2 (Threat Modelling Standard with STRIDE / LINDDUN citations) shipped in `2026.06.19`. S.3 (governance skills in Claude Code Skills format) shipped in `2026.06.20`. With S.4 complete, the addyosmani integration is closed; future work in this lineage would be a fourth skill (`change-tracking-write-entry`) once the first three have proven their format and discovery work in practice.
+S.4 is the final phase of the four-phase addyosmani integration plan. S.1 (external overlay) shipped in `2026.06.18`. S.2 (Threat Modelling Standard with STRIDE / LINDDUN citations) shipped in `2026.06.19`. S.3 (governance skills in Claude Code Skills format) shipped in `2026.06.20`. With S.4 complete, the addyosmani integration is closed.
 
 ---
 
@@ -61,7 +85,7 @@ Full 34-gate audit programme passes standalone immediately before commit. Pre-fl
 
 ### Phased follow-up context
 
-This is Phase S.3 of the addyosmani integration plan. S.1 shipped in `2026.06.18`. S.2 shipped in `2026.06.19`. S.4 (audit gate for skill-to-rule reference integrity) follows. The door is open for a fourth skill (`change-tracking-write-entry`) once the first three have proven their format and discovery work in practice.
+This is Phase S.3 of the addyosmani integration plan. S.1 shipped in `2026.06.18`. S.2 shipped in `2026.06.19`. S.4 (audit gate for skill-to-rule reference integrity) follows.
 
 ---
 
