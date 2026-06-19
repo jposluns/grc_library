@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.20.2\
+**Version:** 1.20.3\
 **Date:** 2026-06-19\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -29,7 +29,7 @@ These are **draggable rule files**: copy any subset into your project's Claude C
 Historically this pack covered security and compliance only. As of pack version 1.6.0 (Library 2026.05.139, 2026-06-01), the pack's contract broadened to cover both:
 
 1. **Security and compliance** (original and largest scope). Hardcoded-secrets prevention, input validation, cryptography, authentication, OWASP/ASVS alignment, AI/agent/MCP/RAG security, CI/CD pipeline gates, language-specific security patterns. This content lives under `core/`, `ai/`, `pipeline/`, and `languages/`.
-2. **Development-governance discipline** (expanding scope). Rules that govern how an AI coding assistant collaborates on a governed codebase: gate discipline (never weaken a check to silence a failure; fix the artefact), change-tracking discipline (CHANGELOG-on-PR with explicit opt-out trailers), evidence-grounded completion (no completion claims without enumerated, re-read, quoted, contradiction-searched evidence), clarify-before-acting on ambiguous requests, and artefact-and-branch discipline (no direct push to protected branches; version-monotonicity contract; never hand-edit generated artefacts). This content lives under the `governance/` subdirectory and is being delivered in a phased rollout. Pack version 1.7.0 (Library 2026.05.140) shipped [`governance/gate-discipline.md`](governance/gate-discipline.md); pack version 1.8.0 (Library 2026.05.141) shipped [`governance/change-tracking.md`](governance/change-tracking.md); pack version 1.9.0 (Library 2026.05.142) shipped [`governance/evidence-grounded-completion.md`](governance/evidence-grounded-completion.md); pack version 1.10.0 (Library 2026.05.143) shipped [`governance/clarify-before-acting.md`](governance/clarify-before-acting.md); pack version 1.11.0 (Library 2026.05.144) ships [`governance/artefact-and-branch-discipline.md`](governance/artefact-and-branch-discipline.md). With this release the phased governance rollout announced at pack version 1.6.0 is complete.
+2. **Development-governance discipline** (expanding scope). Rules that govern how an AI coding assistant collaborates on a governed codebase: gate discipline (never weaken a check to silence a failure; fix the artefact), change-tracking discipline (CHANGELOG-on-PR with explicit opt-out trailers), evidence-grounded completion (no completion claim, and no state assertion about an unread artefact, without enumerated, re-read, quoted, contradiction-searched evidence), clarify-before-acting on ambiguous requests, and artefact-and-branch discipline (no direct push to protected branches; version-monotonicity contract; never hand-edit generated artefacts). This content lives under the `governance/` subdirectory and is being delivered in a phased rollout. Pack version 1.7.0 (Library 2026.05.140) shipped [`governance/gate-discipline.md`](governance/gate-discipline.md); pack version 1.8.0 (Library 2026.05.141) shipped [`governance/change-tracking.md`](governance/change-tracking.md); pack version 1.9.0 (Library 2026.05.142) shipped [`governance/evidence-grounded-completion.md`](governance/evidence-grounded-completion.md); pack version 1.10.0 (Library 2026.05.143) shipped [`governance/clarify-before-acting.md`](governance/clarify-before-acting.md); pack version 1.11.0 (Library 2026.05.144) ships [`governance/artefact-and-branch-discipline.md`](governance/artefact-and-branch-discipline.md). With this release the phased governance rollout announced at pack version 1.6.0 is complete.
 
 Pack version 1.20.0 (Library 2026.06.20) introduces a third pack-content type: **Claude Code Skills** in the `SKILL.md` workflow format, under the `skills/` subdirectory. Skills are derived from selected governance rules and are consumed by Claude Code's Skill tool (discovered by YAML frontmatter `name:` and `description:`), distinct from the rule files which are loaded as session-start context. The first three skills are [`skills/evidence-grounded-completion/SKILL.md`](skills/evidence-grounded-completion/SKILL.md), [`skills/gate-discipline-diagnose/SKILL.md`](skills/gate-discipline-diagnose/SKILL.md), and [`skills/clarify-before-acting/SKILL.md`](skills/clarify-before-acting/SKILL.md), each derived from the corresponding governance rule with the rule remaining as the source of truth for normative content (framework alignment, exception handling, rationale); the skill is the workflow wrapper (when to invoke, what steps in what order, what verification confirms completion).
 
@@ -54,7 +54,7 @@ claude-rules/
 ├── governance/                 Development-governance discipline (rollout complete at pack 1.11.0)
 │   ├── gate-discipline.md                  Never weaken a gate to silence a failure; fix the artefact
 │   ├── change-tracking.md                  CHANGELOG-on-PR by default; documented opt-out trailer for genuine exceptions
-│   ├── evidence-grounded-completion.md     No completion claim without enumerated, re-read, quoted, contradiction-searched evidence
+│   ├── evidence-grounded-completion.md     No completion claim or unread-artefact state assertion without enumerated, re-read, quoted, contradiction-searched evidence
 │   ├── clarify-before-acting.md            Surface ambiguity in one sentence and ask; never silently pick
 │   └── artefact-and-branch-discipline.md   Generated artefacts are read-only; protected branches are append-only
 ├── ai/
@@ -65,7 +65,7 @@ claude-rules/
 ├── pipeline/
 │   └── cicd-gates.md           CI/CD security gates and pipeline controls
 ├── skills/                     Claude Code Skills (SKILL.md format) derived from selected pack rules
-│   ├── evidence-grounded-completion/SKILL.md   Six-step verification protocol before any completion claim
+│   ├── evidence-grounded-completion/SKILL.md   Six-step verification protocol before any completion claim or unread-artefact state assertion
 │   ├── gate-discipline-diagnose/SKILL.md       Diagnose-then-fix-the-artefact response to a failing gate
 │   └── clarify-before-acting/SKILL.md          One-sentence ambiguity surfacing with named alternatives
 └── languages/

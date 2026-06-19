@@ -101,11 +101,12 @@ pack, CC BY-SA 4.0):
   only sanctioned opt-out. Generalises the D1 CHANGELOG-on-PR delta gate, the
   link-coverage gate, and the version-monotonicity audit into a portable discipline.
 - `.claude/rules/governance/evidence-grounded-completion.md` — never claim completion
-  ("done", "fixed", "ready", "shipped", "good catch") without running the verification
-  protocol first (enumerate, re-read, quote, contradiction-search, distinguish
-  mechanical from semantic verification, state unverified items). Pack-distributable
-  form of the user-level Rule 6 added 2026-05-31; reinforces this project's existing
-  Rules 1-5 about verification before dependent actions.
+  ("done", "fixed", "ready", "shipped", "good catch"), and never assert a property of an
+  artefact you have not read (that a file contains, lacks, or requires something), without
+  running the verification protocol first (enumerate, re-read, quote, contradiction-search,
+  distinguish mechanical from semantic verification, state unverified items). Pack-distributable
+  form of the user-level Rules 6 and 7 (added 2026-05-31 and 2026-06-19); reinforces this
+  project's existing Rules 1-5 about verification before dependent actions.
 - `.claude/rules/governance/clarify-before-acting.md` — surface ambiguity in one
   sentence and ask before proceeding. Pack-distributable form of this project's
   `## Behavioral rule: clarify before acting` section; generalises that rule into a
