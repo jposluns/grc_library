@@ -1,8 +1,8 @@
 # Maintainer vetting log: external rule sources
 
 **Document Type:** Maintainer log\
-**Version:** 1.2.0\
-**Date:** 2026-05-31\
+**Version:** 1.3.0\
+**Date:** 2026-06-19\
 **Owner:** Governance Library Maintainer\
 **Repository Path:** [`dev-security/claude-rules/vetting-log.md`](vetting-log.md)\
 **License:** CC BY-SA 4.0
@@ -32,6 +32,54 @@ When the library maintainer adds a new external source to the references in [`RE
 - **Re-vet cadence.** Default: re-vet on the library's standards-currency cadence (annual) or when material upstream changes are noticed. Sources with caveats may carry a shorter cadence.
 
 When a re-vet supersedes a prior entry, do not delete the prior entry. Append a new dated entry and leave the historical record visible.
+
+---
+
+## Source: addyosmani Agent Skills
+
+**Repository:** `https://github.com/addyosmani/agent-skills`
+
+### Vet 2026-06-19 (first-time vetting)
+
+**Vet method:** WebFetch + curl direct fetch + EXT-01 protocol, performed by the library maintainer via a Claude Code session. Upstream commit pinned at `13e43f2310224d5770a7fb0a8c24c02b73da69e9` (2026-06-19, "Merge pull request #270 from nucliweb/ci/validate-commands").
+
+**Files reviewed:**
+
+Fully vetted (read in full, EXT-01 pattern scan):
+
+- `LICENSE`
+- `skills/security-and-hardening/SKILL.md`
+- `skills/code-review-and-quality/SKILL.md`
+- `skills/ci-cd-and-automation/SKILL.md`
+- `skills/using-agent-skills/SKILL.md` (meta-skill that explains the format)
+- `skills/context-engineering/SKILL.md`
+
+Scanned for red-flag patterns (not read in full): the 18 remaining skill directories under `skills/` (`interview-me`, `idea-refine`, `spec-driven-development`, `planning-and-task-breakdown`, `incremental-implementation`, `test-driven-development`, `doubt-driven-development`, `source-driven-development`, `frontend-ui-engineering`, `api-and-interface-design`, `browser-testing-with-devtools`, `debugging-and-error-recovery`, `code-simplification`, `performance-optimization`, `git-workflow-and-versioning`, `deprecation-and-migration`, `documentation-and-adrs`, `observability-and-instrumentation`, `shipping-and-launch`). Per the README's skill index plus a spot-scan of the skill titles and `description:` frontmatter fields surfaced via the upstream `README.md`, these are general engineering workflow skills (interview, refinement, TDD, debugging, observability, etc.) with no security-sensitive content surface beyond the five vetted in full. Consumers electing the overlay via the setup-generator who wish to fetch one of these additional skills should apply EXT-01 per fetch.
+
+**EXT-01 pattern scan results across the fully-vetted files:**
+
+| Pattern | Outcome |
+|---|---|
+| Role-override / "ignore previous instructions" | Not present. The `using-agent-skills` meta-skill enumerates "Core Operating Behaviors" but they govern the agent's own discipline (surface assumptions, manage confusion, push back, enforce simplicity, scope discipline, verify); they do not instruct the agent to override the consuming session's rules. |
+| Urgency framing or pre-authorisation language | Not present. Tone is declarative-instructional throughout. |
+| External URL fetch directives | Not present. The only external URLs in the fully-vetted files are `https://genai.owasp.org/llm-top-10/` (legitimate reference, not a fetch instruction) and `http://localhost:3000` (used as a sample value in an example, not a fetch target). |
+| Shell command execution beyond standard documentation | Not present. Code examples illustrate `npm install`, `bcrypt`, `helmet`, etc. as documentation of techniques to apply, not as instructions to execute on the consumer's system. |
+| Security control weakening | Not present. The `security-and-hardening` skill's Never-Do list explicitly forbids disabling security headers, using `eval()` / `innerHTML` with user data, storing auth tokens in `localStorage`, committing secrets, and exposing stack traces. Posture strengthens controls throughout. |
+| Hidden text, base64 blobs, or encoded directives | Not present. All content is plain UTF-8 markdown. The references to "encoded" all refer to output encoding for XSS prevention (a defensive control), not encoded instructions. |
+
+**Notable substantive observations (not vetting concerns, listed for the consumer's awareness):**
+
+- **Scope is engineering workflows, not GRC.** addyosmani's collection is "production-grade engineering skills for AI coding agents", workflow processes spanning Define, Plan, Build, Verify, Review, and Ship phases. It is not a governance / risk / compliance pack. Adopters electing this overlay should know they are getting general engineering discipline (TDD, code review, debugging, etc.), not additional GRC content.
+- **Format diverges from the other three vetted sources.** addyosmani uses the Claude Skills `SKILL.md` format (YAML frontmatter with `name:` and `description:` for skill-tool discovery). TikiTribe, Wiz, and Kariedo use the rule / CLAUDE.md / `@`-import patterns. Consumers whose Claude Code session does not support the Skills discovery format may see addyosmani's content as static markdown without auto-invocation behaviour.
+- **License is MIT** (the GRC Library pack is CC BY-SA 4.0). Per the same logic as TikiTribe and Kariedo, adopters redistributing addyosmani content under their own terms must preserve the upstream attribution.
+- **Tier model (Mandatory / Approval-Gated / Prohibited) and STRIDE-per-trust-boundary framing** in `security-and-hardening` are common taxonomies; cherry-picking these structures into our own content is independent synthesis (per [`NOTICE.md`](../../NOTICE.md)), not redistribution.
+- **Some workflow content overlaps existing pack rules.** `code-review-and-quality` overlaps [`dev-security/procedure-secure-code-review.md`](../procedure-secure-code-review.md). `ci-cd-and-automation` overlaps [`dev-security/claude-rules/pipeline/cicd-gates.md`](pipeline/cicd-gates.md). `security-and-hardening` overlaps [`dev-security/claude-rules/core/owasp.md`](core/owasp.md) and adjacent rules. The pack remains the primary content; the overlay is supplementary.
+
+**Verdict:** Vetted (no concerns) on the fully-read subset; the 18 spot-scanned skill directories require per-fetch EXT-01 if a consumer elects them later.
+
+**Status:** `Vetted` for the fully-vetted subset above; `Spot-scanned` for the remaining 18 skill directories.
+
+**Re-vet cadence:** Standards-currency cadence (annual). Re-vet immediately if upstream addyosmani materially expands scope into security-sensitive territory (for example, adds shell-execution skills, network-fetch skills, MCP server definitions, or any skill whose Process steps include instructions to disable controls). Spot-checks beyond the fully-vetted subset above are at the maintainer's discretion when back-porting individual skills.
 
 ---
 
