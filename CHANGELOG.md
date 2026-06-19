@@ -4,6 +4,27 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-19, Library Version 2026.06.36, PR #49
+
+Agent-production-authority controls, part C of three: operational closure. Completes the set begun in PR #47 (core control and evidence home) and PR #48 (governance integration). This part connects a harmful or unauthorised agent action to its reversal in incident response, and records the agentic standard in the cross-framework alignment matrix.
+
+### Changed
+
+- [`ai/plan-ai-incident-response.md`](ai/plan-ai-incident-response.md): the Eradicate phase gains an action to invoke the reversal or compensating transaction for agent-performed production actions and confirm the affected system returned to an equivalent prior state, triggered when an agent performed unauthorised, harmful, or out-of-scope production actions (per `AGENT-PROD-02`). The Evidence requirements gain an "Action lineage and reversal record" class capturing the trigger-to-resulting-change lineage (`AGENT-PROD-04`) and the reversal record where one was invoked. This closes the loop the plan previously left open: its Recover phase restored the AI system but did not reverse the agent's downstream production effects. Version `1.0.1 → 1.0.2`.
+- [`governance/matrix-cross-framework-alignment.md`](governance/matrix-cross-framework-alignment.md): a new artefact row for the AI and Agentic Development Security Standard (previously absent from the matrix), mapping it to OWASP LLM Top 10 (excessive agency), MITRE ATLAS, CSA AICM agentic and autonomy domains, NIST AI RMF, and ISO/IEC 42001 operational families, with the evidence class naming the agent threat model, tool allow-list, reversibility classification, recovery-test result, production-authority evidence record, and immutable audit trail. Version `1.1.2 → 1.1.3`.
+- Auto-generated artefacts regenerated for the two version bumps: [`taxonomy.yml`](taxonomy.yml) and [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md).
+- [`README.md`](README.md): library version `2026.06.35 → 2026.06.36`; README version `1.7.173 → 1.7.174`.
+
+### Set complete
+
+With this PR the three-part agent-production-authority set from the agentic-governance assessment is complete: PR #47 (core control `AGENT-PROD-01..06`, the `§21` recovery-test gate, access-standard wiring, template evidence fields), PR #48 (acceptance-into-service criterion, AI-governance-framework anchor, role-authority accountability), and PR #49 (incident-response reversal step and evidence class, cross-framework matrix row). The principle is now expressed at the framework tier, enforced at the acceptance-into-service gate, carried by mandatory controls in the agentic standard, recorded in an audit-grade evidence artefact in the AI System Register and system card, owned by a named accountable human in the authority register, and closed operationally by an incident-response reversal path.
+
+### Verification
+
+Full 37-gate audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. Gate 2 (language) passes on both edited documents (no em-dashes or en-dashes introduced). The taxonomy and portal in-sync gates (gates 33, 34) confirm the regenerated artefacts match the two bumped source metadata blocks. The version-monotonicity audit (gate 13) confirms each per-document bump and `2026.06.35 → 2026.06.36`. The version-date consistency audit (gate 29) confirms `2026.06.36` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
+
+---
+
 ## 2026-06-19, Library Version 2026.06.35, PR #48
 
 Agent-production-authority controls, part B of three: governance integration. Part A (PR #47) placed the `AGENT-PROD-01` to `AGENT-PROD-06` controls and their evidence home; this part wires the production-authority precondition into the acceptance-into-service gate, anchors it at the AI-governance framework tier, and binds the standing accountability to a named role. No new control language is introduced; each edit references the `AGENT-PROD-*` controls from part A so the gate is enforced at the formal acceptance decision, named in the framework that governs AI approval, and owned by an accountable human in the authority register.
