@@ -1,8 +1,24 @@
 # Adopter Decision Tree
 
-A structured navigator for adopting organisations: "I have these characteristics; which library documents should I read first, in what order?"
+**Document Title:** Adopter Decision Tree\
+**Document Type:** Guide\
+**Version:** 1.0.0\
+**Date:** 2026-06-19\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
+**Classification:** Public\
+**Category:** Documentation\
+**Review Frequency:** Annual and upon material change to the library structure or the adoption model\
+**Repository Path:** [`docs/decision-tree.md`](decision-tree.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
 
-This guide is informational and is not a tracked governance artefact. It complements [`docs/adopter-guide.md`](adopter-guide.md) by providing a sequenced reading order rather than general adoption principles.
+---
+
+## Overview
+
+A structured navigator for adopting organisations: "I have these characteristics; which library documents should I read first, in what order?" It is a controlled reference artefact that complements [`docs/adopter-guide.md`](adopter-guide.md): the adopter guide gives general adoption principles; this document gives a sequenced reading order.
 
 ---
 

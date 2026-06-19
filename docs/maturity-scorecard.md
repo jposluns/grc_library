@@ -5,6 +5,24 @@ Do not edit by hand. Regenerate with `python3 tools/build-portal.py`.
 
 # Document maturity scorecard
 
+**Document Title:** Document Maturity Scorecard\
+**Document Type:** Register\
+**Version:** 1.0.0\
+**Date:** 2026-06-19\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`docs/portal.md`](portal.md), [`docs/adopter-guide.md`](adopter-guide.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`specification-master-project.md`](../specification-master-project.md)\
+**Classification:** Public\
+**Category:** Documentation\
+**Review Frequency:** Regenerated from taxonomy.yml on every PR that touches source metadata; classification heuristic reviewed annually\
+**Repository Path:** [`docs/maturity-scorecard.md`](maturity-scorecard.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Overview
+
 This scorecard classifies each active artefact by maturity. The classification is derived from the document's semantic version per the heuristic below.
 
 | Maturity | Version range | Adopter signal |
@@ -14,6 +32,8 @@ This scorecard classifies each active artefact by maturity. The classification i
 | Draft | 0.x.y | The artefact is pre-formal-approval. Treat as a working draft; review carefully before adoption. |
 
 This classification is a heuristic derived from semver; it does not reflect audit-grade certification. See each document's metadata block for the authoritative review frequency and last review date.
+
+The metadata block above carries a generator schema constant for `Version` and the latest source `Date` found in the taxonomy. Bumps to the schema constant are recorded in [`CHANGELOG.md`](../CHANGELOG.md); the `Date` advances automatically with the corpus.
 
 ---
 
