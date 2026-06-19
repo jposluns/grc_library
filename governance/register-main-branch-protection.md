@@ -2,8 +2,8 @@
 
 **Document Title:** Main Branch Protection Configuration Register\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-06-03\
+**Version:** 1.0.2\
+**Date:** 2026-06-19\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/claude-rules/governance/artefact-and-branch-discipline.md`](../dev-security/claude-rules/governance/artefact-and-branch-discipline.md), [`governance/specification-audit-programme.md`](specification-audit-programme.md), [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`README.md`](../README.md)\
@@ -106,7 +106,7 @@ This register is a snapshot, not a live source of truth. The configured state ca
 
 ## Audit-trail relationship
 
-The 35-gate audit programme assumes the `Lint markdown corpus` check is required-to-merge. Without that requirement, gates 1-34 still run on each PR but their pass/fail status does not gate the merge. The "Required status check" row above is therefore the load-bearing dependency between the audit programme and the merge-gating mechanism; do not remove or rename the check without updating both surfaces in the same PR.
+The 35-gate audit programme assumes the `Lint markdown corpus` check is required-to-merge. Without that requirement, gates 1-35 still run on each PR but their pass/fail status does not gate the merge. The "Required status check" row above is therefore the load-bearing dependency between the audit programme and the merge-gating mechanism; do not remove or rename the check without updating both surfaces in the same PR.
 
 ---
 

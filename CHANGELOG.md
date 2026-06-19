@@ -4,6 +4,39 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-19, Library Version 2026.06.23
+
+S.4 backfill: correct per-document Date and Version metadata on five governance files that were substantively edited in the S.4 PR (library version `2026.06.21`, shipped 2026-06-19) without their per-document metadata being bumped. The omission violated the [`specification-ingestion.md`](specification-ingestion.md) contract that every substantive content change must update the document's Date to the current date and bump its Version per the disposition (patch for minor revision, minor for material revision). No existing audit gate caught the omission; the gap is acknowledged here and is closed by the follow-up audit-gate work tracked separately.
+
+### Changed
+
+- [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md): version `1.2.0 → 1.3.0`; date `2026-05-30 → 2026-06-19`. Minor (material) bump because S.4 inserted a new row into the §6 inventory table, renumbered four existing rows, and rewrote three narrative paragraphs across §5 (the category-list entry for "Programme and index integrity"), §6 (the post-table summary describing read-only linters / generator drift checks / self-check / regression suite), and §6.1 (delta gates not part of the corpus inventory).
+- [`governance/procedure-library-quality-and-review-cadence.md`](governance/procedure-library-quality-and-review-cadence.md): version `1.0.1 → 1.0.2`; date `2026-06-02 → 2026-06-19`. Patch bump: S.4 changed the gate-count text from 34 to 35 in the audit-programme reference.
+- [`governance/register-main-branch-protection.md`](governance/register-main-branch-protection.md): version `1.0.1 → 1.0.2`; date `2026-06-03 → 2026-06-19`. Patch bump: S.4 changed the gate-count text in the audit-trail-relationship section but left an internal inconsistency in the same paragraph (the sentence "The 35-gate audit programme... Without that requirement, gates 1-34 still run on each PR" mixed the new total with the old run-range). This backfill PR fixes that residual inconsistency as well: `gates 1-34 still run` → `gates 1-35 still run`. Detected during the contradiction-search step of the backfill verification.
+- [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md): version `1.1.1 → 1.1.2`; date `2026-05-30 → 2026-06-19`. Patch bump: S.4 changed the gate-count text in the audit-coverage section.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md): version `1.27.7 → 1.27.8`; date `2026-05-30 → 2026-06-19`. Patch bump: S.4 changed the gate-count text in the audit-programme entry's purpose column.
+- Auto-generated artefacts regenerated to pick up the new source-of-truth metadata: [`taxonomy.yml`](taxonomy.yml) and [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md) now carry the new Version and Date for each of the five files. Per the artefact-and-branch-discipline pack rule, source and generated output are committed together.
+- [`README.md`](README.md): library version `2026.06.22 → 2026.06.23`; README version `1.7.160 → 1.7.161`.
+
+### Why this backfill rather than fold-into-S.4
+
+The S.4 PR (`2026.06.21`) is already merged. Editing per-document Date and Version on a separate backfill PR with a self-contained CHANGELOG entry is the artefact-and-branch-discipline-respecting path: the merged history of S.4 stays intact and the backfill is recorded as its own deliberate correction with a clear audit trail.
+
+### Acknowledging the audit gap
+
+No existing audit gate caught the omission. The closest gates are:
+
+- Gate 29 ([`tools/lint-version-date-consistency.py`](tools/lint-version-date-consistency.py)) enforces *library*-level CalVer consistency between the README's `Library Version` and the most-recent CHANGELOG heading. It does not compare per-document Date metadata to the file's most-recent commit date.
+- Gate 13 ([`tools/lint-library-version-monotonicity.py`](tools/lint-library-version-monotonicity.py)) enforces monotonic increase of versions but does not enforce that a file edited in a commit must have its Date refreshed.
+
+The coverage gap is therefore: *no gate enforces "if a file with a Date metadata field was modified in this commit, its Date must reflect the commit date."* The follow-up audit-gate work that closes this gap is tracked separately and will land in a subsequent PR; this PR's role is the honest backfill, not the gate-addition.
+
+### Verification
+
+Full 35-gate audit programme passes standalone (`tools/run_all_audits.sh` exit code 0) immediately before commit. The metadata audit (gate 1) accepts the new metadata blocks on all five files. The version-monotonicity audit (gate 13) confirms each per-document version increase (`1.2.0 → 1.3.0`, three instances of `1.0.1 → 1.0.2`, `1.1.1 → 1.1.2`, `1.27.7 → 1.27.8`). The metadata-block line-break audit (gate 30) confirms the metadata blocks remain well-formed. The version-date consistency audit (gate 29) confirms `2026.06.23` matches `2026-06`. The taxonomy and portal in-sync gates (gates 32 and 33) confirm the regenerated artefacts match the source metadata. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
+
+---
+
 ## 2026-06-19, Library Version 2026.06.22
 
 S.4 follow-up: move the speculative "fourth skill" narrative out of the merged S.3 and S.4 CHANGELOG entries (where it violated Keep a Changelog's retrospective-only convention) and into [`TODO.md`](TODO.md) as a proper plan with a decision trigger, the empirical evidence to weigh at the trigger, an enumerated candidate set, and a selection criterion. The original CHANGELOG sentences pre-committed the project to a specific candidate (`change-tracking-write-entry`) without acknowledging the equally-strong alternative (`artefact-discipline-check`) or defining what "proven their format in practice" actually means; the TODO entry now records both and the criterion for choosing.
