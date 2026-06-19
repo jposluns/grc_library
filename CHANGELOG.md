@@ -4,6 +4,28 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-19, Library Version 2026.06.35, PR #48
+
+Agent-production-authority controls, part B of three: governance integration. Part A (PR #47) placed the `AGENT-PROD-01` to `AGENT-PROD-06` controls and their evidence home; this part wires the production-authority precondition into the acceptance-into-service gate, anchors it at the AI-governance framework tier, and binds the standing accountability to a named role. No new control language is introduced; each edit references the `AGENT-PROD-*` controls from part A so the gate is enforced at the formal acceptance decision, named in the framework that governs AI approval, and owned by an accountable human in the authority register.
+
+### Changed
+
+- [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](dev-security/standard-software-evaluation-acceptance-and-lifecycle.md): §3 (Acceptance and approval for use) gains an Acceptance-Into-Service checklist item: for systems with an action-capable AI agent, acceptance is withheld until the agent production-authority precondition (`AGENT-PROD-01`) is satisfied and evidenced, including tested reversibility or compensating-transaction mechanisms. This closes the "deploy first, design rollback later" failure mode at the formal gate. Version `1.0.1 → 1.0.2`; Related Documents extended with the agentic standard.
+- [`ai/framework-ai-governance-and-risk.md`](ai/framework-ai-governance-and-risk.md): the Human Oversight control domain now states that, for systems with production action capability, approval additionally requires the four-property production-authority precondition, and that authority resides in the system boundary and the accountable human rather than in the agent. This anchors the standard-level controls at the governing framework tier. Version `1.1.1 → 1.1.2`; Related Documents extended with the agentic standard.
+- [`governance/register-role-authority.md`](governance/register-role-authority.md): the System Owner row now records that, for an action-capable AI agent, the System Owner (or a designated AI System Owner) is the named accountable owner of the agent's autonomous envelope, and that accountability does not transfer to the agent (`AGENT-PROD-05`). Version `1.3.0 → 1.3.1`.
+- Auto-generated artefacts regenerated for the three version bumps: [`taxonomy.yml`](taxonomy.yml) and [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md).
+- [`README.md`](README.md): library version `2026.06.34 → 2026.06.35`; README version `1.7.172 → 1.7.173`.
+
+### Part C still to come
+
+Part C (operational closure) follows as a separate PR: an AI incident response reversal/compensating-transaction step (so a harmful agent action is undone, not only the AI system restored), and a cross-framework matrix artefact row for the agentic standard.
+
+### Verification
+
+Full 37-gate audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. Gate 2 (language) passes on the three edited documents (no em-dashes or en-dashes introduced). Gate 3 (links) and gates 17/18 (section-anchor and intra-doc references) pass on the new cross-references. The taxonomy and portal in-sync gates (gates 33, 34) confirm the regenerated artefacts match the three bumped source metadata blocks. The version-monotonicity audit (gate 13) confirms each per-document bump and `2026.06.34 → 2026.06.35`. The version-date consistency audit (gate 29) confirms `2026.06.35` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
+
+---
+
 ## 2026-06-19, Library Version 2026.06.34, PR #47
 
 Agent-production-authority controls, part A of the three-part set from the agentic-governance assessment: the core control, its evidence home, and the access-standard wiring. The governing principle is that autonomous agents do not receive production authority until reversibility, auditability, accountability, and permission boundaries are designed, tested, and governed; authority sits in the system boundary, the permissions model, the approval path, the immutable audit trail, the reversal mechanism, and a named accountable human, never in the agent. This closes the assessment's identified gap: the corpus treated reversibility as a classification input to an approval decision, not as a designed-and-tested precondition for production authority, and it did not consolidate the four properties into a single gate wired to acceptance-into-service.

@@ -2,11 +2,11 @@
 
 **Document Title:** Software Evaluation, Acceptance and Lifecycle Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-06-19\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
-**Related Documents:** [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
+**Related Documents:** [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
 **Classification:** Public\
 **Category:** Developer Security\
 **Review Frequency:** Annual and upon material platform or regulatory change\
@@ -80,6 +80,7 @@ Software is formally approved through the Acceptance Into Service Policy and pro
 - Business justification.
 - Risk classification and mitigation controls.
 - Validation of patching, rollback, and support lifecycle.
+- For systems incorporating an action-capable AI agent: the agent production-authority precondition (`AGENT-PROD-01` in the AI and Agentic Development Security Standard) is satisfied and evidenced, including tested reversibility or compensating-transaction mechanisms for production-impacting action classes. Acceptance is withheld until the precondition is met.
 
 Formal sign-off is required by the CIO or delegated authority before enterprise deployment.
 
