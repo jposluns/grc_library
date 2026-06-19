@@ -1250,6 +1250,90 @@ class VersionDateConsistencyTests(LinterTestCase):
         )
         self.assertLinterFails(result, "must agree")
 
+    def test_heading_with_pr_clause_accepted(self) -> None:
+        # Heading shape from PR #38 forward: ", PR #N" suffix on the
+        # heading. The gate must still parse the date and version.
+        # Positive: heading with PR clause + matching README => pass.
+        changelog_fixture = self.make_fixture(
+            "fake-changelog-with-pr.md",
+            (
+                "# Changelog\n\n"
+                "## 2026-06-19, Library Version 2026.06.25, PR #38\n\n"
+                "Post-PR-clause heading.\n"
+            ),
+        )
+        readme_fixture = self.make_fixture(
+            "fake-readme-matching-with-pr.md",
+            "# Fake README\n\n**Library Version:** 2026.06.25\n",
+        )
+        result = run_linter(
+            "tools/lint-version-date-consistency.py",
+            "--changelog",
+            changelog_fixture,
+            "--readme",
+            readme_fixture,
+        )
+        self.assertEqual(
+            result.returncode,
+            0,
+            f"heading with PR clause should parse and pass.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_heading_without_pr_clause_still_accepted(self) -> None:
+        # Historical headings predate the PR-clause convention; the
+        # regex must still parse them.
+        changelog_fixture = self.make_fixture(
+            "fake-changelog-no-pr.md",
+            (
+                "# Changelog\n\n"
+                "## 2026-06-01, Library Version 2026.06.0\n\n"
+                "Pre-convention heading.\n"
+            ),
+        )
+        readme_fixture = self.make_fixture(
+            "fake-readme-matching-no-pr.md",
+            "# Fake README\n\n**Library Version:** 2026.06.0\n",
+        )
+        result = run_linter(
+            "tools/lint-version-date-consistency.py",
+            "--changelog",
+            changelog_fixture,
+            "--readme",
+            readme_fixture,
+        )
+        self.assertEqual(
+            result.returncode,
+            0,
+            f"heading without PR clause should still parse and pass.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_heading_with_pr_clause_date_mismatch_still_flagged(self) -> None:
+        # Defence-in-depth: the PR clause must not paper over a real
+        # date/version mismatch. Heading carries PR clause AND the
+        # date YYYY-MM does not match the version YYYY.MM => fail.
+        changelog_fixture = self.make_fixture(
+            "fake-changelog-pr-mismatch.md",
+            (
+                "# Changelog\n\n"
+                "## 2026-06-01, Library Version 2026.05.144, PR #99\n\n"
+                "Stale month in the version with PR clause.\n"
+            ),
+        )
+        readme_fixture = self.make_fixture(
+            "fake-readme-stale-pr.md",
+            "# Fake README\n\n**Library Version:** 2026.05.144\n",
+        )
+        result = run_linter(
+            "tools/lint-version-date-consistency.py",
+            "--changelog",
+            changelog_fixture,
+            "--readme",
+            readme_fixture,
+        )
+        self.assertLinterFails(result, "must match")
+
 
 class MetadataLineBreaksTests(LinterTestCase):
     """tools/lint-metadata-line-breaks.py
