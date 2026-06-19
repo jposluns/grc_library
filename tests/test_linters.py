@@ -736,6 +736,78 @@ class SecretsLinterTests(LinterTestCase):
         result = run_linter("tools/lint-secrets-in-content.py", fixture)
         self.assertLinterFails(result)
 
+    def test_pem_pkcs8_private_key_flagged(self) -> None:
+        # PKCS#8 unencrypted: "-----BEGIN PRIVATE KEY-----" carries NO
+        # algorithm token. This is the most common modern serialization
+        # (OpenSSL default) and was MISSED by the prior algorithm-token
+        # regex; the anchored pattern catches it.
+        fixture = self.make_fixture(
+            "standard-pem-pkcs8.md",
+            VALID_METADATA
+            + "\n\nExample block:\n\n-----BEGIN PRIVATE KEY-----\nMIIBOgIBAAJB\n-----END PRIVATE KEY-----\n",
+        )
+        result = run_linter("tools/lint-secrets-in-content.py", fixture)
+        self.assertLinterFails(result, "Private key block")
+
+    def test_pem_encrypted_private_key_flagged(self) -> None:
+        # PKCS#8 encrypted: "-----BEGIN ENCRYPTED PRIVATE KEY-----".
+        # "ENCRYPTED" is not an algorithm token; the prior regex missed
+        # it. The anchored pattern's open-ended uppercase prefix matches.
+        fixture = self.make_fixture(
+            "standard-pem-encrypted.md",
+            VALID_METADATA
+            + "\n\nExample block:\n\n-----BEGIN ENCRYPTED PRIVATE KEY-----\nMIIBOgIBAAJB\n-----END ENCRYPTED PRIVATE KEY-----\n",
+        )
+        result = run_linter("tools/lint-secrets-in-content.py", fixture)
+        self.assertLinterFails(result, "Private key block")
+
+    def test_pem_pgp_private_key_block_flagged(self) -> None:
+        # The REAL PGP private-key header is "PGP PRIVATE KEY BLOCK"
+        # (note the " BLOCK" suffix). The prior regex's PGP branch
+        # matched a non-existent "PGP PRIVATE KEY" form and missed the
+        # real one. The anchored pattern's optional " BLOCK" matches.
+        fixture = self.make_fixture(
+            "standard-pem-pgp.md",
+            VALID_METADATA
+            + "\n\nExample block:\n\n-----BEGIN PGP PRIVATE KEY BLOCK-----\nlQOYBF\n-----END PGP PRIVATE KEY BLOCK-----\n",
+        )
+        result = run_linter("tools/lint-secrets-in-content.py", fixture)
+        self.assertLinterFails(result, "Private key block")
+
+    def test_pem_certificate_not_flagged_as_private_key(self) -> None:
+        # Negative test: a CERTIFICATE block shares the PEM envelope but
+        # is NOT a secret. The anchored pattern must not flag it (the
+        # broad "any label" alternative would have). No other secret
+        # pattern matches a bare certificate block, so the linter exits 0.
+        fixture = self.make_fixture(
+            "standard-pem-cert.md",
+            VALID_METADATA
+            + "\n\nExample block:\n\n-----BEGIN CERTIFICATE-----\nMIIDXTCCA\n-----END CERTIFICATE-----\n",
+        )
+        result = run_linter("tools/lint-secrets-in-content.py", fixture)
+        self.assertEqual(
+            result.returncode,
+            0,
+            f"a CERTIFICATE block must not be flagged as a private key.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_pem_public_key_not_flagged_as_private_key(self) -> None:
+        # Negative test: a PUBLIC KEY block is not a secret and must not
+        # be flagged. Locks in the precision of the anchored pattern.
+        fixture = self.make_fixture(
+            "standard-pem-public.md",
+            VALID_METADATA
+            + "\n\nExample block:\n\n-----BEGIN PUBLIC KEY-----\nMFkwEwYH\n-----END PUBLIC KEY-----\n",
+        )
+        result = run_linter("tools/lint-secrets-in-content.py", fixture)
+        self.assertEqual(
+            result.returncode,
+            0,
+            f"a PUBLIC KEY block must not be flagged as a private key.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
     def test_google_api_key_pattern_flagged(self) -> None:
         # Google API keys are AIza<35 chars>.
         fake_key = "AIza" + "A" * 35
