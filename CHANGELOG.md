@@ -4,6 +4,38 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-19, Library Version 2026.06.19
+
+Phase S.2 of the addyosmani agent-skills integration plan: cherry-pick the STRIDE-per-trust-boundary framing and the three-tier disposition model from the addyosmani `security-and-hardening` overlay into a new library-canonical Standard, then add surgical "See also" cross-references from two existing documents.
+
+### Added
+
+- New Standard [`security/standard-threat-modelling.md`](security/standard-threat-modelling.md): the organisation's threat-modelling methodology. Per-doc version `1.0.0`. Document Type `Standard`, Category `Information Security`. Establishes the STRIDE-per-trust-boundary methodology (six-category taxonomy applied to each identified trust boundary, plus a recommended boundary catalogue covering external ingress / egress, user-to-system, system-to-system, privilege-change, OS, AI-model output, and storage boundaries), abuse-case authoring alongside use cases, and the three-tier disposition model (**Mandatory** / **Approval-Gated** / **Prohibited**) for each identified threat. Includes application-to-specific-system-types sections for web applications, AI / agentic systems (LLM output as a trust boundary), multi-tenant systems, privileged operations, and privacy-sensitive systems (LINDDUN cross-reference). Includes programme metrics, re-modelling triggers, and a framework-alignment table covering NIST SSDF (PW.1 / PW.2 / PW.7), NIST SP 800-53 (SA-8 / SA-11 / SA-15 / PT-2 / PT-3), ISO/IEC 27001 (A.5.34 / A.5.36 / A.8.25 / A.8.27 / A.8.28), OWASP ASVS (V1.1 / V14.1), and CSA CCM (AIS-04 / CCC-04 / CCC-06 / DSP-02 / IAM-02).
+- New canonical-citation entries in [`governance/register-canonical-citations.md`](governance/register-canonical-citations.md) under "Cybersecurity adversary frameworks": **STRIDE** (1999, Kohnfelder + Garg, Microsoft SDL) and **LINDDUN** (v3.0, 2023, KU Leuven imec-DistriNet). Cited by the new Standard's References section.
+
+### Changed
+
+- [`dev-security/policy-secure-development-and-engineering.md`](dev-security/policy-secure-development-and-engineering.md) section 1.3 ("Project plans must include threat modelling...") gains a one-sentence pointer to the new Standard naming the STRIDE-per-trust-boundary methodology, abuse-case authoring, and the Mandatory / Approval-Gated / Prohibited disposition tiers. Per-doc version `1.0.1 → 1.0.2`. Date `2026-05-31 → 2026-06-19`.
+- [`dev-security/claude-rules/core/owasp.md`](dev-security/claude-rules/core/owasp.md) "A04: insecure design" section gains a one-sentence pointer to the new Standard at the head of its Required-pattern list. The threat-model requirement was already named; the addition is the cross-reference to the canonical methodology. Pack version `1.18.0 → 1.19.0`.
+- [`security/README.md`](security/README.md) "Active documents" table gains a row for the new Standard.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) gains a row for the new Standard with cited frameworks (STRIDE, LINDDUN, OWASP ASVS, NIST SSDF, NIST SP 800-154, ISO/IEC 27001).
+- [`taxonomy.yml`](taxonomy.yml), [`docs/portal.md`](docs/portal.md), [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md) regenerated to reflect the new artefact.
+- [`README.md`](README.md): library `2026.06.18 → 2026.06.19`; README `1.7.156 → 1.7.157`.
+
+### What was taken from addyosmani vs synthesised independently
+
+Per the [`NOTICE.md`](NOTICE.md) external-reference policy, the new Standard borrows taxonomies (STRIDE, the three-tier disposition shape) but not text. The literal labels "Always Do / Ask First / Never Do" used by the addyosmani `security-and-hardening` overlay are rephrased into the project's own policy voice as "Mandatory / Approval-Gated / Prohibited", which is consistent with the existing Information Security Policy's tone and the [`governance/policy-exception-and-risk-acceptance-management.md`](governance/policy-exception-and-risk-acceptance-management.md) approval-gating convention. The STRIDE methodology is foundational and attributed to its 1999 Microsoft origin; LINDDUN is attributed to KU Leuven imec-DistriNet. No verbatim content from addyosmani's overlay is present in the new Standard.
+
+### Verification
+
+Full 34-gate audit programme passes standalone immediately before commit. New Standard re-read in full after the link-target fixes (initial draft cited non-existent paths under `privacy/`; corrected to the actual data-classification location in `security/` and to existing privacy policy / procedure documents for the LINDDUN application). Language audit (gate 2) clean (one `-ise` finding caught and fixed pre-audit). Repository-internal links audit (gate 3) clean. Structure audit (gate 4) confirms the new Standard is referenced from both [`security/README.md`](security/README.md) and the document-index register. Metadata audit (gate 1) confirms the 13-field block is complete. Version-monotonicity audit (gate 13) confirms the [`secure-development-and-engineering policy`](dev-security/policy-secure-development-and-engineering.md) per-doc bump `1.0.1 → 1.0.2` is an increase. Version-date consistency audit (gate 29) confirms `2026.06.19` matches `2026-06`.
+
+### Phased follow-up context
+
+This is Phase S.2 of the addyosmani integration plan. S.1 shipped in `2026.06.18`. S.3 (governance skills in Claude Code's Skills format) and S.4 (audit gate for skill-to-rule reference integrity) follow.
+
+---
+
 ## 2026-06-19, Library Version 2026.06.18
 
 Phase S.1 of the addyosmani agent-skills integration plan: add `addyosmani/agent-skills` as the fourth external rule source the pack vouches for, fully vet 5 of its 24 skills, copy those 5 plus the upstream MIT licence file into this project's overlay directory, and announce the fourth source through the setup-generator's offer flow.
