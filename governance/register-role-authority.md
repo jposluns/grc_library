@@ -2,8 +2,8 @@
 
 **Document Title:** Role Authority Register\
 **Document Type:** Register\
-**Version:** 1.3.0\
-**Date:** 2026-05-28\
+**Version:** 1.3.1\
+**Date:** 2026-06-19\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)\
@@ -45,7 +45,7 @@ This register defines generic governance roles used across the GRC Documentation
 | AI System Inventory Keeper | Maintenance of the AI System Register, Model Registry, MCP server register, model cards, system cards, and cross-references between AI inventories and adjacent registers (ADM, resilience, supplier). | Inventory updates, model card and system card maintenance, register reconciliation. |
 | Legal Counsel | Legal interpretation, contractual obligations, regulatory privilege, and legal risk review. | Legal position statements, regulatory interpretation, contract exceptions. |
 | Internal Audit | Independent assessment of governance, control design, control operating effectiveness, and evidence. | Audit plan, audit report, assurance findings. |
-| System Owner | Accountability for a system, service, platform, model, or application across its lifecycle. | System risk acceptance, operating procedures, evidence maintenance. |
+| System Owner | Accountability for a system, service, platform, model, or application across its lifecycle. For an action-capable AI agent, the System Owner (or a designated AI System Owner) is the named accountable owner of the agent's autonomous envelope; accountability for actions the agent performs does not transfer to the agent (`AGENT-PROD-05` in the AI and Agentic Development Security Standard). | System risk acceptance, operating procedures, evidence maintenance, agent autonomous-envelope accountability. |
 | Data Owner | Accountability for a data set, data classification, lawful basis, authorized use, and retention. | Data use approval, data sharing, retention exceptions. |
 | Control Owner | Ownership of control implementation, monitoring, evidence, exception handling, and remediation. | Control evidence, control design changes, control remediation. |
 | Process Owner | Ownership of a business or technical process and its operational controls. | Process procedures, operational exceptions, improvement actions. |
