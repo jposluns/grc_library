@@ -267,3 +267,10 @@ repos:
         language: system
         pass_filenames: false
         types: [markdown]
+
+      - id: lint-claude-rules-sync
+        name: Claude-rules local-copy sync audit
+        entry: python3 tools/lint-claude-rules-sync.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
