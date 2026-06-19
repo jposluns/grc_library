@@ -2,8 +2,8 @@
 
 **Document Title:** Information Security Domain README\
 **Document Type:** Register\
-**Version:** 1.2.0\
-**Date:** 2026-05-28\
+**Version:** 1.2.1\
+**Date:** 2026-06-19\
 **Owner:** Information Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](policy-information-security.md)\

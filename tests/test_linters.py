@@ -1468,5 +1468,154 @@ class SkillDerivesFromTests(LinterTestCase):
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
 
+class DocumentDateStalenessTests(LinterTestCase):
+    """tools/lint-document-date-staleness.py
+
+    The audit verifies that every corpus markdown file with a Date
+    metadata field has a Date no more than ``--max-lag-days`` behind
+    the file's most-recent git commit date, with files committed
+    before ``--baseline-date`` grandfathered. Tests build a synthetic
+    minimal git repo under ``--root`` so the linter's detection logic
+    can be exercised with engineered commit dates and metadata Dates,
+    without touching the real corpus or its git history.
+    """
+
+    @staticmethod
+    def _git(args: list[str], cwd: Path, env: dict[str, str] | None = None) -> None:
+        # Always pass git config inline so the test does not depend on
+        # the developer's global git identity.
+        config = ["-c", "user.email=t@test", "-c", "user.name=Test"]
+        subprocess.run(
+            ["git", *config, *args],
+            cwd=str(cwd),
+            env=env,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+
+    def _build_synthetic_repo(
+        self,
+        *,
+        metadata_date: str,
+        commit_date: str,
+        document_type: str = "Standard",
+        document_basename: str = "standard-test.md",
+        scan_subdir: str = "ai",
+    ) -> Path:
+        import shutil
+
+        synthetic_root = FIXTURE_DIR / "synthetic-date-staleness"
+        if synthetic_root.exists():
+            shutil.rmtree(synthetic_root)
+        scan_dir = synthetic_root / scan_subdir
+        scan_dir.mkdir(parents=True)
+        # Minimal metadata block: only the Date field needs to be
+        # detectable by the linter; we still build a syntactically
+        # plausible 13-field block so the file isn't malformed.
+        body = (
+            f"# Test Document\n\n"
+            f"**Document Title:** Test Document\\\n"
+            f"**Document Type:** {document_type}\\\n"
+            f"**Version:** 1.0.0\\\n"
+            f"**Date:** {metadata_date}\\\n"
+            f"**Owner:** Test Owner\\\n"
+            f"**Approving Authority:** Test Owner\\\n"
+            f"**Related Documents:** None\\\n"
+            f"**Classification:** Public\\\n"
+            f"**Category:** Test\\\n"
+            f"**Review Frequency:** Annual\\\n"
+            f"**Repository Path:** "
+            f"[`{scan_subdir}/{document_basename}`]({document_basename})\\\n"
+            f"**Confidentiality:** Public\\\n"
+            f"**License:** CC BY-SA 4.0\n\n"
+            f"---\n\n## Purpose\n\nTest body.\n"
+        )
+        (scan_dir / document_basename).write_text(body, encoding="utf-8")
+        self._git(["init", "-q", "-b", "main"], cwd=synthetic_root)
+        self._git(["add", "."], cwd=synthetic_root)
+        env = os.environ.copy()
+        env["GIT_AUTHOR_DATE"] = commit_date
+        env["GIT_COMMITTER_DATE"] = commit_date
+        self._git(
+            ["commit", "-q", "-m", "test commit"],
+            cwd=synthetic_root,
+            env=env,
+        )
+        return synthetic_root
+
+    def test_stale_date_flagged(self) -> None:
+        # Metadata Date 22 days behind the commit date and the commit
+        # is at or after the baseline: must fail.
+        import shutil
+
+        synthetic_root = self._build_synthetic_repo(
+            metadata_date="2026-05-28",
+            commit_date="2026-06-19T12:00:00Z",
+        )
+        try:
+            result = run_linter(
+                "tools/lint-document-date-staleness.py",
+                "--root",
+                str(synthetic_root),
+                "--baseline-date",
+                "2026-06-19",
+            )
+            self.assertLinterFails(result, "lags the file's most-recent commit date")
+        finally:
+            shutil.rmtree(synthetic_root, ignore_errors=True)
+
+    def test_fresh_date_passes(self) -> None:
+        # Metadata Date matches commit date exactly: must pass (exit 0).
+        import shutil
+
+        synthetic_root = self._build_synthetic_repo(
+            metadata_date="2026-06-19",
+            commit_date="2026-06-19T12:00:00Z",
+        )
+        try:
+            result = run_linter(
+                "tools/lint-document-date-staleness.py",
+                "--root",
+                str(synthetic_root),
+                "--baseline-date",
+                "2026-06-19",
+            )
+            self.assertEqual(
+                result.returncode,
+                0,
+                f"linter should pass on a fresh Date.\n"
+                f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+        finally:
+            shutil.rmtree(synthetic_root, ignore_errors=True)
+
+    def test_pre_baseline_commit_grandfathered(self) -> None:
+        # Commit predates the baseline date: file is grandfathered
+        # even though its metadata Date is stale. Must pass.
+        import shutil
+
+        synthetic_root = self._build_synthetic_repo(
+            metadata_date="2026-01-01",
+            commit_date="2026-05-01T12:00:00Z",
+        )
+        try:
+            result = run_linter(
+                "tools/lint-document-date-staleness.py",
+                "--root",
+                str(synthetic_root),
+                "--baseline-date",
+                "2026-06-19",
+            )
+            self.assertEqual(
+                result.returncode,
+                0,
+                f"linter should grandfather a pre-baseline commit.\n"
+                f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+        finally:
+            shutil.rmtree(synthetic_root, ignore_errors=True)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
