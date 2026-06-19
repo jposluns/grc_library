@@ -121,8 +121,17 @@ SECRET_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
         re.compile(r"\bAIza[A-Za-z0-9_\-]{35}\b"),
     ),
     (
-        "Private key block (RSA, DSA, EC, OPENSSH)",
-        re.compile(r"-----BEGIN (RSA|DSA|EC|OPENSSH|PGP) PRIVATE KEY-----"),
+        # Matches any PEM private-key header regardless of algorithm:
+        # the algorithm prefix (RSA / DSA / EC / OPENSSH / ENCRYPTED /
+        # PGP / future types) varies, but the invariant "PRIVATE KEY"
+        # token is what makes the block a secret. Anchoring on that
+        # token (with an open-ended uppercase prefix and the optional
+        # PGP " BLOCK" suffix) future-proofs against new key types
+        # without matching the non-secret PEM blocks that share the
+        # same envelope (CERTIFICATE, PUBLIC KEY, DH PARAMETERS).
+        # Per RFC 7468, PEM labels are uppercase.
+        "Private key block (PEM, any algorithm)",
+        re.compile(r"-----BEGIN (?:[A-Z0-9]+ )*PRIVATE KEY(?: BLOCK)?-----"),
     ),
     (
         "JWT (3-part Base64URL with realistic payload)",
