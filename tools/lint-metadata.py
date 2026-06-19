@@ -44,9 +44,14 @@ mode):
   not artefacts).
 - Domain README files match the loose-mode shape that requires only a
   Document Title and License field.
-- Paths under EXEMPT_PREFIXES (`dev-security/claude-rules/`, `tools/`,
-  `docs/`) are exempt because those directories hold helpers and
-  generated artefacts rather than canonical library documents.
+- Paths under EXEMPT_PREFIXES (`dev-security/claude-rules/`, `tools/`)
+  are exempt because those directories hold draggable rule files and
+  audit tooling rather than canonical library documents. ``docs/``
+  was previously exempt; it was removed in the docs-metadata
+  elevation: every file under ``docs/`` now carries the canonical
+  13-field block (``adopter-guide``, ``decision-tree``, and
+  ``worked-example`` hand-authored, ``portal`` and
+  ``maturity-scorecard`` emitted by ``tools/build-portal.py``).
 
 Usage:
     python3 tools/lint-metadata.py [paths...]
@@ -119,36 +124,27 @@ EXEMPT = {
 # Phase D.1 (2026-06-02): NOTICE.md, CONTRIBUTING.md, SECURITY.md, and
 # AUTHORS.md were removed from this set when they each acquired a full
 # 13-field metadata header. docs/worked-example.md was simultaneously
-# carved out of EXEMPT_PREFIXES via the FORCE_INCLUDE_PATHS override
-# below. The four remaining EXEMPT files have a documented reason to
-# remain exempt (see TODO.md "no per-file versioning" carve-out).
+# carved out of EXEMPT_PREFIXES via a per-file FORCE_INCLUDE_PATHS
+# override. The four remaining EXEMPT files have a documented reason
+# to remain exempt (see TODO.md "no per-file versioning" carve-out).
 # Phase 23.62 removed `LICENSE` from this set and from
 # PREFIX_EXEMPT_BASENAMES below. The linter scans `.md` files only,
 # so the suffix-less LICENSE file was unreachable in both places.
 
 # Directories whose contents are exempt from the full canonical metadata block.
-# These are draggable AI-context files (claude-rules/) and tooling docs (tools/, docs/),
-# which serve a different purpose than governance artefacts.
+# These are draggable AI-context files (claude-rules/) and audit tooling
+# (tools/), which serve a different purpose than governance artefacts.
+# docs/ was removed from this tuple in the docs-metadata elevation:
+# every file under docs/ now carries the canonical 13-field block,
+# either authored by hand (adopter-guide.md, decision-tree.md,
+# worked-example.md) or emitted by tools/build-portal.py
+# (portal.md, maturity-scorecard.md). The corresponding
+# FORCE_INCLUDE_PATHS carve-out set was deleted along with the prefix
+# entry.
 EXEMPT_PREFIXES = (
     "dev-security/claude-rules/",
     "tools/",
-    "docs/",
 )
-
-# Specific files that ARE enforced even though their directory is in
-# EXEMPT_PREFIXES above. Phase D.1 (2026-06-02) added the worked-example
-# guide to the metadata-enforcement set without flipping the rest of
-# docs/ (which contains generated artefacts like portal.md and
-# maturity-scorecard.md that intentionally lack metadata).
-FORCE_INCLUDE_PATHS = {
-    "docs/worked-example.md",
-    # Phase: adopter-guide and decision-tree promoted from informational
-    # aids to controlled reference artefacts; they now carry the full
-    # 13-field block. The generated artefacts (portal.md,
-    # maturity-scorecard.md) remain exempt under EXEMPT_PREFIXES.
-    "docs/adopter-guide.md",
-    "docs/decision-tree.md",
-}
 
 # Domain README files: simpler shape; skipped from full block enforcement.
 DOMAIN_README_NAMES = {"README.md"}
@@ -163,6 +159,8 @@ PREFIX_EXEMPT_BASENAMES = {
     "worked-example.md",
     "adopter-guide.md",
     "decision-tree.md",
+    "portal.md",
+    "maturity-scorecard.md",
     "specification-master-project.md",
     "specification-ingestion.md",
     "instruction-ai-document-ingestion.md",
@@ -345,10 +343,13 @@ def check_file(path: Path) -> list[str]:
     if rel in EXEMPT:
         return findings
 
-    # Files in exempt directories (tooling docs, draggable rule files) are
-    # skipped UNLESS they are listed in FORCE_INCLUDE_PATHS as specific
-    # carve-outs that the audit programme does want to enforce.
-    if any(rel.startswith(p) for p in EXEMPT_PREFIXES) and rel not in FORCE_INCLUDE_PATHS:
+    # Files in exempt directories (audit tooling, draggable rule files)
+    # are skipped. The docs/ tree was previously exempt via this prefix
+    # plus a FORCE_INCLUDE_PATHS carve-out for the three hand-authored
+    # files; that arrangement was retired when the two generated files
+    # (portal.md, maturity-scorecard.md) acquired their own emitter-side
+    # metadata blocks, leaving every docs/ file uniformly enforced.
+    if any(rel.startswith(p) for p in EXEMPT_PREFIXES):
         return findings
 
     # Domain README files: enforce only the basic metadata header (loose check).
@@ -442,6 +443,7 @@ def main(argv: list[str]) -> int:
         "architecture",
         "compliance",
         "dev-security",
+        "docs",
         "governance",
         "operations",
         "privacy",
