@@ -1388,5 +1388,85 @@ class OrphanDocumentsTests(LinterTestCase):
         self.assertLinterFails(result, "standard-unreferenced-orphan.md")
 
 
+class SkillDerivesFromTests(LinterTestCase):
+    """tools/lint-skill-derives-from.py
+
+    The audit verifies that every ``SKILL.md`` under
+    ``dev-security/claude-rules/skills/`` declares a ``derives_from:``
+    YAML frontmatter field whose value resolves to an existing file.
+    Tests use ``--root`` to point the linter at a synthetic minimal
+    source set with engineered errors so the detection logic can be
+    exercised without touching the real corpus.
+    """
+
+    def _build_synthetic_root(self, skill_frontmatter: str, target_exists: bool) -> Path:
+        import shutil
+
+        synthetic_root = FIXTURE_DIR / "synthetic-skill-derives"
+        if synthetic_root.exists():
+            shutil.rmtree(synthetic_root)
+        skill_dir = synthetic_root / "dev-security" / "claude-rules" / "skills" / "test-skill"
+        skill_dir.mkdir(parents=True)
+        rules_dir = synthetic_root / "dev-security" / "claude-rules" / "governance"
+        rules_dir.mkdir(parents=True)
+        if target_exists:
+            (rules_dir / "test-rule.md").write_text(
+                "# Test Rule\n\nSynthetic canonical rule.\n",
+                encoding="utf-8",
+            )
+        (skill_dir / "SKILL.md").write_text(
+            skill_frontmatter,
+            encoding="utf-8",
+        )
+        return synthetic_root
+
+    def test_missing_derives_from_flagged(self) -> None:
+        import shutil
+
+        synthetic_root = self._build_synthetic_root(
+            skill_frontmatter=(
+                "---\n"
+                "name: test-skill\n"
+                "description: A test skill with no derives_from field.\n"
+                "---\n\n"
+                "# Test Skill\n"
+            ),
+            target_exists=True,
+        )
+        try:
+            result = run_linter(
+                "tools/lint-skill-derives-from.py",
+                "--root",
+                str(synthetic_root),
+            )
+            self.assertLinterFails(result, "missing `derives_from:`")
+        finally:
+            shutil.rmtree(synthetic_root, ignore_errors=True)
+
+    def test_broken_derives_from_target_flagged(self) -> None:
+        import shutil
+
+        synthetic_root = self._build_synthetic_root(
+            skill_frontmatter=(
+                "---\n"
+                "name: test-skill\n"
+                "description: A test skill pointing at a non-existent rule.\n"
+                "derives_from: ../../governance/does-not-exist.md\n"
+                "---\n\n"
+                "# Test Skill\n"
+            ),
+            target_exists=False,
+        )
+        try:
+            result = run_linter(
+                "tools/lint-skill-derives-from.py",
+                "--root",
+                str(synthetic_root),
+            )
+            self.assertLinterFails(result, "does not exist")
+        finally:
+            shutil.rmtree(synthetic_root, ignore_errors=True)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
