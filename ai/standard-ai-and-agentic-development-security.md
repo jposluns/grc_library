@@ -2,11 +2,11 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.7.0\
-**Date:** 2026-05-30\
+**Version:** 1.8.0\
+**Date:** 2026-06-19\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md)\
+**Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md)\
 **Classification:** Public\
 **Category:** AI Governance\
 **Review Frequency:** Annual and upon material AI framework or regulatory change\
@@ -520,6 +520,7 @@ Log retention per Data Retention Schedule.
 - Secret leakage test: system prompt content is not extractable via adversarial input
 - Data classification boundary test: Confidential data not returned in Internal-authorized contexts
 - Human approval gate test: irreversible actions blocked without explicit human confirmation
+- Recovery test: for each Reversible or Compensable action class, the reversal or compensating mechanism is exercised and confirmed to return the affected system to an equivalent prior state (`AGENT-PROD-03`)
 
 ### Regression schedule
 
@@ -725,6 +726,28 @@ Compliance with this standard is verified through: CI/CD pipeline gate results (
 Any AI system found non-compliant with a Critical or High requirement must be remediated within the timeframes defined in the Production Security Requirements Standard. Continued operation requires explicit CIO risk acceptance documented in the Exception Register.
 
 This standard is reviewed and updated at minimum annually, or when any of the following occurs: a new confirmed AI threat technique affects deployed AI surface; a significant new AI capability is introduced; OWASP LLM Top 10 or NIST AI RMF is materially updated; or an AI security incident occurs.
+
+---
+
+## 35. Agent production authority, reversibility, and recovery
+
+This section applies only to agents with production action capability: tool, API, workflow-automation, code-execution, transaction, database-write, identity, security-tooling, or production-configuration access. It does not apply to passive AI assistance or to decision-support outputs that a human must act on; those are governed by the model-governance and human-oversight controls elsewhere in this standard. The distinction is the control boundary: where the agent can cause a production effect without a human performing the action, this section applies.
+
+The governing principle is that authority sits in the system boundary, not in the agent. The permissions model, the approval path, the immutable audit trail, the reversal mechanism, and a named accountable human are the authority; the agent is the channel. Agent safety is therefore treated as a governance, identity, data-lineage, change-control, evidence, and operational-resilience problem, not primarily as a model-behaviour problem.
+
+**AGENT-PROD-01:** An action-capable agent must not be granted production action authority, whether autonomous or semi-autonomous execution, until all four of the following are designed, tested, and governed, with evidence recorded per `AGENT-PROD-06`: (a) permission boundaries per §10 and the AI Access and Agent Permissions Standard; (b) immutable auditability per §28 and `AGENT-PROD-04`; (c) reversibility per `AGENT-PROD-02` with recovery testing per `AGENT-PROD-03`; (d) named human accountability per `AGENT-PROD-05`. Where any of the four is absent, the agent is restricted to Supervised Autonomous mode (`AUTON-SEC-01`) with per-action human confirmation. This precondition is verified at the acceptance-into-service gate (see the Software Evaluation, Acceptance and Lifecycle Management Standard) and is re-verified on the material-change thresholds in the AI Governance and Risk Framework.
+
+**AGENT-PROD-02:** Every production-impacting action class an agent can perform must carry a documented reversibility classification: Reversible (an automatic reversal is defined), Compensable (a compensating transaction is defined that returns the system to an equivalent prior state), or Irreversible. Reversible and Compensable classes must have their reversal or compensating mechanism defined in the agent's governance documentation before production authority is granted. Action classes that remain Irreversible are permanently subject to per-action human confirmation (`AUTON-SEC-02`, §24) and cannot be reclassified as autonomous.
+
+**AGENT-PROD-03:** The reversal or compensating mechanism for each Reversible or Compensable action class must be tested before production go-live and re-tested at every material change to the action class, the tool, or the target system. The test confirms that the mechanism returns the affected system to an equivalent prior state within its defined recovery objective. Recovery testing is part of the pre-production gate (§21); a missing or failing recovery test blocks production authority for that action class.
+
+**AGENT-PROD-04:** The immutable audit trail (§28, `LOG-SEC-03`) must allow an auditor to reconstruct, for any agent-performed production action, the full lineage from the originating prompt or trigger, to the agent decision, to the tool invocation, to the system action, to a reference identifying the resulting data or configuration change (record identifier, change reference, or transaction identifier). The correlating identifier (`trace_id` per §20) must be carried through to the downstream system's change record. Lineage that stops at the tool invocation and does not reach the resulting change does not satisfy this control.
+
+**AGENT-PROD-05:** Each action-capable agent has a single named accountable owner (a human role per the Role and Authority Register), recorded in the AI System Register. Accountability for actions the agent performs within its approved autonomous envelope remains with that owner and with the approver of the envelope; it does not transfer to the agent. The agent is never the accountable party. Where an action required human approval (§24), accountability also attaches to the approver recorded in the approval event.
+
+**AGENT-PROD-06:** The decision to grant production action authority must produce an evidence record, held within the agent's AI System Register entry and system card, sufficient for audit, assurance, and risk acceptance. The record references the permission-boundary configuration; the reversibility classification (`AGENT-PROD-02`); the recovery-test results (`AGENT-PROD-03`); the lineage design (`AGENT-PROD-04`); the named accountable owner (`AGENT-PROD-05`); the pre-production gate (§21) and red-team (§23) results; and any risk acceptance recorded in the Exception Register. Continued authority requires the record to remain current through the review cadence.
+
+This section governs autonomous and semi-autonomous production action. It does not raise the bar for passive AI assistance, decision support that a human acts on, or read-only agent capability; those remain governed by the controls already defined in this standard. The progression from passive assistance, to decision support, to semi-autonomous workflow execution, to autonomous production action is a progression in required controls, and production action authority is the point at which all four preconditions above become mandatory.
 
 ---
 

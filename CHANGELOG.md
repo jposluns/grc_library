@@ -4,6 +4,38 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-19, Library Version 2026.06.34, PR #47
+
+Agent-production-authority controls, part A of the three-part set from the agentic-governance assessment: the core control, its evidence home, and the access-standard wiring. The governing principle is that autonomous agents do not receive production authority until reversibility, auditability, accountability, and permission boundaries are designed, tested, and governed; authority sits in the system boundary, the permissions model, the approval path, the immutable audit trail, the reversal mechanism, and a named accountable human, never in the agent. This closes the assessment's identified gap: the corpus treated reversibility as a classification input to an approval decision, not as a designed-and-tested precondition for production authority, and it did not consolidate the four properties into a single gate wired to acceptance-into-service.
+
+### Added
+
+- New section **§35 "Agent production authority, reversibility, and recovery"** in [`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md), with six mandatory controls `AGENT-PROD-01` to `AGENT-PROD-06`: the production-authority precondition (the four properties designed, tested, and governed before autonomous or semi-autonomous execution, verified at the acceptance-into-service gate); reversibility classification (Reversible / Compensable / Irreversible) with reversal or compensating-transaction design; recovery testing of the reversal mechanism before go-live; end-to-end action lineage from trigger to resulting data change; standing named human accountability that does not transfer to the agent; and a production-authority evidence record for audit and risk acceptance. The section is explicitly scoped to action-capable agents and explicitly does not raise the bar for passive assistance, decision support, or read-only capability, keeping the four-tier distinction (passive / decision support / semi-autonomous / autonomous) clear.
+- New pre-production gate item in §21: a recovery test that exercises the reversal or compensating mechanism for each Reversible or Compensable action class (`AGENT-PROD-03`).
+- Four conditional fields in [`ai/template-ai-system-register.md`](ai/template-ai-system-register.md) (Reversibility Classification, Recovery Test Status, Production Action Authority, Action Lineage Coverage) and three in [`ai/template-system-card.md`](ai/template-system-card.md) (Action Lineage Coverage in §4; Reversibility Classification and Reversal and Recovery Testing in §5; Production Action Authority in §9), giving the `AGENT-PROD-06` evidence record a concrete home.
+
+### Changed
+
+- [`ai/standard-ai-access-and-agent-permissions.md`](ai/standard-ai-access-and-agent-permissions.md): the §4.1 tool-definition row now requires a reversibility classification per `AGENT-PROD-02` (replacing the optional "rollback behaviour where applicable"); §4.2 now conditions the grant of Operational and Cross-system scope on the production-authority precondition (`AGENT-PROD-01`), with Bounded read-only scope exempt. Version `0.0.2 → 0.0.3`.
+- [`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md): version `1.7.0 → 1.8.0` (minor, material new section); date `2026-05-30 → 2026-06-19`; Related Documents extended with the access-permissions standard, the AI governance framework, the acceptance-and-lifecycle standard, and the two templates.
+- [`ai/template-ai-system-register.md`](ai/template-ai-system-register.md) and [`ai/template-system-card.md`](ai/template-system-card.md): version `1.0.0 → 1.1.0` each; date `2026-05-27 → 2026-06-19`.
+- Auto-generated artefacts regenerated for the four version bumps: [`taxonomy.yml`](taxonomy.yml) and [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md).
+- [`README.md`](README.md): library version `2026.06.33 → 2026.06.34`; README version `1.7.171 → 1.7.172`.
+
+### Scope and non-duplication
+
+The control IDs use the `AGENT-PROD-` prefix, consistent with the standard's existing `AGENT-SEC-` / `AUTON-SEC-` convention. No framework-alignment table row was added: §35's alignment (OWASP LLM06 excessive agency, CSA AICM AI-AU-01 to 06, NIST AI RMF MANAGE 1.3) is already represented by the standard's existing "Excessive agency" row, and adding a near-duplicate would duplicate rather than clarify. The reversibility and recovery controls are deliberately distinct from the deployment-level rollback controls in the DevOps and acceptance-and-lifecycle standards: this is per-action reversal and compensating-transaction design, a layer above deployment rollback, and it references rather than restates the existing human-approval boundaries (§24), autonomous-action constraints (§30), and immutable-logging requirements (§28).
+
+### Part B and part C still to come
+
+Part B (governance integration: acceptance-and-lifecycle acceptance criterion, AI governance framework anchor, role-authority accountability line) and part C (operational closure: AI incident response reversal step, cross-framework matrix artefact row) follow as separate PRs. They reference the `AGENT-PROD-*` controls this PR places on `main`.
+
+### Verification
+
+Full 37-gate audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. Gate 2 (language) passes on the four edited `/ai` documents (in scope; no em-dashes or en-dashes introduced). Gate 1 (metadata), gate 17/18 (section-anchor and intra-doc references), and gate 3 (links) pass on the new section and its cross-references. The taxonomy and portal in-sync gates (gates 33, 34) confirm the regenerated artefacts match the four bumped source metadata blocks. The version-monotonicity audit (gate 13) confirms each per-document bump and the `2026.06.33 → 2026.06.34` library bump are strictly increasing. The version-date consistency audit (gate 29) confirms `2026.06.34` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
+
+---
+
 ## 2026-06-19, Library Version 2026.06.33, PR #46
 
 Consistency follow-up to PR #45: broaden the summary surfaces that describe the evidence-grounded-completion rule, so they match the rule's scope after PR #45 extended it from completion claims to any state assertion. PR #45 deliberately left these surfaces untouched on the reasoning that each named the rule by its primary purpose and "remained accurate"; a subsequent read (prompted by the maintainer's "always confirm" instruction) showed that reasoning was an unverified inference that did not fully hold. Specifically, the pack's distributable governance instruction file made an explicit trigger claim ("the vocabulary of completion is a flag that the protocol must precede") that the broadened rule outgrew, and the project instruction file linked the rule only to user-level Rule 6 when a user-level Rule 7 now also exists. This PR corrects the surfaces that made trigger or linkage claims and broadens the lossy summaries for consistency.

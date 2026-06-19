@@ -2,8 +2,8 @@
 
 **Document Title:** AI Access and Agent Permissions Standard\
 **Document Type:** Standard\
-**Version:** 0.0.2\
-**Date:** 2026-05-28\
+**Version:** 0.0.3\
+**Date:** 2026-06-19\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/register-mcp-server.md`](register-mcp-server.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md), [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
@@ -89,7 +89,7 @@ Agentic systems where a model invokes tools (functions, APIs, scripts) on behalf
 | The allow-list is reviewed at minimum quarterly and at every material capability change |
 | Tools are classified by risk (Read-only Low; Write Low; Write Sensitive; Destructive) per the agentic development standard |
 | Tools rated Write Sensitive or Destructive require human confirmation per invocation by default |
-| Tool definitions explicitly document expected input schema, side effects, and rollback behaviour where applicable |
+| Tool definitions explicitly document expected input schema, side effects, and a reversibility classification (Reversible, Compensable, or Irreversible) per the agentic development security standard's `AGENT-PROD-02`; Reversible and Compensable tools document their reversal or compensating mechanism |
 
 #### 4.1.1 Agent self-protection (defence in depth)
 
@@ -118,6 +118,8 @@ Each agent runs within a defined capability scope. Three levels are recognized:
 | Cross-system | Read or write across multiple systems; capability to chain actions | AI Security Maintainer plus CISO approval; impact assessment required |
 
 Cross-system agents must additionally satisfy the agentic development security standard's separation-of-duty controls.
+
+Operational and Cross-system scope is granted only after the production-authority precondition (`AGENT-PROD-01` in the agentic development security standard) is satisfied and evidenced: permission boundaries, immutable auditability, tested reversibility, and named human accountability are designed, tested, and governed before autonomous or semi-autonomous production execution is authorised. Bounded (read-only) scope is exempt.
 
 ### 4.3 Identity propagation
 
