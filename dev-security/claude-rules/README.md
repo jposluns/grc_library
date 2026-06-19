@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.20.1\
+**Version:** 1.20.2\
 **Date:** 2026-06-19\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
