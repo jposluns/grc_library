@@ -2,8 +2,8 @@
 
 **Document Title:** System Card Template\
 **Document Type:** Template\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.1.0\
+**Date:** 2026-06-19\
 **Owner:** AI System Inventory Keeper\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md)\
@@ -87,6 +87,7 @@ Do not populate the public repository version with real system names, people nam
 | Encryption and Key Management | |
 | Network or Exposure Boundary | |
 | Tool Permission Boundary | |
+| Action Lineage Coverage | For action-capable agents: whether the audit trail links trigger, agent decision, tool invocation, system action, and resulting data or configuration change. |
 
 ### 5. AI risk and testing
 
@@ -102,6 +103,8 @@ Do not populate the public repository version with real system names, people nam
 | Output Quality and Failure Modes | |
 | Human Oversight Testing | |
 | Resilience or Fallback Testing | |
+| Reversibility Classification | For action-capable agents: per production-impacting action class, Reversible, Compensable, or Irreversible. |
+| Reversal and Recovery Testing | For action-capable agents: result of testing the reversal or compensating mechanism for each Reversible or Compensable action class. |
 
 ### 6. Human oversight and decision impact
 
@@ -149,6 +152,7 @@ Do not populate the public repository version with real system names, people nam
 | Approval Date | |
 | Next Review Date | |
 | Residual Risk Summary | |
+| Production Action Authority | For action-capable agents: withheld, supervised, or granted, with a reference to the production-authority evidence record (the four preconditions per the agentic development security standard). |
 
 ### 10. Retirement and decommissioning
 
