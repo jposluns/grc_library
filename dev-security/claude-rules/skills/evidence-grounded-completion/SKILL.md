@@ -1,6 +1,7 @@
 ---
 name: evidence-grounded-completion
 description: Verifies completion claims with evidence before declaring done. Use before stating "done", "complete", "fixed", "shipped", "ready", or any synonym. Use when wrapping up a unit of work and about to summarise to the user. Use when about to acknowledge a user-reported issue with "good catch".
+derives_from: ../../governance/evidence-grounded-completion.md
 ---
 
 # Evidence-Grounded Completion

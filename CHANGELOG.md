@@ -4,6 +4,33 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-19, Library Version 2026.06.21
+
+Phase S.4 of the addyosmani agent-skills integration plan: add a new audit gate that enforces the derive-and-cite contract between skills and pack rules. The gate verifies that every skill document under [`dev-security/claude-rules/skills/`](dev-security/claude-rules/skills/) declares a `derives_from:` YAML frontmatter field whose value resolves to an existing pack rule, closing the maintenance loop opened in S.3 (skill workflows reference canonical rules rather than duplicate them).
+
+### Added
+
+- New audit gate 31, **Skill derives-from reference audit**, implemented by [`tools/lint-skill-derives-from.py`](tools/lint-skill-derives-from.py). The audit parses each skill document's YAML frontmatter, requires a `derives_from:` field, and verifies that the named path resolves to an existing file in the repository. Exit codes: 0 on pass (including the bootstrap "no skills found" case), 1 on findings, 2 on internal error. The audit accepts a `--root` argument for use by the regression test suite.
+- Frontmatter `derives_from:` field added to all three existing skill documents shipped in S.3, each pointing at the canonical pack rule the skill wraps: [`skills/evidence-grounded-completion/SKILL.md`](dev-security/claude-rules/skills/evidence-grounded-completion/SKILL.md) → [`governance/evidence-grounded-completion.md`](dev-security/claude-rules/governance/evidence-grounded-completion.md); [`skills/gate-discipline-diagnose/SKILL.md`](dev-security/claude-rules/skills/gate-discipline-diagnose/SKILL.md) → [`governance/gate-discipline.md`](dev-security/claude-rules/governance/gate-discipline.md); [`skills/clarify-before-acting/SKILL.md`](dev-security/claude-rules/skills/clarify-before-acting/SKILL.md) → [`governance/clarify-before-acting.md`](dev-security/claude-rules/governance/clarify-before-acting.md).
+- New regression test class `SkillDerivesFromTests` in [`tests/test_linters.py`](tests/test_linters.py) with two positive tests: a synthetic skill with no `derives_from:` field is flagged; a synthetic skill whose `derives_from:` target does not exist is flagged. Both tests use the linter's `--root` argument to point at a temp-directory source set.
+
+### Changed
+
+- Audit programme renumbered from 34 to 35 gates. The new gate inserts at position 31 (between gate 30 Metadata-block line-break audit and the previous gate 31 Machine-readable taxonomy in-sync drift check). Old gates 31, 32, 33, 34 become 32, 33, 34, 35 respectively. The renumbering is reflected in: [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) section 6 gate inventory table and surrounding narrative; the inline `gate-34 regression test suite` references in 10 linter source files (now `gate-35`); the inline `gate 34 of the audit programme` reference in [`tests/README.md`](tests/README.md) (now `gate 35`); and the `34-gate` / `34 gates` text in governance docs ([`procedure-library-quality-and-review-cadence.md`](governance/procedure-library-quality-and-review-cadence.md), [`register-main-branch-protection.md`](governance/register-main-branch-protection.md), [`register-coverage-gaps.md`](governance/register-coverage-gaps.md), [`register-document-index-and-classification.md`](governance/register-document-index-and-classification.md)).
+- All four CI surfaces wired to invoke the new gate, in the canonical surface order: [`.github/workflows/quality.yml`](.github/workflows/quality.yml) (new step "Skill derives-from reference audit"); [`tools/run_all_audits.sh`](tools/run_all_audits.sh) (new `run_gate` invocation; header comment updated from 30/34 gates to 31/35 gates); [`.pre-commit-config.yaml`](.pre-commit-config.yaml) (new hook `lint-skill-derives-from`); [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) section 6 (new row inserted at position 31). The gate-name parity audit (now gate 34) verifies the four surfaces agree on gate count and names.
+- [`tools/run-linter-regression.py`](tools/run-linter-regression.py) updated to reflect the new gate count.
+- [`README.md`](README.md): library version `2026.06.20 → 2026.06.21`; README version `1.7.158 → 1.7.159`.
+
+### Verification
+
+Full 35-gate audit programme passes standalone (`tools/run_all_audits.sh` exit code 0) immediately before commit. The new gate 31 reports the three real skill files passing and emits no findings. Regression test suite (gate 35) passes including the two new `SkillDerivesFromTests` tests. The gate-name parity audit (gate 34) confirms all four surfaces agree on the 35-gate name set and order. The version-date consistency audit (gate 29) confirms `2026.06.21` matches `2026-06`. The library-version-monotonicity audit (gate 13) confirms `2026.06.20 → 2026.06.21` is a strictly-increasing patch bump. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
+
+### Phased follow-up context
+
+S.4 is the final phase of the four-phase addyosmani integration plan. S.1 (external overlay) shipped in `2026.06.18`. S.2 (Threat Modelling Standard with STRIDE / LINDDUN citations) shipped in `2026.06.19`. S.3 (governance skills in Claude Code Skills format) shipped in `2026.06.20`. With S.4 complete, the addyosmani integration is closed; future work in this lineage would be a fourth skill (`change-tracking-write-entry`) once the first three have proven their format and discovery work in practice.
+
+---
+
 ## 2026-06-19, Library Version 2026.06.20
 
 Phase S.3 of the addyosmani agent-skills integration plan: introduce a third pack-content type, **Claude Code Skills** in the Skills workflow format (one SKILL-named file per skill), under a new `skills/` subdirectory. Three skills land in this PR, each derived from an existing governance rule with the rule remaining as the source of truth for normative content.

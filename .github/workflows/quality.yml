@@ -111,6 +111,9 @@ jobs:
       - name: Metadata-block line-break audit
         run: python3 tools/lint-metadata-line-breaks.py
 
+      - name: Skill derives-from reference audit
+        run: python3 tools/lint-skill-derives-from.py
+
       - name: Machine-readable taxonomy in sync
         run: python3 tools/build-taxonomy.py --check
 

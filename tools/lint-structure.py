@@ -15,7 +15,7 @@ Usage:
     python3 tools/lint-structure.py --root /path/to/alt-repo
 
 The ``--root`` flag overrides the repository root the linter scans (used
-by the gate-34 regression test suite to point at a synthetic minimal
+by the gate-35 regression test suite to point at a synthetic minimal
 repository fixture). Default: the actual repo root, derived from this
 file's location.
 

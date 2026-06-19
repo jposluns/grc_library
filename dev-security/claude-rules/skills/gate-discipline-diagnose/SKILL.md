@@ -1,6 +1,7 @@
 ---
 name: gate-discipline-diagnose
 description: Diagnoses a failing CI gate, lint, or audit and fixes the artefact rather than weakening the gate. Use when a gate fails. Use when tempted to bypass a check with --no-verify, blanket suppression, severity-threshold lowering, or exemption-list addition. Use when a pre-commit hook blocks a commit. Use when a required status check on a PR shows red.
+derives_from: ../../governance/gate-discipline.md
 ---
 
 # Gate Discipline: Diagnose, Then Fix the Artefact
