@@ -31,7 +31,7 @@ Usage:
     python3 tools/lint-metadata-line-breaks.py path/to/specific/file.md
 
 The optional positional path argument restricts the scan to one file,
-used by the gate-35 regression test suite for synthetic-fixture
+used by the gate-36 regression test suite for synthetic-fixture
 isolation.
 
 Exit codes:
