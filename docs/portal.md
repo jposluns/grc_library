@@ -147,6 +147,7 @@ The Chief Information Security Officer needs policies, standards, and procedures
 - [Site Reliability Engineering Standard](../operations/standard-site-reliability-engineering.md)
 - [Software Composition Analysis Standard](../dev-security/standard-software-composition-analysis.md)
 - [Software Evaluation, Acceptance and Lifecycle Management Standard](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md)
+- [Threat Modelling Standard](../security/standard-threat-modelling.md)
 
 ---
 
@@ -358,6 +359,7 @@ Security architects need the dev-security standards, the AI security guides, the
 - [Security Quick Reference](../dev-security/standard-security-quick-reference.md)
 - [Software Composition Analysis Standard](../dev-security/standard-software-composition-analysis.md)
 - [Software Evaluation, Acceptance and Lifecycle Management Standard](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md)
+- [Threat Modelling Standard](../security/standard-threat-modelling.md)
 
 ---
 
