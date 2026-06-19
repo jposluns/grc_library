@@ -4,6 +4,37 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-19, Library Version 2026.06.30, PR #43
+
+Security fix: harden the gate-21 (Secret pattern audit) private-key detection regex, which had a false-negative gap. The maintainer's regression-audit review asked whether the example was RSA-specific; investigation found the detection regex itself enumerated five algorithm tokens (`RSA|DSA|EC|OPENSSH|PGP`) and consequently MISSED three real PEM private-key header forms (named here by their PEM label only, without the dash-fenced envelope, so this entry does not itself reproduce a scanner-detectable string): the bare `PRIVATE KEY` label (PKCS#8 unencrypted, the most common modern serialization and OpenSSL's default); the `ENCRYPTED PRIVATE KEY` label (PKCS#8 encrypted); and the `PGP PRIVATE KEY BLOCK` label (the real PGP header; the old regex's `PGP` branch matched a non-existent `PGP PRIVATE KEY` form and missed the actual one with the ` BLOCK` suffix). A PKCS#8 private key pasted into any corpus document would have passed gate 21 undetected.
+
+### Security
+
+- [`tools/lint-secrets-in-content.py`](tools/lint-secrets-in-content.py): the private-key pattern's algorithm enumeration `(RSA|DSA|EC|OPENSSH|PGP)` was replaced with an open-ended uppercase-prefix construction anchored on the invariant `PRIVATE KEY` token (what makes a PEM block a secret), with the optional PGP ` BLOCK` suffix. The new pattern catches every current private-key form plus future algorithm types (a hypothetical future `ED25519 PRIVATE KEY` label would match) WITHOUT matching the non-secret PEM blocks that share the same envelope (`CERTIFICATE`, `PUBLIC KEY`, `DH PARAMETERS`). The pattern label is updated to "Private key block (PEM, any algorithm)". Verified against the live corpus: zero false positives. A broader "any label between the fences" alternative was considered and rejected because it flags certificates and public keys (non-secrets), which is a category error in a secret scanner.
+
+### Added
+
+- Five regression tests in `SecretsLinterTests` ([`tests/test_linters.py`](tests/test_linters.py)): three positive tests asserting the previously-missed forms (PKCS#8 unencrypted, PKCS#8 encrypted, PGP private key block) are now flagged; two negative tests asserting a `CERTIFICATE` block and a `PUBLIC KEY` block are NOT flagged as private keys (locking in the anchored pattern's precision so a future broadening cannot silently reintroduce false positives).
+
+### Changed
+
+- [`dev-security/claude-rules/core/secrets.md`](dev-security/claude-rules/core/secrets.md) and its project-local copy [`.claude/rules/secrets.md`](.claude/rules/secrets.md): the "Prohibited patterns" example `private_key` marker converged to the key-type-agnostic PKCS#8 form (the bare `PRIVATE KEY` label in the standard dash-fenced envelope). The source previously showed the RSA-specific form (which teaches that private keys are RSA — they are not); the local copy previously showed a truncated marker (vague). Both now show the generic PKCS#8 form, which is the most common modern serialization and the exact form the old regex missed. This also resolves a source-vs-local body divergence the regression audit flagged (the two copies' bodies are now identical modulo the local copy's provenance comment). Both files are exempt from gate 21 by basename, so the example does not self-trip the scanner.
+- [`README.md`](README.md): library version `2026.06.29 → 2026.06.30`; README version `1.7.167 → 1.7.168`.
+
+### Why anchor on `PRIVATE KEY` rather than enumerate algorithms
+
+Future-proofing and precision both argue for the same anchor. Future private-key types vary in the algorithm prefix (RSA → EC → Ed25519 → whatever is next), not in the `PRIVATE KEY` label, which RFC 7468 standardizes. An open-ended uppercase prefix absorbs any future algorithm; anchoring on `PRIVATE KEY` is exactly what keeps the non-secret PEM blocks (certificates, public keys) out. Enumerating algorithm tokens, as the old regex did, is the source of the false-negative: any token not in the list slips through.
+
+### A note on this entry not tripping the gate it documents
+
+CHANGELOG.md is NOT on gate 21's exemption list (only the canonical [`.claude/rules/secrets.md`](.claude/rules/secrets.md) / [`dev-security/claude-rules/core/secrets.md`](dev-security/claude-rules/core/secrets.md), the linter itself, and the test file are exempt). An earlier draft of this entry reproduced the full dash-fenced header strings and correctly tripped the hardened gate. Rather than exempt CHANGELOG.md (which would weaken the gate to make content pass — a gate-discipline violation), the entry was rewritten to name each header by its PEM label without the dash-fenced envelope. This is the same discipline the canonical secrets.md relies on its exemption for: documentation that must describe a secret pattern either lives in an exempt file or describes the pattern without reproducing a detectable instance.
+
+### Verification
+
+Full 36-gate audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. The five new `SecretsLinterTests` pass standalone and via the linter regression test suite gate. The corrected regex was scanned against the entire corpus (all `.md` / `.py` / `.yml` / `.sh` files, excluding the three documented exemptions) and produced zero matches, confirming no false positives. Gate 21 itself passes on this PR's full diff, including this CHANGELOG entry. The version-date consistency audit (gate 29) confirms `2026.06.30` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
+
+---
+
 ## 2026-06-19, Library Version 2026.06.29, PR #42
 
 Regression-audit fix: correct three stale gate-count references in the project instruction file [`.claude/CLAUDE.md`](.claude/CLAUDE.md). All three said "32 gates" / "32-gate audit programme"; the audit programme has grown well past 32 (it was already past 32 before this session, and is 36 as of PR #37). The `.claude/` tree is exempt from the corpus linters, so no gate caught the drift; the regression audit found it.

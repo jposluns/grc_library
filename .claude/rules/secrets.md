@@ -50,7 +50,7 @@ api_key = "sk-..."
 token = "ghp_..."
 secret = "xxxxxxxxxxxxxxxx"
 conn_str = "Server=...;Password=..."
-private_key = "-----BEGIN"
+private_key = "-----BEGIN PRIVATE KEY-----"
 ```
 
 Treat discovered secrets as **compromised immediately**, regardless of whether the code is in production. The secret must be rotated before any other remediation step.
