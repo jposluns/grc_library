@@ -4,6 +4,37 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-19, Library Version 2026.06.18
+
+Phase S.1 of the addyosmani agent-skills integration plan: add `addyosmani/agent-skills` as the fourth external rule source the pack vouches for, fully vet 5 of its 24 skills, copy those 5 plus the upstream MIT licence file into this project's overlay directory, and announce the fourth source through the setup-generator's offer flow.
+
+### Added
+
+- New external overlay directory [`.claude/rules/external/addyosmani/`](.claude/rules/external/addyosmani/) containing five fully-vetted skill files plus the upstream MIT licence file (preserved verbatim as required by MIT redistribution terms). Each skill carries a provenance header (source URL with pinned commit SHA `13e43f2310224d5770a7fb0a8c24c02b73da69e9`, fetch date `2026-06-19`, SHA-256 of the original fetched bytes). Content unmodified from upstream. The five files: [`security-and-hardening.md`](.claude/rules/external/addyosmani/security-and-hardening.md) (STRIDE-per-trust-boundary; Mandatory / Approval-Gated / Prohibited tier model; OWASP prevention patterns; LLM-output handling), [`code-review-and-quality.md`](.claude/rules/external/addyosmani/code-review-and-quality.md) (five-axis review with severity-labelled findings), [`ci-cd-and-automation.md`](.claude/rules/external/addyosmani/ci-cd-and-automation.md) (quality-gate pipeline configuration; eight sequential gates), [`using-agent-skills.md`](.claude/rules/external/addyosmani/using-agent-skills.md) (the meta-skill that explains how skills are discovered and invoked), [`context-engineering.md`](.claude/rules/external/addyosmani/context-engineering.md) (workflow-loading discipline).
+- New entry in [`dev-security/claude-rules/vetting-log.md`](dev-security/claude-rules/vetting-log.md) for the addyosmani source: EXT-01 protocol applied to the 5 fully-vetted skills (red-flag scan results in a per-pattern outcome table); 18 remaining skill directories explicitly recorded as `Spot-scanned` (not fully vetted) so the consumer is informed if they later elect one of those via the setup-generator; per-skill depth disclosed honestly. Verdict: Vetted (no concerns) on the fully-read subset.
+
+### Changed
+
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) bumped to pack version `1.18.0`. The "External references → AI coding assistant rule repositories" section gains an addyosmani entry between Kariedo and the awesome-claude-code community index. The overlay-flow narrative updated from "three vetted external sources" to "four vetted external sources" (TikiTribe, Kariedo, addyosmani, Wiz) and the vetting-date statement now mentions both vetting cohorts (2026-05-31 and 2026-06-19).
+- [`dev-security/claude-rules/setup-generator-prompt.md`](dev-security/claude-rules/setup-generator-prompt.md) updated to offer the fourth source through the unified-message overlay flow: the source table gains an addyosmani row (with the scope-is-workflow-not-GRC caveat in the "What that means" column), the "accept all four" / "review one by one" paths are updated, and a new "addyosmani per-source offer" block appears between Kariedo's and Wiz's offer blocks. The order presented to the consumer (TikiTribe → Kariedo → addyosmani → Wiz) keeps Wiz last because its licence carries the only commercial caveat.
+- [`dev-security/claude-rules/vetting-log.md`](dev-security/claude-rules/vetting-log.md) per-document version `1.2.0 → 1.3.0`; Date `2026-05-31 → 2026-06-19`.
+- [`.claude/CLAUDE.md`](.claude/CLAUDE.md) overlay-narrative paragraph updated to mention addyosmani alongside TikiTribe and Kariedo, with a one-sentence scope caveat distinguishing engineering-workflow content (in Claude Code's Skills discovery format) from GRC governance.
+- [`README.md`](README.md): library version `2026.06.17 → 2026.06.18`; README version `1.7.155 → 1.7.156`; Date `2026-06-03 → 2026-06-19`.
+
+### Vetting depth disclosure
+
+Per the [`evidence-grounded-completion`](.claude/rules/governance/evidence-grounded-completion.md) rule, the vetting depth is stated explicitly rather than implied. Fully vetted (read line-by-line, EXT-01 pattern scan completed): `security-and-hardening`, `code-review-and-quality`, `ci-cd-and-automation`, `using-agent-skills`, `context-engineering`. Spot-scanned (titles and `description:` frontmatter inspected via the upstream README index; not read in full): the remaining 18 skill directories. Consumers electing the overlay who later wish to fetch one of the spot-scanned skills should apply EXT-01 per fetch.
+
+### Phased follow-up context
+
+This is Phase S.1 of the addyosmani integration plan (four phases: S.1 external overlay, S.2 STRIDE cherry-pick + threat-modelling Standard, S.3 governance skills authored in Claude Code's Skills format, S.4 audit gate for skill-to-rule reference integrity). S.2-S.4 follow.
+
+### Verification
+
+Full 34-gate audit programme passes standalone immediately before commit. EXT-01 pattern scan on the 5 fully-vetted skills clean (no role-override / urgency / external-fetch / shell-execution / control-weakening / hidden-text patterns; details in the vetting-log entry). Provenance headers on each copied file include source URL with pinned commit SHA, fetch date, and SHA-256 of the original fetched bytes; the per-file SHA-256 values cited in the vetting log match the SHA-256 of the file body below the provenance header (verifiable by anyone re-fetching from the pinned commit). The version-date consistency audit (gate 29) confirms `2026.06.18` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate passes.
+
+---
+
 ## 2026-06-03, Library Version 2026.06.17
 
 Update the main-branch-protection register to reflect the bypass-actor configuration added on 2026-06-02. Closes the silent-drift gap between the register's claim ("bypass-actor list is empty") and the live ruleset state.

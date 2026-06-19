@@ -127,7 +127,9 @@ at pack version 1.6.0 (security + governance contract) is complete: pack version
 `governance/` as the discipline expands, but the planned set is now shipped.
 
 The GRC Library pack above is the **primary** source. `.claude/rules/external/` holds a
-**supplementary** overlay from third-party sources (TikiTribe, Kariedo — both MIT, see
-each dir's LICENSE), provenance-stamped. Overlay rules may overlap or conflict with the
-primary layer; the primary GRC pack wins on conflict. The overlay can be pruned or
-refreshed independently of the pack.
+**supplementary** overlay from third-party sources (TikiTribe, Kariedo, addyosmani — all
+MIT, see each dir's LICENSE), provenance-stamped. Overlay rules may overlap or conflict
+with the primary layer; the primary GRC pack wins on conflict. The overlay can be pruned
+or refreshed independently of the pack. addyosmani's content is engineering-workflow
+skills (TDD, code review, CI/CD, security-and-hardening, etc.) in Claude Code's `SKILL.md`
+discovery format; scope is engineering practice rather than additional GRC governance.
