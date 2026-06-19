@@ -4,6 +4,40 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-19, Library Version 2026.06.20
+
+Phase S.3 of the addyosmani agent-skills integration plan: introduce a third pack-content type, **Claude Code Skills** in the Skills workflow format (one SKILL-named file per skill), under a new `skills/` subdirectory. Three skills land in this PR, each derived from an existing governance rule with the rule remaining as the source of truth for normative content.
+
+### Added
+
+- New pack subdirectory [`dev-security/claude-rules/skills/`](dev-security/claude-rules/skills/) containing three skills in Claude Code's Skills format (YAML frontmatter with `name:` and `description:` for skill-tool discovery; sections for Overview, When to Use, Process, Red Flags, Verification, Common Rationalizations, See Also).
+- [`skills/evidence-grounded-completion/SKILL.md`](dev-security/claude-rules/skills/evidence-grounded-completion/SKILL.md): wraps the six-step verification protocol from [`governance/evidence-grounded-completion.md`](dev-security/claude-rules/governance/evidence-grounded-completion.md) as an invocable workflow. Triggers: about to state "done", "complete", "fixed", "shipped", "ready", or any synonym (including "good catch" used to acknowledge a user-reported issue); wrapping up a unit of work with a summary; gate / lint / audit just reported green and about to claim the underlying work is complete.
+- [`skills/gate-discipline-diagnose/SKILL.md`](dev-security/claude-rules/skills/gate-discipline-diagnose/SKILL.md): wraps the correct-response hierarchy from [`governance/gate-discipline.md`](dev-security/claude-rules/governance/gate-discipline.md) as an invocable workflow. Triggers: a CI gate / lint / type check / test suite / audit failed; pre-commit hook blocked a commit; required status check on a PR is red; generator-output `--check` reports drift; about to use `--no-verify` or a blanket suppression directive.
+- [`skills/clarify-before-acting/SKILL.md`](dev-security/claude-rules/skills/clarify-before-acting/SKILL.md): wraps the ambiguity-detection and question-formulation discipline from [`governance/clarify-before-acting.md`](dev-security/claude-rules/governance/clarify-before-acting.md) as an invocable workflow. Triggers: request supports more than one reasonable interpretation; an external value the request does not pin down is required; a project-specific convention must be chosen; a trade-off the requestor would want to weigh in on must be made; the state of the world is unclear.
+
+### Changed
+
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) bumped to pack version `1.19.0 → 1.20.0`. The directory-structure ASCII tree gains a `skills/` entry with three skill subdirectories. The "Pack scope" section gains a paragraph documenting the new pack-content type, the distinction between rules (loaded as session-start context) and skills (discovered by Claude Code's Skill tool via frontmatter), and the derive-and-cite maintenance relationship (rule remains source of truth; skill is the workflow wrapper).
+- [`README.md`](README.md): library version `2026.06.19 → 2026.06.20`; README version `1.7.157 → 1.7.158`.
+
+### Maintenance relationship: derive-and-cite
+
+Per the option chosen in the per-phase mitigation review, each SKILL.md is a workflow document that REFERENCES the canonical pack rule for normative content rather than duplicating it. The rule contains the framework-alignment tables, the exception-handling protocols, the rationale ("why this rule exists"), and the prohibited-anti-patterns enumerations. The skill contains the When-to-Use triggers, the Process steps (the verb-list from the rule, made invocable), the Red Flags (a condensed subset for quick reference), the Verification criteria, the Common Rationalizations, and a See Also block linking back to the rule. If the rule's Process protocol is restructured, the skill's Process steps must be updated; the link-coverage and section-anchor audits catch the broken cross-reference mechanically.
+
+### Format conformance
+
+The SKILL.md files follow the convention used in the [`addyosmani/agent-skills`](https://github.com/addyosmani/agent-skills) overlay (shipped in S.1), which uses Claude Code's Skill tool discovery contract: YAML frontmatter with `name:` (lowercase-hyphenated) and `description:` (one sentence including "Use when ..." trigger phrases). The skill body is markdown sections.
+
+### Verification
+
+Full 34-gate audit programme passes standalone immediately before commit. Pre-flight language audit (gate 2) clean on all three SKILL.md files first attempt (avoided em-dashes and `-ise` verbs during authoring). Repository-internal links audit (gate 3) clean (each skill's See Also block uses relative paths verified against the actual pack-rule locations). Metadata audit (gate 1) does not scan `dev-security/claude-rules/` (exempt prefix), so the SKILL.md files are not subject to the 13-field metadata-block requirement; the YAML frontmatter convention is the Claude Skills format and is not in conflict with the exemption. The version-date consistency audit (gate 29) confirms `2026.06.20` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate passes.
+
+### Phased follow-up context
+
+This is Phase S.3 of the addyosmani integration plan. S.1 shipped in `2026.06.18`. S.2 shipped in `2026.06.19`. S.4 (audit gate for skill-to-rule reference integrity) follows. The door is open for a fourth skill (`change-tracking-write-entry`) once the first three have proven their format and discovery work in practice.
+
+---
+
 ## 2026-06-19, Library Version 2026.06.19
 
 Phase S.2 of the addyosmani agent-skills integration plan: cherry-pick the STRIDE-per-trust-boundary framing and the three-tier disposition model from the addyosmani `security-and-hardening` overlay into a new library-canonical Standard, then add surgical "See also" cross-references from two existing documents.
