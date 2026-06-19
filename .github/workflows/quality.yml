@@ -111,6 +111,9 @@ jobs:
       - name: Metadata-block line-break audit
         run: python3 tools/lint-metadata-line-breaks.py
 
+      - name: Document Date staleness audit
+        run: python3 tools/lint-document-date-staleness.py
+
       - name: Skill derives-from reference audit
         run: python3 tools/lint-skill-derives-from.py
 

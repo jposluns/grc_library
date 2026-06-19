@@ -42,7 +42,7 @@ audit" so it self-checks on every run.
 Stdlib-only Python 3.11.
 
 The ``--root`` argument overrides the repository root the linter
-reads its four surface files from. Used by the gate-35 regression
+reads its four surface files from. Used by the gate-36 regression
 test suite to point at a synthetic source-set with engineered drift
 so the linter's detection logic can be exercised. Default: the
 repository root derived from this file's location.
@@ -68,7 +68,7 @@ WORKFLOW_SETUP_STEPS = {"Checkout", "Set up Python"}
 
 # Workflow steps that are PR-only delta gates documented in
 # governance/specification-audit-programme.md §6.1. These are not part
-# of the 35-gate corpus inventory in §6 and therefore are excluded from
+# of the 36-gate corpus inventory in §6 and therefore are excluded from
 # the parity audit. Delta gates run only on pull_request events and
 # inspect the PR's change set rather than the repository state at HEAD.
 WORKFLOW_DELTA_GATE_STEPS = {"CHANGELOG-on-PR check"}
@@ -262,7 +262,7 @@ def main(argv: list[str]) -> int:
         type=Path,
         default=None,
         help="Override repository root the four source files are read from "
-             "(used by the gate-35 regression test suite for synthetic-drift "
+             "(used by the gate-36 regression test suite for synthetic-drift "
              "isolation).",
     )
     args = parser.parse_args(argv)
