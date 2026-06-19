@@ -112,6 +112,37 @@ When verifying via a command pipeline, the pipe can mask the verification comman
 
 Never chain a verification step with a dependent action step using `&&` when the verification's exit code may be masked. Concretely: `audit-script | tail && commit` is forbidden when `audit-script` can fail in a way the pipe hides.
 
+### API polling and webhook subscriptions
+
+When the verification you need is "wait until an external system reports a result" (CI completion, a build job's status, a deployed service's health), prefer the platform's webhook or subscription primitive over a polling loop. Polling against an external API is the same failure class as a pipe-masked exit code, but with extra ways to fail silently: rate-limit responses, transient HTTP errors, and authentication failures all produce output that is easy to ignore in a loop and indistinguishable from "still pending" if the loop is written without care.
+
+The discipline:
+
+- **Use the platform's wake-on-event primitive when one exists.** GitHub Actions emits webhook events for PR status changes; the Claude Code GitHub MCP server exposes `subscribe_pr_activity` (or equivalent) that surfaces those events into the session. Subscribing eliminates polling: the harness wakes the session on the event, the session reads the event's full payload, and acts. No exhaustion risk because no polling happens.
+- **If polling is unavoidable** (no event primitive available, or the condition is not event-shaped), the polling script must be fail-loud, bounded, and authenticated:
+  - Use the authenticated tool (MCP / SDK / `gh` CLI) rather than raw `curl`. Authenticated calls have orders-of-magnitude higher rate limits; raw `curl` against unauthenticated public endpoints exhausts the per-IP cap in tens of requests.
+  - Drop `curl -f` (which suppresses the response body on HTTP errors) and do not `2>/dev/null` blindly. The body that explains *why* the call failed is often the only signal that distinguishes "rate-limited" from "endpoint moved" from "transient outage".
+  - Bound the loop with a maximum attempt count and an explicit timeout. An unbounded `until` loop is a defect: when the condition never flips, the loop never exits, no notification fires, and the operator concludes the verification is still pending. Silence becomes indistinguishable from progress.
+  - Print one terminal-state line per iteration so the operator can see the loop's actual behaviour, not just its exit code.
+  - Inspect the task output file when a poll spans more than a couple of minutes. A loop that emits a stack trace per iteration is failing, even if its exit code looks clean. Bash captures stdout into `$(...)` and only writes stderr to the file, so a silently-failing API call may show as tracebacks-only in the file while the operator sees nothing in the conversation.
+- **Trust the wake-on-event primitive's negative space.** Subscriptions deliver failure events (CI fail, comment, review) but usually not success transitions, new pushes, or merge-conflict state changes. The operator's mental model must account for this: if the subscription has been silent, that may mean "still running" or "succeeded silently", but never "definitely failed" or "definitely succeeded". When the next interaction occurs, do one explicit status check (single shot, authenticated, not a poll loop) to resolve the ambiguity.
+
+The asymmetry justifies the discipline: a webhook subscription costs one tool call to arm and produces a single high-signal wake on each event. A polling loop costs N tool calls per minute, consumes per-user / per-IP rate budget across the session, and produces output the operator must inspect to know whether the loop is healthy. The first form is the default; the second form is an exception that must be justified.
+
+### No decorative external links
+
+When prose references a tool name, an API name, a CLI flag, a library, a class, or any other identifier that looks linkable, do not wrap it in a markdown link unless the link target is a URL drawn from a verified source. Verified sources include: a documentation URL the operator just pasted into the conversation, an URL returned by an MCP tool call in the current session, a path under the repository the prose is shipping in, or an entry on a maintained allow-list. Inventing a URL because the identifier "feels like it should have one" is the failure mode this rule prevents.
+
+The discipline:
+
+- **Backticked code spans are the default rendering for identifiers.** A reference to `TaskStop`, `boto3.client`, `--no-verify`, or `pre-commit run --all-files` renders as a backticked span. The reader can search for the identifier; the prose does not have to claim a canonical URL.
+- **Links are reserved for verified destinations.** A repository-internal path written as a markdown link to a real file is verified by the broken-link audit (the gate's number is project-specific; in the GRC Library it is gate 3). An external URL is verified by the maintainer at the moment they paste it; if no verified URL is available, render the reference without a link.
+- **Domain plausibility is not verification.** A plausibly-pathed URL on a real documentation domain may resolve, may 404, or may have never existed. The domain being on the project's allow-list (typical entries: `docs.python.org`, `claude.com`, `github.com`) means the gate that checks domains will pass; it does not mean the path is correct. Domain-allow-list gates catch off-domain hallucinations; they do not catch plausible-path hallucinations.
+- **Auto-pilot is the trigger to slow down.** The failure mode is reflexive: "I just wrote a tool name, file paths get links in this project, therefore this tool name should get a link." File paths are verified by the build, the lint, and the test suite. Tool names are not. The reflex extends the linking convention past the boundary of verifiability.
+- **If a link would genuinely help the reader and the URL is not at hand**, write the prose without the link and either add a TODO marker for follow-up verification or omit the link entirely. The reader can still find the referenced thing via the backticked identifier; they cannot recover from being misled by a confidently-wrong URL.
+
+This rule is a layered defence with the repository-level external-link domain allow-list (the `lint-external-link-domains.py` style gate in projects that ship one). The allow-list catches references to entirely off-list domains; the discipline here catches plausibly-pathed URLs on allow-listed domains, which the domain check cannot detect.
+
 ### Stop hooks and pre-commit failures
 
 A failing pre-commit hook, a stop-hook warning, or a "this branch has uncommitted changes" notice is signal, not noise. Address the underlying state. Do not bypass with `--no-verify` (see the gate-discipline rule) and do not treat it as a UI annoyance.
