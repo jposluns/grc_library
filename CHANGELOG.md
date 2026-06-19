@@ -4,6 +4,27 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-19, Library Version 2026.06.37, PR #50
+
+Promote two `/docs` reference documents from informational aids to controlled artefacts with the full 13-field metadata block, per the maintainer's assessment that they are solid reference documents. Previously the entire `docs/` directory was exempt from the metadata audit; only the generated portal and scorecard and the [`docs/worked-example.md`](docs/worked-example.md) controlled artefact lived there, with the adopter guide and decision tree self-declaring as non-tracked. Both are substantive, public, and referenced from elsewhere in the corpus, which is the profile of a controlled artefact.
+
+### Changed
+
+- [`docs/adopter-guide.md`](docs/adopter-guide.md): added the 13-field metadata block (Document Type Guide, Version `1.0.0`, owner and approving authority Governance Library Maintainer, Category Documentation); added an `## Overview` orientation section (required for the Guide doctype by the required-sections audit); and corrected the former self-declaration "not part of the library's controlled artefact set", which the promotion makes false.
+- [`docs/decision-tree.md`](docs/decision-tree.md): same treatment, Version `1.0.0`; added `## Overview`; corrected the former "informational and is not a tracked governance artefact" self-declaration.
+- [`tools/lint-metadata.py`](tools/lint-metadata.py): both files added to `FORCE_INCLUDE_PATHS` (so the metadata audit enforces the full block despite the `docs/` exempt prefix) and to `PREFIX_EXEMPT_BASENAMES` (so the Guide doctype does not require a `guide-` filename prefix, matching the existing treatment of the worked example in [`docs/worked-example.md`](docs/worked-example.md)).
+- [`README.md`](README.md): library version `2026.06.36 → 2026.06.37`; README version `1.7.174 → 1.7.175`.
+
+### Scope notes
+
+The generated artefacts in `docs/` ([`docs/portal.md`](docs/portal.md), [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md)) are deliberately left untouched in this PR; whether they should also carry metadata is a separate question (it interacts with the generator-output drift gates) and is being assessed on its own. Consistent with the existing controlled-artefact precedent in [`docs/worked-example.md`](docs/worked-example.md), the two promoted documents are not added to [`taxonomy.yml`](taxonomy.yml) or the document-index register: the taxonomy builder does not scan `docs/`, and the worked example is likewise absent from both, so no generated-artefact regeneration is required for this change.
+
+### Verification
+
+Full 37-gate audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. The metadata audit (gate 1) now enforces and accepts the full block on both files. The required-sections audit (gate 19), which scans the whole repository and now sees a Document Type on both files, accepts the new `## Overview` orientation sections. Gate 2 (language) passes on both `/docs` files (no em-dashes or en-dashes introduced). The filename-title alignment audit (gate 7) exempts `docs/` by directory prefix. The orphan-documents audit (gate 26) is satisfied because both files have inbound references (the adopter guide from the root README and the worked example; the decision tree from an operations README and the worked example). The taxonomy and portal in-sync gates (gates 33, 34) confirm no drift, since the taxonomy builder does not include `docs/`. The version-date consistency audit (gate 29) confirms `2026.06.37` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
+
+---
+
 ## 2026-06-19, Library Version 2026.06.36, PR #49
 
 Agent-production-authority controls, part C of three: operational closure. Completes the set begun in PR #47 (core control and evidence home) and PR #48 (governance integration). This part connects a harmful or unauthorised agent action to its reversal in incident response, and records the agentic standard in the cross-framework alignment matrix.

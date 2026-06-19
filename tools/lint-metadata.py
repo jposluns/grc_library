@@ -142,6 +142,12 @@ EXEMPT_PREFIXES = (
 # maturity-scorecard.md that intentionally lack metadata).
 FORCE_INCLUDE_PATHS = {
     "docs/worked-example.md",
+    # Phase: adopter-guide and decision-tree promoted from informational
+    # aids to controlled reference artefacts; they now carry the full
+    # 13-field block. The generated artefacts (portal.md,
+    # maturity-scorecard.md) remain exempt under EXEMPT_PREFIXES.
+    "docs/adopter-guide.md",
+    "docs/decision-tree.md",
 }
 
 # Domain README files: simpler shape; skipped from full block enforcement.
@@ -155,6 +161,8 @@ PREFIX_EXEMPT_BASENAMES = {
     "SECURITY.md",
     "AUTHORS.md",
     "worked-example.md",
+    "adopter-guide.md",
+    "decision-tree.md",
     "specification-master-project.md",
     "specification-ingestion.md",
     "instruction-ai-document-ingestion.md",
