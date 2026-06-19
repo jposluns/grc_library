@@ -2,8 +2,8 @@
 
 **Document Title:** AI Incident Response Plan\
 **Document Type:** Plan\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-19\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md)\
@@ -120,6 +120,7 @@ AI-specific containment actions, applied per the severity and the system archite
 | Patch prompt template; deploy patched version | Direct prompt injection |
 | Update retrieved-content allow list; sanitise quarantined documents | Indirect prompt injection |
 | Update agent tool allow list and confirmation rules | Agent compromise |
+| Invoke the reversal or compensating transaction for agent-performed production actions; confirm the affected system returned to an equivalent prior state | Agent performed unauthorised, harmful, or out-of-scope production actions (per the reversibility classification in `AGENT-PROD-02` of the AI and Agentic Development Security Standard) |
 | Rotate compromised credentials | Credential exposure |
 | Retire compromised model version; revert to a clean prior version | Poisoning or degradation |
 | Update safety classifier; redeploy with updated thresholds | Repeated jailbreak success |
@@ -172,6 +173,7 @@ The AI Security Maintainer ensures that the following evidence is preserved for 
 | Retrieved content | Documents and chunks retrieved during the relevant sessions |
 | Model output | Responses with safety-classifier annotations |
 | Tool invocation logs | Tool name, arguments, return value, confirmation status |
+| Action lineage and reversal record | For agent-performed production actions: the lineage from trigger to resulting data or configuration change (`AGENT-PROD-04`), and the reversal or compensating-transaction record where one was invoked |
 | Embeddings and vectors | Where relevant to retrieval leakage or membership inference |
 | Training data snapshot | Where poisoning is suspected |
 | Model version metadata | Identifier, hash, supplier, deployment date |
