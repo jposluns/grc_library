@@ -15,11 +15,12 @@ documents and the linters that govern them.
 
 ## Why
 Every document carries a 13-field metadata block and a fixed section model so the
-corpus is machine-auditable. The 32-gate audit programme enforces that model so
-governance content stays citable, cross-linked, and free of drift, secrets, or PII.
+corpus is machine-auditable. The audit programme (gate inventory in
+`governance/specification-audit-programme.md` §6) enforces that model so governance
+content stays citable, cross-linked, and free of drift, secrets, or PII.
 
 ## Commands
-- Full audit sweep (32 gates, CI order): `tools/run_all_audits.sh`
+- Full audit sweep (all gates, CI order): `tools/run_all_audits.sh`
 - Stop on first failure: `FAIL_FAST=1 tools/run_all_audits.sh`
 - One gate: `python3 tools/<lint-name>.py`
 - Linter regression tests: `python3 tools/run-linter-regression.py`
@@ -82,7 +83,7 @@ surface the ambiguity in one sentence and ask before proceeding. Don't silently 
 Adapted from Karpathy's "Think Before Coding" CLAUDE.md rule
 (<https://github.com/multica-ai/andrej-karpathy-skills>, MIT). The library's
 audit programme already enforces "surgical changes" and "goal-driven execution"
-mechanically through the 32 gates and the user-level verification rules; the gap
+mechanically through the audit gates and the user-level verification rules; the gap
 this section closes is pre-implementation clarification.
 
 ## Security and governance requirements
