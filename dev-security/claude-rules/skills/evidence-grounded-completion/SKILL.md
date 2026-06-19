@@ -1,6 +1,6 @@
 ---
 name: evidence-grounded-completion
-description: Verifies completion claims with evidence before declaring done. Use before stating "done", "complete", "fixed", "shipped", "ready", or any synonym. Use when wrapping up a unit of work and about to summarise to the user. Use when about to acknowledge a user-reported issue with "good catch".
+description: Verifies completion claims with evidence before declaring done. Use before stating "done", "complete", "fixed", "shipped", "ready", or any synonym. Use when wrapping up a unit of work and about to summarise to the user. Use when about to acknowledge a user-reported issue with "good catch". Use also before asserting a factual property of an artefact you have not read (a state assertion in research, assessment, planning, or review), not only at completion.
 derives_from: ../../governance/evidence-grounded-completion.md
 ---
 
@@ -18,6 +18,7 @@ The rule is the source of truth for normative content (framework alignment, exce
 - Before saying "good catch" in response to a user-reported issue (the phrase implies "I understand the scope and have it under control", which is itself a state assertion).
 - Before wrapping up a unit of work with a summary message that a reviewer or downstream operator will rely on.
 - After a gate, lint, audit, or test suite reports green and you are about to claim the underlying work is complete (passing gates prove what gates check, not the whole claim).
+- Before asserting a factual property of an artefact you have not read: that a file, template, schema, configuration, or document contains, lacks, or requires something, in any phase including research, assessment, planning, or review. Read the artefact first, or label the statement an unverified hypothesis. See the canonical rule's section "Beyond completion: claims about artefact state".
 
 ## Process
 
