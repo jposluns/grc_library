@@ -4,6 +4,21 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-19, Library Version 2026.06.27, PR #40
+
+Regression-audit fix: correct a stale gate-number reference in the docstring of [`tools/run-linter-regression.py`](tools/run-linter-regression.py). The docstring claimed "the audit programme's gate 35 invokes this script"; PR #37's gate renumber (35 → 36 gates) moved the linter regression test suite from gate 35 to gate 36, but the docstring was not updated. The docstring is a Python comment, not markdown, so no corpus gate scans it; the regression audit found it.
+
+### Changed
+
+- [`tools/run-linter-regression.py`](tools/run-linter-regression.py): docstring no longer cites a bare gate number. It now describes the gate by role ("the linter regression test suite gate ... the final gate in the inventory") and points to [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) §6 as the maintained source of the number. Same name-not-number discipline applied in PR #39 to [`TODO.md`](TODO.md): a bare gate number in prose outside the canonical inventory goes stale on the next insertion.
+- [`README.md`](README.md): library version `2026.06.26 → 2026.06.27`; README version `1.7.164 → 1.7.165`.
+
+### Verification
+
+Full 36-gate audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. The change is comment-only (a docstring); the script's behaviour is unchanged (it still runs `python3 -m unittest tests.test_linters` and forwards the exit code), so the linter regression test suite gate itself continues to pass. Contradiction-search: a grep for any "gate N" pattern in the edited script returns no matches post-edit. The version-date consistency audit (gate 29) confirms `2026.06.27` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
+
+---
+
 ## 2026-06-19, Library Version 2026.06.26, PR #39
 
 Regression-audit fix: correct stale gate-number and pack-version references in [`TODO.md`](TODO.md) left behind by the PR #37 gate renumber (35 → 36 gates, which shifted the Skill derives-from reference audit from gate 31 to gate 32) and the PR #38 pack bump (`1.20.0 → 1.20.1`). A full-repository regression audit found these references in the "Pack and tooling extension" section of [`TODO.md`](TODO.md); they were never updated when the underlying gate number and pack version changed.
