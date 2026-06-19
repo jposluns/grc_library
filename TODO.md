@@ -129,7 +129,7 @@ Current matrix ([`governance/matrix-cross-framework-alignment.md`](governance/ma
 
 ### Post-S.3 evaluation of the Claude Code Skills format
 
-Phase S.3 (library version `2026.06.20`, shipped 2026-06-19) introduced three Claude Code Skills in the [`dev-security/claude-rules/skills/`](dev-security/claude-rules/skills/) subdirectory: [`skills/evidence-grounded-completion/`](dev-security/claude-rules/skills/evidence-grounded-completion/), [`skills/gate-discipline-diagnose/`](dev-security/claude-rules/skills/gate-discipline-diagnose/), and [`skills/clarify-before-acting/`](dev-security/claude-rules/skills/clarify-before-acting/). Phase S.4 (library version `2026.06.21`) added gate 31 ([`tools/lint-skill-derives-from.py`](tools/lint-skill-derives-from.py)) enforcing the derive-and-cite contract between each skill and its canonical pack rule.
+Phase S.3 (library version `2026.06.20`, shipped 2026-06-19) introduced three Claude Code Skills in the [`dev-security/claude-rules/skills/`](dev-security/claude-rules/skills/) subdirectory: [`skills/evidence-grounded-completion/`](dev-security/claude-rules/skills/evidence-grounded-completion/), [`skills/gate-discipline-diagnose/`](dev-security/claude-rules/skills/gate-discipline-diagnose/), and [`skills/clarify-before-acting/`](dev-security/claude-rules/skills/clarify-before-acting/). Phase S.4 (library version `2026.06.21`) added the Skill derives-from reference audit ([`tools/lint-skill-derives-from.py`](tools/lint-skill-derives-from.py)) enforcing the derive-and-cite contract between each skill and its canonical pack rule. (That audit is referenced here by name rather than gate number because gate numbers renumber when a gate is inserted; the canonical numbered inventory lives in [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) §6.)
 
 The post-S.3 question, recorded here so it does not get lost: should additional pack rules be wrapped as skills, and if so, which?
 
@@ -138,7 +138,7 @@ The post-S.3 question, recorded here so it does not get lost: should additional 
 **Empirical evidence to weigh at the trigger.**
 
 - Has Claude Code's Skill discovery surfaced the three existing skills when their triggers were met? (Mechanical check: did the assistant invoke the relevant skill, or did it execute the workflow without surfacing the skill?)
-- When invoked, did each skill's Process steps produce behaviour consistent with the canonical pack rule, or did the maintainer judge the skill's wording to be diverging from the rule? (Semantic check; gate 31 enforces reference integrity but not semantic drift.)
+- When invoked, did each skill's Process steps produce behaviour consistent with the canonical pack rule, or did the maintainer judge the skill's wording to be diverging from the rule? (Semantic check; the Skill derives-from reference audit enforces reference integrity but not semantic drift.)
 - Did the skill format require refactor during the observation period (header order, frontmatter fields, section names)? Format-altering PRs against any of the three skills are evidence that the format is not yet stable.
 - Subjective maintainer judgement: were the skills useful, redundant, or noise?
 
@@ -159,12 +159,12 @@ The selection criterion at the decision point is:
 
 **Possible outcomes at the trigger:**
 
-- Add one candidate (the stronger of the two) — ship it as a new SKILL.md with the same derive-and-cite contract enforced by gate 31.
+- Add one candidate (the stronger of the two) — ship it as a new SKILL.md with the same derive-and-cite contract enforced by the Skill derives-from reference audit.
 - Add both — only if both candidates clear the criterion above.
 - Add neither — the three existing skills are sufficient; the additional skills would add discovery noise without benefit. This is a valid outcome and is recorded as such if chosen.
 - Defer — insufficient evidence at the trigger; re-evaluate at the next trigger occurrence.
 
-**Cross-references.** Phase S.3 and S.4 are recorded in [`CHANGELOG.md`](CHANGELOG.md) under library versions `2026.06.20` and `2026.06.21` respectively. The pack itself is versioned independently in [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) (currently `1.20.0`).
+**Cross-references.** Phase S.3 and S.4 are recorded in [`CHANGELOG.md`](CHANGELOG.md) under library versions `2026.06.20` and `2026.06.21` respectively. The pack itself is versioned independently in [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) (currently `1.20.1`).
 
 ---
 
