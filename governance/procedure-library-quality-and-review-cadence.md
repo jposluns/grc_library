@@ -105,7 +105,7 @@ For each document under review, the responsible owner role conducts the followin
 | Taxonomy in sync | `tools/build-taxonomy.py --check` | In sync |
 | Portal and scorecard in sync | `tools/build-portal.py --check` | In sync |
 
-The full 34-gate audit programme (see [`governance/specification-audit-programme.md`](specification-audit-programme.md) §6 for the canonical gate inventory) runs in CI and pre-commit; any failure blocks merge unless an explicit exception is recorded.
+The full 35-gate audit programme (see [`governance/specification-audit-programme.md`](specification-audit-programme.md) §6 for the canonical gate inventory) runs in CI and pre-commit; any failure blocks merge unless an explicit exception is recorded.
 
 ### Step 7: Periodic library-level review
 
