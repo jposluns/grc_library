@@ -42,6 +42,7 @@ This directory contains organisation-neutral information security governance art
 | Procedure | Vulnerability Management Procedure | [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md) |
 | Standard | Personnel Security Screening Standard | [`security/standard-personnel-security-screening.md`](standard-personnel-security-screening.md) |
 | Standard | Penetration Testing and Red Team Standard | [`security/standard-penetration-testing-and-red-team.md`](standard-penetration-testing-and-red-team.md) |
+| Standard | Threat Modelling Standard | [`security/standard-threat-modelling.md`](standard-threat-modelling.md) |
 | Standard | Remote Working Security Standard | [`security/standard-remote-working-security.md`](standard-remote-working-security.md) |
 | Procedure | Onboarding and Offboarding Procedure | [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md) |
 | Policy | Acceptance Into Service Policy | [`security/policy-acceptance-into-service.md`](policy-acceptance-into-service.md) |

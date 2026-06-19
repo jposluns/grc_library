@@ -57,7 +57,7 @@ See [`core/input-validation.md`](input-validation.md) for full requirements. Key
 ## A04: insecure design
 
 **Required pattern**:
-- Threat model every new feature that handles Confidential data, authentication, or external integrations
+- Threat model every new feature that handles Confidential data, authentication, or external integrations. The library's [`security/standard-threat-modelling.md`](../../../security/standard-threat-modelling.md) defines the STRIDE-per-trust-boundary methodology and the Mandatory / Approval-Gated / Prohibited disposition model the threat-modelling workshop applies to each identified threat.
 - Apply defense-in-depth: multiple independent security controls, not a single gate
 - Design for failure securely: when a component fails, it should fail closed, not open
 
