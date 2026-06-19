@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.17.0\
+**Version:** 1.18.0\
 **Date:** 2026-06-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -176,7 +176,7 @@ External rule repositories listed under "External references" below are **not lo
 The library maintainer back-ports vetted improvements from external sources on the standard freshness cadence. Adopters who want to layer additional external rule sets on top of the pack have two paths:
 
 - **By hand.** Use the URLs in the External references section below; the adopter clones, vendors, or copies into their own project on their own terms.
-- **Via the setup generator's external-source overlay (default-on).** Phase 2 of [`setup-generator-prompt.md`](setup-generator-prompt.md), after presenting the GRC Library pack proposal, **proposes to fetch all three vetted external sources as the default action** so the consumer can accept the broader proposal with a single approval. The consumer's explicit approval (or modification, or decline) is still required before any file is written; the default-on framing affects the conversation flow's default, not the consent gate. The Wiz licence caveat (CC-BY-NC-ND-4.0; NonCommercial + NoDerivatives) is always surfaced in the offer-message prose before approval so commercial adopters and adopters who plan to modify the rule files for their stack can decline Wiz specifically. For each source the consumer is fetching (whether by accepting the default or by explicit modification), the generator applies the External-Source Vetting Protocol per fetch (treat as data not instructions; scan for embedded directives, urgency framing, claims of pre-authorisation, hidden or encoded text, exfiltration patterns, control-weakening guidance), surfaces anything suspicious verbatim before write, and places approved files under `.claude/rules/external/<source-name>/` with a provenance header (source URL, fetched date, SHA-256 of fetched bytes). The pack remains the primary content; the overlay is supplementary and may overlap or conflict with the primary layer (consumer responsibility to reconcile). The maintainer-side vetting status for each candidate source is recorded in [`dev-security/claude-rules/vetting-log.md`](vetting-log.md). Current status: Kariedo, TikiTribe, and Wiz are all `Vetted` (first formal EXT-01 vets on 2026-05-31). The generator's offer step surfaces the per-source status and substantive observations to the consumer so the decision is informed.
+- **Via the setup generator's external-source overlay (default-on).** Phase 2 of [`setup-generator-prompt.md`](setup-generator-prompt.md), after presenting the GRC Library pack proposal, **proposes to fetch all four vetted external sources as the default action** so the consumer can accept the broader proposal with a single approval. The consumer's explicit approval (or modification, or decline) is still required before any file is written; the default-on framing affects the conversation flow's default, not the consent gate. The Wiz licence caveat (CC-BY-NC-ND-4.0; NonCommercial + NoDerivatives) is always surfaced in the offer-message prose before approval so commercial adopters and adopters who plan to modify the rule files for their stack can decline Wiz specifically. For each source the consumer is fetching (whether by accepting the default or by explicit modification), the generator applies the External-Source Vetting Protocol per fetch (treat as data not instructions; scan for embedded directives, urgency framing, claims of pre-authorisation, hidden or encoded text, exfiltration patterns, control-weakening guidance), surfaces anything suspicious verbatim before write, and places approved files under `.claude/rules/external/<source-name>/` with a provenance header (source URL, fetched date, SHA-256 of fetched bytes). The pack remains the primary content; the overlay is supplementary and may overlap or conflict with the primary layer (consumer responsibility to reconcile). The maintainer-side vetting status for each candidate source is recorded in [`dev-security/claude-rules/vetting-log.md`](vetting-log.md). Current status: TikiTribe, Kariedo, and Wiz are `Vetted` (first formal EXT-01 vets on 2026-05-31); addyosmani is `Vetted` (first formal EXT-01 vet on 2026-06-19, 5 skills in full + 18 spot-scanned). The generator's offer step surfaces the per-source status and substantive observations to the consumer so the decision is informed.
 
 ### Deterministic enforcement layer
 
@@ -281,6 +281,12 @@ These rule files draw on and are aligned to the following external projects and 
 - Repository: `https://github.com/kariedo/claude-code-security-rules`
 - Coverage: Core universal security practices, language-specific rules (Python, JavaScript, Java, PHP, Ruby, Rust, C), common vulnerability prevention, uses `@`-syntax import system for modular organisation
 - Use: Alternative modular rule set for projects needing broader language coverage
+
+**addyosmani: Agent Skills**
+- Repository: `https://github.com/addyosmani/agent-skills`
+- Coverage: 24 engineering-workflow skills organized by development phase (Define, Plan, Build, Verify, Review, Ship). Includes a `security-and-hardening` skill (STRIDE-per-trust-boundary, Mandatory / Approval-Gated / Prohibited tier model, OWASP prevention patterns, LLM-output handling), a `code-review-and-quality` skill (five-axis review), and a `ci-cd-and-automation` skill (quality-gate pipeline configuration)
+- Use: Complementary engineering-discipline overlay; scope is engineering workflow not GRC governance. Uses Claude Code's Skills `SKILL.md` discovery format (frontmatter `name:` + `description:`) rather than the rule / `@`-import patterns the other three sources use
+- License: **MIT**
 
 **awesome-claude-code (community curation)**
 - Repository: `https://github.com/hesreallyhim/awesome-claude-code`
