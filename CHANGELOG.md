@@ -4,6 +4,26 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-19, Library Version 2026.06.26, PR #39
+
+Regression-audit fix: correct stale gate-number and pack-version references in [`TODO.md`](TODO.md) left behind by the PR #37 gate renumber (35 → 36 gates, which shifted the Skill derives-from reference audit from gate 31 to gate 32) and the PR #38 pack bump (`1.20.0 → 1.20.1`). A full-repository regression audit found these references in the "Pack and tooling extension" section of [`TODO.md`](TODO.md); they were never updated when the underlying gate number and pack version changed.
+
+### Changed
+
+- [`TODO.md`](TODO.md): three references to "gate 31" (describing the Skill derives-from reference audit) re-expressed by the audit's NAME rather than its number. Gate numbers renumber when a gate is inserted (PR #37 inserted the Document Date staleness audit at position 31, pushing Skill derives-from to 32); the gate name does not move. A parenthetical now states that the canonical numbered inventory lives in [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) §6, so future readers go to the one maintained source for numbers.
+- [`TODO.md`](TODO.md): the pack-version cross-reference updated from "currently `1.20.0`" to "currently `1.20.1`" to match the pack version after PR #38.
+- [`README.md`](README.md): library version `2026.06.25 → 2026.06.26`; README version `1.7.163 → 1.7.164`.
+
+### Why name-not-number
+
+This is the same lesson the PR #38 "No decorative external links" subsection encodes on a different axis: a reference that looks stable (a gate number) is not stable when the thing it points at can be renumbered. Prose outside the canonical inventory should reference gates by name; the inventory is the single place numbers are maintained. [`TODO.md`](TODO.md) is informational and not gate-enforced (no metadata block; exempt from the corpus audits), so nothing mechanically caught the drift — the regression audit did.
+
+### Verification
+
+Full 36-gate audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. [`TODO.md`](TODO.md) carries no `**Date:**` metadata field, so the Document Date staleness audit (gate 31) skips it; it is informational and exempt from the metadata audits. The version-date consistency audit (gate 29) confirms `2026.06.26` matches `2026-06`. The library-version-monotonicity audit (gate 13) confirms `2026.06.25 → 2026.06.26`. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry. Contradiction-search: after the edit, `grep -n "gate 31" TODO.md` returns no matches.
+
+---
+
 ## 2026-06-19, Library Version 2026.06.25, PR #38
 
 Extend the [`evidence-grounded-completion`](dev-security/claude-rules/governance/evidence-grounded-completion.md) pack rule with two new "Tool-specific guidance" subsections capturing two failure modes that surfaced in this session: a polling-pattern failure (raw `curl` against the unauthenticated GitHub API exhausted the 60-requests-per-hour-per-IP cap mid-session, after which every call returned HTTP 403, every iteration produced a Python `JSONDecodeError`, the loop never saw `completed`, and silent indefinite looping followed) and a URL-hallucination failure (auto-piloting from the project's file-path-link convention to a tool-name reference, inventing a plausible-looking documentation path under a real domain that did not in fact exist). Both lessons sit under §"Tool-specific guidance for AI coding assistants" next to the existing "Pipe-masked exit codes" subsection, with which they share the shape: a verification's actual outcome can be hidden by the way the verification is run.
