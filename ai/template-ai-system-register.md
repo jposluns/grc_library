@@ -2,8 +2,8 @@
 
 **Document Title:** AI System Register Template\
 **Document Type:** Template\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.1.0\
+**Date:** 2026-06-19\
 **Owner:** AI System Inventory Keeper\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/register-ai-risk.md`](register-ai-risk.md)\
@@ -45,6 +45,10 @@ Do not populate this public template with real systems, company names, personal 
 | Training or Improvement Use | Whether submitted or stored data is used for training, fine-tuning, provider improvement, or evaluation. | Yes |
 | Retrieval Sources | Document stores, vector stores, databases, applications, memory sources, or knowledge bases accessed by the system. | Conditional |
 | Tool Access | APIs, plugins, code execution, workflow actions, transaction actions, or external system actions. | Conditional |
+| Reversibility Classification | For action-capable agents: per production-impacting action class, Reversible, Compensable, or Irreversible, per the agentic development security standard. | Conditional |
+| Recovery Test Status | For action-capable agents: not required, planned, passed, or failed, for the reversal or compensating mechanism of each Reversible or Compensable action class. | Conditional |
+| Production Action Authority | For action-capable agents: withheld, supervised, or granted, with a reference to the production-authority evidence record. | Conditional |
+| Action Lineage Coverage | For action-capable agents: whether the audit trail links trigger, agent decision, tool invocation, system action, and resulting data or configuration change. | Conditional |
 | Risk Tier | Low, moderate, high, critical. | Yes |
 | Impact Assessment Status | Not started, in progress, approved, approved with conditions, rejected, retired. | Yes |
 | Human Oversight | Required reviewer, review point, escalation path, and override authority. | Conditional |
