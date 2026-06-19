@@ -4,6 +4,28 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-19, Library Version 2026.06.28, PR #41
+
+Regression-audit fix: re-sync the project-local copy of the evidence-grounded-completion rule with its pack source. PR #38 added two subsections ("API polling and webhook subscriptions", "No decorative external links") to the pack source at [`dev-security/claude-rules/governance/evidence-grounded-completion.md`](dev-security/claude-rules/governance/evidence-grounded-completion.md) but did not propagate the change to the project-local copy at [`.claude/rules/governance/evidence-grounded-completion.md`](.claude/rules/governance/evidence-grounded-completion.md). The two files are intended to be byte-identical (the local copy is the one a Claude Code session loads as session-start context; the pack copy is the distributable source). The `.claude/` tree is exempt from the corpus linters, so no gate caught the drift; the regression audit's `diff` of source against local copy found it.
+
+### Fixed
+
+- [`.claude/rules/governance/evidence-grounded-completion.md`](.claude/rules/governance/evidence-grounded-completion.md) re-synced from [`dev-security/claude-rules/governance/evidence-grounded-completion.md`](dev-security/claude-rules/governance/evidence-grounded-completion.md) (the pack source of truth). The 31-line addition is exactly the two subsections PR #38 added to the source; `diff` now reports the two files identical. No other content changed.
+
+### Changed
+
+- [`README.md`](README.md): library version `2026.06.27 → 2026.06.28`; README version `1.7.165 → 1.7.166`.
+
+### Why no gate caught this, and the residual risk
+
+The project-local `.claude/` rules tree is a copy of the pack under [`dev-security/claude-rules/`](dev-security/claude-rules/), maintained so a Claude Code session loads the rules as context. The `.claude/` directory is on the corpus linters' exemption list (it is AI-assistant config, not governed corpus content), so no audit gate compares the local copy to its source. This sync was therefore manual. The same drift class affects four other local copies (the `secrets`, `python`, `input-validation`, and `cicd-gates` rules), which the regression audit also flagged; those are being assessed separately because their divergence may be intentional project-local customisation rather than an un-propagated edit, and resolving them requires a direction-of-merge decision rather than a mechanical re-sync. This entry covers only the evidence-grounded-completion rule, whose divergence is unambiguously an un-propagated PR #38 edit.
+
+### Verification
+
+Full 36-gate audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. The synced file is under `.claude/`, which the corpus linters skip, so the audit result is unchanged by this edit; the verification that matters here is the `diff` showing the local copy and pack source are now byte-identical (zero diff output). The version-date consistency audit (gate 29) confirms `2026.06.28` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
+
+---
+
 ## 2026-06-19, Library Version 2026.06.27, PR #40
 
 Regression-audit fix: correct a stale gate-number reference in the docstring of [`tools/run-linter-regression.py`](tools/run-linter-regression.py). The docstring claimed "the audit programme's gate 35 invokes this script"; PR #37's gate renumber (35 → 36 gates) moved the linter regression test suite from gate 35 to gate 36, but the docstring was not updated. The docstring is a Python comment, not markdown, so no corpus gate scans it; the regression audit found it.
