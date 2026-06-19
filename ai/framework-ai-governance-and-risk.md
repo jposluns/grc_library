@@ -2,11 +2,11 @@
 
 **Document Title:** AI Governance and Risk Framework\
 **Document Type:** Framework\
-**Version:** 1.1.1\
-**Date:** 2026-05-28\
+**Version:** 1.1.2\
+**Date:** 2026-06-19\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/register-ai-risk.md`](register-ai-risk.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md)\
+**Related Documents:** [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/register-ai-risk.md`](register-ai-risk.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md)\
 **Classification:** Public\
 **Category:** AI Governance\
 **Review Frequency:** 6 to 12 months and upon material AI risk or regulatory change\
@@ -122,7 +122,7 @@ AI systems should be classified using criteria including:
 | Data Governance | Data provenance, lineage, classification, permitted use, retention, deletion, and access are governed. |
 | Security | Identity, access, logging, encryption, secrets, endpoint controls, network boundaries, and tool permissions are enforced. |
 | AI Threat Management | Prompt injection, data poisoning, model inversion, membership inference, leakage, unsafe tool use, and shadow AI are addressed. |
-| Human Oversight | Human review is defined where outputs can affect rights, access, safety, eligibility, finances, or material operations. |
+| Human Oversight | Human review is defined where outputs can affect rights, access, safety, eligibility, finances, or material operations. For systems with production action capability, approval additionally requires the agent production-authority precondition: permission boundaries, immutable auditability, tested reversibility, and named human accountability are designed, tested, and governed before autonomous or semi-autonomous production execution is authorised. Authority resides in the system boundary and the accountable human, not in the agent. See the AI and Agentic Development Security Standard. |
 | Supplier Governance | External AI services are reviewed for data handling, retention, training use, subcontracting, resilience, security, and exit. |
 | Documentation | Model purpose, limitations, data sources, test results, intended use, prohibited use, and monitoring are documented. |
 | Monitoring | Usage, drift, failures, incidents, abuse, anomalous outputs, and control exceptions are monitored. |
