@@ -5,9 +5,29 @@ Do not edit by hand. Regenerate with `python3 tools/build-portal.py`.
 
 # Adopter portal
 
+**Document Title:** Adopter Portal\
+**Document Type:** Guide\
+**Version:** 1.0.0\
+**Date:** 2026-06-19\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`README.md`](../README.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
+**Classification:** Public\
+**Category:** Documentation\
+**Review Frequency:** Regenerated from taxonomy.yml on every PR that touches source metadata; metadata schema reviewed annually\
+**Repository Path:** [`docs/portal.md`](portal.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Overview
+
 This page is a navigation aid for the most common adopter audiences. Each section lists the documents most likely to be useful to that role, drawn from the machine-readable taxonomy and grouped by document type. The full document index lives in [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md).
 
 This portal is generated; the source of truth is each document's canonical metadata block. Inclusion of a document in an audience section is selector-based; a document may legitimately appear under more than one audience.
+
+The metadata block above carries a generator schema constant for `Version` and the latest source `Date` found in the taxonomy. Bumps to the schema constant are recorded in [`CHANGELOG.md`](../CHANGELOG.md); the `Date` advances automatically with the corpus.
 
 ---
 
