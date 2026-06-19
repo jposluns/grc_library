@@ -1,6 +1,24 @@
 # Adopter guide
 
-This guide is for organisations that want to use the GRC Documentation Library as the starting point for their own governance corpus. It is not part of the library's controlled artefact set, so it is shorter and more prescriptive than the library itself.
+**Document Title:** Adopter Guide\
+**Document Type:** Guide\
+**Version:** 1.0.0\
+**Date:** 2026-06-19\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`specification-master-project.md`](../specification-master-project.md)\
+**Classification:** Public\
+**Category:** Documentation\
+**Review Frequency:** Annual and upon material change to the library structure or the adoption model\
+**Repository Path:** [`docs/adopter-guide.md`](adopter-guide.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Overview
+
+This guide is for organisations that want to use the GRC Documentation Library as the starting point for their own governance corpus. It is a controlled reference artefact: shorter and more prescriptive than the normative library documents, and intended to orient an adopting organisation rather than to state requirements.
 
 ## How the library is meant to be used
 
