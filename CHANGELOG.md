@@ -4,6 +4,27 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-19, Library Version 2026.06.33, PR #46
+
+Consistency follow-up to PR #45: broaden the summary surfaces that describe the evidence-grounded-completion rule, so they match the rule's scope after PR #45 extended it from completion claims to any state assertion. PR #45 deliberately left these surfaces untouched on the reasoning that each named the rule by its primary purpose and "remained accurate"; a subsequent read (prompted by the maintainer's "always confirm" instruction) showed that reasoning was an unverified inference that did not fully hold. Specifically, the pack's distributable governance instruction file made an explicit trigger claim ("the vocabulary of completion is a flag that the protocol must precede") that the broadened rule outgrew, and the project instruction file linked the rule only to user-level Rule 6 when a user-level Rule 7 now also exists. This PR corrects the surfaces that made trigger or linkage claims and broadens the lossy summaries for consistency.
+
+### Changed
+
+- [`dev-security/claude-rules/CLAUDE.md`](dev-security/claude-rules/CLAUDE.md): the evidence-grounded-completion bullet now states that the protocol must precede both the vocabulary of completion and any state assertion about an unread artefact (research, assessment, planning, or review), rather than naming completion as the sole flag.
+- [`.claude/CLAUDE.md`](.claude/CLAUDE.md): the project's security-and-governance bullet for the rule broadened to include unread-artefact state assertions, and its provenance updated from "user-level Rule 6" to "user-level Rules 6 and 7" to reflect the cross-project clause added alongside PR #45.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): the Pack-scope paragraph and the two directory-tree annotations (the rule and its skill) broadened from "completion claim" to "completion claim or unread-artefact state assertion"; pack version `1.20.2 → 1.20.3`.
+- [`README.md`](README.md): library version `2026.06.32 → 2026.06.33`; README version `1.7.170 → 1.7.171`.
+
+### Why this is a separate PR and what it demonstrates
+
+PR #45 changed the canonical rule; this PR aligns its descriptions. They are separated because the canonical change is the substantive one and the summary alignment is consistency maintenance. The finding itself is an instance of the discipline PR #45 codified: the PR #45 decision to skip these surfaces rested on an inference ("they remain accurate") made without reading them; reading them showed the inference was partly wrong. The corrected behaviour is to confirm by reading, which is what produced this PR.
+
+### Verification
+
+Full 37-gate audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. Gate 2 (language and style) passes on the edited pack instruction file and pack readme, which are in scope for that linter (no em-dashes or en-dashes introduced); the project instruction file under the AI-assistant config tree is exempt from the corpus linters and retains its existing punctuation style. None of the edited files participate in the gate-37 claude-rules sync map (they are instruction and readme files, not rule files), so no mirror sync applies. The version-date consistency audit (gate 29) confirms `2026.06.33` matches `2026-06`. The library-version-monotonicity audit (gate 13) confirms `2026.06.32 → 2026.06.33` and the pack `1.20.2 → 1.20.3` are strictly increasing. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
+
+---
+
 ## 2026-06-19, Library Version 2026.06.32, PR #45
 
 Extend the [`evidence-grounded-completion`](dev-security/claude-rules/governance/evidence-grounded-completion.md) pack rule from "evidence before completion claims" to "evidence before any state assertion." A session failure prompted this: during a governance assessment the assistant asserted that two templates "need new fields" and that a cross-framework matrix "needs control mappings" without having read those files; a later read confirmed the templates but showed the matrix operated at a different granularity than asserted. The existing rule did not fire because these were mid-analysis state assertions, not completion claims ("done", "fixed", "ready"). The rule's machinery (read, quote, contradiction-search, label-the-unverified) was already the right discipline; only its stated trigger was too narrow.
