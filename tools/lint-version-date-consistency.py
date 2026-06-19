@@ -59,9 +59,16 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-# Heading shape:  ## YYYY-MM-DD, Library Version YYYY.MM.patch
+# Heading shape:
+#   ## YYYY-MM-DD, Library Version YYYY.MM.patch
+#   ## YYYY-MM-DD, Library Version YYYY.MM.patch, PR #N
+# The trailing PR clause is the convention from PR #38 (library
+# version 2026.06.25) forward. The clause is optional so historical
+# entries that predate the convention continue to parse.
 CHANGELOG_HEADING_RE = re.compile(
-    r"^##\s+(\d{4})-(\d{2})-(\d{2}),\s+Library Version\s+(\d+)\.(\d+)\.(\d+)\s*$",
+    r"^##\s+(\d{4})-(\d{2})-(\d{2}),\s+Library Version\s+(\d+)\.(\d+)\.(\d+)"
+    r"(?:,\s+PR\s+#\d+)?"
+    r"\s*$",
     re.MULTILINE,
 )
 
