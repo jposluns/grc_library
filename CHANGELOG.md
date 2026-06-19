@@ -4,6 +4,25 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-19, Library Version 2026.06.29, PR #42
+
+Regression-audit fix: correct three stale gate-count references in the project instruction file [`.claude/CLAUDE.md`](.claude/CLAUDE.md). All three said "32 gates" / "32-gate audit programme"; the audit programme has grown well past 32 (it was already past 32 before this session, and is 36 as of PR #37). The `.claude/` tree is exempt from the corpus linters, so no gate caught the drift; the regression audit found it.
+
+### Changed
+
+- [`.claude/CLAUDE.md`](.claude/CLAUDE.md): three "32 gates" / "32-gate" references re-expressed without a hardcoded count. The "Why" section now reads "The audit programme (gate inventory in [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) §6) enforces that model"; the Commands section reads "Full audit sweep (all gates, CI order)"; the clarify-before-acting note reads "mechanically through the audit gates". This is the same name-not-number discipline applied in PR #39 and PR #40: a hardcoded count in prose outside the canonical inventory drifts on the next gate insertion. The number is not load-bearing in any of the three sites, so the count is dropped entirely rather than swapped for "36" (which would itself go stale); a reader who needs the exact current count is pointed at the canonical inventory in [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) §6.
+- [`README.md`](README.md): library version `2026.06.28 → 2026.06.29`; README version `1.7.166 → 1.7.167`.
+
+### Verification
+
+Full 36-gate audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. [`.claude/CLAUDE.md`](.claude/CLAUDE.md) is under the corpus-linter-exempt `.claude/` tree, so the audit result is unchanged by this edit. Contradiction-search: a grep for any "N gate" / "N-gate" pattern in the file returns no matches post-edit. The version-date consistency audit (gate 29) confirms `2026.06.29` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
+
+### Regression-audit cleanup series complete
+
+This is the fourth and final of the regression-audit cleanup PRs (PR #39 TODO.md gate/pack references; PR #40 run-linter-regression.py docstring; PR #41 `.claude/` local-copy sync; PR #42 this). The remaining regression-audit findings (the `secrets`, `python`, `input-validation`, and `cicd-gates` local-copy drifts) are held for a direction-of-merge decision because their divergence may be intentional project-local customisation rather than un-propagated edits.
+
+---
+
 ## 2026-06-19, Library Version 2026.06.28, PR #41
 
 Regression-audit fix: re-sync the project-local copy of the evidence-grounded-completion rule with its pack source. PR #38 added two subsections ("API polling and webhook subscriptions", "No decorative external links") to the pack source at [`dev-security/claude-rules/governance/evidence-grounded-completion.md`](dev-security/claude-rules/governance/evidence-grounded-completion.md) but did not propagate the change to the project-local copy at [`.claude/rules/governance/evidence-grounded-completion.md`](.claude/rules/governance/evidence-grounded-completion.md). The two files are intended to be byte-identical (the local copy is the one a Claude Code session loads as session-start context; the pack copy is the distributable source). The `.claude/` tree is exempt from the corpus linters, so no gate caught the drift; the regression audit's `diff` of source against local copy found it.
