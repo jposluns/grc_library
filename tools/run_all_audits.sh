@@ -14,7 +14,7 @@
 # Rationale (see TODO.md Decisions log, Phase 23.30): phase-completion
 # gating requires the full audit sweep to pass locally before any push.
 # This script provides a single deterministic invocation for that sweep.
-# The current sweep is 36 gates; see governance/specification-audit-programme.md
+# The current sweep is 37 gates; see governance/specification-audit-programme.md
 # section 6 for the canonical inventory.
 #
 # Keep this list in lock-step with .github/workflows/quality.yml. If a new
@@ -121,6 +121,17 @@ run_gate "Gate-name parity audit"                        python3 tools/lint-audi
 # non-zero exit. See tests/README.md for scope and limits.
 # ----------------------------------------------------------------------
 run_gate "Linter regression test suite"                  python3 tools/run-linter-regression.py
+
+# ----------------------------------------------------------------------
+# Claude-rules local-copy sync (1 gate). Verifies that the project-local
+# .claude/rules/ copies still match their dev-security/claude-rules/
+# pack sources. Both trees are exempt from the corpus linters, so this
+# is the only gate that catches drift between a rule's source and the
+# copy a session actually loads. Placed last to avoid renumbering the
+# meta-gates above; logically a drift check akin to the generator-output
+# in-sync gates.
+# ----------------------------------------------------------------------
+run_gate "Claude-rules local-copy sync audit"            python3 tools/lint-claude-rules-sync.py
 
 # ----------------------------------------------------------------------
 # Summary
