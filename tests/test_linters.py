@@ -1773,5 +1773,131 @@ class DocumentDateStalenessTests(LinterTestCase):
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
 
+class ClaudeRulesSyncTests(LinterTestCase):
+    """tools/lint-claude-rules-sync.py
+
+    The audit verifies that each project-local .claude/rules copy's body
+    matches its dev-security/claude-rules pack source (after stripping
+    the local copy's frontmatter and provenance comment), and that every
+    local rule file is covered by the sync mapping. The live in-sync
+    state must pass (subprocess test); drift detection and the
+    completeness check are exercised in-process with a patched MIRROR_MAP
+    against a synthetic root so the detection logic is verified without
+    perturbing the real tree.
+    """
+
+    @staticmethod
+    def _load_module():
+        import importlib.util
+        import sys
+
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        spec = importlib.util.spec_from_file_location(
+            "lint_claude_rules_sync",
+            str(REPO_ROOT / "tools" / "lint-claude-rules-sync.py"),
+        )
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    @staticmethod
+    def _make_synthetic(local_body: str, source_body: str, extra_local: str | None = None):
+        """Create a synthetic root with one mapped pair; return (root, map).
+
+        The pair is keyed on the same relative paths the real MIRROR_MAP
+        uses for secrets.md, so the synthetic local copy may carry a
+        provenance comment while the source does not.
+        """
+        import shutil
+
+        root = FIXTURE_DIR / "synthetic-claude-rules-sync"
+        if root.exists():
+            shutil.rmtree(root)
+        local_rel = ".claude/rules/secrets.md"
+        source_rel = "dev-security/claude-rules/core/secrets.md"
+        (root / ".claude" / "rules").mkdir(parents=True)
+        (root / "dev-security" / "claude-rules" / "core").mkdir(parents=True)
+        (root / local_rel).write_text(local_body, encoding="utf-8")
+        (root / source_rel).write_text(source_body, encoding="utf-8")
+        if extra_local is not None:
+            (root / ".claude" / "rules" / extra_local).write_text(
+                "# Extra\n\nUnmapped local rule.\n", encoding="utf-8"
+            )
+        return root, {local_rel: source_rel}
+
+    def test_current_state_passes(self) -> None:
+        # The live repository state must be in sync (this is what every
+        # other gate run assumes).
+        result = run_linter("tools/lint-claude-rules-sync.py")
+        self.assertEqual(
+            result.returncode,
+            0,
+            f"claude-rules sync should pass on the current state.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_in_sync_pair_with_local_preamble_passes(self) -> None:
+        # A local copy carrying a provenance comment whose body matches
+        # the bare source must pass (exit 0).
+        import shutil
+
+        mod = self._load_module()
+        root, fake_map = self._make_synthetic(
+            local_body="<!-- Source: x -->\n\n# Title\n\nIdentical body.\n",
+            source_body="# Title\n\nIdentical body.\n",
+        )
+        saved = mod.MIRROR_MAP
+        try:
+            mod.MIRROR_MAP = fake_map
+            rc = mod.main(["--root", str(root)])
+            self.assertEqual(rc, 0, "in-sync pair (modulo provenance) should pass")
+        finally:
+            mod.MIRROR_MAP = saved
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_body_drift_flagged(self) -> None:
+        # Same preamble handling, but the bodies genuinely differ: fail.
+        import shutil
+
+        mod = self._load_module()
+        root, fake_map = self._make_synthetic(
+            local_body="<!-- Source: x -->\n\n# Title\n\nDRIFTED body.\n",
+            source_body="# Title\n\nOriginal body.\n",
+        )
+        saved = mod.MIRROR_MAP
+        try:
+            mod.MIRROR_MAP = fake_map
+            rc = mod.main(["--root", str(root)])
+            self.assertEqual(rc, 1, "body drift between copy and source must fail")
+        finally:
+            mod.MIRROR_MAP = saved
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_unmapped_local_file_flagged(self) -> None:
+        # An in-sync mapped pair, plus an extra local rule file that is
+        # NOT in the map: the completeness check must fail (this is the
+        # property that prevents the drift class recurring one level up).
+        import shutil
+
+        mod = self._load_module()
+        root, fake_map = self._make_synthetic(
+            local_body="# Title\n\nIdentical body.\n",
+            source_body="# Title\n\nIdentical body.\n",
+            extra_local="unmapped-rule.md",
+        )
+        saved = mod.MIRROR_MAP
+        try:
+            mod.MIRROR_MAP = fake_map
+            rc = mod.main(["--root", str(root)])
+            self.assertEqual(
+                rc, 1, "an unmapped local rule file must fail the completeness check"
+            )
+        finally:
+            mod.MIRROR_MAP = saved
+            shutil.rmtree(root, ignore_errors=True)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

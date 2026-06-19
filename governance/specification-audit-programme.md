@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Programme Specification\
 **Document Type:** Specification\
-**Version:** 1.4.0\
+**Version:** 1.5.0\
 **Date:** 2026-06-19\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -67,7 +67,7 @@ The gates fall into seven functional categories:
 2. **Reference integrity** (gates 3, 11, 17, 18, 24, 26): intra-repo links resolve; CHANGELOG file-reference link coverage; section anchors resolve; intra-document section references resolve; external-link domains on allow-list; orphan documents have at least one inbound reference.
 3. **Content drift defence** (gates 5, 6, 25): external framework hallucinations; standards currency; cross-document numerical coherence.
 4. **Language and style** (gates 2, 9, 20): em-dashes, "ize/ization" Americanisms, "ensure that", sanitisation neologisms; mandatory requirements near uncertainty markers; acronym expansion consistency against the glossary.
-5. **Programme and index integrity** (gates 4, 35, 36): repository-wide index integrity (gate 4); audit-programme self-consistency across all four name-parity surfaces, which are the §6 inventory table plus the three runtime surfaces enumerated in §4 (gate 35); and linter regression tests that confirm each in-scope linter still detects its target rule class (gate 36).
+5. **Programme and index integrity** (gates 4, 35, 36, 37): repository-wide index integrity (gate 4); audit-programme self-consistency across all four name-parity surfaces, which are the §6 inventory table plus the three runtime surfaces enumerated in §4 (gate 35); linter regression tests that confirm each in-scope linter still detects its target rule class (gate 36); and sync between the project-local `.claude/rules/` rule copies and their `dev-security/claude-rules/` pack sources (gate 37).
 6. **Security and privacy** (gates 12, 21, 22, 23): placeholder leakage, secret patterns, PII patterns, internal-environment leakage (cloud regions, hostnames, deployment identifiers).
 7. **Freshness and lifecycle** (gates 10, 27, 28, 29, 30, 31): document review cadence, citation-verification freshness, tooling-provenance freshness, auto-generated taxonomy and portal/scorecard sync, metadata Date staleness against the file's most-recent git commit date.
 
@@ -115,12 +115,13 @@ The numbering matches the order in [`tools/run_all_audits.sh`](../tools/run_all_
 | 34 | Adopter portal and maturity scorecard in sync | [`tools/build-portal.py`](../tools/build-portal.py) |
 | 35 | Gate-name parity audit | [`tools/lint-audit-gate-parity.py`](../tools/lint-audit-gate-parity.py) |
 | 36 | Linter regression test suite | [`tools/run-linter-regression.py`](../tools/run-linter-regression.py) |
+| 37 | Claude-rules local-copy sync audit | [`tools/lint-claude-rules-sync.py`](../tools/lint-claude-rules-sync.py) |
 
-Gates 1 through 32 are pure read-only linters that exit non-zero on the first violation. Gates 33 and 34 are generator-output drift checks: they re-run the generator in `--check` mode and exit non-zero if the regenerated output differs from the committed artefact. Gate 35 is the audit programme's self-check: it parses this §6 inventory and confirms that the workflow, the local audit runner, and the pre-commit config declare the same gates with the same names and scripts in the same order. Gate 36 is the linter regression test suite: for each in-scope linter it constructs a synthetic markdown fixture that should trigger exactly one rule, invokes the linter against the fixture, and asserts the linter exits non-zero. The test suite catches a defect class no other gate can catch (a regression in a linter's own detection logic).
+Gates 1 through 32 are pure read-only linters that exit non-zero on the first violation. Gates 33 and 34 are generator-output drift checks: they re-run the generator in `--check` mode and exit non-zero if the regenerated output differs from the committed artefact. Gate 35 is the audit programme's self-check: it parses this §6 inventory and confirms that the workflow, the local audit runner, and the pre-commit config declare the same gates with the same names and scripts in the same order. Gate 36 is the linter regression test suite: for each in-scope linter it constructs a synthetic markdown fixture that should trigger exactly one rule, invokes the linter against the fixture, and asserts the linter exits non-zero. The test suite catches a defect class no other gate can catch (a regression in a linter's own detection logic). Gate 37 is a drift check between the project-local `.claude/rules/` rule copies and their `dev-security/claude-rules/` pack sources: both trees are exempt from the corpus linters, so this is the only gate that catches a local copy (the file a Claude Code session loads as context) drifting from its source. It is logically akin to the generator-output drift checks (gates 33 and 34) but is placed last so that adding it did not renumber the meta-gates above; it also verifies that every local rule file is covered by its source mapping, so a new un-mapped mirror fails rather than going silently unchecked.
 
 ### 6.1 PR-only delta gates
 
-A delta gate inspects the change set of a pull request, not the repository state at HEAD. Delta gates are not part of the 36-gate corpus inventory above, because their inputs (git history range, PR base ref) are not available in [`tools/run_all_audits.sh`](../tools/run_all_audits.sh) or [`.pre-commit-config.yaml`](../.pre-commit-config.yaml) and they are therefore exempt from gate 35's parity audit. Delta gates run only in [`.github/workflows/quality.yml`](../.github/workflows/quality.yml) on `pull_request` events.
+A delta gate inspects the change set of a pull request, not the repository state at HEAD. Delta gates are not part of the 37-gate corpus inventory above, because their inputs (git history range, PR base ref) are not available in [`tools/run_all_audits.sh`](../tools/run_all_audits.sh) or [`.pre-commit-config.yaml`](../.pre-commit-config.yaml) and they are therefore exempt from gate 35's parity audit. Delta gates run only in [`.github/workflows/quality.yml`](../.github/workflows/quality.yml) on `pull_request` events.
 
 | # | Gate | Script | Surface |
 | --- | --- | --- | --- |
