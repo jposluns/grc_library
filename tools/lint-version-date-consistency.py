@@ -41,7 +41,7 @@ Usage:
 
 The ``--changelog`` and ``--readme`` flags override the default
 file locations (``CHANGELOG.md`` and ``README.md`` at the repo root)
-and are used by the gate-34 regression test suite for synthetic
+and are used by the gate-35 regression test suite for synthetic
 fixtures.
 
 Exit codes:

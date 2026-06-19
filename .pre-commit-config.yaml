@@ -226,6 +226,13 @@ repos:
         pass_filenames: false
         types: [markdown]
 
+      - id: lint-skill-derives-from
+        name: Skill derives-from reference audit
+        entry: python3 tools/lint-skill-derives-from.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
       - id: taxonomy-in-sync
         name: Machine-readable taxonomy in sync
         entry: python3 tools/build-taxonomy.py --check

@@ -1,6 +1,7 @@
 ---
 name: clarify-before-acting
 description: Surfaces ambiguity in one sentence and asks before acting, rather than silently picking. Use when a request supports more than one reasonable interpretation, when an external value the request does not pin down is required, when a project-specific convention must be chosen, or when an unexpected state of the world is encountered.
+derives_from: ../../governance/clarify-before-acting.md
 ---
 
 # Clarify Before Acting

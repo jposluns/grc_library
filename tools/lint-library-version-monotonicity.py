@@ -23,7 +23,7 @@ Usage:
 The ``--prior-readme`` flag overrides the git-based "prior state"
 lookup for the library-version check only: the linter parses CalVer
 from the given file and compares to the current README.md. Used by
-the gate-34 regression test suite to exercise the version-comparison
+the gate-35 regression test suite to exercise the version-comparison
 logic without a git fixture. The document-versions check is skipped
 in this mode (it requires real git history).
 
