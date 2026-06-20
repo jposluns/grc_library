@@ -130,3 +130,5 @@ If any of these is missing, the sweep is incomplete and a clean-bill report is n
 - Related skill [`evidence-grounded-completion`](../evidence-grounded-completion/SKILL.md): the per-claim verification protocol this sweep applies at corpus scope.
 - Related skill [`gate-discipline-diagnose`](../gate-discipline-diagnose/SKILL.md): when a mechanical gate fails, that skill diagnoses; this sweep then verifies the fix is complete.
 - Related skill [`clarify-before-acting`](../clarify-before-acting/SKILL.md): when the sweep surfaces a fix that requires authorial choice (which option, which scope), invoke clarify-before-acting before applying.
+- Related skill [`citation-quote-verification`](../citation-quote-verification/SKILL.md): when the sweep flags a finding on citation-bearing content, this skill is the targeted follow-up that verifies quote-to-source correspondence.
+- Related skill [`fresh-reader-validation`](../fresh-reader-validation/SKILL.md): when the sweep flags a substantively-revised governance document, this skill is the per-document follow-up that surfaces tacit-context gaps via a fresh-context subagent.
