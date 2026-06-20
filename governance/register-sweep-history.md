@@ -2,7 +2,7 @@
 
 **Document Title:** Validation Sweep History Register\
 **Document Type:** Register\
-**Version:** 1.3.0\
+**Version:** 1.4.0\
 **Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -110,6 +110,16 @@ Historical entries from Sweeps 1-3 were classified before this convention was do
 - **Sweep value**: caught one prose-drift instance (pack version literal in adopter guide) that the gates would not have caught and that none of the prior sweeps' grep passes surfaced. The new rubric made the synthesis step deterministic: subagent B's report quoted the exact line, the parent applied severity adjudication without ambiguity, and the in-window vs out-of-window split routed each finding to the correct protocol.
 - **Resulting PR**: [#83](https://github.com/jposluns/grc_library/pull/83).
 
+### 2026-06-20, Sweep 5 (post-PR-#85; thin sweep)
+
+- **Trigger**: maintainer's standing "run a full validation after every three PRs and merges" cadence, fired after the third PR following Sweep 4 (PRs #83, #84, #85). All three were closure-PRs of Sweep 4 itself (the in-window fix, the register entry, the classification-convention documentation).
+- **State at sweep**: library 2026.06.71; spec 1.10.0; pack 1.26.6; 42 corpus gates; 10 pack skills.
+- **Scope reduction**: since the closure-PRs were scope-narrow (no audit-programme integrity change, no corpus-wide content change), only Subagent A (recent-PR deep review) was dispatched. Subagents B (corpus-wide stale-reference sweep) and C (audit-programme integrity check) were skipped because they verified the same corpus state in Sweep 4 less than an hour earlier and nothing in the closure-PRs touches their scopes.
+- **Findings**: none. The closure-PR set is internally consistent with the Sweep 4 outcomes it records.
+- **Pre-flight scanner**: returned 12 known false positives (same set as Sweep 4) plus one new candidate at `dev-security/claude-rules/skills/validation-sweep/SKILL.md:89` triggered by the new synthesis-rubric prose ("Four rules, no ceremony"); also a false positive (the four sub-rules 5.1-5.4 of the rubric, not a governance-rule count). All 13 dismissed.
+- **Post-sweep action**: the maintainer observed that the same false positives have surfaced on every sweep since Sweep 3 and asked whether the scanner should be enhanced. The decision (option 3 of the named alternatives) was implemented in [PR #86](https://github.com/jposluns/grc_library/pull/86): in-scanner heuristics plus an exemption file at [`tools/sweep-preflight-exemptions.json`](../tools/sweep-preflight-exemptions.json). After PR #86, the same corpus produces 0 candidates rather than 12-13.
+- **Resulting PR**: no fix PR (zero findings); the scanner-enhancement PR #86 is recorded under its own scope.
+
 ## False-positive memory
 
 Findings the maintainer has triaged as not-a-real-finding. Subsequent sweeps should not re-surface these; if they do, the maintainer's prior triage is the answer.
@@ -130,7 +140,7 @@ Other classes (C2, C4, C5, C6, C7, C8): zero primary-class findings in the four 
 
 **Secondary-class participation** (per the classification convention documented above): no historical findings carry a secondary class because historical entries were classified before the convention was established. Sweep 5 onwards will populate this footnote when a finding's primary mechanism differs from its symptom shape.
 
-**Reading the table**: C3 (multi-surface incompleteness) remains the dominant failure class at 6 cumulative findings; C1 (stale-prose) is now at 2 after Sweep 4 surfaced a pack-version literal in the adopter guide. The project's accumulated mechanical defences against C3 (gates 35 gate-name parity, 39 gate-count consistency, 41 collection-enumeration consistency) close the gate-shaped C3 surface, but the prose-and-numbering-shaped C3 surface (Sweep 3: cross-file step-numbering drift between a SKILL.md heading and a slash-command numbered step) and prose-version literals (Sweep 4: `currently `1.22.0`` in the adopter guide) still fall to the semantic subagent layer. Two consecutive sweeps now point at the same gap: the next mechanical gate worth considering is a cross-document term-and-identifier consistency check (something that can detect stale version literals and inconsistent step identifiers across parallel surfaces) beyond the existing collection-enumeration scope.
+**Reading the table**: C3 (multi-surface incompleteness) remains the dominant failure class at 6 cumulative findings; C1 (stale-prose) is at 2 after Sweep 4 surfaced a pack-version literal in the adopter guide. Sweep 5 produced no new primary-class findings (trivial sweep on closure-PRs). The project's accumulated mechanical defences against C3 (gates 35 gate-name parity, 39 gate-count consistency, 41 collection-enumeration consistency) close the gate-shaped C3 surface, but the prose-and-numbering-shaped C3 surface (Sweep 3 step-numbering drift) and prose-version literals (Sweep 4 adopter-guide `currently `1.22.0``) still fall to the semantic subagent layer. The Sweep 5 scanner-enhancement PR (#86) closed the parallel problem of recurring false-positive noise in the pre-flight scanner, but did not address the underlying gap; the next mechanical gate worth considering remains a cross-document term-and-identifier consistency check.
 
 ## Maintenance protocol
 
