@@ -18,7 +18,7 @@ Shipped 2026-06-20 as [`docs/template-maturity-self-assessment.md`](docs/templat
 
 ### 4.3 Implementation roadmap templates
 
-90-day, 180-day, and one-year implementation roadmaps per adopter profile. Maps to a phased rollout of library artefacts.
+Shipped 2026-06-20 as [`docs/template-implementation-roadmap.md`](docs/template-implementation-roadmap.md). Three-phase (Floor / Operational / Year-1 close) sequence at 90 / 180 / 365 days for the reference E2 pace, with pace adjustments for E1, E3, E4 capacity tiers and for composition complexity. Designed to sequence the modules picked via the quickstart template; not per-profile.
 
 ### 4.4 Regulator interaction templates
 
