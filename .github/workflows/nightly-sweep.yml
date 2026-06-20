@@ -1,0 +1,46 @@
+name: Nightly validation sweep
+
+# Runs the mechanical audit suite plus the pre-flight scanner on the
+# main branch on a nightly schedule. Drift backstop for time-dependent
+# gates (citation freshness, document-date staleness, version-bump
+# recency) that may flip from OK to FAIL between merges when nobody
+# touches the corpus.
+#
+# The semantic subagent layer (validation-sweep SKILL section 4) is
+# not run here; it requires a Claude Code session and cannot run from
+# cron. This workflow is the deterministic half of the validation-
+# sweep discipline scheduled as a drift detector. When this workflow
+# fails on the schedule, the maintainer invokes /validation-sweep to
+# pair the mechanical finding with semantic triage.
+
+on:
+  schedule:
+    # 04:00 UTC nightly. Cron: minute hour dom month dow.
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  nightly-sweep:
+    name: Nightly mechanical audit and pre-flight scanner
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run full audit programme
+        run: tools/run_all_audits.sh
+
+      - name: Run pre-flight scanner (informational)
+        if: always()
+        run: python3 tools/sweep-preflight-scanner.py
