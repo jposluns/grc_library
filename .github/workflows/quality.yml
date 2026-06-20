@@ -135,6 +135,9 @@ jobs:
       - name: Section placement audit
         run: python3 tools/lint-section-placement.py
 
+      - name: Cross-file gate-count consistency audit
+        run: python3 tools/lint-gate-count-consistency.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

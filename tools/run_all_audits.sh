@@ -14,7 +14,7 @@
 # Rationale (see TODO.md Decisions log, Phase 23.30): phase-completion
 # gating requires the full audit sweep to pass locally before any push.
 # This script provides a single deterministic invocation for that sweep.
-# The current sweep is 38 gates; see governance/specification-audit-programme.md
+# The current sweep is 39 gates; see governance/specification-audit-programme.md
 # section 6 for the canonical inventory.
 #
 # Keep this list in lock-step with .github/workflows/quality.yml. If a new
@@ -133,6 +133,7 @@ run_gate "Linter regression test suite"                  python3 tools/run-linte
 # ----------------------------------------------------------------------
 run_gate "Claude-rules local-copy sync audit"            python3 tools/lint-claude-rules-sync.py
 run_gate "Section placement audit"                       python3 tools/lint-section-placement.py
+run_gate "Cross-file gate-count consistency audit"       python3 tools/lint-gate-count-consistency.py
 
 # ----------------------------------------------------------------------
 # Summary

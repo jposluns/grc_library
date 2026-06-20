@@ -81,15 +81,15 @@ A contradiction search that returns nothing is evidence. A contradiction search 
 
 A passing gate, lint, or test suite proves only what that gate covers. The audit programme verifies the things the audit programme was built to verify; it does not verify everything.
 
-"All 32 gates pass" is evidence for the claims those 32 gates check. It is not evidence for claims those gates do not check, such as "the rule is internally consistent with the project's existing discipline", "the prose is accurate", or "the references are not stale". Those claims require a separate verification protocol (re-read, quote, contradiction-search) of their own.
+"All gates pass" is evidence for the claims those gates check. It is not evidence for claims those gates do not check, such as "the rule is internally consistent with the project's existing discipline", "the prose is accurate", or "the references are not stale". Those claims require a separate verification protocol (re-read, quote, contradiction-search) of their own.
 
-State the boundary explicitly: "All 32 gates pass; the gate-coverage limits mean this does not by itself prove [list of unchecked claims]; I have also verified [list of separately-verified claims] by re-reading and quoting from [files]".
+State the boundary explicitly: "All N gates pass; the gate-coverage limits mean this does not by itself prove [list of unchecked claims]; I have also verified [list of separately-verified claims] by re-reading and quoting from [files]".
 
 ### 6. State unverified items explicitly
 
 If part of the claim is unverified, name the unverified part. Do not imply verification you did not perform.
 
-"The CHANGELOG entry is added and links resolve; I have not separately checked that every downstream document that cites the bumped version has been updated, because that audit is not part of the 32-gate programme and I did not run it manually" is honest. "Done" with no scope is not.
+"The CHANGELOG entry is added and links resolve; I have not separately checked that every downstream document that cites the bumped version has been updated, because that audit is not part of the gate programme and I did not run it manually" is honest. "Done" with no scope is not.
 
 ---
 
