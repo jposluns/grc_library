@@ -125,49 +125,6 @@ Current matrix ([`governance/matrix-cross-framework-alignment.md`](governance/ma
 
 ---
 
-## Pack and tooling extension
-
-### Post-S.3 evaluation of the Claude Code Skills format
-
-Phase S.3 (library version `2026.06.20`, shipped 2026-06-19) introduced three Claude Code Skills in the [`dev-security/claude-rules/skills/`](dev-security/claude-rules/skills/) subdirectory: [`skills/evidence-grounded-completion/`](dev-security/claude-rules/skills/evidence-grounded-completion/), [`skills/gate-discipline-diagnose/`](dev-security/claude-rules/skills/gate-discipline-diagnose/), and [`skills/clarify-before-acting/`](dev-security/claude-rules/skills/clarify-before-acting/). Phase S.4 (library version `2026.06.21`) added the Skill derives-from reference audit ([`tools/lint-skill-derives-from.py`](tools/lint-skill-derives-from.py)) enforcing the derive-and-cite contract between each skill and its canonical pack rule. (That audit is referenced here by name rather than gate number because gate numbers renumber when a gate is inserted; the canonical numbered inventory lives in [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) §6.)
-
-The post-S.3 question, recorded here so it does not get lost: should additional pack rules be wrapped as skills, and if so, which?
-
-**Decision trigger.** At the next time the maintainer touches the skills pack (an additional pack version bump, a refactor of one of the three existing skills, or the annual tooling review under [`governance/procedure-library-quality-and-review-cadence.md`](governance/procedure-library-quality-and-review-cadence.md) §7, whichever comes first), evaluate this item. The trigger is intentionally not calendar-bound: the project's work pace is uneven and a fixed-date evaluation risks either a premature decision (insufficient invocation evidence) or a forgotten one (no scheduled prompt).
-
-**Empirical evidence to weigh at the trigger.**
-
-- Has Claude Code's Skill discovery surfaced the three existing skills when their triggers were met? (Mechanical check: did the assistant invoke the relevant skill, or did it execute the workflow without surfacing the skill?)
-- When invoked, did each skill's Process steps produce behaviour consistent with the canonical pack rule, or did the maintainer judge the skill's wording to be diverging from the rule? (Semantic check; the Skill derives-from reference audit enforces reference integrity but not semantic drift.)
-- Did the skill format require refactor during the observation period (header order, frontmatter fields, section names)? Format-altering PRs against any of the three skills are evidence that the format is not yet stable.
-- Subjective maintainer judgement: were the skills useful, redundant, or noise?
-
-**Candidate rules and selection criterion.**
-
-Two pack governance rules remain unwrapped as skills and have workflow-shaped content suitable for the Skills format:
-
-- [`governance/change-tracking.md`](dev-security/claude-rules/governance/change-tracking.md) — candidate skill name: `change-tracking-write-entry`. Workflow: at the moment of writing a CHANGELOG entry or applying a `Changelog: skip` trailer, follow the rule's procedure (entry must contain date+version header, structured Keep a Changelog sections, file references as markdown links, "why" not just "what", verification evidence, phase context).
-- [`governance/artefact-and-branch-discipline.md`](dev-security/claude-rules/governance/artefact-and-branch-discipline.md) — candidate skill name: `artefact-discipline-check` (or similar). Workflow: when CI flags generated-artefact drift or a protected-branch operation is about to occur, follow the rule's procedure (regenerate from the source rather than hand-edit; PR-only mergers to protected branches; no force-push to protected branches).
-
-The other rules in the pack (`secrets`, `python`, `input-validation`, `cicd-gates`, and the pack `gate-discipline` / `evidence-grounded-completion` / `clarify-before-acting` rules that are already wrapped) are either pre-development reference material (not workflow-shaped) or already represented as skills.
-
-The selection criterion at the decision point is:
-
-1. Which of the two candidates has had its failure mode most often observed during the observation period? (Frequent observed failures argue for the lighter-weight skill invocation surface.)
-2. Which has Process steps that are clearly invocable as a workflow rather than as a reading exercise? (Workflow-shape is the format's strength; if the rule is best consumed as prose, a skill adds noise.)
-3. Has the maintainer encountered a real misstep that a skill would have caught? (Concrete evidence beats hypothetical fit.)
-
-**Possible outcomes at the trigger:**
-
-- Add one candidate (the stronger of the two) — ship it as a new SKILL.md with the same derive-and-cite contract enforced by the Skill derives-from reference audit.
-- Add both — only if both candidates clear the criterion above.
-- Add neither — the three existing skills are sufficient; the additional skills would add discovery noise without benefit. This is a valid outcome and is recorded as such if chosen.
-- Defer — insufficient evidence at the trigger; re-evaluate at the next trigger occurrence.
-
-**Cross-references.** Phase S.3 and S.4 are recorded in [`CHANGELOG.md`](CHANGELOG.md) under library versions `2026.06.20` and `2026.06.21` respectively. The pack itself is versioned independently in [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) (currently `1.20.1`).
-
----
-
 ## Investigation / blocked
 
 Items requiring user decision or external dependency before becoming actionable.
