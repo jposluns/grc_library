@@ -2,7 +2,7 @@
 
 **Document Title:** Validation Sweep History Register\
 **Document Type:** Register\
-**Version:** 1.9.0\
+**Version:** 1.10.0\
 **Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -183,7 +183,7 @@ Other classes (C2, C4, C5, C6, C7, C8): zero primary-class findings in the four 
 
 ## Maintenance protocol
 
-- A new sweep entry is appended after each `/validation-sweep` invocation that produces actionable findings. Trivial sweeps (zero findings) may be recorded as a single line under a "trivial sweeps" sub-section if the maintainer wishes; otherwise omitted.
+- A new sweep entry is appended after each `/validation-sweep` invocation that produces actionable findings. **Zero-finding sweeps leave no trace**: no register entry, no CHANGELOG entry, no standalone PR. The convergence-delta trend lives in the implementation's iteration counter, not in a per-sweep record. This is the explicit convention as of 2026-06-20; existing zero-finding-sweep entries in this register (Sweeps 5-8) are preserved as historical record but the convention applies forward from this point.
 - Each entry includes the trigger reason, state, finding counts per class, and the resulting PR (if any).
 - A finding dismissed as not-a-real-finding is recorded in the false-positive memory section with the maintainer's rationale, so a future sweep does not re-litigate.
 - The recurring-class summary table is updated cumulatively. When a class accumulates enough findings to suggest a new mechanical gate, the maintainer can use the table as priority signal.
