@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.25.3\
+**Version:** 1.25.4\
 **Date:** 2026-06-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -83,7 +83,8 @@ claude-rules/
 │   ├── clarify-before-acting/SKILL.md                 One-sentence ambiguity surfacing with named alternatives
 │   ├── action-before-explanation-of-inaction/SKILL.md Reversibility-gate protocol before any "X is blocked because Y" clause attached to an external action
 │   ├── change-tracking-write-entry/SKILL.md           Entry-writing workflow that satisfies the delta gate, link-coverage gate, and version-monotonicity audit in one pass
-│   └── artefact-discipline-check/SKILL.md             Routing workflow that redirects a hand-edit of a generated file (or a protected-branch operation) to the correct path
+│   ├── artefact-discipline-check/SKILL.md             Routing workflow that redirects a hand-edit of a generated file (or a protected-branch operation) to the correct path
+│   └── validation-sweep/SKILL.md                      Corpus-wide regression sweep as a follow-up after any issue identified and corrected; loops until clean
 └── languages/
     ├── python.md                Python-specific security patterns and anti-patterns
     ├── typescript.md            TypeScript / Node.js security patterns

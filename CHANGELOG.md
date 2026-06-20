@@ -4,6 +4,40 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.55, PR #69
+
+Add gate 41 (**Collection-enumeration consistency audit**) — Layer 2 / 3 of 3 in the validation programme. The linter walks a hard-coded configuration of "collections" (currently: pack governance rules and pack skills), each declaring a canonical source-of-truth directory and one or more enumeration locations elsewhere in the corpus. For each collection, the linter compares the canonical set against each enumeration set and flags missing-or-extra items.
+
+**Initial coverage**:
+- **pack-governance-rules**: canonical at the [`governance/`](dev-security/claude-rules/governance/) directory's `*.md` listing; enumerated in the pack README directory tree, the pack CLAUDE.md Development-governance section, and the project CLAUDE.md Security-and-governance section.
+- **pack-skills**: canonical at `dev-security/claude-rules/skills/*/`; enumerated in the pack README directory tree.
+
+A companion detector tool (Layer 2 / 3 Phase 2, separate follow-up PR) will surface additional candidate collections by heuristic scan for the maintainer to triage one-by-one.
+
+**Real drift caught on first invocation**: gate 41's first standalone run flagged the `validation-sweep` skill (added in PR #62) as missing from the pack README's skills tree section. Same pattern as gates 39 and 40: a gate's first invocation finds real pre-existing drift. The missing tree entry is added in this PR.
+
+Audit-programme spec `1.8.0 → 1.9.0` (minor: new gate added). Pack version `1.25.3 → 1.25.4` (patch: validation-sweep skill entry added to pack README's skills tree, caught by gate 41 itself on its first invocation, then caught by gate 40 post-commit when the README body changed without a Version bump — the post-commit-audit discipline from PR #68 surfaced this immediately). Library version `2026.06.54 → 2026.06.55`; README version `1.8.10 → 1.8.11`. Four governance documents carry patch bumps for their `40-gate → 41-gate` prose updates.
+
+### Added
+
+- [`tools/lint-collection-enumeration-consistency.py`](tools/lint-collection-enumeration-consistency.py): new corpus linter. Configuration-driven: each collection declares a source directory + glob, a name normaliser, and a tuple of enumeration locations (file + section anchor regex + item extractor regex). For each location, parses the section, extracts items, compares to canonical. Phase 1 ships two collections (governance rules and skills); the detector tool (separate PR) will surface candidates for the maintainer to triage.
+- [`tests/test_linters.py`](tests/test_linters.py): new `CollectionEnumerationConsistencyTests.test_runs_clean_on_corpus_at_head` smoke test fixture.
+- [`.github/workflows/quality.yml`](.github/workflows/quality.yml), [`tools/run_all_audits.sh`](tools/run_all_audits.sh), [`.pre-commit-config.yaml`](.pre-commit-config.yaml): gate 41 wired into all three runtime surfaces.
+
+### Changed
+
+- [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md): §2.1 corpus count `40 → 41`; §5 category 5 gate list extended with gate 41 (Programme and index integrity: gate 41 audits the consistency of enumerated indexes, same family as gates 35 / 39); §6 inventory row 41 appended; §6 added a paragraph describing gate 41's mechanism and the relationship to the forthcoming detector tool; §6.1 corpus count `40-gate → 41-gate`. Version `1.8.0 → 1.9.0`.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): added validation-sweep skill line to the skills tree section. This was the drift gate 41's first invocation surfaced — the skill was added in PR #62 but never enumerated in the pack README tree.
+- Four governance documents bumped patch versions for `40-gate → 41-gate` prose: [`procedure-library-quality-and-review-cadence.md`](governance/procedure-library-quality-and-review-cadence.md) (1.0.7 → 1.0.8); [`register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.27.13 → 1.27.14); [`register-coverage-gaps.md`](governance/register-coverage-gaps.md) (1.1.7 → 1.1.8); [`register-main-branch-protection.md`](governance/register-main-branch-protection.md) (1.0.7 → 1.0.8).
+- [`tools/check-changelog-on-pr.py`](tools/check-changelog-on-pr.py), [`tools/check-version-bump-on-pr.py`](tools/check-version-bump-on-pr.py), [`tools/lint-audit-gate-parity.py`](tools/lint-audit-gate-parity.py), [`tools/run_all_audits.sh`](tools/run_all_audits.sh), [`tools/README.md`](tools/README.md): docstring / comment references to `40-gate` and `40 corpus gates` updated to `41-gate` and `41 corpus gates`.
+- [`README.md`](README.md): library version `2026.06.54 → 2026.06.55`; README version `1.8.10 → 1.8.11`.
+
+### Verification
+
+Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit, run on the final state per the post-commit-audit discipline added in PR #68. All 41 corpus gates pass, including the new gate 41 itself (2 collections checked, 4 enumeration locations checked, all consistent after the README tree fix). Gate 35 (Gate-name parity audit) confirms all four parity surfaces declare 41 gates in identical order. Gate 36 (Linter regression test suite) runs 97 regression tests including the new `CollectionEnumerationConsistencyTests` smoke fixture. The new D2 delta gate validates this PR's per-document Version bumps.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.54, PR #68
 
 Three discipline + tooling improvements informed by the CI failures across PRs #65 and #67. The maintainer's post-CI assessment identified that (1) git-history-aware gates need post-commit re-audit, not just pre-push; (2) gate 40's regression test was weak (only asserted "runs clean on HEAD", didn't verify failure detection); (3) metadata bumps need automatic taxonomy/portal regeneration to avoid the cascade observed in PR #67. This entry lands all three.

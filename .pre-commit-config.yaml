@@ -302,3 +302,10 @@ repos:
         language: system
         pass_filenames: false
         types: [markdown]
+
+      - id: lint-collection-enumeration-consistency
+        name: Collection-enumeration consistency audit
+        entry: python3 tools/lint-collection-enumeration-consistency.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
