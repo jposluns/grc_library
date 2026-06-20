@@ -4,6 +4,21 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.67, PR #81
+
+Sweep 3 entry appended to the validation-sweep history register. The sweep ran after PR #79 merged (third PR in the validation-sweep enhancement batch) and surfaced one in-window C3 (multi-surface-incomplete) finding which PR #80 actioned. Recurring-class summary table updated; C3 is now at 6 cumulative findings across 3 sweeps and remains the dominant failure class.
+
+### Changed
+
+- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): version `1.0.0 -> 1.1.0`; appended Sweep 3 entry (post-PR-#79 -> PR #80); updated recurring-class summary with the new C3 instance; reading-the-table prose notes that prose-and-numbering-shaped C3 instances still escape the existing mechanical gates and would be the natural surface for a future cross-document term-and-identifier consistency check.
+- [`README.md`](README.md): library version `2026.06.66 -> 2026.06.67`; README version `1.8.22 -> 1.8.23`.
+
+### Verification
+
+Full audit programme passes standalone, all 42 corpus gates pass. The pre-flight scanner output (12 candidates, all dismissed as legitimate historical references after triage) is recorded in the sweep entry as evidence that the high-recall scanner + subagent-precision triage split works as designed.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.66, PR #80
 
 Validation-sweep self-finding from the post-PR-79 sweep: cross-surface step-numbering drift. PR #78 introduced the deterministic pre-flight scanner as `### 3.5.` in [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md) and as `3a.` in [`.claude/commands/validation-sweep.md`](.claude/commands/validation-sweep.md): same logical step, two different identifiers across parallel surfaces. Surfaced by subagent A of the validation-sweep fan-out (Medium severity, in-window finding).
