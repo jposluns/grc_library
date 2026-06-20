@@ -4,6 +4,31 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.48, PR #62
+
+Add the `validation-sweep` skill to the [`dev-security/claude-rules/`](dev-security/claude-rules/) pack: a corpus-wide regression sweep designed to run as a follow-up after any issue is identified and corrected, to confirm no sibling issue remains anywhere in the repository. The skill operationalises the worked example added to `evidence-grounded-completion` in PR #60 (and corrected in PR #61) at corpus scope: combines the mechanical audit suite ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) — the canonical 38-gate full-audit invocation) with a structured semantic fan-out across parallel subagents (recent-PR deep review, corpus-wide stale-reference sweep, audit-programme integrity check), and loops until the cycle returns clean.
+
+The trigger pattern is the maintainer's stated use case: after any issue is identified, corrected, and then this is performed as a follow-up to ensure that there is nothing anywhere left that is wrong. The skill's fixed-point semantics catch the sibling-defect failure mode (same author, same session, same blind spot, multiple instances of the same shape of defect across the corpus) that this morning's three-PR sequence (PRs #59, #60, #61) demonstrated in practice.
+
+This is Layer 1 of a three-layer validation programme. Layer 2 (new mechanical audit gates for the failure-mode classes the existing 38 gates do not cover — cross-file gate-count consistency, per-PR version-bump audit, and the maintainer-flagged collection-enumeration-consistency rule) will follow in subsequent PRs. Layer 3 (invocation-pattern documentation, including a project slash command pointing at this skill) closes the loop.
+
+Pack version `1.24.3 → 1.25.0` (minor: new skill added, matching the precedent of pack 1.22.0 adding two skills). Library version `2026.06.47 → 2026.06.48`; README version `1.8.3 → 1.8.4` (patch: library-version-only bump).
+
+### Added
+
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): new pack skill. Sections: Overview, When to Use, Process (seven steps: mechanical baseline, recent-change enumeration, failure-mode-class identification, parallel subagent fan-out, finding synthesis, triage, apply-fixes-and-loop), Red Flags, Verification, Common Rationalizations, See Also. Catalogues eight failure-mode classes the mechanical gates do not cover (stale prose references, mis-attributed citations, multi-surface incompleteness in non-gate-parity surfaces, inferred-as-verified state assertions, per-document version-bump omission, generated-artefact lag, stale docstrings, cross-document term drift) and the three baseline subagent briefs that target them. Derives from [`dev-security/claude-rules/governance/evidence-grounded-completion.md`](dev-security/claude-rules/governance/evidence-grounded-completion.md) (the pack's evidence-grounded-completion governance rule) per gate 32's derives-from audit; the skill is the corpus-scope wrapper of that rule's per-claim verification protocol. Three-iteration loop cap with escalation to the operator if the cycle does not converge.
+
+### Changed
+
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.24.3 → 1.25.0`. Version-history table extended with a row for pack 1.25.0 / library 2026.06.48 / 2026-06-20 / "Added `skills/validation-sweep` — corpus-wide regression sweep as a follow-up after any issue identified and corrected; derives from `evidence-grounded-completion` and operationalises its worked example at corpus scope".
+- [`README.md`](README.md): library version `2026.06.47 → 2026.06.48`; README version `1.8.3 → 1.8.4`.
+
+### Verification
+
+Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit, run on the final state per the discipline the skill itself encodes. Gate 32 (Skill derives-from reference audit) accepts the new skill's `derives_from` frontmatter pointing at the evidence-grounded-completion rule and confirms the referenced rule exists. The version-monotonicity audit (gate 13) accepts the library and pack version bumps. The version-date consistency audit (gate 29) confirms `2026.06.48` matches `2026-06`. The CHANGELOG link-coverage audit (gate 11) accepts the entry's path-shaped code spans. The taxonomy and portal in-sync gates (gates 33, 34) are regenerated and pass. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.47, PR #61
 
 Cleanup pass after PR #59 and PR #60, surfaced by a recursive consistency review the maintainer requested before resuming Phase A work. Two failure shapes were found: (1) PR #60's worked example for `evidence-grounded-completion` mis-attributed the citing rule (claimed "step 4 of the verification protocol: when in doubt, re-run the verification standalone" — but step 4 is "Proactively search for contradictions", and the "when in doubt" phrasing is from the user-level Claude Code memory file's Rule 1.4 (outside this repository), not from the pack rule); (2) PR #59 added gate 38 to the §6 inventory and the four parity surfaces but missed seven downstream prose references in five files that still said "37 gates", and the spec's §5 categorisation was left without a slot for gate 38. The irony is that PR #60 shipped a worked example about exactly this multi-surface-omission failure mode and itself committed the mis-attribution variant of it.
