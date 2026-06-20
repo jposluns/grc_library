@@ -26,6 +26,14 @@ The current [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md) is auto-g
 
 90-day, 180-day, and one-year implementation roadmaps per adopter profile. Maps to a phased rollout of library artefacts.
 
+### 4.4 Regulator interaction templates
+
+Consolidated templates for the recurring regulator-facing interactions: breach notification (per-regulator format requirements), attestation submission, examination support, periodic report submission, regulatory inquiry response. The library currently ships incident-notification language inside per-jurisdiction privacy annexes and inside industry compliance overlays; a single document of reusable templates would reduce the synthesis burden for adopters facing first-time regulator contact. Surfaced from [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md) §6.
+
+### 4.5 Audit evidence package templates
+
+The library documents per-control evidence requirements across the compliance and risk domains. The packaging step (assembling per-control evidence into an audit-ready bundle: control list, evidence per control, cross-references, gap rationale where partial) is not yet templated. A single template document would close the bookkeeping gap for adopters preparing for an external audit. Surfaced from [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md) §6.
+
 ---
 
 ## Priority 5 — content expansion
