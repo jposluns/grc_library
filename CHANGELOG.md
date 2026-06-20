@@ -4,6 +4,33 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.91, PR #105
+
+Heavy rewrite of [`docs/template-quickstart-by-profile.md`](docs/template-quickstart-by-profile.md). Maintainer's feedback on PR #103: the six fixed profiles (small business, mid-market regulated industry, multi-national enterprise, public-sector adopter, healthcare adopter, financial-services adopter) were too rigid; companies do not fit into the categories, and the same category contains very different operational realities.
+
+### Changed
+
+- [`docs/template-quickstart-by-profile.md`](docs/template-quickstart-by-profile.md): version `1.0.0 -> 2.0.0`. Replaces the per-profile structure with a core baseline plus five stacking dimensions. The new shape:
+  - **Core baseline** (6 artefacts mandatory regardless of size or sector): foundational policy, three security policies, privacy policy plus home-jurisdiction annex, populated risk register.
+  - **Dimension A, Activity** (6 modules: A1 custom internal development, A2 external-facing SaaS, A3 AI in operations, A4 AI model development or training, A5 critical-availability operations, A6 physical operations).
+  - **Dimension B, Data scope** (6 modules: B1 customer personal data, B2 special-category, B3 children's data, B4 cross-border transfers, B5 PCI scope, B6 government or classified).
+  - **Dimension C, Audience** (3 modules: C1 consumers, C2 businesses, C3 government).
+  - **Dimension D, Regulatory exposure** (4 levels: D1 light, D2 sector-regulated, D3 multi-regulated, D4 heavy).
+  - **Dimension E, GRC team capacity** (4 levels: E1 founder part-time, E2 light 1 to 2 people, E3 standard 3 to 10, E4 department). E scales the depth of every other adopted module.
+  - **Three worked examples** showing composition: a mid-size SaaS with EU customers and AI features; a five-person consultancy; a regional bank.
+
+- [`README.md`](README.md): library version `2026.06.90 -> 2026.06.91`; README version `1.8.46 -> 1.8.47`.
+
+### Scope decision
+
+Major version bump (2.0.0) because the structural model changed (per-profile to compositional). The filename is preserved despite the title change to keep the PR #103 CHANGELOG entry's references intact and to avoid an audit cascade.
+
+### Verification
+
+All 44 audit gates pass standalone. The filename-title alignment audit (gate 7) tolerates "Adopter Quickstart Template" titled with the existing filename [`docs/template-quickstart-by-profile.md`](docs/template-quickstart-by-profile.md) because "quickstart" appears in both.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.90, PR #104
 
 TODO Priority 4.2: adopter maturity self-assessment template. Second of five Priority 4 items in sequence.
