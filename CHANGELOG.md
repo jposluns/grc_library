@@ -4,6 +4,31 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-19, Library Version 2026.06.44, PR #58
+
+Two coordinated cleanups in one PR: (1) move the root [`README.md`](README.md) "Licence and third-party reference boundary" section to the bottom of the file so it aligns with the placement convention every other README and the audit-programme survey found universal across the corpus; (2) update five places across the corpus where the external-rule-sources list still enumerated three names (TikiTribe, Wiz, Kariedo) instead of four (TikiTribe, Kariedo, addyosmani, Wiz). Library version `2026.06.43 → 2026.06.44`.
+
+### Changed
+
+- [`README.md`](README.md): moved `## Licence and third-party reference boundary` from line 80 (position 5 of 15 sections) to just above `## Maintained by` (position 14 of 15 sections), aligning with the universal "Licence section at the bottom" convention the section-ordering survey found across all other READMEs in the corpus. Section contents unchanged. Library version `2026.06.43 → 2026.06.44`; README version `1.7.181 → 1.8.0` (minor bump for structural section move).
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): Licence section's external-repositories list updated from "(TikiTribe, Wiz, Kariedo)" to "(TikiTribe, Kariedo, addyosmani, Wiz)" to match the four-source canonical set already enumerated in the `## External references` section earlier in the same file. Pack version `1.24.0 → 1.24.1` (patch: enumeration correction).
+- [`dev-security/README.md`](dev-security/README.md): External-rule-repositories sentence updated from "(TikiTribe, Wiz, Kariedo)" plus "all three" to "(TikiTribe, Kariedo, addyosmani, Wiz)" plus "all four". Document version `1.4.0 → 1.4.1`.
+- [`NOTICE.md`](NOTICE.md): setup-generator licence-surfacing list updated from "(TikiTribe, Wiz, Kariedo)" to "(TikiTribe, Kariedo, addyosmani, Wiz)". Document version `1.4.0 → 1.4.1`.
+- [`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md): External-rule-repositories reference updated from "(TikiTribe, Wiz, Kariedo)" to "(TikiTribe, Kariedo, addyosmani, Wiz)". Document version `1.8.0 → 1.8.1`.
+- [`dev-security/claude-rules/vetting-log.md`](dev-security/claude-rules/vetting-log.md): Adopter-facing example list of Vetted sources updated from "(Kariedo, TikiTribe, Wiz)" to "(Kariedo, TikiTribe, addyosmani, Wiz)" to match the actual vetted-source set. Document version `1.3.0 → 1.3.1`.
+
+### Scope notes
+
+The two places in the corpus that legitimately retain "the other three sources" phrasing ([`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) line 311 and [`dev-security/claude-rules/vetting-log.md`](dev-security/claude-rules/vetting-log.md) line 73) are both inside the addyosmani entry itself, contrasting addyosmani's Claude Code Skills discovery format with the rule / `@`-import patterns the other three sources use. These are correct as-is.
+
+The omission of addyosmani from the five places fixed in this PR is the kind of enumeration-drift failure mode that the maintainer has flagged as a candidate for a mechanical lint rule (a "collection enumeration consistency" audit that would catch parenthetical enumerations of canonical collections missing one or more members). That rule is recorded as a future-work item to be designed after the in-flight section-placement validation (Option A from the section-ordering survey) lands.
+
+### Verification
+
+Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. The structural section move in the root [`README.md`](README.md) is accepted by gates that check section presence (gate 19) and intra-document references (gate 18); the moved section does not break any internal anchor links because nothing else in the README linked to its old position. The metadata audit (gate 1) accepts the per-document Version and Date bumps on all six edited files. The version-date consistency audit (gate 29) confirms `2026.06.44` matches `2026-06`; the library-version-monotonicity audit (gate 13) accepts the entry. The CHANGELOG link-coverage audit (gate 11) accepts the entry's path-shaped code spans (all wrapped as markdown links). The taxonomy and portal in-sync gates (gates 33, 34) are regenerated and pass. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
+
+---
+
 ## 2026-06-19, Library Version 2026.06.43, PR #57
 
 Restructure the [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) so the action-oriented content (scope, ways to use, directory structure, how to use, rule files) appears first and the historical reference content (per-version shipping log) appears near the bottom. The dense `## Pack scope` section that grew over many small additions is trimmed to the load-bearing content; the historical detail it carried (per-version shipping history, framing of the rollout's completion, enumeration of every skill that has ever shipped) is moved into a new compact `## Version history` table near the end of the README.
