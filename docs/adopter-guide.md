@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.1.0\
+**Version:** 1.1.1\
 **Date:** 2026-06-19\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -54,7 +54,7 @@ The repository ships both a GRC corpus and a reference implementation for AI-ass
 
 **Audience.** A developer or team that is not building or adopting a GRC library, but wants a solid Claude Code baseline for any project: security rules, language-specific patterns, governance disciplines, and skills for the recurring failure modes an AI coding assistant exhibits.
 
-**What you take.** [`dev-security/claude-rules/`](../dev-security/claude-rules/) (the pack). Its own [`README.md`](../dev-security/claude-rules/README.md) is the front door and the [`setup-generator-prompt.md`](../dev-security/claude-rules/setup-generator-prompt.md) is the AI-assisted installer. The pack ships with its own version sequence (currently `1.22.0`) and is documented to operate standalone.
+**What you take.** [`dev-security/claude-rules/`](../dev-security/claude-rules/) (the pack). Its own [`README.md`](../dev-security/claude-rules/README.md) is the front door and the [`setup-generator-prompt.md`](../dev-security/claude-rules/setup-generator-prompt.md) is the AI-assisted installer. The pack ships with its own version sequence (independent of the library's; see the pack README header for the current value) and is documented to operate standalone.
 
 **What you ignore.** Everything else in this repository. The pack does not require the GRC corpus to be present; the pack rules are written as project-agnostic disciplines that any Claude Code project benefits from.
 
