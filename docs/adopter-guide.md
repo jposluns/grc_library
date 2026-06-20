@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.0.0\
+**Version:** 1.1.0\
 **Date:** 2026-06-19\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -25,6 +25,44 @@ This guide is for organisations that want to use the GRC Documentation Library a
 Adopting organisations should fork or copy the library, adapt the artefacts to their environment, and maintain the adaptation as part of their own internal governance. The library does not become your governance programme by being copied; the artefacts are a starting structure that your organisation must operate, evidence, and accept residual risk against.
 
 You are not required to adopt the entire library. Most organisations will adopt a subset that matches their domain, sector, jurisdiction, and operating model.
+
+## Three adoption modes
+
+The repository ships both a GRC corpus and a reference implementation for AI-assisted maintenance of that corpus (the audit toolchain in [`tools/`](../tools/) and the operational pack in [`dev-security/claude-rules/`](../dev-security/claude-rules/)). An adopter can engage at any of three levels; pick the mode that matches what you are actually trying to build, not the most ambitious one.
+
+### Mode A — Fork the whole repo (full adoption)
+
+**Audience.** An organisation building or modernising its GRC programme that also wants AI-assisted maintenance of the resulting corpus.
+
+**What you take.** Everything: the eleven domain directories, the `governance/` corpus, the audit toolchain, the pack, the specifications, the CHANGELOG and version-monotonicity discipline, the `docs/` adopter-facing materials.
+
+**What you ignore.** Nothing structural. You will substitute organisation-specific values inside the artefacts (roles, jurisdictions, sector context, vendor names if any) and add organisation-specific overlays alongside the library content, but the structural shape stays.
+
+**Next step.** Follow the Quick start below and the [`docs/decision-tree.md`](decision-tree.md) for prioritisation.
+
+### Mode B — Adopt the corpus only
+
+**Audience.** An organisation that wants the Markdown content as a starting point but has its own maintenance workflow (or no AI assistance in the loop).
+
+**What you take.** The domain directories you need (`governance/`, `security/`, `privacy/`, `risk/`, etc. as applicable to your scope). The Core Reference Set called out in the root [`README.md`](../README.md). The [`specification-master-project.md`](../specification-master-project.md) if you want to preserve the controlled document model.
+
+**What you ignore.** [`tools/`](../tools/) (the audit toolchain) and [`dev-security/claude-rules/`](../dev-security/claude-rules/) (the pack) unless you choose to opt into one or both later. Your maintenance workflow may be Word + SharePoint, Confluence pages, a different toolchain, or human-only review; the library's content is portable to any of those.
+
+**Next step.** Copy the relevant domain directories. Substitute roles and jurisdiction-specific values per the Quick start. The CC BY-SA 4.0 share-alike clause applies to derivatives you redistribute.
+
+### Mode C — Adopt the pack only
+
+**Audience.** A developer or team that is not building or adopting a GRC library, but wants a solid Claude Code baseline for any project: security rules, language-specific patterns, governance disciplines, and skills for the recurring failure modes an AI coding assistant exhibits.
+
+**What you take.** [`dev-security/claude-rules/`](../dev-security/claude-rules/) (the pack). Its own [`README.md`](../dev-security/claude-rules/README.md) is the front door and the [`setup-generator-prompt.md`](../dev-security/claude-rules/setup-generator-prompt.md) is the AI-assisted installer. The pack ships with its own version sequence (currently `1.22.0`) and is documented to operate standalone.
+
+**What you ignore.** Everything else in this repository. The pack does not require the GRC corpus to be present; the pack rules are written as project-agnostic disciplines that any Claude Code project benefits from.
+
+**Why this is supported.** This mode emerged in practice: developers found the pack useful as a Claude Code baseline pack, usable on any project regardless of whether it has a GRC corpus, distilled from the disciplines this library required to maintain itself. The provenance is what makes the pack credible as a standalone artefact: every governance rule in the pack was extracted from a real maintenance event recorded in this library's [`CHANGELOG.md`](../CHANGELOG.md), not invented in the abstract.
+
+**Next step.** Either copy [`dev-security/claude-rules/`](../dev-security/claude-rules/) directly into your project (under `dev-security/claude-rules/` or wherever you want it), or use the pack's setup generator to produce a tailored Claude Code configuration for your specific project. The pack's own [`README.md`](../dev-security/claude-rules/README.md) section "How to use" walks both options.
+
+---
 
 ## Quick start
 
