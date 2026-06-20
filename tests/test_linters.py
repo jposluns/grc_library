@@ -890,6 +890,88 @@ class FollowupAgeingTests(LinterTestCase):
         )
 
 
+class PairedSkillStepParityTests(LinterTestCase):
+    """tools/lint-paired-skill-step-parity.py"""
+
+    def test_runs_clean_on_corpus_at_head(self) -> None:
+        # Smoke test: the validation-sweep pair's step identifiers
+        # match at HEAD.
+        result = run_linter("tools/lint-paired-skill-step-parity.py")
+        self.assertEqual(
+            result.returncode, 0,
+            f"linter exited {result.returncode} on HEAD; "
+            f"the validation-sweep SKILL+command pair should match.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def _load_module(self):
+        # The linter's PAIRS list is hard-coded at module-import time;
+        # for unit tests on the regex extractors we import the module
+        # directly via spec loading (the filename has hyphens so a
+        # bare `import` won't work). The linter imports `lint_common`,
+        # so we add tools/ to sys.path before exec.
+        import importlib.util
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        spec = importlib.util.spec_from_file_location(
+            "_paired_skill_step_parity",
+            REPO_ROOT / "tools/lint-paired-skill-step-parity.py",
+        )
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def test_drift_detection(self) -> None:
+        # Positive test: SKILL.md heading uses "3.5", command uses
+        # "3a". The extractors produce non-equal sets so the
+        # symmetric-difference check would fire.
+        mod = self._load_module()
+        skill_with_3_5 = (
+            "# Skill\n"
+            "### 1. First step\n"
+            "### 2. Second step\n"
+            "### 3.5. Half step\n"
+            "### 4. Fourth step\n"
+        )
+        command_with_3a = (
+            "1. **First step**: content.\n"
+            "2. **Second step**: content.\n"
+            "3a. **Half step**: content.\n"
+            "4. **Fourth step**: content.\n"
+        )
+        skill_steps = mod.extract_skill_steps(skill_with_3_5)
+        command_steps = mod.extract_command_steps(command_with_3a)
+        self.assertIn("3.5", skill_steps)
+        self.assertIn("3a", command_steps)
+        self.assertNotEqual(
+            skill_steps, command_steps,
+            "drifted step identifiers should produce non-equal sets",
+        )
+
+    def test_matching_pair_passes(self) -> None:
+        # Negative test: when both files use the same identifier,
+        # the sets match.
+        mod = self._load_module()
+        skill_with_3a = (
+            "### 1. First\n"
+            "### 2. Second\n"
+            "### 3a. Half\n"
+            "### 4. Fourth\n"
+        )
+        command_with_3a = (
+            "1. **First**: x.\n"
+            "2. **Second**: x.\n"
+            "3a. **Half**: x.\n"
+            "4. **Fourth**: x.\n"
+        )
+        self.assertEqual(
+            mod.extract_skill_steps(skill_with_3a),
+            mod.extract_command_steps(command_with_3a),
+        )
+
+
 class CollectionEnumerationConsistencyTests(LinterTestCase):
     """tools/lint-collection-enumeration-consistency.py"""
 

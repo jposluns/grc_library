@@ -18,7 +18,7 @@ Run the full audit programme from the repository root:
 bash tools/run_all_audits.sh
 ```
 
-This runs all 43 gates in the order defined in [`governance/specification-audit-programme.md`](../governance/specification-audit-programme.md) §6 and aggregates results. Use `FAIL_FAST=1 bash tools/run_all_audits.sh` to stop on first failure.
+This runs all 44 gates in the order defined in [`governance/specification-audit-programme.md`](../governance/specification-audit-programme.md) §6 and aggregates results. Use `FAIL_FAST=1 bash tools/run_all_audits.sh` to stop on first failure.
 
 Individual scripts also run standalone:
 
@@ -41,14 +41,14 @@ The portal generator depends on the taxonomy; always regenerate the taxonomy fir
 
 ## Pre-commit integration
 
-[`.pre-commit-config.yaml`](../.pre-commit-config.yaml) at the repository root wires all 43 gates as local hooks. Install once:
+[`.pre-commit-config.yaml`](../.pre-commit-config.yaml) at the repository root wires all 44 gates as local hooks. Install once:
 
 ```
 pip install pre-commit
 pre-commit install
 ```
 
-Subsequent commits run the full 43-gate audit programme before the commit is finalised. Run on demand against the entire corpus:
+Subsequent commits run the full 44-gate audit programme before the commit is finalised. Run on demand against the entire corpus:
 
 ```
 pre-commit run --all-files

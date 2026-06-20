@@ -323,3 +323,10 @@ repos:
         language: system
         pass_filenames: false
         types: [markdown]
+
+      - id: lint-paired-skill-step-parity
+        name: Paired-skill step-parity audit
+        entry: python3 tools/lint-paired-skill-step-parity.py
+        language: system
+        pass_filenames: false
+        types: [markdown]

@@ -4,6 +4,47 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.86, PR #100
+
+**Closes the three-item queued-session backlog**: new audit gate 44 (paired-skill step-parity audit), third and last of the items announced in the maintainer's status summary (after PR #98 PF-04 stale-version-literal scanner extension and PR #99 gate 43 follow-up ageing audit). Mechanises the cross-document term-and-identifier consistency check the validation-sweep history register flagged as a recurring gap.
+
+**Gate behaviour**: for each pair in `PAIRS` (currently one: [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md) paired with [`.claude/commands/validation-sweep.md`](.claude/commands/validation-sweep.md)), extracts step identifiers from both files and fails on symmetric-difference mismatch. Motivated by the Sweep 3 finding: PR #78 introduced the pre-flight scanner as `### 3.5.` in the SKILL heading and as `3a.` in the slash-command numbered list. Subagent A's semantic triage caught the drift; this gate catches it mechanically going forward.
+
+### Scope decision
+
+Currently only the validation-sweep skill has a paired slash-command counterpart. The maintainer authorised shipping the gate despite the single-pair scope so the discipline is in place for future skills that adopt the slash-command pattern. `PAIRS` is the extension point; adding a new entry inherits the check.
+
+### Added
+
+- [`tools/lint-paired-skill-step-parity.py`](tools/lint-paired-skill-step-parity.py): new audit gate. Stdlib-only Python 3.11. Extracts SKILL.md step identifiers from `### N. ` / `### N<suffix>. ` headings and slash-command identifiers from both numbered list items (`N. **Title**:`) and prose mentions (`Step N`). Compares by symmetric difference.
+- [`tests/test_linters.py`](tests/test_linters.py) class `PairedSkillStepParityTests`: three regression tests (corpus-clean smoke, drift-detection positive, matching-pair negative).
+
+### Changed
+
+- [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md): version `1.11.0 -> 1.12.0`; §6 inventory adds row 44; §5 category 5 ("Programme and index integrity") gains gate 44 with rationale referencing the Sweep 3 finding; the two prose references to "43 audit gates" / "43-gate corpus inventory" updated to 44.
+- [`.github/workflows/quality.yml`](.github/workflows/quality.yml): new step "Paired-skill step-parity audit" between gate 43 and the PR-only delta gates.
+- [`tools/run_all_audits.sh`](tools/run_all_audits.sh): new `run_gate` invocation; header comment updated to 44.
+- [`.pre-commit-config.yaml`](.pre-commit-config.yaml): new hook `lint-paired-skill-step-parity`.
+- [`governance/procedure-library-quality-and-review-cadence.md`](governance/procedure-library-quality-and-review-cadence.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), [`governance/register-main-branch-protection.md`](governance/register-main-branch-protection.md), [`tools/README.md`](tools/README.md), [`tools/check-changelog-on-pr.py`](tools/check-changelog-on-pr.py), [`tools/check-version-bump-on-pr.py`](tools/check-version-bump-on-pr.py), [`tools/lint-audit-gate-parity.py`](tools/lint-audit-gate-parity.py): 11 prose references to "43 gates" / "43-gate" updated to 44 (caught by gate 39).
+- Per-document version bumps on the three touched governance files: procedure-library-quality-and-review-cadence `1.0.10 -> 1.0.11`, register-document-index-and-classification `1.27.17 -> 1.27.18`, register-main-branch-protection `1.0.10 -> 1.0.11`.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.26.15 -> 1.26.16`.
+- [`README.md`](README.md): library version `2026.06.85 -> 2026.06.86`; README version `1.8.41 -> 1.8.42`.
+
+### Three-item queued backlog: closed
+
+All three items from the post-late-research-findings-queue status summary have shipped:
+- PR #98 PF-04 stale-version-literal scanner extension (with sweep-narrative heuristics)
+- PR #99 gate 43 follow-up ageing audit
+- PR #100 gate 44 paired-skill step-parity audit (this PR)
+
+The validation-sweep history register's residual cross-document term-and-identifier consistency gap is now closed for paired skill+slash-command surfaces. Other potential consistency gaps (cross-document identifier references outside the paired-skill structure) remain semantic-triage territory.
+
+### Verification
+
+All 44 audit gates pass standalone. Gate 35 (parity audit) confirms identical wiring across all four parity surfaces. Gate 39 (gate-count consistency) confirms no stale "43" references remain. The three regression tests in `PairedSkillStepParityTests` pass (`python3 -m unittest tests.test_linters.PairedSkillStepParityTests`); the drift-detection test confirms `### 3.5.` vs `3a.` produces non-equal sets (the Sweep 3 shape).
+
+---
+
 ## 2026-06-20, Library Version 2026.06.85, PR #99
 
 New audit gate 43: follow-up ageing audit. Mechanises Rule 3 of the maintenance-tag dating discipline introduced in PR #90 (the convention shipped without a mechanical gate; this PR adds it). Second of three queued session items.
