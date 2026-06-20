@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.24.3\
+**Version:** 1.25.0\
 **Date:** 2026-06-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -425,6 +425,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.25.0 | 2026.06.48 | 2026-06-20 | Added `skills/validation-sweep`: corpus-wide regression sweep as a follow-up after any issue identified and corrected; derives from `evidence-grounded-completion` and operationalises its worked example at corpus scope |
 | 1.24.0 | 2026.06.43 | 2026-06-19 | Trimmed `Pack scope` to the load-bearing content; introduced this `Version history` section |
 | 1.23.0 | 2026.06.40 | 2026-06-19 | Dual-deliverable reframe across project framing surfaces (new `Three ways to use this pack` section; the pack named as the library's lessons learned made portable) |
 | 1.22.0 | 2026.06.39 | 2026-06-19 | Added `skills/change-tracking-write-entry` and `skills/artefact-discipline-check`; closed out the post-S.3 skills evaluation |
