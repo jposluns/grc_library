@@ -2,7 +2,7 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.9\
+**Version:** 1.1.10\
 **Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -230,10 +230,10 @@ Within the library's doctype vocabulary, some types are under-represented relati
 | Adopter quickstart templates per profile | None | Planned | TODO P4.1 |
 | Interactive maturity assessment | None | Planned | TODO P4.2 (current scorecard is static) |
 | Implementation roadmap templates | None | Planned | TODO P4.3 |
-| Decision-tree adopter navigator | None | Planned | TODO P3.2 (Phase 21.8) |
+| Decision-tree adopter navigator | Substantive | In library | [`docs/decision-tree.md`](../docs/decision-tree.md) |
 | Worked examples / case studies | None | Out of scope | The library is organisation-neutral; case studies would conflict with that posture |
-| Regulator interaction templates (notification, attestation, response) | Partial | Deferred | Some incident-notification language exists; consolidated template absent |
-| Audit evidence package templates | Partial | Deferred | Per-control evidence is documented; consolidated audit-package templates absent |
+| Regulator interaction templates (notification, attestation, response) | Partial | Planned | TODO P4.4 (some incident-notification language exists; consolidated template absent) |
+| Audit evidence package templates | Partial | Planned | TODO P4.5 (per-control evidence is documented; consolidated audit-package templates absent) |
 
 ---
 
