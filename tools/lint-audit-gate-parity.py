@@ -71,7 +71,7 @@ WORKFLOW_SETUP_STEPS = {"Checkout", "Set up Python"}
 # of the 39-gate corpus inventory in §6 and therefore are excluded from
 # the parity audit. Delta gates run only on pull_request events and
 # inspect the PR's change set rather than the repository state at HEAD.
-WORKFLOW_DELTA_GATE_STEPS = {"CHANGELOG-on-PR check"}
+WORKFLOW_DELTA_GATE_STEPS = {"CHANGELOG-on-PR check", "Per-PR version-bump check"}
 
 # Regex to extract the tools/X.py portion of a `python3 tools/X.py ...`
 # style command. Captures the script's repository-relative path only,

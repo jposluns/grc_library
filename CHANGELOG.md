@@ -4,6 +4,32 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.51, PR #65
+
+Add a new PR-only delta gate (**D2: Per-PR version-bump check**). Layer 2 deliverable 2 of 3 in the validation programme, shipped as a §6.1 delta gate alongside the existing D1 CHANGELOG-on-PR check. The new gate compares each markdown file modified in a PR between its merge-base and head, reading the `**Version:**` field at each, and fails if a file's body changed but its Version did not bump. Catches the per-document-version-bump-omission class of defect that the §6 monotonicity audit (gate 13) cannot detect: gate 13 confirms versions strictly increase across the corpus, but cannot tell whether a particular file should have bumped on a particular PR.
+
+This is a PR delta gate rather than a corpus gate because the check requires comparing two refs (PR base and head); it cannot run in the local audit suite, in pre-commit, or as a §6 corpus inventory gate. The forthcoming Layer 2 deliverable 2b (a separate PR) will add the corpus-heuristic counterpart that uses git log to approximate the same check at HEAD.
+
+Audit-programme spec `1.7.0 → 1.7.1` (patch: new §6.1 delta gate documented; no §6 corpus inventory change). Library version `2026.06.50 → 2026.06.51`; README version `1.8.6 → 1.8.7`.
+
+### Added
+
+- [`tools/check-version-bump-on-pr.py`](tools/check-version-bump-on-pr.py): new CI-only delta gate. Uses `git diff --name-only` between the PR merge-base and head to enumerate changed files, then for each non-exempt markdown file with a Version metadata field, compares the field value at base and head; fails if a versioned document changed without a Version bump. Exempt: CHANGELOG.md, generated artefacts (taxonomy.yml, docs/portal.md, docs/maturity-scorecard.md), files without a Version field, files added in this PR, and files deleted in this PR. Mirrors the invocation pattern of [`tools/check-changelog-on-pr.py`](tools/check-changelog-on-pr.py) (positional base/head args; falls back to `origin/$GITHUB_BASE_REF` env var in CI). Exit codes: 0 pass, 1 findings, 2 environment error.
+- [`.github/workflows/quality.yml`](.github/workflows/quality.yml): new `Per-PR version-bump check` step appended after the CHANGELOG-on-PR check, guarded by `if: github.event_name == 'pull_request'`.
+
+### Changed
+
+- [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md): §6.1 delta-gates table extended with row `D2` for the new gate, plus a paragraph describing what D2 enforces and why it sits in §6.1 rather than §6 (requires PR refs unavailable in the corpus runners). Version `1.7.0 → 1.7.1`.
+- [`tools/lint-audit-gate-parity.py`](tools/lint-audit-gate-parity.py): `WORKFLOW_DELTA_GATE_STEPS` set extended with `"Per-PR version-bump check"` so the parity audit correctly excludes the new delta gate from its 39-gate corpus check.
+- [`tools/check-changelog-on-pr.py`](tools/check-changelog-on-pr.py): stale-reference fix — docstring line 5 said `The 32 corpus gates check repository state at HEAD`, which had drifted through the gate-count bumps from 32 to 39; updated to `The 39 corpus gates check repository state at HEAD`. The gate 39 linter (cross-file gate-count consistency) did not catch this because its regex set targets `\b(\d+)-gate\b` and `\b(\d+) audit gates\b` idioms; `(\d+) corpus gates` is a new phrasing variant. A future Layer 2 extension can broaden the regex set; for this PR the fix is in-place.
+- [`README.md`](README.md): library version `2026.06.50 → 2026.06.51`; README version `1.8.6 → 1.8.7`.
+
+### Verification
+
+Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. All 39 corpus gates pass; the new D2 delta gate is wired into the workflow but does not participate in the corpus runner (delta gates are excluded by design). Gate 35 (Gate-name parity audit) confirms `Per-PR version-bump check` is in the excluded-delta-step set and the corpus inventory still declares 39 gates in identical order across all four parity surfaces. The version-monotonicity audit (gate 13) accepts the spec and library version bumps. The version-date consistency audit (gate 29) confirms `2026.06.51` matches `2026-06`. The gate 39 (Cross-file gate-count consistency audit) runs clean on the final state, including the docstring fix in [`tools/check-changelog-on-pr.py`](tools/check-changelog-on-pr.py).
+
+---
+
 ## 2026-06-20, Library Version 2026.06.50, PR #64
 
 Add a new audit gate (#39): **Cross-file gate-count consistency audit**. This is Layer 2 gate 1 of 3 in the validation programme. The gate scans the corpus for prose phrases that reference an audit-programme gate count and compares the captured number against the canonical row count of the §6 inventory. Any mismatch is flagged. The gate would have caught all seven stale "37-gate" references PR #59 missed, the two PR #61 missed (caught later by PR #63), and the nine additional stale "32-gate" references this PR's own first run surfaced in rule prose and tooling docs.
