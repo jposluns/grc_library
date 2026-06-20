@@ -4,6 +4,31 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.59, PR #73
+
+Wire the collection-candidate detector (shipped in PR #72) to run automatically on PRs that modify the pack. The detector was previously on-demand only; per the maintainer's clarification, it should also fire automatically whenever there is a new addition or an updated pack.
+
+Implementation: a new step in [`.github/workflows/quality.yml`](.github/workflows/quality.yml) named "Detect collection candidates on pack PRs (informational)" runs on `pull_request` events. The step uses `git diff --name-only` between the PR base and head to detect whether any file under `dev-security/claude-rules/` changed; if so, it invokes [`tools/detect-collection-candidates.py`](tools/detect-collection-candidates.py) and surfaces output to the workflow log. If no pack changes, the step prints a skip message naming the on-demand invocation. The step uses environment variables (`BASE_SHA`, `HEAD_SHA`) for the SHA values rather than direct `${{ ... }}` interpolation, following the tikitribe github-actions injection-prevention rule.
+
+**Informational, not a gate**: the step exits 0 always — the detector surfaces candidates rather than failing. It is exempted from the gate-name parity audit via the new entry in [`tools/lint-audit-gate-parity.py`](tools/lint-audit-gate-parity.py)'s `WORKFLOW_DELTA_GATE_STEPS` set.
+
+Library version `2026.06.58 → 2026.06.59`; README version `1.8.14 → 1.8.15`.
+
+### Added
+
+- [`.github/workflows/quality.yml`](.github/workflows/quality.yml): new `Detect collection candidates on pack PRs (informational)` step. Guarded by `if: github.event_name == 'pull_request'` and an inner shell conditional on `git diff` output matching `^dev-security/claude-rules/`. Uses env-var-mediated SHA interpolation for safety.
+
+### Changed
+
+- [`tools/lint-audit-gate-parity.py`](tools/lint-audit-gate-parity.py): `WORKFLOW_DELTA_GATE_STEPS` exempt set extended with `"Detect collection candidates on pack PRs (informational)"` so the parity audit correctly excludes the new informational step from the corpus inventory check.
+- [`README.md`](README.md): library version `2026.06.58 → 2026.06.59`; README version `1.8.14 → 1.8.15`.
+
+### Verification
+
+Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0). All 42 corpus gates pass; the new informational step is workflow-only and does not participate in the corpus runner. Gate 35 (Gate-name parity audit) confirms parity intact across all four surfaces at 42 gates. The new step will be exercised by THIS PR's own CI run — the PR touches files under `dev-security/claude-rules/` (CHANGELOG narrative references the path, but the diff itself does not touch pack files; expected behaviour: the step runs and prints the no-pack-changes skip message).
+
+---
+
 ## 2026-06-20, Library Version 2026.06.58, PR #72
 
 Add a companion exploratory tool to gate 41 (Collection-enumeration consistency audit): [`tools/detect-collection-candidates.py`](tools/detect-collection-candidates.py). Phase 2 of the Layer 2 / 3 deliverable the maintainer authorised during gate 41's design (PR #69). Gate 41 enforces drift discipline on a hard-coded list of collections; this tool surfaces NEW candidate collections by heuristic scan so the maintainer can triage them one-by-one and add approved candidates to gate 41's configuration.
