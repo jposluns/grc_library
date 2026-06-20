@@ -769,6 +769,127 @@ class ExternalOverlayLicenseTests(LinterTestCase):
         )
 
 
+class FollowupAgeingTests(LinterTestCase):
+    """tools/lint-followup-ageing.py"""
+
+    def tearDown(self) -> None:
+        # The fixtures use subdirectories under FIXTURE_DIR; the module-
+        # level tearDown only removes top-level *.md files. Clean
+        # subdirectories explicitly so the corpus audits (which scan
+        # the entire repo for markdown) do not pick them up.
+        import shutil
+        for sub in (
+            "followup-ageing-expired",
+            "followup-ageing-retriaged",
+            "followup-ageing-invalid",
+        ):
+            path = FIXTURE_DIR / sub
+            if path.exists():
+                shutil.rmtree(path)
+        super().tearDown()
+
+    def test_runs_clean_on_corpus_at_head(self) -> None:
+        # Smoke test: the register has no expired follow-ups at HEAD.
+        result = run_linter("tools/lint-followup-ageing.py")
+        self.assertEqual(
+            result.returncode, 0,
+            f"linter exited {result.returncode} on HEAD; "
+            f"the sweep-history register should have no expired follow-ups.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_expired_followup_flagged(self) -> None:
+        # Positive test: build a fixture with a surfaced/re-triage-by
+        # pair whose deadline has passed and no re-triaged trailer.
+        # Use --today to make the test independent of the wall clock.
+        fixture_dir = FIXTURE_DIR / "followup-ageing-expired"
+        fixture_dir.mkdir(parents=True, exist_ok=True)
+        fixture_path = fixture_dir / "register.md"
+        fixture_path.write_text(
+            "# Test register\n\n"
+            "### 2026-01-01, Test deferred entry\n\n"
+            "- **Finding**: A deferred test finding\n"
+            "  - surfaced: 2026-01-01\n"
+            "  - re-triage-by: 2026-02-01\n"
+            "- **Status**: pending\n\n",
+            encoding="utf-8",
+        )
+        result = run_linter(
+            "tools/lint-followup-ageing.py",
+            "--target", "register.md",
+            "--root", str(fixture_dir),
+            "--today", "2026-06-20",
+        )
+        self.assertEqual(
+            result.returncode, 1,
+            f"linter should have exited 1 on expired follow-up.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn(
+            "past its re-triage-by deadline",
+            result.stderr,
+            f"expected FAIL message about expired deadline; got:\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_fresh_retriaged_trailer_dismisses(self) -> None:
+        # Negative test: same expired fixture, but with a re-triaged
+        # trailer dated after the deadline. Should pass.
+        fixture_dir = FIXTURE_DIR / "followup-ageing-retriaged"
+        fixture_dir.mkdir(parents=True, exist_ok=True)
+        fixture_path = fixture_dir / "register.md"
+        fixture_path.write_text(
+            "# Test register\n\n"
+            "### 2026-01-01, Test deferred entry\n\n"
+            "- **Finding**: A deferred test finding\n"
+            "  - surfaced: 2026-01-01\n"
+            "  - re-triage-by: 2026-02-01\n"
+            "  - re-triaged: 2026-06-15\n"
+            "- **Status**: under review\n\n",
+            encoding="utf-8",
+        )
+        result = run_linter(
+            "tools/lint-followup-ageing.py",
+            "--target", "register.md",
+            "--root", str(fixture_dir),
+            "--today", "2026-06-20",
+        )
+        self.assertEqual(
+            result.returncode, 0,
+            f"linter should have exited 0 with a fresh re-triaged trailer.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_invalid_date_value_exits_two(self) -> None:
+        # Environmental test: syntactically YYYY-MM-DD but invalid date
+        # value (Feb 30 doesn't exist) triggers exit 2. Note: slash-
+        # separated dates would not match the regex at all and would be
+        # silently ignored; only well-formed-shape-but-invalid-value
+        # dates reach the parser.
+        fixture_dir = FIXTURE_DIR / "followup-ageing-invalid"
+        fixture_dir.mkdir(parents=True, exist_ok=True)
+        fixture_path = fixture_dir / "register.md"
+        fixture_path.write_text(
+            "# Test register\n\n"
+            "### Test entry\n\n"
+            "- **Finding**: invalid value\n"
+            "  - surfaced: 2026-02-30\n"
+            "- **Status**: pending\n\n",
+            encoding="utf-8",
+        )
+        result = run_linter(
+            "tools/lint-followup-ageing.py",
+            "--target", "register.md",
+            "--root", str(fixture_dir),
+            "--today", "2026-06-20",
+        )
+        self.assertEqual(
+            result.returncode, 2,
+            f"linter should have exited 2 on invalid date value.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+
 class CollectionEnumerationConsistencyTests(LinterTestCase):
     """tools/lint-collection-enumeration-consistency.py"""
 
