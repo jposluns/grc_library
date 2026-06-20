@@ -4,6 +4,31 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-19, Library Version 2026.06.41, PR #55
+
+Acknowledge the [`dev-security/claude-rules/`](dev-security/claude-rules/) pack across the project's attribution and contribution surfaces, and enrich [`CITATION.cff`](CITATION.cff) with pack-specific search-term keywords so the pack is discoverable to readers who arrive looking for Claude Code rules or skills rather than for GRC content. Continues the reframe shipped in PR #54 by ensuring the pack is named in the attribution surfaces, not only in the positioning prose. Prose-only across five files; no structural changes.
+
+### Changed
+
+- [`CITATION.cff`](CITATION.cff): extended the abstract to name the pack as a co-deliverable distilled from the library's own maintenance experience; extended the message to direct standalone-pack adopters to cite the parent library; added 14 search-term keywords covering both the pack itself and the security/GRC × Claude Code intersection (`Claude Code`, `Claude Code rules`, `Claude Code skills`, `Claude Code security rules`, `Claude Code GRC rules`, `Claude Code governance pack`, `claude-rules`, `Anthropic Claude`, `AI coding assistant`, `AI coding agent`, `AI-assisted development`, `secure AI coding`, `AI agent security rules`, `AI coding compliance`).
+- [`AUTHORS.md`](AUTHORS.md): the "Original creator and maintainer" paragraph now names the pack alongside the library; the "Attribution posture" section gains a paragraph stating the pack is library-original under CC BY-SA 4.0 with no separate licence; the "How to cite" section gains a paragraph directing standalone-pack adopters (Mode C in [`docs/adopter-guide.md`](docs/adopter-guide.md)) to cite the parent library. Document version `1.0.0 → 1.1.0`.
+- [`NOTICE.md`](NOTICE.md): the "Attribution" section gains a paragraph confirming the pack falls under the same CC BY-SA 4.0 terms as the corpus; the "Notes for adopters bringing in external content" section gains a paragraph distinguishing the pack's own content (library-original under CC BY-SA 4.0) from the third-party rule sources the pack's external overlay can fetch. Document version `1.3.0 → 1.4.0`.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md): added a contribution path for pack rules and Claude Code Skills to "What contributions are welcome", noting the existing pack disciplines (each new rule cites the maintenance event that justified it; each skill derives from a canonical pack rule via `derives_from` enforced by [`tools/lint-skill-derives-from.py`](tools/lint-skill-derives-from.py)). Document version `1.0.0 → 1.1.0`.
+- [`README.md`](README.md): added a search-terms note to the Mode C "Adopt the pack only" paragraph, surfacing the common search terms (`Claude Code rules`, `Claude Code skills`, `Claude Code security rules`, `Claude Code GRC rules`, `Claude Code governance pack`, `claude-rules`, `AI coding assistant rules`, `AI agent security rules`, `Anthropic Claude governance`, `secure AI coding`) inline in the README's text so they are searchable in the file itself, not only in CITATION metadata. Library version `2026.06.40 → 2026.06.41`; README version `1.7.178 → 1.7.179`.
+
+### Verification
+
+Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. No structural changes; the reframe is prose-only across five files. The metadata audit (gate 1) accepts the per-document version and date bumps; the version-monotonicity audit (gate 13) accepts the entry; the version-date consistency audit (gate 29) confirms `2026.06.41` matches `2026-06`; the language audit (gate 2) accepts the new prose; the CHANGELOG link-coverage audit (gate 11) accepts the entry's path-shaped code spans; the taxonomy and portal in-sync gates (gates 33, 34) confirm no drift. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
+
+### Out of scope (recorded for surfacing after merge)
+
+Two discoverability levers require GitHub UI access and are not changed by this PR; the maintainer will action them after merge:
+
+- **GitHub repository topics.** Recommended additions alongside the existing topics: `claude-code`, `claude-rules`, `claude-code-skills`, `claude-code-rules`, `ai-coding-assistant`, `anthropic-claude`, `governance-pack`. GitHub repository topics are the most effective single discoverability lever for the pack.
+- **GitHub repository description.** Current description: *"A documentation library for governance, risk, compliance, cybersecurity, privacy, resilience, AI assurance, and operational control practices."* Recommended replacement: *"GRC documentation library + Claude Code rules-and-skills pack distilled from maintaining it (CC BY-SA 4.0)."*
+
+---
+
 ## 2026-06-19, Library Version 2026.06.40, PR #54
 
 Reframe the project's stated positioning to make explicit a dual-deliverable model that has been emerging across recent pack releases. The library is both (a) a CC BY-SA 4.0 GRC corpus and (b) a reference implementation showing how to maintain such a corpus with AI assistance, where the audit toolchain under [`tools/`](tools/) and the operational pack under [`dev-security/claude-rules/`](dev-security/claude-rules/) are the operational layer. The reframe also explicitly names a third, emergent adoption mode: the pack is usable as a standalone Claude Code baseline on any project regardless of whether it has a GRC corpus, distilled from the disciplines this library required to maintain itself. No structural changes; prose-only across six framing surfaces.
