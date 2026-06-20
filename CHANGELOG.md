@@ -4,6 +4,26 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.88, PR #102
+
+Register-to-TODO alignment for [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md) §6 (Document-type capability gaps). The register-vs-TODO diff (per the maintainer's "complete everything that isn't yet logged in TODO" instruction) found three drift items in §6; all are resolved here by lightweight bookkeeping updates rather than substantive document creation.
+
+### Changed
+
+- [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md): version `1.1.9 -> 1.1.10`. Three §6 row updates: (1) `Decision-tree adopter navigator` was listed as `None / Planned / TODO P3.2 (Phase 21.8)`; the document was shipped as [`docs/decision-tree.md`](docs/decision-tree.md) but the register entry was never refreshed. Updated to `Substantive / In library / [link to docs/decision-tree.md]`. (2) `Regulator interaction templates` row updated to `Partial / Planned / TODO P4.4`. (3) `Audit evidence package templates` row updated to `Partial / Planned / TODO P4.5`.
+- [`TODO.md`](TODO.md): two new Priority 4 entries added. **4.4 Regulator interaction templates** (consolidated templates for breach notification, attestation submission, examination support, periodic report submission, regulatory inquiry response; surfaced from register §6). **4.5 Audit evidence package templates** (per-control evidence packaging template; surfaced from register §6). Both are content additions; the maintainer's roadmap will sequence them with the existing Priority 4 items.
+- [`README.md`](README.md): library version `2026.06.87 -> 2026.06.88`; README version `1.8.43 -> 1.8.44`.
+
+### Scope decision
+
+The maintainer chose the lightweight interpretation: log the deferred items in TODO and fix the stale register entry, without substantive document creation. The actual templates (regulator interaction, audit evidence packaging) are deferred to the maintainer's Priority 4 sequencing.
+
+### Verification
+
+All 44 audit gates pass standalone. Register entries cite the canonical source documents and TODO entries; no broken references.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.87, PR #101
 
 Refresh the `Cross-document numerical coherence shipped as scaffold` entry in [`TODO.md`](TODO.md)'s Decisions log. The prior text described the linter as tracking "0 terms" and the framework as "in place for future term curation"; that description is stale relative to the implementation. The scaffold has been progressively widened since the decision was logged: Phase 23.26 added P1/P2/P3 acknowledgement-time patterns as scaffolding, Phase 23.35 added the GDPR breach-notification-hours pattern after empirical confirmation. The current scaffold tracks four terms; the [`tools/lint-cross-doc-numbers.py`](tools/lint-cross-doc-numbers.py) docstring documents why each candidate (RTO, RPO, retention, P4, NIS 2, DORA) was considered and excluded with rationale.
