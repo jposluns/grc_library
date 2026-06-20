@@ -1,6 +1,6 @@
 ---
 name: skill-authoring-discipline
-description: When adding a new skill to the `dev-security/claude-rules/skills/` pack, apply the established structural template (frontmatter with derives_from, Overview, When-to-Use, Process, Red Flags, Verification, Common Rationalizations, See Also) and validate trigger accuracy with representative prompts. Catches structural drift across pack skills as the count grows past seven and the temptation to skip discipline rises with each subsequent addition.
+description: When adding a new skill to the `dev-security/claude-rules/skills/` pack, or when substantively revising an existing skill's structure or frontmatter, apply the pack's established eight-section structural template (YAML frontmatter with `derives_from`, Overview, When-to-Use, Process, Red Flags, Verification, Common Rationalizations, See Also) and validate trigger-accuracy with representative positive, negative, and boundary prompts. Catches structural drift across pack skills that accumulates silently as the pack grows: section compression, missing cross-references, missing rationalizations table, vague description wording. The mechanical gate 32 only verifies `derives_from` resolution; everything else relies on authorial discipline that this skill codifies.
 derives_from: ../../governance/evidence-grounded-completion.md
 ---
 
@@ -8,9 +8,9 @@ derives_from: ../../governance/evidence-grounded-completion.md
 
 ## Overview
 
-The pack now ships seven skills, each with the same structural template: YAML frontmatter pointing at a governance rule via `derives_from`; `## Overview` framing the failure mode; `## When to Use` triggers; `## Process` numbered steps; `## Red Flags` anti-patterns; `## Verification` exit criteria; `## Common Rationalizations` an internal-honesty table; `## See Also` cross-references. The pack's mechanical gate 32 (Skill derives-from reference audit) enforces only one of these structural properties (the `derives_from` field); the others rely on authorial discipline.
+Every pack skill ships with the same structural template: YAML frontmatter pointing at a governance rule via `derives_from`; `## Overview` framing the failure mode; `## When to Use` triggers; `## Process` numbered steps; `## Red Flags` anti-patterns; `## Verification` exit criteria; `## Common Rationalizations` an internal-honesty table; `## See Also` cross-references. The pack's mechanical gate 32 (Skill derives-from reference audit) enforces only one of these structural properties (the `derives_from` field); the others rely on authorial discipline.
 
-The failure mode this skill prevents is structural drift: as the pack grows past seven skills, each subsequent addition is at risk of compressing a section, skipping the Common Rationalizations table because "this one is obvious", or omitting the When-to-Use enumeration because "the description covers it". Drift accumulates silently; by skill twelve, the pack reads as a patchwork.
+The failure mode this skill prevents is structural drift: as the pack grows, each subsequent addition is at risk of compressing a section, skipping the Common Rationalizations table because "this one is obvious", or omitting the When-to-Use enumeration because "the description covers it". Drift accumulates silently; a few skills later, the pack reads as a patchwork.
 
 This skill is a checklist + a validation step. The checklist confirms structural template adherence; the validation step confirms the skill's frontmatter `description` triggers reliably on prompts that should invoke it and does not trigger on prompts that should not.
 
