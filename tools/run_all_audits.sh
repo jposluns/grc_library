@@ -132,6 +132,7 @@ run_gate "Linter regression test suite"                  python3 tools/run-linte
 # in-sync gates.
 # ----------------------------------------------------------------------
 run_gate "Claude-rules local-copy sync audit"            python3 tools/lint-claude-rules-sync.py
+run_gate "Section placement audit"                       python3 tools/lint-section-placement.py
 
 # ----------------------------------------------------------------------
 # Summary
