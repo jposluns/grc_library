@@ -2,7 +2,7 @@
 
 **Document Title:** Compliance Domain README\
 **Document Type:** Register\
-**Version:** 1.4.1\
+**Version:** 1.4.2\
 **Date:** 2026-06-20\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
