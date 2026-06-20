@@ -4,6 +4,29 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.79, PR #93
+
+Validation-sweep enhancement, fifth of seven from the late-research-findings queue. Adds Rule 5.5 to the synthesis rubric: single-round asymmetric debate for high-divergence disagreement between subagents. First of the "medium" tier (after the smaller-scope patterns 1-4).
+
+Research basis: Du et al. multi-agent debate (arXiv:2305.14325, 2 rounds + 3 agents captures most lift); Liang et al. MAD asymmetric "affirmative + negative + judge" debate (arXiv:2305.19118); "Debate or Vote" budget-aligned comparison (arXiv:2508.17536, debate 87.91% vs vote 86.69% vs single 85.68%); MAD survey on round-3+ accuracy degradation (arXiv:2506.00066); AutoGen GroupChat patterns. Recreated as CC BY-SA 4.0 in-house prose.
+
+### Scope decision
+
+The research recommended narrow trigger and minimal protocol. This PR's Rule 5.5 fires only on (a) severity divergence wider than one level (`must-fix-before-merge` vs `track-as-follow-up`) or (b) real-vs-false-positive disagreement on the same dedupe-key. Adjacent severity disagreements (e.g. `should-fix-this-PR` vs `track-as-follow-up`) keep the existing Rule 5.3 "pick higher, record raw" protocol; the accuracy lift from debate does not justify the cost on adjacent cases. Single round only (Du et al. + the MAD survey both show diminishing returns after round 2; round 3+ can degrade accuracy). Parent as judge (no third "judge" subagent needed for a label-pick task).
+
+### Changed
+
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): new Rule 5.5 inserted in the synthesis rubric: "debate when divergence is large, not when adjacent". Trigger conditions, one-round protocol (each disagreeing subagent sees the other's claim + reasoning, updates or holds with rebuttal), parent adjudication, persisted-disagreement flagging (`debated: divergence-persisted` on the synthesised row). Rule 5.3 unchanged; it still handles adjacent disagreements.
+- [`.claude/commands/validation-sweep.md`](.claude/commands/validation-sweep.md): step 5 expanded from four-rule to five-rule rubric summary.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.26.9 -> 1.26.10`.
+- [`README.md`](README.md): library version `2026.06.78 -> 2026.06.79`; README version `1.8.34 -> 1.8.35`.
+
+### Verification
+
+Full audit programme passes standalone, all 42 corpus gates pass. The rubric is workflow prose; no new mechanical gate added. Rule 5.5 fires rarely (Sweeps 1-7 surfaced zero >1-level divergences; the rule is precision-tuned to avoid invoking debate on routine adjacent disagreements). When it does fire, the cost is one extra subagent round-trip per disagreeing finding.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.78, PR #92
 
 Sweep 7 register entry. First sweep to formally apply the convergence-delta termination conditions introduced in PR #91; the empty-delta primary stop fired cleanly (Sweep 7 finding-set empty AND identical to Sweep 6's empty set by dedupe-key equality). Three consecutive zero-finding sweeps is a strong fixed-point signal; the discipline is genuinely converging for the current corpus.
