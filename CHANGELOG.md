@@ -4,6 +4,25 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.74, PR #88
+
+Validation-sweep enhancement, second of seven from the late-research-findings queue. Adds a pre-tool verification preamble to the subagent fan-out discipline in step 4 of the validation-sweep skill. Closes the gap where subagents could make redundant or misdirected tool calls without an auditable justification trace.
+
+Research basis: POPPER (Stanford/Harvard 2025) falsification-experiment design pattern; AnyTool (arXiv 2402.04253) self-reflection-before-call gate; AgentDiet (arXiv 2509.23586) trajectory-reduction dedup; LangGraph pre-hook validation node pattern; Claude Code community "triage-before-action" skill family. Recreated as in-house CC BY-SA 4.0 prose rather than imported.
+
+### Changed
+
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): step 4 expanded with a new "Pre-tool verification discipline" paragraph. Each subagent brief now carries a falsification-preamble rule: before each tool call, the subagent states (a) the hypothesis the call tests, (b) the observation that would falsify it, and (c) one prior tool result that does not already answer the question. Undefined falsifier means the call is corroboration-seeking (skip or reframe); duplicate-of-prior-result means do not re-call (cite prior result in finding). The rule composes Popper-style falsification with AnyTool's redundancy gate and AgentDiet's dedup check; it produces an auditable justification trace and filters corroboration-only calls at the source.
+- [`.claude/commands/validation-sweep.md`](.claude/commands/validation-sweep.md): step 4 brief expanded to reference the pre-tool verification preamble (one-sentence summary; the SKILL holds the full text).
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.26.7 -> 1.26.8`.
+- [`README.md`](README.md): library version `2026.06.73 -> 2026.06.74`; README version `1.8.29 -> 1.8.30`.
+
+### Verification
+
+Full audit programme passes standalone, all 42 corpus gates pass. The discipline is workflow prose; no new mechanical gate is added. The next sweep (Sweep 6, triggered by the third PR after Sweep 5: this PR is the third) will be the first to apply the preamble.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.73, PR #87
 
 Sweep 5 entry appended to the validation-sweep history register. Sweep 5 was a thin sweep (only Subagent A dispatched; B and C skipped because the closure-PRs since Sweep 4 did not change corpus-wide state or audit-programme integrity). Zero findings. The maintainer's post-sweep observation that the same false positives have surfaced on every sweep since Sweep 3 was actioned in PR #86 (scanner heuristics plus exemption file).
