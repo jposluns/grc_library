@@ -14,7 +14,7 @@
 # Rationale (see TODO.md Decisions log, Phase 23.30): phase-completion
 # gating requires the full audit sweep to pass locally before any push.
 # This script provides a single deterministic invocation for that sweep.
-# The current sweep is 37 gates; see governance/specification-audit-programme.md
+# The current sweep is 38 gates; see governance/specification-audit-programme.md
 # section 6 for the canonical inventory.
 #
 # Keep this list in lock-step with .github/workflows/quality.yml. If a new
