@@ -4,6 +4,23 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.87, PR #101
+
+Refresh the `Cross-document numerical coherence shipped as scaffold` entry in [`TODO.md`](TODO.md)'s Decisions log. The prior text described the linter as tracking "0 terms" and the framework as "in place for future term curation"; that description is stale relative to the implementation. The scaffold has been progressively widened since the decision was logged: Phase 23.26 added P1/P2/P3 acknowledgement-time patterns as scaffolding, Phase 23.35 added the GDPR breach-notification-hours pattern after empirical confirmation. The current scaffold tracks four terms; the [`tools/lint-cross-doc-numbers.py`](tools/lint-cross-doc-numbers.py) docstring documents why each candidate (RTO, RPO, retention, P4, NIS 2, DORA) was considered and excluded with rationale.
+
+This is a documentation refresh, no behavioural change. The actionable claim a previous status summary made about "open authorial decisions" overstated the residual; investigation confirmed the term-curation decision space is substantively closed. The TODO entry now reflects current state so a future reader does not infer an actionable backlog item that does not exist.
+
+### Changed
+
+- [`TODO.md`](TODO.md): Decisions log entry refreshed; framework progression described; pointer to the `TERM_PATTERNS` dict in [`tools/lint-cross-doc-numbers.py`](tools/lint-cross-doc-numbers.py) for the live set.
+- [`README.md`](README.md): library version `2026.06.86 -> 2026.06.87`; README version `1.8.42 -> 1.8.43`.
+
+### Verification
+
+All 44 audit gates pass standalone. No code change to the linter; the only edit is prose in [`TODO.md`](TODO.md). The CHANGELOG entry is required by the D1 delta gate even for documentation-only changes that touch corpus content.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.86, PR #100
 
 **Closes the three-item queued-session backlog**: new audit gate 44 (paired-skill step-parity audit), third and last of the items announced in the maintainer's status summary (after PR #98 PF-04 stale-version-literal scanner extension and PR #99 gate 43 follow-up ageing audit). Mechanises the cross-document term-and-identifier consistency check the validation-sweep history register flagged as a recurring gap.
