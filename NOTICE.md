@@ -2,7 +2,7 @@
 
 **Document Title:** Notice: External Reference Materials and Licence Boundaries\
 **Document Type:** Policy\
-**Version:** 1.4.0\
+**Version:** 1.4.1\
 **Date:** 2026-06-19\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -115,7 +115,7 @@ Roles must be generic, such as Chief Information Officer, Chief Information Secu
 
 Adopters using the library may choose to incorporate external content (rule sets, frameworks, tools) from other sources into their own projects on top of the library. When they do so, they are responsible for verifying that the external content's licence is compatible with their use, and for complying with any attribution, share-alike, non-commercial, or no-derivatives restrictions those external sources impose. The library's CC BY-SA 4.0 covers the library content only; it does not relicense anything an adopter brings in from elsewhere.
 
-The setup generator at [`dev-security/claude-rules/setup-generator-prompt.md`](dev-security/claude-rules/setup-generator-prompt.md) surfaces the licence of each external rule source it offers (TikiTribe, Wiz, Kariedo) so the adopter can make an informed decision.
+The setup generator at [`dev-security/claude-rules/setup-generator-prompt.md`](dev-security/claude-rules/setup-generator-prompt.md) surfaces the licence of each external rule source it offers (TikiTribe, Kariedo, addyosmani, Wiz) so the adopter can make an informed decision.
 
 This distinction matters because the [`dev-security/claude-rules/`](dev-security/claude-rules/) pack's *own* contents (the rule files, the Claude Code Skills, the pack README, the setup generator) are library-original under CC BY-SA 4.0, separate from any third-party rule sources the pack's external overlay can fetch. An adopter using the pack as a standalone Claude Code baseline inherits CC BY-SA 4.0 for the pack content itself; the licences of any external rule sources the adopter chooses to layer on top are governed by those sources' own licences.
 

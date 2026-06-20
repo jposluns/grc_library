@@ -1,7 +1,7 @@
 # Maintainer vetting log: external rule sources
 
 **Document Type:** Maintainer log\
-**Version:** 1.3.0\
+**Version:** 1.3.1\
 **Date:** 2026-06-19\
 **Owner:** Governance Library Maintainer\
 **Repository Path:** [`dev-security/claude-rules/vetting-log.md`](vetting-log.md)\
@@ -251,7 +251,7 @@ A separate WebFetch review of `prompt.md` flagged four items: an opening "You ar
 
 The setup generator's optional external-source overlay step ([`setup-generator-prompt.md`](setup-generator-prompt.md) Phase 2) reads the status fields above and surfaces them to the consumer at the offer step. A consumer running the generator in their own Claude Code session sees:
 
-- For sources marked `Vetted` (currently: Kariedo, TikiTribe, Wiz): "Library maintainer has applied EXT-01 vetting to this source as of `<vet date>`. The consumer is still expected to verify the fetched content matches the maintainer's record (the SHA-256 provenance header in each placed file enables this) and to apply their own EXT-01 review. Any substantive observations (such as licensing caveats) are recorded in the source's vetting-log section and should be surfaced to the consumer at the offer step."
+- For sources marked `Vetted` (currently: Kariedo, TikiTribe, addyosmani, Wiz): "Library maintainer has applied EXT-01 vetting to this source as of `<vet date>`. The consumer is still expected to verify the fetched content matches the maintainer's record (the SHA-256 provenance header in each placed file enables this) and to apply their own EXT-01 review. Any substantive observations (such as licensing caveats) are recorded in the source's vetting-log section and should be surfaced to the consumer at the offer step."
 - `Vetted with caveats` is not currently in use for any source. Reserved for future sources where the maintainer has performed only an informal review.
 - For sources marked `Not yet vetted`: "Library maintainer has not vetted this source. Consumer assumes full EXT-01 responsibility per fetch."
 - For sources marked `Withdrawn`: "Source has been removed from the library's reference list; do not include."
