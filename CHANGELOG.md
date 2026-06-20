@@ -4,6 +4,21 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.71, PR #85
+
+Closes the Sweep 4 out-of-window classification-convention follow-up. The maintainer's decision (asked-and-answered, option "both, with primary tag"): a finding may carry more than one failure-mode class; one is tagged primary (the dominant mechanism) and one or more may be tagged secondary (the symptom shape). Historical entries from Sweeps 1-3 are not retro-applied; the convention applies from Sweep 5 onwards.
+
+### Changed
+
+- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): version `1.2.0 -> 1.3.0`; new "Classification convention: primary plus optional secondary" subsection added under the failure-mode-classes table, documenting the four-rule convention. Recurring-class summary table re-labelled to show primary-class counts as the main signal; secondary-class participation footnote added (empty until Sweep 5 populates it). "Classification-convention follow-up" row removed from the recurring-class table because the convention is now documented; the Sweep 4 entry's follow-up note is preserved as historical record of how the question reached the maintainer.
+- [`README.md`](README.md): library version `2026.06.70 -> 2026.06.71`; README version `1.8.26 -> 1.8.27`.
+
+### Verification
+
+Full audit programme passes standalone, all 42 corpus gates pass. The classification convention is now documented in the register; sweep entries from this PR forward can use the `primary [+ secondary]` shape.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.70, PR #84
 
 Sweep 4 entry appended to the validation-sweep history register. The sweep ran after PR #82 merged (the third PR since Sweep 3, per the maintainer's standing cadence rule) and surfaced one in-window finding (C1 stale-prose, pack-version literal in the adopter guide) actioned in PR #83, plus one out-of-window classification-convention follow-up (C1-vs-C3 classification rule not documented in the failure-mode-classes table). The classification-convention question is being surfaced separately to the maintainer for a decision.
