@@ -4,6 +4,29 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.80, PR #94
+
+Validation-sweep enhancement, sixth of seven from the late-research-findings queue. Adds the SARIF-lite output format to step 4 of the SKILL: each subagent finding is a fenced markdown block with six labelled lines (tool / ruleId / level / location / fingerprint / rubric) plus an evidence paragraph. Closes the "medium" tier of the queue (after Rule 5.5 multi-agent debate in PR #93); only the "largest" tier (hold-the-line ratcheting baselines) remains.
+
+Research basis: SARIF v2.1.0 specification minimum-viable result structure (required field is only `message`, but `ruleId` + `level` + `locations[].physicalLocation` are the de-facto minimum); Microsoft SARIF tutorials canonical example; GitHub Code Scanning surfaced field set; Semgrep `partialFingerprints.primaryLocationLineHash` shape; parsiya.net "AI-Native SARIF" extension pattern using `properties` bag for AI-specific metadata. Recreated as CC BY-SA 4.0 in-house prose, no SARIF parser added.
+
+### Scope decision
+
+The research explicitly recommended "no parser" — the value is in the field shape, not wire-format compliance. The block format is markdown-friendly, grep-able, and uniform across subagents; the parent does dedupe via string-match on the deterministic fingerprint rather than semantic comparison.
+
+### Changed
+
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): step 4 expanded with the "SARIF-lite output format" subsection. Six-line block per finding, three rules (one block per finding, deterministic fingerprint, closed severity enum), anti-rubric warnings against JSON-in-prose, full-SARIF-envelope, and multiple fingerprint algorithms.
+- [`.claude/commands/validation-sweep.md`](.claude/commands/validation-sweep.md): step 4 brief expanded to reference the SARIF-lite block format and the fingerprint scheme.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.26.10 -> 1.26.11`.
+- [`README.md`](README.md): library version `2026.06.79 -> 2026.06.80`; README version `1.8.35 -> 1.8.36`.
+
+### Verification
+
+Full audit programme passes standalone, all 42 corpus gates pass. The format is workflow prose; no new mechanical gate added. The next sweep with non-zero findings will be the first to exercise the SARIF-lite shape end-to-end.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.79, PR #93
 
 Validation-sweep enhancement, fifth of seven from the late-research-findings queue. Adds Rule 5.5 to the synthesis rubric: single-round asymmetric debate for high-divergence disagreement between subagents. First of the "medium" tier (after the smaller-scope patterns 1-4).
