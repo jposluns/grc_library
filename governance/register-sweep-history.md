@@ -2,7 +2,7 @@
 
 **Document Title:** Validation Sweep History Register\
 **Document Type:** Register\
-**Version:** 1.5.0\
+**Version:** 1.6.0\
 **Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -158,6 +158,18 @@ Other classes (C2, C4, C5, C6, C7, C8): zero primary-class findings in the four 
 - Each entry includes the trigger reason, state, finding counts per class, and the resulting PR (if any).
 - A finding dismissed as not-a-real-finding is recorded in the false-positive memory section with the maintainer's rationale, so a future sweep does not re-litigate.
 - The recurring-class summary table is updated cumulatively. When a class accumulates enough findings to suggest a new mechanical gate, the maintainer can use the table as priority signal.
+
+### Dating discipline for deferred findings
+
+Findings the maintainer defers (out-of-window, track-as-follow-up, or otherwise not actioned in the surfacing PR) accumulate ageing risk: without a date stamp, a 6-month-old follow-up is indistinguishable from a 6-day-old one, and the operator loses the prioritisation signal Wikipedia editors get from `{{citation needed|date=June 2024}}`-style maintenance tags. The convention:
+
+- **`surfaced: YYYY-MM-DD` on every deferred finding entry.** ISO 8601, sortable lexicographically. The date is when the sweep first surfaced the finding, not when the maintainer noticed. Missing field is a documentation defect.
+- **`re-triage-by: YYYY-MM-DD` is optional and defaults to `surfaced + 30 days`.** Mirrors the GitHub `actions/stale` 30-day default and the project's existing exception-register default in `dev-security/claude-rules/governance/change-tracking.md`. When the deadline passes, the maintainer either re-triages (record a `re-triaged: YYYY-MM-DD` line on the entry), closes the follow-up, or extends `re-triage-by` with a one-line rationale.
+- **A future `lint-followup-ageing.py` gate is queued** to fail the build when `today() > re-triage-by` and the entry has no fresh `re-triaged:` trailer. Not implemented this PR; the convention ships now (low scope), the gate is queued as an "extending the framework" task.
+
+Sources: Wikipedia `{{citation needed|date=...}}` maintenance-template convention; GitHub `actions/stale` 30-day default; Self-Admitted Technical Debt (SATD) issue-tracker dating (Bavota and Russo, arXiv:2007.01568); ISO 8601 audit-trail encoding. Recreated as CC BY-SA 4.0 prose; no external rule files imported.
+
+Existing deferred findings in this register (e.g. the Sweep 3 follow-up on cross-document term-and-identifier consistency, the Sweep 4 classification-convention follow-up) were surfaced before this convention existed; they are not retro-stamped. The convention applies to findings deferred from Sweep 7 onwards.
 
 ## Framework alignment
 
