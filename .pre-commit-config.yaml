@@ -288,3 +288,10 @@ repos:
         language: system
         pass_filenames: false
         types_or: [markdown, python, shell]
+
+      - id: lint-version-bump-recency
+        name: Corpus version-bump-recency audit
+        entry: python3 tools/lint-version-bump-recency.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
