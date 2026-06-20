@@ -71,7 +71,11 @@ WORKFLOW_SETUP_STEPS = {"Checkout", "Set up Python"}
 # of the 42-gate corpus inventory in §6 and therefore are excluded from
 # the parity audit. Delta gates run only on pull_request events and
 # inspect the PR's change set rather than the repository state at HEAD.
-WORKFLOW_DELTA_GATE_STEPS = {"CHANGELOG-on-PR check", "Per-PR version-bump check"}
+WORKFLOW_DELTA_GATE_STEPS = {
+    "CHANGELOG-on-PR check",
+    "Per-PR version-bump check",
+    "Detect collection candidates on pack PRs (informational)",
+}
 
 # Pre-commit hooks that are setup or regeneration steps, not audit
 # gates. These are excluded from the pre-commit-to-spec parity check.
