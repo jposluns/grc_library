@@ -4,6 +4,25 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.68, PR #82
+
+Validation-sweep enhancement, first of seven from the late-research-findings queue. Adds a deterministic four-rule synthesis rubric to step 5 of the validation-sweep skill. Closes the prior gap where the parent's synthesis after subagent fan-out was ad-hoc and unreproducible across sweeps.
+
+Research basis: SARIF v2.1.0 fingerprint-based dedupe pattern; Google `eng-practices` severity-label discipline; Cochrane / GRADE two-raters-plus-adjudicator from systematic-review methodology; Cohen's-kappa-paradox literature on why N=3 inter-rater statistics are uninterpretable. Recreated in-house as CC BY-SA 4.0 rubric prose rather than imported from external skill packs.
+
+### Changed
+
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): step 5 expanded with four explicit rubric rules: (5.1) dedupe by `(file_path, normalised_section, claim_type)` rather than by line number; (5.2) evidence tag `R` / `I` / `K` per finding (read-verified, inferred-promote-by-reading, already-known-drop); (5.3) three-level severity scale `must-fix-before-merge | should-fix-this-PR | track-as-follow-up` adjudicated by the parent, never averaged across subagents; (5.4) record subagent provenance per row. Anti-rubric prose explicitly forbids inter-rater kappa, severity averaging, and mandatory consensus across non-overlapping subagent briefs.
+- [`.claude/commands/validation-sweep.md`](.claude/commands/validation-sweep.md): step 5 brief expanded to reference the four-rule rubric (the slash-command file mirrors the SKILL).
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.26.5 -> 1.26.6`.
+- [`README.md`](README.md): library version `2026.06.67 -> 2026.06.68`; README version `1.8.23 -> 1.8.24`.
+
+### Verification
+
+Full audit programme passes standalone, all 42 corpus gates pass. The rubric is workflow prose; no new mechanical gate is added, no audit-programme inventory entry changed.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.67, PR #81
 
 Sweep 3 entry appended to the validation-sweep history register. The sweep ran after PR #79 merged (third PR in the validation-sweep enhancement batch) and surfaced one in-window C3 (multi-surface-incomplete) finding which PR #80 actioned. Recurring-class summary table updated; C3 is now at 6 cumulative findings across 3 sweeps and remains the dominant failure class.
