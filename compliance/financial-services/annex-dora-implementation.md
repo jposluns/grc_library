@@ -2,7 +2,7 @@
 
 **Document Title:** DORA Implementation Annex\
 **Document Type:** Annex\
-**Version:** 0.0.4\
+**Version:** 0.0.5\
 **Date:** 2026-06-20\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\

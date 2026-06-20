@@ -2,7 +2,7 @@
 
 **Document Title:** US CTPAT IT and Cybersecurity Compliance Controls Register\
 **Document Type:** Register\
-**Version:** 1.0.3\
+**Version:** 1.0.4\
 **Date:** 2026-06-20\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\

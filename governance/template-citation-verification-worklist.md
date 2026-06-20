@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Worklist Template\
 **Document Type:** Template\
-**Version:** 1.0.1\
+**Version:** 1.0.2\
 **Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\

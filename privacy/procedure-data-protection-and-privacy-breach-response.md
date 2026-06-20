@@ -2,7 +2,7 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.2\
+**Version:** 1.4.3\
 **Date:** 2026-06-20\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\

@@ -2,7 +2,7 @@
 
 **Document Title:** US CTPAT Full Minimum Security Criteria Controls Register\
 **Document Type:** Register\
-**Version:** 1.0.3\
+**Version:** 1.0.4\
 **Date:** 2026-06-20\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
