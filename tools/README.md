@@ -4,7 +4,7 @@ This directory contains repository quality tooling. The scripts are intentionall
 
 ## Scripts
 
-The library's audit programme consists of **41 gates** (linters, build-and-check generators, and the linter regression test suite). The canonical inventory of every gate, with its name, script, and category, is maintained in [`governance/specification-audit-programme.md`](../governance/specification-audit-programme.md) §6. Gate 31 (gate-name parity audit) enforces that the §6 inventory, the CI workflow, the local runner, and the pre-commit config declare identical gates with identical names; the inventory is the single source of truth.
+The library's audit programme consists of **42 gates** (linters, build-and-check generators, and the linter regression test suite). The canonical inventory of every gate, with its name, script, and category, is maintained in [`governance/specification-audit-programme.md`](../governance/specification-audit-programme.md) §6. Gate 31 (gate-name parity audit) enforces that the §6 inventory, the CI workflow, the local runner, and the pre-commit config declare identical gates with identical names; the inventory is the single source of truth.
 
 To see the current gate set in one place, run [`tools/run_all_audits.sh`](run_all_audits.sh) or read the §6 table.
 
@@ -18,7 +18,7 @@ Run the full audit programme from the repository root:
 bash tools/run_all_audits.sh
 ```
 
-This runs all 41 gates in the order defined in [`governance/specification-audit-programme.md`](../governance/specification-audit-programme.md) §6 and aggregates results. Use `FAIL_FAST=1 bash tools/run_all_audits.sh` to stop on first failure.
+This runs all 42 gates in the order defined in [`governance/specification-audit-programme.md`](../governance/specification-audit-programme.md) §6 and aggregates results. Use `FAIL_FAST=1 bash tools/run_all_audits.sh` to stop on first failure.
 
 Individual scripts also run standalone:
 
@@ -41,14 +41,14 @@ The portal generator depends on the taxonomy; always regenerate the taxonomy fir
 
 ## Pre-commit integration
 
-[`.pre-commit-config.yaml`](../.pre-commit-config.yaml) at the repository root wires all 41 gates as local hooks. Install once:
+[`.pre-commit-config.yaml`](../.pre-commit-config.yaml) at the repository root wires all 42 gates as local hooks. Install once:
 
 ```
 pip install pre-commit
 pre-commit install
 ```
 
-Subsequent commits run the full 41-gate audit programme before the commit is finalised. Run on demand against the entire corpus:
+Subsequent commits run the full 42-gate audit programme before the commit is finalised. Run on demand against the entire corpus:
 
 ```
 pre-commit run --all-files
@@ -56,7 +56,7 @@ pre-commit run --all-files
 
 ## Continuous integration
 
-[`.github/workflows/quality.yml`](../.github/workflows/quality.yml) runs the same 41 gates on every push to `main` and on every pull request. The CI environment uses Python 3.11 from `actions/setup-python`. No third-party dependencies are installed.
+[`.github/workflows/quality.yml`](../.github/workflows/quality.yml) runs the same 42 gates on every push to `main` and on every pull request. The CI environment uses Python 3.11 from `actions/setup-python`. No third-party dependencies are installed.
 
 ## Exemptions
 

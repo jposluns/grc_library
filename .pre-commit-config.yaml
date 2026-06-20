@@ -309,3 +309,10 @@ repos:
         language: system
         pass_filenames: false
         types: [markdown]
+
+      - id: lint-external-overlay-license
+        name: External-overlay license consistency audit
+        entry: python3 tools/lint-external-overlay-license.py
+        language: system
+        pass_filenames: false
+        types: [markdown]

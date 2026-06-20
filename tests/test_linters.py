@@ -755,6 +755,20 @@ class VersionBumpRecencyTests(LinterTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
 
+class ExternalOverlayLicenseTests(LinterTestCase):
+    """tools/lint-external-overlay-license.py"""
+
+    def test_runs_clean_on_corpus_at_head(self) -> None:
+        # Smoke test: external overlay licence consistency holds at HEAD.
+        result = run_linter("tools/lint-external-overlay-license.py")
+        self.assertEqual(
+            result.returncode, 0,
+            f"linter exited {result.returncode} on HEAD; "
+            f"external overlay licence consistency should hold.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+
 class CollectionEnumerationConsistencyTests(LinterTestCase):
     """tools/lint-collection-enumeration-consistency.py"""
 
