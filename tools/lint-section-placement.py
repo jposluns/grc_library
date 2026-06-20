@@ -178,7 +178,7 @@ def normalise_heading(heading: str) -> str:
     """Return the heading lower-cased with leading numbering stripped.
 
     Strips patterns like ``1. ``, ``1.2 ``, ``Section 4: ``, and common
-    trailing whitespace so prefix matching works against the human-facing
+    trailing whitespace so exact matching works against the human-facing
     section name, not the formatting markers.
     """
     cleaned = re.sub(r"^\d+(\.\d+)*[.\s:]*", "", heading)
