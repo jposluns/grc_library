@@ -160,10 +160,17 @@ pack, CC BY-SA 4.0):
   `docs/maturity-scorecard.md`) and on direct pushes to `main`; binds the
   version-monotonicity audit to
   branch protection as its primary defence.
+- `.claude/rules/governance/action-before-explanation-of-inaction.md` — never explain
+  why an external action cannot or will not proceed without first attempting it (when
+  the action is safe and reversible) or naming it and asking (when it is destructive).
+  Pack-distributable form of the user-level Rule 8 (added 2026-06-19);
+  operationalises this project's `## PR workflow` discipline (the merge of a green PR
+  via MCP is a safe action and should be attempted, not narrated as "blocked").
 
 The `dev-security/claude-rules/` pack covers security and development-governance
-discipline. The planned governance rollout completed at pack version 1.11.0
-(2026-06-01) with the five `governance/` rules listed above; see
+discipline. The initial governance rollout completed at pack version 1.11.0
+(2026-06-01) with the first five `governance/` rules listed above; pack version
+1.21.0 (Library 2026.06.38) extended the set with the sixth rule above. See
 `dev-security/claude-rules/README.md` for the authoritative pack version history
 and future-work signalling. Pack changes are tracked through the library's
 CHANGELOG and per-rule version metadata.
