@@ -4,7 +4,7 @@ This directory contains repository quality tooling. The scripts are intentionall
 
 ## Scripts
 
-The library's audit programme consists of **42 gates** (linters, build-and-check generators, and the linter regression test suite). The canonical inventory of every gate, with its name, script, and category, is maintained in [`governance/specification-audit-programme.md`](../governance/specification-audit-programme.md) §6. Gate 31 (gate-name parity audit) enforces that the §6 inventory, the CI workflow, the local runner, and the pre-commit config declare identical gates with identical names; the inventory is the single source of truth.
+The library's audit programme consists of **44 gates** (linters, build-and-check generators, and the linter regression test suite). The canonical inventory of every gate, with its name, script, and category, is maintained in [`governance/specification-audit-programme.md`](../governance/specification-audit-programme.md) §6. Gate 35 (gate-name parity audit) enforces that the §6 inventory, the CI workflow, the local runner, and the pre-commit config declare identical gates with identical names; the inventory is the single source of truth.
 
 To see the current gate set in one place, run [`tools/run_all_audits.sh`](run_all_audits.sh) or read the §6 table.
 
@@ -56,7 +56,7 @@ pre-commit run --all-files
 
 ## Continuous integration
 
-[`.github/workflows/quality.yml`](../.github/workflows/quality.yml) runs the same 42 gates on every push to `main` and on every pull request. The CI environment uses Python 3.11 from `actions/setup-python`. No third-party dependencies are installed.
+[`.github/workflows/quality.yml`](../.github/workflows/quality.yml) runs the same 44 gates on every push to `main` and on every pull request. The CI environment uses Python 3.11 from `actions/setup-python`. No third-party dependencies are installed.
 
 ## Exemptions
 
