@@ -62,8 +62,16 @@ EXEMPT_PREFIXES: tuple[str, ...] = (
     "__pycache__/",
 )
 
+# Match a metadata-block Version line. The pattern requires the line
+# to be one of the first 30 lines of the file (the metadata block) so
+# that documentation prose elsewhere demonstrating the metadata format
+# (e.g. ``**Version:** <x.y.z: ...>`` in a README's "How to add a
+# document" section) does not match. The 30-line cap is generous;
+# metadata blocks in this corpus are typically 13 fields plus a leading
+# title and blank line, well under 30 lines.
+METADATA_HEAD_LINES = 30
 VERSION_LINE_PATTERN = re.compile(
-    r"^\s*\*\*Version:\*\*\s+(\S.*?)\s*\\?\s*$",
+    r"^\s*\*\*(?:Library )?Version:\*\*\s+(\S.*?)\s*\\?\s*$",
     re.MULTILINE,
 )
 
@@ -86,10 +94,16 @@ def git_show(ref: str, path: str) -> str | None:
 
 
 def extract_version(text: str | None) -> str | None:
-    """Return the Version: field value from text, or ``None`` if absent."""
+    """Return the metadata-block Version: (or Library Version:) field
+    value from text, or ``None`` if the file has no metadata-block
+    version. The match is restricted to the first ``METADATA_HEAD_LINES``
+    lines so documentation prose elsewhere in the file demonstrating
+    the metadata format does not match.
+    """
     if text is None:
         return None
-    match = VERSION_LINE_PATTERN.search(text)
+    head = "\n".join(text.splitlines()[:METADATA_HEAD_LINES])
+    match = VERSION_LINE_PATTERN.search(head)
     if match is None:
         return None
     return match.group(1).strip()
