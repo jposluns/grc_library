@@ -2,7 +2,7 @@
 """Verify a pull request modifies CHANGELOG.md or carries a Changelog: opt-out trailer.
 
 This is a CI-only delta gate, not part of the 39-gate corpus audit programme. The
-32 corpus gates check repository state at HEAD; this script compares HEAD to the
+39 corpus gates check repository state at HEAD; this script compares HEAD to the
 PR's merge-base and asserts the diff includes CHANGELOG.md, unless any commit in
 the PR range carries a `Changelog: <one-line-reason>` trailer in its message body.
 
