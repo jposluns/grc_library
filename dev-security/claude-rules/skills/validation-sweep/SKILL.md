@@ -35,13 +35,13 @@ If the audit reports failures, the sweep cannot proceed semantically until the m
 
 ### 2. Enumerate recent changes
 
-Identify the scope of recently-touched files:
+Identify the scope of recently-touched files. The focus window is **the past two calendar days**: wide enough to span overnight handoffs, weekend work, and post-meeting reviews; narrow enough that the in-window set stays reviewable.
 
-- `git log --since="24 hours ago" --name-only --pretty=format:""` : files touched in the recent window.
+- `git log --since="2 days ago" --name-only --pretty=format:""` : files touched in the focus window.
 - `git status --short` : files in the current working tree.
 - `git log --name-only -10` : files touched in the last ten commits, as additional context.
 
-These files are the highest-priority targets for the semantic sweep.
+These files are the highest-priority targets for the semantic sweep. Findings on files outside the focus window (i.e. on pre-existing issues the sweep surfaces incidentally) are still reportable and ARE handled by step 6, not silently discarded.
 
 ### 3. Identify failure-mode classes in scope
 
@@ -79,9 +79,15 @@ Deduplicate findings across the subagents. For each finding, record: file path +
 
 ### 6. Triage
 
-For each High and Medium finding, propose a concrete fix. For Low / FYI findings, document but do not act unless requested. Surface the proposed fix scope to the operator if any of the following is true: the fix touches a public API or branch-protected artefact; the fix involves an authorial judgement (which option, which scope); the fix spans more than five files.
+Triage depends on whether the finding is **in the focus window** (the past two calendar days, per step 2) or **outside the focus window** (a pre-existing issue surfaced incidentally).
 
-Otherwise, if the operator has pre-authorised the fix scope, proceed.
+**For findings IN the focus window:**
+
+For each High and Medium finding, propose a concrete fix. For Low / FYI findings, document but do not act unless requested. Surface the proposed fix scope to the operator if any of the following is true: the fix touches a public API or branch-protected artefact; the fix involves an authorial judgement (which option, which scope); the fix spans more than five files. Otherwise, if the operator has pre-authorised the fix scope, proceed.
+
+**For findings OUTSIDE the focus window:**
+
+Surface each finding to the operator with named action options (action now, defer to a tracked follow-up, dismiss as not-a-real-finding). Do not auto-defer an out-of-window finding to "Low / FYI" status; the operator's per-finding decision is the point. The default action is "ask, then do what the operator says"; the failure mode this guards against is silent triage of pre-existing issues that the sweep is well-placed to surface but no longer-running ticket exists to track. The cost of asking is small; the cost of the operator not knowing the sweep saw the finding is larger.
 
 ### 7. Apply fixes, re-baseline, repeat
 
