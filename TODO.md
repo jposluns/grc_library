@@ -10,7 +10,7 @@ This file is informational and is not subject to the library's metadata-block, a
 
 ### 4.1 Quickstart templates per adopter profile
 
-Shipped 2026-06-20 as [`docs/template-quickstart-by-profile.md`](docs/template-quickstart-by-profile.md). Single consolidated template covering all six profiles (small business, mid-market regulated industry, multi-national enterprise, public-sector adopter, healthcare adopter, financial-services adopter).
+Shipped 2026-06-20 as [`docs/template-quickstart-by-profile.md`](docs/template-quickstart-by-profile.md) (v2.0.0). Core baseline plus five stacking dimensions (Activity, Data scope, Audience, Regulatory exposure, GRC capacity) with about twenty modules; three worked examples. The original v1.0.0 fixed-profile structure (PR #103) was rejected by the maintainer as too rigid; the rewrite (PR #105) adopts an activity-modular composition shape that lets adopters combine modules à la carte.
 
 ### 4.2 Maturity assessment interactive template
 
