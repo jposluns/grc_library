@@ -1,12 +1,12 @@
-# Adopter Quickstart Template by Profile
+# Adopter Quickstart Template
 
-**Document Title:** Adopter Quickstart Template by Profile\
+**Document Title:** Adopter Quickstart Template\
 **Document Type:** Template\
-**Version:** 1.0.0\
+**Version:** 2.0.0\
 **Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
+**Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`docs/template-maturity-self-assessment.md`](template-maturity-self-assessment.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
 **Classification:** Public\
 **Category:** Adopter Experience\
 **Review Frequency:** Annual, and on material change to the library's domain structure or sector-conditional content\
@@ -18,315 +18,287 @@
 
 ## Purpose
 
-This template provides a pre-configured starter set per common adopter profile. Each profile section names the library domains to copy first, the sector-conditional folders to include, the jurisdictions to start with, and the artefacts to defer until later phases of adoption.
+This template helps an adopter compose a starting set of library artefacts from a small core baseline plus stacking modules. The composition matches what the organisation actually does (its activities, data scope, audience, regulatory exposure, and GRC team capacity), rather than a pre-set profile by company size or sector.
 
-The aim is to compress the adopter's first-week question (`which of the 11 domains do I need on day one?`) into a profile-shaped checklist. The decision-tree at [`docs/decision-tree.md`](decision-tree.md) covers the conditional logic; this template materialises the answer for the six most common profile shapes.
+The aim is to compress the adopter's first-week question (`which of the 11 domains do I need on day one?`) into: copy the core baseline, then add the modules that match the organisation. The [`docs/decision-tree.md`](decision-tree.md) covers the conditional logic; this template names the resulting compositions.
 
-A profile is a starting point, not a final scope. Adopters typically grow into adjacent domains as the programme matures; the [`docs/adopter-guide.md`](adopter-guide.md) section "Maturity progression" describes the standard growth path.
+A composition is a starting point, not a final scope. Adopters typically grow into adjacent modules as the programme matures; the [`docs/adopter-guide.md`](adopter-guide.md) section "Maturity progression" describes the standard growth path.
 
 ---
 
 ## Scope
 
-This template applies to organisations adopting the library for the first time and to organisations consolidating an existing adoption against this library's structure. It covers six profile shapes:
+This template applies to organisations adopting the library for the first time and to organisations consolidating an existing adoption against this library's structure.
 
-1. **Small business** (under 50 employees, single jurisdiction).
-2. **Mid-market regulated industry** (50 to 500 employees, sector-specific compliance).
-3. **Multi-national enterprise** (500 plus employees, multiple jurisdictions).
-4. **Public-sector adopter** (government agency, public body, or supplier to public sector).
-5. **Healthcare adopter** (provider, payer, medtech, or healthcare platform).
-6. **Financial-services adopter** (bank, investment firm, insurance, payment provider, or financial market infrastructure).
+The composition shape (core baseline plus stacking modules) replaces the earlier per-profile categorisation. Categorical profiles (small business, mid-market, multi-national, etc.) were tested against real adopter shapes and found too rigid: real organisations sit across categories, and the same category contains very different operational realities. Activities, data, audience, regulatory exposure, and team capacity are the dimensions that actually drive what an organisation needs from the library.
 
-Out of scope: bespoke profile shapes (defence and aerospace, mining, agriculture, and the other industry sectors marked Out of scope in [`governance/register-coverage-gaps.md`](../governance/register-coverage-gaps.md) §1). Adopters whose shape does not match a profile here should consult the [`docs/decision-tree.md`](decision-tree.md) and the adopter guide directly.
+Out of scope: bespoke profile shapes marked Out of scope in [`governance/register-coverage-gaps.md`](../governance/register-coverage-gaps.md) §1 (defence and aerospace, mining, agriculture, etc.). Adopters whose shape is materially different from anything composable here should consult the decision tree directly.
 
 ---
 
-## How to use this template
+## The core baseline
 
-For each profile, the section is laid out as:
+Every adopter copies this set on Day 1, regardless of size, sector, or maturity. The reasoning: every organisation has staff data, IT, vendors, and the possibility of an incident. The baseline is the floor below which the programme cannot be defended.
 
-- **Define**: the profile's defining characteristics.
-- **Adopt first** (Day-1 and first 30 days): the minimum set of library domains and artefacts that materially reduce risk on first contact with auditors, regulators, customers, or incident.
-- **Layer next** (Days 30 to 90): the artefacts that build on the first-30-day set and address the most-likely follow-up questions.
-- **Defer** (Day 90 plus): artefacts useful at scale or under specific triggers, but not essential for first contact.
-- **Skip unless triggered**: artefacts that require a specific organisational or regulatory trigger before they materially matter.
-- **Sector-conditional content**: the sector or jurisdiction sub-folders the profile materially needs.
-- **Realistic first-90-day timeline expectations**.
-
-The "Adopt first" set is intentionally narrow; adopters can copy the full library and selectively populate it, but going live with a small set the organisation can actually maintain is better than going live with a large set that gathers dust.
-
----
-
-## Profile 1: Small business (under 50 employees, single jurisdiction)
-
-### Define
-
-- Headcount: under 50.
-- Geographic scope: one country or one regulatory zone.
-- Regulatory exposure: privacy law of the home jurisdiction, basic information-security expectations from customers, and any sector-specific licensing the business operates under.
-- Compliance posture: lean, founder-led or small-team-led; the goal is "we can answer audit questions consistently" rather than "we have a 30-control programme".
-
-### Adopt first (Day-1 to Day-30)
-
-| Domain | Artefacts | Why |
+| Domain | Artefact | Why it is in the baseline |
 | --- | --- | --- |
-| `governance/` | `policy-information-and-cybersecurity.md`, `charter-governance-library.md` (as a model) | One overarching policy plus a charter shape adapted to the founder/CEO as policy owner. |
-| `security/` | `policy-acceptable-use.md`, `policy-access-control.md`, `procedure-incident-response.md` | The three documents that most small-business incidents touch. |
-| `privacy/` | `policy-privacy-and-data-governance.md`, plus the home-jurisdiction annex from [`privacy/jurisdictions/`](../privacy/jurisdictions/) | Privacy law compliance is the most common single regulatory exposure for a small business. |
-| `dev-security/` | `standard-developer-security-requirements.md` | Even small teams ship software; the standard is the floor. |
-| `risk/` | `register-operational-risk-template.md`, populated with the top 10 risks | A short, real risk register beats a long imagined one. |
+| `governance/` | one foundational policy (e.g. [`security/policy-information-security.md`](../security/policy-information-security.md) or equivalent) | A single overarching policy that names the organisation's posture and the owner of that posture. |
+| `security/` | [`policy-acceptable-use.md`](../security/policy-acceptable-use.md), [`policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) | The three documents that the largest share of incidents touch. |
+| `privacy/` | [`policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) plus the home-jurisdiction annex from [`privacy/jurisdictions/`](../privacy/jurisdictions/) | Even an organisation that does not collect customer data has staff data; the home-jurisdiction privacy law is the floor. |
+| `risk/` | [`procedure-risk-register.md`](../risk/procedure-risk-register.md), with the register populated with the actual top 10 risks | A short, real risk register beats a long imagined one. Populating it is part of the baseline; copying an empty template is not. |
 
-### Layer next (Day-30 to Day-90)
-
-- `compliance/`: `policy-compliance-and-audit-management.md` plus the [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md) for cross-referencing.
-- `supply-chain/`: `policy-supply-chain-and-third-party-security.md` once the vendor count crosses 5 to 10.
-- `operations/`: the `policy-operations-management.md` shape for day-to-day operational discipline.
-
-### Defer (Day-90 plus)
-
-- `architecture/`: full enterprise-architecture documents; small businesses do not have an enterprise architecture function.
-- `resilience/`: dedicated business-continuity content; the incident response procedure covers most small-business resilience needs at this scale.
-
-### Skip unless triggered
-
-- `ai/`: only when the business builds or operationally depends on AI systems.
-- `compliance/financial-services/`, `compliance/healthcare/`, etc.: only when the business is in that sector.
-
-### Sector-conditional content
-
-The home-jurisdiction annex from `privacy/jurisdictions/` is the only conditional content most small businesses need on day one.
-
-### Realistic timeline
-
-Day 30: policies copied, jurisdiction annex adopted, top-10 risk register populated. Day 60: incident-response procedure tested at desk-check level. Day 90: first internal review against the maturity scorecard at the "Foundational" level.
+The baseline is six artefacts. An organisation that has copied and customised these six has a defensible floor. Layer modules on top.
 
 ---
 
-## Profile 2: Mid-market regulated industry (50 to 500 employees, sector compliance)
+## How to use the modules
 
-### Define
+Modules are organised in five dimensions. For each dimension, identify which modules apply to your organisation and copy the artefacts each module names. Modules are additive (you can pick more than one in each dimension); they are also independent (you can pick A2 without A1 if you ship external-facing SaaS but do not build it in-house).
 
-- Headcount: 50 to 500.
-- Geographic scope: typically one or two countries.
-- Regulatory exposure: sector-specific compliance (the sector overlay in [`compliance/`](../compliance/)) plus the home-jurisdiction privacy law plus baseline information-security expectations.
-- Compliance posture: a small dedicated compliance or risk function; the goal is "we can pass a customer or regulator audit on the sector-specific controls".
+| Dimension | Question to ask |
+| --- | --- |
+| A. Activity | What do we do? |
+| B. Data scope | What data do we handle? |
+| C. Audience | Who do we serve? |
+| D. Regulatory exposure | Who regulates us? |
+| E. GRC team capacity | How much can we maintain? |
 
-### Adopt first (Day-1 to Day-30)
-
-The small-business "Adopt first" set, plus:
-
-- `compliance/<sector>/`: the entire folder for the regulated sector. The sector overlay is the load-bearing differentiator at this scale.
-- `compliance/policy-compliance-and-audit-management.md`: the compliance-function policy.
-- `compliance/standard-internal-audit.md`: the internal-audit shape.
-
-### Layer next (Day-30 to Day-90)
-
-- `supply-chain/`: the full domain plus `procedure-third-party-ai-due-diligence.md` if AI vendors are in the supply chain.
-- `risk/`: the full domain. A mid-market regulated firm has enough operational complexity to warrant a structured risk programme.
-- `dev-security/`: the full set if the firm ships software.
-
-### Defer (Day-90 plus)
-
-- `architecture/`: useful but not load-bearing for sector audit.
-- Multi-jurisdiction privacy annexes beyond the home jurisdiction.
-
-### Skip unless triggered
-
-- `ai/`: only if AI systems are operationally relevant.
-- Multiple sector overlays: stick to the primary sector unless the firm operates across sectors.
-
-### Sector-conditional content
-
-The full sector overlay from [`compliance/<sector>/`](../compliance/) is mandatory. Identify the primary sector via the decision-tree at [`docs/decision-tree.md`](decision-tree.md) and copy the whole folder.
-
-### Realistic timeline
-
-Day 30: sector overlay copied and reviewed against the firm's current control set; gaps logged. Day 90: first sector-audit-readiness review.
+Dimension E (capacity) scales every other module: an organisation with a one-person GRC function copies the minimum viable subset of each chosen module; an organisation with a department copies the full set plus measurement infrastructure.
 
 ---
 
-## Profile 3: Multi-national enterprise (500 plus employees, multiple jurisdictions)
+## Module catalogue
 
-### Define
+### Dimension A: Activity (what we DO)
 
-- Headcount: 500 plus.
-- Geographic scope: three or more jurisdictions.
-- Regulatory exposure: multiple privacy regimes, sector-specific compliance, cross-border transfer obligations, vendor-and-customer expectations across geographies.
-- Compliance posture: dedicated functions for compliance, risk, security, privacy, and (typically) internal audit; the goal is "we can defend our programme against any auditor, regulator, customer, or shareholder query".
+#### A1: We build software in-house (custom internal development)
 
-### Adopt first (Day-1 to Day-30)
+Triggered by any in-house software development, including internal tools, automation, scripting, infrastructure-as-code, and customisation of off-the-shelf platforms.
 
-The full library, with the following emphasis:
+Adopt:
+- [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md): the floor for any internal development.
+- [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md): if the team operates pipelines.
+- [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md): if developers use Claude Code, Copilot, Cursor, or equivalent.
+- [`dev-security/claude-rules/`](../dev-security/claude-rules/) pack as project-loaded session context: if any AI coding assistant is used.
 
-- All `governance/` artefacts: the charter, the framework, the document-architecture spec.
-- All `compliance/` cross-cutting artefacts plus the relevant sector overlays.
-- All `privacy/` artefacts plus every jurisdiction the firm operates in (consult [`privacy/jurisdictions/`](../privacy/jurisdictions/)).
-- `risk/`, `security/`, `supply-chain/`, `architecture/`, `resilience/`, `operations/` in full.
+#### A2: We ship external-facing software (SaaS, downloadable, embedded)
 
-### Layer next (Day-30 to Day-90)
+Triggered by software that runs on customer infrastructure, in a customer-accessible cloud tenancy, or as a downloadable artefact.
 
-- Customisation: adapt jurisdiction annexes to the firm's actual operating model where the library annex is generic.
-- Integration: cross-reference the library against any internal frameworks the firm already operates (ISO 27001, NIST CSF, SOC 2 Type II, etc.).
+Adopt the A1 set plus:
+- [`operations/`](../operations/): runbook-style procedures for the recurring operational interactions.
+- [`architecture/`](../architecture/): lighter set; the reference-architecture artefacts for the patterns the team builds.
+- [`resilience/`](../resilience/): light; business-continuity and incident-aligned recovery procedures.
 
-### Defer (Day-90 plus)
+#### A3: We use AI in operations (any AI deployment)
 
-- Out-of-scope-by-default sectors the firm does not operate in.
+Triggered by use of AI in customer-facing or internal workflows: chat assistants, document summarisation, decision support, content generation, recommendation systems, etc.
 
-### Skip unless triggered
+Adopt:
+- [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md): the AI policy floor.
+- [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md): inventory each AI system in scope.
+- [`ai/template-system-card.md`](../ai/template-system-card.md): per-system documentation for high-tier systems.
+- [`ai/checklist-ai-algorithmic-compliance.md`](../ai/checklist-ai-algorithmic-compliance.md): if the AI use case touches regulated decision-making.
 
-- AI artefacts only if AI is materially part of the operating model. (At this scale most multi-nationals will trigger this.)
+#### A4: We develop or train AI models
 
-### Sector-conditional content
+Triggered by training models in-house, fine-tuning, or building AI products that depend on the model artefact being part of the deliverable.
 
-Multiple sector overlays where the firm operates across sectors (e.g., a financial group with a healthcare-products arm needs both `compliance/financial-services/` and `compliance/healthcare/`).
+Adopt the A3 set plus:
+- [`ai/template-model-card.md`](../ai/template-model-card.md): per-model.
+- [`ai/template-dataset-datasheet.md`](../ai/template-dataset-datasheet.md): per-dataset.
+- [`ai/template-ai-red-team-report.md`](../ai/template-ai-red-team-report.md): for high-tier systems.
+- [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md): the documentation discipline.
 
-### Realistic timeline
+#### A5: We have critical-availability operations
 
-Day 30: full library copied; assignment of artefacts to internal owners. Day 90: gap analysis against the maturity scorecard at the "Operational" level; remediation roadmap published.
+Triggered by contractual SLAs, regulated availability requirements (DORA, NIS 2, CNI duties), or business-critical processes whose interruption is materially damaging.
+
+Adopt:
+- [`resilience/`](../resilience/) full set.
+- [`operations/`](../operations/) operational-discipline artefacts.
+- [`risk/`](../risk/) deeper risk register with availability-tier classifications.
+
+#### A6: We have physical operations
+
+Triggered by logistics, manufacturing, healthcare delivery, retail estate, transportation, energy distribution, or any operation that materially depends on physical processes and assets.
+
+Adopt:
+- [`operations/`](../operations/) full set.
+- The sector overlay under [`compliance/`](../compliance/) for the relevant industry (logistics, healthcare, energy-and-utilities, etc.).
+- [`resilience/`](../resilience/): physical operations have physical resilience needs.
+
+### Dimension B: Data scope (what we HANDLE)
+
+#### B1: Customer or external personal data
+
+Triggered by any processing of personal data belonging to people outside the organisation (customers, prospects, members, patients, etc.). Most organisations trigger this.
+
+Adopt:
+- [`privacy/`](../privacy/) core: policy, jurisdiction annex(es), [`template-record-of-processing-activities.md`](../privacy/template-record-of-processing-activities.md), [`procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md).
+- [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md).
+
+#### B2: Special-category personal data (health, biometric, ethnic origin, religious, sexual orientation, trade union, political opinion, genetic)
+
+Triggered by processing data classified as special-category under GDPR or equivalent regimes.
+
+Adopt the B1 set plus:
+- [`privacy/standard-pseudonymisation-and-anonymisation.md`](../privacy/standard-pseudonymisation-and-anonymisation.md).
+- The relevant framework documents (e.g. [`privacy/framework-consent-management.md`](../privacy/framework-consent-management.md)).
+- Stricter retention controls per the data type.
+
+#### B3: Children's data
+
+Triggered by processing data about people under the relevant age-of-majority threshold (typically 16 or 18, jurisdiction-dependent).
+
+Adopt the B1 set plus:
+- [`privacy/framework-childrens-data.md`](../privacy/framework-childrens-data.md).
+- The home-jurisdiction children-data-specific regulation if dedicated.
+
+#### B4: Cross-border data transfers
+
+Triggered by personal data flowing across jurisdictional boundaries (cloud hosted in a different country than data subjects, multi-region operations, vendor processors abroad).
+
+Adopt:
+- [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md).
+- The annex for each jurisdiction the data flows into or out of (from [`privacy/jurisdictions/`](../privacy/jurisdictions/)).
+- [`privacy/register-cross-border-data-flow.md`](../privacy/register-cross-border-data-flow.md).
+
+#### B5: Payment card data (PCI scope)
+
+Triggered by storage, processing, or transmission of payment card data, or by being in the cardholder data environment of a payment processor.
+
+Adopt:
+- [`security/`](../security/) full set.
+- [`supply-chain/`](../supply-chain/) heavy: PCI assessments depend on third-party attestations.
+- The financial-services sector overlay if applicable.
+
+#### B6: Government or classified data
+
+Triggered by processing data classified by a government as restricted, confidential, or above.
+
+Adopt:
+- [`compliance/public-sector/`](../compliance/public-sector/) full set.
+- The jurisdiction-specific classified-information framework.
+- Significantly heavier security stack.
+
+### Dimension C: Audience (who we SERVE)
+
+#### C1: Consumers (B2C)
+
+Adopt:
+- B1 with consumer-facing emphasis: cookies and tracker register, privacy notice, consent management.
+- Breach-notification procedure tuned to consumer-notification timelines (often regulated; e.g. 72 hours under GDPR; specific state laws in the US).
+
+#### C2: Businesses (B2B; your customers are other organisations)
+
+Adopt:
+- [`supply-chain/`](../supply-chain/) (you ARE someone's vendor): vendor security questionnaire, attestation patterns, contract security terms.
+- Customer-due-diligence response templates.
+
+#### C3: Government clients
+
+Adopt:
+- [`compliance/public-sector/`](../compliance/public-sector/) full set.
+- Attestation patterns specific to the relevant government framework (FedRAMP, IL4/IL5, GovAssure, ISM, etc.).
+
+### Dimension D: Regulatory exposure (who regulates us)
+
+#### D1: Light (basic privacy law only, no sector regulator)
+
+The core baseline plus the home-jurisdiction privacy annex is enough. No further D-dimension content needed.
+
+#### D2: Sector-regulated (one dominant regulator: FCA, PRA, HIPAA, FDA, NERC, MAS, etc.)
+
+Adopt the relevant sector folder under [`compliance/`](../compliance/) in full. Identify the primary sector via the decision tree.
+
+#### D3: Multi-regulated (multiple sectors or jurisdictions)
+
+Adopt multiple sector folders under [`compliance/`](../compliance/) plus multi-jurisdiction privacy annexes. Establish a cross-framework alignment matrix (consider [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md)).
+
+#### D4: Heavy (financial services, healthcare, public-sector cyber, critical infrastructure)
+
+Adopt the full sector folder plus [`resilience/`](../resilience/), [`supply-chain/`](../supply-chain/) deep, and [`risk/`](../risk/) full. Heavy regulatory exposure is the typical driver for a dedicated GRC function, which then layers Dimension E content.
+
+### Dimension E: GRC team capacity (how much we can maintain)
+
+Dimension E scales the depth of every other adopted module.
+
+#### E1: None or founder part-time
+
+Copy the minimum viable subset of each chosen module. Skip framework documents and charter documents at this layer; the policies and procedures are enough. Skip programme-level performance reviews.
+
+#### E2: Light (1 to 2 people)
+
+Copy the core artefacts of each chosen module and customise them. Skip programme-performance-review documents (e.g. [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md)) until capacity exists to operate them.
+
+#### E3: Standard (3 to 10 people)
+
+Copy the full set of each chosen module. A quarterly review cycle is realistic. Programme-performance reviews are tractable.
+
+#### E4: Heavy (a department)
+
+Copy the full set of each module plus measurement infrastructure (metrics, dashboards, board-level reports). The library's [`docs/template-maturity-self-assessment.md`](template-maturity-self-assessment.md) Tier 4 / 5 guidance applies.
 
 ---
 
-## Profile 4: Public-sector adopter
+## Worked examples
 
-### Define
+### Example 1: Mid-size SaaS with EU customers and AI features
 
-- Organisation type: government agency, public body, or supplier whose primary customer is the public sector.
-- Regulatory exposure: jurisdiction-specific government-cybersecurity requirements (FedRAMP, IL4/IL5, GovAssure, ISM/PSPF, etc.), public-records and freedom-of-information obligations, plus the cross-cutting privacy and security expectations.
-- Compliance posture: typically more procedural than risk-based; the goal is "we can demonstrate alignment to the jurisdiction's government-cybersecurity framework".
+A 60-person SaaS company. Customers across EU, UK, and US. Custom internal development, external-facing SaaS. Uses AI for feature delivery (text summarisation, recommendation). Lightly regulated (general privacy law only). One-person privacy function plus part-time engineering-security lead (E2-bordering-E3).
 
-### Adopt first (Day-1 to Day-30)
+Composition:
+- Core baseline (mandatory).
+- A1 (custom internal dev), A2 (ships external SaaS), A3 (AI in operations).
+- B1 (customer personal data), B4 (cross-border, EU plus US).
+- C1 (consumer-facing if customers are individuals) or C2 (B2B) depending on contract type.
+- D1 (light regulatory exposure).
+- E2 (capacity scale).
 
-- `compliance/public-sector/`: the entire folder.
-- `governance/`: the policy, charter, and framework artefacts.
-- `security/`: the full set; public-sector cybersecurity frameworks are control-heavy.
-- `privacy/`: the policy plus the home-jurisdiction annex; public-records obligations and privacy obligations interact.
+Adopt order: Days 1 to 30 the core baseline plus A1, A2, B1, B4. Days 30 to 90 the A3 module and the C dimension. Defer the deeper architecture and resilience stack until E grows.
 
-### Layer next (Day-30 to Day-90)
+### Example 2: Five-person consultancy with no software
 
-- `dev-security/` if the agency builds or maintains software.
-- `supply-chain/` for vendor-management obligations (typically heavy in public sector).
-- `resilience/` for continuity-of-government and continuity-of-service obligations.
+A consulting firm. Five staff. No software shipped; all customer engagement is through consulting deliverables. Customer data is meeting notes, contact details, and engagement documents. B2B audience. Light regulatory exposure (general privacy law of the home jurisdiction). Founder is the GRC function (E1).
 
-### Defer (Day-90 plus)
+Composition:
+- Core baseline (mandatory), minus the A1 elements since no software is shipped (dev-security is optional at this scale; including it costs more than it saves).
+- B1 (customer data, modest scope).
+- C2 (B2B audience).
+- D1.
+- E1 (capacity scale).
 
-- `ai/` unless the agency operates AI-influenced decision systems (in which case it is "Adopt first").
+The result is a small, sustainable adopted set: six baseline artefacts plus the B1 privacy module plus a vendor security questionnaire response template. The firm can defensibly answer customer security-due-diligence questionnaires with this set.
 
-### Skip unless triggered
+### Example 3: Regional bank
 
-- Sector overlays from `compliance/<other-sector>/`: only if the agency regulates that sector.
+A 1,200-person regional bank. Custom in-house development for digital banking products. Mainframe and legacy operations for core banking. Customer personal data, payment card data, cross-border (some international wires). Consumer plus business customers. Heavy financial-services regulatory exposure (home-jurisdiction prudential regulator plus AML / sanctions / CCAR-style requirements plus DORA if EU). Dedicated GRC department (E4).
 
-### Sector-conditional content
+Composition:
+- Core baseline (mandatory).
+- A1 (custom dev), A5 (critical-availability operations: digital banking SLAs), A6 (physical operations: branches).
+- B1 (customer data), B5 (payment cards), B4 (cross-border for wires).
+- C1 (consumer) plus C2 (business banking).
+- D4 (heavy financial-services regulation).
+- E4 (capacity).
 
-The home-jurisdiction sub-folder under `compliance/public-sector/` (FedRAMP for US federal, GovAssure for UK, ISM for Australia, etc.).
-
-### Realistic timeline
-
-Day 30: jurisdiction-framework overlay reviewed against current operating posture. Day 90: control-attestation evidence packaged per [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md).
-
----
-
-## Profile 5: Healthcare adopter
-
-### Define
-
-- Organisation type: provider, payer, medtech, or healthcare platform.
-- Regulatory exposure: HIPAA + HITECH (US), NHS DSPT (UK), MDR + IVDR (EU medtech), provincial frameworks (Canada), plus the cross-cutting privacy expectations particularly around special-category data.
-- Compliance posture: privacy-heavy and (for medtech) safety-engineering-heavy.
-
-### Adopt first (Day-1 to Day-30)
-
-- `compliance/healthcare/`: the entire folder.
-- `privacy/`: full domain plus all relevant jurisdiction annexes; healthcare data is special-category and the privacy regime is the load-bearing exposure.
-- `security/`: full set; healthcare data breaches are the largest single category of US breach notifications.
-- `governance/` and `risk/`: the core artefacts.
-
-### Layer next (Day-30 to Day-90)
-
-- `dev-security/` and `architecture/` for medtech and healthcare-platform firms shipping software.
-- `supply-chain/`: vendor management is heavy in healthcare (EHR vendors, lab vendors, device vendors).
-- `ai/`: for any AI-influenced clinical decision support, diagnostic, or operational optimisation.
-- `resilience/`: continuity of care obligations.
-
-### Defer (Day-90 plus)
-
-- Cross-sector compliance overlays unless the organisation operates across sectors.
-
-### Skip unless triggered
-
-- `operations/` operational-management artefacts: useful but not load-bearing for the initial healthcare-compliance posture.
-
-### Sector-conditional content
-
-Sub-folders under `compliance/healthcare/` for the relevant healthcare regime; `privacy/framework-childrens-data.md` if paediatric care is in scope.
-
-### Realistic timeline
-
-Day 30: HIPAA or equivalent control-mapping. Day 90: breach-response procedure tested at tabletop level; vendor BAAs mapped.
-
----
-
-## Profile 6: Financial-services adopter
-
-### Define
-
-- Organisation type: bank, investment firm, insurance, payment provider, or financial-market infrastructure.
-- Regulatory exposure: home-jurisdiction prudential and conduct regulators (PRA + FCA, OCC + FRB + FDIC, OSFI, APRA, MAS, etc.), DORA (EU), SOX (US listed), plus the cross-cutting privacy and security regimes.
-- Compliance posture: heavy on third-party risk, operational resilience, and conduct.
-
-### Adopt first (Day-1 to Day-30)
-
-- `compliance/financial-services/`: the entire folder.
-- `resilience/`: full domain; DORA and equivalents make operational resilience a first-class compliance obligation.
-- `supply-chain/`: full domain; third-party risk is the highest-scrutiny area for financial regulators.
-- `security/`: full set.
-- `governance/`, `risk/`, `privacy/`: core artefacts.
-
-### Layer next (Day-30 to Day-90)
-
-- `dev-security/`: for any firm shipping or operating software (most do at this scale).
-- `architecture/`: enterprise-architecture artefacts are commonly required by financial regulators.
-- `ai/`: increasingly relevant for credit-decision, trading, and compliance-monitoring AI.
-
-### Defer (Day-90 plus)
-
-- Cross-sector compliance overlays unless the firm operates across sectors.
-
-### Skip unless triggered
-
-- `compliance/healthcare/`, `compliance/energy-and-utilities/`, etc.: only if the firm operates in those sectors.
-
-### Sector-conditional content
-
-Sub-folders under `compliance/financial-services/` for the relevant regulator (currently DORA, SOX; per the [`governance/register-coverage-gaps.md`](../governance/register-coverage-gaps.md) §2.3, country-specific regulator overlays are planned under TODO P5.2).
-
-### Realistic timeline
-
-Day 30: regulator-mapping against the firm's existing control framework. Day 90: third-party-risk programme reconciled with `supply-chain/` artefacts; resilience testing scheduled.
-
----
-
-## Profile-shape interactions
-
-A real organisation often sits across two profiles. The recurring shapes:
-
-- **Small healthcare practice**: start with Profile 1 (small business), layer Profile 5 (healthcare) sector-conditional content from Day 1.
-- **Mid-market multi-national**: start with Profile 2 (mid-market regulated industry), layer Profile 3 (multi-national) multi-jurisdiction privacy from Day 30.
-- **Public-sector software vendor**: start with Profile 4 (public-sector), layer Profile 2 (mid-market sector compliance) for software-supplier expectations.
-
-For shapes the table does not cover, follow the decision-tree at [`docs/decision-tree.md`](decision-tree.md) and adapt the nearest profile.
+Adopt order: the full library is in scope. Day 1 the core baseline, plus the full financial-services sector overlay under [`compliance/financial-services/`](../compliance/financial-services/), plus the resilience and supply-chain domains. Day 30 the A1 / A5 / A6 modules. Day 90 a first programme-level maturity self-assessment with the goal of identifying which Tier-3 to Tier-4 gaps the department closes in year one.
 
 ---
 
 ## Review questions
 
-When applying a profile, answer the following before going live with the adopted set:
+When applying a composition, answer the following before going live with the adopted set:
 
-1. Have we copied the artefacts the profile names as "Adopt first"?
-2. Have we adapted the placeholders (organisation name, role names, jurisdiction) in those artefacts?
-3. Have we removed or commented out the artefacts the profile flags as "Skip unless triggered"?
-4. Have we logged the deferred artefacts in our internal roadmap so they are not silently dropped?
-5. Have we identified the sector-conditional content the profile materially needs and copied it as well?
-6. Have we run an initial maturity-scorecard self-assessment against the adopted set?
+1. Have we copied and customised the core baseline (the six artefacts everyone needs)?
+2. Have we identified the activity modules that apply (Dimension A)?
+3. Have we identified the data-scope modules that apply (Dimension B)? In particular, have we surfaced any special-category, children's, or cross-border processing?
+4. Have we identified the audience modules (Dimension C)?
+5. Have we set our regulatory-exposure level (Dimension D) and copied the relevant sector overlays?
+6. Have we set our GRC capacity (Dimension E) and scaled the depth of each module accordingly?
+7. Have we run an initial maturity-scorecard self-assessment using [`docs/template-maturity-self-assessment.md`](template-maturity-self-assessment.md) against the adopted set?
+8. Have we logged the modules we identified but deferred so they are not silently dropped?
 
 ---
 
@@ -334,11 +306,11 @@ When applying a profile, answer the following before going live with the adopted
 
 This template is updated when:
 
-- A new adopter-profile shape is identified that the existing six profiles do not cover.
-- The library adds or removes a domain or a sector overlay that changes the "Adopt first" set.
-- The decision-tree at [`docs/decision-tree.md`](decision-tree.md) changes in a way that affects the profile boundaries.
+- The library adds or removes a domain that materially changes the core baseline or a module's adopted artefacts.
+- A new activity, data, audience, or regulatory dimension is identified that the existing five dimensions do not cover.
+- Adopter feedback identifies a module that consistently splits into two natural sub-modules (in which case the module is decomposed).
 
-Per-profile guidance must remain compatible with the decision-tree and with the adopter guide; the three documents are read together by adopters and should not contradict.
+Major version bumps to this template are warranted when the dimension model itself changes. Minor bumps cover module additions, artefact additions inside a module, and worked-example updates. The composition shape should not change frequently; it is meant to be stable across the library's growth.
 
 ---
 
