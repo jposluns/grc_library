@@ -2,8 +2,8 @@
 
 **Document Title:** Threat Intelligence and SIEM Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.0\
-**Date:** 2026-05-27\
+**Version:** 1.3.1\
+**Date:** 2026-06-20
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
