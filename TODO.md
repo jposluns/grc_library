@@ -14,7 +14,7 @@ Shipped 2026-06-20 as [`docs/template-quickstart-by-profile.md`](docs/template-q
 
 ### 4.2 Maturity assessment interactive template
 
-The current [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md) is auto-generated and static. An interactive form (spreadsheet or guided markdown checklist) lets an adopter self-assess.
+Shipped 2026-06-20 as [`docs/template-maturity-self-assessment.md`](docs/template-maturity-self-assessment.md). Guided markdown checklist covering 11 library domains across a 5-tier maturity ladder (Initial / Developing / Defined / Managed / Optimising); per-tier next-step guidance; recording template.
 
 ### 4.3 Implementation roadmap templates
 
