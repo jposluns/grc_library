@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.20.3\
+**Version:** 1.21.0\
 **Date:** 2026-06-19\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -29,9 +29,9 @@ These are **draggable rule files**: copy any subset into your project's Claude C
 Historically this pack covered security and compliance only. As of pack version 1.6.0 (Library 2026.05.139, 2026-06-01), the pack's contract broadened to cover both:
 
 1. **Security and compliance** (original and largest scope). Hardcoded-secrets prevention, input validation, cryptography, authentication, OWASP/ASVS alignment, AI/agent/MCP/RAG security, CI/CD pipeline gates, language-specific security patterns. This content lives under `core/`, `ai/`, `pipeline/`, and `languages/`.
-2. **Development-governance discipline** (expanding scope). Rules that govern how an AI coding assistant collaborates on a governed codebase: gate discipline (never weaken a check to silence a failure; fix the artefact), change-tracking discipline (CHANGELOG-on-PR with explicit opt-out trailers), evidence-grounded completion (no completion claim, and no state assertion about an unread artefact, without enumerated, re-read, quoted, contradiction-searched evidence), clarify-before-acting on ambiguous requests, and artefact-and-branch discipline (no direct push to protected branches; version-monotonicity contract; never hand-edit generated artefacts). This content lives under the `governance/` subdirectory and is being delivered in a phased rollout. Pack version 1.7.0 (Library 2026.05.140) shipped [`governance/gate-discipline.md`](governance/gate-discipline.md); pack version 1.8.0 (Library 2026.05.141) shipped [`governance/change-tracking.md`](governance/change-tracking.md); pack version 1.9.0 (Library 2026.05.142) shipped [`governance/evidence-grounded-completion.md`](governance/evidence-grounded-completion.md); pack version 1.10.0 (Library 2026.05.143) shipped [`governance/clarify-before-acting.md`](governance/clarify-before-acting.md); pack version 1.11.0 (Library 2026.05.144) ships [`governance/artefact-and-branch-discipline.md`](governance/artefact-and-branch-discipline.md). With this release the phased governance rollout announced at pack version 1.6.0 is complete.
+2. **Development-governance discipline** (expanding scope). Rules that govern how an AI coding assistant collaborates on a governed codebase: gate discipline (never weaken a check to silence a failure; fix the artefact), change-tracking discipline (CHANGELOG-on-PR with explicit opt-out trailers), evidence-grounded completion (no completion claim, and no state assertion about an unread artefact, without enumerated, re-read, quoted, contradiction-searched evidence), clarify-before-acting on ambiguous requests, artefact-and-branch discipline (no direct push to protected branches; version-monotonicity contract; never hand-edit generated artefacts), and action-before-explanation-of-inaction (no inferred reasons for why an external action cannot proceed; attempt the safe action and report the real result, or name the destructive action and ask). This content lives under the `governance/` subdirectory. Pack version 1.7.0 (Library 2026.05.140) shipped [`governance/gate-discipline.md`](governance/gate-discipline.md); pack version 1.8.0 (Library 2026.05.141) shipped [`governance/change-tracking.md`](governance/change-tracking.md); pack version 1.9.0 (Library 2026.05.142) shipped [`governance/evidence-grounded-completion.md`](governance/evidence-grounded-completion.md); pack version 1.10.0 (Library 2026.05.143) shipped [`governance/clarify-before-acting.md`](governance/clarify-before-acting.md); pack version 1.11.0 (Library 2026.05.144) shipped [`governance/artefact-and-branch-discipline.md`](governance/artefact-and-branch-discipline.md). The phased governance rollout announced at pack version 1.6.0 completed at 1.11.0; pack version 1.21.0 (Library 2026.06.38) extends the governance set with [`governance/action-before-explanation-of-inaction.md`](governance/action-before-explanation-of-inaction.md), a post-rollout addition driven by a recurring failure mode observed in AI-coding-assistant sessions (narrating reasons to wait instead of attempting the cheap, reversible action that would resolve the doubt).
 
-Pack version 1.20.0 (Library 2026.06.20) introduces a third pack-content type: **Claude Code Skills** in the `SKILL.md` workflow format, under the `skills/` subdirectory. Skills are derived from selected governance rules and are consumed by Claude Code's Skill tool (discovered by YAML frontmatter `name:` and `description:`), distinct from the rule files which are loaded as session-start context. The first three skills are [`skills/evidence-grounded-completion/SKILL.md`](skills/evidence-grounded-completion/SKILL.md), [`skills/gate-discipline-diagnose/SKILL.md`](skills/gate-discipline-diagnose/SKILL.md), and [`skills/clarify-before-acting/SKILL.md`](skills/clarify-before-acting/SKILL.md), each derived from the corresponding governance rule with the rule remaining as the source of truth for normative content (framework alignment, exception handling, rationale); the skill is the workflow wrapper (when to invoke, what steps in what order, what verification confirms completion).
+Pack version 1.20.0 (Library 2026.06.20) introduces a third pack-content type: **Claude Code Skills** in the `SKILL.md` workflow format, under the `skills/` subdirectory. Skills are derived from selected governance rules and are consumed by Claude Code's Skill tool (discovered by YAML frontmatter `name:` and `description:`), distinct from the rule files which are loaded as session-start context. The initial three skills shipped at 1.20.0 are [`skills/evidence-grounded-completion/SKILL.md`](skills/evidence-grounded-completion/SKILL.md), [`skills/gate-discipline-diagnose/SKILL.md`](skills/gate-discipline-diagnose/SKILL.md), and [`skills/clarify-before-acting/SKILL.md`](skills/clarify-before-acting/SKILL.md); pack version 1.21.0 (Library 2026.06.38) adds [`skills/action-before-explanation-of-inaction/SKILL.md`](skills/action-before-explanation-of-inaction/SKILL.md). Each skill is derived from the corresponding governance rule with the rule remaining as the source of truth for normative content (framework alignment, exception handling, rationale); the skill is the workflow wrapper (when to invoke, what steps in what order, what verification confirms completion).
 
 The pack remains under `dev-security/` in the parent library because the discoverability assumption is that developers (and their AI agents) shop for *"security rules"*, not for *"GRC rules"* or *"development discipline"*. The directory name is the shelf label; this README is the table of contents and articulates the broader scope. If a future scope expansion outgrows this framing, the directory name will be revisited at that time, not pre-emptively.
 
@@ -51,12 +51,13 @@ claude-rules/
 │   ├── input-validation.md     Input validation and output encoding
 │   ├── cryptography.md         Approved algorithms and key handling
 │   └── owasp.md                OWASP Top 10:2025 and ASVS v5 alignment rules
-├── governance/                 Development-governance discipline (rollout complete at pack 1.11.0)
-│   ├── gate-discipline.md                  Never weaken a gate to silence a failure; fix the artefact
-│   ├── change-tracking.md                  CHANGELOG-on-PR by default; documented opt-out trailer for genuine exceptions
-│   ├── evidence-grounded-completion.md     No completion claim or unread-artefact state assertion without enumerated, re-read, quoted, contradiction-searched evidence
-│   ├── clarify-before-acting.md            Surface ambiguity in one sentence and ask; never silently pick
-│   └── artefact-and-branch-discipline.md   Generated artefacts are read-only; protected branches are append-only
+├── governance/                 Development-governance discipline (initial rollout complete at pack 1.11.0; extended at 1.21.0)
+│   ├── gate-discipline.md                       Never weaken a gate to silence a failure; fix the artefact
+│   ├── change-tracking.md                       CHANGELOG-on-PR by default; documented opt-out trailer for genuine exceptions
+│   ├── evidence-grounded-completion.md          No completion claim or unread-artefact state assertion without enumerated, re-read, quoted, contradiction-searched evidence
+│   ├── clarify-before-acting.md                 Surface ambiguity in one sentence and ask; never silently pick
+│   ├── artefact-and-branch-discipline.md        Generated artefacts are read-only; protected branches are append-only
+│   └── action-before-explanation-of-inaction.md No inferred reasons for why an external action cannot proceed; attempt the safe action and report the real result, or name the destructive action and ask
 ├── ai/
 │   ├── ai-security.md          LLM and AI application security requirements
 │   ├── agent-security.md       Agentic workflow security and trust boundaries
@@ -65,9 +66,10 @@ claude-rules/
 ├── pipeline/
 │   └── cicd-gates.md           CI/CD security gates and pipeline controls
 ├── skills/                     Claude Code Skills (SKILL.md format) derived from selected pack rules
-│   ├── evidence-grounded-completion/SKILL.md   Six-step verification protocol before any completion claim or unread-artefact state assertion
-│   ├── gate-discipline-diagnose/SKILL.md       Diagnose-then-fix-the-artefact response to a failing gate
-│   └── clarify-before-acting/SKILL.md          One-sentence ambiguity surfacing with named alternatives
+│   ├── evidence-grounded-completion/SKILL.md          Six-step verification protocol before any completion claim or unread-artefact state assertion
+│   ├── gate-discipline-diagnose/SKILL.md              Diagnose-then-fix-the-artefact response to a failing gate
+│   ├── clarify-before-acting/SKILL.md                 One-sentence ambiguity surfacing with named alternatives
+│   └── action-before-explanation-of-inaction/SKILL.md Reversibility-gate protocol before any "X is blocked because Y" clause attached to an external action
 └── languages/
     ├── python.md                Python-specific security patterns and anti-patterns
     ├── typescript.md            TypeScript / Node.js security patterns
@@ -157,6 +159,7 @@ If your project already has an `AGENTS.md` for other coding agents (Codex, Curso
 | [`governance/evidence-grounded-completion.md`](governance/evidence-grounded-completion.md) | Any project where an AI coding assistant participates (because the failure mode this rule prevents is dominant for AI assistants); doubly relevant for projects with audit programmes that gate completion claims |
 | [`governance/clarify-before-acting.md`](governance/clarify-before-acting.md) | Any project where an AI coding assistant participates; especially projects with multiple active branches, conventions that vary by request type, or trade-offs the user reasonably wants to weigh in on |
 | [`governance/artefact-and-branch-discipline.md`](governance/artefact-and-branch-discipline.md) | Any project with generated artefacts (build outputs, schema dumps, taxonomies, doc portals, lockfiles) or protected branches with branch-protection rules; doubly relevant for projects with version-monotonicity contracts |
+| [`governance/action-before-explanation-of-inaction.md`](governance/action-before-explanation-of-inaction.md) | Any project where an AI coding assistant participates and may need to explain why an external action (a PR merge, a deploy, a permission check, a CI run) is not proceeding; especially projects with branch protections, CI gates, or MCP integrations where the temptation to infer a "system says no" reason without checking is highest |
 | [`languages/python.md`](languages/python.md) | Python codebases |
 | [`languages/typescript.md`](languages/typescript.md) | TypeScript / Node.js codebases |
 | [`languages/csharp.md`](languages/csharp.md) | C# / .NET codebases |
