@@ -10,7 +10,7 @@ Invoke the `validation-sweep` skill defined in this project's pack at [`dev-secu
 6. **Triage**: for findings within the focus window, propose a concrete fix per the in-window protocol. For findings outside the focus window (pre-existing issues surfaced incidentally), surface as questions to the operator with named action options, do NOT auto-defer to "Low / FYI".
 7. **Apply fixes, re-baseline, repeat**: apply the fixes, **commit them**, then re-run `tools/run_all_audits.sh` on the committed state (git-history-aware gates only see committed history). Repeat from step 4 if new findings surface. The sweep is complete when one full cycle returns no High or Medium findings.
 
-Cap: stop after three iterations if the cycle does not converge, and surface the pattern to the operator.
+Termination (replaces the older fixed 3-iteration cap; first matching condition fires): (a) empty-delta primary stop: zero new High/Medium findings AND the synthesised finding-set is identical (by dedupe-key) to the previous iteration; (b) patience-plateau secondary stop: 2 consecutive iterations with no strict shrinkage, surface residual to operator with named decision; (c) hard-ceiling 6 iterations runaway guard, defect signal not completion (report cycle vs scope creep).
 
 Step 8: append an entry to [`governance/register-sweep-history.md`](../../governance/register-sweep-history.md) recording the trigger, state at HEAD, finding counts by class and severity, actions taken, and the resulting PR. This is what turns the sweep from a one-off into a cumulative discipline; trend tracking informs which mechanical gates to prioritise next.
 

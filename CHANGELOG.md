@@ -4,6 +4,25 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.77, PR #91
+
+Validation-sweep enhancement, fourth of seven from the late-research-findings queue. Replaces the fixed 3-iteration cap in step 7 with a principled three-condition termination: empty-delta primary stop, patience-plateau secondary stop, and a 6-iteration hard ceiling as runaway guard. Closes the last of the "smallest" tier in the queue (synthesis rubric, pre-tool verification, maintenance-tag dating, convergence-delta).
+
+Research basis: ESLint's `Linter.verifyAndFix` and RuboCop's autocorrect pattern (empty-delta + cycle detector); numerical-solver dual stopping criterion (residual-tolerance OR max-iterations); ML training early-stopping with patience (TensorFlow EarlyStopping, scikit-learn patience parameter); dataflow analysis least-fixed-point iteration (Aarhus SPA lattice theory). Recreated as CC BY-SA 4.0 in-house prose.
+
+### Changed
+
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): step 7 termination expanded from a fixed 3-iteration cap to a three-condition stop: (1) empty-delta primary (zero new High/Medium findings AND identical synthesised finding-set by dedupe-key, fixed-point reached), (2) patience-plateau secondary (2 consecutive iterations with no strict shrinkage, surface residual to operator), (3) hard ceiling 6 iterations as runaway guard signalling defect (cycle or scope creep) not completion. The empty-delta is the principled stop; the hard ceiling is the sanity guard; the patience-plateau handles cases neither extreme catches.
+- [`.claude/commands/validation-sweep.md`](.claude/commands/validation-sweep.md): step 7 Cap line replaced with the three-condition summary.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.26.8 -> 1.26.9`.
+- [`README.md`](README.md): library version `2026.06.76 -> 2026.06.77`; README version `1.8.32 -> 1.8.33`.
+
+### Verification
+
+Full audit programme passes standalone, all 42 corpus gates pass. The convergence-trend evidence from Sweeps 1-6 (4+, 3, 1, 1, 0, 0) is consistent with the empty-delta as the typical exit; the new termination conditions formalise what was already happening in practice.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.76, PR #90
 
 Validation-sweep enhancement, third of seven from the late-research-findings queue. Adds the Wikipedia-style maintenance-tag dating convention to the sweep-history register's Maintenance protocol, closing the gap where deferred findings accumulated without ageing signal.
