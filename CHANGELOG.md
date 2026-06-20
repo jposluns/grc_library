@@ -4,6 +4,23 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.78, PR #92
+
+Sweep 7 register entry. First sweep to formally apply the convergence-delta termination conditions introduced in PR #91; the empty-delta primary stop fired cleanly (Sweep 7 finding-set empty AND identical to Sweep 6's empty set by dedupe-key equality). Three consecutive zero-finding sweeps is a strong fixed-point signal; the discipline is genuinely converging for the current corpus.
+
+Sweep 7 was thin: only Subagent A dispatched. Subagents B (corpus-wide stale-reference sweep) and C (audit-programme integrity check) were skipped because their scopes had no surface changes since Sweep 6 less than an hour earlier; per the pre-tool verification preamble (PR #88), rerunning them would be corroboration-seeking with an undefined falsifier.
+
+### Changed
+
+- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): version `1.6.0 -> 1.7.0`; appended Sweep 7 entry recording the first formal empty-delta convergence; reading-the-table prose updated to track the 7-sweep convergence pattern (4+, 3, 1, 1, 0, 0, 0) and to record the cumulative effect of PRs #86, #88, #91 (noise reduction, tool-call auditability, principled termination).
+- [`README.md`](README.md): library version `2026.06.77 -> 2026.06.78`; README version `1.8.33 -> 1.8.34`.
+
+### Verification
+
+Full audit programme passes standalone, all 42 corpus gates pass. Pre-flight scanner returns 0 candidates (17 suppressed). The fixed-point convergence is consistent with the recent PR shape (prose-only workflow updates on already-clean corpus).
+
+---
+
 ## 2026-06-20, Library Version 2026.06.77, PR #91
 
 Validation-sweep enhancement, fourth of seven from the late-research-findings queue. Replaces the fixed 3-iteration cap in step 7 with a principled three-condition termination: empty-delta primary stop, patience-plateau secondary stop, and a 6-iteration hard ceiling as runaway guard. Closes the last of the "smallest" tier in the queue (synthesis rubric, pre-tool verification, maintenance-tag dating, convergence-delta).
