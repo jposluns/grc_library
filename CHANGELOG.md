@@ -4,6 +4,29 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.89, PR #103
+
+TODO Priority 4.1: adopter quickstart template per profile. First of five Priority 4 items the maintainer authorised in sequence.
+
+### Added
+
+- [`docs/template-quickstart-by-profile.md`](docs/template-quickstart-by-profile.md): new Template document. Six profile sections (small business, mid-market regulated industry, multi-national enterprise, public-sector adopter, healthcare adopter, financial-services adopter), each with Day-1/30/90 adoption guidance, sector-conditional content notes, and realistic timeline expectations. Six review questions for applying any profile.
+
+### Changed
+
+- [`TODO.md`](TODO.md): Priority 4.1 entry resolved; replaced "Debating the value of" framing with a pointer to the shipped template.
+- [`README.md`](README.md): library version `2026.06.88 -> 2026.06.89`; README version `1.8.44 -> 1.8.45`.
+
+### Scope decision
+
+Default to one consolidated template with multiple profile sections rather than six separate per-profile documents, matching the project's existing template convention (e.g. [`ai/template-ai-system-register.md`](ai/template-ai-system-register.md)). Profile-shape interactions section notes how to combine profiles for hybrid organisations.
+
+### Verification
+
+All 44 audit gates pass standalone.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.88, PR #102
 
 Register-to-TODO alignment for [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md) §6 (Document-type capability gaps). The register-vs-TODO diff (per the maintainer's "complete everything that isn't yet logged in TODO" instruction) found three drift items in §6; all are resolved here by lightweight bookkeeping updates rather than substantive document creation.

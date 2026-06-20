@@ -10,13 +10,7 @@ This file is informational and is not subject to the library's metadata-block, a
 
 ### 4.1 Quickstart templates per adopter profile
 
-Debating the value of pre-configured starter sets for common adopter profiles:
-- Small business (under 50 employees, single jurisdiction)
-- Mid-market regulated industry (50-500 employees, sector compliance)
-- Multi-national enterprise (500+ employees, multiple jurisdictions)
-- Public-sector adopter
-- Healthcare adopter
-- Financial-services adopter
+Shipped 2026-06-20 as [`docs/template-quickstart-by-profile.md`](docs/template-quickstart-by-profile.md). Single consolidated template covering all six profiles (small business, mid-market regulated industry, multi-national enterprise, public-sector adopter, healthcare adopter, financial-services adopter).
 
 ### 4.2 Maturity assessment interactive template
 
