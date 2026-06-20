@@ -679,6 +679,23 @@ class SectionPlacementTests(LinterTestCase):
         self.assertLinterFails(result)
 
 
+class GateCountConsistencyTests(LinterTestCase):
+    """tools/lint-gate-count-consistency.py"""
+
+    def test_stale_gate_count_reference_flagged(self) -> None:
+        # Build a fixture containing a stale "N-gate" reference where N
+        # does not match the canonical count in the live §6 inventory.
+        # The canonical count is whatever the spec currently declares;
+        # the fixture uses "0-gate" which will never match (the spec
+        # cannot have zero gates).
+        fixture = self.make_fixture(
+            "standard-bad-gate-count.md",
+            VALID_METADATA + "\n\nThis stub mentions the 0-gate audit programme.\n",
+        )
+        result = run_linter("tools/lint-gate-count-consistency.py", fixture)
+        self.assertLinterFails(result)
+
+
 class AcronymConsistencyTests(LinterTestCase):
     """tools/lint-acronym-consistency.py"""
 

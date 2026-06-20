@@ -22,7 +22,7 @@ Every entry must include:
 3. **Structured sections** following the Keep a Changelog convention: `Added`, `Changed`, `Removed`, `Fixed`, `Security`. A single entry may use multiple sections. Use the section that most accurately classifies the change; do not bury a removed-public-API event under `Changed`.
 4. **File references**, with every touched file linked from the entry text. A link-coverage gate (see below) enforces that bare path references in markdown code spans are wrapped in markdown links so readers can navigate to the file from the entry.
 5. **The "why"**, not only the "what". The diff already records what changed; the entry records why. "Bumped the version" is a what; "bumped the version because a downstream consumer needed v1.7 to ship Phase 3" is a why.
-6. **Verification evidence** for any non-trivial change. Which gates ran, which passed, which were intentionally skipped (and why). "All 32 audit gates pass standalone" is verification evidence; "looks good" is not.
+6. **Verification evidence** for any non-trivial change. Which gates ran, which passed, which were intentionally skipped (and why). "All audit gates pass standalone" is verification evidence; "looks good" is not.
 7. **Phase context** for any change that is part of a multi-PR rollout: which phase this is, what is still ahead. Readers who land in the middle of a rollout need the table of contents.
 
 ---

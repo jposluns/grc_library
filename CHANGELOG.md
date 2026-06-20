@@ -4,6 +4,46 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.50, PR #64
+
+Add a new audit gate (#39): **Cross-file gate-count consistency audit**. This is Layer 2 gate 1 of 3 in the validation programme. The gate scans the corpus for prose phrases that reference an audit-programme gate count and compares the captured number against the canonical row count of the §6 inventory. Any mismatch is flagged. The gate would have caught all seven stale "37-gate" references PR #59 missed, the two PR #61 missed (caught later by PR #63), and the nine additional stale "32-gate" references this PR's own first run surfaced in rule prose and tooling docs.
+
+Audit-programme spec `1.6.2 → 1.7.0` (minor: new gate added). Pack version `1.25.0 → 1.25.1` (patch: two illustrative-example corrections in `change-tracking` and `evidence-grounded-completion` rules to use number-stable placeholder phrasing). Library version `2026.06.49 → 2026.06.50`; README version `1.8.5 → 1.8.6`.
+
+### Added
+
+- [`tools/lint-gate-count-consistency.py`](tools/lint-gate-count-consistency.py): new linter parsing §6 inventory of [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) to derive the canonical count, then scanning corpus markdown plus tools Python and shell sources with five regex patterns. Accepts positional paths for the regression suite; defaults to walking the repository root. Exit codes: 0 pass, 1 findings, 2 internal error.
+- [`tests/test_linters.py`](tests/test_linters.py): `GateCountConsistencyTests.test_stale_gate_count_reference_flagged` fixture using `"0-gate"` (a structurally-impossible count) so the test is stable across future gate additions.
+- [`.github/workflows/quality.yml`](.github/workflows/quality.yml): new `Cross-file gate-count consistency audit` step appended after gate 38.
+- [`tools/run_all_audits.sh`](tools/run_all_audits.sh): new `run_gate` invocation for the new gate.
+- [`.pre-commit-config.yaml`](.pre-commit-config.yaml): new `- id: lint-gate-count-consistency` hook with `types_or: [markdown, python, shell]`.
+
+### Changed
+
+- [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md): §2.1 corpus count `38 → 39`; §5 category 1 gate list extended with gate 39 (Metadata integrity sense: the spec also adds gate 39 to category 5 Programme and index integrity, since the gate audits the audit programme's own consistency); §6 inventory row 39 appended; §6 partition narrative restructured from "Gates 1 through 32 and gate 38 are pure read-only linters" to "Most gates are pure read-only linters; the exceptions are gates 33-37" (number-stable as the corpus grows); §6 added a paragraph describing gate 39's scope; §6.1 corpus count `38-gate → 39-gate`. Version `1.6.2 → 1.7.0`.
+- [`dev-security/claude-rules/governance/change-tracking.md`](dev-security/claude-rules/governance/change-tracking.md) and [`.claude/rules/governance/change-tracking.md`](.claude/rules/governance/change-tracking.md): illustrative verification-evidence example `"All 32 audit gates pass standalone" → "All audit gates pass standalone"`. Pack source plus mirror.
+- [`dev-security/claude-rules/governance/evidence-grounded-completion.md`](dev-security/claude-rules/governance/evidence-grounded-completion.md) and [`.claude/rules/governance/evidence-grounded-completion.md`](.claude/rules/governance/evidence-grounded-completion.md): three illustrative examples updated to number-stable phrasing (`"All 32 gates pass" → "All gates pass"`; `"All 32 gates pass; the gate-coverage limits..." → "All N gates pass; the gate-coverage limits..."`; `"not part of the 32-gate programme" → "not part of the gate programme"`). Pack source plus mirror.
+- [`tools/README.md`](tools/README.md): five `32 gates` / `32-gate` references updated to `39 gates` / `39-gate`.
+- [`tools/check-changelog-on-pr.py`](tools/check-changelog-on-pr.py): docstring `32-gate corpus audit programme → 39-gate corpus audit programme`.
+- [`tools/lint-audit-gate-parity.py`](tools/lint-audit-gate-parity.py): comment `38-gate corpus inventory → 39-gate corpus inventory`.
+- [`tools/run_all_audits.sh`](tools/run_all_audits.sh): top-of-file comment `38 gates → 39 gates`.
+- [`governance/register-main-branch-protection.md`](governance/register-main-branch-protection.md): two `38-gate` references and `gates 1-38 still run` updated to `39-gate` and `gates 1-39 still run`. Document version `1.0.5 → 1.0.6`.
+- [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md): `38 gates running → 39 gates running`; topic-coverage enumeration extended with `, and cross-file gate-count consistency` at the tail. Document version `1.1.5 → 1.1.6`.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md): `Defines the 38-gate audit programme → Defines the 39-gate audit programme`. Document version `1.27.11 → 1.27.12`.
+- [`governance/procedure-library-quality-and-review-cadence.md`](governance/procedure-library-quality-and-review-cadence.md): `The full 38-gate audit programme → The full 39-gate audit programme`. Document version `1.0.5 → 1.0.6`.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.25.0 → 1.25.1`.
+- [`README.md`](README.md): library version `2026.06.49 → 2026.06.50`; README version `1.8.5 → 1.8.6`.
+
+### Verification
+
+Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit, run on the final state. All 39 gates pass, including the new gate 39 itself which scans 401 files and reports clean. Gate 35 (Gate-name parity audit) confirms all four parity surfaces declare 39 gates in identical order. Gate 36 (Linter regression test suite) runs 94 regression tests including the new `GateCountConsistencyTests` fixture, asserting the linter correctly flags a stale `0-gate` reference. Gate 37 (Claude-rules local-copy sync) confirms both edited pack rules are byte-identical to their `.claude/rules/` mirrors.
+
+### Dogfood note
+
+The new gate 39's first invocation on this PR's working tree caught nine additional stale references (six in rule prose using literal `32-gate` examples, two in [`tools/README.md`](tools/README.md), one in [`tools/check-changelog-on-pr.py`](tools/check-changelog-on-pr.py)) that the prior multi-PR cleanup sequence (PRs #59, #61, #63) had not surfaced because those passes targeted only `37-gate` and `38-gate` patterns. The linter finds them mechanically because it scans `\b(\d+)-gate\b` for any digit. This is the kind of finding the maintainer's validation programme is built to surface; gate 39 codifies the surface into a mechanical check that runs on every PR.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.49, PR #63
 
 Dogfood-cleanup pass: the first run of the `validation-sweep` skill (shipped in PR #62) on the post-PR-61 main state found four sibling defects that PR #61's "cleanup all stale 37-gate references" pass had missed. This entry records what the dogfood run caught, and the small cleanup PR that closes them. The finding is itself a positive signal: shipping the skill in PR #62 led directly, on its first invocation, to surfacing two High-severity references that the unaided multi-PR cleanup had not caught. The Layer 2 gate-39 candidate (cross-file gate-count consistency) would have caught both mechanically.
