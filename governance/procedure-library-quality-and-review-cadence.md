@@ -2,8 +2,8 @@
 
 **Document Title:** Library Quality and Review Cadence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.4\
-**Date:** 2026-06-19\
+**Version:** 1.0.5\
+**Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-document-review-schedule.md`](register-document-review-schedule.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`specification-master-project.md`](../specification-master-project.md), [`specification-ingestion.md`](../specification-ingestion.md)\
@@ -105,7 +105,7 @@ For each document under review, the responsible owner role conducts the followin
 | Taxonomy in sync | `tools/build-taxonomy.py --check` | In sync |
 | Portal and scorecard in sync | `tools/build-portal.py --check` | In sync |
 
-The full 37-gate audit programme (see [`governance/specification-audit-programme.md`](specification-audit-programme.md) §6 for the canonical gate inventory) runs in CI and pre-commit; any failure blocks merge unless an explicit exception is recorded.
+The full 38-gate audit programme (see [`governance/specification-audit-programme.md`](specification-audit-programme.md) §6 for the canonical gate inventory) runs in CI and pre-commit; any failure blocks merge unless an explicit exception is recorded.
 
 ### Step 7: Periodic library-level review
 
