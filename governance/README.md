@@ -3,7 +3,7 @@
 **Document Title:** Governance Domain README\
 **Document Type:** Register\
 **Version:** 1.10.1\
-**Date:** 2026-06-20
+**Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md)\
