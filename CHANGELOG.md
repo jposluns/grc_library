@@ -4,6 +4,25 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.46, PR #60
+
+Memorialise the multi-surface gate-parity failure mode as a worked example in the `evidence-grounded-completion` governance rule. The rule already names the abstract failure (claiming a gate suite passes from inference rather than from running it on the final state); the worked example grounds the abstraction in the concrete shape it took in practice — a session wiring a new gate into N–1 of N parallel surfaces and prepping the work for the next operator without re-running the audit, with the gate-name-parity gate catching the omission when the next session ran the full audit. The lesson generalises beyond audit gates to any work that touches parallel surfaces (mirror-sync, generator-output drift, polyglot lockfiles, cross-package version registers).
+
+Pack version `1.24.1 → 1.24.2` (patch: illustrative additive content in an existing rule; no behavioural change to the protocol). Library version `2026.06.45 → 2026.06.46`; README version `1.8.1 → 1.8.2` (patch: library-version-only bump).
+
+### Changed
+
+- [`dev-security/claude-rules/governance/evidence-grounded-completion.md`](dev-security/claude-rules/governance/evidence-grounded-completion.md): added a new `## Worked example: the multi-surface gate-name parity case` section between `## Framework alignment` and `## Why this rule exists`. The example describes the failure shape (omitted one of N parallel surfaces), the recovery (full audit on the final state catches it, one-block fix closes the loop), the discipline lesson (step 4 of the verification protocol — "when in doubt, re-run the verification standalone" — fires exactly when the session is not in doubt), and the wider generalisation to any multi-surface work. No edits to existing sections. Pack source.
+- [`.claude/rules/governance/evidence-grounded-completion.md`](.claude/rules/governance/evidence-grounded-completion.md): mirror-synced from the pack source; identical body. The Claude-rules local-copy sync audit (gate 37) confirms parity with the pack source.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.24.1 → 1.24.2`; Date `2026-06-19 → 2026-06-20`. No structural changes; pack version-history table not amended (patch versions are aggregated; the table's row for the 1.24.x line stands at 1.24.0).
+- [`README.md`](README.md): library version `2026.06.45 → 2026.06.46`; README version `1.8.1 → 1.8.2`.
+
+### Verification
+
+Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. The Claude-rules local-copy sync audit (gate 37) confirms the mirror at [`.claude/rules/governance/evidence-grounded-completion.md`](.claude/rules/governance/evidence-grounded-completion.md) is byte-identical to its pack source. The version-date consistency audit (gate 29) confirms `2026.06.46` matches `2026-06`; the library-version-monotonicity audit (gate 13) accepts the entry. The CHANGELOG link-coverage audit (gate 11) accepts the entry's path-shaped code spans (all wrapped as markdown links). The D1 CHANGELOG-on-PR delta gate is satisfied by this entry. No changes to document metadata that affect the machine-readable taxonomy or adopter-portal gates.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.45, PR #59
 
 Add a new audit gate (#38) — the Section placement audit — that codifies two placement conventions a corpus-wide section-ordering survey found universally observed: orientation sections (Purpose, Scope, Overview, Applicability, Introduction, Executive Summary) must appear in the top three `##` sections, and Licence and Version-history sections must appear in the bottom three. The gate catches future drift mechanically without requiring per-doctype canonical-order codification. Library version `2026.06.44 → 2026.06.45`; audit-programme specification version `1.5.0 → 1.6.0` (minor bump: new gate added); README version `1.8.0 → 1.8.1` (patch: library-version-only bump).
