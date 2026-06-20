@@ -2,7 +2,7 @@
 
 **Document Title:** Validation Sweep History Register\
 **Document Type:** Register\
-**Version:** 1.10.0\
+**Version:** 1.11.0\
 **Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -153,6 +153,20 @@ Historical entries from Sweeps 1-3 were classified before this convention was do
 - **Sweep value**: confirmed that the introduction of Rule 5.5 (PR #93) and SARIF-lite output (PR #94) does not destabilise the convergence. The cycle remains at fixed-point. The SARIF-lite format awaits its first non-empty exercise; when a real finding next surfaces, the format will produce the first observable end-to-end output.
 - **Resulting PR**: this PR ([#95](https://github.com/jposluns/grc_library/pull/95)) for the register entry + exemption update. No fix PR (zero findings).
 
+### 2026-06-20, Sweep 9 (post-PR-#109, full sweep)
+
+- **Trigger**: maintainer instruction "after the merge of P4.5 perform a full validation" following PRs #103-#109 (the Priority 4 backlog).
+- **State**: library 2026.06.95; spec 1.12.0; pack 1.26.16; 44 corpus gates; 10 pack skills; 6 governance rules.
+- **Subagents dispatched: A, B, C** (full fan-out). Initially dispatched A and B with C deferred on the orchestrator's incorrect "no parity-surface changes" justification; the maintainer flagged the skip as a discipline failure and C was then dispatched. C's late dispatch is the proximate cause of Rule 5.6 (subagent-dispatch declaration must be recorded in the register entry).
+- **Findings**:
+  - **C1 stale-prose** x 3 (in-window): `tools/README.md:7` and `tools/README.md:59` (a stale-count `gates` prose pattern that PF-04 missed because there is no `currently` trigger and that gate 39 missed because the existing P1-P5 patterns require an `audit` / `all` / hyphenated qualifier); `governance/register-coverage-gaps.md:212` (same stale-count `gates` shape in the "running in CI" prose). Plus a fourth drift at `tools/README.md:7` (`Gate 31 (gate-name parity audit)` should be `Gate 35`). All actioned in [PR #110](https://github.com/jposluns/grc_library/pull/110).
+  - **C2 stale-docstring** x 1 (in-window, Subagent C): `tools/lint-gate-count-consistency.py:17-23` docstring listed P1-P5 only; P6 was added in PR #110 but not reflected in the top-of-file example list. Actioned in this PR.
+  - **C2 stale-comment** x 1 (in-window, Subagent C): `tools/run_all_audits.sh:65` comment "sub-group of the 42 corpus gates" missed by gate 39 P6 because "corpus" intervenes between "42" and "gates". Actioned in this PR.
+  - **Discipline failure** x 1 (process, this sweep): the orchestrator initially skipped Subagent C without maintainer authorisation. Corrective action: Rule 5.6 added to the synthesis rubric; SKILL.md step 4 updated to make "all three subagents on every full sweep" unconditional; register Maintenance protocol updated to require the dispatch declaration.
+- **Pre-flight scanner**: 24 candidates suppressed (18 heuristic, 6 exemption), 0 candidates surfaced.
+- **Sweep value**: surfaced gate 39's regex-pattern gap (P1-P5 required a qualifier; bare "N gates" prose evaded them). P6 closes the gap going forward. Also surfaced a discipline gap (subagent-skip without authorisation); Rule 5.6 closes that going forward.
+- **Resulting PRs**: [#110](https://github.com/jposluns/grc_library/pull/110) for the corpus stale-prose findings + gate 39 pattern extension; [#111](https://github.com/jposluns/grc_library/pull/111) for the Subagent C findings + Rule 5.6 + dispatch-declaration discipline.
+
 ## False-positive memory
 
 Findings the maintainer has triaged as not-a-real-finding. Subsequent sweeps should not re-surface these; if they do, the maintainer's prior triage is the answer.
@@ -184,6 +198,7 @@ Other classes (C2, C4, C5, C6, C7, C8): zero primary-class findings in the four 
 ## Maintenance protocol
 
 - A new sweep entry is appended after each `/validation-sweep` invocation that produces actionable findings. **Zero-finding sweeps leave no trace**: no register entry, no CHANGELOG entry, no standalone PR. The convergence-delta trend lives in the implementation's iteration counter, not in a per-sweep record. This is the explicit convention as of 2026-06-20; existing zero-finding-sweep entries in this register (Sweeps 5-8) are preserved as historical record but the convention applies forward from this point.
+- **Every sweep entry must declare which subagents were dispatched** (e.g. `Subagents dispatched: A, B, C` for a full sweep; `Subagents dispatched: A only; B and C scope-skipped per maintainer authorisation [link or quote]` for a thin sweep). Per the SKILL's Rule 5.6, a subagent's silent absence in a sweep register cannot be reconstructed later, so the dispatch declaration is the only enforcement point for the "all three subagents on every full sweep" discipline. Convention as of 2026-06-20; entries before Sweep 8 are not retro-stamped.
 - Each entry includes the trigger reason, state, finding counts per class, and the resulting PR (if any).
 - A finding dismissed as not-a-real-finding is recorded in the false-positive memory section with the maintainer's rationale, so a future sweep does not re-litigate.
 - The recurring-class summary table is updated cumulatively. When a class accumulates enough findings to suggest a new mechanical gate, the maintainer can use the table as priority signal.
