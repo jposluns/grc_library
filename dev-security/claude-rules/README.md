@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.23.0\
+**Version:** 1.24.0\
 **Date:** 2026-06-19\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -26,14 +26,12 @@ These are **draggable rule files**: copy any subset into your project's Claude C
 
 ## Pack scope
 
-Historically this pack covered security and compliance only. As of pack version 1.6.0 (Library 2026.05.139, 2026-06-01), the pack's contract broadened to cover both:
+The pack covers two areas:
 
-1. **Security and compliance** (original and largest scope). Hardcoded-secrets prevention, input validation, cryptography, authentication, OWASP/ASVS alignment, AI/agent/MCP/RAG security, CI/CD pipeline gates, language-specific security patterns. This content lives under `core/`, `ai/`, `pipeline/`, and `languages/`.
-2. **Development-governance discipline** (expanding scope). Rules that govern how an AI coding assistant collaborates on a governed codebase: gate discipline (never weaken a check to silence a failure; fix the artefact), change-tracking discipline (CHANGELOG-on-PR with explicit opt-out trailers), evidence-grounded completion (no completion claim, and no state assertion about an unread artefact, without enumerated, re-read, quoted, contradiction-searched evidence), clarify-before-acting on ambiguous requests, artefact-and-branch discipline (no direct push to protected branches; version-monotonicity contract; never hand-edit generated artefacts), and action-before-explanation-of-inaction (no inferred reasons for why an external action cannot proceed; attempt the safe action and report the real result, or name the destructive action and ask). This content lives under the `governance/` subdirectory. Pack version 1.7.0 (Library 2026.05.140) shipped [`governance/gate-discipline.md`](governance/gate-discipline.md); pack version 1.8.0 (Library 2026.05.141) shipped [`governance/change-tracking.md`](governance/change-tracking.md); pack version 1.9.0 (Library 2026.05.142) shipped [`governance/evidence-grounded-completion.md`](governance/evidence-grounded-completion.md); pack version 1.10.0 (Library 2026.05.143) shipped [`governance/clarify-before-acting.md`](governance/clarify-before-acting.md); pack version 1.11.0 (Library 2026.05.144) shipped [`governance/artefact-and-branch-discipline.md`](governance/artefact-and-branch-discipline.md). The phased governance rollout announced at pack version 1.6.0 completed at 1.11.0; pack version 1.21.0 (Library 2026.06.38) extends the governance set with [`governance/action-before-explanation-of-inaction.md`](governance/action-before-explanation-of-inaction.md), a post-rollout addition driven by a recurring failure mode observed in AI-coding-assistant sessions (narrating reasons to wait instead of attempting the cheap, reversible action that would resolve the doubt).
+1. **Security and compliance.** Hardcoded-secrets prevention, input validation, cryptography, authentication, OWASP/ASVS alignment, AI/agent/MCP/RAG security, CI/CD pipeline gates, language-specific security patterns. Lives under `core/`, `ai/`, `pipeline/`, and `languages/`.
+2. **Development-governance discipline.** Rules that govern how an AI coding assistant collaborates on a governed codebase: gate discipline, change-tracking discipline, evidence-grounded completion, clarify-before-acting on ambiguous requests, artefact-and-branch discipline, and action-before-explanation-of-inaction. Lives under `governance/`.
 
-Pack version 1.20.0 (Library 2026.06.20) introduces a third pack-content type: **Claude Code Skills** in the `SKILL.md` workflow format, under the `skills/` subdirectory. Skills are derived from selected governance rules and are consumed by Claude Code's Skill tool (discovered by YAML frontmatter `name:` and `description:`), distinct from the rule files which are loaded as session-start context. The initial three skills shipped at 1.20.0 are [`skills/evidence-grounded-completion/SKILL.md`](skills/evidence-grounded-completion/SKILL.md), [`skills/gate-discipline-diagnose/SKILL.md`](skills/gate-discipline-diagnose/SKILL.md), and [`skills/clarify-before-acting/SKILL.md`](skills/clarify-before-acting/SKILL.md); pack version 1.21.0 (Library 2026.06.38) added [`skills/action-before-explanation-of-inaction/SKILL.md`](skills/action-before-explanation-of-inaction/SKILL.md); pack version 1.22.0 (Library 2026.06.39) adds [`skills/change-tracking-write-entry/SKILL.md`](skills/change-tracking-write-entry/SKILL.md) and [`skills/artefact-discipline-check/SKILL.md`](skills/artefact-discipline-check/SKILL.md), closing out the post-S.3 evaluation by wrapping the two remaining workflow-shaped governance rules. Each skill is derived from the corresponding governance rule with the rule remaining as the source of truth for normative content (framework alignment, exception handling, rationale); the skill is the workflow wrapper (when to invoke, what steps in what order, what verification confirms completion).
-
-The pack remains under `dev-security/` in the parent library because the discoverability assumption is that developers (and their AI agents) shop for *"security rules"*, not for *"GRC rules"* or *"development discipline"*. The directory name is the shelf label; this README is the table of contents and articulates the broader scope.
+The pack also ships **Claude Code Skills** (`SKILL.md` workflow format) under `skills/`, derived from selected governance rules. The canonical rule remains the source of truth for normative content (framework alignment, exception handling, rationale); the skill is the workflow wrapper (when to invoke, what steps in what order, what verification confirms completion). The directory tree below lists the current set; per-version shipping history lives in the `## Version history` section near the bottom of this README and in the parent library's [`CHANGELOG.md`](../../CHANGELOG.md).
 
 The pack and the parent GRC library are two coordinated halves of one project. The parent library is the GRC corpus; the pack is the operational layer that allowed the maintainer to keep the corpus consistent with Claude Code participating in PRs. Every governance rule in the pack was extracted from a real maintenance event recorded in the parent library's [`CHANGELOG.md`](../../CHANGELOG.md); the pack is the library's lessons learned, made portable.
 
@@ -420,6 +418,27 @@ These rule files draw on and are aligned to the following external projects and 
 - URL: `https://cloudsecurityalliance.org/research/ai-controls-matrix/`
 - Coverage: 13 AI-specific security controls mapped to CCM domains
 - Direct application: framework alignment tables in all `ai/` rule files
+
+---
+
+## Version history
+
+| Pack | Library | Date | Notable change |
+| --- | --- | --- | --- |
+| 1.24.0 | 2026.06.43 | 2026-06-19 | Trimmed `Pack scope` to the load-bearing content; introduced this `Version history` section |
+| 1.23.0 | 2026.06.40 | 2026-06-19 | Dual-deliverable reframe across project framing surfaces (new `Three ways to use this pack` section; the pack named as the library's lessons learned made portable) |
+| 1.22.0 | 2026.06.39 | 2026-06-19 | Added `skills/change-tracking-write-entry` and `skills/artefact-discipline-check`; closed out the post-S.3 skills evaluation |
+| 1.21.0 | 2026.06.38 | 2026-06-19 | Added the sixth governance rule (`action-before-explanation-of-inaction`) and its skill mirror |
+| 1.20.x | 2026.06.20 onwards | 2026-06-19 | Introduced the `skills/` subdirectory; shipped the first three skills (evidence-grounded-completion, gate-discipline-diagnose, clarify-before-acting); patches broadened evidence-grounded-completion to cover unread-artefact state assertions |
+| 1.12.0 to 1.19.0 | 2026.06.x | 2026-06-02 | Incremental language-rule additions (Swift, Kotlin, React Native, Flutter, .NET MAUI, Capacitor/Ionic) and expansion of the external-overlay source set (addyosmani as a fourth vetted source) |
+| 1.11.0 | 2026.05.144 | 2026-06-01 | Completed the phased governance rollout (`artefact-and-branch-discipline`) |
+| 1.10.0 | 2026.05.143 | 2026-06-01 | `clarify-before-acting` |
+| 1.9.0 | 2026.05.142 | 2026-06-01 | `evidence-grounded-completion` |
+| 1.8.0 | 2026.05.141 | 2026-06-01 | `change-tracking` |
+| 1.7.0 | 2026.05.140 | 2026-06-01 | First governance rule: `gate-discipline` |
+| 1.6.0 | 2026.05.139 | 2026-06-01 | Scope broadened from security-only to include development-governance discipline |
+
+Per-PR detail for each pack version is in the parent library's [`CHANGELOG.md`](../../CHANGELOG.md). The pack does not maintain its own per-version changelog; the parent CHANGELOG is the source of truth. Pack versions before 1.6.0 covered the pack's original security-and-compliance scope; per-version detail for that earlier era is also in the parent CHANGELOG.
 
 ---
 
