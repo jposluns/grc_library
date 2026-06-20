@@ -84,6 +84,28 @@ Each subagent reports under 600 words, grouped by severity:
 
 **Required for every finding**: a `path:line` evidence quote. A finding without an explicit file path and line number (or line range) is not a finding, it is a hypothesis. Reject any subagent report whose findings lack quoted evidence and re-dispatch the subagent with a re-emphasized brief. This guards against the failure mode where a subagent returns an inferred or confused report instead of read-verified findings; without enforcement of the evidence requirement, the sweep degrades into inference cascade.
 
+**SARIF-lite output format.** Each subagent emits findings as a fenced markdown block per finding so the parent's dedupe (Rule 5.1) and synthesis are mechanical rather than narrative. Each block carries six labelled lines plus an evidence paragraph, in this order:
+
+```
+### Finding: <one-line title>
+- tool: <subagent-name>           # e.g. A, B, C
+- ruleId: <short-stable-id>       # e.g. stale-version-literal, mis-attributed-citation
+- level: error|warning|note       # SARIF v2.1.0 result.level enum
+- location: <path>:<line>         # uri + region.startLine collapsed
+- fingerprint: <ruleId>:<path>:<line>   # deterministic dedupe key
+- rubric: 5.1 | 5.2 | 5.3 | 5.4 | 5.5   # synthesis-rubric tag
+
+<evidence quote or 1-2 sentence rationale>
+```
+
+Three rules:
+
+1. **One finding equals one block.** Each opens with `### Finding:` and contains exactly the six labelled lines followed by an evidence paragraph. No prose findings outside blocks; no blocks missing fields.
+2. **Fingerprint is deterministic.** `<ruleId>:<path>:<line>`, lowercase, no spaces. Parent-side dedupe is then string-match, not semantic comparison. Mirrors Semgrep's `primaryLocationLineHash` shape minus the hash.
+3. **Severity enum is closed.** Only `error` / `warning` / `note` (SARIF v2.1.0 spec values). The parent maps to the synthesis rubric's three-level scale (`must-fix-before-merge` / `should-fix-this-PR` / `track-as-follow-up`) at Rule 5.3.
+
+Anti-rubric: do not emit JSON inside prose (parse-anxiety, partial-block failures); do not require the SARIF `$schema` / `version` / `runs[]` envelope (those are wire-format compliance for tools, not field needs for the rubric); do not multiply fingerprint algorithms (one deterministic string suffices when three subagents share one scheme).
+
 **Pre-tool verification discipline**. Every subagent brief carries the following rule (Popper-style falsification preamble, composed with AnyTool's redundancy gate and AgentDiet's dedup check). Before each tool call, the subagent states in one line: (a) the hypothesis this call tests, (b) the observation that would falsify it, and (c) one prior tool result that does not already answer the question. If the falsifying observation is undefined, the call is corroboration-seeking; skip it or reframe. If a prior result already answers the question, do not re-call; cite the prior result in the finding. This produces an auditable trace (every tool call carries its own justification) and filters corroboration-only calls at the source rather than at the report-writing stage, where they have already consumed budget.
 
 If the working tree shows no recent activity (a "cold" sweep), subagent A becomes a narrower spot-check of the most recently-merged PRs (`git log -5 --merges`).
