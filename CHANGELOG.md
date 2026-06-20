@@ -4,6 +4,33 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.92, PR #106
+
+TODO P4.3: implementation roadmap template. Third of five Priority 4 items.
+
+Sequences the modules an adopter picks via the quickstart template into a three-phase Year-1 plan. Composition-aware (not per fixed profile), applying the same lesson as the P4.1 rewrite.
+
+### Added
+
+- [`docs/template-implementation-roadmap.md`](docs/template-implementation-roadmap.md): new Template document. Three phases:
+  - **Phase 1, Floor** (Days 1 to 90 at E2 reference pace): reach the core-baseline defensible posture. Acceptance criteria: all six core-baseline artefacts customised, owners assigned, incident-response desk-check, initial maturity self-assessment.
+  - **Phase 2, Operational** (Days 91 to 180): operationalise the artefacts. Review cadence stood up; first review wave completed; tabletop run; maturity self-assessment shows movement.
+  - **Phase 3, Year-1 close** (Days 181 to 365): reach steady state. Measurement layer online; programme-level review; Year-1 retrospective published; Year-2 plan signed off.
+- Capacity-tier pace adjustments: E1 founder part-time (extended pace), E2 light (reference), E3 standard (accelerated 60 / 120 / 365), E4 department (parallel 60 / 90 / 270).
+- Composition-complexity pace adjustments: add 30 days per phase for compositions with 15 plus modules; 30 to 60 days in Phase 2 for heavy regulatory exposure or AI development.
+- Recording template at the bottom; six review questions before committing to dates.
+
+### Changed
+
+- [`TODO.md`](TODO.md): Priority 4.3 entry resolved; pointer to shipped template.
+- [`README.md`](README.md): library version `2026.06.91 -> 2026.06.92`; README version `1.8.47 -> 1.8.48`.
+
+### Verification
+
+All 44 audit gates pass standalone.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.91, PR #105
 
 Heavy rewrite of [`docs/template-quickstart-by-profile.md`](docs/template-quickstart-by-profile.md). Maintainer's feedback on PR #103: the six fixed profiles (small business, mid-market regulated industry, multi-national enterprise, public-sector adopter, healthcare adopter, financial-services adopter) were too rigid; companies do not fit into the categories, and the same category contains very different operational realities.
