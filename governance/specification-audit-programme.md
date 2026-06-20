@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Programme Specification\
 **Document Type:** Specification\
-**Version:** 1.7.1\
+**Version:** 1.7.2\
 **Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -67,9 +67,9 @@ The gates fall into seven functional categories:
 2. **Reference integrity** (gates 3, 11, 17, 18, 24, 26): intra-repo links resolve; CHANGELOG file-reference link coverage; section anchors resolve; intra-document section references resolve; external-link domains on allow-list; orphan documents have at least one inbound reference.
 3. **Content drift defence** (gates 5, 6, 25): external framework hallucinations; standards currency; cross-document numerical coherence.
 4. **Language and style** (gates 2, 9, 20): em-dashes, "ize/ization" Americanisms, "ensure that", sanitisation neologisms; mandatory requirements near uncertainty markers; acronym expansion consistency against the glossary.
-5. **Programme and index integrity** (gates 4, 35, 36, 37, 39): repository-wide index integrity (gate 4); audit-programme self-consistency across all four name-parity surfaces, which are the §6 inventory table plus the three runtime surfaces enumerated in §4 (gate 35); linter regression tests that confirm each in-scope linter still detects its target rule class (gate 36); sync between the project-local `.claude/rules/` rule copies and their `dev-security/claude-rules/` pack sources (gate 37); and cross-file consistency between prose references to the gate count and the actual §6 inventory row count (gate 39).
+5. **Programme and index integrity** (gates 4, 32, 35, 36, 37, 39): repository-wide index integrity (gate 4); skill `derives_from` reference integrity, confirming each pack skill's frontmatter points to a real governance rule (gate 32); audit-programme self-consistency across all four name-parity surfaces, which are the §6 inventory table plus the three runtime surfaces enumerated in §4 (gate 35); linter regression tests that confirm each in-scope linter still detects its target rule class (gate 36); sync between the project-local `.claude/rules/` rule copies and their `dev-security/claude-rules/` pack sources (gate 37); and cross-file consistency between prose references to the gate count and the actual §6 inventory row count (gate 39).
 6. **Security and privacy** (gates 12, 21, 22, 23): placeholder leakage, secret patterns, PII patterns, internal-environment leakage (cloud regions, hostnames, deployment identifiers).
-7. **Freshness and lifecycle** (gates 10, 27, 28, 29, 30, 31): document review cadence, citation-verification freshness, tooling-provenance freshness, auto-generated taxonomy and portal/scorecard sync, metadata Date staleness against the file's most-recent git commit date.
+7. **Freshness and lifecycle** (gates 10, 27, 28, 29, 30, 31, 33, 34): document review cadence, citation-verification freshness, tooling-provenance freshness, auto-generated taxonomy in sync (gate 33), auto-generated adopter portal and maturity scorecard in sync (gate 34), metadata Date staleness against the file's most-recent git commit date.
 
 Categorisation is descriptive, not prescriptive: a gate may bear on multiple categories. Categories exist to help reviewers reason about coverage.
 
