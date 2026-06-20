@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.22.0\
+**Version:** 1.23.0\
 **Date:** 2026-06-19\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -33,7 +33,21 @@ Historically this pack covered security and compliance only. As of pack version 
 
 Pack version 1.20.0 (Library 2026.06.20) introduces a third pack-content type: **Claude Code Skills** in the `SKILL.md` workflow format, under the `skills/` subdirectory. Skills are derived from selected governance rules and are consumed by Claude Code's Skill tool (discovered by YAML frontmatter `name:` and `description:`), distinct from the rule files which are loaded as session-start context. The initial three skills shipped at 1.20.0 are [`skills/evidence-grounded-completion/SKILL.md`](skills/evidence-grounded-completion/SKILL.md), [`skills/gate-discipline-diagnose/SKILL.md`](skills/gate-discipline-diagnose/SKILL.md), and [`skills/clarify-before-acting/SKILL.md`](skills/clarify-before-acting/SKILL.md); pack version 1.21.0 (Library 2026.06.38) added [`skills/action-before-explanation-of-inaction/SKILL.md`](skills/action-before-explanation-of-inaction/SKILL.md); pack version 1.22.0 (Library 2026.06.39) adds [`skills/change-tracking-write-entry/SKILL.md`](skills/change-tracking-write-entry/SKILL.md) and [`skills/artefact-discipline-check/SKILL.md`](skills/artefact-discipline-check/SKILL.md), closing out the post-S.3 evaluation by wrapping the two remaining workflow-shaped governance rules. Each skill is derived from the corresponding governance rule with the rule remaining as the source of truth for normative content (framework alignment, exception handling, rationale); the skill is the workflow wrapper (when to invoke, what steps in what order, what verification confirms completion).
 
-The pack remains under `dev-security/` in the parent library because the discoverability assumption is that developers (and their AI agents) shop for *"security rules"*, not for *"GRC rules"* or *"development discipline"*. The directory name is the shelf label; this README is the table of contents and articulates the broader scope. If a future scope expansion outgrows this framing, the directory name will be revisited at that time, not pre-emptively.
+The pack remains under `dev-security/` in the parent library because the discoverability assumption is that developers (and their AI agents) shop for *"security rules"*, not for *"GRC rules"* or *"development discipline"*. The directory name is the shelf label; this README is the table of contents and articulates the broader scope.
+
+The pack and the parent GRC library are two coordinated halves of one project. The parent library is the GRC corpus; the pack is the operational layer that allowed the maintainer to keep the corpus consistent with Claude Code participating in PRs. Every governance rule in the pack was extracted from a real maintenance event recorded in the parent library's [`CHANGELOG.md`](../../CHANGELOG.md); the pack is the library's lessons learned, made portable.
+
+## Three ways to use this pack
+
+This pack supports three adoption paths, all first-class:
+
+1. **Inside the parent GRC library, as-shipped.** No action required. If you fork the whole parent repository, the pack is already wired into [`.claude/rules/`](../../.claude/rules/) (via the sync audit in [`tools/lint-claude-rules-sync.py`](../../tools/lint-claude-rules-sync.py)) and the skills are discoverable to Claude Code as the parent library is.
+
+2. **Inside a fork of the parent GRC library.** Same as above, plus organisation-specific overlays. An adopting organisation forks, substitutes organisation-specific values across the corpus, and inherits the pack as the operational discipline its Claude Code sessions apply. See the parent library's [`docs/adopter-guide.md`](../../docs/adopter-guide.md) for the full path (Mode A).
+
+3. **As a standalone Claude Code baseline pack, on any project.** A Claude Code baseline pack, usable on any project regardless of whether it has a GRC corpus, distilled from the disciplines this library required to maintain itself. Take this directory only and drop it into your project's Claude Code context. The setup generator at [`setup-generator-prompt.md`](setup-generator-prompt.md) automates this; the manual paths are documented in the "How to use" section below. The pack ships with its own version sequence so consumers in this mode can track pack updates without needing to track the parent library's version.
+
+The third mode is an emergent use that has been adopted by developers in practice; it is supported alongside the primary fork-the-whole-repo path. Provenance is what makes the pack credible as a standalone artefact: every governance rule cites the maintenance event in the parent library's CHANGELOG that justified adding it.
 
 ---
 
