@@ -16,7 +16,7 @@ A companion detector tool (Layer 2 / 3 Phase 2, separate follow-up PR) will surf
 
 **Real drift caught on first invocation**: gate 41's first standalone run flagged the `validation-sweep` skill (added in PR #62) as missing from the pack README's skills tree section. Same pattern as gates 39 and 40: a gate's first invocation finds real pre-existing drift. The missing tree entry is added in this PR.
 
-Audit-programme spec `1.8.0 → 1.9.0` (minor: new gate added). Library version `2026.06.54 → 2026.06.55`; README version `1.8.10 → 1.8.11`. Four governance documents carry patch bumps for their `40-gate → 41-gate` prose updates.
+Audit-programme spec `1.8.0 → 1.9.0` (minor: new gate added). Pack version `1.25.3 → 1.25.4` (patch: validation-sweep skill entry added to pack README's skills tree, caught by gate 41 itself on its first invocation, then caught by gate 40 post-commit when the README body changed without a Version bump — the post-commit-audit discipline from PR #68 surfaced this immediately). Library version `2026.06.54 → 2026.06.55`; README version `1.8.10 → 1.8.11`. Four governance documents carry patch bumps for their `40-gate → 41-gate` prose updates.
 
 ### Added
 
