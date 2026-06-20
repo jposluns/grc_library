@@ -4,6 +4,30 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.62, PR #76
+
+Validation-sweep cleanup after the morning's `/validation-sweep` run on the post-PR-75 state surfaced two High-severity findings, both meta-ironic instances of the new [`skill-authoring-discipline`](dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md) skill catching itself violating its own rules. Plus one Medium-severity stale-prose finding from the sibling sweep.
+
+The sweep proved exactly what the skill-authoring-discipline skill was designed to catch: structural drift in a new skill. The new skill's first invocation on its own artefact surfaced both violations.
+
+### Fixed
+
+- [`dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md`](dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md): description field expanded from 57 words to 91 words. The skill itself prescribes 60-130 words ("Shorter is under-triggered; longer is over-triggered"); the original description shipped 3 words below the floor. The expansion adds explicit revision-trigger framing, names the eight sections of the structural template, and surfaces gate 32's role and limits in the description rather than leaving it for the body. Plus: the prose "the pack now ships seven skills" and "the pack grows past seven skills" updated to number-stable phrasing ("Every pack skill ships with..." and "as the pack grows...") so the description does not read as stale current-state when the pack count moves past seven.
+- **Bidirectional cross-references for the three new skills shipped in PR #75** (these were uni-directional only as shipped; the skill-authoring-discipline skill explicitly says "uni-directional cross-references rot; bi-directional ones survive maintenance"). Added back-references in five sibling SKILL.md files:
+  - [`dev-security/claude-rules/skills/evidence-grounded-completion/SKILL.md`](dev-security/claude-rules/skills/evidence-grounded-completion/SKILL.md): See Also extended with citation-quote-verification, fresh-reader-validation, and skill-authoring-discipline (all three derive from this rule, so the evidence-grounded-completion skill is the parent reference).
+  - [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): See Also extended with citation-quote-verification (when sweep flags citation findings) and fresh-reader-validation (when sweep flags substantively-revised documents).
+  - [`dev-security/claude-rules/skills/clarify-before-acting/SKILL.md`](dev-security/claude-rules/skills/clarify-before-acting/SKILL.md): See Also extended with fresh-reader-validation (when fresh reader surfaces unresolved ambiguity).
+  - [`dev-security/claude-rules/skills/change-tracking-write-entry/SKILL.md`](dev-security/claude-rules/skills/change-tracking-write-entry/SKILL.md): See Also extended with skill-authoring-discipline (adding a new skill is a tracked change that satisfies this skill's discipline).
+  - [`dev-security/claude-rules/skills/artefact-discipline-check/SKILL.md`](dev-security/claude-rules/skills/artefact-discipline-check/SKILL.md): See Also extended with skill-authoring-discipline (new skills create new artefacts; the generated-vs-source boundary check applies).
+
+Pack version `1.26.0 → 1.26.1` (patch: discipline-self-violation cleanup). Library version `2026.06.61 → 2026.06.62`; README version `1.8.17 → 1.8.18`.
+
+### Verification
+
+Full audit programme passes standalone on the final state. The validation-sweep's first run on the new skills caught its own pack's discipline violations — exactly the failure mode the skill-authoring-discipline skill was authored to prevent. The recursive self-test worked. This entry records that the cleanup pass landed; subsequent invocations of `/validation-sweep` should now confirm no remaining sibling defects on the new skills.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.61, PR #75
 
 Add three new skills to the dev-security/claude-rules/ pack, recreated as in-house CC BY-SA 4.0 content from cross-source research. The maintainer authorised the research-then-recreate pattern after a survey of Claude Code Skills on GitHub (kfchou/wiki-skills MIT, anthropics/skills Apache 2.0, obra/superpowers MIT, plus a Sushegaad GRC-content pack) identified three gaps in the existing pack worth filling without importing additional external overlays.
