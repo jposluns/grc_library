@@ -4,6 +4,22 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.66, PR #80
+
+Validation-sweep self-finding from the post-PR-79 sweep: cross-surface step-numbering drift. PR #78 introduced the deterministic pre-flight scanner as `### 3.5.` in [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md) and as `3a.` in [`.claude/commands/validation-sweep.md`](.claude/commands/validation-sweep.md): same logical step, two different identifiers across parallel surfaces. Surfaced by subagent A of the validation-sweep fan-out (Medium severity, in-window finding).
+
+### Changed
+
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): renamed `### 3.5. Run the deterministic pre-flight scanner` to `### 3a. Run the deterministic pre-flight scanner`. The new identifier follows the cleaner sub-step convention already used in the slash-command file and avoids the half-step framing.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.26.4 -> 1.26.5`.
+- [`README.md`](README.md): library version `2026.06.65 -> 2026.06.66`; README version `1.8.21 -> 1.8.22`.
+
+### Verification
+
+Full audit programme passes standalone, all 42 corpus gates pass. The PR #78 CHANGELOG entry retains its historical wording ("new step 3.5 inserted") per Keep a Changelog convention; historical records describe the state at the time of the change, and this PR's entry notes the subsequent rename.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.65, PR #79
 
 Validation-sweep enhancement 4 of 4 from the process-assessment review: nightly scheduled mechanical sweep on `main`. Closes the original four-enhancement queue; the late-research-findings queue (SARIF, hold-the-line, multi-agent debate, maintenance-tag dating, pre-tool verification, synthesis rubric, convergence-delta termination) plus the queued pre-flight pattern-set extension follow in subsequent PRs.
