@@ -144,6 +144,9 @@ jobs:
       - name: Collection-enumeration consistency audit
         run: python3 tools/lint-collection-enumeration-consistency.py
 
+      - name: External-overlay license consistency audit
+        run: python3 tools/lint-external-overlay-license.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

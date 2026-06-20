@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Programme Specification\
 **Document Type:** Specification\
-**Version:** 1.9.0\
+**Version:** 1.10.0\
 **Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -26,7 +26,7 @@ The audit programme is the library's primary defence against the failure modes c
 
 ### 2.1 In scope
 
-- The 41 audit gates currently wired into the audit-programme (see §6).
+- The 42 audit gates currently wired into the audit-programme (see §6).
 - The three enforcement surfaces (CI workflow, local audit runner, pre-commit hook).
 - The doctrinal rules for adding, modifying, scoping, and retiring gates (see §9, §10).
 - The relationship between the audit programme and the Citation Verification Specification (see §11).
@@ -63,7 +63,7 @@ Of the three surfaces, only the GitHub Actions workflow is authoritative: a gree
 
 The gates fall into seven functional categories:
 
-1. **Metadata integrity** (gates 1, 7, 8, 13, 14, 15, 16, 19, 38, 40): canonical metadata block presence and field validity; doctype-to-filename alignment; Owner and Approving Authority field validity against the role register; date format; license value; document-stub detection; required sections per doctype; section placement conventions (orientation sections in the top three `##` sections, Licence and Version-history sections in the bottom three); version monotonicity; per-document version-bump recency, verifying that each document's `Version` field has been bumped at or after the file's most-recent body change (gate 40, the corpus-side counterpart of delta gate D2).
+1. **Metadata integrity** (gates 1, 7, 8, 13, 14, 15, 16, 19, 38, 40, 42): canonical metadata block presence and field validity; doctype-to-filename alignment; Owner and Approving Authority field validity against the role register; date format; license value; document-stub detection; required sections per doctype; section placement conventions (orientation sections in the top three `##` sections, Licence and Version-history sections in the bottom three); version monotonicity; per-document version-bump recency, verifying that each document's `Version` field has been bumped at or after the file's most-recent body change (gate 40, the corpus-side counterpart of delta gate D2); and external-overlay licence consistency, verifying that each `.claude/rules/external/<source>/` subdirectory carries the source project's declared LICENSE and that no external markdown file claims the project's own licence (gate 42, the external-overlay counterpart of gate 15).
 2. **Reference integrity** (gates 3, 11, 17, 18, 24, 26): intra-repo links resolve; CHANGELOG file-reference link coverage; section anchors resolve; intra-document section references resolve; external-link domains on allow-list; orphan documents have at least one inbound reference.
 3. **Content drift defence** (gates 5, 6, 25): external framework hallucinations; standards currency; cross-document numerical coherence.
 4. **Language and style** (gates 2, 9, 20): em-dashes, "ize/ization" Americanisms, "ensure that", sanitisation neologisms; mandatory requirements near uncertainty markers; acronym expansion consistency against the glossary.
@@ -120,6 +120,7 @@ The numbering matches the order in [`tools/run_all_audits.sh`](../tools/run_all_
 | 39 | Cross-file gate-count consistency audit | [`tools/lint-gate-count-consistency.py`](../tools/lint-gate-count-consistency.py) |
 | 40 | Corpus version-bump-recency audit | [`tools/lint-version-bump-recency.py`](../tools/lint-version-bump-recency.py) |
 | 41 | Collection-enumeration consistency audit | [`tools/lint-collection-enumeration-consistency.py`](../tools/lint-collection-enumeration-consistency.py) |
+| 42 | External-overlay license consistency audit | [`tools/lint-external-overlay-license.py`](../tools/lint-external-overlay-license.py) |
 
 Most gates are pure read-only linters that exit non-zero on the first violation; the exceptions are gates 33 and 34 (generator-output drift checks), gate 35 (audit-programme self-check), gate 36 (linter regression test suite), gate 37 (Claude-rules local-copy sync drift check), and gate 40 (corpus version-bump-recency audit, which uses `git log` heuristics to compare per-file body-commit and Version-line-commit timestamps), described below. Gates 33 and 34 re-run the generator in `--check` mode and exit non-zero if the regenerated output differs from the committed artefact. Gate 35 is the audit programme's self-check: it parses this §6 inventory and confirms that the workflow, the local audit runner, and the pre-commit config declare the same gates with the same names and scripts in the same order. Gate 36 is the linter regression test suite: for each in-scope linter it constructs a synthetic markdown fixture that should trigger exactly one rule, invokes the linter against the fixture, and asserts the linter exits non-zero. The test suite catches a defect class no other gate can catch (a regression in a linter's own detection logic). Gate 37 is a drift check between the project-local `.claude/rules/` rule copies and their `dev-security/claude-rules/` pack sources: both trees are exempt from the corpus linters, so this is the only gate that catches a local copy (the file a Claude Code session loads as context) drifting from its source. It is logically akin to the generator-output drift checks (gates 33 and 34) but is placed last (paired with gates 38 and 39 below) so that adding it did not renumber the meta-gates above; it also verifies that every local rule file is covered by its source mapping, so a new un-mapped mirror fails rather than going silently unchecked. Gate 38 is a section-placement audit: it codifies the convention (surfaced by the corpus-wide section-ordering survey) that orientation sections appear in the top three `##` sections and that Licence and Version-history sections appear in the bottom three; the audit catches future drift mechanically without requiring per-doctype canonical-order codification. Gate 39 is a cross-file gate-count consistency audit: it parses the row count of this §6 inventory as the canonical gate count, then scans corpus markdown, Python, and shell sources for prose references to gate counts ("N-gate audit programme", "N audit gates", "gates 1-N", "all N gates", and similar idioms) and flags any whose captured N does not match the canonical. The audit catches the failure mode that surfaced when gate 38 was added: the §6 inventory was bumped but downstream prose in registers, procedures, and tooling continued to cite the prior gate count through multiple cleanup PRs. Gates 38, 39, and 40 are all appended at the tail (after gate 37) for the same reason gate 37 was: appending avoids renumbering the meta-gates above.
 
@@ -127,9 +128,11 @@ Gate 40 is a corpus version-bump-recency audit: for each versioned document, it 
 
 Gate 41 is a collection-enumeration consistency audit: for each declared "collection" of items (pack governance rules, pack skills, and similar groupings that appear in multiple places in the corpus), the gate compares the canonical source-of-truth (a directory listing) against the enumerations of that collection elsewhere in the corpus. If an item exists in the canonical source but is missing from an enumeration (or vice versa), the gate fails. The initial configuration ships with two hard-coded collections; a companion detector tool (`tools/detect-collection-candidates.py`, separate deliverable) surfaces additional candidate collections by heuristic scan for the maintainer to triage one-by-one.
 
+Gate 42 is an external-overlay licence consistency audit: it walks each subdirectory of `.claude/rules/external/`, reads each subdirectory's LICENSE file, and verifies the licence identifier matches a hard-coded `EXPECTED_LICENSE` mapping (currently TikiTribe → MIT, Kariedo → MIT, addyosmani → MIT). It additionally walks the markdown files in each external subdirectory and fails if any contains the literal `**License:** CC BY-SA 4.0` claim, since external files retain their source project's licence rather than the project's own. The gate is the external-overlay counterpart of gate 15 (which enforces the project's own licence discipline on the corpus): together, the two gates close the licence-consistency loop across every file in the repository (project content or external overlay).
+
 ### 6.1 PR-only delta gates
 
-A delta gate inspects the change set of a pull request, not the repository state at HEAD. Delta gates are not part of the 41-gate corpus inventory above, because their inputs (git history range, PR base ref) are not available in [`tools/run_all_audits.sh`](../tools/run_all_audits.sh) or [`.pre-commit-config.yaml`](../.pre-commit-config.yaml) and they are therefore exempt from gate 35's parity audit. Delta gates run only in [`.github/workflows/quality.yml`](../.github/workflows/quality.yml) on `pull_request` events.
+A delta gate inspects the change set of a pull request, not the repository state at HEAD. Delta gates are not part of the 42-gate corpus inventory above, because their inputs (git history range, PR base ref) are not available in [`tools/run_all_audits.sh`](../tools/run_all_audits.sh) or [`.pre-commit-config.yaml`](../.pre-commit-config.yaml) and they are therefore exempt from gate 35's parity audit. Delta gates run only in [`.github/workflows/quality.yml`](../.github/workflows/quality.yml) on `pull_request` events.
 
 | # | Gate | Script | Surface |
 | --- | --- | --- | --- |
