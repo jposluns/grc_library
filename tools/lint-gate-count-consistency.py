@@ -87,6 +87,14 @@ PATTERNS: list[tuple[str, re.Pattern[str]]] = [
         re.compile(r"\bgates?\s+1\s+through\s+(\d+)\b", re.IGNORECASE),
     ),
     ("all N gates", re.compile(r"\ball\s+(\d+)\s+gates?\b", re.IGNORECASE)),
+    # P6: bare "<two-digit number> gates" without preceding qualifier.
+    # Narrower than the other patterns and added after a Sweep finding
+    # in tools/README.md where prose used a bare "<stale-count> gates"
+    # phrasing without an "audit" or "all" qualifier; patterns P1-P5
+    # missed it. Requires the captured number to be at least 10 (two
+    # digits) to avoid matching small physical-gate references that
+    # may legitimately appear (e.g. "5 gates of NAND").
+    ("N gates", re.compile(r"\b(\d{2,})\s+gates?(?![-\w])", re.IGNORECASE)),
 ]
 
 
