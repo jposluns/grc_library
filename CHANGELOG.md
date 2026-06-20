@@ -4,6 +4,47 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.95, PR #109
+
+TODO P4.5: audit evidence package template. **Fifth and last of the Priority 4 items in sequence.**
+
+Packages per-control evidence into an audit-ready bundle: a single navigable artefact an external auditor, regulator, or independent assessor can walk through. The library documents per-control evidence requirements across compliance and risk; the packaging step (assembling that evidence into a bundle organised for an outside reviewer) is what this template covers.
+
+### Added
+
+- [`compliance/template-audit-evidence-package.md`](compliance/template-audit-evidence-package.md): new Template document with:
+  - **Cover page** (organisation, framework, audit type, period, scope, assembly team, retention).
+  - **Control inventory index** flat-list of all in-scope controls with implementation status and operating effectiveness columns; auditor's primary navigation surface.
+  - **Per-control sections** (one per control): framework references (primary plus secondary mappings), control description, implementation evidence point-in-time, operating evidence over the period, gaps and compensating controls, per-control sign-off.
+  - **Optional per-domain summaries** for packages with 50+ controls.
+  - **Optional cross-reference index** mapping shared evidence artefacts to the multiple controls they support.
+  - **Package-level sign-off** (assembler, reviewer, approving authority).
+  - **Anti-patterns to watch** (undated screenshots, sample-size-of-one tests, "see attached" without attachment, missing remediation plans, future-tense in past-period evidence, self-review).
+  - **Eight review questions** before releasing the package.
+
+### Changed
+
+- [`TODO.md`](TODO.md): Priority 4.5 entry resolved; pointer to shipped template.
+- [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md): version `1.1.11 -> 1.1.12`; §6 entry for "Audit evidence package templates" updated from `Partial / Planned / TODO P4.5` to `Substantive / In library / [link]`.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md): version `1.27.19 -> 1.27.20`; new row added.
+- [`compliance/README.md`](compliance/README.md): version `1.4.2 -> 1.4.3`; new row added.
+- [`README.md`](README.md): library version `2026.06.94 -> 2026.06.95`; README version `1.8.50 -> 1.8.51`.
+
+### Priority 4 backlog: closed
+
+All five Priority 4 items in TODO.md are now shipped (with the maintainer's authorial decisions integrated along the way):
+- **4.1** Quickstart template (PR #103 then PR #105 rewrite to activity-modular, PR #108 rename to [`docs/template-quickstart.md`](docs/template-quickstart.md))
+- **4.2** Maturity self-assessment template (PR #104)
+- **4.3** Implementation roadmap template (PR #106)
+- **4.4** Regulator interaction templates (PR #107)
+- **4.5** Audit evidence package template (this PR)
+
+### Verification
+
+All 44 audit gates pass standalone.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.94, PR #108
 
 Rename the adopter quickstart template from its prior "by-profile" filename to [`docs/template-quickstart.md`](docs/template-quickstart.md). Maintainer feedback: the file is no longer a per-profile template (after the P4.1 rewrite to activity-modular shape in PR #105), so the prior filename was misleading. The document title was already "Adopter Quickstart Template" so no title change is needed.
