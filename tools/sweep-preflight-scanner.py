@@ -33,6 +33,17 @@ history register accumulates findings):
         the validation-sweep skill's collection list, and N does not
         match the canonical count.
 
+Noise reduction (added 2026-06-20):
+- Heuristic context-aware skips: section references (`Section N`),
+  legal bill references (`AB 1394`), year-adjacent legal references
+  (`The 2025 Rules`), version-history table rows (markdown rows with
+  both version-shape and date-shape strings), historical-narrative
+  keywords (`completed at`, `now ships`, `previously`).
+- Exemption file at tools/sweep-preflight-exemptions.json: per-entry
+  (path, pattern_id, line_hash, reason) records that suppress unique
+  edge cases the heuristics miss. Stable under line-number drift; the
+  line_hash is SHA-256 of the stripped line content.
+
 Output format: structured findings on stdout that a subagent can
 consume as a checklist. Each finding has: pattern_id, file_path, line,
 captured text, expected value.
@@ -42,6 +53,8 @@ Stdlib-only Python 3.11. Exit code 0 always (informational tool).
 
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 import sys
 from pathlib import Path
@@ -65,10 +78,13 @@ EXEMPT_FILES: frozenset[str] = frozenset(
         "taxonomy.yml",
         "docs/portal.md",
         "docs/maturity-scorecard.md",
-        "tools/sweep-preflight-scanner.py",  # the docstring describes patterns
+        "tools/sweep-preflight-scanner.py",  # docstring describes patterns
         "tests/test_linters.py",  # may contain fixture strings
     }
 )
+
+# Path to the exemption file (JSON, stdlib-friendly).
+EXEMPTION_FILE = "tools/sweep-preflight-exemptions.json"
 
 # Number-word to digit mapping for catching prose-form counts.
 NUMBER_WORDS: dict[str, int] = {
@@ -77,6 +93,17 @@ NUMBER_WORDS: dict[str, int] = {
     "eleven": 11, "twelve": 12, "thirteen": 13, "fourteen": 14, "fifteen": 15,
     "sixteen": 16, "seventeen": 17, "eighteen": 18, "nineteen": 19, "twenty": 20,
 }
+
+# Heuristic context tokens that flag a line as historical narrative.
+HISTORICAL_KEYWORDS = (
+    "completed at", "now ships", "previously", "past ", "originally",
+    "historically", "earlier", "before gate", "before the gate",
+)
+
+# Section-like prefixes that flag the matched number as a non-count reference.
+SECTION_PREFIXES = (
+    "Section", "Article", "Phase", "Title", "Chapter", "Part", "Step",
+)
 
 
 class Finding(NamedTuple):
@@ -108,6 +135,101 @@ def count_collection(collection_dir: str, item_filter: str) -> int | None:
     return None
 
 
+def line_hash(line: str) -> str:
+    """Stable hash of the stripped line content for exemption keying."""
+    return hashlib.sha256(line.strip().encode("utf-8")).hexdigest()[:16]
+
+
+def load_exemptions() -> dict[tuple[str, str], set[str]]:
+    """Load the exemption file. Returns {(path, pattern_id): {line_hash, ...}}.
+
+    File format (JSON):
+      {
+        "exemptions": [
+          {
+            "path": "<file>",
+            "pattern_id": "<PF-...>",
+            "line_hash": "<sha256[:16] of stripped line content>",
+            "reason": "<short rationale>"
+          },
+          ...
+        ]
+      }
+    """
+    exemption_path = REPO_ROOT / EXEMPTION_FILE
+    if not exemption_path.is_file():
+        return {}
+    try:
+        data = json.loads(exemption_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {}
+    exemptions: dict[tuple[str, str], set[str]] = {}
+    for entry in data.get("exemptions", []):
+        key = (entry["path"], entry["pattern_id"])
+        exemptions.setdefault(key, set()).add(entry["line_hash"])
+    return exemptions
+
+
+def is_exempt_by_heuristic(
+    line: str, match_start: int, match_end: int, captured: str
+) -> tuple[bool, str]:
+    """Heuristic context-aware exemption.
+
+    Returns (skip, reason). When skip is True, the finding is suppressed.
+    Heuristics are precision-tuned: they should only catch shapes that
+    are unambiguously not stale-count claims.
+    """
+    before = line[:match_start]
+    after = line[match_end:]
+    matched = line[match_start:match_end]
+    stripped = line.strip()
+
+    # H1: matched number is preceded by a section-like word
+    # ("Section 13", "Article 4", "Phase 2", "Chapter 7", "Step 3")
+    last_word = before.rstrip().split()[-1] if before.rstrip() else ""
+    if last_word.rstrip(".,;:") in SECTION_PREFIXES:
+        return True, "section-prefix"
+
+    # H1b: matched number is part of a hyphenated compound
+    # ("under-14 rules", "1-5 rules", "post-9 weeks")
+    if before.endswith("-"):
+        return True, "hyphenated-compound"
+
+    # H2: legal bill / act reference ("AB 1394", "SB 234", "HB 41",
+    # "Bill 1394", "Act 4")
+    if re.search(r"\b([A-Z]{1,3}|Bill|Act)\s+$", before):
+        return True, "legal-bill-reference"
+
+    # H3: 4-digit year matched with a title-cased legal-shape noun
+    # inside the match ("The 2025 Rules", "2024 Directive"). The collection
+    # name (Rules / Act / etc.) is inside the matched span, so detect via
+    # case sensitivity of the matched text rather than via after-context.
+    if re.match(r"^(19|20)\d{2}$", captured) and re.search(
+        r"\s+(Rules|Act|Regulation|Directive|Code|Law|Amendment)\b",
+        matched,
+    ):
+        return True, "year-legal-reference"
+
+    # H4: markdown version-history table row: starts with `|`, contains
+    # both a version-shape and a date-shape (or YYYY.MM.NN library
+    # version)
+    if stripped.startswith("|") and re.search(
+        r"\b\d+\.\d+(\.\d+|\.\w+)?\b", stripped
+    ) and re.search(
+        r"\b\d{4}-\d{2}-\d{2}\b|\b\d{4}\.\d{2}\.\d+\b", stripped
+    ):
+        return True, "version-history-table-row"
+
+    # H5: historical-narrative keyword anywhere in the line
+    line_lower = line.lower()
+    for kw in HISTORICAL_KEYWORDS:
+        if kw in line_lower:
+            return True, f"historical-narrative-keyword:{kw.strip()}"
+
+    _ = after  # context reserved for future heuristics
+    return False, ""
+
+
 def iter_targets() -> list[Path]:
     targets: list[Path] = []
     for path in REPO_ROOT.rglob("*.md"):
@@ -124,9 +246,15 @@ def iter_targets() -> list[Path]:
 def scan_collection_counts(
     targets: list[Path],
     canonical: dict[str, int],
-) -> list[Finding]:
-    """Pattern PF-01 / PF-02 / PF-03: 'N skills' / 'N rules' / 'N foo'."""
+    exemptions: dict[tuple[str, str], set[str]],
+) -> tuple[list[Finding], int, int]:
+    """Pattern PF-01 / PF-02 / PF-03: 'N skills' / 'N rules' / 'N foo'.
+
+    Returns (findings, heuristic_skips, exemption_skips).
+    """
     findings: list[Finding] = []
+    heuristic_skips = 0
+    exemption_skips = 0
     for name, canonical_count in canonical.items():
         # Digit form: "N <name>"
         digit_re = re.compile(rf"\b(\d+)\s+{re.escape(name)}\b", re.IGNORECASE)
@@ -135,6 +263,8 @@ def scan_collection_counts(
             r"\b(" + "|".join(NUMBER_WORDS.keys()) + r")\s+" + re.escape(name) + r"\b",
             re.IGNORECASE,
         )
+        digit_pattern_id = f"PF-collection-{name}"
+        word_pattern_id = f"PF-collection-{name}-word"
         for path in targets:
             text = read_text_safe(path)
             if text is None:
@@ -142,33 +272,57 @@ def scan_collection_counts(
             rel = path.relative_to(REPO_ROOT).as_posix()
             for lineno, line in enumerate(text.splitlines(), start=1):
                 for m in digit_re.finditer(line):
-                    captured = int(m.group(1))
-                    if captured != canonical_count:
-                        findings.append(
-                            Finding(
-                                pattern_id=f"PF-collection-{name}",
-                                path=rel,
-                                line=lineno,
-                                captured=str(captured),
-                                expected=str(canonical_count),
-                                text=line.strip()[:120],
-                            )
+                    captured = m.group(1)
+                    if int(captured) == canonical_count:
+                        continue
+                    skip, _reason = is_exempt_by_heuristic(
+                        line, m.start(), m.end(), captured
+                    )
+                    if skip:
+                        heuristic_skips += 1
+                        continue
+                    if line_hash(line) in exemptions.get(
+                        (rel, digit_pattern_id), set()
+                    ):
+                        exemption_skips += 1
+                        continue
+                    findings.append(
+                        Finding(
+                            pattern_id=digit_pattern_id,
+                            path=rel,
+                            line=lineno,
+                            captured=captured,
+                            expected=str(canonical_count),
+                            text=line.strip()[:120],
                         )
+                    )
                 for m in word_re.finditer(line):
                     word = m.group(1).lower()
                     captured = NUMBER_WORDS[word]
-                    if captured != canonical_count:
-                        findings.append(
-                            Finding(
-                                pattern_id=f"PF-collection-{name}-word",
-                                path=rel,
-                                line=lineno,
-                                captured=word,
-                                expected=str(canonical_count),
-                                text=line.strip()[:120],
-                            )
+                    if captured == canonical_count:
+                        continue
+                    skip, _reason = is_exempt_by_heuristic(
+                        line, m.start(), m.end(), word
+                    )
+                    if skip:
+                        heuristic_skips += 1
+                        continue
+                    if line_hash(line) in exemptions.get(
+                        (rel, word_pattern_id), set()
+                    ):
+                        exemption_skips += 1
+                        continue
+                    findings.append(
+                        Finding(
+                            pattern_id=word_pattern_id,
+                            path=rel,
+                            line=lineno,
+                            captured=word,
+                            expected=str(canonical_count),
+                            text=line.strip()[:120],
                         )
-    return findings
+                    )
+    return findings, heuristic_skips, exemption_skips
 
 
 def main(argv: list[str]) -> int:
@@ -178,12 +332,18 @@ def main(argv: list[str]) -> int:
         if count is not None:
             canonical[name] = count
 
+    exemptions = load_exemptions()
     targets = iter_targets()
-    findings = scan_collection_counts(targets, canonical)
+    findings, heuristic_skips, exemption_skips = scan_collection_counts(
+        targets, canonical, exemptions
+    )
 
+    suppressed_total = heuristic_skips + exemption_skips
     print(
         f"Pre-flight scanner: {len(targets)} files scanned, "
-        f"{len(canonical)} canonical collections tracked.\n"
+        f"{len(canonical)} canonical collections tracked, "
+        f"{suppressed_total} candidate(s) suppressed "
+        f"({heuristic_skips} by heuristic, {exemption_skips} by exemption file).\n"
     )
 
     if not findings:
@@ -214,6 +374,12 @@ def main(argv: list[str]) -> int:
         "comparative wording, etc.). Each candidate needs subagent semantic "
         "triage; the scanner's value is in catching what the high-precision "
         "gates miss, not in adjudicating intent."
+    )
+    print(
+        "\nTo suppress a known-false-positive candidate that the heuristics "
+        "do not catch, add an entry to tools/sweep-preflight-exemptions.json "
+        "with the file path, pattern_id, and line_hash (16-char sha256 prefix "
+        "of the stripped line content)."
     )
     return 0
 
