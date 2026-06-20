@@ -4,6 +4,25 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.96, PR #110
+
+Validation-sweep finding (post-P4.5 sweep, Subagent B): two stale "42 gates" prose references that gate 39 missed. Plus a related pattern-set extension to close the gap going forward.
+
+The post-P4.5 validation sweep dispatched Subagent A (recent-PR deep review, zero findings) and Subagent B (corpus-wide stale-reference sweep). Subagent B surfaced one in-window finding at [`tools/README.md`](tools/README.md):59 with the phrasing "runs the same 42 gates" that PF-04 missed (no `currently / now at` trigger) and gate 39 also missed (the existing patterns require an `audit` / `all` / hyphenated qualifier; the bare "N gates" shape was not caught). Manual re-read surfaced one more on the same file at line 7, plus a second stale claim in [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md):212.
+
+### Changed
+
+- [`tools/README.md`](tools/README.md): line 7 `42 gates -> 44 gates`; line 59 `42 gates -> 44 gates`. Plus a separate drift on line 7: `Gate 31 (gate-name parity audit)` corrected to `Gate 35 (gate-name parity audit)`. (The gate-name parity audit was renumbered from 31 to 35 over the gate-progression; the reference was missed.) No `Version:` field on this file so no per-doc bump.
+- [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md): version `1.1.12 -> 1.1.13`. Line 212 `42 gates running in CI -> 44 gates running in CI`. Also extended the gate-list inline summary to cover the gates added since the entry was last refreshed (40 version-bump-recency, 41 collection-enumeration, 42 external-overlay license, 43 follow-up ageing, 44 paired-skill step-parity).
+- [`tools/lint-gate-count-consistency.py`](tools/lint-gate-count-consistency.py): added pattern P6 (bare `N gates` where N is two or more digits, with a negative lookahead `(?![-\w])` to avoid matching `gate-name` / `gate-count` / `gates 1-44` shapes). The existing P1-P5 patterns required an `audit` / `all` / hyphenated qualifier; the new P6 catches the bare-N-gates shape this sweep surfaced.
+- [`README.md`](README.md): library version `2026.06.95 -> 2026.06.96`; README version `1.8.51 -> 1.8.52`.
+
+### Verification
+
+All 44 audit gates pass standalone post-fix. The extended gate 39 pattern catches the two findings if re-introduced; existing legitimate uses of "N gates" prose elsewhere in the corpus do not false-positive on P6.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.95, PR #109
 
 TODO P4.5: audit evidence package template. **Fifth and last of the Priority 4 items in sequence.**
