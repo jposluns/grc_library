@@ -274,3 +274,10 @@ repos:
         language: system
         pass_filenames: false
         types: [markdown]
+
+      - id: lint-section-placement
+        name: Section placement audit
+        entry: python3 tools/lint-section-placement.py
+        language: system
+        pass_filenames: false
+        types: [markdown]

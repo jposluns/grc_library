@@ -658,6 +658,27 @@ class RequiredSectionsTests(LinterTestCase):
         self.assertLinterFails(result)
 
 
+class SectionPlacementTests(LinterTestCase):
+    """tools/lint-section-placement.py"""
+
+    def test_orientation_section_outside_top_three_flagged(self) -> None:
+        # Build a fixture where Purpose is the 5th of 5 ``##`` sections,
+        # which violates SP-01 (orientation must be in the top 3).
+        bad = VALID_METADATA.replace(
+            "## Purpose\n\nTest fixture content for the linter regression suite.\n",
+            (
+                "## Body section one\n\nText.\n\n"
+                "## Body section two\n\nText.\n\n"
+                "## Body section three\n\nText.\n\n"
+                "## Body section four\n\nText.\n\n"
+                "## Purpose\n\nText.\n"
+            ),
+        )
+        fixture = self.make_fixture("standard-orientation-late.md", bad)
+        result = run_linter("tools/lint-section-placement.py", fixture)
+        self.assertLinterFails(result)
+
+
 class AcronymConsistencyTests(LinterTestCase):
     """tools/lint-acronym-consistency.py"""
 

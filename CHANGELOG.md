@@ -4,6 +4,29 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.45, PR #59
+
+Add a new audit gate (#38) — the Section placement audit — that codifies two placement conventions a corpus-wide section-ordering survey found universally observed: orientation sections (Purpose, Scope, Overview, Applicability, Introduction, Executive Summary) must appear in the top three `##` sections, and Licence and Version-history sections must appear in the bottom three. The gate catches future drift mechanically without requiring per-doctype canonical-order codification. Library version `2026.06.44 → 2026.06.45`; audit-programme specification version `1.5.0 → 1.6.0` (minor bump: new gate added); README version `1.8.0 → 1.8.1` (patch: library-version-only bump).
+
+### Added
+
+- [`tools/lint-section-placement.py`](tools/lint-section-placement.py): new linter implementing rules SP-01 (orientation in top three `##` sections), SP-03 (version-history in bottom three), and SP-04 (licence in bottom three). Matching is case-insensitive and uses exact match against the normalised heading (with leading numbering, "Section N", and common punctuation stripped first) to avoid false positives on sections that legitimately reuse a canonical orientation or closing word in a different sense. Files with three or fewer `##` sections trivially satisfy the constraints.
+- [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md): gate 38 added to the §6 audit inventory table with the path link to its linter; §6 prose extended with a sentence explaining the rule scope and why the gate is appended (avoids renumbering the meta-gates above). Document version `1.5.0 → 1.6.0`.
+- [`.github/workflows/quality.yml`](.github/workflows/quality.yml): new step "Section placement audit" added after the Claude-rules local-copy sync audit step, mirroring the gate ordering in [`tools/run_all_audits.sh`](tools/run_all_audits.sh).
+- [`tools/run_all_audits.sh`](tools/run_all_audits.sh): new `run_gate` call for the Section placement audit appended after the Claude-rules local-copy sync audit, so the local runner declares the same 38 gates as the CI workflow.
+- [`.pre-commit-config.yaml`](.pre-commit-config.yaml): new `lint-section-placement` hook appended after `lint-claude-rules-sync`, keeping the pre-commit surface in lockstep with the workflow and runner per the gate-parity discipline.
+- [`tests/test_linters.py`](tests/test_linters.py): new `SectionPlacementTests` class with one regression fixture (`test_orientation_section_outside_top_three_flagged`) that constructs a synthetic markdown document where `Purpose` is the fifth of five `##` sections and asserts the linter exits non-zero. The fixture catches a regression in the linter's own SP-01 detection logic per the gate-36 contract.
+
+### Changed
+
+- [`README.md`](README.md): library version `2026.06.44 → 2026.06.45`; README version `1.8.0 → 1.8.1`; Date `2026-06-19 → 2026-06-20`.
+
+### Verification
+
+Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit, including the new gate 38 (Section placement audit) reporting OK against the current corpus and the gate-name parity audit (gate 35) confirming all four surfaces (workflow, runner, pre-commit, audit-programme spec) declare 38 gates in the same order. The linter regression test suite (gate 36) passes including the new `SectionPlacementTests` fixture. The metadata audit (gate 1) accepts the per-document Version and Date bumps on the spec and the README. The version-date consistency audit (gate 29) confirms `2026.06.45` matches `2026-06`; the library-version-monotonicity audit (gate 13) accepts the entry. The CHANGELOG link-coverage audit (gate 11) accepts the entry's path-shaped code spans (all wrapped as markdown links). The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
+
+---
+
 ## 2026-06-19, Library Version 2026.06.44, PR #58
 
 Two coordinated cleanups in one PR: (1) move the root [`README.md`](README.md) "Licence and third-party reference boundary" section to the bottom of the file so it aligns with the placement convention every other README and the audit-programme survey found universal across the corpus; (2) update five places across the corpus where the external-rule-sources list still enumerated three names (TikiTribe, Wiz, Kariedo) instead of four (TikiTribe, Kariedo, addyosmani, Wiz). Library version `2026.06.43 → 2026.06.44`.
