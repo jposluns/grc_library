@@ -2,7 +2,7 @@
 
 **Document Title:** Validation Sweep History Register\
 **Document Type:** Register\
-**Version:** 1.2.0\
+**Version:** 1.3.0\
 **Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -54,6 +54,17 @@ The eight classes the sweep targets, as a stable identifier set for the entries 
 | C6: generated-artefact-lag | Source edited but generator not re-run |
 | C7: stale-docstring | Linter/script docstring no longer matches code |
 | C8: term-drift | Different files use different terms for same concept |
+
+### Classification convention: primary plus optional secondary
+
+A finding may belong to more than one class at once. A multi-surface miss that surfaces as stale prose is both a C3 (mechanism) and a C1 (symptom); a term-drift between two files that share a generated artefact is both a C8 and a C6. The classification convention is:
+
+1. **Each finding is tagged with a primary class** that names its dominant mechanism (the root cause an audit gate or skill would target to prevent recurrence). For a multi-surface miss that surfaces as prose drift, the primary class is C3.
+2. **Each finding may optionally carry one or more secondary classes** that name the symptom shape a reader would notice first. For the same multi-surface miss, the secondary class is C1.
+3. **The recurring-class summary table tracks primary-class counts** as its main signal (these are what mechanical defences should target). **A separate footnote tracks secondary-class participation** so the maintainer can see which symptom shapes are most common even when the mechanism is captured under a different primary class.
+4. **Sweep entries record findings as `primary [+ secondary]`** (e.g. `C3+C1` for a multi-surface miss that surfaced as prose drift, or just `C1` for a pure stale-prose finding with no multi-surface mechanism).
+
+Historical entries from Sweeps 1-3 were classified before this convention was documented; their primary classes are preserved as-is. Sweep 4 onwards records primary plus secondary where applicable. The classification rule is documented here once the convention exists; it is not retro-applied to rewrite historical findings.
 
 ## Sweep entries
 
@@ -109,14 +120,15 @@ Findings the maintainer has triaged as not-a-real-finding. Subsequent sweeps sho
 
 Cumulative count of findings per class, across all sweeps:
 
-| Class | Total findings | Last seen |
+| Class | Total findings (primary) | Last seen |
 | --- | --- | --- |
 | C1: stale-prose | 2 | Sweep 4 |
 | C3: multi-surface-incomplete | 6 | Sweep 3 |
 | Discipline self-violation (new) | 1 | Sweep 2 |
-| Classification-convention follow-up (new) | 1 | Sweep 4 |
 
-Other classes (C2, C4, C5, C6, C7, C8): zero findings in the four sweeps run to date.
+Other classes (C2, C4, C5, C6, C7, C8): zero primary-class findings in the four sweeps run to date.
+
+**Secondary-class participation** (per the classification convention documented above): no historical findings carry a secondary class because historical entries were classified before the convention was established. Sweep 5 onwards will populate this footnote when a finding's primary mechanism differs from its symptom shape.
 
 **Reading the table**: C3 (multi-surface incompleteness) remains the dominant failure class at 6 cumulative findings; C1 (stale-prose) is now at 2 after Sweep 4 surfaced a pack-version literal in the adopter guide. The project's accumulated mechanical defences against C3 (gates 35 gate-name parity, 39 gate-count consistency, 41 collection-enumeration consistency) close the gate-shaped C3 surface, but the prose-and-numbering-shaped C3 surface (Sweep 3: cross-file step-numbering drift between a SKILL.md heading and a slash-command numbered step) and prose-version literals (Sweep 4: `currently `1.22.0`` in the adopter guide) still fall to the semantic subagent layer. Two consecutive sweeps now point at the same gap: the next mechanical gate worth considering is a cross-document term-and-identifier consistency check (something that can detect stale version literals and inconsistent step identifiers across parallel surfaces) beyond the existing collection-enumeration scope.
 

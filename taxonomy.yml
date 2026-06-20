@@ -2383,7 +2383,7 @@ documents:
   domain: "governance"
   type: "Register"
   title: "Validation Sweep History Register"
-  version: "1.2.0"
+  version: "1.3.0"
   date: "2026-06-20"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"
