@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Programme Specification\
 **Document Type:** Specification\
-**Version:** 1.6.1\
+**Version:** 1.6.2\
 **Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -26,7 +26,7 @@ The audit programme is the library's primary defence against the failure modes c
 
 ### 2.1 In scope
 
-- The 32 audit gates currently wired into the audit-programme (see §6).
+- The 38 audit gates currently wired into the audit-programme (see §6).
 - The three enforcement surfaces (CI workflow, local audit runner, pre-commit hook).
 - The doctrinal rules for adding, modifying, scoping, and retiring gates (see §9, §10).
 - The relationship between the audit programme and the Citation Verification Specification (see §11).

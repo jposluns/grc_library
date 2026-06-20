@@ -4,6 +4,33 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.49, PR #63
+
+Dogfood-cleanup pass: the first run of the `validation-sweep` skill (shipped in PR #62) on the post-PR-61 main state found four sibling defects that PR #61's "cleanup all stale 37-gate references" pass had missed. This entry records what the dogfood run caught, and the small cleanup PR that closes them. The finding is itself a positive signal: shipping the skill in PR #62 led directly, on its first invocation, to surfacing two High-severity references that the unaided multi-PR cleanup had not caught. The Layer 2 gate-39 candidate (cross-file gate-count consistency) would have caught both mechanically.
+
+Audit-programme spec `1.6.1 → 1.6.2` (patch: §2.1 corpus-count update). Library version `2026.06.48 → 2026.06.49`; README version `1.8.4 → 1.8.5`.
+
+### Fixed
+
+- [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md): §2.1 "In scope" updated from "The 32 audit gates currently wired into the audit-programme" to "The 38 audit gates currently wired into the audit-programme". The spec's own §9 step 4 explicitly instructs "update the gate count in §2.1" when adding a gate, but PR #59 (gate 38 addition) and PR #61 (the cleanup pass) both missed this self-referential procedure. Document version `1.6.1 → 1.6.2`.
+- [`governance/procedure-library-quality-and-review-cadence.md`](governance/procedure-library-quality-and-review-cadence.md): step 6 prose updated from "The full 37-gate audit programme" to "The full 38-gate audit programme". This procedure is a peer of the three governance registers PR #61 updated ([`register-coverage-gaps.md`](governance/register-coverage-gaps.md), [`register-main-branch-protection.md`](governance/register-main-branch-protection.md), [`register-document-index-and-classification.md`](governance/register-document-index-and-classification.md)) but was not in PR #61's scope; this PR closes the omission. Document version `1.0.4 → 1.0.5`; Date `2026-06-19 → 2026-06-20`.
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): three See Also bullets had a leading space before the colon separator (` : ` instead of `: `), an artefact of PR #62's em-dash-to-colon `replace_all` retaining the original leading space. Sibling skills in the pack use `: ` uniformly. Also removed a redundant trailing "Library-specific canonical anchors" bullet from `## See Also`: the same anchors are already named in `## Overview` line 15, and no sibling skill in the pack carries a similar footer. Both are style consistency fixes; no behavioural change.
+
+### Changed
+
+- [`README.md`](README.md): library version `2026.06.48 → 2026.06.49`; README version `1.8.4 → 1.8.5`.
+
+### Verification
+
+Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit, run on the final state per the validation-sweep skill's step 7 (apply fixes, re-baseline, repeat). This is iteration 1 of the sweep cycle; the cycle terminated because the re-baseline reports no new High or Medium findings (Low / FYI items documented in the sweep report but not acted on, per the skill's triage rule). The gate-name parity audit (gate 35) confirms all four parity surfaces still declare 38 gates in identical order. The version-monotonicity audit (gate 13) accepts both per-document version bumps and the library-version bump. The version-date consistency audit (gate 29) confirms `2026.06.49` matches `2026-06`. The CHANGELOG link-coverage audit (gate 11) accepts the entry's path-shaped code spans. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
+
+### Sweep findings not actioned (Low / FYI)
+
+- The validation-sweep SKILL.md cites "gate 31 in the canonical inventory" at line 23. Verified accurate against §6 inventory (gate 31 is the document-staleness audit). Worth noting that embedded gate-number citations are brittle to future renumbering; left as-is since accurate, but a candidate for the Layer 2 gate-39 (cross-file gate-count consistency) audit to also flag inline gate-number cross-references.
+- Four documents ([`NOTICE.md`](NOTICE.md), [`docs/adopter-guide.md`](docs/adopter-guide.md), [`dev-security/README.md`](dev-security/README.md), [`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md)) carry `Date: 2026-06-19` but were substantively committed today in earlier PRs (#54-#58); the document-Date-staleness audit (gate 31) accepts these within its 1-day tolerance window. Documented for future reference; not actioned this round.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.48, PR #62
 
 Add the `validation-sweep` skill to the [`dev-security/claude-rules/`](dev-security/claude-rules/) pack: a corpus-wide regression sweep designed to run as a follow-up after any issue is identified and corrected, to confirm no sibling issue remains anywhere in the repository. The skill operationalises the worked example added to `evidence-grounded-completion` in PR #60 (and corrected in PR #61) at corpus scope: combines the mechanical audit suite ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) — the canonical 38-gate full-audit invocation) with a structured semantic fan-out across parallel subagents (recent-PR deep review, corpus-wide stale-reference sweep, audit-programme integrity check), and loops until the cycle returns clean.
