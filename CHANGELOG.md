@@ -4,6 +4,31 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.90, PR #104
+
+TODO Priority 4.2: adopter maturity self-assessment template. Second of five Priority 4 items in sequence.
+
+Distinct from the existing [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md) (which rates each library document's stability); the new template rates the adopter's own programme maturity across 11 library domains, using a five-tier ladder modelled on NIST CSF Tiers and CMMI.
+
+### Added
+
+- [`docs/template-maturity-self-assessment.md`](docs/template-maturity-self-assessment.md): new Template document. Eleven domain sections (Governance, Risk, Compliance, Privacy, Security, Operations, Resilience, Supply chain, Architecture, DevSecOps, AI). Each domain has 5 to 8 yes/no/partial-style statements; per-statement scoring on a 1 to 5 maturity ladder; per-domain score via median; overall score via median of domains. Per-tier next-step guidance (Initial through Optimising). Recording-the-assessment template at the bottom. Five review questions for the assessor.
+
+### Changed
+
+- [`TODO.md`](TODO.md): Priority 4.2 entry resolved; pointer to shipped template.
+- [`README.md`](README.md): library version `2026.06.89 -> 2026.06.90`; README version `1.8.45 -> 1.8.46`.
+
+### Scope decision
+
+Format choice: guided markdown checklist (per TODO entry "spreadsheet or guided markdown checklist"). Markdown was chosen over spreadsheet for stdlib-only-tooling consistency and so adopters can fork the template into their own corpus with `git`. Tier ladder choice: five tiers matching NIST CSF / CMMI conventions, named Initial / Developing / Defined / Managed / Optimising. Scoring choice: median (not mean) per domain, to avoid single-outlier distortions in either direction.
+
+### Verification
+
+All 44 audit gates pass standalone.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.89, PR #103
 
 TODO Priority 4.1: adopter quickstart template per profile. First of five Priority 4 items the maintainer authorised in sequence.
