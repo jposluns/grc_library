@@ -71,11 +71,15 @@ Each subagent reports under 600 words, grouped by severity:
 - **Medium**: style inconsistency, minor wording drift, off-by-one in a count.
 - **Low / FYI**: cosmetic, historical context, worth noting but not actionable.
 
+**Required for every finding**: a `path:line` evidence quote. A finding without an explicit file path and line number (or line range) is not a finding, it is a hypothesis. Reject any subagent report whose findings lack quoted evidence and re-dispatch the subagent with a re-emphasized brief. This guards against the failure mode where a subagent returns an inferred or confused report instead of read-verified findings; without enforcement of the evidence requirement, the sweep degrades into inference cascade.
+
 If the working tree shows no recent activity (a "cold" sweep), subagent A becomes a narrower spot-check of the most recently-merged PRs (`git log -5 --merges`).
 
 ### 5. Synthesise findings
 
-Deduplicate findings across the subagents. For each finding, record: file path + line range; concrete description; whether the subagent verified by reading or inferred (insist on the former).
+Deduplicate findings across the subagents. For each finding, record: file path + line range; concrete description; whether the subagent verified by reading or inferred (**insist on the former; reject any finding that lacks an explicit `path:line` quote**).
+
+Cross-reference each finding against [`governance/register-sweep-history.md`](../../../../governance/register-sweep-history.md)'s **false-positive memory** section. Findings the maintainer has previously triaged as not-a-real-finding are suppressed; they should not be re-surfaced.
 
 ### 6. Triage
 
@@ -94,6 +98,12 @@ Surface each finding to the operator with named action options (action now, defe
 Apply the fixes. **Re-run step 1 (the full audit standalone) AFTER committing each fix, not on the working tree**. Per the canonical rule's "Relying on prior runs" anti-pattern, the audit must see the final state; per the git-history-aware-gates discipline, the audit's view of "final state" is the committed git history, not the uncommitted working tree. Running the audit on uncommitted changes misses what git-history-aware gates (e.g. a corpus version-bump-recency check) would flag once those changes are committed. If new findings surface, repeat from step 4. The sweep is complete when one full cycle returns no High or Medium findings.
 
 Cap: if the cycle runs more than three iterations without converging, stop and surface the pattern to the operator. Recurring findings across iterations suggest a structural issue the sweep cannot resolve on its own.
+
+### 8. Append to the sweep history register
+
+After the cycle terminates, append an entry to [`governance/register-sweep-history.md`](../../../../governance/register-sweep-history.md) recording: the trigger reason, the state (library / spec / pack versions at HEAD), the count of findings by class and severity, the actions taken, and the resulting PR (if any). Update the recurring-class summary table at the same time. Findings dismissed as not-a-real-finding go into the false-positive memory section with the maintainer's rationale, so a future sweep does not re-litigate.
+
+The register is the cumulative record of what the sweep has caught over time. Its trend signal (which classes recur, which classes have closed via mechanical gates) is the maintainer's input to the priority question "which mechanical gate should we ship next".
 
 ## Red Flags
 
