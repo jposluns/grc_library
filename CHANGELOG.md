@@ -4,6 +4,27 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.76, PR #90
+
+Validation-sweep enhancement, third of seven from the late-research-findings queue. Adds the Wikipedia-style maintenance-tag dating convention to the sweep-history register's Maintenance protocol, closing the gap where deferred findings accumulated without ageing signal.
+
+Research basis: Wikipedia `{{citation needed|date=Month YYYY}}` maintenance-template convention; GitHub `actions/stale` and `probot/stale` 30-day default; Self-Admitted Technical Debt (SATD) issue-tracker dating (Bavota and Russo, arXiv:2007.01568); Wu et al. "What Makes a Good TODO Comment?" (arXiv:2503.15277); ISO 8601 audit-trail encoding. Recreated as CC BY-SA 4.0 in-house prose.
+
+### Scope decision
+
+The research recommended three rules: (1) the `surfaced:` field, (2) the `re-triage-by:` field with a 30-day default, (3) a future linter that fails when a deferred entry's deadline passes without re-triage. This PR ships rules 1 and 2 (the convention, low scope) and queues rule 3 (the mechanical gate, medium scope) as an "extending the framework" task. Convention applies to findings deferred from Sweep 7 onwards; existing deferred findings (Sweep 3 cross-document consistency, Sweep 4 classification-convention) are not retro-stamped.
+
+### Changed
+
+- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): version `1.5.0 -> 1.6.0`; new "Dating discipline for deferred findings" subsection under Maintenance protocol documents the `surfaced: YYYY-MM-DD` and `re-triage-by: YYYY-MM-DD` (default surfaced+30 days) fields plus the queued mechanical gate.
+- [`README.md`](README.md): library version `2026.06.75 -> 2026.06.76`; README version `1.8.31 -> 1.8.32`.
+
+### Verification
+
+Full audit programme passes standalone, all 42 corpus gates pass. The convention is workflow prose; no new mechanical gate is added in this PR.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.75, PR #89
 
 Sweep 6 closure: register entry appended; one residual pre-flight candidate added to the exemption file. Sweep 6 was the first full sweep to apply two new disciplines together (the four-rule synthesis rubric from PR #82 plus the pre-tool verification preamble from PR #88) and the first sweep with observable evidence of the preamble in subagent reports (Subagent B explicitly tracked its tool-call justifications). Zero findings across all three subagents. Convergence pattern: 4+, 3, 1, 1, 0, 0.
