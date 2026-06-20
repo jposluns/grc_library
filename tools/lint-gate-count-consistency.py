@@ -21,6 +21,9 @@ Patterns scanned (case-insensitive):
   P3  ``gates 1-N`` / ``gates 1--N`` (also handles en-dashes)
   P4  ``gates 1 through N``
   P5  ``all N gates``
+  P6  bare ``<two-digit N> gates`` without preceding qualifier, with a
+      negative lookahead so ``gate-name`` / ``gate-count`` / ``gates 1-N``
+      shapes do not false-positive (added after a Sweep finding)
 
 Captured ``N`` is compared to the canonical count from §6. Mismatch
 means the prose was not updated when a gate was added or retired.
