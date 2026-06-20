@@ -2,7 +2,7 @@
 
 **Document Title:** Validation Sweep History Register\
 **Document Type:** Register\
-**Version:** 1.7.0\
+**Version:** 1.8.0\
 **Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -142,6 +142,17 @@ Historical entries from Sweeps 1-3 were classified before this convention was do
 - **Sweep value**: confirmed that the new termination conditions fire correctly on a real empty-delta. The discipline is observable: Subagent A's report explicitly named hypothesis/falsifier/prior-result in its pre-tool preamble, the synthesis rubric handled the (empty) finding-set, and the convergence-delta termination resolved on empty-delta primary.
 - **Resulting PR**: this PR for the register entry. No fix PR (zero findings).
 
+### 2026-06-20, Sweep 8 (post-PR-#94; thin; empty-delta convergence, fourth consecutive)
+
+- **Trigger**: maintainer's standing "every three PRs and merges" cadence, fired after the third PR following Sweep 7 (PRs #92 Sweep 7 closure, #93 Rule 5.5 multi-agent debate, #94 SARIF-lite output format).
+- **State**: library 2026.06.80; spec 1.10.0; pack 1.26.11; 42 corpus gates; 10 pack skills.
+- **First sweep to use the SARIF-lite output format end-to-end** (introduced in PR #94). Subagent A's brief explicitly required SARIF-lite blocks; the format was respected by absence (zero findings means zero blocks, anti-rubric on prose findings outside blocks held trivially). The format will be exercised under non-empty findings in a future sweep.
+- **Pre-flight scanner**: 17 candidates suppressed (11 by heuristic, 6 by exemption file before this PR), 1 candidate surfaced at `dev-security/claude-rules/skills/validation-sweep/SKILL.md:101` "Three rules:" introducing the SARIF-lite output format rules. Same shape as Sweep 5's "Four rules, no ceremony" false positive; Subagent A confirmed false-positive triage. Added to the exemption file in this PR (line_hash `d0e2dce98dc3847d`). Post-exemption: 0 candidates.
+- **Findings**: none (thin sweep; Subagent A only; B and C scope-skipped per the pre-tool verification preamble's corroboration-seeking rule).
+- **Empty-delta primary stop applies (fourth consecutive)**. Pattern across all eight sweeps: 4+, 3, 1, 1, 0, 0, 0, 0. The validation-sweep discipline is in genuine steady state for the current corpus.
+- **Sweep value**: confirmed that the introduction of Rule 5.5 (PR #93) and SARIF-lite output (PR #94) does not destabilise the convergence. The cycle remains at fixed-point. The SARIF-lite format awaits its first non-empty exercise; when a real finding next surfaces, the format will produce the first observable end-to-end output.
+- **Resulting PR**: this PR ([#95](https://github.com/jposluns/grc_library/pull/95)) for the register entry + exemption update. No fix PR (zero findings).
+
 ## False-positive memory
 
 Findings the maintainer has triaged as not-a-real-finding. Subsequent sweeps should not re-surface these; if they do, the maintainer's prior triage is the answer.
@@ -162,7 +173,7 @@ Other classes (C2, C4, C5, C6, C7, C8): zero primary-class findings in the four 
 
 **Secondary-class participation** (per the classification convention documented above): no historical findings carry a secondary class because historical entries were classified before the convention was established. Sweep 5 onwards will populate this footnote when a finding's primary mechanism differs from its symptom shape.
 
-**Reading the table**: C3 (multi-surface incompleteness) remains the dominant failure class at 6 cumulative findings; C1 (stale-prose) is at 2 after Sweep 4 surfaced a pack-version literal in the adopter guide. Sweeps 5, 6, and 7 all produced zero primary-class findings (convergence: 4+, 3, 1, 1, 0, 0, 0). Sweep 7 was the first to formally apply the new empty-delta primary stop from PR #91 and reached fixed-point convergence cleanly. The project's accumulated mechanical defences against C3 (gates 35 gate-name parity, 39 gate-count consistency, 41 collection-enumeration consistency) close the gate-shaped C3 surface, but the prose-and-numbering-shaped C3 surface (Sweep 3 step-numbering drift) and prose-version literals (Sweep 4 adopter-guide `currently `1.22.0``) still fall to the semantic subagent layer. PR #86 closed the recurring-noise problem; PR #88 made subagent tool calls auditable; PR #91 formalised when to stop iterating. The underlying cross-document term-and-identifier consistency gap remains as a candidate for a future mechanical gate.
+**Reading the table**: C3 (multi-surface incompleteness) remains the dominant failure class at 6 cumulative findings; C1 (stale-prose) is at 2 after Sweep 4 surfaced a pack-version literal in the adopter guide. Sweeps 5, 6, 7, and 8 all produced zero primary-class findings (convergence: 4+, 3, 1, 1, 0, 0, 0, 0). Four consecutive zero-finding sweeps with the new termination conditions firing cleanly each time; the discipline is in genuine steady state for the current corpus. The project's accumulated mechanical defences against C3 (gates 35 gate-name parity, 39 gate-count consistency, 41 collection-enumeration consistency) close the gate-shaped C3 surface, but the prose-and-numbering-shaped C3 surface (Sweep 3 step-numbering drift) and prose-version literals (Sweep 4 adopter-guide `currently `1.22.0``) still fall to the semantic subagent layer. PR #86 closed the recurring-noise problem; PR #88 made subagent tool calls auditable; PR #91 formalised when to stop iterating. The underlying cross-document term-and-identifier consistency gap remains as a candidate for a future mechanical gate.
 
 ## Maintenance protocol
 
