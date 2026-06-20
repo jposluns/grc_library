@@ -4,6 +4,21 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.73, PR #87
+
+Sweep 5 entry appended to the validation-sweep history register. Sweep 5 was a thin sweep (only Subagent A dispatched; B and C skipped because the closure-PRs since Sweep 4 did not change corpus-wide state or audit-programme integrity). Zero findings. The maintainer's post-sweep observation that the same false positives have surfaced on every sweep since Sweep 3 was actioned in PR #86 (scanner heuristics plus exemption file).
+
+### Changed
+
+- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): version `1.3.0 -> 1.4.0`; appended Sweep 5 entry (thin sweep, zero findings); reading-the-table prose updated to note Sweep 5 produced no new primary-class findings and to record that the scanner-noise problem and the term-and-identifier-consistency gap are separate concerns (PR #86 closed the noise, not the gap).
+- [`README.md`](README.md): library version `2026.06.72 -> 2026.06.73`; README version `1.8.28 -> 1.8.29`.
+
+### Verification
+
+Full audit programme passes standalone, all 42 corpus gates pass. Sweep 5 produced no fix PR (zero findings); the scanner-enhancement PR #86 is recorded under its own scope. The recurring-class summary counts are unchanged from Sweep 4 (C1=2, C3=6, Discipline self-violation=1).
+
+---
+
 ## 2026-06-20, Library Version 2026.06.72, PR #86
 
 Validation-sweep pre-flight scanner: noise-reduction enhancement. Across Sweeps 3, 4, and 5, the same 12-13 candidate findings re-surfaced on every run and were re-triaged as false positives every time. The maintainer asked: should the scanner be enhanced so it does not keep tagging the same shapes? Chose option 3 of the named alternatives: both heuristics and an exemption file.
