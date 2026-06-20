@@ -4,6 +4,23 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-19, Library Version 2026.06.43, PR #57
+
+Restructure the [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) so the action-oriented content (scope, ways to use, directory structure, how to use, rule files) appears first and the historical reference content (per-version shipping log) appears near the bottom. The dense `## Pack scope` section that grew over many small additions is trimmed to the load-bearing content; the historical detail it carried (per-version shipping history, framing of the rollout's completion, enumeration of every skill that has ever shipped) is moved into a new compact `## Version history` table near the end of the README.
+
+Pack version `1.23.0 → 1.24.0` (minor bump: prose restructure plus an additive new section). No structural changes to the pack's rules, skills, or directory layout; no audit-programme changes.
+
+### Changed
+
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): trimmed `## Pack scope` from ~720 words to ~190 words by removing per-version shipping history, the historical "scope broadened" preamble, the enumeration of every skill that has ever shipped, and the directory-naming rationale paragraph; the section now carries only the two-category scope, the skills mention with the rule-vs-skill relationship, and the pack ↔ parent library relationship. Added a new `## Version history` section immediately before `## Licence` containing a compact table of pack version landings (12 rows covering 1.6.0 through 1.24.0, with the language-rule and skill-patch ranges compressed into single rows to keep the table glanceable). Pack version `1.23.0 → 1.24.0`.
+- [`README.md`](README.md): library version `2026.06.42 → 2026.06.43`; README version `1.7.180 → 1.7.181`.
+
+### Verification
+
+Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. No structural changes; the reframe is prose-only. The metadata audit (gate 1) is unaffected because `dev-security/claude-rules/` is in its exempt-prefix set, but the pack README's per-document Version field is still bumped consistent with the substantive-content-change rule. The version-date consistency audit (gate 29) confirms `2026.06.43` matches `2026-06`; the library-version-monotonicity audit (gate 13) accepts the entry. The CHANGELOG link-coverage audit (gate 11) accepts the entry's path-shaped code spans (all wrapped as markdown links). The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
+
+---
+
 ## 2026-06-19, Library Version 2026.06.42, PR #56
 
 Tidy the [`README.md`](README.md) Mode C ("Adopt the pack only") paragraph: add a one-click link to the AI-assisted installer and remove the inline search-terms sentence that has become redundant with the GitHub repository topics and the [`CITATION.cff`](CITATION.cff) keywords shipped in PR #55. Two prose edits to the same paragraph; no structural changes.
