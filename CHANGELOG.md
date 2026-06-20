@@ -4,6 +4,28 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.72, PR #86
+
+Validation-sweep pre-flight scanner: noise-reduction enhancement. Across Sweeps 3, 4, and 5, the same 12-13 candidate findings re-surfaced on every run and were re-triaged as false positives every time. The maintainer asked: should the scanner be enhanced so it does not keep tagging the same shapes? Chose option 3 of the named alternatives: both heuristics and an exemption file.
+
+### Added
+
+- [`tools/sweep-preflight-exemptions.json`](tools/sweep-preflight-exemptions.json): exemption file in JSON format (stdlib-friendly; project is stdlib-only). Each entry suppresses one `(path, pattern_id, line_hash)` candidate. `line_hash` is the 16-char prefix of SHA-256 of the stripped line content; stable under line-number drift but auto-invalidates when the line text changes (which forces a re-triage). Initial population covers 5 unique false positives: addyosmani external vet count, addyosmani description in setup-generator-prompt, the synthesis rubric's "Four rules, no ceremony" sub-rule mention, and two `promptmap2` external-project rule-count references in the AI security tooling landscape register.
+
+### Changed
+
+- [`tools/sweep-preflight-scanner.py`](tools/sweep-preflight-scanner.py): added two layers of noise reduction. **Layer 1, in-scanner heuristics** (catches 8 of the 13 known false positives): skip matches preceded by section-like words (`Section N`, `Article N`, `Phase N`, `Chapter N`, `Step N`), hyphenated compounds (`under-14 rules`), legal bill prefixes (`AB 1394`), year-with-title-cased-legal-noun (`The 2025 Rules`), markdown version-history table rows (rows with both a version-shape and a date-shape), and lines containing historical-narrative keywords (`completed at`, `now ships`, `previously`, `past`, `originally`, `historically`, `earlier`, `before gate`). **Layer 2, exemption file** (catches the remaining 5 unique cases). Output line now reports suppression counts so the maintainer can see the scanner is doing its job. New trailing prompt explains how to add an exemption-file entry for a new false positive.
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): step 3a expanded to document the two-layer noise-reduction mechanism (heuristics plus exemption file), including the SHA-256-of-line-content key design rationale.
+- [`.claude/commands/validation-sweep.md`](.claude/commands/validation-sweep.md): step 3a brief expanded to reference the heuristics and exemption file.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.26.6 -> 1.26.7`.
+- [`README.md`](README.md): library version `2026.06.71 -> 2026.06.72`; README version `1.8.27 -> 1.8.28`.
+
+### Verification
+
+Full audit programme passes standalone, all 42 corpus gates pass. Scanner output verified: before this PR, 12 candidates surfaced on every sweep; after this PR, 0 candidates surface on the same corpus. The suppression-count breakdown (`8 by heuristic, 5 by exemption file`) lets the maintainer see at a glance that the scanner is filtering noise rather than failing silently. When the corpus accumulates a genuinely new stale-count finding, the scanner will surface it (the suppressions are precision-tuned, not catch-all).
+
+---
+
 ## 2026-06-20, Library Version 2026.06.71, PR #85
 
 Closes the Sweep 4 out-of-window classification-convention follow-up. The maintainer's decision (asked-and-answered, option "both, with primary tag"): a finding may carry more than one failure-mode class; one is tagged primary (the dominant mechanism) and one or more may be tagged secondary (the symptom shape). Historical entries from Sweeps 1-3 are not retro-applied; the convention applies from Sweep 5 onwards.

@@ -67,6 +67,8 @@ Pass the scanner's output to each subagent as a "known suspect locations to veri
 
 The scanner is project-specific (its `CANONICAL_COLLECTIONS` and seed patterns target this corpus); other projects adopting the validation-sweep pattern should swap in their own scanner with project-specific patterns.
 
+The scanner applies two layers of noise reduction so the same false positives do not re-surface on every sweep. **Layer 1, in-scanner heuristics**: skip matches preceded by section-like words (`Section N`, `Article N`, `Phase N`, `Chapter N`, `Step N`), hyphenated compounds (`under-14 rules`), legal bill prefixes (`AB 1394`, `SB 234`, `Bill 1394`), year-with-title-cased-legal-noun (`The 2025 Rules`), markdown version-history table rows (rows containing both a version-shape and a date-shape), and lines containing historical-narrative keywords (`completed at`, `now ships`, `previously`, `past`, `originally`, `historically`, `earlier`, `before gate`). **Layer 2, exemption file** at [`tools/sweep-preflight-exemptions.json`](../../../../tools/sweep-preflight-exemptions.json): per-entry `(path, pattern_id, line_hash)` records that suppress unique edge cases the heuristics miss. The `line_hash` is the 16-char prefix of SHA-256 of the stripped line content, so the exemption is stable under line-number drift but invalidates automatically if the line text changes (which forces a re-triage). The register's false-positive memory section is the human-readable source of truth; the exemption file is its machine-readable mirror.
+
 ### 4. Fan out parallel subagent reviews
 
 Launch subagents in parallel for the semantic sweep. Each receives a self-contained brief, reads target files in full (not excerpts), and reports findings by severity. The three baseline briefs:

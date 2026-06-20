@@ -1,0 +1,36 @@
+{
+  "_format": "Exemption file for tools/sweep-preflight-scanner.py. Each entry suppresses a single (path, pattern_id, line_hash) false-positive that the in-scanner heuristics do not catch. line_hash is the first 16 hex chars of SHA-256(stripped_line_content); if the line text changes, the hash no longer matches and the candidate re-surfaces (which is the correct behaviour: the maintainer re-triages the changed content).",
+  "_maintenance": "Add an entry after the validation-sweep history register dismisses a finding as a stable false positive. Remove an entry if the underlying text is rewritten to remove the false-positive shape. The register's false-positive memory section is the human-readable source of truth; this file is the machine-readable mirror.",
+  "exemptions": [
+    {
+      "path": "dev-security/claude-rules/README.md",
+      "pattern_id": "PF-collection-skills",
+      "line_hash": "fe027c7d5c9f940d",
+      "reason": "addyosmani external vet count: '5 skills in full + 18 spot-scanned' describes the maintainer's vetting depth, not a pack-skills count."
+    },
+    {
+      "path": "dev-security/claude-rules/setup-generator-prompt.md",
+      "pattern_id": "PF-collection-skills",
+      "line_hash": "a07333ed580ba6f1",
+      "reason": "addyosmani external description: '24 engineering-workflow skills in Claude Code's Skills format'. The scanner captures a smaller digit from later in the line; the prose is about an external project, not the pack."
+    },
+    {
+      "path": "dev-security/claude-rules/skills/validation-sweep/SKILL.md",
+      "pattern_id": "PF-collection-rules-word",
+      "line_hash": "eca081c59b46035c",
+      "reason": "Synthesis rubric sub-rules: 'Four rules, no ceremony' refers to rubric sub-rules 5.1-5.4, not governance-rule count."
+    },
+    {
+      "path": "governance/register-ai-security-tooling-landscape.md",
+      "pattern_id": "PF-collection-rules",
+      "line_hash": "c69db4a3786f0e76",
+      "reason": "promptmap2 external project: '69 rules across 6 directories' describes that external scanner's ruleset, not the pack."
+    },
+    {
+      "path": "governance/register-ai-security-tooling-landscape.md",
+      "pattern_id": "PF-collection-rules",
+      "line_hash": "e08a6fd433ed31d4",
+      "reason": "promptmap2 external project (second mention on same page): '69 rules across 6 categories' describes that external scanner's ruleset."
+    }
+  ]
+}
