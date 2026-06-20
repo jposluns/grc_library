@@ -12,7 +12,7 @@ Invoke the `validation-sweep` skill defined in this project's pack at [`dev-secu
 
 Termination (replaces the older fixed 3-iteration cap; first matching condition fires): (a) empty-delta primary stop: zero new High/Medium findings AND the synthesised finding-set is identical (by dedupe-key) to the previous iteration; (b) patience-plateau secondary stop: 2 consecutive iterations with no strict shrinkage, surface residual to operator with named decision; (c) hard-ceiling 6 iterations runaway guard, defect signal not completion (report cycle vs scope creep).
 
-Step 8: append an entry to [`governance/register-sweep-history.md`](../../governance/register-sweep-history.md) recording the trigger, state at HEAD, finding counts by class and severity, actions taken, and the resulting PR. This is what turns the sweep from a one-off into a cumulative discipline; trend tracking informs which mechanical gates to prioritise next.
+Step 8 (only when the sweep produced findings): append an entry to [`governance/register-sweep-history.md`](../../governance/register-sweep-history.md) recording the trigger, state at HEAD, finding counts by class and severity, actions taken, and the resulting PR. Zero-finding sweeps leave no trace, no register entry, no CHANGELOG entry, no standalone PR; the convergence-delta trend lives in the iteration counter, not in a per-sweep record.
 
 Reject any subagent finding that lacks an explicit `path:line` quote. A finding without quoted evidence is a hypothesis, not a finding; re-dispatch the subagent with a re-emphasized evidence requirement before synthesising.
 
