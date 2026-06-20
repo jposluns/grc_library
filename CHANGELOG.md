@@ -4,6 +4,20 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-19, Library Version 2026.06.42, PR #56
+
+Add a link to the setup-generator prompt in the [`README.md`](README.md) Mode C ("Adopt the pack only") paragraph. Adopters who arrive at the Mode C description now have a one-click path to the automated, AI-assisted installer rather than only the manual "drop it into your project's Claude Code context" path. Single-sentence prose addition; no structural changes.
+
+### Changed
+
+- [`README.md`](README.md): added a sentence to the Mode C paragraph pointing readers to [`dev-security/claude-rules/setup-generator-prompt.md`](dev-security/claude-rules/setup-generator-prompt.md) for the automated installation path. Library version `2026.06.41 → 2026.06.42`; README version `1.7.179 → 1.7.180`.
+
+### Verification
+
+Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. The new link target exists; the repository-internal link audit (gate 3) accepts it. The version-date consistency audit (gate 29) confirms `2026.06.42` matches `2026-06`; the library-version-monotonicity audit (gate 13) accepts the entry. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
+
+---
+
 ## 2026-06-19, Library Version 2026.06.41, PR #55
 
 Acknowledge the [`dev-security/claude-rules/`](dev-security/claude-rules/) pack across the project's attribution and contribution surfaces, and enrich [`CITATION.cff`](CITATION.cff) with pack-specific search-term keywords so the pack is discoverable to readers who arrive looking for Claude Code rules or skills rather than for GRC content. Continues the reframe shipped in PR #54 by ensuring the pack is named in the attribution surfaces, not only in the positioning prose. Prose-only across five files; no structural changes.
