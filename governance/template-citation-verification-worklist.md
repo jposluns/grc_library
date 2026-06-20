@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Worklist Template\
 **Document Type:** Template\
-**Version:** 1.0.0\
-**Date:** 2026-05-29\
+**Version:** 1.0.2\
+**Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md)\

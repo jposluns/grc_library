@@ -679,6 +679,27 @@ class SectionPlacementTests(LinterTestCase):
         self.assertLinterFails(result)
 
 
+class VersionBumpRecencyTests(LinterTestCase):
+    """tools/lint-version-bump-recency.py"""
+
+    def test_runs_clean_on_corpus_at_head(self) -> None:
+        # The linter is a git-history-aware corpus check; the meaningful
+        # regression test is that it runs clean on the current HEAD
+        # (every versioned document's Version field is bumped at or after
+        # the file's last body change). Synthetic fixtures are awkward
+        # because the linter needs a multi-commit history to exercise
+        # the body-vs-version comparison. The corpus's own HEAD provides
+        # a real two-commit baseline.
+        result = run_linter("tools/lint-version-bump-recency.py")
+        self.assertEqual(
+            result.returncode,
+            0,
+            f"linter exited {result.returncode} on the corpus HEAD; "
+            f"all versioned documents should pass.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+
 class GateCountConsistencyTests(LinterTestCase):
     """tools/lint-gate-count-consistency.py"""
 
