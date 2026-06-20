@@ -4,6 +4,22 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.75, PR #89
+
+Sweep 6 closure: register entry appended; one residual pre-flight candidate added to the exemption file. Sweep 6 was the first full sweep to apply two new disciplines together (the four-rule synthesis rubric from PR #82 plus the pre-tool verification preamble from PR #88) and the first sweep with observable evidence of the preamble in subagent reports (Subagent B explicitly tracked its tool-call justifications). Zero findings across all three subagents. Convergence pattern: 4+, 3, 1, 1, 0, 0.
+
+### Changed
+
+- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): version `1.4.0 -> 1.5.0`; appended Sweep 6 entry (full sweep, zero findings, first lock-step use of rubric + preamble); reading-the-table prose updated to track the 6-sweep convergence pattern and to record that PRs #86 + #88 closed the recurring-noise problem and made tool calls auditable while the underlying cross-document term-and-identifier consistency gap remains for a future mechanical gate.
+- [`tools/sweep-preflight-exemptions.json`](tools/sweep-preflight-exemptions.json): new entry for `governance/register-sweep-history.md:119` (line_hash `90a973f0358432ef`). The Sweep 5 entry's prose narrates the prior "Four rules, no ceremony" false positive triage; quoting that past dismissal does not make it a current stale claim. Post-exemption the scanner returns 0 candidates against the current corpus.
+- [`README.md`](README.md): library version `2026.06.74 -> 2026.06.75`; README version `1.8.30 -> 1.8.31`.
+
+### Verification
+
+Full audit programme passes standalone, all 42 corpus gates pass. Pre-flight scanner: 16 candidates suppressed (10 by heuristic, 6 by exemption file), 0 findings reported. The convergence trend is the dominant signal: cumulative C1 stays at 2 and C3 at 6 with two consecutive zero-finding sweeps; the validation-sweep discipline is reaching a steady state for the current corpus.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.74, PR #88
 
 Validation-sweep enhancement, second of seven from the late-research-findings queue. Adds a pre-tool verification preamble to the subagent fan-out discipline in step 4 of the validation-sweep skill. Closes the gap where subagents could make redundant or misdirected tool calls without an auditable justification trace.
