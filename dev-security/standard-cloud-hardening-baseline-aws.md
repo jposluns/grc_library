@@ -2,7 +2,7 @@
 
 **Document Title:** AWS Cloud Hardening Baseline Standard\
 **Document Type:** Standard\
-**Version:** 0.0.3\
+**Version:** 0.0.4\
 **Date:** 2026-06-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\

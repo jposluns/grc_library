@@ -2,7 +2,7 @@
 
 **Document Title:** Certificate Authority Management Standard\
 **Document Type:** Standard\
-**Version:** 1.3.2\
+**Version:** 1.3.3\
 **Date:** 2026-06-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\

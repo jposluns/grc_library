@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Bundle Index\
 **Document Type:** Register\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
