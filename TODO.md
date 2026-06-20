@@ -153,7 +153,14 @@ Original plan in the audit-roadmap: a linter that flags numerical drift on canon
 
 Empirical analysis found that incident-severity terminology (P1/P2/P3/P4) legitimately carries different numeric values per SLA dimension: acknowledgement time, resolution time, escalation interval, notification time. A naive "same Pn = same value" check would false-positive on legitimate per-dimension variation.
 
-Decision: ship as scaffold (regex framework with unit normalisation and aggregation, conservative initial term set narrow enough to currently track 0 terms). The linter passes vacuously; the framework is in place for future term curation when the maintainer is ready to define which specific (term, SLA-dimension) pairs to enforce. Honest scope management was preferred over either (a) silently producing false positives or (b) defining the term set without sufficient operational data.
+Decision: ship as scaffold (regex framework with unit normalisation and aggregation), with the term set widened incrementally as empirical data warranted. The scaffold's progression:
+
+- Phase 23.26 added P1/P2/P3 acknowledgement-time patterns as scaffolding (each requires a Pn-prefix-with-explicit-acknowledgement-time prose shape on the same line; the patterns match 0 documents on the current corpus by design, since the corpus carries Pn-acknowledgement times in tabular form rather than the strict prose shape).
+- Phase 23.35 added the GDPR breach-notification-hours pattern after empirical confirmation that 8 or more documents reference the statutory 72-hour deadline and all agree on the value.
+
+The current scaffold tracks four terms (P1/P2/P3 acknowledgement-time patterns plus GDPR-breach-notification-hours); see `TERM_PATTERNS` in [`tools/lint-cross-doc-numbers.py`](tools/lint-cross-doc-numbers.py) for the live set. The linter's docstring documents why RTO, RPO, retention periods, P4 acknowledgement, NIS 2 reporting windows, and DORA reporting windows are deliberately NOT curated (each is either context-dependent, has multiple legitimate per-deadline sub-patterns that need separate regex, or appears too few times in the corpus to justify a curated pattern).
+
+Honest scope management is preferred over either (a) silently producing false positives or (b) defining the term set without sufficient operational data. The maintainer revisits the term set when corpus evolution introduces a new prose shape that warrants pattern coverage.
 
 ### Phase-completion gating requires the full audit-programme sweep
 
