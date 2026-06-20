@@ -2,7 +2,7 @@
 
 **Document Title:** Validation Sweep History Register\
 **Document Type:** Register\
-**Version:** 1.1.0\
+**Version:** 1.2.0\
 **Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -87,6 +87,18 @@ The eight classes the sweep targets, as a stable identifier set for the entries 
 - **Sweep value**: caught a same-day cross-surface naming drift introduced by my own PR #78. The pre-flight scanner correctly surfaced 12 candidates (all dismissed as legitimate historical references after subagent triage), demonstrating that the high-recall / subagent-precision split works as intended.
 - **Resulting PR**: [#80](https://github.com/jposluns/grc_library/pull/80).
 
+### 2026-06-20, Sweep 4 (post-PR-#82 -> PR #83)
+
+- **Trigger**: maintainer's standing "run a full validation after every three PRs and merges" cadence, fired after the third PR following Sweep 3 (PRs #80, #81, #82) merged.
+- **State**: library 2026.06.68; spec 1.10.0; pack 1.26.6; 42 corpus gates; 10 pack skills.
+- **First sweep to apply the four-rule synthesis rubric** (introduced in PR #82). Findings are tagged with the rubric's evidence-letter (`R` / `I` / `K`) and three-level severity (`must-fix-before-merge` / `should-fix-this-PR` / `track-as-follow-up`).
+- **Findings**:
+  - **C1 (stale-prose)** x 1, in-window: [Subagent B] [R] [should-fix-this-PR] `docs/adopter-guide.md:57` "ships with its own version sequence (currently `1.22.0`)" when pack is at 1.26.6. Actioned in [PR #83](https://github.com/jposluns/grc_library/pull/83) with number-stable wording rather than a literal bump (literal would re-drift on next pack bump).
+  - **Classification-convention follow-up** x 1, out-of-window: [Subagent A] [R] [track-as-follow-up] `register-sweep-history.md` failure-mode-classes table (lines 47-56) does not document the classification rule that Sweep 1 used when it rolled stale-corpus-count references ("37" prose when gate 38 had landed) into C3 rather than C1. The current convention appears to be "if the primary mechanism is multi-surface miss, classify by mechanism (C3) regardless of symptom shape (prose drift)"; if formalised, the failure-mode-classes table should say so. Surfaced separately to the maintainer for a classification-convention decision.
+- **Pre-flight scanner**: returned the same 12 candidates as Sweep 3, all already triaged as false positives; no new candidates surfaced.
+- **Sweep value**: caught one prose-drift instance (pack version literal in adopter guide) that the gates would not have caught and that none of the prior sweeps' grep passes surfaced. The new rubric made the synthesis step deterministic: subagent B's report quoted the exact line, the parent applied severity adjudication without ambiguity, and the in-window vs out-of-window split routed each finding to the correct protocol.
+- **Resulting PR**: [#83](https://github.com/jposluns/grc_library/pull/83).
+
 ## False-positive memory
 
 Findings the maintainer has triaged as not-a-real-finding. Subsequent sweeps should not re-surface these; if they do, the maintainer's prior triage is the answer.
@@ -99,13 +111,14 @@ Cumulative count of findings per class, across all sweeps:
 
 | Class | Total findings | Last seen |
 | --- | --- | --- |
-| C1: stale-prose | 1 | Sweep 2 |
+| C1: stale-prose | 2 | Sweep 4 |
 | C3: multi-surface-incomplete | 6 | Sweep 3 |
 | Discipline self-violation (new) | 1 | Sweep 2 |
+| Classification-convention follow-up (new) | 1 | Sweep 4 |
 
-Other classes (C2, C4, C5, C6, C7, C8): zero findings in the three sweeps run to date.
+Other classes (C2, C4, C5, C6, C7, C8): zero findings in the four sweeps run to date.
 
-**Reading the table**: C3 (multi-surface incompleteness) remains the dominant failure class. Three sweeps in, C3 is the only class with cumulative findings beyond a single occurrence, and the sole finding from sweep 3 is also a C3 instance. The project's accumulated mechanical defences against C3 (gates 35 gate-name parity, 39 gate-count consistency, 41 collection-enumeration consistency) close the gate-shaped C3 surface, but the prose-and-numbering-shaped C3 surface (this sweep's instance: cross-file step-numbering drift between a SKILL.md heading and a slash-command numbered step) still falls to the semantic subagent layer. This is signal that the next mechanical gate worth considering is a cross-document term-and-identifier consistency check beyond the existing collection-enumeration scope.
+**Reading the table**: C3 (multi-surface incompleteness) remains the dominant failure class at 6 cumulative findings; C1 (stale-prose) is now at 2 after Sweep 4 surfaced a pack-version literal in the adopter guide. The project's accumulated mechanical defences against C3 (gates 35 gate-name parity, 39 gate-count consistency, 41 collection-enumeration consistency) close the gate-shaped C3 surface, but the prose-and-numbering-shaped C3 surface (Sweep 3: cross-file step-numbering drift between a SKILL.md heading and a slash-command numbered step) and prose-version literals (Sweep 4: `currently `1.22.0`` in the adopter guide) still fall to the semantic subagent layer. Two consecutive sweeps now point at the same gap: the next mechanical gate worth considering is a cross-document term-and-identifier consistency check (something that can detect stale version literals and inconsistent step identifiers across parallel surfaces) beyond the existing collection-enumeration scope.
 
 ## Maintenance protocol
 
