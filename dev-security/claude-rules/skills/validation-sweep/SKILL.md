@@ -86,9 +86,19 @@ If the working tree shows no recent activity (a "cold" sweep), subagent A become
 
 ### 5. Synthesise findings
 
-Deduplicate findings across the subagents. For each finding, record: file path + line range; concrete description; whether the subagent verified by reading or inferred (**insist on the former; reject any finding that lacks an explicit `path:line` quote**).
+Apply the synthesis rubric: deterministic structure that makes the parent's triage reproducible across sweeps. Four rules, no ceremony.
 
-Cross-reference each finding against [`governance/register-sweep-history.md`](../../../../governance/register-sweep-history.md)'s **false-positive memory** section. Findings the maintainer has previously triaged as not-a-real-finding are suppressed; they should not be re-surfaced.
+**Rule 5.1, dedupe by claim, not by line.** The dedupe key for two findings is the tuple `(file_path, normalised_section_or_artefact, claim_type)`, not `(file_path, line_number)`. Two subagents pointing at the same logical defect with different phrasings or slightly different line ranges collapse to a single synthesised row. Line numbers drift under edits and produce false uniques; the file plus the section plus the kind-of-claim is the stable identifier.
+
+**Rule 5.2, tag every synthesised finding with an evidence letter.** `R` = read-verified, accompanied by a quoted line from the file in question (the form the subagent reports already require). `I` = inferred, no read in this sweep. `K` = already-known from the trigger that motivated the sweep, surfaced again as confirmation. Only `R` findings enter the actionable queue. `I` findings go to a "promote to R by reading" sub-list (one extra read closes the gap); `K` findings are dropped after acknowledgement. This makes the evidence-grounded-completion discipline mechanical at the synthesis step rather than relying on parent recall.
+
+**Rule 5.3, severity is adjudicated, not averaged.** Use a fixed three-level scale on the synthesised row: `must-fix-before-merge | should-fix-this-PR | track-as-follow-up`. When two subagents disagree on severity for the same dedupe-key, the parent picks the higher and records both raw subagent severities in a `raw:` field on the synthesised entry. Averaging across subagents is forbidden: it hides disagreement under a number. The two-raters-plus-adjudicator pattern (Cochrane / GRADE systematic-review methodology) is the right shape; the parent is the adjudicator.
+
+**Rule 5.4, record subagent provenance.** Each synthesised row carries the set of subagents that surfaced it (e.g. `source: [A, B]`). A re-run can attribute coverage gaps to a specific subagent's brief; without this, the maintainer cannot tell which fan-out brief to tune.
+
+Cross-reference each synthesised finding against [`governance/register-sweep-history.md`](../../../../governance/register-sweep-history.md)'s **false-positive memory** section. Findings the maintainer has previously triaged as not-a-real-finding are suppressed; they should not be re-surfaced.
+
+**Anti-rubric (what NOT to do).** Do not compute inter-rater kappa (N=3 subagents with no pre-shared codebook makes the statistic uninterpretable). Do not average severities. Do not require mandatory consensus across all three subagents: the subagents have non-overlapping specialisations (recent-PR deep review vs corpus-wide stale-reference sweep vs audit-programme integrity), and a defect only one subagent could plausibly find must not be down-weighted by the others' silence.
 
 ### 6. Triage
 
