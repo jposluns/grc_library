@@ -279,6 +279,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 
 ### Template
 
+- [Audit Evidence Package Template](../compliance/template-audit-evidence-package.md)
 - [Board Risk Report Template](../risk/template-board-risk-report.md)
 - [Citation Verification Worklist Template](../governance/template-citation-verification-worklist.md)
 - [Document Review Record Template](../governance/template-document-review-record.md)
@@ -507,6 +508,7 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 
 ### Template
 
+- [Audit Evidence Package Template](../compliance/template-audit-evidence-package.md)
 - [Regulator Interaction Templates](../compliance/template-regulator-interaction.md)
 - [Trade Compliance Programme Gap Assessment Template](../compliance/logistics/template-trade-compliance-gap-assessment.md)
 

@@ -26,7 +26,7 @@ Shipped 2026-06-20 as [`compliance/template-regulator-interaction.md`](complianc
 
 ### 4.5 Audit evidence package templates
 
-The library documents per-control evidence requirements across the compliance and risk domains. The packaging step (assembling per-control evidence into an audit-ready bundle: control list, evidence per control, cross-references, gap rationale where partial) is not yet templated. A single template document would close the bookkeeping gap for adopters preparing for an external audit. Surfaced from [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md) §6.
+Shipped 2026-06-20 as [`compliance/template-audit-evidence-package.md`](compliance/template-audit-evidence-package.md). Cover page, control inventory index, per-control sections (framework references, implementation and operating evidence, gaps and compensating controls, per-control sign-off), optional per-domain summaries for 50+ control packages, optional cross-reference index for shared evidence, package-level sign-off. Anti-patterns to watch and eight review questions.
 
 ---
 

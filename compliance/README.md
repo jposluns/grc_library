@@ -2,7 +2,7 @@
 
 **Document Title:** Compliance Domain README\
 **Document Type:** Register\
-**Version:** 1.4.2\
+**Version:** 1.4.3\
 **Date:** 2026-06-20\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -47,6 +47,7 @@ Cross-sector horizontal regulations that span multiple industries (for example, 
 | Procedure | Corrective and Preventive Action (CAPA) Procedure | [`compliance/procedure-capa.md`](procedure-capa.md) |
 | Procedure | Control Testing Procedure | [`compliance/procedure-control-testing.md`](procedure-control-testing.md) |
 | Template | Regulator Interaction Templates | [`compliance/template-regulator-interaction.md`](template-regulator-interaction.md) |
+| Template | Audit Evidence Package Template | [`compliance/template-audit-evidence-package.md`](template-audit-evidence-package.md) |
 | Annex | NIS 2 Implementation Annex (cross-sector EU) | [`compliance/annex-nis-2-implementation.md`](annex-nis-2-implementation.md) |
 
 ---
