@@ -281,3 +281,10 @@ repos:
         language: system
         pass_filenames: false
         types: [markdown]
+
+      - id: lint-gate-count-consistency
+        name: Cross-file gate-count consistency audit
+        entry: python3 tools/lint-gate-count-consistency.py
+        language: system
+        pass_filenames: false
+        types_or: [markdown, python, shell]
