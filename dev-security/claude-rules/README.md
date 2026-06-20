@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.25.5\
+**Version:** 1.26.0\
 **Date:** 2026-06-20\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -84,7 +84,10 @@ claude-rules/
 │   ├── action-before-explanation-of-inaction/SKILL.md Reversibility-gate protocol before any "X is blocked because Y" clause attached to an external action
 │   ├── change-tracking-write-entry/SKILL.md           Entry-writing workflow that satisfies the delta gate, link-coverage gate, and version-monotonicity audit in one pass
 │   ├── artefact-discipline-check/SKILL.md             Routing workflow that redirects a hand-edit of a generated file (or a protected-branch operation) to the correct path
-│   └── validation-sweep/SKILL.md                      Corpus-wide regression sweep as a follow-up after any issue identified and corrected; loops until clean
+│   ├── validation-sweep/SKILL.md                      Corpus-wide regression sweep as a follow-up after any issue identified and corrected; loops until clean
+│   ├── citation-quote-verification/SKILL.md           Verify cited quotes match source text at the cited location; catches what citation-format and currency linters cannot
+│   ├── fresh-reader-validation/SKILL.md               Dispatch a fresh subagent to read a new or substantively-revised document and surface tacit-context gaps
+│   └── skill-authoring-discipline/SKILL.md            Apply the pack's structural template and validate trigger accuracy when adding a new skill
 └── languages/
     ├── python.md                Python-specific security patterns and anti-patterns
     ├── typescript.md            TypeScript / Node.js security patterns
@@ -426,6 +429,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.26.0 | 2026.06.61 | 2026-06-20 | Added three new skills (`citation-quote-verification`, `fresh-reader-validation`, `skill-authoring-discipline`) recreated as in-house CC BY-SA 4.0 content from cross-source research (kfchou wiki-skills and anthropics doc-coauthoring / skill-creator as reference; not imported as external overlay to keep licence accumulation bounded) |
 | 1.25.0 | 2026.06.48 | 2026-06-20 | Added `skills/validation-sweep`: corpus-wide regression sweep as a follow-up after any issue identified and corrected; derives from `evidence-grounded-completion` and operationalises its worked example at corpus scope |
 | 1.24.0 | 2026.06.43 | 2026-06-19 | Trimmed `Pack scope` to the load-bearing content; introduced this `Version history` section |
 | 1.23.0 | 2026.06.40 | 2026-06-19 | Dual-deliverable reframe across project framing surfaces (new `Three ways to use this pack` section; the pack named as the library's lessons learned made portable) |
