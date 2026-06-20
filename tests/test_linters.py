@@ -755,6 +755,21 @@ class VersionBumpRecencyTests(LinterTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
 
+class CollectionEnumerationConsistencyTests(LinterTestCase):
+    """tools/lint-collection-enumeration-consistency.py"""
+
+    def test_runs_clean_on_corpus_at_head(self) -> None:
+        # Smoke test against the current corpus: the linter should
+        # report consistent enumerations across all declared collections.
+        result = run_linter("tools/lint-collection-enumeration-consistency.py")
+        self.assertEqual(
+            result.returncode, 0,
+            f"linter exited {result.returncode} on HEAD; "
+            f"all declared collections should be consistent.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+
 class GateCountConsistencyTests(LinterTestCase):
     """tools/lint-gate-count-consistency.py"""
 
