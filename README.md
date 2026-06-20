@@ -1,7 +1,7 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Library Version:** 2026.06.41\
-**README Version:** 1.7.179\
+**Library Version:** 2026.06.42\
+**README Version:** 1.7.180\
 **Date:** 2026-06-19\
 **Classification:** Public\
 **Confidentiality:** Public\
@@ -49,7 +49,7 @@ An adopter can engage with this repository at any of three levels:
 
 - **Adopt the corpus only.** You want the Markdown artefacts as a starting point and have your own maintenance workflow (or no AI assistance in the loop). Take the domain directories you need; ignore [`tools/`](tools/) and [`dev-security/claude-rules/`](dev-security/claude-rules/). The CC BY-SA 4.0 share-alike clause applies to derivatives you redistribute.
 
-- **Adopt the pack only.** You are not building a GRC library, but you want a Claude Code baseline pack, usable on any project regardless of whether it has a GRC corpus, distilled from the disciplines this library required to maintain itself. Take [`dev-security/claude-rules/`](dev-security/claude-rules/) (the pack's own [`README.md`](dev-security/claude-rules/README.md) is its front door) and drop it into your project's Claude Code context. The pack ships with its own version sequence and is documented to operate standalone. Common search terms that bring readers to this mode: *Claude Code rules*, *Claude Code skills*, *Claude Code security rules*, *Claude Code GRC rules*, *Claude Code governance pack*, *claude-rules*, *AI coding assistant rules*, *AI agent security rules*, *Anthropic Claude governance*, *secure AI coding*.
+- **Adopt the pack only.** You are not building a GRC library, but you want a Claude Code baseline pack, usable on any project regardless of whether it has a GRC corpus, distilled from the disciplines this library required to maintain itself. Take [`dev-security/claude-rules/`](dev-security/claude-rules/) (the pack's own [`README.md`](dev-security/claude-rules/README.md) is its front door) and drop it into your project's Claude Code context. For an automated, AI-assisted installation that tailors the pack to your specific project, see the setup generator prompt at [`dev-security/claude-rules/setup-generator-prompt.md`](dev-security/claude-rules/setup-generator-prompt.md). The pack ships with its own version sequence and is documented to operate standalone.
 
 The third mode is an emergent use that has been adopted by developers in practice; it is supported alongside the primary fork-the-whole-repo path.
 
