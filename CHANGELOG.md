@@ -4,6 +4,37 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.93, PR #107
+
+TODO P4.4: regulator interaction templates. Fourth of five Priority 4 items.
+
+Consolidates the recurring regulator-facing interactions into reusable shapes. The library shipped incident-notification language inside per-jurisdiction privacy annexes and inside industry compliance overlays; this template provides the shape-only structure so an adopter facing first-time regulator contact does not have to reverse-engineer it.
+
+### Added
+
+- [`compliance/template-regulator-interaction.md`](compliance/template-regulator-interaction.md): new Template document with five sub-templates:
+  1. **Breach notification**: discovery, nature, cause, containment, affected-individual notification, external parties, follow-up commitments, signatory. Examples of timing across GDPR / SEC / HIPAA / NIS 2 / DORA.
+  2. **Attestation submission**: scope, statement, qualifications, material findings, compensating controls, changes since prior period, signatory.
+  3. **Examination support**: pre-examination packet, pre-examination briefing, during-examination cadence, closing meeting, post-examination findings response, closure.
+  4. **Periodic report submission**: required sections, internal review and sign-off, submission record, internal-deadline ahead of regulator-deadline discipline.
+  5. **Regulatory inquiry response**: receipt acknowledgement, internal triage, response sections, sign-off, submission, follow-up tracking.
+
+### Changed
+
+- [`TODO.md`](TODO.md): Priority 4.4 entry resolved; pointer to shipped template.
+- [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md): version `1.1.10 -> 1.1.11`; §6 entry for "Regulator interaction templates" updated from `Partial / Planned / TODO P4.4` to `Substantive / In library / [link]`.
+- [`README.md`](README.md): library version `2026.06.92 -> 2026.06.93`; README version `1.8.48 -> 1.8.49`.
+
+### Scope decision
+
+One consolidated document with five sub-templates rather than five separate documents, matching the project's existing template convention. Templates are shape-only; framework-specific timing, format, and channel requirements remain in the relevant jurisdiction annex or sector overlay (cross-references in the document).
+
+### Verification
+
+All 44 audit gates pass standalone.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.92, PR #106
 
 TODO P4.3: implementation roadmap template. Third of five Priority 4 items.

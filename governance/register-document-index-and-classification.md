@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.18\
+**Version:** 1.27.19\
 **Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -219,6 +219,7 @@ All active repository documents should be Public.
 | Governance | Template | Library Health Report Template | [`governance/template-library-health-report.md`](../governance/template-library-health-report.md) | Governance Library Maintainer | Annual | ISO 9001 §9, ISO 27001 §9.3, ISO 42001 §9.3, COBIT 2019 MEA01, ITIL 4 continual improvement |
 | Risk | Procedure | Risk Assessment Methodology Procedure | [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md) | GRC Programme Manager | Annual | ISO 31000:2018, ISO 27005:2022, ISO 42001 §6, NIST SP 800-30r1, COBIT APO12 |
 | Compliance | Procedure | Control Testing Procedure | [`compliance/procedure-control-testing.md`](../compliance/procedure-control-testing.md) | Chief Compliance Officer | Annual | ISO 27001 §9.1, ISO 19011:2018, NIST SP 800-53A, COBIT MEA01 |
+| Compliance | Template | Regulator Interaction Templates | [`compliance/template-regulator-interaction.md`](../compliance/template-regulator-interaction.md) | Chief Compliance Officer | Annual | Five sub-templates (breach notification, attestation submission, examination support, periodic report submission, regulatory inquiry response); shape-only with cross-references to jurisdiction- and sector-specific framework requirements |
 | Security | Policy | Acceptance Into Service Policy | [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md) | Chief Information Officer | Annual | ISO 42001 §8, NIST SP 800-37 RMF Step 6, COBIT BAI07, CSA CCM AIS-01 |
 | Security | Framework | Cryptographic Key Lifecycle Management Framework | [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md) | Chief Information Security Officer | Annual | ISO 27002 §8.24 to 28, NIST SP 800-57, NIST FIPS 203/204, BASC v6, WCO SAFE |
 | Security | Procedure | Access Control Procedure | [`security/procedure-access-control.md`](../security/procedure-access-control.md) | Chief Information Security Officer | Annual | ISO 27001 A.5.15 to 18, NIST SP 800-53 AC, CSA CCM IAM, NIST SP 800-207 |
