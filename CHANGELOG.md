@@ -4,6 +4,27 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.64, PR #78
+
+Validation-sweep enhancement 3 of 4 from the process-assessment review: deterministic pre-flight scanner. The fourth (nightly scheduled sweep) follows in PR #79; then the late-research-findings queue.
+
+### Added
+
+- [`tools/sweep-preflight-scanner.py`](tools/sweep-preflight-scanner.py): new exploratory tool. Runs BEFORE subagent fan-out in the validation-sweep cycle. Deterministic regex-based pass with seed patterns for stale skill counts, stale governance-rule counts, and prose-form number drift (one through twenty). Exits 0 always — informational, not a gate. High-recall by design; the subagent triage is the precision layer. Extensible via the `CANONICAL_COLLECTIONS` list and seed patterns.
+
+### Changed
+
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): new step 3.5 inserted between failure-mode-class identification and subagent fan-out. The scanner's output is passed to each subagent as a known-candidate list, lowering the discovery burden.
+- [`.claude/commands/validation-sweep.md`](.claude/commands/validation-sweep.md): new step 3a added to mirror the SKILL.md change.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.26.2 → 1.26.3`.
+- [`README.md`](README.md): library version `2026.06.63 → 2026.06.64`; README version `1.8.19 → 1.8.20`.
+
+### Verification
+
+Full audit programme passes standalone, all 42 corpus gates pass. First scanner run surfaced 12 candidates (mostly false positives as expected: historical CHANGELOG-shape prose, references to other projects' rule counts, comparative wording). The new tool is exploratory (exit 0 always); the value is in the candidate list it provides to subagents, not in failing on any specific candidate.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.63, PR #77
 
 Two validation-sweep discipline enhancements from the maintainer's process-assessment review. Other enhancements (deterministic pre-flight scanner; nightly scheduled sweep) follow in subsequent PRs.
