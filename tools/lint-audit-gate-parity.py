@@ -73,6 +73,14 @@ WORKFLOW_SETUP_STEPS = {"Checkout", "Set up Python"}
 # inspect the PR's change set rather than the repository state at HEAD.
 WORKFLOW_DELTA_GATE_STEPS = {"CHANGELOG-on-PR check", "Per-PR version-bump check"}
 
+# Pre-commit hooks that are setup or regeneration steps, not audit
+# gates. These are excluded from the pre-commit-to-spec parity check.
+# The regenerate-derived-artefacts hook runs the build scripts in
+# write mode so taxonomy.yml / docs/portal.md / docs/maturity-scorecard.md
+# are refreshed before the corresponding --check gates run; it is not
+# itself a verification gate.
+PRECOMMIT_NON_GATE_HOOKS = {"Regenerate taxonomy, portal, and maturity scorecard"}
+
 # Regex to extract the tools/X.py portion of a `python3 tools/X.py ...`
 # style command. Captures the script's repository-relative path only,
 # discarding the `python3` prefix and any trailing arguments.
@@ -235,6 +243,9 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str]]:
             m_entry = entry_re.match(line)
             if m_entry and pending_name is not None:
                 hook_lineno, hook_name = pending_name
+                if hook_name in PRECOMMIT_NON_GATE_HOOKS:
+                    pending_name = None
+                    continue
                 script_match = SCRIPT_RE.search(m_entry.group(1))
                 if not script_match:
                     raise ParseError(

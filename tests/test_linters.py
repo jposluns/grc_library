@@ -683,13 +683,9 @@ class VersionBumpRecencyTests(LinterTestCase):
     """tools/lint-version-bump-recency.py"""
 
     def test_runs_clean_on_corpus_at_head(self) -> None:
-        # The linter is a git-history-aware corpus check; the meaningful
-        # regression test is that it runs clean on the current HEAD
-        # (every versioned document's Version field is bumped at or after
-        # the file's last body change). Synthetic fixtures are awkward
-        # because the linter needs a multi-commit history to exercise
-        # the body-vs-version comparison. The corpus's own HEAD provides
-        # a real two-commit baseline.
+        # Smoke test: the linter is a git-history-aware corpus check;
+        # the first regression-level assertion is that it runs clean on
+        # the current HEAD.
         result = run_linter("tools/lint-version-bump-recency.py")
         self.assertEqual(
             result.returncode,
@@ -698,6 +694,65 @@ class VersionBumpRecencyTests(LinterTestCase):
             f"all versioned documents should pass.\n"
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
+
+    def test_stale_version_after_body_change_flagged(self) -> None:
+        # Real failure-detection test (closing the gate-36 discipline
+        # gap for this git-history-aware gate). Build a synthetic git
+        # repo with two commits: first creates a versioned doc at
+        # Version 1.0.0; second modifies the body without bumping
+        # Version. Assert the linter fires.
+        import shutil
+        import subprocess as sp
+        import tempfile
+
+        tmp = Path(tempfile.mkdtemp(prefix="lint-recency-test-"))
+        try:
+            sp.run(["git", "init", "-q", "-b", "main", str(tmp)], check=True)
+            sp.run(["git", "-C", str(tmp), "config", "user.email", "test@test"], check=True)
+            sp.run(["git", "-C", str(tmp), "config", "user.name", "Test"], check=True)
+
+            # The linter requires a §6 inventory in
+            # governance/specification-audit-programme.md to derive the
+            # canonical gate count. Provide a minimal stub.
+            spec_dir = tmp / "governance"
+            spec_dir.mkdir()
+            (spec_dir / "specification-audit-programme.md").write_text(
+                "# Stub\n\n## 6. Gate inventory (current)\n\n| # | Gate | Script |\n| - | - | - |\n| 1 | Stub | `tools/stub.py` |\n",
+                encoding="utf-8",
+            )
+
+            target = tmp / "doc.md"
+            target.write_text(
+                "# Test Doc\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\n## Body\n\nOriginal body content.\n",
+                encoding="utf-8",
+            )
+            sp.run(["git", "-C", str(tmp), "add", "-A"], check=True)
+            sp.run(["git", "-C", str(tmp), "commit", "-q", "-m", "Initial"], check=True)
+
+            target.write_text(
+                "# Test Doc\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\n## Body\n\nModified body content.\n",
+                encoding="utf-8",
+            )
+            sp.run(["git", "-C", str(tmp), "add", "-A"], check=True)
+            sp.run(["git", "-C", str(tmp), "commit", "-q", "-m", "Modify body without Version bump"], check=True)
+
+            result = sp.run(
+                [sys.executable, str(REPO_ROOT / "tools/lint-version-bump-recency.py"), "--root", str(tmp)],
+                capture_output=True, text=True, cwd=str(tmp),
+            )
+            self.assertEqual(
+                result.returncode,
+                1,
+                f"linter should have FAILED on synthetic body-without-Version-bump fixture; got exit {result.returncode}.\n"
+                f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+            self.assertIn(
+                "doc.md",
+                result.stdout,
+                f"expected doc.md in failure output but did not find it.\nstdout:\n{result.stdout}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
 
 
 class GateCountConsistencyTests(LinterTestCase):
