@@ -120,7 +120,13 @@ Surface each finding to the operator with named action options (action now, defe
 
 Apply the fixes. **Re-run step 1 (the full audit standalone) AFTER committing each fix, not on the working tree**. Per the canonical rule's "Relying on prior runs" anti-pattern, the audit must see the final state; per the git-history-aware-gates discipline, the audit's view of "final state" is the committed git history, not the uncommitted working tree. Running the audit on uncommitted changes misses what git-history-aware gates (e.g. a corpus version-bump-recency check) would flag once those changes are committed. If new findings surface, repeat from step 4. The sweep is complete when one full cycle returns no High or Medium findings.
 
-Cap: if the cycle runs more than three iterations without converging, stop and surface the pattern to the operator. Recurring findings across iterations suggest a structural issue the sweep cannot resolve on its own.
+**Termination conditions** (replacing the older "stop after three iterations" cap; first matching condition fires):
+
+1. **Empty-delta (primary, principled stop).** An iteration produces zero new High or Medium findings AND the synthesised finding-set is identical (by dedupe-key per the synthesis rubric) to the previous iteration's set. The sweep has reached a fixed point. This is the desired exit.
+2. **Patience-plateau (secondary, structural-stall stop).** Two consecutive iterations produce no strict shrinkage of the finding-set (no new High or Medium resolved, no new High or Medium discovered). The remaining findings are structurally unresolvable by this sweep alone; surface the residual to the operator with a named decision (defer, escalate, descope). Default patience is 2 iterations, mirroring early-stopping conventions in iterative-solver and ML-training literature.
+3. **Hard ceiling (runaway guard, defect signal).** Six iterations regardless of state. Hitting this is signal that something is wrong, not signal of completion: the typical cause is a fix-cycle (fix A re-introduces fix B's finding, ESLint/RuboCop pattern) or scope creep (each iteration uncovers a new class). When hit, do not declare the sweep complete; report whether the cause is a cycle or scope expansion.
+
+The empty-delta is the principled stop; the hard ceiling is the sanity guard. Dual-criterion termination follows the standard iterative-solver pattern (residual-tolerance OR max-iterations, whichever first); the patience-plateau in the middle is the ML-training early-stopping adaptation that handles "the finding-set is not shrinking but is not oscillating" cases that neither extreme catches.
 
 ### 8. Append to the sweep history register
 
