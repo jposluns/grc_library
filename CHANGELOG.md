@@ -4,6 +4,26 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.65, PR #79
+
+Validation-sweep enhancement 4 of 4 from the process-assessment review: nightly scheduled mechanical sweep on `main`. Closes the original four-enhancement queue; the late-research-findings queue (SARIF, hold-the-line, multi-agent debate, maintenance-tag dating, pre-tool verification, synthesis rubric, convergence-delta termination) plus the queued pre-flight pattern-set extension follow in subsequent PRs.
+
+### Added
+
+- [`.github/workflows/nightly-sweep.yml`](.github/workflows/nightly-sweep.yml): new scheduled workflow. Triggers nightly at 04:00 UTC and on `workflow_dispatch`. Runs [`tools/run_all_audits.sh`](tools/run_all_audits.sh) plus [`tools/sweep-preflight-scanner.py`](tools/sweep-preflight-scanner.py) against `main`. Drift backstop for time-dependent gates (citation freshness, document-date staleness, version-bump recency) that may flip from OK to FAIL between merges when nobody touches the corpus. Mechanical-only: the semantic subagent layer requires a Claude Code session and cannot run from cron; the validation-sweep SKILL pairs the mechanical finding with semantic triage when the nightly fails.
+
+### Changed
+
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): "When to Use" list adds the nightly-failure case, making the relationship between the scheduled mechanical half and the semantic subagent half explicit.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.26.3 -> 1.26.4`.
+- [`README.md`](README.md): library version `2026.06.64 -> 2026.06.65`; README version `1.8.20 -> 1.8.21`.
+
+### Verification
+
+Full audit programme passes standalone, all 42 corpus gates pass. The new workflow does not run on PRs (only on schedule plus dispatch); the gate-name parity audit reads [`.github/workflows/quality.yml`](.github/workflows/quality.yml) only, so the addition of [`.github/workflows/nightly-sweep.yml`](.github/workflows/nightly-sweep.yml) is invisible to it. First scheduled run will fire at the next 04:00 UTC tick; the maintainer can also trigger it on demand via `workflow_dispatch`.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.64, PR #78
 
 Validation-sweep enhancement 3 of 4 from the process-assessment review: deterministic pre-flight scanner. The fourth (nightly scheduled sweep) follows in PR #79; then the late-research-findings queue.

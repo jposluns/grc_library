@@ -22,6 +22,7 @@ The skill is project-agnostic in shape but invokes project-specific commands; th
 - Before declaring a multi-PR programme phase complete.
 - Periodically, informed by the document-staleness audit (gate 31 in the canonical inventory).
 - Whenever a user surfaces an AI-introduced error and asks for assurance that no sibling error remains.
+- When the project's nightly scheduled mechanical sweep (the deterministic half of this discipline, scheduled via CI) reports a failure. The nightly catches time-dependent drift (citation freshness, document-date staleness, version-bump recency) when nobody has touched the corpus; pair the mechanical finding with the semantic triage step 4 fan-out runs.
 
 ## Process
 
