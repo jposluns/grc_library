@@ -22,7 +22,7 @@ Shipped 2026-06-20 as [`docs/template-implementation-roadmap.md`](docs/template-
 
 ### 4.4 Regulator interaction templates
 
-Consolidated templates for the recurring regulator-facing interactions: breach notification (per-regulator format requirements), attestation submission, examination support, periodic report submission, regulatory inquiry response. The library currently ships incident-notification language inside per-jurisdiction privacy annexes and inside industry compliance overlays; a single document of reusable templates would reduce the synthesis burden for adopters facing first-time regulator contact. Surfaced from [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md) §6.
+Shipped 2026-06-20 as [`compliance/template-regulator-interaction.md`](compliance/template-regulator-interaction.md). Five sub-templates in one consolidated document: breach notification, attestation submission, examination support, periodic report submission, regulatory inquiry response. Shape-only; jurisdiction- and sector-specific timing/format requirements live in the relevant annex or sector folder.
 
 ### 4.5 Audit evidence package templates
 
