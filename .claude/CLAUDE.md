@@ -70,7 +70,12 @@ PRs in this repository follow a fixed pattern that the assistant is authorised t
 drive end-to-end on the maintainer's behalf:
 
 1. Develop on a named feature branch (never on `main`); confirm
-   `tools/run_all_audits.sh` passes standalone before pushing.
+   `tools/run_all_audits.sh` passes standalone **after each commit** on the
+   feature branch, not only before the final push. Git-history-aware gates
+   (gate 40 in this project, plus any future gate that examines commit
+   graph) only see committed state, so running the audit on the working
+   tree before committing misses what would happen post-commit. Running
+   between commits catches gate 40-class issues locally, before CI does.
 2. Push with `git push -u origin <branch>` and open the PR via
    `mcp__github__create_pull_request`.
 3. Wait for the `Lint markdown corpus` CI check; on failure, fix and re-push.

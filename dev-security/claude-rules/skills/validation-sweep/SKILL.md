@@ -91,7 +91,7 @@ Surface each finding to the operator with named action options (action now, defe
 
 ### 7. Apply fixes, re-baseline, repeat
 
-Apply the fixes. Re-run step 1 (the full audit standalone) **on the final state**, per the canonical rule's "Relying on prior runs" anti-pattern. If new findings surface, repeat from step 4. The sweep is complete when one full cycle returns no High or Medium findings.
+Apply the fixes. **Re-run step 1 (the full audit standalone) AFTER committing each fix, not on the working tree**. Per the canonical rule's "Relying on prior runs" anti-pattern, the audit must see the final state; per the git-history-aware-gates discipline, the audit's view of "final state" is the committed git history, not the uncommitted working tree. Running the audit on uncommitted changes misses what git-history-aware gates (e.g. a corpus version-bump-recency check) would flag once those changes are committed. If new findings surface, repeat from step 4. The sweep is complete when one full cycle returns no High or Medium findings.
 
 Cap: if the cycle runs more than three iterations without converging, stop and surface the pattern to the operator. Recurring findings across iterations suggest a structural issue the sweep cannot resolve on its own.
 
