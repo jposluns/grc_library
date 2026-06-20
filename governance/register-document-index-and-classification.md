@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.15\
+**Version:** 1.27.16\
 **Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -46,6 +46,7 @@ All active repository documents should be Public.
 | Governance | Framework | Continuous Assurance and Improvement Framework | [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md) | GRC Programme Manager | Annual | 4-cycle assurance model, BASC integration, AI maturity, CAPA linkage |
 | Governance | Framework | Metrics, Monitoring and Performance Reporting Framework | [`governance/framework-metrics-monitoring-and-performance-reporting.md`](framework-metrics-monitoring-and-performance-reporting.md) | GRC Programme Manager | Annual | KRI/KPI framework, BASC trade metrics, AI maturity indicators, COBIT MEA01 |
 | Governance | Register | Document Index and Classification Register | [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md) | Governance Library Maintainer | Annual | Document control, classification, traceability |
+| Governance | Register | Validation Sweep History Register | [`governance/register-sweep-history.md`](register-sweep-history.md) | Governance Library Maintainer | On every validation-sweep invocation | Cumulative log of /validation-sweep runs, finding counts by failure-mode class, false-positive memory, trend signal for choosing the next mechanical gate to ship |
 | Governance | Register | Key Terms and Definitions Register | [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md) | Governance Library Maintainer | Annual | Cross-domain terminology, internal GRC concepts |
 | Governance | Register | Glossary and Acronym Index | [`governance/register-glossary.md`](register-glossary.md) | Governance Library Maintainer | Annual | Acronyms, external standards, regulations, frameworks, regulators, sector programmes |
 | Governance | Register | Canonical Citations Register | [`governance/register-canonical-citations.md`](register-canonical-citations.md) | Governance Library Maintainer | Quarterly | Positive list of cited standards with current versions, publication dates, superseded versions; source for the standards-currency linter |

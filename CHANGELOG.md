@@ -4,6 +4,30 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.63, PR #77
+
+Two validation-sweep discipline enhancements from the maintainer's process-assessment review. Other enhancements (deterministic pre-flight scanner; nightly scheduled sweep) follow in subsequent PRs.
+
+### Added
+
+- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): new register that records each `/validation-sweep` invocation's findings cumulatively. Captures trigger, state at HEAD, finding counts per failure-mode class, actions taken, resulting PR. Includes a false-positive memory section (findings the maintainer has dismissed) and a recurring-class summary table (cumulative count by class, signal for which mechanical gate to prioritise next). Already backfilled with entries for sweep 1 (post-PR-#61 → PR #63) and sweep 2 (post-PR-#74 → PR #76).
+
+### Changed
+
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): two discipline updates.
+  - **Step 4 (Fan out subagents)**: new paragraph mandating `path:line` evidence per finding. A finding without an explicit file path and line number is a hypothesis, not a finding; reject and re-dispatch. Guards against the failure mode observed today where a subagent returned a confused single-line "I'll wait for sub-subagents" output instead of read-verified findings.
+  - **Step 5 (Synthesise)**: new paragraph cross-referencing each finding against the register's false-positive memory. Findings the maintainer has previously dismissed are suppressed.
+  - **New step 8 (Append to sweep history register)**: codifies the new register as part of the sweep workflow. Each cycle's findings get logged for trend tracking.
+- [`.claude/commands/validation-sweep.md`](.claude/commands/validation-sweep.md): updated to reflect the new step 8 (register append) and the evidence-validation requirement.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.26.1 → 1.26.2`.
+- [`README.md`](README.md): library version `2026.06.62 → 2026.06.63`; README version `1.8.18 → 1.8.19`.
+
+### Verification
+
+Full audit programme passes standalone, all 42 corpus gates pass. The new register satisfies all metadata gates and was added to the corpus successfully.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.62, PR #76
 
 Validation-sweep cleanup after the morning's `/validation-sweep` run on the post-PR-75 state surfaced two High-severity findings, both meta-ironic instances of the new [`skill-authoring-discipline`](dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md) skill catching itself violating its own rules. Plus one Medium-severity stale-prose finding from the sibling sweep.
