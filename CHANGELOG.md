@@ -4,6 +4,21 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.69, PR #83
+
+Validation Sweep 4 in-window finding (C1 stale-prose): the adopter-guide's Mode C section says the pack "ships with its own version sequence (currently `1.22.0`)" but the pack is at 1.26.6. Surfaced by Subagent B of the Sweep 4 fan-out; the new synthesis rubric tagged this `R` (read-verified), severity `should-fix-this-PR`. Fix uses number-stable wording rather than bumping the literal so the same drift does not recur on the next pack bump.
+
+### Changed
+
+- [`docs/adopter-guide.md`](docs/adopter-guide.md): Mode C section, "ships with its own version sequence (currently `1.22.0`)" replaced with number-stable wording ("independent of the library's; see the pack README header for the current value"). Document version `1.1.0 -> 1.1.1`.
+- [`README.md`](README.md): library version `2026.06.68 -> 2026.06.69`; README version `1.8.24 -> 1.8.25`.
+
+### Verification
+
+Full audit programme passes standalone, all 42 corpus gates pass. The Sweep 4 synthesis using the new four-rule rubric is the first sweep to apply the rubric in practice; the `R` evidence tag forced Subagent B to quote `docs/adopter-guide.md:57` directly rather than inferring the staleness, and the three-level severity scale collapsed cleanly onto `should-fix-this-PR`.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.68, PR #82
 
 Validation-sweep enhancement, first of seven from the late-research-findings queue. Adds a deterministic four-rule synthesis rubric to step 5 of the validation-sweep skill. Closes the prior gap where the parent's synthesis after subagent fan-out was ad-hoc and unreproducible across sweeps.
