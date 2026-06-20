@@ -1,7 +1,7 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Library Version:** 2026.06.39\
-**README Version:** 1.7.177\
+**Library Version:** 2026.06.40\
+**README Version:** 1.7.178\
 **Date:** 2026-06-19\
 **Classification:** Public\
 **Confidentiality:** Public\
@@ -28,6 +28,30 @@ The repository provides reusable artefacts across the following domains:
 - Cross-framework mapping, regulatory applicability analysis, and metrics.
 
 The library currently contains approximately **300+ documents** across 11 governance domains. The `compliance/` domain hosts sector-conditional sub-directories (`logistics/`, `financial-services/`, `healthcare/`, and others) for organisations operating in those sectors or participating in covered programmes. Automated counts will replace this approximation in a future repository release.
+
+---
+
+## What this repository is
+
+This repository delivers two coordinated halves:
+
+1. **A GRC corpus.** Organisation-neutral, CC BY-SA 4.0 governance artefacts (charters, frameworks, policies, standards, procedures, registers, matrices, plans, guidelines, templates) across the eleven domains listed above. This is the content half.
+
+2. **A reference implementation for AI-assisted maintenance of a governed corpus.** The audit toolchain ([`tools/`](tools/), the multi-gate audit programme under [`tools/run_all_audits.sh`](tools/run_all_audits.sh)) and the [`dev-security/claude-rules/`](dev-security/claude-rules/) pack are the operational layer. Together they show how a governed Markdown corpus can be maintained with Claude Code participating in PRs without the corpus losing internal consistency, metadata integrity, citation currency, or the audit trail.
+
+The two halves co-evolved: the audit gates were added in response to specific drift modes observed in the corpus; the pack's governance rules were extracted from real failure modes the maintainer encountered while keeping the library consistent (evidence-grounded completion came from a stale-claim incident; clarify-before-acting from "always confirm" feedback; action-before-explanation-of-inaction from a merge-blocked incident). The pack is the library's lessons learned, made portable.
+
+### Three adoption modes
+
+An adopter can engage with this repository at any of three levels:
+
+- **Fork the whole repo.** You want both the GRC corpus and the maintenance toolkit. Your organisation forks, substitutes organisation-specific values across the artefacts, and inherits the audit programme and the pack as the operational layer your AI coding assistant uses to keep the corpus consistent. See [`docs/adopter-guide.md`](docs/adopter-guide.md) for the full path.
+
+- **Adopt the corpus only.** You want the Markdown artefacts as a starting point and have your own maintenance workflow (or no AI assistance in the loop). Take the domain directories you need; ignore [`tools/`](tools/) and [`dev-security/claude-rules/`](dev-security/claude-rules/). The CC BY-SA 4.0 share-alike clause applies to derivatives you redistribute.
+
+- **Adopt the pack only.** You are not building a GRC library, but you want a Claude Code baseline pack, usable on any project regardless of whether it has a GRC corpus, distilled from the disciplines this library required to maintain itself. Take [`dev-security/claude-rules/`](dev-security/claude-rules/) (the pack's own [`README.md`](dev-security/claude-rules/README.md) is its front door) and drop it into your project's Claude Code context. The pack ships with its own version sequence and is documented to operate standalone.
+
+The third mode is an emergent use that has been adopted by developers in practice; it is supported alongside the primary fork-the-whole-repo path.
 
 ---
 

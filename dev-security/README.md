@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Domain README\
 **Document Type:** Register\
-**Version:** 1.3.2\
-**Date:** 2026-05-31\
+**Version:** 1.4.0\
+**Date:** 2026-06-19\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -18,9 +18,11 @@
 
 ## Purpose
 
-This directory contains security standards, quick-reference guides, compliance registers, and draggable rule files for developers and DevOps practitioners. Content addresses secure development baseline requirements, CI/CD pipeline security, developer toolchain security, and compliance controls for software development activities.
+This directory has two layers that share a domain but serve different purposes:
 
-The `claude-rules/` subdirectory provides a set of draggable CLAUDE.md and rule files designed to be dropped directly into a Claude Code session or project directory. These files encode security and compliance requirements as context that AI coding agents can enforce during development.
+1. **GRC standards for secure development.** Security standards, quick-reference guides, compliance registers, policies, and procedures for developers and DevOps practitioners. Content addresses secure development baseline requirements, CI/CD pipeline security, developer toolchain security, and compliance controls for software development activities. These are normative GRC artefacts of the same shape as content in [`security/`](../security/), [`risk/`](../risk/), and the other domain directories.
+
+2. **The `claude-rules/` operational pack.** A draggable set of CLAUDE.md, rule files, and Claude Code Skills designed to be loaded into a Claude Code session as security and development-governance context. The pack distils disciplines extracted from maintaining this library and is part of the parent library's reference-implementation deliverable. It is also usable as a standalone Claude Code baseline pack, usable on any project regardless of whether it has a GRC corpus, distilled from the disciplines this library required to maintain itself. See [`dev-security/claude-rules/README.md`](claude-rules/README.md) for the pack's own front door and adoption modes.
 
 ---
 
