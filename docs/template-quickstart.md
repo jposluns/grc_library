@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Quickstart Template\
 **Document Type:** Template\
-**Version:** 2.0.0\
+**Version:** 2.0.1\
 **Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -10,7 +10,7 @@
 **Classification:** Public\
 **Category:** Adopter Experience\
 **Review Frequency:** Annual, and on material change to the library's domain structure or sector-conditional content\
-**Repository Path:** [`docs/template-quickstart-by-profile.md`](template-quickstart-by-profile.md)\
+**Repository Path:** [`docs/template-quickstart.md`](template-quickstart.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
 
