@@ -4,6 +4,24 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.81, PR #95
+
+Sweep 8 closure (register entry + one exemption-file update). Fourth consecutive empty-delta convergence; the discipline remains in steady state through the introduction of Rule 5.5 (multi-agent debate) and SARIF-lite output format. Eight-sweep convergence pattern: 4+, 3, 1, 1, 0, 0, 0, 0.
+
+Sweep 8 was the first sweep to use the SARIF-lite output format end-to-end. The format was respected by absence (zero findings means zero blocks; anti-rubric on prose findings outside blocks held trivially). When a real finding next surfaces, that sweep will be the first to produce observable SARIF-lite output blocks.
+
+### Changed
+
+- [`tools/sweep-preflight-exemptions.json`](tools/sweep-preflight-exemptions.json): new entry for `dev-security/claude-rules/skills/validation-sweep/SKILL.md:101` (line_hash `d0e2dce98dc3847d`). The line is `Three rules:` introducing the SARIF-lite output format constraints (one block per finding, deterministic fingerprint, closed severity enum), not a governance-rule count.
+- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): version `1.7.0 -> 1.8.0`; appended Sweep 8 entry; reading-the-table prose updated to track the 8-sweep convergence pattern.
+- [`README.md`](README.md): library version `2026.06.80 -> 2026.06.81`; README version `1.8.36 -> 1.8.37`.
+
+### Verification
+
+Full audit programme passes standalone, all 42 corpus gates pass. Pre-flight scanner: 18 candidates suppressed (11 by heuristic, 7 by exemption file), 0 findings reported.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.80, PR #94
 
 Validation-sweep enhancement, sixth of seven from the late-research-findings queue. Adds the SARIF-lite output format to step 4 of the SKILL: each subagent finding is a fenced markdown block with six labelled lines (tool / ruleId / level / location / fingerprint / rubric) plus an evidence paragraph. Closes the "medium" tier of the queue (after Rule 5.5 multi-agent debate in PR #93); only the "largest" tier (hold-the-line ratcheting baselines) remains.
