@@ -4,6 +4,28 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.60, PR #74
+
+Layer 3 of the validation programme — invocation-pattern documentation. The validation-sweep skill (shipped in PR #62) is now discoverable via a project slash command and cross-referenced bidirectionally from related skills.
+
+### Added
+
+- [`.claude/commands/validation-sweep.md`](.claude/commands/validation-sweep.md): new project slash command. Typing `/validation-sweep` in a Claude Code session invokes the seven-step process from [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md). The command file is a self-contained prompt: it lists each step with the discipline notes from the skill (focus window of the past two calendar days; out-of-window findings surfaced as questions, not auto-deferred; post-commit re-baseline per the PR #68 discipline). First slash command in this project.
+
+### Changed
+
+- [`dev-security/claude-rules/skills/evidence-grounded-completion/SKILL.md`](dev-security/claude-rules/skills/evidence-grounded-completion/SKILL.md): See Also extended with bidirectional reference to `validation-sweep` (the sweep applies this skill's per-claim verification protocol at corpus scope).
+- [`dev-security/claude-rules/skills/gate-discipline-diagnose/SKILL.md`](dev-security/claude-rules/skills/gate-discipline-diagnose/SKILL.md): See Also extended with bidirectional reference to `validation-sweep` (after diagnosing and fixing a gate failure, run the sweep to verify no sibling failure surfaced).
+- [`dev-security/claude-rules/skills/clarify-before-acting/SKILL.md`](dev-security/claude-rules/skills/clarify-before-acting/SKILL.md): See Also extended with bidirectional reference to `validation-sweep` (when the sweep surfaces an out-of-window finding, use clarify-before-acting to triage the action/defer/dismiss choice with named alternatives).
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.25.4 → 1.25.5`.
+- [`README.md`](README.md): library version `2026.06.59 → 2026.06.60`; README version `1.8.15 → 1.8.16`.
+
+### Verification
+
+Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0). All 42 corpus gates pass; the new slash command lives under `.claude/commands/` which is in the default-exempt set for corpus linters (same as `.claude/rules/`).
+
+---
+
 ## 2026-06-20, Library Version 2026.06.59, PR #73
 
 Wire the collection-candidate detector (shipped in PR #72) to run automatically on PRs that modify the pack. The detector was previously on-demand only; per the maintainer's clarification, it should also fire automatically whenever there is a new addition or an updated pack.
