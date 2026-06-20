@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.24.0\
+**Version:** 1.24.1\
 **Date:** 2026-06-19\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -446,7 +446,7 @@ Per-PR detail for each pack version is in the parent library's [`CHANGELOG.md`](
 
 All content in this directory is released under CC BY-SA 4.0. Copy, modify, and redistribute freely.
 
-External repositories (TikiTribe, Wiz, Kariedo) maintain their own licenses: check each repository before redistribution.
+External repositories (TikiTribe, Kariedo, addyosmani, Wiz) maintain their own licenses: check each repository before redistribution.
 
 ---
 

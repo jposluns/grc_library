@@ -2,7 +2,7 @@
 
 **Document Title:** Developer Security Domain README\
 **Document Type:** Register\
-**Version:** 1.4.0\
+**Version:** 1.4.1\
 **Date:** 2026-06-19\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -69,7 +69,7 @@ See the **Claude Code rules pack** section below for the draggable rule files an
 
 ## Claude Code rules pack
 
-The `claude-rules/` subdirectory ships a set of draggable CLAUDE.md and rule files for Claude Code sessions and AI-assisted development environments. The content is held in this repository as library-canonical material and can be consumed either from disk (local mode) or by fetching it live from the library's canonical raw URL (fetch mode); see [`dev-security/claude-rules/README.md`](claude-rules/README.md) for the four manual placement options and the setup generator's two modes. External rule repositories (TikiTribe, Wiz, Kariedo) are referenced from [`dev-security/claude-rules/README.md`](claude-rules/README.md); they are not loaded automatically at Claude Code session start, but the setup generator's external-source overlay step proposes fetching all three as the default action and lets the consumer accept, modify, or decline before any file is written (EXT-01 vetting is applied per fetch). The Wiz licence (CC-BY-NC-ND-4.0; NonCommercial + NoDerivatives) is surfaced at the offer step so commercial adopters can decline Wiz specifically. The library maintainer back-ports vetted improvements from external sources on the standard freshness cadence and records formal EXT-01 vets in [`dev-security/claude-rules/vetting-log.md`](claude-rules/vetting-log.md).
+The `claude-rules/` subdirectory ships a set of draggable CLAUDE.md and rule files for Claude Code sessions and AI-assisted development environments. The content is held in this repository as library-canonical material and can be consumed either from disk (local mode) or by fetching it live from the library's canonical raw URL (fetch mode); see [`dev-security/claude-rules/README.md`](claude-rules/README.md) for the four manual placement options and the setup generator's two modes. External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) are referenced from [`dev-security/claude-rules/README.md`](claude-rules/README.md); they are not loaded automatically at Claude Code session start, but the setup generator's external-source overlay step proposes fetching all four as the default action and lets the consumer accept, modify, or decline before any file is written (EXT-01 vetting is applied per fetch). The Wiz licence (CC-BY-NC-ND-4.0; NonCommercial + NoDerivatives) is surfaced at the offer step so commercial adopters can decline Wiz specifically. The library maintainer back-ports vetted improvements from external sources on the standard freshness cadence and records formal EXT-01 vets in [`dev-security/claude-rules/vetting-log.md`](claude-rules/vetting-log.md).
 
 ### Manual setup
 

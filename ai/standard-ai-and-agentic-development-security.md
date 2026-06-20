@@ -2,7 +2,7 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.0\
+**Version:** 1.8.1\
 **Date:** 2026-06-19\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -217,7 +217,7 @@ The library's CC BY-SA 4.0 secure-coding rules pack at [`dev-security/claude-rul
 | Go workloads | [`languages/go.md`](../dev-security/claude-rules/languages/go.md) |
 | CI/CD pipelines | [`pipeline/cicd-gates.md`](../dev-security/claude-rules/pipeline/cicd-gates.md) |
 
-External rule repositories (TikiTribe, Wiz, Kariedo) referenced in [`dev-security/claude-rules/README.md`](../dev-security/claude-rules/README.md) are URL pointers only; per the trust-posture decision recorded in Phase 23.66, they are not configured to fetch automatically at session start. Rule deployment is verified in CI per the gate matrix below; builds fail if required rule files are absent when AI-generated code is detected in the commit.
+External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [`dev-security/claude-rules/README.md`](../dev-security/claude-rules/README.md) are URL pointers only; per the trust-posture decision recorded in Phase 23.66, they are not configured to fetch automatically at session start. Rule deployment is verified in CI per the gate matrix below; builds fail if required rule files are absent when AI-generated code is detected in the commit.
 
 ### AI-generated code requirements
 

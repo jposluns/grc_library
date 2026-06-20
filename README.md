@@ -1,7 +1,7 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Library Version:** 2026.06.43\
-**README Version:** 1.7.181\
+**Library Version:** 2026.06.44\
+**README Version:** 1.8.0\
 **Date:** 2026-06-19\
 **Classification:** Public\
 **Confidentiality:** Public\
@@ -74,18 +74,6 @@ The third mode is an emergent use that has been adopted by developers in practic
 This repository is intended to become an authoritative CC BY-SA 4.0 GRC library. Authoritative means that the repository maintains a coherent hierarchy, controlled document model, versioned artefacts, role-based accountability, traceable mappings, and clear boundaries between original library content and external reference materials.
 
 This repository is not legal advice, audit certification, regulatory approval, or a substitute for organisation-specific risk acceptance. Adopting organisations must validate applicability, control implementation, and evidence against their own jurisdiction, sector, contractual obligations, processing role, threat model, and risk appetite.
-
----
-
-## Licence and third-party reference boundary
-
-All original content committed to this repository is released under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0). Adopters who redistribute the content (in original or modified form) must attribute the library and must release their derivative under CC BY-SA 4.0 as well.
-
-External standards, regulatory texts, control frameworks, questionnaires, implementation guides, audit guides, metrics catalogues, and similar materials remain subject to their own licence terms. This repository may use such materials only as reference inputs for independent synthesis, high-level alignment, terminology normalization, and non-verbatim mapping structures.
-
-Do not copy, redistribute, modify, or embed third-party copyrighted control text, questionnaire text, guidance text, tables, metrics catalogues, or implementation notes into this repository. The library's principle is that it does not copy externally licensed content; it references external work by name and synthesizes original commentary. Where a contributor is uncertain whether material is original, the contributor must include only framework identifiers, domain names, high-level alignment notes, and original commentary, not the source text itself.
-
-See [`NOTICE.md`](NOTICE.md) for repository rules governing external reference materials.
 
 ---
 
@@ -347,6 +335,18 @@ Contributions must satisfy the following conditions:
 The library should be reviewed at least annually and upon material change to major standards, regulatory expectations, assurance models, AI threat patterns, cloud control frameworks, privacy obligations, or operational resilience requirements.
 
 AI, data security, privacy, and cloud assurance content should be reviewed on a 6 to 12 month cadence because control expectations and attack patterns change faster than conventional policy review cycles.
+
+---
+
+## Licence and third-party reference boundary
+
+All original content committed to this repository is released under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0). Adopters who redistribute the content (in original or modified form) must attribute the library and must release their derivative under CC BY-SA 4.0 as well.
+
+External standards, regulatory texts, control frameworks, questionnaires, implementation guides, audit guides, metrics catalogues, and similar materials remain subject to their own licence terms. This repository may use such materials only as reference inputs for independent synthesis, high-level alignment, terminology normalization, and non-verbatim mapping structures.
+
+Do not copy, redistribute, modify, or embed third-party copyrighted control text, questionnaire text, guidance text, tables, metrics catalogues, or implementation notes into this repository. The library's principle is that it does not copy externally licensed content; it references external work by name and synthesizes original commentary. Where a contributor is uncertain whether material is original, the contributor must include only framework identifiers, domain names, high-level alignment notes, and original commentary, not the source text itself.
+
+See [`NOTICE.md`](NOTICE.md) for repository rules governing external reference materials.
 
 ---
 
