@@ -2,7 +2,7 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.11\
+**Version:** 1.1.12\
 **Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -233,7 +233,7 @@ Within the library's doctype vocabulary, some types are under-represented relati
 | Decision-tree adopter navigator | Substantive | In library | [`docs/decision-tree.md`](../docs/decision-tree.md) |
 | Worked examples / case studies | None | Out of scope | The library is organisation-neutral; case studies would conflict with that posture |
 | Regulator interaction templates (notification, attestation, response) | Substantive | In library | [`compliance/template-regulator-interaction.md`](../compliance/template-regulator-interaction.md) |
-| Audit evidence package templates | Partial | Planned | TODO P4.5 (per-control evidence is documented; consolidated audit-package templates absent) |
+| Audit evidence package templates | Substantive | In library | [`compliance/template-audit-evidence-package.md`](../compliance/template-audit-evidence-package.md) |
 
 ---
 
