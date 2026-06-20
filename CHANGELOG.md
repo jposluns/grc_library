@@ -6,11 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 ## 2026-06-19, Library Version 2026.06.42, PR #56
 
-Add a link to the setup-generator prompt in the [`README.md`](README.md) Mode C ("Adopt the pack only") paragraph. Adopters who arrive at the Mode C description now have a one-click path to the automated, AI-assisted installer rather than only the manual "drop it into your project's Claude Code context" path. Single-sentence prose addition; no structural changes.
+Tidy the [`README.md`](README.md) Mode C ("Adopt the pack only") paragraph: add a one-click link to the AI-assisted installer and remove the inline search-terms sentence that has become redundant with the GitHub repository topics and the [`CITATION.cff`](CITATION.cff) keywords shipped in PR #55. Two prose edits to the same paragraph; no structural changes.
 
 ### Changed
 
-- [`README.md`](README.md): added a sentence to the Mode C paragraph pointing readers to [`dev-security/claude-rules/setup-generator-prompt.md`](dev-security/claude-rules/setup-generator-prompt.md) for the automated installation path. Library version `2026.06.41 → 2026.06.42`; README version `1.7.179 → 1.7.180`.
+- [`README.md`](README.md): added a sentence to the Mode C paragraph pointing readers to [`dev-security/claude-rules/setup-generator-prompt.md`](dev-security/claude-rules/setup-generator-prompt.md) for the automated installation path; removed the trailing "Common search terms that bring readers to this mode: ..." sentence (the discoverability function it served is now carried by the GitHub repository topics, the [`CITATION.cff`](CITATION.cff) keywords, and the GitHub repository description). Library version `2026.06.41 → 2026.06.42`; README version `1.7.179 → 1.7.180`.
 
 ### Verification
 
