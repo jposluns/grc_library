@@ -4,6 +4,35 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.54, PR #68
+
+Three discipline + tooling improvements informed by the CI failures across PRs #65 and #67. The maintainer's post-CI assessment identified that (1) git-history-aware gates need post-commit re-audit, not just pre-push; (2) gate 40's regression test was weak (only asserted "runs clean on HEAD", didn't verify failure detection); (3) metadata bumps need automatic taxonomy/portal regeneration to avoid the cascade observed in PR #67. This entry lands all three.
+
+Pack version `1.25.2 → 1.25.3` (patch: validation-sweep skill updated). Library version `2026.06.53 → 2026.06.54`; README version `1.8.9 → 1.8.10`.
+
+### Added
+
+- New pre-commit hook `regenerate-derived-artefacts` in [`.pre-commit-config.yaml`](.pre-commit-config.yaml), placed before the existing `taxonomy-in-sync` and `portal-in-sync` `--check` hooks. The hook runs [`tools/build-taxonomy.py`](tools/build-taxonomy.py) and [`tools/build-portal.py`](tools/build-portal.py) (chained via `bash -c`) in write mode, refreshing the three generated artefacts (taxonomy.yml, docs/portal.md, docs/maturity-scorecard.md) before the corresponding `--check` gates verify sync. This avoids the failure shape observed in PR #67 second CI run, where a metadata bump left the generated artefacts stale and CI surfaced a `--check` failure rather than the local environment surfacing it earlier.
+- New `PRECOMMIT_NON_GATE_HOOKS` exempt set in [`tools/lint-audit-gate-parity.py`](tools/lint-audit-gate-parity.py), seeded with the new regen hook's name. Mirrors the existing `WORKFLOW_SETUP_STEPS` and `WORKFLOW_DELTA_GATE_STEPS` exempt sets that exclude non-gate steps from the parity audit's gate count.
+- New regression test `VersionBumpRecencyTests.test_stale_version_after_body_change_flagged` in [`tests/test_linters.py`](tests/test_linters.py). Builds a synthetic git repository in a tempdir with two commits (file at Version 1.0.0, then body change without Version bump) and asserts gate 40 exits non-zero, closing the gate-36 discipline gap that the previous "smoke test only" fixture left open.
+
+### Changed
+
+- [`.claude/CLAUDE.md`](.claude/CLAUDE.md): PR workflow step 1 explicitly mandates running `tools/run_all_audits.sh` **after each commit** on the feature branch, not only before the final push. Git-history-aware gates (gate 40 in this project; future gates that examine commit graph) only see committed state. Running the audit on uncommitted changes misses what gate 40-class issues would surface post-commit. This addresses the root cause of PR #67's first CI failure.
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): step 7 (Apply fixes, re-baseline, repeat) extended with the same post-commit-audit discipline, framed for project-agnostic distribution. The skill now explicitly notes that git-history-aware gates see only the committed state, so the re-baseline must run after committing each fix.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.25.2 → 1.25.3`.
+- [`README.md`](README.md): library version 2026.06.53 → 2026.06.54; README version 1.8.9 → 1.8.10.
+
+### Verification
+
+Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit, run on the final state. All 40 corpus gates pass. Gate 35 (Gate-name parity audit) accepts the new pre-commit hook as a non-gate via the new exempt set. Gate 36 (Linter regression test suite) runs 96 regression tests including the new synthetic-git-history fixture asserting gate 40 fires correctly. The new D2 delta gate (PR #65) validates this PR's library [`README.md`](README.md) and pack [`README.md`](dev-security/claude-rules/README.md) Version bumps. The version-monotonicity audit (gate 13) accepts the bumps. The new regen hook will be exercised on the next markdown-touching commit in any future PR.
+
+### Sweep findings not actioned (declined this round)
+
+- **Refine gate 40 + D2 to exempt metadata-only edits** (lines 1–30 only). The maintainer declined this option in the triage. The strict reading remains: any touch to a versioned document requires a Version bump, including metadata-only fixes. This means future Date / Owner / Reviewer corrections will continue to require Version bumps. Documented here so the strictness is on record.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.53, PR #67
 
 Add a new audit gate (#40): **Corpus version-bump-recency audit**. Layer 2 deliverable 2b of 3 in the validation programme (Layer 1: the `validation-sweep` skill in PR #62; 2a: the D2 PR-only delta gate in PR #65; this PR: the corpus-side counterpart). The new linter uses `git log -G` pickaxe matching to compare, for each versioned document, the SHA of the most-recent commit that touched the file at all against the SHA of the most-recent commit that modified a Version metadata line. If they differ, the body has changed since the last Version bump; the gate fails.
