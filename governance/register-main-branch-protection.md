@@ -2,7 +2,7 @@
 
 **Document Title:** Main Branch Protection Configuration Register\
 **Document Type:** Register\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -44,7 +44,7 @@ The configuration is expressed via GitHub Rulesets (the modern UI) rather than t
 | Require conversation resolution before merging | Enabled | Recommended |
 | Allowed merge methods | Merge, Squash, Rebase | Per project convention |
 | Require status checks to pass | Enabled | Required |
-| Required status check | `Lint markdown corpus` | The CI job that runs the 39-gate audit programme |
+| Required status check | `Lint markdown corpus` | The CI job that runs the 40-gate audit programme |
 | Require branches to be up to date before merging | Enabled | Recommended |
 | Block force pushes | Enabled | Required (prevents history rewrite on `main`) |
 
@@ -106,7 +106,7 @@ This register is a snapshot, not a live source of truth. The configured state ca
 
 ## Audit-trail relationship
 
-The 39-gate audit programme assumes the `Lint markdown corpus` check is required-to-merge. Without that requirement, gates 1-39 still run on each PR but their pass/fail status does not gate the merge. The "Required status check" row above is therefore the load-bearing dependency between the audit programme and the merge-gating mechanism; do not remove or rename the check without updating both surfaces in the same PR.
+The 40-gate audit programme assumes the `Lint markdown corpus` check is required-to-merge. Without that requirement, gates 1-40 still run on each PR but their pass/fail status does not gate the merge. The "Required status check" row above is therefore the load-bearing dependency between the audit programme and the merge-gating mechanism; do not remove or rename the check without updating both surfaces in the same PR.
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Bundle Index\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-05-30\
+**Version:** 1.0.3\
+**Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-ai-security-tooling-landscape.md`](register-ai-security-tooling-landscape.md), [`governance/worklist-citation-verification-batch-q2-iso-iec.md`](worklist-citation-verification-batch-q2-iso-iec.md), [`governance/worklist-citation-verification-batch-q3-ai-tooling.md`](worklist-citation-verification-batch-q3-ai-tooling.md), [`governance/worklist-citation-verification-batch-q3-1-new-citations.md`](worklist-citation-verification-batch-q3-1-new-citations.md)\

@@ -138,6 +138,9 @@ jobs:
       - name: Cross-file gate-count consistency audit
         run: python3 tools/lint-gate-count-consistency.py
 
+      - name: Corpus version-bump-recency audit
+        run: python3 tools/lint-version-bump-recency.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py
