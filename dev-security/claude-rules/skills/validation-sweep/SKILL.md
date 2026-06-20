@@ -160,9 +160,11 @@ Apply the fixes. **Re-run step 1 (the full audit standalone) AFTER committing ea
 
 The empty-delta is the principled stop; the hard ceiling is the sanity guard. Dual-criterion termination follows the standard iterative-solver pattern (residual-tolerance OR max-iterations, whichever first); the patience-plateau in the middle is the ML-training early-stopping adaptation that handles "the finding-set is not shrinking but is not oscillating" cases that neither extreme catches.
 
-### 8. Append to the sweep history register
+### 8. Append to the sweep history register (only when the sweep produced findings)
 
 After the cycle terminates, append an entry to [`governance/register-sweep-history.md`](../../../../governance/register-sweep-history.md) recording: the trigger reason, the state (library / spec / pack versions at HEAD), the count of findings by class and severity, the actions taken, and the resulting PR (if any). Update the recurring-class summary table at the same time. Findings dismissed as not-a-real-finding go into the false-positive memory section with the maintainer's rationale, so a future sweep does not re-litigate.
+
+**Zero-finding sweeps leave no trace.** No register entry, no CHANGELOG entry, no standalone PR. The convergence-delta trend lives in the iteration counter at termination time, not in a per-sweep record. This avoids the failure mode where zero-finding sweep entries crowd out user-visible content in the CHANGELOG and the register's prose without adding signal. If a sweep produces exemption-file updates or other byproducts but no findings, those byproducts ride with the next substantive PR rather than driving a standalone closure PR.
 
 The register is the cumulative record of what the sweep has caught over time. Its trend signal (which classes recur, which classes have closed via mechanical gates) is the maintainer's input to the priority question "which mechanical gate should we ship next".
 

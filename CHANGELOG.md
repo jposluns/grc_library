@@ -4,6 +4,36 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.83, PR #97
+
+Validation-sweep maintenance-protocol change plus retroactive CHANGELOG prune. Maintainer observed that zero-finding sweeps were producing standalone PRs with full CHANGELOG entries that contained no user-visible content, distracting from substantive entries. The convention is revised: **zero-finding sweeps leave no trace** (no register entry, no CHANGELOG entry, no standalone PR; the convergence-delta trend lives in the iteration counter, not in a per-sweep record).
+
+### Changed
+
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): step 8 ("Append to the sweep history register") retitled to "(only when the sweep produced findings)" and a new paragraph makes the zero-finding-leaves-no-trace convention explicit. Replaces the older "may be recorded as a single line under a trivial-sweeps sub-section, otherwise omitted" optional framing with a definitive convention.
+- [`.claude/commands/validation-sweep.md`](.claude/commands/validation-sweep.md): step 8 brief expanded with the same explicit convention.
+- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): version `1.9.0 -> 1.10.0`; Maintenance protocol's first bullet updated to make the convention explicit (zero-finding sweeps leave no register or CHANGELOG entry); existing zero-finding-sweep entries for Sweeps 5-8 are preserved as historical record but the convention applies forward.
+- [`README.md`](README.md): library version `2026.06.82 -> 2026.06.83`; README version `1.8.38 -> 1.8.39`.
+
+### Removed
+
+Six retroactively-pruned CHANGELOG entries for housekeeping-only sweep PRs that contained no user-visible content:
+
+- PR #81 (library 2026.06.67): Sweep 3 register entry
+- PR #84 (library 2026.06.70): Sweep 4 register entry
+- PR #87 (library 2026.06.73): Sweep 5 register entry
+- PR #89 (library 2026.06.75): Sweep 6 closure (also added one exemption-file entry; preserved in git history)
+- PR #92 (library 2026.06.78): Sweep 7 register entry
+- PR #95 (library 2026.06.81): Sweep 8 closure (also added one exemption-file entry; preserved in git history)
+
+These PRs are still in git history; only their CHANGELOG entries are pruned. The register entries for the same sweeps remain as historical record (the register is the cumulative audit trail; the CHANGELOG is user-visible). Library version numbers 2026.06.67, 2026.06.70, 2026.06.73, 2026.06.75, 2026.06.78, and 2026.06.81 are now versions for which the only change was a housekeeping register update; future readers asking "what was 2026.06.71?" find a brief mention here rather than a full entry.
+
+### Verification
+
+Full audit programme passes standalone, all 42 corpus gates pass. The version-monotonicity audit operates on per-document `Version:` metadata fields (not on CHANGELOG), so pruning CHANGELOG entries does not affect any audit. The CHANGELOG-on-PR delta gate operates on PR diffs (not on historical state), so the prune does not interact with future PR enforcement. Keep a Changelog convention is "do not rewrite history" by default; the maintainer explicitly authorised this exception under the named-alternatives clarification protocol.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.82, PR #96
 
 Validation-sweep enhancement, seventh and last from the late-research-findings queue. **Closes the queue.** Adds the hold-the-line ratcheting-baseline discipline to step 6 (Triage) of the SKILL: fingerprint-not-count, expiry plus rationale, net-negative invariant on sweep close. This is the "largest" tier (after the smallest four: synthesis rubric, pre-tool verification, maintenance-tag dating, convergence-delta; and the medium two: multi-agent debate, SARIF-lite).
@@ -29,24 +59,6 @@ All seven late-research-findings queue items have shipped: PR #82 (synthesis rub
 ### Verification
 
 Full audit programme passes standalone, all 42 corpus gates pass. The discipline ships as workflow prose; no new mechanical gate added. Sweep 9 will be the first to formally apply Rules 6.1-6.3 as a dismissal protocol if any finding is surfaced for dismissal.
-
----
-
-## 2026-06-20, Library Version 2026.06.81, PR #95
-
-Sweep 8 closure (register entry + one exemption-file update). Fourth consecutive empty-delta convergence; the discipline remains in steady state through the introduction of Rule 5.5 (multi-agent debate) and SARIF-lite output format. Eight-sweep convergence pattern: 4+, 3, 1, 1, 0, 0, 0, 0.
-
-Sweep 8 was the first sweep to use the SARIF-lite output format end-to-end. The format was respected by absence (zero findings means zero blocks; anti-rubric on prose findings outside blocks held trivially). When a real finding next surfaces, that sweep will be the first to produce observable SARIF-lite output blocks.
-
-### Changed
-
-- [`tools/sweep-preflight-exemptions.json`](tools/sweep-preflight-exemptions.json): new entry for `dev-security/claude-rules/skills/validation-sweep/SKILL.md:101` (line_hash `d0e2dce98dc3847d`). The line is `Three rules:` introducing the SARIF-lite output format constraints (one block per finding, deterministic fingerprint, closed severity enum), not a governance-rule count.
-- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): version `1.7.0 -> 1.8.0`; appended Sweep 8 entry; reading-the-table prose updated to track the 8-sweep convergence pattern.
-- [`README.md`](README.md): library version `2026.06.80 -> 2026.06.81`; README version `1.8.36 -> 1.8.37`.
-
-### Verification
-
-Full audit programme passes standalone, all 42 corpus gates pass. Pre-flight scanner: 18 candidates suppressed (11 by heuristic, 7 by exemption file), 0 findings reported.
 
 ---
 
@@ -96,23 +108,6 @@ Full audit programme passes standalone, all 42 corpus gates pass. The rubric is 
 
 ---
 
-## 2026-06-20, Library Version 2026.06.78, PR #92
-
-Sweep 7 register entry. First sweep to formally apply the convergence-delta termination conditions introduced in PR #91; the empty-delta primary stop fired cleanly (Sweep 7 finding-set empty AND identical to Sweep 6's empty set by dedupe-key equality). Three consecutive zero-finding sweeps is a strong fixed-point signal; the discipline is genuinely converging for the current corpus.
-
-Sweep 7 was thin: only Subagent A dispatched. Subagents B (corpus-wide stale-reference sweep) and C (audit-programme integrity check) were skipped because their scopes had no surface changes since Sweep 6 less than an hour earlier; per the pre-tool verification preamble (PR #88), rerunning them would be corroboration-seeking with an undefined falsifier.
-
-### Changed
-
-- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): version `1.6.0 -> 1.7.0`; appended Sweep 7 entry recording the first formal empty-delta convergence; reading-the-table prose updated to track the 7-sweep convergence pattern (4+, 3, 1, 1, 0, 0, 0) and to record the cumulative effect of PRs #86, #88, #91 (noise reduction, tool-call auditability, principled termination).
-- [`README.md`](README.md): library version `2026.06.77 -> 2026.06.78`; README version `1.8.33 -> 1.8.34`.
-
-### Verification
-
-Full audit programme passes standalone, all 42 corpus gates pass. Pre-flight scanner returns 0 candidates (17 suppressed). The fixed-point convergence is consistent with the recent PR shape (prose-only workflow updates on already-clean corpus).
-
----
-
 ## 2026-06-20, Library Version 2026.06.77, PR #91
 
 Validation-sweep enhancement, fourth of seven from the late-research-findings queue. Replaces the fixed 3-iteration cap in step 7 with a principled three-condition termination: empty-delta primary stop, patience-plateau secondary stop, and a 6-iteration hard ceiling as runaway guard. Closes the last of the "smallest" tier in the queue (synthesis rubric, pre-tool verification, maintenance-tag dating, convergence-delta).
@@ -153,22 +148,6 @@ Full audit programme passes standalone, all 42 corpus gates pass. The convention
 
 ---
 
-## 2026-06-20, Library Version 2026.06.75, PR #89
-
-Sweep 6 closure: register entry appended; one residual pre-flight candidate added to the exemption file. Sweep 6 was the first full sweep to apply two new disciplines together (the four-rule synthesis rubric from PR #82 plus the pre-tool verification preamble from PR #88) and the first sweep with observable evidence of the preamble in subagent reports (Subagent B explicitly tracked its tool-call justifications). Zero findings across all three subagents. Convergence pattern: 4+, 3, 1, 1, 0, 0.
-
-### Changed
-
-- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): version `1.4.0 -> 1.5.0`; appended Sweep 6 entry (full sweep, zero findings, first lock-step use of rubric + preamble); reading-the-table prose updated to track the 6-sweep convergence pattern and to record that PRs #86 + #88 closed the recurring-noise problem and made tool calls auditable while the underlying cross-document term-and-identifier consistency gap remains for a future mechanical gate.
-- [`tools/sweep-preflight-exemptions.json`](tools/sweep-preflight-exemptions.json): new entry for `governance/register-sweep-history.md:119` (line_hash `90a973f0358432ef`). The Sweep 5 entry's prose narrates the prior "Four rules, no ceremony" false positive triage; quoting that past dismissal does not make it a current stale claim. Post-exemption the scanner returns 0 candidates against the current corpus.
-- [`README.md`](README.md): library version `2026.06.74 -> 2026.06.75`; README version `1.8.30 -> 1.8.31`.
-
-### Verification
-
-Full audit programme passes standalone, all 42 corpus gates pass. Pre-flight scanner: 16 candidates suppressed (10 by heuristic, 6 by exemption file), 0 findings reported. The convergence trend is the dominant signal: cumulative C1 stays at 2 and C3 at 6 with two consecutive zero-finding sweeps; the validation-sweep discipline is reaching a steady state for the current corpus.
-
----
-
 ## 2026-06-20, Library Version 2026.06.74, PR #88
 
 Validation-sweep enhancement, second of seven from the late-research-findings queue. Adds a pre-tool verification preamble to the subagent fan-out discipline in step 4 of the validation-sweep skill. Closes the gap where subagents could make redundant or misdirected tool calls without an auditable justification trace.
@@ -185,21 +164,6 @@ Research basis: POPPER (Stanford/Harvard 2025) falsification-experiment design p
 ### Verification
 
 Full audit programme passes standalone, all 42 corpus gates pass. The discipline is workflow prose; no new mechanical gate is added. The next sweep (Sweep 6, triggered by the third PR after Sweep 5: this PR is the third) will be the first to apply the preamble.
-
----
-
-## 2026-06-20, Library Version 2026.06.73, PR #87
-
-Sweep 5 entry appended to the validation-sweep history register. Sweep 5 was a thin sweep (only Subagent A dispatched; B and C skipped because the closure-PRs since Sweep 4 did not change corpus-wide state or audit-programme integrity). Zero findings. The maintainer's post-sweep observation that the same false positives have surfaced on every sweep since Sweep 3 was actioned in PR #86 (scanner heuristics plus exemption file).
-
-### Changed
-
-- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): version `1.3.0 -> 1.4.0`; appended Sweep 5 entry (thin sweep, zero findings); reading-the-table prose updated to note Sweep 5 produced no new primary-class findings and to record that the scanner-noise problem and the term-and-identifier-consistency gap are separate concerns (PR #86 closed the noise, not the gap).
-- [`README.md`](README.md): library version `2026.06.72 -> 2026.06.73`; README version `1.8.28 -> 1.8.29`.
-
-### Verification
-
-Full audit programme passes standalone, all 42 corpus gates pass. Sweep 5 produced no fix PR (zero findings); the scanner-enhancement PR #86 is recorded under its own scope. The recurring-class summary counts are unchanged from Sweep 4 (C1=2, C3=6, Discipline self-violation=1).
 
 ---
 
@@ -240,21 +204,6 @@ Full audit programme passes standalone, all 42 corpus gates pass. The classifica
 
 ---
 
-## 2026-06-20, Library Version 2026.06.70, PR #84
-
-Sweep 4 entry appended to the validation-sweep history register. The sweep ran after PR #82 merged (the third PR since Sweep 3, per the maintainer's standing cadence rule) and surfaced one in-window finding (C1 stale-prose, pack-version literal in the adopter guide) actioned in PR #83, plus one out-of-window classification-convention follow-up (C1-vs-C3 classification rule not documented in the failure-mode-classes table). The classification-convention question is being surfaced separately to the maintainer for a decision.
-
-### Changed
-
-- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): version `1.1.0 -> 1.2.0`; appended Sweep 4 entry (post-PR-#82 -> PR #83); updated recurring-class summary with the new C1 instance (cumulative 2) and the new classification-convention follow-up category; reading-the-table prose now notes that two consecutive sweeps have pointed at the same gap (prose-version literals and inconsistent step identifiers across parallel surfaces), reinforcing the recommendation for a future cross-document term-and-identifier consistency gate.
-- [`README.md`](README.md): library version `2026.06.69 -> 2026.06.70`; README version `1.8.25 -> 1.8.26`.
-
-### Verification
-
-Full audit programme passes standalone, all 42 corpus gates pass. Sweep 4 is the first full sweep to apply the four-rule synthesis rubric (introduced in PR #82); the rubric routed findings deterministically by evidence letter, severity scale, and in-window vs out-of-window protocol.
-
----
-
 ## 2026-06-20, Library Version 2026.06.69, PR #83
 
 Validation Sweep 4 in-window finding (C1 stale-prose): the adopter-guide's Mode C section says the pack "ships with its own version sequence (currently `1.22.0`)" but the pack is at 1.26.6. Surfaced by Subagent B of the Sweep 4 fan-out; the new synthesis rubric tagged this `R` (read-verified), severity `should-fix-this-PR`. Fix uses number-stable wording rather than bumping the literal so the same drift does not recur on the next pack bump.
@@ -286,21 +235,6 @@ Research basis: SARIF v2.1.0 fingerprint-based dedupe pattern; Google `eng-pract
 ### Verification
 
 Full audit programme passes standalone, all 42 corpus gates pass. The rubric is workflow prose; no new mechanical gate is added, no audit-programme inventory entry changed.
-
----
-
-## 2026-06-20, Library Version 2026.06.67, PR #81
-
-Sweep 3 entry appended to the validation-sweep history register. The sweep ran after PR #79 merged (third PR in the validation-sweep enhancement batch) and surfaced one in-window C3 (multi-surface-incomplete) finding which PR #80 actioned. Recurring-class summary table updated; C3 is now at 6 cumulative findings across 3 sweeps and remains the dominant failure class.
-
-### Changed
-
-- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): version `1.0.0 -> 1.1.0`; appended Sweep 3 entry (post-PR-#79 -> PR #80); updated recurring-class summary with the new C3 instance; reading-the-table prose notes that prose-and-numbering-shaped C3 instances still escape the existing mechanical gates and would be the natural surface for a future cross-document term-and-identifier consistency check.
-- [`README.md`](README.md): library version `2026.06.66 -> 2026.06.67`; README version `1.8.22 -> 1.8.23`.
-
-### Verification
-
-Full audit programme passes standalone, all 42 corpus gates pass. The pre-flight scanner output (12 candidates, all dismissed as legitimate historical references after triage) is recorded in the sweep entry as evidence that the high-recall scanner + subagent-precision triage split works as designed.
 
 ---
 
