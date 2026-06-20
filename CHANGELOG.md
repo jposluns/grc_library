@@ -4,6 +4,39 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.61, PR #75
+
+Add three new skills to the dev-security/claude-rules/ pack, recreated as in-house CC BY-SA 4.0 content from cross-source research. The maintainer authorised the research-then-recreate pattern after a survey of Claude Code Skills on GitHub (kfchou/wiki-skills MIT, anthropics/skills Apache 2.0, obra/superpowers MIT, plus a Sushegaad GRC-content pack) identified three gaps in the existing pack worth filling without importing additional external overlays.
+
+**Three new skills**:
+
+- [`skills/citation-quote-verification`](dev-security/claude-rules/skills/citation-quote-verification/SKILL.md): before completion claims that touch documents containing external-source citations, verify each citation's text against the cited source at the cited location. Closes the citation-correspondence layer that [`tools/lint-citations.py`](tools/lint-citations.py) (format) and [`tools/lint-standards-currency.py`](tools/lint-standards-currency.py) (currency) do not reach. Inspired by kfchou wiki-skills `wiki-audit`'s two-phase fact-check; re-derived in the pack's structural template and CC BY-SA 4.0 licensing.
+- [`skills/fresh-reader-validation`](dev-security/claude-rules/skills/fresh-reader-validation/SKILL.md): before declaring a new or substantively-revised governance document complete, dispatch a fresh subagent with no session context to read the document and surface tacit-context gaps (ambiguous terms, missing definitions, implicit assumptions, unresolved references). Catches the author's "I know what I meant" blind spot. Inspired by anthropics/skills `doc-coauthoring`'s fresh-Claude reader testing stage; re-derived.
+- [`skills/skill-authoring-discipline`](dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md): when adding a new skill to the pack, apply the established eight-section structural template and validate trigger accuracy with representative prompts. Catches structural drift across pack skills as the count grows past seven. Inspired by anthropics/skills `skill-creator`'s authoring + benchmarking workflow; re-derived against this pack's specific structural template.
+
+**Why recreate rather than import** (per the maintainer's stated preference): three additional external overlays would double the count from three (TikiTribe, Kariedo, addyosmani) to six and each is an ongoing tracking obligation. The three patterns above are conceptually simple enough that re-derivation in CC BY-SA 4.0 is cleaner. The original sources are credited in the pack's version-history table (1.26.0 row) and in each new skill's `## See Also` section where the source pattern is the closest match.
+
+**Skills dropped from consideration** (per the survey): kfchou wiki-lint (duplicates mechanical gates); kfchou wiki-update (composable from existing pack skills); kfchou wiki-ingest (doesn't fit curated-corpus model); obra brainstorming (overlaps clarify-before-acting); obra subagent-driven-development (solves out-of-scope problems); Sushegaad's 30 framework-content skills (the library is upstream of that content, not downstream); Imbad0202 academic-research-skills (CC-BY-NC, incompatible with CC BY-SA 4.0).
+
+Pack version `1.25.5 → 1.26.0` (minor: three new skills added). Library version `2026.06.60 → 2026.06.61`; README version `1.8.16 → 1.8.17`.
+
+### Added
+
+- [`dev-security/claude-rules/skills/citation-quote-verification/SKILL.md`](dev-security/claude-rules/skills/citation-quote-verification/SKILL.md). Derives from [`governance/evidence-grounded-completion.md`](dev-security/claude-rules/governance/evidence-grounded-completion.md).
+- [`dev-security/claude-rules/skills/fresh-reader-validation/SKILL.md`](dev-security/claude-rules/skills/fresh-reader-validation/SKILL.md). Derives from [`governance/evidence-grounded-completion.md`](dev-security/claude-rules/governance/evidence-grounded-completion.md).
+- [`dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md`](dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md). Derives from [`governance/evidence-grounded-completion.md`](dev-security/claude-rules/governance/evidence-grounded-completion.md).
+
+### Changed
+
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.25.5 → 1.26.0`; skills tree extended with three new entries; version-history table extended with a row for pack 1.26.0.
+- [`README.md`](README.md): library version `2026.06.60 → 2026.06.61`; README version `1.8.16 → 1.8.17`.
+
+### Verification
+
+Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0). All 42 corpus gates pass, including gate 32 (Skill derives-from reference audit; verifies each new SKILL.md's `derives_from` field resolves to a real governance rule) and gate 41 (Collection-enumeration consistency audit; verifies the pack README's skills tree includes the three new entries). The pack now ships ten skills (was seven).
+
+---
+
 ## 2026-06-20, Library Version 2026.06.60, PR #74
 
 Layer 3 of the validation programme — invocation-pattern documentation. The validation-sweep skill (shipped in PR #62) is now discoverable via a project slash command and cross-referenced bidirectionally from related skills.
