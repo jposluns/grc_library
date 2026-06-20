@@ -2,7 +2,7 @@
 
 **Document Title:** Validation Sweep History Register\
 **Document Type:** Register\
-**Version:** 1.8.0\
+**Version:** 1.9.0\
 **Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -157,7 +157,13 @@ Historical entries from Sweeps 1-3 were classified before this convention was do
 
 Findings the maintainer has triaged as not-a-real-finding. Subsequent sweeps should not re-surface these; if they do, the maintainer's prior triage is the answer.
 
-*(None yet. First entries will appear as sweeps surface findings the maintainer dismisses.)*
+This section is the human-readable surface of the accept-list discipline (validation-sweep SKILL Rules 6.1-6.3). Each entry carries a fingerprint, an `accepted_on` date, an `expires` date (default `accepted_on + 90 days`), and a one-line rationale. On `expires` the entry is re-triaged, not auto-renewed. The net-negative invariant (Rule 6.3) requires `|accept-list|` to not grow net of fixes across a sweep close.
+
+The pre-flight scanner's machine-readable counterpart is [`tools/sweep-preflight-exemptions.json`](../tools/sweep-preflight-exemptions.json), which suppresses known false-positive shapes at scanner time before they reach a subagent. The two surfaces have the same Rules 6.1-6.3 discipline; the exemption file's entries are pre-existing from PRs #86, #89, #95 and predate this section's formalisation. They are grandfathered (no `accepted_on`/`expires` retro-stamping) and will carry the new fields when next touched.
+
+### Entries
+
+*(None yet. First entries appear when a subagent-surfaced finding is dismissed under Rules 6.1-6.3.)*
 
 ## Recurring-class summary
 
