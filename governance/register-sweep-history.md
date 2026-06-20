@@ -2,7 +2,7 @@
 
 **Document Title:** Validation Sweep History Register\
 **Document Type:** Register\
-**Version:** 1.0.0\
+**Version:** 1.1.0\
 **Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -75,6 +75,18 @@ The eight classes the sweep targets, as a stable identifier set for the entries 
 - **Sweep value**: caught two meta-ironic instances of a skill violating the very discipline it codifies, on the same day the skill was authored. The strongest possible validation of the discipline.
 - **Resulting PR**: [#76](https://github.com/jposluns/grc_library/pull/76).
 
+### 2026-06-20, Sweep 3 (post-PR-#79 -> PR #80)
+
+- **Trigger**: maintainer's standing "run a full validation after every three PRs and merges" cadence, fired after the third PR in the validation-sweep enhancement batch (PRs #77, #78, #79) merged.
+- **State**: library 2026.06.65; spec 1.10.0; pack 1.26.4; 42 corpus gates; 10 pack skills.
+- **Findings** (in-window):
+  - **C3 (multi-surface-incomplete)** x 1: PR #78 introduced the deterministic pre-flight scanner under two different identifiers across parallel surfaces. The SKILL.md heading used `### 3.5.`; the slash-command file used `3a.`. Same logical step, two names. The CHANGELOG entry for PR #78 noted both names explicitly but neither file referenced the other's identifier. Surfaced by subagent A. Actioned by renaming the SKILL.md heading to `### 3a.` in PR #80; the integer-indexed step sequence (1, 2, 3, 3a, 4, 5, 6, 7, 8) is now consistent across both surfaces. The PR #78 CHANGELOG entry retains its "step 3.5" historical wording per Keep a Changelog convention.
+- **Out-of-window incidental items (Low/FYI, no action this sweep)**:
+  - `.github/workflows/quality.yml` uses tag-pinned actions (`actions/checkout@v4`, `actions/setup-python@v5`) rather than SHA-pinned; the external tikitribe pack recommends SHA pinning but no internal audit gate enforces this. The same pattern is now mirrored in the new `nightly-sweep.yml`. Pre-existing for the lifetime of the workflow. Not actioned this sweep.
+  - `.github/workflows/quality.yml` lacks the top-level `permissions: {}` block now present on `nightly-sweep.yml`. Pre-existing. Not actioned this sweep.
+- **Sweep value**: caught a same-day cross-surface naming drift introduced by my own PR #78. The pre-flight scanner correctly surfaced 12 candidates (all dismissed as legitimate historical references after subagent triage), demonstrating that the high-recall / subagent-precision split works as intended.
+- **Resulting PR**: [#80](https://github.com/jposluns/grc_library/pull/80).
+
 ## False-positive memory
 
 Findings the maintainer has triaged as not-a-real-finding. Subsequent sweeps should not re-surface these; if they do, the maintainer's prior triage is the answer.
@@ -88,12 +100,12 @@ Cumulative count of findings per class, across all sweeps:
 | Class | Total findings | Last seen |
 | --- | --- | --- |
 | C1: stale-prose | 1 | Sweep 2 |
-| C3: multi-surface-incomplete | 5 | Sweep 2 |
+| C3: multi-surface-incomplete | 6 | Sweep 3 |
 | Discipline self-violation (new) | 1 | Sweep 2 |
 
-Other classes (C2, C4, C5, C6, C7, C8): zero findings in the two sweeps run to date.
+Other classes (C2, C4, C5, C6, C7, C8): zero findings in the three sweeps run to date.
 
-**Reading the table**: C3 (multi-surface incompleteness) is the dominant failure class so far. This is consistent with the project's history: the audit programme has multiple parallel surfaces (workflow, runner, pre-commit, spec inventory; pack README + project CLAUDE + pack CLAUDE for governance enumeration; etc.) and the per-PR discipline of updating all surfaces is the most-violated. The Layer 2 mechanical gates (35 gate-name parity, 39 gate-count consistency, 41 collection-enumeration consistency) are the project's accumulated mechanical defences against C3; they have closed the C3 instances the sweep would otherwise re-discover each invocation.
+**Reading the table**: C3 (multi-surface incompleteness) remains the dominant failure class. Three sweeps in, C3 is the only class with cumulative findings beyond a single occurrence, and the sole finding from sweep 3 is also a C3 instance. The project's accumulated mechanical defences against C3 (gates 35 gate-name parity, 39 gate-count consistency, 41 collection-enumeration consistency) close the gate-shaped C3 surface, but the prose-and-numbering-shaped C3 surface (this sweep's instance: cross-file step-numbering drift between a SKILL.md heading and a slash-command numbered step) still falls to the semantic subagent layer. This is signal that the next mechanical gate worth considering is a cross-document term-and-identifier consistency check beyond the existing collection-enumeration scope.
 
 ## Maintenance protocol
 
