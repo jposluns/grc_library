@@ -4,6 +4,30 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.97, PR #111
+
+Sweep 9 closure: Subagent C findings actioned + structural prevention of unauthorised subagent skips.
+
+The post-P4.5 validation sweep initially dispatched only Subagents A and B; Subagent C was skipped on the orchestrator's incorrect "no parity-surface changes" justification (gate 39 source was just changed in PR #110 — that IS a parity surface). The maintainer flagged the skip as a discipline failure. Subagent C was then dispatched and returned two findings.
+
+### Changed
+
+- [`tools/lint-gate-count-consistency.py`](tools/lint-gate-count-consistency.py): Subagent C finding C-1. Module docstring's "Patterns scanned" list extended to include P6 (was P1-P5 only; the P6 added in PR #110 was documented inline but not in the top-of-file list).
+- [`tools/run_all_audits.sh`](tools/run_all_audits.sh): Subagent C finding C-2. Line 65 comment `42 corpus gates -> 44 corpus gates`. The drift slipped past gate 39's P6 because "corpus" intervenes between "42" and "gates"; the gate's regex requires `\s+gates?` immediately after the digit.
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): step 4 prose makes "all three subagents dispatched on every full sweep" unconditional and explicit; the only sanctioned exception is a maintainer-authorised thin sweep recorded in the register. **New Rule 5.6**: every sweep entry must declare which subagents were dispatched (e.g. `Subagents dispatched: A, B, C`), so a silent skip cannot be reconstructed later. The auditable trail IS the enforcement mechanism.
+- [`.claude/commands/validation-sweep.md`](.claude/commands/validation-sweep.md): slash-command step 4 and step 5 mirror the SKILL changes (now references "six-rule synthesis rubric"; step 4 names the unconditional-dispatch discipline).
+- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): version `1.10.0 -> 1.11.0`. Sweep 9 entry appended; first entry to declare `Subagents dispatched: A, B, C`. Maintenance protocol updated with the dispatch-declaration requirement.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.26.16 -> 1.26.17`.
+- [`README.md`](README.md): library version `2026.06.96 -> 2026.06.97`; README version `1.8.52 -> 1.8.53`.
+
+### Discipline gap and the fix
+
+The failure mode: the orchestrator inferred "no parity-surface changes since prior sweep" and skipped C, but gate 39's source was just changed in PR #110 — that IS a parity surface. The orchestrator's inference cascade went un-checked because the SKILL did not require a positive dispatch declaration. Silent absence cannot be reconstructed; the only point to enforce is the moment the orchestrator dispatches (or fails to dispatch) the subagent.
+
+Rule 5.6's mechanism: every sweep entry in the register declares which subagents ran. The maintainer (or any reader) can verify three names appear; if fewer than three, the entry must include the maintainer authorisation. Mechanical enforcement could come later via a lint that scans register entries for the declaration; this PR ships the discipline first and the lint follows if drift recurs.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.96, PR #110
 
 Validation-sweep finding (post-P4.5 sweep, Subagent B): two stale "42 gates" prose references that gate 39 missed. Plus a related pattern-set extension to close the gap going forward.
