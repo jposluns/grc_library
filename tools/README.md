@@ -63,3 +63,9 @@ pre-commit run --all-files
 - Draggable AI-context rule files under `dev-security/claude-rules/` are exempt from the metadata and structural audits because they serve a different purpose (loaded into AI coding sessions, not consumed as governance documents).
 - Tooling docs in this directory and adopter docs in `docs/` are exempt from the structural audit.
 - The deprecated [`privacy/annex-regional-privacy-requirements.md`](../privacy/annex-regional-privacy-requirements.md) is exempt from the structural audit (retained for history; superseded by [`privacy/annex-privacy-jurisdiction-index.md`](../privacy/annex-privacy-jurisdiction-index.md) and the jurisdiction subfolder).
+
+## Exploratory tools (not gates)
+
+Some scripts in this directory are exploratory tools the maintainer runs on demand rather than verification gates wired into the audit programme. They exit 0 on every run (they surface findings; they do not fail). The set:
+
+- [`tools/detect-collection-candidates.py`](detect-collection-candidates.py): heuristic detector for new candidate collections that should be added to gate 41 (Collection-enumeration consistency audit). Walks candidate-source roots, scores each subdirectory's items against corpus markdown files for coverage, and surfaces candidates with rationale for the maintainer to triage one-by-one. Companion to gate 41's hard-coded configuration.
