@@ -121,7 +121,6 @@ If any of these is missing, the sweep is incomplete and a clean-bill report is n
 ## See Also
 
 - Canonical rule [`governance/evidence-grounded-completion.md`](../../governance/evidence-grounded-completion.md), specifically the `## Worked example: the multi-surface gate-name parity case` section that motivates this sweep.
-- Related skill [`evidence-grounded-completion`](../evidence-grounded-completion/SKILL.md) : the per-claim verification protocol this sweep applies at corpus scope.
-- Related skill [`gate-discipline-diagnose`](../gate-discipline-diagnose/SKILL.md) : when a mechanical gate fails, that skill diagnoses; this sweep then verifies the fix is complete.
-- Related skill [`clarify-before-acting`](../clarify-before-acting/SKILL.md) : when the sweep surfaces a fix that requires authorial choice (which option, which scope), invoke clarify-before-acting before applying.
-- Library-specific canonical anchors for the GRC Library: [`tools/run_all_audits.sh`](../../../../tools/run_all_audits.sh) is the canonical full-audit invocation; [`governance/specification-audit-programme.md`](../../../../governance/specification-audit-programme.md) §6 is the canonical gate inventory.
+- Related skill [`evidence-grounded-completion`](../evidence-grounded-completion/SKILL.md): the per-claim verification protocol this sweep applies at corpus scope.
+- Related skill [`gate-discipline-diagnose`](../gate-discipline-diagnose/SKILL.md): when a mechanical gate fails, that skill diagnoses; this sweep then verifies the fix is complete.
+- Related skill [`clarify-before-acting`](../clarify-before-acting/SKILL.md): when the sweep surfaces a fix that requires authorial choice (which option, which scope), invoke clarify-before-acting before applying.
