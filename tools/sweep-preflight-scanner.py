@@ -32,6 +32,11 @@ history register accumulates findings):
         a digit and <collection-name> matches a known collection from
         the validation-sweep skill's collection list, and N does not
         match the canonical count.
+  PF-04 stale-version-literal: any "currently <version>" / "the current
+        <version>" / "now at <version>" where the captured version does
+        not match any of the canonical library, pack, or spec versions.
+        Motivated by the Sweep 4 finding in docs/adopter-guide.md:57
+        ("ships with its own version sequence (currently `1.22.0`)").
 
 Noise reduction (added 2026-06-20):
 - Heuristic context-aware skips: section references (`Section N`),
@@ -98,6 +103,17 @@ NUMBER_WORDS: dict[str, int] = {
 HISTORICAL_KEYWORDS = (
     "completed at", "now ships", "previously", "past ", "originally",
     "historically", "earlier", "before gate", "before the gate",
+    "false positive", "false-positive", "in-window", "out-of-window",
+)
+
+# Heuristic regex patterns that flag a line as sweep-history narrative.
+# The register-sweep-history.md file quotes past findings extensively;
+# these patterns identify lines that are narrating past sweep state
+# rather than asserting current canonical state.
+SWEEP_NARRATIVE_PATTERNS = (
+    re.compile(r"\bSweep\s+\d+\b"),
+    re.compile(r"\b[Ss]ubagent\s+[ABC]\b"),
+    re.compile(r"\b[Rr]ecurring-class\b"),
 )
 
 # Section-like prefixes that flag the matched number as a non-count reference.
@@ -113,6 +129,52 @@ class Finding(NamedTuple):
     captured: str
     expected: str
     text: str
+
+
+# Canonical version sources for PF-04. Each entry: (name, file_path,
+# version-field-label). The scanner extracts the version from the
+# metadata block at the top of each file. Add a new entry to extend
+# the canonical-version set.
+CANONICAL_VERSIONS: list[tuple[str, str, str]] = [
+    ("library", "README.md", "Library Version"),
+    ("readme", "README.md", "README Version"),
+    ("pack", "dev-security/claude-rules/README.md", "Version"),
+    ("spec", "governance/specification-audit-programme.md", "Version"),
+]
+
+# PF-04 regex: "currently <ver>" / "the current <ver>" / "now at <ver>"
+# where <ver> matches SemVer-like X.Y.Z or X.Y.<word> or CalVer YYYY.MM.NN.
+VERSION_LITERAL_RE = re.compile(
+    r"\b(?:currently|the current|now at|now on)\s+`?"
+    r"(\d+\.\d+(?:\.\d+|\.\w+)?|\d{4}\.\d{2}\.\d+)`?",
+    re.IGNORECASE,
+)
+
+
+def read_canonical_version(file_path: str, label: str) -> str | None:
+    """Extract `**<label>:** <value>` from the metadata block of a file.
+
+    Returns the value with trailing backslashes / whitespace stripped, or
+    None if the file is missing or the label is not found in the first
+    30 lines (metadata blocks live at the top by convention).
+    """
+    target = REPO_ROOT / file_path
+    if not target.is_file():
+        return None
+    pattern = re.compile(
+        rf"^\s*\*\*{re.escape(label)}:\*\*\s+(\S.*?)\s*\\?\s*$"
+    )
+    try:
+        with target.open(encoding="utf-8") as fh:
+            for i, line in enumerate(fh):
+                if i >= 30:
+                    break
+                m = pattern.match(line)
+                if m:
+                    return m.group(1).strip("`")
+    except OSError:
+        return None
+    return None
 
 
 def count_collection(collection_dir: str, item_filter: str) -> int | None:
@@ -226,6 +288,13 @@ def is_exempt_by_heuristic(
         if kw in line_lower:
             return True, f"historical-narrative-keyword:{kw.strip()}"
 
+    # H6: sweep-history narrative regex patterns (sweep entries quote
+    # past findings extensively; lines matching these are narrating
+    # past sweep state rather than asserting current canonical state)
+    for pat in SWEEP_NARRATIVE_PATTERNS:
+        if pat.search(line):
+            return True, f"sweep-narrative:{pat.pattern}"
+
     _ = after  # context reserved for future heuristics
     return False, ""
 
@@ -325,6 +394,55 @@ def scan_collection_counts(
     return findings, heuristic_skips, exemption_skips
 
 
+def scan_version_literals(
+    targets: list[Path],
+    current_versions: set[str],
+    exemptions: dict[tuple[str, str], set[str]],
+) -> tuple[list[Finding], int, int]:
+    """Pattern PF-04: 'currently X.Y.Z' / 'the current X.Y.Z' / 'now at X.Y.Z'
+    where the captured version is not in the set of current canonical versions.
+
+    Returns (findings, heuristic_skips, exemption_skips).
+    """
+    findings: list[Finding] = []
+    heuristic_skips = 0
+    exemption_skips = 0
+    pattern_id = "PF-version-literal"
+    expected_str = ", ".join(sorted(current_versions)) if current_versions else "(none)"
+    for path in targets:
+        text = read_text_safe(path)
+        if text is None:
+            continue
+        rel = path.relative_to(REPO_ROOT).as_posix()
+        for lineno, line in enumerate(text.splitlines(), start=1):
+            for m in VERSION_LITERAL_RE.finditer(line):
+                captured = m.group(1)
+                if captured in current_versions:
+                    continue
+                skip, _reason = is_exempt_by_heuristic(
+                    line, m.start(), m.end(), captured
+                )
+                if skip:
+                    heuristic_skips += 1
+                    continue
+                if line_hash(line) in exemptions.get(
+                    (rel, pattern_id), set()
+                ):
+                    exemption_skips += 1
+                    continue
+                findings.append(
+                    Finding(
+                        pattern_id=pattern_id,
+                        path=rel,
+                        line=lineno,
+                        captured=captured,
+                        expected=expected_str,
+                        text=line.strip()[:120],
+                    )
+                )
+    return findings, heuristic_skips, exemption_skips
+
+
 def main(argv: list[str]) -> int:
     canonical: dict[str, int] = {}
     for name, directory, item_filter in CANONICAL_COLLECTIONS:
@@ -332,11 +450,23 @@ def main(argv: list[str]) -> int:
         if count is not None:
             canonical[name] = count
 
+    current_versions: set[str] = set()
+    for _name, file_path, label in CANONICAL_VERSIONS:
+        version = read_canonical_version(file_path, label)
+        if version is not None:
+            current_versions.add(version)
+
     exemptions = load_exemptions()
     targets = iter_targets()
     findings, heuristic_skips, exemption_skips = scan_collection_counts(
         targets, canonical, exemptions
     )
+    v_findings, v_heuristic_skips, v_exemption_skips = scan_version_literals(
+        targets, current_versions, exemptions
+    )
+    findings.extend(v_findings)
+    heuristic_skips += v_heuristic_skips
+    exemption_skips += v_exemption_skips
 
     suppressed_total = heuristic_skips + exemption_skips
     print(

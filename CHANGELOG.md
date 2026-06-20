@@ -4,6 +4,25 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.84, PR #98
+
+Pre-flight scanner pattern set extended. Adds **PF-04 stale-version-literal**: catches phrases like "currently 1.22.0" / "the current 1.22.0" / "now at 1.22.0" / "now on 1.22.0" where the captured version does not match any of the canonical library, README, pack, or spec versions. Motivated by the Sweep 4 finding in `docs/adopter-guide.md:57` ("ships with its own version sequence (currently `1.22.0`)"); the new pattern would have caught that finding mechanically rather than requiring semantic triage. First of the three queued session items announced in the maintainer's status summary.
+
+Two additional heuristics added to keep the scanner quiet on the existing corpus: extended HISTORICAL_KEYWORDS (`false positive`, `false-positive`, `in-window`, `out-of-window`) and new SWEEP_NARRATIVE_PATTERNS regex set (`Sweep N`, `Subagent A/B/C`, `recurring-class`). These suppress the register-sweep-history narrative that quotes past findings, including stale-version-literal false positives in PF-04's surface (the register narrates past findings extensively).
+
+### Changed
+
+- [`tools/sweep-preflight-scanner.py`](tools/sweep-preflight-scanner.py): new `CANONICAL_VERSIONS` registry (library, README, pack, spec versions read from metadata-block fields); new `read_canonical_version` helper; new `VERSION_LITERAL_RE` regex matching "currently/the current/now at/now on" plus version-shape; new `scan_version_literals` scanner function; main wires PF-04 into the candidate stream alongside PF-01/02/03; expanded `HISTORICAL_KEYWORDS` plus new `SWEEP_NARRATIVE_PATTERNS` regex tuple; new H6 heuristic in `is_exempt_by_heuristic` applies the regex patterns.
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): step 3a expanded to document PF-04 and the two new heuristic surfaces; the existing pattern set description updated to include `false positive` / `in-window` / `out-of-window` and the sweep-narrative regex group.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.26.13 -> 1.26.14`.
+- [`README.md`](README.md): library version `2026.06.83 -> 2026.06.84`; README version `1.8.39 -> 1.8.40`.
+
+### Verification
+
+Full audit programme passes standalone, all 42 corpus gates pass. Scanner: 22 candidates suppressed (16 by heuristic, 6 by exemption file), 0 findings reported against the current corpus. Manual verification confirms PF-04 would surface the canonical Sweep 4 finding (the "currently `1.22.0`" line) if re-introduced; the heuristic skips do not apply to that line (no historical-narrative keywords, no sweep-narrative regex match).
+
+---
+
 ## 2026-06-20, Library Version 2026.06.83, PR #97
 
 Validation-sweep maintenance-protocol change plus retroactive CHANGELOG prune. Maintainer observed that zero-finding sweeps were producing standalone PRs with full CHANGELOG entries that contained no user-visible content, distracting from substantive entries. The convention is revised: **zero-finding sweeps leave no trace** (no register entry, no CHANGELOG entry, no standalone PR; the convergence-delta trend lives in the iteration counter, not in a per-sweep record).
