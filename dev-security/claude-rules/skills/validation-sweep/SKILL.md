@@ -84,6 +84,8 @@ Each subagent reports under 600 words, grouped by severity:
 
 **Required for every finding**: a `path:line` evidence quote. A finding without an explicit file path and line number (or line range) is not a finding, it is a hypothesis. Reject any subagent report whose findings lack quoted evidence and re-dispatch the subagent with a re-emphasized brief. This guards against the failure mode where a subagent returns an inferred or confused report instead of read-verified findings; without enforcement of the evidence requirement, the sweep degrades into inference cascade.
 
+**Pre-tool verification discipline**. Every subagent brief carries the following rule (Popper-style falsification preamble, composed with AnyTool's redundancy gate and AgentDiet's dedup check). Before each tool call, the subagent states in one line: (a) the hypothesis this call tests, (b) the observation that would falsify it, and (c) one prior tool result that does not already answer the question. If the falsifying observation is undefined, the call is corroboration-seeking; skip it or reframe. If a prior result already answers the question, do not re-call; cite the prior result in the finding. This produces an auditable trace (every tool call carries its own justification) and filters corroboration-only calls at the source rather than at the report-writing stage, where they have already consumed budget.
+
 If the working tree shows no recent activity (a "cold" sweep), subagent A becomes a narrower spot-check of the most recently-merged PRs (`git log -5 --merges`).
 
 ### 5. Synthesise findings
