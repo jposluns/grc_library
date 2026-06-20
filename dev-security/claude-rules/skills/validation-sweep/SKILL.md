@@ -58,6 +58,14 @@ The sweep targets failure modes the mechanical gates do not cover. Each class ha
 | Stale docstrings | A linter or script docstring describing behaviour that no longer matches the code. |
 | Cross-document term drift | Different files use different terms for the same concept, with no canonical glossary entry to anchor the choice. |
 
+### 3.5. Run the deterministic pre-flight scanner (optional but recommended)
+
+Before subagent fan-out, run the pre-flight scanner: `python3 tools/sweep-preflight-scanner.py`. This is a deterministic regex-based pass that surfaces candidate findings for shapes the high-precision mechanical gates do not catch (stale skill counts, stale governance-rule counts, prose-form number drift). The scanner exits 0 always; its output is a list of candidates, not verified findings.
+
+Pass the scanner's output to each subagent as a "known suspect locations to verify or dismiss" list. This lowers each subagent's discovery burden and guarantees candidate shapes the gates miss get semantic triage. Many candidates will be false positives (legitimate historical references, comparative prose, references to other projects' counts); that is expected: the scanner is high-recall, the subagent triage is the precision layer.
+
+The scanner is project-specific (its `CANONICAL_COLLECTIONS` and seed patterns target this corpus); other projects adopting the validation-sweep pattern should swap in their own scanner with project-specific patterns.
+
 ### 4. Fan out parallel subagent reviews
 
 Launch subagents in parallel for the semantic sweep. Each receives a self-contained brief, reads target files in full (not excerpts), and reports findings by severity. The three baseline briefs:
