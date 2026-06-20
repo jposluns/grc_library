@@ -7,7 +7,7 @@ document's Version field should bump in the same PR. This delta gate
 detects PRs that change a versioned document's body without bumping
 its Version field, catching the omission before merge.
 
-This is a CI-only delta gate, not part of the 42-gate corpus audit
+This is a CI-only delta gate, not part of the 43-gate corpus audit
 programme in governance/specification-audit-programme.md §6. The §6
 corpus gates check repository state at HEAD; this script compares
 HEAD to the PR's merge-base and asserts that every changed versioned

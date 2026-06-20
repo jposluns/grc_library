@@ -4,6 +4,33 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.85, PR #99
+
+New audit gate 43: follow-up ageing audit. Mechanises Rule 3 of the maintenance-tag dating discipline introduced in PR #90 (the convention shipped without a mechanical gate; this PR adds it). Second of three queued session items.
+
+The gate scans [`governance/register-sweep-history.md`](governance/register-sweep-history.md) for blocks containing a `surfaced: YYYY-MM-DD` field, derives the deadline as `re-triage-by` (explicit) or `surfaced + 30 days` (default), and fails the build when `today() > deadline` with no `re-triaged: YYYY-MM-DD` line at or after the deadline in the same block. Exit codes: 0 (no expired follow-ups), 1 (at least one expired), 2 (invalid date value in a tracked field). The linter supports `--target`, `--today`, and `--root` flags for testability.
+
+### Added
+
+- [`tools/lint-followup-ageing.py`](tools/lint-followup-ageing.py): new audit gate. Stdlib-only Python 3.11. Scans [`governance/register-sweep-history.md`](governance/register-sweep-history.md) by default; the `TARGET_FILES` list is extensible for future registers adopting the convention.
+- [`tests/test_linters.py`](tests/test_linters.py) class `FollowupAgeingTests`: four regression tests covering the corpus-clean-at-HEAD smoke test, the expired-follow-up positive test, the fresh-re-triaged-trailer negative test, and the invalid-date-value exit-2 environmental test.
+
+### Changed
+
+- [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md): version `1.10.0 -> 1.11.0`; §6 inventory adds row 43; §5 category 7 ("Freshness and lifecycle") gains gate 43 with rationale; the two prose references to "42 audit gates" / "42-gate corpus inventory" updated to 43.
+- [`.github/workflows/quality.yml`](.github/workflows/quality.yml): new step "Follow-up ageing audit" between gate 42 and the PR-only delta gates.
+- [`tools/run_all_audits.sh`](tools/run_all_audits.sh): new `run_gate` invocation; header comment "current sweep is 42 gates" updated to 43.
+- [`.pre-commit-config.yaml`](.pre-commit-config.yaml): new hook `lint-followup-ageing`.
+- [`governance/procedure-library-quality-and-review-cadence.md`](governance/procedure-library-quality-and-review-cadence.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), [`governance/register-main-branch-protection.md`](governance/register-main-branch-protection.md), [`tools/README.md`](tools/README.md), [`tools/check-changelog-on-pr.py`](tools/check-changelog-on-pr.py), [`tools/check-version-bump-on-pr.py`](tools/check-version-bump-on-pr.py), [`tools/lint-audit-gate-parity.py`](tools/lint-audit-gate-parity.py): 11 prose references to "42 gates" / "42-gate" updated to 43 (caught by gate 39, the cross-file gate-count consistency audit).
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.26.14 -> 1.26.15`.
+- [`README.md`](README.md): library version `2026.06.84 -> 2026.06.85`; README version `1.8.40 -> 1.8.41`.
+
+### Verification
+
+All 43 audit gates pass standalone. Gate 35 (gate-name parity) confirms the new gate is wired identically across all four parity surfaces (spec §6, quality.yml, run_all_audits.sh, pre-commit). Gate 39 (cross-file gate-count consistency) confirms no prose claim about "42 gates" remains. The four regression tests in `FollowupAgeingTests` pass (`python3 -m unittest tests.test_linters.FollowupAgeingTests`); manual verification confirms exit 0 on the corpus, exit 1 on an expired fixture, exit 0 on a fixture with a fresh re-triaged trailer, and exit 2 on an invalid date value.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.84, PR #98
 
 Pre-flight scanner pattern set extended. Adds **PF-04 stale-version-literal**: catches phrases like "currently 1.22.0" / "the current 1.22.0" / "now at 1.22.0" / "now on 1.22.0" where the captured version does not match any of the canonical library, README, pack, or spec versions. Motivated by the Sweep 4 finding in `docs/adopter-guide.md:57` ("ships with its own version sequence (currently `1.22.0`)"); the new pattern would have caught that finding mechanically rather than requiring semantic triage. First of the three queued session items announced in the maintainer's status summary.

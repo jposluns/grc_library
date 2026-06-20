@@ -316,3 +316,10 @@ repos:
         language: system
         pass_filenames: false
         types: [markdown]
+
+      - id: lint-followup-ageing
+        name: Follow-up ageing audit
+        entry: python3 tools/lint-followup-ageing.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
