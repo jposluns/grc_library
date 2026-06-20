@@ -2,11 +2,11 @@
 
 **Document Title:** Adopter Implementation Roadmap Template\
 **Document Type:** Template\
-**Version:** 1.0.0\
+**Version:** 1.0.1\
 **Date:** 2026-06-20\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`docs/template-quickstart-by-profile.md`](template-quickstart-by-profile.md), [`docs/template-maturity-self-assessment.md`](template-maturity-self-assessment.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`README.md`](../README.md)\
+**Related Documents:** [`docs/template-quickstart.md`](template-quickstart.md), [`docs/template-maturity-self-assessment.md`](template-maturity-self-assessment.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`README.md`](../README.md)\
 **Classification:** Public\
 **Category:** Adopter Experience\
 **Review Frequency:** Annual, and on material change to the quickstart-template module catalogue\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This template helps an adopter sequence the modules selected via [`docs/template-quickstart-by-profile.md`](template-quickstart-by-profile.md) into 90-day, 180-day, and one-year phases. The roadmap is composition-aware: it does not assume a fixed adopter profile, it works from the modules the adopter actually picked.
+This template helps an adopter sequence the modules selected via [`docs/template-quickstart.md`](template-quickstart.md) into 90-day, 180-day, and one-year phases. The roadmap is composition-aware: it does not assume a fixed adopter profile, it works from the modules the adopter actually picked.
 
 Each phase has a primary goal, a defendable end-state, and concrete acceptance criteria. The aim is not to copy artefacts faster but to reach a defensible posture against the organisation's actual exposure within bounded calendar time.
 
@@ -40,7 +40,7 @@ It does not apply to programmes that are already past Year 1 and operating in st
 
 ## How to use this template
 
-1. **Complete the quickstart composition first.** Run through [`docs/template-quickstart-by-profile.md`](template-quickstart-by-profile.md) and identify the core baseline plus the activity / data / audience / regulatory modules and the GRC-capacity tier that apply. The roadmap below sequences those modules; it cannot tell you which to pick.
+1. **Complete the quickstart composition first.** Run through [`docs/template-quickstart.md`](template-quickstart.md) and identify the core baseline plus the activity / data / audience / regulatory modules and the GRC-capacity tier that apply. The roadmap below sequences those modules; it cannot tell you which to pick.
 2. **Choose the calendar pace** matching the capacity tier:
    - **E1 (founder part-time)**: extended pace — Phase 1 lasts 6 months, Phase 2 lasts 6 months, full Year 1 is the steady state.
    - **E2 (light, 1 to 2 people)**: standard pace — 90 / 180 / 365.

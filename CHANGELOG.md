@@ -4,6 +4,25 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.94, PR #108
+
+Rename the adopter quickstart template from its prior "by-profile" filename to [`docs/template-quickstart.md`](docs/template-quickstart.md). Maintainer feedback: the file is no longer a per-profile template (after the P4.1 rewrite to activity-modular shape in PR #105), so the prior filename was misleading. The document title was already "Adopter Quickstart Template" so no title change is needed.
+
+### Changed
+
+- [`docs/template-quickstart.md`](docs/template-quickstart.md) (renamed from its prior "by-profile" filename): file rename + internal Repository Path metadata updated. Document version `2.0.0 -> 2.0.1`.
+- [`docs/template-implementation-roadmap.md`](docs/template-implementation-roadmap.md): Related Documents and three inline references updated. Document version `1.0.0 -> 1.0.1`.
+- [`docs/template-maturity-self-assessment.md`](docs/template-maturity-self-assessment.md): Related Documents updated. Document version `1.0.0 -> 1.0.1`.
+- [`TODO.md`](TODO.md): P4.1 entry reference updated.
+- [`CHANGELOG.md`](CHANGELOG.md): historical PR #103 and PR #105 entries updated to reference the new path (the file no longer exists at the old path; leaving the entries unchanged would have broken `lint-links`). This is a small history rewrite, consistent with the PR #97 retro-prune precedent. Maintainer explicitly authorised under the named-alternatives clarification.
+- [`README.md`](README.md): library version `2026.06.93 -> 2026.06.94`; README version `1.8.49 -> 1.8.50`.
+
+### Verification
+
+All 44 audit gates pass standalone post-rename. Generated artefacts (taxonomy.yml, docs/portal.md, docs/maturity-scorecard.md) re-built. No remaining references to the old filename in any markdown or YAML file.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.93, PR #107
 
 TODO P4.4: regulator interaction templates. Fourth of five Priority 4 items.
@@ -64,11 +83,11 @@ All 44 audit gates pass standalone.
 
 ## 2026-06-20, Library Version 2026.06.91, PR #105
 
-Heavy rewrite of [`docs/template-quickstart-by-profile.md`](docs/template-quickstart-by-profile.md). Maintainer's feedback on PR #103: the six fixed profiles (small business, mid-market regulated industry, multi-national enterprise, public-sector adopter, healthcare adopter, financial-services adopter) were too rigid; companies do not fit into the categories, and the same category contains very different operational realities.
+Heavy rewrite of [`docs/template-quickstart.md`](docs/template-quickstart.md). Maintainer's feedback on PR #103: the six fixed profiles (small business, mid-market regulated industry, multi-national enterprise, public-sector adopter, healthcare adopter, financial-services adopter) were too rigid; companies do not fit into the categories, and the same category contains very different operational realities.
 
 ### Changed
 
-- [`docs/template-quickstart-by-profile.md`](docs/template-quickstart-by-profile.md): version `1.0.0 -> 2.0.0`. Replaces the per-profile structure with a core baseline plus five stacking dimensions. The new shape:
+- [`docs/template-quickstart.md`](docs/template-quickstart.md): version `1.0.0 -> 2.0.0`. Replaces the per-profile structure with a core baseline plus five stacking dimensions. The new shape:
   - **Core baseline** (6 artefacts mandatory regardless of size or sector): foundational policy, three security policies, privacy policy plus home-jurisdiction annex, populated risk register.
   - **Dimension A, Activity** (6 modules: A1 custom internal development, A2 external-facing SaaS, A3 AI in operations, A4 AI model development or training, A5 critical-availability operations, A6 physical operations).
   - **Dimension B, Data scope** (6 modules: B1 customer personal data, B2 special-category, B3 children's data, B4 cross-border transfers, B5 PCI scope, B6 government or classified).
@@ -85,7 +104,7 @@ Major version bump (2.0.0) because the structural model changed (per-profile to 
 
 ### Verification
 
-All 44 audit gates pass standalone. The filename-title alignment audit (gate 7) tolerates "Adopter Quickstart Template" titled with the existing filename [`docs/template-quickstart-by-profile.md`](docs/template-quickstart-by-profile.md) because "quickstart" appears in both.
+All 44 audit gates pass standalone. The filename-title alignment audit (gate 7) tolerates "Adopter Quickstart Template" titled with the existing filename [`docs/template-quickstart.md`](docs/template-quickstart.md) because "quickstart" appears in both.
 
 ---
 
@@ -120,7 +139,7 @@ TODO Priority 4.1: adopter quickstart template per profile. First of five Priori
 
 ### Added
 
-- [`docs/template-quickstart-by-profile.md`](docs/template-quickstart-by-profile.md): new Template document. Six profile sections (small business, mid-market regulated industry, multi-national enterprise, public-sector adopter, healthcare adopter, financial-services adopter), each with Day-1/30/90 adoption guidance, sector-conditional content notes, and realistic timeline expectations. Six review questions for applying any profile.
+- [`docs/template-quickstart.md`](docs/template-quickstart.md): new Template document. Six profile sections (small business, mid-market regulated industry, multi-national enterprise, public-sector adopter, healthcare adopter, financial-services adopter), each with Day-1/30/90 adoption guidance, sector-conditional content notes, and realistic timeline expectations. Six review questions for applying any profile.
 
 ### Changed
 
