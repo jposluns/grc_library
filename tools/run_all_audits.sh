@@ -62,7 +62,7 @@ echo "Running full audit programme (${REPO_ROOT})"
 echo ""
 
 # ----------------------------------------------------------------------
-# Markdown linters (sub-group of the 42 corpus gates). Order mirrors quality.yml.
+# Markdown linters (sub-group of the 44 corpus gates). Order mirrors quality.yml.
 # ----------------------------------------------------------------------
 run_gate "Metadata audit"                                python3 tools/lint-metadata.py
 run_gate "Language and style audit"                      python3 tools/lint-language.py
