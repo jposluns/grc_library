@@ -4,6 +4,34 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.82, PR #96
+
+Validation-sweep enhancement, seventh and last from the late-research-findings queue. **Closes the queue.** Adds the hold-the-line ratcheting-baseline discipline to step 6 (Triage) of the SKILL: fingerprint-not-count, expiry plus rationale, net-negative invariant on sweep close. This is the "largest" tier (after the smallest four: synthesis rubric, pre-tool verification, maintenance-tag dating, convergence-delta; and the medium two: multi-agent debate, SARIF-lite).
+
+Research basis: ESLint Bulk Suppressions (`--suppress-all` + `--prune-suppressions`; only `error`-level, no `warn` suppression; per-location not per-file); Notion's `eslint-seatbelt` ratcheting database; basedmypy / mypy-baseline "untyped surface can only shrink"; TypeScript strict-null allowlist (VS Code team); Stryker mutation-test baseline. Recreated as CC BY-SA 4.0 in-house prose; no external tooling imported.
+
+### Scope decision
+
+Three rules added to SKILL step 6 (Rules 6.1, 6.2, 6.3). The existing exemption file [`tools/sweep-preflight-exemptions.json`](tools/sweep-preflight-exemptions.json) and the register's `false-positive memory` section are now the two-surface accept-list the new rules govern. The exemption file's 7 pre-existing entries are grandfathered (no `accepted_on`/`expires` retro-stamping); they pick up the new fields when next touched. The register's false-positive memory section is restructured to document the convention and accept new fingerprint-shaped entries.
+
+### Changed
+
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): new "Ratcheting-baseline discipline for dismissed findings" subsection in step 6. Rule 6.1 fingerprint-not-count (keyed on `(file_path, normalised_section_or_artefact, claim_type)` plus SARIF-lite `ruleId`); Rule 6.2 expiry plus rationale (default 90 days, re-triage on expiry, no auto-renew); Rule 6.3 net-negative invariant on close (`|accept-list|` cannot grow net of fixes; sweep must add OR fix, not both freely). Cross-references the pre-flight exemption file and the register's false-positive memory section as the two-surface accept-list both rules govern.
+- [`.claude/commands/validation-sweep.md`](.claude/commands/validation-sweep.md): step 6 expanded to reference the three ratcheting-baseline rules.
+- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): version `1.8.0 -> 1.9.0`; false-positive memory section restructured to document the Rules 6.1-6.3 convention, the relationship to the pre-flight exemption file, and the grandfathering of pre-existing entries. Empty entries list preserved.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.26.11 -> 1.26.12`.
+- [`README.md`](README.md): library version `2026.06.81 -> 2026.06.82`; README version `1.8.37 -> 1.8.38`.
+
+### Late-research-findings queue: closed
+
+All seven late-research-findings queue items have shipped: PR #82 (synthesis rubric), #88 (pre-tool verification), #90 (maintenance-tag dating), #91 (convergence-delta termination), #93 (multi-agent debate Rule 5.5), #94 (SARIF-lite output), and this PR (hold-the-line ratcheting baselines). Combined with the upstream noise-reduction PR #86 (scanner heuristics + exemption file), the validation-sweep discipline is now end-to-end principled: scanner noise reduction, evidence-grounded subagent reports with SARIF-lite output, pre-tool verification, four-rule synthesis rubric plus debate, in/out-of-window triage, ratcheting accept-list with expiry, principled convergence-delta termination.
+
+### Verification
+
+Full audit programme passes standalone, all 42 corpus gates pass. The discipline ships as workflow prose; no new mechanical gate added. Sweep 9 will be the first to formally apply Rules 6.1-6.3 as a dismissal protocol if any finding is surfaced for dismissal.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.81, PR #95
 
 Sweep 8 closure (register entry + one exemption-file update). Fourth consecutive empty-delta convergence; the discipline remains in steady state through the introduction of Rule 5.5 (multi-agent debate) and SARIF-lite output format. Eight-sweep convergence pattern: 4+, 3, 1, 1, 0, 0, 0, 0.
