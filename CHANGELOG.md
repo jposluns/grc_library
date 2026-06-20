@@ -4,6 +4,38 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.57, PR #71
+
+Add gate 42 (**External-overlay license consistency audit**). Closes the licence-validation loop the maintainer specified: every file in the repository now has its licence mechanically validated against the appropriate expectation. Gate 15 already enforced the project's `CC BY-SA 4.0` requirement on the corpus's own content; gate 42 extends the same discipline to the external overlay at [`.claude/rules/external/`](.claude/rules/external/), where files retain their source project's licence rather than the project's own.
+
+**Three checks** the gate runs:
+1. Every subdirectory under [`.claude/rules/external/`](.claude/rules/external/) must have an entry in the linter's hard-coded `EXPECTED_LICENSE` map. Catches the failure mode of adding a new external source without declaring its expected licence.
+2. Each declared subdirectory must contain a LICENSE file whose first non-empty line identifies as the expected licence. Catches LICENSE deletion or replacement with the wrong licence.
+3. No markdown file under [`.claude/rules/external/`](.claude/rules/external/) may contain the literal `**License:** CC BY-SA 4.0` claim. Catches an external file incorrectly claiming the project's licence.
+
+Initial configuration: `addyosmani → MIT`, `kariedo → MIT`, `tikitribe → MIT` (matching the actual LICENSE files in each subdirectory).
+
+Audit-programme spec `1.9.0 → 1.10.0` (minor: new gate added). Library version `2026.06.56 → 2026.06.57`; README version `1.8.12 → 1.8.13`. Four governance documents carry patch bumps for their `41-gate → 42-gate` prose updates.
+
+### Added
+
+- [`tools/lint-external-overlay-license.py`](tools/lint-external-overlay-license.py): new corpus linter. Three checks as described above. Hard-coded `EXPECTED_LICENSE` map declares the expected source licence per external subdirectory. `LICENSE_PREFIX_TO_IDENT` maps LICENSE-file first-line prefixes (`MIT License`, `Apache License`, `BSD `, etc.) to canonical identifiers. Exit codes: 0 pass, 1 findings, 2 internal error.
+- [`tests/test_linters.py`](tests/test_linters.py): new `ExternalOverlayLicenseTests.test_runs_clean_on_corpus_at_head` smoke test.
+- [`.github/workflows/quality.yml`](.github/workflows/quality.yml), [`tools/run_all_audits.sh`](tools/run_all_audits.sh), [`.pre-commit-config.yaml`](.pre-commit-config.yaml): gate 42 wired into all three runtime surfaces.
+
+### Changed
+
+- [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md): §2.1 corpus count `41 → 42`; §5 category 1 gate list extended with gate 42 (Metadata integrity: gate 42 is the external-overlay counterpart of gate 15, same family); §6 inventory row 42 appended; §6 prose: paragraph added for gate 42 describing the three checks and the relationship to gate 15; §6.1 corpus count `41-gate → 42-gate`. Version `1.9.0 → 1.10.0`.
+- Four governance documents bumped patch versions for `41-gate → 42-gate` prose: [`procedure-library-quality-and-review-cadence.md`](governance/procedure-library-quality-and-review-cadence.md) (1.0.8 → 1.0.9); [`register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.27.14 → 1.27.15); [`register-coverage-gaps.md`](governance/register-coverage-gaps.md) (1.1.8 → 1.1.9); [`register-main-branch-protection.md`](governance/register-main-branch-protection.md) (1.0.8 → 1.0.9).
+- [`tools/check-changelog-on-pr.py`](tools/check-changelog-on-pr.py), [`tools/check-version-bump-on-pr.py`](tools/check-version-bump-on-pr.py), [`tools/lint-audit-gate-parity.py`](tools/lint-audit-gate-parity.py), [`tools/run_all_audits.sh`](tools/run_all_audits.sh), [`tools/README.md`](tools/README.md): docstring / comment references to `41-gate` and `41 corpus gates` updated to `42-gate` and `42 corpus gates`.
+- [`README.md`](README.md): library version `2026.06.56 → 2026.06.57`; README version `1.8.12 → 1.8.13`.
+
+### Verification
+
+Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0). All 42 corpus gates pass, including the new gate 42 (3 external sources verified: addyosmani / kariedo / tikitribe, all MIT, all LICENSE files present and matching, no external markdown file claims the project licence). Gate 35 (Gate-name parity audit) confirms all four parity surfaces declare 42 gates in identical order. Gate 36 (Linter regression test suite) runs 98 regression tests including the new `ExternalOverlayLicenseTests` smoke fixture.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.56, PR #70
 
 Minor formatting cleanup in a historical CHANGELOG entry for prose consistency. No content or behaviour changes.
