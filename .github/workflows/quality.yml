@@ -154,3 +154,17 @@ jobs:
       - name: Per-PR version-bump check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-version-bump-on-pr.py
+
+      - name: Detect collection candidates on pack PRs (informational)
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          if git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep -q '^dev-security/claude-rules/'; then
+            echo "Pack changes detected. Running collection-candidate detector..."
+            python3 tools/detect-collection-candidates.py
+          else
+            echo "No pack changes in this PR. Skipping detector."
+            echo "(Run on demand: python3 tools/detect-collection-candidates.py)"
+          fi
