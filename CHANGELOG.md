@@ -4,6 +4,31 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.52, PR #66
+
+End-of-day validation-sweep cleanup. After eight PRs landed today (#59 through #65), the maintainer invoked the [`validation-sweep`](dev-security/claude-rules/skills/validation-sweep/SKILL.md) skill as a follow-up. Two parallel subagent sweeps (8-PR deep review + corpus-wide stale-reference scan) surfaced one stale gate-count reference in operational tooling and one factual inaccuracy in PR #64's CHANGELOG entry. This entry closes both, plus records the correction transparently.
+
+Library version `2026.06.51 → 2026.06.52`; README version `1.8.7 → 1.8.8` (patch: library-version-only bump).
+
+### Fixed
+
+- [`tools/run_all_audits.sh`](tools/run_all_audits.sh): top-of-file section comment at line 65 said `# Markdown linters (32 gates). Order mirrors quality.yml.` Stale: the runner now sweeps 39 corpus gates, and the runner's own line 17 already correctly cites 39. Updated to `# Markdown linters (sub-group of the 39 corpus gates). Order mirrors quality.yml.` to make explicit that the comment introduces a sub-group within the 39, not a total-count claim. Gate 39 did not catch this because its regex set (`N-gate`, `N audit gates`, `gates 1-N`, etc.) does not match the bare `(N gates)` parenthetical form, and extending the regex to cover it would false-positive on the file's own legitimate sub-group counts (`(2 gates)` for generator-output drift, `(1 gate)` for the regression suite, etc.).
+
+### Correction to PR #64 entry
+
+The CHANGELOG entry for PR #64 (line 49) claimed `§5 category 1 gate list extended with gate 39 (Metadata integrity sense: the spec also adds gate 39 to category 5 Programme and index integrity...)`. The leading claim is wrong: PR #64 added gate 39 to category 5 only, not to category 1. Category 1's gate list at [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) line 66 reads `(gates 1, 7, 8, 13, 14, 15, 16, 19, 38)` and is correct as-of-shipped — gate 38 is in category 1 (the Metadata-integrity slot confirmed with the maintainer in PR #61), and gate 39 is in category 5 (Programme and index integrity, the audit-programme-meta-gate slot decided unilaterally in PR #64). The PR #64 entry's parenthetical hedge "Metadata integrity sense" was confused authorial drafting at the time, not a real edit; the spec was edited correctly. Per the [change-tracking rule](dev-security/claude-rules/governance/change-tracking.md), PR #64's CHANGELOG entry is left as it originally shipped; this correction is documented forward here rather than retroactively edited into the original entry.
+
+### Sweep findings not actioned (Low / FYI)
+
+- **Pre-existing §5 categorisation gap (not introduced today)**: gates 32, 33, and 34 are not listed in any `(gates X, Y, Z)` parenthetical enumeration in §5. The descriptive prose for category 7 ("Freshness and lifecycle") mentions auto-generated taxonomy/portal/scorecard sync (gates 33-34) but the parenthetical only lists `(gates 10, 27, 28, 29, 30, 31)`; gate 32 (Skill derives-from reference audit) is unmentioned in any category list. Documented for a future spec-cleanup PR; out of scope for this end-of-day sweep since the gap pre-dates today's work.
+- **References to the user-level Claude Code memory file** (outside this repository) appear in committed project prose at [`.claude/CLAUDE.md`](.claude/CLAUDE.md) lines 3 and 125. The references are intentional explanatory prose about the project-level vs user-level rule precedence relationship; they are not assumed-to-exist for adopters. Sweep B flagged-then-dismissed this as a false positive.
+
+### Verification
+
+Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit, run on the final state. All 39 corpus gates pass. Gate 39 (Cross-file gate-count consistency audit) accepts the corrected comment. The version-monotonicity audit (gate 13) accepts the library and README version bumps. The version-date consistency audit (gate 29) confirms `2026.06.52` matches `2026-06`. The CHANGELOG link-coverage audit (gate 11) accepts the entry's path-shaped code spans. The new D2 delta gate (added in PR #65) will validate this PR's own version bumps in CI: the diff includes [`README.md`](README.md) (Library Version bumped) but no spec/governance-register edits.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.51, PR #65
 
 Add a new PR-only delta gate (**D2: Per-PR version-bump check**). Layer 2 deliverable 2 of 3 in the validation programme, shipped as a §6.1 delta gate alongside the existing D1 CHANGELOG-on-PR check. The new gate compares each markdown file modified in a PR between its merge-base and head, reading the `**Version:**` field at each, and fails if a file's body changed but its Version did not bump. Catches the per-document-version-bump-omission class of defect that the §6 monotonicity audit (gate 13) cannot detect: gate 13 confirms versions strictly increase across the corpus, but cannot tell whether a particular file should have bumped on a particular PR.
