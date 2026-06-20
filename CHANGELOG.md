@@ -4,6 +4,31 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-20, Library Version 2026.06.58, PR #72
+
+Add a companion exploratory tool to gate 41 (Collection-enumeration consistency audit): [`tools/detect-collection-candidates.py`](tools/detect-collection-candidates.py). Phase 2 of the Layer 2 / 3 deliverable the maintainer authorised during gate 41's design (PR #69). Gate 41 enforces drift discipline on a hard-coded list of collections; this tool surfaces NEW candidate collections by heuristic scan so the maintainer can triage them one-by-one and add approved candidates to gate 41's configuration.
+
+**Heuristic**: walks a configured set of candidate-source roots (subdirectories of `dev-security/claude-rules/`, `governance/`, the compliance subdirs, and selected domain dirs). For each direct subdirectory with at least three items, scores every corpus markdown file by how many of the candidate's items appear in it (as path-shaped tokens); files at ≥60% coverage are surfaced as putative enumeration locations. Candidates whose canonical-source path matches an already-tracked collection in gate 41 are filtered unless their newly-detected enumeration locations extend the tracked set.
+
+This is an **exploratory tool, not a gate**: no §6 inventory entry, no pre-commit hook, no CI step. Exit code is 0 on every run; the tool surfaces findings, the maintainer decides. First run surfaced 10 candidates for the maintainer's triage (including `dev-security/claude-rules/ai`, `dev-security/claude-rules/core`, `dev-security/claude-rules/languages`, and several compliance-domain subdirs).
+
+Library version `2026.06.57 → 2026.06.58`; README version `1.8.13 → 1.8.14`.
+
+### Added
+
+- [`tools/detect-collection-candidates.py`](tools/detect-collection-candidates.py): new exploratory tool. Three configuration constants the maintainer can tune: `CANDIDATE_ROOTS` (where to look), `MIN_ITEMS` (smallest candidate canonical worth surfacing; default 3), `COVERAGE_THRESHOLD` (the fraction of items a file must mention to qualify as a putative enumeration; default 60%). `TRACKED_COLLECTIONS` mirrors gate 41's current configuration so already-handled cases are suppressed. Stdlib-only Python 3.11.
+
+### Changed
+
+- [`tools/README.md`](tools/README.md): added a new "Exploratory tools (not gates)" section documenting the on-demand nature of the new tool and the convention (exit 0 always; the tool surfaces findings rather than failing).
+- [`README.md`](README.md): library version `2026.06.57 → 2026.06.58`; README version `1.8.13 → 1.8.14`.
+
+### Verification
+
+Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0). All 42 corpus gates pass. The new exploratory tool is not in the audit programme by design; it has been smoke-tested by running it standalone (10 candidates surfaced; exit 0). Post-commit re-audit (per the discipline from PR #68) clean.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.57, PR #71
 
 Add gate 42 (**External-overlay license consistency audit**). Closes the licence-validation loop the maintainer specified: every file in the repository now has its licence mechanically validated against the appropriate expectation. Gate 15 already enforced the project's `CC BY-SA 4.0` requirement on the corpus's own content; gate 42 extends the same discipline to the external overlay at [`.claude/rules/external/`](.claude/rules/external/), where files retain their source project's licence rather than the project's own.
