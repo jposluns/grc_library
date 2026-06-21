@@ -6,6 +6,47 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.135, PR #153
+
+Closes FR-92 (high). The IT Operations KPI register defined targets without identifying who escalates when a target is missed and who signs off that a breach event is closed; the register now records both roles per KPI.
+
+### Closed findings
+
+- **FR-92** (high, ✅ confirmed-as-stated, `operations/register-it-operations-kpis.md`): KPI tables defined Owner Role (the operating-accountability role) but no Escalation Owner (the role paged when the target is breached) and no Remediation Sign-off (the role that closes the breach). A breached KPI had no documented governance path: the Owner Role is responsible for measurement, not for breach response. Audit-trail gap: an auditor reviewing a breach record could not determine from the register alone who authorised the remediation or who signed it off.
+
+### Changed
+
+- [`operations/register-it-operations-kpis.md`](../../operations/register-it-operations-kpis.md):
+  - All eight KPI tables (Sections 1-8) gain two new columns: `Escalation Owner` and `Remediation Sign-off`. The columns are positioned after `Evidence Class` and before `Notes` so the breach-response governance is adjacent to the evidence-class field that supports it.
+  - KPI design principles gain a new principle 2 requiring both fields to be populated from the [Role Authority Register](../../governance/register-role-authority.md); existing principles 2-6 renumber to 3-7.
+  - `Related Documents` field gains `governance/register-role-authority.md`.
+  - Per-doc version `1.0.0 → 1.1.0` (minor: schema-level addition of two columns and one design principle).
+  - Date `2026-05-27 → 2026-06-21`.
+- [`README.md`](../../README.md): library `2026.06.134 → 2026.06.135`; README `1.9.5 → 1.9.6`.
+- [`TODO.md`](../../TODO.md): FR-92 rotated out of the High tier; backlog counters updated (14 + 11 + 56 = 81 immediate; 14 deferred; 95 open).
+- [`.working/DONE.md`](../DONE.md): PR #153 entry added.
+
+### Role-assignment rationale
+
+- **Default Escalation Owner = Chief Information Officer** for IT-operations KPIs (Sections 1, 2, 3, 4, 6, 7).
+- **Default Escalation Owner = Chief Information Security Officer** for security-flavoured KPIs (Section 5 patch/vulnerability/EDR; Section 8 security operations).
+- **Escalation Owner = Enterprise Risk Committee** where the KPI's Owner Role is already CIO (e.g., `Major incident frequency`) or CISO (e.g., `NIS 2 notification compliance`); a role cannot meaningfully escalate to itself, so the next governance tier (ERC) takes that role.
+- **Remediation Sign-off = same role as Escalation Owner**: the role that owns the breach response is also the role that confirms the breach is closed; splitting these would create unnecessary co-ordination overhead.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- `tools/run-pr-time-checks.sh` exits 0 (D1 + D2 + gate 45).
+- Manual readback: every KPI row now has both new columns populated; no empty cells; role names verbatim from `governance/register-role-authority.md`.
+
+### Discipline observation
+
+This is a schema-level change to a register document, so the per-doc version receives a minor bump (`1.0.0 → 1.1.0`) rather than a patch. The pattern echoes PR #147's `1.8.84 → 1.9.0` for the README "New to GRC?" section: structural additions that downstream consumers of the artefact would need to be aware of warrant a minor bump under the project's semver convention.
+
+The two-column shape was selected over alternatives (sidecar block per KPI, single new section listing per-KPI escalation owners) because locality wins: the breach-response governance lives next to the KPI it governs, making it discoverable from a single row read and avoiding the maintenance burden of keeping a separate section synchronised.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.134, PR #152
 
 Closes FR-19 (high[critical]) and FR-20 (high), both in [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md). FR-19 addressed the absence of a hard ceiling on CAPA target-date extensions: §6.3 documented per-extension approval authority but no cap, allowing Critical findings to remain open indefinitely under repeated single-step CISO sign-off. FR-20 addressed the absence of a quality checklist for CAPA root-cause statements: §4.1's aspirational "specific and actionable" wording was satisfied by bare category labels like "process gap".
