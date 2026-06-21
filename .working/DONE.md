@@ -17,19 +17,28 @@ When a PR closes a TODO item, the maintainer (or the AI assistant under the corp
 
 The format for each entry:
 
-- `### PR #N — short title (YYYY-MM-DD merge date)` — primary header
-- `### TODO P-X.Y — short title (YYYY-MM-DD shipped)` — for items that closed across multiple PRs (the primary entry sits under the PR that closed it; the P-X.Y header is a cross-reference)
+- `### PR #N — FR-X (severity): short title (YYYY-MM-DD merge date)` — primary header for a fitness-remediation PR that closes one FR. Severity values mirror the TODO backlog tiers: `high[critical]`, `high`, `medium`, `low`. The Pass-1 ⚠️ confirmed-with-modification flag is informational and stays in the body, not the heading.
+- `### PR #N — FR-X (sev) + FR-Y (sev): short title (YYYY-MM-DD)` — for multi-FR PRs.
+- `### PR #N — Sweep N iter M close-out: short title (YYYY-MM-DD)` — for validation-sweep close-out PRs (no single FR anchor; bundle multiple findings).
+- `### PR #N — short title (YYYY-MM-DD)` — for non-FR PRs (workflow/infrastructure changes).
+- `### FR-X (severity) — short title (closed by PR #N, YYYY-MM-DD)` — for FR-N cross-reference entries that need separate callouts (items closed across multiple PRs or items whose own narrative deserves its own H3 separate from the closing PR's entry).
 - One-paragraph summary of what closed and any context a future reader needs to understand why this item existed.
+
+The heading convention was harmonised with TODO's backlog format in PR #163 (2026-06-21) so a maintainer reading either file can scan FR-N + severity at the heading level without parsing the body paragraph. Earlier entries (before PR #163) were retrofitted in that same PR; pre-fitness historical entries that don't carry an FR-N anchor were left in their original form.
 
 ---
 
 ## Closed items
 
-### PR #162 — FR-29: Data Protection Impact Assessment template with Article 35 trigger / EDPB WP248 / Article 35(7) content checklists (2026-06-21)
+### PR #163 — DONE format harmonisation with TODO: surface FR-N and severity at heading level (2026-06-21)
+
+Maintainer-directed format change. The TODO file lists fitness items in tier-grouped one-line bullets keyed by `FR-N` plus severity (e.g., "FR-16 (high[critical]): ..."), making large numbers of items scannable at a glance. DONE entries had drifted to prose paragraphs with FR-N + severity buried mid-body, breaking the symmetry. Maintainer asked for harmonisation. Option A chosen (lightest touch): retrofit DONE H3 headings to surface `FR-N (severity)` while keeping the prose body intact. Format convention now documented in the file's "How items get here" §, listing the five heading shapes (single-FR PR, multi-FR PR, sweep close-out, non-FR PR, FR-N cross-reference). Twenty-two entries retrofitted across the fitness backlog (PRs #142-#162) plus the FR-only cross-reference entries for FR-9, FR-10, FR-21, FR-54, FR-55, FR-103, FR-13. Pre-fitness historical entries (PRs #141 and earlier) left in their original form.
+
+### PR #162 — FR-29 (high[critical]): Data Protection Impact Assessment template with Article 35 trigger / EDPB WP248 / Article 35(7) content checklists (2026-06-21)
 
 High[critical] finding closed. The existing `privacy/procedure-privacy-impact-and-cross-border-transfer.md` referenced a DPIA process but did not provide a working template; adopters could not evidence GDPR Article 35 compliance without inventing one. New `privacy/template-dpia.md` ships a CC BY-SA 4.0 structural template covering the three Article 35 limbs: Section 1 Article 35(1) trigger checklist (the three explicit Article 35(3) triggers plus supervisory-authority-list consultation), Section 2 EDPB WP248 nine-criteria framework (the indicators that signal high-risk processing, with the "two or more = DPIA required" decision rule), Section 3 Article 35(7) content checklist (the four mandatory blocks: systematic description; necessity and proportionality; risks to rights and freedoms; mitigation measures). Section 4 captures sign-off and review. Framework alignment table cites GDPR, UK GDPR, EDPB WP248, LGPD Art 38, PIPL Art 55, EU AI Act Art 27, ISO/IEC 29134:2023, ISO/IEC 27701:2025, NIST Privacy Framework, AIDA §29. The procedure gains cross-references in §Related Documents, Step 1 (Initiation: trigger checklist anchor), and Step 6 (Record keeping: template anchor). The document index registers the new template. Transfer Impact Assessments remain a separate (still-open) FR. Per-doc bumps: template `1.0.0` (new); procedure `1.3.2 → 1.3.3`; document index `1.27.24 → 1.27.25`.
 
-### PR #161 — FR-17: reconcile exception-approval authority between policy and Role Authority Register (2026-06-21)
+### PR #161 — FR-17 (high): reconcile exception-approval authority between policy and Role Authority Register (2026-06-21)
 
 High finding (Pass-1 ⚠️ confirmed-with-modification) closed. The exception policy's §2.2 approval pathway (Department Head / CIO / Executive Committee or Board Risk Committee, with §3.5 ERC and Board Risk Committee renewal tiers from PR #157) named approvers that did not align with the Role Authority Register's "Approve exception" RACI row, which carried a stub "Risk Accountable Role" placeholder. The RACI's Accountable cell now names the tiered pathway and points at the policy's §2.2 (with §3.5 cross-reference for renewals); the policy gains a new §2.4 that explicitly declares §2.2 / §3.5 as the source of truth for the RACI's chain and identifies the adopter-tunable seams. Reciprocal cross-reference pattern matches PR #146 (FR-96). Per-doc bumps: role authority register `1.3.1 → 1.3.2`; exception policy `1.1.1 → 1.2.0`.
 
@@ -37,23 +46,23 @@ High finding (Pass-1 ⚠️ confirmed-with-modification) closed. The exception p
 
 Sweep 14 found 4 in-window findings (Subagent A surfaced 3 FR-44-self-violations introduced by PRs #157 + #159 landing the same day; Subagent B independently flagged the same master-spec finding plus a stale TODO queued-sequence framing; Subagent C zero findings). All 4 fixed: [`specification-master-project.md:126`](../specification-master-project.md) "No directory shall contain..." → "Directories must not contain..." (per-doc 1.6.0 → 1.6.1); [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) two "may not" prohibitions in §3.5 / §3.6 → "must not" (per-doc 1.1.0 → 1.1.1); [`TODO.md`](../TODO.md) Queued-sequence narrative reframed to reflect that 21 fitness-remediation PRs have shipped under maintainer direction, not that remediation is queued behind first-PR direction. Subagent C also surfaced two future-gate candidates as non-findings (ordinal-ceiling pattern observed twice; numerical-coherence retention-period extension candidate) — captured in the detail file, not actioned.
 
-### PR #159 — FR-44: requirement-language convention documented in master spec (2026-06-21)
+### PR #159 — FR-44 (high): requirement-language convention documented in master spec (2026-06-21)
 
 High-severity finding closed. The library had a de facto "must" / "must not" requirement-language convention (PR #150 / FR-45 implicitly settled on it for prohibitions; PR #154 generalised the same fix to three `ai/` occurrences) but the convention had never been documented. [`specification-master-project.md`](../specification-master-project.md) §6.1 now states the convention explicitly: "must" / "must not" is the canonical normative pair; "should" / "should not" for recommendations; "may" as the permission verb (never "may not" for prohibitions); "shall" / "shall not" reserved for direct quotation of external standards or legacy content awaiting harmonisation. RFC 2119 / RFC 8174 cited. A corpus-wide sweep of legacy "shall" → "must" occurrences is deferred to a separate "FR-44 generalisation" item in TODO. Per-doc `1.5.2 → 1.6.0` (minor: new normative library-wide convention).
 
-### PR #158 — FR-80: SIEM / cloud-activity-log retention reconciliation (2026-06-21)
+### PR #158 — FR-80 (high[critical]): SIEM / cloud-activity-log retention reconciliation (2026-06-21)
 
 High[critical] cross-document contradiction closed. `governance/register-data-retention-schedule.md:67` said 3 years for SIEM event logs (1y hot + 2y cold); `operations/standard-cloud-security-configuration-baseline.md:150` said 90 days minimum for activity-log retention. Cloud-activity logs forward into the SIEM in this architecture, so the downstream baseline's 90-day floor appeared to undercut the upstream 3-year retention. Reconciled by reframing the 90-day figure as the platform-side forwarding floor (so the SIEM has a window to ingest events) and clarifying that the SIEM is the authoritative retention authority for the long-tail. Both documents now say so explicitly. Per-doc bumps: cloud baseline `1.4.3 → 1.4.4`; retention schedule `1.0.0 → 1.0.1`.
 
-### PR #157 — FR-16: exception register hard caps + renewal-ceiling escalation pathway (2026-06-21)
+### PR #157 — FR-16 (high[critical]): exception register hard caps + renewal-ceiling escalation pathway (2026-06-21)
 
 High[critical] finding closed. [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) §1.2 / §3 / §5.1 strengthened. The schema gains two required fields (`max_duration`, default 540 days; `renewal_count_limit`, default 3); the weak "should not exceed 180 days" clause is replaced by a hard 180-day initial-term cap plus the cumulative `max_duration` ceiling and a renewal-ceiling escalation pathway patterned on PR #152's CAPA §6.3.1: 1st renewal at the original approver, 2nd at the ERC, 3rd at the Board Risk Committee, 4th absolutely prohibited (forces close / descope / convert to risk acceptance / re-baseline). A re-baselining carve-out for materially-changed scope is included with an anti-abuse condition (ERC-approved; a re-baseline without material change is treated as the next renewal in the sequence). The §5.1 register field list is extended in lock-step with the new schema fields. Per-doc `1.0.3 → 1.1.0` (minor: schema-level addition).
 
-### PR #156 — FR-2: README "How to use" step 1 leads with the audience-keyed portal (2026-06-21)
+### PR #156 — FR-2 (high): README "How to use" step 1 leads with the audience-keyed portal (2026-06-21)
 
 High-severity README finding closed. The "How to use" step 1 had directed readers to the 300-row document index ([`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)) before the audience-keyed portal ([`docs/portal.md`](../docs/portal.md)). The "New to GRC?" block added in PR #147 already routes first-time visitors to the portal; the older step 1 contradicted that signposting. Step 1 now opens with the portal as the primary pointer and retains the document index as a secondary pointer for readers who already know what they want. README per-doc `1.9.8 → 1.9.9`.
 
-### PR #155 — FR-1: README reframing (corpus is the headline, AI-maintenance is the methodology) (2026-06-21)
+### PR #155 — FR-1 (high): README reframing (corpus is the headline, AI-maintenance is the methodology) (2026-06-21)
 
 High-severity README finding closed. The "What this repository is" section had previously framed the project as "two coordinated halves" giving the GRC corpus and the AI-assisted-maintenance reference implementation equal billing. The fitness review judged this misframed the project's primary value. The section is now rewritten so the GRC documentation corpus is the unambiguous headline product; the audit toolchain at `tools/` and the `dev-security/claude-rules/` pack are positioned as the operational layer used to maintain corpus consistency. The pack-only adoption mode (documented in the "Three adoption modes" section) is preserved, and the co-evolution paragraph is retained but reordered to make the causal direction (corpus generated the disciplines, not the reverse) explicit. README per-doc `1.9.7 → 1.9.8`.
 
@@ -61,27 +70,27 @@ High-severity README finding closed. The "What this repository is" section had p
 
 Sweep 13 surfaced 5 out-of-window findings, all from Subagent A (recent-PR deep review). Bundled into one close-out PR per maintainer direction. Three FR-45-class fixes in [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) and [`ai/guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md): `ADTEST-SEC-02` "Test cases may not be removed" → "must not be removed" (standard line 543; guide line 164 parallel restatement); `OFFAI-SEC-10` GPL/AGPL embedding-prohibition `may not be embedded` → `must not be embedded`. One FR-92-class fix in [`compliance/logistics/register-basc-it-compliance-kpis.md`](../compliance/logistics/register-basc-it-compliance-kpis.md): Escalation Owner + Remediation Sign-off columns added to the BASC IT KPIs table (10 rows; CISO escalation for IT-ops-style KPIs, ERC escalation where Owner is already CISO, mirroring the FR-92 design rule). One metadata fix on the same BASC file: Document history table backfilled with rows for 1.1.0 / 1.1.1 / 1.2.0 to match the frontmatter version chain. Per-doc bumps: ai standard 1.8.1 → 1.8.2; ai guide 1.3.0 → 1.3.1; BASC KPIs register 1.1.1 → 1.2.0. Subagents B (corpus-wide stale-reference) and C (audit-programme integrity) returned zero findings.
 
-### PR #153 — FR-92: KPI Escalation Owner + Remediation Sign-off columns (2026-06-21)
+### PR #153 — FR-92 (high): KPI Escalation Owner + Remediation Sign-off columns (2026-06-21)
 
 High-severity finding closed. [`operations/register-it-operations-kpis.md`](../operations/register-it-operations-kpis.md) gains two new columns on every KPI table (Sections 1-8) — `Escalation Owner` (the named role accountable for breach response when the target is missed) and `Remediation Sign-off` (the named role responsible for confirming that the breach event is closed). Roles drawn from the [Role Authority Register](../governance/register-role-authority.md): CIO for IT-operations KPIs, CISO for security-flavoured KPIs (patch/vulnerability management, security operations, EDR coverage), and ERC where the KPI's Owner Role is already CIO or CISO so escalation cannot meaningfully go to the same role. The KPI design principles list gains a new principle 2 requiring both fields to be populated from the role-authority register (existing principles 2-6 renumber to 3-7), and `Related Documents` now references the role-authority register. Per-doc `1.0.0 → 1.1.0` (minor: schema-level column addition).
 
-### PR #152 — FR-19 + FR-20: CAPA governance ceiling + root-cause quality checklist (2026-06-21)
+### PR #152 — FR-19 (high[critical]) + FR-20 (high): CAPA governance ceiling + root-cause quality checklist (2026-06-21)
 
 Closes two findings from the Pass-1 fitness sweep, both in [`compliance/procedure-capa.md`](../compliance/procedure-capa.md): FR-19 (high[critical]) — the CAPA extension policy had no hard ceiling, allowing indefinite open-ended remediation under repeated single-step CISO approvals; and FR-20 (high) — CAPA root-cause statements had no quality checklist, so bare category labels like "process gap" satisfied the aspirational §4.1 "specific and actionable" requirement. New §4.1.1 supplies a five-criterion checklist (Specific / Causal / Actionable / Bounded / Evidence-anchored) applied by the GRC Manager during verification; new §6.3.1 supplies a 2/3/4 escalation ceiling (ERC at the 2nd extension, Board Risk Committee at the 3rd, prohibition at the 4th, with a re-baselining carve-out for materially-changed root causes). §9.1 cross-references updated for consistency. Per-doc `1.0.1 → 1.0.2`.
 
-### PR #151 — FR-35: explicit GDPR Article 33(2) processor-awareness clock (2026-06-21)
+### PR #151 — FR-35 (high): explicit GDPR Article 33(2) processor-awareness clock (2026-06-21)
 
 High-severity (✅ confirmed-as-stated) privacy breach-response finding closed. [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) now makes the GDPR Article 33(2) two-clock asymmetry explicit: the contractual 24-hour processor-to-controller notification window starts at *processor* awareness (the Article 33(2) trigger), not at controller notification or at any later milestone; the controller's separate 72-hour Article 33(1) regulatory clock then runs from controller awareness. §4.1 detection-sources bullet, §6.3 supplier-notification section, and §10 supplier-notification metric all updated; §6.3 gains a dedicated explanatory note covering both clocks and the consumption relationship (a delayed Article 33(2) notification erodes the controller's 72-hour Article 33(1) budget). Per-doc `1.4.3 → 1.4.4`; library `2026.06.132 → 2026.06.133`.
 
-### PR #150 — FR-45: RFC 2119 "may not" → "must not be" in two security standards (2026-06-21)
+### PR #150 — FR-45 (high): RFC 2119 "may not" → "must not be" in two security standards (2026-06-21)
 
 High-severity Pass-1-⚠️ finding closed. [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md) §"Password requirements" and [`security/standard-remote-working-security.md`](../security/standard-remote-working-security.md) §8.2 both used "may not" where the intent is a prohibition. Strict RFC 2119 reads "may not" as a permissible-negative-possibility, distinct from MUST NOT. Both lines now use "must not be" — chosen over "shall not be" because each file's prevailing normative verb is "must" (5 / 24 occurrences vs. 0 / 1 for "shall"). Per-doc `1.0.1 → 1.0.2` in each file.
 
-### PR #149 — FR-21: Compliance-obligations Source Reference granularity (2026-06-21)
+### PR #149 — FR-21 (high[critical]): Compliance-obligations Source Reference granularity (2026-06-21)
 
 High[critical]-severity finding closed. [`compliance/register-compliance-obligations-template.md`](../compliance/register-compliance-obligations-template.md) Source Reference field tightened so register citations resolve to a single unambiguous source location: revised field description plus a new "Source Reference granularity requirements" sub-section enumerating minimum-precision patterns for NIST publications, ISO/IEC standards, statutes and regulations, COBIT, PCI DSS, CSA CCM, contracts, and voluntary commitments — each row with acceptable and unacceptable example citations. Closes a register-defeating ambiguity: populators could previously enter `NIST 800-53` or `ISO 27001` without revision or control and still satisfy the prior field description. Per-doc `1.0.2 → 1.0.3`; library `2026.06.130 → 2026.06.131`.
 
-### FR-21 — Compliance-obligations Source Reference granularity (closed by PR #149, 2026-06-21)
+### FR-21 (high[critical]) — Compliance-obligations Source Reference granularity (closed by PR #149, 2026-06-21)
 
 High[critical] finding from r1: template accepted low-precision citations (e.g., "NIST 800-53" without revision/control). Defeated the register's audit-prep purpose because an auditor could not resolve the obligation to a specific source location.
 
@@ -95,53 +104,53 @@ Validation sweep after the six fitness-remediation PRs #142-#147. Subagents A, B
 
 Subagent C: zero findings (audit-programme integrity sound). Library `2026.06.129 → 2026.06.130`.
 
-### PR #147 — FR-3: README "New to GRC?" introductory block (2026-06-21)
+### PR #147 — FR-3 (high): README "New to GRC?" introductory block (2026-06-21)
 
 High-severity newcomer-onboarding finding closed. Added a new "New to GRC? Start here" §2 to [`README.md`](../README.md) between the metadata header and §Purpose. The block expands the acronym, defines Governance / Risk / Compliance in plain language for someone who hasn't worked in the discipline, names the adjacent overlapping domains (security, privacy, resilience, supplier governance, AI governance) and explains why this library treats them as siblings, and signposts five role/intent-keyed next steps (first-time visitor, adopter, auditor, maintainer, glossary-lookup) each linking to the most relevant document. README per-doc bumps to `1.9.0` (minor; new top-level section); library `2026.06.128 → 2026.06.129`.
 
-### PR #146 — FR-96: Risk-acceptance procedure cross-reference to exception register (2026-06-21)
+### PR #146 — FR-96 (high): Risk-acceptance procedure cross-reference to exception register (2026-06-21)
 
 High-severity (⚠️ confirmed-with-modification) finding closed. [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md) "Required record fields" now includes `Related exception register entry`: ID of the corresponding entry in the exception register if the acceptance derives from a policy/control exception, or `None` if the acceptance is pure-risk and unrelated to a policy exception. The linkage makes the two registers cross-traversable: an auditor reviewing an exception can find the corresponding risk acceptance and vice versa. Per-doc `1.0.0 → 1.0.1`; library `2026.06.127 → 2026.06.128`.
 
-### PR #145 — FR-95: Risk register compensating-controls field (2026-06-21)
+### PR #145 — FR-95 (high): Risk register compensating-controls field (2026-06-21)
 
 High-severity finding closed. [`risk/template-enterprise-risk-register.md`](../risk/template-enterprise-risk-register.md) Acceptance section now requires a `Compensating Controls` field listing each control by ID with a brief note on how it offsets the un-treated risk. Required by [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md) §5 already; the template now records it so the acceptance record is self-contained and auditable. Per-doc `1.0.1 → 1.0.2`; library `2026.06.126 → 2026.06.127`.
 
-### PR #144 — FR-22: Audit-evidence sampling-justification field (2026-06-21)
+### PR #144 — FR-22 (high): Audit-evidence sampling-justification field (2026-06-21)
 
 High-severity finding closed. [`compliance/template-audit-evidence-package.md`](../compliance/template-audit-evidence-package.md) per-control operating-evidence section now requires a mandatory `Sampling justification` field for every test that uses sampling. The field captures population size, sample size, selection method (random / stratified / judgemental), confidence-level assumption (if statistical), and a citation back to [`procedure-control-testing.md`](../compliance/procedure-control-testing.md) §2.2 sample-size table or rationale for a different size. "100% population review" is the explicit response when sampling does not apply. Per-doc `1.0.0 → 1.0.1`; library `2026.06.125 → 2026.06.126`.
 
-### PR #143 — FR-9 + FR-10: Chief Risk Officer in enterprise risk management standard (2026-06-21)
+### PR #143 — FR-9 (high[critical]) + FR-10 (high): Chief Risk Officer in enterprise risk management standard (2026-06-21)
 
 Closes two related ERM-standard findings together: **FR-9** (high[critical]) changes the standard's `Owner` field from "Chief Information Officer" to "Chief Risk Officer" — enterprise risk is a CRO accountability, and CIO ownership read as a category error; **FR-10** (high) adds a CRO row to §3 Governance, scoped to risk strategy, risk appetite stewardship, and ERM-programme outcomes reporting to the Board / Risk Committee. The pre-existing CIO row is reshaped from "accountable for the framework" to "provides executive support on technology-risk integration" to clarify the post-CRO role. Per-doc `1.3.3 → 1.3.4`; library `2026.06.124 → 2026.06.125`.
 
-### FR-10 — Chief Risk Officer in ERM §3 governance table (closed by PR #143, 2026-06-21)
+### FR-10 (high) — Chief Risk Officer in ERM §3 governance table (closed by PR #143, 2026-06-21)
 
 High-severity finding from r1: §3 governance table omitted CRO despite CRO being a defined role in the role-authority register and referenced in `procedure-risk-register.md`. Closed alongside FR-9.
 
-### FR-9 — Enterprise risk management Owner: CIO → CRO (closed by PR #143, 2026-06-21)
+### FR-9 (high[critical]) — Enterprise risk management Owner: CIO → CRO (closed by PR #143, 2026-06-21)
 
 High[critical]-severity finding from r1: ERM-standard Owner field was "Chief Information Officer" but enterprise risk is a CRO/CFO/Board accountability in most operating models. Resolved to CRO per the finding text's first-listed alternative and per FR-10's parallel call to add CRO to the governance table.
 
-### PR #142 — Fitness quick wins: FR-13, FR-54, FR-55, FR-103 (2026-06-21)
+### PR #142 — Fitness quick wins: FR-13 (medium) + FR-54 (low) + FR-55 (low) + FR-103 (low) (2026-06-21)
 
 First fitness-remediation PR. Four findings closed at maintainer direction ("pick quick wins absolutely certainly in need of working while I review the rest of the backlog"). Each finding had an unambiguous fix in a single file with no judgement call required.
 
 Library `2026.06.123 → 2026.06.124`. Subsequent fitness-remediation PRs continue at maintainer direction; the backlog totals in TODO are updated to reflect 107 remaining open findings (4 closed in this PR).
 
-### FR-103 — Add Chief Compliance Officer row to framework-continuous-assurance governance table (closed by PR #142, 2026-06-21)
+### FR-103 (low) — Add Chief Compliance Officer row to framework-continuous-assurance governance table (closed by PR #142, 2026-06-21)
 
 Low-severity finding from r1: the Continuous Assurance framework's "Governance and accountability" table omitted CCO despite CCO being relevant to compliance-domain assurance closure. Added a CCO row with scope "Oversees compliance-domain assurance outcomes; chairs closure validation for compliance-related continuous-assurance findings; aligns the assurance calendar with regulatory obligation cadence." Per-doc version `1.0.1 → 1.0.2`.
 
-### FR-55 — Document `roadmap-` doctype prefix (closed by PR #142, 2026-06-21)
+### FR-55 (low) — Document `roadmap-` doctype prefix (closed by PR #142, 2026-06-21)
 
 Low-severity finding from r1: `roadmap-` prefix is used in filenames (e.g. `security/roadmap-post-quantum-cryptography.md`) and `Roadmap` is an allowed doctype in `specification-master-project.md` §4.3, but the prefix-to-type mapping was only sparsely documented (one line in `specification-ingestion.md:196`). Closed alongside FR-54 by adding an explicit prefix-mapping table to `specification-master-project.md` §4.3 listing all 17 doctypes and their canonical filename prefixes. Per-doc version `1.5.1 → 1.5.2`.
 
-### FR-54 — Document `sop-` doctype prefix (closed by PR #142, 2026-06-21)
+### FR-54 (low) — Document `sop-` doctype prefix (closed by PR #142, 2026-06-21)
 
 Low-severity finding from r1: same shape as FR-55 but for `sop-`. Closed by the same explicit prefix-mapping table addition in `specification-master-project.md` §4.3.
 
-### FR-13 — Disambiguate `CPPA` in enterprise risk management standard (closed by PR #142, 2026-06-21)
+### FR-13 (medium) — Disambiguate `CPPA` in enterprise risk management standard (closed by PR #142, 2026-06-21)
 
 Medium-severity finding from r1: §10 framework alignment table listed `CPPA` without disambiguation (Canadian Bill C-27 vs California Privacy Protection Agency). The surrounding row mentioned "Canadian personal information" so context was implicit, but the acronym still ambiguous on first read. Fixed by expanding the label to `CPPA (Canadian Consumer Privacy Protection Act, Bill C-27)`. Per-doc version `1.3.2 → 1.3.3`.
 
