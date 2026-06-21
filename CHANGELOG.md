@@ -4,6 +4,58 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.108, PR #124
+
+First-ever invocation of the `library-fitness-review` skill (`/fitness`). Ten persona subagents dispatched in parallel. Aggregate raw findings 145; after dedupe approximately 95 unique. Severity distribution: 18 high[critical] / 22 high / 31 medium / 24 low.
+
+This PR ships the report and the remediation backlog ONLY. No corpus content is changed by this PR. Each finding has a remediation backlog ID (`FR-1` through `FR-111`); the maintainer prioritises and drives subsequent PRs to close each item.
+
+### Added (under `.working/`, exempt from corpus audit gates)
+
+- [`.working/fitness-reviews/2026-06-21-r1.md`](.working/fitness-reviews/2026-06-21-r1.md): full 8-section combined report with executive summary, per-page findings (~50 file locations identified), 10 cross-library patterns, 21 prioritised recommendations grouped P1-P6, standardisation recommendations, and the FR-1 through FR-111 remediation backlog.
+
+### Changed
+
+- [`.working/fitness-reviews/history.md`](.working/fitness-reviews/history.md): version `1.0.0 -> 1.1.0`. First fitness-review row appended; declares `Personas: A-J (all 10)` per dispatch-declaration discipline. Open remediation backlog table populated with the 17 high[critical] items as a scannable summary; full FR-1-FR-111 backlog tracked in the detail file.
+- [`README.md`](README.md): library version `2026.06.107 -> 2026.06.108`; README version `1.8.63 -> 1.8.64`.
+
+### High[critical] findings summary
+
+1. **Maturity ladder fragmentation** (FR-14): three conflicting models across [`governance/framework-governance-performance-and-improvement.md`](governance/framework-governance-performance-and-improvement.md), [`docs/template-maturity-self-assessment.md`](docs/template-maturity-self-assessment.md), [`governance/register-digital-trust-and-assurance-metrics.md`](governance/register-digital-trust-and-assurance-metrics.md).
+2. **Data classification fragmentation** (FR-43): 4-level vs 5-level split across foundational docs.
+3. **DPO operational template gaps** (FR-29 through FR-34): DPIA, DPA Article 28, Privacy by Design (Art 25), LIA, Article 36 prior consultation, TIA — all referenced as required but no templates exist.
+4. **Audit-discipline ceilings absent** (FR-16, FR-19, FR-21): exception register no max-duration; CAPA extensions no governance ceiling; obligations register accepts low-precision citations.
+5. **ERM standard owner category error** (FR-9): owned by CIO; should be CRO or Board for enterprise risk.
+6. **Coverage gaps** (FR-70 through FR-73): crypto-asset / blockchain governance; M&A due diligence; sanctions/OFAC; AI ethics review process.
+7. **SIEM/cloud-log retention contradiction** (FR-80): 3-year SIEM retention vs 90-day cloud-activity-log minimum.
+
+### Library strengths confirmed by multiple personas
+
+- AI / agentic security ([`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md)) is exemplar-grade: 16 threat classes including TC-12 Tool Metadata Poisoning, TC-13 Multimodal Injection, TC-14 Goal Theft/Drift.
+- Threat modelling standard operationalises STRIDE-per-boundary + LINDDUN.
+- Post-quantum cryptography roadmap aligns with NIST FIPS 203/204/205 (Aug 2024) and CNSA 2.0.
+- Supply chain SCA/SBOM/SLSA guidance current with 2024-2025 attack patterns.
+- Breach response and DSAR workflows are production-quality.
+- Three-lines-of-defence assurance map structurally sound.
+
+### Recommendation priorities
+
+- **Q1 (audit/regulatory exposure)**: Rec-1 maturity reconciliation, Rec-2 classification reconciliation, Rec-3 DPO operational templates, Rec-4 audit-discipline ceilings, Rec-5 retention contradiction.
+- **Q1-Q2 parallel**: Rec-6 README rework, Rec-7 entry-point reconciliation, Rec-9 inheritance vocabulary.
+- **Q2-Q3**: Rec-11 healthcare HIPAA detail, Rec-12 FS jurisdiction overlays, Rec-13 AI jurisdiction annexes, Rec-14 new domain documents (crypto-asset, M&A, sanctions, AI ethics).
+
+### Publication readiness
+
+**Not yet recommended.** The DPO operational template gaps are visible to any privacy-savvy reader; addressing them is a quarter of focused work. Post-Rec-3 + Rec-4 + Rec-6 the library reaches publication-grade.
+
+### Verification
+
+All 44 audit gates pass standalone post-commit. Full report file and history row + remediation backlog table all in `.working/fitness-reviews/` (exempt from corpus audit gates per design).
+
+This PR adds capability state to `.working/`; no corpus content is changed by this PR. Each remediation backlog item is the seed for a subsequent PR; the maintainer prioritises.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.107, PR #123
 
 Sweep 10 iteration 3 close-out: one in-window Medium finding actioned. Convergence-delta narrowing from iter 2's 7 findings to iter 3's 1.
