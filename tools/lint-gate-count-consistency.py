@@ -63,15 +63,16 @@ EXEMPT_FILES: frozenset[str] = frozenset(
         "docs/portal.md",
         "docs/maturity-scorecard.md",
         "tests/test_linters.py",
-        # The sweep history register is a historical-record artefact
-        # by purpose: each sweep entry's "State:" line records the
-        # corpus state at sweep time, including the then-current gate
-        # count. These references are correct snapshots, not stale
-        # prose. Added when P7 ("N <word> gates") began surfacing the
-        # State lines as false positives.
-        "governance/register-sweep-history.md",
     }
 )
+
+# Note: the validation-sweep history file (moved to
+# `.working/validate-sweeps-history.md` in PR #116) is a historical-
+# record artefact by purpose - each sweep entry's "State:" line
+# records the corpus state at sweep time, including the then-current
+# gate count. The file is now in `.working/` which is in
+# `DEFAULT_EXEMPT_DIRS`, so a per-file exemption here is no longer
+# needed.
 
 # Directories whose contents are out of scope for this audit. The
 # pack's tests and fixtures may also embed sample counts.

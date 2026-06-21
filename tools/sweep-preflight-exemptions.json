@@ -33,12 +33,6 @@
       "reason": "promptmap2 external project (second mention on same page): '69 rules across 6 categories' describes that external scanner's ruleset."
     },
     {
-      "path": "governance/register-sweep-history.md",
-      "pattern_id": "PF-collection-rules-word",
-      "line_hash": "90a973f0358432ef",
-      "reason": "Sweep 5 entry meta-quote: the register narrates that the prior sweep dismissed 'Four rules, no ceremony' as a synthesis-rubric sub-rule reference. Quoting that false positive does not make it a current stale claim; the underlying false positive is already exempted at SKILL.md:89."
-    },
-    {
       "path": "dev-security/claude-rules/skills/validation-sweep/SKILL.md",
       "pattern_id": "PF-collection-rules-word",
       "line_hash": "d0e2dce98dc3847d",

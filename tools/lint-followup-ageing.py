@@ -2,8 +2,8 @@
 """Follow-up ageing audit.
 
 Implements Rule 3 of the maintenance-tag dating discipline added to
-``governance/register-sweep-history.md`` in PR #90 ("Dating discipline
-for deferred findings"). The discipline:
+the validation-sweep history file in PR #90 ("Dating discipline for
+deferred findings"). The discipline:
 
 - Each deferred finding carries ``surfaced: YYYY-MM-DD``.
 - Optional ``re-triage-by: YYYY-MM-DD`` (default ``surfaced + 30 days``).
@@ -15,9 +15,13 @@ is found in the same block. Resolution: re-triage (add the trailer),
 close the follow-up (remove the block), or extend ``re-triage-by``
 with a one-line rationale.
 
-Scope: scans ``governance/register-sweep-history.md`` by default.
-Other registers adopting the convention should be added to
-``TARGET_FILES`` or supplied via ``--target``.
+Scope: scans ``.working/validate-sweeps-history.md`` by default (the
+file moved from ``governance/register-sweep-history.md`` to
+``.working/`` in PR #116; the linter explicitly targets the file at
+its new path despite ``.working/`` being in ``DEFAULT_EXEMPT_DIRS``,
+because the deferred-finding ageing discipline is what this gate
+exists to enforce). Other registers adopting the convention should be
+added to ``TARGET_FILES`` or supplied via ``--target``.
 
 Exit codes:
     0 - All deferred-finding blocks are within their re-triage-by
@@ -40,7 +44,7 @@ from lint_common import REPO_ROOT, read_text_safe
 
 
 TARGET_FILES: list[str] = [
-    "governance/register-sweep-history.md",
+    ".working/validate-sweeps-history.md",
 ]
 
 DEFAULT_GRACE_DAYS = 30
