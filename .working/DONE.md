@@ -25,6 +25,10 @@ The format for each entry:
 
 ## Closed items
 
+### PR #156 — FR-2: README "How to use" step 1 leads with the audience-keyed portal (2026-06-21)
+
+High-severity README finding closed. The "How to use" step 1 had directed readers to the 300-row document index ([`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)) before the audience-keyed portal ([`docs/portal.md`](../docs/portal.md)). The "New to GRC?" block added in PR #147 already routes first-time visitors to the portal; the older step 1 contradicted that signposting. Step 1 now opens with the portal as the primary pointer and retains the document index as a secondary pointer for readers who already know what they want. README per-doc `1.9.8 → 1.9.9`.
+
 ### PR #155 — FR-1: README reframing (corpus is the headline, AI-maintenance is the methodology) (2026-06-21)
 
 High-severity README finding closed. The "What this repository is" section had previously framed the project as "two coordinated halves" giving the GRC corpus and the AI-assisted-maintenance reference implementation equal billing. The fitness review judged this misframed the project's primary value. The section is now rewritten so the GRC documentation corpus is the unambiguous headline product; the audit toolchain at `tools/` and the `dev-security/claude-rules/` pack are positioned as the operational layer used to maintain corpus consistency. The pack-only adoption mode (documented in the "Three adoption modes" section) is preserved, and the co-evolution paragraph is retained but reordered to make the causal direction (corpus generated the disciplines, not the reverse) explicit. README per-doc `1.9.7 → 1.9.8`.
