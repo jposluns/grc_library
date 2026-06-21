@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Programme Specification\
 **Document Type:** Specification\
-**Version:** 1.12.0\
-**Date:** 2026-06-20\
+**Version:** 1.12.1\
+**Date:** 2026-06-21\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`CHANGELOG.md`](../CHANGELOG.md), [`TODO.md`](../TODO.md)\
@@ -141,7 +141,7 @@ A delta gate inspects the change set of a pull request, not the repository state
 | D1 | CHANGELOG-on-PR check | [`tools/check-changelog-on-pr.py`](../tools/check-changelog-on-pr.py) | GitHub Actions (PR only) |
 | D2 | Per-PR version-bump check | [`tools/check-version-bump-on-pr.py`](../tools/check-version-bump-on-pr.py) | GitHub Actions (PR only) |
 
-Delta gate D1 mechanically enforces §7 step 4 below ("the CHANGELOG entry for the phase is written"): it compares the PR head to its merge-base with the target branch and fails when [`CHANGELOG.md`](../CHANGELOG.md) is not in the diff. An opt-out trailer `Changelog: <one-line-reason>` in any commit message body in the PR range satisfies the gate, for cases where the convention legitimately does not apply (trivial typo corrections, branch-mechanics fixes, content already covered by a CHANGELOG entry from an earlier commit in the same PR).
+Delta gate D1 mechanically enforces §7 step 4 below ("the CHANGELOG entry for the phase is written"): it compares the PR head to its merge-base with the target branch and fails when [`CHANGELOG.md`](../CHANGELOG.md) is not in the diff. As of PR #125 (2026-06-21), the gate enforces the project's two-file split convention: BOTH the root [`CHANGELOG.md`](../CHANGELOG.md) AND the detailed mirror at [`.working/changelog-details/CHANGELOG-detailed.md`](../.working/changelog-details/CHANGELOG-detailed.md) must be in the diff (lock-step); modifying one without the other fails the gate. An opt-out trailer `Changelog: <one-line-reason>` in any commit message body in the PR range satisfies the gate regardless of split, for cases where the convention legitimately does not apply (trivial typo corrections, branch-mechanics fixes, content already covered by a CHANGELOG entry from an earlier commit in the same PR).
 
 Delta gate D2 enforces that every versioned document modified in a PR carries a bumped `**Version:**` field. For each markdown file in the diff, the gate reads the file's Version field at the merge-base and at the PR head and fails if the file's body changed but Version did not. Exempt files: [`CHANGELOG.md`](../CHANGELOG.md), generated artefacts, and files without a Version field. The gate catches the per-document-version-bump-omission class of defect that the §6 monotonicity audit (gate 13) cannot detect; gate 13 confirms versions strictly increase, but cannot detect a file whose body changed without an accompanying bump.
 
