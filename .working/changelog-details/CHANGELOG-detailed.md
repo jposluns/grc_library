@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.131, PR #149
+
+Closes FR-21 (high[critical]). The compliance-obligations register template's Source Reference field is tightened to require full citation granularity so the register fulfils its audit-prep purpose.
+
+### Closed findings
+
+- **FR-21** (high[critical], `compliance/register-compliance-obligations-template.md`): Source Reference field accepted low-precision citations such as "NIST 800-53" or "ISO 27001" without revision/year/control granularity. An auditor reading the register could not resolve the obligation to a specific source location; populators following the prior description ("Specific law, regulation, clause, or standard section") could legitimately enter the standard name alone. The single in-table example was precise (`GDPR Article 32; Recital 83`) but the description did not require that precision, so the example acted as a hint rather than a constraint.
+
+### Changed
+
+- [`compliance/register-compliance-obligations-template.md`](../../compliance/register-compliance-obligations-template.md):
+  - Source Reference description rewritten to require version (revision, year, or edition) AND specific provision (article, clause, control, sub-control). The in-table example tightened from `GDPR Article 32; Recital 83` to `GDPR Article 32(1)(b); Recital 83`.
+  - New sub-section `#### Source Reference granularity requirements` added immediately under the Identification fields table. Single table listing minimum-granularity requirements per source type with acceptable and unacceptable example citations: NIST publications, ISO/IEC standards, statutes/regulations, COBIT, PCI DSS, CSA CCM, contracts, voluntary commitments.
+  - Two trailing notes added: (1) multi-provision obligations list each provision separately; (2) drift in source versions is itself an obligation-management event triggering review under existing Ownership and monitoring fields.
+  - Per-doc `1.0.2 → 1.0.3`; Date `2026-05-28 → 2026-06-21`.
+- [`README.md`](../../README.md): library `2026.06.130 → 2026.06.131`; README `1.9.1 → 1.9.2`.
+- [`TODO.md`](../../TODO.md): FR-21 rotated out of High[critical] tier. Backlog: 15 + 15 + 56 = 86 immediate-priority; 14 deferred; 100 open.
+- [`.working/DONE.md`](../DONE.md): PR #149 entry + FR-21 cross-reference entry added.
+
+### Verification
+
+- All 46 audit gates pass; PR-time checks pass.
+- Manual re-read: Identification fields table still has five rows; new sub-section sits between Identification fields and Applicability fields; all backtick-wrapped citation examples follow the code-span convention.
+- First worker-subagent-prepared draft applied. QA review caught no issues; the draft's structure matched the orchestrator's expectations and was applied with placeholder substitutions only (PR number, library version, date).
+
+---
+
 ## 2026-06-21, Library Version 2026.06.130, PR #148
 
 Sweep 12 iteration 1 close-out. The first validation sweep since Sweep 11 iter 1 (PR #127); six fitness-remediation PRs landed in between (PRs #142-#147). Subagents A, B, C all dispatched per Rule 5.6 declaration.
