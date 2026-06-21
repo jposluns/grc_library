@@ -6,6 +6,47 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.116, PR #133
+
+Documents the project's language convention as **Canadian English first, Commonwealth (UK / Australian) English second, other dialects last**. Maintainer surfaced the framing mid-PR-#131: the `-ize` forms the linter enforces are the Canadian-orthography manifestation of the convention (Canadian English adopted the Oxford `-ize` convention; the orthography is shared with American English but the dialect attribution is Canadian). The linter's behaviour is unchanged; only the rationale narrative is reframed across three surfaces.
+
+### Changed
+
+- [`tools/lint-language.py`](../../tools/lint-language.py) module docstring:
+  - Opening narrative paragraph added (before the existing "Checks for:" list) naming the convention as Canadian-first, Commonwealth-second, other-dialects-last, with a note that Canadian shares `-ize` with American via the Oxford convention.
+  - "British `-ise` endings (use `-ize` / `-ization`; `ISE_PATTERN` enumerates the word list)." → "Commonwealth `-ise` endings used where Canadian `-ize` is preferred (`ISE_PATTERN` enumerates the word list; the rule is the Canadian-orthography form, not a generic American mandate)."
+  - "Sanitisation-table source terms" → "Sanitization-table source terms" (Canadian spelling applied to the project's own docstring; the term `SANITISATION_TERMS` itself is a code identifier and is unchanged).
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) Conventions section: new "Language convention" subsection after the existing Conventions bullets. Names the convention as Canadian-first; explains the orthographic relationship with American English; restates the em-dash / en-dash prohibition for completeness.
+- [`CONTRIBUTING.md`](../../CONTRIBUTING.md) Style requirements section:
+  - New leading bullet stating the convention: `**Language convention: Canadian English first, Commonwealth (UK / Australian) second, other dialects last.**` followed by the same orthographic explanation.
+  - Original `Use Oxford English with -ize forms` bullet rewritten to `Use -ize forms (e.g. organize, prioritize, recognize) per the Canadian-orthography rule above.` This avoids the dual misattribution (the prior text said "Oxford English" which is a UK-publishing-house convention; the actual Canadian rule is "Canadian English shares the Oxford `-ize` convention with American English" — different rationale).
+  - Em-dash prohibition extended from `No em dashes or en dashes` to `No em dashes or en dashes; use commas, colons, or parentheses` (explicit replacement guidance; matches the linter's `replace with hyphen, colon, or parentheses` framing).
+  - `capitalised` (Commonwealth `-ised` form) replaced with `capitalized` in two places, applying the Canadian-orthography rule to the document itself.
+  - Per-document version `1.1.0 → 1.2.0`; Date `2026-06-19 → 2026-06-21`.
+- [`README.md`](../../README.md): library version `2026.06.115 → 2026.06.116`; README version `1.8.71 → 1.8.72`.
+- [`TODO.md`](../../TODO.md): the Canadian-language-convention item rotated to DONE in the same commit. New "TODO content cleanup" item queued as the new "Next" (rotation of decisions log + shipped P4.1-4.5 items to DONE per the maintainer's just-surfaced directive). Session resume metadata refreshed.
+- [`.working/DONE.md`](../DONE.md): PR #133 entry added at the top of "Closed items".
+
+### Not changed (deliberately)
+
+- `tools/lint-language.py`'s `ISE_PATTERN` word list is unchanged. The Canadian-orthography rule produces the same set of disallowed forms as the prior framing.
+- `SANITISATION_TERMS` (the code identifier and variable name) and `SANITISATION` references in other linters / specs are unchanged. Code identifiers are not corpus prose; renaming them is a separate, larger refactor with its own gate-39 / gate-37 / dependency cascade. The docstring usage of the word "sanitization" (Canadian form) is what changes here.
+- Pack-side analogue (a `governance/language-convention.md` rule, or an existing rule's Tool-specific subsection) was considered and deferred. The convention is project-specific; adopters who fork the library and want a different convention can change `ISE_PATTERN` locally. If the future "corpus-management discipline as a shareable skill" (TODO P4.6) ships, it can name "configurable language convention" as a parameter; not in scope here.
+
+### Verification
+
+- Local audit: `tools/run_all_audits.sh` exits 0 on all gates after the edits.
+- Local PR-time checks: `tools/run-pr-time-checks.sh` exits 0.
+- Linter behaviour verification: `python3 tools/lint-language.py` exits 0 on the current corpus, confirming the docstring change did not introduce a behavioural drift.
+
+### Discipline observation
+
+The mis-attribution surfaced because the prior framing (`"British -ise endings"`) was a plausible-but-incorrect rationale. The linter's behaviour was correct; only the explanation was wrong. The pattern is worth noting: linter docstrings carry rationale, and rationale can be wrong even when behaviour is right. Audit gates verify behaviour, not rationale. The discipline this PR exercises is the rationale-side equivalent of the gate-discipline rule: when the rationale is wrong, fix the rationale, not the behaviour.
+
+The maintainer's surfacing of this convention also reveals a broader pattern: the project has accumulated several behavioural conventions (em-dash prohibition, ensure-with-that, sentence-case headings, etc.) whose rationale was previously implicit or under-documented. The language-convention reframing here is the first explicit "what dialect does the project speak?" statement. If/when the corpus-management-discipline-shareable-skill PR (TODO P4.6) ships, this is exactly the kind of convention that needs a configurable parameter rather than a hard-coded rule.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.115, PR #132
 
 Adds [Ryk Edelstein](https://github.com/fedelst) to the Acknowledged contributors list in [`AUTHORS.md`](../../AUTHORS.md). Maintainer-requested in the chat thread during PR #131's work. Small focused PR per the "more PRs, keep each one clean" preference. First PR exercising the post-PR-#131 steady-state TODO/DONE rotation discipline: the AUTHORS-update item that was queued as the "next PR" in TODO when PR #131 merged is removed from TODO and added to [`.working/DONE.md`](../DONE.md) in the same commit. Also a one-time bootstrap correction: PR #131 itself is added to DONE retroactively, since PR #131 created the DONE file but did not include its own entry (the bootstrap chicken-and-egg).
