@@ -156,6 +156,9 @@ jobs:
       - name: TODO staleness audit
         run: python3 tools/lint-todo-staleness.py
 
+      - name: Overnight-work file audit
+        run: python3 tools/lint-overnight-file.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

@@ -207,6 +207,36 @@ Before listing the upcoming PRs, the assistant first checks whether any new item
 - **Listing the next-N PRs from memory rather than from TODO.** The point of the list is to surface what's actually queued and let the maintainer redirect; surfacing what the assistant happens to remember defeats the discipline. The list comes from TODO; if TODO is stale, refresh TODO first.
 - **Closing an item that was never in TODO and pretending it was.** DONE entries cross-reference real TODO items by their original ID. If the work was unplanned, the DONE entry says so explicitly ("not previously in TODO; surfaced during PR #N as a follow-up"). The fiction of a phantom backlog item is worse than the absence.
 
+### Overnight-work protocol
+
+When the maintainer authorizes an autonomous overnight session (the assistant ships work while the maintainer is asleep or otherwise unavailable), the assistant records the session's state in a designated overnight file (project-specific location; in this project: `.working/overnight-pr.md`). The file's `Status` field encodes the session's lifecycle:
+
+- `stub`: no overnight session is in flight. This is the default state. The file contains only the protocol description plus the `Status: stub` line.
+- `in-flight`: an overnight session is active. The assistant has filled the file with session content (authorization scope, design decisions made, files being authored / modified, build progress, open ambiguities). Each overnight PR ships with `Status: in-flight`.
+- `done`: the overnight session has ended. The next-morning processing PR then routes the content and resets the file.
+
+The morning-processing PR routes the file's content into the appropriate working-state ledgers (design decisions to the design-decisions ledger, closed work to DONE, queued follow-ups to TODO) and resets the file to `Status: stub`.
+
+An audit gate enforces this lifecycle: it fails when `Status: done` (overnight session ended but morning processing missing) or when the file is malformed (missing `Status:` line, invalid value). It passes on `stub` and `in-flight`. The three-state field (rather than a binary "stub vs non-stub") preserves the overnight workflow: overnight PRs need to pass CI to land, and they pass the gate while in flight.
+
+The protocol matters because overnight work generates state that's easy to lose track of: design decisions, surfaced ambiguities, and queued follow-ups all accumulate in the overnight file. Without a structured handoff, the maintainer wakes up to a populated file with no mechanical pressure to process it. The gate's `done`-state failure is that mechanical pressure: CI goes red until the morning processing PR ships.
+
+**Stub-form contents.** The stub file is not empty; it carries a short description of the protocol (so a future reader landing on the file understands its purpose) plus the `Status: stub` line. A `<!-- OVERNIGHT-PR-STUB -->` marker comment is recommended for grep-based detection but not strictly required by the gate; the gate's only check is the Status value.
+
+**Initial overnight commit.** The first overnight PR's diff includes the file transitioning from `stub` to `in-flight` plus the initial content. The PR description explains the maintainer's authorization scope.
+
+**Final overnight commit.** The session's last commit (often a dedicated close-out commit, but acceptable as the final overnight PR's last commit) transitions the file from `in-flight` to `done`. The morning-processing PR is now required.
+
+**Morning-processing PR.** A small focused PR (no other scope) that:
+1. Reads each section of the overnight file.
+2. Routes content: design decisions → design-decisions ledger; closed work → DONE; queued follow-ups → TODO; any pure-noise content (build-progress checklists, files-touched lists) is discarded.
+3. Resets the file to the stub form with `Status: stub`.
+4. Bumps the library version per the change-tracking discipline; writes CHANGELOG entries.
+
+The gate passes immediately after this PR lands.
+
+**Exception path.** If a session's authorization changes mid-flight (e.g., the maintainer awakens earlier than expected and continues the work directly), the file's `Status` can transition from `in-flight` back to `stub` directly, as long as the file's content has been processed appropriately or was minimal enough to discard. The discipline is: do not leave `Status: done` lingering.
+
 ---
 
 ## Exception-handling protocol

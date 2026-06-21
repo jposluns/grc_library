@@ -2419,7 +2419,7 @@ documents:
   domain: "governance"
   type: "Specification"
   title: "Audit Programme Specification"
-  version: "1.13.1"
+  version: "1.14.0"
   date: "2026-06-21"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"

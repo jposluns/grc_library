@@ -10,26 +10,18 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #135 merge).
-- **Library version as of last refresh**: `2026.06.118`. **Pack version**: `1.32.0`. **README version**: `1.8.74`.
+- **Branch at last refresh**: `main` (synced after PR #137 merge).
+- **Library version as of last refresh**: `2026.06.119`. **Pack version**: `1.33.0`. **README version**: `1.8.75`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
-- **Last validation sweep**: Sweep 11 iteration 1 (close-out PR #127); no sweep run yet after PRs #128-#135.
+- **Last validation sweep**: Sweep 11 iteration 1 (close-out PR #127); no sweep run yet after PRs #128-#137.
 
 ---
 
 ## Queued sequence (upcoming PRs)
 
-**Next, PR #N: Overnight-work protocol — stub format for `.working/overnight-pr.md` plus audit gate.** Maintainer-confirmed (2026-06-21) standard for overnight-work handling. Scope:
-- `.working/overnight-pr.md` always exists as a stub file with a fixed marker comment (no content other than the marker means "no overnight in flight").
-- When the maintainer authorizes an overnight session, the assistant fills the file with the standard overnight-PR sections (authorization scope, design decisions, build progress, open ambiguities).
-- The next morning's first PR processes the file: routes design decisions to [`.working/design-decisions.md`](.working/design-decisions.md), closed work to [`.working/DONE.md`](.working/DONE.md), queued follow-ups to TODO; resets the file to the stub state.
-- New audit gate `tools/lint-overnight-file.py` scans `.working/overnight-pr.md`; fails on non-stub content. Same shape as gate 45. Wired into all four surfaces (workflow, runner, pre-commit, the spec inventory in [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md)).
-- Pack rule [`change-tracking.md`](dev-security/claude-rules/governance/change-tracking.md) gains a new "Overnight-work protocol" subsection documenting the standard.
-- Mirror to [`.claude/rules/governance/change-tracking.md`](.claude/rules/governance/change-tracking.md). Pack version bump.
+**Next, PR #N: Shipped Priority 4 items rotation.** Rotate the five "Shipped 2026-06-20 as ..." items (P4.1 through P4.5) from TODO into DONE as PR-N-shipped entries (cross-referenced to the PRs that shipped them). Keep 4.6 (corpus-management discipline) since it remains forward-looking. Remove the Sweep 4 follow-up historical note from "Open follow-ups from validation sweeps". Update "Notes on maintenance" to refer to DONE.md per the PR-#131 rotation discipline. Small focused PR per the "more PRs, keep each one clean" preference; would have been bundled into PR #135 but PR #135's scope already covers decisions-log restructure and overnight-pr.md cleanup.
 
-**Then, PR #N+1: Shipped Priority 4 items rotation.** Rotate the five "Shipped 2026-06-20 as ..." items (P4.1 through P4.5) from TODO into DONE as PR-N-shipped entries (cross-referenced to the PRs that shipped them). Keep 4.6 (corpus-management discipline) since it remains forward-looking. Remove the Sweep 4 follow-up historical note from "Open follow-ups from validation sweeps". Update "Notes on maintenance" to refer to DONE.md per the PR-#131 rotation discipline. Small focused PR per the "more PRs, keep each one clean" preference; would have been bundled into PR #135 but PR #135's scope already covers decisions-log restructure and overnight-pr.md cleanup.
-
-**Then, PR #N+2: Fitness skill amendment.** Introduce the unverified→confirmed labelling discipline:
+**Then, PR #N+1: Fitness skill amendment.** Introduce the unverified→confirmed labelling discipline:
 - Subagent findings in a `/fitness` report are labelled "unverified" at output time.
 - Orchestrator runs a Pass-1 verification: re-reads cited source, tags each finding `✅ confirmed-as-stated` / `⚠️ confirmed-with-modification` / `❌ rejected` / `🤔 ambiguous-needs-maintainer`.
 - Pass-2 (maintainer-interactive) processes findings: `✅` cluster gets a single batch confirmation; `⚠️` and `🤔` items get per-finding prompts with recommendation + alternatives; `❌` items are recorded with rejection rationale.
