@@ -2,9 +2,9 @@
 
 **Document Title:** Enterprise Governance and Risk Management Policy\
 **Document Type:** Policy\
-**Version:** 1.4.1\
-**Date:** 2026-05-28\
-**Owner:** Chief Information Officer\
+**Version:** 1.4.2\
+**Date:** 2026-06-21\
+**Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
 **Classification:** Public\
@@ -38,7 +38,8 @@ This policy establishes the enterprise governance and risk management framework,
 | Board Risk Committee | Approves risk appetite statements; receives enterprise risk reporting. |
 | Enterprise Risk Committee (ERC) | Meets quarterly to oversee risk posture, treatment progress, and escalated items. |
 | AI Governance Council (AIGC) | Approves AI risk appetite statements and exceptions for high-risk AI uses per ISO 23894 and NIST AI RMF Govern function; meets monthly. |
-| Chief Information Officer | Accountable for the enterprise risk management framework. |
+| Chief Risk Officer | Accountable for the enterprise risk management framework and its alignment with strategic objectives; owns risk strategy, risk-appetite stewardship, and ERM-programme outcomes; reports to the Board Risk Committee. |
+| Chief Information Officer | Provides executive support to the ERM programme on technology-risk integration; ensures that IT-strategy risk is reflected in the enterprise risk register. |
 | Chief Information Security Officer | Responsible for information security, privacy, and AI risk integration. |
 | Second Line: GRC Function | Sets policy; consolidates risk reporting across the organisation. |
 | Third Line: Internal Audit | Provides independent assurance on governance and control effectiveness. |
