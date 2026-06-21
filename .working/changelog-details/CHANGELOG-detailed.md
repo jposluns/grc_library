@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.152, PR #169
+
+Phase 1 velocity bundle. Three medium-tier access-control polish findings closed in [`security/procedure-access-control.md`](../../security/procedure-access-control.md). Single-file bundle; all three localise to the same procedure.
+
+### Closed findings
+
+- **FR-26** (medium): §1.2 3-business-day approval SLA had no gate-failure pathway. Closed by inserting a tiered escalation ladder (§1.2.1-1.2.4) following the 1-2-3-ceiling pattern from PR #152 (FR-19 CAPA §6.3.1) and PR #157 (FR-16 exception renewal §3.5). This is the third application of the pattern.
+- **FR-27** (medium): §3.2 access reviews used "appropriate" without naming what the access was being matched against. Closed by replacing with four bounded acceptance criteria (RBAC-catalogue role-profile match, least-privilege envelope per §2.3, current business justification on file per §1.1, PIM-role membership for privileged access) plus a consequence clause referencing §3.3.
+- **FR-28** (medium): §1.4 emergency-access verbal approval had a 24-hour formalisation clock with no consequence. Closed by adding trigger conditions (active declared incident response per `procedure-security-incident-response.md`, or material business/safety harm from portal-submission delay) and the §1.4.2 revocation consequence. The "may" permission verb is preserved per FR-44 §6.1 rule 3; the revocation uses "must revoke" per FR-45 / PR #150.
+
+### Changed
+
+- [`security/procedure-access-control.md`](../../security/procedure-access-control.md): §1.2 expanded with escalation ladder; §1.4 expanded with trigger conditions + revocation consequence; §3.2 replaced "appropriate" with four-criterion list; Related Documents gains `procedure-security-incident-response.md`. Opportunistic `formalized → formalised`. Per-doc `1.0.0 → 1.1.1` (two commits: 1.0.0 → 1.1.0 with the body changes, then 1.1.0 → 1.1.1 as the post-rephrase recency bump caught by gate 40 in CI).
+- [`README.md`](../../README.md): library `2026.06.150 → 2026.06.152`; README per-doc `1.9.21 → 1.9.23`.
+- [`TODO.md`](../../TODO.md): FR-26/27/28 rotated out of Medium tier (cluster row removed); backlog counters updated (10 + 5 + 53 = 68 immediate; 14 deferred; 82 open).
+- [`.working/DONE.md`](../DONE.md): PR #169 entry added.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates.
+- `tools/run-pr-time-checks.sh` exits 0 (D1 + D2 + gate 45).
+- Contradiction grep: "appropriate" zero remaining normative occurrences in file; "may not" zero in file.
+
+### Discipline observation
+
+This is the third application of the 1-2-3-ordinal-ceiling pattern (CAPA §6.3.1, exception renewal §3.5, access-control §1.2.1-1.2.4) — the threshold the don't-generalise-until-third-use principle was waiting for. Codifying the pattern as a corpus-management convention is now warranted; surfaced for future consideration.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.150, PR #168
 
 Sweep 15 follow-up. Closes the out-of-window BASC 3-vs-5 classification finding from Sweep 15 per maintainer direction.

@@ -2,11 +2,11 @@
 
 **Document Title:** Access Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.1.1\
+**Date:** 2026-06-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
-**Related Documents:** [`security/procedure-identity-management.md`](procedure-identity-management.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md)\
+**Related Documents:** [`security/procedure-identity-management.md`](procedure-identity-management.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md)\
 **Classification:** Public\
 **Category:** Information Security\
 **Review Frequency:** Annual and upon material system or regulatory change\
@@ -49,11 +49,25 @@ Applies to all access to organisational systems including cloud platforms, on-pr
 - Business justification.
 - Approving manager confirmation.
 
-1.2 System owners approve access requests for their systems within 3 business days.
+1.2 System owners approve or decline access requests for their systems within 3 business days of submission.
+
+1.2.1 If a system owner does not approve or decline a request within the 3-business-day SLA, the request is auto-escalated to the system owner's manager, who must approve or decline within a further 2 business days.
+
+1.2.2 If the manager does not act within the 2-business-day escalation window, the request is auto-escalated to the CISO, who must approve or decline within a further 2 business days.
+
+1.2.3 If the CISO does not act within the 2-business-day window, the request is auto-declined and the requester is notified. The requester may resubmit with additional justification, restarting the SLA.
+
+1.2.4 Auto-escalation and auto-decline events are logged in the ITSM portal and reviewed by the CISO quarterly as part of the access-control programme metrics.
 
 1.3 Privileged access (administrative rights, root/sudo, domain admin) requires additional approval from the CISO or delegated security lead.
 
-1.4 Emergency access requests may be approved verbally and must be formalized within 24 hours.
+1.4 Emergency access requests may be approved verbally only when (a) a declared incident response is active under [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) or (b) the delay imposed by ITSM-portal submission would itself cause material business or safety harm. The approver in either case is the CISO or a delegated security lead.
+
+1.4.1 Verbal approval must be formalised by the approver as an ITSM ticket within 24 hours of grant, with the trigger condition, the named approver, the granted access, and the access expiry recorded.
+
+1.4.2 If verbal-approval access has not been formalised within 24 hours, the Identity Team must revoke the access at the 24-hour mark and notify the CISO. Re-grant requires the standard request-and-approval flow under §1.1.
+
+1.4.3 Emergency access events (both formalised and revoked-for-non-formalisation) are reviewed by the CISO quarterly as part of the access-control programme metrics.
 
 ---
 
@@ -82,7 +96,14 @@ Applies to all access to organisational systems including cloud platforms, on-pr
 | Standard user access: general systems | Annual |
 | Third-party / contractor access | On contract renewal and at least annually |
 
-3.2 Access reviews confirm that current access remains appropriate for the user's current role.
+3.2 Access reviews confirm that each user's current access:
+
+- Matches the access profile documented for the user's current role in the RBAC catalogue;
+- Does not exceed the minimum required for the user's current responsibilities, applying the least-privilege principle stated in the Access provisioning section;
+- Has a current business justification on file matching the requirements in the Access request and approval section;
+- For privileged access, remains within the active membership of the corresponding PIM role.
+
+Access that does not meet all four criteria is treated as unjustified and revoked under the next access review.
 
 3.3 Access that cannot be justified is revoked immediately.
 
