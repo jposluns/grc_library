@@ -1,4 +1,4 @@
-Invoke the `validation-sweep` skill defined in this project's pack at [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](../../dev-security/claude-rules/skills/validation-sweep/SKILL.md). Execute the corpus-wide regression sweep per the seven-step process the skill encodes:
+Invoke the `validation-sweep` skill defined in this project's pack at [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](../../dev-security/claude-rules/skills/validation-sweep/SKILL.md). Slash-command entry point is `/validate`; the underlying skill name remains `validation-sweep` (the descriptive name documents the workflow's purpose, the slash command is the ergonomic verb). Execute the corpus-wide regression sweep per the eight-step process the skill encodes:
 
 1. **Establish mechanical baseline**: run `tools/run_all_audits.sh` standalone and capture the result. If any gate fails, fix the underlying defect first, then return to this step.
 2. **Enumerate recent changes**: identify the focus window of the past two calendar days via `git log --since="2 days ago" --name-only --pretty=format:""`, plus the current working tree via `git status --short`.
@@ -12,8 +12,19 @@ Invoke the `validation-sweep` skill defined in this project's pack at [`dev-secu
 
 Termination (replaces the older fixed 3-iteration cap; first matching condition fires): (a) empty-delta primary stop: zero new High/Medium findings AND the synthesised finding-set is identical (by dedupe-key) to the previous iteration; (b) patience-plateau secondary stop: 2 consecutive iterations with no strict shrinkage, surface residual to operator with named decision; (c) hard-ceiling 6 iterations runaway guard, defect signal not completion (report cycle vs scope creep).
 
-Step 8 (only when the sweep produced findings): append an entry to [`governance/register-sweep-history.md`](../../governance/register-sweep-history.md) recording the trigger, state at HEAD, finding counts by class and severity, actions taken, and the resulting PR. Zero-finding sweeps leave no trace, no register entry, no CHANGELOG entry, no standalone PR; the convergence-delta trend lives in the iteration counter, not in a per-sweep record.
+Step 8 (only when the sweep produced findings): append an entry to [`governance/register-sweep-history.md`](../../governance/register-sweep-history.md) recording the trigger, state at HEAD, finding counts by class and severity, actions taken, and the resulting PR. Zero-finding sweeps leave no trace in the register, no register entry, no CHANGELOG entry, no standalone PR; the convergence-delta trend lives in the iteration counter, not in a per-sweep record.
+
+Step 9 (every iteration, including zero-finding ones): write a per-iteration record to [`.working/validate-sweeps/`](../../.working/validate-sweeps/). Filename `YYYY-MM-DD-sweepN-iterM.md` where `N` is the sweep ordinal (continues the register's numbering) and `M` is the iteration within that sweep. The file captures detail the register's summary intentionally omits, so a maintainer reading the file weeks later can reconstruct the iteration without the chat transcript. Sections:
+
+- **Trigger & state snapshot**: which PR / instruction triggered this iteration; library version, pack version, governance-rule count, gate count, skill count at HEAD; whether this is iteration 1 or a re-baseline.
+- **Subagent A full report**: the recent-PR deep-review subagent's verbatim return (SARIF-lite findings + summary). If A returned zero findings, record "zero findings" plus the one-line rationale the subagent gave.
+- **Subagent B full report**: the corpus-wide stale-reference sweep subagent's verbatim return.
+- **Subagent C full report**: the audit-programme integrity reviewer's verbatim return.
+- **Orchestrator synthesis**: which findings were in-window, classification by C1-C8 failure-mode class, severity adjudication, dedupe choices, debate outcomes if any, and the action decided for each finding.
+- **Resulting PR**: link, or "none — zero findings".
+
+`.working/validate-sweeps/` is exempt from corpus audit gates (frozen-state archive). Existing `path:line` references in subagent reports are kept verbatim even if the lines later shift; the record is a moment-in-time artefact.
 
 Reject any subagent finding that lacks an explicit `path:line` quote. A finding without quoted evidence is a hypothesis, not a finding; re-dispatch the subagent with a re-emphasized evidence requirement before synthesising.
 
-Report back: the audit baseline result, the subagent findings (grouped by severity, with `path:line` evidence per finding), the fixes applied, the final clean-bill status, and the new entry in the sweep history register.
+Report back: the audit baseline result, the subagent findings (grouped by severity, with `path:line` evidence per finding), the fixes applied, the final clean-bill status, the new entry in the sweep history register (if findings), and the path to the per-iteration record in `.working/validate-sweeps/`.

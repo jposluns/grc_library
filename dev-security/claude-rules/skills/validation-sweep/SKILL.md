@@ -176,6 +176,23 @@ After the cycle terminates, append an entry to [`governance/register-sweep-histo
 
 The register is the cumulative record of what the sweep has caught over time. Its trend signal (which classes recur, which classes have closed via mechanical gates) is the maintainer's input to the priority question "which mechanical gate should we ship next".
 
+### 9. Write the per-iteration record (every iteration, including zero-finding ones)
+
+Write a per-iteration record to the project's working directory (in this project: `.working/validate-sweeps/`; adopters may relocate to a project-appropriate path). Filename `YYYY-MM-DD-sweepN-iterM.md` where `N` is the sweep ordinal (continues the register's numbering) and `M` is the iteration within that sweep. The file captures detail the register's summary intentionally omits, so a maintainer reading the file weeks later can reconstruct the iteration without the chat transcript.
+
+Six top-level H2 sections in this order:
+
+1. `## Trigger & state snapshot`, what triggered this iteration; library/pack version/gate-count/skill-count/rule-count at HEAD; iteration ordinal within the sweep.
+2. `## Subagent A, Recent-PR deep review`, verbatim return from subagent A (full SARIF-lite findings + summary; "zero findings" plus the one-line rationale the subagent gave if no findings).
+3. `## Subagent B, Corpus-wide stale-reference sweep`, verbatim return from subagent B.
+4. `## Subagent C, Audit-programme integrity reviewer`, verbatim return from subagent C.
+5. `## Orchestrator synthesis`, in-window classification, severity adjudication, dedupe choices, debate outcomes if any, actions decided for each finding.
+6. `## Resulting PR`, link to the close-out PR, or `none, zero findings`.
+
+The per-iteration record's directory should be in `tools/lint_common.py` `DEFAULT_EXEMPT_DIRS` (or the equivalent linter-exemption mechanism in adopter projects). Files there are frozen-state archives; the `path:line` references in subagent reports are kept verbatim even if the lines later shift.
+
+**Zero-finding iterations write the record but do NOT create a register entry.** The convention "zero-finding sweeps leave no trace in the register" applies only to the register; the per-iteration record is the persistent trace for those iterations. Iterations with findings write to both the per-iteration record (detail) and the register (summary).
+
 ## Red Flags
 
 - Running the audit suite once and declaring the sweep complete without the post-fix re-run.

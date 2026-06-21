@@ -17,7 +17,8 @@ gate 42 external-overlay licence):
   high-recall shapes likely to have false positives requiring
   semantic triage by a subagent.
 - The gates run on every audit cycle; this scanner runs on
-  `/validation-sweep` invocations and on demand.
+  `/validate` invocations (slash command; underlying skill name
+  remains `validation-sweep`) and on demand.
 
 Seed patterns (extensible; add new shapes here as the validation-sweep
 history register accumulates findings):
