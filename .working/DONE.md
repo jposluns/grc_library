@@ -25,6 +25,10 @@ The format for each entry:
 
 ## Closed items
 
+### PR #139 — Fitness skill amendment: unverified→confirmed labelling discipline (2026-06-21)
+
+Amends the `library-fitness-review` skill to introduce per-finding verification before any finding lands in the remediation backlog. Subagent findings are now `verification: unverified` at output time; Pass-1 (orchestrator re-reads cited source) tags each with `✅ confirmed-as-stated` / `⚠️ confirmed-with-modification` / `❌ rejected` / `🤔 ambiguous-needs-maintainer`; Pass-2 (maintainer-interactive) processes the four buckets — `✅` batch-confirmed, `⚠️` per-finding prompts with adjustment, `🤔` per-finding prompts for resolution, `❌` batch-presented with optional escalation. Confirmed findings produce TODO entries carrying FR-N ID + run reference + verification date. Updated SKILL.md, the `/fitness` slash command (paired-skill step-parity gate), and `.working/fitness-reviews/README.md`. The existing 111 findings in `2026-06-21-r1.md` retroactively marked `unverified` pending Pass-1 in the next PR. Pack `1.33.0 → 1.34.0`; library `2026.06.120 → 2026.06.121`.
+
 ### PR #138 — Shipped Priority 4 items rotation (2026-06-21)
 
 Maintainer-surfaced (during PR #131): TODO's Priority 4 items 4.1 through 4.5 were "Shipped 2026-06-20 as ..." entries — completed work, not forward-looking backlog. Rotated to DONE as five separate `### TODO P4.x` entries (preserved here cross-referenced to the original "shipped" framing); P4.6 (corpus-management discipline as a shareable skill) remains forward-looking in TODO. Also removes the Sweep 4 follow-up historical note from "Open follow-ups from validation sweeps" (already resolved and noted as no-longer-tracked). Library `2026.06.119 → 2026.06.120`. Closes the TODO content cleanup queued since PR #135.
