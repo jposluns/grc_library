@@ -25,6 +25,10 @@ The format for each entry:
 
 ## Closed items
 
+### PR #159 — FR-44: requirement-language convention documented in master spec (2026-06-21)
+
+High-severity finding closed. The library had a de facto "must" / "must not" requirement-language convention (PR #150 / FR-45 implicitly settled on it for prohibitions; PR #154 generalised the same fix to three `ai/` occurrences) but the convention had never been documented. [`specification-master-project.md`](../specification-master-project.md) §6.1 now states the convention explicitly: "must" / "must not" is the canonical normative pair; "should" / "should not" for recommendations; "may" as the permission verb (never "may not" for prohibitions); "shall" / "shall not" reserved for direct quotation of external standards or legacy content awaiting harmonisation. RFC 2119 / RFC 8174 cited. A corpus-wide sweep of legacy "shall" → "must" occurrences is deferred to a separate "FR-44 generalisation" item in TODO. Per-doc `1.5.2 → 1.6.0` (minor: new normative library-wide convention).
+
 ### PR #158 — FR-80: SIEM / cloud-activity-log retention reconciliation (2026-06-21)
 
 High[critical] cross-document contradiction closed. `governance/register-data-retention-schedule.md:67` said 3 years for SIEM event logs (1y hot + 2y cold); `operations/standard-cloud-security-configuration-baseline.md:150` said 90 days minimum for activity-log retention. Cloud-activity logs forward into the SIEM in this architecture, so the downstream baseline's 90-day floor appeared to undercut the upstream 3-year retention. Reconciled by reframing the 90-day figure as the platform-side forwarding floor (so the SIEM has a window to ingest events) and clarifying that the SIEM is the authoritative retention authority for the long-tail. Both documents now say so explicitly. Per-doc bumps: cloud baseline `1.4.3 → 1.4.4`; retention schedule `1.0.0 → 1.0.1`.
