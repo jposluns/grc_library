@@ -2,8 +2,8 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.26.17\
-**Date:** 2026-06-20\
+**Version:** 1.27.0\
+**Date:** 2026-06-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](../standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../standard-devops-security-requirements.md), [`dev-security/guideline-ai-coding-assistant-security.md`](../guideline-ai-coding-assistant-security.md), [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md)\
@@ -29,7 +29,7 @@ These are **draggable rule files**: copy any subset into your project's Claude C
 The pack covers two areas:
 
 1. **Security and compliance.** Hardcoded-secrets prevention, input validation, cryptography, authentication, OWASP/ASVS alignment, AI/agent/MCP/RAG security, CI/CD pipeline gates, language-specific security patterns. Lives under `core/`, `ai/`, `pipeline/`, and `languages/`.
-2. **Development-governance discipline.** Rules that govern how an AI coding assistant collaborates on a governed codebase: gate discipline, change-tracking discipline, evidence-grounded completion, clarify-before-acting on ambiguous requests, artefact-and-branch discipline, and action-before-explanation-of-inaction. Lives under `governance/`.
+2. **Development-governance discipline.** Rules that govern how an AI coding assistant collaborates on a governed codebase: gate discipline, change-tracking discipline, evidence-grounded completion, clarify-before-acting on ambiguous requests, artefact-and-branch discipline, action-before-explanation-of-inaction, and validate-inference-before-action. Lives under `governance/`.
 
 The pack also ships **Claude Code Skills** (`SKILL.md` workflow format) under `skills/`, derived from selected governance rules. The canonical rule remains the source of truth for normative content (framework alignment, exception handling, rationale); the skill is the workflow wrapper (when to invoke, what steps in what order, what verification confirms completion). The directory tree below lists the current set; per-version shipping history lives in the `## Version history` section near the bottom of this README and in the parent library's [`CHANGELOG.md`](../../CHANGELOG.md).
 
@@ -69,7 +69,8 @@ claude-rules/
 │   ├── evidence-grounded-completion.md          No completion claim or unread-artefact state assertion without enumerated, re-read, quoted, contradiction-searched evidence
 │   ├── clarify-before-acting.md                 Surface ambiguity in one sentence and ask; never silently pick
 │   ├── artefact-and-branch-discipline.md        Generated artefacts are read-only; protected branches are append-only
-│   └── action-before-explanation-of-inaction.md No inferred reasons for why an external action cannot proceed; attempt the safe action and report the real result, or name the destructive action and ask
+│   ├── action-before-explanation-of-inaction.md No inferred reasons for why an external action cannot proceed; attempt the safe action and report the real result, or name the destructive action and ask
+│   └── validate-inference-before-action.md      Validate any inferred premise via tool call before the action that depends on it; cascade failures are what the rule prevents
 ├── ai/
 │   ├── ai-security.md          LLM and AI application security requirements
 │   ├── agent-security.md       Agentic workflow security and trust boundaries
@@ -178,6 +179,7 @@ If your project already has an `AGENTS.md` for other coding agents (Codex, Curso
 | [`governance/clarify-before-acting.md`](governance/clarify-before-acting.md) | Any project where an AI coding assistant participates; especially projects with multiple active branches, conventions that vary by request type, or trade-offs the user reasonably wants to weigh in on |
 | [`governance/artefact-and-branch-discipline.md`](governance/artefact-and-branch-discipline.md) | Any project with generated artefacts (build outputs, schema dumps, taxonomies, doc portals, lockfiles) or protected branches with branch-protection rules; doubly relevant for projects with version-monotonicity contracts |
 | [`governance/action-before-explanation-of-inaction.md`](governance/action-before-explanation-of-inaction.md) | Any project where an AI coding assistant participates and may need to explain why an external action (a PR merge, a deploy, a permission check, a CI run) is not proceeding; especially projects with branch protections, CI gates, or MCP integrations where the temptation to infer a "system says no" reason without checking is highest |
+| [`governance/validate-inference-before-action.md`](governance/validate-inference-before-action.md) | Any project where an AI coding assistant orchestrates multi-step workflows (sweep cycles, audit cascades, multi-PR series) and may infer a premise (state unchanged since prior run, fix complete after one occurrence, prior approval extends to current scope) to drive an action; the rule fires when inference replaces verification at any decision boundary |
 | [`languages/python.md`](languages/python.md) | Python codebases |
 | [`languages/typescript.md`](languages/typescript.md) | TypeScript / Node.js codebases |
 | [`languages/csharp.md`](languages/csharp.md) | C# / .NET codebases |
@@ -429,6 +431,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.27.0 | 2026.06.98 | 2026-06-21 | Added the seventh governance rule (`validate-inference-before-action.md`) after a recurring orchestrator-skip cascade pattern: an inferred premise (state unchanged since prior run, fix complete after one occurrence) drove a downstream action without validation; the rule fires at the inference-driven-action surface as the action-side counterpart of `evidence-grounded-completion` |
 | 1.26.0 | 2026.06.61 | 2026-06-20 | Added three new skills (`citation-quote-verification`, `fresh-reader-validation`, `skill-authoring-discipline`) recreated as in-house CC BY-SA 4.0 content from cross-source research (kfchou wiki-skills and anthropics doc-coauthoring / skill-creator as reference; not imported as external overlay to keep licence accumulation bounded) |
 | 1.25.0 | 2026.06.48 | 2026-06-20 | Added `skills/validation-sweep`: corpus-wide regression sweep as a follow-up after any issue identified and corrected; derives from `evidence-grounded-completion` and operationalises its worked example at corpus scope |
 | 1.24.0 | 2026.06.43 | 2026-06-19 | Trimmed `Pack scope` to the load-bearing content; introduced this `Version history` section |

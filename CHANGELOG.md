@@ -4,6 +4,38 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.98, PR #112
+
+Sweep 9 iteration 2 closure + seventh governance rule ([`validate-inference-before-action.md`](dev-security/claude-rules/governance/validate-inference-before-action.md)).
+
+PR #111's close-out claimed completion after fixing the one `42 corpus gates` occurrence Subagent C surfaced (in [`tools/run_all_audits.sh`](tools/run_all_audits.sh):65). That claim was inferred-complete on the basis of a single occurrence rather than a corpus-wide search for parallel ones. Sweep 9 iteration 2 re-baselined and Subagent B found the parallel occurrence in [`tools/check-changelog-on-pr.py`](tools/check-changelog-on-pr.py):5 — same shape, same drift, missed because the previous PR's close-out inferred rather than validated. The discipline failure is at the close-out, not at gate 39's regex; the structural fix is a new pack rule that fires at the inference-driven-action surface as the action-side counterpart of `evidence-grounded-completion`.
+
+### Added
+
+- [`dev-security/claude-rules/governance/validate-inference-before-action.md`](dev-security/claude-rules/governance/validate-inference-before-action.md) (new, version 1.0.0): the seventh pack governance rule. Discipline: when the next action depends on an inferred premise (a state claim not directly observed in the current turn), validate the premise via a tool call before taking the action. Trigger surface: clauses of the form `since / because / given X, [action]` where X is a state claim that has not been observed in the current turn. The protocol is four steps: identify the inference, cost the validation, validate, act on the validated observation. The rule's worked example is this PR's cascade: Sweep 9 iter 1 → PR #111 inferred fix-completeness → Sweep 9 iter 2 surfaced the missed parallel occurrence. Mirrored to [`.claude/rules/governance/validate-inference-before-action.md`](.claude/rules/governance/validate-inference-before-action.md) for in-project session loading.
+- [`tools/lint-gate-count-consistency.py`](tools/lint-gate-count-consistency.py): pattern P7 added — `\b(\d{2,})\s+[a-z]{2,12}\s+gates?(?![-\w])` — closes the `N <word> gates` shape that P6 missed (P6 required `\s+gates?` immediately after the digit; P7 allows one intervening word like `corpus` or `mandatory`). Added [`governance/register-sweep-history.md`](governance/register-sweep-history.md) to `EXEMPT_FILES` because the register's historical "State:" snapshots legitimately quote past gate counts (e.g. `44 corpus gates`) and would otherwise false-positive on every sweep entry as the count grows.
+
+### Changed
+
+- [`tools/check-changelog-on-pr.py`](tools/check-changelog-on-pr.py): line 5 comment `42 corpus gates -> 44 corpus gates`. Subagent B iteration-2 finding; the parallel occurrence to the iteration-1 PR #111 fix.
+- [`.claude/CLAUDE.md`](.claude/CLAUDE.md): added the seventh rule reference under `## Security and governance requirements`; updated the phased-rollout narrative to include the 1.27.0 extension.
+- [`dev-security/claude-rules/CLAUDE.md`](dev-security/claude-rules/CLAUDE.md): added the seventh rule's bullet describing the trigger surface and discipline; updated the rollout-history paragraph.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.26.17 -> 1.27.0`. Pack scope line lists the seventh rule. Directory tree row added. "When to use each rule" row added. Version-history row `1.27.0 | 2026.06.98 | 2026-06-21` appended.
+- [`dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md`](dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md): step 2 prose `six governance rules -> seven`.
+- [`tools/lint-collection-enumeration-consistency.py`](tools/lint-collection-enumeration-consistency.py): docstring `six governance rules -> seven`.
+- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): version `1.11.0 -> 1.12.0`. Sweep 9 iteration 2 entry appended; declares `Subagents dispatched: A, B, C` per Rule 5.6; documents the inference-cascade discipline failure and links the structural fix (the new pack rule).
+- [`README.md`](README.md): library version `2026.06.97 -> 2026.06.98`; README version `1.8.53 -> 1.8.54`.
+
+### Discipline gap and the fix
+
+The failure mode: PR #111's close-out fixed the C-2 finding (`tools/run_all_audits.sh:65`) and inferred that the fix was complete. The inference was wrong — a parallel occurrence existed in [`tools/check-changelog-on-pr.py`](tools/check-changelog-on-pr.py):5 with the same `42 corpus gates` shape — and the cascade propagated into the next iteration's surface area. The structural defence is the new pack rule: at any decision boundary where an action depends on an inferred premise, the premise must be validated via tool call before the action proceeds. For "fix is complete after one occurrence", the validation is one `grep` over the corpus for the pattern; the cost is bounded, the cascade prevented is unbounded.
+
+### Verification
+
+All 44 audit gates pass standalone post-fix. The extended gate 39 pattern (P7) catches the iteration-2 finding if re-introduced and does not false-positive on the register's historical State-snapshots. The new pack rule is referenced from both pack CLAUDE.md and project CLAUDE.md so a fresh session loads the discipline at the same precedence as the prior six rules.
+
+---
+
 ## 2026-06-20, Library Version 2026.06.97, PR #111
 
 Sweep 9 closure: Subagent C findings actioned + structural prevention of unauthorised subagent skips.
