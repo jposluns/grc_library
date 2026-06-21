@@ -130,9 +130,9 @@ Apply the synthesis rubric: deterministic structure that makes the parent's tria
 
 **Rule 5.5, debate when divergence is large, not when adjacent.** Rule 5.3's "pick higher, record raw" handles the routine case of adjacent severity disagreement (e.g. one subagent says `should-fix-this-PR`, another says `track-as-follow-up`). When divergence is larger, route the finding to a single-round debate before the parent adjudicates. Trigger conditions: (a) two subagents report the same dedupe-key with severities more than one level apart (`must-fix-before-merge` vs `track-as-follow-up`); or (b) one subagent reports the finding as real (`R` evidence) and another flags the same dedupe-key as a false positive. Debate protocol: re-prompt each disagreeing subagent with the other's claim plus reasoning attached; ask each to either update its position with new justification or hold with a concrete rebuttal. One round only. The parent synthesises the second-round positions; no third "judge" subagent. If both subagents hold after the round, persist disagreement: record both raw severities, the parent still picks the higher, and the synthesised row is flagged `debated: divergence-persisted` so reviewers see the finding was contested rather than silently adjudicated. Single round is empirically where most of the accuracy lift sits; round 3+ can degrade accuracy.
 
-**Rule 5.6, subagent dispatch must be declared in the register entry.** Every sweep entry in the project's validation-sweep history register (in this project: [`.working/validate-sweeps-history.md`](../../../../.working/validate-sweeps-history.md); adopters relocate to a project-appropriate path) names which subagents were dispatched (e.g. `Subagents dispatched: A, B, C` for a full sweep; `Subagents dispatched: A only; B and C scope-skipped per maintainer authorisation` for a thin sweep). If a subagent was skipped without explicit maintainer authorisation in the same sweep cycle, the next sweep entry's "Sweep value" section records the discipline failure as a corrective action. The mechanism is the auditable trail: a subagent's silent absence in a sweep register cannot be reconstructed later, so the dispatch declaration is the only point at which the discipline can be enforced.
+**Rule 5.6, subagent dispatch must be declared in the history row.** Every iteration row in the project's validation-sweep history (in this project: [`.working/validate-sweeps/history.md`](../../../../.working/validate-sweeps/history.md); adopters relocate to a project-appropriate path) names which subagents were dispatched in the `Subagents` column (e.g. `A, B, C` for a full sweep; `A only` for a thin sweep, with the maintainer authorisation reason in the Summary cell). If a subagent was skipped without explicit maintainer authorisation in the same sweep cycle, the next iteration's row records the discipline failure in its Summary. The mechanism is the auditable trail: a subagent's silent absence in the history table cannot be reconstructed later, so the dispatch declaration is the only point at which the discipline can be enforced.
 
-Cross-reference each synthesised finding against the **false-positive memory** section of the project's validation-sweep history register (in this project: [`.working/validate-sweeps-history.md`](../../../../.working/validate-sweeps-history.md); adopters relocate to a project-appropriate path). Findings the maintainer has previously triaged as not-a-real-finding are suppressed; they should not be re-surfaced.
+Cross-reference each synthesised finding against the **false-positive memory** entries listed in the validation-sweep history README (in this project: [`.working/validate-sweeps/README.md`](../../../../.working/validate-sweeps/README.md), § Accept-list discipline; adopters relocate to a project-appropriate path). Findings the maintainer has previously triaged as not-a-real-finding are suppressed; they should not be re-surfaced.
 
 **Anti-rubric (what NOT to do).** Do not compute inter-rater kappa (N=3 subagents with no pre-shared codebook makes the statistic uninterpretable). Do not average severities. Do not require mandatory consensus across all three subagents: the subagents have non-overlapping specialisations (recent-PR deep review vs corpus-wide stale-reference sweep vs audit-programme integrity), and a defect only one subagent could plausibly find must not be down-weighted by the others' silence.
 
@@ -168,26 +168,37 @@ Apply the fixes. **Re-run step 1 (the full audit standalone) AFTER committing ea
 
 The empty-delta is the principled stop; the hard ceiling is the sanity guard. Dual-criterion termination follows the standard iterative-solver pattern (residual-tolerance OR max-iterations, whichever first); the patience-plateau in the middle is the ML-training early-stopping adaptation that handles "the finding-set is not shrinking but is not oscillating" cases that neither extreme catches.
 
-### 8. Append to the sweep history register (only when the sweep produced findings)
+### 8. Append a row to the sweep history (every iteration)
 
-After the cycle terminates, append an entry to the project's validation-sweep history register (in this project: [`.working/validate-sweeps-history.md`](../../../../.working/validate-sweeps-history.md); adopters relocate to a project-appropriate path) recording: the trigger reason, the state (library / spec / pack versions at HEAD), the count of findings by class and severity, the actions taken, and the resulting PR (if any). Update the recurring-class summary table at the same time. Findings dismissed as not-a-real-finding go into the false-positive memory section with the maintainer's rationale, so a future sweep does not re-litigate.
+After the cycle terminates, append a row to the project's validation-sweep history (in this project: [`.working/validate-sweeps/history.md`](../../../../.working/validate-sweeps/history.md); adopters relocate to a project-appropriate path). The history file is a reverse-chronological table with one row per iteration:
 
-**Zero-finding sweeps leave no trace.** No register entry, no CHANGELOG entry, no standalone PR. The convergence-delta trend lives in the iteration counter at termination time, not in a per-sweep record. This avoids the failure mode where zero-finding sweep entries crowd out user-visible content in the CHANGELOG and the register's prose without adding signal. If a sweep produces exemption-file updates or other byproducts but no findings, those byproducts ride with the next substantive PR rather than driving a standalone closure PR.
+| Date | Sweep | Subagents | Findings | Resulting PR | Detail | Summary |
+|---|---|---|---|---|---|---|
 
-The register is the cumulative record of what the sweep has caught over time. Its trend signal (which classes recur, which classes have closed via mechanical gates) is the maintainer's input to the priority question "which mechanical gate should we ship next".
+- **Date** is `YYYY-MM-DD`.
+- **Sweep** is `N` (sweep ordinal) or `N iter M` (iteration within a multi-iteration sweep).
+- **Subagents** declares which subagents were dispatched (e.g. `A, B, C` for a full sweep; `A only` for a thin sweep, with the authorisation reason in the Summary cell). Per Rule 5.6, every iteration declares this, including zero-finding ones; a subagent's silent absence cannot be reconstructed later.
+- **Findings** is a brief count (e.g. `0`, `3 (1H, 1M, 1L)`, or class-coded `4 (C3, C1)`).
+- **Resulting PR** is the GitHub PR link or `none` for zero-finding iterations.
+- **Detail** is a link to the per-iteration file (see step 9), or a single dash for zero-finding iterations.
+- **Summary** is a one-line description of what the iteration found (or what the sweep verified, for zero-finding iterations).
 
-### 9. Write the per-iteration record (every iteration, including zero-finding ones)
+New rows on top. Zero-finding iterations still get a row: the history is the audit trail of every invocation, not just the ones that found something. The trend signal (which classes recur, how iteration counts shrink to convergence) lives in the table itself.
 
-Write a per-iteration record to the project's working directory (in this project: `.working/validate-sweeps/`; adopters may relocate to a project-appropriate path). Filename `YYYY-MM-DD-sweepN-iterM.md` where `N` is the sweep ordinal (continues the register's numbering) and `M` is the iteration within that sweep. The file captures detail the register's summary intentionally omits, so a maintainer reading the file weeks later can reconstruct the iteration without the chat transcript.
+### 9. Write the per-iteration detail file (only when findings exist)
+
+When the iteration produced findings, write a per-iteration detail file to the project's working directory (in this project: `.working/validate-sweeps/`; adopters may relocate to a project-appropriate path). Filename `YYYY-MM-DD-sweepN-iterM.md` where `N` and `M` match the **Sweep** column in the history row. The file captures detail the history table summary intentionally omits, so a maintainer reading the file weeks later can reconstruct the iteration without the chat transcript.
 
 Six top-level H2 sections in this order:
 
 1. `## Trigger & state snapshot`, what triggered this iteration; library/pack version/gate-count/skill-count/rule-count at HEAD; iteration ordinal within the sweep.
-2. `## Subagent A, Recent-PR deep review`, verbatim return from subagent A (full SARIF-lite findings + summary; "zero findings" plus the one-line rationale the subagent gave if no findings).
+2. `## Subagent A, Recent-PR deep review`, verbatim return from subagent A (full SARIF-lite findings + summary).
 3. `## Subagent B, Corpus-wide stale-reference sweep`, verbatim return from subagent B.
 4. `## Subagent C, Audit-programme integrity reviewer`, verbatim return from subagent C.
 5. `## Orchestrator synthesis`, in-window classification, severity adjudication, dedupe choices, debate outcomes if any, actions decided for each finding.
-6. `## Resulting PR`, link to the close-out PR, or `none, zero findings`.
+6. `## Resulting PR`, link to the close-out PR.
+
+**Zero-finding iterations leave no detail file.** The history row alone is the persistent trace. This keeps the subdirectory's file list aligned with the iterations that actually produced substantive content: a maintainer scanning the subdirectory sees only iterations they might want to read.
 
 The per-iteration record's directory should be in `tools/lint_common.py` `DEFAULT_EXEMPT_DIRS` (or the equivalent linter-exemption mechanism in adopter projects). Files there are frozen-state archives; the `path:line` references in subagent reports are kept verbatim even if the lines later shift.
 
