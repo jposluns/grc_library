@@ -4,6 +4,40 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.101, PR #115
+
+`/validate` slash-command rename + per-iteration record convention. Second of the four-PR sequence around `.working/` (PR #114 shipped the infrastructure; this PR populates the first subdirectory and adds the persistent-record discipline to the validation-sweep skill).
+
+### Renamed
+
+- [`.claude/commands/validate.md`](.claude/commands/validate.md) — renamed from [`.claude/commands/validation-sweep.md`](.claude/commands/validation-sweep.md) (old path, no longer present). Short ergonomic slash command; the underlying skill name remains `validation-sweep` (descriptive identifier for the workflow's purpose). Slash commands and skills are independent identifiers; the command file wraps the skill invocation, the skill is the underlying workflow.
+
+### Added
+
+- [`.working/validate-sweeps/README.md`](.working/validate-sweeps/README.md): convention document for per-iteration records. Filename pattern is `YYYY-MM-DD-sweepN-iterM` plus `.md` extension; six top-level H2 sections capturing trigger/state, three subagent verbatim reports, orchestrator synthesis, resulting PR. Zero-finding iterations write the record but no register entry (the convention "zero-finding sweeps leave no trace in the register" applies only to the register; the per-iteration record is the persistent trace for those iterations).
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): new step 9, "Write the per-iteration record". Six-section file format specified. Adopters relocate the working directory to a project-appropriate path; this project uses `.working/validate-sweeps/`.
+
+### Changed
+
+- [`.claude/commands/validate.md`](.claude/commands/validate.md): step 9 added (mirrors SKILL.md step 9 brief); top-of-file prose distinguishes the slash command `/validate` from the underlying skill name `validation-sweep`; eight-step process updated to nine-step.
+- [`tools/lint-paired-skill-step-parity.py`](tools/lint-paired-skill-step-parity.py): `PAIRS` table updated for the renamed command path ([`.claude/commands/validation-sweep.md`](.claude/commands/validation-sweep.md) old, [`.claude/commands/validate.md`](.claude/commands/validate.md) new).
+- [`tools/sweep-preflight-scanner.py`](tools/sweep-preflight-scanner.py): docstring updated for the `/validate` slash command name.
+- [`.github/workflows/nightly-sweep.yml`](.github/workflows/nightly-sweep.yml): comment updated for the renamed slash command.
+- [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md): Sweep History Register's review-frequency description updated for the new slash command name.
+- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): version `1.12.1 -> 1.13.0`. Preamble updated to reference `/validate` and to direct readers to `.working/validate-sweeps/` for per-iteration detail. Sweep 5's entry updated with a parenthetical noting the slash command rename so historical context is preserved.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.27.1 -> 1.28.0`. Version-history row added for 1.28.0.
+- [`README.md`](README.md): library version `2026.06.100 -> 2026.06.101`; README version `1.8.56 -> 1.8.57`.
+
+### Discipline observation
+
+PR #115 ships the rename and the per-iteration record convention; it does NOT move [`governance/register-sweep-history.md`](governance/register-sweep-history.md) to `.working/`. That move (the register is project-application-of-the-discipline rather than template content; per the framing established with the maintainer, application belongs in `.working/`) is queued as PR #116 to keep this PR focused on the rename + record convention.
+
+### Verification
+
+All 44 audit gates pass standalone post-change. Gate 44 (paired-skill step-parity) confirms the SKILL.md step list (1, 2, 3, 3a, 4, 5, 6, 7, 8, 9) matches the slash command's step list at the renamed path.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.100, PR #114
 
 Establishes the `.working/` top-level convention for maintainer working state. First of a four-PR sequence: this PR ships the infrastructure; subsequent PRs (`/validate` rename + per-run records, `/fitness` skill, changelog-details migration) populate the convention with content.

@@ -47,7 +47,7 @@ from lint_common import REPO_ROOT, read_text_safe
 PAIRS: list[tuple[str, str]] = [
     (
         "dev-security/claude-rules/skills/validation-sweep/SKILL.md",
-        ".claude/commands/validation-sweep.md",
+        ".claude/commands/validate.md",
     ),
 ]
 

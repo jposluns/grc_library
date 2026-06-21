@@ -10,8 +10,9 @@ name: Nightly validation sweep
 # not run here; it requires a Claude Code session and cannot run from
 # cron. This workflow is the deterministic half of the validation-
 # sweep discipline scheduled as a drift detector. When this workflow
-# fails on the schedule, the maintainer invokes /validation-sweep to
-# pair the mechanical finding with semantic triage.
+# fails on the schedule, the maintainer invokes /validate (slash command
+# for the validation-sweep skill) to pair the mechanical finding with
+# semantic triage.
 
 on:
   schedule:

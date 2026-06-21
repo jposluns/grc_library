@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.27.1\
+**Version:** 1.28.0\
 **Date:** 2026-06-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -431,6 +431,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.28.0 | 2026.06.101 | 2026-06-21 | Added step 9 to the `validation-sweep` skill: every iteration writes a per-iteration record to the project's working directory (in this project: `.working/validate-sweeps/`). The record captures full subagent transcripts and orchestrator synthesis, complementing the cumulative summary in the sweep history register. Adopters relocate the working directory to a project-appropriate path. Slash command for the skill is `/validate` in this project (skill name remains `validation-sweep`) |
 | 1.27.0 | 2026.06.98 | 2026-06-21 | Added the seventh governance rule (`validate-inference-before-action.md`) after a recurring orchestrator-skip cascade pattern: an inferred premise (state unchanged since prior run, fix complete after one occurrence) drove a downstream action without validation; the rule fires at the inference-driven-action surface as the action-side counterpart of `evidence-grounded-completion` |
 | 1.26.0 | 2026.06.61 | 2026-06-20 | Added three new skills (`citation-quote-verification`, `fresh-reader-validation`, `skill-authoring-discipline`) recreated as in-house CC BY-SA 4.0 content from cross-source research (kfchou wiki-skills and anthropics doc-coauthoring / skill-creator as reference; not imported as external overlay to keep licence accumulation bounded) |
 | 1.25.0 | 2026.06.48 | 2026-06-20 | Added `skills/validation-sweep`: corpus-wide regression sweep as a follow-up after any issue identified and corrected; derives from `evidence-grounded-completion` and operationalises its worked example at corpus scope |
