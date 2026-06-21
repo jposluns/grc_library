@@ -2,7 +2,7 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.6.0\
+**Version:** 1.6.1\
 **Date:** 2026-06-21\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
@@ -123,7 +123,7 @@ Documents subject to this specification are placed only in the governance-artefa
 ### 4.1 Directory rules
 
 1. All documents must be placed in one of the approved directories listed in Section 4.
-2. No directory shall contain non-canonical document types.
+2. Directories must not contain non-canonical document types.
 3. No directory expansions are allowed without explicit user approval.
 4. Specifications always remain at root level.
 5. Each file must follow canonical naming: `document-type-canonical-name.md`.

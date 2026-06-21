@@ -6,6 +6,49 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.142, PR #160
+
+Sweep 14 iteration 1 close-out. Four in-window findings caught by Subagents A and B; Subagent C zero findings. All four are FR-44-self-violations or related drift introduced (or surfaced) by the same-day PRs #157 + #159 landing in this batch.
+
+### Closed findings
+
+- **`specification-master-project.md:126`** (multi-surface-incompleteness, warning, in-window): "No directory shall contain non-canonical document types." — PR #159 (FR-44) added §6.1 Requirement-language register to this very same file at line 277, reserving "shall" for external-standard quotations or legacy content. Line 126 is internal normative prose, not a quotation; the spec contradicts the rule it defines. Subagents A and B independently surfaced this finding; deduplicated to one entry.
+- **`governance/policy-exception-and-risk-acceptance-management.md:88`** (multi-surface-incompleteness, warning, in-window): "A 4th renewal may not be granted by any authority." — PR #157 (FR-16) authored this prohibition the same day PR #159 (FR-44) introduced §6.1 rule 3 ("Do not use 'may not' as a prohibition... Where the intent is a prohibition, write 'must not'."). The verb-register convention and the new prohibition contradict each other.
+- **`governance/policy-exception-and-risk-acceptance-management.md:94`** (multi-surface-incompleteness, warning, in-window): "Re-baselining may not be used to bypass the ceiling" — same class as the line 88 finding.
+- **`TODO.md:22`** (stale-pr-reference, note, in-window): "Next, PR #N: First fitness-remediation PR (maintainer-directed)... No remediation begins until the maintainer directs." — 21 fitness-remediation PRs have shipped under maintainer direction since this text was written. Subagent B surfaced this.
+
+### Changed
+
+- [`specification-master-project.md`](../../specification-master-project.md):
+  - §4.1 rule 2: "No directory shall contain non-canonical document types." → "Directories must not contain non-canonical document types." Sentence rephrased to read naturally with "must not" (the original "No directory shall" passive-voice construction does not flip cleanly to "No directory must"; the active-voice "Directories must not" preserves the prohibition).
+  - Per-doc version `1.6.0 → 1.6.1`.
+- [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md):
+  - §3.5 table 4th-renewal row last sentence: "A 4th renewal may not be granted by any authority." → "A 4th renewal must not be granted by any authority."
+  - §3.6 Re-baselining carve-out: "Re-baselining may not be used to bypass the ceiling" → "Re-baselining must not be used to bypass the ceiling".
+  - Per-doc version `1.1.0 → 1.1.1` (patch: targeted normative-vocabulary fixes; no semantic change).
+- [`TODO.md`](../../TODO.md): Queued-sequence section rewritten. The "Next, PR #N: First fitness-remediation PR" framing is replaced by a description of the working pattern (the assistant picks 5 at a time, runs a worker-drafts pipeline, applies serially with CI gating, runs `/validate` after each 5-PR batch; maintainer direction supersedes the assistant's pick at any time). The "Then, fitness backlog Pass-2 batches" paragraph is removed (subsumed). FR-14 maturity-ladder reconciliation and FR-44-generalisation are named as queued large items needing deliberate scheduling.
+- [`README.md`](../../README.md): library `2026.06.141 → 2026.06.142`; README per-doc `1.9.12 → 1.9.13`.
+- [`.working/DONE.md`](../DONE.md): PR #160 entry added.
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): Sweep 14 iter 1 row added (reverse-chronological top); per-doc `2.0.6 → 2.0.7`.
+- [`.working/validate-sweeps/2026-06-21-sweep14-iter1.md`](../validate-sweeps/2026-06-21-sweep14-iter1.md): per-iteration detail file created with the six required H2 sections.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- `tools/run-pr-time-checks.sh` exits 0 (D1 + D2 + gate 45).
+- Contradiction grep for "shall" in `specification-master-project.md`: 3 remaining occurrences, all in §6.1 itself describing the convention (lines 277-280) — meta-references, not normative uses. Master spec is now consistent with its own §6.1.
+- Contradiction grep for "may not" used as prohibition in `governance/policy-exception-and-risk-acceptance-management.md`: zero occurrences post-edit.
+
+### Discipline observation
+
+This Sweep 14 iteration surfaced a recurring failure mode: **same-day same-batch convention-self-violation**. PR #157 authored new prohibitions in §3.5 / §3.6 of the exception policy on 2026-06-21; PR #159 authored the §6.1 verb register prohibiting that exact construct, also on 2026-06-21. The two PRs were prepared in parallel by the worker-drafts pipeline (FR-16 worker did not see FR-44 worker's draft and vice versa); the maintainer applied them serially with passing CI on each, but the CI did not check cross-PR coherence because the convention rule it would have violated was not yet committed at the time PR #157's pre-commit ran.
+
+A future audit-gate candidate to address this class: a "convention-introduction batch-coherence" check that, when a PR adds a new convention rule, scans the same PR's diff (and ideally adjacent PRs in the same /validate batch) for violations of that rule. Not in scope for this PR; surfaced for future consideration. The current /validate sweep at end-of-batch is the existing safety net for this class — and it worked: Subagents A and B both caught the contradiction independently.
+
+The Subagent C future-gate candidates (ordinal-ceiling pattern; numerical-coherence retention-period extension) are recorded in this entry for traceability but not actioned.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.141, PR #159
 
 Closes FR-44 (high, requirement-language register drift). The library had a de facto "must" / "must not" requirement-language convention but the convention had never been documented at the library level. The master specification now states it explicitly so reviewers and authors can cite it.

@@ -10,18 +10,21 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #159 merge).
-- **Library version as of last refresh**: `2026.06.141`. **Pack version**: `1.34.0`. **README version**: `1.9.12`.
+- **Branch at last refresh**: `main` (synced after PR #160 merge).
+- **Library version as of last refresh**: `2026.06.142`. **Pack version**: `1.34.0`. **README version**: `1.9.13`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
-- **Last validation sweep**: Sweep 13 iteration 1 (close-out PR #154).
+- **Last validation sweep**: Sweep 14 iteration 1 (close-out PR #160).
 
 ---
 
 ## Queued sequence (upcoming PRs)
 
-**Next, PR #N: First fitness-remediation PR (maintainer-directed).** Maintainer reviews the Fitness review backlog section below (added in PR #141) and selects the first remediation work. The default suggestion is to address the FR-14 maturity-ladder reconciliation (library-wide CMMI propagation) since the maintainer has signalled that scope in Pass-2. Subsequent PRs work through high[critical] then high then medium tiers; low tier deferred to a later routine cleanup cycle. **No remediation begins until the maintainer directs.**
+Fitness-remediation PRs are now in flight under maintainer direction. PRs #142-#159 have closed 21 findings to date (most recently PR #155 FR-1, PR #156 FR-2, PR #157 FR-16, PR #158 FR-80, PR #159 FR-44). The next batch is chosen from the Fitness review backlog section below in highest-certainty order; the assistant picks 5 at a time, runs a worker-drafts pipeline to prepare drafts in parallel, applies serially with CI gating, and runs `/validate` after each 5-PR batch. Maintainer direction supersedes the assistant's pick at any time.
 
-**Then, fitness backlog Pass-2 batches.** Process the confirmed findings by severity band. Probably one PR per priority section (P1 fixes are larger; P5/P6 are smaller batches). Create TODO entries for confirmed findings; close them in subsequent PRs and rotate to DONE.
+Open large items still queued explicitly:
+
+- **FR-14** (maturity-ladder reconciliation, library-wide CMMI propagation): touches `governance/framework-governance-performance-and-improvement.md`, `docs/template-maturity-self-assessment.md`, `governance/register-digital-trust-and-assurance-metrics.md`. Likely a multi-PR batch; flagged for the maintainer to schedule deliberately rather than picked into a routine 5-PR batch.
+- **FR-44-generalisation**: corpus-wide harmonisation of legacy "shall" → "must" outside external-standard quotations. Routine cleanup batch, scheduled after the high-priority backlog is closed.
 
 ---
 
