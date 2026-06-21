@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy and Data Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.3.0\
-**Date:** 2026-05-27\
+**Version:** 1.4.0\
+**Date:** 2026-06-21\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -73,7 +73,7 @@ This policy defines principles, governance structure, and control framework for 
 
 ### 2. Data classification and handling
 
-- All data assets shall be classified based on sensitivity: Public, Internal, Confidential, and Restricted.
+- All data assets must be classified based on sensitivity: Public, Controlled, Internal, Confidential, and Restricted, per the [Data Classification and Handling Standard](../security/standard-data-classification-and-handling.md).
 - Handling procedures for each classification level shall be documented and enforced through technical and organisational controls.
 - Sensitive personal data and AI datasets shall be encrypted at rest and in transit.
 
