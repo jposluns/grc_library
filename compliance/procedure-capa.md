@@ -2,8 +2,8 @@
 
 **Document Title:** Corrective and Preventive Action (CAPA) Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-06-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -152,6 +152,20 @@ A **formal root cause analysis** is required for all Critical and High classifie
 
 The chosen methodology and its outputs must be documented in the CAPA record. The root cause statement must be specific and actionable: it must identify what failed, why it failed, and what condition or absence allowed the failure to go undetected or unresolved.
 
+#### 4.1.1 Root cause statement quality checklist
+
+A root cause statement is acceptable only if it meets every criterion below. The GRC Manager applies this checklist during verification (Section 7.2) and rejects statements that do not pass; rejected statements are returned to the owner for revision and do not stop the CAPA closure clock.
+
+| Criterion | What it requires | What it excludes |
+|-----------|------------------|------------------|
+| **Specific** | Names the concrete process, system, decision, role, or control involved (e.g., "the privileged access review for the AWS production account was last performed in 2024-Q3 and the 2025-Q1 review was not scheduled") | Bare category labels with no further detail (e.g., "process gap", "human error", "lack of training", "configuration issue", "communication failure") |
+| **Causal** | States the mechanism that produced the failure: what condition existed, or was missing, that allowed the nonconformity to occur and to go undetected | Restatements of the symptom (e.g., "the control was not performed because it was not performed"); bare attributions of fault to an individual without identifying the systemic condition |
+| **Actionable** | Identifies what would need to change for the cause to be removed: a procedure to amend, a system to configure, a role to assign, a monitoring control to add | Statements that imply no specific change (e.g., "more attention needed", "should be more careful"); statements whose only implied action is "do the existing thing better" |
+| **Bounded** | Identifies the scope of the cause: whether it affects a single instance, a class of instances within one domain, or multiple domains | Vague universals (e.g., "cultural issue", "organisation-wide gap") asserted without evidence of the scope |
+| **Evidence-anchored** | References the evidence on which the cause statement rests: the audit finding, the incident report, the log excerpt, the interview note | Cause statements that cannot be traced back to an artefact the GRC Manager can review |
+
+The root cause category taxonomy in Section 4.3 is used for pattern analysis aggregation; it is **not** a substitute for the per-statement checklist above. A statement that names only a category (e.g., "Process gap") fails the Specific criterion regardless of whether the category itself is accurate.
+
 The root cause analysis for Critical findings must be completed and submitted to the GRC Manager within **5 business days** of CAPA opening. For High findings, within **10 business days**.
 
 ### 4.2 Moderate and low findings
@@ -265,6 +279,25 @@ Target date changes must be approved by:
 
 Target date changes must be accompanied by a documented justification and a new realistic completion date. Repeated extensions are flagged in the pattern analysis (see Section 9.2).
 
+#### 6.3.1 Extension ceiling and escalation pathway
+
+Approval authority for an extension does not, on its own, authorise an unbounded sequence of extensions. To prevent Critical and High findings from remaining open indefinitely under repeated single-step approvals, the following hard ceilings apply to every CAPA regardless of classification:
+
+| Extension number | Required approving authority | Additional requirement |
+|------------------|------------------------------|------------------------|
+| **1st extension** | Per §6.3 (CISO for Critical; GRC Manager for High / Moderate / Low) | Documented justification and revised target date |
+| **2nd extension** | Executive Risk Committee (ERC) review and approval | A written remediation-feasibility memo from the CAPA owner; an interim compensating control is mandatory for Critical and High findings if one is not already in place |
+| **3rd extension** | Board Risk Committee (or, where the organisation has no Board Risk Committee, the highest governance body to which the ERC reports) review and approval | A written root-cause-revalidation memo (was the original root cause correct? has scope changed?) and an explicit determination by the Board Risk Committee that the residual risk of continued non-closure is acceptable; the Board Risk Committee may also require descope, acceptance, or transfer of the underlying risk in lieu of further extension |
+| **4th extension or beyond** | Not permitted under this procedure | The CAPA must be closed (with the residual gap formally accepted as a risk under the Risk Management Policy), descoped (with the underlying requirement re-scoped or waived through documented exception), or replaced by a fresh CAPA reflecting the revised scope. A 4th extension may not be granted by any authority. |
+
+A CAPA whose root cause has materially changed (for example, a new contributing factor identified after the 1st extension is approved) is re-baselined: the count is reset, the revised root cause statement passes the §4.1.1 checklist, and a new initial target date is set. Re-baselining is approved by the ERC and recorded in the CAPA register as a re-baseline event with the prior history retained for audit; re-baselining is not an extension and does not consume an extension slot. Re-baselining cannot be used to bypass the ceiling: a re-baseline that does not rest on a materially-changed root cause is treated as the next extension in the sequence (the ERC declines the re-baseline and the count continues).
+
+The extension number and the approving authority are recorded in the CAPA register (Section 8.1) as part of each extension event so the cumulative count is auditable.
+
+The §9.1 escalation table's "Repeated extensions or sustained non-closure" row is implemented through this ceiling: 2nd and 3rd extensions trigger the ERC and Board Risk Committee reviews defined here, and a 4th extension is by construction unavailable. The ceiling applies independently of the §9.1 days-past-target escalation chain; an item may simultaneously be overdue (triggering §9.1 escalations) and have outstanding extension events (triggering this section's ceiling). Both chains operate concurrently.
+
+A rationale for the specific numbers: the 2-extension ERC threshold corresponds to the "extended more than twice" trigger already used for Moderate and Low items in §9.1 and ensures that any CAPA whose original plan has slipped twice receives committee-level oversight before a third attempt. The 3-extension Board Risk Committee threshold reflects that a CAPA which has slipped three times is no longer a remediation programme issue but a governance-risk issue requiring the highest oversight body's explicit acceptance of the residual exposure. The 4-extension absolute prohibition forces a binary decision (close, descope, or re-baseline) rather than allowing indefinite drift through serial approvals.
+
 ---
 
 ## 7. Implementation and verification
@@ -352,9 +385,9 @@ An item is considered **overdue** when its target date has passed and closure ha
 | Target date reached with no closure | GRC Manager notifies the domain owner and requests updated status and revised target date within 2 business days |
 | 5 business days past target date | GRC Manager escalates to the CISO (for security/privacy domains) or relevant domain executive |
 | 10 business days past target date | CISO/domain executive escalates to the ERC; item reported as overdue in the next ERC cycle (or immediately for Critical) |
-| Repeated extensions or sustained non-closure | Considered a governance risk; ERC determines appropriate response |
+| Repeated extensions or sustained non-closure | Triggers the extension ceiling and escalation pathway in Section 6.3.1: a 2nd extension requires ERC review and approval; a 3rd extension requires Board Risk Committee review and approval; a 4th extension is not permitted, and the CAPA must be closed, descoped, or re-baselined |
 
-Overdue Moderate and Low CAPAs are reported in the quarterly ERC status report but do not follow the above escalation chain unless they have been extended more than twice.
+Overdue Moderate and Low CAPAs are reported in the quarterly ERC status report but do not follow the above days-past-target escalation chain. The extension ceiling in Section 6.3.1 applies to all CAPAs regardless of classification: a Moderate or Low CAPA reaching a 2nd extension is escalated to the ERC, and a 3rd extension to the Board Risk Committee, on the same pathway as Critical and High items.
 
 ### 9.2 Pattern analysis
 
