@@ -25,6 +25,21 @@ The format for each entry:
 
 ## Closed items
 
+### PR #141 — Fitness backlog Pass-2: maintainer-interactive triage; structured TODO backlog (2026-06-21)
+
+Pass-2 per the discipline introduced in PR #139. Surfaced the four Pass-1 buckets to the maintainer via structured AskUserQuestion. Outcomes:
+
+- **✅ batch (91)**: accepted; deferred Low tier to later routine cleanup cycle; High[critical]/High/Medium become immediate-priority.
+- **⚠️ batch (16)**: accepted with orchestrator's inline modifications (severity unchanged).
+- **🤔 batch (2)**: FR-14 resolved to ✅ with library-wide CMMI propagation plan (concrete scope across 3 documents + forward-looking convention candidate); FR-110 resolved to ✅ at Medium severity.
+- **❌ batch (2)**: FR-43 reshaped (the actual issue is 5-level standard vs 4-level subordinate-doc subset, kept at High[critical]); FR-53 reshaped as lighter-weight metadata-field unification question (downgraded to Low).
+
+Backlog totals after Pass-2: **94 immediate-priority** (High[critical] 17 + High 20 + Medium 57) + **17 deferred** Low = 111. Zero findings removed.
+
+Also corrects PR #140's narrative miscount (93/14 → 91/16 ✅/⚠️). New structured "Fitness review backlog" section added to [`TODO.md`](../TODO.md) with FR-IDs grouped by severity tier, special breakout for FR-14 library-wide CMMI plan, brief 1-line summaries for High[critical] and High items, and topical-cluster summaries for Medium and Low. Maintainer-reviewable; no remediation begins until directed.
+
+New §8.6 "Pass-2 Maintainer-Interactive Outcomes" added to [`.working/fitness-reviews/2026-06-21-r1.md`](fitness-reviews/2026-06-21-r1.md) documenting the bucket decisions and reshape framings. Library `2026.06.122 → 2026.06.123`.
+
 ### PR #140 — Fitness backlog Pass-1: orchestrator verification of all 111 FR-N findings (2026-06-21)
 
 Applies the Pass-1 verification step (introduced in PR #139) retroactively against the existing 111 FR-N findings in [`.working/fitness-reviews/2026-06-21-r1.md`](fitness-reviews/2026-06-21-r1.md). Five verification-task subagents dispatched in parallel, each handling a ~22-finding slice; instructions: direct file reads, no persona role, one verdict per finding plus brief inline note for non-`✅` verdicts. Aggregate: **93 `✅ confirmed-as-stated` / 14 `⚠️ confirmed-with-modification` / 2 `🤔 ambiguous-needs-maintainer` / 2 `❌ rejected`**. New §8.5 "Pass-1 Verification Results" added to the report with the full verdict table and per-bucket summary; §3 retroactive note updated to point at §8.5. The two `❌` findings (FR-43 inter-policy classification mismatch as framed; FR-53 "every document" claim) leave the backlog absent Pass-2 escalation. Pass-2 is the next queued PR. Library `2026.06.121 → 2026.06.122`.
