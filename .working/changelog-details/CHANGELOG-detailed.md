@@ -6,6 +6,61 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.123, PR #141
+
+Pass-2 of the fitness review per the discipline introduced in PR #139. Surfaced the four Pass-1 buckets to the maintainer via structured AskUserQuestion and processed the outcomes. **No remediation work begins until the maintainer reviews the backlog and directs the order**; this PR's sole deliverable is the prioritized TODO backlog plus the report-side documentation of Pass-2 decisions.
+
+### Pass-2 outcomes (per maintainer triage)
+
+- **✅ batch (91 confirmed-as-stated)**: accepted with severity-tier deferral. High[critical] / High / Medium tiers are immediate-priority backlog. Low tier deferred to a later routine cleanup cycle.
+- **⚠️ batch (16 confirmed-with-modification)**: accepted with the orchestrator's inline modifications. Severity unchanged across all 16.
+- **🤔 batch (2 ambiguous-needs-maintainer)**:
+  - FR-14 (maturity-ladder fragmentation): resolved to ✅ with library-wide CMMI propagation plan. Scope: rename CMMI-canonical tiers in `docs/template-maturity-self-assessment.md`; replace 4-tier DTI variant in `governance/register-digital-trust-and-assurance-metrics.md`; baseline `governance/framework-governance-performance-and-improvement.md` (already CMMI). Forward-looking convention: candidate audit gate for maturity-tier vocabulary, OR documented standard in `governance/`.
+  - FR-110 (subjective "forbidding for newcomers"): resolved to ✅ at Medium severity. README navigation flow warrants redesign to prioritize the decision-tree or audience-keyed portal over the document-index for newcomers.
+- **❌ batch (2 rejected)**:
+  - FR-43 reshape: original framing was a policy-vs-policy mismatch; actual issue is **5-level standard vs 4-level subordinate-doc subset**. Reshape kept at High[critical] because the underlying corpus inconsistency is real and load-bearing.
+  - FR-53 reshape: original "every document carries both Classification and Confidentiality" claim was empirically false. Reshape as lighter-weight question: "evaluate whether to deprecate one of the two fields, or document the semantic distinction." Severity downgraded from Medium to Low.
+
+Zero findings removed; both ❌ rejections led to reshape rather than removal.
+
+### Added
+
+- [`TODO.md`](../../TODO.md) "Fitness review backlog (from r1, Pass-2 confirmed in PR #141)" section. Contains: intro paragraph + status legend + severity-tier prioritization preamble; "Special: FR-14" subsection for the library-wide CMMI propagation plan; High[critical] tier (17 findings with brief 1-line summaries); High tier (20 findings with brief summaries); Medium tier (57 findings grouped by topical cluster with FR-ID lists); Low tier (17 deferred findings, cross-reference-only); backlog totals. ⚠️ entries flagged so the maintainer can recognize the modification framing during review.
+
+### Changed
+
+- [`.working/fitness-reviews/2026-06-21-r1.md`](../fitness-reviews/2026-06-21-r1.md):
+  - §8.5 aggregate-counts line: `93 ✅ / 14 ⚠️` corrected to `91 ✅ / 16 ⚠️` (PR #140 narrative miscount).
+  - §8.5 Pass-1 summary by bucket: count line corrected to `91` and `16`.
+  - New §8.6 "Pass-2 Maintainer-Interactive Outcomes" appended after §8.5 documenting the bucket decisions, FR-14 propagation plan, FR-110 promotion, FR-43 reshape framing, FR-53 reshape + downgrade.
+- [`TODO.md`](../../TODO.md):
+  - "Next" PR item updated: previously "Fitness backlog Pass-2"; now "First fitness-remediation PR (maintainer-directed)" — maintainer reviews the backlog and selects work; no remediation begins until directed.
+  - Session resume metadata refreshed (`2026.06.122 → 2026.06.123`).
+- [`README.md`](../../README.md): library version `2026.06.122 → 2026.06.123`; README version `1.8.78 → 1.8.79`.
+- [`.working/DONE.md`](../DONE.md): PR #141 entry added at top of "Closed items".
+
+### Not changed (deliberately)
+
+- Source corpus documents are untouched. PR #141 is purely the prioritization PR; no remediation work has begun. The 111 findings remain documented in r1.md §3; r1.md §8.5 carries the Pass-1 verdicts; r1.md §8.6 carries the Pass-2 outcomes; TODO carries the maintainer-reviewable backlog. Subsequent PRs will action specific FR-Ns at the maintainer's direction.
+
+### Verification
+
+- Local audit: `tools/run_all_audits.sh` exits 0 on all 46 gates.
+- Local PR-time checks: `tools/run-pr-time-checks.sh` exits 0.
+- Manual cross-reference: 17 + 20 + 57 + 17 = 111 FR-IDs accounted for in the TODO backlog grouping (verified by manual sum across the four severity tiers; the 17 deferred Low tier matches the 17 Low findings minus FR-53 reshape downgrade plus FR-53 reshape = same count).
+
+### Discipline observation
+
+This PR is the second steady-state application of the verify-then-act discipline introduced in PR #139 (Pass-1 was the first). The end-to-end exercise demonstrates that the discipline:
+
+1. **Caught the synthesis-stage approximation** (PR #124's wrongly-counted findings) by mechanizing the count check at the Pass-1 verdict table.
+2. **Caught the per-finding misframing failures** (FR-43 and FR-53) that would have driven misdirected remediation absent Pass-1 verification.
+3. **Surfaced the maintainer's content-policy judgements** (FR-14 CMMI library-wide propagation) as Pass-2 outputs rather than treating them as orchestrator-resolvable.
+
+The maintainer's directive ("review them all in TODO before working through them") is itself a meta-discipline that PR #141 honours: the deliverable is the structured backlog, not the remediation. Future fitness reviews can follow the same multi-PR rhythm: PR-N writes the report; PR-N+1 runs Pass-1; PR-N+2 runs Pass-2 and produces the TODO backlog; PR-N+3 onwards are individual remediation work at maintainer direction.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.122, PR #140
 
 Applies Pass-1 verification (introduced in PR #139) retroactively against the existing 111 FR-N findings in [`.working/fitness-reviews/2026-06-21-r1.md`](../fitness-reviews/2026-06-21-r1.md). The Pass-1 protocol per PR #139: orchestrator re-reads each cited source location and applies one of four verdict tags. Five verification-task subagents dispatched in parallel handled the work; each was given a ~22-finding slice plus explicit instructions (direct file reads only, no persona role, single verdict per finding with brief inline note for non-`✅` verdicts).

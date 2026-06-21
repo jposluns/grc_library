@@ -10,18 +10,128 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #140 merge).
-- **Library version as of last refresh**: `2026.06.122`. **Pack version**: `1.34.0`. **README version**: `1.8.78`.
+- **Branch at last refresh**: `main` (synced after PR #141 merge).
+- **Library version as of last refresh**: `2026.06.123`. **Pack version**: `1.34.0`. **README version**: `1.8.79`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
-- **Last validation sweep**: Sweep 11 iteration 1 (close-out PR #127); no sweep run yet after PRs #128-#140.
+- **Last validation sweep**: Sweep 11 iteration 1 (close-out PR #127); no sweep run yet after PRs #128-#141.
 
 ---
 
 ## Queued sequence (upcoming PRs)
 
-**Next, PR #N: Fitness backlog Pass-2 (maintainer-interactive bucket processing).** Pass-1 (PR #140) tagged all 111 FR-N findings: 93 ✅ / 14 ⚠️ / 2 🤔 / 2 ❌. Pass-2 surfaces the four buckets in chat for maintainer triage: `✅` cluster gets a batch confirmation; `⚠️` cluster gets per-finding prompts with the modification proposal plus alternatives; `🤔` cluster gets per-finding prompts with the open question; `❌` cluster gets a batch presentation with optional escalation. Confirmed findings produce TODO entries carrying FR-N ID + originating-run reference + Pass-2 verification date.
+**Next, PR #N: First fitness-remediation PR (maintainer-directed).** Maintainer reviews the Fitness review backlog section below (added in PR #141) and selects the first remediation work. The default suggestion is to address the FR-14 maturity-ladder reconciliation (library-wide CMMI propagation) since the maintainer has signalled that scope in Pass-2. Subsequent PRs work through high[critical] then high then medium tiers; low tier deferred to a later routine cleanup cycle. **No remediation begins until the maintainer directs.**
 
 **Then, fitness backlog Pass-2 batches.** Process the confirmed findings by severity band. Probably one PR per priority section (P1 fixes are larger; P5/P6 are smaller batches). Create TODO entries for confirmed findings; close them in subsequent PRs and rotate to DONE.
+
+---
+
+## Fitness review backlog (from r1, Pass-2 confirmed in PR #141)
+
+Source: [`.working/fitness-reviews/2026-06-21-r1.md`](.working/fitness-reviews/2026-06-21-r1.md) — see its Page-by-Page Findings section for per-finding evidence and its Pass-1 / Pass-2 Verification Results sections for the verdict tables. Verified via Pass-1 (PR #140) + Pass-2 (PR #141). Each item carries its `FR-<n>` ID; refer to r1.md for the full per-finding evidence.
+
+**Status legend:** entries marked `⚠️` carry the orchestrator's modification framing from Pass-1 (see r1.md §8.5 for the modification note). Entries marked `(reshape)` were reshaped during Pass-2 from their original framing.
+
+**Severity-tier prioritization (per Pass-2 decision):** High[critical] / High / Medium are immediate-priority. Low is deferred to a later routine cleanup cycle.
+
+**No remediation work has begun.** This section is the maintainer's review surface for prioritization. Each FR-N becomes its own (or grouped) PR at the maintainer's direction.
+
+### Special: FR-14 — Maturity-ladder reconciliation, library-wide CMMI propagation
+
+Resolved from `🤔` to `✅` in Pass-2 with a library-wide propagation plan:
+
+- Reconcile to **CMMI 5-tier** (Initial / Managed / Defined / Quantitatively Managed / Optimized). The authoritative source.
+- Concrete scope:
+  - `governance/framework-governance-performance-and-improvement.md` — already CMMI; baseline. No change unless audit surfaces drift.
+  - `docs/template-maturity-self-assessment.md` — rename Tier 2 "Managed" (currently "Developing") and Tier 4 "Quantitatively Managed" (currently "Managed") back to CMMI canonical.
+  - `governance/register-digital-trust-and-assurance-metrics.md` — replace the 4-tier DTI variant (Developing/Managed/Integrated/Optimized) with CMMI 5-tier.
+- Forward-looking convention: prevent future divergence. Candidate mechanisms:
+  - New audit gate: prose-scan for maturity-tier vocabulary against CMMI canonical names.
+  - Or a documented standard in `governance/` (`standard-maturity-tier-vocabulary.md`) that other documents cite.
+- Severity: High[critical] (was high[critical]). Originating run: r1.
+
+### High[critical] tier — 17 findings (immediate priority)
+
+- **FR-9** (`risk/standard-enterprise-risk-management.md`): Owner is "Chief Information Officer"; enterprise risk is a CRO/CFO/Board accountability. Change Owner to CRO (or CFO/Board per governance preference).
+- **FR-14** (maturity ladder): see Special section above.
+- **FR-16** (`governance/policy-exception-and-risk-acceptance-management.md`): Exception register schema lacks `max_duration` and `renewal_count_limit` fields; "should not exceed 180 days" is weak. Add hard fields.
+- **FR-19** (`compliance/procedure-capa.md`): CAPA target-date extensions lack a governance ceiling. Add max-extension count with board-level escalation.
+- **FR-21** (`compliance/register-compliance-obligations-template.md`): Template accepts low-precision regulatory citations. Require revision/control/sub-control granularity.
+- **FR-29** (`privacy/procedure-privacy-impact-and-cross-border-transfer.md`): DPIA methodology and trigger checklist absent. Ship `privacy/template-dpia.md` with Article 35 trigger checklist + EDPB nine-criteria + Article 35(7) content checklist.
+- **FR-30** (privacy + supply-chain): No standalone Article 28 DPA template. Ship `privacy/template-dpa-article-28.md`.
+- **FR-31** (privacy): Privacy by Design (Article 25) has no operational artefact. Ship `privacy/framework-privacy-by-design.md` mapping seven foundational principles to architecture/dev-security workflows.
+- **FR-32** (privacy): No Legitimate Interest Assessment template. Ship `privacy/template-legitimate-interest-assessment.md`.
+- **FR-33** (`privacy/procedure-privacy-impact-and-cross-border-transfer.md`): Article 36 prior-consultation pathway absent. Add §Step 5 pathway distinct from internal ERC approval.
+- **FR-34** (privacy): Transfer Impact Assessment methodology referenced but defined nowhere. Ship `privacy/template-transfer-impact-assessment.md` with EDPB Recommendation 01/2020 six-step methodology. (Consolidates with FR-74.)
+- **FR-43 (reshape)** (data classification levels): the actual issue is 5-level standard (`standard-data-classification-and-handling.md`) vs 4-level subordinate-doc subset. Reconcile so all docs use the same level set: either propagate 5-level library-wide or amend the standard to 4-level.
+- **FR-70** (crypto-asset / blockchain governance): Domain entirely absent. Ship dedicated governance content covering digital-asset custody, staking, smart-contract risk, blockchain platform vetting. DORA, MiCA, NYDFS BitLicense.
+- **FR-71** (M&A due diligence): `procedure-grc-programme-management-and-annual-review.md` names M&A as trigger but no checklist/pre-close template/integration playbook. Ship dedicated procedure.
+- **FR-72** (sanctions/OFAC/export control): Superficial. Ship dedicated framework with UBO verification + denied-party-list integration.
+- **FR-73** (AI ethics review): `charter-ai-governance-council.md` collapses ethics into the compliance/risk body. Separate ethics panel or independent challenge mechanism needed.
+- **FR-80** (SIEM/cloud-activity-log retention contradiction): `register-data-retention-schedule.md:67` says 3y (1y hot + 2y cold); `standard-cloud-security-configuration-baseline.md:150` says 90d minimum. Cloud logs forward into SIEM, undercutting the downstream baseline. Reconcile.
+
+### High tier — 20 findings (immediate priority)
+
+- **FR-1** (README): "Dual-mission" framing on lines 36-42 puts AI-assisted-maintenance reference implementation on equal billing with the GRC corpus.
+- **FR-2** (README): "How to use" step 1 directs to the 300-row document index rather than `docs/portal.md`; audience-keyed entry buried.
+- **FR-3** (README): GRC never expanded on-page despite being in the title; no "if you are new to GRC, start here" block.
+- **FR-10** (`risk/standard-enterprise-risk-management.md`): §3 governance table omits Chief Risk Officer.
+- **FR-17 ⚠️** (`governance/policy-exception-and-risk-acceptance-management.md`): Approval-authority conflict with Role Authority Register RACI (Risk Accountable Role is a stub).
+- **FR-20** (`compliance/procedure-capa.md`): Root-cause statements lack a quality checklist.
+- **FR-22** (`compliance/template-audit-evidence-package.md`): Template lacks mandatory sampling-justification field.
+- **FR-35** (privacy): Article 33(2) processor-to-controller breach timeline asymmetry not made explicit (24h supplier clock should start from processor awareness).
+- **FR-36** (`privacy/framework-childrens-data.md` + EU annex): EU member-state per-state Article 8 age table missing.
+- **FR-44** (multiple): Requirement-language register drift ("must" vs "shall" with no documented convention).
+- **FR-45 ⚠️** (security): "may not" used as MUST NOT, contrary to RFC 2119. (Modification: more nuanced than strict MUST NOT violation; vocabulary drift is real.)
+- **FR-56** (multiple): Six distinct entry-point sequences (README → document index; adopter guide → Tier 1; quickstart → core baseline; decision tree → 30/90/180; implementation roadmap → Phase 1/2/3). Reconcile.
+- **FR-57** (`docs/template-quickstart.md`): 319 lines, 5 dimensions × 23 modules. Not actually a quickstart.
+- **FR-58** (multiple): No inheritance vocabulary (library-internal vs template vs reference content).
+- **FR-59** (privacy jurisdictions): Annexes too shallow for operational sufficiency.
+- **FR-60** (`compliance/healthcare`): HIPAA adopter has no operational detail beyond a single 261-line sector annex.
+- **FR-61** (`compliance/financial-services`): FS adopters outside EU/US lack regulatory regimes (UK PRA/FCA, US OCC/FRB/FDIC, MAS, FSA, APRA, OSFI, HKMA, FINMA).
+- **FR-92** (`operations/register-it-operations-kpis.md`): KPIs lack named escalation owner / remediation sign-off authority.
+- **FR-95** (`risk/template-enterprise-risk-register.md`): Acceptance section lacks compensating-controls field.
+- **FR-96 ⚠️** (`risk/procedure-risk-acceptance.md`): Acceptance record fields lack cross-reference to exception register entry (the linkage is conceptual, not schema-level).
+
+### Medium tier — 57 findings (immediate priority)
+
+Full list with one-line summaries available in r1.md §3 (`.working/fitness-reviews/2026-06-21-r1.md`). Grouped by topical cluster:
+
+- **README polish** (5): FR-4 (acronym fire-hose), FR-5 (paradoxical doc count), FR-6 (CalVer trivia placement), FR-7 (audience-signal panel), FR-8 ⚠️ (dual version-line churn impression).
+- **ERM standard** (3): FR-11 (Risk Owner not defined as distinct role), FR-12 (treatment vocabulary divergence), FR-13 (CPPA ambiguity).
+- **Maturity ladder methodology** (1): FR-15 (median-of-medians scoring suspect).
+- **Exception policy** (1): FR-18 (180-day default not traceable to normative source).
+- **Audit evidence template** (1): FR-23 ⚠️ (assembler-verification standard absent).
+- **Control testing** (2): FR-24 (procedure thinner than peers), FR-25 (5y retention below SOX 7y).
+- **Access control** (3): FR-26 (3-day SLA no escalation), FR-27 ("appropriate" without acceptance criteria), FR-28 (emergency access "may be approved verbally" without consequence).
+- **Privacy completion** (6): FR-37 (joint controller Art 26), FR-38 (DSAR Art 12(5) thin), FR-39 (EU representative Art 27), FR-40 (PIPL Art 38-40), FR-41 (AI Art 22 + EU AI Act + FRIA workflow), FR-42 (DPO independence Art 38(3)).
+- **Editorial consistency** (7): FR-46 (role-name "Chief" inconsistency), FR-47 (DPO ambiguous role), FR-48 (H2 numbering patterns drift), FR-49 (Governance heading drift), FR-50 (NIST citation format drift), FR-51 ⚠️ (ISO 27001 Annex-form drift), FR-52 (review frequency "and" vs "or").
+- **Adopter cluster** (5): FR-62 (AI jurisdiction annexes absent), FR-63 (worked example walks ingestion not adoption), FR-64 (contribution path workflow-shaped not pattern-shaped), FR-65 ⚠️ (upstream-sync underspecified), FR-66 (tooling assumes maintainer context).
+- **Coverage gaps** (6): FR-74 (Schrems II-light; consolidates with FR-34), FR-75 ⚠️ (ESG materiality threshold), FR-76 ⚠️ (sustainability framework escalation triggers), FR-77 (3LoD model used without explanation), FR-78 (framework-document-architecture maintainer voice), FR-79 (ITSM portal tool-leakage).
+- **Cross-document contradictions** (2): FR-81 (TLS floor inconsistency), FR-82 (key hashing ambiguity).
+- **Operational/runbook** (1): FR-83 (IC checklist absent).
+- **Security-content refinement** (2): FR-87 (SSRF range list incomplete), FR-88 (cipher suite enumeration missing).
+- **KRI/KPI** (2): FR-93 (KRI escalation owner missing), FR-94 (Linked controls assume control register).
+- **Cross-framework matrix** (2): FR-97 (ISO 31000 clause numbering), FR-98 (NIS 2 annex evidence-class column).
+- **Continuous-assurance / 3LoD** (4): FR-99 ⚠️ (per-control effectiveness metrics), FR-100 (cloud baseline cites families not sub-controls), FR-101 ⚠️ (closure sign-off authority implicit), FR-102 (change management binary).
+- **Newcomer** (4): FR-104 ⚠️ (decision-tree per-regulation context), FR-105 (ISMS framework-citation ordering), FR-106 (trade-programme acronym cluster), FR-110 (document-index as primary navigation).
+
+### Low tier — 17 findings (deferred to later routine cleanup cycle)
+
+Cross-reference only. No immediate-priority action; queue for a routine cleanup PR when convenient.
+
+- **Editorial doctype-prefix documentation** (2): FR-54 (`sop-` prefix), FR-55 (`roadmap-` prefix).
+- **Adopter edge cases** (3): FR-67 (zero-headcount-with-contractor), FR-68 ⚠️ (mandatory-except-when-not), FR-69 (three baseline sizes).
+- **Operational/runbook detail** (3): FR-84 (regression testing checklist as artefact), FR-85 (per-question owner in breach response), FR-86 ⚠️ (recovery runbook crisis-comms cross-reference — Pass-1 noted the runbook itself was hard to locate; revisit at remediation time).
+- **Security low-impact** (3): FR-89 (JWT algorithm-key-type binding), FR-90 (CSP/Trusted Types/HSTS-preload guidance), FR-91 (webhook constant-time comparison).
+- **3LoD low-impact** (1): FR-103 (Chief Compliance Officer omitted from framework table).
+- **Newcomer low-impact** (4): FR-107 (glossary surface earlier), FR-108 (Key Terms vs Glossary cognitive hop), FR-109 ⚠️ (charter purpose paragraph density), FR-111 ⚠️ (Tier 1 reading-time estimate).
+- **Metadata field unification (reshape, downgraded)** (1): FR-53 (reshape) — evaluate whether to deprecate Classification or Confidentiality as redundant metadata, or document the semantic distinction.
+
+### Backlog totals
+
+- 17 + 20 + 57 = **94 immediate-priority findings** (High[critical], High, Medium tiers)
+- **17 deferred** (Low tier)
+- **111 total** matching r1.md FR-1 through FR-111
 
 ---
 
