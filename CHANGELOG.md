@@ -4,6 +4,12 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.119, PR #137
+
+New audit gate 46 ([`tools/lint-overnight-file.py`](tools/lint-overnight-file.py)) plus stub-format [`.working/overnight-pr.md`](.working/overnight-pr.md) plus pack rule amendment documenting the overnight-work protocol. The file's `Status:` field encodes lifecycle: `stub` (no overnight in flight, default) and `in-flight` (active session) pass; `done` (ended, awaiting morning processing) fails. The three-state field preserves the overnight workflow (overnight PRs land with `in-flight`) while applying mechanical pressure for morning processing once the session ends. Pack rule [`change-tracking.md`](dev-security/claude-rules/governance/change-tracking.md) gains a new "Overnight-work protocol" subsection under PR finalization protocol; mirrored to [`.claude/rules/governance/change-tracking.md`](.claude/rules/governance/change-tracking.md). Pack `1.32.0 → 1.33.0`; spec `1.13.1 → 1.14.0`; library `2026.06.118 → 2026.06.119`.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.118, PR #135
 
 Restructures the working-state ledgers: new [`.working/design-decisions.md`](.working/design-decisions.md) file becomes the home for design-decision content; the "Design decisions made" section is rotated out of [`.working/DONE.md`](.working/DONE.md) (which is now strictly closed-TODO items); fitness-skill-specific decisions migrate out of the project's overnight-PR working file; TODO's "Decisions log" section migrates in as "Decisions explicitly dropped"; the overnight-PR working file is deleted as its substantive content has been routed and its procedural content has no forward-looking value. [`TODO.md`](TODO.md) "Notes on maintenance" updated to reflect the DONE-and-design-decisions routing. Maintainer-confirmed overnight-protocol-with-stub-and-gate standard added to TODO queued sequence as the next PR. Library `2026.06.117 → 2026.06.118`.
