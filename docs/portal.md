@@ -449,6 +449,7 @@ The Chief Privacy Officer or Data Protection Officer needs the privacy programme
 
 ### Template
 
+- [DPIA (Data Protection Impact Assessment) Template](../privacy/template-dpia.md)
 - [Data Subject Access Request Workflow Template](../privacy/template-dsar-workflow.md)
 - [Privacy Notice Template](../privacy/template-privacy-notice.md)
 - [Record of Processing Activities Template](../privacy/template-record-of-processing-activities.md)
