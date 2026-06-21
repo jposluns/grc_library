@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.156, PR #177
+
+Rotated the Phase 1 / Phase 2 execution plan out of session memory and into [`TODO.md`](../../TODO.md) so it survives session boundaries. Surfaced as Class B (project-state) during the PR #176 memory-only-processes audit; the maintainer directed that rotation happen in a dedicated follow-up PR (per the "always split when in doubt" discipline in [`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`](../../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md)).
+
+### Changed
+
+- [`TODO.md`](../../TODO.md):
+  - New `### Phase 1 / Phase 2 execution plan` subsection inserted under `## Queued sequence (upcoming PRs)`. Documents the five remaining Phase 1 items (P1.2 ERM completion; P1.4 small singletons batch; P1.5 editorial consistency cluster; P1.6 cross-doc contradictions; P1.7 low-tier sweep) and the 15 Phase 2 items (P2.1 through P2.15) with their FR-N targets. Phase 1 already-shipped items (P1.1 closed by PR #172, P1.3 closed by PR #169) are noted as such. The pause point after Phase 2 (a `/fitness` run before Phase 3 is planned) is named explicitly so a future session reader knows the intended cadence.
+  - Queued-sequence narrative refreshed to reflect that PRs #142-#176 have closed 34 findings to date and to name the recent meta-PRs (#173 CHANGELOG backfill, #174 skip-trailer retirement, #175 DONE shortening, #176 workflow-disciplines pack rule) alongside the fitness-remediation PRs.
+  - The existing "Other queued large items" section (FR-14 maturity-ladder reconciliation; FR-44 generalisation) is retained verbatim under a renamed subheading; the section was previously titled "Open large items still queued explicitly" and is renamed for clarity now that the Phase 1 / Phase 2 plan sits above it.
+  - Session-resume snapshot updated to library `2026.06.156`, README `1.9.27`.
+- [`README.md`](../../README.md): library `2026.06.155 → 2026.06.156`; README `1.9.26 → 1.9.27`.
+- [`.working/DONE.md`](../DONE.md): PR #177 entry added (terse form per the convention shipped in PR #174).
+
+### Discipline observation
+
+This PR is the queued Class B follow-up identified in the PR #176 memory-only-processes audit. The Class A items (the five process disciplines) shipped as a pack rule in PR #176; this PR ships the Class B project-state item. The split was the worked example of the "always split when in doubt" discipline (Class A is project-agnostic pack content; Class B is project-specific session-state; bundling would have muddied the audit trail).
+
+The plan section in TODO is the natural place for queued-PR planning: it lives next to the existing FR backlog (so cross-references stay tight), it is git-tracked (so the plan's evolution is auditable), and gate 45 (TODO staleness audit) keeps it current (queued-PR references that have merged will fail the gate, forcing rotation).
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates against the committed state.
+- `tools/run-pr-time-checks.sh` exits 0 (D1 + D2 + gate 45).
+
 ## 2026-06-21, Library Version 2026.06.155, PR #176
 
 Added a new pack rule documenting five process disciplines an AI coding assistant follows when driving multi-PR work over a long session. The disciplines were memory-only at the time of the PR-#175 close-out: the user asked the orchestrator to enumerate what processes it follows that aren't documented anywhere, and to advise on a documentation plan. The orchestrator surfaced five Class-A items (research-assistant discipline; pipeline PR construction; apply-time worker correction; "always split when in doubt"; background work during CI waits) and one Class-B item (worker hallucination escape rate as a tracking metric). The maintainer accepted the new-pack-rule recommendation for Class A and confirmed the metric file's naming and location.
