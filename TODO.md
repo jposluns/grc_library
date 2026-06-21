@@ -10,22 +10,26 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #134 merge).
-- **Library version as of last refresh**: `2026.06.117`. **Pack version**: `1.32.0`. **README version**: `1.8.73`.
+- **Branch at last refresh**: `main` (synced after PR #135 merge).
+- **Library version as of last refresh**: `2026.06.118`. **Pack version**: `1.32.0`. **README version**: `1.8.74`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
-- **Last validation sweep**: Sweep 11 iteration 1 (close-out PR #127); no sweep run yet after PRs #128-#134.
+- **Last validation sweep**: Sweep 11 iteration 1 (close-out PR #127); no sweep run yet after PRs #128-#135.
 
 ---
 
 ## Queued sequence (upcoming PRs)
 
-**Next, PR #N: TODO content cleanup.** Maintainer-surfaced (2026-06-21, during PR #133): TODO contains several remaining non-forward-planning sections that should rotate to [`.working/DONE.md`](.working/DONE.md). Specifically:
-- "Decisions log" section (items considered and explicitly dropped) is historical decision-rationale, not forward-planning. Rotate to DONE under a "Decisions made and explicitly dropped" subsection.
-- Priority 4 items 4.1 through 4.5 (`Shipped 2026-06-20 as ...` entries) are completed items. Rotate to DONE as PR-N-shipped entries (cross-referenced to the PRs that shipped them). Keep 4.6 (corpus-management discipline) since it remains forward-looking.
-- The Sweep 4 follow-up note in "Open follow-ups from validation sweeps" (`resolved within its own close-out ... and is no longer tracked here`) is purely historical. Remove or rotate.
-- "Notes on maintenance" subsection at the bottom mentions `Completed items move to CHANGELOG.md`; update to mention DONE.md per the PR-#131 discipline.
+**Next, PR #N: Overnight-work protocol — stub format for `.working/overnight-pr.md` plus audit gate.** Maintainer-confirmed (2026-06-21) standard for overnight-work handling. Scope:
+- `.working/overnight-pr.md` always exists as a stub file with a fixed marker comment (no content other than the marker means "no overnight in flight").
+- When the maintainer authorizes an overnight session, the assistant fills the file with the standard overnight-PR sections (authorization scope, design decisions, build progress, open ambiguities).
+- The next morning's first PR processes the file: routes design decisions to [`.working/design-decisions.md`](.working/design-decisions.md), closed work to [`.working/DONE.md`](.working/DONE.md), queued follow-ups to TODO; resets the file to the stub state.
+- New audit gate `tools/lint-overnight-file.py` scans `.working/overnight-pr.md`; fails on non-stub content. Same shape as gate 45. Wired into all four surfaces (workflow, runner, pre-commit, the spec inventory in [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md)).
+- Pack rule [`change-tracking.md`](dev-security/claude-rules/governance/change-tracking.md) gains a new "Overnight-work protocol" subsection documenting the standard.
+- Mirror to [`.claude/rules/governance/change-tracking.md`](.claude/rules/governance/change-tracking.md). Pack version bump.
 
-**Then, PR #N+1: Fitness skill amendment.** Introduce the unverified→confirmed labelling discipline:
+**Then, PR #N+1: Shipped Priority 4 items rotation.** Rotate the five "Shipped 2026-06-20 as ..." items (P4.1 through P4.5) from TODO into DONE as PR-N-shipped entries (cross-referenced to the PRs that shipped them). Keep 4.6 (corpus-management discipline) since it remains forward-looking. Remove the Sweep 4 follow-up historical note from "Open follow-ups from validation sweeps". Update "Notes on maintenance" to refer to DONE.md per the PR-#131 rotation discipline. Small focused PR per the "more PRs, keep each one clean" preference; would have been bundled into PR #135 but PR #135's scope already covers decisions-log restructure and overnight-pr.md cleanup.
+
+**Then, PR #N+2: Fitness skill amendment.** Introduce the unverified→confirmed labelling discipline:
 - Subagent findings in a `/fitness` report are labelled "unverified" at output time.
 - Orchestrator runs a Pass-1 verification: re-reads cited source, tags each finding `✅ confirmed-as-stated` / `⚠️ confirmed-with-modification` / `❌ rejected` / `🤔 ambiguous-needs-maintainer`.
 - Pass-2 (maintainer-interactive) processes findings: `✅` cluster gets a single batch confirmation; `⚠️` and `🤔` items get per-finding prompts with recommendation + alternatives; `❌` items are recorded with rejection rationale.
@@ -217,54 +221,10 @@ Items requiring user decision or external dependency before becoming actionable.
 
 ---
 
-## Decisions log
-
-Items considered and explicitly dropped, with rationale. Recorded here so the reasoning is preserved if the question recurs.
-
-### Strict Related-Documents reciprocity dropped
-
-Original plan: add a linter enforcing that if document A's Related Documents lists B, then B's Related Documents lists A. Empirical run found 1,269 non-reciprocal references across 266 of 280 active documents.
-
-The library's actual convention is **asymmetric** Related Documents: each document lists "what this document consumes / relates to from its own perspective", not "the complete bidirectional graph". This is a reasonable, content-author-friendly convention.
-
-The underlying concern (catching half-updated cross-references during refactors) is already covered by [`lint-links.py`](tools/lint-links.py) (broken-link detection).
-
-Decision: dropped. Not pursued in narrower form (doctype-pair rules) because the marginal value over [`lint-links.py`](tools/lint-links.py) does not justify the maintenance cost of a curated rule set with many exemptions.
-
-### Cross-document numerical coherence shipped as scaffold
-
-Original plan in the audit-roadmap: a linter that flags numerical drift on canonical-term thresholds (RTO, RPO, P1/P2/P3/P4 acknowledgement times, retention periods) across documents.
-
-Empirical analysis found that incident-severity terminology (P1/P2/P3/P4) legitimately carries different numeric values per SLA dimension: acknowledgement time, resolution time, escalation interval, notification time. A naive "same Pn = same value" check would false-positive on legitimate per-dimension variation.
-
-Decision: ship as scaffold (regex framework with unit normalisation and aggregation), with the term set widened incrementally as empirical data warranted. The scaffold's progression:
-
-- Phase 23.26 added P1/P2/P3 acknowledgement-time patterns as scaffolding (each requires a Pn-prefix-with-explicit-acknowledgement-time prose shape on the same line; the patterns match 0 documents on the current corpus by design, since the corpus carries Pn-acknowledgement times in tabular form rather than the strict prose shape).
-- Phase 23.35 added the GDPR breach-notification-hours pattern after empirical confirmation that 8 or more documents reference the statutory 72-hour deadline and all agree on the value.
-
-The current scaffold tracks four terms (P1/P2/P3 acknowledgement-time patterns plus GDPR-breach-notification-hours); see `TERM_PATTERNS` in [`tools/lint-cross-doc-numbers.py`](tools/lint-cross-doc-numbers.py) for the live set. The linter's docstring documents why RTO, RPO, retention periods, P4 acknowledgement, NIS 2 reporting windows, and DORA reporting windows are deliberately NOT curated (each is either context-dependent, has multiple legitimate per-deadline sub-patterns that need separate regex, or appears too few times in the corpus to justify a curated pattern).
-
-Honest scope management is preferred over either (a) silently producing false positives or (b) defining the term set without sufficient operational data. The maintainer revisits the term set when corpus evolution introduces a new prose shape that warrants pattern coverage.
-
-### Phase-completion gating requires the full audit-programme sweep
-
-A prior bundled commit's pre-merge audit pass omitted several gates and consequently merged 5 audit-gate violations (filename/doctype prefix mismatch on the bundle index, 15 em-dash language findings, one broken intra-repo link, one mislabelled hallucinated framework version, one unresolved intra-document reference). All were caught and corrected in the immediately following cleanup.
-
-Decision: phase-completion gating requires the full audit-programme sweep ([`tools/run_all_audits.sh`](tools/run_all_audits.sh); see [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) §6 for the canonical inventory) to pass locally before any push. The pre-commit hook configuration operationalises this in git itself.
-
-The convention is: at each commit, the maintainer (or AI verifier) runs every gate in a single batch (not a selective subset) and only proceeds to push when zero violations remain.
-
-### No verification of standard content versus library interpretation
-
-When the AI Security Tooling Landscape Register was created, it asserted capability claims for each project. The Citation Verification Specification §14 explicitly excludes "verification of standard content versus the library's interpretation of it" from the methodology scope.
-
-Decision: verification covers metadata (existence, version, publication date, supersedence, ID format) and integrity anchors (commit SHA, Wayback snapshot URL). It does NOT verify that the library's prose interpretation of a project's capabilities is accurate. That would require the library to engage in interpretation disputes with project authors; the methodology stays at the citation-metadata layer.
-
----
-
 ## Notes on maintenance
 
 - Add new items at the appropriate priority. Move items between priorities as context changes.
-- When an item is completed, remove it from this file and record the completion in [`CHANGELOG.md`](CHANGELOG.md).
+- When an item is completed, delete it from this file (no strikethroughs, no `[done]` suffixes) and add an entry to [`.working/DONE.md`](.working/DONE.md) in the same PR. The rotation discipline is documented in the PR-finalization-protocol section of [`.claude/rules/governance/change-tracking.md`](.claude/rules/governance/change-tracking.md).
+- Design decisions (working-state conventions, audit-programme architecture decisions, decisions explicitly dropped) belong in [`.working/design-decisions.md`](.working/design-decisions.md), not in TODO.
 - Sub-items can be promoted to their own priority section if scope grows.
 - This file is the source of truth for what's queued; conversation history is not.
