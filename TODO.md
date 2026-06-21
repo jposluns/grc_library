@@ -10,8 +10,8 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #168 merge).
-- **Library version as of last refresh**: `2026.06.150`. **Pack version**: `1.34.0`. **README version**: `1.9.21`.
+- **Branch at last refresh**: `main` (synced after PR #169 merge).
+- **Library version as of last refresh**: `2026.06.151`. **Pack version**: `1.34.0`. **README version**: `1.9.22`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
 - **Last validation sweep**: Sweep 15 iteration 1 (close-out PR #167).
 
@@ -73,7 +73,7 @@ Resolved from `🤔` to `✅` in Pass-2 with a library-wide propagation plan:
 - **FR-60** (`compliance/healthcare`): HIPAA adopter has no operational detail beyond a single 261-line sector annex.
 - **FR-61** (`compliance/financial-services`): FS adopters outside EU/US lack regulatory regimes (UK PRA/FCA, US OCC/FRB/FDIC, MAS, FSA, APRA, OSFI, HKMA, FINMA).
 
-### Medium tier — 56 findings (immediate priority)
+### Medium tier — 53 findings (immediate priority)
 
 Full list with one-line summaries available in r1.md §3 (`.working/fitness-reviews/2026-06-21-r1.md`). Grouped by topical cluster:
 
@@ -83,7 +83,6 @@ Full list with one-line summaries available in r1.md §3 (`.working/fitness-revi
 - **Exception policy** (1): FR-18 (180-day default not traceable to normative source).
 - **Audit evidence template** (1): FR-23 ⚠️ (assembler-verification standard absent).
 - **Control testing** (2): FR-24 (procedure thinner than peers), FR-25 (5y retention below SOX 7y).
-- **Access control** (3): FR-26 (3-day SLA no escalation), FR-27 ("appropriate" without acceptance criteria), FR-28 (emergency access "may be approved verbally" without consequence).
 - **Privacy completion** (6): FR-37 (joint controller Art 26), FR-38 (DSAR Art 12(5) thin), FR-39 (EU representative Art 27), FR-40 (PIPL Art 38-40), FR-41 (AI Art 22 + EU AI Act + FRIA workflow), FR-42 (DPO independence Art 38(3)).
 - **Editorial consistency** (7): FR-46 (role-name "Chief" inconsistency), FR-47 (DPO ambiguous role), FR-48 (H2 numbering patterns drift), FR-49 (Governance heading drift), FR-50 (NIST citation format drift), FR-51 ⚠️ (ISO 27001 Annex-form drift), FR-52 (review frequency "and" vs "or").
 - **Adopter cluster** (5): FR-62 (AI jurisdiction annexes absent), FR-63 (worked example walks ingestion not adoption), FR-64 (contribution path workflow-shaped not pattern-shaped), FR-65 ⚠️ (upstream-sync underspecified), FR-66 (tooling assumes maintainer context).
@@ -108,9 +107,9 @@ Cross-reference only. No immediate-priority action; queue for a routine cleanup 
 
 ### Backlog totals
 
-- 10 + 5 + 56 = **71 immediate-priority findings** (High[critical], High, Medium tiers)
+- 10 + 5 + 53 = **68 immediate-priority findings** (High[critical], High, Medium tiers)
 - **14 deferred** (Low tier)
-- **85 open** (26 closed across PRs #142-#166). Total surfaced in r1: 111.
+- **82 open** (29 closed across PRs #142-#169). Total surfaced in r1: 111.
 
 ### FR-44 follow-up
 
