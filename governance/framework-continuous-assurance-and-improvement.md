@@ -2,8 +2,8 @@
 
 **Document Title:** Continuous Assurance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-06-21\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](../compliance/procedure-audit-planning.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -39,6 +39,7 @@ It ensures that ongoing monitoring, evaluation, and improvement activities are c
 | --- | --- |
 | **Chief Information Officer (CIO)** | Provides executive oversight and ensures that continuous assurance aligns with enterprise strategy. |
 | **Chief Information Security Officer (CISO)** | Oversees assurance in information security, risk, and compliance management systems. |
+| **Chief Compliance Officer (CCO)** | Oversees compliance-domain assurance outcomes; chairs closure validation for compliance-related continuous-assurance findings; aligns the assurance calendar with regulatory obligation cadence. |
 | **GRC Programme Manager** | Coordinates the assurance calendar, tracks performance metrics, and manages dashboards. |
 | **Internal Audit** | Performs independent verification of framework execution and effectiveness. |
 | **AI Governance Council (AIGC)** | Monitors AI maturity, ethics performance, and digital trust indicators. |
