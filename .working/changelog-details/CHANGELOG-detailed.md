@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.127, PR #145
+
+Closes FR-95 (high). The risk register template's Acceptance section gains a mandatory `Compensating Controls` field so each acceptance record is self-contained and auditable.
+
+### Closed findings
+
+- **FR-95** (high, `risk/template-enterprise-risk-register.md`): the Acceptance section captured rationale, conditions, and expiry but lacked a compensating-controls field. `risk/procedure-risk-acceptance.md` §5 already requires compensating-controls analysis as part of acceptance; the template's omission meant the analysis could be performed but not recorded in the register row, requiring an auditor to reconstruct the linkage from the acceptance-record artefact each time.
+
+### Changed
+
+- [`risk/template-enterprise-risk-register.md`](../../risk/template-enterprise-risk-register.md):
+  - Acceptance section field-table extended with a new `Compensating Controls` row positioned between `Acceptance Conditions` and `Accepted By`. Description: "Controls in place that reduce residual risk to the level being accepted; list each by control ID with a brief note on how it offsets the un-treated risk. Required by `risk/procedure-risk-acceptance.md` §5; recorded here so the acceptance record is self-contained and auditable."
+  - Per-doc version `1.0.1 → 1.0.2`; Date `2026-05-28 → 2026-06-21`.
+- [`README.md`](../../README.md): library `2026.06.126 → 2026.06.127`; README `1.8.82 → 1.8.83`.
+- [`TODO.md`](../../TODO.md): FR-95 rotated out. Backlog: 16 + 17 + 56 = 89 immediate; 14 deferred; 103 open.
+- [`.working/DONE.md`](../DONE.md): PR #145 entry added.
+
+### Verification
+
+- All 46 audit gates pass; PR-time checks pass.
+- Cross-reference check: `procedure-risk-acceptance.md` §5 already specifies compensating-controls requirement; the template now mirrors that requirement at the schema level.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.126, PR #144
 
 Closes FR-22 (high). The audit-evidence template gains a mandatory sampling-justification field so external auditors see the statistical-basis justification for every sample without reconstructing it from peer documents.
