@@ -6,6 +6,121 @@ This file is informational and is not subject to the library's metadata-block, a
 
 ---
 
+## Active session work (resume here next session) — 2026-06-21
+
+This section preserves the in-flight context for a multi-PR sequence the maintainer is working through. Each subsection is a checkpoint so the next session can pick up without re-deriving the design decisions. Remove when the sequence completes.
+
+### Session state at pause
+
+- **Current branch**: `main` (synced after PR #118 merge).
+- **Library version at HEAD**: `2026.06.104`. **Pack version**: `1.29.0`. **README version**: `1.8.60`.
+- **Audit programme**: 44 gates, all passing on `main`.
+- **Last validation sweep**: Sweep 10 iteration 1 (closed by PR #117). Re-baseline due after PR #119 (changelog details) and PR #120 (fitness skill), then again after any other moves in the queue.
+
+### PRs completed in this session
+
+In merge order (oldest to newest); see [`CHANGELOG.md`](CHANGELOG.md) for full details of each.
+
+1. **PR #110** — corpus stale gate-count fixes + gate 39 pattern P6
+2. **PR #111** — Sweep 9 closure: Subagent C findings + Rule 5.6 (subagent-dispatch declaration discipline)
+3. **PR #112** — 7th governance rule (`validate-inference-before-action.md`) + gate 39 pattern P7
+4. **PR #113** — Sweep 9 iter 3 close-out (3 prose drift findings in PR #112)
+5. **PR #114** — `.working/` infrastructure (top-level README + `DEFAULT_EXEMPT_DIRS` extension)
+6. **PR #115** — `/validate` slash command rename (was `/validation-sweep`) + per-iteration record convention
+7. **PR #116** — Move sweep history file from `governance/` to `.working/`
+8. **PR #117** — Sweep 10 iter 1 close-out (6 prose drift findings post-#114-#116)
+9. **PR #118** — Restructure `.working/<activity>/` to canonical layout (README + history table + per-run detail only-when-findings)
+
+### Queued sequence (resume in this order)
+
+**Step A — Validation sweep against post-PR-#118 state.** First sweep under the new canonical layout. Should be cheap (the restructure was internal; corpus content unchanged). Confirms the new `Subagents` column in `history.md`, the "only if findings" convention for per-iteration detail files, and the linter target path update for gate 43 all work end-to-end.
+
+**Step B — PR #119: Changelog details migration.** Splits the root [`CHANGELOG.md`](CHANGELOG.md) into:
+- Root file keeps **only the lead paragraph** of each existing entry (and going forward).
+- Copy of pre-trim full file lands at `.working/changelog-details/CHANGELOG-detailed.md` (or follow PR #118's canonical activity layout: `.working/changelog-details/README.md` + `.working/changelog-details/history.md` — TBD; need to think about whether changelog details fit the same layout pattern or if they're a single growing file).
+- Header note added to root: *"Detailed maintainer-level changelog entries may be kept in a working directory."* No name, no link.
+- Adopters cloning the library keep the lead paragraphs (template demonstrates the convention).
+- Extend [`tools/check-changelog-on-pr.py`](tools/check-changelog-on-pr.py) (the PR-time delta gate) to also require modifications to the detailed-changelog file when root CHANGELOG is modified. Keep the gate PR-only (it runs only on `pull_request` events per `quality.yml`), so the `.working/` general audit-exemption is preserved for everything else.
+- Amend [`dev-security/claude-rules/governance/change-tracking.md`](dev-security/claude-rules/governance/change-tracking.md): the structured sections (Added/Changed/Removed/Fixed/Security) and verification evidence requirement applies to the **detailed** file; the root keeps only the lead paragraph (public-facing summary).
+- Mirror the rule update to `.claude/rules/governance/change-tracking.md` via the claude-rules sync linter (gate 37 will catch any divergence).
+
+**Step C — Validation sweep against post-PR-#119 state.** Verifies the changelog split didn't break the change-tracking discipline anywhere.
+
+**Step D — PR #120: `/fitness` skill (library-fitness-review).** New skill that runs a comprehensive 7-persona corpus-wide review (heavyweight; manual trigger; not per-PR). Per the design discussion:
+- **Skill name**: `library-fitness-review` (descriptive name in the pack)
+- **Slash command**: `/fitness` (short ergonomic verb)
+- **Skill file**: `dev-security/claude-rules/skills/library-fitness-review/SKILL.md`, derives from `dev-security/claude-rules/governance/evidence-grounded-completion.md`
+- **Slash command file**: `.claude/commands/fitness.md`
+- **Output directory**: `.working/fitness-reviews/` (follows PR #118's canonical activity layout: README + history table + per-run detail only-when-findings)
+- **7 personas (parallel subagents)**: (1) first-time executive reader; (2) security practitioner; (3) GRC practitioner; (4) auditor/assurance reviewer; (5) policy and standards editor; (6) process owner / operational user; (7) skeptical reader hunting ambiguity, inconsistency, gaps, contradictions, unusable content. All 7 dispatched on every full run.
+- **Scope per run**: whole corpus, every run.
+- **Cadence**: manual trigger (after "major changes" — new domain dir, new document type, pack rule additions, major restructure; quarterly minimum if no major changes; pre-publication / pre-external-share).
+- **Output format per run**: one combined Markdown file at `.working/fitness-reviews/YYYY-MM-DD-rN.md` with 8 top-level H2 sections following the prompt's structure (Executive Summary, Review Method, Page-by-Page Findings, Cross-Library Findings, Severity Model, Recommendations, Standardization Recommendations, Remediation Backlog, Final Assessment). Discrete remediation IDs (`FR-1`, `FR-2`, …) drive subsequent PRs.
+- **Output to chat**: issues + recommendations + choices surfaced for maintainer action; the committed file is the persistent archive.
+- **Severity**: keep project's existing SARIF-lite (High/Medium/Low/FYI); treat the prompt's "Critical" as a `[critical]` flag inside High (`[high][critical] file:line — description`). Two severity scales not introduced.
+- **No mechanical gate**: the fitness review is a deliverable, not a per-PR gate. Output informs human prioritisation.
+- **Pack version bumps to 1.30.0** (new skill = pack minor bump per `skill-authoring-discipline`).
+- **Touchpoints per skill-authoring-discipline**: pack README directory tree + "When to use each skill" table + version-history row; `.working/README.md` activity table; `tools/lint-collection-enumeration-consistency.py` if it enumerates skills.
+
+**Step E — Validation sweep against post-PR-#120 state.** Re-baseline after the new skill ships.
+
+### Other queued moves (after Step E; small PRs preferred per maintainer)
+
+Files identified earlier as project-specific application that should move from `governance/` or `tools/` to `.working/`. Each as its own small PR:
+
+- **`tools/sweep-preflight-exemptions.json`** → likely `.working/validate-sweeps/preflight-exemptions.json` (co-located with the validate-sweeps activity since that's what the file is for). Maintainer-curated false-positive memory for OUR project's specific false positives; adopters will curate their own.
+- **Citation-verification cluster** (6 files): `register-citation-verifications.md` + `register-citation-verification-bundle.md` + four `worklist-citation-verification-batch-*.md` files. → `.working/citation-verifications/` following the canonical layout. Project-specific in-flight verification campaign for OUR citations (Phase 23.6 work).
+- **`governance/register-main-branch-protection.md`** → `.working/` somewhere. Snapshot of THIS repo's branch protection; meaningless to adopters who configure their own.
+
+Each requires updating the document-index, sibling references, regenerating taxonomy/portal, version bumps, CHANGELOG entry.
+
+### Key design decisions made this session (for context if details fade)
+
+1. **`.working/` convention**: maintainer working state; not corpus content; not for adopter consumption; exempt from corpus audit gates (in `DEFAULT_EXEMPT_DIRS`); frozen-state archive (cross-references accurate as-of write-time; staleness expected). Top-level dot-prefix matches the existing tooling-dir convention (`.git/`, `.github/`, `.claude/`).
+
+2. **Canonical activity layout under `.working/<activity>/`**:
+   - `README.md` — static convention info (what the activity is, file format spec, taxonomies, protocols, framework alignment, fork guidance)
+   - `history.md` — reverse-chronological table (new rows on top); columns: Date | Sweep/Run | Subagents | Findings | Resulting PR | Detail | Summary
+   - `YYYY-MM-DD-<run-id>.md` — per-run detail file, **only created when findings exist**
+   - `Subagents` column declares dispatch (Rule 5.6) for every row including zero-finding runs
+
+3. **Slash commands vs skill names are independent identifiers**: short ergonomic verbs for commands (`/validate`, `/fitness`), descriptive names for skills (`validation-sweep`, `library-fitness-review`). The slash command file wraps the skill invocation.
+
+4. **Template content vs project-application**: `governance/` holds template content (specifications, frameworks, registers as document-type templates that adopters cite); `.working/` holds project-specific application of those templates (our log of our sweeps, our verification campaign progress, our branch protection snapshot).
+
+5. **Fork-time guidance**: adopters cloning the library may delete `.working/` outright or keep it as historical reference. Both fine.
+
+6. **PR sequencing principle**: "More PRs, keep each one clean." Favor small focused PRs over bundled ones. Validation sweeps run between substantive PRs.
+
+7. **CHANGELOG split convention (PR #119)**: root keeps the lead paragraph; structured sections + verification evidence + discipline observations move to `.working/changelog-details/`. Going forward, every change writes BOTH. PR-time gate (`check-changelog-on-pr.py`) enforces dual-entry. The general `.working/` audit exemption is preserved for everything else.
+
+8. **Fitness review convention (PR #120)**: 7 personas parallel, whole-corpus each run, output to `.working/fitness-reviews/YYYY-MM-DD-rN.md` only when findings, 8-section combined file. Severity: SARIF-lite + `[critical]` flag in High. Manual trigger only; no mechanical gate enforces it.
+
+9. **Subagent dispatch (Rule 5.6) audit trail**: every validation-sweep iteration declares which subagents were dispatched in the `Subagents` column of `history.md`. Cannot reconstruct silent skips later.
+
+10. **Convergence-delta termination** (validation-sweep): empty-delta primary stop / patience-plateau secondary (2 consecutive iterations no shrinkage) / hard-ceiling 6 iterations.
+
+11. **Per-iteration detail files: comma form for H2 headings** (gate-2 enforces no em-dashes; comma is the canonical form across SKILL.md, slash command, and `.working/validate-sweeps/README.md`).
+
+### Critical user feedback to remember across sessions
+
+- **"More PRs, keep each one clean"** — favor small focused PRs.
+- **"I prefer /validate, not /validation-sweep"** — short slash commands; skill names stay descriptive.
+- **"Don't explicitly name or link `.working/`"** in template-content files that adopters see (e.g., root CHANGELOG header note for the changelog split).
+- **"Inference must be validated before committing or before anything else uses that information"** — addressed by 7th pack rule [`governance/validate-inference-before-action.md`](dev-security/claude-rules/governance/validate-inference-before-action.md) (PR #112).
+- **Activity directories should be self-contained** — drove PR #118's restructure (history file in subdir alongside README + per-iteration files).
+- **Zero-finding sweeps still need history rows but no detail files** — drove the "only if findings" rule in SKILL.md step 9.
+- **Sweep history is project-application not template content** — drove PR #116 move from `governance/` to `.working/`.
+
+### Open follow-ups from validation sweeps (deferred items not yet closed)
+
+Both pre-date the dating-discipline convention (2026-06-20) so neither has a `surfaced` / `re-triage-by` stamp. From [`.working/validate-sweeps/history.md`](.working/validate-sweeps/history.md):
+
+- **Sweep 3 follow-up**: cross-document term-and-identifier consistency gap. The prose-and-numbering-shaped C3 surface that mechanical gates 35/39/41 don't cover. Candidate for a future mechanical gate.
+- **Sweep 4 follow-up**: classification-convention documentation. Resolved within the Sweep 4 close-out (the failure-mode-classes table in `.working/validate-sweeps/README.md` now documents the primary-plus-secondary classification convention).
+
+---
+
 ## Priority 4 — adopter experience
 
 ### 4.1 Quickstart templates per adopter profile
