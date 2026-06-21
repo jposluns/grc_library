@@ -4,6 +4,12 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.137, PR #155
+
+Closes **FR-1** (high, README). The "What this repository is" section had previously framed the project as "two coordinated halves" giving the GRC corpus and the AI-assisted-maintenance reference implementation equal billing. [`README.md`](README.md) is now rewritten so the **GRC documentation corpus** is the unambiguous headline product; the audit toolchain at [`tools/`](tools/) and the [`dev-security/claude-rules/`](dev-security/claude-rules/) pack are positioned as the operational layer used to maintain corpus consistency, with the pack described as a by-product of corpus maintenance rather than a parallel deliverable. The "Three adoption modes" section is untouched (pack-only adoption remains a documented mode); the co-evolution paragraph is preserved but reordered to make the causal direction explicit (the corpus generated the disciplines, not the reverse). Per-doc `1.9.7 → 1.9.8`; library `2026.06.136 → 2026.06.137`. Backlog 95 → 94 open.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.136, PR #154
 
 Sweep 13 iteration 1 close-out. Five out-of-window findings from Subagent A (Subagents B and C zero findings):
