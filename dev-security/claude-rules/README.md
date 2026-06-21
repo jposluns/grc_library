@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.31.0\
+**Version:** 1.32.0\
 **Date:** 2026-06-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -432,6 +432,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.32.0 | 2026.06.114 | 2026-06-21 | Amended `governance/change-tracking.md` with a new "PR finalization protocol" section covering three disciplines: (a) TODO is forward-looking; historical state rotates out (delete on close, no strikethroughs); (b) DONE ledger keyed by original backlog ID complements the CHANGELOG (CHANGELOG by PR, DONE by closed item); (c) after-merge protocol of listing the next-N planned PRs from TODO (default N=5), surfacing the queue so the maintainer can redirect early. Mirrored to `.claude/rules/governance/change-tracking.md` per the pack sync convention. Project-agnostic; adopters supply the DONE-ledger location |
 | 1.31.0 | 2026.06.109 | 2026-06-21 | Amended `governance/change-tracking.md` to recognize the two-file CHANGELOG split convention. Root `CHANGELOG.md` carries lead-paragraph summaries (adopter-facing); detailed mirror (project-specific location) carries the full structured-section entries (maintainer-grade). The delta-gate (`tools/check-changelog-on-pr.py`) requires both files to move in lock-step when the split is in use. Mirrored to `.claude/rules/governance/change-tracking.md` per the pack sync convention |
 | 1.30.0 | 2026.06.105 | 2026-06-21 | Added `skills/library-fitness-review`: comprehensive whole-corpus library-quality review with ten persona reviewers (executive, security practitioner, GRC practitioner, auditor, policy editor, process owner, skeptical reader, adoption practitioner, privacy officer, newcomer). Periodic deliverable (after major changes or quarterly), not a per-PR gate. Output is an 8-section combined report with a discrete remediation backlog. Complements `validation-sweep` (per-PR regression check); the two are not substitutes |
 | 1.29.0 | 2026.06.104 | 2026-06-21 | `validation-sweep` skill steps 8 and 9 restructured: step 8 now writes a history-table row on every iteration (new `Subagents` column per Rule 5.6); step 9 writes a per-iteration detail file only when findings exist (zero-finding iterations leave only a row in the history table). This is the canonical convention for any `.working/<activity>/` subdirectory going forward: `README.md` for static convention info, `history.md` for the cumulative reverse-chronological table, `<dated>.md` files for per-run detail when findings exist |

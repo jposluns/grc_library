@@ -26,6 +26,14 @@ Each maintainer activity gets its own subdirectory. The subdirectory contains th
 
 This layout is the convention for any `.working/` activity. When a new activity ships, it creates its subdirectory with the README + history.md skeleton; per-run detail files are created on demand.
 
+## Top-level files
+
+Single-file artefacts that don't fit the activity-subdirectory shape because they're growing ledgers or single-purpose documents:
+
+| File | Purpose | Origin |
+| --- | --- | --- |
+| [`DONE.md`](DONE.md) | Closed-TODO ledger: which backlog items each PR closed, keyed by original ID. Complements the root [`CHANGELOG.md`](../CHANGELOG.md) (which records file-level change detail). | PR #131 |
+
 ## Activities
 
 | Activity | Subdirectory | Purpose | Origin |
@@ -34,7 +42,7 @@ This layout is the convention for any `.working/` activity. When a new activity 
 | Library fitness reviews | [`fitness-reviews/`](fitness-reviews/) | Records from `/fitness` invocations (whole-corpus ten-persona library-quality review). | PR #120 |
 | Detailed changelog | [`changelog-details/`](changelog-details/) | Maintainer-grade detailed CHANGELOG mirror (full structured-section entries per PR; root CHANGELOG carries lead paragraphs only). | PR #125 |
 
-**To add a new activity**: create the subdirectory with `README.md` (absorbing static convention info) and `history.md` (empty table). Per-run detail files land as runs produce findings. Append a row to the table above; the `Origin` column carries the PR / skill / activity that introduced the activity.
+**To add a new activity**: create the subdirectory with `README.md` (absorbing static convention info) and `history.md` (empty table). Per-run detail files land as runs produce findings. Append a row to the Activities table above; the `Origin` column carries the PR / skill / activity that introduced the activity. Top-level single-file artefacts (DONE-shaped ledgers, single-purpose registers) go in the Top-level files table immediately above instead.
 
 ## Fork guidance
 

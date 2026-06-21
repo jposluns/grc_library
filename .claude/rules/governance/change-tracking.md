@@ -160,6 +160,55 @@ The choice is project-specific; the rule does not mandate one shape. The discipl
 
 ---
 
+## PR finalization protocol
+
+CHANGELOG entries record what shipped in each PR. They do not, on their own, tell a reader which TODO items each PR closed; that information is implicit in the PR's CHANGELOG entry but is not surfaced for direct lookup. Projects that keep a forward-looking TODO file benefit from a complementary "closed-TODO" ledger and from a small set of PR-finalization behaviours that keep TODO and the ledger honest.
+
+The discipline has three components.
+
+### TODO is forward-looking; historical state rotates out
+
+A project TODO file is for *upcoming work*, not for *completed work*. When a PR closes a TODO item, the item is removed from TODO in the same PR. Removal means deletion of the line, paragraph, or subsection, not a strikethrough, not a "[done]" suffix, not a `Status: completed` annotation. The audit trail of what closed lives elsewhere (CHANGELOG, DONE ledger, git history), so TODO stays small and current.
+
+The same rule applies to subsections that record historical context: "PRs completed this session", "Key design decisions made this session", "Files we wrote last week". These have no place in TODO; they belong in a DONE-shaped ledger or in the CHANGELOG.
+
+### DONE ledger keyed by original backlog ID
+
+A `DONE.md` file (or equivalent name; the convention is the file, not the filename) records which backlog items each PR closed, keyed by the original TODO identifier or by the PR number. The DONE entry is one paragraph: enough to answer "what was this item about?" for a future reader who finds the original TODO reference somewhere (a Slack thread, an issue comment, a design doc) and wants to know if it shipped.
+
+DONE complements CHANGELOG, not duplicates it:
+
+- **CHANGELOG entries** are organized by PR. They record file-by-file change detail, version bumps, verification evidence. Adopters and downstream consumers read CHANGELOG.
+- **DONE entries** are organized by closed backlog item. They record cross-references to the original TODO entry and a one-paragraph "what was this about". Maintainers read DONE when they're asking "did we ever ship X?".
+
+DONE is typically maintainer-only working state, so it lives wherever the project keeps such state. A working-directory location is the recommended default; under this project's convention, `.working/DONE.md`. The exact location is project-specific.
+
+When a PR closes a TODO item:
+
+1. Delete the item from TODO in the same PR.
+2. Add an entry to DONE in the same PR. The entry's primary key is the PR number that closed the item, with the original backlog ID (`P-X.Y`, `FR-N`, etc.) as a cross-reference where the item had one.
+3. Both edits live in the same commit so reviewers see the rotation in one place.
+
+The rotation is enforced by convention rather than by a gate (gate enforcement would require parsing TODO and DONE structurally, which is brittle; the convention is cheaper and matches how the maintainer mentally tracks the work).
+
+### After-merge: list the upcoming next-N planned PRs
+
+When a PR merges, the next thing the assistant (or the maintainer) does is consult TODO's forward-looking section and list the upcoming N planned PRs in the chat. Default N is 5; the exact count is project-configurable.
+
+The rationale is the same as the "named alternatives" rule in `clarify-before-acting.md`: surfacing the queue lets the maintainer redirect early, before the assistant has committed work to a wrong-priority PR. Listing also forces the assistant to confirm that TODO is actually current; if TODO is stale, the list of "next 5 PRs" exposes it immediately.
+
+Before listing the upcoming PRs, the assistant first checks whether any new items have surfaced during the just-finished work (proposals from the maintainer, new follow-ups from the PR's own findings, design questions deferred). New items are added to TODO before the list is published. This is the same shape as the rotation discipline above: TODO stays current as a precondition for any other reasoning about what to do next.
+
+### Anti-patterns
+
+- **Strikethrough-instead-of-delete.** A line `~~PR #99: do X~~` in a queued-work section is decoration, not signal. The line still has to be read every time someone reviews TODO, and it cumulatively makes TODO harder to navigate. Delete the line.
+- **"Recently completed" subsection in TODO.** This is just DONE in a worse location. Move it to DONE.
+- **Closing the item in CHANGELOG only and assuming TODO will get cleaned up "later".** Later never comes; TODO drifts. The rotation happens in the same PR or it doesn't happen reliably.
+- **Listing the next-N PRs from memory rather than from TODO.** The point of the list is to surface what's actually queued and let the maintainer redirect; surfacing what the assistant happens to remember defeats the discipline. The list comes from TODO; if TODO is stale, refresh TODO first.
+- **Closing an item that was never in TODO and pretending it was.** DONE entries cross-reference real TODO items by their original ID. If the work was unplanned, the DONE entry says so explicitly ("not previously in TODO; surfaced during PR #N as a follow-up"). The fiction of a phantom backlog item is worse than the absence.
+
+---
+
 ## Exception-handling protocol
 
 The skip trailer is the everyday exception. For larger deviations (an embargoed security fix that cannot disclose the "why" yet, a vendor-issued patch that must ship before public attribution, a cross-team coordination that requires a CHANGELOG entry to land later), use the project's exception register:

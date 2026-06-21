@@ -6,6 +6,60 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.114, PR #131
+
+Introduces [`.working/DONE.md`](../DONE.md), the closed-TODO ledger; refactors [`TODO.md`](../../TODO.md) to be forward-looking only by rotating all historical content into DONE; amends the [`change-tracking.md`](../../dev-security/claude-rules/governance/change-tracking.md) pack rule with a "PR finalization protocol" section that formalises three disciplines (TODO is forward-looking; DONE ledger complements CHANGELOG; after-merge listing of next-N planned PRs); operationalises both in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md). This PR is the first application of its own discipline: PR #130 has just shipped, and instead of being added to a "PRs completed" subsection in TODO, it goes straight to DONE.
+
+### Added
+
+- [`.working/DONE.md`](../DONE.md) (new): closed-TODO ledger with two top-level sections: (a) "Closed items" with reverse-chronological entries for PRs #110-#130, each one-paragraph keyed by PR number; (b) "Design decisions made (rotated from TODO 2026-06-21 as part of DONE infrastructure)" with the 11 design decisions previously in TODO's "Key design decisions made this session" subsection, plus four additional decisions surfaced in the current PR sequence (snapshot-as-of-last-refresh, dual-entry CHANGELOG enforcement, wrapper-script-plus-corpus-runner discipline, no-decorative-gate-counts). File-level documentation at the top explains the convention, the relationship to CHANGELOG, and the rotation discipline.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md):
+  - Top-of-file blurb updated to reflect that completed items move to DONE rather than vanishing into the CHANGELOG diff: `Completed work is recorded in CHANGELOG.md; this file holds only pending and queued items` → `Completed items move to .working/DONE.md (closed-TODO ledger); historical change detail lives in CHANGELOG.md. This file holds only pending and queued items.`
+  - Section restructure:
+    - "Active session work (resume here next session) — 2026-06-21" wrapper section removed; its contents either rotated to DONE or kept as their own top-level sections.
+    - "Session state at pause" renamed to "Session resume metadata"; library/pack/README versions refreshed to current `2026.06.114 / 1.32.0 / 1.8.70`; PR-cursor updated to "after PR #131 merge".
+    - "PRs completed in this session" (entire subsection with 19 PR entries) **rotated to DONE** and removed from TODO.
+    - "Key design decisions made this session" (entire subsection with 11 numbered decisions) **rotated to DONE** and removed from TODO.
+    - "Queued sequence (next PRs)" promoted to a top-level section; rewritten to remove the two stale follow-up proposals (DONE.md is this PR; gate-count cleanup shipped in PR #130). Now lists only forward-looking items: fitness skill amendment, fitness backlog Pass-1, fitness backlog Pass-2 batches.
+    - "Other queued moves" kept verbatim (forward-looking).
+    - "Critical user feedback to remember across sessions" kept; reformatted to add explicit links to the pack rules / SKILL.md sections where each piece of guidance is now operationalised. Two new items added: TODO-is-forward-looking discipline (operationalised in change-tracking.md) and list-next-5-PRs-after-merge discipline (operationalised in CLAUDE.md and change-tracking.md).
+    - "Open follow-ups from validation sweeps" kept verbatim (forward-looking).
+- [`.working/README.md`](../README.md):
+  - New "Top-level files" subsection before "Activities" listing single-file artefacts like `DONE.md` that don't fit the activity-subdirectory shape.
+  - Closing instruction "To add a new activity" extended to mention top-level single-file artefacts go in the Top-level files table.
+- [`dev-security/claude-rules/governance/change-tracking.md`](../../dev-security/claude-rules/governance/change-tracking.md):
+  - New top-level section "PR finalization protocol" inserted before "Exception-handling protocol".
+  - Section content covers three disciplines, each as its own subsection: "TODO is forward-looking; historical state rotates out"; "DONE ledger keyed by original backlog ID"; "After-merge: list the upcoming next-N planned PRs".
+  - Each subsection includes worked-example detail and contrasts with anti-patterns. The "Anti-patterns" subsection at the end of the new section names five concrete failure modes to avoid: strikethrough-instead-of-delete, recently-completed-subsection-in-TODO, close-in-CHANGELOG-only, list-from-memory, phantom-backlog-item.
+  - No metadata-block edit (this rule does not carry a per-file Version field; pack version tracks it).
+- [`.claude/rules/governance/change-tracking.md`](../../.claude/rules/governance/change-tracking.md): mirrored from the pack source per the claude-rules sync convention. Gate 37 (claude-rules sync) enforces parity.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): PR workflow section extended with two new steps. Step 6 codifies the after-every-merge list-next-5-PRs discipline (consult TODO; refresh first if new items have surfaced). Step 7 codifies the TODO/DONE rotation discipline (delete from TODO + add to DONE in the same PR; TODO holds only forward-looking content). Both steps cross-reference the pack rule for the project-agnostic form of the discipline.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): pack version `1.31.0 → 1.32.0`; version-history table row added describing the PR finalization protocol addition.
+- [`README.md`](../../README.md): library version `2026.06.113 → 2026.06.114`; README version `1.8.69 → 1.8.70`.
+
+### Verification
+
+- Local audit: `tools/run_all_audits.sh` exits 0 on all gates after the edits.
+- Local PR-time checks: `tools/run-pr-time-checks.sh` exits 0.
+- Manual contradiction-search: grep TODO.md for "PRs completed in this session", "Key design decisions made this session" — returns no matches (the subsections were rotated out cleanly).
+- Manual cross-reference check: every PR # mentioned in the rotated DONE entries is real and present in the git log; every link in DONE.md resolves (the file is under `.working/` so the broken-link audit doesn't scan it, but a manual review confirms link integrity).
+- Pack sync: `tools/lint-claude-rules-sync.py` (gate 37) confirms the local copy at `.claude/rules/governance/change-tracking.md` matches the pack source.
+
+### Discipline observation
+
+This PR is the first application of its own discipline. Three discipline-relevant observations:
+
+1. **The before-state was the failure mode the discipline prevents.** TODO carried 19 PRs in a "PRs completed this session" subsection and 11 "Key design decisions made this session" entries. Both were historical context that had no place in a forward-looking backlog. The maintainer surfaced the issue: "PRs completed this session talks about yesterday, and that has no place in the TODO now that the DONE is about to be created." This PR rotates all of it.
+
+2. **The next PR after this one will rotate this PR's TODO entry.** Before this PR, the queued-sequence section would have shown the fitness-skill amendment as "Next, PR #N" with the gate-count cleanup as item "(b)" in a follow-up paragraph. After this PR, the queued sequence is clean and the assistant's post-merge protocol is to list the next 5 PRs from that clean sequence. Concrete demonstration that the discipline reduces the cumulative cognitive load.
+
+3. **The maintainer surfaced the list-next-5-PRs-after-merge standard mid-PR.** Captured durably in CLAUDE.md and in the pack rule so it survives across sessions. The maintainer's pattern of surfacing process disciplines mid-work and the assistant's pattern of capturing them in the change-tracking layer that ships them to other adopters via the pack is itself one of the patterns the future "corpus-management discipline as a shareable skill" (TODO P4.6) will want to capture.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.113, PR #130
 
 Removes decorative gate-count narrations from prose throughout the corpus and tooling. The §6 inventory in [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) remains the canonical source for both the gate list and the current count; downstream prose now points to it rather than carrying a stale-prone literal N. Gate 39 (cross-file gate-count consistency audit) remains operational as the defence against new decorations creeping back in.
