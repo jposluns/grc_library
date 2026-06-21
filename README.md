@@ -1,7 +1,7 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Library Version:** 2026.06.137\
-**README Version:** 1.9.8\
+**Library Version:** 2026.06.138\
+**README Version:** 1.9.9\
 **Date:** 2026-06-21\
 **Classification:** Public\
 **Confidentiality:** Public\
@@ -75,7 +75,7 @@ The third mode is an emergent use that has been adopted by developers in practic
 
 ## How to use
 
-1. **Browse the document index.** [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) is the primary navigation point: it lists every document with its type, domain, status, and related artefacts.
+1. **Start at the audience-keyed portal.** [`docs/portal.md`](docs/portal.md) is the primary navigation point: it groups the corpus by reader role (CIO, CISO, GRC, Security Architecture, Privacy, Compliance, Audit, Resilience, Engineering) and lists the documents most likely to be useful to each audience. If you already know what you are looking for, the full machine-auditable document index is at [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), which lists every document with its type, domain, status, and related artefacts.
 
 2. **Identify the documents relevant to your programme.** Start with the Core Reference Set below, then expand into domain-specific standards and procedures.
 
