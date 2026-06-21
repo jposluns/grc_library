@@ -14,15 +14,23 @@ This directory holds operational artefacts produced by maintainer-invoked toolin
 - **Not generated artefacts.** `docs/portal.md`, `docs/maturity-scorecard.md`, and `taxonomy.yml` are mechanically generated from corpus metadata. `.working/` is hand-curated or AI-assisted but human-reviewed; not a build output.
 - **Not for adopter consumption.** Adopters cloning the library should treat `.working/` as the upstream maintainer's local state; delete it, ignore it, or keep it as historical context — their choice.
 
-## Subdirectories
+## Contents
 
-Each subdirectory holds output of one specific maintainer activity. Subdirs are added as new activities ship.
+Each subdirectory holds output of one specific maintainer activity; top-level files hold cumulative history or other high-level state. New entries are added as activities ship.
+
+### Subdirectories
 
 | Subdirectory | Purpose | Created by |
 | --- | --- | --- |
-| *(none yet)* | First subdirectory will be added by the `/validate` rename PR | — |
+| [`validate-sweeps/`](validate-sweeps/) | Per-iteration records from `/validate` invocations (full subagent transcripts, orchestrator synthesis, resulting PR). One file per iteration. | PR #115 |
 
-**To add a new subdirectory**: append a row above with a one-line purpose statement and the PR / skill / activity that creates content in it.
+### Top-level files
+
+| File | Purpose | Created by |
+| --- | --- | --- |
+| [`validate-sweeps-history.md`](validate-sweeps-history.md) | Cumulative log of `/validate` invocations: failure-mode class taxonomy, sweep entries, false-positive memory, recurring-class summary. The summary counterpart to the per-iteration files in `validate-sweeps/`. | Moved from `governance/register-sweep-history.md` in PR #116 |
+
+**To add a new subdirectory or top-level file**: append a row to the appropriate table above with a one-line purpose statement and the PR / skill / activity that creates content in it.
 
 ## Fork guidance
 

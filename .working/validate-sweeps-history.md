@@ -2,7 +2,7 @@
 
 **Document Title:** Validation Sweep History Register\
 **Document Type:** Maintainer Working State\
-**Version:** 1.14.0\
+**Version:** 1.15.0\
 **Date:** 2026-06-21\
 **Owner:** Governance Library Maintainer\
 **Repository Path:** [`.working/validate-sweeps-history.md`](validate-sweeps-history.md)\
@@ -193,6 +193,23 @@ Historical entries from Sweeps 1-3 were classified before this convention was do
 - **Pre-flight scanner**: heuristic pre-pass clean.
 - **Sweep value**: surfaced three within-PR-#112 documentation defects that the mechanical gates do not detect (gate 41 collection-enumeration confirms the enumerated *counts* are consistent but does not check that prose *narratives* are internally coherent across the surfaces). The High finding was a self-contradiction in the PR's own register entry, exactly the class of post-hoc inconsistency that arises when an author writes a paragraph from the wrong mental model. No new structural rule needed; the existing evidence-grounded-completion discipline (read what you wrote, contradiction-search) would have caught all three if applied to the new register entry before commit.
 - **Resulting PRs**: this PR (iter-3 close-out).
+
+### 2026-06-21, Sweep 10 iteration 1 (post-PR-#114/#115/#116 re-baseline)
+
+- **Trigger**: maintainer invoked `/validate` after the three-PR `.working/` sequence (PR #114 infrastructure, PR #115 `/validate` rename + per-iteration record convention, PR #116 sweep history file move) landed.
+- **State**: library 2026.06.102; pack 1.28.1; 44 corpus gates; 10 pack skills; 7 governance rules; this history file at version 1.14.0; first sweep after the file's relocation from `governance/`.
+- **Subagents dispatched: A, B, C** (full fan-out per Rule 5.6).
+- **Findings**: 6 (2 High, 2 Medium, 2 Low; all in-window):
+  - **A-2 + B-1: stale step count** x 1 (High): `.claude/commands/validate.md:1` preamble said "eight-step process" but body has 9 numbered steps including the step 9 added in PR #115. Self-contradictory with the file's own body and with the CHANGELOG entry for PR #115 which explicitly recorded "eight-step process updated to nine-step".
+  - **A-3 + B-2: stale subdirectory inventory** x 1 (High): `.working/README.md:23` table still said "*(none yet)* | First subdirectory will be added by the `/validate` rename PR | —" although PRs #115 and #116 had since added `validate-sweeps/` (subdirectory) and `validate-sweeps-history.md` (top-level file). Stale future-tense.
+  - **A-1: stale step-count narrative** x 1 (Medium): `SKILL.md:29` intro paragraph said "The sweep runs in seven steps" but the actual count is 9 (steps 1, 2, 3, 3a, 4, 5, 6, 7, 8, 9; step 8 added in PR #75, step 9 in PR #115).
+  - **A-5: section-header convention drift** x 1 (Medium): three surfaces prescribed three different forms for the per-iteration record's H2 section headings: SKILL.md (comma form, gate-2 compliant), slash command (bold-full-report form), `.working/validate-sweeps/README.md` (em-dash form). A maintainer following the slash command would produce headings not matching the SKILL.md spec; a fresh reader couldn't tell which form is canonical.
+  - **A-4: awkward possessive on closing parenthesis** x 1 (Low): `SKILL.md:135` read `...adopters relocate to a project-appropriate path)'s **false-positive memory** section`; possessive `'s` on a closing parenthesis breaks sentence flow. Cosmetic.
+  - **A-6: stale rubric-rule count** x 1 (Low): `SKILL.md:121` "Apply the synthesis rubric ... Four rules, no ceremony" but Rules 5.1-5.6 exist (six). Pre-existing (drifted at PR #93 adding 5.5, then PR #111 adding 5.6); previously suppressed by a pre-flight scanner exemption that triaged the line as a different "Four rules" reference. The contradiction became in-window via PR #115's new `/validate` slash command file, which says "six-rule synthesis rubric".
+- **Subagent C**: zero findings. Audit-programme integrity intact after PRs #114-#116; the `.working/` directory exemption in `DEFAULT_EXEMPT_DIRS` did not surprise any consumer; gate 43 (follow-up ageing) correctly overrides the default to scan its target at the new path.
+- **Pre-flight scanner**: 0 candidates surfaced (16 suppressed: 10 heuristic, 6 exemption).
+- **Sweep value**: surfaced six prose drift findings across the three new surfaces written or modified by PRs #114-#116. The pattern is "post-merge stale narrative": a paragraph written from a mental model that PRs later invalidated (preamble step counts after step 9 was added; subdirectory inventory after subdirectories landed; section-header conventions diverging across three new surfaces specifying the same thing). The mechanical gates pass because the prose is internally well-formed; the validation-sweep catches it because the subagents read the surfaces in context against each other.
+- **Resulting PRs**: this PR (Sweep 10 iter 1 close-out, queued as PR #117).
 
 ## False-positive memory
 
