@@ -325,7 +325,11 @@ pack, CC BY-SA 4.0):
   waits (read-only prep on the next PR). This project tracks the apply-time-catch
   vs shipped-escape ratio in [`.working/hallucination-metrics.md`](../.working/hallucination-metrics.md)
   as the project-specific instantiation of the research-assistant discipline's
-  tracking convention.
+  tracking convention. The orchestrator uses [`.working/worker-brief-template.md`](../.working/worker-brief-template.md)
+  as the starting point for every worker dispatch; the template codifies the
+  guard rails that prevent recurring worker-side failure modes and is updated
+  inline when a new failure class is caught (per the rule's hallucination-assessment
+  update protocol).
 
 The `dev-security/claude-rules/` pack covers security and development-governance
 discipline. The initial governance rollout completed at pack version 1.11.0
