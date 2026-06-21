@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.154, PR #175
+
+`.working/` changes for local project: retroactively shortened every existing entry in [`.working/DONE.md`](../DONE.md) to the 1-2-sentence, no-links, no-version-bumps "scrolling battle-text" shape adopted in PR #174. Approximately 76 entries condensed from multi-sentence paragraphs with file links and version-bump notes down to single-sentence headlines focused on what was accomplished. The PR #174 entry's own DONE entry (already written in the new shape) and PR #175's self-entry serve as the worked examples of the new convention; this PR is the retroactive application to history. The DONE file's preamble is also updated to describe the new convention (replacing the prior "one paragraph" guidance with the 1-2-sentence "scrolling battle-text" framing). Library version unchanged from PR #174 (`2026.06.154`); no per-doc bumps (the file changed is maintainer working state, not a versioned corpus document).
+
 ## 2026-06-21, Library Version 2026.06.154, PR #174
 
 Retired the `Changelog: skip` opt-out path from the change-tracking discipline in favour of a terse-entry convention. The shift: every PR carries an entry, even if terse. Two sanctioned entry shapes — substantive (the existing structured-section form) and terse (date-and-version header plus a single sentence on what was accomplished) — replace the prior "entry-or-skip-trailer" binary. The motivation surfaced during the post-merge debrief of PRs #170 and #171, where the original `Changelog: skip` trailers left a visible jump in the audit trail (CHANGELOG went #169 → #172). The maintainer rejected the gap and updated the discipline: every PR carries an entry, with `.claude/`-only changes (and other ancillary surfaces) permitted to use a terse one-liner.
