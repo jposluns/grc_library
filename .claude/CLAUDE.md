@@ -98,6 +98,25 @@ drive end-to-end on the maintainer's behalf:
    the merge attempt resolves it.
 5. After merge: sync local `main`, delete the feature branch locally, confirm the
    remote branch is gone.
+6. After every merge (this step is durable across sessions): consult
+   [`TODO.md`](../TODO.md)'s forward-looking sections and list the upcoming next
+   five planned PRs in the chat. If new items have surfaced during the just-
+   finished work (proposals from the maintainer, new follow-ups from the PR's
+   own findings, design questions deferred), add them to TODO BEFORE the list
+   is published — the list comes from TODO, not from memory. This is the
+   project-specific instantiation of the PR finalization protocol in
+   [`.claude/rules/governance/change-tracking.md`](../.claude/rules/governance/change-tracking.md);
+   it makes the queue auditable and gives the maintainer a redirect point
+   before the next PR's work begins.
+7. TODO/DONE rotation discipline: when a PR closes a TODO item, the item is
+   deleted from TODO in the same PR and an entry is added to
+   [`.working/DONE.md`](../.working/DONE.md) (the closed-TODO ledger, keyed by
+   PR number with the original backlog ID as a cross-reference). The rotation
+   lives in the same commit so reviewers see it in one place. TODO holds only
+   forward-looking content; historical "PRs completed" lists, "design
+   decisions made this session" subsections, or "recently shipped" annotations
+   belong in DONE, not in TODO. See the change-tracking pack rule's PR
+   finalization protocol section for the project-agnostic discipline.
 
 This is the project-specific routine that promotes "merge my own green PR" into the
 safe set per user-level Rule 8 point 1. Actions outside this routine (merging a PR
