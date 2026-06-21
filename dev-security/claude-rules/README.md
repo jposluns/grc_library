@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.27.0\
+**Version:** 1.27.1\
 **Date:** 2026-06-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -63,7 +63,7 @@ claude-rules/
 │   ├── input-validation.md     Input validation and output encoding
 │   ├── cryptography.md         Approved algorithms and key handling
 │   └── owasp.md                OWASP Top 10:2025 and ASVS v5 alignment rules
-├── governance/                 Development-governance discipline (initial rollout complete at pack 1.11.0; extended at 1.21.0)
+├── governance/                 Development-governance discipline (initial rollout complete at pack 1.11.0; extended at 1.21.0 and 1.27.0)
 │   ├── gate-discipline.md                       Never weaken a gate to silence a failure; fix the artefact
 │   ├── change-tracking.md                       CHANGELOG-on-PR by default; documented opt-out trailer for genuine exceptions
 │   ├── evidence-grounded-completion.md          No completion claim or unread-artefact state assertion without enumerated, re-read, quoted, contradiction-searched evidence
