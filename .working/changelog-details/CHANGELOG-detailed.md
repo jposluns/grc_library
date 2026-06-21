@@ -6,6 +6,38 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.141, PR #159
+
+Closes FR-44 (high, requirement-language register drift). The library had a de facto "must" / "must not" requirement-language convention but the convention had never been documented at the library level. The master specification now states it explicitly so reviewers and authors can cite it.
+
+### Closed findings
+
+- **FR-44** (high, multiple documents): Requirement-language register drift — "must" vs "shall" used inconsistently across the corpus with no documented convention. The fitness review confirmed the corpus is predominantly "must" (e.g., 24 "must" vs 1 "shall" in `security/standard-remote-working-security.md`) but the project had never declared this as policy. PR #150 (FR-45) and PR #154 implicitly settled on "must" / "must not" for prohibitions; this PR documents the convention as library-wide.
+
+### Changed
+
+- [`specification-master-project.md`](../../specification-master-project.md):
+  - New §6.1 "Requirement-language register" added immediately after the §6 numbered list. States RFC 2119 / RFC 8174 semantics for "must" / "must not" / "should" / "should not" / "may"; reserves "shall" / "shall not" for direct quotation of external standards (ISO/IEC, NIST SP, IEC) or legacy content awaiting harmonisation; calls out the FR-45 "may not" ambiguity and prohibits "may not" as a prohibition.
+  - Five numbered rules in §6.1 plus a closing paragraph noting that a future audit gate may mechanise the rule.
+  - Per-doc version `1.5.2 → 1.6.0` (minor: new normative library-wide convention with citable external-standard cross-references; not a patch because the rule is new content rather than a clarification, not major because it does not invalidate prior content).
+- [`README.md`](../../README.md): library `2026.06.140 → 2026.06.141`; README per-doc `1.9.11 → 1.9.12`.
+- [`TODO.md`](../../TODO.md): FR-44 rotated out of High tier; backlog counters updated (12 + 8 + 56 = 76 immediate; 14 deferred; 90 open). A separate "FR-44 follow-up / FR-44-generalisation" item added under Backlog totals to track the corpus-wide harmonisation sweep deferred from this PR.
+- [`.working/DONE.md`](../DONE.md): PR #159 entry added.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- `tools/run-pr-time-checks.sh` exits 0 (D1 + D2 + gate 45).
+- Manual readback: §6.1 cross-references resolve (`compliance/procedure-capa.md` §6.3.1 mentioned in the rationale but not as a hard link, intentional — the rule does not bind that procedure, only states a parallel cadence); RFC 2119 / RFC 8174 cited with authors (Bradner / Leiba) and years for traceability.
+
+### Discipline observation
+
+This is the third recent PR (after FR-1 framing-drift and FR-2 navigation-drift) where the corpus had implicitly adopted a convention through accumulated practice but had not declared it formally. The pattern: a convention emerges from incremental decisions during fitness-driven remediation; the convention works because individual authors mirror existing files; but a new author or a strict reviewer cannot cite a source for the rule. Surfaced as a candidate generalisation: at every fitness review, check whether implicit conventions have crystallised that should be promoted into the master spec. Not in scope for this PR.
+
+The FR-44 corpus-wide harmonisation sweep (legacy "shall" → "must" across the corpus) is deferred to a separate cleanup batch. The convention statement is the deliverable this PR closes; the sweep is a derivative item now tracked in TODO.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.140, PR #158
 
 Closes FR-80 (high[critical], SIEM / cloud-activity-log retention contradiction). Two documents disagreed on the retention period for cloud-activity logs forwarded into the SIEM: `governance/register-data-retention-schedule.md` row "SIEM event logs" said 3 years (1y hot + 2y cold), while `operations/standard-cloud-security-configuration-baseline.md` §6.3 said 90 days minimum. The 90-day figure was best read as the platform-side forwarding floor (so the SIEM has a window in which to ingest events) rather than the authoritative retention; the two documents now say so explicitly with cross-references to each other.
