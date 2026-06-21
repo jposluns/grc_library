@@ -20,6 +20,10 @@ The format for each entry:
 
 ## Closed items
 
+### PR #133 — Document the project's Canadian-first language convention (2026-06-21)
+
+Maintainer-surfaced during PR #131's chat thread: the project's `-ized`/`-ization` orthography is Canadian (which shares the Oxford convention with American English), not American-attributed. The convention is named explicitly as **Canadian English first, Commonwealth second, other dialects last**. Doc-only PR: [`tools/lint-language.py`](../tools/lint-language.py) module docstring rewritten to name the convention as Canadian (linter behaviour unchanged); new "Language convention" section in [`.claude/CLAUDE.md`](../.claude/CLAUDE.md) Conventions section; [`CONTRIBUTING.md`](../CONTRIBUTING.md) Style requirements section rewritten to lead with the convention statement instead of just the linter rule. CONTRIBUTING per-doc `1.1.0 → 1.2.0`; library `2026.06.115 → 2026.06.116`.
+
 ### PR #132 — Add Ryk Edelstein to `AUTHORS.md` (2026-06-21)
 
 Single-line addition to the Acknowledged contributors list in [`AUTHORS.md`](../AUTHORS.md) for [Ryk Edelstein](https://github.com/fedelst). Per-doc version `1.1.0 → 1.1.1`; library `2026.06.114 → 2026.06.115`. Closes the maintainer-surfaced TODO item from PR #131 ("In the next PR, add ..."). First PR using the post-PR-#131 steady-state discipline of TODO/DONE rotation in the same PR.
