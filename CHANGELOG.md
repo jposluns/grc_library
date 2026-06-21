@@ -4,13 +4,45 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.106, PR #121
+
+Sweep 10 iteration 2 close-out: seven in-window findings actioned post the three-PR overnight sequence (PRs #118-#120).
+
+Full A/B/C subagent fan-out per Rule 5.6. Subagent A surfaced eleven findings (one High actionable, two Low actionable, eight FYI parity confirmations). Subagent B surfaced four findings (all TODO resume-state drift). Subagent C surfaced zero blocking and one advisory (corroborating Subagent A's High). After dedupe: 7 unique findings (1 High, 3 Medium, 3 Low). All in-window; all fixed here.
+
+### Fixed
+
+- [`tools/sweep-preflight-exemptions.json`](tools/sweep-preflight-exemptions.json): re-added the pre-flight scanner exemption for [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md) line 121 ("Six rules, no ceremony"; the synthesis-rubric sub-rules 5.1-5.6 reference, not a governance-rule count). The previous exemption (line_hash `eca081c59b46035c`) was removed in PR #117 when the line text changed from "Four rules" to "Six rules"; PR #117 did not re-add a fresh exemption for the new line content, so every subsequent sweep re-surfaced the candidate. New line_hash: `2ae34a0ce24f10c3` (computed via SHA-256 prefix of the stripped line). (Subagent A High; Subagent C advisory corroborating.)
+- [`TODO.md`](TODO.md): "Active session work" section refreshed. Resume-state version snapshot updated (library `2026.06.104 -> 2026.06.105`, pack `1.29.0 -> 1.30.0`, README `1.8.60 -> 1.8.61` — Subagent B M); last-validation-sweep cursor updated to reflect Sweep 10 iter 2 (Subagent B L); two stale "7 personas" references corrected to "10 personas" with the three-persona expansion noted (Subagent B M x 2); PRs completed list extended to include #119, #120, #121.
+- [`CHANGELOG.md`](CHANGELOG.md): PR #120 entry's "(new, version 1.0.0)" claim for the SKILL.md was incorrect; pack skills do not carry frontmatter version numbers (verified against [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md) and other pack skills). Corrected to "(new)" with a note that pack-level versioning in the pack README's version-history table tracks skill additions. (Subagent A Low.)
+- [`.working/overnight-pr.md`](.working/overnight-pr.md): "Status (live): in progress, building skill files" was sanctioned per `.working/` frozen-state convention but misleading after PR #120 merged. Updated to reflect post-merge state. "Notes for morning review" section populated with: review checklist, recommendations for next session, files touched, corpus-boundary confirmation. (Subagent A Low.)
+
+### Changed
+
+- [`.working/validate-sweeps/history.md`](.working/validate-sweeps/history.md): version `2.0.0 -> 2.0.1`. Sweep 10 iter 2 entry appended; `Subagents dispatched: A, B, C` declared per Rule 5.6.
+- [`README.md`](README.md): library version `2026.06.105 -> 2026.06.106`; README version `1.8.61 -> 1.8.62`.
+
+### Added (under `.working/`, exempt from corpus audit gates)
+
+- [`.working/validate-sweeps/2026-06-21-sweep10-iter2.md`](.working/validate-sweeps/2026-06-21-sweep10-iter2.md): per-iteration detail file with the full A/B/C subagent reports, the seven-finding synthesis, severity adjudication, and triage decisions. Second per-iteration file under the convention established in PR #115 and finalised in PR #118.
+
+### Verification
+
+All 44 audit gates pass standalone post-commit. Pre-flight scanner now returns 0 candidates with the re-added exemption. Subagent C confirmed all four-surface parity (runner, workflow, pre-commit, §6 spec) intact across the touched linters ([`tools/lint-followup-ageing.py`](tools/lint-followup-ageing.py), [`tools/lint-paired-skill-step-parity.py`](tools/lint-paired-skill-step-parity.py)); gate 41 (collection-enumeration) confirms the new `library-fitness-review` skill enumerated correctly.
+
+### Pattern observation
+
+This iteration's finding pattern is exactly the validation-sweep's intended catch: post-PR prose drift that the mechanical gates cannot detect. The preflight-exemption finding is a specific recurring shape (rotate-line-hash-when-content-changes); the TODO drift is an unavoidable consequence of capturing resume-state at session-pause when subsequent PRs land before resume. Both are healthy — the sweep caught them and the close-out actioned them.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.105, PR #120
 
 Adds a new `library-fitness-review` skill to the `dev-security/claude-rules/` pack, invoked via the `/fitness` slash command. The skill is a comprehensive whole-corpus library-quality review dispatching ten persona reviewers in parallel (executive, security practitioner, GRC practitioner, auditor, policy editor, process owner, skeptical reader, adoption practitioner, privacy officer, newcomer). Designed as a periodic deliverable (after major changes or quarterly minimum), not a per-PR gate; complements the per-PR `validation-sweep` skill (`/validate`). Output is an 8-section combined report with a discrete remediation backlog. This PR was authored end-to-end during an overnight session under explicit maintainer authorisation; see [`.working/overnight-pr.md`](.working/overnight-pr.md) for the decision log.
 
 ### Added
 
-- [`dev-security/claude-rules/skills/library-fitness-review/SKILL.md`](dev-security/claude-rules/skills/library-fitness-review/SKILL.md) (new, version 1.0.0): the skill following [`skill-authoring-discipline`](dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md)'s eight-section structural template. Frontmatter `derives_from` points at [`evidence-grounded-completion`](dev-security/claude-rules/governance/evidence-grounded-completion.md) (the same parent as `validation-sweep`); the discipline this skill operationalises is fresh-reader review at corpus scope across ten persona lenses.
+- [`dev-security/claude-rules/skills/library-fitness-review/SKILL.md`](dev-security/claude-rules/skills/library-fitness-review/SKILL.md) (new): the skill following [`skill-authoring-discipline`](dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md)'s eight-section structural template. Pack skills do not carry frontmatter version numbers; pack-level versioning in the pack README's version-history table tracks skill additions and revisions. Frontmatter `derives_from` points at [`evidence-grounded-completion`](dev-security/claude-rules/governance/evidence-grounded-completion.md) (the same parent as `validation-sweep`); the discipline this skill operationalises is fresh-reader review at corpus scope across ten persona lenses.
 - [`.claude/commands/fitness.md`](.claude/commands/fitness.md) (new): slash-command wrapping the skill. Nine-step process matching the SKILL.md's Process section.
 - [`.working/fitness-reviews/`](.working/fitness-reviews/) (new activity directory, canonical `.working/<activity>/` layout per PR #118):
   - [`.working/fitness-reviews/README.md`](.working/fitness-reviews/README.md) — static convention info: per-run file format spec (8 H2 sections), ten-persona catalogue with scope and focus questions per persona, severity model (SARIF-lite + `[critical]` flag inside High), output flow, audit-gate exemption, adopter guidance, framework alignment.

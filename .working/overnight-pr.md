@@ -1,7 +1,7 @@
 # Overnight PR — Library Fitness Review Skill
 
 **Started**: 2026-06-21 (overnight session, maintainer asleep)
-**Status (live)**: in progress — building skill files
+**Status**: PR #120 merged; Sweep 10 iter 2 ran and surfaced seven in-window findings (one High: preflight exemption needed re-adding with new line_hash; three Medium: TODO resume-state drift on version + persona count; three Low: CHANGELOG narration claim, overnight-pr.md status framing, TODO sweep cursor). All fixed in PR #121 (Sweep 10 iter 2 close-out). This file is now a frozen-state archive per `.working/` convention; the canonical post-overnight state is in `main` HEAD.
 
 This file documents work performed autonomously while the maintainer was unavailable. Every meaningful design choice is recorded with rationale so the maintainer can audit judgement at breakfast.
 
@@ -136,4 +136,31 @@ Deliberate scope boundaries:
 
 ## Notes for morning review
 
-*(will populate before signing off)*
+### Summary
+
+PR #120 (`/fitness` skill, ten personas) authored end-to-end overnight under explicit maintainer authorisation. Followed `skill-authoring-discipline`'s 8-section template; expanded the original 7-persona prompt to 10 with rationale captured above. All 44 audit gates passed. Merged after 60s + CI green (per authorisation). Sweep 10 iter 2 ran post-merge and surfaced seven small in-window findings (preflight exemption rotation needed, TODO resume-state drift, two minor narration cleanups) — all fixed in PR #121.
+
+### What to review at breakfast
+
+1. **The fitness SKILL.md** at `dev-security/claude-rules/skills/library-fitness-review/SKILL.md` — read the Overview, When-to-Use, Process steps 1-9, Red Flags, Common Rationalizations sections. Confirm the design fits what you envisioned. Particular attention to the 10-persona expansion (the three additions over the original 7 prompt).
+2. **The activity README** at `.working/fitness-reviews/README.md` — confirm the per-persona scope and focus questions are well-shaped for actual runs. This is the canonical source for persona briefs.
+3. **The slash command** at `.claude/commands/fitness.md` — confirm the 9-step process brief is clear enough for an orchestrator to dispatch.
+4. **The two empty files**: `.working/fitness-reviews/history.md` shows the empty cumulative table; the first `/fitness` invocation will populate it.
+
+### Open questions / things I did NOT decide unilaterally
+
+None. All design choices were within the scope you authorised. Where I added beyond the original 7-persona prompt (adoption practitioner, privacy officer, newcomer), each is justified above with a candidate-evaluation and a defer-list for personas not added (security architect, AI ethics reviewer, accessibility reviewer, legal counsel, translation/localisation reviewer).
+
+### Recommendations for next session
+
+1. **Run `/fitness` for the first time** — this exercises the skill end-to-end. The current corpus is large; expect a multi-minute parallel dispatch.
+2. **Consider PR #122 (changelog-details migration)** — still queued from the pre-overnight TODO. Now that PR #120 has shipped, the changelog-details split convention can land.
+3. **Consider further `.working/` moves** queued in TODO: `tools/sweep-preflight-exemptions.json`, citation-verification cluster, `register-main-branch-protection.md`.
+
+### Files this overnight session touched
+
+See PR #120 diff (10 files changed, 551 insertions, 4 deletions) and PR #121 diff (Sweep 10 iter 2 close-out). All within the maintainer-authorised scope (skill subdir + slash command + `.working/` activity dir + pack README touchpoints + linter wiring + version bumps + CHANGELOG + regenerated artefacts).
+
+### Corpus boundary respected
+
+Zero corpus files touched outside the maintainer-authorised additions. `ai/`, `architecture/`, `compliance/`, `governance/`, `operations/`, `privacy/`, `resilience/`, `risk/`, `security/`, `supply-chain/`, corpus-level `dev-security/` (standards, guidelines, policies, registers), other `dev-security/claude-rules/` content (governance rules, core security rules, AI rules, languages, pipeline, sibling skills) — all unchanged.

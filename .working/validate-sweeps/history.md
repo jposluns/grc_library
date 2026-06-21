@@ -1,6 +1,6 @@
 # Validation Sweep History
 
-**Version:** 2.0.0\
+**Version:** 2.0.1\
 **Date:** 2026-06-21\
 **License:** CC BY-SA 4.0
 
@@ -12,6 +12,7 @@ See [`README.md`](README.md) for the failure-mode taxonomy (C1-C8), maintenance 
 
 | Date | Sweep | Subagents | Findings | Resulting PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-06-21 | 10 iter 2 | A, B, C | 7 (1H, 3M, 3L) | [#121](https://github.com/jposluns/grc_library/pull/121) | [`2026-06-21-sweep10-iter2.md`](2026-06-21-sweep10-iter2.md) | Post PRs #118-#120 (canonical activity restructure + TODO + fitness skill overnight). Findings: re-add preflight exemption for "Six rules" line (line_hash changed post PR #117); TODO resume-state snapshot stale (version + persona count drift since session-pause); CHANGELOG "version 1.0.0" claim for SKILL.md without frontmatter version; overnight-pr.md "in progress" status stale. All in-window; all fixed. |
 | 2026-06-21 | 10 iter 1 | A, B, C | 6 (2H, 2M, 2L) | [#117](https://github.com/jposluns/grc_library/pull/117) | [`2026-06-21-sweep10-iter1.md`](2026-06-21-sweep10-iter1.md) | Post PRs #114-#116. Six in-window prose-drift findings: stale step counts in SKILL.md and slash command, stale subdir inventory in `.working/README.md`, three-way section-header drift, awkward possessive, stale "Four rules" → "Six rules". |
 | 2026-06-21 | 9 iter 3 | A, B, C | 3 (1H, 1M, 1L) | [#113](https://github.com/jposluns/grc_library/pull/113) | — | PR #112 close-out's own prose self-contradictions: P6/P7 inversion in register entry, mis-attributed origin trigger in CLAUDE.md, missing 1.27.0 rollout extension. |
 | 2026-06-21 | 9 iter 2 | A, B, C | 1 (C1) + 1 discipline | [#112](https://github.com/jposluns/grc_library/pull/112) | — | Subagent B caught parallel `42 corpus gates` at `tools/check-changelog-on-pr.py:5`; fix-completeness inference cascade led to 7th pack rule (`validate-inference-before-action`) and gate 39 P7. |
