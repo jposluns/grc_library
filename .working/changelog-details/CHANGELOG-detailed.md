@@ -6,6 +6,55 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.149, PR #167
+
+Sweep 15 iteration 1 close-out. Four findings (3 in-window, 1 out-of-window). Subagents A, B, C all dispatched.
+
+### Closed findings (in-window)
+
+- **`docs/template-implementation-roadmap.md:12` Review Frequency stale after FR-57 rename** (medium, A): metadata still referenced "quickstart-template module catalogue" — the module catalogue lives in `template-startup-roadmap.md` after PR #166 renamed the file. Fix updates the field to "startup-roadmap-template module catalogue".
+- **`privacy/template-dpia.md:197` ISO/IEC 29134:2023 unverified** (medium, A): citation introduced by PR #162 (FR-29 DPIA template) without verification against the canonical-citations register (`governance/register-canonical-citations.md` does not list 29134). The publicly verifiable edition of ISO/IEC 29134 is the 2017 publication; no 2023 republication is recorded. The year was likely a hallucination in the FR-29 worker-draft. Corrected to ISO/IEC 29134:2017 in both the template and the document-index row mirroring the citation.
+- **`TODO.md:22` stale "Queued sequence" narrative** (warning, B): said "PRs #142-#159 have closed 21 findings to date (most recently PR #155 FR-1, PR #156 FR-2, PR #157 FR-16, PR #158 FR-80, PR #159 FR-44)". Refreshed to reflect the current state ("PRs #142-#166 have closed 26 findings to date; most recently PR #161 FR-17, PR #162 FR-29, PR #164 FR-43-reshape, PR #165 FR-56, PR #166 FR-57"). Also reframed to mention the 1-8 PR cadence from the amended validate-cadence rule rather than the original strict "5 at a time" phrasing.
+
+### Changed
+
+- [`docs/template-implementation-roadmap.md`](../../docs/template-implementation-roadmap.md):
+  - Line 12 Review Frequency: "Annual, and on material change to the quickstart-template module catalogue" → "Annual, and on material change to the startup-roadmap-template module catalogue".
+  - Per-doc version `1.0.3 → 1.0.4`.
+- [`privacy/template-dpia.md`](../../privacy/template-dpia.md):
+  - Framework alignment table (line 197): `ISO/IEC 29134:2023` → `ISO/IEC 29134:2017`. The 2017 edition is "Information technology — Security techniques — Guidelines for privacy impact assessment", the publicly available current edition.
+  - Per-doc version `1.0.0 → 1.0.1`.
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md):
+  - Privacy Template row (line 125): same citation correction.
+  - Per-doc version `1.27.25 → 1.27.26`.
+- [`TODO.md`](../../TODO.md): "Queued sequence" narrative refreshed at line 22; new section "Standard-version-upgrade process (maintainer-directed)" added per maintainer direction. Session-resume metadata updated for PR #167.
+- [`README.md`](../../README.md): library `2026.06.148 → 2026.06.149`; README per-doc `1.9.19 → 1.9.20`.
+- [`.working/DONE.md`](../DONE.md): PR #167 entry added.
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): Sweep 15 iter 1 row added; per-doc version `2.0.7 → 2.0.8`.
+- [`.working/validate-sweeps/2026-06-21-sweep15-iter1.md`](../validate-sweeps/2026-06-21-sweep15-iter1.md): detail file created with the six required H2 sections.
+
+### Surfaced to operator (out-of-window, not actioned)
+
+- `compliance/logistics/policy-basc-information-security.md:99,190` enumerates only 3 classification levels (Confidential / Internal / Public). Possibly intentional per BASC International Standard v6 Chapter 6 (cited at line 202 as the primary source), or a multi-surface gap PR #164 (FR-43-reshape) did not address. Operator decision needed in a future PR.
+
+### Future-gate candidate (Subagent C non-finding, not actioned)
+
+- Schema-version inline-history convention for generator schema constants (`tools/build-portal.py` had two same-day schema bumps in PRs #165 and #166; an inline `# Schema history:` comment block would make the bump history discoverable without grepping CHANGELOG).
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- `tools/run-pr-time-checks.sh` exits 0 (D1 + D2 + gate 45).
+- Manual readback: each in-window fix's evidence still matches the original Subagent report's quoted line (i.e., the fix replaces the flagged stale text, not adjacent text); TODO arithmetic remains consistent (10 + 5 + 56 = 71 immediate; 14 deferred; 85 open).
+
+### Discipline observation
+
+This is the second recent sweep to catch an ISO citation issue (Sweep 12 caught the ISO/IEC 27701:2019 → 2025 supersession during FR-21; Sweep 15 caught the ISO/IEC 29134:2023 hallucination). The recurrence supports the maintainer-directed addition of a Standard-Version-Upgrade Process item to TODO: a documented procedure for citation discipline (canonical-citations register, verification, audit-gate integration) would catch both classes (supersession and hallucination) systematically. The procedure document is the deliverable; ad-hoc per-citation fixes by sweep are the current process.
+
+Also notable: PR #162's worker-draft for FR-29 introduced the unverified citation. The worker-draft pipeline does not currently consult the canonical-citations register; that consultation is a manual orchestrator-QA step that did not catch this. A future improvement to the worker-draft brief: require workers to list every citation introduced and to flag any not present in the canonical-citations register for orchestrator verification.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.148, PR #166
 
 Closes FR-57 (high). The "quickstart" at `docs/template-quickstart.md` was 319 lines covering 5 dimensions × 23 modules — a composition workbook, not a quickstart. A real quickstart is a 10-minute on-ramp; the existing content's value is preserved by renaming, and a new short quickstart ships at the original path.

@@ -72,7 +72,7 @@ _82 documents._
 | [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.4.22 | 2026-06-19 |
 | [governance/register-citation-verifications.md](../governance/register-citation-verifications.md) | Citation Verifications Register | Register | 1.1.0 | 2026-05-29 |
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.15 | 2026-06-21 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.25 | 2026-06-21 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.26 | 2026-06-21 |
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.2.1 | 2026-05-30 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.1 | 2026-05-28 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.3.2 | 2026-06-21 |
@@ -257,7 +257,7 @@ _190 documents._
 | [privacy/register-cookie-and-tracker.md](../privacy/register-cookie-and-tracker.md) | Cookie and Tracker Register | Register | 1.0.1 | 2026-06-02 |
 | [privacy/register-cross-border-data-flow.md](../privacy/register-cross-border-data-flow.md) | Cross-Border Data Flow Register | Register | 1.0.1 | 2026-05-28 |
 | [privacy/standard-pseudonymisation-and-anonymisation.md](../privacy/standard-pseudonymisation-and-anonymisation.md) | Pseudonymisation and Anonymisation Standard | Standard | 1.0.1 | 2026-06-02 |
-| [privacy/template-dpia.md](../privacy/template-dpia.md) | DPIA (Data Protection Impact Assessment) Template | Template | 1.0.0 | 2026-06-21 |
+| [privacy/template-dpia.md](../privacy/template-dpia.md) | DPIA (Data Protection Impact Assessment) Template | Template | 1.0.1 | 2026-06-21 |
 | [privacy/template-dsar-workflow.md](../privacy/template-dsar-workflow.md) | Data Subject Access Request Workflow Template | Template | 1.0.1 | 2026-06-02 |
 | [privacy/template-privacy-notice.md](../privacy/template-privacy-notice.md) | Privacy Notice Template | Template | 1.0.1 | 2026-06-02 |
 | [privacy/template-record-of-processing-activities.md](../privacy/template-record-of-processing-activities.md) | Record of Processing Activities Template | Template | 1.0.1 | 2026-06-02 |
