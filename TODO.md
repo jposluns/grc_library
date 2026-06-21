@@ -13,7 +13,7 @@ This section preserves the in-flight context for a multi-PR sequence the maintai
 ### Session state at pause
 
 - **Current branch**: `main` (synced after PR #120 merge).
-- **Library version at HEAD**: `2026.06.105`. **Pack version**: `1.30.0`. **README version**: `1.8.61`.
+- **Library version at HEAD**: `2026.06.107`. **Pack version**: `1.30.0`. **README version**: `1.8.63`.
 - **Audit programme**: 44 gates, all passing on `main`.
 - **Last validation sweep**: Sweep 10 iteration 2 (in flight at session-pause time; close-out PR #121 covers this). Re-baseline due after the changelog-details migration if and when the maintainer reorders the queue, and after any further `.working/` moves.
 
