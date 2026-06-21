@@ -25,6 +25,14 @@ The format for each entry:
 
 ## Closed items
 
+### PR #149 — FR-21: Compliance-obligations Source Reference granularity (2026-06-21)
+
+High[critical]-severity finding closed. [`compliance/register-compliance-obligations-template.md`](../compliance/register-compliance-obligations-template.md) Source Reference field tightened so register citations resolve to a single unambiguous source location: revised field description plus a new "Source Reference granularity requirements" sub-section enumerating minimum-precision patterns for NIST publications, ISO/IEC standards, statutes and regulations, COBIT, PCI DSS, CSA CCM, contracts, and voluntary commitments — each row with acceptable and unacceptable example citations. Closes a register-defeating ambiguity: populators could previously enter `NIST 800-53` or `ISO 27001` without revision or control and still satisfy the prior field description. Per-doc `1.0.2 → 1.0.3`; library `2026.06.130 → 2026.06.131`.
+
+### FR-21 — Compliance-obligations Source Reference granularity (closed by PR #149, 2026-06-21)
+
+High[critical] finding from r1: template accepted low-precision citations (e.g., "NIST 800-53" without revision/control). Defeated the register's audit-prep purpose because an auditor could not resolve the obligation to a specific source location.
+
 ### PR #148 — Sweep 12 iter 1 close-out (2026-06-21)
 
 Validation sweep after the six fitness-remediation PRs #142-#147. Subagents A, B, C dispatched in parallel (Rule 5.6 declaration recorded in history). Three in-window findings, all fixed in this PR:
