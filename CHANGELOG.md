@@ -4,6 +4,26 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.149, PR #167
+
+Sweep 15 iteration 1 close-out. Three in-window findings fixed; one out-of-window note surfaced to operator. Subagents A, B, C all dispatched (Subagent A: 3 findings; Subagent B: 1; Subagent C: 0). In-window fixes:
+
+- **(M)** [`docs/template-implementation-roadmap.md:12`](docs/template-implementation-roadmap.md): Review Frequency metadata field still referenced "quickstart-template module catalogue" — stale after PR #166 (FR-57) renamed the module-catalogue file to [`docs/template-startup-roadmap.md`](docs/template-startup-roadmap.md). Fixed. Per-doc `1.0.3 → 1.0.4`.
+- **(M)** [`privacy/template-dpia.md:197`](privacy/template-dpia.md) and [`governance/register-document-index-and-classification.md:125`](governance/register-document-index-and-classification.md): cited `ISO/IEC 29134:2023` which is unverified — the publicly verifiable edition of ISO/IEC 29134 is the 2017 publication, with no recorded 2023 republication in the canonical-citations register. The 2023 year was likely a hallucination in the FR-29 DPIA template draft. Corrected to ISO/IEC 29134:2017 in both locations. Per-doc bumps: DPIA template `1.0.0 → 1.0.1`; document index `1.27.25 → 1.27.26`.
+- **(W)** [`TODO.md:22`](TODO.md): "Queued sequence" narrative said "PRs #142-#159 have closed 21 findings to date" — lagged actual state by 5 PRs and contradicted line 113 of the same file ("26 closed across PRs #142-#166"). Refreshed to current state.
+
+Out-of-window finding surfaced to operator (not actioned this PR):
+
+- [`compliance/logistics/policy-basc-information-security.md:99,190`](compliance/logistics/policy-basc-information-security.md): enumerates 3 classification levels (Confidential / Internal / Public) instead of the canonical 5. Possibly intentional per BASC International Standard v6 Chapter 6, or a multi-surface gap PR #164 (FR-43-reshape) did not address. Operator decision needed: either confirm BASC mandates the 3-level scheme (add cross-reference to canonical standard with rationale) or expand to the 5-level scheme.
+
+Subagent C surfaced one future-gate candidate as a non-finding: [`tools/build-portal.py`](tools/build-portal.py) had two same-day schema bumps in this batch (PR #165: 1.0.0 → 1.1.0; PR #166: 1.1.0 → 1.2.0). A future convention could require an inline `# Schema history:` comment block on generator-schema constants so the bump history is discoverable without grepping CHANGELOG. Recorded for future consideration; not actioned.
+
+Also captures maintainer-directed standard-version-upgrade-process work as a new TODO section: a documented process for transitioning the corpus when an external standard republishes at a new version (covering diff, reference enumeration, content-vs-positional classification, systematic update, register update, audit-gate integration, communication). Sweep 15's ISO/IEC 29134 issue plus FR-21's ISO/IEC 27701:2019 → 2025 work motivated capturing this as a process. Owner: maintainer. Effort: M. Schedule: after FR backlog completes.
+
+Detail report at [`.working/validate-sweeps/2026-06-21-sweep15-iter1.md`](.working/validate-sweeps/2026-06-21-sweep15-iter1.md). Library `2026.06.148 → 2026.06.149`.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.148, PR #166
 
 Closes **FR-57** (high). [`docs/template-quickstart.md`](docs/template-quickstart.md) was 319 lines covering 5 dimensions × 23 modules — not a quickstart by any reasonable interpretation. Reconciled via Option B (rename + new short doc): the existing long-form composition workbook moves to [`docs/template-startup-roadmap.md`](docs/template-startup-roadmap.md) (renamed, content preserved with metadata + preface updates), and a new short [`docs/template-quickstart.md`](docs/template-quickstart.md) ships as a true 10-minute on-ramp (six-artefact core baseline, role-name substitution discipline, portal pointer, plus a "Next steps" block linking to the renamed long-form roadmap and the other three adopter-facing paths). Cross-references updated in [`docs/template-implementation-roadmap.md`](docs/template-implementation-roadmap.md) (Related Documents + body wording) and [`docs/template-maturity-self-assessment.md`](docs/template-maturity-self-assessment.md) (Related Documents). Portal generator updated to surface the two as separate rows: quickstart now answers "What do I copy on Day 1?"; startup-roadmap answers "And what do I add later?". Per-doc bumps: new quickstart `2.0.2 → 3.0.0` (major: file at this path materially redefined); renamed startup-roadmap `2.0.2 → 2.1.0`; implementation roadmap `1.0.2 → 1.0.3`; maturity self-assessment `1.0.1 → 1.0.2`; portal generator schema `1.1.0 → 1.2.0`; library `2026.06.147 → 2026.06.148`. Also captures effort-sizing labels (XS/S/M/L/XL) for future FR-item TODO entries as a post-backlog process improvement. Backlog 86 → 85 open.

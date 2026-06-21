@@ -2,14 +2,14 @@
 
 **Document Title:** Adopter Implementation Roadmap Template\
 **Document Type:** Template\
-**Version:** 1.0.3\
+**Version:** 1.0.4\
 **Date:** 2026-06-21\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/template-quickstart.md`](template-quickstart.md), [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/template-maturity-self-assessment.md`](template-maturity-self-assessment.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`README.md`](../README.md)\
 **Classification:** Public\
 **Category:** Adopter Experience\
-**Review Frequency:** Annual, and on material change to the quickstart-template module catalogue\
+**Review Frequency:** Annual, and on material change to the startup-roadmap-template module catalogue\
 **Repository Path:** [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
