@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.138, PR #156
+
+Closes FR-2 (high, README "How to use" step 1 navigation). The "How to use" section's step 1 had directed readers to the 300-row document index before the audience-keyed portal. A first-time visitor reading the README sequentially landed first on the "New to GRC?" block (which points at [`docs/portal.md`](../../docs/portal.md)) and then on "How to use" step 1 (which contradicted that signposting by pointing at the document index instead). Step 1 now opens with the portal as the primary pointer.
+
+### Closed findings
+
+- **FR-2** (high, `README.md`): "How to use" step 1 buried the audience-keyed entry by pointing at the 300-row document index first. The fix reorders so [`docs/portal.md`](../../docs/portal.md) is the primary pointer in step 1, with the document index retained as a named secondary pointer for readers who already know what they want.
+
+### Changed
+
+- [`README.md`](../../README.md): "How to use" step 1 now opens with "Start at the audience-keyed portal" pointing at [`docs/portal.md`](../../docs/portal.md). The document index reference is preserved as a secondary pointer in the same step. Steps 2-5 unchanged.
+- [`README.md`](../../README.md): library `2026.06.137 → 2026.06.138`; README per-doc `1.9.8 → 1.9.9`.
+- [`TODO.md`](../../TODO.md): FR-2 rotated out of High tier; backlog counters updated (14 + 9 + 56 = 79 immediate; 14 deferred; 93 open).
+- [`.working/DONE.md`](../DONE.md): PR #156 entry added.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- `tools/run-pr-time-checks.sh` exits 0 (D1 + D2 + gate 45).
+- Manual re-read confirmed: step 1 leads with the portal; document index retained as secondary pointer; steps 2-5 unchanged; no contradiction with the "New to GRC?" block.
+
+### Discipline observation
+
+PR #147 added the "New to GRC?" block on the README routing first-time visitors to the portal; the older "How to use" step 1 was authored before the portal existed and pointed at the document index, which was the canonical navigation surface at that time. The drift accumulated because the older content was not revisited when the newer block was added. Surfaced as a candidate generalisation: when introducing a new navigation surface, audit existing sequential navigation pointers in the same document to ensure they are consistent with the new top-of-funnel.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.137, PR #155
 
 Closes FR-1 (high, README "What this repository is" framing). The previous "two coordinated halves" formulation gave the GRC corpus and the AI-assisted-maintenance reference implementation equal billing. The fitness review judged this misframed the project's primary value: the corpus is the product, the maintenance discipline is the methodology that keeps it consistent. This PR re-frames the section so the corpus is the unambiguous headline product and the audit toolchain plus the `dev-security/claude-rules/` pack are positioned as the operational layer.
