@@ -99,11 +99,11 @@ Applies to all access to organisational systems including cloud platforms, on-pr
 3.2 Access reviews confirm that each user's current access:
 
 - Matches the access profile documented for the user's current role in the RBAC catalogue;
-- Does not exceed the minimum required for the user's current responsibilities (least privilege, per §2.3);
-- Has a current business justification on file (per §1.1);
+- Does not exceed the minimum required for the user's current responsibilities, applying the least-privilege principle stated in the Access provisioning section;
+- Has a current business justification on file matching the requirements in the Access request and approval section;
 - For privileged access, remains within the active membership of the corresponding PIM role.
 
-Access that does not meet all four criteria is treated as unjustified and revoked per §3.3.
+Access that does not meet all four criteria is treated as unjustified and revoked under the next access review.
 
 3.3 Access that cannot be justified is revoked immediately.
 
