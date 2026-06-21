@@ -12,10 +12,10 @@ This section preserves the in-flight context for a multi-PR sequence the maintai
 
 ### Session state at pause
 
-- **Current branch**: `main` (synced after PR #118 merge).
-- **Library version at HEAD**: `2026.06.104`. **Pack version**: `1.29.0`. **README version**: `1.8.60`.
+- **Current branch**: `main` (synced after PR #120 merge).
+- **Library version at HEAD**: `2026.06.105`. **Pack version**: `1.30.0`. **README version**: `1.8.61`.
 - **Audit programme**: 44 gates, all passing on `main`.
-- **Last validation sweep**: Sweep 10 iteration 1 (closed by PR #117). Re-baseline due after PR #119 (changelog details) and PR #120 (fitness skill), then again after any other moves in the queue.
+- **Last validation sweep**: Sweep 10 iteration 2 (in flight at session-pause time; close-out PR #121 covers this). Re-baseline due after the changelog-details migration if and when the maintainer reorders the queue, and after any further `.working/` moves.
 
 ### PRs completed in this session
 
@@ -30,6 +30,9 @@ In merge order (oldest to newest); see [`CHANGELOG.md`](CHANGELOG.md) for full d
 7. **PR #116** — Move sweep history file from `governance/` to `.working/`
 8. **PR #117** — Sweep 10 iter 1 close-out (6 prose drift findings post-#114-#116)
 9. **PR #118** — Restructure `.working/<activity>/` to canonical layout (README + history table + per-run detail only-when-findings)
+10. **PR #119** — TODO update only (session-resume context capture); `Changelog: skip` per TODO's informational status
+11. **PR #120** — `/fitness` skill (`library-fitness-review`); ten persona reviewers; canonical `.working/fitness-reviews/` activity layout; pack `1.29.0 → 1.30.0`. Authored overnight under explicit maintainer authorisation; full decision log at `.working/overnight-pr.md`
+12. **PR #121** (queued, this is Sweep 10 iter 2's close-out) — Re-add preflight exemption for "Six rules" line; update TODO resume-state snapshot; fix small CHANGELOG narration claim; update overnight-pr.md status
 
 ### Queued sequence (resume in this order)
 
@@ -52,7 +55,7 @@ In merge order (oldest to newest); see [`CHANGELOG.md`](CHANGELOG.md) for full d
 - **Skill file**: `dev-security/claude-rules/skills/library-fitness-review/SKILL.md`, derives from `dev-security/claude-rules/governance/evidence-grounded-completion.md`
 - **Slash command file**: `.claude/commands/fitness.md`
 - **Output directory**: `.working/fitness-reviews/` (follows PR #118's canonical activity layout: README + history table + per-run detail only-when-findings)
-- **7 personas (parallel subagents)**: (1) first-time executive reader; (2) security practitioner; (3) GRC practitioner; (4) auditor/assurance reviewer; (5) policy and standards editor; (6) process owner / operational user; (7) skeptical reader hunting ambiguity, inconsistency, gaps, contradictions, unusable content. All 7 dispatched on every full run.
+- **10 personas (parallel subagents)** as shipped in PR #120 (the original prompt specified 7; the implementation expanded to 10 with three additions justified in [`.working/overnight-pr.md`](.working/overnight-pr.md)): (1) first-time executive reader; (2) security practitioner; (3) GRC practitioner; (4) auditor/assurance reviewer; (5) policy and standards editor; (6) process owner / operational user; (7) skeptical reader; (8) adoption practitioner; (9) privacy/data protection officer; (10) newcomer/onboarding engineer. All 10 dispatched on every full run.
 - **Scope per run**: whole corpus, every run.
 - **Cadence**: manual trigger (after "major changes" — new domain dir, new document type, pack rule additions, major restructure; quarterly minimum if no major changes; pre-publication / pre-external-share).
 - **Output format per run**: one combined Markdown file at `.working/fitness-reviews/YYYY-MM-DD-rN.md` with 8 top-level H2 sections following the prompt's structure (Executive Summary, Review Method, Page-by-Page Findings, Cross-Library Findings, Severity Model, Recommendations, Standardization Recommendations, Remediation Backlog, Final Assessment). Discrete remediation IDs (`FR-1`, `FR-2`, …) drive subsequent PRs.
@@ -94,7 +97,7 @@ Each requires updating the document-index, sibling references, regenerating taxo
 
 7. **CHANGELOG split convention (PR #119)**: root keeps the lead paragraph; structured sections + verification evidence + discipline observations move to `.working/changelog-details/`. Going forward, every change writes BOTH. PR-time gate (`check-changelog-on-pr.py`) enforces dual-entry. The general `.working/` audit exemption is preserved for everything else.
 
-8. **Fitness review convention (PR #120)**: 7 personas parallel, whole-corpus each run, output to `.working/fitness-reviews/YYYY-MM-DD-rN.md` only when findings, 8-section combined file. Severity: SARIF-lite + `[critical]` flag in High. Manual trigger only; no mechanical gate enforces it.
+8. **Fitness review convention (shipped in PR #120)**: 10 personas parallel (original prompt's 7 + adoption practitioner + privacy/DPO + newcomer), whole-corpus each run, output to `.working/fitness-reviews/YYYY-MM-DD-rN.md` only when findings, 8-section combined file. Severity: SARIF-lite + `[critical]` flag in High. Manual trigger only; no mechanical gate enforces it.
 
 9. **Subagent dispatch (Rule 5.6) audit trail**: every validation-sweep iteration declares which subagents were dispatched in the `Subagents` column of `history.md`. Cannot reconstruct silent skips later.
 
