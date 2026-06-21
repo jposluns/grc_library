@@ -2,7 +2,7 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-06-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -146,11 +146,12 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ### 7.1 Classification and storage
 
-7.1.1 Remote workers must handle data in accordance with the Data Classification and Handling Standard at all times. The four classification tiers and their remote working implications are summarized below:
+7.1.1 Remote workers must handle data in accordance with the Data Classification and Handling Standard at all times. The five classification levels and their remote working implications are summarized below:
 
 | Classification | Remote Access Permitted | Storage Requirements | VPN Required |
 | --- | --- | --- | --- |
 | **Public** | Yes, on any compliant managed device | Company-managed storage | No |
+| **Controlled** | Yes, on any compliant managed device | Company-managed storage | No |
 | **Internal** | Yes, on any compliant managed device | Company-managed storage | No (cloud); Yes (on-premises) |
 | **Confidential** | Yes, on compliant managed device; personal devices require CISO approval | Company-managed encrypted storage; personal cloud storage prohibited | Yes (on-premises access); Yes (all access from non-home networks) |
 | **Restricted** | Managed device only; CISO approval required for remote access | Company-managed encrypted storage; no personal storage of any kind | Yes, always |

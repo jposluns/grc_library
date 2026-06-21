@@ -2,8 +2,8 @@
 
 **Document Title:** Security Baseline and Standards Reference\
 **Document Type:** Standard\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.1.0\
+**Date:** 2026-06-21\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)\
@@ -87,6 +87,7 @@ Deviations require a formal exception approved by the CIO or CISO.
 | Classification | Description | Examples |
 | --- | --- | --- |
 | **Public** | Approved for unrestricted external disclosure. | Marketing materials, public website content |
+| **Controlled** | May be shared externally on demand where disclosure poses low risk. | Product overviews, proposals, general client communications |
 | **Internal** | For organisational internal use only. | Operational procedures, internal reports |
 | **Confidential** | Sensitive business data requiring controlled access. | Customer records, financial data, contracts, trade data, personnel information |
 | **Restricted** | Highest sensitivity; access strictly controlled. | Credentials, encryption keys, audit logs with PII, investigation materials |

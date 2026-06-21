@@ -2,8 +2,8 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.1.0\
+**Date:** 2026-06-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md)\
@@ -86,6 +86,7 @@ OAuth 2.0 client credentials flow validated by IdP token validation policy at th
 | Classification | Encryption at Rest | Encryption in Transit | Who Can Access | Can It Leave the Primary Region? |
 | --- | --- | --- | --- | --- |
 | Public | Not required (good practice) | HTTPS for web | Anyone | Yes |
+| Controlled | Not required (good practice) | TLS 1.2+ for any external sharing | Employees, contractors, and external recipients under appropriate context | Yes |
 | Internal | Required for databases and backups | TLS 1.2+ required | Employees and approved contractors | Yes, with appropriate controls |
 | Confidential | Required. AES-256 minimum. | TLS 1.2+ mandatory | Authorized personnel on a need-to-know basis | Requires data residency risk assessment and CIO/Legal approval |
 | Restricted | Required. AES-256. Key in secrets vault. | TLS 1.2+ mandatory | Named individuals only. PAM-controlled access where applicable. | Prohibited except with explicit Legal sign-off and documented justification |
