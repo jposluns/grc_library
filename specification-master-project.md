@@ -2,7 +2,7 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.5.2\
+**Version:** 1.6.0\
 **Date:** 2026-06-21\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
@@ -264,6 +264,20 @@ Rules:
 10. Do not use em dashes or en dashes.
 11. Pair `ensure` with `that`; do not use bare `ensure` or `ensures`.
 12. Use sentence case for all section headings (H2 through H6). The first word is capitalised; subsequent words are lowercase except proper nouns and acronyms. Section identifiers such as `A1.`, `Step 1:`, and `Category 1:` count as numbering, not as the first word, so the word that follows must be capitalised. H1 document titles may use Title Case where they name a controlled artefact (e.g. policy or standard title).
+
+### 6.1 Requirement-language register
+
+This library uses **must** / **must not** as the normative requirement verbs, **should** / **should not** as recommendation verbs, and **may** as the permission verb. The semantics are those of RFC 2119 (Bradner, 1997) as updated by RFC 8174 (Leiba, 2017): the requirement-language reading applies where the relevant keyword appears in lowercase or uppercase prose within a normative statement; where the same word appears in a non-normative context (a definition, a citation, an example), it carries its ordinary English meaning.
+
+The following rules apply:
+
+1. **"must" / "must not"** is the project's canonical requirement-language pair for absolute obligations and prohibitions. Use it by default in policies, standards, procedures, SOPs, and any document that states normative requirements.
+2. **"should" / "should not"** is the canonical recommendation pair. Use it for strong recommendations where a documented justification permits deviation. Do not use "should" as a softer synonym for "must"; the distinction is meaningful for audit and conformance purposes.
+3. **"may"** is the canonical permission verb. Do not use "may not" as a prohibition: a strict RFC 2119 reading of "may not" admits a permissible-negative-possibility interpretation that is ambiguous against MUST NOT. Where the intent is a prohibition, write "must not".
+4. **"shall" / "shall not"** is reserved for two narrow cases: (a) direct quotation of an external standard that uses "shall" in its normative text (ISO/IEC, NIST SP, IEC, and similar standards historically use "shall" as their requirement verb); and (b) legacy content that has not yet been harmonized to "must". New normative content authored within this library uses "must"; legacy "shall" usage is converted to "must" opportunistically as documents are revised.
+5. **Verb consistency within a document** outranks cross-file uniformity. A single document should use one of "must" or "shall" throughout its normative text, not both, unless the second verb is explicitly a quotation of an external standard. Where a document mixes the two, the predominant verb is the canonical form for that document and any normative additions follow it; the minority occurrences are converted opportunistically.
+
+The convention is documented at the library level so reviewers can cite it. A future audit gate may mechanise the rule (for example, flagging "may not" used as a prohibition, or flagging new "shall" introductions outside the carve-outs above); this specification is the source of truth for that future gate's policy.
 
 ---
 
