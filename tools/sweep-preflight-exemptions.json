@@ -31,6 +31,12 @@
       "pattern_id": "PF-collection-rules-word",
       "line_hash": "d0e2dce98dc3847d",
       "reason": "SARIF-lite output format introduction: the line is 'Three rules:' introducing the three rules of the SARIF-lite output format (one block per finding, deterministic fingerprint, closed severity enum), not a governance-rule count."
+    },
+    {
+      "path": "dev-security/claude-rules/skills/validation-sweep/SKILL.md",
+      "pattern_id": "PF-collection-rules-word",
+      "line_hash": "2ae34a0ce24f10c3",
+      "reason": "Synthesis rubric sub-rules 5.1-5.6: 'Six rules, no ceremony' refers to rubric sub-rules in adjacent text, not governance-rule count. Replaces the prior 'Four rules' exemption (line_hash eca081c59b46035c) removed in PR #117 when the prose was updated from 'Four rules' to 'Six rules'."
     }
   ]
 }
