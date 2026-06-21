@@ -4,6 +4,12 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.122, PR #140
+
+Pass-1 verification (per the discipline introduced in PR #139) applied to the existing 111 FR-N findings in [`.working/fitness-reviews/2026-06-21-r1.md`](.working/fitness-reviews/2026-06-21-r1.md). Five verification-task subagents dispatched in parallel; each performed direct source re-reads (no persona role) and applied one verdict tag per finding. Aggregate: **93 ✅ confirmed-as-stated / 14 ⚠️ confirmed-with-modification / 2 🤔 ambiguous-needs-maintainer / 2 ❌ rejected**. New §8.5 "Pass-1 Verification Results" added to the report with verdict table + per-bucket summary. Pass-2 (maintainer-interactive bucket processing) is the next queued PR. Library `2026.06.121 → 2026.06.122`.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.121, PR #139
 
 Amends the `library-fitness-review` skill (`/fitness`) to introduce the unverified→confirmed labelling discipline. Subagent findings are now `verification: unverified` at output time; Pass-1 (orchestrator re-reads cited source and tags `✅` / `⚠️` / `❌` / `🤔`); Pass-2 (maintainer-interactive bucket processing). Triage by severity applies only to confirmed findings, which produce TODO entries carrying FR-N ID + run reference + verification date. SKILL.md Step 5 restructured into four sub-steps; [`.claude/commands/fitness.md`](.claude/commands/fitness.md) updated in parallel (paired-skill step-parity gate); [`.working/fitness-reviews/README.md`](.working/fitness-reviews/README.md) workflow rewritten. The existing 111 findings in [`.working/fitness-reviews/2026-06-21-r1.md`](.working/fitness-reviews/2026-06-21-r1.md) retroactively marked `verification: unverified` pending Pass-1 in the next PR. Pack `1.33.0 → 1.34.0`; library `2026.06.120 → 2026.06.121`.
