@@ -25,6 +25,10 @@ The format for each entry:
 
 ## Closed items
 
+### PR #137 — Overnight-work protocol: stub format for `overnight-pr.md` + audit gate 46 + pack rule amendment (2026-06-21)
+
+Implements the maintainer-confirmed overnight-work protocol. New stub-form [`.working/overnight-pr.md`](overnight-pr.md) with `**Status:**` field; new gate 46 ([`tools/lint-overnight-file.py`](../tools/lint-overnight-file.py)) scanning the file and failing on `Status: done`; new "Overnight-work protocol" subsection in [`change-tracking.md`](../dev-security/claude-rules/governance/change-tracking.md) documenting the lifecycle. Three-state Status field (`stub` / `in-flight` / `done`) rather than binary so overnight PRs land cleanly while the gate still applies mechanical pressure for morning processing once a session ends. Pack `1.32.0 → 1.33.0`; spec `1.13.1 → 1.14.0`; library `2026.06.118 → 2026.06.119`. The maintainer-confirmed standard (chat message 2026-06-21 mid-PR-#135) is the closing trigger for this PR.
+
 ### PR #135 — Restructure design-decisions into its own file; clean up `overnight-pr.md` (2026-06-21)
 
 Creates [`design-decisions.md`](design-decisions.md) as the new home for design-decision content; rotates the "Design decisions made" section out of DONE; migrates fitness-skill-specific decisions out of `overnight-pr.md`; migrates TODO's "Decisions log" section in as "Decisions explicitly dropped"; deletes [`overnight-pr.md`](overnight-pr.md) (purely procedural detail with no forward-looking value after the overnight session it documented). [`README.md`](README.md) (`.working/`) Top-level files table extended with the new file. Implements the maintainer's "DONE should be for things that are DONE; we have the .working directory for our work, let's be as organized as we can moving forward" directive. The TODO's "Decisions log" subsection was specifically called out as misplaced and migrated.

@@ -6,6 +6,48 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.119, PR #137
+
+Implements the maintainer-confirmed overnight-work protocol. The protocol provides structured handoff for autonomous overnight sessions: the assistant fills a designated file with session state (authorization scope, design decisions, build progress, open ambiguities), and a new audit gate ensures the file is processed by the next-morning PR rather than left lingering.
+
+### Added
+
+- [`.working/overnight-pr.md`](../overnight-pr.md) (new, stub form): the overnight-work file. Carries `**Status:** stub` plus a description of the protocol. The file persists in stub form when no overnight session is in flight; the first overnight PR transitions it to `Status: in-flight`; the session's final commit transitions to `Status: done`; the next-morning processing PR resets to `stub`.
+- [`tools/lint-overnight-file.py`](../../tools/lint-overnight-file.py) (new, ~90 lines, stdlib-only): gate 46. Scans the overnight file's `**Status:**` field. Exit codes: 0 on `stub` or `in-flight`; 1 on `done` (with a diagnostic explaining the morning-processing requirement); 1 on any other invalid Status value; 2 on missing file or missing Status line.
+- [`tests/test_linters.py`](../../tests/test_linters.py): `OvernightFileTests` class with 6 tests: smoke (corpus at HEAD in stub form), regex matches for each valid Status value (stub, in-flight, done), and structural tests confirming the pass/fail sets are correctly partitioned.
+
+### Changed
+
+- [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml): new step `Overnight-work file audit` appended after `TODO staleness audit`.
+- [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh): new `run_gate "Overnight-work file audit"` invocation appended after the TODO staleness gate.
+- [`.pre-commit-config.yaml`](../../.pre-commit-config.yaml): new hook `lint-overnight-file` appended after the TODO staleness hook.
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md):
+  - §6 inventory table extended with row 46.
+  - §5 category 7 (Freshness and lifecycle) gains gate 46 with rationale referencing the overnight-work protocol and explaining the three-value Status field.
+  - New paragraph describing gate 46's behaviour and the design rationale (three-state Status rather than binary stub-vs-content) appended after gate 45's description.
+  - Version `1.13.1 → 1.14.0`. The MINOR bump reflects the new gate row.
+- [`dev-security/claude-rules/governance/change-tracking.md`](../../dev-security/claude-rules/governance/change-tracking.md): new "Overnight-work protocol" subsection added under "PR finalization protocol" (after the "Anti-patterns" subsection). Documents the file's lifecycle, the three Status values, the morning-processing PR, the stub-form contents, the initial overnight commit, the final overnight commit, and the exception path. Project-agnostic; adopters supply the overnight-file location.
+- [`.claude/rules/governance/change-tracking.md`](../../.claude/rules/governance/change-tracking.md): mirrored from the pack source per the claude-rules sync convention.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): pack version `1.32.0 → 1.33.0`; version-history row added.
+- [`README.md`](../../README.md): library version `2026.06.118 → 2026.06.119`; README version `1.8.74 → 1.8.75`.
+- [`TODO.md`](../../TODO.md): overnight-protocol item rotated out of the queued sequence (closed by this PR); session resume metadata refreshed; shipped-P4-items rotation becomes the new "Next" PR; fitness work shifts forward.
+- [`.working/DONE.md`](../DONE.md): PR #137 entry added at the top of "Closed items".
+
+### Verification
+
+- Local audit: `tools/run_all_audits.sh` exits 0 on all gates including the new gate 46 against the stub file.
+- Local PR-time checks: `tools/run-pr-time-checks.sh` exits 0.
+- Regression suite: `python3 tools/run-linter-regression.py` includes the 6 new OvernightFileTests; all pass.
+- Gate-name parity (gate 35) confirms the new gate appears identically in the §6 inventory, the workflow, the runner, and the pre-commit config.
+
+### Discipline observation
+
+The three-state design (rather than the binary stub-vs-non-stub that the user's original proposal sketched and I initially advocated) was the resolution of a tension I surfaced before building: a pure binary gate would have blocked overnight PRs from landing through CI, breaking the overnight workflow itself. The three-state Status field threads the needle — the gate provides the morning-processing pressure exactly when needed (after session end) while letting overnight PRs land cleanly while the session is in flight.
+
+The maintainer's pattern of surfacing a structural standard ("add this gate") and the assistant's pattern of building it with attention to workflow constraints ("this design tension exists; here's the resolution") is itself one of the patterns that the future corpus-management-discipline shareable skill (TODO P4.6) will want to capture.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.118, PR #135
 
 Restructures the working-state ledgers per the maintainer's directive that "DONE should be for things that are DONE; we have the .working directory for our work, let's be as organized as we can moving forward." Three concerns combined:
