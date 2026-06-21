@@ -2,8 +2,8 @@
 
 **Document Title:** Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.3.0\
-**Date:** 2026-05-27\
+**Version:** 1.3.2\
+**Date:** 2026-06-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -20,7 +20,7 @@ This policy establishes the overarching framework for protecting the confidentia
 
 ## Purpose
 
-To ensure that information security is systematically managed, risks are mitigated through proportionate controls, and the organisation maintains compliance with ISO/IEC 27001:2022, ISO/IEC 27002:2022, NIST Cybersecurity Framework 2.0, COBIT 2019, and CSA CCM v4.1.
+To ensure that information security is systematically managed, risks are mitigated through proportionate controls, and the organisation maintains compliance with ISO/IEC 27001:2022, ISO/IEC 27002:2022, NIST CSF 2.0, COBIT 2019, and CSA CCM v4.1.
 
 ---
 

@@ -10,8 +10,8 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #178 merge).
-- **Library version as of last refresh**: `2026.06.157`. **Pack version**: `1.36.0`. **README version**: `1.9.28`.
+- **Branch at last refresh**: `main` (synced after PR #179 merge).
+- **Library version as of last refresh**: `2026.06.158`. **Pack version**: `1.36.0`. **README version**: `1.9.29`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
 - **Last validation sweep**: Sweep 15 iteration 1 (close-out PR #167).
 
@@ -25,9 +25,9 @@ Fitness-remediation PRs are now in flight under maintainer direction. PRs #142-#
 
 The remaining fitness-remediation work is organised into two phases. The plan is durable across sessions: research files for every queued item are prepared in advance (under the research-assistant discipline in [`.claude/rules/governance/ai-assistant-workflow-disciplines.md`](.claude/rules/governance/ai-assistant-workflow-disciplines.md)) and held in the session scratchpad; the orchestrator applies them serially.
 
-**Phase 1 remaining (P1.4, P1.5, P1.6, P1.7).** Single-document or single-cluster polish PRs. Phase 1 originally included P1.1 (README polish, closed by PR #172), P1.2 (ERM completion, closed by PR #178), and P1.3 (access-control polish, closed by PR #169); those are shipped.
+**Phase 1 remaining (P1.4b, P1.5, P1.6, P1.7).** Single-document or single-cluster polish PRs. Phase 1 originally included P1.1 (README polish, closed by PR #172), P1.2 (ERM completion, closed by PR #178), P1.3 (access-control polish, closed by PR #169), and P1.4a (six small singleton mediums, closed by PR #179); those are shipped. P1.4 was split into P1.4a + P1.4b per the "always split when in doubt" discipline (FR-33 high[critical] warranted dedicated treatment).
 
-- **P1.4 — Small singletons batch** (FR-18 medium, FR-25 medium, FR-33 high[critical], FR-79 medium, FR-105 medium, FR-106 medium, FR-110 medium). Seven unrelated single-file findings bundled by velocity, not theme. **Flag:** FR-33 is high[critical] (GDPR Article 36 prior-consultation pathway); maintainer should decide whether to split FR-33 out before bundling.
+- **P1.4b — FR-33 (high[critical]) standalone** (GDPR Article 36 prior-consultation pathway). Originally bundled in P1.4; split out per "always split when in doubt" since the severity tier and scope warranted dedicated treatment. P1.4a closed by PR #179 (six mediums: FR-18, FR-25, FR-79, FR-105, FR-106, FR-110).
 - **P1.5 — Editorial consistency cluster** (FR-46, FR-47, FR-48, FR-49, FR-50, FR-51, FR-52, all medium). Role-name "Chief" inconsistency, DPO ambiguous role, H2 numbering drift, Governance heading drift, NIST citation format, ISO 27001 Annex form, review-frequency "and/or".
 - **P1.6 — Cross-document contradictions** (FR-81 medium, FR-82 medium). TLS floor inconsistency; key hashing ambiguity.
 - **P1.7 — Low-tier sweep**. Opportunistic cleanup of deferred Low-tier findings (FR-67 through FR-91 / FR-107 through FR-111 per the Low tier list below). Single bundle expected; details when the maintainer triggers it.
@@ -104,26 +104,25 @@ Resolved from `🤔` to `✅` in Pass-2 with a library-wide propagation plan:
 - **FR-60** (`compliance/healthcare`): HIPAA adopter has no operational detail beyond a single 261-line sector annex.
 - **FR-61** (`compliance/financial-services`): FS adopters outside EU/US lack regulatory regimes (UK PRA/FCA, US OCC/FRB/FDIC, MAS, FSA, APRA, OSFI, HKMA, FINMA).
 
-### Medium tier — 46 findings (immediate priority)
+### Medium tier — 40 findings (immediate priority)
 
 Full list with one-line summaries available in r1.md §3 (`.working/fitness-reviews/2026-06-21-r1.md`). Grouped by topical cluster:
 
 - **FR-12 cross-document follow-up** (1): harmonise the treatment-option vocabulary between [`risk/standard-enterprise-risk-management.md`](risk/standard-enterprise-risk-management.md) §6 (canonical six-option set: Avoid / Mitigate / Transfer / Accept / Exploit / Enhance) and [`risk/procedure-risk-register.md`](risk/procedure-risk-register.md) "Select Treatment" step (different six-option set: Mitigate / Avoid / Transfer / Accept / Monitor / Further Analysis). Surfaced after the within-document FR-12 closure in PR #178; pending maintainer decision on canonical authority and on how the procedure's "Monitor" / "Further Analysis" categories map to the standard's framework.
 - **Maturity ladder methodology** (1): FR-15 (median-of-medians scoring suspect).
-- **Exception policy** (1): FR-18 (180-day default not traceable to normative source).
 - **Audit evidence template** (1): FR-23 ⚠️ (assembler-verification standard absent).
-- **Control testing** (2): FR-24 (procedure thinner than peers), FR-25 (5y retention below SOX 7y).
+- **Control testing** (1): FR-24 (procedure thinner than peers).
 - **Privacy completion** (6): FR-37 (joint controller Art 26), FR-38 (DSAR Art 12(5) thin), FR-39 (EU representative Art 27), FR-40 (PIPL Art 38-40), FR-41 (AI Art 22 + EU AI Act + FRIA workflow), FR-42 (DPO independence Art 38(3)).
 - **Editorial consistency** (7): FR-46 (role-name "Chief" inconsistency), FR-47 (DPO ambiguous role), FR-48 (H2 numbering patterns drift), FR-49 (Governance heading drift), FR-50 (NIST citation format drift), FR-51 ⚠️ (ISO 27001 Annex-form drift), FR-52 (review frequency "and" vs "or").
 - **Adopter cluster** (5): FR-62 (AI jurisdiction annexes absent), FR-63 (worked example walks ingestion not adoption), FR-64 (contribution path workflow-shaped not pattern-shaped), FR-65 ⚠️ (upstream-sync underspecified), FR-66 (tooling assumes maintainer context).
-- **Coverage gaps** (6): FR-74 (Schrems II-light; consolidates with FR-34), FR-75 ⚠️ (ESG materiality threshold), FR-76 ⚠️ (sustainability framework escalation triggers), FR-77 (3LoD model used without explanation), FR-78 (framework-document-architecture maintainer voice), FR-79 (ITSM portal tool-leakage).
+- **Coverage gaps** (5): FR-74 (Schrems II-light; consolidates with FR-34), FR-75 ⚠️ (ESG materiality threshold), FR-76 ⚠️ (sustainability framework escalation triggers), FR-77 (3LoD model used without explanation), FR-78 (framework-document-architecture maintainer voice).
 - **Cross-document contradictions** (2): FR-81 (TLS floor inconsistency), FR-82 (key hashing ambiguity).
 - **Operational/runbook** (1): FR-83 (IC checklist absent).
 - **Security-content refinement** (2): FR-87 (SSRF range list incomplete), FR-88 (cipher suite enumeration missing).
 - **KRI/KPI** (2): FR-93 (KRI escalation owner missing), FR-94 (Linked controls assume control register).
 - **Cross-framework matrix** (2): FR-97 (ISO 31000 clause numbering), FR-98 (NIS 2 annex evidence-class column).
 - **Continuous-assurance / 3LoD** (4): FR-99 ⚠️ (per-control effectiveness metrics), FR-100 (cloud baseline cites families not sub-controls), FR-101 ⚠️ (closure sign-off authority implicit), FR-102 (change management binary).
-- **Newcomer** (4): FR-104 ⚠️ (decision-tree per-regulation context), FR-105 (ISMS framework-citation ordering), FR-106 (trade-programme acronym cluster), FR-110 (document-index as primary navigation).
+- **Newcomer** (1): FR-104 ⚠️ (decision-tree per-regulation context).
 
 ### Low tier — 14 findings (deferred to later routine cleanup cycle)
 
@@ -137,9 +136,9 @@ Cross-reference only. No immediate-priority action; queue for a routine cleanup 
 
 ### Backlog totals
 
-- 10 + 5 + 46 = **61 immediate-priority findings** (High[critical], High, Medium tiers)
+- 10 + 5 + 40 = **55 immediate-priority findings** (High[critical], High, Medium tiers)
 - **14 deferred** (Low tier)
-- **75 open** (36 closed across PRs #142-#178). Total surfaced in r1: 111.
+- **69 open** (42 closed across PRs #142-#179). Total surfaced in r1: 111.
 
 ### FR-44 follow-up
 

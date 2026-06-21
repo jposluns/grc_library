@@ -2,7 +2,7 @@
 
 **Document Title:** Exception and Risk Acceptance Management Policy\
 **Document Type:** Policy\
-**Version:** 1.2.0\
+**Version:** 1.3.0\
 **Date:** 2026-06-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -95,6 +95,8 @@ The renewal number and the approving authority shall be recorded on the exceptio
 3.6 **Re-baselining carve-out.** An exception whose underlying scope has materially changed (for example, a new control requirement supersedes the original or a structural change in the affected system alters the nature of the deviation) may be re-baselined: a fresh exception register entry is opened, the renewal count is reset to zero, the `max_duration` clock is reset, and the new entry undergoes the full §2 approval pathway from scratch. Re-baselining requires ERC approval and is recorded on the register with an explicit cross-reference to the prior entry so the history is auditable; re-baselining is not a renewal and does not consume a renewal slot. Re-baselining must not be used to bypass the ceiling: a re-baseline that does not rest on a materially-changed underlying scope is treated as the next renewal in the sequence (the ERC declines the re-baseline and the count continues).
 
 3.7 **Rationale for the specific numbers.** The 540-day `max_duration` default corresponds to three full 180-day terms and ensures that any exception still active after eighteen months has received governance attention at every approval tier (original approver, ERC, Board Risk Committee). The 2-renewal ERC threshold mirrors the equivalent threshold in [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) §6.3.1 for CAPA extensions, so the two registers escalate on the same cadence when both have been opened against the same underlying gap. The 3-renewal Board Risk Committee threshold reflects that an exception which has been renewed three times is no longer a remediation-programme issue but a governance-risk issue requiring the highest oversight body's explicit acceptance of the residual exposure. The 4-renewal absolute prohibition forces a binary decision (close, descope, convert to risk acceptance, or re-baseline) rather than allowing indefinite drift through serial soft renewals.
+
+3.7.1 **Anchoring the 180-day baseline.** The 180-day initial term itself is a library convention rather than a number quoted from any single normative source. It is chosen to align with the semi-annual control-monitoring cadences typical of NIST SP 800-53 Rev 5 CA-6 ongoing authorisation maintenance and ISO/IEC 27001:2022 Clause 9.2 internal-audit cycles, so an exception's renewal point coincides with the next scheduled control-evidence refresh. Adopters whose monitoring cadence is quarterly or annual may tune the initial term downward or upward respectively (the cumulative `max_duration` ceiling in §3.4 then tunes proportionally as three multiples of the chosen base); the renewal-ceiling pathway in §3.5 remains in force regardless of the chosen base term.
 
 ### 4. Compensating controls and monitoring
 4.1 Requestors must implement compensating controls to mitigate risk exposure. 
