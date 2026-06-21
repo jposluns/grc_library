@@ -108,7 +108,7 @@ HISTORICAL_KEYWORDS = (
 )
 
 # Heuristic regex patterns that flag a line as sweep-history narrative.
-# The register-sweep-history.md file quotes past findings extensively;
+# The validate-sweeps-history.md file (in .working/) quotes past findings extensively;
 # these patterns identify lines that are narrating past sweep state
 # rather than asserting current canonical state.
 SWEEP_NARRATIVE_PATTERNS = (

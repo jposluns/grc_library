@@ -1,30 +1,28 @@
 # Validation Sweep History Register
 
 **Document Title:** Validation Sweep History Register\
-**Document Type:** Register\
-**Version:** 1.13.0\
+**Document Type:** Maintainer Working State\
+**Version:** 1.14.0\
 **Date:** 2026-06-21\
 **Owner:** Governance Library Maintainer\
-**Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](../dev-security/claude-rules/skills/validation-sweep/SKILL.md), [`governance/specification-audit-programme.md`](specification-audit-programme.md), [`governance/register-coverage-gaps.md`](register-coverage-gaps.md), [`CHANGELOG.md`](../CHANGELOG.md)\
-**Classification:** Public\
-**Category:** Core Governance\
-**Review Frequency:** On every validation-sweep invocation\
-**Repository Path:** [`governance/register-sweep-history.md`](register-sweep-history.md)\
-**Confidentiality:** Public\
+**Repository Path:** [`.working/validate-sweeps-history.md`](validate-sweeps-history.md)\
 **License:** CC BY-SA 4.0
 
 ---
 
 ## Purpose
 
-This register is the cumulative log of validation-sweep invocations and the findings each surfaced. It exists to give the maintainer (and any AI session running the sweep) three signals the one-off sweep reports cannot provide:
+This file is the cumulative log of validation-sweep invocations performed against THIS library and the findings each surfaced. It is maintainer working state, not corpus content: adopters cloning the library inherit no historical sweep entries (their own sweep history starts at zero when they first invoke `/validate` in their own fork).
+
+Moved from `governance/register-sweep-history.md` in PR #116. The discipline this file documents (the failure-mode class taxonomy, the maintenance protocol, the false-positive accept-list rules, the dispatch-declaration discipline) is template content and lives in the [`validation-sweep`](../dev-security/claude-rules/skills/validation-sweep/SKILL.md) skill in the dev-security claude-rules pack; this file is the project-specific *application* of that discipline.
+
+It exists to give the maintainer (and any AI session running the sweep) three signals the one-off sweep reports cannot provide:
 
 1. **Trend tracking**: which failure-mode classes recur most often, signalling priorities for new mechanical audit gates.
 2. **False-positive memory**: findings the maintainer has triaged as not-a-real-finding, suppressed in subsequent sweeps so the maintainer does not pay the triage cost repeatedly.
 3. **Delta-per-sweep**: each sweep should ideally find less than the prior one as mechanical gates close failure classes; a sweep that finds *more* than the prior is signal that something has regressed.
 
-The register is hand-maintained, each `/validate` invocation (underlying skill `validation-sweep`) appends an entry; entries are not generated. Per-iteration verbose records (including full subagent transcripts) live in [`.working/validate-sweeps/`](../.working/validate-sweeps/); the register holds the summary.
+The register is hand-maintained, each `/validate` invocation (underlying skill `validation-sweep`) appends an entry; entries are not generated. Per-iteration verbose records (including full subagent transcripts) live in [`.working/validate-sweeps/`](validate-sweeps/); the register holds the summary.
 
 ## Scope
 
