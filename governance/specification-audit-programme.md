@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Programme Specification\
 **Document Type:** Specification\
-**Version:** 1.13.0\
+**Version:** 1.13.1\
 **Date:** 2026-06-21\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -26,7 +26,7 @@ The audit programme is the library's primary defence against the failure modes c
 
 ### 2.1 In scope
 
-- The 45 audit gates currently wired into the audit-programme (see §6).
+- The audit gates currently wired into the audit-programme (see §6 for the canonical inventory and current count).
 - The three enforcement surfaces (CI workflow, local audit runner, pre-commit hook).
 - The doctrinal rules for adding, modifying, scoping, and retiring gates (see §9, §10).
 - The relationship between the audit programme and the Citation Verification Specification (see §11).
@@ -137,7 +137,7 @@ Gate 45 is a TODO staleness audit: it scans [`TODO.md`](../TODO.md) for two recu
 
 ### 6.1 PR-only delta gates
 
-A delta gate inspects the change set of a pull request, not the repository state at HEAD. Delta gates are not part of the 45-gate corpus inventory above, because their inputs (git history range, PR base ref) are not available in [`tools/run_all_audits.sh`](../tools/run_all_audits.sh) or [`.pre-commit-config.yaml`](../.pre-commit-config.yaml) and they are therefore exempt from gate 35's parity audit. Delta gates run only in [`.github/workflows/quality.yml`](../.github/workflows/quality.yml) on `pull_request` events.
+A delta gate inspects the change set of a pull request, not the repository state at HEAD. Delta gates are not part of the corpus inventory above, because their inputs (git history range, PR base ref) are not available in [`tools/run_all_audits.sh`](../tools/run_all_audits.sh) or [`.pre-commit-config.yaml`](../.pre-commit-config.yaml) and they are therefore exempt from gate 35's parity audit. Delta gates run only in [`.github/workflows/quality.yml`](../.github/workflows/quality.yml) on `pull_request` events.
 
 | # | Gate | Script | Surface |
 | --- | --- | --- | --- |

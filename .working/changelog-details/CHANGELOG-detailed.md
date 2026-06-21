@@ -6,6 +6,64 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.113, PR #130
+
+Removes decorative gate-count narrations from prose throughout the corpus and tooling. The §6 inventory in [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) remains the canonical source for both the gate list and the current count; downstream prose now points to it rather than carrying a stale-prone literal N. Gate 39 (cross-file gate-count consistency audit) remains operational as the defence against new decorations creeping back in.
+
+### Changed
+
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md):
+  - §2.1 in-scope line: `The 45 audit gates currently wired into the audit-programme (see §6).` → `The audit gates currently wired into the audit-programme (see §6 for the canonical inventory and current count).`
+  - §6.1 delta-gates paragraph: `Delta gates are not part of the 45-gate corpus inventory above` → `Delta gates are not part of the corpus inventory above`.
+  - Gate 39's own description retained verbatim because gate 39's purpose statement explicitly references the patterns it scans for (the description is documenting the linter's logic, not making a count claim).
+  - Version `1.13.0 → 1.13.1` (patch: prose-only edit, no inventory change).
+- [`governance/procedure-library-quality-and-review-cadence.md`](../../governance/procedure-library-quality-and-review-cadence.md): `The full 45-gate audit programme` → `The full audit programme`; trailing parenthetical extended to point at §6 for current gate count. Version `1.0.12 → 1.0.13`.
+- [`governance/register-coverage-gaps.md`](../../governance/register-coverage-gaps.md): "Audit programme" row's right-hand summary cell rewritten. Previously enumerated all ~45 gate names inline (a long mirror of §6 that broke every time a gate was added); now reads `Audit programme running in CI on every PR (see ... §6 for the canonical gate inventory and current gate count); coverage spans metadata integrity, language and style, reference integrity, content-drift defence, programme and index integrity, security and privacy, and freshness and lifecycle (see specification §5 for the functional categorisation and §6 for the per-gate detail)`. Removes the brittle inline enumeration; readers go to §5/§6 for detail. Version `1.1.14 → 1.1.15`.
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md): row 53 "Audit Programme Specification" description cell: `Defines the 45-gate audit programme` → `Defines the audit programme: gate inventory (current count in spec §6)`. Version `1.27.23 → 1.27.24`.
+- [`governance/register-main-branch-protection.md`](../../governance/register-main-branch-protection.md): two locations.
+  - Line 47 row "Required status check" right-hand cell: `The CI job that runs the 45-gate audit programme` → `The CI job that runs the audit programme`.
+  - Line 109 narrative: `The 45-gate audit programme assumes ... gates 1-45 still run` → `The audit programme assumes ... every corpus gate still runs`.
+  - Version `1.0.12 → 1.0.13`.
+- [`tools/README.md`](../../tools/README.md): five locations.
+  - Line 7 lede: `consists of **45 gates**` → `is a set of linters, build-and-check generators, and the linter regression test suite`; canonical-source pointer expanded to mention current gate count lives in §6.
+  - Line 21: `runs all 45 gates in the order defined in ...` → `runs every gate in the order defined in ...`.
+  - Line 44: `wires all 45 gates as local hooks` → `wires every gate as a local hook`.
+  - Line 51: `the full 45-gate audit programme` → `the full audit programme`.
+  - Line 59: `runs the same 45 gates` → `runs the same gate set`.
+- [`tools/check-changelog-on-pr.py`](../../tools/check-changelog-on-pr.py) docstring: `not part of the 45-gate corpus audit programme. The 45 corpus gates check repository state at HEAD` → `not part of the corpus audit programme. The corpus gates check repository state at HEAD`.
+- [`tools/check-version-bump-on-pr.py`](../../tools/check-version-bump-on-pr.py) docstring: `not part of the 45-gate corpus audit` → `not part of the corpus audit`.
+- [`tools/lint-audit-gate-parity.py`](../../tools/lint-audit-gate-parity.py) line 71 comment: `of the 45-gate corpus inventory in §6` → `of the corpus inventory in §6`.
+- [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh) two header comment lines: `the 45 corpus gates` → `the corpus gates`.
+- [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh): top-of-file comment `current sweep is 45 gates` reframed to `current sweep covers the full corpus inventory; see ... section 6 for the canonical inventory and current gate count`. Sub-group comment `Markdown linters (sub-group of the 45 corpus gates)` → `... sub-group of the corpus gates`.
+- [`README.md`](../../README.md): library version `2026.06.112 → 2026.06.113`; README version `1.8.68 → 1.8.69`.
+
+### Not changed (deliberately)
+
+- The §6 inventory table itself in `specification-audit-programme.md` carries explicit row numbers (1 through 45 at the time of this PR). Those are structural: §6 IS the canonical list and the numbers are how readers locate individual gates ("gate 35", "gate 45"). Not decoration.
+- Comments in [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) of the form "Generator-output drift gates (2 gates)", "Self-parity gate (1 gate)", "Linter regression test suite (1 gate)" — these describe a one- or two-gate sub-group within the runner and are sized-and-stable; not brittle.
+- Gate 39's docstring patterns (`"N-gate"`, `"gates 1-N"`, etc.) are pattern documentation (the gate's regexes), not claims about the count.
+- Gate 39 itself is not retired or modified. It remains the defence against new decorations creeping back in. After this PR most prose has no number for the gate to match against, but if a future PR re-introduces a decorative `"the 47-gate audit programme"` narration, gate 39 will catch it on the very next run.
+
+### Verification
+
+- Local audit: `tools/run_all_audits.sh` exits 0 on all gates after the edits.
+- Local PR-time checks: `tools/run-pr-time-checks.sh` exits 0.
+- Manual contradiction search: `grep -nE '\b[0-9]+[- ]gate|\b[0-9]+ +(audit|corpus) +gate|all +[0-9]+ +gate|\bgates? +1[-]'` against the corpus + tools tree returns no decorative N-gate references after the edits. Only references that remain are inside `.working/` (exempt) and the gate 39 linter's own pattern documentation.
+
+### Discipline observation
+
+This PR is a structural defence against the same churn pattern that surfaced visibly in the immediately-preceding PRs:
+
+- PR #128 cascaded ten "44 gate" → "45 gate" reference updates across seven files in a single PR; gate 39 caught all ten on the first audit run but the work to write the edits, the version bumps that came with them, and the contradiction-search to find them all was real per-PR cost.
+- PR #129 then cascaded one more (a `gates 1-44` → `gates 1-45` reference that landed inside register-main-branch-protection.md as part of the gate-45 work, and got missed at first because the regex pattern P3 captures with a different shape).
+- The maintainer surfaced the proposal directly: "why not change [decorative gate counts] to be 'passing through all gates' so that we reduce the number of edits needed when we add/remove a gate?" The maintainer's intuition is right: the count is a leaky abstraction. Readers who want it can read it from §6 in one click.
+
+The wider lesson: literal numeric references to corpus-shape state (gate count; rule count; persona count; skill count; framework count) should always either (a) be the canonical single source (§6 itself) or (b) point to (a). Decorative repetitions of the count in narrative prose pay zero ongoing cost only if the count never changes, which in a growing project it always does. Removing them is purely a friction reduction.
+
+Same lesson applies to other corpus-shape state: pack rule count, pack skill count, persona count for `/fitness`, etc. Those references also tend to creep into procedural prose (`"the seven pack rules"`, `"the ten persona reviewers"`). They are stable currently but will need the same treatment when they next change. Not in scope for this PR; flagged for the wider clean-up TODO.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.112, PR #129
 
 Post-PR-#128 catch-up. Gate 45 (just added in PR #128) correctly flagged `TODO.md` line 47 ("Next — PR #128: Gate 45 (TODO staleness audit).") on the post-merge `main` `push`-event run, because PR #128 had now merged. PR #128's own PR-event run was green because at PR-time the merge had not yet happened; the failure surfaced one event-cycle later. The fix is the standard "rotate PR from queued to completed" TODO maintenance.
