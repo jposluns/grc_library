@@ -13,9 +13,18 @@ This rule applies equally to human developers and to AI coding assistants. An AI
 
 ---
 
+## Where CHANGELOG entries live, the two-file split
+
+A project's CHANGELOG may be a single file, OR may be split into two files for audience-separation:
+
+- **Root `CHANGELOG.md`** carries only the **lead-paragraph summary** of each entry. This is the adopter-facing, public-facing, scan-friendly surface. Adopters and downstream consumers read this.
+- **Detailed mirror** (project-specific location; in this project: `.working/changelog-details/CHANGELOG-detailed.md`) carries the **full structured-section entry**: Added / Changed / Removed / Fixed / Security / Verification / discipline observations. This is the maintainer-grade audit trail. Reviewers and auditors read this.
+
+The detailed mirror's location is project-specific; the project chooses where to put it. A working-directory location (exempt from corpus audit gates) is the recommended default. Single-file projects keep all detail in root `CHANGELOG.md`; they are the trivial case of the rule (root file holds everything).
+
 ## What a CHANGELOG entry must contain
 
-Every entry must include:
+Every entry must include the following. Items 1, 2, and the lead "why" are recorded in the **root** file; items 3-7 (structured sections, file references, verification, phase context) are recorded in the **detailed** file when the project uses the two-file split, or in the root file when the project does not.
 
 1. **A date-and-version header**. The date pins the entry to wall-clock time; the version pins it to a release. The version monotonically increases across entries.
 2. **A short title sentence** summarising the change in plain language. "Phase 2: add gate-discipline rule to dev-security pack" is a title; "Updates" is not.
@@ -70,6 +79,7 @@ A change-tracking discipline needs at least three mechanical gates. Implementati
 
 - Detects PRs that touch governed content (the document corpus, the public API surface, configuration files that ship to consumers, etc.).
 - Requires the same PR to add a CHANGELOG entry, or carry the `Changelog: skip` trailer with a documented rationale.
+- **For projects using the two-file split**: requires the same PR to modify BOTH the root file and the detailed mirror in lock-step. A PR that modifies one without the other is a discipline failure caught by the gate. The opt-out trailer still applies (a single trailer satisfies the gate regardless of split).
 - Fails closed: if the gate cannot determine whether an entry was added, it blocks the PR. Ambiguity is not approval.
 
 ### The link-coverage gate
