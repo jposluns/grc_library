@@ -256,10 +256,14 @@ pack, CC BY-SA 4.0):
   failure; fix the artefact. Reinforces this project's `## Boundaries` rule and applies
   to every gate the audit programme exposes (see `tools/run_all_audits.sh` for the
   current set, including the CHANGELOG-on-PR delta gate).
-- `.claude/rules/governance/change-tracking.md` — every change to user-visible content
-  carries a CHANGELOG entry by default, with a documented `Changelog: skip` trailer the
-  only sanctioned opt-out. Generalises the D1 CHANGELOG-on-PR delta gate, the
-  link-coverage gate, and the version-monotonicity audit into a portable discipline.
+- `.claude/rules/governance/change-tracking.md` — every PR carries a CHANGELOG entry,
+  even if terse. Substantive entries cover anything that ships, modifies, or removes
+  adopter-facing content; terse entries (date + version header + one sentence) cover
+  ancillary changes (internal tooling, working-state housekeeping, pure refactors,
+  typo fixes). There is no skip path. The paired DONE ledger carries 1-2-sentence
+  headlines, no links — at-a-glance index, not a CHANGELOG duplicate. Generalises the
+  D1 CHANGELOG-on-PR delta gate, the link-coverage gate, and the version-monotonicity
+  audit into a portable discipline.
 - `.claude/rules/governance/evidence-grounded-completion.md` — never claim completion
   ("done", "fixed", "ready", "shipped", "good catch"), and never assert a property of an
   artefact you have not read (that a file contains, lacks, or requires something), without

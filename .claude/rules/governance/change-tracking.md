@@ -9,7 +9,7 @@ A "change" is any modification that:
 
 The audit trail is the value. Code review captures local correctness; the CHANGELOG captures temporal context. The two artefacts are complements, not substitutes.
 
-This rule applies equally to human developers and to AI coding assistants. An AI assistant that ships a change without a CHANGELOG entry (and without a documented skip trailer) is, in this respect, indistinguishable from a junior developer who does the same; the resolution is identical: every PR carries an entry, or carries a trailer explaining why it does not.
+This rule applies equally to human developers and to AI coding assistants. An AI assistant that ships a change without a CHANGELOG entry is, in this respect, indistinguishable from a junior developer who does the same; the resolution is identical: every PR carries an entry, even if terse.
 
 ---
 
@@ -36,23 +36,31 @@ Every entry must include the following. Items 1, 2, and the lead "why" are recor
 
 ---
 
-## The opt-out path
+## Terse-entry convention for ancillary changes
 
-Some PRs do not require a CHANGELOG entry. The exception is narrow and documented:
+Every PR carries an entry. There is no skip path. The audit trail is the value, and the audit trail cannot have silent gaps.
 
-- Internal tooling changes invisible to users: CI runner version bumps, dev-dependency lockfile-only updates, comment-only changes in non-citable files.
-- Pure refactors with no behavioural change and no surface-area change.
-- Typo fixes in non-citable strings (a typo in a private internal variable name is a candidate; a typo in a normative requirement statement that other documents cite is not).
+What changes is the *shape* of the entry, not its existence. Two shapes are sanctioned:
 
-For these, the PR carries an explicit trailer in the commit message or in the PR description:
+1. **Substantive entry** (default): the full date-and-version header, structured Keep a Changelog sections, file references as markdown links, the "why", and verification evidence. This is what items 1-7 in `## What a CHANGELOG entry must contain` describe. Use this for any PR that ships, modifies, or removes adopter-facing content; changes observable behaviour; or carries a discipline lesson a future maintainer would benefit from.
+2. **Terse entry** (one-liner): the date-and-version header followed by a single sentence describing what was accomplished. No structured sections, no file links, no verification block. Use this for ancillary changes whose substantive scope is small:
+   - Internal tooling or AI-assistant guidance changes invisible to adopters (changes under `.claude/`, working-state-only edits under `.working/`).
+   - Pure refactors with no behavioural change and no surface-area change.
+   - Typo fixes in non-citable strings (a typo in a private internal variable name is a candidate; a typo in a normative requirement statement that other documents cite is not).
+
+Terse-entry shape:
 
 ```
-Changelog: skip (reason: <one-line rationale>)
+## YYYY-MM-DD, Library Version X.Y.Z, PR #N
+
+[scope] for local project: [one sentence on what was accomplished].
 ```
 
-The trailer is logged by the CI gate the same way an entry is. The reviewer must approve the skip; a missing entry with no trailer blocks the PR. The trailer is not a free pass: a reviewer who sees a `Changelog: skip` on a behaviour-changing PR is expected to reject it and require an entry.
+Example: ``.claude/ changes for local project: added a `## Version-bump discipline` section to CLAUDE.md codifying when each version surface bumps across a multi-commit PR.``
 
-The trailer-based opt-out is preferred over inline waivers, code-comment justifications, or verbal approvals in a chat channel because it is mechanically inspectable: a script can grep the trailer out of `git log` years later. Verbal approval is not auditable.
+The terse entry is not a free pass: a reviewer who sees a terse entry on a behaviour-changing PR is expected to reject it and require the substantive form. Classify generously when in doubt: the substantive entry is always allowed for ancillary changes (and is sometimes worth writing anyway, to record a discipline lesson). The terse entry is the floor, not the ceiling.
+
+The two-file split applies regardless of shape: a terse entry in root `CHANGELOG.md` is paired with a terse entry in the detailed mirror. The detailed mirror's entry may carry a few sentences of additional context (which files were touched, which gates verified) without escalating to full structured sections; the discipline is "match the shape on both surfaces" rather than "always full detail in the mirror".
 
 ---
 
@@ -60,7 +68,8 @@ The trailer-based opt-out is preferred over inline waivers, code-comment justifi
 
 These responses must never substitute for a real CHANGELOG entry:
 
-- **Silent changes**. Shipping a user-visible change without an entry and without a skip trailer. The most common form of this anti-pattern is bundling "while I'm in here" cleanups into a feature PR and not mentioning them. Either add them to the entry, or split them into a separate PR with its own entry.
+- **Silent changes**. Shipping a change without any entry, terse or otherwise. The most common form of this anti-pattern is bundling "while I'm in here" cleanups into a feature PR and not mentioning them. Either add them to the entry, or split them into a separate PR with its own entry.
+- **Skip-trailer shortcuts**. Previous conventions allowed a `Changelog: skip (reason: ...)` trailer to bypass the entry requirement. This rule no longer sanctions that pattern; every PR carries at least a terse entry. A project's CHANGELOG-delta CI gate may still accept the skip trailer as a back-compat measure during a transition window, but the rule does not authorise its use; the terse-entry convention replaces it.
 - **Vague entries**. "Misc fixes", "various improvements", "general cleanup", "minor updates", "housekeeping". A reader cannot act on these. If the work spans multiple unrelated changes, write multiple bullets, one per change.
 - **Batched-up entries**. Rolling up many weeks of unrecorded changes into one omnibus entry at release time. The per-PR gate prevents this if enforced; do not work around the gate by deferring entries.
 - **Retroactive entries**. Adding an entry after the change shipped, dated to look like it was concurrent. The git history shows the truth, and the deception is worse than the missing entry would have been.
@@ -78,9 +87,10 @@ A change-tracking discipline needs at least three mechanical gates. Implementati
 ### The delta gate
 
 - Detects PRs that touch governed content (the document corpus, the public API surface, configuration files that ship to consumers, etc.).
-- Requires the same PR to add a CHANGELOG entry, or carry the `Changelog: skip` trailer with a documented rationale.
-- **For projects using the two-file split**: requires the same PR to modify BOTH the root file and the detailed mirror in lock-step. A PR that modifies one without the other is a discipline failure caught by the gate. The opt-out trailer still applies (a single trailer satisfies the gate regardless of split).
+- Requires the same PR to add a CHANGELOG entry (terse or substantive form per the convention above).
+- **For projects using the two-file split**: requires the same PR to modify BOTH the root file and the detailed mirror in lock-step. A PR that modifies one without the other is a discipline failure caught by the gate.
 - Fails closed: if the gate cannot determine whether an entry was added, it blocks the PR. Ambiguity is not approval.
+- **Back-compat note**: a delta gate that historically accepted a `Changelog: skip` trailer may continue to do so during a transition window after a project adopts the no-skip convention. The rule does not authorise the skip trailer's use; the gate's continued acceptance is a measure of grace toward in-flight PRs, not a sanction.
 
 ### The link-coverage gate
 
@@ -100,21 +110,9 @@ A change-tracking discipline needs at least three mechanical gates. Implementati
 
 ### Git trailers
 
-Use RFC 5322-style key-and-value trailers at the bottom of the commit message:
+Under the no-skip convention, every commit message carries the substantive narrative directly (the entry itself lives in `CHANGELOG.md` and its detailed mirror, not in the commit message). There is no project-mandated trailer.
 
-```
-git commit -m "$(cat <<'EOF'
-Fix the parser's handling of trailing whitespace
-
-The parser was stripping trailing whitespace before tokenisation, which
-caused doctests with intentional trailing whitespace to fail.
-
-Changelog: skip (reason: dev-only test runner; not user-visible)
-EOF
-)"
-```
-
-The trailer can be parsed by `git interpret-trailers --parse` and indexed for later audit. Use a fixed trailer key (`Changelog:`) so the gate parser does not have to fuzz-match.
+Projects in the back-compat transition window described above may continue to find `Changelog: skip (reason: ...)` trailers in their git history. The trailer remains parseable via `git interpret-trailers --parse` for retrospective audit, but new PRs should not introduce it; use a terse entry instead.
 
 ### Monorepo coordination
 
@@ -148,7 +146,7 @@ When the project uses the two-file split (root file plus a detailed mirror at a 
 
 - **In the detailed mirror file**: write the full structured entry. Include the date-version-PR header, the lead paragraph, then the full `### Added / ### Changed / ### Removed / ### Fixed / ### Security / ### Verification` sections plus any discipline observations or design-rationale sections.
 - **In the root file**: write the lead paragraph only. Use the same date-version-PR header and the same lead-paragraph wording as the detailed entry. Do NOT carry the structured sections into the root file; they belong only in the detailed mirror.
-- **Both files land in the same commit.** The PR-time delta gate enforces lock-step (modifying one without the other fails the gate). The `Changelog: skip` trailer still applies and satisfies the gate regardless of split.
+- **Both files land in the same commit.** The PR-time delta gate enforces lock-step (modifying one without the other fails the gate). Terse entries are paired across both files the same as substantive entries; the discipline is "match the shape on both surfaces" rather than "always full detail in the mirror".
 
 Adopter forks may choose any of these shapes:
 
@@ -174,19 +172,39 @@ The same rule applies to subsections that record historical context: "PRs comple
 
 ### DONE ledger keyed by original backlog ID
 
-A `DONE.md` file (or equivalent name; the convention is the file, not the filename) records which backlog items each PR closed, keyed by the original TODO identifier or by the PR number. The DONE entry is one paragraph: enough to answer "what was this item about?" for a future reader who finds the original TODO reference somewhere (a Slack thread, an issue comment, a design doc) and wants to know if it shipped.
+A `DONE.md` file (or equivalent name; the convention is the file, not the filename) records which backlog items each PR closed, keyed by the original TODO identifier or by the PR number. The DONE entry is **1-2 sentences**, no file links, no version-bump notes, no verification block: just a headline of what was accomplished.
 
-DONE complements CHANGELOG, not duplicates it:
+The metaphor that works: DONE is **scrolling battle-text**, the `tail -f` view of shipped work. A maintainer scanning DONE should be able to recognize each item at a glance without parsing prose.
 
-- **CHANGELOG entries** are organized by PR. They record file-by-file change detail, version bumps, verification evidence. Adopters and downstream consumers read CHANGELOG.
-- **DONE entries** are organized by closed backlog item. They record cross-references to the original TODO entry and a one-paragraph "what was this about". Maintainers read DONE when they're asking "did we ever ship X?".
+DONE complements CHANGELOG, does not duplicate it:
+
+- **CHANGELOG entries** carry the narrative: file-level detail, version bumps, verification evidence, rationale, discipline lessons. Adopters and downstream consumers read CHANGELOG for the full story.
+- **DONE entries** are the at-a-glance index: a maintainer (or auditor, or future you) grep-searches DONE asking "did we ever ship X?" and finds a one-or-two-sentence headline pointing at a PR. From the PR number, the maintainer navigates to CHANGELOG (or to the PR diff in git history) for detail. DONE does the index job; CHANGELOG does the narrative job.
+
+Terse DONE-entry shape:
+
+```
+### PR #N — [headline] (YYYY-MM-DD)
+
+[One sentence on what was accomplished, optionally a second sentence for cross-references that matter at a glance.]
+```
+
+Worked example:
+
+```
+### PR #172 — FR-4+5+6+7+8: README polish bundle (2026-06-21)
+
+Five medium README polish findings closed in one PR: acronym expansion, doc count pointer, CalVer placement, audience-signal panel, version-line demote.
+```
+
+That's it. No links, no version bumps, no rationale, no list of touched files. Those belong in CHANGELOG.
 
 DONE is typically maintainer-only working state, so it lives wherever the project keeps such state. A working-directory location is the recommended default; under this project's convention, `.working/DONE.md`. The exact location is project-specific.
 
 When a PR closes a TODO item:
 
 1. Delete the item from TODO in the same PR.
-2. Add an entry to DONE in the same PR. The entry's primary key is the PR number that closed the item, with the original backlog ID (`P-X.Y`, `FR-N`, etc.) as a cross-reference where the item had one.
+2. Add a terse entry to DONE in the same PR. The entry's primary key is the PR number that closed the item, with the original backlog ID (`P-X.Y`, `FR-N`, etc.) folded into the headline where the item had one.
 3. Both edits live in the same commit so reviewers see the rotation in one place.
 
 The rotation is enforced by convention rather than by a gate (gate enforcement would require parsing TODO and DONE structurally, which is brittle; the convention is cheaper and matches how the maintainer mentally tracks the work).

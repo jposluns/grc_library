@@ -6,6 +6,54 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.154, PR #174
+
+Retired the `Changelog: skip` opt-out path from the change-tracking discipline in favour of a terse-entry convention. The shift: every PR carries an entry, even if terse. Two sanctioned entry shapes — substantive (the existing structured-section form) and terse (date-and-version header plus a single sentence on what was accomplished) — replace the prior "entry-or-skip-trailer" binary. The motivation surfaced during the post-merge debrief of PRs #170 and #171, where the original `Changelog: skip` trailers left a visible jump in the audit trail (CHANGELOG went #169 → #172). The maintainer rejected the gap and updated the discipline: every PR carries an entry, with `.claude/`-only changes (and other ancillary surfaces) permitted to use a terse one-liner.
+
+The DONE-ledger guidance is also revised in the same pass. Previously the rule called for "one paragraph" per DONE entry, which in practice drifted toward CHANGELOG-replica detail (multi-sentence prose with file links, version bumps, rationale). The maintainer's framing makes the intent explicit: DONE is **scrolling battle-text**, the `tail -f` view of shipped work. The new guidance: 1-2 sentences per entry, no file links, no version bumps, just what was accomplished. The narrative job belongs to CHANGELOG; the at-a-glance index job belongs to DONE. The two complement, do not duplicate.
+
+### Closed findings
+
+Not previously in TODO; surfaced during the PR #172 / PR #173 close-out sequence as a calibration of the audit-trail discipline. Closed by this PR and by PR #175 (queued: retroactive shortening of existing long-form DONE entries).
+
+### Changed
+
+- [`dev-security/claude-rules/governance/change-tracking.md`](../../dev-security/claude-rules/governance/change-tracking.md):
+  - Replaced `## The opt-out path` section with `## Terse-entry convention for ancillary changes`. The new section enumerates the substantive-vs-terse classification, gives the terse-entry shape, and emphasises that terse is the floor for ancillary changes, not the ceiling.
+  - Updated the rule's intro paragraph (line 12) to drop the "or carries a trailer explaining why it does not" clause; replaced with "every PR carries an entry, even if terse".
+  - Updated `## Prohibited anti-patterns` to remove the skip-trailer-as-acceptable-silence framing; added an explicit "skip-trailer shortcuts" anti-pattern documenting that the previous pattern is no longer sanctioned, with a back-compat note about the CI gate's continued acceptance during a transition window.
+  - Updated `## CI enforcement` → `### The delta gate` to remove the skip-trailer mention; added a back-compat note acknowledging that delta gates that historically accepted the skip trailer may continue to do so during a transition window without rule sanction.
+  - Updated `## Tool-specific guidance` → `### Git trailers` subsection to remove the skip-trailer example; the new text notes that under the no-skip convention, no project-mandated trailer is required (the entry itself lives in CHANGELOG, not in the commit message trailer).
+  - Updated `### Two-file split workflow` to remove the trailing skip-trailer mention; replaced with a sentence on how terse entries pair across the two files.
+  - Replaced `### DONE ledger keyed by original backlog ID` body with the scrolling-battle-text framing, the 1-2-sentence shape, and a worked example.
+- [`.claude/rules/governance/change-tracking.md`](../../.claude/rules/governance/change-tracking.md): synced verbatim from the pack source (the gate-37 audit confirms byte-for-byte identity).
+- [`dev-security/claude-rules/skills/change-tracking-write-entry/SKILL.md`](../../dev-security/claude-rules/skills/change-tracking-write-entry/SKILL.md):
+  - Updated frontmatter `description` to drop the "or the documented Changelog skip trailer" clause.
+  - Updated `## Overview` paragraph to reference the terse-entry convention instead of the opt-out path.
+  - Updated `## When to Use` to swap the skip-trailer bullet for a terse-entry bullet.
+  - Updated step 1 `Classify the change` to classify shape (substantive vs terse) rather than scope (entry-vs-skip).
+  - Replaced `## Skip Trailer Discipline` section with `## Terse Entry Discipline`; the new section gives the terse-entry shape, an example, and the reviewer-rejection guidance for misuse.
+  - Updated `## Red Flags` to add a "terse-entry on a behaviour-changing PR" red flag and a "skip-trailer on any PR" red flag.
+  - Updated `## Verification` to describe the terse-entry verification path.
+  - Updated `## Common Rationalizations` to reflect the substantive-vs-terse classification.
+- [`dev-security/claude-rules/CLAUDE.md`](../../dev-security/claude-rules/CLAUDE.md): updated the change-tracking one-line summary to describe the new terse-entry convention.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): updated the matching one-line summary in the `## Security and governance requirements` section to match the pack-CLAUDE summary.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): pack version `1.34.0 → 1.35.0`; new row added to the version-history table describing the change.
+- [`README.md`](../../README.md): library version `2026.06.153 → 2026.06.154`; README version `1.9.24 → 1.9.25`.
+- [`.working/DONE.md`](../DONE.md): PR #174 entry added (terse form, per the new convention this PR ships).
+- [`TODO.md`](../../TODO.md): session-resume snapshot updated to reflect library `2026.06.154` and README `1.9.25`.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates against the committed state.
+- `tools/run-pr-time-checks.sh` exits 0 (D1, D2, gate 45).
+- `tools/lint-claude-rules-sync.py` (gate 37) exits 0 (pack-vs-local-copy sync verified byte-for-byte for `governance/change-tracking.md`).
+- `tools/lint-paired-skill-step-parity.py` (gate 44) exits 0 (the skill `change-tracking-write-entry/SKILL.md` and the canonical rule remain step-parity-aligned after both were updated in the same pass).
+
+### Discipline observation
+
+This PR is the first under the no-skip convention. It demonstrates the substantive-entry shape (since the change is itself a discipline calibration with verification evidence worth recording). The next PR (#175) will demonstrate the retroactive shortening of historical DONE entries; PR #176 (if needed) will tighten the D1 CI gate to match the new rule (rejecting skip trailers rather than accepting them as back-compat).
+
 ## 2026-06-21, Library Version 2026.06.153, PR #173
 
 `.claude/` changes for local project: backfilled CHANGELOG entries for PRs #170 and #171 (added below). Both PRs originally shipped with `Changelog: skip` trailers per the (then-active) `.claude/` directory exemption; the maintainer flagged the resulting audit-trail gap (CHANGELOG jumped from #169 to #172) during the PR #172 close-out and updated the audit-trail discipline: every PR carries a CHANGELOG entry, with `.claude/`-only changes permitted to use a terse one-liner rather than the full structured form. This PR repairs the existing gap; the corresponding adjustment to the pack rule [`.claude/rules/governance/change-tracking.md`](../../.claude/rules/governance/change-tracking.md) (removing the skip-trailer exception and replacing it with the terse-entry-allowed convention) is queued as PR #174.
