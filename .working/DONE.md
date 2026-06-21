@@ -25,6 +25,18 @@ The format for each entry:
 
 ## Closed items
 
+### PR #143 — FR-9 + FR-10: Chief Risk Officer in enterprise risk management standard (2026-06-21)
+
+Closes two related ERM-standard findings together: **FR-9** (high[critical]) changes the standard's `Owner` field from "Chief Information Officer" to "Chief Risk Officer" — enterprise risk is a CRO accountability, and CIO ownership read as a category error; **FR-10** (high) adds a CRO row to §3 Governance, scoped to risk strategy, risk appetite stewardship, and ERM-programme outcomes reporting to the Board / Risk Committee. The pre-existing CIO row is reshaped from "accountable for the framework" to "provides executive support on technology-risk integration" to clarify the post-CRO role. Per-doc `1.3.3 → 1.3.4`; library `2026.06.124 → 2026.06.125`.
+
+### FR-10 — Chief Risk Officer in ERM §3 governance table (closed by PR #143, 2026-06-21)
+
+High-severity finding from r1: §3 governance table omitted CRO despite CRO being a defined role in the role-authority register and referenced in `procedure-risk-register.md`. Closed alongside FR-9.
+
+### FR-9 — Enterprise risk management Owner: CIO → CRO (closed by PR #143, 2026-06-21)
+
+High[critical]-severity finding from r1: ERM-standard Owner field was "Chief Information Officer" but enterprise risk is a CRO/CFO/Board accountability in most operating models. Resolved to CRO per the finding text's first-listed alternative and per FR-10's parallel call to add CRO to the governance table.
+
 ### PR #142 — Fitness quick wins: FR-13, FR-54, FR-55, FR-103 (2026-06-21)
 
 First fitness-remediation PR. Four findings closed at maintainer direction ("pick quick wins absolutely certainly in need of working while I review the rest of the backlog"). Each finding had an unambiguous fix in a single file with no judgement call required.
