@@ -14,10 +14,10 @@ This section preserves the in-flight context for a multi-PR sequence the maintai
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed (typically the close-out PR of the pause); subsequent PRs may have shipped before resume. The version snapshot, PRs-completed list, and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (e.g. claiming "Library version at HEAD: X" when README shows a newer version, or claiming "Next — PR #N" when PR #N has merged); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #126 merge).
-- **Library version as of last refresh**: `2026.06.109`. **Pack version**: `1.31.0`. **README version**: `1.8.65`.
-- **Audit programme**: 45 gates, all passing on `main` as of last refresh.
-- **Last validation sweep**: Sweep 11 iteration 1 (in flight at session-pause time; close-out PR #127 covers this).
+- **Branch at last refresh**: `main` (synced after PR #128 merge).
+- **Library version as of last refresh**: `2026.06.111`. **Pack version**: `1.31.0`. **README version**: `1.8.67`.
+- **Audit programme**: all gates passing on `main` as of last refresh.
+- **Last validation sweep**: Sweep 11 iteration 1 (close-out PR #127); no sweep run yet after PRs #128-#129.
 
 ### PRs completed in this session
 
@@ -40,18 +40,12 @@ In merge order (oldest to newest); see [`CHANGELOG.md`](CHANGELOG.md) for full d
 15. **PR #124** — First-ever fitness review (run r1). Ten persona subagents dispatched in parallel. 111 unique findings (17 H[critical], 20 H, 57 M, 17 L; counts originally reported as "95/18/22/31/24" approximation, corrected in Sweep 11 iter 1 close-out). Library `2026.06.107 -> 2026.06.108`.
 16. **PR #125** — CHANGELOG two-file split: root carries lead paragraphs (adopter-facing); `.working/changelog-details/CHANGELOG-detailed.md` carries full structured-section entries (maintainer-grade). 2926 → 675 lines in root. Delta gate extended to require lock-step modification. Pack `1.30.0 → 1.31.0`. Library `2026.06.108 → 2026.06.109`.
 17. **PR #126** — `.working/README.md` Activities table: row added for `changelog-details/` (missed in PR #125).
-18. **PR #127** (queued; Sweep 11 iter 1 close-out) — Corrected fitness report counts (95→111, 18→17, 22→20, 31→57, 24→17) across 6 surfaces; updated `governance/specification-audit-programme.md` D1 description for dual-entry; refreshed TODO + reframed snapshot as "as-of-last-refresh" (this convention amendment); softened workflow ordering in `change-tracking.md`; renamed `.working/README.md` "Created by" → "Origin".
+18. **PR #127** (Sweep 11 iter 1 close-out) — Corrected fitness report counts (95→111, 18→17, 22→20, 31→57, 24→17) across 6 surfaces; updated `governance/specification-audit-programme.md` D1 description for dual-entry; refreshed TODO + reframed snapshot as "as-of-last-refresh" (this convention amendment); softened workflow ordering in `change-tracking.md`; renamed `.working/README.md` "Created by" → "Origin".
+19. **PR #128** — Gate 45 (TODO staleness audit) + `tools/run-pr-time-checks.sh` wrapper. New audit gate catches the queued-PR-merged and sweep-cursor-stale drift shapes mechanically; the wrapper bundles D1 + D2 + gate 45 into one local runner so every gate the CI workflow runs has a local invocation path. Library `2026.06.110 → 2026.06.111`. Spec `1.12.1 → 1.13.0`. Added TODO P4.6 (corpus-management discipline as a shareable skill).
 
 ### Queued sequence (next PRs)
 
-**Next — PR #128: Gate 45 (TODO staleness audit).** New audit gate that catches the recurring TODO drift patterns mechanically. Scope:
-- Scan TODO.md for `Next — PR #N` or `queued PR #N` patterns; fail if PR #N has merged per git log.
-- Scan TODO.md for `Last validation sweep: Sweep N iteration M` line; fail if `.working/validate-sweeps/history.md` contains a more recent sweep iteration row.
-- Pass quietly on the version-snapshot field (it is allowed to drift, per the new framing — gate 45 does not enforce its currency).
-- Add as gate 45; wire into all four surfaces (specification-audit-programme.md §6 inventory, runner, workflow, pre-commit) plus regression fixture.
-- Amend TODO.md preamble note that TODO is now subject to gate 45 specifically (otherwise informational and not subject to other audit conventions).
-
-**After PR #128 — PR #129: Fitness skill amendment.** Introduce the unverified→confirmed labelling discipline:
+**Next, PR #N: Fitness skill amendment.** Introduce the unverified→confirmed labelling discipline:
 - Subagent findings in a `/fitness` report are labelled "unverified" at output time.
 - Orchestrator runs a Pass-1 verification: re-reads cited source, tags each finding `✅ confirmed-as-stated` / `⚠️ confirmed-with-modification` / `❌ rejected` / `🤔 ambiguous-needs-maintainer`.
 - Pass-2 (maintainer-interactive) processes findings: `✅` cluster gets a single batch confirmation; `⚠️` and `🤔` items get per-finding prompts with recommendation + alternatives; `❌` items are recorded with rejection rationale.
@@ -59,7 +53,9 @@ In merge order (oldest to newest); see [`CHANGELOG.md`](CHANGELOG.md) for full d
 - Update SKILL.md, slash command, and `.working/fitness-reviews/README.md` for the new workflow.
 - Retroactively tag all 111 FR-N findings in `2026-06-21-r1.md` as "unverified" so the next pass is explicit.
 
-**After PR #129 — PR #130+: Fitness backlog work using new workflow.** Process FR-1 through FR-111 using Pass-1 + Pass-2. Probably one PR per priority section (P1 fixes are larger; P5/P6 are smaller batches). Create TODO entries for confirmed findings; close them in subsequent PRs.
+**Then, subsequent PR sequence: Fitness backlog work using new workflow.** Process FR-1 through FR-111 using Pass-1 + Pass-2. Probably one PR per priority section (P1 fixes are larger; P5/P6 are smaller batches). Create TODO entries for confirmed findings; close them in subsequent PRs.
+
+Two follow-up design proposals from the maintainer to consider before the fitness backlog opens (both queued; ordering to be decided): (a) `.working/DONE.md` as the closed-TODO ledger that mirrors what the CHANGELOG cannot say at the per-backlog-item granularity, with a discipline addition that says "remove a TODO item, add it to DONE in the same PR"; (b) replace decorative gate-count narrations (`"the 45-gate audit programme"` → `"the audit programme"`) so future gate additions stop cascading into N corpus files. The second proposal is the obvious P3-priority candidate since it pays back on every future gate-add PR.
 
 ### Other queued moves (small PRs preferred per maintainer)
 
