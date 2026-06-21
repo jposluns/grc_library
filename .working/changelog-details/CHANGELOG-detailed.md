@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.115, PR #132
+
+Adds [Ryk Edelstein](https://github.com/fedelst) to the Acknowledged contributors list in [`AUTHORS.md`](../../AUTHORS.md). Maintainer-requested in the chat thread during PR #131's work. Small focused PR per the "more PRs, keep each one clean" preference. First PR exercising the post-PR-#131 steady-state TODO/DONE rotation discipline: the AUTHORS-update item that was queued as the "next PR" in TODO when PR #131 merged is removed from TODO and added to [`.working/DONE.md`](../DONE.md) in the same commit. Also a one-time bootstrap correction: PR #131 itself is added to DONE retroactively, since PR #131 created the DONE file but did not include its own entry (the bootstrap chicken-and-egg).
+
+### Changed
+
+- [`AUTHORS.md`](../../AUTHORS.md): Acknowledged contributors list extended with one new entry: `- **Ryk Edelstein** ([@fedelst](https://github.com/fedelst))`. Per-document version `1.1.0 → 1.1.1`; Date `2026-06-19 → 2026-06-21`.
+- [`README.md`](../../README.md): library version `2026.06.114 → 2026.06.115`; README version `1.8.70 → 1.8.71`.
+- [`TODO.md`](../../TODO.md): "AUTHORS.md" item removed from Queued sequence (rotated to DONE); language-convention item now the new "Next" PR (queued by the maintainer during the same chat thread); Session resume metadata refreshed (`2026.06.114 → 2026.06.115`; branch synced after PR #132).
+- [`.working/DONE.md`](../DONE.md): two new entries at the top of the "Closed items" section — PR #132 (this PR) and PR #131 (the bootstrap correction noted above).
+
+### Discipline observation
+
+This PR is the first steady-state application of the rotation discipline established in PR #131. The full cycle:
+
+1. Maintainer requested the AUTHORS edit mid-PR-#131. The new item was added to TODO's Queued sequence before PR #131 merged (per the "new items added to TODO before list is published" discipline).
+2. PR #131 merged. The assistant listed the upcoming next 5 PRs from TODO, starting with this AUTHORS update.
+3. PR #132 makes the AUTHORS edit AND removes the corresponding TODO item AND adds the DONE entry in the same commit. All three edits ship together.
+4. Future readers asking "did PR #132 ship the AUTHORS update?" can look at DONE; "what does PR #132 contain in detail?" can look at the CHANGELOG; "is the AUTHORS update still queued?" can look at TODO and confirm it isn't.
+
+The bootstrap correction is a one-time event: PR #131 ships the DONE.md file, so PR #131 cannot add its own entry in the same commit (chicken-and-egg). PR #132 corrects this retroactively. From PR #132 onward every PR adds its own entry.
+
+The language-convention item (Canadian-first spelling) is now queued as the next PR. It surfaced during this PR's work when the maintainer clarified that the project's `-ized` form is Canadian (which shares with American) rather than American-only — the [`tools/lint-language.py`](../../tools/lint-language.py) module docstring's framing of the rule as `"British -ise endings (use -ize / -ization)"` mis-attributes the convention's origin. The fix is doc-only (the linter's behaviour is correct); scope captured in the TODO entry.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.114, PR #131
 
 Introduces [`.working/DONE.md`](../DONE.md), the closed-TODO ledger; refactors [`TODO.md`](../../TODO.md) to be forward-looking only by rotating all historical content into DONE; amends the [`change-tracking.md`](../../dev-security/claude-rules/governance/change-tracking.md) pack rule with a "PR finalization protocol" section that formalises three disciplines (TODO is forward-looking; DONE ledger complements CHANGELOG; after-merge listing of next-N planned PRs); operationalises both in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md). This PR is the first application of its own discipline: PR #130 has just shipped, and instead of being added to a "PRs completed" subsection in TODO, it goes straight to DONE.
