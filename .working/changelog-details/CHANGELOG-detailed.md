@@ -6,6 +6,65 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.148, PR #166
+
+Closes FR-57 (high). The "quickstart" at `docs/template-quickstart.md` was 319 lines covering 5 dimensions × 23 modules — a composition workbook, not a quickstart. A real quickstart is a 10-minute on-ramp; the existing content's value is preserved by renaming, and a new short quickstart ships at the original path.
+
+### Closed findings
+
+- **FR-57** (high, `docs/template-quickstart.md` length): file size and module-catalogue depth violated the quickstart contract (10-minute on-ramp); the file functioned as a multi-hour composition workbook. Reconciled via Option B (rename + new short doc) over Option A (rewrite in place) to preserve the workbook's value for adopters who need the deeper composition.
+
+### Renamed
+
+- [`docs/template-quickstart.md`](../../docs/template-quickstart.md) → [`docs/template-startup-roadmap.md`](../../docs/template-startup-roadmap.md) (git mv): content preserved verbatim except metadata (Document Title, Repository Path, Version, Date) and a Purpose preface that names the relationship to the new short quickstart. Per-doc version `2.0.2 → 2.1.0` (minor: title rename + preface tightening; content sections preserved).
+
+### Added
+
+- [`docs/template-quickstart.md`](../../docs/template-quickstart.md) (new, version 3.0.0): a true 10-minute on-ramp. Three steps (copy the six-artefact core baseline; substitute role names; point at the portal). "Next steps" block linking to the renamed startup-roadmap (full composition workbook) and the other three adopter-facing paths (adopter-guide, decision-tree, implementation-roadmap). Body ~50 lines including the core-baseline enumeration.
+  - Version starts at `3.0.0` because the file at the path `docs/template-quickstart.md` is materially redefined (different audience, different content shape); a major bump is honest. The prior v2.0.x content sequence continues at the renamed path.
+  - Quickstart's "Where this fits among the adopter entry points" preface follows the FR-56 pattern; identifies the quickstart as the Day-1 entry, points at startup-roadmap for the deeper workbook.
+
+### Changed (cross-references)
+
+- [`docs/template-implementation-roadmap.md`](../../docs/template-implementation-roadmap.md):
+  - Related Documents: added `template-startup-roadmap.md` (existing template-quickstart link remains, pointing at the new short doc).
+  - §Purpose body line 21: "modules selected via [`docs/template-quickstart.md`]" → "modules selected via [`docs/template-startup-roadmap.md`]" — the roadmap follows the composition workbook, not the new short quickstart.
+  - §"How to use" step 1: "Complete the quickstart composition first... Run through [`docs/template-quickstart.md`]" → "Complete the startup-roadmap composition first... Run through [`docs/template-startup-roadmap.md`]".
+  - Per-doc version `1.0.2 → 1.0.3`.
+- [`docs/template-maturity-self-assessment.md`](../../docs/template-maturity-self-assessment.md):
+  - Related Documents: added `template-startup-roadmap.md` (existing template-quickstart link remains).
+  - Per-doc version `1.0.1 → 1.0.2`.
+- [`tools/build-portal.py`](../../tools/build-portal.py):
+  - `PORTAL_METADATA_VERSION` bumped `1.1.0 → 1.2.0` (generator schema; emits a new portal table row).
+  - The Day-1 row split into two: quickstart now answers "What do I copy on Day 1?" with the new short content description; startup-roadmap row answers "And what do I add later?" with the long-form composition description. Adopters can pick the right depth from the table without reading both documents.
+- [`docs/portal.md`](../../docs/portal.md): regenerated (read-only artefact).
+- [`README.md`](../../README.md): library `2026.06.147 → 2026.06.148`; README per-doc `1.9.18 → 1.9.19`. README line 27 "Adopter setting up a programme: start with adopter-guide and template-quickstart" is unchanged — the new short quickstart at the same path is exactly what a "setting up a programme" reader wants.
+- [`TODO.md`](../../TODO.md): FR-57 rotated out of High tier; backlog counters updated (10 + 5 + 56 = 71 immediate; 14 deferred; 85 open). New "Backlog-listing process: effort-sizing labels" section added per maintainer direction — captures the XS/S/M/L/XL effort-label convention as a post-FR-backlog meta-improvement that will retrofit the fitness-review and validation-sweep skill files plus future TODO entries.
+- [`.working/DONE.md`](../DONE.md): PR #166 entry added.
+
+### Not changed (intentional)
+
+- `README.md` line 27 cross-reference to `template-quickstart.md`: still points at the same path, which now hosts the new short doc; the reader's intent is still served (now better, because the new short doc is actually a quickstart).
+- `docs/decision-tree.md` and `docs/adopter-guide.md` preface descriptions of template-quickstart ("what to copy on Day 1"): still accurate for the new short doc; no edit needed.
+- `governance/register-document-index-and-classification.md`: does not index `docs/` files, so the rename produces no index drift.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- `tools/run-pr-time-checks.sh` exits 0 (D1 + D2 + gate 45).
+- Generated artefact: `tools/build-portal.py` ran clean; the regenerated `docs/portal.md` now shows two rows in the entry-points table (quickstart and startup-roadmap) instead of one.
+- Cross-reference validation: grep for `template-quickstart` in corpus shows only the legitimate forward-references (new short doc + Related Documents pointers); grep for `template-startup-roadmap` shows the new pointers from implementation-roadmap, maturity-self-assessment, portal, and the new quickstart's "Next steps" block. No dangling links.
+
+### Discipline observation
+
+This is the first file-rename PR in the fitness backlog. The git mv preserves blame history; the new short doc is a write-new operation. The version sequence at the path uses a major bump (`2.0.2 → 3.0.0`) because the file at that path is materially redefined for a different audience — adopters who land on the new short doc get a different experience than adopters who landed on the prior long doc. The prior v2.x content continues at the renamed path with a minor bump (`2.0.2 → 2.1.0`) because its shape and audience are unchanged.
+
+The decision to split the portal's Day-1 row into two rows (quickstart + startup-roadmap) is a small but useful adopter-UX win: a reader who wanted the modules-workbook had to first land on the quickstart to discover it existed, even though the workbook content was what they actually wanted. Two rows surfaces both options directly.
+
+The maintainer also surfaced an effort-sizing-labels meta-improvement: future backlog items should carry an XS/S/M/L/XL effort tag alongside their severity tag so prioritisation has both dimensions visible. Captured in TODO under a new "Backlog-listing process" section; will be implemented after the current FR backlog is closed (the convention applies to future fitness reviews and sweep findings, not retroactively to the in-flight backlog).
+
+---
+
 ## 2026-06-21, Library Version 2026.06.147, PR #165
 
 Closes FR-56 (high, adopter entry-point reconciliation). The corpus had six distinct entry-point sequences (README → portal; adopter guide → Tier 1/2/3; quickstart → core baseline + modules; decision tree → 30/90/180 sequenced reading; implementation roadmap → Phase 1/2/3 calendar; fitness-review path for maintainers). Five of those are adopter-facing and there was no document explaining how they relate; the sixth is maintainer-facing and should not surface to adopters. Adopters landing on any of the five could not pick the right path for their question without reading all five.

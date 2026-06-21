@@ -2,11 +2,11 @@
 
 **Document Title:** Adopter Maturity Self-Assessment Template\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-06-20\
+**Version:** 1.0.2\
+**Date:** 2026-06-21\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`docs/template-quickstart.md`](template-quickstart.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`docs/decision-tree.md`](decision-tree.md), [`README.md`](../README.md)\
+**Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`docs/template-quickstart.md`](template-quickstart.md), [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`docs/decision-tree.md`](decision-tree.md), [`README.md`](../README.md)\
 **Classification:** Public\
 **Category:** Adopter Experience\
 **Review Frequency:** Annual, and on material change to the library's domain structure\
