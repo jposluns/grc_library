@@ -2419,7 +2419,7 @@ documents:
   domain: "governance"
   type: "Register"
   title: "Validation Sweep History Register"
-  version: "1.12.1"
+  version: "1.13.0"
   date: "2026-06-21"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"

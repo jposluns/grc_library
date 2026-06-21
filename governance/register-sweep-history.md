@@ -2,7 +2,7 @@
 
 **Document Title:** Validation Sweep History Register\
 **Document Type:** Register\
-**Version:** 1.12.1\
+**Version:** 1.13.0\
 **Date:** 2026-06-21\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -24,7 +24,7 @@ This register is the cumulative log of validation-sweep invocations and the find
 2. **False-positive memory**: findings the maintainer has triaged as not-a-real-finding, suppressed in subsequent sweeps so the maintainer does not pay the triage cost repeatedly.
 3. **Delta-per-sweep**: each sweep should ideally find less than the prior one as mechanical gates close failure classes; a sweep that finds *more* than the prior is signal that something has regressed.
 
-The register is hand-maintained, each `/validation-sweep` invocation appends an entry; entries are not generated.
+The register is hand-maintained, each `/validate` invocation (underlying skill `validation-sweep`) appends an entry; entries are not generated. Per-iteration verbose records (including full subagent transcripts) live in [`.working/validate-sweeps/`](../.working/validate-sweeps/); the register holds the summary.
 
 ## Scope
 
@@ -77,7 +77,7 @@ Historical entries from Sweeps 1-3 were classified before this convention was do
 
 ### 2026-06-20, Sweep 2 (post-PR-#74 → PR #76)
 
-- **Trigger**: maintainer requested `/validation-sweep` after pack 1.26.0 added three new skills (citation-quote-verification, fresh-reader-validation, skill-authoring-discipline) and the Layer 3 slash-command landed.
+- **Trigger**: maintainer requested `/validation-sweep` (slash command renamed to `/validate` in PR #115) after pack 1.26.0 added three new skills (citation-quote-verification, fresh-reader-validation, skill-authoring-discipline) and the Layer 3 slash-command landed.
 - **State**: library 2026.06.61; spec 1.10.0; pack 1.26.0; 42 corpus gates; 10 pack skills.
 - **Findings** (all in-window):
   - **C1 (stale-prose)** × 1: `skill-authoring-discipline/SKILL.md` line 13 said "the pack now ships seven skills" / "past seven skills", written when the count was 7; pack now has 10. Rephrased to number-stable wording.
