@@ -4,6 +4,12 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.127, PR #145
+
+Closes **FR-95** (high). [`risk/template-enterprise-risk-register.md`](risk/template-enterprise-risk-register.md) Acceptance section now requires a `Compensating Controls` field. The procedure already required compensating-controls analysis per [`risk/procedure-risk-acceptance.md`](risk/procedure-risk-acceptance.md) §5; the template now records each control with a brief note on how it offsets the un-treated risk so the acceptance record is self-contained and auditable. Per-doc `1.0.1 → 1.0.2`; library `2026.06.126 → 2026.06.127`. Backlog 104 → 103 open.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.126, PR #144
 
 Closes **FR-22** (high). [`compliance/template-audit-evidence-package.md`](compliance/template-audit-evidence-package.md) operating-evidence section now requires a mandatory `Sampling justification` field per test (population size, sample size, selection method, confidence-level assumption, citation to [`compliance/procedure-control-testing.md`](compliance/procedure-control-testing.md) §2.2 sample-size table). "100% population review" is the explicit response when sampling doesn't apply. External auditors now see the statistical-basis justification for every sample without reconstructing it from peer documents. Per-doc `1.0.0 → 1.0.1`; library `2026.06.125 → 2026.06.126`. Backlog 105 → 104 open.
