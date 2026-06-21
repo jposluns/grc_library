@@ -4,6 +4,30 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.100, PR #114
+
+Establishes the `.working/` top-level convention for maintainer working state. First of a four-PR sequence: this PR ships the infrastructure; subsequent PRs (`/validate` rename + per-run records, `/fitness` skill, changelog-details migration) populate the convention with content.
+
+### Added
+
+- [`.working/README.md`](.working/README.md): top-level convention document. `.working/` holds maintainer-only operational artefacts (per-run records, detailed reports, working drafts) that assist the maintainer but are not part of the published library content. Frozen-state archives (cross-references accurate as-of write-time), exempt from audit gates, not for adopter consumption. Fork-time guidance: adopters may delete `.working/` outright or keep it as historical reference; either is fine.
+
+### Changed
+
+- [`tools/lint_common.py`](tools/lint_common.py): `DEFAULT_EXEMPT_DIRS` extended to include `.working`. Joins `.git`, `node_modules`, `__pycache__`, and `.claude` as the always-skipped directories. Rationale comment in the module docstring explains the frozen-state archive convention.
+- [`.claude/CLAUDE.md`](.claude/CLAUDE.md): `## Structure` section gains a bullet documenting `.working/` for fresh sessions; the `DEFAULT_EXEMPT_DIRS` enumeration is updated to include `.working`.
+- [`README.md`](README.md): library version `2026.06.99 -> 2026.06.100`; README version `1.8.55 -> 1.8.56`.
+
+### Why this is a separate PR
+
+The `.working/` convention is infrastructure that two follow-on PRs (the `/validate` rename + per-run records to `.working/validation-sweeps/`, and the new `/fitness` skill writing to `.working/fitness-reviews/`) both depend on. Landing the convention first means each consumer PR is small and focused, and the convention's design (top-level dot-prefix, README contract, audit exemption) gets one round of review rather than being bundled with skill or rename work.
+
+### Verification
+
+All 44 audit gates pass standalone post-change. The new `.working/` directory contains only its README; no content yet. The exempt-dir change is additive (no previously-scanned files become skipped).
+
+---
+
 ## 2026-06-21, Library Version 2026.06.99, PR #113
 
 Sweep 9 iteration 3 close-out: three documentation findings from Subagent A's deep-review of PR #112 actioned.

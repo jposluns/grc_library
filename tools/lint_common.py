@@ -45,8 +45,14 @@ REPO_ROOT: Path = Path(__file__).resolve().parent.parent
 # dev-security/claude-rules/ pack); like that pack directory, its
 # contents are AI-context artefacts, not governed corpus documents,
 # so the corpus linters skip it.
+# ``.working`` holds maintainer working state: per-run records from
+# /validate, /fitness, and other maintainer-invoked activities. The
+# contents are frozen-state archives by design (cross-references
+# accurate as-of write-time, not maintained against subsequent corpus
+# changes), so the corpus linters skip them. See ``.working/README.md``
+# for the convention.
 DEFAULT_EXEMPT_DIRS: frozenset[str] = frozenset(
-    {".git", "node_modules", "__pycache__", ".claude"}
+    {".git", "node_modules", "__pycache__", ".claude", ".working"}
 )
 
 

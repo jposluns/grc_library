@@ -49,10 +49,17 @@ one must be added to all (the gate-parity audit enforces this).
 - A new audit = a `tools/lint-*.py` + wiring in all four surfaces (workflow, runner,
   pre-commit, audit-programme spec) + a regression fixture.
 - Exempt dirs are defined in `tools/lint_common.py` as `DEFAULT_EXEMPT_DIRS`
-  (`.git`, `node_modules`, `__pycache__`, `.claude`); individual linters add
+  (`.git`, `node_modules`, `__pycache__`, `.claude`, `.working`); individual linters add
   their own per-tool exempt prefixes on top (e.g. `dev-security/claude-rules/`,
   `tools/`, `docs/` carve-outs) — consult each `lint-*.py` for its specific set
   rather than treating the common set as the full list.
+- `.working/` — maintainer working space holding per-run records from `/validate`,
+  `/fitness`, and other maintainer-invoked activities. The contents are
+  frozen-state archives (cross-references accurate as-of write-time, not maintained
+  against subsequent corpus changes), exempt from corpus audit gates, and not
+  intended for adopter consumption. See [`.working/README.md`](../.working/README.md)
+  for the convention and subdirectory inventory. Adopters cloning the library can
+  delete `.working/` outright or keep it as historical reference; either is fine.
 
 ## Conventions
 - Mirror an existing same-type document's metadata and section shape rather than
