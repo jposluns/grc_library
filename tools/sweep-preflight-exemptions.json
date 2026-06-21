@@ -15,12 +15,6 @@
       "reason": "addyosmani external description: '24 engineering-workflow skills in Claude Code's Skills format'. The scanner captures a smaller digit from later in the line; the prose is about an external project, not the pack."
     },
     {
-      "path": "dev-security/claude-rules/skills/validation-sweep/SKILL.md",
-      "pattern_id": "PF-collection-rules-word",
-      "line_hash": "eca081c59b46035c",
-      "reason": "Synthesis rubric sub-rules: 'Four rules, no ceremony' refers to rubric sub-rules 5.1-5.4, not governance-rule count."
-    },
-    {
       "path": "governance/register-ai-security-tooling-landscape.md",
       "pattern_id": "PF-collection-rules",
       "line_hash": "c69db4a3786f0e76",

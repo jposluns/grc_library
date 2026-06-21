@@ -4,6 +4,40 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.103, PR #117
+
+Sweep 10 iteration 1 close-out: six in-window prose drift findings actioned, all introduced or made visible by the three-PR `.working/` sequence (PRs #114-#116).
+
+The sweep ran with full A/B/C fan-out per Rule 5.6. Subagent A returned 6 findings, Subagent B corroborated 2 of them, Subagent C returned zero. After dedupe: 6 unique findings (2 High, 2 Medium, 2 Low). All in-window; all fixed here.
+
+### Fixed
+
+- [`.claude/commands/validate.md`](.claude/commands/validate.md): line 1 preamble said "eight-step process" but the file body has 9 numbered steps (step 9 added in PR #115). Corrected to "nine-step". Per-iteration-record section list at lines 19-24 reformatted to H2 comma form (matching the SKILL.md spec; previously used bold "full report" labels that didn't match either of the other two surfaces).
+- [`.working/README.md`](.working/README.md): subdirectory inventory table said `*(none yet)*` despite PRs #115 and #116 having added `validate-sweeps/` (subdirectory) and [`.working/validate-sweeps-history.md`](.working/validate-sweeps-history.md) (top-level file). Inventory rewritten to list both children, with a separate table for subdirectories and top-level files. "To add a new subdirectory" instruction updated to cover both forms.
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): three prose drift fixes. Line 29 Process intro `"seven steps" → "nine steps"` (step 8 from PR #75 and step 9 from PR #115 were never reflected in the intro). Line 121 step 5 intro `"Four rules, no ceremony" → "Six rules"` (Rules 5.1-5.6 exist; rules 5.5 and 5.6 added in PRs #93 and #111). Line 135 awkward possessive on closing parenthesis rephrased (`...path)'s false-positive memory section` → `...false-positive memory section of the project's validation-sweep history register (in this project: ...)`).
+- [`.working/validate-sweeps/README.md`](.working/validate-sweeps/README.md): section-header form converted from em-dash to comma to match the SKILL.md canonical form. Three surfaces (SKILL.md, slash command, this README) now agree.
+- [`tools/sweep-preflight-exemptions.json`](tools/sweep-preflight-exemptions.json): removed the now-stale exemption for [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md) line_hash `eca081c59b46035c` (the "Four rules, no ceremony" line). The line content changed in this PR; the line_hash no longer matches; the exemption became dead weight. The candidate will re-surface naturally on the next sweep with the new line content for re-triage if needed.
+
+### Changed
+
+- [`.working/validate-sweeps-history.md`](.working/validate-sweeps-history.md): version `1.14.0 -> 1.15.0`. Sweep 10 iteration 1 entry appended; `Subagents dispatched: A, B, C` declared per Rule 5.6.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.28.1 -> 1.28.2`; version-history row added.
+- [`README.md`](README.md): library version `2026.06.102 -> 2026.06.103`; README version `1.8.58 -> 1.8.59`.
+
+### Added (under `.working/`, exempt from corpus audit gates)
+
+- [`.working/validate-sweeps/2026-06-21-sweep10-iter1.md`](.working/validate-sweeps/2026-06-21-sweep10-iter1.md): first per-iteration record under the convention established by PR #115. Six H2 sections: trigger & state snapshot, three subagent verbatim reports, orchestrator synthesis, resulting PR. This file dogfoods the convention.
+
+### Discipline observation
+
+All six findings are post-PR prose drift: a sentence written from one mental model that subsequent PRs invalidated. The pattern recurs (Sweep 9 iteration 3 caught three; Sweep 10 iteration 1 caught six). Mechanical gates can't catch this class because the prose is internally well-formed; only the cross-surface validation-sweep does. The lesson is to apply the evidence-grounded-completion discipline (re-read what you wrote, contradiction-search against sibling surfaces) at PR-authoring time, not only at PR-merge time.
+
+### Verification
+
+All 44 audit gates pass standalone post-commit. The validation-sweep's own iteration record (this PR) is the first dogfooded instance of the per-iteration-record convention established in PR #115.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.102, PR #116
 
 Move the validation-sweep history file from `governance/` to `.working/`. The file is project-specific application of the validation-sweep discipline, not template content for adopters; per the framing established with the maintainer, application belongs in `.working/`. Template content (the failure-mode class taxonomy, the maintenance protocol, the false-positive accept-list rules, the dispatch-declaration discipline) lives in the [`validation-sweep` SKILL.md](dev-security/claude-rules/skills/validation-sweep/SKILL.md) in the pack; adopters get the discipline from the SKILL.md and start their own history file from zero in their fork.
