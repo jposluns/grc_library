@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #176 — Document five memory-only AI-assistant workflow disciplines as a new pack rule + hallucination-metrics tracking file (2026-06-21)
+
+New pack rule `ai-assistant-workflow-disciplines.md` covers research-assistant discipline, pipeline PR construction, apply-time worker correction, "always split when in doubt", and background work during CI waits; `.working/hallucination-metrics.md` ships as the project's tracking artefact for the catch / escape ratio.
+
 ### PR #175 — Shorten historical DONE entries to scrolling-battle-text convention (2026-06-21)
 
 Retroactively shortened every existing DONE entry to the 1-2-sentence, no-links, no-version-bumps shape adopted in PR #174.
