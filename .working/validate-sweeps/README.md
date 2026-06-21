@@ -7,7 +7,7 @@ This subdirectory holds per-iteration records produced by the `/validate` slash 
 `YYYY-MM-DD-sweepN-iterM.md`
 
 - `YYYY-MM-DD` — calendar date of the iteration
-- `sweepN` — sweep ordinal, continues the numbering in [`governance/register-sweep-history.md`](../../governance/register-sweep-history.md). Sweep 1 was the first invocation ever; the current sweep number is whatever the register's most recent entry shows (or that entry's next number if this iteration starts a new sweep)
+- `sweepN` — sweep ordinal, continues the numbering in [`.working/validate-sweeps-history.md`](../validate-sweeps-history.md). Sweep 1 was the first invocation ever; the current sweep number is whatever the history file's most recent entry shows (or that entry's next number if this iteration starts a new sweep)
 - `iterM` — iteration within the sweep; the convergence-delta termination protocol can produce multiple iterations per sweep
 
 Examples: `2026-06-21-sweep9-iter1.md`, `2026-06-21-sweep9-iter2.md`, `2026-06-22-sweep10-iter1.md`.
@@ -23,12 +23,12 @@ Each file uses six top-level H2 sections in this order:
 5. `## Orchestrator synthesis` — in-window classification, severity adjudication, dedupe choices, debate outcomes, actions decided
 6. `## Resulting PR` — link to the close-out PR, or `none — zero findings`
 
-The register entry in `governance/register-sweep-history.md` is the cumulative summary; this file is the detail.
+The cumulative history file at [`.working/validate-sweeps-history.md`](../validate-sweeps-history.md) holds the summary; per-iteration files in this subdirectory hold the detail.
 
-## Relationship to the register
+## Relationship to the cumulative history file
 
-- Zero-finding iterations write to `.working/validate-sweeps/` but do NOT create a register entry (the convention is "zero-finding sweeps leave no trace in the register"). The per-iteration record here is the only persistent trace.
-- Iterations with findings write to BOTH `.working/validate-sweeps/` (detail) and the register (summary). The two are complementary; neither replaces the other.
+- Zero-finding iterations write to `.working/validate-sweeps/` but do NOT create an entry in [`.working/validate-sweeps-history.md`](../validate-sweeps-history.md) (the convention is "zero-finding sweeps leave no trace in the history file"). The per-iteration record here is the only persistent trace.
+- Iterations with findings write to BOTH `.working/validate-sweeps/` (detail) and the history file (summary). The two are complementary; neither replaces the other.
 
 ## Audit-gate exemption
 

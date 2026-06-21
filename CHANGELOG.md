@@ -4,6 +4,43 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.102, PR #116
+
+Move the validation-sweep history file from `governance/` to `.working/`. The file is project-specific application of the validation-sweep discipline, not template content for adopters; per the framing established with the maintainer, application belongs in `.working/`. Template content (the failure-mode class taxonomy, the maintenance protocol, the false-positive accept-list rules, the dispatch-declaration discipline) lives in the [`validation-sweep` SKILL.md](dev-security/claude-rules/skills/validation-sweep/SKILL.md) in the pack; adopters get the discipline from the SKILL.md and start their own history file from zero in their fork.
+
+### Moved
+
+- [`governance/register-sweep-history.md`](governance/register-sweep-history.md) (old path, no longer present) -> [`.working/validate-sweeps-history.md`](.working/validate-sweeps-history.md). Version `1.13.0 -> 1.14.0` (document moved; metadata block slimmed to maintainer-working-state fields). Repository Path field updated. Purpose section updated to explain the move and clarify the file's status as project-specific application of the discipline.
+
+### Removed
+
+- The "Validation Sweep History Register" row in [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md). The file is no longer in the Public corpus index; it's maintainer working state. Document-index version `1.27.21 -> 1.27.22`.
+- The corresponding row in [`governance/README.md`](governance/README.md). Version `1.10.3 -> 1.10.4`.
+- The redundant per-file exemption for the old path in [`tools/lint-gate-count-consistency.py`](tools/lint-gate-count-consistency.py) (`.working/` is in `DEFAULT_EXEMPT_DIRS`, so the per-file exemption is no longer needed).
+- The redundant pre-flight-scanner exemption entry for the old path in [`tools/sweep-preflight-exemptions.json`](tools/sweep-preflight-exemptions.json) (the file is now in `.working/` which the scanner already skips).
+
+### Changed
+
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): three references to the sweep history file rewritten with the same template-vs-project-path pattern step 9 uses (path-agnostic in the SKILL.md; project-specific path called out parenthetically). No process change; adopters can put the file wherever fits their structure.
+- [`.claude/commands/validate.md`](.claude/commands/validate.md): step 8 reference updated to the new path with the same path-agnostic framing.
+- [`.working/validate-sweeps/README.md`](.working/validate-sweeps/README.md): cross-references to the sweep history file updated to the new path; "Relationship to the register" section retitled to "Relationship to the cumulative history file" for naming consistency.
+- [`tools/lint-followup-ageing.py`](tools/lint-followup-ageing.py): `TARGET_FILES` updated to the relocated file's new path under `.working/`. Docstring updated to explain that the gate intentionally targets a file inside `.working/` despite the default exemption (the gate's purpose is to track deferred-finding deadlines in maintainer working state).
+- [`tools/sweep-preflight-scanner.py`](tools/sweep-preflight-scanner.py): comment updated for the file's new path.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.28.0 -> 1.28.1`; version-history row added.
+- [`README.md`](README.md): library version `2026.06.101 -> 2026.06.102`; README version `1.8.57 -> 1.8.58`.
+
+### Why this is a separate PR (per the four-PR sequence)
+
+PR #114 shipped the `.working/` infrastructure. PR #115 shipped the `/validate` rename + per-iteration record convention into `.working/validate-sweeps/`. This PR completes the validation-sweep tooling's relocation by moving the history file. Subsequent PRs in the sequence are the changelog-details migration and the `/fitness` skill addition.
+
+Other registers and tool-state files that look like candidates for the same move ([`tools/sweep-preflight-exemptions.json`](tools/sweep-preflight-exemptions.json), the citation-verification cluster, [`governance/register-main-branch-protection.md`](governance/register-main-branch-protection.md)) are queued as separate small PRs to keep each change focused.
+
+### Verification
+
+All 44 audit gates pass standalone post-commit. Gate 43 (follow-up ageing) continues to scan the relocated file at its new path (linter `TARGET_FILES` updated). The cross-references in [`.working/validate-sweeps-history.md`](.working/validate-sweeps-history.md) itself were updated for the relative-path shift from `governance/` to `.working/`. Historical CHANGELOG entries that reference the old path stay as-is (CHANGELOG is not scanned by [`tools/lint-links.py`](tools/lint-links.py); the historical record is preserved).
+
+---
+
 ## 2026-06-21, Library Version 2026.06.101, PR #115
 
 `/validate` slash-command rename + per-iteration record convention. Second of the four-PR sequence around `.working/` (PR #114 shipped the infrastructure; this PR populates the first subdirectory and adds the persistent-record discipline to the validation-sweep skill).
