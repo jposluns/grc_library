@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #168 — Sweep 15 follow-up: BASC information security 5-level classification expansion (2026-06-21)
+
+Sweep 15 surfaced an out-of-window finding at `compliance/logistics/policy-basc-information-security.md` lines 99 and 190 — the file enumerated only 3 classification levels (Confidential / Internal / Public) instead of the canonical 5. Maintainer decision: expand to 5-level since the 3 sector levels naturally map to 3 of the 5 (the canonical scheme is a superset). Both lines now enumerate the full canonical scheme (Public, Controlled, Internal, Confidential, Restricted) with explicit cross-reference to the canonical standard. Per-doc `1.1.1 → 1.2.0` (minor: classification-scheme extension). Library `2026.06.149 → 2026.06.150`.
+
 ### PR #167 — Sweep 15 iter 1 close-out: roadmap metadata + DPIA ISO/IEC citation + TODO narrative refresh (2026-06-21)
 
 Sweep 15 surfaced 4 findings (3 in-window, 1 out-of-window). Subagent A: 3 findings (`docs/template-implementation-roadmap.md:12` Review Frequency metadata stale after FR-57 rename; `privacy/template-dpia.md:197` cites `ISO/IEC 29134:2023` which is unverified — 2017 is the publicly verifiable edition; `compliance/logistics/policy-basc-information-security.md:99,190` enumerates 3 classification levels possibly sector-conditional). Subagent B: 1 finding (`TODO.md:22` narrative lagged actual state by 5 PRs; contradicted line 113 of same file). Subagent C: 0 findings; 1 future-gate candidate (schema-version inline-history convention for `tools/build-portal.py`). In-window fixes applied: roadmap metadata (per-doc 1.0.3 → 1.0.4); ISO/IEC 29134:2023 → 2017 in DPIA template (per-doc 1.0.0 → 1.0.1) + document index (per-doc 1.27.25 → 1.27.26); TODO narrative refresh. BASC 3-level question surfaced to operator. Also captures maintainer-directed standard-version-upgrade-process work as a TODO item for after the FR backlog completes.

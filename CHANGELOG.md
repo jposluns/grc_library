@@ -4,6 +4,12 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.150, PR #168
+
+Sweep 15 follow-up: closes the BASC information-security 3-vs-5 classification gap surfaced by Sweep 15 Subagent A. [`compliance/logistics/policy-basc-information-security.md`](compliance/logistics/policy-basc-information-security.md) lines 99 and 190 enumerated only 3 classification levels (Confidential / Internal / Public) instead of the canonical 5 (Public, Controlled, Internal, Confidential, Restricted). Maintainer direction: expand to 5-level since the canonical scheme is a superset of the BASC 3 levels (any BASC-mandated sector requirement maps onto 3 of the 5 canonical levels; using all 5 cannot be worse than using 3). Both lines now enumerate the full canonical scheme with explicit cross-reference to [`security/standard-data-classification-and-handling.md`](security/standard-data-classification-and-handling.md). Per-doc `1.1.1 → 1.2.0` (minor: classification-scheme extension); library `2026.06.149 → 2026.06.150`.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.149, PR #167
 
 Sweep 15 iteration 1 close-out. Three in-window findings fixed; one out-of-window note surfaced to operator. Subagents A, B, C all dispatched (Subagent A: 3 findings; Subagent B: 1; Subagent C: 0). In-window fixes:
