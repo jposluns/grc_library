@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.153, PR #173
+
+`.claude/` changes for local project: backfilled CHANGELOG entries for PRs #170 and #171 (added below). Both PRs originally shipped with `Changelog: skip` trailers per the (then-active) `.claude/` directory exemption; the maintainer flagged the resulting audit-trail gap (CHANGELOG jumped from #169 to #172) during the PR #172 close-out and updated the audit-trail discipline: every PR carries a CHANGELOG entry, with `.claude/`-only changes permitted to use a terse one-liner rather than the full structured form. This PR repairs the existing gap; the corresponding adjustment to the pack rule [`.claude/rules/governance/change-tracking.md`](../../.claude/rules/governance/change-tracking.md) (removing the skip-trailer exception and replacing it with the terse-entry-allowed convention) is queued as PR #174.
+
+### Changed
+
+- [`CHANGELOG.md`](../../CHANGELOG.md): added one-line lead-paragraph entries for PRs #170, #171, and #173 (self).
+- [`.working/changelog-details/CHANGELOG-detailed.md`](CHANGELOG-detailed.md): added matching detailed entries for PRs #170, #171, and #173 (self). Detailed entries for `.claude/`-only changes carry a slightly fuller paragraph than the root entry's one-liner but do not require the full Closed-findings / Changed / Verification structure (which is reserved for substantive corpus changes).
+- [`.working/DONE.md`](../DONE.md): PR #173 entry added as a non-FR meta-housekeeping entry.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates against the committed state.
+- `tools/run-pr-time-checks.sh` exits 0 (D1 satisfied by CHANGELOG modification, D2 satisfied by zero versioned document body changes, gate 45 clean).
+- Version-monotonicity audit: the new entries at library `2026.06.152` are non-decreasing relative to surrounding entries (PR #169 at `2026.06.152`, PR #172 at `2026.06.153`, PR #173 self at `2026.06.153`).
+- Version-date consistency audit: top CHANGELOG entry (PR #173) at library `2026.06.153` matches the current README's `Library Version: 2026.06.153`.
+
+## 2026-06-21, Library Version 2026.06.152, PR #171
+
+`.claude/` changes for local project: added a `## PR activity subscription discipline` section to [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md). The discipline requires every `mcp__github__subscribe_pr_activity` call in the same turn to arm a paired 60-second fallback timer via `Bash` with `run_in_background: true` (subscriptions reliably deliver failure events but not all success transitions; the timer is the catch-net for the silent-success case). PR workflow step 3 in the same file was updated to reference the new section. Operationalizes the webhook-subscriptions guidance in the pack rules `action-before-explanation-of-inaction.md` and `evidence-grounded-completion.md` (its "API polling and webhook subscriptions" section) by specifying the 60-second cadence and the re-arm pattern that the pack rules leave open. Backfilled in PR #173.
+
+## 2026-06-21, Library Version 2026.06.152, PR #170
+
+`.claude/` changes for local project: added a `## Version-bump discipline` section to [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md). The rule has three sentences (one per version surface): (1) per-document `Version` bumps in the same commit that changes the document's body; (2) library CalVer bumps once per PR in the last commit before push; (3) README `Version` field bumps in the same commit as the CalVer bump. Plus a three-question commit-time operationalization and a pointer to the post-commit `tools/run_all_audits.sh` discipline (already in `## PR workflow` step 1) as the catch-net. Surfaced after PR #169's gate 40 catch, where a body-change commit on the feature branch missed its per-doc bump and was caught by CI rather than by local audit. Backfilled in PR #173.
+
 ## 2026-06-21, Library Version 2026.06.153, PR #172
 
 Phase 1 velocity bundle: five medium README polish findings shipped together. The findings clustered in [`README.md`](../../README.md) per the fitness review (FR-4 through FR-8 in the `README.md` cluster of [`.working/fitness-reviews/2026-06-21-r1.md`](../fitness-reviews/2026-06-21-r1.md)); Rec-6 in §10 of that review proposed a single-PR bundle covering FR-1, FR-2, FR-3, FR-5, FR-6, FR-7, FR-8. FR-1, FR-2, and FR-3 shipped earlier as their own PRs (#155, #156, #147; their findings were severity High and warranted separate treatment). This PR closes the remaining five medium findings as a single Phase 1 velocity bundle.
