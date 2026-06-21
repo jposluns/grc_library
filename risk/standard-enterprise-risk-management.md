@@ -2,9 +2,9 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.3.3\
+**Version:** 1.3.4\
 **Date:** 2026-06-21\
-**Owner:** Chief Information Officer\
+**Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
 **Classification:** Public\
@@ -34,7 +34,8 @@ This standard defines the enterprise-wide risk management framework, taxonomy, a
 
 | Role | Responsibility |
 |---|---|
-| Chief Information Officer | Accountable for the overall enterprise risk management framework and its alignment with strategic objectives. |
+| Chief Risk Officer | Accountable for the overall enterprise risk management framework and its alignment with strategic objectives; owns risk strategy, risk appetite stewardship, and ERM-programme outcomes; reports to the Board or Risk Committee. |
+| Chief Information Officer | Provides executive support to the ERM programme on technology-risk integration; ensures that IT-strategy risk is reflected in the enterprise risk register. |
 | Chief Information Security Officer | Responsible for managing information security, privacy, and AI-related risks; ensures that integration into the risk register. |
 | Enterprise Risk Committee (ERC) | Oversees risk appetite, tolerance, and periodic risk reporting; meets quarterly. |
 | Risk Manager / Compliance Officer | Administers risk registers and scoring models; facilitates risk assessments across the organisation. |
