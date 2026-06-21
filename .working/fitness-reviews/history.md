@@ -1,6 +1,6 @@
 # Library Fitness Review History
 
-**Version:** 1.1.0\
+**Version:** 1.1.1\
 **Date:** 2026-06-21\
 **License:** CC BY-SA 4.0
 
