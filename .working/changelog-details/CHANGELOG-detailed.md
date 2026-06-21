@@ -6,6 +6,51 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.160, PR #181
+
+Sweep 16 iteration 1 close-out. First `/validate` sweep since Sweep 15 (PR #167), covering 13 intervening PRs (#168 through #180) — well past the original "every 5 PRs" cadence and tracking 4× the original cadence rule. The maintainer flagged the gap during the PR #179 close-out and directed a sweep before the next FR (FR-33 P1.4b).
+
+### Subagents dispatched
+
+All three subagents (A, B, C) dispatched per the validation-sweep skill's Rule 5.6 (subagent-dispatch declaration discipline).
+
+- **Subagent A** (recent-PR deep review): deep-reviewed PRs #167-#180 with focus on multi-document consistency, citation accuracy, and version-drift. **1 finding** (TODO.md:22 stale PR-range narrative; warning level; in-window).
+- **Subagent B** (corpus-wide stale-reference sweep): grep-pattern hunting for stale counts (gate, governance rule, skill, linter, pack version, library version), citation drift, and two-file CHANGELOG lock-step. **1 finding** (skill-authoring-discipline/SKILL.md:26 "seven governance rules" → "eight"; error level; in-window).
+- **Subagent C** (audit-programme integrity reviewer): four-surface gate parity, linter-docstring drift, exemption coverage, regression-test coverage, MIRROR_MAP integrity, CHANGELOG-on-PR gate alignment, gate-count consistency. **0 findings**. High-confidence clean bill.
+
+### Findings (synthesised)
+
+Both findings are the **C-3 multi-surface incompleteness** failure-mode class (catalogued in the SKILL.md step 3 inventory). Pattern: an orchestrator updates a primary surface but misses paired narrative prose elsewhere. Both are R (real, not inferred), both in-window, both `should-fix-this-PR` severity.
+
+- **Finding A1** (`stale-prose-references:TODO.md:22`): TODO.md line 22's Queued-sequence narrative said "PRs #142-#176 have closed 34 findings to date" when current HEAD includes PRs #177, #178, #179, and #180. The session-resume snapshot at line 13 was correctly refreshed in PR #180 ("synced after PR #180 merge"; library `2026.06.159`); the narrative prose below it was not. Adjacent inconsistency: the line cites "34 findings" while the Backlog totals section (line ~140) says "42 closed across PRs #142-#179". The fix refreshes the narrative to current state (#180; 42 findings) and extends the recent-PRs list to name #177-#180.
+- **Finding B1** (`stale-skill-parent-count:dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md:26`): the skill-authoring skill's Process step 2 said "every pack skill derives from one of the seven governance rules" when PR #176 added the eighth rule (`ai-assistant-workflow-disciplines.md`). PR #176 updated the pack README inventory, the directory tree comment, the available-rules table, and the rollout-history paragraph, but missed this paired narrative reference inside the skill text. **Fix applied as a genericization, not a re-count**: per the maintainer's direction during this sweep, rewriting the line as "one of the governance rules under `dev-security/claude-rules/governance/`" removes the count entirely. The count was the bug — citing a count in narrative prose where the directory itself is the canonical authority creates a drift-prone paraphrase that has to be updated every time the directory grows. The generic phrasing makes the rule self-maintaining.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md): line 22 narrative prose refreshed (PR range and finding count).
+- [`dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md`](../../dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md): line 26 "seven" → "eight". No per-doc Version bump (skills carry YAML frontmatter only, not Version-field metadata blocks).
+- [`README.md`](../../README.md): library `2026.06.159 → 2026.06.160`; README `1.9.30 → 1.9.31`.
+- [`.working/DONE.md`](../DONE.md): PR #181 entry added (terse form).
+- [`.working/hallucination-metrics.md`](../hallucination-metrics.md): both findings logged as orchestrator-side oversights under the multi-surface incompleteness pattern.
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): Sweep 16 iter 1 row appended.
+- [`.working/validate-sweeps/2026-06-21-sweep16-iter1.md`](../validate-sweeps/2026-06-21-sweep16-iter1.md): per-iteration detail file written.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates against the committed state (re-baselined after fixes).
+- `tools/run-pr-time-checks.sh` exits 0 (D1, D2, gate 45).
+- No re-iteration needed; sweep terminates on iteration 1 per the empty-delta primary stop (no new High/Medium findings after fix-apply re-baseline).
+
+### Discipline observation
+
+Both findings reflect the same orchestrator-side pattern: when adding/updating a major artefact (the 8th governance rule in PR #176; the Phase 1/2 plan rotation in PR #177), the orchestrator updated the structural surfaces (inventory tables, session-resume snapshot) but missed paired narrative prose. The narrative prose is "soft" in the sense that no mechanical gate catches it (gate 39 catches `N gates` prose, gate 41 catches enumeration drift, gate 45 catches TODO-staleness shapes, but none catch "narrative cites N items where actual is N+K"). 
+
+**Future-gate candidate**: a corpus-wide "narrative-vs-current-state" cross-reference audit could catch this class mechanically. The cost is high (the gate needs to know the actual "current state" of various counts); the benefit is moderate (the class recurs ~once per 10-PR window). Surfaced to the operator as a maintenance signal rather than actioned this sweep.
+
+**Better alternative (maintainer-directed during this sweep)**: rather than building a gate that tracks counts, **genericize counts-in-prose** wherever the directory or table is the canonical authority. The fix to finding B1 demonstrates the pattern: "one of the seven governance rules" → "one of the governance rules under `<directory>`". Queued as a follow-up: a corpus-wide search for "N <item-class>" patterns in prose, with a classification per occurrence — keep (the count is informative and stable) or genericize (the count is drift-prone and the directory/table is the canonical authority).
+
+**Worker-brief / orchestrator-checklist implication**: this is exactly the failure mode the maintainer's proposed worker-brief template + hallucination-assessment discipline (queued as PR #183) is designed to address. The post-fix orchestrator-side checklist item would be: "when updating any inventory or count, search the corpus for narrative paraphrases of that count and update in lock-step".
+
 ## 2026-06-21, Library Version 2026.06.159, PR #180
 
 Extended the project's version-bump discipline from three surfaces to four by adding the per-document `Date` field as a distinct discipline item alongside the existing per-document `Version`, library CalVer, and README `Version` surfaces. Surfaced as a discipline gap by PR #179's gate-31 catch (the orchestrator's apply-time checklist asked "did I bump Version?" but not "did I bump Date?"). Two recent corpus changes (`security/policy-information-security.md` and `resilience/template-tabletop-exercise.md`) had Version bumped but Date missed; CI's gate 31 (document-date-staleness) caught the omission. Adding Date to the discipline checklist avoids the re-run loop.
