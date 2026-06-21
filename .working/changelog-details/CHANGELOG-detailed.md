@@ -6,6 +6,42 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.110, PR #127
+
+Sweep 11 iteration 1 close-out. Eight in-window findings actioned: corrected the fitness report's count mismatch across six surfaces (95/18/22/31/24 → mechanically-tabulated 111/17/20/57/17); updated `governance/specification-audit-programme.md` D1 description for dual-entry post-PR-#125; refreshed TODO and reframed its session-pause snapshot as "as-of-last-refresh" (one-time convention amendment to address the four-consecutive-sweep recurring drift); softened workflow ordering in `change-tracking.md`; renamed `.working/README.md` "Created by" column to "Origin"; bumped library version.
+
+### Fixed
+
+- [`.working/fitness-reviews/2026-06-21-r1.md`](../fitness-reviews/2026-06-21-r1.md) §1 + §8: claimed "95 unique findings / 18 H[critical] / 22 H / 31 M / 24 L". Mechanical tabulation of FR-1 through FR-111 (verified by orchestrator with explicit Python tally) yields **111 unique findings / 17 H[critical] / 20 H / 57 M / 17 L**. §1 corrected with explanatory note documenting the discrepancy and the Sweep 11 iter 1 correction; §8 backlog summary corrected to authoritative mechanical counts. (Subagent A finding A11-1; High; corroborated by orchestrator re-tabulation.)
+- [`.working/fitness-reviews/history.md`](../fitness-reviews/history.md) Findings column for r1 row: updated to `111 (17 H[critical], 20 H, 57 M, 17 L)` with note `counts corrected from PR #124's "95/18/22/31/24" approximation in Sweep 11 iter 1`.
+- [`governance/specification-audit-programme.md:144`](../../governance/specification-audit-programme.md): D1 description was stale post-PR-#125. Said "fails when CHANGELOG.md is not in the diff"; now correctly says "BOTH the root CHANGELOG.md AND the detailed mirror at `.working/changelog-details/CHANGELOG-detailed.md` must be in the diff (lock-step); modifying one without the other fails the gate". Spec version `1.12.0 → 1.12.1`; Date `2026-06-20 → 2026-06-21`. (Subagent A finding A11-2; Medium.)
+- [`TODO.md`](../../TODO.md): four findings (B-1 through B-4) — version snapshot stale (2026.06.107 vs canonical 2026.06.109), PRs-completed list ends at #121 (missing #122-#126), sweep cursor stale (Sweep 10 iter 2 vs current Sweep 11 iter 1), "Next — PR #122" framed as queued despite #122 having merged. All four resolved via PRs-completed list extension (now includes #122-#127) and Queued-sequence section rewrite. Plus a convention amendment: the "Session state at pause" preamble now explicitly frames the version-snapshot field as "as-of-last-refresh", not "at HEAD", with explanatory note about expected drift. This addresses the four-consecutive-sweep recurring pattern at its source. (Subagent B findings B-1 through B-4; Medium + 3 Low.)
+- [`dev-security/claude-rules/governance/change-tracking.md:147-151`](../../dev-security/claude-rules/governance/change-tracking.md): "Two-file split workflow" subsection lists steps 1 and 2 as if sequential (write detailed first, then root). Softened to "Authorship order within the commit is the author's choice; the gate only checks the diff." Mirrored to [`.claude/rules/governance/change-tracking.md`](../../.claude/rules/governance/change-tracking.md). (Subagent A finding A11-3; Low.)
+- [`.working/README.md:31`](../README.md): "Created by" column heading renamed to "Origin" for clarity (rows are PR refs, not authorship). "To add a new activity" instruction updated to match. (Subagent A finding A11-4; Low.)
+
+### Changed
+
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): version `2.0.2 → 2.0.3`. Sweep 11 iter 1 row appended with `Subagents: A, B, C` per Rule 5.6.
+- [`README.md`](../../README.md): library version `2026.06.109 → 2026.06.110`; README version `1.8.65 → 1.8.66`.
+
+### Added (under `.working/`, exempt from corpus audit gates)
+
+- [`.working/validate-sweeps/2026-06-21-sweep11-iter1.md`](../validate-sweeps/2026-06-21-sweep11-iter1.md): per-iteration detail file with A/B/C subagent reports, eight-finding synthesis, severity adjudication, and pattern observation about recurring TODO drift.
+
+### Pattern observation (recurring meta-finding now resolved at source)
+
+Four consecutive sweeps (Sweep 10 iter 2, iter 3 close-out, iter 3 catch-back, and now Sweep 11 iter 1) caught the same TODO drift shape: the "Library version at HEAD" snapshot becoming stale as subsequent PRs landed before resume. Each iteration fixed the symptom (refresh the snapshot) but the convention's framing ("at HEAD" = current-state claim) re-introduced the drift on the next close-out PR that bumped versions. This PR addresses the root cause by reframing the snapshot as "as-of-last-refresh" with explicit drift-is-expected wording. Gate 45 (queued for PR #128) will catch the harder-to-tolerate drift shapes (Next-PR-marked-merged, sweep-cursor-behind-history) mechanically at PR time.
+
+### Verification
+
+All 44 audit gates pass standalone post-commit. Pre-flight scanner returns 0 candidates. Mechanical tabulation of FR-1..FR-111 in the fitness report confirmed via `grep + Python` orchestrator-level re-count.
+
+### Discipline observation
+
+This iteration validates the user's recent proposal to introduce unverified→confirmed labelling for fitness findings: I (the orchestrator) accepted the subagent-aggregate "95 findings" number without re-tabulating against the actual FR-N enumeration, and that error propagated across six surfaces. The PR #128 amendment to the fitness skill (queued) will close this gate by making orchestrator-level verification a required step.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.109, PR #125
 
 Splits the CHANGELOG into a two-file convention: root file carries lead-paragraph summaries (adopter-facing); detailed mirror at [`.working/changelog-details/CHANGELOG-detailed.md`](CHANGELOG-detailed.md) carries full structured-section entries (maintainer-grade). Historical content preserved verbatim; root file trimmed to first paragraphs (2926 lines → 675 lines). Delta gate extended to require both files move in lock-step. First PR using the dual-entry convention; this entry dogfoods it.

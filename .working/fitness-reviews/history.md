@@ -1,6 +1,6 @@
 # Library Fitness Review History
 
-**Version:** 1.1.0\
+**Version:** 1.1.1\
 **Date:** 2026-06-21\
 **License:** CC BY-SA 4.0
 
@@ -12,7 +12,7 @@ See [`README.md`](README.md) for the persona catalogue, severity model, output f
 
 | Date | Run | Personas | Findings | Resulting PR | Detail | Summary |
 |---|---|---|---|---|---|---|
-| 2026-06-21 | r1 | A, B, C, D, E, F, G, H, I, J (all 10) | 95 (18 H[critical], 22 H, 31 M, 24 L) | [#124](https://github.com/jposluns/grc_library/pull/124) | [`2026-06-21-r1.md`](2026-06-21-r1.md) | First-ever fitness review. Library broadly fit for use; key clusters: maturity ladder fragmentation (3 conflicting models), data classification 4-vs-5-level split, DPO operational templates missing (DPIA/DPA/LIA/TIA/PbD), audit-discipline ceilings absent (exception/CAPA/citation-precision), README onboarding hole (GRC never expanded), 4 entry-point sequences contradict, healthcare/HIPAA + FS-outside-EU/US coverage shallow, SIEM/cloud-log retention contradiction (3y vs 90d). Strong areas: AI/agentic security (exemplar), threat modelling, OT/ICS, post-quantum, supply chain SCA/SBOM, DSAR/breach workflows. Recommendation: not publication-ready; Q1 close of audit-exposure cluster (Rec-2/3/4/5) brings library to publication-grade. |
+| 2026-06-21 | r1 | A, B, C, D, E, F, G, H, I, J (all 10) | 111 (17 H[critical], 20 H, 57 M, 17 L; counts corrected from PR #124's "95/18/22/31/24" approximation in Sweep 11 iter 1) | [#124](https://github.com/jposluns/grc_library/pull/124) | [`2026-06-21-r1.md`](2026-06-21-r1.md) | First-ever fitness review. Library broadly fit for use; key clusters: maturity ladder fragmentation (3 conflicting models), data classification 4-vs-5-level split, DPO operational templates missing (DPIA/DPA/LIA/TIA/PbD), audit-discipline ceilings absent (exception/CAPA/citation-precision), README onboarding hole (GRC never expanded), 4 entry-point sequences contradict, healthcare/HIPAA + FS-outside-EU/US coverage shallow, SIEM/cloud-log retention contradiction (3y vs 90d). Strong areas: AI/agentic security (exemplar), threat modelling, OT/ICS, post-quantum, supply chain SCA/SBOM, DSAR/breach workflows. Recommendation: not publication-ready; Q1 close of audit-exposure cluster (Rec-2/3/4/5) brings library to publication-grade. |
 
 ## Open remediation backlog items
 
