@@ -6,6 +6,40 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.124, PR #142
+
+First fitness-remediation PR. Closes four unambiguous quick-win findings at maintainer direction ("pick some quick wins that are absolutely certainly in need of working and proceed with those") while the maintainer reviews the broader 111-item backlog. Each finding had: single-file scope; unambiguous fix (no judgement call); high value-per-effort; no cross-cutting impact.
+
+### Closed findings
+
+- **FR-13** (Medium, ERM standard): `CPPA` in [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md) §10 framework alignment table was ambiguous between the Canadian Consumer Privacy Protection Act (Bill C-27) and the California Privacy Protection Agency. The surrounding row "As applicable to Canadian personal information" made the intent clear in context but the acronym still required reader inference. Expanded to `CPPA (Canadian Consumer Privacy Protection Act, Bill C-27)`. Per-doc `1.3.2 → 1.3.3`; Date `2026-05-28 → 2026-06-21`.
+- **FR-54** (Low, naming) and **FR-55** (Low, naming): `sop-` and `roadmap-` doctype prefixes are used in filenames and `SOP` / `Roadmap` are allowed doctypes in [`specification-master-project.md`](../../specification-master-project.md) §4.3, but the prefix-to-type mapping was only documented in a single sentence in `specification-ingestion.md:196`. Added an explicit prefix-mapping table to §4.3 listing all 17 doctypes and their canonical lowercase prefixes (`charter-`, `framework-`, `policy-`, `standard-`, `procedure-`, `sop-`, `plan-`, `roadmap-`, `guideline-`, `guide-`, `register-`, `matrix-`, `specification-`, `template-`, `annex-`, `checklist-`, `worklist-`). Per-doc `1.5.1 → 1.5.2`; Date `2026-06-19 → 2026-06-21`. The new table also closes a class of latent finding: any future doctype addition now requires an explicit prefix entry rather than relying on inferred convention.
+- **FR-103** (Low, 3LoD): the "Governance and accountability" table in [`governance/framework-continuous-assurance-and-improvement.md`](../../governance/framework-continuous-assurance-and-improvement.md) omitted Chief Compliance Officer despite CCO being relevant to compliance-domain assurance closure (referenced in the exception-policy closure-validation requirement). Added a CCO row scoped to compliance-domain assurance outcomes, closure validation chairmanship, and assurance-calendar alignment with regulatory obligation cadence. Per-doc `1.0.1 → 1.0.2`; Date `2026-05-28 → 2026-06-21`.
+
+### Changed
+
+- [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md): §10 framework alignment row updated for CPPA; per-doc version + Date bumped.
+- [`governance/framework-continuous-assurance-and-improvement.md`](../../governance/framework-continuous-assurance-and-improvement.md): new CCO row added in the Governance and accountability table; per-doc version + Date bumped.
+- [`specification-master-project.md`](../../specification-master-project.md): §4.3 reshaped from a bullet list of doctype names to a two-column prefix-mapping table; per-doc version + Date bumped.
+- [`README.md`](../../README.md): library version `2026.06.123 → 2026.06.124`; README version `1.8.79 → 1.8.80`.
+- [`TODO.md`](../../TODO.md): four FR-IDs rotated out of the Fitness review backlog (FR-13 from Medium tier, FR-54 / FR-55 / FR-103 from Low tier). Backlog totals updated to 93 immediate-priority + 14 deferred = 107 open. Session resume metadata refreshed.
+- [`.working/DONE.md`](../DONE.md): PR #142 entry + four `### FR-N` cross-reference entries added at top of "Closed items".
+
+### Verification
+
+- Local audit: `tools/run_all_audits.sh` exits 0 on all 46 gates.
+- Local PR-time checks: `tools/run-pr-time-checks.sh` exits 0.
+- Manual re-read: each of the four affected files contains the new content; ERM standard's §10 row now spells out CPPA; framework-continuous-assurance has a new CCO row; specification-master-project's §4.3 has the new mapping table.
+- TODO backlog totals match: 17 + 20 + 56 + 14 = 107 (was 17 + 20 + 57 + 17 = 111 before PR #142).
+
+### Discipline observation
+
+This PR is the steady-state shape of fitness-remediation work: pick a coherent micro-batch (here, four findings unified by "unambiguous quick wins"), close them in one focused PR, rotate them out of TODO and into DONE. The "more PRs, keep each one clean" preference holds: four findings in one PR is reasonable when each fix is small and they share a common rationale (quick wins); a larger PR with a heterogeneous fix set would be harder to review.
+
+The maintainer's "while I'm reviewing them all" instruction is also a worked example of the TODO-as-prioritization-surface discipline introduced in PR #141. The maintainer can review the structured backlog at their own cadence; the orchestrator picks unambiguous fixes to maintain forward momentum without preempting maintainer choices on judgement-bearing findings. The 107 remaining open findings continue to await maintainer direction.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.123, PR #141
 
 Pass-2 of the fitness review per the discipline introduced in PR #139. Surfaced the four Pass-1 buckets to the maintainer via structured AskUserQuestion and processed the outcomes. **No remediation work begins until the maintainer reviews the backlog and directs the order**; this PR's sole deliverable is the prioritized TODO backlog plus the report-side documentation of Pass-2 decisions.
