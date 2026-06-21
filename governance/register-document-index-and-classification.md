@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.22\
+**Version:** 1.27.23\
 **Date:** 2026-06-21\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -50,7 +50,7 @@ All active repository documents should be Public.
 | Governance | Register | Glossary and Acronym Index | [`governance/register-glossary.md`](register-glossary.md) | Governance Library Maintainer | Annual | Acronyms, external standards, regulations, frameworks, regulators, sector programmes |
 | Governance | Register | Canonical Citations Register | [`governance/register-canonical-citations.md`](register-canonical-citations.md) | Governance Library Maintainer | Quarterly | Positive list of cited standards with current versions, publication dates, superseded versions; source for the standards-currency linter |
 | Governance | Specification | Citation Verification Specification | [`governance/specification-citation-verification.md`](specification-citation-verification.md) | Governance Library Maintainer | Annual | Methodology for verifying canonical citations against publisher canonical sources with Wayback snapshot capture and confidence ratings |
-| Governance | Specification | Audit Programme Specification | [`governance/specification-audit-programme.md`](specification-audit-programme.md) | Governance Library Maintainer | Annual, and on addition or removal of any audit gate | Defines the 44-gate audit programme: gate inventory, enforcement surfaces (spec §6 inventory plus CI workflow, local runner, pre-commit hook), phase-completion gating, gate-addition / modification / retirement procedures, and boundary with the Citation Verification Specification |
+| Governance | Specification | Audit Programme Specification | [`governance/specification-audit-programme.md`](specification-audit-programme.md) | Governance Library Maintainer | Annual, and on addition or removal of any audit gate | Defines the 45-gate audit programme: gate inventory, enforcement surfaces (spec §6 inventory plus CI workflow, local runner, pre-commit hook), phase-completion gating, gate-addition / modification / retirement procedures, and boundary with the Citation Verification Specification |
 | Governance | Register | Citation Verifications Register | [`governance/register-citation-verifications.md`](register-citation-verifications.md) | Governance Library Maintainer | Per Citation Verification Specification §12 | Append-only verification log for canonical citations: publisher URL, captured text, Wayback snapshot, confidence rating, date checked, captured-by identifier |
 | Governance | Template | Citation Verification Worklist Template | [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md) | Governance Library Maintainer | Annual | Per-batch working artefact enforcing the AI/human verifier split in Citation Verification Specification §3 |
 | Governance | Worklist | Citation Verification Worklist: Batch Q2 (ISO and ISO/IEC) | [`governance/worklist-citation-verification-batch-q2-iso-iec.md`](worklist-citation-verification-batch-q2-iso-iec.md) | Governance Library Maintainer | Per-batch (no recurring cadence) | Working worklist for Phase Q2 batch: 24 ISO and ISO/IEC entries pre-filled by AI verifier, captures to be filled by human verifier |
