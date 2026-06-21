@@ -25,6 +25,10 @@ The format for each entry:
 
 ## Closed items
 
+### PR #152 — FR-19 + FR-20: CAPA governance ceiling + root-cause quality checklist (2026-06-21)
+
+Closes two findings from the Pass-1 fitness sweep, both in [`compliance/procedure-capa.md`](../compliance/procedure-capa.md): FR-19 (high[critical]) — the CAPA extension policy had no hard ceiling, allowing indefinite open-ended remediation under repeated single-step CISO approvals; and FR-20 (high) — CAPA root-cause statements had no quality checklist, so bare category labels like "process gap" satisfied the aspirational §4.1 "specific and actionable" requirement. New §4.1.1 supplies a five-criterion checklist (Specific / Causal / Actionable / Bounded / Evidence-anchored) applied by the GRC Manager during verification; new §6.3.1 supplies a 2/3/4 escalation ceiling (ERC at the 2nd extension, Board Risk Committee at the 3rd, prohibition at the 4th, with a re-baselining carve-out for materially-changed root causes). §9.1 cross-references updated for consistency. Per-doc `1.0.1 → 1.0.2`.
+
 ### PR #151 — FR-35: explicit GDPR Article 33(2) processor-awareness clock (2026-06-21)
 
 High-severity (✅ confirmed-as-stated) privacy breach-response finding closed. [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) now makes the GDPR Article 33(2) two-clock asymmetry explicit: the contractual 24-hour processor-to-controller notification window starts at *processor* awareness (the Article 33(2) trigger), not at controller notification or at any later milestone; the controller's separate 72-hour Article 33(1) regulatory clock then runs from controller awareness. §4.1 detection-sources bullet, §6.3 supplier-notification section, and §10 supplier-notification metric all updated; §6.3 gains a dedicated explanatory note covering both clocks and the consumption relationship (a delayed Article 33(2) notification erodes the controller's 72-hour Article 33(1) budget). Per-doc `1.4.3 → 1.4.4`; library `2026.06.132 → 2026.06.133`.
