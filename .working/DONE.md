@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #181 — Sweep 16 iter 1 close-out: TODO narrative refresh + skill-authoring genericization (2026-06-21)
+
+Sweep 16 close-out (first full sweep since Sweep 15 at PR #167; 13-PR window). Two in-window findings closed: TODO.md:22 PR-range narrative refreshed to current state; skill-authoring-discipline SKILL.md:26 "seven governance rules" rewritten as generic phrasing per maintainer's count-genericization direction.
+
 ### PR #180 — Extend version-bump discipline to four surfaces (add per-document Date) (2026-06-21)
 
 Closed the discipline gap surfaced by PR #179's gate-31 catch: the apply-time checklist now pairs Version-bump with Date-bump on every body-changing commit. Pack rule and project CLAUDE.md updated; pack version 1.36.0 → 1.37.0.

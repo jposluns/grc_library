@@ -10,16 +10,16 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #180 merge).
-- **Library version as of last refresh**: `2026.06.159`. **Pack version**: `1.37.0`. **README version**: `1.9.30`.
+- **Branch at last refresh**: `main` (synced after PR #181 merge).
+- **Library version as of last refresh**: `2026.06.160`. **Pack version**: `1.37.0`. **README version**: `1.9.31`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
-- **Last validation sweep**: Sweep 15 iteration 1 (close-out PR #167).
+- **Last validation sweep**: Sweep 16 iteration 1 (close-out PR #181).
 
 ---
 
 ## Queued sequence (upcoming PRs)
 
-Fitness-remediation PRs are now in flight under maintainer direction. PRs #142-#176 have closed 34 findings to date (most recently PR #169 FR-26+27+28, PR #172 FR-4+5+6+7+8 as the Phase 1 README polish bundle that closes Rec-6 from the fitness review; plus the meta-PRs #163 DONE format harmonisation, #170 / #171 CLAUDE.md disciplines, #173 CHANGELOG backfill, #174 skip-trailer retirement, #175 DONE-shortening, #176 AI-assistant-workflow-disciplines pack rule, and Sweep close-outs #148/#154/#160/#167). The next batch is chosen from the Fitness review backlog section below in highest-certainty order; the assistant picks 1-8 at a time (per the amended validate-cadence rule), runs a research-assistant pipeline (workers produce research files; orchestrator authors all final prose) to prepare drafts in parallel, applies serially with CI gating, and runs `/validate` after each batch. Maintainer direction supersedes the assistant's pick at any time.
+Fitness-remediation PRs are now in flight under maintainer direction. PRs #142-#180 have closed 42 findings to date (most recently PR #178 FR-11+12 ERM completion, PR #179 FR-18+25+79+105+106+110 P1.4a small-singletons bundle; plus the meta-PRs #163 DONE format harmonisation, #170 / #171 CLAUDE.md disciplines, #172 README polish, #173 CHANGELOG backfill, #174 skip-trailer retirement, #175 DONE-shortening, #176 AI-assistant-workflow-disciplines pack rule, #177 Phase plan rotation into TODO, #180 version-bump discipline extension to four surfaces; and Sweep close-outs #148/#154/#160/#167). The next batch is chosen from the Fitness review backlog section below in highest-certainty order; the assistant picks 1-8 at a time (per the amended validate-cadence rule), runs a research-assistant pipeline (workers produce research files; orchestrator authors all final prose) to prepare drafts in parallel, applies serially with CI gating, and runs `/validate` after each batch. Maintainer direction supersedes the assistant's pick at any time.
 
 ### Phase 1 / Phase 2 execution plan
 
