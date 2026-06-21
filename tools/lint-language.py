@@ -1,12 +1,27 @@
 #!/usr/bin/env python3
 """Language and style audit for the GRC Documentation Library.
 
+The library's language convention is **Canadian English first, Commonwealth
+(UK / Australian) English second, other dialects last.** Canadian English
+shares its `-ize` / `-ization` orthography with American English (an
+inheritance from the Oxford convention adopted in Canadian usage), but the
+project's preference is named as Canadian; the `-ize` rule below is the
+Canadian-orthography manifestation, not a generic American mandate. Where
+Canadian English has no opinion (vocabulary or grammar features that vary
+across other English dialects), Commonwealth forms are preferred; where
+neither has an opinion, other dialects' usage is acceptable.
+
+The convention is project-specific. Adopters who fork the library and want
+a different convention (Commonwealth-first; American-first; etc.) can
+modify `ISE_PATTERN` below to match their own choice.
+
 Checks for:
 
 - Em dashes and en dashes (not allowed; replace with hyphen, colon, or
   parentheses).
-- British -ise endings (use -ize / -ization; ISE_PATTERN enumerates the
-  word list).
+- Commonwealth `-ise` endings used where Canadian `-ize` is preferred
+  (`ISE_PATTERN` enumerates the word list; the rule is the Canadian-
+  orthography form, not a generic American mandate).
 - Bare 'ensure' or 'ensures' without 'that'. Exempt files where the rule
   itself is described (the ingestion spec, the master spec, the AI
   ingestion instruction, and governance/template-document-review-record.md).
@@ -14,7 +29,7 @@ Checks for:
   stripping common numbering prefixes (A1., 1.1, Step 1:, Category 1:,
   Phase, Annex). Project-name allowlist (LOWERCASE_PROJECT_NAMES:
   promptfoo, garak, pip) is permitted at the start of a heading.
-- Sanitisation-table source terms (SANITISATION_TERMS) appearing outside
+- Sanitization-table source terms (SANITISATION_TERMS) appearing outside
   the ingestion specification.
 
 Fenced code blocks are skipped for every check above.

@@ -68,6 +68,17 @@ one must be added to all (the gate-parity audit enforces this).
   `lint-standards-currency.py` reject hallucinated or stale references.
 - Prose style is enforced by `lint-language.py`; do not fight the linter by hand.
 
+## Language convention
+The library uses **Canadian English first, Commonwealth (UK / Australian) English
+second, other dialects last.** Canadian English shares its `-ize` / `-ization`
+orthography with American English (an inheritance from the Oxford convention adopted
+in Canadian usage), so the `-ize` rule that `tools/lint-language.py` enforces is the
+Canadian-orthography manifestation of the convention, not a generic American mandate.
+Where Canadian English has no opinion (vocabulary or grammar features that vary across
+other English dialects), Commonwealth forms are preferred; where neither has an
+opinion, other dialects' usage is acceptable. Em-dashes (`—`) and en-dashes (`–`) are
+forbidden in prose regardless of dialect; use commas, colons, or parentheses.
+
 ## Testing
 - A change is green only when `tools/run_all_audits.sh` reports all gates passing.
 - Add a regression fixture in `tests/` (see `tests/README.md`) for any new linter.

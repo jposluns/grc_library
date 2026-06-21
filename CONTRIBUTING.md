@@ -2,8 +2,8 @@
 
 **Document Title:** Contributing to the GRC Documentation Library\
 **Document Type:** Guideline\
-**Version:** 1.1.0\
-**Date:** 2026-06-19\
+**Version:** 1.2.0\
+**Date:** 2026-06-21\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`specification-master-project.md`](specification-master-project.md), [`specification-ingestion.md`](specification-ingestion.md), [`SECURITY.md`](SECURITY.md), [`NOTICE.md`](NOTICE.md), [`AUTHORS.md`](AUTHORS.md), [`CHANGELOG.md`](CHANGELOG.md)\
@@ -112,10 +112,11 @@ Each value line ends with a trailing space and the line break is two spaces or a
 
 ## Style requirements
 
-- Use Oxford English with `-ize` forms (e.g. organize, prioritize, recognize).
+- **Language convention: Canadian English first, Commonwealth (UK / Australian) second, other dialects last.** Canadian English shares its `-ize` / `-ization` orthography with American English (the Oxford convention adopted in Canadian usage), so the linter-enforced `-ize` rule is the Canadian-orthography manifestation of the convention, not a generic American mandate. Where Canadian English has no opinion (vocabulary or grammar features that vary across other English dialects), Commonwealth forms are preferred; where neither has an opinion, other dialects' usage is acceptable.
+- Use `-ize` forms (e.g. organize, prioritize, recognize) per the Canadian-orthography rule above.
 - Pair `ensure` with `that` (e.g. "ensure that all logs are retained" rather than "ensure all logs are retained").
-- No em dashes or en dashes.
-- Use sentence case for H2 to H6 headings; first word capitalised, subsequent words lowercase except proper nouns and acronyms. Section identifiers like `A1.`, `Step 1:`, and `Category 1:` count as numbering, so the word that follows must be capitalised.
+- No em dashes or en dashes; use commas, colons, or parentheses.
+- Use sentence case for H2 to H6 headings; first word capitalized, subsequent words lowercase except proper nouns and acronyms. Section identifiers like `A1.`, `Step 1:`, and `Category 1:` count as numbering, so the word that follows must be capitalized.
 - Document titles in H1 may use Title Case where they name a controlled artefact.
 
 ## Filename rules
