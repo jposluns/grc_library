@@ -86,9 +86,10 @@ The apply-time correction is the moment where the research-assistant discipline 
 1. **Open each target file in full.** The worker quoted some lines; the orchestrator confirms them.
 2. **Run contradiction searches.** A `grep` for stale references, parallel occurrences elsewhere, or claims the worker did not surface.
 3. **Reconcile to current state.** Versions, dates, FR cross-references, file paths that may have shifted since the worker drafted.
-4. **Document corrections.** Every catch is recorded in the CHANGELOG-detailed entry per §1's tracking convention.
+4. **Apply the per-file metadata-bump check.** When editing a versioned document's body, the orchestrator bumps **both** the `Version` field and the `Date` field in the same commit. Skipping either is the failure mode CI gates (version-bump-recency for Version; document-date-staleness for Date) are built to catch, but the cost of the catch is a CI-rerun loop; bumping both in the same commit avoids the loop. The corollary at PR level: when the orchestrator is about to commit, the explicit checklist item is "for every versioned file touched in this commit, did I bump Version *and* Date?", not "did I bump Version?" alone.
+5. **Document corrections.** Every catch is recorded in the CHANGELOG-detailed entry per §1's tracking convention.
 
-The discipline scales: the more PRs the assistant ships, the more pattern-recognition for worker failure modes accumulates. Common patterns: stale version numbers (worker drafted against an earlier revision); confabulated file paths (worker invented a plausible-sounding filename); incorrect PR cross-references (worker confused two PR numbers).
+The discipline scales: the more PRs the assistant ships, the more pattern-recognition for worker failure modes accumulates. Common patterns: stale version numbers (worker drafted against an earlier revision); confabulated file paths (worker invented a plausible-sounding filename); incorrect PR cross-references (worker confused two PR numbers); orchestrator bumping Version but missing Date (recurring orchestrator-side oversight; CI-caught but worth designing out).
 
 ### Why apply-time, not pre-apply
 
