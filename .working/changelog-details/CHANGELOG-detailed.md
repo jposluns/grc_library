@@ -6,6 +6,44 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.162, PR #183
+
+Added the `/validate-pr` skill and slash command: PR-scoped post-merge validation sweep that runs after every merge to catch per-PR drift before it compounds across subsequent PRs.
+
+### Motivation
+
+The corpus-wide `/validate` sweep runs every 10 merges (or maintainer-triggered). Between sweeps, issues introduced by individual PRs compound silently. The maintainer proposed a PR-scoped variant during the Sweep 16 close-out sequence: dispatch Subagent A on the just-merged PR's diff plus a lightweight cross-reference check on files that cite the touched files. Cheap (~30-60k tokens per merge); high signal. The two skills together (corpus-wide every 10 merges; PR-scoped every merge) cover both per-PR drift and corpus-wide drift at appropriate cadences.
+
+### Added
+
+- [`dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md`](../../dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md): new pack skill following the pack's eight-section structural template (frontmatter, Overview, When to Use, Process, Red Flags, Verification, Common Rationalizations, See Also). Frontmatter `derives_from` points at [`evidence-grounded-completion`](../../dev-security/claude-rules/governance/evidence-grounded-completion.md) (same parent as the sibling `validation-sweep` skill). The skill specifies a five-step process (identify just-merged PR; establish mechanical baseline post-merge; dispatch Subagent A scoped to the diff; run targeted cross-reference check on citers; triage and record).
+- [`.claude/commands/validate-pr.md`](../../.claude/commands/validate-pr.md): new slash command (paired-skill step-parity per gate 44; steps mirror the SKILL.md five-step process).
+- [`.working/validate-pr/`](../validate-pr/): new working-state activity directory with `README.md` (convention description) and `history.md` (reverse-chronological table of PR-scoped sweeps). Per-PR detail files at `YYYY-MM-DD-PR-<N>.md` are created only when findings are surfaced; zero-finding sweeps leave only a history row.
+
+### Changed
+
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): pack version `1.37.0 → 1.38.0`; directory-tree inventory extended with the new skill row; version-history table extended with the 1.38.0 row.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): PR workflow step 5a added, mandating `/validate-pr` invocation after every merge (right after step 5 sync-and-prune; before step 6 next-PR planning).
+- [`README.md`](../../README.md): library `2026.06.161 → 2026.06.162`; README `1.9.32 → 1.9.33`.
+- [`.working/DONE.md`](../DONE.md): PR #183 entry added (terse).
+- [`TODO.md`](../../TODO.md): session-resume snapshot updated.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates against the committed state.
+- `tools/run-pr-time-checks.sh` exits 0 (D1, D2, gate 45).
+- Gate 44 (paired-skill step-parity) verifies the new SKILL.md and slash command are step-aligned (single-pass through the 5-step process described identically in both).
+
+### Discipline observation
+
+This PR demonstrates the "always split when in doubt" discipline by shipping `/validate-pr` as a standalone PR (rather than bundling with `/retro` skill or the worker-brief template). Each of those upcoming skill additions is conceptually distinct and would muddy the audit trail if bundled.
+
+The skill's existence does NOT change the workflow for PR #183 itself (this PR ships the skill but doesn't exercise it — the first real `/validate-pr` invocation will be against PR #186, which is the next FR PR shipped under the new discipline). PR #183's own merge is observed but `/validate-pr` against PR #183 is run post-merge per the new workflow step 5a; the history row for PR #183 itself is the activity bootstrap.
+
+### Future-PR check
+
+When the next FR PR ships (FR-33 P1.4b, queued as PR #186), it becomes the first PR shipped under the `/validate-pr` discipline. The post-merge sequence will be: sync main → delete branch → `/validate-pr` → `/retro` → next-PR planning. Both `/validate-pr` and `/retro` will be exercised for the first time as discipline rather than as standalone PRs.
+
 ## 2026-06-21, Library Version 2026.06.161, PR #182
 
 Corpus-wide count-genericization sweep, queued by PR #181's close-out. Maintainer-directed pattern: when a count is cited in prose where the directory or table is the canonical authority, the count is drift-prone and should be genericized.

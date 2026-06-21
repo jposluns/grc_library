@@ -111,6 +111,13 @@ drive end-to-end on the maintainer's behalf:
    the merge attempt resolves it.
 5. After merge: sync local `main`, delete the feature branch locally, confirm the
    remote branch is gone.
+5a. Invoke `/validate-pr` to run the PR-scoped post-merge validation sweep
+   (dispatches Subagent A on the just-merged PR's diff plus a cross-reference
+   check on files citing the touched files). Records to
+   [`.working/validate-pr/`](../.working/validate-pr/). If findings surface,
+   triage as in-window (hot-fix PR or include in next PR) or out-of-window
+   (surface to maintainer with named options). Complements the corpus-wide
+   `/validate` sweep, which runs every 10 merges or maintainer-triggered.
 6. After every merge (this step is durable across sessions): consult
    [`TODO.md`](../TODO.md)'s forward-looking sections and list the upcoming next
    five planned PRs in the chat. If new items have surfaced during the just-
