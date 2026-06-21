@@ -6,6 +6,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.126, PR #144
+
+Closes FR-22 (high). The audit-evidence template gains a mandatory sampling-justification field so external auditors see the statistical-basis justification for every sample without reconstructing it from peer documents.
+
+### Closed findings
+
+- **FR-22** (high, `compliance/template-audit-evidence-package.md`): Template lacked a mandatory sampling-justification field. External auditors require statistical-basis justification for sample sizes; `procedure-control-testing.md` §2.2 defines ranges (25-40 for high-risk controls) but the evidence template didn't surface that justification to the auditor reviewing the package.
+
+### Changed
+
+- [`compliance/template-audit-evidence-package.md`](../../compliance/template-audit-evidence-package.md):
+  - Test 1 example (Quarterly access review) extended with `Sampling justification` as a mandatory field. The field's prompt asks for: statistical or judgemental basis; cite `procedure-control-testing.md` sample-size table (e.g. "25-40 for high-risk per §2.2") or document the rationale for a different size; state population size, sample size, selection method (random / stratified / judgemental), and confidence-level assumption if statistical; "100% population review" is the explicit response when the test covers the entire population.
+  - Test 2 example (Annual policy review) extended with `Sampling justification: "100% population review" for single-artefact controls like policy reviews; otherwise as above.` Demonstrates the "non-sampling" response for single-artefact tests.
+  - Per-doc version `1.0.0 → 1.0.1`; Date `2026-06-20 → 2026-06-21`.
+- [`README.md`](../../README.md): library version `2026.06.125 → 2026.06.126`; README version `1.8.81 → 1.8.82`.
+- [`TODO.md`](../../TODO.md): FR-22 rotated out of High tier. Backlog totals: 16 + 18 + 56 = 90 immediate-priority; 14 deferred; 104 open. Session resume metadata refreshed.
+- [`.working/DONE.md`](../DONE.md): PR #144 entry added at top of "Closed items".
+
+### Verification
+
+- Local audit: `tools/run_all_audits.sh` exits 0 on all 46 gates.
+- Local PR-time checks: `tools/run-pr-time-checks.sh` exits 0.
+- Manual re-read: both test-example entries in the template now carry the `Sampling justification` field; cross-reference to `procedure-control-testing.md` §2.2 sample-size table is link-correct.
+
+### Discipline observation
+
+This is the second steady-state fitness-remediation PR (single FR-N, single-file edit, small focused PR). The amendment adds a mandatory field rather than restructuring the template — the template's existing per-control structure remains intact; only the field set per-test grows by one. Adopters using the template prior to this change continue to satisfy the new field by adding it during their next regular cycle; no migration is required.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.125, PR #143
 
 Closes FR-9 (high[critical]) and FR-10 (high), bundled because both relate to Chief Risk Officer presence in [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md). One file, two structural fixes, single per-doc bump.

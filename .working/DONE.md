@@ -25,6 +25,10 @@ The format for each entry:
 
 ## Closed items
 
+### PR #144 — FR-22: Audit-evidence sampling-justification field (2026-06-21)
+
+High-severity finding closed. [`compliance/template-audit-evidence-package.md`](../compliance/template-audit-evidence-package.md) per-control operating-evidence section now requires a mandatory `Sampling justification` field for every test that uses sampling. The field captures population size, sample size, selection method (random / stratified / judgemental), confidence-level assumption (if statistical), and a citation back to [`procedure-control-testing.md`](../compliance/procedure-control-testing.md) §2.2 sample-size table or rationale for a different size. "100% population review" is the explicit response when sampling does not apply. Per-doc `1.0.0 → 1.0.1`; library `2026.06.125 → 2026.06.126`.
+
 ### PR #143 — FR-9 + FR-10: Chief Risk Officer in enterprise risk management standard (2026-06-21)
 
 Closes two related ERM-standard findings together: **FR-9** (high[critical]) changes the standard's `Owner` field from "Chief Information Officer" to "Chief Risk Officer" — enterprise risk is a CRO accountability, and CIO ownership read as a category error; **FR-10** (high) adds a CRO row to §3 Governance, scoped to risk strategy, risk appetite stewardship, and ERM-programme outcomes reporting to the Board / Risk Committee. The pre-existing CIO row is reshaped from "accountable for the framework" to "provides executive support on technology-risk integration" to clarify the post-CRO role. Per-doc `1.3.3 → 1.3.4`; library `2026.06.124 → 2026.06.125`.
