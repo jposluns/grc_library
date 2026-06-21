@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #178 — FR-11 (medium) + FR-12 (medium): ERM standard Risk Owner role definition + within-document treatment vocabulary harmonisation (2026-06-21)
+
+§3 governance table gains a Risk Owner role definition; treatment vocabulary harmonised within the ERM standard (Treat→Mitigate, Exploit/Enhance row-split, Treatment Option enum extension). Cross-document harmonisation against procedure-risk-register deferred.
+
 ### PR #177 — Rotate Phase 1 / Phase 2 execution plan into TODO (2026-06-21)
 
 Moved the multi-PR Phase 1 + Phase 2 execution plan out of session memory into TODO's Queued-sequence section so it survives session-end; identifies the `/fitness` pause point at end of Phase 2.

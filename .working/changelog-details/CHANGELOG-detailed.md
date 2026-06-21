@@ -6,6 +6,49 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.157, PR #178
+
+Phase 1 velocity bundle P1.2. Two ERM-standard findings from the Pass-1 fitness sweep closed in [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md); both ✅ confirmed-as-stated in PR #140 Pass-1 verification.
+
+### Closed findings
+
+- **FR-11** (medium): §3 governance table did not define Risk Owner as a distinct role. The §7.1 standard-fields table already used the term (`Risk Owner | Accountable individual (role title)`), but §3 governance defined Chief Risk Officer (framework), Chief Information Officer (technology integration), Chief Information Security Officer (information security risk integration), Enterprise Risk Committee, Risk Manager / Compliance Officer (administration), Process and System Owners (identification and execution), and Internal Audit (assurance) — Risk Owner was absent. A reader of §3 alone could not tell whether Risk Owner mapped to Process/System Owners, to CRO, or to a separate role. Cross-references in [`risk/procedure-risk-assessment-methodology.md`](../../risk/procedure-risk-assessment-methodology.md) (`Risk Owners | Conduct risk assessments for their domain; own risk treatment decisions.`) and [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md) (`Operational Risk Owners | Manage day-to-day risk identification, control execution, and residual exposure reporting.`) confirm the role exists across the corpus; the standard's §3 was the gap. [`governance/register-role-authority.md`](../../governance/register-role-authority.md) does not carry the role either — promoting Risk Owner into the role authority register is a separate follow-up decision.
+- **FR-12** (medium, within-document scope): the standard used three different surfaces for the treatment-option vocabulary. §5.2 line 119 said "Treat and monitor" (informal "Treat" verb) where §5.2 line 120 and §6 use the canonical "Mitigate". §6 listed six options as five rows (Exploit and Enhance combined into one row). §7.1 line 161 enumerated five options (Enhance dropped). Within-document harmonisation closed here; cross-document harmonisation against [`risk/procedure-risk-register.md`](../../risk/procedure-risk-register.md) (which uses `Mitigate, avoid, transfer, accept, monitor, or perform further analysis` — a different six-option set with Monitor and Further Analysis instead of Exploit and Enhance) deferred to a follow-up.
+
+### Changed
+
+- [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md):
+  - §3 governance table (after the Risk Manager / Compliance Officer row, before Process and System Owners): new `Risk Owner` row defining the per-risk accountability scope (confirms risk statement; selects treatment option; owns treatment plan and target dates; monitors residual exposure; reports status per §8 cadence) with explicit boundary clauses distinguishing the role from CRO (framework owner) and from Process/System Owners (operational identifiers).
+  - §5.2 score-threshold table line 119: `Treat and monitor; review quarterly` → `Mitigate and monitor; review quarterly`. Aligns with line 120's "Mitigate or transfer" and the §6 canonical verb.
+  - §6 risk-treatment table: combined `Exploit / Enhance | Pursue or increase a positive-risk (opportunity) scenario` row split into two self-contained rows: `Exploit | Pursue a positive-risk (opportunity) scenario by acting to make it more likely to occur or to amplify its upside` and `Enhance | Increase the likelihood or impact of an existing positive-risk scenario without creating a new one`. Matches the structure of the five risk-side rows above.
+  - §7.1 standard-fields table: `Treatment Option | Avoid / Mitigate / Transfer / Accept / Exploit` → `Treatment Option | Avoid / Mitigate / Transfer / Accept / Exploit / Enhance`. Enum now matches §6 verbatim.
+  - Per-doc Version `1.3.4 → 1.4.0` (minor: structural role definition; vocabulary harmonisations ride along).
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated to absorb the per-doc Version bump per the generated-artefact discipline.
+- [`README.md`](../../README.md): library `2026.06.156 → 2026.06.157`; README `1.9.27 → 1.9.28`.
+- [`TODO.md`](../../TODO.md): FR-11 and FR-12 removed from the Medium tier "ERM standard" bullet (the cluster is now closed); Medium-tier count `48 → 46`; immediate-priority total `63 → 61`; total-open `77 → 75`; closed PRs range extended to `#142-#178`. P1.2 entry removed from the Phase 1 plan in the Queued-sequence section. New FR-12 cross-document follow-up bullet added under the Medium tier (vocabulary alignment between `standard-enterprise-risk-management.md` §6 and `procedure-risk-register.md` "Select Treatment" — pending maintainer decision on canonical authority).
+- [`.working/DONE.md`](../DONE.md): PR #178 entry added (terse form per the convention).
+- [`.working/hallucination-metrics.md`](../hallucination-metrics.md): apply-time-catches log updated with the version-drift corrections from this PR (worker drafted against library `2026.06.150` / library-bump-target `2026.06.151` / backlog `85 → 83`; current state required library `2026.06.156 → 2026.06.157` and backlog `77 → 75`).
+
+### Not changed (intentional)
+
+- §7.1 Status enum (`Open / Mitigated / Accepted / Closed`) uses past-tense "Mitigated" — left as-is because Status is a state-of-the-record field where past-tense reads naturally, and Avoided / Transferred / Exploited / Enhanced are not natural Status values (a risk that has been Avoided is Closed; a risk that has been Transferred has new residual exposure on the transfer counterparty). Treatment Option and Status are different semantic surfaces and are correctly different vocabularies.
+- §1 Purpose generic verb "treatment" — left as-is because it is the abstract noun form, not a specific treatment-category vocabulary token.
+- [`governance/register-role-authority.md`](../../governance/register-role-authority.md) — not edited. Promoting Risk Owner into the role authority register is a separate decision (whether Risk Owner belongs there as a cross-domain canonical role, or stays in the ERM standard as a domain-specific role, is a maintainer call). Surfaced as a candidate follow-up rather than included here.
+- [`risk/procedure-risk-register.md`](../../risk/procedure-risk-register.md) and [`risk/template-enterprise-risk-register.md`](../../risk/template-enterprise-risk-register.md) — not edited. Cross-document treatment-vocabulary harmonisation deferred per FR-12 scope note.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates against the committed state (re-ran after each commit; gate 40 git-history-aware checks satisfied; gate 33 / gate 34 generator-output checks satisfied after `build-taxonomy.py` and `build-portal.py` regeneration).
+- `tools/run-pr-time-checks.sh` exits 0 (D1, D2, gate 45).
+- Manual readback of §3, §5.2, §6, §7.1 confirms the harmonised treatment-option vocabulary (Avoid / Mitigate / Transfer / Accept / Exploit / Enhance) is used consistently and the new Risk Owner row is correctly positioned in §3.
+- Contradiction search: `grep -n "Treat and monitor" risk/standard-enterprise-risk-management.md` returns no hits (FR-12 line-119 fix verified); `grep -n "Exploit / Enhance" risk/standard-enterprise-risk-management.md` returns no hits (the row-split verified).
+
+### Discipline observation
+
+This PR is the first substantive (non-meta) PR shipped under the documented research-assistant + apply-time-correction discipline (PR #176). The worker's file-state quotes were verified accurate during the PR #176 CI wait per discipline #5 (background work during CI waits), so apply-time corrections were limited to version-drift: the worker drafted against library `2026.06.150` and backlog `85 → 83`, both of which had advanced (current library `2026.06.156` pre-this-PR; current backlog `77` pre-this-PR). The corrected values shipped: library `2026.06.156 → 2026.06.157`, backlog `77 → 75`. Two apply-time catches logged in [`.working/hallucination-metrics.md`](../hallucination-metrics.md); zero shipped escapes. The worker-drafted FR-12 within-document scope split (with cross-document deferred) was preserved; the worker's per-doc bump recommendation (`1.3.4 → 1.4.0`, minor for the structural role definition) was accepted as-drafted.
+
+This PR closes the second ERM-standard cluster from the fitness review (PR #143 closed FR-9 + FR-10 — CRO ownership; this PR closes FR-11 + FR-12 — Risk Owner role definition and within-document treatment vocabulary). The ERM standard's per-doc version sequence in this fitness cycle is now `1.3.3 → 1.3.4` (FR-9 + FR-10) `→ 1.4.0` (FR-11 + FR-12), with the minor bump reflecting that §3 governance gains a fully-new role row.
+
 ## 2026-06-21, Library Version 2026.06.156, PR #177
 
 Rotated the Phase 1 / Phase 2 execution plan out of session memory and into [`TODO.md`](../../TODO.md) so it survives session boundaries. Surfaced as Class B (project-state) during the PR #176 memory-only-processes audit; the maintainer directed that rotation happen in a dedicated follow-up PR (per the "always split when in doubt" discipline in [`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`](../../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md)).

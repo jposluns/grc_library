@@ -54,6 +54,9 @@ The metrics table itself is updated **opportunistically**, not on every PR. A pe
 
 Reverse-chronological. Each entry: date, PR number where the catch occurred, one-line description.
 
+- **2026-06-21, PR #178**: worker drafted library bump as `2026.06.150 → 2026.06.151`; actual state was library `2026.06.156` pre-this-PR. Corrected at apply-time to `2026.06.156 → 2026.06.157`.
+- **2026-06-21, PR #178**: worker drafted backlog math as `85 → 83`; actual pre-state was 77 open. Corrected at apply-time to `77 → 75`.
+- **2026-06-21, PR #178**: worker drafted target PR number as `#169`; actual is #178. Corrected at apply-time. (Common pattern: workers often anchor to the most recent PR they saw, which drifts over multi-PR sessions.)
 - **2026-06-21, PR #172**: worker drafted FR-3 as closed in PR #158; actual closing PR is #147. Corrected at apply-time after cross-checking [`.working/DONE.md`](DONE.md).
 - **2026-06-21, PR #172**: worker drafted against library `2026.06.150` / README `1.9.21`; current state was `2026.06.152` / `1.9.23` (advanced via PRs #170 / #171). Corrected at apply-time.
 - **2026-06-21, P1.3 (PR #169)**: worker referenced `policy-information-security-incident-management.md` which does not exist in the corpus. Caught pre-apply by `find`; substituted with the correct `procedure-security-incident-response.md`.
