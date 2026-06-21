@@ -2245,5 +2245,131 @@ class ClaudeRulesSyncTests(LinterTestCase):
             shutil.rmtree(root, ignore_errors=True)
 
 
+class TodoStalenessTests(LinterTestCase):
+    """tools/lint-todo-staleness.py"""
+
+    def test_runs_clean_on_corpus_at_head(self) -> None:
+        # Smoke test: TODO.md at HEAD has no stale patterns.
+        result = run_linter("tools/lint-todo-staleness.py")
+        self.assertEqual(
+            result.returncode, 0,
+            f"linter exited {result.returncode} on HEAD; "
+            f"TODO.md should have no stale patterns.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def _load_module(self):
+        # Hyphenated filename; load via importlib.
+        import importlib.util
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        spec = importlib.util.spec_from_file_location(
+            "_lint_todo_staleness",
+            REPO_ROOT / "tools/lint-todo-staleness.py",
+        )
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def test_queued_pr_already_merged_detected(self) -> None:
+        # Positive test: a TODO line marks PR #999 as "Next" while PR
+        # #999 has merged. Use the module's check_file via tempfile.
+        mod = self._load_module()
+        fixture_dir = FIXTURE_DIR / "todo-staleness-merged"
+        fixture_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            path = fixture_dir / "TODO.md"
+            path.write_text(
+                "# TODO\n\n"
+                "**Next, PR #999: do something important.**\n",
+                encoding="utf-8",
+            )
+            # Pretend PR #999 has merged.
+            findings = mod.check_file(path, merged={999}, latest=None)
+            self.assertTrue(
+                findings,
+                f"linter should flag queued PR #999 as already-merged; "
+                f"got findings={findings}",
+            )
+            self.assertIn("queued-PR-merged", findings[0])
+        finally:
+            import shutil
+            shutil.rmtree(fixture_dir, ignore_errors=True)
+
+    def test_queued_pr_not_yet_merged_passes(self) -> None:
+        # Negative test: same line, but PR #999 has NOT merged. No finding.
+        mod = self._load_module()
+        fixture_dir = FIXTURE_DIR / "todo-staleness-not-merged"
+        fixture_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            path = fixture_dir / "TODO.md"
+            path.write_text(
+                "# TODO\n\n"
+                "**Next, PR #999: do something important.**\n",
+                encoding="utf-8",
+            )
+            findings = mod.check_file(path, merged=set(), latest=None)
+            self.assertEqual(
+                findings, [],
+                f"linter should not flag a queued PR that has not "
+                f"merged; got findings={findings}",
+            )
+        finally:
+            import shutil
+            shutil.rmtree(fixture_dir, ignore_errors=True)
+
+    def test_sweep_cursor_behind_history_detected(self) -> None:
+        # Positive test: TODO claims Sweep 5 iter 2 but history has Sweep
+        # 11 iter 1. Should flag.
+        mod = self._load_module()
+        fixture_dir = FIXTURE_DIR / "todo-staleness-cursor"
+        fixture_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            path = fixture_dir / "TODO.md"
+            path.write_text(
+                "# TODO\n\n"
+                "- **Last validation sweep**: Sweep 5 iteration 2.\n",
+                encoding="utf-8",
+            )
+            findings = mod.check_file(
+                path, merged=set(), latest=(11, 1)
+            )
+            self.assertTrue(
+                findings,
+                f"linter should flag cursor (5, 2) when history is "
+                f"at (11, 1); got findings={findings}",
+            )
+            self.assertIn("sweep-cursor-stale", findings[0])
+        finally:
+            import shutil
+            shutil.rmtree(fixture_dir, ignore_errors=True)
+
+    def test_sweep_cursor_current_passes(self) -> None:
+        # Negative test: cursor matches latest history row. No finding.
+        mod = self._load_module()
+        fixture_dir = FIXTURE_DIR / "todo-staleness-cursor-current"
+        fixture_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            path = fixture_dir / "TODO.md"
+            path.write_text(
+                "# TODO\n\n"
+                "- **Last validation sweep**: Sweep 11 iteration 1.\n",
+                encoding="utf-8",
+            )
+            findings = mod.check_file(
+                path, merged=set(), latest=(11, 1)
+            )
+            self.assertEqual(
+                findings, [],
+                f"linter should not flag a current cursor; "
+                f"got findings={findings}",
+            )
+        finally:
+            import shutil
+            shutil.rmtree(fixture_dir, ignore_errors=True)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

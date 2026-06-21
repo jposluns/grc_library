@@ -6,6 +6,46 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.111, PR #128
+
+New audit gate 45 (TODO staleness audit) plus a PR-time-checks wrapper script. Gate 45 mechanically catches the two TODO drift shapes that recurred across four consecutive validation sweeps (queued PR already merged; sweep cursor behind history); the wrapper `tools/run-pr-time-checks.sh` bundles the two PR-only delta gates (D1 CHANGELOG-on-PR, D2 per-PR version-bump) and gate 45 into one local runner the maintainer invokes before push. The two-runner split (`run_all_audits.sh` plus `run-pr-time-checks.sh`) is a structural fix for the version-bump-omission failure mode that surfaced in PR #127's first push: every gate now has a local invocation path so PR-time delta-gate omissions are caught before push, not after CI flips red.
+
+### Added
+
+- [`tools/lint-todo-staleness.py`](../../tools/lint-todo-staleness.py) (new, ~210 lines, stdlib-only): scans `TODO.md` for two drift patterns. Pattern 1 (queued-PR-already-merged): regex `\b(?:next|queued|pending|upcoming)\b[^\n]{0,80}PR\s*#(\d+)` matches lines marking a PR as queued; if `git log --format=%s --all` shows a "Merge pull request #N" subject for that PR, the line is stale. Pattern 2 (sweep-cursor-behind-history): regex `\bLast\s+validation\s+sweep[:\s]+Sweep\s+(\d+)\s+iter(?:ation)?\s+(\d+)` matches the sweep cursor in TODO; if `.working/validate-sweeps/history.md` contains a more recent `(sweep_n, iter_m)` tuple, the cursor is stale. Both patterns produce explicit findings with file path + line number + suggested fix. Exit codes: 0 clean, 1 stale, 2 environment error.
+- [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh) (new, executable): wrapper that invokes D1 (CHANGELOG-on-PR), D2 (per-PR version-bump), and gate 45 against `${BASE_REF:-origin/main}..${HEAD_REF:-HEAD}`. Reuses each script's positional `base head` argument convention so the same code path works locally and in CI. Exit code: first failing rc, or 0 on all-pass.
+- [`tests/test_linters.py`](../../tests/test_linters.py): `TodoStalenessTests` class with five tests — smoke-test against corpus HEAD, queued-PR-already-merged positive case, queued-PR-not-yet-merged negative case, sweep-cursor-behind-history positive case, sweep-cursor-current negative case. Tests use module-loading pattern (importlib spec_from_file_location) to call `check_file` directly with synthetic inputs, mirroring `PairedSkillStepParityTests`.
+
+### Changed
+
+- [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml): new step `TODO staleness audit` appended after `Paired-skill step-parity audit`, before the PR-only delta gates. Step invokes `python3 tools/lint-todo-staleness.py`. Mirrors the existing step shape exactly.
+- [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh): new `run_gate "TODO staleness audit"` invocation appended to the tail. Top-of-file comment `current sweep is 44 gates` → `current sweep is 45 gates`. Scope comment updated.
+- [`.pre-commit-config.yaml`](../../.pre-commit-config.yaml): new hook `lint-todo-staleness` appended to the tail. Mirrors the existing hook shape exactly (`pass_filenames: false`, `types: [markdown]`).
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md): §6 inventory table extended with row 45 (TODO staleness audit). §5 category 7 (Freshness and lifecycle) gains gate 45 with rationale referencing the four-consecutive-sweep recurring pattern. §2.1 "44 audit gates" → "45 audit gates". §6.1 "44-gate corpus inventory" → "45-gate corpus inventory". New paragraph describing gate 45's two-pattern detection logic and the deliberate version-snapshot-field non-enforcement decision (per the PR #127 convention amendment). Version `1.12.1 → 1.13.0`; the MINOR bump reflects the new gate row, not a patch-level edit.
+- [`governance/register-coverage-gaps.md`](../../governance/register-coverage-gaps.md): row "Audit programme (automated linting and conformance)" updated: "44 gates running in CI" → "45 gates running in CI"; gate-list narrative extended with "and TODO staleness". Version `1.1.13 → 1.1.14`; Date `2026-06-20 → 2026-06-21`.
+- [`tools/README.md`](../../tools/README.md): three references to "44 gates" → "45 gates" (file mentions; pre-commit subsection; CI subsection).
+- [`TODO.md`](../../TODO.md): line 19 audit-programme line `44 gates` → `45 gates`. Preamble (line 5) amended to record the narrow gate-45 exception to TODO's "informational only" status: TODO is now subject to one specific audit gate (gate 45) while remaining exempt from the other 44. New P4.6 section ("Corpus-management discipline as a shareable skill") added per maintainer authorisation: future deliverable to package the cumulative discipline as a standalone Claude Code skill anyone managing a documentation corpus could install; scheduled after the FR-1..FR-111 fitness backlog closes.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): PR workflow step 1 amended to require both `tools/run_all_audits.sh` AND `tools/run-pr-time-checks.sh` pass before push. Rationale: the two-runner split is the structural fix for the PR-time-delta-gate omission failure mode that surfaced in PR #127's first push (version-bump on `.working/fitness-reviews/history.md` body change was caught by D2 in CI rather than locally; if `run-pr-time-checks.sh` had existed and been invoked, the maintainer would have caught it before push).
+- [`README.md`](../../README.md): library version `2026.06.110 → 2026.06.111`; README version `1.8.66 → 1.8.67`.
+
+### Verification
+
+- Local sweep: `tools/run_all_audits.sh` exits 0 on all 45 gates (including gate 45 itself, run against TODO.md at HEAD).
+- Local PR-time checks: `tools/run-pr-time-checks.sh` exits 0 (this PR modifies CHANGELOG.md AND detailed mirror; bumps README version; TODO.md is up-to-date).
+- Regression suite: `python3 tools/run-linter-regression.py` includes the new `TodoStalenessTests` class; all 5 tests pass.
+- Gate-name parity (gate 35) confirms the new gate appears identically in the spec inventory, the workflow, the runner, and the pre-commit config.
+- Manual contradiction-search: grep for `44 gate|gate 44` across corpus files (excluding `.working/` which is exempt) returned only the expected stale references that this PR updates; no stale references remain post-edit.
+
+### Discipline observation
+
+This PR is the structural pair to PR #127's content-correction work. PR #127 corrected the four-sweep recurring TODO drift symptom (counts, snapshots, cursors) and amended the convention framing at the source. This PR ships the mechanical defence (gate 45) plus the structural defence (the wrapper script) so the next recurrence is caught before it reaches CI. The two PRs together close the loop: convention reframe (PR #127) + mechanical enforcement (PR #128).
+
+The wrapper-script motivation is direct user feedback: "It's great that this was caught, but the fact that you forgot concerns me. Advise." The structural fix is to make the discipline mechanical rather than relying on the assistant remembering. The wrapper is short (~80 lines) and adds the missing local-invocation path for the PR-only delta gates that `run_all_audits.sh` could not cover (because their inputs include git-history range, not just HEAD state).
+
+The new TODO P4.6 entry records the maintainer's authorisation to package the cumulative discipline (seven governance rules + two periodic-review skills + audit-programme architecture) as a shareable Claude Code skill. Scheduled after the fitness backlog closes so the calibration the backlog is still surfacing can inform the shareable form.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.110, PR #127
 
 Sweep 11 iteration 1 close-out. Eight in-window findings actioned: corrected the fitness report's count mismatch across six surfaces (95/18/22/31/24 → mechanically-tabulated 111/17/20/57/17); updated `governance/specification-audit-programme.md` D1 description for dual-entry post-PR-#125; refreshed TODO and reframed its session-pause snapshot as "as-of-last-refresh" (one-time convention amendment to address the four-consecutive-sweep recurring drift); softened workflow ordering in `change-tracking.md`; renamed `.working/README.md` "Created by" column to "Origin"; bumped library version.
