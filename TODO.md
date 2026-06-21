@@ -10,8 +10,8 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #165 merge).
-- **Library version as of last refresh**: `2026.06.147`. **Pack version**: `1.34.0`. **README version**: `1.9.18`.
+- **Branch at last refresh**: `main` (synced after PR #166 merge).
+- **Library version as of last refresh**: `2026.06.148`. **Pack version**: `1.34.0`. **README version**: `1.9.19`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
 - **Last validation sweep**: Sweep 14 iteration 1 (close-out PR #160).
 
@@ -65,10 +65,9 @@ Resolved from `🤔` to `✅` in Pass-2 with a library-wide propagation plan:
 - **FR-72** (sanctions/OFAC/export control): Superficial. Ship dedicated framework with UBO verification + denied-party-list integration.
 - **FR-73** (AI ethics review): `charter-ai-governance-council.md` collapses ethics into the compliance/risk body. Separate ethics panel or independent challenge mechanism needed.
 
-### High tier — 6 findings (immediate priority)
+### High tier — 5 findings (immediate priority)
 
 - **FR-36** (`privacy/framework-childrens-data.md` + EU annex): EU member-state per-state Article 8 age table missing.
-- **FR-57** (`docs/template-quickstart.md`): 319 lines, 5 dimensions × 23 modules. Not actually a quickstart.
 - **FR-58** (multiple): No inheritance vocabulary (library-internal vs template vs reference content).
 - **FR-59** (privacy jurisdictions): Annexes too shallow for operational sufficiency.
 - **FR-60** (`compliance/healthcare`): HIPAA adopter has no operational detail beyond a single 261-line sector annex.
@@ -109,9 +108,9 @@ Cross-reference only. No immediate-priority action; queue for a routine cleanup 
 
 ### Backlog totals
 
-- 10 + 6 + 56 = **72 immediate-priority findings** (High[critical], High, Medium tiers)
+- 10 + 5 + 56 = **71 immediate-priority findings** (High[critical], High, Medium tiers)
 - **14 deferred** (Low tier)
-- **86 open** (25 closed across PRs #142-#165). Total surfaced in r1: 111.
+- **85 open** (26 closed across PRs #142-#166). Total surfaced in r1: 111.
 
 ### FR-44 follow-up
 
@@ -159,6 +158,35 @@ Review the language-specific security rules in [`dev-security/claude-rules/`](de
 2. **Should we explicitly reference dedicated technical-security projects** rather than try to be one? The library's positioning is GRC-oriented: we want enough language-specific baseline information to help an adopter who needs immediate guardrails, but the corpus is not the authoritative source for, e.g., browser XSS prevention or memory-safe Rust idioms. Decide whether to add a "for deeper coverage, see ..." pointer (OWASP cheat sheets, language-specific SAST rule packs, vendor secure-coding guides) and where it lives.
 
 Scope: one or more small PRs that each add a language baseline file or update the pack's README to set the positioning. Owner: maintainer. Effort: small per language (mirror `python.md`'s shape: prohibitions, required patterns, framework alignment table).
+
+---
+
+## Backlog-listing process: effort-sizing labels (post-FR-backlog meta-improvement)
+
+Maintainer-directed process improvement, deferred until the current FR backlog is closed.
+
+**Problem**: when a fitness review or sweep produces a multi-item backlog, items currently land in TODO with severity (High[critical] / High / Medium / Low) but no estimate of work effort. The 2026-06-21 mid-batch prioritisation exercise showed that effort estimates are needed alongside severity to make sequencing decisions (a Medium-severity XS item can ship in a bundle of 5; a High[critical] XL item warrants its own multi-PR campaign).
+
+**Proposed convention**: at item-add time, each backlog item gains an effort label per the following scale, stored in TODO and surfaced in the same shape as severity:
+
+| Label | Per-item effort | Bundleable per PR |
+|---|---|---|
+| **XS** (single-line / single-cell) | 5-15 min | 5-10 items |
+| **S** (single-doc section add) | 30-90 min | 2-4 items |
+| **M** (multi-doc, bounded) | 2-4 hrs | 1 item |
+| **L** (new artefact, multi-doc propagation) | 4-8 hrs | 1 item |
+| **XL** (new domain, library-wide reshape) | 1-3 days | 1 item, may split |
+
+**Format suggestion** (mirroring DONE's FR-N (severity) heading shape from PR #163): item bullets become `**FR-N (severity, XS)**: description`. The two tags are independent — a High[critical] item can be XS (one-cell fix) or XL (new domain); a Low item can be S (clarification) or M (sweep).
+
+**Surfaces to update when the convention lands**:
+1. `dev-security/claude-rules/skills/library-fitness-review/SKILL.md` — Pass-1 instructions add effort-sizing alongside severity-tagging.
+2. `dev-security/claude-rules/skills/validation-sweep/SKILL.md` — sweep-finding shape gains an effort-label slot.
+3. `TODO.md` — fitness-review backlog format documents the convention.
+4. `.working/DONE.md` — heading shape extends to `### PR #N — FR-X (severity, effort): title`.
+5. Future fitness-review templates and sweep detail files use the convention by default.
+
+**Owner**: maintainer. **Effort**: M (skill-file edits, format-convention statement, retrofit of existing surfaces). **Schedule**: after the current FR backlog is closed (85 → 0 items). Capturing now so the convention is documented before the next fitness review produces a new batch.
 
 ---
 
