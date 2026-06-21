@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.28.1\
+**Version:** 1.28.2\
 **Date:** 2026-06-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -431,6 +431,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.28.2 | 2026.06.103 | 2026-06-21 | Sweep 10 iter 1 close-out: stale step-count narratives in `validation-sweep` SKILL.md (step intro "seven steps" → "nine steps") and in the `/validate` slash command preamble ("eight-step" → "nine-step"); stale "Four rules, no ceremony" in step 5 intro → "Six rules" (Rules 5.1-5.6 exist); awkward possessive on closing parenthesis at step 5 cross-reference; section-header convention drift across the three per-iteration-record-spec surfaces (SKILL.md / slash command / `.working/validate-sweeps/README.md`) reconciled to comma form |
 | 1.28.1 | 2026.06.102 | 2026-06-21 | `validation-sweep` skill steps 5 and 8 updated for the relocation of the project's sweep history file from `governance/register-sweep-history.md` to `.working/validate-sweeps-history.md` (the file is project-specific application of the discipline, not template content; SKILL.md now uses path-agnostic language). No process change |
 | 1.28.0 | 2026.06.101 | 2026-06-21 | Added step 9 to the `validation-sweep` skill: every iteration writes a per-iteration record to the project's working directory (in this project: `.working/validate-sweeps/`). The record captures full subagent transcripts and orchestrator synthesis, complementing the cumulative summary in the sweep history file. Adopters relocate the working directory to a project-appropriate path. Slash command for the skill is `/validate` in this project (skill name remains `validation-sweep`) |
 | 1.27.0 | 2026.06.98 | 2026-06-21 | Added the seventh governance rule (`validate-inference-before-action.md`) after a recurring orchestrator-skip cascade pattern: an inferred premise (state unchanged since prior run, fix complete after one occurrence) drove a downstream action without validation; the rule fires at the inference-driven-action surface as the action-side counterpart of `evidence-grounded-completion` |

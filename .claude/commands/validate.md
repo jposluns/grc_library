@@ -1,4 +1,4 @@
-Invoke the `validation-sweep` skill defined in this project's pack at [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](../../dev-security/claude-rules/skills/validation-sweep/SKILL.md). Slash-command entry point is `/validate`; the underlying skill name remains `validation-sweep` (the descriptive name documents the workflow's purpose, the slash command is the ergonomic verb). Execute the corpus-wide regression sweep per the eight-step process the skill encodes:
+Invoke the `validation-sweep` skill defined in this project's pack at [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](../../dev-security/claude-rules/skills/validation-sweep/SKILL.md). Slash-command entry point is `/validate`; the underlying skill name remains `validation-sweep` (the descriptive name documents the workflow's purpose, the slash command is the ergonomic verb). Execute the corpus-wide regression sweep per the nine-step process the skill encodes:
 
 1. **Establish mechanical baseline**: run `tools/run_all_audits.sh` standalone and capture the result. If any gate fails, fix the underlying defect first, then return to this step.
 2. **Enumerate recent changes**: identify the focus window of the past two calendar days via `git log --since="2 days ago" --name-only --pretty=format:""`, plus the current working tree via `git status --short`.
@@ -16,12 +16,14 @@ Step 8 (only when the sweep produced findings): append an entry to [`.working/va
 
 Step 9 (every iteration, including zero-finding ones): write a per-iteration record to [`.working/validate-sweeps/`](../../.working/validate-sweeps/). Filename `YYYY-MM-DD-sweepN-iterM.md` where `N` is the sweep ordinal (continues the register's numbering) and `M` is the iteration within that sweep. The file captures detail the register's summary intentionally omits, so a maintainer reading the file weeks later can reconstruct the iteration without the chat transcript. Sections:
 
-- **Trigger & state snapshot**: which PR / instruction triggered this iteration; library version, pack version, governance-rule count, gate count, skill count at HEAD; whether this is iteration 1 or a re-baseline.
-- **Subagent A full report**: the recent-PR deep-review subagent's verbatim return (SARIF-lite findings + summary). If A returned zero findings, record "zero findings" plus the one-line rationale the subagent gave.
-- **Subagent B full report**: the corpus-wide stale-reference sweep subagent's verbatim return.
-- **Subagent C full report**: the audit-programme integrity reviewer's verbatim return.
-- **Orchestrator synthesis**: which findings were in-window, classification by C1-C8 failure-mode class, severity adjudication, dedupe choices, debate outcomes if any, and the action decided for each finding.
-- **Resulting PR**: link, or "none — zero findings".
+Per-iteration record uses six H2 sections, comma form (per SKILL.md step 9):
+
+- `## Trigger & state snapshot`: which PR / instruction triggered this iteration; library version, pack version, governance-rule count, gate count, skill count at HEAD; whether this is iteration 1 or a re-baseline.
+- `## Subagent A, Recent-PR deep review`: the verbatim return (SARIF-lite findings + summary). If A returned zero findings, record "zero findings" plus the one-line rationale the subagent gave.
+- `## Subagent B, Corpus-wide stale-reference sweep`: the verbatim return.
+- `## Subagent C, Audit-programme integrity reviewer`: the verbatim return.
+- `## Orchestrator synthesis`: which findings were in-window, classification by C1-C8 failure-mode class, severity adjudication, dedupe choices, debate outcomes if any, and the action decided for each finding.
+- `## Resulting PR`: link, or "none, zero findings".
 
 `.working/validate-sweeps/` is exempt from corpus audit gates (frozen-state archive). Existing `path:line` references in subagent reports are kept verbatim even if the lines later shift; the record is a moment-in-time artefact.
 

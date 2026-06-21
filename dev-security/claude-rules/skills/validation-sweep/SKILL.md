@@ -26,7 +26,7 @@ The skill is project-agnostic in shape but invokes project-specific commands; th
 
 ## Process
 
-The sweep runs in seven steps. Steps 1-3 establish the baseline and scope; steps 4-5 are the semantic sweep; step 6 triages; step 7 is the fixed-point loop that runs until clean.
+The sweep runs in nine steps. Steps 1-3 establish the baseline and scope; steps 4-5 are the semantic sweep; step 6 triages; step 7 is the fixed-point loop that runs until clean; step 8 appends to the cumulative history file when the sweep produces findings; step 9 writes a per-iteration record on every invocation.
 
 ### 1. Establish mechanical baseline
 
@@ -118,7 +118,7 @@ If the working tree shows no recent activity (a "cold" sweep), subagent A become
 
 ### 5. Synthesise findings
 
-Apply the synthesis rubric: deterministic structure that makes the parent's triage reproducible across sweeps. Four rules, no ceremony.
+Apply the synthesis rubric: deterministic structure that makes the parent's triage reproducible across sweeps. Six rules, no ceremony.
 
 **Rule 5.1, dedupe by claim, not by line.** The dedupe key for two findings is the tuple `(file_path, normalised_section_or_artefact, claim_type)`, not `(file_path, line_number)`. Two subagents pointing at the same logical defect with different phrasings or slightly different line ranges collapse to a single synthesised row. Line numbers drift under edits and produce false uniques; the file plus the section plus the kind-of-claim is the stable identifier.
 
@@ -132,7 +132,7 @@ Apply the synthesis rubric: deterministic structure that makes the parent's tria
 
 **Rule 5.6, subagent dispatch must be declared in the register entry.** Every sweep entry in the project's validation-sweep history register (in this project: [`.working/validate-sweeps-history.md`](../../../../.working/validate-sweeps-history.md); adopters relocate to a project-appropriate path) names which subagents were dispatched (e.g. `Subagents dispatched: A, B, C` for a full sweep; `Subagents dispatched: A only; B and C scope-skipped per maintainer authorisation` for a thin sweep). If a subagent was skipped without explicit maintainer authorisation in the same sweep cycle, the next sweep entry's "Sweep value" section records the discipline failure as a corrective action. The mechanism is the auditable trail: a subagent's silent absence in a sweep register cannot be reconstructed later, so the dispatch declaration is the only point at which the discipline can be enforced.
 
-Cross-reference each synthesised finding against the project's validation-sweep history register (in this project: [`.working/validate-sweeps-history.md`](../../../../.working/validate-sweeps-history.md); adopters relocate to a project-appropriate path)'s **false-positive memory** section. Findings the maintainer has previously triaged as not-a-real-finding are suppressed; they should not be re-surfaced.
+Cross-reference each synthesised finding against the **false-positive memory** section of the project's validation-sweep history register (in this project: [`.working/validate-sweeps-history.md`](../../../../.working/validate-sweeps-history.md); adopters relocate to a project-appropriate path). Findings the maintainer has previously triaged as not-a-real-finding are suppressed; they should not be re-surfaced.
 
 **Anti-rubric (what NOT to do).** Do not compute inter-rater kappa (N=3 subagents with no pre-shared codebook makes the statistic uninterpretable). Do not average severities. Do not require mandatory consensus across all three subagents: the subagents have non-overlapping specialisations (recent-PR deep review vs corpus-wide stale-reference sweep vs audit-programme integrity), and a defect only one subagent could plausibly find must not be down-weighted by the others' silence.
 

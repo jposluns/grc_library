@@ -14,14 +14,14 @@ Examples: `2026-06-21-sweep9-iter1.md`, `2026-06-21-sweep9-iter2.md`, `2026-06-2
 
 ## File structure
 
-Each file uses six top-level H2 sections in this order:
+Each file uses six top-level H2 sections in this order, comma form:
 
-1. `## Trigger & state snapshot` — what triggered this iteration; library/pack version/gate-count/skill-count/rule-count at HEAD; iteration ordinal within the sweep
-2. `## Subagent A — Recent-PR deep review` — verbatim return from subagent A
-3. `## Subagent B — Corpus-wide stale-reference sweep` — verbatim return from subagent B
-4. `## Subagent C — Audit-programme integrity reviewer` — verbatim return from subagent C
-5. `## Orchestrator synthesis` — in-window classification, severity adjudication, dedupe choices, debate outcomes, actions decided
-6. `## Resulting PR` — link to the close-out PR, or `none — zero findings`
+1. `## Trigger & state snapshot`, what triggered this iteration; library/pack version/gate-count/skill-count/rule-count at HEAD; iteration ordinal within the sweep
+2. `## Subagent A, Recent-PR deep review`, verbatim return from subagent A
+3. `## Subagent B, Corpus-wide stale-reference sweep`, verbatim return from subagent B
+4. `## Subagent C, Audit-programme integrity reviewer`, verbatim return from subagent C
+5. `## Orchestrator synthesis`, in-window classification, severity adjudication, dedupe choices, debate outcomes, actions decided
+6. `## Resulting PR`, link to the close-out PR, or `none, zero findings`
 
 The cumulative history file at [`.working/validate-sweeps-history.md`](../validate-sweeps-history.md) holds the summary; per-iteration files in this subdirectory hold the detail.
 
