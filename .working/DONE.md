@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #180 — Extend version-bump discipline to four surfaces (add per-document Date) (2026-06-21)
+
+Closed the discipline gap surfaced by PR #179's gate-31 catch: the apply-time checklist now pairs Version-bump with Date-bump on every body-changing commit. Pack rule and project CLAUDE.md updated; pack version 1.36.0 → 1.37.0.
+
 ### PR #179 — FR-18 + FR-25 + FR-79 + FR-105 + FR-106 + FR-110 (all medium): P1.4a small singletons bundle (2026-06-21)
 
 Six medium-tier singleton findings closed in one PR: exception 180-day baseline anchored to a library convention, control-testing evidence retention raised 5y→7y, tabletop template Slack→generic, ISMS NIST CSF name normalised, README trade-programme acronyms expanded, decision-tree document-index reframed. FR-33 (high[critical]) split out to P1.4b per "always split when in doubt".

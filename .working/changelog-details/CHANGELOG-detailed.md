@@ -6,6 +6,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.159, PR #180
+
+Extended the project's version-bump discipline from three surfaces to four by adding the per-document `Date` field as a distinct discipline item alongside the existing per-document `Version`, library CalVer, and README `Version` surfaces. Surfaced as a discipline gap by PR #179's gate-31 catch (the orchestrator's apply-time checklist asked "did I bump Version?" but not "did I bump Date?"). Two recent corpus changes (`security/policy-information-security.md` and `resilience/template-tabletop-exercise.md`) had Version bumped but Date missed; CI's gate 31 (document-date-staleness) caught the omission. Adding Date to the discipline checklist avoids the re-run loop.
+
+### Changed
+
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) `## Version-bump discipline`:
+  - Section opening reframed from "three version surfaces" to "four version-bearing surfaces per document"; recurring-CI-failure citation extended to include PR #179's gate 31 catch alongside PR #169's gate 40 catch.
+  - New surface 2 (per-document `Date` field): bump to today's date in the same commit that changes the document's body. Gate 31 examines the metadata Date against the file's most-recent commit date and fails if the lag exceeds 1 day. The check fires the same way as gate 40 but on a different surface; the discipline is "every body change bumps both Version and Date in the same commit".
+  - Library CalVer and README Version sections renumbered (formerly 2/3, now 3/4).
+  - Operationalization checklist extended from three questions to four. New question 1 explicitly pairs Version with Date ("Bump that document's Version **and** Date in this commit").
+  - New question 4 makes the `tools/run-pr-time-checks.sh` step explicit (was previously implicit in the catch-net paragraph).
+- [`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`](../../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md) §3 (Apply-time worker correction):
+  - Numbered list extended from four steps to five. New step 4 ("Apply the per-file metadata-bump check") makes the Version+Date pairing explicit, names the gates that fire if it is skipped, and gives the corollary checklist item ("for every versioned file touched in this commit, did I bump Version *and* Date?").
+  - Common-patterns enumeration extended to call out "orchestrator bumping Version but missing Date (recurring orchestrator-side oversight; CI-caught but worth designing out)" as a recurring failure mode.
+- [`.claude/rules/governance/ai-assistant-workflow-disciplines.md`](../../.claude/rules/governance/ai-assistant-workflow-disciplines.md): synced verbatim from the pack source (gate 37 confirms byte-for-byte identity across 12 rule pairs).
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): pack version `1.36.0 → 1.37.0`; new version-history table row describing the change.
+- [`README.md`](../../README.md): library `2026.06.158 → 2026.06.159`; README `1.9.29 → 1.9.30`.
+- [`.working/DONE.md`](../DONE.md): PR #180 entry added (terse form per the convention).
+- [`TODO.md`](../../TODO.md): session-resume snapshot updated.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates against the committed state.
+- `tools/run-pr-time-checks.sh` exits 0 (D1, D2, gate 45).
+- `tools/lint-claude-rules-sync.py` (gate 37) verifies 12 rule pairs synced byte-for-byte.
+
+### Discipline observation
+
+This PR closes a real apply-time discipline gap that CI caught (rather than that shipped). The gate-31 catch in PR #179 is the only one of its class in this session; the discipline update makes it the last. The "bump Version, forget Date" pattern was easy to recur because the discipline was implicit (gate 31 enforces it, but the project's documented discipline checklist did not name it). Naming it in the checklist closes the gap at the discipline layer rather than only at the CI layer.
+
+The two-step pattern that PR #179's gate-31 fix used (commit 1: body + Version; commit 2: Date + Version-again) is acceptable when CI catches a missed Date, but the steady-state expectation under the new discipline is one commit that bumps both Version and Date together.
+
 ## 2026-06-21, Library Version 2026.06.158, PR #179
 
 Phase 1 P1.4a velocity bundle: six unrelated medium-tier fitness findings shipped as one PR. The originally-planned P1.4 bundle covered seven findings; FR-33 (high[critical], GDPR Article 36 prior-consultation pathway) was split into its own PR (queued as P1.4b) per the "always split when in doubt" discipline shipped in PR #176 — different severity tier and larger scope warranted dedicated treatment.
