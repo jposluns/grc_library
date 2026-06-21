@@ -6,6 +6,59 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.161, PR #182
+
+Corpus-wide count-genericization sweep, queued by PR #181's close-out. Maintainer-directed pattern: when a count is cited in prose where the directory or table is the canonical authority, the count is drift-prone and should be genericized.
+
+### Assessment criterion
+
+A count-in-prose is a genericization candidate when ALL THREE hold:
+1. The items live in a different location (file, directory, or table) than the citing prose.
+2. The canonical authority can grow or shrink (the count is not externally fixed).
+3. The prose could be rewritten to point at the canonical authority generically without information loss.
+
+Counts co-located with their canonical authority are not candidates: changing the count is done in the same edit that changed the count anyway, so the drift risk is zero.
+
+External counts (e.g., "207 controls across 17 domains" for CCM v4.1; "About 125 controls" for FedRAMP Low) are not candidates: the count is part of the external authority's identity and quoting it is informative for adopters.
+
+### Findings
+
+After PR #181's fix to [`skill-authoring-discipline/SKILL.md:26`](../../dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md) (which was the original B1 finding from Sweep 16), the corpus-wide search found **one additional candidate**:
+
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) §5 line 64: "The gates fall into seven functional categories". The categories are listed in the same §5 (so technically co-located), but the count introduces drift risk: if a future gate fits a new category, this line needs updating in lock-step. Although the risk is low (the categories are reasonably comprehensive), genericizing the prose to "The gates fall into the following functional categories:" is lossless and removes the dependency. Fixed.
+
+### Negative findings (intentionally kept)
+
+These references were reviewed and kept because they fail the assessment criterion:
+
+- "ten persona reviewers" / "ten persona subagents" / "ten personas" in `library-fitness-review` SKILL.md (multiple occurrences): personas are listed in the same file with full names. Count is co-located; not a candidate.
+- "five disciplines" in `ai-assistant-workflow-disciplines.md` (multiple occurrences): the five disciplines are listed in the same file as numbered top-level sections. Count is intra-document structure; not a candidate.
+- "five functional categories" in `ai/standard-ai-and-agentic-development-security.md`: the categories are listed in the AI Adversarial Test Reference. Reference is informative; not a candidate.
+- External-authority counts ("207 controls across 17 domains" for CCM; "About 125 controls" / "About 325 controls" / "About 425 controls" for FedRAMP tiers): these are external facts citing third-party frameworks. Quoting them is informative for adopters; not candidates.
+- Domain-content counts ("seven foundational principles" for Privacy-by-Design / Ann Cavoukian; "Eight H2 sections" in `library-fitness-review` report shape; "three categories of safeguards" for HIPAA Security Rule): these reference external authorities or specific document shapes. Not candidates.
+- Sweep history narrative counts in `.working/validate-sweeps/` (e.g., "13-PR window"): historical record; intentionally frozen.
+
+### Changed
+
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md): §5 line 64 genericized ("seven" → "the following"). Per-doc `1.14.0 → 1.14.1` (patch).
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated to absorb the per-doc Version bump.
+- [`README.md`](../../README.md): library `2026.06.160 → 2026.06.161`; README `1.9.31 → 1.9.32`.
+- [`.working/DONE.md`](../DONE.md): PR #182 entry added (terse).
+- [`TODO.md`](../../TODO.md): session-resume snapshot updated.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates against the committed state.
+- `tools/run-pr-time-checks.sh` exits 0 (D1, D2, gate 45).
+
+### Discipline observation
+
+This PR validates the maintainer's count-genericization principle (introduced during Sweep 16) by applying it corpus-wide. The expected output was "many candidates needing fixes"; the actual output was "one additional candidate plus a documented assessment criterion". The corpus is mostly already disciplined about this; the criterion is now formalized so future PRs don't re-introduce drift-prone count citations.
+
+**Future-PR check**: when authoring new prose that mentions a count of project-internal items (rules, skills, gates, linters, categories), apply the criterion:
+- If the items are co-located with the prose: count is fine.
+- If the items live elsewhere: use generic phrasing ("the governance rules under `<directory>`") instead.
+
 ## 2026-06-21, Library Version 2026.06.160, PR #181
 
 Sweep 16 iteration 1 close-out. First `/validate` sweep since Sweep 15 (PR #167), covering 13 intervening PRs (#168 through #180) — well past the original "every 5 PRs" cadence and tracking 4× the original cadence rule. The maintainer flagged the gap during the PR #179 close-out and directed a sweep before the next FR (FR-33 P1.4b).
