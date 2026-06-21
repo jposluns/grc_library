@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.164, PR #185
+
+`.working/` changes for local project: recorded the first real `/validate-pr` invocation (run against PR #184, 0 findings) by appending a row to [`.working/validate-pr/history.md`](../validate-pr/history.md). Library `2026.06.163 → 2026.06.164`; README `1.9.34 → 1.9.35`. The history-row update was originally left uncommitted at the end of the previous batch (stop hook flagged); this PR commits it as a tiny housekeeping PR rather than carrying the change into PR #185's `/retro` skill PR (per "split when in doubt"). Note: the next tomorrow-morning PR (originally planned as #185) becomes PR #186; FR-33 becomes PR #187.
+
 ## 2026-06-21, Library Version 2026.06.163, PR #184
 
 Extended the research-assistant discipline (pack rule §1) with a worker-brief template and a hallucination-assessment update protocol. Each new failure class caught at apply-time becomes a permanent guard rail in the template, making the discipline self-improving.
