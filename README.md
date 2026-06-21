@@ -1,13 +1,11 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Library Version:** 2026.06.152\
-**README Version:** 1.9.23\
 **Date:** 2026-06-21\
 **Classification:** Public\
 **Confidentiality:** Public\
-**License:** CC BY-SA 4.0
-
-The library uses Calendar Versioning (CalVer) of the form `YYYY.MM.patch` for the library as a whole; see [`specification-master-project.md`](specification-master-project.md) section 4.5. Per-document semantic versioning continues for individual artefacts. 
+**License:** CC BY-SA 4.0\
+**Library Version:** 2026.06.153 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.9.24 (semantic per-document version for this file)
 
 ---
 
@@ -21,13 +19,15 @@ The library uses Calendar Versioning (CalVer) of the form `YYYY.MM.patch` for th
 
 In modern programmes the boundaries between the three overlap with **security** (protecting information and systems), **privacy** (handling personal data lawfully), **resilience** (continuing operations under disruption), **supplier/third-party governance** (managing risk that originates outside the organisation), and **AI governance** (managing the risk introduced by AI systems). This library treats all of those as sibling domains under the GRC umbrella because organisations operate them together.
 
-**Where to go next, by intent:**
+**This README orients first-time readers and contributors to the library as a whole.** Most adopters do not need to read it end-to-end. If you already know what you are here for, the canonical adopter entry is [`docs/portal.md`](docs/portal.md), which routes by role and intent:
 
-- **First-time visitor or new to GRC:** continue reading §Purpose below, then browse [`docs/portal.md`](docs/portal.md) (audience-keyed entry points) and [`docs/adopter-guide.md`](docs/adopter-guide.md) (how to use this library for your own programme).
-- **Adopter setting up a programme:** start with [`docs/adopter-guide.md`](docs/adopter-guide.md) and [`docs/template-quickstart.md`](docs/template-quickstart.md).
-- **Auditor or reviewer assessing scope:** [`docs/portal.md`](docs/portal.md) and [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md).
-- **Existing maintainer or contributor:** [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`specification-master-project.md`](specification-master-project.md).
-- **Glossary or unfamiliar acronym:** [`governance/register-glossary.md`](governance/register-glossary.md) (external standards, regulators, sector programmes).
+| If you are ... | Start at |
+| --- | --- |
+| New to GRC, or evaluating the library | Continue reading §Purpose below, then [`docs/portal.md`](docs/portal.md). |
+| An adopter setting up a programme | [`docs/portal.md`](docs/portal.md) (canonical front door), then [`docs/adopter-guide.md`](docs/adopter-guide.md) and [`docs/template-quickstart.md`](docs/template-quickstart.md). |
+| An auditor or reviewer assessing scope | [`docs/portal.md`](docs/portal.md) and [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md). |
+| A maintainer or contributor | [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`specification-master-project.md`](specification-master-project.md). |
+| Looking up an unfamiliar acronym or regulator | [`governance/register-glossary.md`](governance/register-glossary.md). |
 
 ---
 
@@ -47,7 +47,7 @@ The repository provides reusable artefacts across the following domains:
 - Supplier, third-party, cloud, and supply-chain governance.
 - Cross-framework mapping, regulatory applicability analysis, and metrics.
 
-The library currently contains approximately **300+ documents** across 11 governance domains. The `compliance/` domain hosts sector-conditional sub-directories (`logistics/`, `financial-services/`, `healthcare/`, and others) for organisations operating in those sectors or participating in covered programmes. Automated counts will replace this approximation in a future repository release.
+The library spans 11 governance domains and grows by routine PR cadence; the current document inventory is machine-generated on every change and lives in [`taxonomy.yml`](taxonomy.yml) (one row per active artefact with canonical metadata). For an audience-keyed view of the same inventory, see [`docs/portal.md`](docs/portal.md). The `compliance/` domain hosts sector-conditional sub-directories ([`compliance/logistics/`](compliance/logistics/), [`compliance/financial-services/`](compliance/financial-services/), [`compliance/healthcare/`](compliance/healthcare/), and others) for organisations operating in those sectors or participating in covered programmes.
 
 ---
 
@@ -183,7 +183,7 @@ Three root-level files govern how the library is maintained and extended:
 
 | File | Purpose |
 | --- | --- |
-| [`specification-master-project.md`](specification-master-project.md) | Master project specification: document model, metadata rules, domain structure, quality gates, and sanitization requirements. |
+| [`specification-master-project.md`](specification-master-project.md) | Master project specification: document model, metadata rules, domain structure, quality gates, sanitization requirements, and the library-wide CalVer plus per-document semantic-versioning policy (§4.5). |
 | [`specification-ingestion.md`](specification-ingestion.md) | Document ingestion specification: canonical metadata format, allowed types, version numbering, and quality checklist. |
 | [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md) | AI-assisted ingestion instructions: step-by-step rules for ingesting documents using an AI coding assistant. |
 
@@ -309,7 +309,17 @@ The current authoritative starter set is organized around these foundational art
 
 ## Framework alignment model
 
-The library aligns to recognized framework families including ISO management system standards, NIST cybersecurity and artificial intelligence guidance, COBIT governance concepts, CSA CCM, STAR-style assurance models, OWASP projects (Top 10, LLM Top 10, ASVS, SAMM, Cheat Sheet Series), MITRE ATLAS, MITRE ATT&CK, and jurisdiction-specific laws or regulations.
+The library aligns to recognized framework families, including:
+
+- **ISO** (International Organization for Standardization) management system standards.
+- **NIST** (United States National Institute of Standards and Technology) cybersecurity and artificial intelligence guidance.
+- **COBIT** (Control Objectives for Information and Related Technologies) governance concepts.
+- **CSA CCM** (Cloud Security Alliance Cloud Controls Matrix) and **STAR** (Security, Trust, Assurance, and Risk) assurance models.
+- **OWASP** (Open Worldwide Application Security Project) work, including Top 10, LLM Top 10, **ASVS** (Application Security Verification Standard), **SAMM** (Software Assurance Maturity Model), and the Cheat Sheet Series.
+- **MITRE ATLAS** (Adversarial Threat Landscape for Artificial-Intelligence Systems) and **MITRE ATT&CK** (Adversarial Tactics, Techniques, and Common Knowledge).
+- Jurisdiction-specific laws or regulations.
+
+For a fuller glossary of external standards, regulators, and sector programmes, see [`governance/register-glossary.md`](governance/register-glossary.md).
 
 Mappings must distinguish between:
 

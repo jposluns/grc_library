@@ -10,8 +10,8 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #169 merge).
-- **Library version as of last refresh**: `2026.06.152`. **Pack version**: `1.34.0`. **README version**: `1.9.23`.
+- **Branch at last refresh**: `main` (synced after PR #172 merge).
+- **Library version as of last refresh**: `2026.06.153`. **Pack version**: `1.34.0`. **README version**: `1.9.24`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
 - **Last validation sweep**: Sweep 15 iteration 1 (close-out PR #167).
 
@@ -19,7 +19,7 @@ These are **as-of-session-pause snapshots**, not "current HEAD" claims. They ref
 
 ## Queued sequence (upcoming PRs)
 
-Fitness-remediation PRs are now in flight under maintainer direction. PRs #142-#166 have closed 26 findings to date (most recently PR #161 FR-17, PR #162 FR-29, PR #164 FR-43-reshape, PR #165 FR-56, PR #166 FR-57; plus the meta-PRs #163 DONE format harmonisation and Sweep close-outs #148/#154/#160). The next batch is chosen from the Fitness review backlog section below in highest-certainty order; the assistant picks 1-8 at a time (per the amended validate-cadence rule), runs a worker-drafts pipeline to prepare drafts in parallel, applies serially with CI gating, and runs `/validate` after each batch. Maintainer direction supersedes the assistant's pick at any time.
+Fitness-remediation PRs are now in flight under maintainer direction. PRs #142-#172 have closed 34 findings to date (most recently PR #169 FR-26+27+28, PR #172 FR-4+5+6+7+8 as the Phase 1 README polish bundle that closes Rec-6 from the fitness review; plus the meta-PRs #163 DONE format harmonisation, #170 CLAUDE.md version-bump rule, #171 CLAUDE.md subscription discipline, and Sweep close-outs #148/#154/#160/#167). The next batch is chosen from the Fitness review backlog section below in highest-certainty order; the assistant picks 1-8 at a time (per the amended validate-cadence rule), runs a research-assistant pipeline (workers produce research files; orchestrator authors all final prose) to prepare drafts in parallel, applies serially with CI gating, and runs `/validate` after each batch. Maintainer direction supersedes the assistant's pick at any time.
 
 Open large items still queued explicitly:
 
@@ -73,11 +73,10 @@ Resolved from `🤔` to `✅` in Pass-2 with a library-wide propagation plan:
 - **FR-60** (`compliance/healthcare`): HIPAA adopter has no operational detail beyond a single 261-line sector annex.
 - **FR-61** (`compliance/financial-services`): FS adopters outside EU/US lack regulatory regimes (UK PRA/FCA, US OCC/FRB/FDIC, MAS, FSA, APRA, OSFI, HKMA, FINMA).
 
-### Medium tier — 53 findings (immediate priority)
+### Medium tier — 48 findings (immediate priority)
 
 Full list with one-line summaries available in r1.md §3 (`.working/fitness-reviews/2026-06-21-r1.md`). Grouped by topical cluster:
 
-- **README polish** (5): FR-4 (acronym fire-hose), FR-5 (paradoxical doc count), FR-6 (CalVer trivia placement), FR-7 (audience-signal panel), FR-8 ⚠️ (dual version-line churn impression).
 - **ERM standard** (2): FR-11 (Risk Owner not defined as distinct role), FR-12 (treatment vocabulary divergence).
 - **Maturity ladder methodology** (1): FR-15 (median-of-medians scoring suspect).
 - **Exception policy** (1): FR-18 (180-day default not traceable to normative source).
@@ -107,9 +106,9 @@ Cross-reference only. No immediate-priority action; queue for a routine cleanup 
 
 ### Backlog totals
 
-- 10 + 5 + 53 = **68 immediate-priority findings** (High[critical], High, Medium tiers)
+- 10 + 5 + 48 = **63 immediate-priority findings** (High[critical], High, Medium tiers)
 - **14 deferred** (Low tier)
-- **82 open** (29 closed across PRs #142-#169). Total surfaced in r1: 111.
+- **77 open** (34 closed across PRs #142-#172). Total surfaced in r1: 111.
 
 ### FR-44 follow-up
 
