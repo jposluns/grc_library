@@ -2371,5 +2371,63 @@ class TodoStalenessTests(LinterTestCase):
             shutil.rmtree(fixture_dir, ignore_errors=True)
 
 
+class OvernightFileTests(LinterTestCase):
+    """tools/lint-overnight-file.py"""
+
+    def test_runs_clean_on_corpus_at_head(self) -> None:
+        # Smoke test: the overnight-pr.md file at HEAD is in stub form.
+        result = run_linter("tools/lint-overnight-file.py")
+        self.assertEqual(
+            result.returncode, 0,
+            f"linter exited {result.returncode} on HEAD; "
+            f"the overnight-pr.md file should be in stub form.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def _load_module(self):
+        import importlib.util
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        spec = importlib.util.spec_from_file_location(
+            "_lint_overnight_file",
+            REPO_ROOT / "tools/lint-overnight-file.py",
+        )
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def test_status_regex_matches_stub(self) -> None:
+        mod = self._load_module()
+        text = "**Status:** stub\n"
+        m = mod.STATUS_PATTERN.search(text)
+        self.assertIsNotNone(m)
+        self.assertEqual(m.group(1), "stub")
+
+    def test_status_regex_matches_in_flight(self) -> None:
+        mod = self._load_module()
+        text = "**Status:** in-flight\n"
+        m = mod.STATUS_PATTERN.search(text)
+        self.assertIsNotNone(m)
+        self.assertEqual(m.group(1), "in-flight")
+
+    def test_status_regex_matches_done(self) -> None:
+        mod = self._load_module()
+        text = "**Status:** done\n"
+        m = mod.STATUS_PATTERN.search(text)
+        self.assertIsNotNone(m)
+        self.assertEqual(m.group(1), "done")
+
+    def test_valid_pass_statuses_includes_stub_and_in_flight(self) -> None:
+        mod = self._load_module()
+        self.assertIn("stub", mod.VALID_PASS_STATUSES)
+        self.assertIn("in-flight", mod.VALID_PASS_STATUSES)
+
+    def test_valid_fail_statuses_includes_done(self) -> None:
+        mod = self._load_module()
+        self.assertIn("done", mod.VALID_FAIL_STATUSES)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

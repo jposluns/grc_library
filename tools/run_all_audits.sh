@@ -141,6 +141,7 @@ run_gate "External-overlay license consistency audit"    python3 tools/lint-exte
 run_gate "Follow-up ageing audit"                        python3 tools/lint-followup-ageing.py
 run_gate "Paired-skill step-parity audit"                python3 tools/lint-paired-skill-step-parity.py
 run_gate "TODO staleness audit"                          python3 tools/lint-todo-staleness.py
+run_gate "Overnight-work file audit"                     python3 tools/lint-overnight-file.py
 
 # ----------------------------------------------------------------------
 # Summary

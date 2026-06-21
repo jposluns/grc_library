@@ -337,3 +337,10 @@ repos:
         language: system
         pass_filenames: false
         types: [markdown]
+
+      - id: lint-overnight-file
+        name: Overnight-work file audit
+        entry: python3 tools/lint-overnight-file.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
