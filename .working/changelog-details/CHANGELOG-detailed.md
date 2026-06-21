@@ -6,6 +6,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.125, PR #143
+
+Closes FR-9 (high[critical]) and FR-10 (high), bundled because both relate to Chief Risk Officer presence in [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md). One file, two structural fixes, single per-doc bump.
+
+### Closed findings
+
+- **FR-9** (high[critical]): the standard's `Owner` field was "Chief Information Officer". Enterprise risk is a CRO/CFO/Board accountability in most operating models; CIO ownership of the ERM standard read as a category error. Resolved to **Chief Risk Officer** per the finding text's first-listed alternative and consistent with FR-10's parallel call.
+- **FR-10** (high): §3 Governance table omitted CRO entirely despite CRO being a defined role in the role-authority register and referenced in `procedure-risk-register.md`. Added a CRO row at the top of the table scoped to risk strategy, risk appetite stewardship, ERM programme outcomes, and Board / Risk Committee reporting.
+
+### Changed
+
+- [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md):
+  - `Owner` field: `Chief Information Officer` → `Chief Risk Officer`.
+  - §3 Governance table: new CRO row added at the top with responsibility scoped to risk strategy, risk-appetite stewardship, ERM-programme outcomes, Board / Risk Committee reporting.
+  - §3 Governance table: pre-existing CIO row reshaped from "Accountable for the overall enterprise risk management framework" to "Provides executive support to the ERM programme on technology-risk integration; ensures that IT-strategy risk is reflected in the enterprise risk register". This reshape preserves CIO's technology-risk role without conflicting with CRO's new ERM-framework accountability.
+  - Per-doc version `1.3.3 → 1.3.4`; Date `2026-06-21` (unchanged within the same day's batch).
+- [`README.md`](../../README.md): library version `2026.06.124 → 2026.06.125`; README version `1.8.80 → 1.8.81`.
+- [`TODO.md`](../../TODO.md): FR-9 rotated out of High[critical] tier; FR-10 rotated out of High tier. Backlog totals: 16 + 19 + 56 = 91 immediate-priority; 14 deferred; 105 open. Session resume metadata refreshed.
+- [`.working/DONE.md`](../DONE.md): PR #143 entry + FR-9 and FR-10 cross-reference entries added at top of "Closed items".
+
+### Verification
+
+- Local audit: `tools/run_all_audits.sh` exits 0 on all 46 gates.
+- Local PR-time checks: `tools/run-pr-time-checks.sh` exits 0.
+- Manual re-read: ERM standard's Owner field shows "Chief Risk Officer"; §3 Governance table shows CRO row first followed by the reshaped CIO row.
+- Cross-reference check: `procedure-risk-register.md` and `register-role-authority.md` already mention CRO; this PR makes the ERM standard consistent with those without introducing new content elsewhere.
+
+### Discipline observation
+
+Bundling FR-9 and FR-10 in one PR matches the "more PRs, keep each one clean" preference's exception: when two findings affect the same file and the same logical concept, splitting them into separate PRs creates artificial separation. The CRO addition is one structural fix that closes two findings; splitting would have required two per-doc version bumps in adjacent PRs with the second touching the same governance table the first just edited.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.124, PR #142
 
 First fitness-remediation PR. Closes four unambiguous quick-win findings at maintainer direction ("pick some quick wins that are absolutely certainly in need of working and proceed with those") while the maintainer reviews the broader 111-item backlog. Each finding had: single-file scope; unambiguous fix (no judgement call); high value-per-effort; no cross-cutting impact.
