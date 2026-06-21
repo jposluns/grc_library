@@ -2,7 +2,7 @@
 
 **Document Title:** Exception and Risk Acceptance Management Policy\
 **Document Type:** Policy\
-**Version:** 1.1.1\
+**Version:** 1.2.0\
 **Date:** 2026-06-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -70,6 +70,7 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 - **High or critical risk:** Executive Committee or Board Risk Committee. 
 - **Trade and customs-related exceptions:** applicable compliance officer co-approval and ERC notification. 
 2.3 Exceptions exceeding the organisation's defined risk appetite or those impacting trade or customs operations require explicit acceptance by executive authority and validation against trade and supply-chain programs.
+2.4 The approval pathway in §2.2 is the source of truth for the "Approve exception" row of the Role Authority Register RACI ([`governance/register-role-authority.md`](register-role-authority.md)); the register's row points back at this section so the two documents declare a single chain. The renewal-ceiling pathway in §3.5 extends this chain (original approver, then ERC, then Board Risk Committee) and is the source of truth for renewal authority. Adopting organisations may tune the tier thresholds in §2.2 (and the named bodies in §3.5 where they have no equivalent committee, per the §3.4 / §3.5 substitution clauses) to local governance structure without amending the RACI; the RACI row's reference to this section is what makes that local tuning propagate.
 
 ### 3. Duration and renewal
 3.1 Exceptions shall be time-bound. The initial term shall not exceed 180 days. 

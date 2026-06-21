@@ -10,8 +10,8 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #160 merge).
-- **Library version as of last refresh**: `2026.06.142`. **Pack version**: `1.34.0`. **README version**: `1.9.13`.
+- **Branch at last refresh**: `main` (synced after PR #161 merge).
+- **Library version as of last refresh**: `2026.06.143`. **Pack version**: `1.34.0`. **README version**: `1.9.14`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
 - **Last validation sweep**: Sweep 14 iteration 1 (close-out PR #160).
 
@@ -67,9 +67,8 @@ Resolved from `🤔` to `✅` in Pass-2 with a library-wide propagation plan:
 - **FR-72** (sanctions/OFAC/export control): Superficial. Ship dedicated framework with UBO verification + denied-party-list integration.
 - **FR-73** (AI ethics review): `charter-ai-governance-council.md` collapses ethics into the compliance/risk body. Separate ethics panel or independent challenge mechanism needed.
 
-### High tier — 8 findings (immediate priority)
+### High tier — 7 findings (immediate priority)
 
-- **FR-17 ⚠️** (`governance/policy-exception-and-risk-acceptance-management.md`): Approval-authority conflict with Role Authority Register RACI (Risk Accountable Role is a stub).
 - **FR-36** (`privacy/framework-childrens-data.md` + EU annex): EU member-state per-state Article 8 age table missing.
 - **FR-56** (multiple): Six distinct entry-point sequences (README → document index; adopter guide → Tier 1; quickstart → core baseline; decision tree → 30/90/180; implementation roadmap → Phase 1/2/3). Reconcile.
 - **FR-57** (`docs/template-quickstart.md`): 319 lines, 5 dimensions × 23 modules. Not actually a quickstart.
@@ -113,9 +112,9 @@ Cross-reference only. No immediate-priority action; queue for a routine cleanup 
 
 ### Backlog totals
 
-- 12 + 8 + 56 = **76 immediate-priority findings** (High[critical], High, Medium tiers)
+- 12 + 7 + 56 = **75 immediate-priority findings** (High[critical], High, Medium tiers)
 - **14 deferred** (Low tier)
-- **90 open** (21 closed across PRs #142-#159). Total surfaced in r1: 111.
+- **89 open** (22 closed across PRs #142-#161). Total surfaced in r1: 111.
 
 ### FR-44 follow-up
 

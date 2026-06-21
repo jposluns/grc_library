@@ -65,7 +65,7 @@ _80 documents._
 | [governance/framework-document-architecture-and-interrelationship.md](../governance/framework-document-architecture-and-interrelationship.md) | Document Architecture and Interrelationship Framework | Framework | 1.1.0 | 2026-05-28 |
 | [governance/framework-sustainability-and-responsible-technology.md](../governance/framework-sustainability-and-responsible-technology.md) | Sustainability and Responsible Technology Framework | Framework | 1.1.0 | 2026-05-28 |
 | [governance/matrix-cross-framework-alignment.md](../governance/matrix-cross-framework-alignment.md) | Cross-Framework Alignment Matrix | Matrix | 1.1.3 | 2026-06-19 |
-| [governance/policy-exception-and-risk-acceptance-management.md](../governance/policy-exception-and-risk-acceptance-management.md) | Exception and Risk Acceptance Management Policy | Policy | 1.1.1 | 2026-06-21 |
+| [governance/policy-exception-and-risk-acceptance-management.md](../governance/policy-exception-and-risk-acceptance-management.md) | Exception and Risk Acceptance Management Policy | Policy | 1.2.0 | 2026-06-21 |
 | [governance/register-ai-security-tooling-landscape.md](../governance/register-ai-security-tooling-landscape.md) | AI Security Tooling Landscape Register | Register | 1.1.2 | 2026-06-20 |
 | [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.4.22 | 2026-06-19 |
 | [governance/register-citation-verifications.md](../governance/register-citation-verifications.md) | Citation Verifications Register | Register | 1.1.0 | 2026-05-29 |
@@ -73,7 +73,7 @@ _80 documents._
 | [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.24 | 2026-06-21 |
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.2.1 | 2026-05-30 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.1 | 2026-05-28 |
-| [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.3.1 | 2026-06-19 |
+| [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.3.2 | 2026-06-21 |
 | [governance/specification-audit-programme.md](../governance/specification-audit-programme.md) | Audit Programme Specification | Specification | 1.14.0 | 2026-06-21 |
 | [governance/specification-citation-verification.md](../governance/specification-citation-verification.md) | Citation Verification Specification | Specification | 1.2.1 | 2026-05-29 |
 | [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.4.0 | 2026-05-28 |
