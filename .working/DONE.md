@@ -25,6 +25,10 @@ The format for each entry:
 
 ## Closed items
 
+### PR #158 — FR-80: SIEM / cloud-activity-log retention reconciliation (2026-06-21)
+
+High[critical] cross-document contradiction closed. `governance/register-data-retention-schedule.md:67` said 3 years for SIEM event logs (1y hot + 2y cold); `operations/standard-cloud-security-configuration-baseline.md:150` said 90 days minimum for activity-log retention. Cloud-activity logs forward into the SIEM in this architecture, so the downstream baseline's 90-day floor appeared to undercut the upstream 3-year retention. Reconciled by reframing the 90-day figure as the platform-side forwarding floor (so the SIEM has a window to ingest events) and clarifying that the SIEM is the authoritative retention authority for the long-tail. Both documents now say so explicitly. Per-doc bumps: cloud baseline `1.4.3 → 1.4.4`; retention schedule `1.0.0 → 1.0.1`.
+
 ### PR #157 — FR-16: exception register hard caps + renewal-ceiling escalation pathway (2026-06-21)
 
 High[critical] finding closed. [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) §1.2 / §3 / §5.1 strengthened. The schema gains two required fields (`max_duration`, default 540 days; `renewal_count_limit`, default 3); the weak "should not exceed 180 days" clause is replaced by a hard 180-day initial-term cap plus the cumulative `max_duration` ceiling and a renewal-ceiling escalation pathway patterned on PR #152's CAPA §6.3.1: 1st renewal at the original approver, 2nd at the ERC, 3rd at the Board Risk Committee, 4th absolutely prohibited (forces close / descope / convert to risk acceptance / re-baseline). A re-baselining carve-out for materially-changed scope is included with an anti-abuse condition (ERC-approved; a re-baseline without material change is treated as the next renewal in the sequence). The §5.1 register field list is extended in lock-step with the new schema fields. Per-doc `1.0.3 → 1.1.0` (minor: schema-level addition).

@@ -10,8 +10,8 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #157 merge).
-- **Library version as of last refresh**: `2026.06.139`. **Pack version**: `1.34.0`. **README version**: `1.9.10`.
+- **Branch at last refresh**: `main` (synced after PR #158 merge).
+- **Library version as of last refresh**: `2026.06.140`. **Pack version**: `1.34.0`. **README version**: `1.9.11`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
 - **Last validation sweep**: Sweep 13 iteration 1 (close-out PR #154).
 
@@ -49,7 +49,7 @@ Resolved from `🤔` to `✅` in Pass-2 with a library-wide propagation plan:
   - Or a documented standard in `governance/` (`standard-maturity-tier-vocabulary.md`) that other documents cite.
 - Severity: High[critical] (was high[critical]). Originating run: r1.
 
-### High[critical] tier — 13 findings (immediate priority)
+### High[critical] tier — 12 findings (immediate priority)
 
 - **FR-14** (maturity ladder): see Special section above.
 - **FR-29** (`privacy/procedure-privacy-impact-and-cross-border-transfer.md`): DPIA methodology and trigger checklist absent. Ship `privacy/template-dpia.md` with Article 35 trigger checklist + EDPB nine-criteria + Article 35(7) content checklist.
@@ -63,7 +63,6 @@ Resolved from `🤔` to `✅` in Pass-2 with a library-wide propagation plan:
 - **FR-71** (M&A due diligence): `procedure-grc-programme-management-and-annual-review.md` names M&A as trigger but no checklist/pre-close template/integration playbook. Ship dedicated procedure.
 - **FR-72** (sanctions/OFAC/export control): Superficial. Ship dedicated framework with UBO verification + denied-party-list integration.
 - **FR-73** (AI ethics review): `charter-ai-governance-council.md` collapses ethics into the compliance/risk body. Separate ethics panel or independent challenge mechanism needed.
-- **FR-80** (SIEM/cloud-activity-log retention contradiction): `register-data-retention-schedule.md:67` says 3y (1y hot + 2y cold); `standard-cloud-security-configuration-baseline.md:150` says 90d minimum. Cloud logs forward into SIEM, undercutting the downstream baseline. Reconcile.
 
 ### High tier — 9 findings (immediate priority)
 
@@ -112,9 +111,9 @@ Cross-reference only. No immediate-priority action; queue for a routine cleanup 
 
 ### Backlog totals
 
-- 13 + 9 + 56 = **78 immediate-priority findings** (High[critical], High, Medium tiers)
+- 12 + 9 + 56 = **77 immediate-priority findings** (High[critical], High, Medium tiers)
 - **14 deferred** (Low tier)
-- **92 open** (19 closed across PRs #142-#157). Total surfaced in r1: 111.
+- **91 open** (20 closed across PRs #142-#158). Total surfaced in r1: 111.
 
 ---
 
@@ -127,6 +126,17 @@ Files identified earlier as project-specific application that should move from `
 - **`governance/register-main-branch-protection.md`** → `.working/` somewhere. Snapshot of THIS repo's branch protection; meaningless to adopters who configure their own.
 
 Each requires updating the document-index, sibling references, regenerating taxonomy/portal, version bumps, CHANGELOG entry.
+
+---
+
+## Pack: dev-security/claude-rules language coverage review
+
+Review the language-specific security rules in [`dev-security/claude-rules/`](dev-security/claude-rules/) (currently the `python.md` family plus the external overlay rules from TikiTribe, Kariedo, addyosmani). Two questions to answer:
+
+1. **Are mainstream languages missing?** Today the pack ships Python-focused guidance. Candidates likely worth at least a starter file: JavaScript / TypeScript (Node and browser surfaces), Go, Java / Kotlin, Rust, C# / .NET, Swift / Kotlin (mobile). Decide which subset belongs in a GRC-baseline pack vs which the pack should defer to dedicated technical-security sources.
+2. **Should we explicitly reference dedicated technical-security projects** rather than try to be one? The library's positioning is GRC-oriented: we want enough language-specific baseline information to help an adopter who needs immediate guardrails, but the corpus is not the authoritative source for, e.g., browser XSS prevention or memory-safe Rust idioms. Decide whether to add a "for deeper coverage, see ..." pointer (OWASP cheat sheets, language-specific SAST rule packs, vendor secure-coding guides) and where it lives.
+
+Scope: one or more small PRs that each add a language baseline file or update the pack's README to set the positioning. Owner: maintainer. Effort: small per language (mirror `python.md`'s shape: prohibitions, required patterns, framework alignment table).
 
 ---
 
