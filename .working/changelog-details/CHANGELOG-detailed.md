@@ -6,6 +6,38 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.133, PR #151
+
+Closes FR-35 (high, ✅ confirmed-as-stated, privacy breach-response). The privacy breach-response procedure mentioned the contractual 24-hour supplier notification window in three places but never anchored its clock-start to processor awareness — the GDPR Article 33(2) trigger. Adopters reading the procedure in isolation could reasonably interpret the 24-hour window as starting at controller notification (inverting Article 33(2)) or at some later containment/assessment milestone. This PR makes the asymmetry explicit and ties it directly to Article 33(2).
+
+### Closed findings
+
+- **FR-35** (high, ✅, `privacy/procedure-data-protection-and-privacy-breach-response.md`): Article 33(2) processor-to-controller breach timeline asymmetry not made explicit. The procedure's §4.1 detection-sources bullet, §6.3 supplier-notification section, and §10 supplier-notification metric all named the 24-hour contractual window without specifying that the clock starts at *processor* awareness. The companion document `supply-chain/standard-supplier-security-and-privacy-assurance.md` line 91 already states "Data breach notification within 24 hours of awareness" and cites GDPR Article 33(2); the privacy procedure now matches.
+
+### Changed
+
+- [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md):
+  - §4.1 detection-sources bullet (line 89): clock-start anchored to "becoming aware" with cross-reference to §6.3 for the Article 33(2) basis.
+  - §6.3 Supplier notification: new "**Note: processor-to-controller timeline asymmetry under GDPR Article 33(2)**" callout explaining that the 24-hour contractual clock and the 72-hour Article 33(1) regulatory clock anchor to two different awareness events, that the 24-hour clock starts at *processor* awareness (not controller notification, not controller awareness, not any later containment milestone), and that a delayed Article 33(2) notification erodes the controller's 72-hour Article 33(1) budget. Existing bullet list tightened in parallel to say "within 24 hours of becoming aware".
+  - §10 metric "Supplier Breach Notification Timeliness": definition reworded to specify the supplier's awareness as the clock-start, with explicit Article 33(2) citation and §6.3 cross-reference.
+  - Per-doc version `1.4.3 → 1.4.4`; Date `2026-06-20 → 2026-06-21`.
+- [`README.md`](../../README.md): library `2026.06.132 → 2026.06.133`; README `1.9.3 → 1.9.4`.
+- [`TODO.md`](../../TODO.md): FR-35 rotated out of High tier; backlog counters updated (15 + 13 + 56 = 84 immediate; 14 deferred; 98 open).
+- [`.working/DONE.md`](../DONE.md): PR #151 entry added.
+
+### Verification
+
+- Local audit: `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- Local PR-time checks: `tools/run-pr-time-checks.sh` exits 0.
+- Contradiction grep: `grep -nE '24[- ]hour' privacy/procedure-data-protection-and-privacy-breach-response.md` confirms every remaining mention of the 24-hour processor-notification window is anchored to processor awareness or cross-references §6.3.
+- Cross-corpus consistency: `supply-chain/standard-supplier-security-and-privacy-assurance.md` line 91 already cited GDPR Article 33(2) and "24 hours of awareness"; the privacy procedure now agrees with that framing.
+
+### Discipline observation
+
+The pattern this finding exposes is **timeline-asymmetry under-specification**: a regulation that ties two related clocks to different awareness events (Article 33(1) at controller awareness; Article 33(2) at processor awareness) is easy to under-document by stating each clock separately without explaining the asymmetry. A candidate generalisation for the corpus-management discipline (TODO P4.6): whenever a procedure describes more than one regulatory clock with different anchor events, an explicit asymmetry note is preferable to scattered per-clock anchoring statements. Not in scope for this PR; surfaced for future consideration.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.132, PR #150
 
 Closes FR-45 (high, ⚠️ confirmed-with-modification). Two RFC 2119 normative-vocabulary fixes: "may not" → "must not be" in the password-history requirement and the BYOD-with-Confidential/Restricted-data prohibition.

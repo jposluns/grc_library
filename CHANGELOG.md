@@ -4,6 +4,12 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.133, PR #151
+
+Closes **FR-35** (high, ✅ confirmed-as-stated, privacy breach-response). [`privacy/procedure-data-protection-and-privacy-breach-response.md`](privacy/procedure-data-protection-and-privacy-breach-response.md) now makes the GDPR Article 33(2) processor-to-controller timeline asymmetry explicit: the contractual 24-hour supplier clock starts at *processor* awareness of the breach (the Article 33(2) trigger), not at controller notification or any later milestone. §4.1 tightened ("becoming aware" anchor + cross-reference to §6.3); §6.3 gains a dedicated note explaining the two-clock model (24-hour processor-awareness clock vs 72-hour controller-awareness clock) and why a delayed Article 33(2) notification erodes the controller's Article 33(1) budget; §10 supplier-notification metric reworded to specify supplier awareness as the clock-start. Per-doc `1.4.3 → 1.4.4`; library `2026.06.132 → 2026.06.133`. Backlog 99 → 98 open.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.132, PR #150
 
 Closes **FR-45** (high, ⚠️ confirmed-with-modification). RFC 2119 vocabulary tightening in two security standards: [`security/standard-authentication-and-password-management.md`](security/standard-authentication-and-password-management.md) §"Password requirements" and [`security/standard-remote-working-security.md`](security/standard-remote-working-security.md) §8.2 both used "may not" where the intent is a prohibition. Pass-1 flagged the drift under a strict RFC 2119 reading: "may not" admits a permissible-negative-possibility interpretation distinct from MUST NOT. Both lines now read "must not be" to match each file's prevailing normative verb ("must" appears 5 times in the password standard and 24 times in the remote-working standard; "shall" is essentially absent from both). Per-doc `1.0.1 → 1.0.2` in each file; library `2026.06.131 → 2026.06.132`. Backlog 100 → 99 open.
