@@ -10,16 +10,16 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #139 merge).
-- **Library version as of last refresh**: `2026.06.121`. **Pack version**: `1.34.0`. **README version**: `1.8.77`.
+- **Branch at last refresh**: `main` (synced after PR #140 merge).
+- **Library version as of last refresh**: `2026.06.122`. **Pack version**: `1.34.0`. **README version**: `1.8.78`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
-- **Last validation sweep**: Sweep 11 iteration 1 (close-out PR #127); no sweep run yet after PRs #128-#139.
+- **Last validation sweep**: Sweep 11 iteration 1 (close-out PR #127); no sweep run yet after PRs #128-#140.
 
 ---
 
 ## Queued sequence (upcoming PRs)
 
-**Next, PR #N: Fitness backlog Pass-1 (orchestrator verification).** For each FR-1..FR-111 finding in [`.working/fitness-reviews/2026-06-21-r1.md`](.working/fitness-reviews/2026-06-21-r1.md): re-read the cited source, tag with one of `✅ confirmed-as-stated` / `⚠️ confirmed-with-modification` / `❌ rejected` / `🤔 ambiguous-needs-maintainer` per the discipline introduced in PR #139. Output is a per-finding verdict layer applied in-place to the report (or as a sibling verification file if that's cleaner). The output is the input for Pass-2 (maintainer-interactive bucket processing) in a subsequent PR.
+**Next, PR #N: Fitness backlog Pass-2 (maintainer-interactive bucket processing).** Pass-1 (PR #140) tagged all 111 FR-N findings: 93 ✅ / 14 ⚠️ / 2 🤔 / 2 ❌. Pass-2 surfaces the four buckets in chat for maintainer triage: `✅` cluster gets a batch confirmation; `⚠️` cluster gets per-finding prompts with the modification proposal plus alternatives; `🤔` cluster gets per-finding prompts with the open question; `❌` cluster gets a batch presentation with optional escalation. Confirmed findings produce TODO entries carrying FR-N ID + originating-run reference + Pass-2 verification date.
 
 **Then, fitness backlog Pass-2 batches.** Process the confirmed findings by severity band. Probably one PR per priority section (P1 fixes are larger; P5/P6 are smaller batches). Create TODO entries for confirmed findings; close them in subsequent PRs and rotate to DONE.
 
