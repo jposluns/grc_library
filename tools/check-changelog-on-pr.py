@@ -1,15 +1,22 @@
 #!/usr/bin/env python3
-"""Verify a pull request modifies CHANGELOG.md or carries a Changelog: opt-out trailer.
+"""Verify a pull request modifies CHANGELOG.md (and its detailed mirror) or carries a Changelog: opt-out trailer.
 
 This is a CI-only delta gate, not part of the 44-gate corpus audit programme. The
 44 corpus gates check repository state at HEAD; this script compares HEAD to the
-PR's merge-base and asserts the diff includes CHANGELOG.md, unless any commit in
-the PR range carries a `Changelog: <one-line-reason>` trailer in its message body.
+PR's merge-base and asserts the diff includes CHANGELOG.md AND its detailed mirror
+at `.working/changelog-details/CHANGELOG-detailed.md`, unless any commit in the PR
+range carries a `Changelog: <one-line-reason>` trailer in its message body.
+
+The dual-entry requirement was introduced in PR #125 (2026-06-21): the root
+CHANGELOG.md carries lead-paragraph summaries; the detailed mirror carries the full
+structured-section entries (Added / Changed / Removed / Fixed / Security / Verification).
+Both must move in lock-step. A PR that modifies one without the other is a discipline
+failure caught by this gate.
 
 The library's CONTRIBUTING.md and audit-programme spec require a CHANGELOG entry
 for substantive batches. This script enforces that requirement mechanically at PR
 time, closing the gap where a maintainer (human or AI) modifies content and forgets
-to update CHANGELOG.md.
+to update CHANGELOG.md (or its mirror).
 
 Opt-out: any commit in the PR can include a line of the form
 
@@ -42,6 +49,7 @@ import subprocess
 import sys
 
 CHANGELOG_PATH = "CHANGELOG.md"
+CHANGELOG_DETAILED_PATH = ".working/changelog-details/CHANGELOG-detailed.md"
 TRAILER_PATTERN = re.compile(
     r"^\s*Changelog:\s*(\S.*?)\s*$",
     re.IGNORECASE | re.MULTILINE,
@@ -113,13 +121,17 @@ def main(argv: list[str]) -> int:
         print(f"OK: no files changed between {merge_base[:8]} and {head}.")
         return 0
 
-    if CHANGELOG_PATH in changed:
+    root_changed = CHANGELOG_PATH in changed
+    detailed_changed = CHANGELOG_DETAILED_PATH in changed
+
+    if root_changed and detailed_changed:
         print(
-            f"OK: {CHANGELOG_PATH} is in the diff "
+            f"OK: both {CHANGELOG_PATH} and {CHANGELOG_DETAILED_PATH} are in the diff "
             f"({len(changed)} file(s) total)."
         )
         return 0
 
+    # Check for opt-out trailer before reporting any specific failure shape.
     try:
         commit_shas = git("log", "--format=%H", f"{merge_base}..{head}").splitlines()
     except subprocess.CalledProcessError as exc:
@@ -137,14 +149,36 @@ def main(argv: list[str]) -> int:
             )
             return 0
 
-    print(
-        f"FAIL: {len(changed)} file(s) changed but {CHANGELOG_PATH} is not "
-        f"in the diff.",
-        file=sys.stderr,
-    )
+    # No trailer; classify the failure mode.
+    if not root_changed and not detailed_changed:
+        print(
+            f"FAIL: {len(changed)} file(s) changed but neither {CHANGELOG_PATH} "
+            f"nor {CHANGELOG_DETAILED_PATH} is in the diff.",
+            file=sys.stderr,
+        )
+    elif root_changed and not detailed_changed:
+        print(
+            f"FAIL: {CHANGELOG_PATH} was modified but its detailed mirror "
+            f"{CHANGELOG_DETAILED_PATH} was not. The dual-entry convention "
+            f"requires both files to move in lock-step.",
+            file=sys.stderr,
+        )
+    else:
+        # detailed_changed and not root_changed
+        print(
+            f"FAIL: {CHANGELOG_DETAILED_PATH} was modified but the root "
+            f"{CHANGELOG_PATH} was not. The dual-entry convention requires "
+            f"both files to move in lock-step.",
+            file=sys.stderr,
+        )
+
     print("", file=sys.stderr)
     print(
-        "Either add an entry to CHANGELOG.md describing this change, or add a",
+        f"Either add an entry to BOTH {CHANGELOG_PATH} (lead paragraph only) and",
+        file=sys.stderr,
+    )
+    print(
+        f"{CHANGELOG_DETAILED_PATH} (full structured entry), or add a",
         file=sys.stderr,
     )
     print(

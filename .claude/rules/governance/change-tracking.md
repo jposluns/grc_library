@@ -13,9 +13,18 @@ This rule applies equally to human developers and to AI coding assistants. An AI
 
 ---
 
+## Where CHANGELOG entries live, the two-file split
+
+A project's CHANGELOG may be a single file, OR may be split into two files for audience-separation:
+
+- **Root `CHANGELOG.md`** carries only the **lead-paragraph summary** of each entry. This is the adopter-facing, public-facing, scan-friendly surface. Adopters and downstream consumers read this.
+- **Detailed mirror** (project-specific location; in this project: `.working/changelog-details/CHANGELOG-detailed.md`) carries the **full structured-section entry**: Added / Changed / Removed / Fixed / Security / Verification / discipline observations. This is the maintainer-grade audit trail. Reviewers and auditors read this.
+
+The detailed mirror's location is project-specific; the project chooses where to put it. A working-directory location (exempt from corpus audit gates) is the recommended default. Single-file projects keep all detail in root `CHANGELOG.md`; they are the trivial case of the rule (root file holds everything).
+
 ## What a CHANGELOG entry must contain
 
-Every entry must include:
+Every entry must include the following. Items 1, 2, and the lead "why" are recorded in the **root** file; items 3-7 (structured sections, file references, verification, phase context) are recorded in the **detailed** file when the project uses the two-file split, or in the root file when the project does not.
 
 1. **A date-and-version header**. The date pins the entry to wall-clock time; the version pins it to a release. The version monotonically increases across entries.
 2. **A short title sentence** summarising the change in plain language. "Phase 2: add gate-discipline rule to dev-security pack" is a title; "Updates" is not.
@@ -70,6 +79,7 @@ A change-tracking discipline needs at least three mechanical gates. Implementati
 
 - Detects PRs that touch governed content (the document corpus, the public API surface, configuration files that ship to consumers, etc.).
 - Requires the same PR to add a CHANGELOG entry, or carry the `Changelog: skip` trailer with a documented rationale.
+- **For projects using the two-file split**: requires the same PR to modify BOTH the root file and the detailed mirror in lock-step. A PR that modifies one without the other is a discipline failure caught by the gate. The opt-out trailer still applies (a single trailer satisfies the gate regardless of split).
 - Fails closed: if the gate cannot determine whether an entry was added, it blocks the PR. Ambiguity is not approval.
 
 ### The link-coverage gate
@@ -131,6 +141,22 @@ Document repositories have a stronger discipline than code repositories because 
 - The CHANGELOG entry references the document by path and quotes the new version.
 - A version-monotonicity audit verifies that per-document versions only increase.
 - A citation-currency audit verifies that external standards references are not stale.
+
+### Two-file split workflow
+
+When the project uses the two-file split (root file plus a detailed mirror at a project-specific location), a PR author writes both halves in the same commit:
+
+1. **Write the full structured entry at the top of the detailed mirror file.** Include the date-version-PR header, the lead paragraph, then the full `### Added / ### Changed / ### Removed / ### Fixed / ### Security / ### Verification` sections plus any discipline observations or design-rationale sections.
+2. **Write the lead paragraph only at the top of the root file.** Use the same date-version-PR header and the same lead-paragraph wording as the detailed entry. Do NOT carry the structured sections into the root file; they belong only in the detailed mirror.
+3. **Both files land in the same commit.** The PR-time delta gate enforces lock-step (modifying one without the other fails the gate). The `Changelog: skip` trailer still applies and satisfies the gate regardless of split.
+
+Adopter forks may choose any of these shapes:
+
+- **Single-file**: abandon the split; keep everything in root `CHANGELOG.md`. The rule's content requirements (items 1-7) all apply to the root file in this case.
+- **Two-file at a different location**: relocate the detailed mirror to wherever fits the fork's structure. Update the PR-time delta gate's path constant accordingly.
+- **No detailed mirror**: rely on git history for full audit trail and keep root file as lead-paragraph summaries only. Document this choice in the fork's CONTRIBUTING.md.
+
+The choice is project-specific; the rule does not mandate one shape. The discipline being enforced is "every substantive PR produces a discoverable entry with the required content placed somewhere", not "every project uses the same file layout".
 
 ---
 
