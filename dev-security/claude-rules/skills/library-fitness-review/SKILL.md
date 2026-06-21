@@ -81,9 +81,31 @@ Apply a six-step synthesis rubric (mirrors the validation-sweep's synthesis disc
 
 **4.6. Dispatch declaration recorded**: the history-row's `Personas` column declares which personas were dispatched. Per the discipline mirrored from `validation-sweep` Rule 5.6, silent absence cannot be reconstructed; the dispatch declaration is the auditable trail.
 
-### 5. Triage and severity-tier action
+### 5. Verify findings, then triage by severity tier
 
-For each synthesised finding:
+Subagent findings are *unverified by default*. Persona subagents return what their fresh-reader judgement surfaced; the synthesis at step 4 deduplicates and tags by `R|I|K` provenance but does not itself re-read the cited evidence. The verification discipline added at PR #139 catches the failure mode where a synthesis-stage approximation propagates downstream as if confirmed (the precedent: PR #124's "95 unique findings, 18 H[critical] / 22 H / 31 M / 24 L" wording, corrected to the mechanical tabulation 111 / 17 / 20 / 57 / 17 in PR #127; the same failure mode at finding-content granularity would be worse).
+
+Step 5 therefore runs in four sub-steps before any finding lands in the remediation backlog:
+
+**5.1. Output the report with all findings marked `unverified`**. Every per-page finding row in §3 (Page-by-Page Findings) carries an explicit `verification: unverified` annotation at the time the report is written. The `## Remediation Backlog` §8 entries inherit the same annotation. Severity is still tagged (so prioritization can begin) but no finding is treated as actionable until Pass-1 confirms it.
+
+**5.2. Pass-1, orchestrator verification**. The orchestrator (not a subagent) re-reads each cited source location for every finding and applies one of four verdict tags:
+
+- `✅ confirmed-as-stated`: the finding's evidence quote matches the source verbatim and the interpretation is sound.
+- `⚠️ confirmed-with-modification`: the underlying issue is real but the persona's framing is partially off (wrong line number, mis-attributed quote, scope drift); the modification is recorded inline.
+- `❌ rejected`: the cited evidence does not support the finding, or the persona's interpretation is incorrect; rejection rationale is recorded inline.
+- `🤔 ambiguous-needs-maintainer`: the finding is plausible but turns on a judgement the orchestrator cannot make autonomously (a content-policy decision, a domain-specific accuracy call); the ambiguity is captured for Pass-2.
+
+Pass-1 updates the report file in place: each finding's `verification:` annotation flips from `unverified` to one of the four verdict tags. Pass-1 runs in a single sweep through the report; it is not a per-finding interactive loop.
+
+**5.3. Pass-2, maintainer-interactive bucket processing**. The orchestrator surfaces the four tag buckets to the maintainer in chat:
+
+- The `✅` cluster: confirmed-as-stated findings are presented as a batch summary (count, severity distribution, file locations); the maintainer issues a single confirmation to accept the batch.
+- The `⚠️` cluster: each confirmed-with-modification finding gets a per-finding prompt with the orchestrator's recommended adjustment plus alternative framings; the maintainer picks one or types a custom resolution.
+- The `🤔` cluster: each ambiguous finding gets a per-finding prompt with the orchestrator's analysis and the open question; the maintainer resolves to `✅`, `❌`, or "defer (open follow-up)".
+- The `❌` cluster: rejected findings are presented as a batch with their rejection rationales; the maintainer either accepts the orchestrator's rejection or escalates a specific finding back to `✅` or `🤔`.
+
+**5.4. Triage and severity-tier action for confirmed findings only**. Findings that ended Pass-2 as `✅` (or `⚠️` with maintainer-accepted modification) become actionable items:
 
 - **High `[critical]`** (audit failure / regulatory exposure / control failure class) → must-fix-before-next-major-reliance-event; surfaces immediately to the maintainer as a priority backlog item; if remediation is small, may be bundled with the fitness-review close-out PR.
 - **High** → must-fix-this-quarter; goes into the remediation backlog with a recommended deadline.
@@ -91,7 +113,9 @@ For each synthesised finding:
 - **Low** → editorial; queue for the next routine cleanup PR.
 - **FYI** → informational; recorded in the report but not in the remediation backlog.
 
-The fitness review does not auto-defer findings to FYI. Every finding the synthesis surfaces gets an explicit severity-tier action.
+The fitness review does not auto-defer findings to FYI. Every confirmed finding gets an explicit severity-tier action. Rejected findings are recorded in the report (with rationale) but excluded from the backlog.
+
+**Confirmed findings produce TODO entries** carrying the `FR-<n>` ID, the originating run reference (`r1`, `r2`, ...), and the Pass-2 verification date. The TODO entry is the bridge between the fitness-review report and the project's PR queue.
 
 ### 6. Write the combined report
 
