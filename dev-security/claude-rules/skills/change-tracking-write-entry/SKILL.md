@@ -1,6 +1,6 @@
 ---
 name: change-tracking-write-entry
-description: Composes a CHANGELOG entry (or the documented Changelog skip trailer) for a PR. Use when about to commit, open a PR, or finalize a change to user-visible content. Use also when about to claim a change does not need an entry, since the skip trailer is the only sanctioned silence. The entry's required parts (date-and-version header, structured Keep a Changelog sections, file references as markdown links, the "why" not just the "what", verification evidence, phase context) are walked step by step so an entry that would fail the link-coverage gate, the version-monotonicity audit, or the D1 delta gate is caught at the draft stage rather than at CI.
+description: Composes a CHANGELOG entry (substantive or terse form) for a PR. Use when about to commit, open a PR, or finalize a change. Every PR carries an entry, even if terse; there is no skip path. The entry's required parts (date-and-version header, structured Keep a Changelog sections for substantive entries, file references as markdown links, the "why" not just the "what", verification evidence, phase context) are walked step by step so an entry that would fail the link-coverage gate, the version-monotonicity audit, or the D1 delta gate is caught at the draft stage rather than at CI.
 derives_from: ../../governance/change-tracking.md
 ---
 
@@ -10,13 +10,13 @@ derives_from: ../../governance/change-tracking.md
 
 A CHANGELOG entry is the cheapest form of long-term institutional memory a project has. This skill runs the entry-writing workflow from the canonical rule [`governance/change-tracking.md`](../../governance/change-tracking.md) so an entry that satisfies the rule's contract (and the gates that enforce it) is composed in one pass rather than refined through CI failures.
 
-The rule is the source of truth for normative content (what counts as user-visible content, what the opt-out path is, what the CI gates require, what exception-handling looks like). This skill is the workflow wrapper: when to invoke the protocol, in what order to execute each step, and how to verify the entry before commit.
+The rule is the source of truth for normative content (what counts as user-visible content, what the terse-entry convention allows for ancillary changes, what the CI gates require, what exception-handling looks like). This skill is the workflow wrapper: when to invoke the protocol, in what order to execute each step, and how to verify the entry before commit.
 
 ## When to Use
 
-- Before composing the commit message and PR description that close out a change to user-visible content (a public artefact, an API surface, an observable behaviour, configuration that ships to consumers).
-- Before pushing a PR that touches the project's document corpus, schema files, public-facing prose, or any artefact a downstream reader cites.
-- Before claiming a change does not need a CHANGELOG entry. Skipping silently is forbidden; the only sanctioned silence is the `Changelog: skip (reason: ...)` trailer with a documented rationale.
+- Before composing the commit message and PR description that close out any PR. Every PR carries an entry; the skill applies regardless of substantive scope.
+- Before pushing a PR that touches the project's document corpus, schema files, public-facing prose, or any artefact a downstream reader cites (substantive entry).
+- Before pushing a PR that touches only internal tooling, AI-assistant guidance (`.claude/`), working-state ledgers (`.working/`), or other ancillary surfaces (terse entry).
 - When CI's delta gate, link-coverage gate, or version-monotonicity audit flags a missing or malformed entry. The fix is to write or correct the entry, not to weaken the gate.
 - When opening a multi-PR rollout where each PR will land its own entry with phase context that connects them.
 
@@ -24,10 +24,10 @@ The rule is the source of truth for normative content (what counts as user-visib
 
 The entry-writing workflow from the canonical rule, executed in order:
 
-1. **Classify the change**. Is the work in scope for an entry, or does it qualify for the skip trailer?
-   - **Entry required** when the change adds, removes, or alters a public artefact; could surprise a downstream consumer who updated without reading the entry; or will be cited later in answering "when did this happen?" / "why does this work this way?".
-   - **Skip trailer permitted** when the change is internal tooling invisible to users (CI runner bumps, dev-dependency lockfile-only updates), a pure refactor with no behavioural change, or a typo fix in a non-citable string. If skipping, draft the trailer with a one-line rationale; the trailer is logged as audit evidence the same way an entry is.
-   - **When in doubt, write the entry.** The cost of an unneeded entry is small; the cost of a silently-missed entry compounds.
+1. **Classify the change shape**. Substantive entry, or terse entry? Every PR gets one of the two; there is no skip path.
+   - **Substantive entry** when the change adds, removes, or alters a public artefact; could surprise a downstream consumer; ships behaviour change; carries a discipline lesson worth recording; or will be cited later in answering "when did this happen?" / "why does this work this way?". Use the full date-and-version header plus structured Keep a Changelog sections.
+   - **Terse entry** when the change is internal tooling invisible to adopters (changes under `.claude/`, working-state-only edits under `.working/`), a pure refactor with no behavioural change, or a typo fix in a non-citable string. Use the date-and-version header plus a single sentence describing what was accomplished.
+   - **When in doubt, write the substantive entry.** The cost of an unnecessarily detailed entry is small; the cost of a thin entry on a change that turns out to matter compounds.
 
 2. **Choose the date and version**. Use the project's existing convention (CalVer, SemVer, monotonic integer). The version must strictly increase over the prior entry; merge-conflict resolutions that drop a version bump are the failure mode the version-monotonicity audit catches. The date pins the entry to wall-clock time.
 
@@ -45,15 +45,23 @@ The entry-writing workflow from the canonical rule, executed in order:
 
 9. **Re-read the entry once before committing**. Catch the stale claims now: a file mentioned in the title that the diff did not touch; a version number that does not match the heading; a section heading that misclassifies the change.
 
-## Skip Trailer Discipline
+## Terse Entry Discipline
 
-When the change qualifies for the skip trailer, the message footer (commit message or PR description) carries:
+When the change qualifies for the terse form, the entry is the date-and-version header followed by a single sentence describing what was accomplished. No structured sections, no file links, no verification block.
+
+Terse-entry shape:
 
 ```
-Changelog: skip (reason: <one-line rationale>)
+## YYYY-MM-DD, Library Version X.Y.Z, PR #N
+
+[scope] for local project: [one sentence on what was accomplished].
 ```
 
-The trailer is parsed by `git interpret-trailers --parse` and indexed for later audit. Reviewers who see `Changelog: skip` on a behaviour-changing PR are expected to reject it and require an entry; the trailer is not a free pass.
+Example: ``.claude/ changes for local project: added a `## Version-bump discipline` section to CLAUDE.md codifying when each version surface bumps across a multi-commit PR.``
+
+Reviewers who see a terse entry on a behaviour-changing PR are expected to reject it and require the substantive form. Terse is the floor for ancillary changes, not the ceiling: when a discipline lesson is worth recording, escalate to substantive even when the surface scope is small.
+
+The two-file split applies regardless of shape: a terse entry in the root `CHANGELOG.md` is paired with a terse entry (with optionally a few extra sentences of context) in the detailed mirror. Match the shape on both surfaces.
 
 ## Red Flags
 
@@ -63,7 +71,8 @@ The trailer is parsed by `git interpret-trailers --parse` and indexed for later 
 - Copying the commit message verbatim into the entry. The audiences are different: the commit message is for the reviewer; the entry is for everyone who reads the project later.
 - "I'll add the entry in a follow-up PR." The discipline is per-PR; follow-up entries decouple the change from its description and erode the audit trail.
 - Bypassing the delta gate with `git commit --no-verify`. See the gate-discipline rule: never weaken a gate to silence a failure.
-- Adding a `Changelog: skip` trailer to a behaviour-changing PR. The trailer is for internal tooling and non-user-visible changes; misuse defeats the audit trail.
+- Using a terse entry on a behaviour-changing PR. The terse form is for ancillary changes (internal tooling, working-state housekeeping, pure refactors); behaviour change demands the substantive form so the discipline lesson and verification evidence are recorded.
+- Adding a `Changelog: skip` trailer to any PR. The rule no longer sanctions the skip pattern; the terse-entry convention replaces it.
 
 ## Verification
 
@@ -78,7 +87,7 @@ The entry is ready when:
 - Phase context is attached for multi-PR rollouts.
 - A re-read has found no stale claims.
 
-For skip-trailer PRs the verification is shorter: the trailer is present, the reason is documented in one line, and the reviewer has confirmed the skip is appropriate for the change class.
+For terse-entry PRs the verification is shorter: the date-and-version header is present; one sentence describes what was accomplished; the entry is paired in both root `CHANGELOG.md` and the detailed mirror; and the reviewer has confirmed terse is appropriate for the change class.
 
 ## Common Rationalizations
 
@@ -88,7 +97,7 @@ For skip-trailer PRs the verification is shorter: the trailer is present, the re
 | "I'll roll up several PRs into one entry at release time." | The per-PR gate prevents this; do not defer entries to work around it. |
 | "Adding an entry is bureaucratic overhead." | The cost is paid once by the author. The cost of *not* having an entry compounds across every future reader. |
 | "The reviewer can read the diff if they want context." | The reviewer of this PR can. The reader two years from now cannot, because the PR thread is buried. |
-| "It is just a refactor; no entry needed." | If the refactor changes a public API or observable behaviour, it needs an entry. Pure internal refactors qualify for the skip trailer with a documented reason. |
+| "It is just a refactor; no entry needed." | If the refactor changes a public API or observable behaviour, it needs a substantive entry. Pure internal refactors qualify for the terse-entry form; every PR carries an entry. |
 
 ## See Also
 

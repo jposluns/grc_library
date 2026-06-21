@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #174 — Retire CHANGELOG skip trailer; adopt terse-entry convention; reshape DONE as scrolling battle-text (2026-06-21)
+
+Replaced the `Changelog: skip` opt-out in the change-tracking pack rule with a terse-entry convention (every PR carries an entry, even if a one-liner); reshaped the DONE-ledger guidance to 1-2 sentences, no links, at-a-glance index rather than CHANGELOG duplicate.
+
 ### PR #173 — CHANGELOG backfill for PRs #170 and #171 (2026-06-21)
 
 Not previously in TODO; surfaced during the PR #172 close-out when the maintainer noticed CHANGELOG.md jumped from PR #169 to PR #172, with no entries for the two `.claude/`-only PRs that shipped in between. Both PRs originally used `Changelog: skip` trailers per the (then-active) `.claude/` directory exemption; the maintainer rejected the gap and updated the audit-trail discipline so every PR carries an entry, with `.claude/`-only changes permitted to use a terse one-liner. This PR repairs the gap: one-line entries added to [`CHANGELOG.md`](../CHANGELOG.md) for PRs #170 (three-surface version-bump discipline) and #171 (PR-activity-subscription + 60s-timer discipline), with corresponding detailed entries in [`.working/changelog-details/CHANGELOG-detailed.md`](changelog-details/CHANGELOG-detailed.md). The PR also adds its own one-liner self-entry per the new discipline (every PR carries an entry, including this one). The corresponding pack-rule adjustment in [`.claude/rules/governance/change-tracking.md`](../.claude/rules/governance/change-tracking.md) is queued as PR #174 (split per "when in doubt, split").
