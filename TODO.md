@@ -10,8 +10,8 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #161 merge).
-- **Library version as of last refresh**: `2026.06.143`. **Pack version**: `1.34.0`. **README version**: `1.9.14`.
+- **Branch at last refresh**: `main` (synced after PR #162 merge).
+- **Library version as of last refresh**: `2026.06.144`. **Pack version**: `1.34.0`. **README version**: `1.9.15`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
 - **Last validation sweep**: Sweep 14 iteration 1 (close-out PR #160).
 
@@ -52,10 +52,9 @@ Resolved from `🤔` to `✅` in Pass-2 with a library-wide propagation plan:
   - Or a documented standard in `governance/` (`standard-maturity-tier-vocabulary.md`) that other documents cite.
 - Severity: High[critical] (was high[critical]). Originating run: r1.
 
-### High[critical] tier — 12 findings (immediate priority)
+### High[critical] tier — 11 findings (immediate priority)
 
 - **FR-14** (maturity ladder): see Special section above.
-- **FR-29** (`privacy/procedure-privacy-impact-and-cross-border-transfer.md`): DPIA methodology and trigger checklist absent. Ship `privacy/template-dpia.md` with Article 35 trigger checklist + EDPB nine-criteria + Article 35(7) content checklist.
 - **FR-30** (privacy + supply-chain): No standalone Article 28 DPA template. Ship `privacy/template-dpa-article-28.md`.
 - **FR-31** (privacy): Privacy by Design (Article 25) has no operational artefact. Ship `privacy/framework-privacy-by-design.md` mapping seven foundational principles to architecture/dev-security workflows.
 - **FR-32** (privacy): No Legitimate Interest Assessment template. Ship `privacy/template-legitimate-interest-assessment.md`.
@@ -112,9 +111,9 @@ Cross-reference only. No immediate-priority action; queue for a routine cleanup 
 
 ### Backlog totals
 
-- 12 + 7 + 56 = **75 immediate-priority findings** (High[critical], High, Medium tiers)
+- 11 + 7 + 56 = **74 immediate-priority findings** (High[critical], High, Medium tiers)
 - **14 deferred** (Low tier)
-- **89 open** (22 closed across PRs #142-#161). Total surfaced in r1: 111.
+- **88 open** (23 closed across PRs #142-#162). Total surfaced in r1: 111.
 
 ### FR-44 follow-up
 

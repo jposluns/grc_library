@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Domain README\
 **Document Type:** Register\
-**Version:** 1.1.1\
-**Date:** 2026-05-28\
+**Version:** 1.1.2\
+**Date:** 2026-06-21\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -41,6 +41,7 @@ This directory contains privacy governance artefacts covering data protection po
 | Template | Record of Processing Activities Template | [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md) |
 | Template | Privacy Notice Template | [`privacy/template-privacy-notice.md`](template-privacy-notice.md) |
 | Template | Data Subject Access Request Workflow Template | [`privacy/template-dsar-workflow.md`](template-dsar-workflow.md) |
+| Template | DPIA (Data Protection Impact Assessment) Template | [`privacy/template-dpia.md`](template-dpia.md) |
 
 ### Deprecated documents (retained for redirect)
 
