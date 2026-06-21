@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.29.0\
+**Version:** 1.30.0\
 **Date:** 2026-06-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -88,7 +88,8 @@ claude-rules/
 │   ├── validation-sweep/SKILL.md                      Corpus-wide regression sweep as a follow-up after any issue identified and corrected; loops until clean
 │   ├── citation-quote-verification/SKILL.md           Verify cited quotes match source text at the cited location; catches what citation-format and currency linters cannot
 │   ├── fresh-reader-validation/SKILL.md               Dispatch a fresh subagent to read a new or substantively-revised document and surface tacit-context gaps
-│   └── skill-authoring-discipline/SKILL.md            Apply the pack's structural template and validate trigger accuracy when adding a new skill
+│   ├── skill-authoring-discipline/SKILL.md            Apply the pack's structural template and validate trigger accuracy when adding a new skill
+│   └── library-fitness-review/SKILL.md                Whole-corpus library-quality review with ten persona reviewers; periodic deliverable, not a per-PR gate
 └── languages/
     ├── python.md                Python-specific security patterns and anti-patterns
     ├── typescript.md            TypeScript / Node.js security patterns
@@ -431,6 +432,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.30.0 | 2026.06.105 | 2026-06-21 | Added `skills/library-fitness-review`: comprehensive whole-corpus library-quality review with ten persona reviewers (executive, security practitioner, GRC practitioner, auditor, policy editor, process owner, skeptical reader, adoption practitioner, privacy officer, newcomer). Periodic deliverable (after major changes or quarterly), not a per-PR gate. Output is an 8-section combined report with a discrete remediation backlog. Complements `validation-sweep` (per-PR regression check); the two are not substitutes |
 | 1.29.0 | 2026.06.104 | 2026-06-21 | `validation-sweep` skill steps 8 and 9 restructured: step 8 now writes a history-table row on every iteration (new `Subagents` column per Rule 5.6); step 9 writes a per-iteration detail file only when findings exist (zero-finding iterations leave only a row in the history table). This is the canonical convention for any `.working/<activity>/` subdirectory going forward: `README.md` for static convention info, `history.md` for the cumulative reverse-chronological table, `<dated>.md` files for per-run detail when findings exist |
 | 1.28.2 | 2026.06.103 | 2026-06-21 | Sweep 10 iter 1 close-out: stale step-count narratives in `validation-sweep` SKILL.md (step intro "seven steps" → "nine steps") and in the `/validate` slash command preamble ("eight-step" → "nine-step"); stale "Four rules, no ceremony" in step 5 intro → "Six rules" (Rules 5.1-5.6 exist); awkward possessive on closing parenthesis at step 5 cross-reference; section-header convention drift across the three per-iteration-record-spec surfaces (SKILL.md / slash command / `.working/validate-sweeps/README.md`) reconciled to comma form |
 | 1.28.1 | 2026.06.102 | 2026-06-21 | `validation-sweep` skill steps 5 and 8 updated for the relocation of the project's sweep history file from `governance/register-sweep-history.md` to `.working/validate-sweeps-history.md` (the file is project-specific application of the discipline, not template content; SKILL.md now uses path-agnostic language). No process change |

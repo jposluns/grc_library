@@ -4,6 +4,40 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.105, PR #120
+
+Adds a new `library-fitness-review` skill to the `dev-security/claude-rules/` pack, invoked via the `/fitness` slash command. The skill is a comprehensive whole-corpus library-quality review dispatching ten persona reviewers in parallel (executive, security practitioner, GRC practitioner, auditor, policy editor, process owner, skeptical reader, adoption practitioner, privacy officer, newcomer). Designed as a periodic deliverable (after major changes or quarterly minimum), not a per-PR gate; complements the per-PR `validation-sweep` skill (`/validate`). Output is an 8-section combined report with a discrete remediation backlog. This PR was authored end-to-end during an overnight session under explicit maintainer authorisation; see [`.working/overnight-pr.md`](.working/overnight-pr.md) for the decision log.
+
+### Added
+
+- [`dev-security/claude-rules/skills/library-fitness-review/SKILL.md`](dev-security/claude-rules/skills/library-fitness-review/SKILL.md) (new, version 1.0.0): the skill following [`skill-authoring-discipline`](dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md)'s eight-section structural template. Frontmatter `derives_from` points at [`evidence-grounded-completion`](dev-security/claude-rules/governance/evidence-grounded-completion.md) (the same parent as `validation-sweep`); the discipline this skill operationalises is fresh-reader review at corpus scope across ten persona lenses.
+- [`.claude/commands/fitness.md`](.claude/commands/fitness.md) (new): slash-command wrapping the skill. Nine-step process matching the SKILL.md's Process section.
+- [`.working/fitness-reviews/`](.working/fitness-reviews/) (new activity directory, canonical `.working/<activity>/` layout per PR #118):
+  - [`.working/fitness-reviews/README.md`](.working/fitness-reviews/README.md) — static convention info: per-run file format spec (8 H2 sections), ten-persona catalogue with scope and focus questions per persona, severity model (SARIF-lite + `[critical]` flag inside High), output flow, audit-gate exemption, adopter guidance, framework alignment.
+  - [`.working/fitness-reviews/history.md`](.working/fitness-reviews/history.md) — empty cumulative table with column headers (Date / Run / Personas / Findings / Resulting PR / Detail / Summary) and an empty Open remediation backlog table.
+
+### Changed
+
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.29.0 -> 1.30.0`; directory tree row added for the new skill; version-history row added.
+- [`tools/lint-paired-skill-step-parity.py`](tools/lint-paired-skill-step-parity.py): `PAIRS` table extended with the new skill-and-command pair so gate 44 enforces step-identifier parity between SKILL.md and slash command.
+- [`.working/README.md`](.working/README.md): activity table row added for the new fitness-reviews activity.
+- [`README.md`](README.md): library version `2026.06.104 -> 2026.06.105`; README version `1.8.60 -> 1.8.61`.
+
+### Design decisions (full rationale in [`.working/overnight-pr.md`](.working/overnight-pr.md))
+
+- **Ten personas, not seven**: the original prompt specified seven; this implementation expands to ten by adding adoption practitioner (closest to library's real use case), privacy officer (privacy is a large library surface), and newcomer (true zero-knowledge complement to executive). Each addition is justified in [`.working/overnight-pr.md`](.working/overnight-pr.md). Capped at 10 to avoid synthesis-complexity inflation and per-persona focus dilution.
+- **Severity model**: SARIF-lite (High/Medium/Low/FYI) with `[critical]` as a flag inside High for audit-failure / regulatory-exposure / control-failure class findings. Does not introduce a second severity scale.
+- **Output**: single combined file per run with eight H2 sections (Executive Summary, Review Method, Page-by-Page Findings, Cross-Library Findings, Severity Model, Recommendations, Standardization Recommendations, Remediation Backlog). Optional Final Assessment section as a coda. Only written when findings exist; zero-finding runs leave only a history-row trace.
+- **No mechanical gate enforces fitness-review pass**: the skill produces a deliverable, not a per-PR gate. Output informs human prioritisation; remediation IDs (`FR-1`, `FR-2`, ...) drive subsequent PRs.
+
+### Verification
+
+All 44 audit gates pass standalone post-commit. Gate 44 (paired-skill step-parity) confirms SKILL.md and slash command files have matching step-identifier sets. Gate 41 (collection-enumeration consistency) confirms the new skill in the pack tree matches the skills directory. Skill-authoring-discipline's eight-section structural template followed (frontmatter with `name`/`description`/`derives_from`; H1 title; Overview / When to Use / Process / Red Flags / Verification / Common Rationalizations / See Also).
+
+The skill has not yet been invoked against the corpus; its first run will be the validation reference. This PR ships the capability; the first `/fitness` invocation is a separate maintainer action.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.104, PR #118
 
 Restructured `.working/validate-sweeps/` to the canonical `<activity>/{README,history,detail-files}` layout that becomes the standard for any `.working/<activity>/` subdirectory going forward. The validation-sweep history file moves into the subdirectory; verbose static content (failure-mode taxonomy, maintenance protocol, accept-list rules, dating discipline, framework alignment) moves to the subdirectory's README; the history file becomes a slim reverse-chronological table; per-iteration detail files are created only when findings exist.
