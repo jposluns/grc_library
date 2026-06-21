@@ -298,15 +298,27 @@ pack, CC BY-SA 4.0):
   corpus-state) without validating; each inference cascaded into downstream rework.
   The immediate trigger was a fix-completeness inference (PR #111's close-out
   inferring the fix complete after one occurrence) that Sweep 9 iteration 2 caught.
+- `.claude/rules/governance/ai-assistant-workflow-disciplines.md` — five disciplines
+  for an AI assistant driving multi-PR work: (1) research-assistant discipline
+  (workers produce research, orchestrator authors final prose, claims verified at
+  apply-time); (2) pipeline PR construction (parallel research, serial apply, CI
+  gating between PRs); (3) apply-time worker correction (catch worker errors at
+  apply-time, document them in the entry); (4) "always split when in doubt"
+  (default to separate PRs unless tightly coherent); (5) background work during CI
+  waits (read-only prep on the next PR). This project tracks the apply-time-catch
+  vs shipped-escape ratio in [`.working/hallucination-metrics.md`](../.working/hallucination-metrics.md)
+  as the project-specific instantiation of the research-assistant discipline's
+  tracking convention.
 
 The `dev-security/claude-rules/` pack covers security and development-governance
 discipline. The initial governance rollout completed at pack version 1.11.0
 (2026-06-01) with the first five `governance/` rules listed above; pack version
 1.21.0 (Library 2026.06.38) extended the set with the sixth rule; pack version
-1.27.0 added the seventh rule (`validate-inference-before-action.md`). See
-`dev-security/claude-rules/README.md` for the authoritative pack version history
-and future-work signalling. Pack changes are tracked through the library's
-CHANGELOG and per-rule version metadata.
+1.27.0 added the seventh rule (`validate-inference-before-action.md`); pack
+version 1.36.0 added the eighth rule (`ai-assistant-workflow-disciplines.md`).
+See `dev-security/claude-rules/README.md` for the authoritative pack version
+history and future-work signalling. Pack changes are tracked through the
+library's CHANGELOG and per-rule version metadata.
 
 The GRC Library pack above is the **primary** source. `.claude/rules/external/` holds a
 **supplementary** overlay from third-party sources (TikiTribe, Kariedo, addyosmani — all

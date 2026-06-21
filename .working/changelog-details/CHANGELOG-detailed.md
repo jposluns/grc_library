@@ -6,6 +6,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.155, PR #176
+
+Added a new pack rule documenting five process disciplines an AI coding assistant follows when driving multi-PR work over a long session. The disciplines were memory-only at the time of the PR-#175 close-out: the user asked the orchestrator to enumerate what processes it follows that aren't documented anywhere, and to advise on a documentation plan. The orchestrator surfaced five Class-A items (research-assistant discipline; pipeline PR construction; apply-time worker correction; "always split when in doubt"; background work during CI waits) and one Class-B item (worker hallucination escape rate as a tracking metric). The maintainer accepted the new-pack-rule recommendation for Class A and confirmed the metric file's naming and location.
+
+### Added
+
+- [`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`](../../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md): new pack rule, eighth in the governance set. Five top-level sections (one per discipline) plus an Overview, a Prohibited anti-patterns section, a Framework alignment table, and a "Why this rule exists" closing section that names the failure mode each discipline addresses. Project-agnostic; the rule fires whenever an AI assistant drives substantive multi-PR work with research helpers and CI gating.
+- [`.claude/rules/governance/ai-assistant-workflow-disciplines.md`](../../.claude/rules/governance/ai-assistant-workflow-disciplines.md): synced verbatim from the pack source (the gate-37 audit confirms byte-for-byte identity).
+- [`.working/hallucination-metrics.md`](../hallucination-metrics.md): project-specific tracking artefact for the research-assistant discipline's catch / escape ratio. Initial state seeded with the known catches (FR-3 PR cross-reference in PR #172, stale version numbers in PR #172, P1.3 file-path confabulation in PR #169) and the one known shipped escape (ISO/IEC 29134 year, original PR #162, corrected in PR #167's Sweep 15 close-out). Update protocol documented inline; the file is maintainer working state, not a versioned corpus document.
+
+### Changed
+
+- [`tools/lint-claude-rules-sync.py`](../../tools/lint-claude-rules-sync.py): added a new mapping entry for the rule's pack-to-local mirroring. Gate 37 now covers 11 rule pairs (up from 10).
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): pack version `1.35.0 → 1.36.0`; new version-history table row; directory-tree inventory under `governance/` extended with the new file; "Available rules" table extended with the new row; the "Development-governance discipline" bullet in `## What are these files?` extended to enumerate the new discipline class.
+- [`dev-security/claude-rules/CLAUDE.md`](../../dev-security/claude-rules/CLAUDE.md): added a multi-line summary of the new rule in `## Development-governance discipline`'s rule list; extended the rollout-history paragraph noting that pack 1.36.0 added the eighth rule.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): added the matching one-line summary in `## Security and governance requirements`, including the project-local cross-reference to [`.working/hallucination-metrics.md`](../hallucination-metrics.md); extended the rollout-history paragraph in the same file to include pack 1.36.0.
+- [`README.md`](../../README.md): library `2026.06.154 → 2026.06.155`; README `1.9.25 → 1.9.26`.
+- [`TODO.md`](../../TODO.md): session-resume snapshot updated.
+- [`.working/DONE.md`](../DONE.md): PR #176 entry added (terse form per the new convention from PR #174).
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates against the committed state.
+- `tools/run-pr-time-checks.sh` exits 0 (D1, D2, gate 45).
+- `tools/lint-claude-rules-sync.py` (gate 37) exits 0 across 11 rule pairs; the new pair's mapping is verified byte-for-byte.
+
+### Discipline observation
+
+This PR documents the discipline it was authored under. The orchestrator dispatched no worker for this PR (the content was synthesised from session memory in response to the maintainer's "enumerate your memory-only processes" prompt); the orchestrator's own draft was therefore the only source, with no apply-time worker corrections to track. The first PR to ship under the documented disciplines that involves a worker draft will be the test case for whether the documentation matches the actual workflow.
+
 ## 2026-06-21, Library Version 2026.06.154, PR #175
 
 `.working/` changes for local project: retroactively shortened every existing entry in [`.working/DONE.md`](../DONE.md) to the 1-2-sentence, no-links, no-version-bumps "scrolling battle-text" shape adopted in PR #174. Approximately 76 entries condensed from multi-sentence paragraphs with file links and version-bump notes down to single-sentence headlines focused on what was accomplished. The PR #174 entry's own DONE entry (already written in the new shape) and PR #175's self-entry serve as the worked examples of the new convention; this PR is the retroactive application to history. The DONE file's preamble is also updated to describe the new convention (replacing the prior "one paragraph" guidance with the 1-2-sentence "scrolling battle-text" framing). Library version unchanged from PR #174 (`2026.06.154`); no per-doc bumps (the file changed is maintainer working state, not a versioned corpus document).

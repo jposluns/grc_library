@@ -1,0 +1,194 @@
+# AI Assistant Workflow Disciplines
+
+When an AI coding assistant drives multi-PR work over a long session (a remediation backlog, a phased migration, a corpus-wide cleanup), five related disciplines govern how the work is structured. They share a theme: the orchestrator (the assistant doing the writing) partners with research helpers (subagents producing draft content) across many PRs, and the discipline that keeps the work honest spans the worker-orchestrator boundary, the per-PR cadence, the apply-time verification step, and the use of CI-wait windows.
+
+This rule applies to any project where an AI assistant ships substantive work across multiple PRs with research helpers, CI gating, and a maintainer in the loop. The disciplines are project-agnostic; the failure modes they prevent are observed across projects.
+
+The five disciplines:
+
+1. **Research-assistant discipline.** Workers produce research; the orchestrator authors all final prose.
+2. **Pipeline PR construction.** Parallel research, serial application, CI between each PR.
+3. **Apply-time worker correction.** Catch worker errors at apply-time, document them in the entry.
+4. **Always split when in doubt.** Default to splitting changes into separate PRs unless they're tightly coherent.
+5. **Background work during CI waits.** Use the wait window for read-only prep on the next PR.
+
+---
+
+## 1. Research-assistant discipline
+
+The orchestrator dispatches background workers (subagents) to produce research files for upcoming PRs. The research file is **information**, not **final prose**: it surfaces quoted lines from target files, proposes edit shapes, drafts CHANGELOG/DONE bodies, and notes caveats. The orchestrator reads the research file as input, then **independently re-reads every target file**, verifies every worker claim against the live file state, and authors the final prose.
+
+The orchestrator does not paste worker prose into the corpus unmodified. The orchestrator's job is to verify, correct, and integrate; the worker's job is to surface candidates.
+
+### Why the discipline exists
+
+A worker that drafts an entire PR's prose creates two failure modes:
+
+1. **Confabulation.** The worker references a file that does not exist, an FR cross-reference that's wrong, a version number that's stale, or a quoted line that the file does not actually contain. The orchestrator pasting worker prose unverified ships the confabulation.
+2. **Style drift.** The worker's prose voice differs from the project's voice. Over many PRs, this drift compounds.
+
+The research-assistant discipline closes both. The orchestrator re-reading target files catches confabulations; the orchestrator authoring final prose keeps voice consistent.
+
+### The verification protocol
+
+For each worker claim that's about to ship in the final PR:
+
+1. **Quoted lines from target files.** The orchestrator opens the file and confirms the quoted lines match. If the worker drafted against a stale revision, the orchestrator reconciles to current state.
+2. **File paths.** The orchestrator confirms the referenced file actually exists. A `find` or `Glob` is enough.
+3. **Cross-references to other PRs / FRs.** The orchestrator opens the closed-PR ledger or the relevant register and confirms the referenced item. A worker drafting "FR-3 closed in PR #158" is verified by checking the closed-PR ledger; if the actual closing PR is #147, the orchestrator corrects.
+4. **Version numbers.** The orchestrator confirms current per-document and library versions against the live file state. Worker drafts from earlier in the session may carry stale version numbers.
+5. **External-standard citations.** The orchestrator confirms the standard's year, edition, and identifier against the project's canonical-citations register or against external sources via WebFetch / verified MCP tools.
+
+A worker claim that survives this verification is allowed into the final prose; a claim that does not is corrected before commit.
+
+### Tracking corrections
+
+When the orchestrator catches a worker error at apply-time and corrects it, the correction is documented in the CHANGELOG-detailed entry under a "Discipline observation" or equivalent section. The pattern:
+
+```
+[Number] corrections to the worker draft were applied at apply-time:
+(1) [what was wrong; what was corrected];
+(2) [what was wrong; what was corrected].
+```
+
+The audit trail of corrections accumulates across PRs as a signal of whether the research-assistant discipline is producing quality input. A rising correction rate suggests the worker prompt needs tightening; a falling rate suggests the discipline is converging.
+
+---
+
+## 2. Pipeline PR construction
+
+When an AI assistant drives a backlog of related PRs (a remediation queue, a phased rollout), the work pipelines naturally:
+
+- **Stage 1 (parallel)**: dispatch background workers in parallel to produce research files for the next N PRs (default: enough to keep the orchestrator's apply-queue non-empty).
+- **Stage 2 (serial)**: the orchestrator applies one research file at a time, authoring final prose, running audits, committing, pushing, opening the PR.
+- **Stage 3 (gating)**: the PR's CI must complete and the merge must land before the orchestrator starts the next apply. The next research file is already prepared; the wait is for CI, not for research.
+
+The parallelism is at the research stage; the seriality is at the apply stage. Mixing the two (parallel applies) is the failure mode this discipline prevents: the orchestrator cannot apply multiple PRs at once without state confusion (which branch am I on; which research file matches which target file; which CHANGELOG entry got written last). One PR at a time, with the next one's research already in hand, is the right shape.
+
+### Triggering the parallel research stage
+
+The orchestrator dispatches workers in parallel at session-start and whenever the apply-queue thins below the desired buffer. Workers run in the background and notify on completion; the orchestrator does not block on any one worker.
+
+The buffer size is project-configurable. A typical default: prepare research for the next 7-20 PRs so the apply-queue is rarely empty during a long working session. Larger buffers mean more upfront token cost; smaller buffers mean more idle waiting if applies finish faster than research.
+
+### Failure modes the discipline prevents
+
+- **Idle gaps between PRs.** Without parallel research, the orchestrator finishes one PR and waits for the next research file. With parallel research, the next file is ready.
+- **Out-of-order applies.** Without serial applies, two simultaneous edits on the same target file collide. With serial applies + CI gating, each PR's changes ground in the previous PR's merged state.
+- **Lost work on CI failure.** Without CI gating between applies, a failure in PR #N is discovered after PRs #N+1, #N+2 are already pushed; the cascade is expensive. With CI gating, each PR's CI completes before the next is started.
+
+---
+
+## 3. Apply-time worker correction
+
+The apply-time correction is the moment where the research-assistant discipline produces audit value. The orchestrator should treat every worker draft as a hypothesis, not a finding (per the evidence-grounded-completion rule's broader pattern). At apply-time:
+
+1. **Open each target file in full.** The worker quoted some lines; the orchestrator confirms them.
+2. **Run contradiction searches.** A `grep` for stale references, parallel occurrences elsewhere, or claims the worker did not surface.
+3. **Reconcile to current state.** Versions, dates, FR cross-references, file paths that may have shifted since the worker drafted.
+4. **Document corrections.** Every catch is recorded in the CHANGELOG-detailed entry per §1's tracking convention.
+
+The discipline scales: the more PRs the assistant ships, the more pattern-recognition for worker failure modes accumulates. Common patterns: stale version numbers (worker drafted against an earlier revision); confabulated file paths (worker invented a plausible-sounding filename); incorrect PR cross-references (worker confused two PR numbers).
+
+### Why apply-time, not pre-apply
+
+The orchestrator could verify worker claims at the moment the research file arrives (pre-apply). The discipline prefers apply-time because:
+
+- The corpus state continues to drift between research-dispatch and apply (other PRs may merge in between).
+- Apply-time verification is when the orchestrator is about to write to the file system; that's the moment when an unverified claim has the highest cost.
+- Apply-time verification is bounded: it covers the small number of claims that survive to apply-time, not the larger set the worker might have drafted.
+
+---
+
+## 4. Always split when in doubt
+
+When two changes could plausibly land in the same PR or in separate PRs, default to **separate PRs** unless they are tightly coherent (same conceptual theme, same files, same maintainer-direction line item).
+
+### Why default to splitting
+
+- **Reviewer cognitive cost is non-linear.** A PR with three unrelated changes is more than 3× the review cost of three separate PRs.
+- **Bisection cost.** If a defect ships in a multi-purpose PR, finding which change introduced it requires re-reading the diff. Single-purpose PRs make `git bisect` precise.
+- **Revert safety.** A multi-purpose PR cannot be partially reverted; reverting it un-ships unrelated changes too.
+- **Audit-trail clarity.** Each PR's CHANGELOG entry maps to one conceptual change. Bundling muddies that mapping.
+
+### When bundling is allowed
+
+The "tightly coherent" exception covers:
+
+- Multiple findings in the same file from the same maintainer-direction velocity bundle (e.g., five FR fixes in the same README under a "phase 1 polish" directive).
+- A rule update and the corresponding skill update for the same rule (paired-skill gate enforces parity).
+- A new rule plus a new linter that enforces it.
+
+When in doubt, ask the maintainer. The cost of asking is one round-trip; the cost of an inappropriately-bundled PR is the rest of the project's lifetime to untangle.
+
+---
+
+## 5. Background work during CI waits
+
+CI cycles take time. A typical small-corpus lint run is 30 to 90 seconds; substantive PRs may run longer. The orchestrator should not sit idle during these waits.
+
+### What's safe to do during a CI wait
+
+**Read-only prep on the next PR's research:**
+
+- Read the next research file in full.
+- `grep` for the worker's quoted lines in current main to pre-verify.
+- Confirm referenced file paths exist via `find` or `Glob`.
+- Check the current per-document and library version numbers against what the worker drafted; pre-identify any version-drift corrections needed.
+- Cross-check PR / FR references against the closed-PR ledger.
+
+The discipline: **read-only operations on main (the unchanging branch during the CI wait) for the next PR's target files.** Surface any apply-time corrections that will be needed when the current PR merges, so the next apply can proceed faster.
+
+### What's not safe during a CI wait
+
+- **File edits.** The current PR's CI is running against a feature branch; the orchestrator must not edit anything on main or on a new branch that would interfere with the merge-back.
+- **New commits to the current branch.** The CI run is against a specific commit SHA; new commits invalidate the run.
+- **Pre-creating the next branch.** Branch state confusion is a real risk; wait until the current PR merges and main is synced.
+- **Speculative tool calls that change state** (mutating MCP calls, API writes, etc.).
+
+### What's not safe period
+
+Polling for CI status in a tight loop. The discipline lives elsewhere (the webhook-subscriptions guidance in [`action-before-explanation-of-inaction.md`](action-before-explanation-of-inaction.md) and the API-polling guardrails in [`evidence-grounded-completion.md`](evidence-grounded-completion.md)): subscribe to the PR's activity, arm a paired short-cadence fallback timer, do the read-only prep, then check status when either fires.
+
+---
+
+## Prohibited anti-patterns
+
+Across all five disciplines:
+
+- **Pasting worker prose unverified.** The discipline is "verify, correct, integrate", not "trust the worker's draft as-is".
+- **Skipping the orchestrator's re-read.** The orchestrator must open each target file at apply-time. "The worker quoted it correctly last week" is not verification.
+- **Silent corrections.** Worker errors caught at apply-time should be documented, not silently overwritten. The CHANGELOG-detailed "Discipline observation" is the audit trail.
+- **Parallel applies.** Two PRs being authored at the same time is state confusion waiting to happen. Apply one at a time.
+- **Bundling unrelated work to "save a PR."** The cost saving is illusory; the audit-trail cost is real.
+- **Idle waiting during CI.** If the next PR's research is queued, read it during the wait. If no research is queued, dispatch one.
+- **Editing main during a CI wait.** Main belongs to the current PR's merge target; treat it as read-only during the wait.
+
+---
+
+## Framework alignment
+
+| Requirement | NIST SSDF | CSA CCM | ISO 27001 |
+| --- | --- | --- | --- |
+| Audit trail of orchestrator corrections | PS.1, RV.2 | LOG-02, LOG-08 | A.8.15, A.5.36 |
+| Verification before action | RV.1, RV.2 | GRC-05 | A.5.36 |
+| Change classification at PR boundaries | PO.5 | CCC-01 to 03 | A.5.4, A.8.32 |
+| Idle-time productive use | PO.5 | n/a | n/a |
+
+The disciplines implement the same audit-trail-integrity principle the broader pack expresses: every claim a downstream reader is asked to rely on must be traceable to a verification step, and the discipline of producing those verification steps must be regular enough that the audit trail is dense rather than sparse.
+
+---
+
+## Why this rule exists
+
+The five disciplines were developed during a multi-week corpus-remediation session in which an AI assistant drove 30+ PRs to close a fitness-review backlog. The session surfaced each failure mode in turn:
+
+- **Research-assistant discipline** emerged after a worker confabulated a non-existent file path; the discipline was named so future workers would be treated as research, not as final prose.
+- **Pipeline PR construction** emerged after early sessions were bottlenecked on serial research-then-apply; parallel research was added to keep the apply-queue non-empty.
+- **Apply-time worker correction** emerged after several worker drafts referenced stale version numbers or wrong PR cross-references; documenting the catches turned them into a tracking signal.
+- **Always split when in doubt** emerged after a maintainer noted that bundled PRs were harder to review than single-purpose ones; "split" became the default.
+- **Background work during CI waits** emerged after a maintainer asked whether idle waits were necessary; they weren't, and read-only prep was identified as the safe productive use.
+
+Each discipline pays back its complexity many times over the course of a long session. The cost of memorising them is small; the cost of relearning them by repeated failure is large.
+
+For AI coding assistants specifically: when you find yourself dispatching multiple workers in parallel, when you find yourself bundling changes, when you find yourself sitting idle during CI, when you find yourself pasting worker prose without re-reading the target file, pause and run the corresponding discipline. The disciplines exist because each failure mode was observed; the discipline keeps the failure mode from recurring.
