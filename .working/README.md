@@ -33,6 +33,7 @@ Single-file artefacts that don't fit the activity-subdirectory shape because the
 | File | Purpose | Origin |
 | --- | --- | --- |
 | [`DONE.md`](DONE.md) | Closed-TODO ledger: which backlog items each PR closed, keyed by original ID. Complements the root [`CHANGELOG.md`](../CHANGELOG.md) (which records file-level change detail). | PR #131 |
+| [`design-decisions.md`](design-decisions.md) | Reference log of design decisions: working-state conventions, audit-programme architecture decisions, language conventions, decisions explicitly dropped. Thematically organized. Complements [`DONE.md`](DONE.md) (closed items, not decisions) and [`../CHANGELOG.md`](../CHANGELOG.md) (file-level change detail). | PR #135 |
 
 ## Activities
 
