@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.128, PR #146
+
+Closes FR-96 (high, ⚠️ confirmed-with-modification). The risk-acceptance procedure now records its linkage to the exception register at schema level.
+
+### Closed findings
+
+- **FR-96** (high, ⚠️, `risk/procedure-risk-acceptance.md`): Acceptance record fields lacked an explicit cross-reference to the exception register. Pass-1 noted the modification: "the linkage is conceptual rather than schema-level." The cross-reference exists conceptually (an exception in `governance/policy-exception-and-risk-acceptance-management.md` typically pairs with a risk acceptance) but no field captured the bidirectional traceability. Audit traceability required.
+
+### Changed
+
+- [`risk/procedure-risk-acceptance.md`](../../risk/procedure-risk-acceptance.md):
+  - "Required record fields" extended with `Related exception register entry: ID of the corresponding entry in the exception register if this acceptance derives from or relates to a documented policy / control exception (see governance/policy-exception-and-risk-acceptance-management.md); record None if the acceptance is a pure risk acceptance unrelated to a policy exception. This linkage makes the two registers cross-traversable: an auditor reviewing an exception can find the corresponding risk acceptance and vice versa.`
+  - Per-doc version `1.0.0 → 1.0.1`; Date `2026-05-27 → 2026-06-21`.
+- [`README.md`](../../README.md): library `2026.06.127 → 2026.06.128`; README `1.8.83 → 1.8.84`.
+- [`TODO.md`](../../TODO.md): FR-96 rotated out. Backlog: 16 + 16 + 56 = 88 immediate; 14 deferred; 102 open.
+- [`.working/DONE.md`](../DONE.md): PR #146 entry added.
+
+### Verification
+
+- All 46 audit gates pass; PR-time checks pass.
+- Cross-reference check: the bidirectional traceability now has a schema-level field; `governance/policy-exception-and-risk-acceptance-management.md` should also gain a reciprocal "Related risk acceptance" field for full traceability, but that's a separate finding outside the current FR-96 scope (could be filed as a small follow-up if not already covered by other backlog items).
+
+---
+
 ## 2026-06-21, Library Version 2026.06.127, PR #145
 
 Closes FR-95 (high). The risk register template's Acceptance section gains a mandatory `Compensating Controls` field so each acceptance record is self-contained and auditable.
