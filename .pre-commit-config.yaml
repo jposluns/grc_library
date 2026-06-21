@@ -330,3 +330,10 @@ repos:
         language: system
         pass_filenames: false
         types: [markdown]
+
+      - id: lint-todo-staleness
+        name: TODO staleness audit
+        entry: python3 tools/lint-todo-staleness.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
