@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Evidence Package Template\
 **Document Type:** Template\
-**Version:** 1.0.0\
-**Date:** 2026-06-20\
+**Version:** 1.0.1\
+**Date:** 2026-06-21\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-control-testing.md`](procedure-control-testing.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md), [`compliance/template-regulator-interaction.md`](template-regulator-interaction.md)\
@@ -158,6 +158,7 @@ Test 1: <e.g. Quarterly access review>
 - Frequency: <e.g. quarterly>
 - Test date(s) during the period: <YYYY-MM-DD list>
 - Test method: <e.g. sample of 25 user accounts reviewed against role definitions>
+- **Sampling justification** (mandatory when the test uses sampling): <statistical or judgemental basis for the chosen sample size; cite [`compliance/procedure-control-testing.md`](procedure-control-testing.md) sample-size table (e.g. "25-40 for high-risk per §2.2") or document the rationale for a different size. State the population size, the sample size, the selection method (random / stratified / judgemental), and confidence-level assumption if statistical. If the test reviews 100% of the population, state "100% population review" and skip statistical fields.>
 - Tester: <named role>
 - Result: <Pass / Pass with exception / Fail>
 - Test artefact: <link to test record>
@@ -167,6 +168,7 @@ Test 2: <e.g. Annual policy review>
 - Frequency: <e.g. annual>
 - Test date(s): <YYYY-MM-DD list>
 - Test method: <e.g. policy reviewed by Owner and Approving Authority; review record signed>
+- **Sampling justification**: <"100% population review" for single-artefact controls like policy reviews; otherwise as above.>
 - Result: <Pass / Pass with exception / Fail>
 - Test artefact: <link to review record>
 
