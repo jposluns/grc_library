@@ -4,6 +4,12 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.113, PR #130
+
+Removes decorative gate-count narrations from prose throughout the corpus and tooling. Phrases like "the 45-gate audit programme", "all 45 gates", "gates 1-45", and "45 corpus gates" are now "the audit programme", "every gate", "all corpus gates", and "the corpus gates" respectively; the spec §6 inventory remains the canonical single source for the count. Eleven prose locations updated across seven files. Implements the maintainer's just-surfaced proposal that decorative counts add no information beyond what readers can derive from the inventory table, and add real cost on every gate-add PR (PR #128 cascaded ten N-gate references across seven files; PR #129 cascaded one more). Gate 39 (cross-file gate-count consistency) remains as the defence against new decorations creeping back in.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.112, PR #129
 
 Post-PR-#128 catch-up: [`TODO.md`](TODO.md) still framed PR #128 as "Next" after PR #128 merged, which the brand-new gate 45 (TODO staleness audit) correctly flagged on the post-merge `main` `push`-event run. Fixes the TODO drift: PR #128 moved to PRs-completed list with its summary; queued sequence rebased to start with the fitness-skill amendment; version-snapshot refreshed to 2026.06.111; the maintainer's two design proposals (DONE.md ledger; decorative-gate-count cleanup) recorded as queued follow-ups. This is the first instance of gate 45 catching exactly the failure mode it was built to catch — its own PR's lingering "queued" framing.
