@@ -4,6 +4,12 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.125, PR #143
+
+Closes FR-9 (high[critical]) and FR-10 (high) together — both relate to Chief Risk Officer presence in [`risk/standard-enterprise-risk-management.md`](risk/standard-enterprise-risk-management.md). The standard's `Owner` field changes from "Chief Information Officer" to "Chief Risk Officer"; §3 Governance gets a new CRO row scoped to risk strategy, risk appetite stewardship, and ERM programme outcomes; the pre-existing CIO row is reshaped to "provides executive support on technology-risk integration". Per-doc `1.3.3 → 1.3.4`; library `2026.06.124 → 2026.06.125`. Backlog 107 → 105 open.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.124, PR #142
 
 First fitness-remediation PR. Closes four unambiguous quick-win findings at maintainer direction while the maintainer reviews the broader 111-item backlog: **FR-13** disambiguates `CPPA` in [`risk/standard-enterprise-risk-management.md`](risk/standard-enterprise-risk-management.md) §10 framework alignment table; **FR-54 / FR-55** add an explicit doctype-prefix mapping table to [`specification-master-project.md`](specification-master-project.md) §4.3 covering all 17 doctypes; **FR-103** adds a Chief Compliance Officer row to the Continuous Assurance framework's governance table. Backlog totals updated: 93 immediate-priority + 14 deferred = 107 open (4 closed). Library `2026.06.123 → 2026.06.124`.

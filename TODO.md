@@ -10,10 +10,10 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #142 merge).
-- **Library version as of last refresh**: `2026.06.124`. **Pack version**: `1.34.0`. **README version**: `1.8.80`.
+- **Branch at last refresh**: `main` (synced after PR #143 merge).
+- **Library version as of last refresh**: `2026.06.125`. **Pack version**: `1.34.0`. **README version**: `1.8.81`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
-- **Last validation sweep**: Sweep 11 iteration 1 (close-out PR #127); no sweep run yet after PRs #128-#142.
+- **Last validation sweep**: Sweep 11 iteration 1 (close-out PR #127); no sweep run yet after PRs #128-#143.
 
 ---
 
@@ -49,9 +49,8 @@ Resolved from `🤔` to `✅` in Pass-2 with a library-wide propagation plan:
   - Or a documented standard in `governance/` (`standard-maturity-tier-vocabulary.md`) that other documents cite.
 - Severity: High[critical] (was high[critical]). Originating run: r1.
 
-### High[critical] tier — 17 findings (immediate priority)
+### High[critical] tier — 16 findings (immediate priority)
 
-- **FR-9** (`risk/standard-enterprise-risk-management.md`): Owner is "Chief Information Officer"; enterprise risk is a CRO/CFO/Board accountability. Change Owner to CRO (or CFO/Board per governance preference).
 - **FR-14** (maturity ladder): see Special section above.
 - **FR-16** (`governance/policy-exception-and-risk-acceptance-management.md`): Exception register schema lacks `max_duration` and `renewal_count_limit` fields; "should not exceed 180 days" is weak. Add hard fields.
 - **FR-19** (`compliance/procedure-capa.md`): CAPA target-date extensions lack a governance ceiling. Add max-extension count with board-level escalation.
@@ -69,12 +68,11 @@ Resolved from `🤔` to `✅` in Pass-2 with a library-wide propagation plan:
 - **FR-73** (AI ethics review): `charter-ai-governance-council.md` collapses ethics into the compliance/risk body. Separate ethics panel or independent challenge mechanism needed.
 - **FR-80** (SIEM/cloud-activity-log retention contradiction): `register-data-retention-schedule.md:67` says 3y (1y hot + 2y cold); `standard-cloud-security-configuration-baseline.md:150` says 90d minimum. Cloud logs forward into SIEM, undercutting the downstream baseline. Reconcile.
 
-### High tier — 20 findings (immediate priority)
+### High tier — 19 findings (immediate priority)
 
 - **FR-1** (README): "Dual-mission" framing on lines 36-42 puts AI-assisted-maintenance reference implementation on equal billing with the GRC corpus.
 - **FR-2** (README): "How to use" step 1 directs to the 300-row document index rather than `docs/portal.md`; audience-keyed entry buried.
 - **FR-3** (README): GRC never expanded on-page despite being in the title; no "if you are new to GRC, start here" block.
-- **FR-10** (`risk/standard-enterprise-risk-management.md`): §3 governance table omits Chief Risk Officer.
 - **FR-17 ⚠️** (`governance/policy-exception-and-risk-acceptance-management.md`): Approval-authority conflict with Role Authority Register RACI (Risk Accountable Role is a stub).
 - **FR-20** (`compliance/procedure-capa.md`): Root-cause statements lack a quality checklist.
 - **FR-22** (`compliance/template-audit-evidence-package.md`): Template lacks mandatory sampling-justification field.
@@ -127,9 +125,9 @@ Cross-reference only. No immediate-priority action; queue for a routine cleanup 
 
 ### Backlog totals
 
-- 17 + 20 + 56 = **93 immediate-priority findings** (High[critical], High, Medium tiers)
+- 16 + 19 + 56 = **91 immediate-priority findings** (High[critical], High, Medium tiers)
 - **14 deferred** (Low tier)
-- **107 open** (4 closed in PR #142: FR-13, FR-54, FR-55, FR-103). Total surfaced in r1: 111.
+- **105 open** (6 closed: PR #142 closed FR-13, FR-54, FR-55, FR-103; PR #143 closed FR-9, FR-10). Total surfaced in r1: 111.
 
 ---
 
