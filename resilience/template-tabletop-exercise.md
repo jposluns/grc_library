@@ -2,7 +2,7 @@
 
 **Document Title:** Tabletop Exercise Template\
 **Document Type:** Template\
-**Version:** 1.0.1\
+**Version:** 1.0.2\
 **Date:** 2026-06-02\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
@@ -101,10 +101,10 @@ An inject is a piece of information delivered during the exercise to advance the
 | --- | --- | --- | --- | --- |
 | T+0 | Email | SOC | Initial alert template | SOC triages and classifies |
 | T+15 | Phone | CISO | Severity escalation prompt | CISO declares P1, convenes Joint Command |
-| T+30 | Slack | Privacy Officer | Personal data implicated | Privacy stream activates per breach response procedure |
+| T+30 | Chat / collaboration platform | Privacy Officer | Personal data implicated | Privacy stream activates per breach response procedure |
 | T+60 | Email | Communications Lead | Journalist enquiry received | Communications produces holding statement |
 | T+90 | Phone | Legal | Regulator initiating contact | Legal evaluates obligations; coordinates with Comms |
-| T+120 | Slack | Incident Coordinator | Supplier confirms data exposure | Supplier stream activates; hand-off checklist |
+| T+120 | Chat / collaboration platform | Incident Coordinator | Supplier confirms data exposure | Supplier stream activates; hand-off checklist |
 | T+150 | Phone | Executive Sponsor | Board member asking for briefing | Executive briefing materials produced |
 | T+180 | Email | All | Exercise wrap-up | Participants pause for debrief |
 

@@ -6,6 +6,45 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.158, PR #179
+
+Phase 1 P1.4a velocity bundle: six unrelated medium-tier fitness findings shipped as one PR. The originally-planned P1.4 bundle covered seven findings; FR-33 (high[critical], GDPR Article 36 prior-consultation pathway) was split into its own PR (queued as P1.4b) per the "always split when in doubt" discipline shipped in PR #176 — different severity tier and larger scope warranted dedicated treatment.
+
+### Closed findings
+
+- **FR-18** (medium): the 180-day exception initial-term baseline in [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md) §3.1 was not directly traceable to any of the policy's cited normative references. NIST SP 800-37 Rev 2 ATOs are 3-year with continuous monitoring; ISO/IEC 27001 A.5.36 mandates exception policy without specifying duration; CSA CCM v4.1 GRC-12 is mute on a numeric default. The §3.7 rationale paragraph already explained 540-day `max_duration` as 3×180; this PR adds §3.7.1 acknowledging that the 180-day base is a library convention aligned with NIST SP 800-53 Rev 5 CA-6 ongoing-authorisation maintenance and ISO/IEC 27001:2022 Clause 9.2 internal-audit semi-annual review cycles. Adopters whose monitoring cadence differs may tune the base term.
+- **FR-25** (medium): [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md) §3.3 set control-testing evidence retention at 5 years; the corresponding row in [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md) line 87 also said 5 years. Both sat below Sarbanes-Oxley §103 audit-evidence retention (7 years) and below the records-retention standard's 7-year Corporate Governance / Financial / Legal-and-Compliance default. Both lines now read 7 years; the procedure adds an explicit cross-reference to [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md) so future drift cannot recur without contradicting the canonical source.
+- **FR-79** (medium): [`resilience/template-tabletop-exercise.md`](../../resilience/template-tabletop-exercise.md) inject-schedule table at lines 104 and 107 used the vendor product name "Slack" as the delivery channel for two injects. Other channels in the same table used generic phrasing (Email, Phone), so Slack was the only outlier. The library's sanitisation convention (per [`specification-ingestion.md`](../../specification-ingestion.md) Appendix A) maps vendor product names to generic equivalents. Both rows now use "Chat / collaboration platform".
+- **FR-105** (medium): [`security/policy-information-security.md`](../../security/policy-information-security.md) Purpose section at line 23 cited "NIST Cybersecurity Framework 2.0" by its expanded title, while the Framework Alignment table header at line 134 and §8.4 prose at line 116 used the abbreviated form "NIST CSF 2.0". The same framework appeared under two naming conventions in the same document. Line 23 normalised to "NIST CSF 2.0" — the abbreviated form is now used uniformly.
+- **FR-106** (medium): [`README.md`](../../README.md) Repository Structure block at line 109 listed seven trade-programme acronyms (CTPAT, BASC, PIP, AEO, AEO-S, WCO SAFE, ISO 28000) in a single parenthetical with no inline expansion. A newcomer not in logistics or supply-chain compliance read seven opaque tokens and could not tell whether to engage. The line now expands each acronym at first occurrence and carries a "(logistics-specific; skip if not applicable)" marker so non-logistics readers know to bypass.
+- **FR-110** (medium): [`docs/decision-tree.md`](../../docs/decision-tree.md) §2.2 line 119 described the document index as "the master navigation register", which contradicted PR #156 (FR-2) and PR #165 (FR-56)'s declaration of [`docs/portal.md`](../../docs/portal.md) as the canonical adopter entry point. The line now reframes the index as "comprehensive machine-readable register" with explicit redirect to the portal as the canonical navigation point.
+
+### Changed
+
+- [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md): §3.7 gains new §3.7.1 paragraph (one paragraph, no structural change). Per-doc `1.2.0 → 1.3.0` (minor: new normative subsection clarifying baseline provenance).
+- [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md): §3.3 retention floor 5y → 7y with cross-reference. Per-doc `1.0.1 → 1.0.2` (patch).
+- [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md): line 87 retention 5y → 7y with rationale extension. Per-doc `1.0.1 → 1.0.2` (patch).
+- [`resilience/template-tabletop-exercise.md`](../../resilience/template-tabletop-exercise.md): two table-cell updates (Slack → Chat / collaboration platform). Per-doc `1.0.1 → 1.0.2` (patch: vendor-name sanitisation).
+- [`security/policy-information-security.md`](../../security/policy-information-security.md): single-string normalisation on line 23. Per-doc `1.3.0 → 1.3.1` (patch: citation-name normalisation).
+- [`docs/decision-tree.md`](../../docs/decision-tree.md): single-line phrasing update on line 119. Per-doc `1.0.1 → 1.0.2` (patch: phrasing alignment with post-PR-165 navigation framing).
+- [`README.md`](../../README.md): line 109 trade-programme acronym expansion with logistics-skip marker. README per-doc `1.9.28 → 1.9.29`; library `2026.06.157 → 2026.06.158`.
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated to absorb the per-doc Version bumps.
+- [`TODO.md`](../../TODO.md): FR-18 removed from Medium-tier "Exception policy" bullet; FR-25 removed from Medium-tier "Control testing" bullet; FR-79 removed from Medium-tier "Coverage gaps" bullet; FR-105, FR-106, FR-110 removed from Medium-tier "Newcomer" bullet. Medium-tier count `46 → 40`; immediate-priority total `61 → 55`; total-open `75 → 69`; closed-PRs range extended to `#142-#179`. P1.4 entry updated in the Phase 1 plan: notes that the bundle split into P1.4a (this PR; 6 mediums closed) and P1.4b (FR-33 high[critical] queued as next PR).
+- [`.working/DONE.md`](../DONE.md): PR #179 entry added (terse form per the convention).
+- [`.working/hallucination-metrics.md`](../hallucination-metrics.md): apply-time-catches log updated with version-drift corrections (worker drafted library `2026.06.151 → 2026.06.152`; current state required `2026.06.157 → 2026.06.158`).
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates against the committed state.
+- `tools/run-pr-time-checks.sh` exits 0 (D1, D2, gate 45).
+- All six edits' worker-quoted line numbers and content verified accurate during the PR #178 CI wait per discipline #5 (background work during CI waits); no apply-time corrections needed beyond version-drift.
+
+### Discipline observation
+
+This PR exercises the "always split when in doubt" discipline (PR #176 §4) by separating FR-33 (high[critical]) from the otherwise-medium velocity bundle. The original worker draft proposed shipping all seven findings together, including FR-33. The orchestrator made the split decision per the discipline (different severity tier; FR-33's scope is substantively larger — new §Step 5 with Article 36 verbatim references, cross-jurisdiction notes, and step renumbering). The maintainer's prior session-level direction ("don't pause for confirmation") let the orchestrator make the split call and proceed without re-asking.
+
+This is also the second substantive PR shipped under the documented research-assistant discipline. Pre-verification of worker quotes (line 76, line 87, line 100, line 104, line 107, line 109, line 119, line 23, line 134) all verified accurate against current file state during the PR #178 CI wait. Apply-time corrections this round: version-drift only.
+
 ## 2026-06-21, Library Version 2026.06.157, PR #178
 
 Phase 1 velocity bundle P1.2. Two ERM-standard findings from the Pass-1 fitness sweep closed in [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md); both ✅ confirmed-as-stated in PR #140 Pass-1 verification.

@@ -4,8 +4,8 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.06.157 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.9.28 (semantic per-document version for this file)
+**Library Version:** 2026.06.158 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.9.29 (semantic per-document version for this file)
 
 ---
 
@@ -106,7 +106,12 @@ Documents are organized by primary governance domain.
 /risk           Enterprise risk management: standard, risk register procedure, and risk acceptance procedure.
 
 /compliance     Compliance management, audit governance, CAPA, regulatory applicability register,
-                and trade compliance programme references (CTPAT, BASC, PIP, AEO, AEO-S, WCO SAFE, ISO 28000).
+                and trade compliance programme references (logistics-specific; skip if not applicable):
+                CTPAT (US Customs-Trade Partnership Against Terrorism), BASC (Business Alliance
+                for Secure Commerce), PIP (Canada Partners in Protection), AEO (EU Authorised
+                Economic Operator), AEO-S (AEO Security variant), WCO SAFE (World Customs
+                Organization SAFE Framework of Standards), and ISO 28000 (supply-chain
+                security management).
 
 /security       Information security governance: policies, identity, access, logging, data classification,
                 cryptography, personnel security, and secure operations.

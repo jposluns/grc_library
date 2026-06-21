@@ -2,7 +2,7 @@
 
 **Document Title:** Control Testing Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
+**Version:** 1.0.2\
 **Date:** 2026-06-21\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Information Officer\
@@ -97,7 +97,7 @@ The chosen sample size and selection method are recorded in the test's "Sampling
 
 3.2 Evidence must be: relevant, sufficient, reliable, and traceable to the control period tested.
 
-3.3 Evidence is retained for a minimum of 5 years or longer where regulatory requirements specify.
+3.3 Evidence is retained for a minimum of 7 years per [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) (Audit-and-compliance-records domain), or longer where regulatory requirements specify. The 7-year floor aligns with Sarbanes-Oxley §103 audit-evidence retention and the records-retention standard's Corporate Governance, Financial, and Legal-and-Compliance domain default.
 
 ---
 
