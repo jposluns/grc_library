@@ -32,13 +32,11 @@ In merge order (oldest to newest); see [`CHANGELOG.md`](CHANGELOG.md) for full d
 9. **PR #118** — Restructure `.working/<activity>/` to canonical layout (README + history table + per-run detail only-when-findings)
 10. **PR #119** — TODO update only (session-resume context capture); `Changelog: skip` per TODO's informational status
 11. **PR #120** — `/fitness` skill (`library-fitness-review`); ten persona reviewers; canonical `.working/fitness-reviews/` activity layout; pack `1.29.0 → 1.30.0`. Authored overnight under explicit maintainer authorisation; full decision log at `.working/overnight-pr.md`
-12. **PR #121** (queued, this is Sweep 10 iter 2's close-out) — Re-add preflight exemption for "Six rules" line; update TODO resume-state snapshot; fix small CHANGELOG narration claim; update overnight-pr.md status
+12. **PR #121** — Sweep 10 iter 2 close-out: re-added preflight exemption for "Six rules" line (new line_hash post-PR-#117 content change); refreshed TODO resume-state snapshot; fixed small CHANGELOG narration claim ("(new, version 1.0.0)" -> "(new)"); updated overnight-pr.md status to merged. Library `2026.06.105 -> 2026.06.106`.
 
 ### Queued sequence (resume in this order)
 
-**Step A — Validation sweep against post-PR-#118 state.** First sweep under the new canonical layout. Should be cheap (the restructure was internal; corpus content unchanged). Confirms the new `Subagents` column in `history.md`, the "only if findings" convention for per-iteration detail files, and the linter target path update for gate 43 all work end-to-end.
-
-**Step B — PR #119: Changelog details migration.** Splits the root [`CHANGELOG.md`](CHANGELOG.md) into:
+**Next — PR #122: Changelog details migration.** Splits the root [`CHANGELOG.md`](CHANGELOG.md) into:
 - Root file keeps **only the lead paragraph** of each existing entry (and going forward).
 - Copy of pre-trim full file lands at `.working/changelog-details/CHANGELOG-detailed.md` (or follow PR #118's canonical activity layout: `.working/changelog-details/README.md` + `.working/changelog-details/history.md` — TBD; need to think about whether changelog details fit the same layout pattern or if they're a single growing file).
 - Header note added to root: *"Detailed maintainer-level changelog entries may be kept in a working directory."* No name, no link.
@@ -47,27 +45,9 @@ In merge order (oldest to newest); see [`CHANGELOG.md`](CHANGELOG.md) for full d
 - Amend [`dev-security/claude-rules/governance/change-tracking.md`](dev-security/claude-rules/governance/change-tracking.md): the structured sections (Added/Changed/Removed/Fixed/Security) and verification evidence requirement applies to the **detailed** file; the root keeps only the lead paragraph (public-facing summary).
 - Mirror the rule update to `.claude/rules/governance/change-tracking.md` via the claude-rules sync linter (gate 37 will catch any divergence).
 
-**Step C — Validation sweep against post-PR-#119 state.** Verifies the changelog split didn't break the change-tracking discipline anywhere.
+Run `/validate` after PR #122 merges (per the standard sweep-between-substantive-PRs cadence).
 
-**Step D — PR #120: `/fitness` skill (library-fitness-review).** New skill that runs a comprehensive 7-persona corpus-wide review (heavyweight; manual trigger; not per-PR). Per the design discussion:
-- **Skill name**: `library-fitness-review` (descriptive name in the pack)
-- **Slash command**: `/fitness` (short ergonomic verb)
-- **Skill file**: `dev-security/claude-rules/skills/library-fitness-review/SKILL.md`, derives from `dev-security/claude-rules/governance/evidence-grounded-completion.md`
-- **Slash command file**: `.claude/commands/fitness.md`
-- **Output directory**: `.working/fitness-reviews/` (follows PR #118's canonical activity layout: README + history table + per-run detail only-when-findings)
-- **10 personas (parallel subagents)** as shipped in PR #120 (the original prompt specified 7; the implementation expanded to 10 with three additions justified in [`.working/overnight-pr.md`](.working/overnight-pr.md)): (1) first-time executive reader; (2) security practitioner; (3) GRC practitioner; (4) auditor/assurance reviewer; (5) policy and standards editor; (6) process owner / operational user; (7) skeptical reader; (8) adoption practitioner; (9) privacy/data protection officer; (10) newcomer/onboarding engineer. All 10 dispatched on every full run.
-- **Scope per run**: whole corpus, every run.
-- **Cadence**: manual trigger (after "major changes" — new domain dir, new document type, pack rule additions, major restructure; quarterly minimum if no major changes; pre-publication / pre-external-share).
-- **Output format per run**: one combined Markdown file at `.working/fitness-reviews/YYYY-MM-DD-rN.md` with 8 top-level H2 sections following the prompt's structure (Executive Summary, Review Method, Page-by-Page Findings, Cross-Library Findings, Severity Model, Recommendations, Standardization Recommendations, Remediation Backlog, Final Assessment). Discrete remediation IDs (`FR-1`, `FR-2`, …) drive subsequent PRs.
-- **Output to chat**: issues + recommendations + choices surfaced for maintainer action; the committed file is the persistent archive.
-- **Severity**: keep project's existing SARIF-lite (High/Medium/Low/FYI); treat the prompt's "Critical" as a `[critical]` flag inside High (`[high][critical] file:line — description`). Two severity scales not introduced.
-- **No mechanical gate**: the fitness review is a deliverable, not a per-PR gate. Output informs human prioritisation.
-- **Pack version bumps to 1.30.0** (new skill = pack minor bump per `skill-authoring-discipline`).
-- **Touchpoints per skill-authoring-discipline**: pack README directory tree + "When to use each skill" table + version-history row; `.working/README.md` activity table; `tools/lint-collection-enumeration-consistency.py` if it enumerates skills.
-
-**Step E — Validation sweep against post-PR-#120 state.** Re-baseline after the new skill ships.
-
-### Other queued moves (after Step E; small PRs preferred per maintainer)
+### Other queued moves (small PRs preferred per maintainer)
 
 Files identified earlier as project-specific application that should move from `governance/` or `tools/` to `.working/`. Each as its own small PR:
 
@@ -117,10 +97,11 @@ Each requires updating the document-index, sibling references, regenerating taxo
 
 ### Open follow-ups from validation sweeps (deferred items not yet closed)
 
-Both pre-date the dating-discipline convention (2026-06-20) so neither has a `surfaced` / `re-triage-by` stamp. From [`.working/validate-sweeps/history.md`](.working/validate-sweeps/history.md):
+Pre-dates the dating-discipline convention (2026-06-20) so no `surfaced` / `re-triage-by` stamp. From [`.working/validate-sweeps/history.md`](.working/validate-sweeps/history.md):
 
 - **Sweep 3 follow-up**: cross-document term-and-identifier consistency gap. The prose-and-numbering-shaped C3 surface that mechanical gates 35/39/41 don't cover. Candidate for a future mechanical gate.
-- **Sweep 4 follow-up**: classification-convention documentation. Resolved within the Sweep 4 close-out (the failure-mode-classes table in `.working/validate-sweeps/README.md` now documents the primary-plus-secondary classification convention).
+
+The Sweep 4 follow-up (classification-convention documentation) resolved within its own close-out (the failure-mode-classes table in `.working/validate-sweeps/README.md` now documents the primary-plus-secondary classification convention) and is no longer tracked here.
 
 ---
 
