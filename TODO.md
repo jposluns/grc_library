@@ -10,8 +10,8 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #156 merge).
-- **Library version as of last refresh**: `2026.06.138`. **Pack version**: `1.34.0`. **README version**: `1.9.9`.
+- **Branch at last refresh**: `main` (synced after PR #157 merge).
+- **Library version as of last refresh**: `2026.06.139`. **Pack version**: `1.34.0`. **README version**: `1.9.10`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
 - **Last validation sweep**: Sweep 13 iteration 1 (close-out PR #154).
 
@@ -49,10 +49,9 @@ Resolved from `🤔` to `✅` in Pass-2 with a library-wide propagation plan:
   - Or a documented standard in `governance/` (`standard-maturity-tier-vocabulary.md`) that other documents cite.
 - Severity: High[critical] (was high[critical]). Originating run: r1.
 
-### High[critical] tier — 14 findings (immediate priority)
+### High[critical] tier — 13 findings (immediate priority)
 
 - **FR-14** (maturity ladder): see Special section above.
-- **FR-16** (`governance/policy-exception-and-risk-acceptance-management.md`): Exception register schema lacks `max_duration` and `renewal_count_limit` fields; "should not exceed 180 days" is weak. Add hard fields.
 - **FR-29** (`privacy/procedure-privacy-impact-and-cross-border-transfer.md`): DPIA methodology and trigger checklist absent. Ship `privacy/template-dpia.md` with Article 35 trigger checklist + EDPB nine-criteria + Article 35(7) content checklist.
 - **FR-30** (privacy + supply-chain): No standalone Article 28 DPA template. Ship `privacy/template-dpa-article-28.md`.
 - **FR-31** (privacy): Privacy by Design (Article 25) has no operational artefact. Ship `privacy/framework-privacy-by-design.md` mapping seven foundational principles to architecture/dev-security workflows.
@@ -113,9 +112,9 @@ Cross-reference only. No immediate-priority action; queue for a routine cleanup 
 
 ### Backlog totals
 
-- 14 + 9 + 56 = **79 immediate-priority findings** (High[critical], High, Medium tiers)
+- 13 + 9 + 56 = **78 immediate-priority findings** (High[critical], High, Medium tiers)
 - **14 deferred** (Low tier)
-- **93 open** (18 closed across PRs #142-#156). Total surfaced in r1: 111.
+- **92 open** (19 closed across PRs #142-#157). Total surfaced in r1: 111.
 
 ---
 

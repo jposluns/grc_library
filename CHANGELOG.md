@@ -4,6 +4,12 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.139, PR #157
+
+Closes **FR-16** (high[critical], [`governance/policy-exception-and-risk-acceptance-management.md`](governance/policy-exception-and-risk-acceptance-management.md)). The exception register schema previously lacked hard ceiling fields and the policy used a weak "should not exceed 180 days" clause that allowed indefinite drift under repeated soft renewals. The schema now requires two new fields — `max_duration` (default 540 days, cumulative across all renewals) and `renewal_count_limit` (default 3) — and §3 is extended with a renewal-ceiling escalation pathway mirroring the FR-19 / PR #152 CAPA §6.3.1 structure: 1st renewal at the original approver, 2nd at the ERC, 3rd at the Board Risk Committee, 4th not permitted (forces close, descope, conversion to risk acceptance, or re-baseline). A re-baselining carve-out is added for materially-changed scope, with an anti-abuse condition. §5.1 register field list is extended in lock-step with the new schema fields. Per-doc `1.0.3 → 1.1.0` (minor: schema-level addition); library `2026.06.138 → 2026.06.139`. Backlog 93 → 92 open.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.138, PR #156
 
 Closes **FR-2** (high, README). The "How to use" step 1 had directed readers to the 300-row document index ([`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md)) before the audience-keyed portal ([`docs/portal.md`](docs/portal.md)). The "New to GRC?" block already routes first-time visitors to the portal (added in PR #147); the older step 1 contradicted that signposting. Step 1 now opens with the portal as the primary pointer and retains the document index as a secondary pointer for readers who already know what they want. Steps 2-5 unchanged. Per-doc `1.9.8 → 1.9.9`; library `2026.06.137 → 2026.06.138`. Backlog 94 → 93 open.

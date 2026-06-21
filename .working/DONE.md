@@ -25,6 +25,10 @@ The format for each entry:
 
 ## Closed items
 
+### PR #157 — FR-16: exception register hard caps + renewal-ceiling escalation pathway (2026-06-21)
+
+High[critical] finding closed. [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) §1.2 / §3 / §5.1 strengthened. The schema gains two required fields (`max_duration`, default 540 days; `renewal_count_limit`, default 3); the weak "should not exceed 180 days" clause is replaced by a hard 180-day initial-term cap plus the cumulative `max_duration` ceiling and a renewal-ceiling escalation pathway patterned on PR #152's CAPA §6.3.1: 1st renewal at the original approver, 2nd at the ERC, 3rd at the Board Risk Committee, 4th absolutely prohibited (forces close / descope / convert to risk acceptance / re-baseline). A re-baselining carve-out for materially-changed scope is included with an anti-abuse condition (ERC-approved; a re-baseline without material change is treated as the next renewal in the sequence). The §5.1 register field list is extended in lock-step with the new schema fields. Per-doc `1.0.3 → 1.1.0` (minor: schema-level addition).
+
 ### PR #156 — FR-2: README "How to use" step 1 leads with the audience-keyed portal (2026-06-21)
 
 High-severity README finding closed. The "How to use" step 1 had directed readers to the 300-row document index ([`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)) before the audience-keyed portal ([`docs/portal.md`](../docs/portal.md)). The "New to GRC?" block added in PR #147 already routes first-time visitors to the portal; the older step 1 contradicted that signposting. Step 1 now opens with the portal as the primary pointer and retains the document index as a secondary pointer for readers who already know what they want. README per-doc `1.9.8 → 1.9.9`.
