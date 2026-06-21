@@ -263,7 +263,6 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [Scenario Risk Catalogue](../risk/register-scenario-risk-catalogue.md)
 - [US CTPAT Full Minimum Security Criteria Controls Register](../compliance/logistics/register-ctpat-united-states-msc-controls.md)
 - [US CTPAT IT and Cybersecurity Compliance Controls Register](../compliance/logistics/register-ctpat-united-states-it-controls.md)
-- [Validation Sweep History Register](../governance/register-sweep-history.md)
 
 ### Specification
 
