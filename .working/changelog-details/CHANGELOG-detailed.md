@@ -6,6 +6,49 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.122, PR #140
+
+Applies Pass-1 verification (introduced in PR #139) retroactively against the existing 111 FR-N findings in [`.working/fitness-reviews/2026-06-21-r1.md`](../fitness-reviews/2026-06-21-r1.md). The Pass-1 protocol per PR #139: orchestrator re-reads each cited source location and applies one of four verdict tags. Five verification-task subagents dispatched in parallel handled the work; each was given a ~22-finding slice plus explicit instructions (direct file reads only, no persona role, single verdict per finding with brief inline note for non-`✅` verdicts).
+
+### Aggregate Pass-1 results
+
+| Verdict | Count | Examples |
+|---|---|---|
+| ✅ confirmed-as-stated | 93 | majority across all severity tiers |
+| ⚠️ confirmed-with-modification | 14 | FR-8, FR-17, FR-23, FR-45, FR-51, FR-65, FR-68, FR-75, FR-76, FR-86, FR-96, FR-99, FR-101, FR-104, FR-109, FR-111 |
+| 🤔 ambiguous-needs-maintainer | 2 | FR-14 (which maturity-ladder model), FR-110 (subjective "forbidding for newcomers") |
+| ❌ rejected | 2 | FR-43 (inter-policy classification mismatch as framed — both policies use the same 4-level subset), FR-53 ("every document" claim — actually only 1 of ~410) |
+
+The two rejected findings illustrate the failure mode this PR's discipline catches: FR-43's claim was framed as an inter-policy mismatch where both policies actually agree on a 4-level subset (the 5-vs-4 mismatch is between the 5-level *standard* and the 4-level *subset* used in subordinate docs — a real issue but not the policy-vs-policy mismatch the finding claimed); FR-53's "every document carries both" claim was false on direct inspection (only 1 of ~410 documents matches the pattern). Both findings would have produced misdirected remediation work absent verification.
+
+### Changed
+
+- [`.working/fitness-reviews/2026-06-21-r1.md`](../fitness-reviews/2026-06-21-r1.md):
+  - New §8.5 "Pass-1 Verification Results" appended before the closing italic note. Section contains: introductory paragraph naming the four verdict tags + aggregate counts; full verdict table for FR-1 through FR-111; per-bucket summary identifying which FR-IDs fall into each non-`✅` bucket with inline modification notes.
+  - §3 retroactive note rewritten to point at §8.5 rather than describe the unverified state.
+  - Closing italic note extended to mention Pass-1 dispatch.
+- [`README.md`](../../README.md): library version `2026.06.121 → 2026.06.122`; README version `1.8.77 → 1.8.78`.
+- [`TODO.md`](../../TODO.md): the "fitness backlog Pass-1" item rotated to DONE; next queued is Pass-2 (maintainer-interactive bucket processing). Session resume metadata refreshed.
+- [`.working/DONE.md`](../DONE.md): PR #140 entry added at top of "Closed items".
+
+### Verification
+
+- Local audit: `tools/run_all_audits.sh` exits 0 on all 46 gates.
+- Local PR-time checks: `tools/run-pr-time-checks.sh` exits 0.
+- Subagent outputs cross-checked: each batch's verdict tags integrated verbatim from the subagent's table; modification notes preserved.
+
+### Discipline observation
+
+This PR is the first end-to-end exercise of the Pass-1 protocol shipped in PR #139. Two structural observations:
+
+1. **The discipline caught real failure modes.** FR-43 and FR-53 would have produced misdirected remediation if treated as confirmed without verification. FR-43 in particular would have driven work to reconcile two policies that already agree, missing the actual 5-vs-4 split surface (standard vs subordinate docs). The verification step turned a plausible-sounding finding into a specific corrected description.
+
+2. **Subagent dispatch is the right shape for batch verification.** The SKILL.md prose said "orchestrator (not a subagent)" intending to exclude *persona* subagents (who would re-introduce interpretive lens). Verification-task subagents (direct reads, no persona role, single-verdict output) are qualitatively different and don't re-introduce the lens. The discipline should be amended to clarify this; queued as a small follow-up PR.
+
+The 14 ⚠️ findings and 2 🤔 findings carry forward to Pass-2 with inline modification or open-question notes; the maintainer adjudicates each in the next PR's interactive cycle. The 93 ✅ findings carry forward to Pass-2 for batch confirmation. The 2 ❌ findings leave the backlog unless escalated.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.121, PR #139
 
 Amends the `library-fitness-review` skill (`/fitness`) to introduce the unverified→confirmed labelling discipline. The amendment addresses the failure mode where synthesis-stage approximations propagate downstream as if confirmed (precedent: PR #124's `"95 unique findings, 18 H[critical] / 22 H / 31 M / 24 L"` framing, corrected to mechanical tabulation in PR #127; per-finding-content drift would be a worse instance of the same shape).
