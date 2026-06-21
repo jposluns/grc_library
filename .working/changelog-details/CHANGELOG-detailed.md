@@ -6,6 +6,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.129, PR #147
+
+Closes FR-3 (high, newcomer-onboarding). The README gains a "New to GRC? Start here" section so first-time readers have an entry point before the §Purpose paragraph that previously assumed the reader knew the discipline.
+
+### Closed findings
+
+- **FR-3** (high, README): The title `Governance, Risk, and Compliance Documentation Library` carried the acronym `GRC` but the term was never expanded on the page. The §Purpose paragraph at line 14 onwards described what the library is (a CC BY-SA 4.0 reference set for building an organisation-neutral programme) but presupposed the reader knew what governance, risk, and compliance are as disciplines. A reader landing on the README with no prior exposure had no entry point.
+
+### Changed
+
+- [`README.md`](../../README.md): new top-level section `## New to GRC? Start here` inserted between the CalVer note and `## Purpose`. The section has three parts:
+  1. Three-bullet plain-language definition of Governance, Risk, and Compliance (what each discipline does, with one example artefact-class each).
+  2. A paragraph explaining why this library covers security, privacy, resilience, supplier/third-party governance, and AI governance as sibling domains under the GRC umbrella (organisations operate them together).
+  3. Five intent-keyed "where to go next" pointers: first-time visitor / adopter / auditor / maintainer / glossary-lookup, each linking to the most relevant entry-point document.
+- README per-doc version `1.8.84 → 1.9.0` (minor bump: new top-level section, not just a tweak).
+- Library `2026.06.128 → 2026.06.129`.
+- [`TODO.md`](../../TODO.md): FR-3 rotated out of High tier. Backlog: 16 + 15 + 56 = 87 immediate-priority; 14 deferred; 101 open.
+- [`.working/DONE.md`](../DONE.md): PR #147 entry added.
+
+### Verification
+
+- All 46 audit gates pass; PR-time checks pass.
+- Manual re-read: new section is positioned correctly (after metadata block + CalVer note, before §Purpose); GRC is expanded inline at the start of the section; all five "where to go next" links are valid repository paths.
+- Markdown formatting: H2 heading uses sentence case (lowercase after first word), per the library's heading convention; bullets use the `**bold-name**: explanation` form consistent with other top-level READMEs.
+
+### Discipline observation
+
+This PR's value is asymmetric: small structural change in the README, large impact on newcomer onboarding. The §Purpose paragraph remains in place unchanged — the new section sits above it as an explicit on-ramp. Adopters who already know GRC can skim past this section; adopters new to the discipline now have the entry point that was missing.
+
+The section also addresses an adjacent finding category (acronyms-without-expansion) at the most-visible surface: by expanding GRC and naming the sibling domains explicitly, several downstream "what does this term mean" questions are resolved before the reader hits them in subordinate docs.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.128, PR #146
 
 Closes FR-96 (high, ⚠️ confirmed-with-modification). The risk-acceptance procedure now records its linkage to the exception register at schema level.
