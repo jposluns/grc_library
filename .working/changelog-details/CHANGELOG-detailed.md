@@ -6,6 +6,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.143, PR #161
+
+Closes FR-17 (high, Pass-1 ⚠️ confirmed-with-modification). The exception policy and the Role Authority Register named overlapping approval authorities but did not declare a single source of truth, and the register's RACI row carried a stub placeholder ("Risk Accountable Role") that did not match any role defined in its own authority table. The fix replaces the stub with a tiered reference that mirrors the policy's §2.2 chain, and adds a reciprocal cross-reference clause to the policy that declares §2.2 / §3.5 as the source of truth.
+
+### Closed findings
+
+- **FR-17** (high, `governance/register-role-authority.md` + `governance/policy-exception-and-risk-acceptance-management.md`): RACI "Approve exception" row Accountable cell read "Risk Accountable Role", a placeholder not defined in the register's own authority table; the policy's §2.2 named Department Head / CIO / Executive Committee or Board Risk Committee for the four risk-classified tiers; §3.5 (added in PR #157) anchored renewals on "the §2 approval pathway" with ERC and Board Risk Committee tiers. The two documents did not declare which was authoritative.
+
+### Changed
+
+- [`governance/register-role-authority.md`](../../governance/register-role-authority.md):
+  - RACI "Approve exception" row Accountable cell (line 73): "Risk Accountable Role" → "Tiered by risk level per [`governance/policy-exception-and-risk-acceptance-management.md`](policy-exception-and-risk-acceptance-management.md) §2.2 (Department Head for low; CIO for medium; Executive Committee or Board Risk Committee for high or critical; ERC for renewals beyond the original approver, see §3.5)". Convention matches other RACI rows that name a pathway rather than a single role (e.g., "Approve standard" → "Domain Executive or Delegate"; "Perform assurance review" → "Internal Audit or Assurance Function").
+  - Per-doc version `1.3.1 → 1.3.2`; Date `2026-06-19 → 2026-06-21`.
+- [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md):
+  - §2 gains a new §2.4 declaring §2.2 (and §3.5) as the source of truth for the RACI's "Approve exception" chain. §2.4 names the adopter-tunable seams explicitly: tier thresholds in §2.2 may be tuned to local governance structure, and named bodies in §3.5 (Board Risk Committee in particular) may be substituted via the §3.4 / §3.5 substitution clauses where the organisation has no equivalent committee. The §2.4 also explains that the RACI row's reference to §2.2 is what makes adopter-local tuning propagate without requiring the RACI to be re-edited.
+  - Per-doc version `1.1.1 → 1.2.0` (minor: new §2.4 introduces a new normative cross-reference clause naming the source of truth for the RACI chain).
+- [`README.md`](../../README.md): library `2026.06.142 → 2026.06.143`; README per-doc `1.9.13 → 1.9.14`.
+- [`TODO.md`](../../TODO.md): FR-17 rotated out of High tier; backlog counters updated (12 + 7 + 56 = 75 immediate; 14 deferred; 89 open).
+- [`.working/DONE.md`](../DONE.md): PR #161 entry added.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- `tools/run-pr-time-checks.sh` exits 0 (D1 + D2 + gate 45).
+- Cross-reference validation: register's "Approve exception" row now links to the policy's §2.2 (path resolves); policy §2.4 links back to the register (path resolves); §3.5 renewal-ceiling pathway introduced in PR #157 remains intact and is now explicitly connected to the RACI via §2.4.
+- Pattern consistency: register's other RACI rows that use a "pathway" Accountable formulation (rows "Approve standard", "Perform assurance review") follow the same convention as the new row, so the fix does not introduce a new RACI pattern.
+
+### Discipline observation
+
+This is the second instance in the corpus where a stub or under-specified RACI cell was caught by fitness review (the first was FR-9 / FR-10's CRO accountability shipped in PR #143). Both fixes followed the same shape: name the role in the document that owns the substantive content (the standard or policy that defines the underlying activity), then point the RACI at that document so the RACI stays one-line and the document stays the source of truth. Surfaced as a candidate generalisation for the corpus-management discipline (TODO P4.6): when the RACI calls out a placeholder role not defined in the register's own authority table, the fix is to point at the operative document rather than to add a new role to the register's table.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.142, PR #160
 
 Sweep 14 iteration 1 close-out. Four in-window findings caught by Subagents A and B; Subagent C zero findings. All four are FR-44-self-violations or related drift introduced (or surfaced) by the same-day PRs #157 + #159 landing in this batch.

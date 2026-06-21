@@ -4,6 +4,12 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.143, PR #161
+
+Closes **FR-17** (high, Pass-1 ⚠️ confirmed-with-modification). The exception policy's §2.2 approval pathway (Department Head / CIO / Executive Committee or Board Risk Committee, with §3.5 ERC and Board Risk Committee renewal tiers from PR #157) named approvers that did not align with the [`governance/register-role-authority.md`](governance/register-role-authority.md) "Approve exception" RACI row, which carried a stub "Risk Accountable Role" placeholder. The RACI's Accountable cell now names the tiered pathway and points at [`governance/policy-exception-and-risk-acceptance-management.md`](governance/policy-exception-and-risk-acceptance-management.md) §2.2 (with §3.5 cross-reference for renewals); the policy gains a new §2.4 that explicitly declares §2.2 / §3.5 as the source of truth for the RACI's chain, identifies the adopter-tunable seams (tier thresholds in §2.2; named bodies in §3.5 via the substitution clauses), and matches the reciprocal cross-reference pattern from PR #146 (FR-96). Per-doc bumps: role authority register `1.3.1 → 1.3.2`; exception policy `1.1.1 → 1.2.0`; library `2026.06.142 → 2026.06.143`. Backlog 90 → 89 open.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.142, PR #160
 
 Sweep 14 iteration 1 close-out. Four in-window findings (Subagent A surfaced 3 FR-44-self-violations introduced by PRs #157 + #159 landing the same day; Subagent B independently flagged the same master-spec finding plus a stale TODO queued-sequence framing; Subagent C zero findings):
