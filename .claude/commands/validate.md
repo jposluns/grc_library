@@ -12,21 +12,21 @@ Invoke the `validation-sweep` skill defined in this project's pack at [`dev-secu
 
 Termination (replaces the older fixed 3-iteration cap; first matching condition fires): (a) empty-delta primary stop: zero new High/Medium findings AND the synthesised finding-set is identical (by dedupe-key) to the previous iteration; (b) patience-plateau secondary stop: 2 consecutive iterations with no strict shrinkage, surface residual to operator with named decision; (c) hard-ceiling 6 iterations runaway guard, defect signal not completion (report cycle vs scope creep).
 
-Step 8 (only when the sweep produced findings): append an entry to [`.working/validate-sweeps-history.md`](../../.working/validate-sweeps-history.md) (this project's path; adopters relocate to a project-appropriate location) recording the trigger, state at HEAD, finding counts by class and severity, actions taken, and the resulting PR. Zero-finding sweeps leave no trace in the register, no register entry, no CHANGELOG entry, no standalone PR; the convergence-delta trend lives in the iteration counter, not in a per-sweep record.
+Step 8 (every iteration): append a row to [`.working/validate-sweeps/history.md`](../../.working/validate-sweeps/history.md) (this project's path; adopters relocate to a project-appropriate location) with columns `Date | Sweep | Subagents | Findings | Resulting PR | Detail | Summary`. New row on top (reverse-chronological). Zero-finding iterations still get a row; the `Detail` column is `—` and the `Resulting PR` is `none` for those.
 
-Step 9 (every iteration, including zero-finding ones): write a per-iteration record to [`.working/validate-sweeps/`](../../.working/validate-sweeps/). Filename `YYYY-MM-DD-sweepN-iterM.md` where `N` is the sweep ordinal (continues the register's numbering) and `M` is the iteration within that sweep. The file captures detail the register's summary intentionally omits, so a maintainer reading the file weeks later can reconstruct the iteration without the chat transcript. Sections:
-
-Per-iteration record uses six H2 sections, comma form (per SKILL.md step 9):
+Step 9 (only when findings exist): write a per-iteration detail file to [`.working/validate-sweeps/`](../../.working/validate-sweeps/). Filename `YYYY-MM-DD-sweepN-iterM.md`. Six top-level H2 sections, comma form (per SKILL.md step 9):
 
 - `## Trigger & state snapshot`: which PR / instruction triggered this iteration; library version, pack version, governance-rule count, gate count, skill count at HEAD; whether this is iteration 1 or a re-baseline.
-- `## Subagent A, Recent-PR deep review`: the verbatim return (SARIF-lite findings + summary). If A returned zero findings, record "zero findings" plus the one-line rationale the subagent gave.
+- `## Subagent A, Recent-PR deep review`: the verbatim return (SARIF-lite findings + summary).
 - `## Subagent B, Corpus-wide stale-reference sweep`: the verbatim return.
 - `## Subagent C, Audit-programme integrity reviewer`: the verbatim return.
 - `## Orchestrator synthesis`: which findings were in-window, classification by C1-C8 failure-mode class, severity adjudication, dedupe choices, debate outcomes if any, and the action decided for each finding.
-- `## Resulting PR`: link, or "none, zero findings".
+- `## Resulting PR`: link to the close-out PR.
+
+Zero-finding iterations leave no detail file; the history row alone is the persistent trace.
 
 `.working/validate-sweeps/` is exempt from corpus audit gates (frozen-state archive). Existing `path:line` references in subagent reports are kept verbatim even if the lines later shift; the record is a moment-in-time artefact.
 
 Reject any subagent finding that lacks an explicit `path:line` quote. A finding without quoted evidence is a hypothesis, not a finding; re-dispatch the subagent with a re-emphasized evidence requirement before synthesising.
 
-Report back: the audit baseline result, the subagent findings (grouped by severity, with `path:line` evidence per finding), the fixes applied, the final clean-bill status, the new entry in the sweep history register (if findings), and the path to the per-iteration record in `.working/validate-sweeps/`.
+Report back: the audit baseline result, the subagent findings (grouped by severity, with `path:line` evidence per finding), the fixes applied, the final clean-bill status, the new history row, and (when findings exist) the path to the per-iteration detail file.
