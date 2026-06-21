@@ -2,8 +2,8 @@
 
 **Document Title:** Validation Sweep History Register\
 **Document Type:** Register\
-**Version:** 1.11.0\
-**Date:** 2026-06-20\
+**Version:** 1.12.0\
+**Date:** 2026-06-21\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](../dev-security/claude-rules/skills/validation-sweep/SKILL.md), [`governance/specification-audit-programme.md`](specification-audit-programme.md), [`governance/register-coverage-gaps.md`](register-coverage-gaps.md), [`CHANGELOG.md`](../CHANGELOG.md)\
@@ -166,6 +166,20 @@ Historical entries from Sweeps 1-3 were classified before this convention was do
 - **Pre-flight scanner**: 24 candidates suppressed (18 heuristic, 6 exemption), 0 candidates surfaced.
 - **Sweep value**: surfaced gate 39's regex-pattern gap (P1-P5 required a qualifier; bare "N gates" prose evaded them). P6 closes the gap going forward. Also surfaced a discipline gap (subagent-skip without authorisation); Rule 5.6 closes that going forward.
 - **Resulting PRs**: [#110](https://github.com/jposluns/grc_library/pull/110) for the corpus stale-prose findings + gate 39 pattern extension; [#111](https://github.com/jposluns/grc_library/pull/111) for the Subagent C findings + Rule 5.6 + dispatch-declaration discipline.
+
+### 2026-06-21, Sweep 9 iteration 2 (post-PR-#111 re-baseline)
+
+- **Trigger**: convergence-delta termination protocol; PR #111 added Rule 5.6 (subagent-dispatch declaration) and Subagent C's findings closed, so the steady state had to be re-baselined against the post-fix corpus. Maintainer instruction: "run that" (continue the re-baseline iteration cycle to verify convergence).
+- **State**: library 2026.06.97; spec 1.12.0; pack 1.26.17; 44 corpus gates; 10 pack skills; 6 governance rules (this iteration began before the 7th rule landed).
+- **Subagents dispatched: A, B, C** (full fan-out per the SKILL Rule 5.6 unconditional discipline now in force).
+- **Findings**:
+  - **A: zero findings** (in-window).
+  - **B: C1 stale-prose** x 1 (in-window): `tools/check-changelog-on-pr.py:5` comment "42 corpus gates", the same shape as the Sweep 9 iteration-1 `tools/run_all_audits.sh:65` finding (PR #111's fix) but a parallel occurrence I had not validated for. The C-2 finding's fix was inferred-complete on the basis of one occurrence; the second occurrence escaped. Actioned in this PR.
+  - **C: zero findings** (in-window).
+  - **Discipline failure** x 1 (process, this iteration's *predecessor* close-out): the orchestrator inferred "fix is complete" after addressing one occurrence (`tools/run_all_audits.sh:65`) without grepping for parallel occurrences. The cascade: Sweep 9 iteration 1 had two underlying occurrences of the `42 corpus gates` shape; PR #111 closed only the one Subagent C surfaced; Subagent B in this iteration's run caught the parallel occurrence. Corrective action: pack rule [`governance/validate-inference-before-action.md`](../dev-security/claude-rules/governance/validate-inference-before-action.md) added as the 7th governance rule, codifying "when an action depends on an inferred premise, validate the premise via a tool call before acting".
+- **Pre-flight scanner**: 24 candidates suppressed (18 heuristic, 6 exemption), 0 candidates surfaced beyond the in-window finding above.
+- **Sweep value**: surfaced the cascade-failure mode itself (one fix inferred-complete drives the next inference); the structural defence is the 7th pack rule (`validate-inference-before-action.md`) requiring corpus-wide validation before claiming completeness. Also surfaced a gate 39 pattern gap: the `tools/check-changelog-on-pr.py:5` occurrence used a `# N <word> gates` shape that P6 caught (the file was scanned) but the iteration-1 PR fixed only the surface that Subagent C reported. The discipline failure is at the close-out, not at the gate's regex.
+- **Resulting PRs**: [#112](https://github.com/jposluns/grc_library/pull/112) for the Subagent B finding fix + 7th pack rule + Sweep 9 iter 2 close-out.
 
 ## False-positive memory
 

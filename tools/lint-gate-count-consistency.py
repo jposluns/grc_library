@@ -24,6 +24,10 @@ Patterns scanned (case-insensitive):
   P6  bare ``<two-digit N> gates`` without preceding qualifier, with a
       negative lookahead so ``gate-name`` / ``gate-count`` / ``gates 1-N``
       shapes do not false-positive (added after a Sweep finding)
+  P7  ``<two-digit N> <short adjective> gates`` where one short word
+      intervenes between the digit and ``gates`` (e.g. ``N corpus
+      gates``); same negative lookahead as P6 (added after a follow-on
+      Sweep finding where P6 missed an adjective-intervening case)
 
 Captured ``N`` is compared to the canonical count from §6. Mismatch
 means the prose was not updated when a gate was added or retired.
@@ -59,6 +63,13 @@ EXEMPT_FILES: frozenset[str] = frozenset(
         "docs/portal.md",
         "docs/maturity-scorecard.md",
         "tests/test_linters.py",
+        # The sweep history register is a historical-record artefact
+        # by purpose: each sweep entry's "State:" line records the
+        # corpus state at sweep time, including the then-current gate
+        # count. These references are correct snapshots, not stale
+        # prose. Added when P7 ("N <word> gates") began surfacing the
+        # State lines as false positives.
+        "governance/register-sweep-history.md",
     }
 )
 
@@ -98,6 +109,24 @@ PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     # digits) to avoid matching small physical-gate references that
     # may legitimately appear (e.g. "5 gates of NAND").
     ("N gates", re.compile(r"\b(\d{2,})\s+gates?(?![-\w])", re.IGNORECASE)),
+    # P7: "<two-digit N> <single-word> gates" where the intervening
+    # word is a short adjective (e.g. "<N> corpus gates"; "N audit
+    # gates" already covered by P2 but the broader shape needed
+    # explicit coverage). Added after a Sweep cycle iteration
+    # surfaced a stale-count "<N> corpus gates" prose pattern in
+    # both tools/run_all_audits.sh and tools/check-changelog-on-pr.py;
+    # P6 missed both because a single word ("corpus") intervenes
+    # between the digit and "gates". Negative lookahead matches P6's,
+    # plus the intervening word is limited to short (<= 12 char)
+    # alphabetic strings to avoid matching unrelated multi-word
+    # constructs.
+    (
+        "N <word> gates",
+        re.compile(
+            r"\b(\d{2,})\s+[a-z]{2,12}\s+gates?(?![-\w])",
+            re.IGNORECASE,
+        ),
+    ),
 ]
 
 
