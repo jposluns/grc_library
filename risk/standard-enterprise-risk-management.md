@@ -2,7 +2,7 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.3.4\
+**Version:** 1.4.0\
 **Date:** 2026-06-21\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -39,6 +39,7 @@ This standard defines the enterprise-wide risk management framework, taxonomy, a
 | Chief Information Security Officer | Responsible for managing information security, privacy, and AI-related risks; ensures that integration into the risk register. |
 | Enterprise Risk Committee (ERC) | Oversees risk appetite, tolerance, and periodic risk reporting; meets quarterly. |
 | Risk Manager / Compliance Officer | Administers risk registers and scoring models; facilitates risk assessments across the organisation. |
+| Risk Owner | Accountable for a specific named risk entered in the enterprise risk register: confirms the risk statement, selects the treatment option, owns the treatment plan and target dates, monitors residual exposure, and reports status per the cadence in §8. Distinct from the Chief Risk Officer (who owns the ERM framework and methodology) and from Process and System Owners (who identify risks within their operational domains but do not necessarily own each named risk in the register). |
 | Process and System Owners | Identify risks within their domains, implement controls, and report residual exposures. |
 | Internal Audit | Provides independent assurance on risk governance and control effectiveness. |
 
@@ -116,7 +117,7 @@ Risk scores are calculated as **Likelihood (1 to 5) × Impact (1 to 5) = Risk Sc
 | Score Range | Rating | Required Response |
 |---|---|---|
 | 1 to 5 | Low | Monitor only; review annually |
-| 6 to 10 | Moderate | Treat and monitor; review quarterly |
+| 6 to 10 | Moderate | Mitigate and monitor; review quarterly |
 | 11 to 15 | High | Mitigate or transfer; assign owner; review monthly |
 | 16 to 25 | Critical | Immediate action required; ERC oversight; escalate to executive leadership |
 
@@ -132,7 +133,8 @@ Treatment decisions must be documented with one of the following options:
 | Mitigate | Implement controls to reduce likelihood or impact to an acceptable level |
 | Transfer | Shift financial consequence to a third party (e.g., insurance, contractual liability) |
 | Accept | Formally accept residual risk per the Risk Acceptance Procedure |
-| Exploit / Enhance | Pursue or increase a positive-risk (opportunity) scenario |
+| Exploit | Pursue a positive-risk (opportunity) scenario by acting to make it more likely to occur or to amplify its upside |
+| Enhance | Increase the likelihood or impact of an existing positive-risk scenario without creating a new one |
 
 Each treatment plan must include: accountable owner, target completion date, required actions, dependencies, expected residual risk score, and current status.
 
@@ -158,7 +160,7 @@ Each risk register entry must include the following fields.
 | Likelihood (Residual) | Score 1 to 5 |
 | Impact (Residual) | Score 1 to 5 |
 | Residual Risk Score | Likelihood × Impact |
-| Treatment Option | Avoid / Mitigate / Transfer / Accept / Exploit |
+| Treatment Option | Avoid / Mitigate / Transfer / Accept / Exploit / Enhance |
 | Treatment Actions | Specific steps with owner and target date |
 | Risk Owner | Accountable individual (role title) |
 | Status | Open / Mitigated / Accepted / Closed |
