@@ -6,6 +6,50 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.136, PR #154
+
+Sweep 13 iteration 1 close-out. Five out-of-window findings from Subagent A (recent-PR deep review); Subagents B (corpus-wide stale-reference) and C (audit-programme integrity) returned zero findings each. Detail report at [`.working/validate-sweeps/2026-06-21-sweep13-iter1.md`](../validate-sweeps/2026-06-21-sweep13-iter1.md).
+
+### Closed findings
+
+- **FR-45-generalisation, ai/ domain** (3 occurrences, multi-surface incompleteness): PR #150's "may not" → "must not be" RFC 2119 fix had scoped its corpus-wide grep to `security/` only, missing three parallel occurrences in `ai/`. Each had the same MUST-NOT semantics as the originally-fixed lines.
+- **FR-92-generalisation, BASC IT KPIs register** (1 occurrence, multi-surface incompleteness): PR #153 added `Escalation Owner` + `Remediation Sign-off` columns to the IT-ops register and introduced the design principle requiring both fields on every KPI. The parallel BASC sector-specific KPI register has the same structural role (per-KPI table with Owner column) but lacked the new columns.
+- **Document history table drift, BASC IT KPIs register** (1 occurrence, stale prose reference): file's frontmatter declared Version 1.1.1, but the embedded Document history table only listed 1.0.0. Frontmatter-vs-history-table consistency gap.
+
+### Changed
+
+- [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md):
+  - `ADTEST-SEC-02` (line 543): `Test cases may not be removed from the suite without CISO approval.` → `Test cases must not be removed from the suite without CISO approval.`
+  - `OFFAI-SEC-10` (line 718): `...may not be embedded in proprietary tooling chains;` → `...must not be embedded in proprietary tooling chains;` (within the existing AGPLv3/GPL-3.0 licence-restriction context, where the intent is a legal prohibition).
+  - Per-doc version `1.8.1 → 1.8.2`; Date `2026-06-19 → 2026-06-21`.
+- [`ai/guide-ai-adversarial-test-reference.md`](../../ai/guide-ai-adversarial-test-reference.md):
+  - Line 164 parallel restatement of `ADTEST-SEC-02`: `Test cases may not be removed without CISO approval` → `Test cases must not be removed without CISO approval`. Updated in lock-step with the standard.
+  - Per-doc version `1.3.0 → 1.3.1`; Date `2026-05-28 → 2026-06-21`.
+- [`compliance/logistics/register-basc-it-compliance-kpis.md`](../../compliance/logistics/register-basc-it-compliance-kpis.md):
+  - Single KPI table gains two new columns: `Escalation Owner` and `Remediation Sign-off`. Role assignments mirror PR #153's design rule: CISO escalation for IT-ops-style KPIs (training completion is ERC because owner is already CISO; phishing simulation, patching, MFA, access review, offboarding, vulnerability remediation all CISO); ERC escalation where Owner Role is already CISO (incident volume, MTTR, exception register currency, training completion).
+  - Document history table backfilled with rows for `1.1.0`, `1.1.1`, and `1.2.0` to reconcile the frontmatter-vs-history-table discontinuity.
+  - Per-doc version `1.1.1 → 1.2.0` (minor: schema-level column addition).
+  - Date `2026-05-28 → 2026-06-21`.
+- [`README.md`](../../README.md): library `2026.06.135 → 2026.06.136`; README `1.9.6 → 1.9.7`.
+- [`TODO.md`](../../TODO.md): session-resume snapshot updated to reflect Sweep 13 close-out.
+- [`.working/DONE.md`](../DONE.md): PR #154 entry added.
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): Sweep 13 iter 1 row added (reverse-chronological top).
+- [`.working/validate-sweeps/2026-06-21-sweep13-iter1.md`](../validate-sweeps/2026-06-21-sweep13-iter1.md): per-iteration detail file created with the six required H2 sections (Trigger & state snapshot; Subagent A; Subagent B; Subagent C; Orchestrator synthesis; Resulting PR).
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- `tools/run-pr-time-checks.sh` exits 0 (D1 + D2 + gate 45).
+- Corpus-wide grep for `may not` (used as a prohibition) in `ai/`: zero occurrences post-edit on the three target lines.
+
+### Discipline observation
+
+The FR-45 scope-limitation in PR #150 (corpus grep restricted to `security/`) is the proximate cause of the three `ai/` findings surfacing in Sweep 13 rather than being caught at PR-150-merge time. Generalising the FR-45 corpus grep to the full corpus when the original PR ships would have caught these. A future audit gate or sweep heuristic that flags "may not" used as a prohibition across the full corpus would catch the same pattern systematically; surfaced for future consideration. Not in scope for this PR.
+
+The FR-92 design principle introduced in PR #153 was framed as a register-local rule for the IT-ops register; whether it should be promoted to a corpus-normative requirement (i.e., every KPI register must carry these two columns) is a separate question. This close-out applies it to the one clearly-parallel register identified by Subagent A but does not declare a corpus-wide invariant.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.135, PR #153
 
 Closes FR-92 (high). The IT Operations KPI register defined targets without identifying who escalates when a target is missed and who signs off that a breach event is closed; the register now records both roles per KPI.

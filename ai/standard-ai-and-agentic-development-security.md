@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.1\
-**Date:** 2026-06-19\
+**Version:** 1.8.2\
+**Date:** 2026-06-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md)\
@@ -540,7 +540,7 @@ The adversarial test suite must cover five categories on every system in scope. 
 
 **ADTEST-SEC-01:** The test suite must be updated quarterly with new techniques sourced from OWASP GenAI Security Project, MITRE ATLAS, GitHub Security Lab AI research, and internal incident-derived cases.
 
-**ADTEST-SEC-02:** Test cases may not be removed from the suite without CISO approval.
+**ADTEST-SEC-02:** Test cases must not be removed from the suite without CISO approval.
 
 ---
 
@@ -715,7 +715,7 @@ AI-driven penetration testing and offensive security agents (PentestGPT, PentAGI
 
 **OFFAI-SEC-09:** Use of AI-driven offensive tools must not bypass the human-approval gates in §24 of this standard for any action the tool plans. Where the tool's autonomous mode would execute an action that requires human approval per §24, the autonomous mode must be configured to halt and request approval.
 
-**OFFAI-SEC-10:** AI-driven offensive tool licences are reviewed per the open-source licence policy. Tools under copyleft licences (AGPLv3, GPL-3.0) restrict downstream distribution and may not be embedded in proprietary tooling chains; tools under permissive licences (MIT, Apache 2.0) are preferred for embedding scenarios. The licence determination is recorded with the tool's approval.
+**OFFAI-SEC-10:** AI-driven offensive tool licences are reviewed per the open-source licence policy. Tools under copyleft licences (AGPLv3, GPL-3.0) restrict downstream distribution and must not be embedded in proprietary tooling chains; tools under permissive licences (MIT, Apache 2.0) are preferred for embedding scenarios. The licence determination is recorded with the tool's approval.
 
 ---
 

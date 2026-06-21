@@ -4,6 +4,18 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.136, PR #154
+
+Sweep 13 iteration 1 close-out. Five out-of-window findings from Subagent A (Subagents B and C zero findings):
+
+- **FR-45 generalisation** to `ai/` domain: [`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md) `ADTEST-SEC-02` ("Test cases may not be removed") and `OFFAI-SEC-10` (GPL/AGPL embedding prohibition) tightened from "may not" to "must not be" / "must not be embedded"; [`ai/guide-ai-adversarial-test-reference.md`](ai/guide-ai-adversarial-test-reference.md) parallel restatement of `ADTEST-SEC-02` updated in lock-step. PR #150 had limited its corpus-wide grep to `security/`; these three `ai/` occurrences escaped that scope.
+- **FR-92 generalisation** to BASC IT KPIs register: [`compliance/logistics/register-basc-it-compliance-kpis.md`](compliance/logistics/register-basc-it-compliance-kpis.md) gains `Escalation Owner` and `Remediation Sign-off` columns on its 10-row KPI table, applying the FR-92 design principle introduced for the IT-ops register.
+- **Document history table backfill** on the same BASC file: frontmatter declared 1.1.1 but the history table only listed 1.0.0; rows for 1.1.0, 1.1.1, and 1.2.0 added.
+
+Per-doc bumps: ai standard `1.8.1 → 1.8.2`; ai guide `1.3.0 → 1.3.1`; BASC KPIs register `1.1.1 → 1.2.0`. Library `2026.06.135 → 2026.06.136`. Detail report at [`.working/validate-sweeps/2026-06-21-sweep13-iter1.md`](.working/validate-sweeps/2026-06-21-sweep13-iter1.md).
+
+---
+
 ## 2026-06-21, Library Version 2026.06.135, PR #153
 
 Closes **FR-92** (high). [`operations/register-it-operations-kpis.md`](operations/register-it-operations-kpis.md) gains two new columns on every KPI table (Sections 1-8): `Escalation Owner` (the named role accountable for breach response when the target is missed) and `Remediation Sign-off` (the named role responsible for confirming that the breach event is closed). Roles are drawn from the [Role Authority Register](governance/register-role-authority.md): CIO escalation for IT-operations KPIs, CISO escalation for security-flavoured KPIs (patch/vulnerability management, security operations, EDR coverage), and ERC escalation where the KPI's Owner Role is already CIO or CISO (so escalation cannot meaningfully go to the same role). The KPI design principles list also gains a new principle 2 requiring both fields to be populated from the role-authority register, and the related-documents header now references that register. Per-doc `1.0.0 → 1.1.0` (minor: schema-level column addition); library `2026.06.134 → 2026.06.135`. Backlog 96 → 95 open.

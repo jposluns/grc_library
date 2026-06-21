@@ -2,8 +2,8 @@
 
 **Document Title:** AI Adversarial Test Reference\
 **Document Type:** Guide\
-**Version:** 1.3.0\
-**Date:** 2026-05-28\
+**Version:** 1.3.1\
+**Date:** 2026-06-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md)\
@@ -161,7 +161,7 @@ Red team reports must document: attack narrative; tools used; steps to reproduce
 
 **Governance:**
 
-- Test cases may not be removed without CISO approval (AI Security Standard ADTEST-SEC-02).
+- Test cases must not be removed without CISO approval (AI Security Standard ADTEST-SEC-02).
 - The test suite version must increment whenever cases are added or modified.
 - Test suite version and last-updated date must be recorded in the AI system's governance documentation.
 

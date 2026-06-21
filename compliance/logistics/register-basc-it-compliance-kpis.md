@@ -2,8 +2,8 @@
 
 **Document Title:** BASC IT Compliance Monitoring and KPIs\
 **Document Type:** Register\
-**Version:** 1.1.1\
-**Date:** 2026-05-28\
+**Version:** 1.2.0\
+**Date:** 2026-06-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`compliance/logistics/policy-basc-information-security.md`](policy-basc-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md)\
@@ -24,18 +24,18 @@ This register defines the key performance indicators (KPIs) used to monitor IT a
 
 ## IT and cybersecurity kpis
 
-| KPI | Metric | Target | Reporting Frequency | Owner |
-| --- | --- | --- | --- | --- |
-| Security awareness training completion | Percentage of personnel completing mandatory annual training | 95% by required deadline | Monthly | Chief Information Security Officer (CISO) |
-| Phishing simulation failure rate | Percentage of employees who click simulated phishing links | < 5% quarterly trend | Quarterly | IT Security |
-| Critical patch deployment | Percentage of Critical patches deployed within 7 days of release | 100% | Monthly | IT Operations |
-| MFA coverage | Percentage of active user accounts with MFA enrolled | 100% | Monthly | IAM Team |
-| Access review completion | Percentage of privileged account access reviews completed on schedule | 100% quarterly | Quarterly | IAM Team |
-| Offboarding completeness | Percentage of offboarding actions completed within required timelines | 100% | Monthly | IT Operations |
-| Security incident volume | Number of confirmed P1/P2 security incidents per quarter | Trend tracking; no absolute target | Quarterly | Chief Information Security Officer (CISO) |
-| Mean time to respond (MTTR) | Average time from alert to containment for P1/P2 incidents | P1: < 1 hour; P2: < 4 hours | Quarterly | Chief Information Security Officer (CISO) |
-| Exception register currency | Percentage of open exceptions with current owner and target date | 100% | Quarterly | Chief Information Security Officer (CISO) |
-| Vulnerability remediation (High) | Percentage of High severity vulnerabilities remediated within 14 days | 90% | Monthly | IT Operations |
+| KPI | Metric | Target | Reporting Frequency | Owner | Escalation Owner | Remediation Sign-off |
+| --- | --- | --- | --- | --- | --- | --- |
+| Security awareness training completion | Percentage of personnel completing mandatory annual training | 95% by required deadline | Monthly | Chief Information Security Officer (CISO) | Enterprise Risk Committee | Enterprise Risk Committee |
+| Phishing simulation failure rate | Percentage of employees who click simulated phishing links | < 5% quarterly trend | Quarterly | IT Security | Chief Information Security Officer | Chief Information Security Officer |
+| Critical patch deployment | Percentage of Critical patches deployed within 7 days of release | 100% | Monthly | IT Operations | Chief Information Security Officer | Chief Information Security Officer |
+| MFA coverage | Percentage of active user accounts with MFA enrolled | 100% | Monthly | IAM Team | Chief Information Security Officer | Chief Information Security Officer |
+| Access review completion | Percentage of privileged account access reviews completed on schedule | 100% quarterly | Quarterly | IAM Team | Chief Information Security Officer | Chief Information Security Officer |
+| Offboarding completeness | Percentage of offboarding actions completed within required timelines | 100% | Monthly | IT Operations | Chief Information Security Officer | Chief Information Security Officer |
+| Security incident volume | Number of confirmed P1/P2 security incidents per quarter | Trend tracking; no absolute target | Quarterly | Chief Information Security Officer (CISO) | Enterprise Risk Committee | Enterprise Risk Committee |
+| Mean time to respond (MTTR) | Average time from alert to containment for P1/P2 incidents | P1: < 1 hour; P2: < 4 hours | Quarterly | Chief Information Security Officer (CISO) | Enterprise Risk Committee | Enterprise Risk Committee |
+| Exception register currency | Percentage of open exceptions with current owner and target date | 100% | Quarterly | Chief Information Security Officer (CISO) | Enterprise Risk Committee | Enterprise Risk Committee |
+| Vulnerability remediation (High) | Percentage of High severity vulnerabilities remediated within 14 days | 90% | Monthly | IT Operations | Chief Information Security Officer | Chief Information Security Officer |
 
 ---
 
@@ -63,6 +63,9 @@ The CISO consolidates IT and cybersecurity KPI results monthly. Quarterly result
 | Version | Date | Change |
 | --- | --- | --- |
 | 1.0.0 | 2026-05-27 | Initial release |
+| 1.1.0 | 2026-05-28 | Minor revision (per frontmatter; detail not previously logged in this table) |
+| 1.1.1 | 2026-05-28 | Patch revision (per frontmatter; detail not previously logged in this table) |
+| 1.2.0 | 2026-06-21 | Sweep 13 close-out: added Escalation Owner and Remediation Sign-off columns to align with FR-92 design principle established in [`operations/register-it-operations-kpis.md`](../../operations/register-it-operations-kpis.md) (PR #153); backfilled history-table rows for 1.1.0 and 1.1.1. |
 
 
 
