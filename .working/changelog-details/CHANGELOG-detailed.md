@@ -6,7 +6,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
-## 2026-06-21, Library Version 2026.06.151, PR #169
+## 2026-06-21, Library Version 2026.06.152, PR #169
 
 Phase 1 velocity bundle. Three medium-tier access-control polish findings closed in [`security/procedure-access-control.md`](../../security/procedure-access-control.md). Single-file bundle; all three localise to the same procedure.
 
@@ -18,8 +18,8 @@ Phase 1 velocity bundle. Three medium-tier access-control polish findings closed
 
 ### Changed
 
-- [`security/procedure-access-control.md`](../../security/procedure-access-control.md): §1.2 expanded with escalation ladder; §1.4 expanded with trigger conditions + revocation consequence; §3.2 replaced "appropriate" with four-criterion list; Related Documents gains `procedure-security-incident-response.md`. Opportunistic `formalized → formalised`. Per-doc `1.0.0 → 1.1.0`.
-- [`README.md`](../../README.md): library `2026.06.150 → 2026.06.151`; README per-doc `1.9.21 → 1.9.22`.
+- [`security/procedure-access-control.md`](../../security/procedure-access-control.md): §1.2 expanded with escalation ladder; §1.4 expanded with trigger conditions + revocation consequence; §3.2 replaced "appropriate" with four-criterion list; Related Documents gains `procedure-security-incident-response.md`. Opportunistic `formalized → formalised`. Per-doc `1.0.0 → 1.1.1` (two commits: 1.0.0 → 1.1.0 with the body changes, then 1.1.0 → 1.1.1 as the post-rephrase recency bump caught by gate 40 in CI).
+- [`README.md`](../../README.md): library `2026.06.150 → 2026.06.152`; README per-doc `1.9.21 → 1.9.23`.
 - [`TODO.md`](../../TODO.md): FR-26/27/28 rotated out of Medium tier (cluster row removed); backlog counters updated (10 + 5 + 53 = 68 immediate; 14 deferred; 82 open).
 - [`.working/DONE.md`](../DONE.md): PR #169 entry added.
 

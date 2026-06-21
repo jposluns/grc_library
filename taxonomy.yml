@@ -4776,7 +4776,7 @@ documents:
   domain: "security"
   type: "Procedure"
   title: "Access Control Procedure"
-  version: "1.1.0"
+  version: "1.1.1"
   date: "2026-06-21"
   owner: "Chief Information Security Officer"
   approving_authority: "Chief Information Officer"
