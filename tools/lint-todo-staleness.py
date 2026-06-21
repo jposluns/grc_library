@@ -50,11 +50,19 @@ TARGET_FILES: list[str] = [
 ]
 SWEEP_HISTORY_PATH = ".working/validate-sweeps/history.md"
 
-# Queued-PR patterns. Match `Next` / `queued` / `pending` adjacent to `PR #<n>`.
-# Conservative: require the marker word and `PR #N` on the same logical line,
-# with the marker preceding the PR ref within 80 characters.
+# Queued-PR patterns. Match `Next` / `queued` / `pending` immediately
+# adjacent to `PR #<n>`, where "immediately adjacent" means only
+# whitespace, commas, colons, dashes, or em-dashes between the marker
+# word and the PR ref. The earlier 80-character window produced false
+# positives on lines where the queued PR was a placeholder (`PR #N`)
+# and the sentence later referenced a real merged PR number in a
+# parenthetical historical aside (`...(during PR #133)`). The tighter
+# character class limits the match to the queued-PR target form
+# `Next, PR #128` / `Next — PR #128` / `queued PR #128` and excludes
+# any inline word characters between the marker and the digit-bearing
+# PR ref.
 QUEUED_PR_PATTERN = re.compile(
-    r"\b(?:next|queued|pending|upcoming)\b[^\n]{0,80}PR\s*#(\d+)",
+    r"\b(?:next|queued|pending|upcoming)\b[\s,:—–-]*PR\s*#(\d+)",
     re.IGNORECASE,
 )
 
