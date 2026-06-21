@@ -66,13 +66,11 @@ EXEMPT_FILES: frozenset[str] = frozenset(
     }
 )
 
-# Note: the validation-sweep history file (moved to
-# `.working/validate-sweeps-history.md` in PR #116) is a historical-
-# record artefact by purpose - each sweep entry's "State:" line
-# records the corpus state at sweep time, including the then-current
-# gate count. The file is now in `.working/` which is in
-# `DEFAULT_EXEMPT_DIRS`, so a per-file exemption here is no longer
-# needed.
+# Note: the validation-sweep history file (now at
+# `.working/validate-sweeps/history.md`, relocated within `.working/`
+# in PR #118) is a historical-record artefact by purpose; the file is
+# in `.working/` which is in `DEFAULT_EXEMPT_DIRS`, so a per-file
+# exemption here is not needed.
 
 # Directories whose contents are out of scope for this audit. The
 # pack's tests and fixtures may also embed sample counts.

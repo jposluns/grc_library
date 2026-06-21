@@ -14,23 +14,25 @@ This directory holds operational artefacts produced by maintainer-invoked toolin
 - **Not generated artefacts.** `docs/portal.md`, `docs/maturity-scorecard.md`, and `taxonomy.yml` are mechanically generated from corpus metadata. `.working/` is hand-curated or AI-assisted but human-reviewed; not a build output.
 - **Not for adopter consumption.** Adopters cloning the library should treat `.working/` as the upstream maintainer's local state; delete it, ignore it, or keep it as historical context — their choice.
 
-## Contents
+## Standard layout for each activity
 
-Each subdirectory holds output of one specific maintainer activity; top-level files hold cumulative history or other high-level state. New entries are added as activities ship.
+Each maintainer activity gets its own subdirectory. The subdirectory contains three artefact types, following a uniform convention so a fresh reader can navigate any activity the same way:
 
-### Subdirectories
+| Artefact | Path | Purpose |
+|---|---|---|
+| Static convention info | `<activity>/README.md` | What the activity is; file naming convention; file format spec; failure-mode taxonomies; maintenance protocol; framework alignment; fork guidance |
+| Cumulative history | `<activity>/history.md` | Reverse-chronological table of every invocation: date, finding counts, resulting PR, one-line summary. New rows on top. |
+| Per-run detail | `<activity>/YYYY-MM-DD-...md` | Full report. **Created only when the run produced findings.** Zero-finding runs leave only a row in the history table. |
 
-| Subdirectory | Purpose | Created by |
-| --- | --- | --- |
-| [`validate-sweeps/`](validate-sweeps/) | Per-iteration records from `/validate` invocations (full subagent transcripts, orchestrator synthesis, resulting PR). One file per iteration. | PR #115 |
+This layout is the convention for any `.working/` activity. When a new activity ships, it creates its subdirectory with the README + history.md skeleton; per-run detail files are created on demand.
 
-### Top-level files
+## Activities
 
-| File | Purpose | Created by |
-| --- | --- | --- |
-| [`validate-sweeps-history.md`](validate-sweeps-history.md) | Cumulative log of `/validate` invocations: failure-mode class taxonomy, sweep entries, false-positive memory, recurring-class summary. The summary counterpart to the per-iteration files in `validate-sweeps/`. | Moved from `governance/register-sweep-history.md` in PR #116 |
+| Activity | Subdirectory | Purpose | Created by |
+| --- | --- | --- | --- |
+| Validation sweeps | [`validate-sweeps/`](validate-sweeps/) | Records from `/validate` invocations (corpus-wide regression sweep). | PRs #115-#118 |
 
-**To add a new subdirectory or top-level file**: append a row to the appropriate table above with a one-line purpose statement and the PR / skill / activity that creates content in it.
+**To add a new activity**: create the subdirectory with `README.md` (absorbing static convention info) and `history.md` (empty table). Per-run detail files land as runs produce findings. Append a row to the table above with a one-line purpose statement and the originating PR / skill / activity.
 
 ## Fork guidance
 

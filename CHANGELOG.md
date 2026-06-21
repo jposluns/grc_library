@@ -4,6 +4,45 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.104, PR #118
+
+Restructured `.working/validate-sweeps/` to the canonical `<activity>/{README,history,detail-files}` layout that becomes the standard for any `.working/<activity>/` subdirectory going forward. The validation-sweep history file moves into the subdirectory; verbose static content (failure-mode taxonomy, maintenance protocol, accept-list rules, dating discipline, framework alignment) moves to the subdirectory's README; the history file becomes a slim reverse-chronological table; per-iteration detail files are created only when findings exist.
+
+The new pattern, for any activity directory under `.working/`:
+
+| Artefact | Filename pattern | Purpose |
+|---|---|---|
+| Static convention info | the activity's `README` | What the activity is, file format spec, taxonomies, protocols, framework alignment, fork guidance |
+| Cumulative history | the activity's `history` file | Reverse-chronological table: date, sweep ordinal, subagents dispatched, finding counts, resulting PR, summary. New rows on top. |
+| Per-run detail | one dated file per run | Full report; **only when the run produced findings**. Zero-finding runs leave only a row in the history file. |
+
+### Moved
+
+- [`.working/validate-sweeps-history.md`](.working/validate-sweeps-history.md) (old path, no longer present) -> [`.working/validate-sweeps/history.md`](.working/validate-sweeps/history.md). The file is now inside the subdirectory alongside its README and per-iteration files; the activity's full footprint is now self-contained in one directory.
+
+### Changed (extensive content reorganisation)
+
+- [`.working/validate-sweeps/README.md`](.working/validate-sweeps/README.md): expanded from a short convention note to absorb all static content from the former top-level history file: purpose, file structure spec, failure-mode classes (C1-C8) with classification convention, dispatch declaration discipline (Rule 5.6), false-positive memory rules (Rules 6.1-6.3), dating discipline for deferred findings, audit-gate exemption notes, adopter guidance, framework alignment.
+- [`.working/validate-sweeps/history.md`](.working/validate-sweeps/history.md): rewritten as a slim reverse-chronological table. New `Subagents` column declares dispatch (per Rule 5.6) in every row, including zero-finding iterations. Pre-existing detailed entries (Sweeps 1-10) summarised to one row each. Version `1.15.0 -> 2.0.0` (format change is breaking).
+- [`.working/README.md`](.working/README.md): "Standard layout for each activity" section added documenting the three-artefact convention. Activity table replaces the previous subdirectory/top-level-files split.
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): step 8 retitled and rewritten ("Append a row to the sweep history (every iteration)") with the new table-row format including the `Subagents` column. Step 9 retitled and rewritten ("Write the per-iteration detail file (only when findings exist)") to drop the every-iteration requirement. Rule 5.6 wording updated to point at the `Subagents` column. False-positive memory cross-reference updated to point at the README (which now holds the discipline rules).
+- [`.claude/commands/validate.md`](.claude/commands/validate.md): step 8 and step 9 briefs updated to match SKILL.md.
+- [`tools/lint-followup-ageing.py`](tools/lint-followup-ageing.py): `TARGET_FILES` updated to the relocated history file's new path. Docstring updated.
+- [`tools/lint-gate-count-consistency.py`](tools/lint-gate-count-consistency.py): comment about the relocated file updated.
+- [`tools/sweep-preflight-scanner.py`](tools/sweep-preflight-scanner.py): comment about the file updated.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.28.2 -> 1.29.0`; version-history row added.
+- [`README.md`](README.md): library version `2026.06.103 -> 2026.06.104`; README version `1.8.59 -> 1.8.60`.
+
+### Convention now applies to all future `.working/<activity>/` subdirectories
+
+When future skills add new activity subdirectories under `.working/` (e.g. `.working/fitness-reviews/` when the fitness-review skill ships), they follow this convention: a README for static info, a history file for the cumulative table, and dated files for per-run detail only when findings exist. Documented in [`.working/README.md`](.working/README.md).
+
+### Verification
+
+All 44 audit gates pass standalone post-commit. Gate 43 (`lint-followup-ageing`) successfully targets the relocated file at its new path. The pre-flight scanner returns 0 candidates (consistent with prior baseline). The validation-sweep skill's two steps now map cleanly to the simpler convention: one table row per iteration; one detail file only when there is something to detail.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.103, PR #117
 
 Sweep 10 iteration 1 close-out: six in-window prose drift findings actioned, all introduced or made visible by the three-PR `.working/` sequence (PRs #114-#116).
