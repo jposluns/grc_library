@@ -6,6 +6,46 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.163, PR #184
+
+Extended the research-assistant discipline (pack rule §1) with a worker-brief template and a hallucination-assessment update protocol. Each new failure class caught at apply-time becomes a permanent guard rail in the template, making the discipline self-improving.
+
+### Motivation
+
+After PR #176 documented the five AI-assistant workflow disciplines, the maintainer proposed (during the Sweep 16 close-out sequence) that the research-assistant discipline include a self-improving loop: when an apply-time catch occurs, the lesson should be captured as a guard rail in a project-local template so future workers don't repeat the failure. The catch entries in [`.working/hallucination-metrics.md`](../hallucination-metrics.md) already document the catches; the missing piece was a template that the catches feed back into.
+
+### Added
+
+- [`.working/worker-brief-template.md`](../worker-brief-template.md) v1.0.0: the project's worker-brief template. Sections: Common preamble (every worker sees the research-vs-final-prose distinction); DO list (guard rails with provenance back to catch logs); DO-NOT list (anti-patterns with the same provenance); per-PR-class overrides (FR-remediation, sweep close-out, meta / discipline, cleanup); hallucination-assessment update protocol (the four-step loop to add new guard rails); worker-brief assembly description.
+- Initial guard rails derived from the four known catch classes:
+  - File-path confabulation (PR #169 P1.3): worker must `find` or `Glob` every cited path.
+  - Stale external citations (Sweep 15, PR #167 close-out): worker must source from the canonical-citations register, not memory.
+  - Wrong PR / FR cross-references (PR #172): worker must verify against `.working/DONE.md`.
+  - Absolute current library / README version numbers (recurring): worker must NOT specify them; orchestrator fills at apply-time.
+
+### Changed
+
+- [`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`](../../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md) §1 gains a new subsection "Worker-brief template and hallucination-assessment update protocol". The subsection codifies the discipline: maintain a template; when a new failure class is caught, log → classify fix (worker-side / orchestrator-side / new gate) → update inline or queue → reference from catch entry. Mirrored to [`.claude/rules/governance/ai-assistant-workflow-disciplines.md`](../../.claude/rules/governance/ai-assistant-workflow-disciplines.md) per the sync convention (gate 37 verifies 12 pairs byte-for-byte).
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) summary of the ai-assistant-workflow-disciplines rule extended to reference the worker-brief template and the update protocol.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): pack version `1.38.0 → 1.39.0`; new version-history table row.
+- [`README.md`](../../README.md): library `2026.06.162 → 2026.06.163`; README `1.9.33 → 1.9.34`.
+- [`.working/DONE.md`](../DONE.md): PR #184 entry (terse).
+- [`TODO.md`](../../TODO.md): session-resume snapshot.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates.
+- `tools/run-pr-time-checks.sh` exits 0 (D1, D2, gate 45).
+- Gate 37 (claude-rules-sync) verifies 12 rule pairs synced byte-for-byte.
+
+### Discipline observation
+
+This PR closes the "consider hallucination assessment as recurring discipline" thread the maintainer raised. The template is the durable form of the assessment process: when a new failure class is observed in a future PR, the template gets a new rail; future workers benefit from the lesson without the orchestrator having to remember to include it ad hoc.
+
+The template ships with v1.0.0 and four initial rails. Future PRs that surface new failure classes will bump the template's Version and add new rails inline. The audit trail across template versions becomes the longitudinal record of "what we've learned about worker failure modes".
+
+This PR also closes the gap between the rule-text discipline (in the pack rule) and the operational template (project-local). The rule says "maintain a template"; this PR creates the template and demonstrates the assembly pattern.
+
 ## 2026-06-21, Library Version 2026.06.162, PR #183
 
 Added the `/validate-pr` skill and slash command: PR-scoped post-merge validation sweep that runs after every merge to catch per-PR drift before it compounds across subsequent PRs.
