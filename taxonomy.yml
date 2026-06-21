@@ -4776,8 +4776,8 @@ documents:
   domain: "security"
   type: "Procedure"
   title: "Access Control Procedure"
-  version: "1.0.0"
-  date: "2026-05-27"
+  version: "1.1.1"
+  date: "2026-06-21"
   owner: "Chief Information Security Officer"
   approving_authority: "Chief Information Officer"
   classification: "Public"
@@ -4787,6 +4787,7 @@ documents:
   related_documents:
     - "security/procedure-identity-management.md"
     - "security/procedure-onboarding-and-offboarding.md"
+    - "security/procedure-security-incident-response.md"
     - "risk/policy-enterprise-governance-and-risk-management.md"
     - "risk/procedure-risk-assessment-methodology.md"
 - path: "security/procedure-cryptographic-key-operations.md"
