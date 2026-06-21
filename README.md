@@ -1,13 +1,33 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Library Version:** 2026.06.128\
-**README Version:** 1.8.84\
+**Library Version:** 2026.06.129\
+**README Version:** 1.9.0\
 **Date:** 2026-06-21\
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
 
 The library uses Calendar Versioning (CalVer) of the form `YYYY.MM.patch` for the library as a whole; see [`specification-master-project.md`](specification-master-project.md) section 4.5. Per-document semantic versioning continues for individual artefacts. 
+
+---
+
+## New to GRC? Start here
+
+**GRC** stands for **Governance, Risk, and Compliance**: three interlocking disciplines an organisation uses to align its activities with strategy, manage uncertainty, and meet legal, regulatory, and contractual obligations.
+
+- **Governance** establishes who decides, who is accountable, and how decisions are made. Charters, policies, role registers, and approval-authority models are governance artefacts.
+- **Risk management** identifies, evaluates, and treats threats to the organisation's objectives. Risk registers, treatment plans, and acceptance records are risk artefacts.
+- **Compliance** ensures that the organisation meets external obligations (laws, regulations, standards, contracts) and internal policy. Obligation registers, control mappings, and audit-evidence packages are compliance artefacts.
+
+In modern programmes the boundaries between the three overlap with **security** (protecting information and systems), **privacy** (handling personal data lawfully), **resilience** (continuing operations under disruption), **supplier/third-party governance** (managing risk that originates outside the organisation), and **AI governance** (managing the risk introduced by AI systems). This library treats all of those as sibling domains under the GRC umbrella because organisations operate them together.
+
+**Where to go next, by intent:**
+
+- **First-time visitor or new to GRC:** continue reading §Purpose below, then browse [`docs/portal.md`](docs/portal.md) (audience-keyed entry points) and [`docs/adopter-guide.md`](docs/adopter-guide.md) (how to use this library for your own programme).
+- **Adopter setting up a programme:** start with [`docs/adopter-guide.md`](docs/adopter-guide.md) and [`docs/template-quickstart.md`](docs/template-quickstart.md).
+- **Auditor or reviewer assessing scope:** [`docs/portal.md`](docs/portal.md) and [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md).
+- **Existing maintainer or contributor:** [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`specification-master-project.md`](specification-master-project.md).
+- **Glossary or unfamiliar acronym:** [`governance/register-glossary.md`](governance/register-glossary.md) (external standards, regulators, sector programmes).
 
 ---
 
