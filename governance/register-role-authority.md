@@ -2,8 +2,8 @@
 
 **Document Title:** Role Authority Register\
 **Document Type:** Register\
-**Version:** 1.3.1\
-**Date:** 2026-06-19\
+**Version:** 1.3.2\
+**Date:** 2026-06-21\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)\
@@ -70,7 +70,7 @@ This register defines generic governance roles used across the GRC Documentation
 | Approve enterprise policy | Executive Management | Document Owner | Legal, Risk, Compliance, Security, Privacy | Affected stakeholders |
 | Approve standard | Domain Executive or Delegate | Control Owner | Legal, Risk, Compliance, Security, Privacy | Process owners |
 | Approve procedure | Process Owner | Control Owner | Security, Privacy, Compliance | Operational teams |
-| Approve exception | Risk Accountable Role | Request Owner | Legal, Security, Privacy, Compliance | Control Owner, Audit where applicable |
+| Approve exception | Tiered by risk level per [`governance/policy-exception-and-risk-acceptance-management.md`](policy-exception-and-risk-acceptance-management.md) §2.2 (Department Head for low; CIO for medium; Executive Committee or Board Risk Committee for high or critical; ERC for renewals beyond the original approver, see §3.5) | Request Owner | Legal, Security, Privacy, Compliance | Control Owner, Audit where applicable |
 | Maintain register | Register Owner | Process Owner | Control Owner, Data Owner | Governance stakeholders |
 | Perform assurance review | Internal Audit or Assurance Function | Control Owner | Risk, Compliance, Security, Privacy | Governing Body |
 
