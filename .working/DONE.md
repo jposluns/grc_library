@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #185 — Record first /validate-pr invocation (PR #184, 0 findings) (2026-06-21)
+
+`.working/` changes for local project: appended the history row recording the first real `/validate-pr` invocation (run post-merge on PR #184; 0 findings; full Subagent A coverage). Housekeeping PR; no corpus content changes. Re-numbers tomorrow's planned PRs: /retro becomes #186, FR-33 becomes #187.
+
 ### PR #184 — Worker-brief template + hallucination-assessment update protocol (2026-06-21)
 
 New project-local worker-brief template at `.working/worker-brief-template.md` plus pack-rule update codifying the self-improving loop: when an apply-time catch occurs, log it, classify the fix, update the template inline. Initial template ships with four guard rails from the four known apply-time-catch classes.
