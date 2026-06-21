@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Quickstart Template\
 **Document Type:** Template\
-**Version:** 2.0.1\
-**Date:** 2026-06-20\
+**Version:** 2.0.2\
+**Date:** 2026-06-21\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`docs/template-maturity-self-assessment.md`](template-maturity-self-assessment.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
@@ -19,6 +19,10 @@
 ## Purpose
 
 This template helps an adopter compose a starting set of library artefacts from a small core baseline plus stacking modules. The composition matches what the organisation actually does (its activities, data scope, audience, regulatory exposure, and GRC team capacity), rather than a pre-set profile by company size or sector.
+
+### Where this fits among the adopter entry points
+
+The canonical front door for adopters is [`docs/portal.md`](portal.md) (audience-keyed grouping by role). This template is one of four deeper-dive paths that branch off the portal; it answers "what do I copy on Day 1, and what do I add later?". The other three are [`docs/adopter-guide.md`](adopter-guide.md) (fork-and-adapt principles), [`docs/decision-tree.md`](decision-tree.md) (sequenced reading order), and [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md) (calendar phasing). The portal's "Other entry points and when to use them" table picks the right path by question; see the portal Overview.
 
 The aim is to compress the adopter's first-week question (`which of the 11 domains do I need on day one?`) into: copy the core baseline, then add the modules that match the organisation. The [`docs/decision-tree.md`](decision-tree.md) covers the conditional logic; this template names the resulting compositions.
 
