@@ -171,11 +171,19 @@ pack, CC BY-SA 4.0):
   Pack-distributable form of the user-level Rule 8 (added 2026-06-19);
   operationalises this project's `## PR workflow` discipline (the merge of a green PR
   via MCP is a safe action and should be attempted, not narrated as "blocked").
+- `.claude/rules/governance/validate-inference-before-action.md` — when the next
+  action depends on an inferred premise (a state claim not directly observed in the
+  current turn), validate the premise via tool call before taking the action.
+  Action-side counterpart of the evidence-grounded-completion rule (which is the
+  assertion-side). Added 2026-06-21 after an orchestrator-skip cascade where an
+  inferred "no parity-surface changes" premise drove a subagent-skip that the
+  maintainer flagged as a discipline failure.
 
 The `dev-security/claude-rules/` pack covers security and development-governance
 discipline. The initial governance rollout completed at pack version 1.11.0
 (2026-06-01) with the first five `governance/` rules listed above; pack version
-1.21.0 (Library 2026.06.38) extended the set with the sixth rule above. See
+1.21.0 (Library 2026.06.38) extended the set with the sixth rule; pack version
+1.27.0 added the seventh rule (`validate-inference-before-action.md`). See
 `dev-security/claude-rules/README.md` for the authoritative pack version history
 and future-work signalling. Pack changes are tracked through the library's
 CHANGELOG and per-rule version metadata.
