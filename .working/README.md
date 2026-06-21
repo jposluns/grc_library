@@ -31,6 +31,7 @@ This layout is the convention for any `.working/` activity. When a new activity 
 | Activity | Subdirectory | Purpose | Created by |
 | --- | --- | --- | --- |
 | Validation sweeps | [`validate-sweeps/`](validate-sweeps/) | Records from `/validate` invocations (corpus-wide regression sweep). | PRs #115-#118 |
+| Library fitness reviews | [`fitness-reviews/`](fitness-reviews/) | Records from `/fitness` invocations (whole-corpus ten-persona library-quality review). | PR #120 |
 
 **To add a new activity**: create the subdirectory with `README.md` (absorbing static convention info) and `history.md` (empty table). Per-run detail files land as runs produce findings. Append a row to the table above with a one-line purpose statement and the originating PR / skill / activity.
 
