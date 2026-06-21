@@ -6,6 +6,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.137, PR #155
+
+Closes FR-1 (high, README "What this repository is" framing). The previous "two coordinated halves" formulation gave the GRC corpus and the AI-assisted-maintenance reference implementation equal billing. The fitness review judged this misframed the project's primary value: the corpus is the product, the maintenance discipline is the methodology that keeps it consistent. This PR re-frames the section so the corpus is the unambiguous headline product and the audit toolchain plus the `dev-security/claude-rules/` pack are positioned as the operational layer.
+
+### Closed findings
+
+- **FR-1** (high, `README.md`): "Dual-mission" / "two coordinated halves" framing elevated the AI-assisted-maintenance work to equal billing with the GRC corpus. The fix re-frames the section so the corpus is the headline; the toolchain and pack are described as the methodology used to maintain the corpus. Factual content (existence of pack, co-evolution history) preserved.
+
+### Changed
+
+- [`README.md`](../../README.md): "What this repository is" section rewritten. The corpus is named as the primary identity in the first paragraph. The audit toolchain and the pack appear in the second paragraph as the operational layer supporting maintenance, with the pack's standalone use case retained as a factual statement (consistent with the "Three adoption modes" section that follows, which is untouched). The co-evolution paragraph is preserved but reordered to make the causal direction explicit (the corpus generated the disciplines, not the reverse).
+- [`README.md`](../../README.md): library `2026.06.136 → 2026.06.137`; README per-doc `1.9.7 → 1.9.8`.
+- [`TODO.md`](../../TODO.md): FR-1 rotated out of High tier; backlog counters updated (14 + 10 + 56 = 80 immediate; 14 deferred; 94 open).
+- [`.working/DONE.md`](../DONE.md): PR #155 entry added.
+
+### Preserved
+
+- The "Three adoption modes" section is untouched; the pack-only adoption mode remains a documented option.
+- All factual claims about the existence and content of the audit toolchain and the pack remain. The change is one of framing and emphasis.
+- The CC BY-SA 4.0 licensing claim and the eleven-domain inventory remain unchanged.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- `tools/run-pr-time-checks.sh` exits 0 (D1 + D2 + gate 45).
+- Contradiction grep for `two coordinated halves`, `content half`, `Dual-mission`, `dual mission` across the corpus: zero post-edit occurrences.
+
+### Discipline observation
+
+The original "two coordinated halves" framing was likely written when the pack was newer and more attention-grabbing than the corpus. As the corpus has matured (300+ documents, 11 domains, 46 audit gates), the framing has drifted out of accurate proportion. This is a class of finding (framing-drift over time) that audit gates cannot catch — only periodic editorial review or fitness-style external reads will surface it. Surfaced as a candidate generalisation for the corpus-management discipline (TODO P4.6): when a project's primary deliverable matures faster than its surrounding methodology, the framing of the methodology may need periodic re-grounding.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.136, PR #154
 
 Sweep 13 iteration 1 close-out. Five out-of-window findings from Subagent A (recent-PR deep review); Subagents B (corpus-wide stale-reference) and C (audit-programme integrity) returned zero findings each. Detail report at [`.working/validate-sweeps/2026-06-21-sweep13-iter1.md`](../validate-sweeps/2026-06-21-sweep13-iter1.md).
