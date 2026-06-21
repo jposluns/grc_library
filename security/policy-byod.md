@@ -2,8 +2,8 @@
 
 **Document Title:** Bring Your Own Device (BYOD) Policy\
 **Document Type:** Policy\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-06-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-remote-working-security.md`](standard-remote-working-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md)\
@@ -77,7 +77,7 @@ These boundaries are enforced by the MAM-without-MDM architecture. Enrolment of 
 
 ## Data classification restriction
 
-Personal devices may only be used to access Internal and lower data classifications. Access to data classified as Confidential or Restricted from a personal device is not permitted. Personnel with regular access requirements for Confidential data must use a company-managed device. Where a specific business need requires Confidential access from a personal device, written CISO approval is required and a compensating control plan must be documented.
+Personal devices may only be used to access Internal and lower data classifications (Public, Controlled, and Internal per the [Data Classification and Handling Standard](standard-data-classification-and-handling.md)). Access to data classified as Confidential or Restricted from a personal device is not permitted. Personnel with regular access requirements for Confidential data must use a company-managed device. Where a specific business need requires Confidential access from a personal device, written CISO approval is required and a compensating control plan must be documented.
 
 ---
 

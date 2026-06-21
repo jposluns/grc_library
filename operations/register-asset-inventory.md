@@ -2,8 +2,8 @@
 
 **Document Title:** Asset Inventory Register\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-06-21\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md)\
@@ -55,7 +55,7 @@ Each asset record must contain the following fields:
 | **Asset Name** | Descriptive name |
 | **Asset Type** | Hardware / Software / Cloud Resource / Data Asset / AI System |
 | **Classification Tier** | Tier 1 to 4 (from table above) |
-| **Data Classification** | Public / Internal / Confidential / Restricted |
+| **Data Classification** | Public / Controlled / Internal / Confidential / Restricted (per [Data Classification and Handling Standard](../security/standard-data-classification-and-handling.md)) |
 | **Owner** | Role title of responsible party |
 | **Custodian** | Team or individual managing the asset operationally |
 | **Location** | Physical location, data centre, or cloud region |

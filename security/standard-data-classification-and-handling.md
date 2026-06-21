@@ -2,8 +2,8 @@
 
 **Document Title:** Data Classification and Handling Standard\
 **Document Type:** Standard\
-**Version:** 1.3.1\
-**Date:** 2026-05-28\
+**Version:** 1.3.2\
+**Date:** 2026-06-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -14,7 +14,7 @@
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
 
-This standard defines the classification, labelling, protection, retention, and destruction requirements for all information assets.
+This standard defines the classification, labelling, protection, retention, and destruction requirements for all information assets. The five classification levels (Public, Controlled, Internal, Confidential, Restricted) are authoritative for the corpus; subordinate documents that handle data must enumerate or reference the same five levels.
 
 ---
 

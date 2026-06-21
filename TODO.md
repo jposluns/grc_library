@@ -10,8 +10,8 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #163 merge).
-- **Library version as of last refresh**: `2026.06.145`. **Pack version**: `1.34.0`. **README version**: `1.9.16`.
+- **Branch at last refresh**: `main` (synced after PR #164 merge).
+- **Library version as of last refresh**: `2026.06.146`. **Pack version**: `1.34.0`. **README version**: `1.9.17`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
 - **Last validation sweep**: Sweep 14 iteration 1 (close-out PR #160).
 
@@ -52,7 +52,7 @@ Resolved from `🤔` to `✅` in Pass-2 with a library-wide propagation plan:
   - Or a documented standard in `governance/` (`standard-maturity-tier-vocabulary.md`) that other documents cite.
 - Severity: High[critical] (was high[critical]). Originating run: r1.
 
-### High[critical] tier — 11 findings (immediate priority)
+### High[critical] tier — 10 findings (immediate priority)
 
 - **FR-14** (maturity ladder): see Special section above.
 - **FR-30** (privacy + supply-chain): No standalone Article 28 DPA template. Ship `privacy/template-dpa-article-28.md`.
@@ -60,7 +60,6 @@ Resolved from `🤔` to `✅` in Pass-2 with a library-wide propagation plan:
 - **FR-32** (privacy): No Legitimate Interest Assessment template. Ship `privacy/template-legitimate-interest-assessment.md`.
 - **FR-33** (`privacy/procedure-privacy-impact-and-cross-border-transfer.md`): Article 36 prior-consultation pathway absent. Add §Step 5 pathway distinct from internal ERC approval.
 - **FR-34** (privacy): Transfer Impact Assessment methodology referenced but defined nowhere. Ship `privacy/template-transfer-impact-assessment.md` with EDPB Recommendation 01/2020 six-step methodology. (Consolidates with FR-74.)
-- **FR-43 (reshape)** (data classification levels): the actual issue is 5-level standard (`standard-data-classification-and-handling.md`) vs 4-level subordinate-doc subset. Reconcile so all docs use the same level set: either propagate 5-level library-wide or amend the standard to 4-level.
 - **FR-70** (crypto-asset / blockchain governance): Domain entirely absent. Ship dedicated governance content covering digital-asset custody, staking, smart-contract risk, blockchain platform vetting. DORA, MiCA, NYDFS BitLicense.
 - **FR-71** (M&A due diligence): `procedure-grc-programme-management-and-annual-review.md` names M&A as trigger but no checklist/pre-close template/integration playbook. Ship dedicated procedure.
 - **FR-72** (sanctions/OFAC/export control): Superficial. Ship dedicated framework with UBO verification + denied-party-list integration.
@@ -111,9 +110,9 @@ Cross-reference only. No immediate-priority action; queue for a routine cleanup 
 
 ### Backlog totals
 
-- 11 + 7 + 56 = **74 immediate-priority findings** (High[critical], High, Medium tiers)
+- 10 + 7 + 56 = **73 immediate-priority findings** (High[critical], High, Medium tiers)
 - **14 deferred** (Low tier)
-- **88 open** (23 closed across PRs #142-#162). Total surfaced in r1: 111.
+- **87 open** (24 closed across PRs #142-#164). Total surfaced in r1: 111.
 
 ### FR-44 follow-up
 
@@ -159,6 +158,8 @@ Durable behavioural guidance from the maintainer. Each item links to its operati
 - **Sweep history is project-application, not template content** — operationalised by keeping the history file in `.working/`.
 - **TODO is forward-looking; historical state rotates to DONE.md** — operationalised in [`change-tracking.md`](dev-security/claude-rules/governance/change-tracking.md) PR-finalization-protocol section.
 - **After completing a merge, list the upcoming next 5 planned PRs from TODO** — operationalised in [`.claude/CLAUDE.md`](.claude/CLAUDE.md) PR-workflow section and the same pack rule.
+- **Validate cadence is 1-8 PRs per batch, not strictly 5** — original standing rule was "after each 5 PRs perform a validate". Maintainer subsequently authorised wider tolerance: a logical-grouping batch may be smaller (down to 1 PR if it's large enough to warrant its own validate) or larger (up to 8 PRs if the items fit a coherent thread). The 5-PR cadence remains the default; the maintainer (or the assistant in maintainer's authorised autonomous mode) chooses the batch boundary at the natural seam.
+- **DONE format mirrors TODO format** — DONE H3 headings carry `FR-N (severity)` so the two ledgers are scannable in the same shape. Operationalised in [`.working/DONE.md`](.working/DONE.md) "How items get here" §, harmonised in PR #163.
 
 ---
 

@@ -6,6 +6,63 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.146, PR #164
+
+Closes FR-43 (high[critical], reshape) — data-classification level reconciliation. The canonical standard at `security/standard-data-classification-and-handling.md` defines five levels (Public / Controlled / Internal / Confidential / Restricted); six subordinate documents enumerated only four (Controlled omitted) and one prose line in the remote-working standard explicitly said "four classification tiers", directly contradicting the canonical standard. Reconciled via Option A — propagate the 5-level scheme.
+
+### Closed findings
+
+- **FR-43 (reshape)** (high[critical]): data-classification 5-level standard vs 4-level subordinate-doc subset. The reshape from the original FR-43 ("two competing classification schemes") was completed in PR #141 (Pass-2 maintainer triage) which surfaced the actual issue as a Controlled-level omission, not a competing scheme. Closed by propagating the 5-level scheme to every subordinate document that enumerates the scheme.
+
+### Changed
+
+- [`security/standard-data-classification-and-handling.md`](../../security/standard-data-classification-and-handling.md):
+  - Preamble (line 17) extended to state that the five classification levels are authoritative for the corpus and that subordinate documents must enumerate or reference the same five levels.
+  - Per-doc version `1.3.1 → 1.3.2`; Date `2026-05-28 → 2026-06-21`.
+- [`security/standard-remote-working-security.md`](../../security/standard-remote-working-security.md):
+  - §7.1.1 table extended from 4 rows to 5 (added Controlled row matching the canonical standard's external-share-OK definition; remote-access posture mirrors Public).
+  - §7.1.1 prose corrected from "four classification tiers" to "five classification levels".
+  - Per-doc version `1.0.2 → 1.0.3`.
+- [`security/policy-byod.md`](../../security/policy-byod.md):
+  - Line 80 clarifying parenthetical added — "(Public, Controlled, and Internal per the [Data Classification and Handling Standard](standard-data-classification-and-handling.md))" — making the meaning of "Internal and lower" explicit rather than implicit.
+  - Per-doc version `1.0.0 → 1.0.1`.
+- [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md):
+  - §2 inline enumeration at line 76 extended from "Public, Internal, Confidential, and Restricted" to "Public, Controlled, Internal, Confidential, and Restricted" with explicit cross-reference to the canonical standard.
+  - Opportunistic `shall → must` per PR #159 / FR-44 §6.1 convention rolled into the same edit (this is the first corpus-wide-harmonisation contribution).
+  - Per-doc version `1.3.0 → 1.4.0` (minor: adds a classification level + opportunistic verb harmonisation).
+- [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md):
+  - Asset Record Schema "Data Classification" field value-list at line 58 extended from four levels to five, with cross-reference to the canonical standard.
+  - Per-doc version `1.0.1 → 1.0.2`.
+- [`dev-security/standard-security-baseline-and-standards-reference.md`](../../dev-security/standard-security-baseline-and-standards-reference.md):
+  - Classification table extended from 4 rows to 5; new Controlled row mirrors the canonical standard's definition.
+  - Per-doc version `1.0.0 → 1.1.0` (minor: extends the published scheme).
+- [`dev-security/standard-security-quick-reference.md`](../../dev-security/standard-security-quick-reference.md):
+  - Practitioner classification table extended from 4 rows to 5; new Controlled row describes encryption (not required at rest; TLS 1.2+ for external sharing in transit) and external-recipient access posture.
+  - Per-doc version `1.0.1 → 1.1.0`.
+- [`README.md`](../../README.md): library `2026.06.145 → 2026.06.146`; README per-doc `1.9.16 → 1.9.17`.
+- [`TODO.md`](../../TODO.md): FR-43 rotated out of High[critical] tier; backlog counters updated (10 + 7 + 56 = 73 immediate; 14 deferred; 87 open). New durable-rule items added to the session-feedback section: (a) validate-cadence amended to 1-8 PRs per batch (was strictly 5); (b) DONE format mirrors TODO format (FR-N (severity) at heading level).
+- [`.working/DONE.md`](../DONE.md): PR #164 entry added.
+
+### Documents already at 5 levels (no change)
+
+- `security/standard-data-loss-prevention.md` (two tables, both 5-level)
+- `operations/procedure-media-handling-and-transport.md` (§3 and §5.1)
+- `governance/standard-records-retention-and-destruction.md` (§"Records classification")
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- `tools/run-pr-time-checks.sh` exits 0 (D1 + D2 + gate 45).
+- Cross-doc validation: every retrofitted document carries an explicit cross-reference to the canonical standard, so a future audit gate could mechanically check that documents enumerating data-classification levels point at the standard's authoritative list.
+
+### Discipline observation
+
+This is the first in-PR application of FR-44's "shall → must" opportunistic conversion (PR #159 / §6.1 rule 4: "legacy 'shall' usage is converted to 'must' opportunistically as documents are revised"). The privacy policy was the natural touch surface here because the edit was already changing that exact bullet's enumeration; bundling the verb fix is lighter-touch than a separate corpus-wide sweep. Surfaced as evidence that opportunistic harmonisation works: FR-44 generalisation is now in progress as a side-effect of in-flight FR remediation rather than as a dedicated sweep PR.
+
+This PR also captures two durable maintainer-direction updates: (a) the validate-cadence rule changes from strictly 5 PRs per batch to 1-8 PRs per batch when logical grouping warrants (a single large PR may justify its own validate; a coherent batch of up to 8 PRs may proceed without a mid-batch validate); (b) the DONE format mirrors TODO's tier-grouped one-line bullet format at the heading level. Both are recorded in TODO's "Critical user feedback to remember across sessions" §.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.145, PR #163
 
 Maintainer-directed format harmonisation: `.working/DONE.md` H3 headings now surface `FR-N (severity)` matching the TODO backlog's tier-grouped one-line bullet format. This is a process / maintainability change; no FR item is closed by this PR.
