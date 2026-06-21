@@ -6,6 +6,38 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.140, PR #158
+
+Closes FR-80 (high[critical], SIEM / cloud-activity-log retention contradiction). Two documents disagreed on the retention period for cloud-activity logs forwarded into the SIEM: `governance/register-data-retention-schedule.md` row "SIEM event logs" said 3 years (1y hot + 2y cold), while `operations/standard-cloud-security-configuration-baseline.md` §6.3 said 90 days minimum. The 90-day figure was best read as the platform-side forwarding floor (so the SIEM has a window in which to ingest events) rather than the authoritative retention; the two documents now say so explicitly with cross-references to each other.
+
+### Closed findings
+
+- **FR-80** (high[critical], cross-document retention contradiction): The 90-day cloud-platform minimum and the 3-year SIEM retention sat at different layers of a forwarding pipeline but neither document said so; the contradiction was silent. The reconciliation treats the cloud platform as the source-of-truth for the most recent 90 days and the SIEM as the authoritative retention for the long-tail. Real-world cloud platforms ship 90-day defaults on their native activity-log services (Azure Activity Log, AWS CloudTrail event history, GCP Cloud Audit Logs free tier); forcing a 1-year platform-side floor would either require a paid retention upgrade or a separate long-term storage configuration on every platform, whereas the forwarding-floor framing achieves the same outcome at lower operational cost.
+
+### Changed
+
+- [`operations/standard-cloud-security-configuration-baseline.md`](../../operations/standard-cloud-security-configuration-baseline.md):
+  - §6.3 third bullet (line 150): "Activity log retention minimum: 90 days." expanded to clarify the 90-day figure is the platform-side forwarding floor; once forwarded, events are retained per the SIEM event-logs row of the data retention schedule (1y hot + 2y cold). Cross-link to the retention schedule added.
+  - Per-doc version `1.4.3 → 1.4.4`; Date `2026-06-20 → 2026-06-21`.
+- [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md):
+  - §3 "Information security records" SIEM event logs row (line 67): row title clarified to "SIEM event logs (including cloud platform activity logs forwarded into the SIEM)"; rationale expanded to note this row is the authoritative retention for cloud activity-log events forwarded from cloud platforms, with the platform-side 90-day minimum cross-referenced.
+  - Per-doc version `1.0.0 → 1.0.1`; Date `2026-05-27 → 2026-06-21`.
+- [`README.md`](../../README.md): library `2026.06.139 → 2026.06.140`; README per-doc `1.9.10 → 1.9.11`.
+- [`TODO.md`](../../TODO.md): FR-80 rotated out of High[critical] tier; backlog counters updated (12 + 9 + 56 = 77 immediate; 14 deferred; 91 open). New top-level section "Pack: dev-security/claude-rules language coverage review" added at maintainer's direction: review whether mainstream non-Python languages need baseline files in the pack and whether the pack should reference dedicated technical-security projects for deeper coverage.
+- [`.working/DONE.md`](../DONE.md): PR #158 entry added.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- `tools/run-pr-time-checks.sh` exits 0 (D1 + D2 + gate 45).
+- Manual readback: cloud baseline §6.3 link to retention schedule resolves; retention schedule SIEM row link to cloud baseline resolves; no remaining mention of "90 days" or "3 years" in either document drifts away from the new framing.
+
+### Discipline observation
+
+This is a class of cross-document defect (two documents naming the same numeric threshold from different layers of a pipeline without the relationship documented) that the mechanical numerical-coherence audit could have caught — `tools/lint-cross-doc-numbers.py` already detects same-term divergence and would have flagged this pair if the regex had pattern-matched "SIEM" or "cloud activity log" against an hours/days value. The current pattern set is narrowly scoped to high-confidence cases (GDPR breach-notification hours, P1/P2/P3 acknowledgement times). Expanding the pattern set to cover retention periods is a candidate audit-programme enhancement; surfaced as a future consideration. Not in scope for this PR.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.139, PR #157
 
 Closes FR-16 (high[critical], exception register hard caps + renewal-ceiling escalation pathway). The exception register schema previously lacked hard ceiling fields, and §3.1 used a soft "should not exceed 180 days" clause that allowed indefinite drift under repeated soft renewals. The fix mirrors PR #152's FR-19 CAPA §6.3.1 ceiling pattern so the two registers escalate on the same cadence when both have been opened against the same underlying gap.

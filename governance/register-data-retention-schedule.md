@@ -2,8 +2,8 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-06-21\
 **Owner:** Chief Privacy Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md)\
@@ -64,7 +64,7 @@ This register defines the mandatory retention periods for each category of organ
 | Penetration test reports | 5 years | Compliance evidence |
 | Vulnerability scan results | 3 years | Compliance and audit evidence |
 | CAPA records | 5 years after closure | Quality management; audit evidence |
-| SIEM event logs | 1 year hot + 2 years cold | Security investigation and compliance |
+| SIEM event logs (including cloud platform activity logs forwarded into the SIEM) | 1 year hot + 2 years cold | Security investigation and compliance. This row is the authoritative retention for activity-log events forwarded from cloud platforms; the cloud platform's own 90-day minimum (see [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md) §6.3) is the platform-side forwarding floor, not a full retention figure. |
 
 ### 4. Privacy and personal data records
 

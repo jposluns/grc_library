@@ -2,8 +2,8 @@
 
 **Document Title:** Cloud Security Configuration Baseline\
 **Document Type:** Standard\
-**Version:** 1.4.3\
-**Date:** 2026-06-20\
+**Version:** 1.4.4\
+**Date:** 2026-06-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md)\
@@ -147,7 +147,7 @@ A workload built on a cloud provider must conform to both: the enterprise-tenant
 
 - The cloud monitoring service and SIEM are the primary platforms for monitoring and log aggregation.
 - Diagnostic settings enabled for all resource types; log data forwarded to the SIEM workspace.
-- Activity log retention minimum: 90 days.
+- Cloud platform activity log retention minimum: 90 days. This is the platform-side forwarding floor that ensures that the SIEM has a window in which to ingest activity events; it is not the authoritative retention for the events themselves. Once forwarded, events are retained per the [SIEM event logs row of the data retention schedule](../governance/register-data-retention-schedule.md) (1 year hot plus 2 years cold). The SIEM is the authoritative retention authority for the long-tail; the cloud platform is the source-of-truth for the most recent 90 days.
 
 ### 6.4 Cloud security posture management (CSPM)
 
