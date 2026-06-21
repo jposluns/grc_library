@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.120, PR #138
+
+Rotates the five shipped Priority 4 items (P4.1 through P4.5) from [`TODO.md`](../../TODO.md) into [`.working/DONE.md`](../DONE.md). Maintainer-surfaced during PR #131's work: TODO's P4.1 through P4.5 sections all carried `Shipped 2026-06-20 as ...` framing — they were completed work entries, not forward-looking backlog. The rotation finishes the TODO-content cleanup that began with the decisions-log migration in PR #135.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md):
+  - Priority 4 sections 4.1 through 4.5 (`Quickstart templates per adopter profile`, `Maturity assessment interactive template`, `Implementation roadmap templates`, `Regulator interaction templates`, `Audit evidence package templates`) removed from this file.
+  - P4.6 (corpus-management discipline as a shareable skill) preserved verbatim; it remains forward-looking.
+  - Sweep 4 follow-up historical note (`The Sweep 4 follow-up (classification-convention documentation) resolved within its own close-out ... and is no longer tracked here.`) removed from "Open follow-ups from validation sweeps". The note was already documenting that the item was resolved and not tracked; the meta-note about no-longer-tracking is itself stale and the section is clearer without it.
+  - Queued-sequence "Shipped Priority 4 items rotation" item rotated out (this PR closes it). Fitness skill amendment becomes the new "Next".
+  - Session resume metadata refreshed (`2026.06.119 → 2026.06.120`; sync after PR #138).
+- [`.working/DONE.md`](../DONE.md): Six new entries at the top of "Closed items" — PR #138 (this PR) plus `### TODO P4.1` through `### TODO P4.5`, each carrying the same paragraph the TODO file used to carry but reframed as a closed-item entry under its original P-X.Y identifier. The reframing demonstrates the rotation discipline: closed items keep their original backlog ID for cross-reference while moving to the appropriate home.
+- [`README.md`](../../README.md): library version `2026.06.119 → 2026.06.120`; README version `1.8.75 → 1.8.76`.
+
+### Verification
+
+- Local audit: `tools/run_all_audits.sh` exits 0 on all 46 gates.
+- Local PR-time checks: `tools/run-pr-time-checks.sh` exits 0.
+- Manual cross-reference: every P4.x section moved out of TODO has its corresponding entry in DONE with the same paragraph content (verified by reading both before and after the diff).
+
+### Discipline observation
+
+This is the second steady-state application of the TODO/DONE rotation discipline (the first being the AUTHORS update in PR #132). It also demonstrates the cross-reference convention: closed items rotated to DONE can carry their original backlog identifier (`P4.1`, `P4.2`, etc.) as the entry header, separately from the PR-number-keyed entry that closed them. The two-key convention (`### PR #N — ...` for the PR-level entry, `### TODO P-X.Y — ...` for the original backlog item) lets a future reader search by either dimension.
+
+The pattern of multi-PR TODO cleanup (PR #131 created DONE infrastructure, PR #135 restructured design-decisions, PR #138 rotates the shipped P4 items) is the natural shape: each PR has its own focused scope, but the cumulative effect is a TODO that holds only forward-looking content. Future maintainers performing similar restructuring on adopter forks can use these three PRs as worked examples.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.119, PR #137
 
 Implements the maintainer-confirmed overnight-work protocol. The protocol provides structured handoff for autonomous overnight sessions: the assistant fills a designated file with session state (authorization scope, design decisions, build progress, open ambiguities), and a new audit gate ensures the file is processed by the next-morning PR rather than left lingering.
