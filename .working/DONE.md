@@ -25,6 +25,10 @@ The format for each entry:
 
 ## Closed items
 
+### PR #151 — FR-35: explicit GDPR Article 33(2) processor-awareness clock (2026-06-21)
+
+High-severity (✅ confirmed-as-stated) privacy breach-response finding closed. [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) now makes the GDPR Article 33(2) two-clock asymmetry explicit: the contractual 24-hour processor-to-controller notification window starts at *processor* awareness (the Article 33(2) trigger), not at controller notification or at any later milestone; the controller's separate 72-hour Article 33(1) regulatory clock then runs from controller awareness. §4.1 detection-sources bullet, §6.3 supplier-notification section, and §10 supplier-notification metric all updated; §6.3 gains a dedicated explanatory note covering both clocks and the consumption relationship (a delayed Article 33(2) notification erodes the controller's 72-hour Article 33(1) budget). Per-doc `1.4.3 → 1.4.4`; library `2026.06.132 → 2026.06.133`.
+
 ### PR #150 — FR-45: RFC 2119 "may not" → "must not be" in two security standards (2026-06-21)
 
 High-severity Pass-1-⚠️ finding closed. [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md) §"Password requirements" and [`security/standard-remote-working-security.md`](../security/standard-remote-working-security.md) §8.2 both used "may not" where the intent is a prohibition. Strict RFC 2119 reads "may not" as a permissible-negative-possibility, distinct from MUST NOT. Both lines now use "must not be" — chosen over "shall not be" because each file's prevailing normative verb is "must" (5 / 24 occurrences vs. 0 / 1 for "shall"). Per-doc `1.0.1 → 1.0.2` in each file.

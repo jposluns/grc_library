@@ -2,8 +2,8 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.3\
-**Date:** 2026-06-20\
+**Version:** 1.4.4\
+**Date:** 2026-06-21\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
@@ -86,7 +86,7 @@ Personal data breaches may be detected from any of the following sources:
 - SIEM alerts or SOC investigations revealing unauthorized access to systems holding personal data.
 - Endpoint detection and response (EDR) platform alerts indicating data exfiltration behaviour.
 - Employee or contractor reports of lost devices, misaddressed email, or accidental disclosure.
-- Supplier or processor notification of a breach affecting organisational data: suppliers must notify within 24 hours of a breach affecting organisational personal data per contractual data processing agreements.
+- Supplier or processor notification of a breach affecting organisational data: suppliers (acting as data processors) must notify within 24 hours of *becoming aware* of a breach affecting organisational personal data per contractual data processing agreements. The 24-hour clock starts at the moment the processor becomes aware of the breach, not at the moment the controller is later notified (see §6.3 for the GDPR Article 33(2) basis for this asymmetry).
 - Regulator or law enforcement notification.
 - Dark web monitoring alerting to the appearance of organisational data.
 - BASC monitoring systems identifying anomalies in trade or customs data flows.
@@ -176,9 +176,11 @@ The notification assessment is documented in the breach record and approved by t
 
 Where a processor or sub-processor is involved, the organisation:
 
-- Notifies the processor of the breach (if the processor is the affected party, they must have already notified the organisation within 24 hours per §4.1).
+- Notifies the processor of the breach (if the processor is the affected party, they must have already notified the organisation within 24 hours of becoming aware per §4.1).
 - Coordinates to ensure that the processor preserves evidence and supports the impact assessment.
 - Confirms contractual notification obligations have been met and documents the confirmation.
+
+> **Note: processor-to-controller timeline asymmetry under GDPR Article 33(2).** The 24-hour contractual supplier clock and the 72-hour regulatory clock in §6.2 anchor to **two different awareness events**. GDPR Article 33(2) requires the processor to notify the controller "without undue delay after becoming aware" of a personal data breach. The contractual 24-hour window operationalises that "without undue delay" for the organisation's processors. The 24-hour clock therefore starts when the **processor** becomes aware of the breach, **not** when the controller is notified, **not** when the controller becomes aware, and **not** at any later containment or assessment milestone. The controller's 72-hour Article 33(1) clock then starts when the controller becomes aware (typically on receipt of the processor's Article 33(2) notification), giving the controller up to 72 hours from that point to notify the supervisory authority. A processor that delays its Article 33(2) notification consumes part of the controller's 72-hour budget; the 24-hour contractual cap exists to prevent that erosion.
 
 ---
 
@@ -298,7 +300,7 @@ The following metrics are tracked and reported to the CIO and CISO at the quarte
 | **Individual Notification Timeliness (%)** | Percentage of cases requiring individual notification where notification was issued without undue delay following regulatory notification | ≥ 95% |
 | **PIR Completion Rate (%)** | Percentage of P1 and P2 breaches with PIR completed within 10 business days of closure | ≥ 95% |
 | **Corrective Action Closure Rate (%)** | Percentage of PIR-identified corrective actions closed within their agreed deadline | ≥ 90% |
-| **Supplier Breach Notification Timeliness** | Percentage of supplier-involved breaches where the supplier notified within the contractual 24-hour window | Tracked; persistent non-compliance triggers contract review |
+| **Supplier Breach Notification Timeliness** | Percentage of supplier-involved breaches where the supplier notified the organisation within 24 hours of the *supplier's* awareness of the breach (per GDPR Article 33(2); see §6.3) | Tracked; persistent non-compliance triggers contract review |
 
 ---
 
