@@ -4,6 +4,33 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.99, PR #113
+
+Sweep 9 iteration 3 close-out: three documentation findings from Subagent A's deep-review of PR #112 actioned.
+
+The iteration 3 re-baseline ran the full A/B/C subagent fan-out (per Rule 5.6 unconditional dispatch). Subagent B (corpus-wide stale-reference sweep) and Subagent C (audit-programme integrity reviewer) both returned zero findings; Subagent A (PR #112 deep review) returned one High, one Medium, and one Low finding — all within PR #112's own newly-written prose, all surfacing post-hoc inconsistencies that the mechanical gates do not detect.
+
+### Fixed
+
+- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): version `1.12.0 -> 1.12.1`. Line 181 Sweep value paragraph said the iteration-2 finding's `# N <word> gates` shape was one "that P6 caught (the file was scanned)" — self-contradictory, because P6 in fact missed that shape (P7 was added in PR #112 to close exactly that gap). Corrected to "P6 missed (P6 required `\s+gates?` immediately after the digit; the intervening `corpus` defeated the regex). P7 was added in this PR to close that gap." (Subagent A High finding.)
+- [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md): the 7th-rule reference attributed the rule's origin to the "orchestrator-skip cascade where an inferred 'no parity-surface changes' premise drove a subagent-skip" — but that trigger was already addressed by Rule 5.6 in PR #111. The actual immediate trigger for the 7th rule (consistent with the dev-security pack CLAUDE.md description, the CHANGELOG entry for PR #112, and the pack rule's own "Why this rule exists" section) was the fix-completeness inference (PR #111's close-out inferring fix-completeness from one occurrence) that Sweep 9 iteration 2 caught. Description updated to list the three recurring inference triggers and name the immediate one. (Subagent A Medium finding.)
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.27.0 -> 1.27.1`. Directory-tree section's `governance/` line said "initial rollout complete at pack 1.11.0; extended at 1.21.0" without mentioning the 1.27.0 extension that added the 7th rule. Other pack surfaces (version-history table, "When to use each rule" table, both CLAUDE.md files) were updated in PR #112; this one comment was missed. Corrected to "extended at 1.21.0 and 1.27.0". (Subagent A Low finding.)
+
+### Changed
+
+- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): Sweep 9 iteration 3 entry appended; declares `Subagents dispatched: A, B, C`; documents the three Subagent A findings with severity and the structural lesson (these were post-hoc prose inconsistencies that existing evidence-grounded-completion would have caught if applied to the new register entry before commit; no new structural rule needed).
+- [`README.md`](README.md): library version `2026.06.98 -> 2026.06.99`; README version `1.8.54 -> 1.8.55`.
+
+### Discipline observation
+
+The three iteration-3 findings were not regressions in the corpus — they were in PR #112's own newly-written prose, surfacing within hours of being committed. The evidence-grounded-completion discipline (re-read what you wrote, contradiction-search across surfaces) would have caught all three if applied to the new register entry, the new [`.claude/CLAUDE.md`](.claude/CLAUDE.md) reference, and the new directory-tree comment before PR #112 was committed. The lesson is not "add another rule" but "apply the existing rules to authoring, not just to verification". The new 7th rule and Rule 5.6 are upstream of this gap; this iteration's findings are about *applying* the discipline, not about the discipline being incomplete.
+
+### Verification
+
+All 44 audit gates pass standalone post-fix. The three corrections are internally consistent: register-sweep-history.md:181 prose now matches PR #112's commit message and the new rule's own narrative; [`.claude/CLAUDE.md`](.claude/CLAUDE.md) description now matches the dev-security pack CLAUDE.md description; pack README directory tree now mentions all three rollout extensions.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.98, PR #112
 
 Sweep 9 iteration 2 closure + seventh governance rule ([`validate-inference-before-action.md`](dev-security/claude-rules/governance/validate-inference-before-action.md)).
@@ -18,7 +45,7 @@ PR #111's close-out claimed completion after fixing the one `42 corpus gates` oc
 ### Changed
 
 - [`tools/check-changelog-on-pr.py`](tools/check-changelog-on-pr.py): line 5 comment `42 corpus gates -> 44 corpus gates`. Subagent B iteration-2 finding; the parallel occurrence to the iteration-1 PR #111 fix.
-- [`.claude/CLAUDE.md`](.claude/CLAUDE.md): added the seventh rule reference under `## Security and governance requirements`; updated the phased-rollout narrative to include the 1.27.0 extension.
+- [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md): added the seventh rule reference under `## Security and governance requirements`; updated the phased-rollout narrative to include the 1.27.0 extension.
 - [`dev-security/claude-rules/CLAUDE.md`](dev-security/claude-rules/CLAUDE.md): added the seventh rule's bullet describing the trigger surface and discipline; updated the rollout-history paragraph.
 - [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.26.17 -> 1.27.0`. Pack scope line lists the seventh rule. Directory tree row added. "When to use each rule" row added. Version-history row `1.27.0 | 2026.06.98 | 2026-06-21` appended.
 - [`dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md`](dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md): step 2 prose `six governance rules -> seven`.
@@ -937,7 +964,7 @@ Pack version `1.25.2 → 1.25.3` (patch: validation-sweep skill updated). Librar
 
 ### Changed
 
-- [`.claude/CLAUDE.md`](.claude/CLAUDE.md): PR workflow step 1 explicitly mandates running `tools/run_all_audits.sh` **after each commit** on the feature branch, not only before the final push. Git-history-aware gates (gate 40 in this project; future gates that examine commit graph) only see committed state. Running the audit on uncommitted changes misses what gate 40-class issues would surface post-commit. This addresses the root cause of PR #67's first CI failure.
+- [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md): PR workflow step 1 explicitly mandates running `tools/run_all_audits.sh` **after each commit** on the feature branch, not only before the final push. Git-history-aware gates (gate 40 in this project; future gates that examine commit graph) only see committed state. Running the audit on uncommitted changes misses what gate 40-class issues would surface post-commit. This addresses the root cause of PR #67's first CI failure.
 - [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md): step 7 (Apply fixes, re-baseline, repeat) extended with the same post-commit-audit discipline, framed for project-agnostic distribution. The skill now explicitly notes that git-history-aware gates see only the committed state, so the re-baseline must run after committing each fix.
 - [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.25.2 → 1.25.3`.
 - [`README.md`](README.md): library version 2026.06.53 → 2026.06.54; README version 1.8.9 → 1.8.10.
@@ -1008,7 +1035,7 @@ The CHANGELOG entry for PR #64 (line 49) claimed `§5 category 1 gate list exten
 
 ### Sweep findings not actioned (Low / FYI)
 
-- **References to the user-level Claude Code memory file** (outside this repository) appear in committed project prose at [`.claude/CLAUDE.md`](.claude/CLAUDE.md) lines 3 and 125. The references are intentional explanatory prose about the project-level vs user-level rule precedence relationship; they are not assumed-to-exist for adopters. Sweep B flagged-then-dismissed this as a false positive on its own; surfaced to the maintainer in this PR's review, with no action requested.
+- **References to the user-level Claude Code memory file** (outside this repository) appear in committed project prose at [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md) lines 3 and 125. The references are intentional explanatory prose about the project-level vs user-level rule precedence relationship; they are not assumed-to-exist for adopters. Sweep B flagged-then-dismissed this as a false positive on its own; surfaced to the maintainer in this PR's review, with no action requested.
 
 ### Verification
 
@@ -1350,7 +1377,7 @@ The rule ships alongside a Claude Code Skill mirror at [`dev-security/claude-rul
 - [`tools/lint-claude-rules-sync.py`](tools/lint-claude-rules-sync.py): added the new mirror pair to `MIRROR_MAP`. Sync audit now tracks ten pairs instead of nine; the completeness check confirms every local rule file is mapped to a pack source.
 - [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.20.3 → 1.21.0` (minor bump, additive feature). Updated the directory-structure tree's `governance/` and `skills/` subtrees to include the new files; added a row for the new rule to the rule-files table; revised the pack-version paragraph to record that the originally-announced rollout completed at 1.11.0 and 1.21.0 extends the set as a post-rollout addition; revised the skills paragraph to include the new skill alongside the original three.
 - [`dev-security/claude-rules/CLAUDE.md`](dev-security/claude-rules/CLAUDE.md): added the new rule to the Development-governance discipline rule list with a one-paragraph summary; revised the closing sentence so the count is no longer fixed at "five" and to note the 1.21.0 post-rollout extension.
-- [`.claude/CLAUDE.md`](.claude/CLAUDE.md): added the new rule to the Security and governance requirements list with a project-tailored description (links the discipline to the project's `## PR workflow` section, where the merge of a green PR via MCP is the canonical safe action that this rule says to attempt rather than narrate as "blocked"); revised the closing pack-history paragraph so the count is no longer fixed at "five" and to record the 1.21.0 extension.
+- [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md): added the new rule to the Security and governance requirements list with a project-tailored description (links the discipline to the project's `## PR workflow` section, where the merge of a green PR via MCP is the canonical safe action that this rule says to attempt rather than narrate as "blocked"); revised the closing pack-history paragraph so the count is no longer fixed at "five" and to record the 1.21.0 extension.
 - [`README.md`](README.md): library version `2026.06.37 → 2026.06.38`; README version `1.7.175 → 1.7.176`.
 
 ### Verification
@@ -1465,7 +1492,7 @@ Consistency follow-up to PR #45: broaden the summary surfaces that describe the 
 ### Changed
 
 - [`dev-security/claude-rules/CLAUDE.md`](dev-security/claude-rules/CLAUDE.md): the evidence-grounded-completion bullet now states that the protocol must precede both the vocabulary of completion and any state assertion about an unread artefact (research, assessment, planning, or review), rather than naming completion as the sole flag.
-- [`.claude/CLAUDE.md`](.claude/CLAUDE.md): the project's security-and-governance bullet for the rule broadened to include unread-artefact state assertions, and its provenance updated from "user-level Rule 6" to "user-level Rules 6 and 7" to reflect the cross-project clause added alongside PR #45.
+- [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md): the project's security-and-governance bullet for the rule broadened to include unread-artefact state assertions, and its provenance updated from "user-level Rule 6" to "user-level Rules 6 and 7" to reflect the cross-project clause added alongside PR #45.
 - [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): the Pack-scope paragraph and the two directory-tree annotations (the rule and its skill) broadened from "completion claim" to "completion claim or unread-artefact state assertion"; pack version `1.20.2 → 1.20.3`.
 - [`README.md`](README.md): library version `2026.06.32 → 2026.06.33`; README version `1.7.170 → 1.7.171`.
 
@@ -1539,7 +1566,7 @@ Full 37-gate audit programme passes standalone ([`tools/run_all_audits.sh`](tool
 
 ### Regression-audit close-out
 
-This completes the regression audit's remediation. The systemic finding (no mechanical check that the `.claude/rules/` copies track their pack sources) is now closed by gate 37; the per-instance findings were closed by PRs #39 (TODO.md stale gate/pack refs), #40 (run-linter-regression.py docstring), #41 (evidence-grounded-completion re-sync), #42 ([`.claude/CLAUDE.md`](.claude/CLAUDE.md) gate count), and #43 (gate-21 private-key detection hardening). The four `.claude/rules/` local copies the audit flagged as divergent (`secrets`, `python`, `input-validation`, `cicd-gates`) were assessed: three (`python`, `input-validation`, `cicd-gates`) carry only by-design local additions (path-scoping frontmatter, provenance comment) with identical bodies and are correct as-is; the fourth (`secrets`) had a genuine body divergence in the private-key example, resolved in PR #43. Gate 37 now holds all nine local copies to their sources going forward.
+This completes the regression audit's remediation. The systemic finding (no mechanical check that the `.claude/rules/` copies track their pack sources) is now closed by gate 37; the per-instance findings were closed by PRs #39 (TODO.md stale gate/pack refs), #40 (run-linter-regression.py docstring), #41 (evidence-grounded-completion re-sync), #42 ([[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md) gate count), and #43 (gate-21 private-key detection hardening). The four `.claude/rules/` local copies the audit flagged as divergent (`secrets`, `python`, `input-validation`, `cicd-gates`) were assessed: three (`python`, `input-validation`, `cicd-gates`) carry only by-design local additions (path-scoping frontmatter, provenance comment) with identical bodies and are correct as-is; the fourth (`secrets`) had a genuine body divergence in the private-key example, resolved in PR #43. Gate 37 now holds all nine local copies to their sources going forward.
 
 ---
 
@@ -1576,16 +1603,16 @@ Full 36-gate audit programme passes standalone ([`tools/run_all_audits.sh`](tool
 
 ## 2026-06-19, Library Version 2026.06.29, PR #42
 
-Regression-audit fix: correct three stale gate-count references in the project instruction file [`.claude/CLAUDE.md`](.claude/CLAUDE.md). All three said "32 gates" / "32-gate audit programme"; the audit programme has grown well past 32 (it was already past 32 before this session, and is 36 as of PR #37). The `.claude/` tree is exempt from the corpus linters, so no gate caught the drift; the regression audit found it.
+Regression-audit fix: correct three stale gate-count references in the project instruction file [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md). All three said "32 gates" / "32-gate audit programme"; the audit programme has grown well past 32 (it was already past 32 before this session, and is 36 as of PR #37). The `.claude/` tree is exempt from the corpus linters, so no gate caught the drift; the regression audit found it.
 
 ### Changed
 
-- [`.claude/CLAUDE.md`](.claude/CLAUDE.md): three "32 gates" / "32-gate" references re-expressed without a hardcoded count. The "Why" section now reads "The audit programme (gate inventory in [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) §6) enforces that model"; the Commands section reads "Full audit sweep (all gates, CI order)"; the clarify-before-acting note reads "mechanically through the audit gates". This is the same name-not-number discipline applied in PR #39 and PR #40: a hardcoded count in prose outside the canonical inventory drifts on the next gate insertion. The number is not load-bearing in any of the three sites, so the count is dropped entirely rather than swapped for "36" (which would itself go stale); a reader who needs the exact current count is pointed at the canonical inventory in [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) §6.
+- [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md): three "32 gates" / "32-gate" references re-expressed without a hardcoded count. The "Why" section now reads "The audit programme (gate inventory in [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) §6) enforces that model"; the Commands section reads "Full audit sweep (all gates, CI order)"; the clarify-before-acting note reads "mechanically through the audit gates". This is the same name-not-number discipline applied in PR #39 and PR #40: a hardcoded count in prose outside the canonical inventory drifts on the next gate insertion. The number is not load-bearing in any of the three sites, so the count is dropped entirely rather than swapped for "36" (which would itself go stale); a reader who needs the exact current count is pointed at the canonical inventory in [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) §6.
 - [`README.md`](README.md): library version `2026.06.28 → 2026.06.29`; README version `1.7.166 → 1.7.167`.
 
 ### Verification
 
-Full 36-gate audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. [`.claude/CLAUDE.md`](.claude/CLAUDE.md) is under the corpus-linter-exempt `.claude/` tree, so the audit result is unchanged by this edit. Contradiction-search: a grep for any "N gate" / "N-gate" pattern in the file returns no matches post-edit. The version-date consistency audit (gate 29) confirms `2026.06.29` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
+Full 36-gate audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md) is under the corpus-linter-exempt `.claude/` tree, so the audit result is unchanged by this edit. Contradiction-search: a grep for any "N gate" / "N-gate" pattern in the file returns no matches post-edit. The version-date consistency audit (gate 29) confirms `2026.06.29` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
 
 ### Regression-audit cleanup series complete
 
@@ -1887,7 +1914,7 @@ Phase S.1 of the addyosmani agent-skills integration plan: add `addyosmani/agent
 - [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) bumped to pack version `1.18.0`. The "External references → AI coding assistant rule repositories" section gains an addyosmani entry between Kariedo and the awesome-claude-code community index. The overlay-flow narrative updated from "three vetted external sources" to "four vetted external sources" (TikiTribe, Kariedo, addyosmani, Wiz) and the vetting-date statement now mentions both vetting cohorts (2026-05-31 and 2026-06-19).
 - [`dev-security/claude-rules/setup-generator-prompt.md`](dev-security/claude-rules/setup-generator-prompt.md) updated to offer the fourth source through the unified-message overlay flow: the source table gains an addyosmani row (with the scope-is-workflow-not-GRC caveat in the "What that means" column), the "accept all four" / "review one by one" paths are updated, and a new "addyosmani per-source offer" block appears between Kariedo's and Wiz's offer blocks. The order presented to the consumer (TikiTribe → Kariedo → addyosmani → Wiz) keeps Wiz last because its licence carries the only commercial caveat.
 - [`dev-security/claude-rules/vetting-log.md`](dev-security/claude-rules/vetting-log.md) per-document version `1.2.0 → 1.3.0`; Date `2026-05-31 → 2026-06-19`.
-- [`.claude/CLAUDE.md`](.claude/CLAUDE.md) overlay-narrative paragraph updated to mention addyosmani alongside TikiTribe and Kariedo, with a one-sentence scope caveat distinguishing engineering-workflow content (in Claude Code's Skills discovery format) from GRC governance.
+- [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md) overlay-narrative paragraph updated to mention addyosmani alongside TikiTribe and Kariedo, with a one-sentence scope caveat distinguishing engineering-workflow content (in Claude Code's Skills discovery format) from GRC governance.
 - [`README.md`](README.md): library version `2026.06.17 → 2026.06.18`; README version `1.7.155 → 1.7.156`; Date `2026-06-03 → 2026-06-19`.
 
 ### Vetting depth disclosure
@@ -2331,18 +2358,18 @@ Full 33-gate audit programme passes standalone immediately before commit. The ve
 
 ## 2026-06-01, Library Version 2026.06.1
 
-Make the project's strict-mode stance on exceptions explicit in [`.claude/CLAUDE.md`](.claude/CLAUDE.md), and document the `refs/preservation/` convention for the rare case of a legitimate protected-branch force-push. Both additions close gaps identified by the new pack governance rules: three pack rules reference a project "exception register" that this project does not maintain (the absence was implicit; now it is explicit), and one pack rule names the `refs/preservation/` namespace as the audit-trail convention for force-push exceptions (the convention is now documented so it can be followed without invention).
+Make the project's strict-mode stance on exceptions explicit in [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md), and document the `refs/preservation/` convention for the rare case of a legitimate protected-branch force-push. Both additions close gaps identified by the new pack governance rules: three pack rules reference a project "exception register" that this project does not maintain (the absence was implicit; now it is explicit), and one pack rule names the `refs/preservation/` namespace as the audit-trail convention for force-push exceptions (the convention is now documented so it can be followed without invention).
 
 ### Changed
 
-- [`.claude/CLAUDE.md`](.claude/CLAUDE.md) `## Boundaries` section gains two new bullets:
+- [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md) `## Boundaries` section gains two new bullets:
   - The first bullet makes explicit that this project offers no exception path for the audit gates or the pack rules under [`.claude/rules/governance/`](.claude/rules/governance/). The three pack rules that reference "the project's exception register" as an opt-out channel ([`gate-discipline`](.claude/rules/governance/gate-discipline.md), [`change-tracking`](.claude/rules/governance/change-tracking.md), [`evidence-grounded-completion`](.claude/rules/governance/evidence-grounded-completion.md)) find no such register; the strict-mode default each pack rule's exception section falls back to is the project's stance. This restates the absence so it is read as policy rather than oversight.
   - The second bullet documents the `refs/preservation/<short-reason>-<YYYY-MM-DD>/<original-ref-name>` namespace and the protected-branch force-push procedure from [`dev-security/claude-rules/governance/artefact-and-branch-discipline.md`](dev-security/claude-rules/governance/artefact-and-branch-discipline.md): document the technical reason, obtain governance-authority approval, notify collaborators, preserve the pre-rewrite ref, re-run the version-monotonicity audit. Costs nothing while not invoked; expensive to invent under pressure.
 - [`README.md`](README.md): library version bumped `2026.06.0` to `2026.06.1` (same calendar month, patch counter increments per [`specification-master-project.md`](specification-master-project.md) section 4.5). README version bumped `1.7.138` to `1.7.139`.
 
 ### Verification
 
-Full 33-gate audit programme passes standalone immediately before commit. The new bullets in [`.claude/CLAUDE.md`](.claude/CLAUDE.md) reside in the exempt `.claude/` subtree (per the `DEFAULT_EXEMPT_DIRS` constant in [`tools/lint_common.py`](tools/lint_common.py)), so the corpus linters do not scan them, but I re-read the two bullets in full to confirm they consistently describe what the pack rules say. The new gate 29 (Version-date consistency audit) passes: the bumped version `2026.06.1` matches today's date `2026-06-01` and the [`README.md`](README.md) field matches this CHANGELOG entry. The D1 CHANGELOG-on-PR delta gate passes ([`CHANGELOG.md`](CHANGELOG.md) is in the diff). No infrastructure changes (no gate added, no rule file added); this is a pure governance-stance documentation change.
+Full 33-gate audit programme passes standalone immediately before commit. The new bullets in [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md) reside in the exempt `.claude/` subtree (per the `DEFAULT_EXEMPT_DIRS` constant in [`tools/lint_common.py`](tools/lint_common.py)), so the corpus linters do not scan them, but I re-read the two bullets in full to confirm they consistently describe what the pack rules say. The new gate 29 (Version-date consistency audit) passes: the bumped version `2026.06.1` matches today's date `2026-06-01` and the [`README.md`](README.md) field matches this CHANGELOG entry. The D1 CHANGELOG-on-PR delta gate passes ([`CHANGELOG.md`](CHANGELOG.md) is in the diff). No infrastructure changes (no gate added, no rule file added); this is a pure governance-stance documentation change.
 
 ---
 
@@ -2387,7 +2414,7 @@ Phase 6 (final) of the dev-security pack scope expansion: fifth and last governa
 
 - [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) bumped to pack version 1.11.0. "Pack scope" section reflects rollout completion (all five governance rules shipped); directory-structure ASCII tree shows the five-rule governance subdirectory marked as "rollout complete"; "Rule files and their scope" table gains a new row.
 - [`dev-security/claude-rules/CLAUDE.md`](dev-security/claude-rules/CLAUDE.md) (pack drop-in payload) "## Development-governance discipline" section gains a fifth bullet for the artefact-and-branch-discipline rule. Closing paragraph updated to announce rollout completion.
-- [`.claude/CLAUDE.md`](.claude/CLAUDE.md) (project): rule-file list adds the new governance/artefact-and-branch-discipline.md bullet; pack-version paragraph updated from 1.10.0 to 1.11.0 and notes the phased rollout is complete with the five governance rules shipped. The new rule explicitly cross-references this project's `## Boundaries` rules on generated files ([`taxonomy.yml`](taxonomy.yml), the `docs/` portal, scorecards) and on direct pushes to `main` as the source material.
+- [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md) (project): rule-file list adds the new governance/artefact-and-branch-discipline.md bullet; pack-version paragraph updated from 1.10.0 to 1.11.0 and notes the phased rollout is complete with the five governance rules shipped. The new rule explicitly cross-references this project's `## Boundaries` rules on generated files ([`taxonomy.yml`](taxonomy.yml), the `docs/` portal, scorecards) and on direct pushes to `main` as the source material.
 - [`README.md`](README.md): library version bumped 2026.05.143 to 2026.05.144; README version bumped 1.7.136 to 1.7.137.
 
 ### Phased rollout context
@@ -2413,7 +2440,7 @@ Phase 5 of the dev-security pack scope expansion: fourth governance rule lands.
 
 - [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) bumped to pack version 1.10.0. "Pack scope" section now lists four shipped governance rules with their pack-version timing and names the final rollout rule (artefact-and-branch discipline) as the next phase. Directory-structure ASCII tree shows all four populated; "Rule files and their scope" table gains a new row.
 - [`dev-security/claude-rules/CLAUDE.md`](dev-security/claude-rules/CLAUDE.md) (pack drop-in payload) "## Development-governance discipline" section gains a fourth bullet for the clarify-before-acting rule.
-- [`.claude/CLAUDE.md`](.claude/CLAUDE.md) (project): rule-file list adds the new governance/clarify-before-acting.md bullet; pack-version paragraph updated from 1.9.0 to 1.10.0 and lists all four shipped governance rules. The new rule explicitly cross-references this project's `## Behavioral rule: clarify before acting` section as the source.
+- [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md) (project): rule-file list adds the new governance/clarify-before-acting.md bullet; pack-version paragraph updated from 1.9.0 to 1.10.0 and lists all four shipped governance rules. The new rule explicitly cross-references this project's `## Behavioral rule: clarify before acting` section as the source.
 - [`README.md`](README.md): library version bumped 2026.05.142 to 2026.05.143; README version bumped 1.7.135 to 1.7.136.
 
 ### Phased rollout context
@@ -2439,7 +2466,7 @@ Phase 4 of the dev-security pack scope expansion: third governance rule lands.
 
 - [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) bumped to pack version 1.9.0. "Pack scope" section now lists three shipped governance rules with their pack-version timing; directory-structure ASCII tree shows all three populated; "Rule files and their scope" table gains a new row. The scope-bullet contract description rephrased from "agent-collaboration discipline" to its two component rules (evidence-grounded completion and clarify-before-acting) so the broadened contract is concretely visible.
 - [`dev-security/claude-rules/CLAUDE.md`](dev-security/claude-rules/CLAUDE.md) (pack drop-in payload) "## Development-governance discipline" section gains a third bullet for the evidence-grounded-completion rule with a one-line summary of the six-step protocol. Downstream adopters who drag the payload now inherit all three governance rules.
-- [`.claude/CLAUDE.md`](.claude/CLAUDE.md) (project): rule-file list adds the new governance/evidence-grounded-completion.md bullet; pack-version paragraph updated from 1.8.0 to 1.9.0 and lists all three shipped governance rules. The project's user-level Rules 1-5 (verification before dependent actions, tool-result authority, async waiting, pre-commit-hook respect, self-honesty) and Rule 6 (the evidence-grounded completion rule itself) are referenced as the pre-existing per-user discipline that this pack rule now codifies for cross-project adoption.
+- [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md) (project): rule-file list adds the new governance/evidence-grounded-completion.md bullet; pack-version paragraph updated from 1.8.0 to 1.9.0 and lists all three shipped governance rules. The project's user-level Rules 1-5 (verification before dependent actions, tool-result authority, async waiting, pre-commit-hook respect, self-honesty) and Rule 6 (the evidence-grounded completion rule itself) are referenced as the pre-existing per-user discipline that this pack rule now codifies for cross-project adoption.
 - [`README.md`](README.md): library version bumped 2026.05.141 to 2026.05.142; README version bumped 1.7.134 to 1.7.135.
 
 ### Phased rollout context
@@ -2465,7 +2492,7 @@ Phase 3 of the dev-security pack scope expansion: second governance rule lands.
 
 - [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) bumped to pack version 1.8.0. "Pack scope" section updated to list both shipped governance rules with their pack-version timing. Directory-structure ASCII tree shows the change-tracking rule populated alongside gate-discipline. "Rule files and their scope" table gains a new row for the change-tracking rule.
 - [`dev-security/claude-rules/CLAUDE.md`](dev-security/claude-rules/CLAUDE.md) (pack drop-in payload) "## Development-governance discipline" section gains a second bullet for the change-tracking rule with a one-line summary of its contract. Downstream adopters who drag the payload now inherit both governance rules.
-- [`.claude/CLAUDE.md`](.claude/CLAUDE.md) (project): rule-file list adds the new governance/change-tracking.md bullet; pack-version paragraph updated from 1.7.0 to 1.8.0 and notes the second governance rule.
+- [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md) (project): rule-file list adds the new governance/change-tracking.md bullet; pack-version paragraph updated from 1.7.0 to 1.8.0 and notes the second governance rule.
 - [`README.md`](README.md): library version bumped 2026.05.140 to 2026.05.141; README version bumped 1.7.133 to 1.7.134.
 
 ### Phased rollout context
@@ -2491,7 +2518,7 @@ Phase 2 of the dev-security pack scope expansion: first governance rule lands.
 
 - [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) bumped to pack version 1.7.0. "Pack scope" section updated from "will live under" to "lives under" the `governance/` subdirectory; explicit reference to the first landed rule. Directory-structure ASCII tree now shows the gate-discipline rule populated. "Rule files and their scope" table gains a new row for the gate-discipline rule.
 - [`dev-security/claude-rules/CLAUDE.md`](dev-security/claude-rules/CLAUDE.md) (pack drop-in payload) gains a new "## Development-governance discipline" section before "## Framework basis" referencing the new rule. Downstream adopters who drag the pack drop-in payload into their project now inherit the gate-discipline rule alongside the existing security rules.
-- [`.claude/CLAUDE.md`](.claude/CLAUDE.md) (project): rule-file list gains the new governance/gate-discipline.md bullet; preamble paragraph updated from "pack version 1.6.0 announces" to "pack version 1.7.0 covers ... 1.7.0 delivered the first governance rule." Subsequent governance rules to be listed as they land.
+- [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md) (project): rule-file list gains the new governance/gate-discipline.md bullet; preamble paragraph updated from "pack version 1.6.0 announces" to "pack version 1.7.0 covers ... 1.7.0 delivered the first governance rule." Subsequent governance rules to be listed as they land.
 - [`README.md`](README.md): library version bumped 2026.05.139 to 2026.05.140; README version bumped 1.7.132 to 1.7.133.
 
 ### Phased rollout context
@@ -2511,7 +2538,7 @@ Phase 1 of the dev-security pack scope expansion: announce broadened contract fr
 ### Changed
 
 - [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) bumped to pack version 1.6.0 (2026-06-01). The opening "What are these files?" section now describes the pack as carrying "security and development-governance context" rather than security context alone. A new "Pack scope" section near the top of the README articulates the two scope families (security/compliance under `core/`, `ai/`, `pipeline/`, `languages/`; development-governance discipline under a new `governance/` subdirectory) and the reason the pack directory name remains `dev-security/` (developer discoverability — developers shop for "security rules," not for "GRC rules" or "development discipline"). The directory-structure ASCII tree now includes the `governance/` subdirectory as an announced-but-unpopulated entry; the tree is the directory layout contract for the phased rollout.
-- [`.claude/CLAUDE.md`](.claude/CLAUDE.md) `## Security requirements` heading renamed to `## Security and governance requirements`; a new paragraph below the existing rule-file bullets announces the pack's broader contract and clarifies that this project's loaded rules are unchanged in Phase 1 (this project's own governance discipline is already encoded in the existing `## Boundaries` and `## Behavioral rule` sections plus the 32-gate audit programme).
+- [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md) `## Security requirements` heading renamed to `## Security and governance requirements`; a new paragraph below the existing rule-file bullets announces the pack's broader contract and clarifies that this project's loaded rules are unchanged in Phase 1 (this project's own governance discipline is already encoded in the existing `## Boundaries` and `## Behavioral rule` sections plus the 32-gate audit programme).
 
 ### Phased rollout context
 
@@ -2521,7 +2548,7 @@ This is the first of a six-phase rollout that broadens the [`dev-security/claude
 2. **Phase 2.** Add a gate-discipline rule that codifies "never weaken or delete a gate to silence a failure; fix the artefact" as a portable pack rule.
 3. **Phase 3.** Add a change-tracking discipline rule that codifies the CHANGELOG-on-PR pattern with opt-out trailers, citing the D1 delta gate shipped in Library 2026.05.138.
 4. **Phase 4.** Add an evidence-grounded-completion rule that lifts the user-level Rule 6 ("completion claims require evidence-grounded verification") into a portable, shareable rule.
-5. **Phase 5.** Add a clarify-before-acting rule that lifts the Karpathy-adapted rule from this project's [`.claude/CLAUDE.md`](.claude/CLAUDE.md) into a portable pack file.
+5. **Phase 5.** Add a clarify-before-acting rule that lifts the Karpathy-adapted rule from this project's [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md) into a portable pack file.
 6. **Phase 6.** Add an artefact-and-branch-discipline rule that bundles no-hand-editing-generated-artefacts, no-direct-push-to-protected-branches, and the version-monotonicity contract.
 
 Each phase is shipped as its own pull request with its own CHANGELOG entry and library version bump. Per-PR cycle cost is accepted as the price of better per-rule reviewability and assurance.
@@ -2544,7 +2571,7 @@ CHANGELOG enforcement gate and prior-PR catch-up entry.
 
 ### Changed
 
-- Catch-up entry for prior PR #5 ([`d1fb4d0`](https://github.com/jposluns/grc_library/commit/d1fb4d0)): added a "Behavioral rule: clarify before acting" section to [`.claude/CLAUDE.md`](.claude/CLAUDE.md), adapted from [Karpathy's "Think Before Coding" CLAUDE.md rule](https://github.com/multica-ai/andrej-karpathy-skills) (MIT-licensed). The rule was merged without a CHANGELOG entry; this entry records it retroactively. The new D1 gate above prevents this miss from recurring.
+- Catch-up entry for prior PR #5 ([`d1fb4d0`](https://github.com/jposluns/grc_library/commit/d1fb4d0)): added a "Behavioral rule: clarify before acting" section to [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md), adapted from [Karpathy's "Think Before Coding" CLAUDE.md rule](https://github.com/multica-ai/andrej-karpathy-skills) (MIT-licensed). The rule was merged without a CHANGELOG entry; this entry records it retroactively. The new D1 gate above prevents this miss from recurring.
 
 ### Verification
 

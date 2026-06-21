@@ -2,7 +2,7 @@
 
 **Document Title:** Validation Sweep History Register\
 **Document Type:** Register\
-**Version:** 1.12.0\
+**Version:** 1.12.1\
 **Date:** 2026-06-21\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -178,8 +178,23 @@ Historical entries from Sweeps 1-3 were classified before this convention was do
   - **C: zero findings** (in-window).
   - **Discipline failure** x 1 (process, this iteration's *predecessor* close-out): the orchestrator inferred "fix is complete" after addressing one occurrence (`tools/run_all_audits.sh:65`) without grepping for parallel occurrences. The cascade: Sweep 9 iteration 1 had two underlying occurrences of the `42 corpus gates` shape; PR #111 closed only the one Subagent C surfaced; Subagent B in this iteration's run caught the parallel occurrence. Corrective action: pack rule [`governance/validate-inference-before-action.md`](../dev-security/claude-rules/governance/validate-inference-before-action.md) added as the 7th governance rule, codifying "when an action depends on an inferred premise, validate the premise via a tool call before acting".
 - **Pre-flight scanner**: 24 candidates suppressed (18 heuristic, 6 exemption), 0 candidates surfaced beyond the in-window finding above.
-- **Sweep value**: surfaced the cascade-failure mode itself (one fix inferred-complete drives the next inference); the structural defence is the 7th pack rule (`validate-inference-before-action.md`) requiring corpus-wide validation before claiming completeness. Also surfaced a gate 39 pattern gap: the `tools/check-changelog-on-pr.py:5` occurrence used a `# N <word> gates` shape that P6 caught (the file was scanned) but the iteration-1 PR fixed only the surface that Subagent C reported. The discipline failure is at the close-out, not at the gate's regex.
+- **Sweep value**: surfaced the cascade-failure mode itself (one fix inferred-complete drives the next inference); the structural defence is the 7th pack rule (`validate-inference-before-action.md`) requiring corpus-wide validation before claiming completeness. Also surfaced a gate 39 pattern gap: the `tools/check-changelog-on-pr.py:5` occurrence used a `# N <word> gates` shape that P6 missed (P6 required `\s+gates?` immediately after the digit; the intervening `corpus` defeated the regex). P7 was added in this PR to close that gap. The discipline failure is at the close-out (inferring fix-completeness from one occurrence), independent of the regex gap; both surfaces are addressed in this PR.
 - **Resulting PRs**: [#112](https://github.com/jposluns/grc_library/pull/112) for the Subagent B finding fix + 7th pack rule + Sweep 9 iter 2 close-out.
+
+### 2026-06-21, Sweep 9 iteration 3 (post-PR-#112 re-baseline)
+
+- **Trigger**: convergence-delta termination protocol; PR #112 added the 7th governance rule (`validate-inference-before-action.md`) and closed the Subagent B iteration-2 finding, so the steady state had to be re-baselined against the post-fix corpus.
+- **State**: library 2026.06.98; spec 1.12.0; pack 1.27.0; 44 corpus gates; 10 pack skills; 7 governance rules.
+- **Subagents dispatched: A, B, C** (full fan-out per the SKILL Rule 5.6 unconditional discipline).
+- **Findings**:
+  - **A: High** x 1: `governance/register-sweep-history.md:181`, Sweep value paragraph said "P6 caught" the `# N <word> gates` shape when P6 in fact missed it (P7 was added to close that exact gap). Self-contradictory with the rest of the PR narrative. Actioned in this PR.
+  - **A: Medium** x 1: `.claude/CLAUDE.md:178-180`, the 7th rule's origin description attributed the trigger to the "orchestrator-skip cascade" (which Rule 5.6 in PR #111 had already addressed) instead of the fix-completeness inference cascade. Diverged from the dev-security pack CLAUDE.md description which correctly lists three triggers. Actioned in this PR.
+  - **A: Low** x 1: `dev-security/claude-rules/README.md:66`, directory-tree comment said "extended at 1.21.0" without mentioning 1.27.0. Other pack surfaces had been updated; this one was missed. Actioned in this PR.
+  - **B: zero findings**.
+  - **C: zero findings**.
+- **Pre-flight scanner**: heuristic pre-pass clean.
+- **Sweep value**: surfaced three within-PR-#112 documentation defects that the mechanical gates do not detect (gate 41 collection-enumeration confirms the enumerated *counts* are consistent but does not check that prose *narratives* are internally coherent across the surfaces). The High finding was a self-contradiction in the PR's own register entry, exactly the class of post-hoc inconsistency that arises when an author writes a paragraph from the wrong mental model. No new structural rule needed; the existing evidence-grounded-completion discipline (read what you wrote, contradiction-search) would have caught all three if applied to the new register entry before commit.
+- **Resulting PRs**: this PR (iter-3 close-out).
 
 ## False-positive memory
 

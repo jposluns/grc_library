@@ -175,9 +175,11 @@ pack, CC BY-SA 4.0):
   action depends on an inferred premise (a state claim not directly observed in the
   current turn), validate the premise via tool call before taking the action.
   Action-side counterpart of the evidence-grounded-completion rule (which is the
-  assertion-side). Added 2026-06-21 after an orchestrator-skip cascade where an
-  inferred "no parity-surface changes" premise drove a subagent-skip that the
-  maintainer flagged as a discipline failure.
+  assertion-side). Added 2026-06-21 after a recurring failure mode where an
+  orchestrator inferred premises (subagent-skip justification, fix-completeness,
+  corpus-state) without validating; each inference cascaded into downstream rework.
+  The immediate trigger was a fix-completeness inference (PR #111's close-out
+  inferring the fix complete after one occurrence) that Sweep 9 iteration 2 caught.
 
 The `dev-security/claude-rules/` pack covers security and development-governance
 discipline. The initial governance rollout completed at pack version 1.11.0
