@@ -142,6 +142,22 @@ Document repositories have a stronger discipline than code repositories because 
 - A version-monotonicity audit verifies that per-document versions only increase.
 - A citation-currency audit verifies that external standards references are not stale.
 
+### Two-file split workflow
+
+When the project uses the two-file split (root file plus a detailed mirror at a project-specific location), a PR author writes both halves in the same commit:
+
+1. **Write the full structured entry at the top of the detailed mirror file.** Include the date-version-PR header, the lead paragraph, then the full `### Added / ### Changed / ### Removed / ### Fixed / ### Security / ### Verification` sections plus any discipline observations or design-rationale sections.
+2. **Write the lead paragraph only at the top of the root file.** Use the same date-version-PR header and the same lead-paragraph wording as the detailed entry. Do NOT carry the structured sections into the root file; they belong only in the detailed mirror.
+3. **Both files land in the same commit.** The PR-time delta gate enforces lock-step (modifying one without the other fails the gate). The `Changelog: skip` trailer still applies and satisfies the gate regardless of split.
+
+Adopter forks may choose any of these shapes:
+
+- **Single-file**: abandon the split; keep everything in root `CHANGELOG.md`. The rule's content requirements (items 1-7) all apply to the root file in this case.
+- **Two-file at a different location**: relocate the detailed mirror to wherever fits the fork's structure. Update the PR-time delta gate's path constant accordingly.
+- **No detailed mirror**: rely on git history for full audit trail and keep root file as lead-paragraph summaries only. Document this choice in the fork's CONTRIBUTING.md.
+
+The choice is project-specific; the rule does not mandate one shape. The discipline being enforced is "every substantive PR produces a discoverable entry with the required content placed somewhere", not "every project uses the same file layout".
+
 ---
 
 ## Exception-handling protocol

@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to this repository are recorded in this file as lead-paragraph summaries. Detailed maintainer-level entries (full Added / Changed / Removed / Fixed / Security / Verification sections per change) may be kept in a working directory not enumerated here; the convention's mechanics are documented in the change-tracking governance rule.
+All notable changes to this repository are recorded in this file as lead-paragraph summaries. Detailed maintainer-level entries (full Added / Changed / Removed / Fixed / Security / Verification sections per change) are kept in [`.working/changelog-details/CHANGELOG-detailed.md`](.working/changelog-details/CHANGELOG-detailed.md). This is how this project's maintainer tracks the full audit trail. The convention is project-specific; forks may delete `.working/` and adopt their own approach to detailed change tracking. The mechanics are documented in the [`change-tracking` governance rule](dev-security/claude-rules/governance/change-tracking.md).
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
