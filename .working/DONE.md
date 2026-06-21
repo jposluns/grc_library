@@ -25,6 +25,16 @@ The format for each entry:
 
 ## Closed items
 
+### PR #148 — Sweep 12 iter 1 close-out (2026-06-21)
+
+Validation sweep after the six fitness-remediation PRs #142-#147. Subagents A, B, C dispatched in parallel (Rule 5.6 declaration recorded in history). Three in-window findings, all fixed in this PR:
+
+- **(H) cross-doc-stale-cio-erm**: `risk/policy-enterprise-governance-and-risk-management.md` still named CIO as accountable for ERM after PR #143 only updated the companion standard. Owner changed CIO → CRO; new CRO row added to §3 governance table; CIO row reshaped to technology-risk integration scope. Per-doc `1.4.1 → 1.4.2`.
+- **(M) missing-sampling-justification-link**: `compliance/procedure-control-testing.md` §2.2 lacked a cross-reference to the new "Sampling justification" field added to the audit-evidence template in PR #144. Added a paragraph after the sample-size ranges pointing to the template's per-test field. Per-doc `1.0.0 → 1.0.1`.
+- **(L) missing-reciprocal-risk-acceptance-link**: `governance/policy-exception-and-risk-acceptance-management.md` lacked the reciprocal field that pairs with the "Related exception register entry" field added in PR #146. New §5.2 records the related risk-acceptance ID per exception. Acknowledged as a latent follow-up in PR #146's detailed CHANGELOG; closed here. Per-doc `1.0.2 → 1.0.3`.
+
+Subagent C: zero findings (audit-programme integrity sound). Library `2026.06.129 → 2026.06.130`.
+
 ### PR #147 — FR-3: README "New to GRC?" introductory block (2026-06-21)
 
 High-severity newcomer-onboarding finding closed. Added a new "New to GRC? Start here" §2 to [`README.md`](../README.md) between the metadata header and §Purpose. The block expands the acronym, defines Governance / Risk / Compliance in plain language for someone who hasn't worked in the discipline, names the adjacent overlapping domains (security, privacy, resilience, supplier governance, AI governance) and explains why this library treats them as siblings, and signposts five role/intent-keyed next steps (first-time visitor, adopter, auditor, maintainer, glossary-lookup) each linking to the most relevant document. README per-doc bumps to `1.9.0` (minor; new top-level section); library `2026.06.128 → 2026.06.129`.

@@ -4,6 +4,17 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.130, PR #148
+
+Sweep 12 iteration 1 close-out. Three in-window findings from subagents A/B (C zero findings):
+- **(H)** [`risk/policy-enterprise-governance-and-risk-management.md`](risk/policy-enterprise-governance-and-risk-management.md): Owner CIO → CRO + governance table CRO row added + CIO row reshaped. PR #143 had only fixed the companion standard; the policy retained the contradiction.
+- **(M)** [`compliance/procedure-control-testing.md`](compliance/procedure-control-testing.md) §2.2: cross-reference added to the new sampling-justification field in [`compliance/template-audit-evidence-package.md`](compliance/template-audit-evidence-package.md) (PR #144 added the field but didn't update the procedure).
+- **(L)** [`governance/policy-exception-and-risk-acceptance-management.md`](governance/policy-exception-and-risk-acceptance-management.md) §5.2: reciprocal "related risk acceptance ID" field added; closes the latent bidirectional-asymmetry follow-up noted in PR #146's detailed CHANGELOG.
+
+Detail report at [`.working/validate-sweeps/2026-06-21-sweep12-iter1.md`](.working/validate-sweeps/2026-06-21-sweep12-iter1.md). Library `2026.06.129 → 2026.06.130`.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.129, PR #147
 
 Closes **FR-3** (high, newcomer-onboarding). New "New to GRC? Start here" section added to [`README.md`](README.md) between the metadata header and §Purpose. The block expands the acronym (the README's title carries `GRC` but never defines it), defines Governance / Risk / Compliance in plain language for a reader unfamiliar with the discipline, names the adjacent domains the library treats as siblings (security, privacy, resilience, supplier governance, AI governance), and signposts five role/intent-keyed next steps (first-time visitor, adopter, auditor, maintainer, glossary-lookup). README per-doc `1.8.84 → 1.9.0` (minor: new top-level section). Library `2026.06.128 → 2026.06.129`. Backlog 102 → 101 open.
