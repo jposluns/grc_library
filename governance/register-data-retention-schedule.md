@@ -2,7 +2,7 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.1\
+**Version:** 1.0.2\
 **Date:** 2026-06-21\
 **Owner:** Chief Privacy Officer\
 **Approving Authority:** Chief Information Officer\
@@ -84,7 +84,7 @@ This register defines the mandatory retention periods for each category of organ
 | External audit and certification records | Certification period + 5 years | ISO 27001; certification requirements |
 | Regulatory correspondence | 7 years | Legal and regulatory requirements |
 | Compliance attestations | 5 years | Compliance evidence |
-| Control testing evidence | 5 years | Audit and certification support |
+| Control testing evidence | 7 years | Audit and certification support; aligns with Sarbanes-Oxley §103 audit-evidence retention and the records-retention standard's 7-year financial / legal / compliance domain default |
 
 ### 6. Governance and GRC records
 

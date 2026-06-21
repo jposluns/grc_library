@@ -54,6 +54,10 @@ The metrics table itself is updated **opportunistically**, not on every PR. A pe
 
 Reverse-chronological. Each entry: date, PR number where the catch occurred, one-line description.
 
+- **2026-06-21, PR #179, CI catch (gate 31)**: orchestrator bumped per-doc Version on six touched files but missed bumping Date on two of them (`security/policy-information-security.md` Date 2026-05-27, lag 25 days; `resilience/template-tabletop-exercise.md` Date 2026-06-02, lag 19 days). Gate 31 (document-date-staleness) caught this in CI; fixed in a follow-up commit on the same branch (Date bumped to 2026-06-21; per-doc Version bumped again per the version-bump-recency rule). **Discipline gap exposed**: the apply-time checklist needs an explicit "did I bump Date on every file whose body changed?" item alongside the Version bump check. Not a worker error; an orchestrator oversight that CI caught (not a shipped escape, but a near-escape worth recording).
+- **2026-06-21, PR #179**: worker drafted library bump as `2026.06.151 → 2026.06.152`; actual state was library `2026.06.157` pre-this-PR. Corrected at apply-time to `2026.06.157 → 2026.06.158`.
+- **2026-06-21, PR #179**: worker drafted READme bump as `1.9.22 → 1.9.23`; actual state was `1.9.28` pre-this-PR. Corrected at apply-time to `1.9.28 → 1.9.29`.
+- **2026-06-21, PR #179**: worker bundled FR-33 (high[critical]) into a velocity batch alongside six mediums; orchestrator split FR-33 out per "always split when in doubt" (different severity tier; substantively larger scope). Not a hallucination per se but a discipline-judgement catch.
 - **2026-06-21, PR #178**: worker drafted library bump as `2026.06.150 → 2026.06.151`; actual state was library `2026.06.156` pre-this-PR. Corrected at apply-time to `2026.06.156 → 2026.06.157`.
 - **2026-06-21, PR #178**: worker drafted backlog math as `85 → 83`; actual pre-state was 77 open. Corrected at apply-time to `77 → 75`.
 - **2026-06-21, PR #178**: worker drafted target PR number as `#169`; actual is #178. Corrected at apply-time. (Common pattern: workers often anchor to the most recent PR they saw, which drifts over multi-PR sessions.)
