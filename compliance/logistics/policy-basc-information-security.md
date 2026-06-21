@@ -2,8 +2,8 @@
 
 **Document Title:** BASC Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.1.1\
-**Date:** 2026-05-28\
+**Version:** 1.2.0\
+**Date:** 2026-06-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -96,7 +96,7 @@ An Information Security Manager is formally appointed and assigned responsibilit
 
 This policy is reviewed at least annually, or following any significant changes to the organisation's environment, with all revisions documented and approved by the CIO.
 
-Information assets are classified by sensitivity: Confidential, Internal, Public.
+Information assets are classified by sensitivity per the canonical [Data Classification and Handling Standard](../../security/standard-data-classification-and-handling.md): Public, Controlled, Internal, Confidential, Restricted.
 
 Mandatory annual security awareness training is required for all personnel, covering the BASC Control and Security Management System (CSMS) and cybercrime prevention.
 
@@ -187,7 +187,7 @@ All exceptions are logged and assigned an expiry or review date. Owners are resp
 
 | Area | Evidence Required |
 | --- | --- |
-| Governance | IT Security Manager appointed; policy reviewed annually; information assets classified (Confidential, Internal, Public); security awareness training completed with attendance records. |
+| Governance | IT Security Manager appointed; policy reviewed annually; information assets classified per the canonical 5-level scheme (Public, Controlled, Internal, Confidential, Restricted); security awareness training completed with attendance records. |
 | Access Management | Access rights based on roles in the enterprise identity provider; MFA enforced; administrator access traceability controls enforced; third-party access authorized through supplier evaluation; access revocation within 2 hours of termination. |
 | Asset Management | Managed computer inventory maintained; unattended computers locked via policy; offsite backups implemented and tested; secure media and hardware disposal procedures followed. |
 | System Integrity | Personal device access managed through endpoint management platform; only authorized devices on the network; only licensed and supported systems and software in use; controls prevent unauthorized software installation. |

@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.150, PR #168
+
+Sweep 15 follow-up. Closes the out-of-window BASC 3-vs-5 classification finding from Sweep 15 per maintainer direction.
+
+### Closed findings
+
+- **BASC information-security policy 3-level classification** (Sweep 15 Subagent A out-of-window finding): `compliance/logistics/policy-basc-information-security.md:99,190` enumerated 3 classification levels (Confidential / Internal / Public) instead of the canonical 5. Maintainer chose to expand to 5-level on the grounds that the canonical scheme is a superset of any sector-mandated 3-level scheme — the 3 BASC levels map onto 3 of the 5 canonical levels, and using all 5 cannot be worse than using 3.
+
+### Changed
+
+- [`compliance/logistics/policy-basc-information-security.md`](../../compliance/logistics/policy-basc-information-security.md):
+  - Line 99: "Information assets are classified by sensitivity: Confidential, Internal, Public." → "Information assets are classified by sensitivity per the canonical [Data Classification and Handling Standard](../../security/standard-data-classification-and-handling.md): Public, Controlled, Internal, Confidential, Restricted."
+  - Line 190: §Quick reference Governance row updated in lock-step; "(Confidential, Internal, Public)" → "(Public, Controlled, Internal, Confidential, Restricted)" with explicit "canonical 5-level scheme" framing.
+  - Per-doc version `1.1.1 → 1.2.0` (minor: classification-scheme extension; existing 3-level usages remain valid as subsets).
+- [`README.md`](../../README.md): library `2026.06.149 → 2026.06.150`; README per-doc `1.9.20 → 1.9.21`.
+- [`.working/DONE.md`](../DONE.md): PR #168 entry added.
+- [`TODO.md`](../../TODO.md): session-resume snapshot updated.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- `tools/run-pr-time-checks.sh` exits 0 (D1 + D2 + gate 45).
+
+### Discipline observation
+
+This is a fast turnaround from Sweep 15's surface-to-operator finding (Sweep 15 closed in PR #167; the BASC fix shipped as PR #168 within minutes of the operator decision). The validate-sweep "surface as question" pattern works: questions get surfaced with named options, the maintainer picks one, the next PR closes the loop. The pattern also produced the right outcome here — expanding to 5-level matches the canonical-standard preamble PR #164 (FR-43-reshape) wrote: "subordinate documents that handle data must enumerate or reference the same five levels."
+
+---
+
 ## 2026-06-21, Library Version 2026.06.149, PR #167
 
 Sweep 15 iteration 1 close-out. Four findings (3 in-window, 1 out-of-window). Subagents A, B, C all dispatched.
