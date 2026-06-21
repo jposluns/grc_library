@@ -6,6 +6,38 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.145, PR #163
+
+Maintainer-directed format harmonisation: `.working/DONE.md` H3 headings now surface `FR-N (severity)` matching the TODO backlog's tier-grouped one-line bullet format. This is a process / maintainability change; no FR item is closed by this PR.
+
+### Maintainer instruction
+
+The maintainer observed that the DONE file did not use the same format as the TODO file, and that scanning large numbers of items across the two surfaces was difficult. Format asymmetry traced to the change-tracking pack rule's "one-paragraph summary" guidance, which described DONE entries as prose without specifying a structured heading. As the fitness backlog grew through 23 closed items across PRs #142-#162, the cost of the mid-body FR-N + severity pattern compounded. The maintainer asked for an assessment of the harmonisation complexity and selected Option A (the lightest-touch path: retrofit the H3 headings, preserve body paragraphs verbatim).
+
+### Changed
+
+- [`.working/DONE.md`](../DONE.md):
+  - "How items get here" § rewritten to document the five canonical heading shapes (single-FR PR, multi-FR PR, sweep close-out, non-FR PR, FR-N cross-reference) with severity values mirroring the TODO backlog tiers (`high[critical]`, `high`, `medium`, `low`). The Pass-1 ⚠️ confirmed-with-modification flag is informational and stays in the body, not the heading.
+  - 22 historical PR headings retrofitted to surface `FR-N (severity)` at the heading level: PRs #142, #143, #144, #145, #146, #147, #149, #150, #151, #152 (multi-FR), #153, #155, #156, #157, #158, #159, #161, #162. Sweep close-out PRs (#148, #154, #160) unchanged (no single FR anchor).
+  - 7 FR-only cross-reference entries retrofitted with severity tags: FR-9, FR-10, FR-13, FR-21, FR-54, FR-55, FR-103.
+  - Pre-fitness historical entries (PRs #141 and earlier) left in their original form — those entries pre-date the FR backlog and don't share TODO's tier-grouped scannability problem.
+- [`README.md`](../../README.md): library `2026.06.144 → 2026.06.145`; README per-doc `1.9.15 → 1.9.16`.
+- [`TODO.md`](../../TODO.md): session-resume snapshot updated. No backlog counter change (this PR doesn't close an FR item).
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- `tools/run-pr-time-checks.sh` exits 0 (D1 + D2 + gate 45).
+- Manual readback: each retrofitted heading now matches the canonical shape documented in the "How items get here" §; body paragraphs preserved verbatim (`git diff --word-diff-regex='[^ ]+' .working/DONE.md` shows only heading-line tokens added, no body changes).
+
+### Discipline observation
+
+The format drift between TODO (bullet form) and DONE (prose form) accumulated over the fitness backlog's growth and was not caught by any audit gate because both formats are valid markdown and `.working/` is exempt from corpus audit gates. A scannability-driven convention is one of the failure-mode classes the mechanical audits don't cover; the maintainer's catch is the kind of feedback that a corpus-management discipline rule could codify. Surfaced as a candidate generalisation for the corpus-management discipline (TODO P4.6): when an ongoing-backlog file and its closed-items companion drift in format, the lighter-touch reconciliation (retrofit headings, keep bodies) is usually preferable to a full content rewrite.
+
+The body text on individual DONE entries still uses inconsistent severity language ("High-severity finding closed", "High[critical] finding closed", etc.). This PR does not touch the bodies; the heading is the authoritative source of severity going forward. Body harmonisation is deferred indefinitely as low-value cleanup.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.144, PR #162
 
 Closes FR-29 (high[critical]). The Privacy Impact and Cross-Border Transfer Procedure references a DPIA process but did not previously provide a working DPIA template; adopters could not evidence GDPR Article 35 compliance without inventing one.
