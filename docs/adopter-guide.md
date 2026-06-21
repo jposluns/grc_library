@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.1.1\
-**Date:** 2026-06-19\
+**Version:** 1.1.2\
+**Date:** 2026-06-21\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -19,6 +19,10 @@
 ## Overview
 
 This guide is for organisations that want to use the GRC Documentation Library as the starting point for their own governance corpus. It is a controlled reference artefact: shorter and more prescriptive than the normative library documents, and intended to orient an adopting organisation rather than to state requirements.
+
+### Where this fits among the adopter entry points
+
+The canonical front door for adopters is [`docs/portal.md`](portal.md) (audience-keyed grouping by role). This adopter guide is one of four deeper-dive paths that branch off the portal; it covers the "fork-and-adapt principles" question. The other three are [`docs/template-quickstart.md`](template-quickstart.md) (what to copy on Day 1), [`docs/decision-tree.md`](decision-tree.md) (sequenced reading order), and [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md) (calendar phasing). The portal's "Other entry points and when to use them" table picks the right path by question; see the portal Overview.
 
 ## How the library is meant to be used
 

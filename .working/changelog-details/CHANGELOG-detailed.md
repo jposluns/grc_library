@@ -6,6 +6,56 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.147, PR #165
+
+Closes FR-56 (high, adopter entry-point reconciliation). The corpus had six distinct entry-point sequences (README → portal; adopter guide → Tier 1/2/3; quickstart → core baseline + modules; decision tree → 30/90/180 sequenced reading; implementation roadmap → Phase 1/2/3 calendar; fitness-review path for maintainers). Five of those are adopter-facing and there was no document explaining how they relate; the sixth is maintainer-facing and should not surface to adopters. Adopters landing on any of the five could not pick the right path for their question without reading all five.
+
+### Closed findings
+
+- **FR-56** (high, multiple documents in `docs/`): Six distinct entry-point sequences created without an explicit relationship statement. PR #156 (FR-2) and PR #147 (FR-3 "New to GRC?") had implicitly elected `docs/portal.md` as the primary navigation surface; this PR makes that election explicit and reconciles the four remaining adopter-facing paths as deeper-dive branches that answer specific questions, each branching from the portal.
+
+### Reconciliation chosen
+
+**Option A** (least-invasive): declare `docs/portal.md` the canonical front door and document the other sequences as audience-specific paths that branch off it. Considered alternatives Option B (collapse some sequences) — rejected as too invasive (each of the five adopter-facing sequences has a genuinely distinct purpose) — and Option C (add a new "Choose your path" document) — rejected as adding a seventh entry-point document, increasing rather than reducing fragmentation.
+
+### Changed
+
+- [`tools/build-portal.py`](../../tools/build-portal.py):
+  - `PORTAL_METADATA_VERSION` bumped `1.0.0 → 1.1.0` (generator schema constant; minor — emits a new portal section).
+  - Overview prose extended with one sentence naming the portal as the canonical front door and pointing at the new "Other entry points" section.
+  - New "Other entry points and when to use them" section emitted immediately after Overview. Contains a 5-row table that picks the entry point by question (role / adopt principles / Day 1 copy / reading order / calendar phasing). Each row points at the corresponding adopter-facing document with a one-line "what it gives you" description.
+- [`docs/portal.md`](../../docs/portal.md): regenerated from the updated generator (lines 24-49 are the new prose + section). Read-only generated artefact per the generator-output discipline; not hand-edited.
+- [`docs/adopter-guide.md`](../../docs/adopter-guide.md):
+  - New "Where this fits among the adopter entry points" preface added under §Overview. Names the portal as canonical and identifies this guide as the "fork-and-adapt principles" deeper-dive path. Cross-references the other three adopter-facing paths.
+  - Per-doc version `1.1.1 → 1.1.2`.
+- [`docs/template-quickstart.md`](../../docs/template-quickstart.md): same preface pattern; identifies this template as the "what to copy on Day 1" path. Per-doc `2.0.1 → 2.0.2`.
+- [`docs/decision-tree.md`](../../docs/decision-tree.md): same preface pattern; identifies this guide as the "sequenced reading order" path. Per-doc `1.0.0 → 1.0.1`.
+- [`docs/template-implementation-roadmap.md`](../../docs/template-implementation-roadmap.md): same preface pattern; identifies this template as the "calendar phasing" path. Per-doc `1.0.1 → 1.0.2`.
+- [`README.md`](../../README.md): library `2026.06.146 → 2026.06.147`; README per-doc `1.9.17 → 1.9.18`.
+- [`TODO.md`](../../TODO.md): FR-56 rotated out of High tier; backlog counters updated (10 + 6 + 56 = 72 immediate; 14 deferred; 86 open). New "BYOD policy: add MDM vs MAM option" section added per maintainer-direction follow-up.
+- [`.working/DONE.md`](../DONE.md): PR #165 entry added.
+
+### Out of scope (intentional)
+
+- **FR-57** (`docs/template-quickstart.md` is 319 lines — not a real quickstart): separate finding tracked in the High tier. The portal block cross-references the quickstart by its current shape; FR-57 will rewrite the quickstart in a separate PR.
+- **Renaming `template-quickstart.md` to `framework-adoption-composition.md`**: FR-57 territory.
+- **Maintainer-facing fitness-review path**: documented in `.working/fitness-reviews/README.md` as maintainer working state. Not surfaced in the adopter-facing portal block because it is not an adopter entry point.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- `tools/run-pr-time-checks.sh` exits 0 (D1 + D2 + gate 45).
+- Generated artefact: `python3 tools/build-portal.py` ran clean; the regenerated `docs/portal.md` carries the new "Other entry points" section at lines 30-49 (verified visually).
+- Cross-reference validation: each of the four adopter-facing documents now contains an explicit `[`docs/portal.md`](portal.md)` link; each names the other three documents and their respective questions; the portal's table-row links target all four.
+
+### Discipline observation
+
+This is the first generator-edit-in-fitness-remediation PR (the build-portal.py change is the substantive deliverable; the portal MD is the regenerated artefact). The generator-output discipline from [`.claude/rules/governance/artefact-and-branch-discipline.md`](../../.claude/rules/governance/artefact-and-branch-discipline.md) requires editing the source and committing both halves together; this PR follows that pattern.
+
+The maintainer also surfaced a content expansion request for [`security/policy-byod.md`](../../security/policy-byod.md): add explicit MDM (Mobile Device Management) vs MAM (Mobile Application Management) options so adopters can choose based on context (personnel population, device categories, regulatory environment). Captured as a follow-up item in TODO; will be a small future PR.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.146, PR #164
 
 Closes FR-43 (high[critical], reshape) — data-classification level reconciliation. The canonical standard at `security/standard-data-classification-and-handling.md` defines five levels (Public / Controlled / Internal / Confidential / Restricted); six subordinate documents enumerated only four (Controlled omitted) and one prose line in the remote-working standard explicitly said "four classification tiers", directly contradicting the canonical standard. Reconciled via Option A — propagate the 5-level scheme.

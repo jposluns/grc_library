@@ -10,8 +10,8 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #164 merge).
-- **Library version as of last refresh**: `2026.06.146`. **Pack version**: `1.34.0`. **README version**: `1.9.17`.
+- **Branch at last refresh**: `main` (synced after PR #165 merge).
+- **Library version as of last refresh**: `2026.06.147`. **Pack version**: `1.34.0`. **README version**: `1.9.18`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
 - **Last validation sweep**: Sweep 14 iteration 1 (close-out PR #160).
 
@@ -65,10 +65,9 @@ Resolved from `🤔` to `✅` in Pass-2 with a library-wide propagation plan:
 - **FR-72** (sanctions/OFAC/export control): Superficial. Ship dedicated framework with UBO verification + denied-party-list integration.
 - **FR-73** (AI ethics review): `charter-ai-governance-council.md` collapses ethics into the compliance/risk body. Separate ethics panel or independent challenge mechanism needed.
 
-### High tier — 7 findings (immediate priority)
+### High tier — 6 findings (immediate priority)
 
 - **FR-36** (`privacy/framework-childrens-data.md` + EU annex): EU member-state per-state Article 8 age table missing.
-- **FR-56** (multiple): Six distinct entry-point sequences (README → document index; adopter guide → Tier 1; quickstart → core baseline; decision tree → 30/90/180; implementation roadmap → Phase 1/2/3). Reconcile.
 - **FR-57** (`docs/template-quickstart.md`): 319 lines, 5 dimensions × 23 modules. Not actually a quickstart.
 - **FR-58** (multiple): No inheritance vocabulary (library-internal vs template vs reference content).
 - **FR-59** (privacy jurisdictions): Annexes too shallow for operational sufficiency.
@@ -110,9 +109,9 @@ Cross-reference only. No immediate-priority action; queue for a routine cleanup 
 
 ### Backlog totals
 
-- 10 + 7 + 56 = **73 immediate-priority findings** (High[critical], High, Medium tiers)
+- 10 + 6 + 56 = **72 immediate-priority findings** (High[critical], High, Medium tiers)
 - **14 deferred** (Low tier)
-- **87 open** (24 closed across PRs #142-#164). Total surfaced in r1: 111.
+- **86 open** (25 closed across PRs #142-#165). Total surfaced in r1: 111.
 
 ### FR-44 follow-up
 
@@ -131,6 +130,24 @@ Files identified earlier as project-specific application that should move from `
 - **`governance/register-main-branch-protection.md`** → `.working/` somewhere. Snapshot of THIS repo's branch protection; meaningless to adopters who configure their own.
 
 Each requires updating the document-index, sibling references, regenerating taxonomy/portal, version bumps, CHANGELOG entry.
+
+---
+
+## BYOD policy: add MDM vs MAM option (maintainer-directed)
+
+Maintainer feedback: [`security/policy-byod.md`](security/policy-byod.md) currently treats personal-device access as a single category. The policy should be expanded to explicitly distinguish two enforcement models:
+
+- **MDM (Mobile Device Management)**: organisation manages the entire device. Higher visibility (organisation sees device-wide telemetry, can wipe the device, can enforce device-level policy) but creates privacy concerns for personnel because the organisation gains visibility into non-work-related device contents.
+- **MAM (Mobile Application Management)**: organisation controls a container holding organisational applications and data. Container-level policy applies (encryption, password, remote wipe of the container only); device-wide privacy is preserved for the personnel.
+
+Adopting organisations should be able to choose MDM, MAM, or both depending on context (target personnel population, device categories, regulatory environment, data classification). The policy should:
+
+1. Define both options with their visibility and privacy implications spelled out.
+2. Let the adopter choose one or both for their context.
+3. Note that the choice can vary by personnel group (e.g., MDM for company-issued devices used for high-classification data; MAM for personal devices used for general business communications).
+4. Cross-reference the data-classification standard so the choice is tied to the level of data accessed.
+
+Owner: maintainer. Effort: small (single policy file expansion, table-driven). Schedule: a future small PR.
 
 ---
 
