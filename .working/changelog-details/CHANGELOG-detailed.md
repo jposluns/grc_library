@@ -6,6 +6,42 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.117, PR #134
+
+Gate 45 (TODO staleness audit) regex tightened to eliminate a false positive that took down the post-PR-#133 merge `push`-event CI run on `main`. The earlier regex used an `[^\n]{0,80}` window between "next/queued/pending/upcoming" markers and `PR #<digit>`, which matched too broadly: any digit-bearing PR ref within 80 characters would trigger the queued-PR-already-merged finding, even when the queued PR was actually a placeholder (`PR #N`) and the digit-bearing reference was an unrelated historical parenthetical aside.
+
+### Fixed
+
+- [`tools/lint-todo-staleness.py`](../../tools/lint-todo-staleness.py): `QUEUED_PR_PATTERN` regex updated:
+  - Before: `r"\b(?:next|queued|pending|upcoming)\b[^\n]{0,80}PR\s*#(\d+)"`
+  - After: `r"\b(?:next|queued|pending|upcoming)\b[\s,:—–-]*PR\s*#(\d+)"`
+  - The new character class `[\s,:—–-]*` allows only whitespace, commas, colons, hyphens, en-dashes, and em-dashes between the marker and the digit-bearing PR ref. Word characters and parentheses are excluded, so the queued PR must be the immediately-following PR target.
+- Inline regex-source comment block rewritten to explain the tightening rationale and the specific false-positive shape that motivated it.
+
+### Verification
+
+- The TODO.md line that took down PR #133's post-merge run (`**Next, PR #N: TODO content cleanup.** Maintainer-surfaced (2026-06-21, during PR #133):`) no longer matches:
+  - "Next" + ", " + "PR #N" → "N" not a digit → no match at the queued-PR target.
+  - "Next" + " (60+ chars including word characters and parentheses) " + "PR #133" → word characters between are NOT in the new character class → no match.
+- Real-drift cases continue to match. Smoke test verifies `Next, PR #128`, `Next — PR #128`, and `queued PR #128` shapes (the regression suite's positive tests).
+- Local audit: `tools/run_all_audits.sh` exits 0 on all 45 gates.
+- Local PR-time checks: `tools/run-pr-time-checks.sh` exits 0.
+- Regression suite (`python3 tools/run-linter-regression.py`): all 110 tests pass.
+
+### Changed
+
+- [`README.md`](../../README.md): library `2026.06.116 → 2026.06.117`; README `1.8.72 → 1.8.73`.
+
+### Discipline observation
+
+This is gate 45's second production catch and the second post-merge-`main` failure since gate 45 shipped (PR #128). The first catch (PR #128's own merge) was a genuine queued-PR-merged drift in TODO; this catch was a false positive caused by the regex being too permissive.
+
+The pattern across the two events: gate 45's regex was designed against a small set of training-input shapes (the TODO drift cases from sweeps 10-11) and didn't anticipate the parenthetical-historical-reference shape that the post-PR-#131 TODO-rotation discipline made common (every queued item's description now references the PR that surfaced it). The fix is to tighten the regex to match only the structural queued-PR target, not any digit-bearing PR ref within proximity.
+
+The broader lesson: regex-based gates with permissive proximity matching catch real cases AND false positives in roughly the same proportion. The remediation is conservative regex (require structural adjacency) plus documentation of the rationale so future maintainers don't loosen the regex back when they encounter a missed real-drift case. Each loosening should add a specific test fixture for the case it accommodates.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.116, PR #133
 
 Documents the project's language convention as **Canadian English first, Commonwealth (UK / Australian) English second, other dialects last**. Maintainer surfaced the framing mid-PR-#131: the `-ize` forms the linter enforces are the Canadian-orthography manifestation of the convention (Canadian English adopted the Oxford `-ize` convention; the orthography is shared with American English but the dialect attribution is Canadian). The linter's behaviour is unchanged; only the rationale narrative is reframed across three surfaces.

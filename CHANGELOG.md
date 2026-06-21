@@ -4,6 +4,12 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.117, PR #134
+
+Gate 45 (TODO staleness audit) regex tightened to eliminate a false positive. The earlier `[^\n]{0,80}` window between "next/queued/pending" markers and `PR #<digit>` matched any digit-bearing PR ref within 80 characters, including historical parenthetical references in queued-item descriptions (e.g. `**Next, PR #N: TODO content cleanup.** Maintainer-surfaced (2026-06-21, during PR #133):`). The tighter character class `[\s,:—–-]*` allows only whitespace, commas, colons, and dashes between the marker and the digit-bearing PR ref, so the queued PR must be the immediately-following PR target. False-positive eliminated; real-drift cases (`Next, PR #128`, `Next — PR #128`, `queued PR #128`) still match. Post-PR-#133 merge `push`-event run on `main` failed on this false positive; this PR is the small focused fix.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.116, PR #133
 
 Documents the project's language convention as **Canadian English first, Commonwealth (UK / Australian) English second, other dialects last**. Canadian English shares the `-ize` / `-ization` orthography with American English (the Oxford convention adopted in Canadian usage), so the [`tools/lint-language.py`](tools/lint-language.py) enforcement is the Canadian-orthography manifestation of the convention, not a generic American mandate. Doc-only change: linter docstring, [`.claude/CLAUDE.md`](.claude/CLAUDE.md) Conventions section, and [`CONTRIBUTING.md`](CONTRIBUTING.md) Style requirements rewritten to lead with the convention statement. No linter behaviour change. CONTRIBUTING `1.1.0 → 1.2.0`; library `2026.06.115 → 2026.06.116`.

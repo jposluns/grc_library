@@ -20,6 +20,10 @@ The format for each entry:
 
 ## Closed items
 
+### PR #134 — Gate 45 false-positive fix: tighten queued-PR regex (2026-06-21)
+
+Post-PR-#133 merge `push`-event CI run on `main` failed because gate 45's regex was too permissive: an `[^\n]{0,80}` window between "next/queued/pending" markers and `PR #<digit>` matched a historical parenthetical reference (`...during PR #133`) instead of the intended queued-PR target (which was a placeholder `PR #N`). Regex tightened to `[\s,:—–-]*` so the queued PR must be the immediately-following PR ref structurally, not any PR ref within 80 chars. Real-drift cases (`Next, PR #128`, `queued PR #128`, etc.) continue to match. Library `2026.06.116 → 2026.06.117`. This is gate 45's second production catch and the second post-merge-`main` failure since gate 45 shipped (PR #128); the first was a genuine drift, this was a false positive.
+
 ### PR #133 — Document the project's Canadian-first language convention (2026-06-21)
 
 Maintainer-surfaced during PR #131's chat thread: the project's `-ized`/`-ization` orthography is Canadian (which shares the Oxford convention with American English), not American-attributed. The convention is named explicitly as **Canadian English first, Commonwealth second, other dialects last**. Doc-only PR: [`tools/lint-language.py`](../tools/lint-language.py) module docstring rewritten to name the convention as Canadian (linter behaviour unchanged); new "Language convention" section in [`.claude/CLAUDE.md`](../.claude/CLAUDE.md) Conventions section; [`CONTRIBUTING.md`](../CONTRIBUTING.md) Style requirements section rewritten to lead with the convention statement instead of just the linter rule. CONTRIBUTING per-doc `1.1.0 → 1.2.0`; library `2026.06.115 → 2026.06.116`.

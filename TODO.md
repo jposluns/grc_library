@@ -10,10 +10,10 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #133 merge).
-- **Library version as of last refresh**: `2026.06.116`. **Pack version**: `1.32.0`. **README version**: `1.8.72`.
+- **Branch at last refresh**: `main` (synced after PR #134 merge).
+- **Library version as of last refresh**: `2026.06.117`. **Pack version**: `1.32.0`. **README version**: `1.8.73`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
-- **Last validation sweep**: Sweep 11 iteration 1 (close-out PR #127); no sweep run yet after PRs #128-#133.
+- **Last validation sweep**: Sweep 11 iteration 1 (close-out PR #127); no sweep run yet after PRs #128-#134.
 
 ---
 
