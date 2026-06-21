@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.5.1\
-**Date:** 2026-06-19\
+**Version:** 1.5.2\
+**Date:** 2026-06-21\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -148,25 +148,27 @@ Documents subject to this specification are placed only in the governance-artefa
 
 ### 4.3 Document-type definitions
 
-Allowed types:
+Allowed types and their canonical filename prefixes (filenames use lowercase; see [`specification-ingestion.md`](specification-ingestion.md) for full filename rules):
 
-- Charter
-- Framework
-- Policy
-- Standard
-- Procedure
-- SOP
-- Plan
-- Roadmap
-- Guideline
-- Guide
-- Register
-- Matrix
-- Specification
-- Template
-- Annex
-- Checklist
-- Worklist
+| Document Type | Filename prefix |
+| --- | --- |
+| Charter | `charter-` |
+| Framework | `framework-` |
+| Policy | `policy-` |
+| Standard | `standard-` |
+| Procedure | `procedure-` |
+| SOP | `sop-` |
+| Plan | `plan-` |
+| Roadmap | `roadmap-` |
+| Guideline | `guideline-` |
+| Guide | `guide-` |
+| Register | `register-` |
+| Matrix | `matrix-` |
+| Specification | `specification-` |
+| Template | `template-` |
+| Annex | `annex-` |
+| Checklist | `checklist-` |
+| Worklist | `worklist-` |
 
 No additional types may be created without approval.
 

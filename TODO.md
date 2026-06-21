@@ -10,10 +10,10 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #141 merge).
-- **Library version as of last refresh**: `2026.06.123`. **Pack version**: `1.34.0`. **README version**: `1.8.79`.
+- **Branch at last refresh**: `main` (synced after PR #142 merge).
+- **Library version as of last refresh**: `2026.06.124`. **Pack version**: `1.34.0`. **README version**: `1.8.80`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
-- **Last validation sweep**: Sweep 11 iteration 1 (close-out PR #127); no sweep run yet after PRs #128-#141.
+- **Last validation sweep**: Sweep 11 iteration 1 (close-out PR #127); no sweep run yet after PRs #128-#142.
 
 ---
 
@@ -92,12 +92,12 @@ Resolved from `🤔` to `✅` in Pass-2 with a library-wide propagation plan:
 - **FR-95** (`risk/template-enterprise-risk-register.md`): Acceptance section lacks compensating-controls field.
 - **FR-96 ⚠️** (`risk/procedure-risk-acceptance.md`): Acceptance record fields lack cross-reference to exception register entry (the linkage is conceptual, not schema-level).
 
-### Medium tier — 57 findings (immediate priority)
+### Medium tier — 56 findings (immediate priority)
 
 Full list with one-line summaries available in r1.md §3 (`.working/fitness-reviews/2026-06-21-r1.md`). Grouped by topical cluster:
 
 - **README polish** (5): FR-4 (acronym fire-hose), FR-5 (paradoxical doc count), FR-6 (CalVer trivia placement), FR-7 (audience-signal panel), FR-8 ⚠️ (dual version-line churn impression).
-- **ERM standard** (3): FR-11 (Risk Owner not defined as distinct role), FR-12 (treatment vocabulary divergence), FR-13 (CPPA ambiguity).
+- **ERM standard** (2): FR-11 (Risk Owner not defined as distinct role), FR-12 (treatment vocabulary divergence).
 - **Maturity ladder methodology** (1): FR-15 (median-of-medians scoring suspect).
 - **Exception policy** (1): FR-18 (180-day default not traceable to normative source).
 - **Audit evidence template** (1): FR-23 ⚠️ (assembler-verification standard absent).
@@ -115,23 +115,21 @@ Full list with one-line summaries available in r1.md §3 (`.working/fitness-revi
 - **Continuous-assurance / 3LoD** (4): FR-99 ⚠️ (per-control effectiveness metrics), FR-100 (cloud baseline cites families not sub-controls), FR-101 ⚠️ (closure sign-off authority implicit), FR-102 (change management binary).
 - **Newcomer** (4): FR-104 ⚠️ (decision-tree per-regulation context), FR-105 (ISMS framework-citation ordering), FR-106 (trade-programme acronym cluster), FR-110 (document-index as primary navigation).
 
-### Low tier — 17 findings (deferred to later routine cleanup cycle)
+### Low tier — 14 findings (deferred to later routine cleanup cycle)
 
 Cross-reference only. No immediate-priority action; queue for a routine cleanup PR when convenient.
 
-- **Editorial doctype-prefix documentation** (2): FR-54 (`sop-` prefix), FR-55 (`roadmap-` prefix).
 - **Adopter edge cases** (3): FR-67 (zero-headcount-with-contractor), FR-68 ⚠️ (mandatory-except-when-not), FR-69 (three baseline sizes).
 - **Operational/runbook detail** (3): FR-84 (regression testing checklist as artefact), FR-85 (per-question owner in breach response), FR-86 ⚠️ (recovery runbook crisis-comms cross-reference — Pass-1 noted the runbook itself was hard to locate; revisit at remediation time).
 - **Security low-impact** (3): FR-89 (JWT algorithm-key-type binding), FR-90 (CSP/Trusted Types/HSTS-preload guidance), FR-91 (webhook constant-time comparison).
-- **3LoD low-impact** (1): FR-103 (Chief Compliance Officer omitted from framework table).
 - **Newcomer low-impact** (4): FR-107 (glossary surface earlier), FR-108 (Key Terms vs Glossary cognitive hop), FR-109 ⚠️ (charter purpose paragraph density), FR-111 ⚠️ (Tier 1 reading-time estimate).
 - **Metadata field unification (reshape, downgraded)** (1): FR-53 (reshape) — evaluate whether to deprecate Classification or Confidentiality as redundant metadata, or document the semantic distinction.
 
 ### Backlog totals
 
-- 17 + 20 + 57 = **94 immediate-priority findings** (High[critical], High, Medium tiers)
-- **17 deferred** (Low tier)
-- **111 total** matching r1.md FR-1 through FR-111
+- 17 + 20 + 56 = **93 immediate-priority findings** (High[critical], High, Medium tiers)
+- **14 deferred** (Low tier)
+- **107 open** (4 closed in PR #142: FR-13, FR-54, FR-55, FR-103). Total surfaced in r1: 111.
 
 ---
 
