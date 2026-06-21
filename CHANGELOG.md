@@ -4,6 +4,24 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.153, PR #173
+
+`.claude/` changes for local project: backfilled the missing CHANGELOG entries for PRs #170 and #171 (added below). Library version unchanged from PR #172, since this PR introduces no new corpus content beyond the audit-trail repair. Per the maintainer's updated audit-trail discipline, `.claude/`-only changes carry a one-line CHANGELOG entry rather than `Changelog: skip`; the skip-rule adjustment in the pack rule file itself is queued as a follow-up PR.
+
+---
+
+## 2026-06-21, Library Version 2026.06.152, PR #171
+
+`.claude/` changes for local project: added a `## PR activity subscription discipline` section to [`.claude/CLAUDE.md`](.claude/CLAUDE.md) requiring every `mcp__github__subscribe_pr_activity` call to arm a paired 60-second fallback timer (subscriptions reliably deliver failure events but not all success transitions; the timer is the catch-net). [`.claude/CLAUDE.md`](.claude/CLAUDE.md)'s PR workflow step 3 updated to reference the new section. Backfilled in PR #173.
+
+---
+
+## 2026-06-21, Library Version 2026.06.152, PR #170
+
+`.claude/` changes for local project: added a `## Version-bump discipline` section to [`.claude/CLAUDE.md`](.claude/CLAUDE.md) codifying (1) per-document `Version` bumps in the same commit that changes the document's body, (2) library CalVer bumps once per PR in the last commit before push, and (3) README `Version` field bumps in the same commit as the CalVer bump. Surfaced after PR #169's gate 40 catch on a body-change commit that missed its per-doc bump. Backfilled in PR #173.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.153, PR #172
 
 Closes **FR-4** (medium), **FR-5** (medium), **FR-6** (medium), **FR-7** (medium), and **FR-8** (medium, ⚠️ confirmed-with-modification). Phase 1 velocity bundle: five medium README polish findings shipped as one PR; all edits localise to [`README.md`](README.md). FR-4 — the "Framework alignment model" section's one-sentence acronym chain (ISO, NIST, COBIT, CSA CCM, STAR, OWASP, ASVS, SAMM, MITRE ATLAS, MITRE ATT&CK) is reformulated as a bulleted list with first-use expansion for each acronym, plus a soft pointer to [`governance/register-glossary.md`](governance/register-glossary.md) for fuller definitions. FR-5 — the paradoxical "approximately 300+ documents" line that promised "automated counts in a future release" is replaced with a direct pointer to the already-machine-generated [`taxonomy.yml`](taxonomy.yml) and the human-readable [`docs/portal.md`](docs/portal.md); sector-subdirectory paths are linked. FR-6 — the standalone CalVer paragraph at line 10 is removed from the front matter; the version-policy reference is folded into the existing "Specification and authoring files" table row for [`specification-master-project.md`](specification-master-project.md), which is the policy's normative home. FR-7 — the "Where to go next, by intent" bulleted list is reformulated as a table with an explicit "This README orients first-time readers and contributors to the library as a whole; most adopters do not need to read it end-to-end" lead clause, and names [`docs/portal.md`](docs/portal.md) as the canonical front door per PR #165 (FR-56). FR-8 — the dual `Library Version` + `README Version` rows are reordered to the bottom of the metadata block (demoting the churn-impression visual prominence) and gain inline parenthetical explanations distinguishing CalVer (library-wide) from semantic per-document versioning (this file); the Pass-1 ⚠️ modification note ("numbers have moved on; structural concern remains") is acted on by the demote-and-explain edit. Rec-6 from the fitness review (the original FR-1 through FR-8 README cluster) is now fully closed; FR-1, FR-2, and FR-3 shipped earlier as severity-warranted individual PRs (#155, #156, #147). Per-doc README `1.9.23 → 1.9.24`; library `2026.06.152 → 2026.06.153`. Backlog 82 → 77 open.
