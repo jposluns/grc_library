@@ -10,8 +10,8 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #177 merge).
-- **Library version as of last refresh**: `2026.06.156`. **Pack version**: `1.36.0`. **README version**: `1.9.27`.
+- **Branch at last refresh**: `main` (synced after PR #178 merge).
+- **Library version as of last refresh**: `2026.06.157`. **Pack version**: `1.36.0`. **README version**: `1.9.28`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
 - **Last validation sweep**: Sweep 15 iteration 1 (close-out PR #167).
 
@@ -25,9 +25,8 @@ Fitness-remediation PRs are now in flight under maintainer direction. PRs #142-#
 
 The remaining fitness-remediation work is organised into two phases. The plan is durable across sessions: research files for every queued item are prepared in advance (under the research-assistant discipline in [`.claude/rules/governance/ai-assistant-workflow-disciplines.md`](.claude/rules/governance/ai-assistant-workflow-disciplines.md)) and held in the session scratchpad; the orchestrator applies them serially.
 
-**Phase 1 remaining (P1.2, P1.4, P1.5, P1.6, P1.7).** Single-document or single-cluster polish PRs. Phase 1 originally included P1.1 (README polish, closed by PR #172) and P1.3 (access-control polish, closed by PR #169); those are shipped.
+**Phase 1 remaining (P1.4, P1.5, P1.6, P1.7).** Single-document or single-cluster polish PRs. Phase 1 originally included P1.1 (README polish, closed by PR #172), P1.2 (ERM completion, closed by PR #178), and P1.3 (access-control polish, closed by PR #169); those are shipped.
 
-- **P1.2 — ERM standard completion** (FR-11 medium, FR-12 medium). `risk/standard-enterprise-risk-management.md` §3 governance table gains a Risk Owner row; treatment vocabulary harmonised within the document (cross-document harmonisation against `risk/procedure-risk-register.md` deferred as an FR-12 follow-up).
 - **P1.4 — Small singletons batch** (FR-18 medium, FR-25 medium, FR-33 high[critical], FR-79 medium, FR-105 medium, FR-106 medium, FR-110 medium). Seven unrelated single-file findings bundled by velocity, not theme. **Flag:** FR-33 is high[critical] (GDPR Article 36 prior-consultation pathway); maintainer should decide whether to split FR-33 out before bundling.
 - **P1.5 — Editorial consistency cluster** (FR-46, FR-47, FR-48, FR-49, FR-50, FR-51, FR-52, all medium). Role-name "Chief" inconsistency, DPO ambiguous role, H2 numbering drift, Governance heading drift, NIST citation format, ISO 27001 Annex form, review-frequency "and/or".
 - **P1.6 — Cross-document contradictions** (FR-81 medium, FR-82 medium). TLS floor inconsistency; key hashing ambiguity.
@@ -105,11 +104,11 @@ Resolved from `🤔` to `✅` in Pass-2 with a library-wide propagation plan:
 - **FR-60** (`compliance/healthcare`): HIPAA adopter has no operational detail beyond a single 261-line sector annex.
 - **FR-61** (`compliance/financial-services`): FS adopters outside EU/US lack regulatory regimes (UK PRA/FCA, US OCC/FRB/FDIC, MAS, FSA, APRA, OSFI, HKMA, FINMA).
 
-### Medium tier — 48 findings (immediate priority)
+### Medium tier — 46 findings (immediate priority)
 
 Full list with one-line summaries available in r1.md §3 (`.working/fitness-reviews/2026-06-21-r1.md`). Grouped by topical cluster:
 
-- **ERM standard** (2): FR-11 (Risk Owner not defined as distinct role), FR-12 (treatment vocabulary divergence).
+- **FR-12 cross-document follow-up** (1): harmonise the treatment-option vocabulary between [`risk/standard-enterprise-risk-management.md`](risk/standard-enterprise-risk-management.md) §6 (canonical six-option set: Avoid / Mitigate / Transfer / Accept / Exploit / Enhance) and [`risk/procedure-risk-register.md`](risk/procedure-risk-register.md) "Select Treatment" step (different six-option set: Mitigate / Avoid / Transfer / Accept / Monitor / Further Analysis). Surfaced after the within-document FR-12 closure in PR #178; pending maintainer decision on canonical authority and on how the procedure's "Monitor" / "Further Analysis" categories map to the standard's framework.
 - **Maturity ladder methodology** (1): FR-15 (median-of-medians scoring suspect).
 - **Exception policy** (1): FR-18 (180-day default not traceable to normative source).
 - **Audit evidence template** (1): FR-23 ⚠️ (assembler-verification standard absent).
@@ -138,9 +137,9 @@ Cross-reference only. No immediate-priority action; queue for a routine cleanup 
 
 ### Backlog totals
 
-- 10 + 5 + 48 = **63 immediate-priority findings** (High[critical], High, Medium tiers)
+- 10 + 5 + 46 = **61 immediate-priority findings** (High[critical], High, Medium tiers)
 - **14 deferred** (Low tier)
-- **77 open** (34 closed across PRs #142-#172). Total surfaced in r1: 111.
+- **75 open** (36 closed across PRs #142-#178). Total surfaced in r1: 111.
 
 ### FR-44 follow-up
 
