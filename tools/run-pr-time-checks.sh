@@ -4,7 +4,7 @@
 #
 # Wrapper that runs every PR-only delta gate locally against the current
 # branch. The corpus-wide audit programme (tools/run_all_audits.sh)
-# covers the 45 corpus gates that operate from HEAD; this wrapper
+# covers the corpus gates that operate from HEAD; this wrapper
 # covers the two PR-only delta gates plus gate 45 (TODO staleness),
 # which behave like delta gates because their inputs include git
 # history relative to the merge base.
@@ -16,7 +16,7 @@
 # Intended use: run BEFORE `git push -u origin <branch>` opens a PR, so
 # the PR-time delta gates' diagnoses appear locally instead of after
 # CI has flipped the check red. Pairs with `tools/run_all_audits.sh`:
-# the corpus runner covers the 45 corpus gates; this wrapper covers
+# the corpus runner covers the corpus gates; this wrapper covers
 # the delta surface.
 #
 # Exit codes: 0 on all pass; first non-zero rc from any gate on
