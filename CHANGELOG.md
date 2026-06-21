@@ -4,6 +4,12 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.110, PR #127
+
+Sweep 11 iteration 1 close-out. Eight in-window findings actioned: corrected the fitness report's count mismatch across six surfaces (95/18/22/31/24 → mechanically-tabulated 111/17/20/57/17); updated [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) D1 description for dual-entry post-PR-#125; refreshed TODO and reframed its session-pause snapshot as "as-of-last-refresh" (one-time convention amendment to address the four-consecutive-sweep recurring drift); softened workflow ordering in [`change-tracking.md`](dev-security/claude-rules/governance/change-tracking.md); renamed [`.working/README.md`](.working/README.md) "Created by" column to "Origin"; bumped library version.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.109, PR #125
 
 Splits the CHANGELOG into a two-file convention: root file carries lead-paragraph summaries (adopter-facing); detailed mirror in a working directory carries full structured-section entries (maintainer-grade). Historical content preserved verbatim in the detailed mirror; root file trimmed to first paragraphs (2926 lines → 675 lines). Delta gate extended to require both files move in lock-step. Change-tracking governance rule amended; pack version 1.30.0 → 1.31.0. First PR using the dual-entry convention; this entry dogfoods it.

@@ -144,11 +144,11 @@ Document repositories have a stronger discipline than code repositories because 
 
 ### Two-file split workflow
 
-When the project uses the two-file split (root file plus a detailed mirror at a project-specific location), a PR author writes both halves in the same commit:
+When the project uses the two-file split (root file plus a detailed mirror at a project-specific location), a PR author writes both halves in the same commit. Authorship order within the commit is the author's choice; the gate only checks the diff.
 
-1. **Write the full structured entry at the top of the detailed mirror file.** Include the date-version-PR header, the lead paragraph, then the full `### Added / ### Changed / ### Removed / ### Fixed / ### Security / ### Verification` sections plus any discipline observations or design-rationale sections.
-2. **Write the lead paragraph only at the top of the root file.** Use the same date-version-PR header and the same lead-paragraph wording as the detailed entry. Do NOT carry the structured sections into the root file; they belong only in the detailed mirror.
-3. **Both files land in the same commit.** The PR-time delta gate enforces lock-step (modifying one without the other fails the gate). The `Changelog: skip` trailer still applies and satisfies the gate regardless of split.
+- **In the detailed mirror file**: write the full structured entry. Include the date-version-PR header, the lead paragraph, then the full `### Added / ### Changed / ### Removed / ### Fixed / ### Security / ### Verification` sections plus any discipline observations or design-rationale sections.
+- **In the root file**: write the lead paragraph only. Use the same date-version-PR header and the same lead-paragraph wording as the detailed entry. Do NOT carry the structured sections into the root file; they belong only in the detailed mirror.
+- **Both files land in the same commit.** The PR-time delta gate enforces lock-step (modifying one without the other fails the gate). The `Changelog: skip` trailer still applies and satisfies the gate regardless of split.
 
 Adopter forks may choose any of these shapes:
 
