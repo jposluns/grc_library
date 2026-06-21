@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #183 — Add /validate-pr skill + slash command for post-merge per-PR validation (2026-06-21)
+
+New pack skill and slash command for PR-scoped post-merge validation; runs after every merge to catch per-PR drift before it compounds. Complements the existing corpus-wide /validate sweep (every 10 merges).
+
 ### PR #182 — Corpus-wide count-genericization sweep (2026-06-21)
 
 Applied PR #181's count-genericization principle corpus-wide. Found one additional candidate (`specification-audit-programme.md:64` "seven functional categories" → generic); negative findings (ten persona reviewers, five disciplines, external CCM/FedRAMP counts) documented per assessment criterion.
