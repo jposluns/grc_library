@@ -40,7 +40,7 @@ SCORECARD = REPO_ROOT / "docs" / "maturity-scorecard.md"
 # the metadata schema itself changes (e.g. a new required field, a
 # rewritten Overview, an audience added or removed) and capture the
 # bump in CHANGELOG.md.
-PORTAL_METADATA_VERSION = "1.1.0"
+PORTAL_METADATA_VERSION = "1.2.0"
 SCORECARD_METADATA_VERSION = "1.0.0"
 
 # Fallback Date if the parsed taxonomy yields no usable date values
@@ -335,7 +335,8 @@ def build_portal(docs: list[dict]) -> str:
     out.append("| --- | --- | --- |")
     out.append("| \"Which documents are relevant to my role?\" | This portal (continue reading below) | Audience-keyed groupings: CIO, CISO, GRC, Security Architecture, Privacy, Compliance, Audit, Resilience, Engineering. |")
     out.append("| \"How do I fork the library, map roles, and decide what to change vs preserve?\" | [`docs/adopter-guide.md`](adopter-guide.md) | Adoption principles, the three adoption modes (fork / corpus-only / pack-only), what to change after copying, what not to change, the minimum quality bar. |")
-    out.append("| \"What do I copy on Day 1, and what do I add later?\" | [`docs/template-quickstart.md`](template-quickstart.md) | A six-artefact core baseline plus stacking modules across five dimensions (activity, data scope, audience, regulatory exposure, GRC capacity). |")
+    out.append("| \"What do I copy on Day 1?\" | [`docs/template-quickstart.md`](template-quickstart.md) | A 10-minute on-ramp: the six-artefact core baseline, role-name substitution discipline, and portal pointer. Defensible floor in one session. |")
+    out.append("| \"And what do I add later?\" | [`docs/template-startup-roadmap.md`](template-startup-roadmap.md) | The long-form composition workbook: stacking modules across five dimensions (activity, data scope, audience, regulatory exposure, GRC capacity), 23 modules, three worked examples. |")
     out.append("| \"In what order should I read the documents that apply to me?\" | [`docs/decision-tree.md`](decision-tree.md) | A dimensional questionnaire (size, sector, jurisdiction, regulated activities, technology footprint) and a sequenced reading path conditional on the answers. |")
     out.append("| \"Over what calendar should I roll the programme out?\" | [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md) | Phase 1 (floor, Days 1-90), Phase 2 (operational, 91-180), and Phase 3 (Year-1 close, 181-365), pace-adjusted by GRC capacity tier. |")
     out.append("")
