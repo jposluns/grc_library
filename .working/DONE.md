@@ -25,6 +25,30 @@ The format for each entry:
 
 ## Closed items
 
+### PR #138 — Shipped Priority 4 items rotation (2026-06-21)
+
+Maintainer-surfaced (during PR #131): TODO's Priority 4 items 4.1 through 4.5 were "Shipped 2026-06-20 as ..." entries — completed work, not forward-looking backlog. Rotated to DONE as five separate `### TODO P4.x` entries (preserved here cross-referenced to the original "shipped" framing); P4.6 (corpus-management discipline as a shareable skill) remains forward-looking in TODO. Also removes the Sweep 4 follow-up historical note from "Open follow-ups from validation sweeps" (already resolved and noted as no-longer-tracked). Library `2026.06.119 → 2026.06.120`. Closes the TODO content cleanup queued since PR #135.
+
+### TODO P4.1 — Quickstart templates per adopter profile (shipped 2026-06-20)
+
+Shipped as [`docs/template-quickstart.md`](../docs/template-quickstart.md) (v2.0.0). Core baseline plus five stacking dimensions (Activity, Data scope, Audience, Regulatory exposure, GRC capacity) with about twenty modules; three worked examples. The original v1.0.0 fixed-profile structure (PR #103) was rejected by the maintainer as too rigid; the rewrite (PR #105) adopts an activity-modular composition shape that lets adopters combine modules à la carte.
+
+### TODO P4.2 — Maturity assessment interactive template (shipped 2026-06-20)
+
+Shipped as [`docs/template-maturity-self-assessment.md`](../docs/template-maturity-self-assessment.md). Guided markdown checklist covering 11 library domains across a 5-tier maturity ladder (Initial / Developing / Defined / Managed / Optimising); per-tier next-step guidance; recording template.
+
+### TODO P4.3 — Implementation roadmap templates (shipped 2026-06-20)
+
+Shipped as [`docs/template-implementation-roadmap.md`](../docs/template-implementation-roadmap.md). Three-phase (Floor / Operational / Year-1 close) sequence at 90 / 180 / 365 days for the reference E2 pace, with pace adjustments for E1, E3, E4 capacity tiers and for composition complexity. Designed to sequence the modules picked via the quickstart template; not per-profile.
+
+### TODO P4.4 — Regulator interaction templates (shipped 2026-06-20)
+
+Shipped as [`compliance/template-regulator-interaction.md`](../compliance/template-regulator-interaction.md). Five sub-templates in one consolidated document: breach notification, attestation submission, examination support, periodic report submission, regulatory inquiry response. Shape-only; jurisdiction- and sector-specific timing/format requirements live in the relevant annex or sector folder.
+
+### TODO P4.5 — Audit evidence package templates (shipped 2026-06-20)
+
+Shipped as [`compliance/template-audit-evidence-package.md`](../compliance/template-audit-evidence-package.md). Cover page, control inventory index, per-control sections (framework references, implementation and operating evidence, gaps and compensating controls, per-control sign-off), optional per-domain summaries for 50+ control packages, optional cross-reference index for shared evidence, package-level sign-off. Anti-patterns to watch and eight review questions.
+
 ### PR #137 — Overnight-work protocol: stub format for `overnight-pr.md` + audit gate 46 + pack rule amendment (2026-06-21)
 
 Implements the maintainer-confirmed overnight-work protocol. New stub-form [`.working/overnight-pr.md`](overnight-pr.md) with `**Status:**` field; new gate 46 ([`tools/lint-overnight-file.py`](../tools/lint-overnight-file.py)) scanning the file and failing on `Status: done`; new "Overnight-work protocol" subsection in [`change-tracking.md`](../dev-security/claude-rules/governance/change-tracking.md) documenting the lifecycle. Three-state Status field (`stub` / `in-flight` / `done`) rather than binary so overnight PRs land cleanly while the gate still applies mechanical pressure for morning processing once a session ends. Pack `1.32.0 → 1.33.0`; spec `1.13.1 → 1.14.0`; library `2026.06.118 → 2026.06.119`. The maintainer-confirmed standard (chat message 2026-06-21 mid-PR-#135) is the closing trigger for this PR.

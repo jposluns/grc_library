@@ -10,18 +10,16 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #137 merge).
-- **Library version as of last refresh**: `2026.06.119`. **Pack version**: `1.33.0`. **README version**: `1.8.75`.
+- **Branch at last refresh**: `main` (synced after PR #138 merge).
+- **Library version as of last refresh**: `2026.06.120`. **Pack version**: `1.33.0`. **README version**: `1.8.76`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
-- **Last validation sweep**: Sweep 11 iteration 1 (close-out PR #127); no sweep run yet after PRs #128-#137.
+- **Last validation sweep**: Sweep 11 iteration 1 (close-out PR #127); no sweep run yet after PRs #128-#138.
 
 ---
 
 ## Queued sequence (upcoming PRs)
 
-**Next, PR #N: Shipped Priority 4 items rotation.** Rotate the five "Shipped 2026-06-20 as ..." items (P4.1 through P4.5) from TODO into DONE as PR-N-shipped entries (cross-referenced to the PRs that shipped them). Keep 4.6 (corpus-management discipline) since it remains forward-looking. Remove the Sweep 4 follow-up historical note from "Open follow-ups from validation sweeps". Update "Notes on maintenance" to refer to DONE.md per the PR-#131 rotation discipline. Small focused PR per the "more PRs, keep each one clean" preference; would have been bundled into PR #135 but PR #135's scope already covers decisions-log restructure and overnight-pr.md cleanup.
-
-**Then, PR #N+1: Fitness skill amendment.** Introduce the unverified→confirmed labelling discipline:
+**Next, PR #N: Fitness skill amendment.** Introduce the unverified→confirmed labelling discipline:
 - Subagent findings in a `/fitness` report are labelled "unverified" at output time.
 - Orchestrator runs a Pass-1 verification: re-reads cited source, tags each finding `✅ confirmed-as-stated` / `⚠️ confirmed-with-modification` / `❌ rejected` / `🤔 ambiguous-needs-maintainer`.
 - Pass-2 (maintainer-interactive) processes findings: `✅` cluster gets a single batch confirmation; `⚠️` and `🤔` items get per-finding prompts with recommendation + alternatives; `❌` items are recorded with rejection rationale.
@@ -69,31 +67,9 @@ Pre-dates the dating-discipline convention (2026-06-20) so no `surfaced` / `re-t
 
 - **Sweep 3 follow-up**: cross-document term-and-identifier consistency gap. The prose-and-numbering-shaped C3 surface that mechanical gates 35/39/41 don't cover. Candidate for a future mechanical gate.
 
-The Sweep 4 follow-up (classification-convention documentation) resolved within its own close-out (the failure-mode-classes table in [`.working/validate-sweeps/README.md`](.working/validate-sweeps/README.md) now documents the primary-plus-secondary classification convention) and is no longer tracked here.
-
 ---
 
 ## Priority 4 — adopter experience
-
-### 4.1 Quickstart templates per adopter profile
-
-Shipped 2026-06-20 as [`docs/template-quickstart.md`](docs/template-quickstart.md) (v2.0.0). Core baseline plus five stacking dimensions (Activity, Data scope, Audience, Regulatory exposure, GRC capacity) with about twenty modules; three worked examples. The original v1.0.0 fixed-profile structure (PR #103) was rejected by the maintainer as too rigid; the rewrite (PR #105) adopts an activity-modular composition shape that lets adopters combine modules à la carte.
-
-### 4.2 Maturity assessment interactive template
-
-Shipped 2026-06-20 as [`docs/template-maturity-self-assessment.md`](docs/template-maturity-self-assessment.md). Guided markdown checklist covering 11 library domains across a 5-tier maturity ladder (Initial / Developing / Defined / Managed / Optimising); per-tier next-step guidance; recording template.
-
-### 4.3 Implementation roadmap templates
-
-Shipped 2026-06-20 as [`docs/template-implementation-roadmap.md`](docs/template-implementation-roadmap.md). Three-phase (Floor / Operational / Year-1 close) sequence at 90 / 180 / 365 days for the reference E2 pace, with pace adjustments for E1, E3, E4 capacity tiers and for composition complexity. Designed to sequence the modules picked via the quickstart template; not per-profile.
-
-### 4.4 Regulator interaction templates
-
-Shipped 2026-06-20 as [`compliance/template-regulator-interaction.md`](compliance/template-regulator-interaction.md). Five sub-templates in one consolidated document: breach notification, attestation submission, examination support, periodic report submission, regulatory inquiry response. Shape-only; jurisdiction- and sector-specific timing/format requirements live in the relevant annex or sector folder.
-
-### 4.5 Audit evidence package templates
-
-Shipped 2026-06-20 as [`compliance/template-audit-evidence-package.md`](compliance/template-audit-evidence-package.md). Cover page, control inventory index, per-control sections (framework references, implementation and operating evidence, gaps and compensating controls, per-control sign-off), optional per-domain summaries for 50+ control packages, optional cross-reference index for shared evidence, package-level sign-off. Anti-patterns to watch and eight review questions.
 
 ### 4.6 Corpus-management discipline as a shareable skill
 
