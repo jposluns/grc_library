@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #177 — Rotate Phase 1 / Phase 2 execution plan into TODO (2026-06-21)
+
+Moved the multi-PR Phase 1 + Phase 2 execution plan out of session memory into TODO's Queued-sequence section so it survives session-end; identifies the `/fitness` pause point at end of Phase 2.
+
 ### PR #176 — Document five memory-only AI-assistant workflow disciplines as a new pack rule + hallucination-metrics tracking file (2026-06-21)
 
 New pack rule `ai-assistant-workflow-disciplines.md` covers research-assistant discipline, pipeline PR construction, apply-time worker correction, "always split when in doubt", and background work during CI waits; `.working/hallucination-metrics.md` ships as the project's tracking artefact for the catch / escape ratio.
