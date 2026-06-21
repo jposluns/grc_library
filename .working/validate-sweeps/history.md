@@ -1,6 +1,6 @@
 # Validation Sweep History
 
-**Version:** 2.0.3\
+**Version:** 2.0.4\
 **Date:** 2026-06-21\
 **License:** CC BY-SA 4.0
 
@@ -12,6 +12,7 @@ See [`README.md`](README.md) for the failure-mode taxonomy (C1-C8), maintenance 
 
 | Date | Sweep | Subagents | Findings | Resulting PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-06-21 | 12 iter 1 | A, B, C | 3 (1H, 1M, 1L) | [#148](https://github.com/jposluns/grc_library/pull/148) | [`2026-06-21-sweep12-iter1.md`](2026-06-21-sweep12-iter1.md) | Post PRs #142-#147 (six fitness-remediation PRs closing FR-3, FR-9, FR-10, FR-13, FR-22, FR-54, FR-55, FR-95, FR-96, FR-103). Three in-window findings: (H) policy-enterprise-governance-and-risk-management.md still names CIO accountable for ERM after PR #143 only fixed the standard; (M) procedure-control-testing.md §2.2 lacked cross-reference to the new "Sampling justification" field added in PR #144; (L) governance/policy-exception-and-risk-acceptance-management.md missing reciprocal "Related risk acceptance" field (the bidirectional asymmetry was noted in PR #146's detailed CHANGELOG as a latent follow-up). All three fixed. Subagent A surfaced finding 1; Subagent B surfaced all three; Subagent C zero findings (audit-programme integrity sound). |
 | 2026-06-21 | 11 iter 1 | A, B, C | 8 (1H, 2M, 5L) | [#127](https://github.com/jposluns/grc_library/pull/127) | [`2026-06-21-sweep11-iter1.md`](2026-06-21-sweep11-iter1.md) | Post PRs #124-#126. Findings: fitness-report count mismatch across 6 surfaces (95/18/22/31/24 claimed vs 111/17/20/57/17 actual); audit-programme spec D1 description stale post-PR-#125 (didn't mention dual-entry); fourth-consecutive-sweep TODO drift on resume-state (B-1 through B-4). All in-window; all fixed. Pattern observation: TODO drift is now recurring; iter close-out reframes snapshot as "as-of-last-refresh" and queues Gate 45 (TODO staleness audit) as PR #128 to catch the harder shapes mechanically. |
 | 2026-06-21 | 10 iter 3 | A, B, C | 1 (1M) | [#123](https://github.com/jposluns/grc_library/pull/123) | [`2026-06-21-sweep10-iter3.md`](2026-06-21-sweep10-iter3.md) | Post PRs #121-#122. Single recurring TODO resume-snapshot drift: `TODO.md:16` "Library version at HEAD" was one PR behind (PR #121 bumped library to .106 but the TODO refresh in the same PR captured pre-bump values). Subagent A/C zero findings; Subagent B caught it. Convergence delta: iter 2 had 7 findings, iter 3 has 1 — strong narrowing but not yet empty. |
 | 2026-06-21 | 10 iter 2 | A, B, C | 7 (1H, 3M, 3L) | [#121](https://github.com/jposluns/grc_library/pull/121) | [`2026-06-21-sweep10-iter2.md`](2026-06-21-sweep10-iter2.md) | Post PRs #118-#120 (canonical activity restructure + TODO + fitness skill overnight). Findings: re-add preflight exemption for "Six rules" line (line_hash changed post PR #117); TODO resume-state snapshot stale (version + persona count drift since session-pause); CHANGELOG "version 1.0.0" claim for SKILL.md without frontmatter version; overnight-pr.md "in progress" status stale. All in-window; all fixed. |

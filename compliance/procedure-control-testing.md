@@ -2,8 +2,8 @@
 
 **Document Title:** Control Testing Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-06-21\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md)\
@@ -86,6 +86,8 @@ Sample sizes for inspection-based tests follow a risk-based sampling methodology
 - High-risk controls: 25 to 40 samples or 100% population if feasible.
 - Medium-risk controls: 15 to 25 samples.
 - Low-risk controls: 5 to 15 samples.
+
+The chosen sample size and selection method are recorded in the test's "Sampling justification" field in the audit-evidence package (see [`compliance/template-audit-evidence-package.md`](template-audit-evidence-package.md) §"Operating evidence" per-test field set). Auditors reviewing the package see the statistical or judgemental basis for the chosen sample size without having to reconstruct it from this procedure.
 
 ---
 

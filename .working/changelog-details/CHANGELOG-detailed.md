@@ -6,6 +6,45 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.130, PR #148
+
+Sweep 12 iteration 1 close-out. The first validation sweep since Sweep 11 iter 1 (PR #127); six fitness-remediation PRs landed in between (PRs #142-#147). Subagents A, B, C all dispatched per Rule 5.6 declaration.
+
+### Sweep findings (3 in-window, all fixed)
+
+- **(H) cross-doc-stale-cio-erm** (Subagents A and B, dedupe-confirmed): [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md) still named "Chief Information Officer" as Owner and as accountable for the enterprise risk management framework in §3 governance table. PR #143 had updated the companion standard `risk/standard-enterprise-risk-management.md` to CRO but did not touch the policy. Fix: Owner field CIO → CRO; new CRO row added to §3 governance table positioned after AI Governance Council and before Chief Information Officer; CIO row reshaped from "Accountable for the enterprise risk management framework" to "Provides executive support to the ERM programme on technology-risk integration; ensures that IT-strategy risk is reflected in the enterprise risk register" — mirrors the parallel reshape PR #143 made in the standard. Per-doc `1.4.1 → 1.4.2`; Date `2026-05-28 → 2026-06-21`.
+
+- **(M) missing-sampling-justification-link** (Subagent B): [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md) §2.2 defined the three-tier sample-size methodology (High 25-40, Medium 15-25, Low 5-15) but did not point at the new "Sampling justification" field added to [`compliance/template-audit-evidence-package.md`](../../compliance/template-audit-evidence-package.md) in PR #144. Auditors reading the procedure had no pathway to discover the template's required field. Fix: paragraph added immediately after the sample-size bullet list, naming the template's §"Operating evidence" per-test field set and explaining that the audit-evidence-package surface is where the chosen sample size and selection method appear to external auditors. Per-doc `1.0.0 → 1.0.1`; Date `2026-05-27 → 2026-06-21`.
+
+- **(L) missing-reciprocal-risk-acceptance-link** (Subagent B, rubric `K`): [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md) §5 (Tracking and reporting) lacked a reciprocal "Related risk acceptance" field that pairs with the field PR #146 added to `risk/procedure-risk-acceptance.md`. The bidirectional asymmetry was acknowledged in PR #146's detailed CHANGELOG as a latent follow-up but never separately filed as an FR-N or TODO item; it would have continued to drift had this sweep not surfaced it. Fix: new §5.2 added that requires each exception register entry to record the ID of the related risk-acceptance record (or `None` if the exception is a policy/control deviation that did not produce a separate risk acceptance). Existing §§5.2 and 5.3 renumbered to 5.3 and 5.4 to accommodate. Per-doc `1.0.2 → 1.0.3`; Date `2026-05-27 → 2026-06-21`.
+
+Subagent C zero findings: four-surface parity (46 gates), spec self-consistency, regression-test coverage, gate-39 cleanliness, gate-40 version-bump-recency, skill-and-command step parity all verified sound.
+
+### Changed
+
+- [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md): Owner field; §3 governance table CRO row added, CIO row reshaped.
+- [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md): §2.2 cross-reference added.
+- [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md): new §5.2; original §5.2 and §5.3 renumbered.
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): new Sweep 12 iter 1 row at top; version `2.0.3 → 2.0.4`.
+- [`.working/validate-sweeps/2026-06-21-sweep12-iter1.md`](../validate-sweeps/2026-06-21-sweep12-iter1.md): new per-iteration detail file with the six required H2 sections (trigger / Subagent A / Subagent B / Subagent C / Orchestrator synthesis / Resulting PR).
+- [`README.md`](../../README.md): library `2026.06.129 → 2026.06.130`; README `1.9.0 → 1.9.1`.
+- [`TODO.md`](../../TODO.md): session resume metadata refreshed; "Last validation sweep" cursor advanced to Sweep 12 iter 1.
+- [`.working/DONE.md`](../DONE.md): PR #148 entry added at top.
+
+### Verification
+
+- Local audit: `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- Local PR-time checks: `tools/run-pr-time-checks.sh` exits 0.
+- Three per-doc Version bumps mechanically required by gate D2 (Per-PR version-bump check); all bumped.
+
+### Discipline observation
+
+The cross-doc-stale-cio-erm finding illustrates a recurring failure-mode class that mechanical gates currently do not catch: **doctype-pair consistency drift**. Standard and Policy documents about the same subject (here: enterprise risk management) form a logical pair; an edit to one should typically cascade to the other. The audit programme has no gate that enforces this pairing. Pattern surfaces also in FR-43 (data classification: standard vs subordinate-doc subset), FR-47 (DPO role attribution across multiple privacy procedures), FR-13 (CPPA disambiguation needed in multiple framework-alignment tables). 
+
+This pattern is a candidate for a future mechanical gate ("known doctype pairs must agree on Owner, governance, and key role-attribution fields") and for inclusion in the corpus-management-discipline shareable skill (TODO P4.6) under "Pair-aware doctype consistency". Not in scope for this sweep; surfaced for future consideration.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.129, PR #147
 
 Closes FR-3 (high, newcomer-onboarding). The README gains a "New to GRC? Start here" section so first-time readers have an entry point before the §Purpose paragraph that previously assumed the reader knew the discipline.
