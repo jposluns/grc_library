@@ -20,6 +20,14 @@ The format for each entry:
 
 ## Closed items
 
+### PR #132 — Add Ryk Edelstein to `AUTHORS.md` (2026-06-21)
+
+Single-line addition to the Acknowledged contributors list in [`AUTHORS.md`](../AUTHORS.md) for [Ryk Edelstein](https://github.com/fedelst). Per-doc version `1.1.0 → 1.1.1`; library `2026.06.114 → 2026.06.115`. Closes the maintainer-surfaced TODO item from PR #131 ("In the next PR, add ..."). First PR using the post-PR-#131 steady-state discipline of TODO/DONE rotation in the same PR.
+
+### PR #131 — DONE.md infrastructure + TODO refactored to forward-looking only (2026-06-21)
+
+Bootstrap entry (added retroactively in PR #132 — PR #131 created this file but did not add its own entry; recorded here per the discipline that every PR henceforth adds its own DONE entry). PR #131 introduced [`.working/DONE.md`](DONE.md) as the closed-TODO ledger; rotated all "PRs completed this session" (PRs #110-#130) and "Key design decisions made this session" content out of [`TODO.md`](../TODO.md) into DONE; added a new "PR finalization protocol" section to the [`change-tracking.md`](../dev-security/claude-rules/governance/change-tracking.md) pack rule documenting three disciplines (TODO is forward-looking; DONE keyed by backlog ID; after-merge list-next-N PRs); operationalised both in [`.claude/CLAUDE.md`](../.claude/CLAUDE.md). Pack `1.31.0 → 1.32.0`; library `2026.06.113 → 2026.06.114`.
+
 ### PR #130 — Remove decorative gate-count narrations (2026-06-21)
 
 Replaced 11 prose `"the N-gate audit programme"` references across 7 files with `"the audit programme"`; the spec §6 inventory remains the canonical source for both the gate list and the current count. Implements the maintainer's just-surfaced proposal that decorative counts add no information beyond what readers can derive from §6 and cost real PR friction on every gate-add. PR #128 cascaded ten such references; PR #129 cascaded one more. Gate 39 (cross-file gate-count consistency audit) retained as the defence against new decorations creeping back in. Library `2026.06.112 → 2026.06.113`. Was queued as proposal "(b)" in TODO's Queued sequence follow-up paragraph after PR #129; closed in this PR.

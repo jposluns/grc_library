@@ -4,6 +4,12 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.115, PR #132
+
+Adds [Ryk Edelstein](https://github.com/fedelst) to the Acknowledged contributors list in [`AUTHORS.md`](AUTHORS.md). First PR exercising the post-PR-#131 steady-state TODO/DONE rotation discipline (item rotated from TODO to DONE in the same commit). Includes a one-time bootstrap correction: PR #131 itself is added to DONE retroactively, since it created DONE but did not record its own entry.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.114, PR #131
 
 Introduces [`.working/DONE.md`](.working/DONE.md), the closed-TODO ledger, and rotates all historical "PRs completed this session" entries (PRs #110-#130) and "Key design decisions made this session" subsections out of [`TODO.md`](TODO.md) into DONE. TODO is now forward-looking only. Pack rule [`change-tracking.md`](dev-security/claude-rules/governance/change-tracking.md) gains a "PR finalization protocol" section documenting three disciplines: TODO is forward-looking (delete-on-close, no strikethroughs); DONE complements CHANGELOG (CHANGELOG by PR, DONE by closed item); after-merge protocol of listing the next-N planned PRs from TODO. [`.claude/CLAUDE.md`](.claude/CLAUDE.md) PR workflow extended with two new steps capturing both disciplines durably. Pack `1.31.0 → 1.32.0`; library `2026.06.113 → 2026.06.114`.

@@ -2,8 +2,8 @@
 
 **Document Title:** Authors and Acknowledgements\
 **Document Type:** Register\
-**Version:** 1.1.0\
-**Date:** 2026-06-19\
+**Version:** 1.1.1\
+**Date:** 2026-06-21\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`NOTICE.md`](NOTICE.md)\
@@ -80,6 +80,7 @@ The substance of this library draws on knowledge, experience, war stories, and p
 - **Nathan Alexander** ([@naitachal](https://github.com/naitachal))
 - **Brent Thomas** ([@brentrealbt](https://github.com/brentrealbt))
 - **Brian J Adams** ([@0xbja](https://github.com/0xbja))
+- **Ryk Edelstein** ([@fedelst](https://github.com/fedelst))
 
 and to the many other old-timers whose habits of thought, governance instincts, and willingness to share what they had learned in the trenches shaped how this library frames problems, drafts controls, and treats edge cases. Their fingerprints are throughout this corpus, even where individual artefacts are written entirely in this library's own words.
 
