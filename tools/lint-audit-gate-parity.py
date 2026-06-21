@@ -68,7 +68,7 @@ WORKFLOW_SETUP_STEPS = {"Checkout", "Set up Python"}
 
 # Workflow steps that are PR-only delta gates documented in
 # governance/specification-audit-programme.md §6.1. These are not part
-# of the 45-gate corpus inventory in §6 and therefore are excluded from
+# of the corpus inventory in §6 and therefore are excluded from
 # the parity audit. Delta gates run only on pull_request events and
 # inspect the PR's change set rather than the repository state at HEAD.
 WORKFLOW_DELTA_GATE_STEPS = {
