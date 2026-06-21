@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #184 — Worker-brief template + hallucination-assessment update protocol (2026-06-21)
+
+New project-local worker-brief template at `.working/worker-brief-template.md` plus pack-rule update codifying the self-improving loop: when an apply-time catch occurs, log it, classify the fix, update the template inline. Initial template ships with four guard rails from the four known apply-time-catch classes.
+
 ### PR #183 — Add /validate-pr skill + slash command for post-merge per-PR validation (2026-06-21)
 
 New pack skill and slash command for PR-scoped post-merge validation; runs after every merge to catch per-PR drift before it compounds. Complements the existing corpus-wide /validate sweep (every 10 merges).
