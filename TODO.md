@@ -10,20 +10,20 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #132 merge).
-- **Library version as of last refresh**: `2026.06.115`. **Pack version**: `1.32.0`. **README version**: `1.8.71`.
+- **Branch at last refresh**: `main` (synced after PR #133 merge).
+- **Library version as of last refresh**: `2026.06.116`. **Pack version**: `1.32.0`. **README version**: `1.8.72`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
-- **Last validation sweep**: Sweep 11 iteration 1 (close-out PR #127); no sweep run yet after PRs #128-#132.
+- **Last validation sweep**: Sweep 11 iteration 1 (close-out PR #127); no sweep run yet after PRs #128-#133.
 
 ---
 
 ## Queued sequence (upcoming PRs)
 
-**Next, PR #N: Document the project's Canadian-first language convention.** Maintainer-surfaced (2026-06-21, during PR #131): the project uses Canadian English spelling and grammar by default; Commonwealth (UK/Australian) forms are the fallback when Canadian has no opinion; American or other forms are last. The `-ized` / `-ization` choice the linter enforces is **Canadian**, not American (Canadian shares this with American but is its own dialect). The [`tools/lint-language.py`](tools/lint-language.py) module docstring currently says `"British -ise endings (use -ize / -ization)"`, which mis-attributes the convention. Scope:
-- Rewrite the relevant `tools/lint-language.py` docstring sections to name the convention as Canadian-first.
-- Add a one-paragraph "Language convention" section to [`.claude/CLAUDE.md`](.claude/CLAUDE.md) (project-specific instantiation) and/or to [`CONTRIBUTING.md`](CONTRIBUTING.md) (adopter-facing).
-- Optional: pack-side analogue in a new `governance/` rule or in an existing rule's "Tool-specific guidance" subsection, if the convention generalises (it does for documentation projects but might not for code projects; the linter's behaviour is sound for either).
-- No linter behaviour change; rationale-only doc edit plus surfacing.
+**Next, PR #N: TODO content cleanup.** Maintainer-surfaced (2026-06-21, during PR #133): TODO contains several remaining non-forward-planning sections that should rotate to [`.working/DONE.md`](.working/DONE.md). Specifically:
+- "Decisions log" section (items considered and explicitly dropped) is historical decision-rationale, not forward-planning. Rotate to DONE under a "Decisions made and explicitly dropped" subsection.
+- Priority 4 items 4.1 through 4.5 (`Shipped 2026-06-20 as ...` entries) are completed items. Rotate to DONE as PR-N-shipped entries (cross-referenced to the PRs that shipped them). Keep 4.6 (corpus-management discipline) since it remains forward-looking.
+- The Sweep 4 follow-up note in "Open follow-ups from validation sweeps" (`resolved within its own close-out ... and is no longer tracked here`) is purely historical. Remove or rotate.
+- "Notes on maintenance" subsection at the bottom mentions `Completed items move to CHANGELOG.md`; update to mention DONE.md per the PR-#131 discipline.
 
 **Then, PR #N+1: Fitness skill amendment.** Introduce the unverified→confirmed labelling discipline:
 - Subagent findings in a `/fitness` report are labelled "unverified" at output time.
