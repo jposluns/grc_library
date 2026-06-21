@@ -6,6 +6,51 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.144, PR #162
+
+Closes FR-29 (high[critical]). The Privacy Impact and Cross-Border Transfer Procedure references a DPIA process but did not previously provide a working DPIA template; adopters could not evidence GDPR Article 35 compliance without inventing one.
+
+### Closed findings
+
+- **FR-29** (high[critical], `privacy/procedure-privacy-impact-and-cross-border-transfer.md` + new template): DPIA methodology and trigger checklist absent. Closed by shipping a new structural template that operationalises the three Article 35 limbs (when a DPIA is required, the EDPB high-risk indicators, what the DPIA must contain) and by cross-referencing it from the operative procedure and the document index.
+
+### Added
+
+- [`privacy/template-dpia.md`](../../privacy/template-dpia.md) (new, version 1.0.0): Data Protection Impact Assessment Template. CC BY-SA 4.0 structural template covering:
+  - §1 Article 35(1) trigger checklist: the three explicit Article 35(3) triggers (T1 evaluation/profiling with legal effects; T2 large-scale special-category or criminal-conviction data; T3 large-scale systematic monitoring of publicly accessible area) plus supervisory-authority-list consultation per Articles 35(4) and 35(5).
+  - §2 EDPB WP248 nine-criteria framework (endorsed by the EDPB 25 May 2018): the nine indicators of high-risk processing with the "two or more = DPIA required" decision rule, plus the documented-rationale requirement when only one applies.
+  - §3 Article 35(7) DPIA content checklist: the four mandatory content blocks split across §3.1 (systematic description), §3.2 (necessity and proportionality), §3.3 (risks to rights and freedoms), §3.4 (mitigation measures). Each block carries a field table operationalising the requirements; risk and treatment rows are cross-referenced.
+  - §4 sign-off and review: assessor, DPO review, approver, next-review date, ROPA cross-reference, privacy notice cross-reference.
+  - Framework alignment table citing GDPR Articles 35 and 36, UK GDPR Article 35, EDPB WP248 rev.01, LGPD Article 38, PIPL Article 55, EU AI Act Article 27, ISO/IEC 29134:2023, ISO/IEC 27701:2025, NIST Privacy Framework (CT.PO-P5, CM.AW-P5), and AIDA §29.
+  - Limitations section explicitly notes the template is a structural baseline; supervisory-authority-published instruments prevail on conflict.
+
+### Changed
+
+- [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md):
+  - §Related Documents: new cross-reference to [`privacy/template-dpia.md`](../../privacy/template-dpia.md).
+  - Step 1 (Initiation): adds an explicit anchor for the Article 35(1) trigger and EDPB WP248 checklists, pointing at §1 and §2 of the new template.
+  - Step 6 (Record keeping and documentation): the "Completed PIA/AI-IA report" bullet now points at the template for the structural shape.
+  - Per-doc version `1.3.2 → 1.3.3` (patch: adds template cross-reference; no substantive procedural change).
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md): one new row added in the Privacy domain between the existing DSAR Workflow Template and the Consent Management Framework rows, registering the DPIA template with its applicable framework citations. Per-doc `1.27.24 → 1.27.25` (patch: one row added).
+- [`README.md`](../../README.md): library `2026.06.143 → 2026.06.144`; README per-doc `1.9.14 → 1.9.15`.
+- [`TODO.md`](../../TODO.md): FR-29 rotated out of High[critical] tier; backlog counters updated (11 + 7 + 56 = 74 immediate; 14 deferred; 88 open).
+- [`.working/DONE.md`](../DONE.md): PR #162 entry added.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- `tools/run-pr-time-checks.sh` exits 0 (D1 + D2 + gate 45).
+- New template carries the canonical 13-field metadata block (gate 1 verifies).
+- Cross-references between procedure, template, and document index all resolve.
+
+### Discipline observation
+
+This is the first new-artefact PR in the FR backlog stream (the prior remediation PRs touched existing documents; PR #138 was the closest equivalent — rotation work, not a new artefact). The new artefact carries the canonical metadata block, registers itself in the document index, is cross-referenced bidirectionally from the operative procedure, and lists its applicable framework alignments in the same table-shape used by other templates. The pattern is now in evidence for the remaining new-artefact items in the FR backlog (FR-30 DPA template, FR-31 Privacy-by-Design framework, FR-32 Legitimate Interest Assessment, FR-34 Transfer Impact Assessment).
+
+The DPIA template explicitly does not cover Transfer Impact Assessments (FR-34 / FR-74). The scope discipline is recorded in the template's §Limitations and in the §Scope paragraph that points at the operative procedure's Step 4 as the controller for TIAs until the TIA template ships.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.143, PR #161
 
 Closes FR-17 (high, Pass-1 ⚠️ confirmed-with-modification). The exception policy and the Role Authority Register named overlapping approval authorities but did not declare a single source of truth, and the register's RACI row carried a stub placeholder ("Risk Accountable Role") that did not match any role defined in its own authority table. The fix replaces the stub with a tiered reference that mirrors the policy's §2.2 chain, and adds a reciprocal cross-reference clause to the policy that declares §2.2 / §3.5 as the source of truth.

@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.24\
+**Version:** 1.27.25\
 **Date:** 2026-06-21\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -122,6 +122,7 @@ All active repository documents should be Public.
 | Privacy | Template | Record of Processing Activities Template | [`privacy/template-record-of-processing-activities.md`](../privacy/template-record-of-processing-activities.md) | Chief Privacy Officer | Annual | GDPR Art 30, UK GDPR, LGPD Art 37, CPPA, PIPL Art 55, ISO 27701 §7.2.8 / §8.2.6 |
 | Privacy | Template | Privacy Notice Template | [`privacy/template-privacy-notice.md`](../privacy/template-privacy-notice.md) | Chief Privacy Officer | Annual | GDPR Arts 12 to 14, UK GDPR, LGPD Arts 6/9/18, PIPL Arts 17 to 21, CCPA/CPRA, ISO/IEC 29184 |
 | Privacy | Template | Data Subject Access Request Workflow Template | [`privacy/template-dsar-workflow.md`](../privacy/template-dsar-workflow.md) | Chief Privacy Officer | Annual | GDPR Arts 12 to 23, LGPD Arts 17 to 22, PIPL Arts 44 to 50, CCPA/CPRA, ISO 27701 §7.3 |
+| Privacy | Template | Data Protection Impact Assessment Template | [`privacy/template-dpia.md`](../privacy/template-dpia.md) | Chief Privacy Officer | Annual | GDPR Art 35, EDPB WP248, UK GDPR Art 35, LGPD Art 38, PIPL Art 55, EU AI Act Art 27, ISO/IEC 29134:2023, ISO/IEC 27701:2025 |
 | Privacy | Framework | Consent Management Framework | [`privacy/framework-consent-management.md`](../privacy/framework-consent-management.md) | Chief Privacy Officer | Annual | GDPR Arts 4(11)/6/7/8/9, ePrivacy Directive, LGPD Arts 7/8, PIPL Arts 13/14, COPPA, ISO/IEC 29184 |
 | Privacy | Register | Automated Decision-Making and Profiling Register | [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md) | Chief Privacy Officer | Quarterly | GDPR Art 22, EU AI Act Arts 6/14/26, LGPD Art 20, PIPL Art 24, NIST AI RMF |
 | Privacy | Register | Cookie and Tracker Register | [`privacy/register-cookie-and-tracker.md`](../privacy/register-cookie-and-tracker.md) | Chief Privacy Officer | Quarterly | ePrivacy Directive Art 5(3), UK PECR, GDPR, LGPD, PIPL, CCPA/CPRA |
