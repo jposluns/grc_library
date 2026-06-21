@@ -83,6 +83,12 @@ drive end-to-end on the maintainer's behalf:
    graph) only see committed state, so running the audit on the working
    tree before committing misses what would happen post-commit. Running
    between commits catches gate 40-class issues locally, before CI does.
+   Before pushing, additionally run `tools/run-pr-time-checks.sh` to
+   exercise the PR-only delta gates (D1 CHANGELOG-on-PR, D2 per-PR
+   version-bump) plus gate 45 (TODO staleness) locally — these gates
+   need a git history range relative to the merge base and are
+   therefore not part of `run_all_audits.sh`. The two runners together
+   cover every gate the CI workflow runs.
 2. Push with `git push -u origin <branch>` and open the PR via
    `mcp__github__create_pull_request`.
 3. Wait for the `Lint markdown corpus` CI check; on failure, fix and re-push.

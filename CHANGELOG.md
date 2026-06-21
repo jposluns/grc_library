@@ -4,6 +4,12 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.111, PR #128
+
+New audit gate 45 (TODO staleness audit) plus a PR-time-checks wrapper script. Gate 45 mechanically catches the two TODO drift shapes that recurred across four consecutive validation sweeps (queued PR already merged; sweep cursor behind history); the wrapper [`tools/run-pr-time-checks.sh`](tools/run-pr-time-checks.sh) bundles the two PR-only delta gates (D1 CHANGELOG-on-PR, D2 per-PR version-bump) and gate 45 into one local runner the maintainer invokes before push. Together with [`tools/run_all_audits.sh`](tools/run_all_audits.sh), the two runners cover every gate the CI workflow runs. The two-runner split is a structural fix for the version-bump-omission failure mode that surfaced in PR #127's first push: every gate now has a local invocation path. Spec [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) §6 inventory extended; [`TODO.md`](TODO.md) preamble amended to note the narrow gate-45 exception to TODO's "informational only" status; [`.claude/CLAUDE.md`](.claude/CLAUDE.md) PR workflow updated to require both runners. New TODO P4.6 records the "corpus-management discipline as a shareable skill" follow-up the maintainer authorised, scheduled after the fitness backlog closes.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.110, PR #127
 
 Sweep 11 iteration 1 close-out. Eight in-window findings actioned: corrected the fitness report's count mismatch across six surfaces (95/18/22/31/24 → mechanically-tabulated 111/17/20/57/17); updated [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) D1 description for dual-entry post-PR-#125; refreshed TODO and reframed its session-pause snapshot as "as-of-last-refresh" (one-time convention amendment to address the four-consecutive-sweep recurring drift); softened workflow ordering in [`change-tracking.md`](dev-security/claude-rules/governance/change-tracking.md); renamed [`.working/README.md`](.working/README.md) "Created by" column to "Origin"; bumped library version.
