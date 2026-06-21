@@ -6,6 +6,42 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.139, PR #157
+
+Closes FR-16 (high[critical], exception register hard caps + renewal-ceiling escalation pathway). The exception register schema previously lacked hard ceiling fields, and §3.1 used a soft "should not exceed 180 days" clause that allowed indefinite drift under repeated soft renewals. The fix mirrors PR #152's FR-19 CAPA §6.3.1 ceiling pattern so the two registers escalate on the same cadence when both have been opened against the same underlying gap.
+
+### Closed findings
+
+- **FR-16** (high[critical], `governance/policy-exception-and-risk-acceptance-management.md`): Exception register schema lacked `max_duration` and `renewal_count_limit` fields; the "should not exceed 180 days" clause was unenforceable. The fix adds both fields to the schema (§1.2 and §5.1), strengthens §3.1 to a hard initial-term cap, and introduces §3.4 (cumulative max_duration), §3.5 (renewal-ceiling escalation pathway), §3.6 (re-baselining carve-out with anti-abuse condition), and §3.7 (rationale for the specific numbers).
+
+### Changed
+
+- [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md):
+  - §1.2 (Exception request and registration): schema extended to require `max_duration` (default 540 days) and `renewal_count_limit` (default 3) on every register entry, with forward cross-references to §3.4 and §3.5.
+  - §3.1 (Duration and renewal): weak "should not exceed 180 days unless renewed with justification" replaced by a hard 180-day initial-term cap. The renewal scope moves to §3.4 / §3.5 below.
+  - §3.4 (new): cumulative `max_duration` ceiling of 540 days (three 180-day terms) unless an explicit higher cap is approved by the Board Risk Committee at original registration. When reached, the exception must be remediated, descoped, converted to a formal risk acceptance, or replaced by a re-baselined entry; further renewal is not permitted at any authority level.
+  - §3.5 (new): renewal-ceiling escalation pathway with a 4-row table: 1st renewal at the original approver per §2.2; 2nd at the ERC (remediation-feasibility memo + compensating-control revalidation required); 3rd at the Board Risk Committee (root-cause-and-remediation-pathway memo + explicit residual-risk acceptance); 4th absolutely prohibited (forces close, descope, conversion to risk acceptance, or re-baseline). The `renewal_count_limit` field defaults to 3; a lower limit may be set per-entry but a higher limit cannot be set (policy-wide prohibition).
+  - §3.6 (new): re-baselining carve-out for materially-changed scope (ERC-approved, with anti-abuse condition: a re-baseline without material change is treated as the next renewal in the sequence).
+  - §3.7 (new): rationale paragraph explaining why 540/3/4 were chosen (mirrors CAPA §6.3.1 cadence for cross-register escalation consistency).
+  - §5.1 (Tracking and reporting): central register field list extended in lock-step with `max_duration`, `renewal_count_limit`, and current renewal count.
+  - Per-doc version `1.0.3 → 1.1.0` (minor: schema-level addition of two required fields + four new subsections in §3).
+- [`README.md`](../../README.md): library `2026.06.138 → 2026.06.139`; README per-doc `1.9.9 → 1.9.10`.
+- [`TODO.md`](../../TODO.md): FR-16 rotated out of High[critical] tier; backlog counters updated (13 + 9 + 56 = 78 immediate; 14 deferred; 92 open).
+- [`.working/DONE.md`](../DONE.md): PR #157 entry added.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- `tools/run-pr-time-checks.sh` exits 0 (D1 + D2 + gate 45).
+- Cross-reference validation: §3.4 cross-reference to `risk/procedure-risk-acceptance.md` resolves; §3.7 cross-reference to `compliance/procedure-capa.md` §6.3.1 resolves; §5.2 reciprocal field (added in PR #148) is preserved unchanged.
+- No corpus citations to the prior "should not exceed 180 days" language found anywhere else in the corpus (grep clean).
+
+### Discipline observation
+
+This is the second instance in the corpus where an open-ended renewal/extension authority has been hardened with a 1-2-3-prohibited escalation pattern (the first was PR #152 / FR-19 for CAPA target-date extensions). The two registers now use mathematically-identical thresholds at the same governance tiers (1st at original approver, 2nd at ERC, 3rd at Board Risk Committee, 4th not permitted), with the re-baselining carve-out structured the same way in each. This is intentional: when the same underlying gap produces both an open CAPA and an active exception, the two are designed to escalate together rather than at different cadences. Surfaced as a candidate generalisation: a future "governance-ceiling pattern" rule in the discipline pack could document this 1-2-3-prohibited shape as the canonical form for any open-ended authority that needs a hard upper bound. Not in scope for this PR.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.138, PR #156
 
 Closes FR-2 (high, README "How to use" step 1 navigation). The "How to use" section's step 1 had directed readers to the 300-row document index before the audience-keyed portal. A first-time visitor reading the README sequentially landed first on the "New to GRC?" block (which points at [`docs/portal.md`](../../docs/portal.md)) and then on "How to use" step 1 (which contradicted that signposting by pointing at the document index instead). Step 1 now opens with the portal as the primary pointer.

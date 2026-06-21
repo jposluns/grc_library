@@ -2100,7 +2100,7 @@ documents:
   domain: "governance"
   type: "Policy"
   title: "Exception and Risk Acceptance Management Policy"
-  version: "1.0.3"
+  version: "1.1.0"
   date: "2026-06-21"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
