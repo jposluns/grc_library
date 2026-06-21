@@ -25,6 +25,10 @@ The format for each entry:
 
 ## Closed items
 
+### PR #145 — FR-95: Risk register compensating-controls field (2026-06-21)
+
+High-severity finding closed. [`risk/template-enterprise-risk-register.md`](../risk/template-enterprise-risk-register.md) Acceptance section now requires a `Compensating Controls` field listing each control by ID with a brief note on how it offsets the un-treated risk. Required by [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md) §5 already; the template now records it so the acceptance record is self-contained and auditable. Per-doc `1.0.1 → 1.0.2`; library `2026.06.126 → 2026.06.127`.
+
 ### PR #144 — FR-22: Audit-evidence sampling-justification field (2026-06-21)
 
 High-severity finding closed. [`compliance/template-audit-evidence-package.md`](../compliance/template-audit-evidence-package.md) per-control operating-evidence section now requires a mandatory `Sampling justification` field for every test that uses sampling. The field captures population size, sample size, selection method (random / stratified / judgemental), confidence-level assumption (if statistical), and a citation back to [`procedure-control-testing.md`](../compliance/procedure-control-testing.md) §2.2 sample-size table or rationale for a different size. "100% population review" is the explicit response when sampling does not apply. Per-doc `1.0.0 → 1.0.1`; library `2026.06.125 → 2026.06.126`.
