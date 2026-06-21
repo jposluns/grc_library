@@ -10,24 +10,16 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #138 merge).
-- **Library version as of last refresh**: `2026.06.120`. **Pack version**: `1.33.0`. **README version**: `1.8.76`.
+- **Branch at last refresh**: `main` (synced after PR #139 merge).
+- **Library version as of last refresh**: `2026.06.121`. **Pack version**: `1.34.0`. **README version**: `1.8.77`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
-- **Last validation sweep**: Sweep 11 iteration 1 (close-out PR #127); no sweep run yet after PRs #128-#138.
+- **Last validation sweep**: Sweep 11 iteration 1 (close-out PR #127); no sweep run yet after PRs #128-#139.
 
 ---
 
 ## Queued sequence (upcoming PRs)
 
-**Next, PR #N: Fitness skill amendment.** Introduce the unverified→confirmed labelling discipline:
-- Subagent findings in a `/fitness` report are labelled "unverified" at output time.
-- Orchestrator runs a Pass-1 verification: re-reads cited source, tags each finding `✅ confirmed-as-stated` / `⚠️ confirmed-with-modification` / `❌ rejected` / `🤔 ambiguous-needs-maintainer`.
-- Pass-2 (maintainer-interactive) processes findings: `✅` cluster gets a single batch confirmation; `⚠️` and `🤔` items get per-finding prompts with recommendation + alternatives; `❌` items are recorded with rejection rationale.
-- Confirmed findings produce TODO entries with the FR-N ID, originating-run reference, and verification date.
-- Update SKILL.md, slash command, and `.working/fitness-reviews/README.md` for the new workflow.
-- Retroactively tag all 111 FR-N findings in `2026-06-21-r1.md` as "unverified" so the next pass is explicit.
-
-**Then, fitness backlog Pass-1 (orchestrator verification).** For each FR-1..FR-111 finding: re-read the cited source, tag with the verdict tags above. Output is a single new file under [`.working/fitness-reviews/`](.working/fitness-reviews/) with the verification verdicts.
+**Next, PR #N: Fitness backlog Pass-1 (orchestrator verification).** For each FR-1..FR-111 finding in [`.working/fitness-reviews/2026-06-21-r1.md`](.working/fitness-reviews/2026-06-21-r1.md): re-read the cited source, tag with one of `✅ confirmed-as-stated` / `⚠️ confirmed-with-modification` / `❌ rejected` / `🤔 ambiguous-needs-maintainer` per the discipline introduced in PR #139. Output is a per-finding verdict layer applied in-place to the report (or as a sibling verification file if that's cleaner). The output is the input for Pass-2 (maintainer-interactive bucket processing) in a subsequent PR.
 
 **Then, fitness backlog Pass-2 batches.** Process the confirmed findings by severity band. Probably one PR per priority section (P1 fixes are larger; P5/P6 are smaller batches). Create TODO entries for confirmed findings; close them in subsequent PRs and rotate to DONE.
 
