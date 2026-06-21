@@ -4,6 +4,33 @@ All notable changes to this repository are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.107, PR #123
+
+Sweep 10 iteration 3 close-out: one in-window Medium finding actioned. Convergence-delta narrowing from iter 2's 7 findings to iter 3's 1.
+
+Full A/B/C subagent fan-out per Rule 5.6. Subagent A returned zero findings. Subagent C returned zero findings (steady state confirmed: 44/44 gates pass, zero parity-surface drift, preflight exemption hash-verified). Subagent B caught one drift: [`TODO.md:16`](TODO.md) "Library version at HEAD" said `2026.06.105 / README 1.8.61` but post-PR-#121 HEAD is `2026.06.106 / 1.8.62`. Subagent A had classified this as as-of-session-pause and not a finding; Subagent B noted the line literally reads "at HEAD" (a current-state claim). Per Rule 5.3 pick-higher debate adjudication: B's classification holds.
+
+This is the same drift pattern iter 2 caught (TODO snapshot one PR behind the version bump performed in the same close-out PR). This PR breaks the recurrence by writing the TODO snapshot using POST-PR-#123-bump values (`.107 / .63`) — the snapshot is now current as of this PR's merge, not one PR behind.
+
+### Fixed
+
+- [`TODO.md`](TODO.md): line 16 "Library version at HEAD" updated from `2026.06.105 / README 1.8.61` to the post-PR-#123-bump values `2026.06.107 / README 1.8.63`. Proactive fix: written using post-bump values so the snapshot is current at PR merge, not one PR behind. If iter 4 re-surfaces the same shape, the convention itself needs adjustment (e.g., explicitly framing the snapshot as as-of-session-pause to sidestep the "at HEAD" reading).
+
+### Changed
+
+- [`.working/validate-sweeps/history.md`](.working/validate-sweeps/history.md): version `2.0.1 -> 2.0.2`. Sweep 10 iter 3 row appended with `Subagents: A, B, C` per Rule 5.6.
+- [`README.md`](README.md): library version `2026.06.106 -> 2026.06.107`; README version `1.8.62 -> 1.8.63`.
+
+### Added (under `.working/`, exempt from corpus audit gates)
+
+- [`.working/validate-sweeps/2026-06-21-sweep10-iter3.md`](.working/validate-sweeps/2026-06-21-sweep10-iter3.md): per-iteration detail file with the A/B/C subagent reports, the one-finding synthesis, debate adjudication, and pattern observation.
+
+### Verification
+
+All 44 audit gates pass standalone post-commit. Pre-flight scanner: 0 candidates. Convergence-delta status: strong narrowing iter-2 to iter-3 (7 → 1; -86%) but not yet empty-delta. The next sweep (post any subsequent substantive PR) will test whether THIS PR's close-out introduced new drift.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.106, PR #121
 
 Sweep 10 iteration 2 close-out: seven in-window findings actioned post the three-PR overnight sequence (PRs #118-#120).
