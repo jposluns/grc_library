@@ -135,6 +135,41 @@ the maintainer did not author, force-pushing a protected branch, deleting a bran
 the assistant did not create) are not in the safe set and require explicit
 confirmation under the confirm-before-destructive-action discipline.
 
+## Version-bump discipline
+
+The library carries three version surfaces, and recurring CI failures (most
+recently PR #169's gate 40 catch) trace back to losing track of which surface
+bumps when across a multi-commit PR. The rule, one sentence per surface:
+
+1. **Per-document `Version` field**: bump in the same commit that changes the
+   document's body. Every commit. No exceptions. Gate 40 (corpus
+   version-bump-recency) examines commit-by-commit history, so a body change
+   without a version bump in the same commit fails the gate even when the final
+   state of the branch looks correct.
+2. **Library CalVer in [`README.md`](../README.md)** (the `Library Version`
+   line, format `2026.MM.NNN`): bump once per PR, in the last commit before
+   push. Bumping CalVer in every intermediate commit creates needless churn;
+   bumping only in the last commit keeps the value consumers see aligned with
+   what actually ships.
+3. **README `Version` field** (the `Version` line in [`README.md`](../README.md)'s
+   metadata block): bump once per PR, in the same commit as the CalVer bump.
+   The two are conceptually paired (the README *is* the library's version
+   statement), so they move together.
+
+**Operationalization**: at each commit, ask three questions:
+1. Did this commit change a versioned document's body? → Bump that document's
+   Version in this commit.
+2. Is this the last commit before push? → Bump library CalVer in
+   [`README.md`](../README.md) and the README's own Version field in the same
+   commit.
+3. Did `tools/run_all_audits.sh` pass after this commit? → If not, fix before
+   pushing. Gate 36 (linter regression) exercises gate 40's logic in test form
+   and catches the per-document-bump omission locally before CI does.
+
+The post-commit `run_all_audits.sh` discipline (already specified in `## PR
+workflow` step 1) is the catch-net for this rule: if the three questions are
+asked and the audit passes, the rule has held.
+
 ## Boundaries
 - Never hand-edit generated files (`taxonomy.yml`, `docs/portal.md`,
   `docs/maturity-scorecard.md`); regenerate them — CI `--check` fails on drift.
