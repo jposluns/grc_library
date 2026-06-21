@@ -6,6 +6,54 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.118, PR #135
+
+Restructures the working-state ledgers per the maintainer's directive that "DONE should be for things that are DONE; we have the .working directory for our work, let's be as organized as we can moving forward." Three concerns combined:
+
+1. Design-decision content rotated out of DONE.md into its own file [`.working/design-decisions.md`](../design-decisions.md). DONE.md is now strictly closed-TODO items.
+2. `.working/overnight-pr.md` deleted. Substantive content (fitness-skill design decisions) migrated to design-decisions.md; procedural content (authorization scope, build progress checklist, files-touched lists, morning-review handoff notes) had no forward-looking value.
+3. TODO's "Decisions log" section migrated to design-decisions.md as "Decisions explicitly dropped". TODO is now strictly forward-looking.
+
+The maintainer also confirmed the next-PR adoption of an overnight-pr.md stub format plus audit gate; that work is queued as PR #136 in the new TODO queued sequence.
+
+### Added
+
+- [`.working/design-decisions.md`](../design-decisions.md) (new, ~200 lines): reference log of design decisions organized thematically. Sections: "Working state and `.working/` convention" (six decisions: `.working/` top-level, canonical activity layout, template-vs-application, fork guidance, top-level-files-vs-activities); "Slash commands, skills, and the validation-sweep / fitness-review surface" (eight decisions including the full 10-persona model with the EXCLUDED list, severity, output structure, cadence triggers, scope boundaries); "CHANGELOG and TODO/DONE conventions" (five decisions including PR sequencing, CHANGELOG split, dual-entry, snapshot framing, TODO/DONE rotation, after-merge list-next-5-PRs); "Audit programme architecture" (three decisions: Rule 5.6 silent-skip prevention, wrapper-script-plus-corpus-runner, decorative-gate-counts-forbidden); "Language and style" (Canadian-first convention); "Decisions explicitly dropped" (four decisions migrated from TODO's decisions log: strict-Related-Documents-reciprocity, cross-document-numerical-coherence-as-scaffold, phase-completion-gating-via-full-sweep, no-verification-of-standard-content-versus-library-interpretation).
+
+### Removed
+
+- [`.working/overnight-pr.md`](../overnight-pr.md) (deleted): the file documented PR #120's overnight authoring session. Its substantive design-decisions content has been migrated to [`design-decisions.md`](../design-decisions.md) (the persona model with EXCLUDED list, severity, output structure, cadence triggers, scope boundaries). The remaining content (authorization scope from the one-off message, files-being-authored work plan, files-NOT-touched scope confirmation, build-progress checklist, morning-review handoff notes, files-this-overnight-touched, corpus-boundary-respected confirmation) is procedural detail about a specific event with no forward-looking value. If a similar overnight session ever happens, a fresh scope-authorization file would be written from the maintainer's then-current instruction. The future overnight-pr.md stub format (queued as PR #136) will document the standard.
+
+### Changed
+
+- [`.working/DONE.md`](../DONE.md):
+  - Preamble extended with a three-bullet enumeration of the working-state ledgers: CHANGELOG (by PR), design-decisions.md (thematic), DONE (by closed item).
+  - Entire "Design decisions made (rotated from TODO 2026-06-21 as part of DONE infrastructure)" section removed (~70 lines).
+  - PR #135 entry added at the top of "Closed items".
+- [`.working/README.md`](../README.md): Top-level files table extended with the new `design-decisions.md` row. The table now lists DONE.md (PR #131) and design-decisions.md (PR #135).
+- [`TODO.md`](../../TODO.md):
+  - Top-of-file blurb updated to reference DONE.md AND design-decisions.md as the destinations for completed work and design decisions.
+  - Queued sequence updated: previously-stale "TODO content cleanup" item rewritten as the overnight-protocol-with-stub-and-gate PR #136 (per maintainer's just-confirmed stub-with-gate approach), plus a new "Shipped Priority 4 items rotation" item as PR #137 (split off from the previous TODO content cleanup scope because P4.1-4.5 rotation was not in the design-decisions restructure scope of this PR), with fitness work continuing at PR #138.
+  - "Decisions log" section deleted entirely (content migrated to design-decisions.md). A brief one-line pointer was considered but discarded in favor of the cleaner "completed migration" framing.
+  - "Notes on maintenance" rewritten: now says "delete from this file (no strikethroughs) and add an entry to DONE.md in the same PR" instead of the older "remove and record in CHANGELOG.md" framing. New bullet added about design decisions going to design-decisions.md.
+  - Session resume metadata refreshed (`2026.06.117 → 2026.06.118`; sync after PR #135).
+- [`README.md`](../../README.md): library version `2026.06.117 → 2026.06.118`; README version `1.8.73 → 1.8.74`.
+
+### Verification
+
+- Local audit: `tools/run_all_audits.sh` exits 0 on all gates.
+- Local PR-time checks: `tools/run-pr-time-checks.sh` exits 0.
+- Manual cross-reference check: every design decision listed in DONE before this PR was migrated to design-decisions.md (verified by grep of section headings); every fitness-specific decision in overnight-pr.md was migrated (verified by reading the deleted file's content against design-decisions.md's "Slash commands, skills, and the validation-sweep / fitness-review surface" section); every decision in TODO's decisions log was migrated (verified by reading the deleted section against design-decisions.md's "Decisions explicitly dropped" section).
+- Working-state ledger triad now has three roles: CHANGELOG (file changes per PR), DONE (closed-TODO items per PR), design-decisions (thematic decision rationale).
+
+### Discipline observation
+
+This PR's surface is structural rather than content-creating: no new corpus content, no linter behaviour change, no new gate. The structural fix matters because: the working-state ledgers were drifting toward overlap (design decisions in DONE; procedural log in overnight-pr.md; decisions log in TODO). The maintainer surfaced the misplacement explicitly ("DONE should be for things that are DONE"); this PR realigns the three files to their distinct roles.
+
+The maintainer's broader pattern of surfacing "we should organize this better" mid-work and the assistant's pattern of routing the surfaced concerns into a focused PR is itself the corpus-management discipline the project has been accumulating. The future "corpus-management discipline as a shareable skill" (TODO P4.6) will want to capture this routing pattern as a structured workflow: when a working-state file shows symptoms of role drift (mixed-purpose content, redundant entries, gradually accumulating procedural debris), the assistant proposes a restructure PR rather than waiting for the maintainer to spot it.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.117, PR #134
 
 Gate 45 (TODO staleness audit) regex tightened to eliminate a false positive that took down the post-PR-#133 merge `push`-event CI run on `main`. The earlier regex used an `[^\n]{0,80}` window between "next/queued/pending/upcoming" markers and `PR #<digit>`, which matched too broadly: any digit-bearing PR ref within 80 characters would trigger the queued-PR-already-merged finding, even when the queued PR was actually a placeholder (`PR #N`) and the digit-bearing reference was an unrelated historical parenthetical aside.

@@ -2,7 +2,12 @@
 
 Closed-TODO ledger for the GRC Documentation Library. Records work that has shipped, keyed by the original backlog ID (PR number for PR-based items; the TODO `P-X.Y` identifier for backlog items). Reverse-chronological: newest at top.
 
-This file complements [`CHANGELOG.md`](../CHANGELOG.md). Where the CHANGELOG records *what landed in each PR* (file-by-file changes, version bumps, verification), DONE records *which backlog items each PR closed* (cross-referencing the original TODO entries that motivated the work). Adopters reading the corpus do not need DONE; it is maintainer working state and lives under `.working/`.
+This file complements two other working-state ledgers:
+
+- [`CHANGELOG.md`](../CHANGELOG.md): records *what landed in each PR* (file-by-file changes, version bumps, verification). Organized by PR.
+- [`design-decisions.md`](design-decisions.md): records *design decisions made* (working-state and convention decisions; decisions explicitly dropped). Organized thematically.
+
+DONE records *which backlog items each PR closed* (cross-referencing the original TODO entries that motivated the work). Organized reverse-chronologically by closing PR. Adopters reading the corpus do not need any of these three files; they are maintainer working state and live under `.working/`.
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
@@ -19,6 +24,10 @@ The format for each entry:
 ---
 
 ## Closed items
+
+### PR #135 — Restructure design-decisions into its own file; clean up `overnight-pr.md` (2026-06-21)
+
+Creates [`design-decisions.md`](design-decisions.md) as the new home for design-decision content; rotates the "Design decisions made" section out of DONE; migrates fitness-skill-specific decisions out of `overnight-pr.md`; migrates TODO's "Decisions log" section in as "Decisions explicitly dropped"; deletes [`overnight-pr.md`](overnight-pr.md) (purely procedural detail with no forward-looking value after the overnight session it documented). [`README.md`](README.md) (`.working/`) Top-level files table extended with the new file. Implements the maintainer's "DONE should be for things that are DONE; we have the .working directory for our work, let's be as organized as we can moving forward" directive. The TODO's "Decisions log" subsection was specifically called out as misplaced and migrated.
 
 ### PR #134 — Gate 45 false-positive fix: tighten queued-PR regex (2026-06-21)
 
@@ -119,74 +128,3 @@ Sweep 9 closure: actioned Subagent C findings; added Rule 5.6 to the validation-
 ### PR #110 — Corpus stale gate-count fixes + gate 39 pattern P6 (2026-06-21)
 
 Corpus-wide stale gate-count reference fixes (the cascade-class issue that PR #130 ultimately addressed at the source by removing decorative gate-count narrations). Added gate 39 pattern P6 ("N gates" without preceding qualifier). Library `2026.06.95 → 2026.06.96`.
-
----
-
-## Design decisions made (rotated from TODO 2026-06-21 as part of DONE infrastructure)
-
-These were not "closed TODO items" — they are design decisions that the session made during the work above. Captured here so future sessions can find the decision rationale without spelunking through CHANGELOG entries or PR descriptions. The decisions remain in force unless explicitly revisited.
-
-### `.working/` convention (decided 2026-06-21, PRs #114-#118)
-
-Maintainer working state: not corpus content; not for adopter consumption; exempt from corpus audit gates (in `DEFAULT_EXEMPT_DIRS`); frozen-state archive (cross-references accurate as-of write-time; staleness expected). Top-level dot-prefix matches the existing tooling-dir convention (`.git/`, `.github/`, `.claude/`).
-
-### Canonical activity layout under `.working/<activity>/` (decided PR #118)
-
-Each subdirectory contains:
-
-- `README.md` — static convention info (what the activity is, file format spec, taxonomies, protocols, framework alignment, fork guidance)
-- `history.md` — reverse-chronological table (new rows on top); columns: Date | Sweep/Run | Subagents | Findings | Resulting PR | Detail | Summary
-- `YYYY-MM-DD-<run-id>.md` — per-run detail file, **only created when findings exist**
-- `Subagents` column declares dispatch (Rule 5.6) for every row including zero-finding runs
-
-### Slash commands vs skill names are independent identifiers (decided PR #115)
-
-Short ergonomic verbs for slash commands (`/validate`, `/fitness`); descriptive names for skills (`validation-sweep`, `library-fitness-review`). The slash command file wraps the skill invocation.
-
-### Template content vs project-application (decided PR #116)
-
-`governance/` holds template content (specifications, frameworks, registers as document-type templates that adopters cite); `.working/` holds project-specific application of those templates (our log of our sweeps, our verification campaign progress, our branch-protection snapshot).
-
-### Fork-time guidance for `.working/` (decided PR #114)
-
-Adopters cloning the library may delete `.working/` outright or keep it as historical reference. Both fine. Adopters should not extend the upstream `.working/` with their own working state — fresh `.working/` for their own outputs preserves audit trails on both sides.
-
-### PR sequencing principle (durable from earlier sessions, restated PRs #114-#130)
-
-"More PRs, keep each one clean." Favor small focused PRs over bundled ones. Validation sweeps run between substantive PRs.
-
-### CHANGELOG split convention (decided PR #125)
-
-Root [`CHANGELOG.md`](../CHANGELOG.md) keeps the lead paragraph only; structured sections + verification evidence + discipline observations move to [`.working/changelog-details/CHANGELOG-detailed.md`](changelog-details/CHANGELOG-detailed.md). Going forward, every PR writes BOTH. PR-time gate (`check-changelog-on-pr.py`) enforces dual-entry. The general `.working/` audit exemption is preserved for everything else.
-
-### Fitness review convention (decided PR #120)
-
-10 personas parallel (original prompt's 7 + adoption practitioner + privacy/DPO + newcomer); whole-corpus each run; output to [`.working/fitness-reviews/YYYY-MM-DD-rN.md`](fitness-reviews/) only when findings; 8-section combined file. Severity: SARIF-lite + `[critical]` flag in High. Manual trigger only; no mechanical gate enforces it.
-
-### Subagent dispatch (Rule 5.6) audit trail (decided PR #111)
-
-Every validation-sweep iteration declares which subagents were dispatched in the `Subagents` column of [`history.md`](validate-sweeps/history.md). Cannot reconstruct silent skips later.
-
-### Convergence-delta termination (decided PR #115; validation-sweep)
-
-Empty-delta primary stop; patience-plateau secondary (2 consecutive iterations no shrinkage); hard-ceiling 6 iterations.
-
-### Per-iteration detail files: comma form for H2 headings (decided PR #118)
-
-Gate-2 enforces no em-dashes; comma is the canonical form across SKILL.md, slash command, and [`.working/validate-sweeps/README.md`](validate-sweeps/README.md).
-
-### Session-state snapshot as-of-last-refresh (decided PR #127, mechanically enforced via gate 45 in PR #128)
-
-The "Session state at pause" subsection in [`TODO.md`](../TODO.md) is intentionally frozen at session-pause time. The version snapshot, PRs-completed list, and sweep-cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches the harder shapes (queued PR already merged; sweep cursor behind history) mechanically; other drift is informational.
-
-### Two-file CHANGELOG dual-entry enforcement (decided PR #125)
-
-The PR-time delta gate `check-changelog-on-pr.py` requires BOTH the root CHANGELOG and the detailed mirror to be in the diff (lock-step). Modifying one without the other fails the gate. The opt-out `Changelog: <reason>` trailer in any commit message satisfies the gate regardless of split.
-
-### Wrapper-script-plus-corpus-runner discipline (decided PR #128)
-
-Local PR-time discipline requires running BOTH [`tools/run_all_audits.sh`](../tools/run_all_audits.sh) (corpus gates) AND [`tools/run-pr-time-checks.sh`](../tools/run-pr-time-checks.sh) (PR-only delta gates D1 + D2 + gate 45) before push. The two runners together cover every gate the CI workflow runs. Structural fix for the PR-time-delta-gate omission failure mode that surfaced in PR #127's first push.
-
-### Decorative gate-count narrations are forbidden in prose (decided PR #130)
-
-Phrases like `"the N-gate audit programme"`, `"all N gates"`, `"gates 1-N"` are removed from corpus prose. The spec §6 inventory in [`governance/specification-audit-programme.md`](../governance/specification-audit-programme.md) is the canonical single source for both the gate list and the current count; downstream prose points to §6 instead of repeating the count. Gate 39 (cross-file gate-count consistency audit) retained as the defence against new decorations creeping back in.
