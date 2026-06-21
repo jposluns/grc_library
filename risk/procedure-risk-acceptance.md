@@ -2,8 +2,8 @@
 
 **Document Title:** Risk Acceptance Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-06-21\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Executive Management\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md)\
@@ -62,6 +62,7 @@ This procedure defines how residual risk is formally accepted, reviewed, monitor
 - Expiry or review date.
 - Monitoring requirement.
 - Closure condition.
+- Related exception register entry: ID of the corresponding entry in the exception register if this acceptance derives from or relates to a documented policy / control exception (see [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)); record `None` if the acceptance is a pure risk acceptance unrelated to a policy exception. This linkage makes the two registers cross-traversable: an auditor reviewing an exception can find the corresponding risk acceptance and vice versa.
 
 ---
 

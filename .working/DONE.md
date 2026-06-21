@@ -25,6 +25,10 @@ The format for each entry:
 
 ## Closed items
 
+### PR #146 — FR-96: Risk-acceptance procedure cross-reference to exception register (2026-06-21)
+
+High-severity (⚠️ confirmed-with-modification) finding closed. [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md) "Required record fields" now includes `Related exception register entry`: ID of the corresponding entry in the exception register if the acceptance derives from a policy/control exception, or `None` if the acceptance is pure-risk and unrelated to a policy exception. The linkage makes the two registers cross-traversable: an auditor reviewing an exception can find the corresponding risk acceptance and vice versa. Per-doc `1.0.0 → 1.0.1`; library `2026.06.127 → 2026.06.128`.
+
 ### PR #145 — FR-95: Risk register compensating-controls field (2026-06-21)
 
 High-severity finding closed. [`risk/template-enterprise-risk-register.md`](../risk/template-enterprise-risk-register.md) Acceptance section now requires a `Compensating Controls` field listing each control by ID with a brief note on how it offsets the un-treated risk. Required by [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md) §5 already; the template now records it so the acceptance record is self-contained and auditable. Per-doc `1.0.1 → 1.0.2`; library `2026.06.126 → 2026.06.127`.
