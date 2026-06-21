@@ -25,6 +25,10 @@ The format for each entry:
 
 ## Closed items
 
+### PR #153 — FR-92: KPI Escalation Owner + Remediation Sign-off columns (2026-06-21)
+
+High-severity finding closed. [`operations/register-it-operations-kpis.md`](../operations/register-it-operations-kpis.md) gains two new columns on every KPI table (Sections 1-8) — `Escalation Owner` (the named role accountable for breach response when the target is missed) and `Remediation Sign-off` (the named role responsible for confirming that the breach event is closed). Roles drawn from the [Role Authority Register](../governance/register-role-authority.md): CIO for IT-operations KPIs, CISO for security-flavoured KPIs (patch/vulnerability management, security operations, EDR coverage), and ERC where the KPI's Owner Role is already CIO or CISO so escalation cannot meaningfully go to the same role. The KPI design principles list gains a new principle 2 requiring both fields to be populated from the role-authority register (existing principles 2-6 renumber to 3-7), and `Related Documents` now references the role-authority register. Per-doc `1.0.0 → 1.1.0` (minor: schema-level column addition).
+
 ### PR #152 — FR-19 + FR-20: CAPA governance ceiling + root-cause quality checklist (2026-06-21)
 
 Closes two findings from the Pass-1 fitness sweep, both in [`compliance/procedure-capa.md`](../compliance/procedure-capa.md): FR-19 (high[critical]) — the CAPA extension policy had no hard ceiling, allowing indefinite open-ended remediation under repeated single-step CISO approvals; and FR-20 (high) — CAPA root-cause statements had no quality checklist, so bare category labels like "process gap" satisfied the aspirational §4.1 "specific and actionable" requirement. New §4.1.1 supplies a five-criterion checklist (Specific / Causal / Actionable / Bounded / Evidence-anchored) applied by the GRC Manager during verification; new §6.3.1 supplies a 2/3/4 escalation ceiling (ERC at the 2nd extension, Board Risk Committee at the 3rd, prohibition at the 4th, with a re-baselining carve-out for materially-changed root causes). §9.1 cross-references updated for consistency. Per-doc `1.0.1 → 1.0.2`.
