@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #182 — Corpus-wide count-genericization sweep (2026-06-21)
+
+Applied PR #181's count-genericization principle corpus-wide. Found one additional candidate (`specification-audit-programme.md:64` "seven functional categories" → generic); negative findings (ten persona reviewers, five disciplines, external CCM/FedRAMP counts) documented per assessment criterion.
+
 ### PR #181 — Sweep 16 iter 1 close-out: TODO narrative refresh + skill-authoring genericization (2026-06-21)
 
 Sweep 16 close-out (first full sweep since Sweep 15 at PR #167; 13-PR window). Two in-window findings closed: TODO.md:22 PR-range narrative refreshed to current state; skill-authoring-discipline SKILL.md:26 "seven governance rules" rewritten as generic phrasing per maintainer's count-genericization direction.

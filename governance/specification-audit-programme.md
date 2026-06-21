@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Programme Specification\
 **Document Type:** Specification\
-**Version:** 1.14.0\
+**Version:** 1.14.1\
 **Date:** 2026-06-21\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -61,7 +61,7 @@ Of the three surfaces, only the GitHub Actions workflow is authoritative: a gree
 
 ## 5. Gate categories
 
-The gates fall into seven functional categories:
+The gates fall into the following functional categories:
 
 1. **Metadata integrity** (gates 1, 7, 8, 13, 14, 15, 16, 19, 38, 40, 42): canonical metadata block presence and field validity; doctype-to-filename alignment; Owner and Approving Authority field validity against the role register; date format; license value; document-stub detection; required sections per doctype; section placement conventions (orientation sections in the top three `##` sections, Licence and Version-history sections in the bottom three); version monotonicity; per-document version-bump recency, verifying that each document's `Version` field has been bumped at or after the file's most-recent body change (gate 40, the corpus-side counterpart of delta gate D2); and external-overlay licence consistency, verifying that each `.claude/rules/external/<source>/` subdirectory carries the source project's declared LICENSE and that no external markdown file claims the project's own licence (gate 42, the external-overlay counterpart of gate 15).
 2. **Reference integrity** (gates 3, 11, 17, 18, 24, 26): intra-repo links resolve; CHANGELOG file-reference link coverage; section anchors resolve; intra-document section references resolve; external-link domains on allow-list; orphan documents have at least one inbound reference.
