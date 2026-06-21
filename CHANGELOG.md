@@ -4,6 +4,18 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.142, PR #160
+
+Sweep 14 iteration 1 close-out. Four in-window findings (Subagent A surfaced 3 FR-44-self-violations introduced by PRs #157 + #159 landing the same day; Subagent B independently flagged the same master-spec finding plus a stale TODO queued-sequence framing; Subagent C zero findings):
+
+- **(W)** [`specification-master-project.md:126`](specification-master-project.md): legacy "shall" in §4.1 #2 — the §6.1 verb register added in PR #159 should have opportunistically converted this minority-verb occurrence. Fixed (rephrased to read naturally with "must not"). Per-doc `1.6.0 → 1.6.1`.
+- **(W)** [`governance/policy-exception-and-risk-acceptance-management.md`](governance/policy-exception-and-risk-acceptance-management.md) lines 88, 94: new normative content from PR #157 used "may not" as a prohibition twice — contradicts §6.1 rule 3 ("Do not use 'may not' as a prohibition") which PR #159 introduced the same day. Both fixed to "must not". Per-doc `1.1.0 → 1.1.1`.
+- **(N)** [`TODO.md`](TODO.md) Queued-sequence section: "Next, PR #N: First fitness-remediation PR" narrative is stale — 21 fitness-remediation PRs have shipped under maintainer direction across PRs #142-#159. Reframed to describe the working pattern and to name the still-queued large items explicitly (FR-14 maturity-ladder reconciliation; FR-44-generalisation corpus-wide "shall" sweep).
+
+Subagent C also surfaced two future-gate candidates as non-findings: an ordinal-ceiling pattern observed twice (PR #152 / FR-19 + PR #157 / FR-16) recommended for codification after a third occurrence; a numerical-coherence pattern set extension to cover retention periods (would have caught FR-80) recommended after empirical analysis. Detail report at [`.working/validate-sweeps/2026-06-21-sweep14-iter1.md`](.working/validate-sweeps/2026-06-21-sweep14-iter1.md). Library `2026.06.141 → 2026.06.142`.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.141, PR #159
 
 Closes **FR-44** (high, requirement-language register drift). The library had a de facto "must" / "must not" requirement-language convention (PR #150 / FR-45 implicitly settled on it for prohibitions; PR #154 generalised the same fix to three `ai/` occurrences) but the convention had never been documented at the library level. [`specification-master-project.md`](specification-master-project.md) §6.1 now states the convention explicitly: "must" / "must not" is the canonical normative pair; "should" / "should not" for recommendations; "may" as the permission verb (never "may not" for prohibitions, per the FR-45 precedent); "shall" / "shall not" reserved for direct quotation of external standards (ISO/IEC, NIST SP, IEC) or legacy content awaiting harmonisation. RFC 2119 / RFC 8174 cited. A corpus-wide harmonisation of legacy "shall" → "must" occurrences is deferred to a separate "FR-44 generalisation" item in TODO. Per-doc `1.5.2 → 1.6.0` (minor: new normative library-wide convention); library `2026.06.140 → 2026.06.141`. Backlog 91 → 90 open.
