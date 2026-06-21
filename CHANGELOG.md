@@ -4,6 +4,12 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.121, PR #139
+
+Amends the `library-fitness-review` skill (`/fitness`) to introduce the unverified→confirmed labelling discipline. Subagent findings are now `verification: unverified` at output time; Pass-1 (orchestrator re-reads cited source and tags `✅` / `⚠️` / `❌` / `🤔`); Pass-2 (maintainer-interactive bucket processing). Triage by severity applies only to confirmed findings, which produce TODO entries carrying FR-N ID + run reference + verification date. SKILL.md Step 5 restructured into four sub-steps; [`.claude/commands/fitness.md`](.claude/commands/fitness.md) updated in parallel (paired-skill step-parity gate); [`.working/fitness-reviews/README.md`](.working/fitness-reviews/README.md) workflow rewritten. The existing 111 findings in [`.working/fitness-reviews/2026-06-21-r1.md`](.working/fitness-reviews/2026-06-21-r1.md) retroactively marked `verification: unverified` pending Pass-1 in the next PR. Pack `1.33.0 → 1.34.0`; library `2026.06.120 → 2026.06.121`.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.120, PR #138
 
 Rotates the five shipped Priority 4 items (P4.1 through P4.5) from [`TODO.md`](TODO.md) into [`.working/DONE.md`](.working/DONE.md) as `### TODO P4.x` entries cross-referenced to the original "Shipped 2026-06-20 as ..." framing. P4.6 (corpus-management discipline as a shareable skill) remains forward-looking. Also removes the Sweep 4 follow-up historical note from "Open follow-ups from validation sweeps" (resolved and previously noted as no-longer-tracked). Closes the TODO content cleanup queued since PR #135. Library `2026.06.119 → 2026.06.120`.

@@ -6,6 +6,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.121, PR #139
+
+Amends the `library-fitness-review` skill (`/fitness`) to introduce the unverified→confirmed labelling discipline. The amendment addresses the failure mode where synthesis-stage approximations propagate downstream as if confirmed (precedent: PR #124's `"95 unique findings, 18 H[critical] / 22 H / 31 M / 24 L"` framing, corrected to mechanical tabulation in PR #127; per-finding-content drift would be a worse instance of the same shape).
+
+### Changed
+
+- [`dev-security/claude-rules/skills/library-fitness-review/SKILL.md`](../../dev-security/claude-rules/skills/library-fitness-review/SKILL.md) Step 5 restructured from a single triage section into four sub-steps:
+  - 5.1 Output the report with all findings marked `verification: unverified`.
+  - 5.2 Pass-1, orchestrator verification: re-read each cited source location; apply one of four verdict tags (`✅ confirmed-as-stated`, `⚠️ confirmed-with-modification`, `❌ rejected`, `🤔 ambiguous-needs-maintainer`); update the report's `verification:` annotation in place.
+  - 5.3 Pass-2, maintainer-interactive bucket processing: surface the four buckets to the maintainer; `✅` cluster gets a batch confirmation; `⚠️` cluster gets per-finding prompts with the orchestrator's recommended adjustment plus alternatives; `🤔` cluster gets per-finding prompts with the open question; `❌` cluster gets a batch presentation with optional per-finding escalation.
+  - 5.4 Triage and severity-tier action for confirmed findings only. Rejected findings recorded in the report (with rationale) but excluded from the backlog. Confirmed findings produce TODO entries carrying `FR-<n>` ID + originating run reference + Pass-2 verification date.
+- [`.claude/commands/fitness.md`](../../.claude/commands/fitness.md) step 5 rewritten to mirror the SKILL.md restructure (paired-skill step-parity gate 44 enforces alignment).
+- [`.working/fitness-reviews/README.md`](../fitness-reviews/README.md) "Output flow per run" section extended from 9 steps to 11 steps. New steps 6 (Pass-1) and 7 (Pass-2) inserted; subsequent steps renumbered. Step 5 amended to note that synthesis is a dedupe-and-tagging pass, not a verification pass, and that all findings are written with `verification: unverified` at synthesis time.
+- [`.working/fitness-reviews/2026-06-21-r1.md`](../fitness-reviews/2026-06-21-r1.md): a verification-status note added at the top of §3 (Page-by-Page Findings). The note retroactively marks all FR-1 through FR-111 findings as `verification: unverified`, pending Pass-1 in the next PR. The severity tags and persona provenance remain authoritative.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): pack version `1.33.0 → 1.34.0`; version-history table row added describing the SKILL.md amendment.
+- [`README.md`](../../README.md): library version `2026.06.120 → 2026.06.121`; README version `1.8.76 → 1.8.77`.
+- [`TODO.md`](../../TODO.md): the "Fitness skill amendment" item rotated to DONE; the next queued PR becomes "Fitness backlog Pass-1 (orchestrator verification)". Session resume metadata refreshed.
+- [`.working/DONE.md`](../DONE.md): PR #139 entry added at the top of "Closed items".
+
+### Verification
+
+- Local audit: `tools/run_all_audits.sh` exits 0 on all 46 gates. Gate 44 (paired-skill step-parity) confirms SKILL.md and the slash command remain in step alignment.
+- Local PR-time checks: `tools/run-pr-time-checks.sh` exits 0.
+- Manual cross-reference: every Pass-1 verdict tag (`✅ confirmed-as-stated`, `⚠️ confirmed-with-modification`, `❌ rejected`, `🤔 ambiguous-needs-maintainer`) appears identically in SKILL.md, the slash command, and `.working/fitness-reviews/README.md`. The four buckets and their Pass-2 handling appear identically across the three surfaces.
+
+### Discipline observation
+
+This amendment addresses the failure mode the orchestrator already exhibited once in production. PR #124's first-fitness-review wording carried a synthesis-stage approximation ("about 95 unique findings, 18 H[critical] / 22 H / 31 M / 24 L") that downstream surfaces (TODO, CHANGELOG, fitness history table) treated as authoritative for several PRs. PR #127 corrected the counts after Sweep 11 caught the mismatch. The Pass-1 orchestrator-verification step is the structural fix: by the time a count or finding becomes downstream-actionable, it has been re-read against the source. The discipline is the same one the `evidence-grounded-completion` pack rule encodes for assertions about artefacts; this PR applies it to fitness-review findings specifically.
+
+The next PR runs Pass-1 against the existing 111 findings in `2026-06-21-r1.md`. Pass-2 runs after that with maintainer participation. After Pass-2, confirmed findings produce TODO entries that drive subsequent remediation PRs through the project's normal cadence.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.120, PR #138
 
 Rotates the five shipped Priority 4 items (P4.1 through P4.5) from [`TODO.md`](../../TODO.md) into [`.working/DONE.md`](../DONE.md). Maintainer-surfaced during PR #131's work: TODO's P4.1 through P4.5 sections all carried `Shipped 2026-06-20 as ...` framing — they were completed work entries, not forward-looking backlog. The rotation finishes the TODO-content cleanup that began with the decisions-log migration in PR #135.

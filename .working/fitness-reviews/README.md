@@ -87,11 +87,13 @@ The fitness review is heavyweight (10 personas dispatched in parallel; whole-cor
 2. **Orchestrator establishes mechanical baseline**: runs `tools/run_all_audits.sh` standalone to confirm starting state.
 3. **Orchestrator dispatches 10 persona subagents in parallel.** Each gets the same corpus access, the same review brief, and a persona-specific lens. No subagent inherits the orchestrator's mental model.
 4. **Subagents review every page from their persona's perspective** and return findings as structured blocks: page title, path, persona inference of purpose and audience, actual clarity, key issues with severity, impact, recommendation, retention decision.
-5. **Orchestrator synthesises** into the 8-section combined report. Dedupe across personas; adjudicate severity (pick higher); group by recommendation priority; assemble remediation backlog with discrete IDs.
-6. **Orchestrator surfaces issues, recommendations, and choices in chat** for maintainer prioritisation. This is the actionable layer.
-7. **If findings exist**: write the combined report to `.working/fitness-reviews/YYYY-MM-DD-rN.md`; append a row to `history.md`.
-8. **If zero findings**: append only the row to `history.md` with summary "library passes fitness review".
-9. **Remediation work**: discrete remediation backlog IDs (`FR-1`, `FR-2`, ...) become the seed for follow-up PRs. The maintainer prioritises, then drives each through the normal PR cadence.
+5. **Orchestrator synthesises** into the 8-section combined report. Dedupe across personas; adjudicate severity (pick higher); group by recommendation priority; assemble remediation backlog with discrete IDs. **All findings are written with `verification: unverified`** at this stage. Synthesis is a deduplication and provenance-tagging pass, not a verification pass.
+6. **Pass-1 orchestrator verification** (added PR #139): the orchestrator re-reads each cited source location for every finding and tags each with one of four verdicts: `✅ confirmed-as-stated`, `⚠️ confirmed-with-modification` (inline modification recorded), `❌ rejected` (inline rejection rationale recorded), or `🤔 ambiguous-needs-maintainer`. The report's per-finding `verification:` annotation flips from `unverified` to one of the four verdict tags.
+7. **Pass-2 maintainer-interactive bucket processing** (added PR #139): orchestrator surfaces the four tag buckets in chat. The `✅` cluster gets a batch confirmation; the `⚠️` cluster gets per-finding prompts with the recommended adjustment plus alternatives; the `🤔` cluster gets per-finding prompts with the open question for maintainer resolution; the `❌` cluster gets a batch presentation with optional per-finding escalation back to `✅` or `🤔`.
+8. **Orchestrator surfaces issues, recommendations, and choices in chat** for confirmed findings only. This is the prioritisation layer.
+9. **If findings exist**: write the combined report to `.working/fitness-reviews/YYYY-MM-DD-rN.md`; append a row to `history.md`.
+10. **If zero findings**: append only the row to `history.md` with summary "library passes fitness review".
+11. **Remediation work**: discrete remediation backlog IDs (`FR-1`, `FR-2`, ...) for *confirmed* findings become the seed for follow-up PRs. Each confirmed finding becomes a TODO entry carrying the `FR-<n>` ID, the originating run reference, and the Pass-2 verification date. The maintainer prioritises, then drives each through the normal PR cadence.
 
 ## Relationship to `validation-sweep` (`/validate`)
 
