@@ -10,8 +10,8 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #176 merge).
-- **Library version as of last refresh**: `2026.06.155`. **Pack version**: `1.36.0`. **README version**: `1.9.26`.
+- **Branch at last refresh**: `main` (synced after PR #177 merge).
+- **Library version as of last refresh**: `2026.06.156`. **Pack version**: `1.36.0`. **README version**: `1.9.27`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
 - **Last validation sweep**: Sweep 15 iteration 1 (close-out PR #167).
 
@@ -19,9 +19,41 @@ These are **as-of-session-pause snapshots**, not "current HEAD" claims. They ref
 
 ## Queued sequence (upcoming PRs)
 
-Fitness-remediation PRs are now in flight under maintainer direction. PRs #142-#172 have closed 34 findings to date (most recently PR #169 FR-26+27+28, PR #172 FR-4+5+6+7+8 as the Phase 1 README polish bundle that closes Rec-6 from the fitness review; plus the meta-PRs #163 DONE format harmonisation, #170 CLAUDE.md version-bump rule, #171 CLAUDE.md subscription discipline, and Sweep close-outs #148/#154/#160/#167). The next batch is chosen from the Fitness review backlog section below in highest-certainty order; the assistant picks 1-8 at a time (per the amended validate-cadence rule), runs a research-assistant pipeline (workers produce research files; orchestrator authors all final prose) to prepare drafts in parallel, applies serially with CI gating, and runs `/validate` after each batch. Maintainer direction supersedes the assistant's pick at any time.
+Fitness-remediation PRs are now in flight under maintainer direction. PRs #142-#176 have closed 34 findings to date (most recently PR #169 FR-26+27+28, PR #172 FR-4+5+6+7+8 as the Phase 1 README polish bundle that closes Rec-6 from the fitness review; plus the meta-PRs #163 DONE format harmonisation, #170 / #171 CLAUDE.md disciplines, #173 CHANGELOG backfill, #174 skip-trailer retirement, #175 DONE-shortening, #176 AI-assistant-workflow-disciplines pack rule, and Sweep close-outs #148/#154/#160/#167). The next batch is chosen from the Fitness review backlog section below in highest-certainty order; the assistant picks 1-8 at a time (per the amended validate-cadence rule), runs a research-assistant pipeline (workers produce research files; orchestrator authors all final prose) to prepare drafts in parallel, applies serially with CI gating, and runs `/validate` after each batch. Maintainer direction supersedes the assistant's pick at any time.
 
-Open large items still queued explicitly:
+### Phase 1 / Phase 2 execution plan
+
+The remaining fitness-remediation work is organised into two phases. The plan is durable across sessions: research files for every queued item are prepared in advance (under the research-assistant discipline in [`.claude/rules/governance/ai-assistant-workflow-disciplines.md`](.claude/rules/governance/ai-assistant-workflow-disciplines.md)) and held in the session scratchpad; the orchestrator applies them serially.
+
+**Phase 1 remaining (P1.2, P1.4, P1.5, P1.6, P1.7).** Single-document or single-cluster polish PRs. Phase 1 originally included P1.1 (README polish, closed by PR #172) and P1.3 (access-control polish, closed by PR #169); those are shipped.
+
+- **P1.2 — ERM standard completion** (FR-11 medium, FR-12 medium). `risk/standard-enterprise-risk-management.md` §3 governance table gains a Risk Owner row; treatment vocabulary harmonised within the document (cross-document harmonisation against `risk/procedure-risk-register.md` deferred as an FR-12 follow-up).
+- **P1.4 — Small singletons batch** (FR-18 medium, FR-25 medium, FR-33 high[critical], FR-79 medium, FR-105 medium, FR-106 medium, FR-110 medium). Seven unrelated single-file findings bundled by velocity, not theme. **Flag:** FR-33 is high[critical] (GDPR Article 36 prior-consultation pathway); maintainer should decide whether to split FR-33 out before bundling.
+- **P1.5 — Editorial consistency cluster** (FR-46, FR-47, FR-48, FR-49, FR-50, FR-51, FR-52, all medium). Role-name "Chief" inconsistency, DPO ambiguous role, H2 numbering drift, Governance heading drift, NIST citation format, ISO 27001 Annex form, review-frequency "and/or".
+- **P1.6 — Cross-document contradictions** (FR-81 medium, FR-82 medium). TLS floor inconsistency; key hashing ambiguity.
+- **P1.7 — Low-tier sweep**. Opportunistic cleanup of deferred Low-tier findings (FR-67 through FR-91 / FR-107 through FR-111 per the Low tier list below). Single bundle expected; details when the maintainer triggers it.
+
+**Phase 2 (15 items, all research prepared as of PR #176).** Mid-weight medium-severity findings clustered by topic. Research files at `[scratchpad]/p2-1-...` through `[scratchpad]/p2-15-...` per the research-assistant discipline.
+
+- **P2.1 — Privacy completion** (FR-37, FR-38, FR-39, FR-40, FR-41, FR-42 — 6 items). GDPR Article 26 (joint controller), DSAR Article 12(5), Article 27 EU representative, PIPL Articles 38-40, AI Article 22 + EU AI Act + FRIA workflow, DPO independence Article 38(3).
+- **P2.2 — Continuous assurance / 3LoD** (FR-99 ⚠️, FR-100, FR-101 ⚠️, FR-102 — 4 items). Per-control effectiveness metrics, cloud baseline citations, closure sign-off authority, change management binary.
+- **P2.3 — Cross-framework matrix** (FR-97, FR-98). ISO 31000 clause numbering; NIS 2 annex evidence-class column.
+- **P2.4 — Adopter cluster (small)** (FR-64, FR-65 ⚠️, FR-66). Contribution path workflow-shape; upstream-sync; tooling assumptions.
+- **P2.5 — Security low-impact** (FR-87, FR-88). SSRF range list completion; cipher suite enumeration.
+- **P2.6 — KRI / KPI** (FR-93, FR-94). KRI escalation owner; Linked controls register dependency.
+- **P2.7 — Coverage-gap small** (FR-77, FR-78). 3LoD model explanation; framework-document-architecture maintainer voice.
+- **P2.8 — FR-15 maturity methodology**. Median-of-medians scoring concern.
+- **P2.9 — FR-23 audit evidence**. Assembler-verification standard.
+- **P2.10 — FR-24 control testing**. Procedure thinner than peers.
+- **P2.11 — FR-47 DPO ambiguous role**. (Also surfaces in P1.5 editorial cluster; P2.11 is the structural-resolution PR; P1.5 covers the editorial trim).
+- **P2.12 — FR-48 H2 numbering**. Numbering patterns drift.
+- **P2.13 — FR-58 inheritance vocab**. Library-internal vs template vs reference content vocabulary.
+- **P2.14 — FR-63 worked example**. Walks ingestion not adoption.
+- **P2.15 — FR-83 IC checklist**. IC checklist absent.
+
+**Pause point after Phase 2 completes.** Per the maintainer's direction, on closure of the 15 Phase 2 items the session pauses for a `/fitness` run. The fitness review surfaces whether the remediation is on track, whether new findings have emerged, and whether the process itself is calibrated correctly. Phase 3 (or its equivalent) is planned after `/fitness` triages the post-Phase-2 backlog.
+
+### Other queued large items
 
 - **FR-14** (maturity-ladder reconciliation, library-wide CMMI propagation): touches `governance/framework-governance-performance-and-improvement.md`, `docs/template-maturity-self-assessment.md`, `governance/register-digital-trust-and-assurance-metrics.md`. Likely a multi-PR batch; flagged for the maintainer to schedule deliberately rather than picked into a routine 5-PR batch.
 - **FR-44-generalisation**: corpus-wide harmonisation of legacy "shall" → "must" outside external-standard quotations. Routine cleanup batch, scheduled after the high-priority backlog is closed.
