@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.3.2\
-**Date:** 2026-05-28\
+**Version:** 1.3.3\
+**Date:** 2026-06-21\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -227,7 +227,7 @@ Required evidence for audit and assurance purposes includes, but is not limited 
 | NIST AI RMF | Govern, Map, Measure, Manage functions |
 | OECD AI Principles | Transparency, robustness, accountability |
 | GDPR | As applicable to EU personal data |
-| CPPA | As applicable to Canadian personal information |
+| CPPA (Canadian Consumer Privacy Protection Act, Bill C-27) | As applicable to Canadian personal information |
 | PIPL | As applicable to personal information in China |
 | LGPD | As applicable to Brazilian personal data |
 | CBPR 2.0 | Cross-Border Privacy Rules as applicable |

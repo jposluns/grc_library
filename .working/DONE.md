@@ -25,6 +25,28 @@ The format for each entry:
 
 ## Closed items
 
+### PR #142 — Fitness quick wins: FR-13, FR-54, FR-55, FR-103 (2026-06-21)
+
+First fitness-remediation PR. Four findings closed at maintainer direction ("pick quick wins absolutely certainly in need of working while I review the rest of the backlog"). Each finding had an unambiguous fix in a single file with no judgement call required.
+
+Library `2026.06.123 → 2026.06.124`. Subsequent fitness-remediation PRs continue at maintainer direction; the backlog totals in TODO are updated to reflect 107 remaining open findings (4 closed in this PR).
+
+### FR-103 — Add Chief Compliance Officer row to framework-continuous-assurance governance table (closed by PR #142, 2026-06-21)
+
+Low-severity finding from r1: the Continuous Assurance framework's "Governance and accountability" table omitted CCO despite CCO being relevant to compliance-domain assurance closure. Added a CCO row with scope "Oversees compliance-domain assurance outcomes; chairs closure validation for compliance-related continuous-assurance findings; aligns the assurance calendar with regulatory obligation cadence." Per-doc version `1.0.1 → 1.0.2`.
+
+### FR-55 — Document `roadmap-` doctype prefix (closed by PR #142, 2026-06-21)
+
+Low-severity finding from r1: `roadmap-` prefix is used in filenames (e.g. `security/roadmap-post-quantum-cryptography.md`) and `Roadmap` is an allowed doctype in `specification-master-project.md` §4.3, but the prefix-to-type mapping was only sparsely documented (one line in `specification-ingestion.md:196`). Closed alongside FR-54 by adding an explicit prefix-mapping table to `specification-master-project.md` §4.3 listing all 17 doctypes and their canonical filename prefixes. Per-doc version `1.5.1 → 1.5.2`.
+
+### FR-54 — Document `sop-` doctype prefix (closed by PR #142, 2026-06-21)
+
+Low-severity finding from r1: same shape as FR-55 but for `sop-`. Closed by the same explicit prefix-mapping table addition in `specification-master-project.md` §4.3.
+
+### FR-13 — Disambiguate `CPPA` in enterprise risk management standard (closed by PR #142, 2026-06-21)
+
+Medium-severity finding from r1: §10 framework alignment table listed `CPPA` without disambiguation (Canadian Bill C-27 vs California Privacy Protection Agency). The surrounding row mentioned "Canadian personal information" so context was implicit, but the acronym still ambiguous on first read. Fixed by expanding the label to `CPPA (Canadian Consumer Privacy Protection Act, Bill C-27)`. Per-doc version `1.3.2 → 1.3.3`.
+
 ### PR #141 — Fitness backlog Pass-2: maintainer-interactive triage; structured TODO backlog (2026-06-21)
 
 Pass-2 per the discipline introduced in PR #139. Surfaced the four Pass-1 buckets to the maintainer via structured AskUserQuestion. Outcomes:
