@@ -87,6 +87,7 @@ MIRROR_MAP: dict[str, str] = {
     ".claude/rules/governance/artefact-and-branch-discipline.md": "dev-security/claude-rules/governance/artefact-and-branch-discipline.md",
     ".claude/rules/governance/action-before-explanation-of-inaction.md": "dev-security/claude-rules/governance/action-before-explanation-of-inaction.md",
     ".claude/rules/governance/validate-inference-before-action.md": "dev-security/claude-rules/governance/validate-inference-before-action.md",
+    ".claude/rules/governance/ai-assistant-workflow-disciplines.md": "dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md",
 }
 
 
