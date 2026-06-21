@@ -40,7 +40,7 @@ SCORECARD = REPO_ROOT / "docs" / "maturity-scorecard.md"
 # the metadata schema itself changes (e.g. a new required field, a
 # rewritten Overview, an audience added or removed) and capture the
 # bump in CHANGELOG.md.
-PORTAL_METADATA_VERSION = "1.0.0"
+PORTAL_METADATA_VERSION = "1.1.0"
 SCORECARD_METADATA_VERSION = "1.0.0"
 
 # Fallback Date if the parsed taxonomy yields no usable date values
@@ -319,9 +319,29 @@ def build_portal(docs: list[dict]) -> str:
     out.append("")
     out.append("This page is a navigation aid for the most common adopter audiences. Each section lists the documents most likely to be useful to that role, drawn from the machine-readable taxonomy and grouped by document type. The full document index lives in [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md).")
     out.append("")
+    out.append("This portal is the canonical front door for adopters. The audience-keyed groupings below are the primary entry point. Four further adopter-facing documents support the portal as deeper-dive paths for specific questions; the \"Other entry points and when to use them\" section immediately below maps each to its purpose so a reader can pick the path that matches their question.")
+    out.append("")
     out.append("This portal is generated; the source of truth is each document's canonical metadata block. Inclusion of a document in an audience section is selector-based; a document may legitimately appear under more than one audience.")
     out.append("")
     out.append("The metadata block above carries a generator schema constant for `Version` and the latest source `Date` found in the taxonomy. Bumps to the schema constant are recorded in [`CHANGELOG.md`](../CHANGELOG.md); the `Date` advances automatically with the corpus.")
+    out.append("")
+    out.append("---")
+    out.append("")
+    out.append("## Other entry points and when to use them")
+    out.append("")
+    out.append("The portal is the canonical front door. The following adopter-facing documents are deeper-dive paths that answer specific questions. Pick by the question you are asking, not by the document name.")
+    out.append("")
+    out.append("| If your question is | Read | What it gives you |")
+    out.append("| --- | --- | --- |")
+    out.append("| \"Which documents are relevant to my role?\" | This portal (continue reading below) | Audience-keyed groupings: CIO, CISO, GRC, Security Architecture, Privacy, Compliance, Audit, Resilience, Engineering. |")
+    out.append("| \"How do I fork the library, map roles, and decide what to change vs preserve?\" | [`docs/adopter-guide.md`](adopter-guide.md) | Adoption principles, the three adoption modes (fork / corpus-only / pack-only), what to change after copying, what not to change, the minimum quality bar. |")
+    out.append("| \"What do I copy on Day 1, and what do I add later?\" | [`docs/template-quickstart.md`](template-quickstart.md) | A six-artefact core baseline plus stacking modules across five dimensions (activity, data scope, audience, regulatory exposure, GRC capacity). |")
+    out.append("| \"In what order should I read the documents that apply to me?\" | [`docs/decision-tree.md`](decision-tree.md) | A dimensional questionnaire (size, sector, jurisdiction, regulated activities, technology footprint) and a sequenced reading path conditional on the answers. |")
+    out.append("| \"Over what calendar should I roll the programme out?\" | [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md) | Phase 1 (floor, Days 1-90), Phase 2 (operational, 91-180), and Phase 3 (Year-1 close, 181-365), pace-adjusted by GRC capacity tier. |")
+    out.append("")
+    out.append("The four deeper-dive paths are designed to be used together: the quickstart composes a starting set, the decision tree sequences it, the implementation roadmap calendars it, and the adopter guide governs how the artefacts are forked and customised. Each refers to the others where the workflow crosses between them.")
+    out.append("")
+    out.append("For full document discovery (every artefact, machine-readable metadata, type / domain / status / related artefacts), the document index at [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md) is the comprehensive register; this portal is the audience-shaped view of the same underlying taxonomy.")
     out.append("")
     out.append("---")
     out.append("")

@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.0\
-**Date:** 2026-06-19\
+**Version:** 1.0.1\
+**Date:** 2026-06-21\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
@@ -19,6 +19,10 @@
 ## Overview
 
 A structured navigator for adopting organisations: "I have these characteristics; which library documents should I read first, in what order?" It is a controlled reference artefact that complements [`docs/adopter-guide.md`](adopter-guide.md): the adopter guide gives general adoption principles; this document gives a sequenced reading order.
+
+### Where this fits among the adopter entry points
+
+The canonical front door for adopters is [`docs/portal.md`](portal.md) (audience-keyed grouping by role). This decision tree is one of four deeper-dive paths that branch off the portal; it answers "in what order should I read the documents that apply to me?". The other three are [`docs/adopter-guide.md`](adopter-guide.md) (fork-and-adapt principles), [`docs/template-quickstart.md`](template-quickstart.md) (what to copy on Day 1), and [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md) (calendar phasing). The portal's "Other entry points and when to use them" table picks the right path by question; see the portal Overview.
 
 ---
 
