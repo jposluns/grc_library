@@ -84,7 +84,7 @@ _80 documents._
 | [operations/procedure-threat-intelligence-and-siem-operations.md](../operations/procedure-threat-intelligence-and-siem-operations.md) | Threat Intelligence and SIEM Operations Procedure | Procedure | 1.3.2 | 2026-06-20 |
 | [operations/register-it-operations-kpis.md](../operations/register-it-operations-kpis.md) | IT Operations Key Performance Indicators Register | Register | 1.1.0 | 2026-06-21 |
 | [operations/standard-certificate-authority-management.md](../operations/standard-certificate-authority-management.md) | Certificate Authority Management Standard | Standard | 1.3.3 | 2026-06-20 |
-| [operations/standard-cloud-security-configuration-baseline.md](../operations/standard-cloud-security-configuration-baseline.md) | Cloud Security Configuration Baseline | Standard | 1.4.3 | 2026-06-20 |
+| [operations/standard-cloud-security-configuration-baseline.md](../operations/standard-cloud-security-configuration-baseline.md) | Cloud Security Configuration Baseline | Standard | 1.4.4 | 2026-06-21 |
 | [operations/standard-network-security-and-segmentation.md](../operations/standard-network-security-and-segmentation.md) | Network Security and Segmentation Standard | Standard | 1.4.0 | 2026-05-27 |
 | [operations/standard-physical-security-of-it-infrastructure.md](../operations/standard-physical-security-of-it-infrastructure.md) | Physical Security of IT Infrastructure Standard | Standard | 1.3.0 | 2026-05-27 |
 | [operations/standard-production-security-requirements.md](../operations/standard-production-security-requirements.md) | Production Security Requirements | Standard | 1.1.3 | 2026-05-28 |
@@ -204,7 +204,7 @@ _191 documents._
 | [governance/procedure-library-quality-and-review-cadence.md](../governance/procedure-library-quality-and-review-cadence.md) | Library Quality and Review Cadence Procedure | Procedure | 1.0.13 | 2026-06-21 |
 | [governance/procedure-whistleblower-and-incident-reporting.md](../governance/procedure-whistleblower-and-incident-reporting.md) | Whistleblower and Incident Reporting Procedure | Procedure | 1.0.2 | 2026-05-28 |
 | [governance/register-citation-verification-bundle.md](../governance/register-citation-verification-bundle.md) | Citation Verification Bundle Index | Register | 1.0.3 | 2026-06-20 |
-| [governance/register-data-retention-schedule.md](../governance/register-data-retention-schedule.md) | Data Retention Schedule | Register | 1.0.0 | 2026-05-27 |
+| [governance/register-data-retention-schedule.md](../governance/register-data-retention-schedule.md) | Data Retention Schedule | Register | 1.0.1 | 2026-06-21 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.0.0 | 2026-05-27 |
 | [governance/register-document-review-schedule.md](../governance/register-document-review-schedule.md) | Document Review Schedule Register | Register | 1.0.1 | 2026-06-02 |
 | [governance/register-main-branch-protection.md](../governance/register-main-branch-protection.md) | Main Branch Protection Configuration Register | Register | 1.0.13 | 2026-06-21 |
