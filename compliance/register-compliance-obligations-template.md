@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance Obligations Register Template\
 **Document Type:** Register\
-**Version:** 1.0.2\
-**Date:** 2026-05-28\
+**Version:** 1.0.3\
+**Date:** 2026-06-21\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
@@ -33,8 +33,27 @@ Each obligation record in the register captures the following fields.
 | **Obligation ID** | Unique identifier in format `OBL-[YYYY]-[NNN]` | `OBL-2026-001` |
 | **Obligation Name** | Short descriptive name | GDPR Article 32: Security of Processing |
 | **Source Type** | Legislation / Regulation / Contract / Standard / Voluntary Commitment | Legislation |
-| **Source Reference** | Specific law, regulation, clause, or standard section | GDPR Article 32; Recital 83 |
+| **Source Reference** | Specific law, regulation, clause, or standard section at full granularity. Citations must identify the version (revision, year, or edition) and the specific provision (article, clause, control, or sub-control) so an auditor can resolve the obligation to a single unambiguous source location. See "Source Reference granularity requirements" below. | GDPR Article 32(1)(b); Recital 83 |
 | **Jurisdiction** | Applicable jurisdiction(s) | EU; UK (UK GDPR) |
+
+#### Source Reference granularity requirements
+
+The Source Reference field must resolve the obligation to a single unambiguous source location. Each citation type has a minimum granularity requirement; populators must meet or exceed it.
+
+| Source type | Minimum granularity | Acceptable | Unacceptable |
+|---|---|---|---|
+| **NIST publications** (SP 800-series, FIPS, NIST CSF) | Revision or version *and* control family or specific control ID | `NIST SP 800-53 Rev. 5 AC-2(7)`; `NIST SP 800-171 Rev. 3 §3.1.5`; `NIST CSF 2.0 PR.AA-05` | `NIST 800-53`; `NIST CSF` |
+| **ISO/IEC standards** | Standard number *and* year *and* clause or Annex control | `ISO/IEC 27001:2022 Annex A.5.10`; `ISO/IEC 27701:2025 §6.2.1`; `ISO/IEC 27017:2015 CLD.6.3.1` | `ISO 27001`; `ISO/IEC 27001:2022` (without clause) |
+| **Statutes and regulations** | Statute/regulation identifier *and* article, section, or subsection | `GDPR Article 28(3)(c)`; `DORA Article 6(2)`; `HIPAA 45 CFR §164.308(a)(1)(ii)(D)`; `SOX §404(b)` | `GDPR`; `DORA`; `HIPAA Security Rule` |
+| **COBIT** | Version *and* governance/management objective ID | `COBIT 2019 DSS05.02`; `COBIT 2019 APO13.01` | `COBIT`; `COBIT 2019` (without objective) |
+| **PCI DSS** | Version *and* requirement ID | `PCI DSS v4.0 Requirement 8.3.6`; `PCI DSS v4.0.1 §3.5.1.1` | `PCI DSS`; `PCI DSS v4` (without requirement) |
+| **Cloud Security Alliance CCM** | Version *and* control ID | `CSA CCM v4.0.12 IAM-09` | `CCM`; `CSA CCM` |
+| **Contracts** | Counterparty *and* contract identifier or title *and* clause | `MSA with Acme Corp, §12.4 (Data Processing)`; `DPA-2026-014 §7` | `customer contract`; `vendor MSA` |
+| **Voluntary commitments** | Commitment identifier *and* specific pledge or principle | `UN Global Compact Principle 10`; `TCFD Recommendation B (Strategy) a` | `UN Global Compact`; `TCFD` |
+
+Where an obligation derives from multiple provisions of the same source, list each provision separately rather than collapsing to the standard name. Where the source is a draft or proposed instrument, include the draft identifier and date (e.g., `EU AI Act final text 13 June 2024 Article 9(2)`).
+
+Drift in source versions is itself an obligation-management event: when the underlying standard or statute is updated (e.g., `NIST SP 800-53 Rev. 4 → Rev. 5`), the register entry must be reviewed and the Source Reference updated as part of the review cycle defined under Ownership and monitoring fields.
 
 ### Applicability fields
 
