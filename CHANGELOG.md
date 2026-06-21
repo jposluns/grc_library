@@ -4,6 +4,12 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.123, PR #141
+
+Pass-2 of the fitness review (per the discipline in PR #139). Surfaced the four Pass-1 buckets to the maintainer via structured triage; outcomes: ✅ batch (91) accepted with Low tier deferred; ⚠️ batch (16) accepted with orchestrator's modifications; 🤔 batch (2) — FR-14 resolved to ✅ with library-wide CMMI propagation plan, FR-110 to ✅ at Medium; ❌ batch (2) reshaped (FR-43 kept at High[critical] with corrected 5-level-standard vs 4-level-subset framing; FR-53 downgraded to Low as metadata-field-unification question). New "Fitness review backlog" section in [`TODO.md`](TODO.md) groups all 111 FR-IDs by severity tier with brief summaries for High[critical] and High items; **no remediation begins until maintainer directs**. Also corrects PR #140's narrative miscount (93/14 → 91/16). Library `2026.06.122 → 2026.06.123`.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.122, PR #140
 
 Pass-1 verification (per the discipline introduced in PR #139) applied to the existing 111 FR-N findings in [`.working/fitness-reviews/2026-06-21-r1.md`](.working/fitness-reviews/2026-06-21-r1.md). Five verification-task subagents dispatched in parallel; each performed direct source re-reads (no persona role) and applied one verdict tag per finding. Aggregate: **93 ✅ confirmed-as-stated / 14 ⚠️ confirmed-with-modification / 2 🤔 ambiguous-needs-maintainer / 2 ❌ rejected**. New §8.5 "Pass-1 Verification Results" added to the report with verdict table + per-bucket summary. Pass-2 (maintainer-interactive bucket processing) is the next queued PR. Library `2026.06.121 → 2026.06.122`.
