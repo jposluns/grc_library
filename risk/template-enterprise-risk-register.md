@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Risk Register Template\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-06-21\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -99,6 +99,7 @@ If residual risk is not within appetite and is being formally accepted, complete
 |---|---|
 | **Acceptance Rationale** | Reason treatment to appetite level is not practicable |
 | **Acceptance Conditions** | Conditions under which acceptance remains valid |
+| **Compensating Controls** | Controls in place that reduce residual risk to the level being accepted; list each by control ID with a brief note on how it offsets the un-treated risk. Required by [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md) §5; recorded here so the acceptance record is self-contained and auditable. |
 | **Accepted By** | Role with authority to accept (per [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md)) |
 | **Acceptance Date** | Date of formal acceptance |
 | **Acceptance Expiry** | Date by which acceptance must be reviewed |
