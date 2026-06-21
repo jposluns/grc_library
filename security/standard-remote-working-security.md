@@ -2,8 +2,8 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-06-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md)\
@@ -169,7 +169,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 8.1 A formal BYOD policy is pending approval. In the interim, the following requirements apply to any use of personal devices to access organisational systems:
 
-8.2 Personal devices may not be used to access data classified as Confidential or Restricted without explicit written approval from the CISO and a documented compensating control.
+8.2 Personal devices must not be used to access data classified as Confidential or Restricted without explicit written approval from the CISO and a documented compensating control.
 
 8.3 Where the CISO approves personal device access, the minimum compensating controls are:
 

@@ -6,6 +6,40 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.132, PR #150
+
+Closes FR-45 (high, ⚠️ confirmed-with-modification). Two RFC 2119 normative-vocabulary fixes: "may not" → "must not be" in the password-history requirement and the BYOD-with-Confidential/Restricted-data prohibition.
+
+### Closed findings
+
+- **FR-45** (high, ⚠️, two files): "may not be reused" (password history) and "may not be used" (BYOD with Confidential/Restricted data) parsed as permissible-negative under a strict RFC 2119 reading, where the surrounding requirement-language context makes the intent unambiguously MUST NOT. Pass-1's ⚠️ modification correctly noted the strict-reading ambiguity; the remediation chooses each file's predominant normative verb ("must") rather than introducing "shall" alongside the dominant idiom.
+
+### Changed
+
+- [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md):
+  - §"Password requirements" table, `Password reuse` row: `Last 12 passwords may not be reused.` → `The last 12 passwords must not be reused.` (article inserted for grammaticality with the new normative verb).
+  - Per-doc version `1.0.1 → 1.0.2`; Date `2026-05-27 → 2026-06-21`.
+- [`security/standard-remote-working-security.md`](../../security/standard-remote-working-security.md):
+  - §8.2 (Bring-your-own device): `Personal devices may not be used to access data classified as Confidential or Restricted...` → `Personal devices must not be used to access data classified as Confidential or Restricted...`.
+  - Per-doc version `1.0.1 → 1.0.2`; Date `2026-05-28 → 2026-06-21`.
+- [`README.md`](../../README.md): library `2026.06.131 → 2026.06.132`; README `1.9.2 → 1.9.3`.
+- [`TODO.md`](../../TODO.md): FR-45 rotated out of High tier; backlog counters updated (15 + 14 + 56 = 85 immediate; 14 deferred; 99 open).
+- [`.working/DONE.md`](../DONE.md): PR #150 entry added.
+
+### Verification
+
+- Corpus-wide grep for `may not` in `security/`: only the two cited lines existed pre-edit; zero occurrences post-edit (each file).
+- Local audit: `tools/run_all_audits.sh` exits 0 on all gates post-commit.
+- Local PR-time checks: `tools/run-pr-time-checks.sh` exits 0.
+- Per-doc Version bumps mechanically required by gate D2; both bumped.
+- Semantic check: the password-history row remains in the prohibitions column of the table by adjacency and reads as a complete imperative; the BYOD line preserves its existing carve-out ("without explicit written approval from the CISO and a documented compensating control") so the policy substance is unchanged.
+
+### Discipline observation
+
+This is a vocabulary-tightening fix, not a substantive policy change. The strict RFC 2119 reading that flagged "may not" as ambiguous is a useful audit signal even where the surrounding prose makes intent obvious to a human reader; machine-readable normative-verb auditing (e.g., a future lint that flags "may not" anywhere in a requirements document) would catch this class systematically. Surfaced for future consideration; not in scope for this PR.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.131, PR #149
 
 Closes FR-21 (high[critical]). The compliance-obligations register template's Source Reference field is tightened to require full citation granularity so the register fulfils its audit-prep purpose.

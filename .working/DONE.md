@@ -25,6 +25,10 @@ The format for each entry:
 
 ## Closed items
 
+### PR #150 — FR-45: RFC 2119 "may not" → "must not be" in two security standards (2026-06-21)
+
+High-severity Pass-1-⚠️ finding closed. [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md) §"Password requirements" and [`security/standard-remote-working-security.md`](../security/standard-remote-working-security.md) §8.2 both used "may not" where the intent is a prohibition. Strict RFC 2119 reads "may not" as a permissible-negative-possibility, distinct from MUST NOT. Both lines now use "must not be" — chosen over "shall not be" because each file's prevailing normative verb is "must" (5 / 24 occurrences vs. 0 / 1 for "shall"). Per-doc `1.0.1 → 1.0.2` in each file.
+
 ### PR #149 — FR-21: Compliance-obligations Source Reference granularity (2026-06-21)
 
 High[critical]-severity finding closed. [`compliance/register-compliance-obligations-template.md`](../compliance/register-compliance-obligations-template.md) Source Reference field tightened so register citations resolve to a single unambiguous source location: revised field description plus a new "Source Reference granularity requirements" sub-section enumerating minimum-precision patterns for NIST publications, ISO/IEC standards, statutes and regulations, COBIT, PCI DSS, CSA CCM, contracts, and voluntary commitments — each row with acceptable and unacceptable example citations. Closes a register-defeating ambiguity: populators could previously enter `NIST 800-53` or `ISO 27001` without revision or control and still satisfy the prior field description. Per-doc `1.0.2 → 1.0.3`; library `2026.06.130 → 2026.06.131`.
