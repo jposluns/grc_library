@@ -6,6 +6,40 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.134, PR #152
+
+Closes FR-19 (high[critical]) and FR-20 (high), both in [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md). FR-19 addressed the absence of a hard ceiling on CAPA target-date extensions: §6.3 documented per-extension approval authority but no cap, allowing Critical findings to remain open indefinitely under repeated single-step CISO sign-off. FR-20 addressed the absence of a quality checklist for CAPA root-cause statements: §4.1's aspirational "specific and actionable" wording was satisfied by bare category labels like "process gap".
+
+### Closed findings
+
+- **FR-19** (high[critical]): CAPA extension governance ceiling. §6.3 / §9.1 documented per-extension approval authorities (CISO for Critical, GRC Manager for High/Moderate/Low) but no cap on the *number* of extensions before a higher tier of governance had to look at the item. The §9.1 escalation table's last row ("Repeated extensions or sustained non-closure") gestured at ERC review but left it as "determines appropriate response" with no quantitative trigger. The pre-existing "extended more than twice" soft trigger for Moderate/Low CAPAs in the sentence after the §9.1 table was the closest thing to a ceiling but did not extend to Critical/High and was not paired with an escalation pathway.
+- **FR-20** (high): CAPA root-cause quality checklist. §4.1 stated "the root cause statement must be specific and actionable" without defining either term, so bare category labels from the §4.3 taxonomy (e.g., "Process gap") satisfied the wording as written. The §4.3 taxonomy is for *pattern aggregation*, not per-statement quality, but the procedure did not distinguish the two uses.
+
+### Changed
+
+- [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md):
+  - §4.1: new subsection 4.1.1 "Root cause statement quality checklist" added between the existing "specific and actionable" paragraph and the timing paragraph. Five-criterion checklist (Specific / Causal / Actionable / Bounded / Evidence-anchored) with explicit exclusions; applied by the GRC Manager during verification (Section 7.2). The §4.3 root-cause-category taxonomy is explicitly subordinated to the per-statement checklist so category-only statements fail the Specific criterion regardless of category accuracy.
+  - §6.3: new subsection 6.3.1 "Extension ceiling and escalation pathway" added after the existing §6.3 closing paragraph. Hard ceiling: 2nd extension to ERC, 3rd to Board Risk Committee, 4th not permitted (forcing close / descope / re-baseline). Re-baselining carve-out for materially-changed root causes (ERC-approved, with anti-abuse condition).
+  - §9.1: "Repeated extensions or sustained non-closure" row updated to cross-reference §6.3.1 instead of the prior open-ended wording. Trailing sentence about Moderate/Low CAPAs rewritten so the pre-existing inconsistent "extended more than twice" soft trigger is replaced by an explicit cross-reference to the §6.3.1 ceiling, which applies uniformly to all classifications.
+  - Per-doc version `1.0.1 → 1.0.2`; Date `2026-05-28 → 2026-06-21`.
+- [`README.md`](../../README.md): library `2026.06.133 → 2026.06.134`; README `1.9.4 → 1.9.5`.
+- [`TODO.md`](../../TODO.md): FR-19 rotated out of High[critical] tier; FR-20 rotated out of High tier. Backlog counters updated (14 + 12 + 56 = 82 immediate; 14 deferred; 96 open).
+- [`.working/DONE.md`](../DONE.md): PR #152 entry added.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- `tools/run-pr-time-checks.sh` exits 0 (D1 + D2 + gate 45).
+- Manual cross-reference: every section number cited in the new text (§4.1, §4.3, §6.3, §7.2, §8.1, §9.1, §9.2) is present in the document and referenced as labelled.
+
+### Discipline observation
+
+The 2/3/4 ceiling defaults were selected to (a) match the pre-existing Moderate/Low "extended more than twice" soft trigger at the 2-extension threshold, (b) reflect that a CAPA which has slipped three times is a governance-risk issue requiring highest-body acceptance of residual exposure, and (c) force a binary decision rather than allowing indefinite drift through serial approvals. The re-baselining mechanism in §6.3.1 has an anti-abuse condition (re-baseline requires a materially-changed root cause, is itself ERC-approved, and a re-baseline not resting on a material change is treated as the next extension) so it cannot be used to silently reset the count.
+
+Two findings bundled in one PR because both live in the same file; the audit programme treats this as a single change.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.133, PR #151
 
 Closes FR-35 (high, ✅ confirmed-as-stated, privacy breach-response). The privacy breach-response procedure mentioned the contractual 24-hour supplier notification window in three places but never anchored its clock-start to processor awareness — the GDPR Article 33(2) trigger. Adopters reading the procedure in isolation could reasonably interpret the 24-hour window as starting at controller notification (inverting Article 33(2)) or at some later containment/assessment milestone. This PR makes the asymmetry explicit and ties it directly to Article 33(2).

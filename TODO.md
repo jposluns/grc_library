@@ -10,8 +10,8 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #151 merge).
-- **Library version as of last refresh**: `2026.06.133`. **Pack version**: `1.34.0`. **README version**: `1.9.4`.
+- **Branch at last refresh**: `main` (synced after PR #152 merge).
+- **Library version as of last refresh**: `2026.06.134`. **Pack version**: `1.34.0`. **README version**: `1.9.5`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
 - **Last validation sweep**: Sweep 12 iteration 1 (close-out PR #148).
 
@@ -49,11 +49,10 @@ Resolved from `🤔` to `✅` in Pass-2 with a library-wide propagation plan:
   - Or a documented standard in `governance/` (`standard-maturity-tier-vocabulary.md`) that other documents cite.
 - Severity: High[critical] (was high[critical]). Originating run: r1.
 
-### High[critical] tier — 15 findings (immediate priority)
+### High[critical] tier — 14 findings (immediate priority)
 
 - **FR-14** (maturity ladder): see Special section above.
 - **FR-16** (`governance/policy-exception-and-risk-acceptance-management.md`): Exception register schema lacks `max_duration` and `renewal_count_limit` fields; "should not exceed 180 days" is weak. Add hard fields.
-- **FR-19** (`compliance/procedure-capa.md`): CAPA target-date extensions lack a governance ceiling. Add max-extension count with board-level escalation.
 - **FR-29** (`privacy/procedure-privacy-impact-and-cross-border-transfer.md`): DPIA methodology and trigger checklist absent. Ship `privacy/template-dpia.md` with Article 35 trigger checklist + EDPB nine-criteria + Article 35(7) content checklist.
 - **FR-30** (privacy + supply-chain): No standalone Article 28 DPA template. Ship `privacy/template-dpa-article-28.md`.
 - **FR-31** (privacy): Privacy by Design (Article 25) has no operational artefact. Ship `privacy/framework-privacy-by-design.md` mapping seven foundational principles to architecture/dev-security workflows.
@@ -67,12 +66,11 @@ Resolved from `🤔` to `✅` in Pass-2 with a library-wide propagation plan:
 - **FR-73** (AI ethics review): `charter-ai-governance-council.md` collapses ethics into the compliance/risk body. Separate ethics panel or independent challenge mechanism needed.
 - **FR-80** (SIEM/cloud-activity-log retention contradiction): `register-data-retention-schedule.md:67` says 3y (1y hot + 2y cold); `standard-cloud-security-configuration-baseline.md:150` says 90d minimum. Cloud logs forward into SIEM, undercutting the downstream baseline. Reconcile.
 
-### High tier — 13 findings (immediate priority)
+### High tier — 12 findings (immediate priority)
 
 - **FR-1** (README): "Dual-mission" framing on lines 36-42 puts AI-assisted-maintenance reference implementation on equal billing with the GRC corpus.
 - **FR-2** (README): "How to use" step 1 directs to the 300-row document index rather than `docs/portal.md`; audience-keyed entry buried.
 - **FR-17 ⚠️** (`governance/policy-exception-and-risk-acceptance-management.md`): Approval-authority conflict with Role Authority Register RACI (Risk Accountable Role is a stub).
-- **FR-20** (`compliance/procedure-capa.md`): Root-cause statements lack a quality checklist.
 - **FR-36** (`privacy/framework-childrens-data.md` + EU annex): EU member-state per-state Article 8 age table missing.
 - **FR-44** (multiple): Requirement-language register drift ("must" vs "shall" with no documented convention).
 - **FR-56** (multiple): Six distinct entry-point sequences (README → document index; adopter guide → Tier 1; quickstart → core baseline; decision tree → 30/90/180; implementation roadmap → Phase 1/2/3). Reconcile.
@@ -118,9 +116,9 @@ Cross-reference only. No immediate-priority action; queue for a routine cleanup 
 
 ### Backlog totals
 
-- 15 + 13 + 56 = **84 immediate-priority findings** (High[critical], High, Medium tiers)
+- 14 + 12 + 56 = **82 immediate-priority findings** (High[critical], High, Medium tiers)
 - **14 deferred** (Low tier)
-- **98 open** (13 closed across PRs #142-#151). Total surfaced in r1: 111.
+- **96 open** (15 closed across PRs #142-#152). Total surfaced in r1: 111.
 
 ---
 
