@@ -102,7 +102,9 @@ drive end-to-end on the maintainer's behalf:
    cover every gate the CI workflow runs.
 2. Push with `git push -u origin <branch>` and open the PR via
    `mcp__github__create_pull_request`.
-3. Wait for the `Lint markdown corpus` CI check; on failure, fix and re-push.
+3. Wait for the `Lint markdown corpus` CI check using the subscription
+   discipline in `## PR activity subscription discipline` below; on failure,
+   fix and re-push.
 4. On green CI, merge via `mcp__github__merge_pull_request`. The maintainer does not
    gate-keep merges of PRs they have personally authored. `mergeable_state: blocked`
    is the branch-protection state immediately before merge, not a human-review gate;
@@ -134,6 +136,40 @@ safe set per user-level Rule 8 point 1. Actions outside this routine (merging a 
 the maintainer did not author, force-pushing a protected branch, deleting a branch
 the assistant did not create) are not in the safe set and require explicit
 confirmation under the confirm-before-destructive-action discipline.
+
+## PR activity subscription discipline
+
+PR workflow step 3 (waiting for CI to settle) and any subsequent wait for
+review comments use `mcp__github__subscribe_pr_activity`. Subscriptions
+deliver failure events, comments, and reviews into the conversation as they
+happen, but do not reliably deliver success transitions or every state
+change — a subscription alone can sit indefinitely on a silent-success event
+or a webhook drop.
+
+The discipline: every `mcp__github__subscribe_pr_activity` call in the same
+turn arms a paired 60-second fallback timer via `Bash` with
+`run_in_background: true`, command shape `sleep 60 && echo "60s fallback
+timer fired - check PR #N status"`. When the webhook fires or the timer
+completes (whichever comes first), check PR state with
+`mcp__github__pull_request_read` (`get_check_runs` for CI, `get_status`
+for combined commit status) and act on the actual result. If the PR is
+still in flight, re-arm a fresh 60-second timer. On merge, the
+subscription auto-unsubscribes; stop the timer with `TaskStop` on the
+background task ID.
+
+The 60-second cadence balances latency (typical `Lint markdown corpus` CI
+runs settle within one to two windows) against API cost: longer windows
+leave silent-success failures hanging longer than necessary; shorter
+windows hammer the GitHub MCP API.
+
+This pairing is the project-specific operationalization of the
+webhook-subscriptions discipline in the pack rule
+`.claude/rules/governance/action-before-explanation-of-inaction.md` and the
+broader subscribe-over-poll pattern in
+`.claude/rules/governance/evidence-grounded-completion.md` (its "API
+polling and webhook subscriptions" section). The pack rules say to prefer
+subscriptions over polling; this section says how to do that without
+sitting indefinitely on a silent-success event.
 
 ## Version-bump discipline
 
