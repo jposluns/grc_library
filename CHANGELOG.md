@@ -4,6 +4,12 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.132, PR #150
+
+Closes **FR-45** (high, ⚠️ confirmed-with-modification). RFC 2119 vocabulary tightening in two security standards: [`security/standard-authentication-and-password-management.md`](security/standard-authentication-and-password-management.md) §"Password requirements" and [`security/standard-remote-working-security.md`](security/standard-remote-working-security.md) §8.2 both used "may not" where the intent is a prohibition. Pass-1 flagged the drift under a strict RFC 2119 reading: "may not" admits a permissible-negative-possibility interpretation distinct from MUST NOT. Both lines now read "must not be" to match each file's prevailing normative verb ("must" appears 5 times in the password standard and 24 times in the remote-working standard; "shall" is essentially absent from both). Per-doc `1.0.1 → 1.0.2` in each file; library `2026.06.131 → 2026.06.132`. Backlog 100 → 99 open.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.131, PR #149
 
 Closes **FR-21** (high[critical]). [`compliance/register-compliance-obligations-template.md`](compliance/register-compliance-obligations-template.md) Source Reference field tightened so register citations resolve to a single unambiguous source location: revised description plus a new "Source Reference granularity requirements" sub-section listing minimum-precision patterns (with acceptable / unacceptable examples) for NIST publications, ISO/IEC standards, statutes, COBIT, PCI DSS, CSA CCM, contracts, and voluntary commitments. Closes a register-defeating ambiguity. Per-doc `1.0.2 → 1.0.3`; library `2026.06.130 → 2026.06.131`. Backlog 101 → 100 open.
