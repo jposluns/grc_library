@@ -6,6 +6,41 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.112, PR #129
+
+Post-PR-#128 catch-up. Gate 45 (just added in PR #128) correctly flagged `TODO.md` line 47 ("Next — PR #128: Gate 45 (TODO staleness audit).") on the post-merge `main` `push`-event run, because PR #128 had now merged. PR #128's own PR-event run was green because at PR-time the merge had not yet happened; the failure surfaced one event-cycle later. The fix is the standard "rotate PR from queued to completed" TODO maintenance.
+
+### Fixed
+
+- [`TODO.md`](../../TODO.md) lines 22-49 (PRs-completed list + Queued sequence): PR #128 moved from "Queued sequence" (where it appeared as "Next — PR #128: Gate 45 ...") into the PRs-completed list with its summary. Queued sequence rebased to start with the fitness-skill amendment (formerly "PR #129"; now framed generically as "Next, PR #N" since the actual PR number depends on whatever lands next). Two new follow-up design proposals captured in a paragraph at the bottom of the Queued sequence section: (a) `.working/DONE.md` as a closed-TODO ledger; (b) decorative-gate-count cleanup (P3 candidate).
+- [`TODO.md`](../../TODO.md) lines 17-20 (Session state at pause): version snapshot `2026.06.109 → 2026.06.111`; README `1.8.65 → 1.8.67`; branch synced-after marker `PR #126 → PR #128`; gate-count line replaced with "all gates passing" (per the maintainer's just-surfaced "remove decorative gate-count narrations" proposal — applied here ahead of the formal P3 PR because the line was being edited anyway).
+
+### Changed
+
+- [`README.md`](../../README.md): library version `2026.06.111 → 2026.06.112`; README version `1.8.67 → 1.8.68`.
+
+### Verification
+
+- Local audit: `python3 tools/lint-todo-staleness.py` returns 0 after the TODO edits (previously returned 1 with "L47 [queued-PR-merged] line marks PR #128 as queued/next/pending/upcoming but PR #128 has merged into the current branch").
+- Full sweep: `tools/run_all_audits.sh` exits 0 on all gates post-commit.
+- PR-time checks: `tools/run-pr-time-checks.sh` exits 0 (D1, D2, gate 45 all clean).
+
+### Discipline observation
+
+This PR is gate 45's own first catch in production. The cycle that triggered it:
+
+1. PR #128 added gate 45.
+2. PR #128's PR-event CI run executed gate 45; at that point PR #128 was still open, so the merge commit was not in git history. Gate 45 passed.
+3. PR #128 merged. The merge commit "Merge pull request #128 from ..." now appeared in `git log --format=%s --all`.
+4. The post-merge `push`-event run on `main` executed gate 45 again. The same `TODO.md` line that passed at PR-time now matched the queued-PR-already-merged pattern (because `merged_prs()` returned `{128}` for the first time). Gate failed.
+5. The maintainer received a CI-failure email and surfaced it; this PR's catch-up edits resolve the lingering state.
+
+The pattern (gate's own first finding is the PR that added the gate) is unusual but logically consistent: the discipline the gate enforces wasn't yet operational when PR #128 itself was being drafted. Going forward, every PR's pre-merge checklist should include "move this PR from 'Queued' to 'PRs completed'" — which the maintainer also surfaced as the broader proposal (DONE.md or rotate-at-PR-finalization).
+
+The wider lesson aligns with the user's proposal received just before this catch-up began: a PR-finalization step that compares the PR's content against TODO and rotates entries is exactly the discipline that would have prevented this failure mode. Recorded as a queued follow-up under the Queued sequence section. The structural fix is real; the manual workaround in this PR is one-time.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.111, PR #128
 
 New audit gate 45 (TODO staleness audit) plus a PR-time-checks wrapper script. Gate 45 mechanically catches the two TODO drift shapes that recurred across four consecutive validation sweeps (queued PR already merged; sweep cursor behind history); the wrapper `tools/run-pr-time-checks.sh` bundles the two PR-only delta gates (D1 CHANGELOG-on-PR, D2 per-PR version-bump) and gate 45 into one local runner the maintainer invokes before push. The two-runner split (`run_all_audits.sh` plus `run-pr-time-checks.sh`) is a structural fix for the version-bump-omission failure mode that surfaced in PR #127's first push: every gate now has a local invocation path so PR-time delta-gate omissions are caught before push, not after CI flips red.
