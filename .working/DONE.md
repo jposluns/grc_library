@@ -25,6 +25,10 @@ The format for each entry:
 
 ## Closed items
 
+### PR #147 — FR-3: README "New to GRC?" introductory block (2026-06-21)
+
+High-severity newcomer-onboarding finding closed. Added a new "New to GRC? Start here" §2 to [`README.md`](../README.md) between the metadata header and §Purpose. The block expands the acronym, defines Governance / Risk / Compliance in plain language for someone who hasn't worked in the discipline, names the adjacent overlapping domains (security, privacy, resilience, supplier governance, AI governance) and explains why this library treats them as siblings, and signposts five role/intent-keyed next steps (first-time visitor, adopter, auditor, maintainer, glossary-lookup) each linking to the most relevant document. README per-doc bumps to `1.9.0` (minor; new top-level section); library `2026.06.128 → 2026.06.129`.
+
 ### PR #146 — FR-96: Risk-acceptance procedure cross-reference to exception register (2026-06-21)
 
 High-severity (⚠️ confirmed-with-modification) finding closed. [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md) "Required record fields" now includes `Related exception register entry`: ID of the corresponding entry in the exception register if the acceptance derives from a policy/control exception, or `None` if the acceptance is pure-risk and unrelated to a policy exception. The linkage makes the two registers cross-traversable: an auditor reviewing an exception can find the corresponding risk acceptance and vice versa. Per-doc `1.0.0 → 1.0.1`; library `2026.06.127 → 2026.06.128`.

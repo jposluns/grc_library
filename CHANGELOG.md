@@ -4,6 +4,12 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-21, Library Version 2026.06.129, PR #147
+
+Closes **FR-3** (high, newcomer-onboarding). New "New to GRC? Start here" section added to [`README.md`](README.md) between the metadata header and §Purpose. The block expands the acronym (the README's title carries `GRC` but never defines it), defines Governance / Risk / Compliance in plain language for a reader unfamiliar with the discipline, names the adjacent domains the library treats as siblings (security, privacy, resilience, supplier governance, AI governance), and signposts five role/intent-keyed next steps (first-time visitor, adopter, auditor, maintainer, glossary-lookup). README per-doc `1.8.84 → 1.9.0` (minor: new top-level section). Library `2026.06.128 → 2026.06.129`. Backlog 102 → 101 open.
+
+---
+
 ## 2026-06-21, Library Version 2026.06.128, PR #146
 
 Closes **FR-96** (high, ⚠️ confirmed-with-modification). [`risk/procedure-risk-acceptance.md`](risk/procedure-risk-acceptance.md) "Required record fields" gains a `Related exception register entry` field — the ID of the corresponding entry in the exception register if the acceptance derives from a policy/control exception, or `None` if pure risk acceptance. The linkage makes the two registers cross-traversable for audit traceability. Per-doc `1.0.0 → 1.0.1`; library `2026.06.127 → 2026.06.128`. Backlog 103 → 102 open.
