@@ -10,16 +10,16 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #166 merge).
-- **Library version as of last refresh**: `2026.06.148`. **Pack version**: `1.34.0`. **README version**: `1.9.19`.
+- **Branch at last refresh**: `main` (synced after PR #167 merge).
+- **Library version as of last refresh**: `2026.06.149`. **Pack version**: `1.34.0`. **README version**: `1.9.20`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
-- **Last validation sweep**: Sweep 14 iteration 1 (close-out PR #160).
+- **Last validation sweep**: Sweep 15 iteration 1 (close-out PR #167).
 
 ---
 
 ## Queued sequence (upcoming PRs)
 
-Fitness-remediation PRs are now in flight under maintainer direction. PRs #142-#159 have closed 21 findings to date (most recently PR #155 FR-1, PR #156 FR-2, PR #157 FR-16, PR #158 FR-80, PR #159 FR-44). The next batch is chosen from the Fitness review backlog section below in highest-certainty order; the assistant picks 5 at a time, runs a worker-drafts pipeline to prepare drafts in parallel, applies serially with CI gating, and runs `/validate` after each 5-PR batch. Maintainer direction supersedes the assistant's pick at any time.
+Fitness-remediation PRs are now in flight under maintainer direction. PRs #142-#166 have closed 26 findings to date (most recently PR #161 FR-17, PR #162 FR-29, PR #164 FR-43-reshape, PR #165 FR-56, PR #166 FR-57; plus the meta-PRs #163 DONE format harmonisation and Sweep close-outs #148/#154/#160). The next batch is chosen from the Fitness review backlog section below in highest-certainty order; the assistant picks 1-8 at a time (per the amended validate-cadence rule), runs a worker-drafts pipeline to prepare drafts in parallel, applies serially with CI gating, and runs `/validate` after each batch. Maintainer direction supersedes the assistant's pick at any time.
 
 Open large items still queued explicitly:
 
@@ -187,6 +187,28 @@ Maintainer-directed process improvement, deferred until the current FR backlog i
 5. Future fitness-review templates and sweep detail files use the convention by default.
 
 **Owner**: maintainer. **Effort**: M (skill-file edits, format-convention statement, retrofit of existing surfaces). **Schedule**: after the current FR backlog is closed (85 → 0 items). Capturing now so the convention is documented before the next fitness review produces a new batch.
+
+---
+
+## Standard-version-upgrade process (maintainer-directed)
+
+Maintainer-directed deliverable: when an external standard the corpus cites is republished at a new version (e.g., `ISO/IEC 27001:2013` → `ISO/IEC 27001:2022`; `ISO/IEC 27701:2019` → `ISO/IEC 27701:2025`; `COBIT 2019` → a future COBIT release), the library needs a documented process to transition. Sweep 15's `ISO/IEC 29134:2023` hallucination plus the FR-21 work that caught `ISO/IEC 27701:2019 → 2025` show that ad-hoc citation-by-citation updates produce drift; a systematic process is needed.
+
+The process must cover, at minimum:
+
+1. **Diff between old and new version.** Capture what the standard changed: renamed clauses, deleted controls, added controls, restructured numbering. Many standards publish a "transition guide" or an annex listing the changes; treat the publisher's transition guide as authoritative input.
+2. **Look up all references in the corpus.** Mechanical sweep (grep + canonical-citations register) to enumerate every document, register row, and CHANGELOG entry that cites the old version. Output a worklist.
+3. **Assess content based on the old version.** For each cited location, determine whether the citation is purely positional (a reference to the standard exists, no content drift) or substantive (the corpus content quotes, restates, or maps to old-version clauses/controls that have changed). Classify each as positional-only or substantive.
+4. **Systematic update to new-version compliance.** Apply the changes per classification:
+   - Positional-only: update the year/version in the citation; no content change.
+   - Substantive: rewrite the affected content to match the new-version requirement; track the rewrite as its own per-document version bump.
+5. **Update the canonical citations register and verifications register.** Add the new version with publisher-source verification; mark the old version as superseded with an effective-date.
+6. **Audit-gate integration.** The standards-currency linter (`tools/lint-standards-currency.py`, gate 27) should flag superseded versions; the canonical-citations register entry is what makes that gate see the supersession.
+7. **Communication.** A CHANGELOG entry covering the upgrade campaign (often multi-PR); a TODO row tracking outstanding substantive rewrites if they don't all fit in one PR.
+
+**Deliverable**: a procedure document at `governance/procedure-standard-version-upgrade.md` (or similar path) that documents the seven-step process above, with worked examples (e.g., ISO/IEC 27001:2013 → 2022 if applicable; ISO/IEC 27701:2019 → 2025 retrospective). Owner: maintainer. Effort: M (one new procedure document, citation-register cross-references, possibly an audit-gate enhancement to flag the supersession class systematically). Schedule: after the FR backlog completes (will be more valuable when the corpus is stable than during in-flight remediation).
+
+**Side benefit**: the procedure also documents the canonical-citations register discipline (which exists but has not been formally written down as a process), so future contributors understand why citations should be entered in the register before being introduced into corpus prose.
 
 ---
 

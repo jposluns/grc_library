@@ -2,7 +2,7 @@
 
 **Document Title:** DPIA (Data Protection Impact Assessment) Template\
 **Document Type:** Template\
-**Version:** 1.0.0\
+**Version:** 1.0.1\
 **Date:** 2026-06-21\
 **Owner:** Chief Privacy Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -194,7 +194,7 @@ Measures must include, at minimum: technical measures (encryption at rest and in
 | LGPD | Article 38 | Data Protection Impact Report (Relatório de Impacto à Proteção de Dados Pessoais) |
 | PIPL | Article 55 | Personal Information Protection Impact Assessment |
 | EU AI Act | Article 27 | Fundamental rights impact assessment (where the DPIA is integrated with the AI-system limb) |
-| ISO/IEC 29134:2023 | Privacy impact assessment methodology | Methodology guidance for PIA / DPIA |
+| ISO/IEC 29134:2017 | Privacy impact assessment methodology | Methodology guidance for PIA / DPIA |
 | ISO/IEC 27701:2025 | Privacy information management | DPIA as a privacy control |
 | NIST Privacy Framework | CT.PO-P5, CM.AW-P5 | Risk assessment and awareness |
 | AIDA (Canada, Bill C-27 Part 3) | AIDA section 29 | AI Impact Assessment (where applicable to the same processing operation) |
