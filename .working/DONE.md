@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #197 — FR-115 (high): Risk Owner row in Role Authority Register (2026-06-22)
+
+Closes FR-115 by adding the Risk Owner row to the canonical Role Authority Register, mirroring the verbatim Primary Accountability text from the ERM standard §3 (added in PR #178) and adding a reciprocal cross-reference. Partial close of Convergent Finding C1; FR-116/FR-117 still doable, FR-119 deferred (needs decision).
+
 ### PR #196 — FR-113 (medium): CAPA + SIEM acronym expansion in README (2026-06-22)
 
 Closes FR-113 by expanding `CAPA` and `SIEM` acronyms at first occurrence in `README.md`'s Repository Structure block, restoring the acronym-expansion pattern established in PRs #172 and #179. Also bundles the mechanical cleanup of fitness-reviews backlog-table rotation for FR-127/128/129 (pre-existing discipline gap surfaced by PR #195's /validate-pr).
