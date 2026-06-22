@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Management Programme Charter\
 **Document Type:** Charter\
-**Version:** 1.4.0\
+**Version:** 1.5.0\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -46,7 +46,61 @@ The following roles hold defined accountability within the Privacy Management Pr
 | **Legal Counsel** | Advises on regulatory notification obligations; manages regulatory relationships; reviews Data Processing Agreement (DPA) documentation. |
 | **Human Resources** | Manages employee personal data; ensures that HR data processing complies with applicable employment privacy law. |
 
-> **Interim Accountability:** Where a formal Data Protection Officer (DPO) has not yet been designated, the CIO assumes these responsibilities as interim accountability.
+> **Interim Accountability:** Where a formal Data Protection Officer (DPO) has not yet been designated, the CIO assumes these responsibilities as interim accountability. See the DPO independence and conflict-of-interest section below for the constraints the interim arrangement creates and the mitigations adopters must apply.
+
+### DPO independence and conflict of interest (GDPR Articles 38(3) and 38(6))
+
+GDPR Article 38 imposes two structural protections on the DPO role that adopters must preserve regardless of the formal-or-interim designation status:
+
+**Article 38(3) independence requirements.** The controller and processor must ensure that the DPO:
+
+| Requirement | Source | What it forbids in practice |
+|---|---|---|
+| Does not receive any instructions regarding the exercise of DPO tasks | Article 38(3) sentence 1 | Management cannot direct the DPO's privacy assessments, regulator-engagement positions, or breach-notification decisions on a case-by-case basis |
+| Cannot be dismissed or penalised for performing DPO tasks | Article 38(3) sentence 2 | Dismissal, demotion, salary reduction, or denial of training cannot be linked to DPO advice the management disliked |
+| Reports directly to the highest management level | Article 38(3) sentence 3 | The DPO must have an unfiltered escalation path; intermediary management layers cannot gate DPO communications to the board or executive |
+
+**Article 38(6) conflict-of-interest constraint.** The DPO may fulfil other tasks and duties, but the controller / processor must ensure that any such tasks and duties do not result in a conflict of interests. The Article 29 Working Party Guidelines on DPOs (WP243 rev.01) and the EDPB's subsequent guidance identify the following positions as **typically incompatible** with the DPO role:
+
+- Chief Executive Officer
+- Chief Operating Officer
+- Chief Financial Officer
+- Chief Information Officer
+- Chief Information Security Officer (where the CISO determines purposes and means of security processing)
+- Head of Marketing
+- Head of Human Resources
+- Head of IT operations or processing department
+- Any role that determines purposes and means of processing personal data
+- Any role that audits or sanctions the DPO
+
+This list is not exhaustive; the test is whether the secondary role results in the DPO determining (in whole or part) the purposes and means of the processing the DPO is supposed to oversee.
+
+**Interim CIO-as-DPO arrangement: known conflict.** The interim accountability note above explicitly creates an Article 38(6) conflict: the CIO determines purposes and means of IT processing AND advises on its privacy compliance. The library makes this conflict visible rather than silent. Adopters must either:
+
+1. **Designate a formal DPO** (the preferred path; the formal designation triggers Article 37-39 protections and resolves the Article 38(6) conflict);
+2. **Implement mitigation controls** while the interim arrangement persists, naming each control to the supervisory authority in any DPIA, ROPA, or Article 36 prior consultation; OR
+3. **Document the formal exemption analysis** if Article 37(1) thresholds are not met (most organisations operating at any non-trivial scale will not qualify for exemption).
+
+**Mitigation controls for the interim arrangement** (operational only, not a substitute for formal designation):
+
+| Control | Purpose |
+|---|---|
+| Independent privacy-decision escalation path: the acting DPO's privacy advice is reviewed by Legal Counsel and the audit committee before any decision that would be vetoed by IT-operations interests | Mitigates Article 38(3) instruction-on-tasks risk |
+| Documented separation of "CIO acting in operations capacity" vs "CIO acting as DPO" in meeting minutes, sign-offs, and supervisory-authority communications | Mitigates Article 38(6) role-blending risk |
+| External privacy counsel retained on standing brief for any matter where the CIO's operations interest and DPO advice would diverge | Provides arms-length advice channel |
+| Annual independent review of the interim arrangement's effectiveness, with a documented decision to renew or replace the arrangement | Maintains discipline against indefinite reliance on the interim arrangement |
+| Public statement in the privacy notice and the Article 30 ROPA that the acting-DPO arrangement is interim | Transparency to data subjects and supervisory authorities |
+
+**Cross-regime independence equivalents.**
+
+| Regime | DPO independence basis | Conflict-of-interest test |
+|---|---|---|
+| **UK GDPR** (UK) | Article 38(3) (same as EU GDPR) | Article 38(6) (same); ICO guidance mirrors EDPB |
+| **LGPD** (Brazil, Article 41) | DPO must have appropriate technical knowledge and act independently; ANPD guidance on conflict |
+| **PIPL** (China, Article 52) | Personal information protection officer must have professional knowledge and management experience; CAC Provisions impose function-separation expectations |
+| **India DPDP 2023** | Data Protection Officer required for Significant Data Fiduciaries; must be independent; Data Protection Board provides oversight |
+
+For multi-regime non-EU controllers the strictest applicable independence regime governs.
 
 ### EU representative (GDPR Article 27)
 

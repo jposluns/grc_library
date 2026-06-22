@@ -3143,7 +3143,7 @@ documents:
   domain: "privacy"
   type: "Charter"
   title: "Privacy Management Programme Charter"
-  version: "1.4.0"
+  version: "1.5.0"
   date: "2026-06-22"
   owner: "Chief Information Officer"
   approving_authority: "Governance Library Maintainer"

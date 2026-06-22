@@ -6,6 +6,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.206, PR #228
+
+**Closes FR-42 (medium, P2.1)**: DPO independence + conflict-of-interest framework in [`privacy/charter-privacy-management-programme.md`](../../privacy/charter-privacy-management-programme.md). Makes a previously silent structural conflict visible and names adopter mitigations.
+
+### Added
+
+- **New subsection "DPO independence and conflict of interest (GDPR Articles 38(3) and 38(6))"** under Privacy accountability structure:
+  - **Article 38(3) independence table** with 3 requirements (no instructions on task exercise; no dismissal / penalty for performing DPO tasks; direct reporting to highest management level), each paired with a practical-forbidden-conduct example.
+  - **Article 38(6) conflict-of-interest list** drawn from WP243 rev.01 and subsequent EDPB guidance: CEO, COO, CFO, CIO, CISO (where determining purposes / means of security processing), Head of Marketing, Head of HR, Head of IT operations, any role determining purposes / means, any role that audits or sanctions the DPO. The list is non-exhaustive; the test is whether the secondary role determines purposes and means.
+  - **Interim CIO-as-DPO known-conflict subsection** explicitly naming the structural tension: the CIO determines purposes / means of IT processing AND advises on its privacy compliance, creating an Article 38(6) conflict by definition. The library makes this conflict visible rather than silent. 3 adopter paths: (1) designate formal DPO (preferred); (2) implement mitigation controls; (3) document formal Article 37(1) exemption analysis.
+  - **5-row mitigation controls table** for adopters persisting with the interim arrangement: independent privacy-decision escalation path (Legal Counsel + audit committee); documented role separation in meeting minutes and sign-offs; external privacy counsel arms-length channel; annual independent effectiveness review; public statement of interim nature in privacy notice and ROPA.
+  - **Cross-regime independence equivalents** table: UK GDPR Article 38(3)(6); LGPD Article 41; PIPL Article 52; India DPDP 2023 Significant Data Fiduciary DPO requirement. Strictest applicable regime governs.
+- **Cross-reference from Interim Accountability note**: the prior one-line "Interim Accountability" note now references the new subsection for constraints and mitigations.
+
+### Changed
+
+- **Per-doc Version**: `1.4.0 → 1.5.0` (minor; substantive new subsection making a previously silent conflict visible and providing adopter mitigation framework).
+- **Generated artefacts**: [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated.
+- **`.working/validate-pr/history.md`** (Version `1.2.33 → 1.2.34`): new top row for PR #227's /validate-pr (deferred per recursion-avoidance; 0 findings).
+- **`.working/improvement-log.md`** (Version `1.0.12 → 1.0.13`): new top row for PR #227's /retro. Single-occurrence Commonwealth orthography drift ("recognised") caught by language audit; no new pattern observation.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-each-edit (no apply-time language-audit catches in this PR; preemptive em-dash avoidance and -ize-orthography compliance held).
+- `tools/run-pr-time-checks.sh` reports D1, D2, gate 45 all OK.
+- GDPR Article 38(3), 38(6) verified against canonical text. Article 29 Working Party WP243 rev.01 + EDPB DPO guidance verified for conflict-of-interest list.
+- Cross-regime references (LGPD Article 41 DPO independence; PIPL Article 52 personal information protection officer; India DPDP 2023 Significant Data Fiduciary) verified against jurisdiction annexes.
+
+### Discipline observation
+
+- **Making silent conflicts visible**: this PR converts a previously implicit Article 38(6) conflict (CIO acting as DPO) into an explicit, documented one with named mitigations. The discipline: when a corpus practice has a known regulatory tension, name the tension and the mitigation; don't paper over with silent role-blending. This pattern is reusable for other interim arrangements (e.g., where a small organisation has the CISO acting as Risk Manager, or HR acting as Compliance Officer).
+- **Closes the P2.1 batch's pattern of "GDPR Chapter IV/VII gaps named not just operationalised"**: the 6-item P2.1 cluster (FR-37 through FR-42, of which FR-41 is deferred to a future batch) consistently named the regulatory article, traced its operational requirement, and provided either a template, a process, or a framework. FR-42 closes the cluster (minus FR-41) by addressing the role-design dimension that earlier PRs in the cluster did not touch.
+
 ## 2026-06-22, Library Version 2026.06.205, PR #227
 
 **Closes FR-40 (medium, P2.1)**: PIPL Articles 38 to 40 cross-border outbound mechanics operationalised in [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md).

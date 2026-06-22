@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #228 — Closes FR-42 (medium, P2.1): DPO independence Article 38(3) + conflict-of-interest Article 38(6) framework (2026-06-22)
+
+`privacy/charter-privacy-management-programme.md` previously had a one-line "Interim Accountability" note declaring the CIO assumes DPO responsibilities. Added subsection making the Article 38(6) conflict (CIO acting as DPO) visible rather than silent: Article 38(3) 3-row independence requirements; Article 38(6) WP243 conflict-of-interest list; explicit "known conflict" framing with 3 adopter paths (formal DPO designation, mitigation controls, exemption analysis); 5-row mitigation controls table; cross-regime equivalents (UK GDPR, LGPD Art 41, PIPL Art 52, India DPDP). Per-doc `1.4.0 → 1.5.0`. Also carries deferred PR #227 /validate-pr + /retro register rows.
+
 ### PR #227 — Closes FR-40 (medium, P2.1): PIPL Articles 38-40 cross-border outbound mechanics operationalised (2026-06-22)
 
 `privacy/procedure-privacy-impact-and-cross-border-transfer.md` previously had one line on PIPL cross-border. Expanded into 7-step workflow covering applicability + CIIO assessment, Article 38 mechanism selection (5-tier volume table with 2024 CAC Provisions safe harbors and thresholds), Article 39 separate consent, Article 40 CIIO domestic-storage default, PIA per Article 55, documentation/re-assessment cadence, and coordinated triggers across regimes. Per-doc `1.4.1 → 1.5.0`. Also carries deferred PR #226 /validate-pr + /retro register rows.
