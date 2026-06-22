@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.211, PR #233
+
+**Closes FR-89 + FR-91** (2 L-severity XS items) — security-XS bundle in [`dev-security/standard-api-security.md`](../../dev-security/standard-api-security.md). PR-C in Batch 1 effort-first run.
+
+### Fixed
+
+- **FR-89 (L, XS)**: Section 2 authentication-controls table, Token validation row — JWT algorithm-key-type binding made explicit. Added: validators must verify that the `alg` header is consistent with the key type used; a single key MUST NOT accept multiple algorithm families. Prevents RSA-public-key-as-HMAC-secret confusion. Cited as RFC 8725 (BCP 225, JSON Web Token Best Current Practices).
+- **FR-91 (L, XS)**: Section 12 event-driven and webhook APIs table — webhook signing row expanded with (a) canonical-string definition (HTTP method + canonical URL path + canonical query string + canonical headers + body hash); (b) constant-time comparison requirement (`hmac.compare_digest` in Python; `crypto.timingSafeEqual` in Node) to prevent timing-attack key recovery. Replay-prevention row expanded with explicit 5-minute (or documented service-specific) replay window and seen-nonce cache for the window duration.
+
+### Changed
+
+- **Per-doc Version** `0.0.4 → 0.0.5` (patch; surgical control-text additions).
+- **Generated artefacts**: [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated.
+- **`.working/validate-pr/history.md`** (Version `1.2.38 → 1.2.39`): new top row for PR #232's /validate-pr.
+- **`.working/improvement-log.md`** (Version `1.0.17 → 1.0.18`): new top row for PR #232's /retro.
+
+### Apply-time catches
+
+- **Intra-document section-reference audit** flagged "§3.1" and "Section 3.1" in my draft text as same-doc references; the linter doesn't recognize "RFC" as an external-framework prefix. Reworded to drop the section number entirely ("per RFC 8725 (BCP 225, the JSON Web Token Best Current Practices)") rather than disambiguate. Functionally equivalent for adopters (RFC 8725 is short enough that they find §3.1 by index).
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates.
+- `tools/run-pr-time-checks.sh` D1, D2, gate 45 OK.
+
+### Discipline observation
+
+- **Tool-specific examples are language-neutral by convention**: the standard-api-security text uses language-neutral terms but parenthesises Python and Node examples for constant-time comparison ("`hmac.compare_digest` in Python; `crypto.timingSafeEqual` in Node"). The pattern is "name the canonical primitive, then give two language examples"; balances precision with adopter coverage.
+
 ## 2026-06-22, Library Version 2026.06.210, PR #232
 
 **Closes FR-107 + FR-108 + FR-111** (3 Low-severity XS items) — newcomer-UX bundle in [`docs/adopter-guide.md`](../../docs/adopter-guide.md). PR-B in Batch 1 of the effort-first batching run.

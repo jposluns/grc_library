@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.38\
+**Version:** 1.2.39\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -12,6 +12,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | 232 | 8 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Thirty-eighth-batch PR (PR-B in Batch 1: FR-107 + FR-108 + FR-111 newcomer-UX bundle in `docs/adopter-guide.md` v1.1.2 → 1.2.0). Validate-pr abbreviated spot-check confirmed: new "Two reference registers" subsection inserted; reading-time + "if you only read three" added to Tier 1 starter set. No findings. Row carried into PR #233. |
 | 2026-06-22 | 231 | 8 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Thirty-seventh-batch PR (PR-A in Batch 1 effort-first run: FR-112 README maintainer-context + FR-131 quickstart Tier 1 divergence). Validate-pr abbreviated spot-check confirmed both fixes; per-doc template-quickstart 3.0.0 → 3.0.1; library 2026.06.208 → 2026.06.209. No findings. Row carried into PR #232. |
 | 2026-06-22 | 230 | 7 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Thirty-sixth-batch PR (TODO reorganization into P1-P7 priority structure per maintainer direction). Validate-pr abbreviated spot-check: TODO restructure cleanly distributes fitness-review backlogs across priorities; item shape standardised (`**FR-N (severity, effort)**: description`); P7 promotion includes Sweep 20 A2 + B4 + FR-47; Standing conventions renamed and kept as meta-section. Library `2026.06.207 → 2026.06.208`. No findings. Row carried into PR #231 (XS bundle PR-A). |
 | 2026-06-22 | 229 | 13 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Thirty-fifth-batch PR (/validate Sweep 20 iter 1 close-out: 3 glossary entries + cross-doc drift fix + deferred PR #228 register rows). Validate-pr abbreviated spot-check confirmed: 3 new glossary entries (AEAD per RFC 8439 + NIST SP 800-38D; CIIO per Cybersecurity Law of China + PIPL Arts 38/40; HKDF per RFC 5869) added in alphabetical-table-correct positions; cross-reference sentence in `privacy/policy-privacy-and-data-governance.md:46` points to charter's Article 38(6) framework with the 5 named mitigation controls; Sweep 20 detail file created; per-doc Version bumps on register-glossary (1.3.0 → 1.4.0) and privacy policy (1.4.2 → 1.4.3). No findings. Row carried into PR #230 (TODO reorganization). |
