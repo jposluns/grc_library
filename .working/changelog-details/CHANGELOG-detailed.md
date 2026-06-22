@@ -6,6 +6,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.214, PR #236
+
+**Closes P7 maintainer-decision queue: A2 + B4 + FR-47**. PR-G in Batch 1 effort-first run.
+
+### Added
+
+- **B4 fix — Soft-law supervisory guidance section** in [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md): new section before Maintenance with WP243 rev.01 (Article 29 Working Party Guidelines on DPOs) as first entry. Conventions section gains a "Scope (extended)" paragraph naming the soft-law-guidance scope extension and its rules (publisher = supervisory authority; current version = revision number e.g. `rev.01`).
+- **A2 fix — Cross-reference clause** in [`governance/register-role-authority.md`](../../governance/register-role-authority.md) DPO row: "The role is subject to the GDPR Article 38(3) independence requirements and the Article 38(6) conflict-of-interest constraint elaborated in [`privacy/charter-privacy-management-programme.md`](../privacy/charter-privacy-management-programme.md)."
+
+### Changed
+
+- **`governance/register-role-authority.md`** per-doc `1.5.0 → 1.5.1` (patch; one-clause addition).
+- **`governance/register-canonical-citations.md`** per-doc `1.4.23 → 1.5.0` (minor; scope extension + new section).
+- Generated artefacts regenerated.
+- **`.working/validate-pr/history.md`** (Version `1.2.41 → 1.2.42`): PR #235 row.
+- **`.working/improvement-log.md`** (Version `1.0.20 → 1.0.21`): PR #235 /retro row.
+
+### FR-47 formal closure
+
+Surface-consolidated in PR #218 (DPO canonical flip): the three-way label drift (DPO / Chief Privacy Officer / Data Protection Officer) collapsed to consistent Data Protection Officer usage corpus-wide + register canonical statement + glossary cross-reference. Maintainer review pending was the only outstanding step; formally closed now with this DONE entry and removal from TODO P7.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates (no apply-time catches).
+- `tools/run-pr-time-checks.sh` D1, D2, gate 45 OK.
+
+### Discipline observation
+
+- **PR-F deferred**: PR-F file-relocation bundle (sweep-preflight-exemptions JSON + citation-verification cluster + register-main-branch-protection) was scoped at (M, XS) in TODO but assessed at apply-time as closer to M-effort overall (8 file moves + ~12 cross-reference updates across worklists, governance README, document-index, lint-citations.py, sweep-preflight-scanner.py, 2 SKILL.md files, spec-citation-verification, coverage-gaps register, ai-security-tooling register, template-citation-verification-worklist, canonical-citations). Effort label revised to M; deferred to a dedicated session. Surfaced in /retro for the worker-brief template (the XS label was overly optimistic for working-state relocations that touch many sibling references).
+
 ## 2026-06-22, Library Version 2026.06.213, PR #235
 
 **Closes C2 Emergency-access trigger ambiguity convergent finding** (6 access-control items, P1 cluster) — single combined "Access-control operational clarity" PR per the maintainer's prior plan, with maintainer-approved sample-data defaults. PR-E in Batch 1 effort-first run.

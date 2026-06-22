@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.4.23\
+**Version:** 1.5.0\
 **Date:** 2026-06-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -47,6 +47,8 @@ Entries in this register are subject to publisher-source verification under the 
 - "-" in any column means "not applicable" or "none recorded".
 
 When citing a standard in library content, use the **Standard ID** plus the **Current version** in the format the publisher uses (for example, `ISO/IEC 42006:2025`, `NIST SP 800-53 Rev. 5`). The linter relies on this exact format.
+
+**Scope (extended)**: this register's primary scope is formal standards, regulations, and Acts. As of 2026-06-22 the scope is extended to include **soft-law supervisory guidance** (Article 29 Working Party Guidelines, EDPB opinions and guidelines, ICO codes of practice, ANPD orientation documents, and equivalent supervisory-authority-issued guidance documents that the corpus cites by name). Soft-law entries follow the same column structure with the publisher being the supervisory authority and the "Current version" being the published revision number (e.g., `rev.01`). Soft-law guidance is typically referenced for interpretive guidance on a formal regulation; the register's role is to anchor the citation and flag stale revisions.
 
 ---
 
@@ -271,6 +273,16 @@ This section records open-source AI security projects referenced by library cont
 | Wiz secure-rules-files | continuous | 2024 | Language and framework baseline rules for AI coding assistants | MIT | - |
 | Kariedo claude-code-security-rules | continuous | 2024 | Modular Claude Code rules using @-syntax import | MIT | - |
 | awesome-ai-security | continuous | 2024 | Curated index of AI security, LLM security, prompt injection, red teaming, guardrail, and ML supply chain resources (21 categories) | CC0-1.0 | CC0; suitable for direct library reuse |
+
+---
+
+## Soft-law supervisory guidance
+
+Soft-law guidance documents issued by supervisory authorities, regulators, or international working groups. Cited for interpretive guidance on formal regulations the corpus references.
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions |
+|---|---|---|---|---|
+| WP243 (Article 29 Working Party Guidelines on Data Protection Officers) | rev.01 | 2017-04 | Guidelines on Data Protection Officers ('DPOs') under GDPR Articles 37-39; endorsed by EDPB in May 2018 as part of the EDPB's adoption of WP29 guidelines. Cited for Article 38(6) conflict-of-interest interpretation. | WP243 (initial 2016-12 draft) |
 
 ---
 
