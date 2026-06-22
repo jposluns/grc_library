@@ -6,6 +6,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.200, PR #222
+
+**Closes FR-82 (medium, P1.6)**: clarifies the "AI and Model Data" cryptography requirement row in [`security/policy-encryption-and-key-management.md`](../../security/policy-encryption-and-key-management.md):56.
+
+### Fixed
+
+- **`security/policy-encryption-and-key-management.md`:56**: the prior text `"AES-256 + key hashing (SHA-512)"` was ambiguous and partially incorrect. SHA-512 is a hash function appropriate for integrity verification (e.g., HMAC-SHA-512) but is NOT a key derivation function — using SHA-512 alone to derive keys from passwords or other low-entropy inputs is cryptographically insufficient. The corrected text disambiguates by purpose:
+  - **Encryption**: AES-256-GCM. GCM is the AEAD (Authenticated Encryption with Associated Data) mode that pairs confidentiality with a built-in integrity tag; no separate HMAC step is required.
+  - **Key derivation from high-entropy material** (e.g., deriving sub-keys from a master key, or from an HSM-held entropy source): HKDF-SHA-256 per RFC 5869. Adopters should NOT use bare SHA-256 or SHA-512 here.
+  - **Key derivation from low-entropy material** (e.g., user passwords): Argon2id (preferred) or scrypt. Both are memory-hard KDFs that resist GPU/ASIC attacks; bare hash functions are inappropriate for this purpose.
+  - **Explicit warning**: "SHA-512 alone is a hash function, not a key-derivation function." Calls out the prior text's specific error so adopters don't replicate it.
+- Per-doc Version `1.3.1 → 1.3.2`; Date `2026-05-28 → 2026-06-22`.
+
+### Changed
+
+- **`taxonomy.yml`, `docs/portal.md`, `docs/maturity-scorecard.md`** regenerated for the per-doc Version+Date bump.
+- **`.working/validate-pr/history.md`** (Version `1.2.27 → 1.2.28`): new top row for PR #221's /validate-pr (deferred per recursion-avoidance).
+- **`.working/improvement-log.md`** (Version `1.0.6 → 1.0.7`): new top row for PR #221's /retro (the Article 36(3) article-reference-column table format is reusable for FR-34 TIA six-step methodology and FR-37 to FR-42 other privacy completion items; flag for future-PR adoption).
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- `tools/run-pr-time-checks.sh` reports D1, D2, gate 45 all OK.
+- Citation accuracy: AES-256-GCM (SP 800-38D Galois/Counter Mode), HKDF-SHA-256 (RFC 5869), Argon2id (RFC 9106), scrypt (RFC 7914) all standard references.
+- Cross-document check: searched corpus for other instances of `"key hashing"` post-fix; no other occurrences in non-`.working/` files (the prior anomaly was unique to this one line).
+
+### Discipline observation
+
+- **Same-domain reach-back**: the fix scope was a single line in a single file, but the cryptographic precision applies corpus-wide. Adopters who copy text from this row into their fork (e.g., into a system security plan) will now get a defensible cryptographic specification rather than an ambiguous one. Treat single-line cryptographic-precision fixes as a class with corpus-wide impact even when the line count is small.
+
 ## 2026-06-22, Library Version 2026.06.199, PR #221
 
 **Closes FR-33 (high[critical], P1.4b standalone)**: GDPR Article 36 prior-consultation pathway in [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md). Also carries deferred PR #220 /validate-pr history row and /retro register row.
