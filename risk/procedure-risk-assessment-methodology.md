@@ -2,7 +2,7 @@
 
 **Document Title:** Risk Assessment Methodology Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.0\
+**Version:** 1.1.1\
 **Date:** 2026-06-22\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
