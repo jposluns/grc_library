@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #230 — TODO reorganization (maintainer-directed): every item fits into P1-P7 priorities (2026-06-22)
+
+Restructured `TODO.md` from 453 lines (mix of per-topic sections + dedicated fitness-review backlogs) to a priority-based layout: P1 Urgent quality (H[critical] + H, 14 items) / P2 Substantive improvements (M, ~30) / P3 Low-priority cleanup (L + FYI, ~16) / P4 Adopter experience (5 process/meta) / P5 Content expansion (8 country/regulator subsections) / P6 Domain-level (5 new-domain items) / P7 Awaiting maintainer decision. Fitness review backlogs from both 2026-06-21 r1 and 2026-06-22 r1 distributed by severity into matching priorities. "Investigation / blocked" promoted to P7. "Critical user feedback" renamed "Standing conventions" as meta-section. Item shape standardised: `**FR-N (severity, effort)**: description with location reference`. Also carries deferred PR #229 /validate-pr + /retro register rows.
+
 ### PR #229 — /validate Sweep 20 iter 1 close-out: 3 glossary entries + cross-doc drift fix (2026-06-22)
 
 Sweep 20 iter 1 (post PRs #220-#228) surfaced 4 in-window warnings + 2 maintainer-surfaced notes. Fixed: 3 new glossary entries (AEAD per RFC 8439 + NIST SP 800-38D; CIIO per Cybersecurity Law of China + PIPL Arts 38/40; HKDF per RFC 5869); cross-reference sentence added to `privacy/policy-privacy-and-data-governance.md:46` pointing at the charter's Article 38(6) framework. Pattern observed: 3 newly-introduced acronyms missed glossary entries in same batch; worker-brief candidate queued. Maintainer-surfaced: A2 (DPO row in role-authority register) and B4 (WP243/EDPB scope in canonical-citations register). Also carries deferred PR #228 /validate-pr + /retro register rows.
