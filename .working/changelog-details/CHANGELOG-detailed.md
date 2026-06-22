@@ -6,6 +6,57 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.196, PR #217
+
+**Closes FR-46 DPO consolidation** (medium, P1.5; second half of FR-46 after PR #210's Privacy Officer rename). Maintainer-approved option (A) per PR #210's DPO scope assessment: corpus-wide rename of "DPO" and "Data Protection Officer" to "Chief Privacy Officer" as the canonical library role title. The canonical equivalence convention is documented in two surfaces per the C-1 maintainer choice: [`governance/register-role-authority.md`](../../governance/register-role-authority.md):39 CPO row carries an inline equivalence statement naming DPO as the GDPR-jurisdiction analogue and pointing at local-statute-specific examples (GDPR Article 37, LGPD Article 41, India DPDP Act 2023 §10, Malaysia PDPA); [`privacy/README.md`](../../privacy/README.md) gains a Role terminology section pointing back to the register. Surface-level consolidation of FR-47 (DPO ambiguous role) as a side effect; formal FR-47 closure pending maintainer review.
+
+### Added
+
+- **C-1 canonical surface 1** ([`governance/register-role-authority.md`](../../governance/register-role-authority.md):39 Chief Privacy Officer row): inline equivalence statement appended to the Primary Accountability cell: *"In jurisdictions where statute names a Data Protection Officer (DPO) (for example, GDPR Article 37, LGPD Article 41, India DPDP Act 2023 §10, Malaysia PDPA as amended by Act A1727), the DPO is the regulatory analogue of the Chief Privacy Officer and the two titles may be used interchangeably; the accountability set above applies in either form. Jurisdiction-specific annexes retain 'DPO' as the regulatory term of the local statute."* Per-doc `1.4.0 → 1.4.1`.
+- **C-1 canonical surface 2** ([`privacy/README.md`](../../privacy/README.md)): new `## Role terminology` section after the Domain coverage section, explaining the canonical "Chief Privacy Officer" title, the regulatory-term substitution available to GDPR / LGPD / DPDP / PDPA-jurisdiction adopters, and the convention that privacy-jurisdiction annexes retain "DPO" where it is the local-statute regulatory term. Domain-coverage bullet "DPO accountability" renamed to "Chief Privacy Officer accountability" in the same commit. Per-doc `1.1.2 → 1.1.3`.
+- **Bridge notes in 6 jurisdiction annexes** ([`privacy/jurisdictions/annex-privacy-{brazil,india,kenya,malaysia,nigeria,turkey}.md`](../../privacy/jurisdictions/)): each annex's DPO-mandate bullet gains a one-sentence italic note pointing back to the privacy/README role-terminology convention (the DPO role corresponds to the Chief Privacy Officer in other library prose). Per-doc patch bumps on all 6 files.
+- **Glossary cross-reference** ([`governance/register-glossary.md`](../../governance/register-glossary.md):106): DPO entry extended from "Data Protection Officer." to a full equivalence statement naming the role as "the regulatory-mandated name for the Chief Privacy Officer role in jurisdictions where DPO appointment is required by statute (for example, GDPR Article 37, LGPD Article 41, India DPDP Act 2023 §10). See [`register-role-authority.md`](register-role-authority.md) for the canonical role definition." Per-doc `1.2.2 → 1.2.3`.
+
+### Changed
+
+- **Corpus rename of "DPO" / "Data Protection Officer" → "Chief Privacy Officer" across 27 corpus files**:
+  - Privacy domain (10 files): charter, policy, three procedures (DPIA-and-cross-border, DSR, breach-response), three templates (DPIA, ROPA, privacy-notice), two registers (cross-border-data-flow, automated-decision-making). Per-doc patch bumps on all.
+  - Supply-chain domain (6 files): onboarding-security-review (incl. outlier fix), ongoing-monitoring, exit-and-data-return, subprocessor-template, standard-supplier-security-and-privacy-assurance. Per-doc patch bumps. ([`template-supplier-security-questionnaire.md`](../../supply-chain/template-supplier-security-questionnaire.md):112 intentionally retained as a regulatory-specific question to suppliers about GDPR-mandated DPO appointment, not a library-role label).
+  - AI domain (3 files): charter-ai-governance-council, framework-ai-model-documentation-and-transparency, procedure-ai-evaluation. Per-doc patch bumps.
+  - Security domain (2 files): procedure-security-incident-response (incl. "Privacy Lead / Acting DPO" → "Privacy Lead (Chief Privacy Officer, or acting role)"), sop-incident-escalation-matrix. Per-doc patch bumps.
+  - Governance domain (1 file): policy-digital-twin-and-simulation-governance ("Chief Privacy Officer / DPO" → "Chief Privacy Officer"). Per-doc `1.0.1 → 1.0.2`.
+  - Compliance domain (1 file): template-regulator-interaction (placeholder "e.g. DPO, CISO, CCO" → "e.g. Chief Privacy Officer, CISO, CCO"). Per-doc `1.0.0 → 1.0.1`.
+  - Docs (1 file): template-quickstart (DPO removed from the example-audience enumeration). Per-doc `3.0.0 → 3.0.1`.
+- **"CIO (acting DPO)" → "CIO (acting Chief Privacy Officer)"** across all interim-accountability references (privacy policy, three procedures, security incident-response procedure). The full Acting-DPO section in [`privacy/procedure-data-subject-rights-management.md`](../../privacy/procedure-data-subject-rights-management.md) §2.2 rewritten to use "Chief Privacy Officer" as the canonical role with the equivalence-to-DPO note inline.
+- **Outlier fix** ([`supply-chain/procedure-supplier-onboarding-security-review.md`](../../supply-chain/procedure-supplier-onboarding-security-review.md):135): escalation chain "DPO → CISO → Chief Privacy Officer" (which treated DPO and CPO as distinct hierarchy tiers) rewritten as "Chief Privacy Officer → CISO → Executive Management" (preserves three-tier shape per the matrix's neighbouring rows).
+- **Portal generator** ([`tools/build-portal.py`](../../tools/build-portal.py):95): hardcoded "The Chief Privacy Officer or Data Protection Officer needs..." collapsed to "The Chief Privacy Officer needs..."; [`docs/portal.md`](../../docs/portal.md) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated.
+- **`taxonomy.yml`** regenerated from per-document Version+Date bumps.
+
+### Intentionally retained occurrences of "DPO" / "Data Protection Officer"
+
+These surfaces use "DPO" deliberately and are not library-role-label references:
+
+- **Jurisdiction annex regulatory references** (Brazil Articles 41-43; India DPDP SDF clause; Kenya DPA 2019; Malaysia PDPA Act A1727 tranche-3 mandate; Nigeria NDPA 2023; Turkey KVKK 2024 amendments): "DPO" is the local statute's regulatory term, kept verbatim with the bridge note added.
+- **[`privacy/template-privacy-notice.md`](../../privacy/template-privacy-notice.md):44**: the privacy-notice field (GDPR Article 13(1)(b) discloses the DPO contact); kept with adjusted descriptor noting the Chief Privacy Officer equivalence.
+- **[`supply-chain/template-supplier-security-questionnaire.md`](../../supply-chain/template-supplier-security-questionnaire.md):112**: GDPR-compliance question to a supplier ("Is a Data Protection Officer (DPO) appointed?") — regulatory-specific question, not a library-role label. Kept verbatim.
+- **[`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md):146**: Malaysia PDPA citation row describing the statute's actual "mandatory DPO appointment" text. Kept verbatim.
+- **[`governance/register-glossary.md`](../../governance/register-glossary.md):106**: the DPO acronym entry itself (extended with cross-reference, but still names DPO as the entry header).
+- **[`privacy/procedure-data-subject-rights-management.md`](../../privacy/procedure-data-subject-rights-management.md):282**: "Chief Privacy Officer accountability and record keeping (GDPR 'DPO' provisions)" cross-reference table row — quotes GDPR's article-title terminology.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit (verified gate 40 sees committed state).
+- `python3 tools/build-taxonomy.py` and `python3 tools/build-portal.py` both run cleanly; the regenerated artefacts (`taxonomy.yml`, `docs/portal.md`, `docs/maturity-scorecard.md`) carry no drift against the new source metadata.
+- Corpus-wide `\bDPO\b` and "Data Protection Officer" greps confirm the only remaining occurrences in corpus content are the intentionally-retained surfaces enumerated above (working-state files, `CHANGELOG.md` historical entries, and `TODO.md` excluded from the rename per PR #210's convention).
+
+### Discipline observation
+
+The PR follows PR #210's option (A) blueprint exactly, with the C-1 surface choice (register + privacy/README waypoint, two canonical surfaces; per-annex bridge notes pointing back) operationalising the equivalence-documentation requirement. The compound research-then-apply discipline applied: an Explore subagent enumerated all 81 DPO occurrences across 30+ files in advance, classified into RENAME / SYNONYM-COLLAPSE / CIO-ACTING / JURISDICTION-REGULATORY / OUTLIER / GLOSSARY / OTHER buckets; the orchestrator authored final prose at apply-time, made several apply-time judgement calls (regulatory-context retentions for template-privacy-notice line 44 and template-supplier-security-questionnaire line 112; minimal-impact §135 escalation rewrite; glossary entry shape), and confirmed gate 40 / 31 / 33 / 34 cleanliness commit-by-commit. One worker-enumeration miss (`docs/template-quickstart.md`:43, "DPO" in the audience example enumeration) caught at apply-time via a final corpus-wide grep before commit and added to the rename batch; documented here per the apply-time-correction tracking convention.
+
+### Surface-level consolidation of FR-47 (DPO ambiguous role) as a side effect
+
+FR-47's named defect was the three-way label drift in same-domain procedures: "Privacy Lead / Acting DPO" (security/procedure-security-incident-response), "Privacy Officer / DPO" (security/sop-incident-escalation-matrix, after PR #210's "Privacy Officer" rename to "Chief Privacy Officer / DPO"), and "CIO acting DPO" (privacy/policy-privacy-and-data-governance, privacy/procedure-data-subject-rights-management, etc.). PR #217's corpus rename collapses all three to consistent "Chief Privacy Officer" usage with the "acting" qualifier preserved for the CIO interim role. The structural side of FR-47 (whether the register should carry a separate DPO entry) is resolved by the register's equivalence statement: there is no separate DPO entry; the CPO entry's equivalence note documents DPO as its regulatory analogue. Formal FR-47 closure is recommended but deferred to explicit maintainer review.
+
 ## 2026-06-22, Library Version 2026.06.195, PR #216
 
 Hot-fix PR for the two real defects /validate-pr surfaced on PR #215 (chat-surfaced findings per the chat-surfacing discipline). Also caught up on the deferred PR #214 + PR #215 /validate-pr history rows and the PR #214 + PR #215 /retro improvement-log entries.

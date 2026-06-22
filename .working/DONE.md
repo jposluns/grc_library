@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #217 — FR-46 DPO consolidation (medium); FR-47 surface-level consolidation (2026-06-22)
+
+Closes the DPO half of FR-46 per maintainer option (A): corpus-wide rename of "DPO" / "Data Protection Officer" → "Chief Privacy Officer" across 27 corpus files. Canonical equivalence note in `register-role-authority.md` CPO row + Role-terminology waypoint section in `privacy/README.md` (C-1 two-surface choice). Six privacy-jurisdiction annexes (Brazil/India/Kenya/Malaysia/Nigeria/Turkey) retain "DPO" as the regulatory term with a one-line bridge note back to the convention. Supplier-onboarding §135 escalation outlier ("DPO → CISO → Chief Privacy Officer") fixed to "Chief Privacy Officer → CISO → Executive Management". Glossary DPO entry cross-references the register. `build-portal.py` hardcoded string collapsed; portal regenerated. FR-47's three-way label drift surface-consolidated as side effect; formal closure pending maintainer.
+
 ### PR #214 — Overnight-PR morning processing + PR #213 batched items (2026-06-22)
 
 Morning-processing PR for the overnight session ending at PR #213: routed two design decisions (FR-104 and FR-130 explicit-drop closures) into `.working/design-decisions.md`, transitioned `.working/overnight-pr.md` back to stub form, and updated TODO and Next-up recommendations to reflect FR-119 / FR-14+FR-114 closures. Also carried the PR #213 batched items per the recursion-avoidance rule: stale forward-ref fix in `validation-sweep-pr-scoped/SKILL.md:175`, validate-pr history row for PR #213, improvement-log row for PR #213 with pattern observation #1 surfaced (new-skill drafting checklist candidate).
