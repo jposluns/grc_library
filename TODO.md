@@ -118,7 +118,7 @@ Full list with one-line summaries available in r1.md §3 (`.working/fitness-revi
 - **Editorial consistency** (7): FR-46 (role-name "Chief" inconsistency), FR-47 (DPO ambiguous role), FR-48 (H2 numbering patterns drift), FR-49 (Governance heading drift), FR-50 (NIST citation format drift), FR-51 ⚠️ (ISO 27001 Annex-form drift), FR-52 (review frequency "and" vs "or").
 - **Adopter cluster** (5): FR-62 (AI jurisdiction annexes absent), FR-63 (worked example walks ingestion not adoption), FR-64 (contribution path workflow-shaped not pattern-shaped), FR-65 ⚠️ (upstream-sync underspecified), FR-66 (tooling assumes maintainer context).
 - **Coverage gaps** (5): FR-74 (Schrems II-light; consolidates with FR-34), FR-75 ⚠️ (ESG materiality threshold), FR-76 ⚠️ (sustainability framework escalation triggers), FR-77 (3LoD model used without explanation), FR-78 (framework-document-architecture maintainer voice).
-- **Cross-document contradictions** (2): FR-81 (TLS floor inconsistency), FR-82 (key hashing ambiguity).
+- **Cross-document contradictions** (2): FR-81 (TLS floor inconsistency; **partial close in PR #201** — corpus surfaces aligned to encryption policy; pack `dev-security/claude-rules/CLAUDE.md` surface still pending maintainer approval for the pack-rule edit), FR-82 (key hashing ambiguity).
 - **Operational/runbook** (1): FR-83 (IC checklist absent).
 - **Security-content refinement** (2): FR-87 (SSRF range list incomplete), FR-88 (cipher suite enumeration missing).
 - **KRI/KPI** (2): FR-93 (KRI escalation owner missing), FR-94 (Linked controls assume control register).
