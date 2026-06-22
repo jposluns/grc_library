@@ -10,11 +10,11 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #188 merge).
-- **Library version as of last refresh**: `2026.06.167`. **Pack version**: `1.40.1`. **README version**: `1.9.38`.
+- **Branch at last refresh**: `main` (synced after PR #189 merge).
+- **Library version as of last refresh**: `2026.06.168`. **Pack version**: `1.40.2`. **README version**: `1.9.39`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
-- **Last validation sweep**: Sweep 17 iteration 1 (close-out PR #186); first findings-producing `/validate-pr` invocation on PR #187 closed out in PR #188.
-- **Last fitness review**: r2 (2026-06-22, PR #188 records); Pass-1 verification pending next session.
+- **Last validation sweep**: Sweep 17 iteration 1 (close-out PR #186); /validate-pr on PR #187 closed out in PR #188; /validate-pr on PR #188 closed out in PR #189 (second consecutive findings-producing /validate-pr; discipline converging).
+- **Last fitness review**: 2026-06-22's r1 (PR #188 records; the per-date `rN` convention, so this is r1 of 2026-06-22 even though it is the second fitness review ever); Pass-1 verification pending next session.
 
 ---
 
@@ -137,11 +137,11 @@ Cross-reference only. No immediate-priority action; queue for a routine cleanup 
 
 ### Backlog totals
 
-- 10 + 5 + 40 = **55 immediate-priority findings** from r1 (High[critical], High, Medium tiers)
-- **14 deferred** (Low tier from r1)
-- **69 r1 items open** (42 closed across PRs #142-#179). Total surfaced in r1: 111.
-- **22 r2 items added** (FR-112 through FR-133; see r2 backlog section below).
-- **91 total open backlog items** (69 r1 + 22 r2).
+- 10 + 5 + 40 = **55 immediate-priority findings** from the 2026-06-21 fitness review (High[critical], High, Medium tiers)
+- **14 deferred** (Low tier from the 2026-06-21 fitness review)
+- **69 items open from the 2026-06-21 fitness review** (42 closed across PRs #142-#179). Total surfaced: 111.
+- **22 items added from the 2026-06-22 fitness review** (FR-112 through FR-133; see backlog section below).
+- **91 total open backlog items** (69 from 2026-06-21 + 22 from 2026-06-22).
 
 ### FR-44 follow-up
 
@@ -151,7 +151,7 @@ The FR-44 convention statement is now documented (PR #159, master spec §6.1). A
 
 ---
 
-## Fitness review backlog (from r2, unverified pending Pass-1)
+## Fitness review backlog (from 2026-06-22's r1, unverified pending Pass-1)
 
 Source: [`.working/fitness-reviews/2026-06-22-r1.md`](.working/fitness-reviews/2026-06-22-r1.md). Pass-1 verification deferred to next session.
 
@@ -163,7 +163,7 @@ Source: [`.working/fitness-reviews/2026-06-22-r1.md`](.working/fitness-reviews/2
 - **C2: Emergency-access trigger ambiguity** (P2 + P6 + P7) — closes FR-121, FR-122, FR-123, FR-124, FR-125, FR-126. Recommended action: single combined "Access-control operational clarity" PR. PR #169 added trigger conditions but "material harm", "declared incident response", "delegated security lead" lack operational definitions.
 - **C3: Retention chain breaks** (P4) — closes FR-128, FR-129. Recommended action: retention-consistency sweep PR. PR #179's 5y→7y bump on control-testing evidence was correct but localised; adjacent CAPA records and internal audit reports still at 5y.
 
-### High[critical] tier — 6 findings from r2
+### High[critical] tier — 6 findings from the 2026-06-22 review
 
 - **FR-114** (`governance/register-digital-trust-and-assurance-metrics.md` line 65): DTI uses 4-tier non-CMMI vocabulary; framework uses 5-tier CMMI. **Closely tied to r1 FR-14** which is still pending; recommend bundling.
 - **FR-121** (`security/procedure-access-control.md` line 64): Emergency-access "material business or safety harm" undefined. Three personas surfaced independently.
@@ -172,14 +172,14 @@ Source: [`.working/fitness-reviews/2026-06-22-r1.md`](.working/fitness-reviews/2
 - **FR-128** (`governance/register-data-retention-schedule.md` line 66): CAPA records 5y vs control-testing 7y. Audit-evidence chain break.
 - **FR-129** (`governance/register-data-retention-schedule.md` line 83): Internal audit reports 5y vs procedures' 7y. Audit-evidence chain break.
 
-### High tier — 4 findings from r2
+### High tier — 4 findings from the 2026-06-22 review
 
 - **FR-115** (`governance/register-role-authority.md` lines 27-62): Risk Owner missing from Role Authority Register.
-- **FR-118** (cross-doc): FR-12 treatment-vocab divergence still open between standard §6 and procedure "Select Treatment" step. **Existing TODO item** (see "Medium tier - 40 findings (immediate priority) - FR-12 cross-document follow-up" above); r2 confirms still open.
+- **FR-118** (cross-doc): FR-12 treatment-vocab divergence still open between standard §6 and procedure "Select Treatment" step. **Existing TODO item** (see "Medium tier - 40 findings (immediate priority) - FR-12 cross-document follow-up" above); the 2026-06-22 review confirms still open.
 - **FR-123** (`security/procedure-access-control.md` lines 35-39): "Delegated security lead" undefined in roles table.
 - **FR-125** (`security/procedure-access-control.md` §1.4.2): Emergency-access revocation enforcement lacks escalation.
 
-### Medium tier — 9 findings from r2
+### Medium tier — 9 findings from the 2026-06-22 review
 
 - **FR-112** (`README.md` line 58): Maintainer-context leakage in adopter-narrative. Toolchain framed as required dependency.
 - **FR-113** (`README.md` lines 108, 123): CAPA and SIEM acronyms unexpanded in Repository Structure block. Regression of PR #172 / #179 pattern.
@@ -191,13 +191,13 @@ Source: [`.working/fitness-reviews/2026-06-22-r1.md`](.working/fitness-reviews/2
 - **FR-126** (`security/procedure-access-control.md` lines 54-58): Auto-escalation mechanic vague (who triggers escalation?).
 - **FR-130** (`docs/decision-tree.md` lines 107-120): Decision-tree entry sequence delays portal encounter (item 8 of 8).
 
-### Low / FYI tier — 3 findings from r2
+### Low / FYI tier — 3 findings from the 2026-06-22 review
 
 - **FR-131** (`docs/template-quickstart.md` line 39 vs `docs/adopter-guide.md` lines 116-117): Quickstart vs adopter-guide Tier 1 risk-artefact set divergence.
 - **FR-132** (`docs/decision-tree.md` line 111): Glossary precedes acronym-bearing prose in decision-tree (cognitive ordering issue).
 - **FR-133** (`docs/decision-tree.md` line 216): Non-Anglosphere jurisdictions less prominently surfaced (FYI; jurisdiction index exists).
 
-### Standardization recommendations from r2
+### Standardization recommendations from the 2026-06-22 review
 
 Three new audit-gate candidates surfaced (would need separate maintainer decision before adding):
 
@@ -205,7 +205,7 @@ Three new audit-gate candidates surfaced (would need separate maintainer decisio
 - **S2 Role definition consistency gate**: verify that every role mentioned in normative documents has a row in `governance/register-role-authority.md`. Would catch FR-115-class issues mechanically.
 - **S3 Citation-precision-for-claim gate**: flag "aligned with [normative source] X" claims and verify X actually contains the supporting language. Would catch FR-120-class issues mechanically.
 
-### Next-up recommendations from r2
+### Next-up recommendations from the 2026-06-22 review
 
 Per [`.working/fitness-reviews/2026-06-22-r1.md`](.working/fitness-reviews/2026-06-22-r1.md) Recommendations section:
 
@@ -213,7 +213,7 @@ Per [`.working/fitness-reviews/2026-06-22-r1.md`](.working/fitness-reviews/2026-
 2. **Access-control operational clarity PR** (closes FR-121, FR-122, FR-123, FR-124, FR-125, FR-126) — Convergent Finding C2; closes 6 findings.
 3. **Retention chain sweep PR** (closes FR-128, FR-129) — Convergent Finding C3; closes audit-evidence chain breaks.
 4. **TLS 1.3 in ZTA PR** (closes FR-127) — single-line fix; high-severity inconsistency.
-5. **DTI / maturity ladder reconciliation PR** (closes r1 FR-14 + r2 FR-114) — high-critical from r1, still open; full reconciliation pass.
+5. **DTI / maturity ladder reconciliation PR** (closes FR-14 from the 2026-06-21 review + FR-114 from the 2026-06-22 review): high-critical from 2026-06-21, still open; full reconciliation pass.
 
 Maintainer's call on whether to interleave these with existing Phase 1 / Phase 2 plan or pause Phase 1 to address C1+C2+C3 first.
 

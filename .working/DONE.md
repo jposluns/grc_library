@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #189 — Hot-fix /validate-pr findings on PR #188 (2026-06-22)
+
+Two in-window findings from /validate-pr on PR #188 fixed: the fitness-review file's internal "r2" labels and history.md row corrected to "r1" per the per-date `rN` convention (8 internal references plus the history row); pack README's 1.40.1 row catch-attribution reworded from "gate 31 caught it" to credit /validate-pr deep-read (gate 31 didn't actually fire due to a timezone-boundary edge case). Recorded /validate-pr on PR #188 history row plus per-PR detail file. Second consecutive findings-producing /validate-pr (the discipline is converging).
+
 ### PR #188 — Close-out: /validate-pr fixes on #187 + record /fitness r2 (2026-06-22)
 
 End-of-evening close-out bundling three independent threads: two hot-fixes for PR #187's `/validate-pr` findings (slash-command "no skip" wording harmonized to match SKILL.md verbatim; pack README Date bumped 2026-06-21→2026-06-22 with Version 1.40.0→1.40.1 patch); committing the /fitness r2 report (27 findings across 10 personas; 22 new FR IDs FR-112 through FR-133; three Convergent Findings dominate; zero regressions from the day's PRs); and the /validate-pr history record for PR #187 itself.
