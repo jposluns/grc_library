@@ -4481,7 +4481,7 @@ documents:
   domain: "risk"
   type: "Standard"
   title: "Enterprise Risk Management Standard"
-  version: "1.5.1"
+  version: "1.6.0"
   date: "2026-06-22"
   owner: "Chief Risk Officer"
   approving_authority: "Governance Library Maintainer"

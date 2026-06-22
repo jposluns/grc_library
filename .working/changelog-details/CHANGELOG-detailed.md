@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.216, PR #238
+
+**Closes FR-118 (H, S)** — ERM standard §6/§7 treatment-vocab internal inconsistency. PR-B in Batch 2 effort-first run.
+
+### Changed
+
+- **`risk/standard-enterprise-risk-management.md`** v1.5.1 → 1.6.0:
+  - **Section 6 (Risk treatment)** gains a terminology paragraph distinguishing three concepts that previously collided in §7's "Status" field: **Treatment Option** (the choice: Avoid / Mitigate / Transfer / Accept / Exploit / Enhance), **Treatment Status** (workflow state: Pending / In Progress / Complete), and **Status** (risk-record lifecycle: Open / Closed). The paragraph explicitly notes that Treatment Option and Treatment Status are independent (a Mitigate option may be in Pending, In Progress, or Complete state) and that Section 7.1's Status field is risk-record lifecycle, not treatment outcome.
+  - **Section 7.1 (Standard fields)** register-field table updated: Treatment Option row gains "(per Section 6)" cross-reference; new **Treatment Status** row inserted after Treatment Actions (Pending / In Progress / Complete); existing Status row's value set narrowed from "Open / Mitigated / Accepted / Closed" (which mixed lifecycle with treatment outcome) to "Open / Closed", with explanatory prose naming the lifecycle semantics and disclaiming the prior overlap.
+
+### Rationale
+
+The prior §7.1 Status values (Open / Mitigated / Accepted / Closed) had ambiguous semantics: "Mitigated" implied the Mitigate treatment was applied, "Accepted" implied the Accept treatment was applied. But what value applied to a risk that had been Avoided, Transferred, Exploited, or Enhanced? "Closed"? Yet the risk wasn't necessarily terminal. The FR-118 Pass-2 reshape surfaced this; the three-field decomposition (Treatment Option / Treatment Status / Status) addresses it cleanly.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates.
+- `tools/run-pr-time-checks.sh` D1, D2, gate 45 OK.
+
+### Discipline observation
+
+- **Closes the cross-doc divergence's "ERM side" only**: FR-118 was originally scoped as cross-doc divergence between ERM standard §6 and procedure-risk-register's Select Treatment step. This PR resolves the ERM standard's internal ambiguity; the cross-doc reconciliation with procedure-risk-register is FR-12 cross-doc follow-up (Batch 2 PR-C next).
+
 ## 2026-06-22, Library Version 2026.06.215, PR #237
 
 **Closes FR-36 (H, S)** — GDPR Article 8 child-consent age table per Member State. PR-A in Batch 2 effort-first run. Also carries Sweep 21 zero-finding history row + PR #236 deferred register rows.
