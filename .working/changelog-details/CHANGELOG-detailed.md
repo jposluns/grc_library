@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.219, PR #241
+
+**Closes FR-97 + FR-98** (P2.3 cross-framework matrix bundle, both M, S). PR-E in Batch 2.
+
+### Fixed
+
+- **FR-97**: ISO 31000 clause-numbering corrected in `governance/matrix-cross-framework-alignment.md` against ISO 31000:2018 actual clauses. Risk-identification-and-analysis row → 6.4.2 + 6.4.3; Treatment row → 6.5; Monitoring row → 6.6; Third-party row → 6.3 + 5.3; AI-lifecycle row → Clause 6 Process applied iteratively; Exception/acceptance row → 6.5 Risk treatment acceptance option. Per-doc 1.1.3 → 1.1.4.
+- **FR-98**: NIS 2 annex Article 21.2 sub-measures table gains Evidence class column for all 10 sub-measures (a)-(j). Per-doc 1.0.1 → 1.1.0.
+
+### Verification
+
+- 46 audit gates pass.
+
 ## 2026-06-22, Library Version 2026.06.218, PR #240
 
 **Closes FR-93 (M, S) + FR-94 (M, S)** — P2.6 KRI/KPI bundle. PR-D in Batch 2.
