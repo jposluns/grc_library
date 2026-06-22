@@ -32,20 +32,18 @@ The trust-recovery suite (`/full-qa` + `/fitness` r2) ran and the maintainer **s
 ## Next actions (queue, from TODO)
 
 0. **Full corpus-wide `/validate` first** (the loop-break compensating control; see "How to resume" step 5). **DONE this session**: Sweep 23 (full A/B/C dispatch), 1 in-window note (stale "eight governance rules" at `.claude/CLAUDE.md:263`) fixed in PR #250; cross-document drift cluster confirmed-but-already-tracked, deduped not re-routed.
-0a. **Maintainer requested (2026-06-22, this session)**: analyze TODO P1–P4 and surface questions before proceeding. **In progress** — the next substantive PR waits on the maintainer's answers.
-1. **`/fitness` SKILL routing-flag amendment** — add one paragraph naming the trust-recovery routing flag. *Interpretation question for maintainer*: the handoff shorthand said "bypass Pass-2", but the authoritative `trust-recovery-escalation.md` rule says trust-recovery mode bypasses the *triage-and-defer* (severity bucketing) while *keeping* maintainer sign-off. Confirm which before codifying.
-2. **Structural-review skill** — codify the audit-programme overlap/gap/drift matrix as a recurring skill. *Open decision: name + cadence.*
-3. **Optional `/trust-recovery` wrapper** — invokes `/full-qa` then `/fitness`. *Open decision: maintainer go/no-go.*
-4. **P4.0** — distribute the PRIMORDIAL RULE as a project-agnostic pack governance rule (tenth rule).
-5. **H[critical]/High remediation** (FR-134..145), then **Batch 3** (the effort-first P2 backlog: PR-F P2.5, PR-G P2.4, PR-H continuous-assurance, PR-F relocations). Batch 3 was blocked behind trust-recovery sign-off (now obtained) + codification (in progress).
+0a. **Maintainer-requested P1–P4 analysis + decisions (2026-06-22, this session): DONE.** Decisions locked and captured in TODO annotations + `.working/design-decisions.md`. Summary: 6 H[critical] canonical values accepted as recommended; TLS 1.3 everywhere incl `operations:184` unconditionally; trust-recovery routing → severity-tiered (crit+high→P1, med+low→P2), "routing flag only"; P4.0 = `project-integrity.md` 10th rule standalone after codification; P4.1 = skill-family + prescriptive-only + existing-pack bump; P4.4 = JS/TS+Go+Java baseline, point-to-OWASP; P4.5 = build S1, defer S2/S3.
+1. **Trust-recovery routing-convention revision (NEXT substantive PR)** — severity-tiered routing across ~8 surfaces (rule + mirror; `deep-qa-review` SKILL + `/full-qa`; `library-fitness-review` SKILL [the routing-flag amendment folds in] + `/fitness`; pack `CLAUDE.md` + project `.claude/CLAUDE.md` bullets; check pack README). Pack rule/SKILLs stay project-agnostic; project P1/P2 mapping in `.claude/CLAUDE.md`+TODO. Pack version bump. See TODO trust-recovery codification item + design-decisions.
+2. **Structural-review skill** — codify the audit-programme overlap/gap/drift matrix as a recurring skill. *Still open: name + cadence (not decided this session).*
+3. **Optional `/trust-recovery` wrapper** — invokes `/full-qa` then `/fitness`. *Still open: go/no-go (not decided this session).*
+4. **P4.0** — distribute the PRIMORDIAL RULE as `project-integrity.md` (10th rule), standalone PR after the codification batch.
+5. **H[critical]/High remediation** (FR-134..145, canonical values now locked — see TODO), then **Batch 3** (effort-first P2 backlog). Per maintainer sequencing, criticals come *after* the codification batch.
 
 ## Open decisions awaiting maintainer
 
-- `/fitness` routing-flag amendment: "bypass Pass-2" vs "bypass triage-and-defer, keep sign-off" (see item 1).
-- Structural-review skill: name + re-run cadence.
-- `/trust-recovery` convenience wrapper: go/no-go.
+- Structural-review skill: name + re-run cadence (not decided this session).
+- `/trust-recovery` convenience wrapper: go/no-go (not decided this session).
 - Effort-first batching rule still applies for Batch 3 (confirm: C2 sample-data defaults, aggressive XS bundling, file-relocations-only, action all P7).
-- (Plus whatever surfaces from the maintainer-requested P1–P4 analysis.)
 
 ## Standing disciplines (do not drift from these)
 
