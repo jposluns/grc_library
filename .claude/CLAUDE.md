@@ -31,7 +31,7 @@ The assistant has no internal timer. Re-anchor to this rule at these semantic ch
 At each checkpoint, emit one line, then confirm compliance or halt:
 `Integrity check: Quality > Speed > Cost. Project integrity absolute.`
 
-This rule was added 2026-06-22 by maintainer direction as the project's apex statement; it consolidates and elevates the integrity disciplines already in the `dev-security/claude-rules/governance/` pack (gate-discipline, evidence-grounded-completion, clarify-before-acting, change-tracking) under a single lexicographic priority. A project-agnostic distributable form is queued as a pack governance rule (TODO P4).
+This rule was added 2026-06-22 by maintainer direction as the project's apex statement; it consolidates and elevates the integrity disciplines already in the `dev-security/claude-rules/governance/` pack (gate-discipline, evidence-grounded-completion, clarify-before-acting, change-tracking) under a single lexicographic priority. A project-agnostic distributable form is queued as a pack governance rule (TODO P4.0).
 
 ---
 
@@ -432,14 +432,26 @@ pack, CC BY-SA 4.0):
   guard rails that prevent recurring worker-side failure modes and is updated
   inline when a new failure class is caught (per the rule's hallucination-assessment
   update protocol).
+- `.claude/rules/governance/trust-recovery-escalation.md` — the escalation tier
+  invoked when an AI assistant's discipline failures put a maintainer's confidence
+  in a window of work in question. Names the trigger (abbreviated/skipped QA across
+  changes, a skipped verification reaching the pipeline, a wrong-cadence automation,
+  an unvalidated inference that cascaded), the two-skill suite (the AI-failure-pattern
+  forensic pass `/full-qa` first, then the fresh-reader persona pass `/fitness`), the
+  routing convention (every confirmed finding to the backlog's top priority regardless
+  of severity, apply-time-verified, deduped), and the sign-off discipline (terminates
+  only on explicit maintainer sign-off, not on an empty finding-set). Includes the
+  full-clone methodology rule. Added 2026-06-22 (pack 1.47.0).
 
 The `dev-security/claude-rules/` pack covers security and development-governance
 discipline. The initial governance rollout completed at pack version 1.11.0
 (2026-06-01) with the first five `governance/` rules listed above; pack version
 1.21.0 (Library 2026.06.38) extended the set with the sixth rule; pack version
 1.27.0 added the seventh rule (`validate-inference-before-action.md`); pack
-version 1.36.0 added the eighth rule (`ai-assistant-workflow-disciplines.md`).
-See `dev-security/claude-rules/README.md` for the authoritative pack version
+version 1.36.0 added the eighth rule (`ai-assistant-workflow-disciplines.md`);
+pack version 1.47.0 added the ninth rule (`trust-recovery-escalation.md`) after a
+session whose discipline failures required a structured white-box re-examination of
+the window. See `dev-security/claude-rules/README.md` for the authoritative pack version
 history and future-work signalling. Pack changes are tracked through the
 library's CHANGELOG and per-rule version metadata.
 
