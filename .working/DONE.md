@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #203 — FR-133 (FYI): Jurisdiction-index pointer prominence (2026-06-22)
+
+Closes FR-133 by restructuring `docs/decision-tree.md` §4.1: the jurisdiction-index pointer is now a stand-alone lead paragraph noting the full 25-jurisdiction coverage; common Anglosphere selections are framed as "representative, not exhaustive"; a closing sentence names example non-Anglosphere annexes (Australia, Singapore, India, Brazil, Japan, South Korea, China) with redirect to the jurisdiction index. Also bundles PR #202's out-of-window TODO drift cleanup (C1/C2/C3 next-up narrative rotated to reflect overnight closures).
+
 ### PR #202 — Overnight session wrap-up (2026-06-22)
 
 Final overnight-batch PR. Updates `.working/overnight-pr.md` with the 9-PR build-progress list (PRs #193-#201, closing FR-127/128/129/113/115/116/117/132 fully + FR-81 partial), the files-modified inventory, the files-NOT-touched inventory, and the 9-item open-ambiguities list for maintainer morning review. Status remains `in-flight`; the morning-processing PR will transition to `stub` after routing content.
