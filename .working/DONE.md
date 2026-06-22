@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #223 — Closes FR-49 (medium, P1.5): H2 label drift "Governance" → "Governance and accountability" (14 files, 2026-06-22)
+
+14 files used bare `## Governance` H2; canonical form `## Governance and accountability` (20+ uses). Renamed via line-anchored regex (`^## Governance$`) so `## Governance Council` etc. were preserved. Per-doc Version patch-bumps; taxonomy/portal/maturity-scorecard regenerated. Also carries deferred PR #222 /validate-pr + /retro register rows.
+
 ### PR #222 — Closes FR-82 (medium, P1.6): AI/model crypto "key hashing" ambiguity (2026-06-22)
 
 `security/policy-encryption-and-key-management.md:56` "AI and Model Data" row's `"AES-256 + key hashing (SHA-512)"` conflated encryption, integrity, and key derivation; SHA-512 alone is NOT a KDF. Replaced with explicit per-purpose specification: AES-256-GCM (AEAD encryption with built-in integrity); HKDF-SHA-256 for key derivation from high-entropy material; Argon2id (or scrypt) for password-derived keys; explicit note that SHA-512 alone is a hash, not a KDF. Per-doc `1.3.1 → 1.3.2`. Also carries deferred PR #221 /validate-pr + /retro register rows.
