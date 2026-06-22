@@ -4,6 +4,19 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-22, Library Version 2026.06.190, PR #211
+
+**Closes FR-119** (medium): Risk Owner role unification across ERM standard and exception policy. Maintainer-approved per "decision 9": same role. Two coordinated edits:
+
+1. [`risk/standard-enterprise-risk-management.md`](risk/standard-enterprise-risk-management.md) §3 Risk Owner row: extended from five accountability actions to **six**, adding "validates risk assessments supporting exception requests (per [`governance/policy-exception-and-risk-acceptance-management.md`](governance/policy-exception-and-risk-acceptance-management.md) §2: confirms residual exposure stays within the enterprise risk appetite when an exception is requested)." §9.2 evidence table extended with the corresponding sixth row mapping exception-request validation to "Risk acceptance approvals (per Risk Acceptance Procedure)" evidence type. Per-doc ERM standard `1.5.0 → 1.5.1`.
+2. [`governance/policy-exception-and-risk-acceptance-management.md`](governance/policy-exception-and-risk-acceptance-management.md) §2 Risk Owner row: extended to cross-reference the ERM standard's canonical definition, explicitly stating "Same role as the Risk Owner defined in [`risk/standard-enterprise-risk-management.md`](risk/standard-enterprise-risk-management.md) §3 (sixth accountability action: validates risk assessments for exception requests)." Also fixed grammar issue ("ensures that alignment" → "confirms alignment"). Per-doc exception policy `1.3.1 → 1.3.2`.
+
+The unification closes the **last remaining item of Convergent Finding C1** (Risk Owner role insufficiency). C1 now fully closed: FR-115 (PR #197 register row), FR-116 (PR #198 cadence), FR-117 (PR #199 evidence map), FR-119 (this PR).
+
+Library `2026.06.189 → 2026.06.190`; README `1.9.60 → 1.9.61`. Also carries PR #210's /validate-pr history row (0 findings).
+
+---
+
 ## 2026-06-22, Library Version 2026.06.189, PR #210
 
 **Closes FR-46 (Privacy Officer rename portion)** (medium). Maintainer-approved per "decision 6": "Privacy Officer" (used in ~50 corpus locations without the "Chief" prefix) is the same role as "Chief Privacy Officer" (the canonical role per [`governance/register-role-authority.md`](governance/register-role-authority.md):39). Corpus-wide regex sweep with negative lookbehind `(?<!Chief )Privacy Officer` → `Chief Privacy Officer` across **36 files**. Per-doc Version+Date patch-bumped for all 36 in the same commit. [`CHANGELOG.md`](CHANGELOG.md) historical entries excluded; `.working/` excluded.
