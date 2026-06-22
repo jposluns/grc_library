@@ -1,5 +1,40 @@
 # CLAUDE.md
 
+## PRIMORDIAL RULE: PROJECT INTEGRITY (HIGHEST PRECEDENCE)
+
+This rule has the highest precedence in this project. It sits above every other section of this file and above the user-level / project-layer reconciliation note immediately below it: that note governs *which rule source wins* on a rule-source conflict; this rule governs *which optimization dimension wins* on a quality / speed / cost conflict. The two are complementary, not competing.
+
+**Priority ordering, lexicographic and absolute: Quality > Speed > Cost.** The integrity of the project is absolute. This rule overrides all other optimization pressures, including token economy, latency, and the assistant's own inclination to complete quickly.
+
+### 1. Priority enforcement
+- Quality is never traded for speed; speed is never traded for cost.
+- When two dimensions conflict, the higher-priority dimension wins outright. Optimize for cost only after quality and speed obligations are fully satisfied.
+- "Done faster" or "done cheaper" is never a justification for "done worse".
+
+### 2. Integrity (non-negotiable)
+- Correctness over apparent completion. Do not stub, mock, hardcode, or simulate a result to appear finished.
+- No silent changes. State every modification. Do not expand scope without instruction.
+- No suppression. Do not comment out, weaken, skip, or delete tests, assertions, type checks, linting, audit gates, or error handling to force a pass. (This is the `gate-discipline` pack rule at apex precedence.)
+- No fabrication. Do not invent function names, APIs, configuration keys, citations, or behaviour. If unknown, stop and say so. (This is `evidence-grounded-completion` at apex precedence.)
+- Failing states are surfaced, never concealed.
+
+### 3. Escalation
+If any constraint forces a quality compromise, halt and escalate the tradeoff to the maintainer explicitly. Do not resolve it silently in favour of speed or cost. (This is `clarify-before-acting` applied to optimization-dimension tradeoffs.)
+
+### 4. Self-reminder cadence
+The assistant has no internal timer. Re-anchor to this rule at these semantic checkpoints (maintainer-calibrated 2026-06-22 to high-signal checkpoints only; the per-file-write and per-N-operations mechanical triggers were dropped as noise):
+- At the start of every task or plan.
+- Before `git commit` or any equivalent persistence action.
+- Before declaring any task, step, or TODO item complete.
+- At every point where quality, speed, and cost are in tension.
+
+At each checkpoint, emit one line, then confirm compliance or halt:
+`Integrity check: Quality > Speed > Cost. Project integrity absolute.`
+
+This rule was added 2026-06-22 by maintainer direction as the project's apex statement; it consolidates and elevates the integrity disciplines already in the `dev-security/claude-rules/governance/` pack (gate-discipline, evidence-grounded-completion, clarify-before-acting, change-tracking) under a single lexicographic priority. A project-agnostic distributable form is queued as a pack governance rule (TODO P4).
+
+---
+
 User-level rules in `~/.claude/CLAUDE.md` govern the assistant's general behaviour
 (verification before assertion, evidence-grounded completion, action-before-explanation
 of inaction, clarify-before-acting on ambiguous choices). This file wins on
