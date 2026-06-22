@@ -6,6 +6,43 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.207, PR #229
+
+**/validate Sweep 20 iter 1 close-out** — corpus-wide sweep post 8-PR FR batch (PRs #221-#228). Surfaced 4 in-window warnings + 2 maintainer-surfaced notes. Fixes applied for the 4 warnings; notes surfaced for maintainer judgement.
+
+### Added
+
+- **Three new glossary entries** in [`governance/register-glossary.md`](../../governance/register-glossary.md):
+  - **AEAD**: Authenticated Encryption with Associated Data (AES-GCM per NIST SP 800-38D, AES-CCM, ChaCha20-Poly1305 per RFC 8439).
+  - **CIIO**: Critical Information Infrastructure Operator (Chinese-law designation under the Cybersecurity Law of China; designated by industry regulator; triggers CAC Security Assessment under PIPL Article 38 and domestic-storage default under Article 40).
+  - **HKDF**: HMAC-based Key Derivation Function per RFC 5869 (canonical for high-entropy material; not appropriate for password KDFs).
+
+### Changed
+
+- **`privacy/policy-privacy-and-data-governance.md`:46** (per-doc `1.4.2 → 1.4.3`): added cross-reference to the charter's "DPO independence and conflict of interest" subsection naming the Article 38(6) conflict explicitly and pointing at the 5-row mitigation controls table. Closes Subagent A's CROSS-DOC-DRIFT warning.
+- **`governance/register-glossary.md`** (per-doc `1.3.0 → 1.4.0`): three new entries (AEAD, CIIO, HKDF) closing Subagent B's three ACRONYM-UNDEFINED warnings.
+- **`.working/validate-sweeps/2026-06-22-sweep20-iter1.md`** (new file): per-iteration detail file with the 6 H2 sections; documents A1/A2 + B1/B2/B3/B4 + Subagent C clean bill.
+- **`.working/validate-sweeps/history.md`** (Version `2.0.12 → 2.0.13`): new top row for Sweep 20 iter 1.
+- **`.working/validate-pr/history.md`** (Version `1.2.34 → 1.2.35`): new top row for PR #228's /validate-pr (deferred per recursion-avoidance; 0 findings).
+- **`.working/improvement-log.md`** (Version `1.0.13 → 1.0.14`): new top row for PR #228's /retro. Pattern observed: "new charter framework subsection not cross-referenced from policy creating the same arrangement" — single occurrence, not yet pattern; worker-brief candidate queued.
+- **Generated artefacts**: [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated.
+
+### Surfaced for maintainer judgement (not fixed in this PR)
+
+- **A2 (note, in-window)**: `governance/register-role-authority.md:39` DPO row does not reference Article 38(3) independence / Article 38(6) conflict constraints. Subagent A flagged as maintainer judgement (the register is intentionally lighter than the charter; adopters navigate to the charter for the full framework). Decision: leave as-is OR add a one-clause cross-reference to the DPO row.
+- **B4 (note, out-of-window)**: `privacy/charter-privacy-management-programme.md:63` references WP243 rev.01 (Article 29 Working Party Guidelines on DPOs) which is soft-law guidance not represented in `governance/register-canonical-citations.md`. The register currently scopes to formal standards / regulations / Acts; extending to soft-law supervisory guidance is a policy decision. Decision: maintainer to decide register scope (add WP243 rev.01 entry OR document the scope boundary in the register's Conventions section).
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-each-edit.
+- `tools/run-pr-time-checks.sh` reports D1, D2, gate 45 all OK.
+- Iter 2 verification (re-baseline): empty-delta condition met (no new High/Medium findings; remaining notes are pending maintainer decisions, not new findings).
+
+### Discipline observation
+
+- **Acronym-undefined cluster (B1/B2/B3)**: three newly-introduced acronyms (CIIO, HKDF, AEAD) in the FR-40 and FR-82 PRs flagged the same root-cause pattern. The worker-brief should require glossary updates in the same PR that introduces a new acronym. Currently the discipline relies on the post-merge /validate sweep to catch the omission; the cost of late catch is one extra close-out PR.
+- **Cross-document framework drift (A1)**: the policy and charter both describe the CIO-as-acting-DPO arrangement, but only the charter received the Article 38(6) framework in PR #228. The policy was not in the PR #228 diff. The worker-brief should require a corpus-wide grep for related-arrangement language when a new framework subsection lands, to identify parallel surfaces needing updates.
+
 ## 2026-06-22, Library Version 2026.06.206, PR #228
 
 **Closes FR-42 (medium, P2.1)**: DPO independence + conflict-of-interest framework in [`privacy/charter-privacy-management-programme.md`](../../privacy/charter-privacy-management-programme.md). Makes a previously silent structural conflict visible and names adopter mitigations.
