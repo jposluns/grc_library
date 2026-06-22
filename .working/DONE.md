@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #221 — Closes FR-33 (H[critical]): GDPR Article 36 prior-consultation pathway (2026-06-22)
+
+Step 5 of `privacy/procedure-privacy-impact-and-cross-border-transfer.md` previously conflated internal ERC executive sign-off with the GDPR Article 36 regulatory prior-consultation pathway. Restructured into three substeps: 5.1 internal escalation (prior content), 5.2 NEW Article 36 prior consultation (trigger per Art 36(1), six-item content table per Art 36(3), 8+6 week timeline per Art 36(2), supervisory authority Art 58 corrective powers, 5-step interaction with internal pathway, non-EU equivalents to LGPD/PIPL/UK GDPR), 5.3 documentation requirements split by pathway. Per-doc `1.3.4 → 1.4.0`. Also carries deferred PR #220 /validate-pr + /retro register rows.
+
 ### PR #220 — Sweep 19 iter 1 close-out + deferred PR #219 /validate-pr + /retro rows (2026-06-22)
 
 /validate corpus-wide sweep on the post-PR-#219 state surfaced 2 in-window warnings in `governance/guideline-minimum-viable-governance-structure.md` (lines 67 and 114, stale "CPO" in executive-role enumerations missed by PR #218's spelled-out-only rename script). Both fixed; per-doc Version `1.0.1 → 1.0.2`. Pattern now at second occurrence (signal stage): "corpus-wide rename script: incomplete substitution coverage" — queued worker-brief candidate strengthened. Carries PR #219 /validate-pr history row (0 findings) and /retro register row.
