@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.44\
+**Version:** 1.2.45\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -12,6 +12,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | 238 | 10 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Forty-fourth-batch PR (Batch 2 PR-B: FR-118 ERM §6/§7 treatment-vocab internal inconsistency; risk/standard-enterprise-risk-management.md v1.5.1 → 1.6.0). No findings. Row carried into PR #239. |
 | 2026-06-22 | 237 | 12 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Forty-third-batch PR (Batch 2 PR-A: FR-36 EU Article 8 age table in `privacy/jurisdictions/annex-privacy-european-union.md` v1.0.3 → 1.1.0; carried Sweep 21 zero-finding history row + PR #236 register rows). Validate-pr abbreviated spot-check confirmed: 30-row Member-State table, 5 operational notes, cross-reference from `privacy/framework-childrens-data.md` v1.0.4 → 1.0.5. No findings. Row carried into PR #238 (FR-118 ERM treatment-vocab). |
 | 2026-06-22 | 236 | 11 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Forty-second-batch PR (PR-G in Batch 1: P7 A2 + B4 + FR-47 closure, plus PR-F deferral). Validate-pr abbreviated spot-check confirmed: A2 cross-reference in role-authority register; B4 soft-law scope extension + WP243 rev.01 entry; FR-47 formally closed. No findings. Row carried into Batch 2 PR #237 (FR-36 EU member-state Article 8 table). |
 | 2026-06-22 | 235 | 10 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Forty-first-batch PR (PR-E in Batch 1: C2 emergency-access bundle 6 items in `security/procedure-access-control.md` v1.1.1 → 1.2.0). Sample-data defaults shipped per maintainer pre-approval. No findings. Row carried into PR #236. |
