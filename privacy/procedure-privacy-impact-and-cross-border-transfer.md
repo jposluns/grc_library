@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Impact and Cross-Border Transfer Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.4\
+**Version:** 1.4.0\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -112,9 +112,57 @@ For EU transfers involving AI systems:
 
 ### Step 5: Consultation and approval
 
+This step has **two distinct pathways**: an internal governance pathway and a regulatory pathway. The pathways may apply independently or in combination; the regulatory pathway is mandatory when its trigger criteria are met and is NOT substituted by the internal pathway.
+
+#### Step 5.1: Internal escalation pathway (organisation governance)
+
 - The CIO (acting DPO) reviews all completed PIAs and transfer assessments.
 - For AI systems or high-risk processing, the AIGC conducts additional review per ISO/IEC 42005:2025 and EU AI Act Annex IV.
-- If residual risk remains high, executive sign-off by the ERC and Legal Counsel is required before go-live.
+- If residual risk remains **high**, executive sign-off by the ERC and Legal Counsel is required before go-live.
+
+This is the organisation's internal governance check. It is necessary but not sufficient where the Article 36 regulatory pathway in Step 5.2 also applies.
+
+#### Step 5.2: GDPR Article 36 prior consultation with the supervisory authority (regulatory)
+
+**Trigger.** Article 36(1) requires the controller to consult the supervisory authority prior to processing where a DPIA conducted under Article 35 indicates that the processing would result in a **high risk to the rights and freedoms of natural persons in the absence of measures taken by the controller to mitigate the risk**. In operational terms, if the DPIA's *residual* risk after the controller's planned mitigations remains **high**, Article 36 prior consultation is mandatory before processing begins.
+
+The Article 36 trigger is distinct from the internal Step 5.1 trigger. The internal trigger is the organisation's risk-appetite threshold for executive escalation; the Article 36 trigger is the regulatory threshold for supervisory-authority consultation. A processing activity may trigger one, the other, or both.
+
+**Consultation content (Article 36(3)).** The consultation packet provided to the supervisory authority must include:
+
+| Item | Article 36(3) reference |
+|---|---|
+| Responsibilities of the controller, joint controllers, and processors (in particular within a group of undertakings) | (a) |
+| The purposes and means of the intended processing | (b) |
+| The measures and safeguards provided to protect the rights and freedoms of data subjects | (c) |
+| Where applicable, the contact details of the DPO | (d) |
+| The DPIA report itself | (e) |
+| Any other information requested by the supervisory authority | (f) |
+
+**Timeline (Article 36(2)).** The supervisory authority must provide written advice within **8 weeks** of receipt of the consultation request. The period may be extended by a **further 6 weeks** depending on the complexity of the intended processing; the supervisory authority must inform the controller of any extension within **1 month** of receipt of the request. **During the consultation period, the controller must not commence the processing.**
+
+**Supervisory authority powers.** The supervisory authority may (a) issue written advice (the default); or (b) exercise the corrective powers in Article 58 (warnings, orders, processing bans, fines) where the supervisory authority is of the opinion that the intended processing would infringe the GDPR.
+
+**Interaction with the internal escalation pathway (Step 5.1).** The order of operations for a processing activity that triggers both pathways:
+
+1. DPIA complete with residual-risk assessment.
+2. Where residual risk is high, the CIO (acting DPO) initiates Article 36 prior consultation with the lead supervisory authority (per the one-stop-shop mechanism for cross-border processing, or with each affected supervisory authority for processing not subject to the one-stop-shop).
+3. Supervisory authority responds with written advice or corrective measures within the Article 36(2) timeline.
+4. Controller adjusts the processing per the supervisory authority's response, or decides to abandon the processing.
+5. Internal ERC sign-off on the adjusted processing for go-live (Step 5.1).
+
+The Article 36 pathway is regulatory and external; the ERC pathway is governance and internal. Both must be cleared before high-residual-risk processing begins.
+
+**Non-EU equivalents.** Other jurisdictions have analogous prior-consultation regimes; consult the per-jurisdiction triggers and timelines in [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md). Notable examples: LGPD Article 38 (Brazil, ANPD prior consultation); PIPL Articles 55-56 (China, CAC security assessment for high-risk transfers); UK GDPR Article 36 (post-Brexit retained equivalent). The trigger thresholds, content requirements, and timelines vary by regime.
+
+#### Step 5.3: Documentation requirements
+
+Both pathways must be evidenced. Records retained per Step 6:
+
+| Pathway | Required records |
+|---|---|
+| Step 5.1 (internal escalation) | ERC meeting minutes recording the high-residual-risk processing; Legal Counsel sign-off memo; residual-risk acceptance signature by the CIO (acting DPO) |
+| Step 5.2 (Article 36 prior consultation) | Article 36(3) consultation packet as sent to the supervisory authority; supervisory authority's written response (advice or corrective measures); the controller's response to the supervisory authority (adjustments made or decision to abandon); evidence of adjustment to processing prior to go-live |
 
 ---
 
