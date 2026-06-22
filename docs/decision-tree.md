@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.2\
-**Date:** 2026-06-21\
+**Version:** 1.0.3\
+**Date:** 2026-06-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
@@ -106,9 +106,9 @@ These documents apply regardless of size, sector, or jurisdiction. Read in this 
 
 ### 2.1 Orientation (read first)
 
-1. [`README.md`](../README.md) — repository overview, structure, adoption posture.
-2. [`docs/adopter-guide.md`](adopter-guide.md) — general adoption principles.
-3. [`governance/register-glossary.md`](../governance/register-glossary.md) — acronym reference (keep open while reading).
+1. [`README.md`](../README.md) — repository overview, structure, adoption posture. Acronyms in this file are expanded at first occurrence (per PR #172 / FR-4 and PR #179 / FR-106 / PR #196 / FR-113 polish), so glossary lookup is rarely needed while reading.
+2. [`docs/adopter-guide.md`](adopter-guide.md) — general adoption principles. Same first-occurrence expansion convention.
+3. [`governance/register-glossary.md`](../governance/register-glossary.md) — acronym reference. Open this if you encounter an unexplained acronym in any document; the orientation files above expand acronyms inline, so glossary lookup is reserved for the deeper-domain documents in §2.2 and beyond.
 4. [`governance/register-coverage-gaps.md`](../governance/register-coverage-gaps.md) — what the library does not yet cover.
 
 ### 2.2 Governance core

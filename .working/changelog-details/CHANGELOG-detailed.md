@@ -6,6 +6,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.179, PR #200
+
+Closes **FR-132** (low). Eighth overnight-batch PR.
+
+### Fixed
+
+- [`docs/decision-tree.md`](../../docs/decision-tree.md) §2.1 Orientation list (lines 109-112):
+  - Item 1 (README) and item 2 (adopter-guide) get inline notes that acronyms are expanded at first occurrence per PR #172 / FR-4, PR #179 / FR-106, and PR #196 / FR-113 acronym-polish work.
+  - Item 3 (glossary) gets a note that it's reserved for deeper-domain documents in §2.2+ where the orientation files' inline expansion no longer applies.
+- Per-doc decision-tree `1.0.2 → 1.0.3` (patch); Date `2026-06-21 → 2026-06-22`.
+
+### Design choice
+
+The fitness recommendation offered two options: (a) move glossary to item 1, or (b) note that recent improvements reduced acronym density in earlier-read docs. Adopted option (b) because:
+- The existing ordering (README → adopter-guide → glossary) is a "skim → orient → reference" pattern that aligns with how new adopters discover the library.
+- The acronym density in items 1-2 has been substantially reduced (FR-4 / FR-106 / FR-113 closures), so the original concern (glossary needed before reading) no longer holds for items 1-2.
+- Option (a) would invert the entry-point pattern, which is a larger change with downstream implications (other navigation surfaces also lead with README).
+
+This is a maintainer-reasonable mechanical choice (option (b) is non-disruptive); a future maintainer pass can revisit if option (a) becomes preferred.
+
+### Changed
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for PR #199's /validate-pr (0 findings).
+  - Per-document Version `1.2.7 → 1.2.8`.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0.
+
 ## 2026-06-22, Library Version 2026.06.178, PR #199
 
 Closes **FR-117** (medium). Seventh overnight-batch PR. Closes the third of the four Convergent Finding C1 items (Risk Owner role insufficiency).

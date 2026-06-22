@@ -185,10 +185,9 @@ Source: [`.working/fitness-reviews/2026-06-22-r1.md`](.working/fitness-reviews/2
 - **FR-126** (`security/procedure-access-control.md` lines 54-58): Auto-escalation mechanic vague (who triggers escalation?).
 - **FR-130** (`docs/decision-tree.md` lines 107-120): Decision-tree entry sequence delays portal encounter (item 8 of 8).
 
-### Low / FYI tier — 3 findings from the 2026-06-22 review
+### Low / FYI tier — 2 findings from the 2026-06-22 review (FR-132 closed in PR #200)
 
 - **FR-131** (`docs/template-quickstart.md` line 39 vs `docs/adopter-guide.md` lines 116-117): Quickstart vs adopter-guide Tier 1 risk-artefact set divergence.
-- **FR-132** (`docs/decision-tree.md` line 111): Glossary precedes acronym-bearing prose in decision-tree (cognitive ordering issue).
 - **FR-133** (`docs/decision-tree.md` line 216): Non-Anglosphere jurisdictions less prominently surfaced (FYI; jurisdiction index exists).
 
 ### Standardization recommendations from the 2026-06-22 review
