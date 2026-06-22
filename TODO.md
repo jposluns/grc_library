@@ -121,7 +121,7 @@ Full list with one-line summaries available in r1.md §3 (`.working/fitness-revi
 - **KRI/KPI** (2): FR-93 (KRI escalation owner missing), FR-94 (Linked controls assume control register).
 - **Cross-framework matrix** (2): FR-97 (ISO 31000 clause numbering), FR-98 (NIS 2 annex evidence-class column).
 - **Continuous-assurance / 3LoD** (4): FR-99 ⚠️ (per-control effectiveness metrics), FR-100 (cloud baseline cites families not sub-controls), FR-101 ⚠️ (closure sign-off authority implicit), FR-102 (change management binary).
-- **Newcomer** (1): FR-104 ⚠️ (decision-tree per-regulation context).
+- **Newcomer**: FR-104 closed without code change (maintainer decision 2026-06-22: per-regulation context not pursued; see [`.working/design-decisions.md`](.working/design-decisions.md) § Decisions explicitly dropped).
 
 ### Low tier — 14 findings (deferred to later routine cleanup cycle)
 
@@ -178,7 +178,7 @@ Source: [`.working/fitness-reviews/2026-06-22-r1.md`](.working/fitness-reviews/2
 - **FR-120** (`governance/policy-exception-and-risk-acceptance-management.md` line 99): 180-day baseline citation imprecise/circular (NIST CA-6 specifies annual+, ISO 27001:2022 Clause 9.2 doesn't prescribe interval).
 - **FR-124** (`security/procedure-access-control.md` §3.2-3.3): Access-review revocation timeline contradiction.
 - **FR-126** (`security/procedure-access-control.md` lines 54-58): Auto-escalation mechanic vague (who triggers escalation?).
-- **FR-130** (`docs/decision-tree.md` lines 107-120): Decision-tree entry sequence delays portal encounter (item 8 of 8).
+- **FR-130**: closed without code change (maintainer decision 2026-06-22: keep README at decision-tree item 1; portal reorder not pursued; see [`.working/design-decisions.md`](.working/design-decisions.md) § Decisions explicitly dropped).
 
 ### Low / FYI tier — 1 finding from the 2026-06-22 review (FR-132 closed in PR #200, FR-133 closed in PR #203)
 
@@ -196,10 +196,10 @@ Three new audit-gate candidates surfaced (would need separate maintainer decisio
 
 Per [`.working/fitness-reviews/2026-06-22-r1.md`](.working/fitness-reviews/2026-06-22-r1.md) Recommendations section:
 
-1. **Risk Owner completion PR** (FR-115 / FR-116 / FR-117 closed in PRs #197 / #198 / #199; FR-119 deferred — needs maintainer decision on rename-vs-unify the two Risk Owner definitions). Convergent Finding C1: 3 of 4 closed.
+1. **Risk Owner completion PR** (FR-115 / FR-116 / FR-117 closed in PRs #197 / #198 / #199; FR-119 closed in PR #211 — same role unification). Convergent Finding C1: **fully closed**.
 2. **Access-control operational clarity PR** (closes FR-121, FR-122, FR-123, FR-124, FR-125, FR-126) — Convergent Finding C2; all 6 deferred — need operational-threshold decisions ("material harm" definition; "declared incident response" tied to status; "delegated security lead" role; revocation timeline pick).
 3. **Retention chain sweep PR** (FR-128 closed in PR #194, FR-129 closed in PR #195) — Convergent Finding C3: fully closed. Adjacent AI / Supplier audit retention rows still at 5y; whether to raise needs maintainer decision.
-4. **DTI / maturity ladder reconciliation PR** (closes FR-14 from the 2026-06-21 review + FR-114 from the 2026-06-22 review): high-critical from 2026-06-21, still open; full reconciliation pass.
+4. **DTI / maturity ladder reconciliation PR** (FR-14 from the 2026-06-21 review + FR-114 from the 2026-06-22 review): **closed in PR #212** — CMMI 5-tier (Initial / Managed / Defined / Quantitatively Managed / Optimized) canonical across the template and the DTI register.
 
 Maintainer's call on whether to interleave these with existing Phase 1 / Phase 2 plan or pause Phase 1 to address C1+C2+C3 first.
 

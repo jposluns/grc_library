@@ -4,6 +4,10 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-22, Library Version 2026.06.193, PR #214
+
+Morning-processing PR for the overnight session that ended at PR #213. Routed the overnight session's design decisions into [`.working/design-decisions.md`](.working/design-decisions.md) (two explicit-drop entries for FR-104 and FR-130 closures), reset [`.working/overnight-pr.md`](.working/overnight-pr.md) from `Status: in-flight` back to stub, and updated TODO and the Next-up recommendations to reflect FR-119 and FR-14+FR-114 closures. Also carried the PR #213 batched items per the recursion-avoidance rule: fixed a stale forward-reference at [`dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md`](dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md) line 175 (the queued-for-PR-186 framing is now stale since the skill it referenced shipped in PR #213); appended the PR #213 validate-pr history row and the PR #213 improvement-log row with the first pattern observation (new-skill drafting checklist candidate). Pack `1.45.0 → 1.45.1` (patch on the SKILL.md prose fix).
+
 ## 2026-06-22, Library Version 2026.06.192, PR #213
 
 **Added.** New pack skill [`pr-retrospective`](dev-security/claude-rules/skills/pr-retrospective/SKILL.md) (slash command [`/retro`](.claude/commands/retro.md)) and the paired improvement-log register at [`.working/improvement-log.md`](.working/improvement-log.md). The skill is the **continuous process-improvement loop**: post-merge retrospective on each successful PR, output is one entry per PR in the register, recurring patterns surface as candidates for pack-rule updates / worker-brief template additions / new audit gates.

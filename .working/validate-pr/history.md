@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.21\
+**Version:** 1.2.22\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -12,6 +12,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | 213 | 7 | 1 (1 in-window: stale forward-ref; 0 out-of-window) | none (batched) | — | Twenty-first-batch PR (continuous process-improvement loop: `/retro` skill + improvement-log register). Subagent A scoped to PR #213's diff (SKILL.md + slash command + register + PAIRS registry + pack README + CLAUDE.md PR-workflow step 5b). One in-window finding: [`dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md`](../../dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md) line 175 carries a stale forward-reference ("queued for PR #186, will live at...") in future tense; the `pr-retrospective` skill it queues now exists (PR #213) and the reference should resolve to a present-tense link. Fix batched into PR #214 (the morning-processing PR). Cross-reference check: pack README skills-table enumeration row added in PR #213 cross-resolves; PAIRS registry's new `pr-retrospective ↔ retro.md` pair gate-44 verified parity on the new pair. No other stale references surfaced. |
 | 2026-06-22 | 212 | 10 | 0 (0 in-window, 0 out-of-window) | none | — | Twentieth-batch PR (FR-14 + FR-114 CMMI 5-tier maturity reconciliation). Subagent A verified template tier names match framework §2 verbatim, DTI thresholds use 5-tier even 1.0-band scheme, cross-references resolve, no stale tier-names elsewhere in corpus. Row batched into PR #213. |
 | 2026-06-22 | 211 | 10 | 0 (0 in-window, 0 out-of-window) | none | — | Nineteenth-batch PR (FR-119 Risk Owner unification, C1 fully closed). Subagent A verified §3 + §9.2 6-action alignment, exception policy cross-reference, grammar fix. Row batched into PR #212. |
 | 2026-06-22 | 210 | 44 | 0 (0 in-window, 0 out-of-window) | none | — | Eighteenth-batch PR (FR-46 Privacy Officer rename, 36 files; DPO assessment surfaced). Subagent A verified the negative-lookbehind sed correctly preserved existing "Chief Privacy Officer" instances; 0 unprefixed "Privacy Officer" remnants in corpus; 8+ "Privacy Officer / DPO" synonym constructions and ai/charter-ai-governance-council.md:62 "Chief Privacy Officer (or Data Protection Officer)" pattern preserved verbatim; outlier supply-chain/procedure-supplier-onboarding-security-review.md:135 escalation chain correctly identified. Row batched into PR #211. |

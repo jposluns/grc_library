@@ -1,6 +1,6 @@
 # Improvement Log Register
 
-**Version:** 1.0.0\
+**Version:** 1.0.1\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -35,4 +35,5 @@ The register is maintainer working state, exempt from corpus audit gates per the
 
 | Date | PR | FR closed | What went well | Friction | Pattern (if any) | Proposed improvement |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | #213 (meta-self) | — | The new `/retro` skill applied to its own introducing PR. The skill design pulled cleanly from the validate-pr SKILL structure (sibling-skill consistency); pattern observation #1 was generated as the proof-of-discipline output. | Drafting a new skill that crosses multiple parallel surfaces (SKILL.md + slash command + register + PAIRS registry + pack README enumeration + CLAUDE.md workflow integration) carried multiple per-surface checklist items; three pre-merge audit failures occurred (link depths, PAIRS missing, pack-README missing row) plus four em-dash style catches caught at apply-time. Each was mechanical; the cluster was not. | First occurrence of "new-skill drafting" friction cluster: each new skill that crosses these N surfaces will have the same per-surface checklist needs. | **Add a `new-skill drafting checklist` section to the worker-brief template's DO list**, enumerating the parallel surfaces (path depth in repository-internal links, pack-README skills-table row, PAIRS registry update if slash-command counterpart exists, language audit pre-flight, slash-command file as sibling). Lives in `.working/worker-brief-template.md`. Candidate for follow-up PR after one or two more new-skill PRs confirm the pattern. |
 | 2026-06-22 | #213 | — | First `/retro` skill PR. Skill design pulled cleanly from the validate-pr SKILL's structure (sibling-skill consistency); slash command + register + skill all shipped in one PR (per the maintainer's "always split when in doubt" exception for tightly-coherent work). | No friction. The pack PAIRS registry needed updating to include the new pair; standard gate-44 update. | Single occurrence; nothing to pattern yet. | — |

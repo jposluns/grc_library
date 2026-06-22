@@ -224,3 +224,15 @@ The convention is: at each commit, the maintainer (or AI verifier) runs every ga
 When the AI Security Tooling Landscape Register was created, it asserted capability claims for each project. The Citation Verification Specification §14 explicitly excludes "verification of standard content versus the library's interpretation of it" from the methodology scope.
 
 Decision: verification covers metadata (existence, version, publication date, supersedence, ID format) and integrity anchors (commit SHA, Wayback snapshot URL). It does NOT verify that the library's prose interpretation of a project's capabilities is accurate. That would require the library to engage in interpretation disputes with project authors; the methodology stays at the citation-metadata layer.
+
+### FR-104 — Decision-tree per-regulation context not pursued (decided 2026-06-22)
+
+Fitness review 2026-06-22 r1 surfaced FR-104 (medium severity): the decision-tree in [`docs/decision-tree.md`](../docs/decision-tree.md) §1.4 lists seven regulations as bullet-list choices without per-regulation context describing what each covers. The finding proposed adding a one-line descriptor per regulation so a newcomer choosing among them has framing.
+
+Decision: not pursued. The decision tree's audience is a reader who is already navigating toward a specific regulation; the descriptor-per-regulation would inflate the section without changing the navigation outcome (the reader still chooses the regulation that applies to them). The per-regulation framing lives in each regulation's dedicated annex, which is where a newcomer who needs the context will land regardless.
+
+### FR-130 — Decision-tree portal entry-point reorder not pursued (decided 2026-06-22)
+
+Fitness review 2026-06-22 r1 surfaced FR-130 (medium severity): [`docs/decision-tree.md`](../docs/decision-tree.md) lines 107-120 list the README as the first entry point and the portal as item 8 of 8, which one persona felt delayed encounter with the portal navigational surface. The finding proposed moving the portal to item 1.
+
+Decision: not pursued. The README is the canonical first-encounter surface for adopters cloning the library; the decision tree's ordering reflects that intent. The portal is a secondary navigational artefact useful once a reader has the corpus open, and its position at item 8 reflects discovery sequencing (read the README, then explore via the portal). Reordering would invert the intent. PR #200 explicitly preserved the existing pattern when closing the adjacent FR-132.
