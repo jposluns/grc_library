@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #227 — Closes FR-40 (medium, P2.1): PIPL Articles 38-40 cross-border outbound mechanics operationalised (2026-06-22)
+
+`privacy/procedure-privacy-impact-and-cross-border-transfer.md` previously had one line on PIPL cross-border. Expanded into 7-step workflow covering applicability + CIIO assessment, Article 38 mechanism selection (5-tier volume table with 2024 CAC Provisions safe harbors and thresholds), Article 39 separate consent, Article 40 CIIO domestic-storage default, PIA per Article 55, documentation/re-assessment cadence, and coordinated triggers across regimes. Per-doc `1.4.1 → 1.5.0`. Also carries deferred PR #226 /validate-pr + /retro register rows.
+
 ### PR #226 — Closes FR-39 (medium, P2.1): EU representative Article 27 appointment process (2026-06-22)
 
 `privacy/charter-privacy-management-programme.md` previously mentioned the EU representative only in passing. New subsection under Privacy accountability structure covering Article 3(2) trigger, Article 27(2) 4-criterion exemption, Article 27(3)(4) representative criteria, 7-step designation process, maintenance triggers, Article 27(5) liability clarification, and cross-regime equivalents (UK GDPR, LGPD, PIPL Art 53, India DPDP, Saudi PDPL). Per-doc `1.3.3 → 1.4.0`. Also carries deferred PR #225 /validate-pr + /retro register rows.

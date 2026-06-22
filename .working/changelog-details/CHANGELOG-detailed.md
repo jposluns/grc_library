@@ -6,6 +6,40 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.205, PR #227
+
+**Closes FR-40 (medium, P2.1)**: PIPL Articles 38 to 40 cross-border outbound mechanics operationalised in [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md).
+
+### Added
+
+- **7-step PIPL outbound workflow** replacing the prior one-line "Apply PIPL Articles 38 to 40":
+  - **Step A** applicability + CIIO status (5-row determination table: CIIO, important data, non-sensitive volume, sensitive volume, contract-performance basis).
+  - **Step B** mechanism selection per Article 38 (5-tier table aligning volume / category to required mechanism: safe-harbor under 100,000, safe-harbor contract-performance, Standard Contract for 100,000-1,000,000 or under 10,000 sensitive, CAC Security Assessment for over 1,000,000 / CIIO / important data / 10,000+ sensitive, third-party certification for intra-group).
+  - **Step C** Article 39 separate consent with 5 mandatory elements (overseas recipient name and contact, purposes, categories, rights-exercise method against overseas recipient, withdrawal right); not bundleable with Article 13 general consent.
+  - **Step D** Article 40 CIIO and regulated-quantity obligations (domestic-storage default; CAC security assessment for outbound; international-treaty exception). CIIO designation is by industry regulator, not self-designated. 2024 Provisions do not exempt CIIOs from Article 40 default.
+  - **Step E** PIA per Article 55 (basis, purpose, categories, volume, recipient measures, risk; 3-year retention).
+  - **Step F** documentation and re-assessment (5-row cadence table: mechanism evidence retention, quarterly volume re-check, 3-year security-assessment renewal, Article 39 consent updates on material change, cross-reference to China annex on regulatory amendments).
+  - **Step G** coordinated triggers across regimes (parallel GDPR Chapter V; Article 36 prior consultation interaction).
+
+### Changed
+
+- **Per-doc Version**: `1.4.1 → 1.5.0` (minor; substantive new workflow operationalising 3 PIPL articles and 1 CAC Provisions implementation).
+- **Generated artefacts**: [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated.
+- **`.working/validate-pr/history.md`** (Version `1.2.32 → 1.2.33`): new top row for PR #226's /validate-pr (deferred; 0 findings).
+- **`.working/improvement-log.md`** (Version `1.0.11 → 1.0.12`): new top row for PR #226's /retro. Em-dash temptation pattern status: shifted from "pattern stage" to "converging" after preemptive avoidance produced a clean first-pass audit. Worker-brief template update remains queued.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit (one apply-time language-audit catch on Canadian/American "recognised" → "recognized" orthography per the Canadian-first convention; one fail-then-fix loop on taxonomy and portal regen).
+- `tools/run-pr-time-checks.sh` reports D1, D2, gate 45 all OK.
+- PIPL Articles 38, 39, 40, 55 verified against canonical PIPL text. CAC Provisions on Promoting and Regulating the Cross-Border Flow of Data (effective 22 March 2024) cross-checked against the China annex's existing thresholds.
+- Cross-document consistency: thresholds in this procedure (100,000 non-sensitive, 10,000 sensitive, 1,000,000 large transfer, 3-year SA validity) match the China annex's authoritative threshold list verbatim. No drift.
+
+### Discipline observation
+
+- **Procedure-as-workflow vs annex-as-reference**: this PR adds operational workflow steps to the cross-border procedure rather than expanding the China annex. The annex remains the authoritative threshold reference; the procedure references the annex for current thresholds. The split preserves the annex as the single source of truth for jurisdictional facts; the procedure as the cross-jurisdictional workflow.
+- **Coordinated triggers section (Step G)**: explicitly addresses the multi-regime case (PIPL + GDPR Chapter V parallel; PIPL + Article 36 prior consultation). Avoids the failure mode where a multi-regime transfer is handled under only the regime the orchestrator first considered.
+
 ## 2026-06-22, Library Version 2026.06.204, PR #226
 
 **Closes FR-39 (medium, P2.1)**: EU representative (GDPR Article 27) appointment process added to [`privacy/charter-privacy-management-programme.md`](../../privacy/charter-privacy-management-programme.md).
