@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.42\
+**Version:** 1.2.43\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -12,6 +12,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | 236 | 11 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Forty-second-batch PR (PR-G in Batch 1: P7 A2 + B4 + FR-47 closure, plus PR-F deferral). Validate-pr abbreviated spot-check confirmed: A2 cross-reference in role-authority register; B4 soft-law scope extension + WP243 rev.01 entry; FR-47 formally closed. No findings. Row carried into Batch 2 PR #237 (FR-36 EU member-state Article 8 table). |
 | 2026-06-22 | 235 | 10 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Forty-first-batch PR (PR-E in Batch 1: C2 emergency-access bundle 6 items in `security/procedure-access-control.md` v1.1.1 → 1.2.0). Sample-data defaults shipped per maintainer pre-approval. No findings. Row carried into PR #236. |
 | 2026-06-22 | 234 | 8 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Fortieth-batch PR (PR-D in Batch 1: FR-67 zero-headcount-with-contractor sub-tier E0 in startup-roadmap template Dimension E ladder). No findings. Row carried into PR #235. |
 | 2026-06-22 | 233 | 10 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Thirty-ninth-batch PR (PR-C in Batch 1: FR-89 + FR-91 security XS bundle in `dev-security/standard-api-security.md` v0.0.4 → 0.0.5). Validate-pr abbreviated spot-check confirmed JWT algorithm-key-type binding (Section 2 Token validation row); webhook canonical-string + constant-time comparison + replay-window (Section 12). Apply-time gate-30 catch resolved within same commit. No findings. Row carried into PR #234. |
