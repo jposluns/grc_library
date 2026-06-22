@@ -1,6 +1,6 @@
 # Library Fitness Review History
 
-**Version:** 1.2.2\
+**Version:** 1.2.3\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -43,9 +43,9 @@ For the 2026-06-21 run, the full FR-1 through FR-111 backlog is enumerated in [`
 | FR-114 | 2026-06-22 | DTI tier vocabulary vs framework CMMI (4-tier vs 5-tier; closely related to the 2026-06-21 run's FR-14) | high[critical] | pending | — |
 | FR-121 | 2026-06-22 | Emergency-access "material business or safety harm" undefined | high[critical] | pending | — |
 | FR-122 | 2026-06-22 | "Declared incident response" trigger not tied to specific incident status | high[critical] | pending | — |
-| FR-127 | 2026-06-22 | TLS 1.2 in ZTA framework vs TLS 1.3 in encryption policy | high[critical] | pending | — |
-| FR-128 | 2026-06-22 | CAPA retention 5y vs control-testing 7y (audit-evidence chain break) | high[critical] | pending | — |
-| FR-129 | 2026-06-22 | Internal audit reports retention 5y vs procedures' 7y (audit-evidence chain break) | high[critical] | pending | — |
+| FR-127 | 2026-06-22 | TLS 1.2 in ZTA framework vs TLS 1.3 in encryption policy | high[critical] | closed | [#193](https://github.com/jposluns/grc_library/pull/193) |
+| FR-128 | 2026-06-22 | CAPA retention 5y vs control-testing 7y (audit-evidence chain break) | high[critical] | closed | [#194](https://github.com/jposluns/grc_library/pull/194) |
+| FR-129 | 2026-06-22 | Internal audit reports retention 5y vs procedures' 7y (audit-evidence chain break) | high[critical] | closed | [#195](https://github.com/jposluns/grc_library/pull/195) |
 
 (High and Medium and Low items from both runs: 93 additional items, tracked in detail files; not enumerated here to keep this table scannable.)
 

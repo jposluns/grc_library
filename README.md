@@ -4,8 +4,8 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.06.174 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.9.45 (semantic per-document version for this file)
+**Library Version:** 2026.06.175 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.9.46 (semantic per-document version for this file)
 
 ---
 
@@ -105,7 +105,7 @@ Documents are organized by primary governance domain.
 
 /risk           Enterprise risk management: standard, risk register procedure, and risk acceptance procedure.
 
-/compliance     Compliance management, audit governance, CAPA, regulatory applicability register,
+/compliance     Compliance management, audit governance, CAPA (Corrective and Preventive Action), regulatory applicability register,
                 and trade compliance programme references (logistics-specific; skip if not applicable):
                 CTPAT (US Customs-Trade Partnership Against Terrorism), BASC (Business Alliance
                 for Secure Commerce), PIP (Canada Partners in Protection), AEO (EU Authorised
@@ -120,7 +120,7 @@ Documents are organized by primary governance domain.
                 controls, impact assessment, and AI-specific assurance artefacts.
 
 /operations     Production and infrastructure security: network and cloud configuration standards,
-                physical security, change management, SIEM operations, patch management, and endpoint controls.
+                physical security, change management, SIEM (Security Information and Event Management) operations, patch management, and endpoint controls.
 
 /resilience     Business continuity, disaster recovery, crisis management, resilience testing,
                 and recovery governance.

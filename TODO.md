@@ -177,10 +177,9 @@ Source: [`.working/fitness-reviews/2026-06-22-r1.md`](.working/fitness-reviews/2
 - **FR-123** (`security/procedure-access-control.md` lines 35-39): "Delegated security lead" undefined in roles table.
 - **FR-125** (`security/procedure-access-control.md` §1.4.2): Emergency-access revocation enforcement lacks escalation.
 
-### Medium tier — 9 findings from the 2026-06-22 review
+### Medium tier — 8 findings from the 2026-06-22 review (FR-113 closed in PR #196)
 
 - **FR-112** (`README.md` line 58): Maintainer-context leakage in adopter-narrative. Toolchain framed as required dependency.
-- **FR-113** (`README.md` lines 108, 123): CAPA and SIEM acronyms unexpanded in Repository Structure block. Regression of PR #172 / #179 pattern.
 - **FR-116** (`risk/standard-enterprise-risk-management.md` line 192): Risk Owner monitoring cadence incomplete for non-Critical risks.
 - **FR-117** (`risk/standard-enterprise-risk-management.md` lines 203-216): Risk Owner evidence expectations implicit; §9 lists evidence outputs but not what proves Risk Owner accountability.
 - **FR-119** (`governance/policy-exception-and-risk-acceptance-management.md` line 46): "Risk Owner" used with different responsibility set than ERM standard.
