@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Impact and Cross-Border Transfer Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.0\
+**Version:** 1.4.1\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -34,7 +34,7 @@ This procedure defines the process for conducting Privacy Impact Assessments (PI
 
 ---
 
-## Governance
+## Governance and accountability
 
 | Role | Responsibility |
 |---|---|

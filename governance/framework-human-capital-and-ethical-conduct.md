@@ -2,8 +2,8 @@
 
 **Document Title:** Human Capital and Ethical Conduct Framework\
 **Document Type:** Framework\
-**Version:** 1.0.2\
-**Date:** 2026-05-28\
+**Version:** 1.0.3\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](../security/procedure-onboarding-and-offboarding.md), [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md)\
@@ -90,7 +90,7 @@ Training completion is tracked and reported annually to the ERC and relevant com
 
 ---
 
-## Governance
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |

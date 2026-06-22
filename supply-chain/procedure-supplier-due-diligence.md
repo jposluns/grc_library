@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.0\
-**Date:** 2026-05-28\
+**Version:** 1.1.1\
+**Date:** 2026-06-22\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -33,7 +33,7 @@ This procedure is aligned with ISO/IEC 27036-2, COBIT 2019 BAI05, and CSA CCM v4
 
 ---
 
-## Governance
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |

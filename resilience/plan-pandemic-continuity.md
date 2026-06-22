@@ -2,7 +2,7 @@
 
 **Document Title:** Pandemic Continuity Plan\
 **Document Type:** Plan\
-**Version:** 1.0.3\
+**Version:** 1.0.4\
 **Date:** 2026-06-22\
 **Owner:** Resilience Owner\
 **Approving Authority:** Executive Management\
@@ -129,7 +129,7 @@ Each in-scope function maps to one of these tiers in the business impact analysi
 
 ---
 
-## Governance
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
