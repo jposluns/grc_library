@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.227, PR #249
+
+**Handoff-PR QA loop-break.** Codifies the maintainer-directed fix for a recursion in the per-PR QA cadence at session boundaries: the session-closing handoff PR is exempt from the trailing `/validate-pr`/`/retro`, with a full corpus-wide `/validate` on the next `/resume` as the compensating control.
+
+### Changed
+
+- **[`.claude/CLAUDE.md`](../../.claude/CLAUDE.md)**: PR-workflow step 5a gains a **handoff-PR exception** paragraph (the loop rationale: trailing `/validate-pr`/`/retro` on a handoff PR produce ledger rows that batch into a new PR whose merge triggers another sweep, unterminating at a session boundary; the compensating control is `/resume`'s full `/validate`; recorded as a maintainer-authorised standing exception in the history-row Summary per the no-skip discipline). The `## Session migration and PR close-out checklist` section gains a third point, "Closing-handoff-PR discipline (a session's last act is a green merge)", tying the green-merge-as-last-act practice to the loop-break.
+- **[`.claude/commands/resume.md`](../../.claude/commands/resume.md)**: new step 5 — run a full corpus-wide `/validate` as the first substantive task (the compensating control), with the loop rationale inline; the continue-from-queue step renumbers to 6 and now says "formal per-PR `/validate-pr` + `/retro` for every non-handoff PR".
+- **[`.working/session-handoff.md`](../session-handoff.md)**: how-to-resume gains the `/validate`-first step; the state snapshot advances to after-PR-#249 (library `2026.06.227`, README `1.9.98`) and replaces the "pending validate-pr/retro batch" note with "no rows pending (handoff PRs exempt)"; next-actions gains item 0 (full `/validate` first); standing disciplines note the one standing exception.
+- **[`TODO.md`](../../TODO.md)**: the trust-recovery codification "Done" line adds #248 and #249; a new remaining item to **generalize the carve-out into the pack layer** (`validation-sweep-pr-scoped` SKILL + `ai-assistant-workflow-disciplines` no-skip section); P4.6 gains a "Handoff-PR exemption (must be designed in)" bullet; new **P4.7 Overnight unattended-run driver** (external fresh-session-per-unit driver loop; deferred to a future session, building blocks confirmed via claude-code-guide).
+- **[`.working/validate-pr/history.md`](../validate-pr/history.md)** (Version `1.2.52 → 1.2.53`): one row covering PRs #248+#249 recording the maintainer-authorised handoff-PR exemption and the compensating control; notes the informational zero-finding Subagent A run on #248's diff.
+- **[`README.md`](../../README.md)**: library `2026.06.226 → 2026.06.227`; README `1.9.97 → 1.9.98`.
+
+### Verification
+
+- `.claude/` and `.working/` are gate-exempt; the only gated files touched are `README.md` (version lines), `CHANGELOG.md` (this entry pair), and `TODO.md` (gate 45 staleness). No adopter-facing corpus content changed.
+- `tools/run_all_audits.sh` exit 0 (46/46) post-commit; `tools/run-pr-time-checks.sh` exit 0 (D1 entry pair, D2 the `validate-pr/history.md` Version bump, gate 45 clean).
+- Per the rule this PR establishes, #249 (a session-closing handoff PR) runs **no** trailing `/validate-pr`/`/retro`; the next session's `/resume` runs a full `/validate` as its first task.
+
 ## 2026-06-22, Library Version 2026.06.226, PR #248
 
 **Session-closing handoff PR.** Adds the generic long-session-degradation lesson and lands the session's working-state on `main` as a green merge, per the maintainer's discipline that a session's last act is a green merge so the next session resumes from `main` rather than from an unmerged feature branch.
