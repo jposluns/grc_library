@@ -98,7 +98,6 @@ Research files for every queued P2.x cluster are prepared in advance (per the re
 - **FR-74 (M, M)**: Schrems II-light treatment. **Consolidates with FR-34** (Transfer Impact Assessment in P1).
 - **FR-75 (M, S) ⚠️**: ESG materiality threshold.
 - **FR-76 (M, S) ⚠️**: Sustainability framework escalation triggers.
-- **FR-112 (M, XS)**: Maintainer-context leakage in `README.md` line 58; toolchain framed as required dependency.
 - **FR-120 (M, S)**: 180-day baseline citation imprecise/circular in [`governance/policy-exception-and-risk-acceptance-management.md`](governance/policy-exception-and-risk-acceptance-management.md) line 99 (NIST CA-6 specifies annual+; ISO 27001:2022 Clause 9.2 doesn't prescribe interval).
 - **FR-12 within-document closure was PR #178**; this follow-up is the cross-document harmonisation.
 
@@ -139,7 +138,6 @@ Deferred to a routine cleanup batch when convenient. Cross-reference only.
 
 ### FYI-tier from 2026-06-22 review
 
-- **FR-131 (FYI, XS)**: Quickstart vs adopter-guide Tier 1 risk-artefact set divergence in [`docs/template-quickstart.md`](docs/template-quickstart.md) line 39 vs [`docs/adopter-guide.md`](docs/adopter-guide.md) lines 116-117.
 
 ### Routine cleanup items (non-fitness origin)
 
