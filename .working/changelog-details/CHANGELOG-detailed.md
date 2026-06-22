@@ -6,6 +6,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.198, PR #220
+
+**Sweep 19 iter 1 close-out** — /validate sweep on the post-PR-#219 state (covering PRs #215-#219, the 5-PR window since Sweep 18 covered through PR #214). 2 in-window warnings surfaced; both fixed; deferred PR #219 /validate-pr and /retro register rows carried per the recursion-avoidance rule.
+
+### Fixed
+
+- **Finding 1 (warning, in-window)** — [`governance/guideline-minimum-viable-governance-structure.md`](../../governance/guideline-minimum-viable-governance-structure.md) line 67: replaced "CPO" with "DPO" in the executive-role enumeration `"...formal roles the library uses (CISO, CIO, CRO, CCO, CPO, etc.)..."` → `"...formal roles the library uses (CISO, CIO, CRO, CCO, DPO, etc.)..."`. Per-doc Version `1.0.1 → 1.0.2`; Date `2026-06-02 → 2026-06-22`.
+- **Finding 2 (warning, in-window)** — [`governance/guideline-minimum-viable-governance-structure.md`](../../governance/guideline-minimum-viable-governance-structure.md) line 114: replaced "CPO" with "DPO" in the Senior-executive row `"...CEO/equivalent, CIO, CISO, CRO, CCO, CPO, CTO, CFO, CHRO, General Counsel, Chief Audit Executive..."` → `"...CEO/equivalent, CIO, CISO, CRO, CCO, DPO, CTO, CFO, CHRO, General Counsel, Chief Audit Executive..."`. Same commit as Finding 1; single Version+Date bump covers both.
+
+### Added
+
+- **`.working/validate-sweeps/2026-06-22-sweep19-iter1.md`**: per-iteration detail file with the 6 H2 sections required by the SKILL (Trigger and state snapshot, Subagent A return, Subagent B return, Subagent C return, Orchestrator synthesis, Resulting PR plus a Notes section). All three subagents dispatched per the no-skip discipline.
+
+### Changed
+
+- **`.working/validate-sweeps/history.md`** (Version `2.0.11 → 2.0.12`): new top row for Sweep 19 iter 1.
+- **`.working/validate-pr/history.md`** (Version `1.2.25 → 1.2.26`): new top row for PR #219's /validate-pr (deferred from PR #219 per recursion-avoidance; carried into this PR).
+- **`.working/improvement-log.md`** (Version `1.0.4 → 1.0.5`): new top row for PR #219's /retro (deferred from PR #219 per recursion-avoidance; carried into this PR).
+- **`TODO.md`** line 16: validation-sweep cursor updated from "Sweep 18 iteration 1" to "Sweep 19 iteration 1" (gate 45 fail-then-fix loop).
+- **Generated artefacts** regenerated for the per-doc Version+Date bump on `governance/guideline-minimum-viable-governance-structure.md`: [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md).
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-each-edit (one fail-then-fix cycle on gate 45 / TODO staleness for the sweep-cursor update; one fail-then-fix on gate 36 / linter regression which exercises gate 45 in test form — same root cause).
+- `tools/run-pr-time-checks.sh` reports D1 (CHANGELOG-on-PR), D2 (per-PR version-bump), gate 45 all OK post-commit.
+- Iter 2 verification: direct corpus-wide `\bCPO\b` grep returns only intentional locations (24 at-top notes line 19; 3 canonical surfaces; TODO/CHANGELOG historical; `.working/` archives). No further re-dispatch of subagents needed; the only finding-producing surface was Subagent A's recent-PR-deep-review and its findings are fixed.
+
+### Discipline observation
+
+- **Pattern strengthened**: the "corpus-wide rename script: incomplete substitution coverage" pattern first surfaced in PR #218's /retro is now at SECOND occurrence (signal stage) per the three-occurrence progression — PR #218 /validate-pr Finding 2 (risk/register-key-risk-indicators.md:142) and this sweep's two findings have the same root cause (rename script scoped to spelled-out forms only). The queued worker-brief candidate (require both spelled-out and acronym substitution lists in corpus-wide rename scripts, plus a final post-script acronym grep) is strengthened. Next corpus-wide rename PR should already adopt the discipline; a worker-brief template update PR should follow.
+- **Iter 2 verification via grep**: the SKILL allows skipping subagent re-dispatch when the iter-1 findings are narrowly bounded and a direct mechanical check answers the only remaining hypothesis. Both Subagents B and C returned 0 findings in iter 1; Subagent A's 2 findings are bounded to 2 lines in 1 file. Re-dispatching all three subagents for iter 2 would be corroboration-only per the pre-tool-preamble's skip rule (no new hypothesis to test that a grep doesn't already answer). The corpus-wide `\bCPO\b` grep confirms iter 2 cleanliness; the per-iteration detail file documents this verification path explicitly.
+- **Out-of-scope-noted promotion**: PR #218's /validate-pr record had flagged the two `governance/guideline-minimum-viable-governance-structure.md` lines as "out-of-scope but noted — will surface in the next corpus-wide /validate sweep as out-of-window". The /validate sweep has now surfaced them; their classification is **in-window** per Subagent A's stated-scope reasoning (PR #218's stated scope was corpus-wide DPO consolidation, even though this file was not in PR #218's diff), not out-of-window. The earlier strict-touched-file-set classification was correct for /validate-pr; the broader frame applies for /validate.
+
 ## 2026-06-22, Library Version 2026.06.197, PR #219
 
 **Follow-up to PR #218** (FR-46 DPO consolidation canonical flip): adds at-top "Role-name convention" notes in 24 privacy-relevant documents, plus bundles the two /validate-pr findings from PR #218 (build-portal.py double-DPO + risk/register-key-risk-indicators.md:142 bare CPO) per the recursion-avoidance rule.

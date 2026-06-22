@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #220 — Sweep 19 iter 1 close-out + deferred PR #219 /validate-pr + /retro rows (2026-06-22)
+
+/validate corpus-wide sweep on the post-PR-#219 state surfaced 2 in-window warnings in `governance/guideline-minimum-viable-governance-structure.md` (lines 67 and 114, stale "CPO" in executive-role enumerations missed by PR #218's spelled-out-only rename script). Both fixed; per-doc Version `1.0.1 → 1.0.2`. Pattern now at second occurrence (signal stage): "corpus-wide rename script: incomplete substitution coverage" — queued worker-brief candidate strengthened. Carries PR #219 /validate-pr history row (0 findings) and /retro register row.
+
 ### PR #219 — At-top "Role-name convention" notes in 24 privacy-relevant docs + PR #218 /validate-pr fixes (2026-06-22)
 
 Follow-up to PR #218's DPO-canonical flip. Adds a blockquote callout note immediately after the metadata block (before the first H2 heading) in 24 privacy-relevant documents (privacy core 16, AI 3, supply-chain 3, security 1, governance 1) naming **Data Protection Officer (DPO)** as canonical, **Chief Privacy Officer (CPO)** as adopter substitution, and pointing to `governance/register-role-authority.md`. Bundles two PR #218 /validate-pr fixes per the recursion-avoidance rule: `tools/build-portal.py:95` "Data Protection Officer or Data Protection Officer" collapse fix (regen `docs/portal.md`); `risk/register-key-risk-indicators.md:142` stale "CPO" → "DPO" replacement. /validate-pr record + history row + /retro register row all carried in this PR. **No formal FR closed** (PR #218 closed FR-46/-47); this is the operational follow-through.

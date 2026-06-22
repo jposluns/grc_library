@@ -2,8 +2,8 @@
 
 **Document Title:** Minimum Viable Governance Structure Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-role-authority.md`](register-role-authority.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/charter-ai-governance-council.md`](../ai/charter-ai-governance-council.md)\
@@ -64,7 +64,7 @@ A small organisation can implement the library's governance content with two nam
 | Audit and Risk Committee | Where no formal audit committee exists, the founder/CEO with an external advisor reviewing periodically |
 | Reliability Council, Capacity Council, Technology Council | Standing agenda items in the executive forum |
 
-Named seats: the executive forum should still record decisions against the formal roles the library uses (CISO, CIO, CRO, CCO, CPO, etc.). One person may wear multiple role hats; in that case, record which role's authority a given decision invokes.
+Named seats: the executive forum should still record decisions against the formal roles the library uses (CISO, CIO, CRO, CCO, DPO, etc.). One person may wear multiple role hats; in that case, record which role's authority a given decision invokes.
 
 Key practice: the *responsibilities* the library assigns to each forum remain accountable; the discrete *forum* is consolidated.
 
@@ -111,7 +111,7 @@ The roles fall into four groups:
 
 | Group | Roles | Tier 1 typical incumbents |
 | --- | --- | --- |
-| Senior executive | CEO/equivalent, CIO, CISO, CRO, CCO, CPO, CTO, CFO, CHRO, General Counsel, Chief Audit Executive | One or two people wearing several hats |
+| Senior executive | CEO/equivalent, CIO, CISO, CRO, CCO, DPO, CTO, CFO, CHRO, General Counsel, Chief Audit Executive | One or two people wearing several hats |
 | AI sub-roles (when AI is in scope) | AI Governance Lead, AI Governance Approver, AI Data Steward, AI System Inventory Keeper, AI Risk Maintainer, AI Security Maintainer | One role-holder covers all four AI roles; the CISO or CIO is often the AI Governance Lead |
 | Ownership roles | System Owner, Data Owner, Control Owner, Process Owner, Supplier Owner, Resilience Owner, Security Owner, Communications Owner | Per-system / per-process; can be the operator who runs the thing |
 | Maintainer roles | Document Owner, Supplier Risk Maintainer, Compliance Maintainer, Privacy Maintainer, Risk Maintainer, Information Security Maintainer, Control Framework Maintainer, Assurance Metrics Maintainer | One role-holder covers several maintainer functions |
