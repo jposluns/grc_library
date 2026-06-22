@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.33\
+**Version:** 1.2.34\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -12,6 +12,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | 227 | 10 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Thirty-third-batch PR (FR-40 medium close: PIPL Articles 38-40 cross-border operationalised in cross-border procedure with 7-step workflow). Validate-pr abbreviated spot-check confirmed: 7-step workflow (applicability + CIIO, Article 38 mechanism, Article 39 consent, Article 40 obligations, Article 55 PIA, documentation + cadence, coordinated triggers); thresholds match China annex; per-doc Version 1.4.1 → 1.5.0; "recognised" → "recognized" apply-time language catch. No findings. Row carried into PR #228 (FR-42 close-out). |
 | 2026-06-22 | 226 | 10 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Thirty-second-batch PR (FR-39 medium close: EU representative Article 27 appointment process in `privacy/charter-privacy-management-programme.md` Privacy accountability structure). Validate-pr abbreviated spot-check confirmed: 7-component subsection structure (trigger, exemption, criteria, designation steps, maintenance, Article 27(5) clarification, cross-regime equivalents); per-doc Version 1.3.3 → 1.4.0; preemptive em-dash avoidance worked (clean first-pass language audit). No findings. Row carried into PR #227 (FR-40 close-out). |
 | 2026-06-22 | 225 | 10 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Thirty-first-batch PR (FR-38 medium close: Article 12(5) assessment checklist in `privacy/procedure-data-subject-rights-management.md` §7.2). Validate-pr abbreviated spot-check confirmed: 7-subsection structure (default free / unfounded criteria / excessive criteria / action options / burden-of-proof / fee calculation / cross-regime); §7.2 → §7.3 renumbering preserved cross-reference at line 189; per-doc Version 1.3.5 → 1.4.0; 2 em-dash apply-time catches in heading titles corrected within same content commit. No findings. Row carried into PR #226 (FR-39 close-out). |
 | 2026-06-22 | 224 | 13 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Thirtieth-batch PR (FR-37 medium close: Joint controller arrangement template v1.0.0 covering GDPR Article 26). Validate-pr abbreviated spot-check confirmed: 9-section template structure (identification, joint processing, Article responsibilities table, operational coordination, liability, termination, cross-regime alternatives, documentation, Article 26(2) essence publication); cross-listed in privacy/README and document-index register; gate-21 language audit caught 6 em-dashes + 1 bare "ensure" in apply-time draft, corrected within same commit; structural-index integrity audit caught README + document-index miss before commit, also corrected within same commit. No findings. Row carried into PR #225 (FR-38 close-out). |
