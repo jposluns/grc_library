@@ -1,0 +1,21 @@
+Invoke the `pr-retrospective` skill defined in this project's pack at [`dev-security/claude-rules/skills/pr-retrospective/SKILL.md`](../../dev-security/claude-rules/skills/pr-retrospective/SKILL.md). Slash-command entry point is `/retro`; the underlying skill name remains `pr-retrospective` (the descriptive name documents the workflow's purpose, the slash command is the ergonomic verb). Execute the post-merge retrospective per the five-step process the skill encodes:
+
+1. **Identify the PR and its inputs**: capture PR number, merge commit SHA, FR(s) closed (if any), the `/validate-pr` findings just returned (0 findings, N findings with categories, or out-of-window observations), any apply-time worker corrections logged in [`.working/hallucination-metrics.md`](../../.working/hallucination-metrics.md) during the PR, and recently-shipped PRs in the same cluster (for pattern surfacing).
+
+2. **Identify what went well**: one short observation (1-2 sentences). If nothing notable, record "Routine; no notable highlight."
+
+3. **Identify friction**: one short observation (1-2 sentences). If no friction, record "No friction observed."
+
+4. **Surface patterns (if any)**: a single occurrence is observation, second is signal, third is pattern. Record the pattern only when the friction in this PR matches friction seen in a recent PR (≤5 PRs prior).
+
+5. **Propose improvement (if any)**: name a concrete candidate (new audit gate, pack-rule update, worker-brief template addition). Candidates go in the register; the next planning cycle picks them up if priority warrants. Leave blank if no pattern surfaced.
+
+**Surface Pattern and Proposed-improvement entries in chat** (per the chat-surfacing discipline shared with `/validate` and `/validate-pr`). The maintainer should see proposed improvements at the moment they're identified, not on next deep-dive into the working-state archive. Clean-PR retrospectives (no friction, no pattern) get a one-sentence chat acknowledgement.
+
+**Batching into the next PR**. The register-row append is a content change; per the batching rule, the register-row commit is **batched into the next PR**, whatever its substantive purpose. The retrospective is conducted immediately after `/validate-pr`; only the register-row commit is deferred. A retrospective that surfaces a candidate improvement deserving its own PR DOES trigger that PR — but the substance of that PR is the improvement itself; the register row bundles in alongside.
+
+**No orchestrator-side skip discretion.** Same discipline as `/validate-pr`: every merged PR gets a `/retro` entry, even when the retrospective conclusion is "nothing new to learn." Zero-content entries serve as proof-of-discipline. Skipping is a policy deviation requiring maintainer authorisation.
+
+Append the entry to [`.working/improvement-log.md`](../../.working/improvement-log.md) with columns `Date | PR | FR closed | What went well | Friction | Pattern (if any) | Proposed improvement`. New rows on top (reverse-chronological).
+
+Report back: the entry as written; if a Pattern or Proposed-improvement surfaced, the chat-surface text; the path to the register file.

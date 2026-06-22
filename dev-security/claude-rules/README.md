@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.44.1\
+**Version:** 1.45.0\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -91,7 +91,8 @@ claude-rules/
 │   ├── citation-quote-verification/SKILL.md           Verify cited quotes match source text at the cited location; catches what citation-format and currency linters cannot
 │   ├── fresh-reader-validation/SKILL.md               Dispatch a fresh subagent to read a new or substantively-revised document and surface tacit-context gaps
 │   ├── skill-authoring-discipline/SKILL.md            Apply the pack's structural template and validate trigger accuracy when adding a new skill
-│   └── library-fitness-review/SKILL.md                Whole-corpus library-quality review with ten persona reviewers; periodic deliverable, not a per-PR gate
+│   ├── library-fitness-review/SKILL.md                Whole-corpus library-quality review with ten persona reviewers; periodic deliverable, not a per-PR gate
+│   └── pr-retrospective/SKILL.md                      Post-merge retrospective on each successful PR; appends to the improvement-log register; recurring patterns surface as candidates for pack-rule updates or worker-brief additions
 └── languages/
     ├── python.md                Python-specific security patterns and anti-patterns
     ├── typescript.md            TypeScript / Node.js security patterns
@@ -435,6 +436,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.45.0 | 2026.06.192 | 2026-06-22 | Added the [`pr-retrospective` skill](skills/pr-retrospective/SKILL.md) (slash command `/retro`) and the paired improvement-log register at [`.working/improvement-log.md`](../../.working/improvement-log.md). The skill is the orchestrator-side process-improvement loop: post-merge retrospective on each successful PR, output is one entry per PR in the register; recurring patterns surface as candidates for pack-rule updates, worker-brief template additions, or new audit gates. Pairs with the worker-side worker-brief template and the apply-time-catch tracking in hallucination-metrics.md to close the per-PR learning loop. Wired into the PR workflow step 5b in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) (sequence: validate-pr → retro → next-PR planning). Pack `1.44.1 → 1.45.0` (minor; new skill addition); `tools/lint-paired-skill-step-parity.py` PAIRS registry extended with the new `pr-retrospective` ↔ `retro.md` pair; pack-skills enumeration in pack README updated. Discipline: chat-surfacing for Pattern/Proposed-improvement entries; recursion-avoidance batching of register-row commits into the next substantive PR; no orchestrator-side skip discretion (every merge gets a `/retro` entry even when conclusion is "nothing to learn") |
 | 1.44.1 | 2026.06.187 | 2026-06-22 | FR-51 sweep touched 5 pack `skills/*/SKILL.md` files (action-before-explanation-of-inaction, artefact-discipline-check, change-tracking-write-entry, evidence-grounded-completion, gate-discipline-diagnose) with `27001 A.X` → `27001 Annex A.X` editorial alignment to the maintainer-approved canonical form. Pack patch bump for the SKILL-file edits |
 | 1.44.0 | 2026.06.185 | 2026-06-22 | Closes **FR-87** and **FR-88** (maintainer-approved). [`core/owasp.md`](core/owasp.md):145 SSRF range list completed: IPv4 ranges restated in canonical CIDR notation with RFC citations (10.0.0.0/8, 172.16.0.0/12 with explicit /12-span note, 192.168.0.0/16, 169.254.0.0/16 with cloud-metadata note, 127.0.0.0/8, 100.64.0.0/10 CGNAT); IPv6 ranges added (::1/128 loopback, fc00::/7 ULA, fe80::/10 link-local with cloud-metadata variants). [`dev-security/standard-api-security.md`](../standard-api-security.md):110 cipher row enumerated TLS 1.3 AEAD suites per NIST SP 800-52 Rev. 2 §3.3.1 (TLS_AES_256_GCM_SHA384 recommended; TLS_AES_128_GCM_SHA256 and TLS_CHACHA20_POLY1305_SHA256 also accepted; rejected suites enumerated). The standard-api-security per-doc Version `0.0.3 → 0.0.4` |
 | 1.43.0 | 2026.06.184 | 2026-06-22 | Closes the third FR-81 surface (maintainer-approved): [`dev-security/claude-rules/CLAUDE.md`](CLAUDE.md):58 TLS row updated from `TLS 1.3 (preferred), TLS 1.2 (minimum)` → `TLS 1.3 (or stronger), aligned to security/policy-encryption-and-key-management.md §1 (Encryption standards) canonical mandate`. TLS 1.2 added to the Prohibited column. Same alignment as PR #193 (ZTA framework) and PR #201 (dev-security standards). FR-81 fully closed |

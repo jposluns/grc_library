@@ -6,6 +6,51 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.192, PR #213
+
+Adds the **continuous process-improvement loop**: `pr-retrospective` skill + `/retro` slash command + `.working/improvement-log.md` register. Fulfills the maintainer's earlier "design a process improvement skill" direction.
+
+### Added
+
+- [`dev-security/claude-rules/skills/pr-retrospective/SKILL.md`](../../dev-security/claude-rules/skills/pr-retrospective/SKILL.md): new pack skill with the 5-step process (identify PR + inputs → identify what went well → identify friction → surface patterns → propose improvement) and the surfacing-in-chat / batching / no-skip disciplines.
+- [`.claude/commands/retro.md`](../../.claude/commands/retro.md): slash-command surface mirroring the SKILL's 5-step structure (paired-skill step-parity per gate 44).
+- [`.working/improvement-log.md`](../improvement-log.md): the register file with column semantics, the first-occurrence/signal/pattern progression discipline, and the PR #213 seed entry (meta-self-application: the skill's first /retro is its own creation PR).
+
+### Changed
+
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) PR workflow gains step 5b: invoke `/retro` after `/validate-pr` completes; register-row commit batched into next PR per the recursion-avoidance rule.
+- [`tools/lint-paired-skill-step-parity.py`](../../tools/lint-paired-skill-step-parity.py) PAIRS registry extended with `pr-retrospective` ↔ `retro.md`. Gate 44 now validates 4 paired surfaces.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) pack-skills enumeration tree updated with `pr-retrospective/SKILL.md`; pack Version `1.44.1 → 1.45.0`; new 1.45.0 version-history row.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for PR #212's /validate-pr (0 findings).
+  - Per-document Version `1.2.20 → 1.2.21`.
+
+### Three-layer learning loop
+
+The skill closes the orchestrator-side process-improvement loop. The full three-layer system:
+
+1. **Worker brief template** at [`.working/worker-brief-template.md`](../worker-brief-template.md): codifies worker-side guard rails (DO/DO-NOT lists derived from logged apply-time catches). Each new failure class observed becomes a permanent guard rail per the hallucination-assessment update protocol (pack rule `ai-assistant-workflow-disciplines.md` §1).
+2. **Apply-time catch tracking** at [`.working/hallucination-metrics.md`](../hallucination-metrics.md): logs orchestrator-side verifications of worker output (catch-class, root cause, guard-rail update). Each catch becomes a worker-brief update or an orchestrator-checklist update.
+3. **PR retrospective** at [`.working/improvement-log.md`](../improvement-log.md): surfaces process-level patterns from per-PR friction. Recurring patterns become candidates for pack-rule updates, new audit gates, or worker-brief additions.
+
+### Design rationale
+
+The maintainer's design ("Every time you complete a merge successfully, there should be an analysis of the work that went into the successful PR") wanted a light-touch retrospective per PR, not a deep analysis. The 5-step process is deliberately short:
+- One sentence per cell (What went well / Friction / Pattern / Proposed improvement).
+- Empty Pattern and Proposed-improvement cells are valid (most PRs have neither).
+- Value emerges from accumulation over many entries, not from any single entry.
+
+The recursion-avoidance batching (register-row commits bundle into next substantive PR) follows the same convention as `/validate-pr` and `/validate`. The chat-surfacing for Pattern/Proposed-improvement entries follows the discipline codified in PR #190 (so maintainer sees process insights at the moment they're identified, not on next deep-dive).
+
+The no-skip-discretion discipline (every merged PR gets a `/retro` entry, even when conclusion is "nothing new to learn") follows the discipline codified in PR #187 (zero-content entries serve as proof-of-discipline; uniformly-clean entries indicate workflow is calibrated).
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates.
+- `tools/run-linter-regression.py` 116 tests pass.
+- Gate 44 (paired-skill step-parity) validates the new pair.
+- Gate 41 (collection-enumeration) confirms pack-skills enumeration matches canonical directory listing.
+
 ## 2026-06-22, Library Version 2026.06.191, PR #212
 
 Closes **FR-14** and **FR-114** (high[critical]). Maintainer-confirmed canonical: CMMI 5-tier maturity ladder.
