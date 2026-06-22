@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #201 — FR-81 partial (medium): TLS 1.3+ alignment in dev-security standards (2026-06-22)
+
+Two of three FR-81 surfaces aligned to the canonical encryption policy's TLS 1.3+ mandate: `dev-security/standard-developer-security-requirements.md`:151 and `dev-security/standard-api-security.md`:109. Pack `dev-security/claude-rules/CLAUDE.md` surface deferred (pack-rule edit; approval-needed). Same canonical-source pattern as PR #193's FR-127 ZTA framework alignment.
+
 ### PR #200 — FR-132 (low): Decision-tree glossary-order annotation (2026-06-22)
 
 Closes FR-132 by annotating `docs/decision-tree.md` §2.1 Orientation list: items 1-2 (README, adopter-guide) get inline notes that acronyms are expanded at first occurrence per FR-4 / FR-106 / FR-113 polish; item 3 (glossary) gets a note about its scope (reserved for deeper-domain docs). Adopts the recommendation's option (b) "note recent improvements" rather than option (a) "move glossary to item 1" (the existing entry-point pattern is preserved).
