@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.173, PR #194
+
+Closes **FR-128** (high[critical]). Second overnight-batch PR. Also fixes PR #193's /validate-pr finding (incomplete TODO rotation) per the batching rule.
+
+### Fixed
+
+- [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md) line 66: CAPA records retention `5 years after closure` → `7 years after closure`. Aligns the register with [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md):454 §12 which mandates a 7-year minimum. The previous 5y retention created an audit-evidence chain break with control-testing-evidence retention (7y).
+- Per-doc retention register `1.0.2 → 1.0.3`; Date `2026-06-21 → 2026-06-22`.
+- [`TODO.md`](../../TODO.md) line 215: removed the stale FR-127 entry from the "Next-up recommendations from the 2026-06-22 review" section (FR-127 was closed in PR #193); renumbered items 5+ accordingly. PR #193's /validate-pr identified this as incomplete-rotation.
+
+### Changed
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for PR #193's /validate-pr (1 in-window finding bundled into this PR per the batching rule).
+  - Per-document Version `1.2.1 → 1.2.2`.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates.
+- `tools/run-pr-time-checks.sh` exits 0.
+
+### Discipline observation
+
+Second overnight-batch PR. The batching rule is working as designed: PR #193's /validate-pr finding (TODO stale entry) is bundled into PR #194 alongside FR-128's substantive fix, rather than triggering its own hot-fix PR. The PR's diff carries one substantive item + the prior PR's /validate-pr row + the prior PR's finding-fix.
+
 ## 2026-06-22, Library Version 2026.06.172, PR #193
 
 Closes **FR-127** (high[critical]) by aligning the Zero Trust Architecture framework's transport-encryption maturity expectation with the canonical encryption-and-key-management policy. First overnight-batch PR; overnight session active.
