@@ -32,6 +32,36 @@ These are **as-of-session-pause snapshots**, not "current HEAD" claims. They ref
 
 ## Priority 1 — Urgent quality (High[critical] and High severity)
 
+### Trust-recovery suite findings — SIGNED OFF 2026-06-22 (H[critical] + High retained; actioned AFTER the codification batch)
+
+Maintainer signed off the combined /full-qa + /fitness findings on 2026-06-22. Sequencing per maintainer direction (a): the 6 H[critical] and 6 High below are actioned **after** the trust-recovery codification batch lands ("criticals will come after new tools are created"). Per direction (b) the Medium/Low/FYI fitness findings and the five [full-qa] findings were re-tiered to P2/P3 (now FR-146..165). Full detail: [`.working/full-qa/2026-06-22-iter1.md`](.working/full-qa/2026-06-22-iter1.md), [`.working/fitness-reviews/2026-06-22-r2.md`](.working/fitness-reviews/2026-06-22-r2.md). (✅ orchestrator-verified at source; ⚠️ persona-quoted, verify at action time.) Excluded at /full-qa: gate-31 "153 docs" was a shallow-clone false positive (full clone audit exits 0); EDPB register note = existing P7 B2.
+
+#### [fitness] H[critical] (FR-134..139; all ✅ verified at source)
+- **[fitness:P3+P7] FR-134 (H[critical])**: Risk-scoring divergence — [`risk/standard-enterprise-risk-management.md`](risk/standard-enterprise-risk-management.md) §5.2 bands/labels/likelihood (1-5/6-10/11-15/16-25; Rare→Almost Certain) vs [`risk/procedure-risk-assessment-methodology.md`](risk/procedure-risk-assessment-methodology.md) §5.1 (1-4/5-9/10-16/17-25; Very Low→Very High) vs [`risk/template-enterprise-risk-register.md`](risk/template-enterprise-risk-register.md):60. Same score → different rating/cadence/escalation. Fix: one canonical scoring table cited by the others.
+- **[fitness:P2+P7] FR-135 (H[critical])**: TLS floor contradiction — [`security/policy-encryption-and-key-management.md`](security/policy-encryption-and-key-management.md):54 + [`dev-security/standard-developer-security-requirements.md`](dev-security/standard-developer-security-requirements.md):151 mandate TLS 1.3 / prohibit 1.2; [`dev-security/standard-security-quick-reference.md`](dev-security/standard-security-quick-reference.md):177 + [`dev-security/standard-security-baseline-and-standards-reference.md`](dev-security/standard-security-baseline-and-standards-reference.md):79 permit "TLS 1.2 (minimum)". Residual 1.2 surfaces: mobile-app-security:82, claude-rules/core/cryptography:15, claude-rules/ai/mcp-security:65, operations/standard-production-security-requirements:184. (FR-127 closed only the ZTA surface; FR-81 not migrated to TODO.)
+- **[fitness:P4] FR-136 (H[critical])**: Log-retention conflict — [`security/standard-logging-and-monitoring.md`](security/standard-logging-and-monitoring.md):92 ("seven years") vs [`governance/register-data-retention-schedule.md`](governance/register-data-retention-schedule.md):61-67 (1y/2y/3y) vs [`governance/standard-records-retention-and-destruction.md`](governance/standard-records-retention-and-destruction.md):77 ("1 to 3 years"). (Mechanical-gate counterpart = P4 S1 candidate.)
+- **[fitness:P4] FR-137 (H[critical])**: DSAR-retention conflict — retention-schedule:74 ("3 years") vs records-standard:79 ("2 years post-closure") vs [`privacy/procedure-data-subject-rights-management.md`](privacy/procedure-data-subject-rights-management.md):335.
+- **[fitness:P9] FR-138 (H[critical])**: CPPA cited as in-force — [`privacy/procedure-data-subject-rights-management.md`](privacy/procedure-data-subject-rights-management.md):66 (CPPA s.63 et al as live DSR basis), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](privacy/procedure-data-protection-and-privacy-breach-response.md):171, [`privacy/policy-privacy-and-data-governance.md`](privacy/policy-privacy-and-data-governance.md):116 vs [`privacy/jurisdictions/annex-privacy-canada.md`](privacy/jurisdictions/annex-privacy-canada.md):28 ("Bill C-27 lapsed… CPPA is not in force").
+- **[fitness:P7] FR-139 (H[critical])**: DR RPO vs backup-gap self-contradiction — [`resilience/plan-it-disaster-recovery.md`](resilience/plan-it-disaster-recovery.md):49 (Tier 1 RPO 1h), :99 (24h gap allowed), :101 (gap>RPO = P2 escalation).
+
+High:
+- **[fitness:P1+P8] FR-140 (High)**: Adopter starter-set divergence — quickstart:33 (6) / adopter-guide:115 (15) / decision-tree:104 (23) / README:271 (~37); quickstart vs startup-roadmap:49 name different 6th artefact; Tier 1 omits IAM + acceptable-use the quickstart floor requires.
+- **[fitness:P9] FR-141 (High)**: PIPEDA breach "72-hour target" is invented — breach:171; PIPEDA has no fixed statutory deadline ("as soon as feasible").
+- **[fitness:P6] FR-142 (High, ⚠️persona-quoted)**: Two AI procedures name no roles for any step — [`ai/procedure-ai-model-risk-assessment.md`](ai/procedure-ai-model-risk-assessment.md):69-71 & [`ai/procedure-ai-system-impact-assessment.md`](ai/procedure-ai-system-impact-assessment.md):156-158.
+- **[fitness:P6] FR-143 (High)**: Circular escalation chain DPO→CISO→DPO — [`supply-chain/procedure-supplier-onboarding-security-review.md`](supply-chain/procedure-supplier-onboarding-security-review.md):139.
+- **[fitness:P6] FR-144 (High)**: Privacy-breach individual-notification leg has no internal clock — breach:169-174.
+- **[fitness:P7] FR-145 (High, ⚠️persona-quoted)**: Two AI security standards overlapping scope, no precedence/crosswalk — [`ai/standard-ai-security-and-risk.md`](ai/standard-ai-security-and-risk.md) vs [`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md).
+
+Deduped against existing TODO (NOT added): P9 Art-28 DPA template = existing **FR-30**; P5 shall/must mixing = existing **FR-44-generalisation**; both reinforced, cross-referenced. The fitness Medium (FR-146..154) and Low/FYI (FR-155..160), plus the five [full-qa] findings (now FR-161..165), are re-tiered to P2/P3 below per maintainer direction (b).
+
+#### Trust-recovery codification (blocked behind sign-off; do not start before maintainer signs off the findings above)
+
+- Draft `deep-qa-review` SKILL.md at `dev-security/claude-rules/skills/deep-qa-review/` (slash command `/full-qa`). MUST encode: unshallow / verify full clone before git-history-aware gates (iter-1 shallow-clone lesson); every finding carries `path:line`; findings route to TODO P1 top.
+- Draft the ninth governance rule `trust-recovery-escalation.md` (names the scenario, the /full-qa + /fitness suite, the P1-top routing convention, the sign-off discipline).
+- Amend `library-fitness-review` SKILL.md: one paragraph naming the trust-recovery routing flag (findings to P1 top, bypass Pass-2 bucket-deferral).
+- Codify the **structural audit-programme review as a recurring skill** (maintainer-confirmed) alongside deep-qa-review — its own SKILL.md + slash command + re-run cadence; bring name + cadence options to maintainer at codification scoping. Runs after this codification batch lands, against the settled surface.
+- Optional `/trust-recovery` convenience wrapper (maintainer go/no-go).
+
 ### High[critical] severity (immediate priority)
 
 - **FR-30 (H[critical], L)**: Ship `privacy/template-dpa-article-28.md` standalone GDPR Article 28 Data Processing Agreement template. Currently no DPA template exists; controller-processor obligations are scattered.
@@ -55,6 +85,24 @@ These are **as-of-session-pause snapshots**, not "current HEAD" claims. They ref
 ## Priority 2 — Substantive improvements (Medium severity)
 
 Each item is an individual document or focused multi-doc improvement. Most are clustered into the **Phase 2 execution plan** below, which the orchestrator runs in serial PR batches.
+
+### Trust-recovery findings re-tiered here (Medium) — /full-qa + /fitness r2 (2026-06-22)
+
+[full-qa] normative-register vocabulary consistency (the three treatment-vocab errors; closely related to FR-134):
+- **FR-161 [full-qa] (M, XS)**: [`ai/register-ai-risk.md`](ai/register-ai-risk.md):44 Treatment Option "Mitigate / Transfer / Avoid / Accept" — missing canonical Exploit/Enhance ([`risk/standard-enterprise-risk-management.md`](risk/standard-enterprise-risk-management.md) §6).
+- **FR-162 [full-qa] (M, XS)**: [`ai/register-ai-risk.md`](ai/register-ai-risk.md):47 Status "Open / In Treatment / Accepted / Closed" — retired values; canonical Open/Closed lifecycle.
+- **FR-163 [full-qa] (M, XS)**: [`risk/annex-ai-risk-methodology.md`](risk/annex-ai-risk-methodology.md):113 "Avoid / Reduce / Transfer / Accept" — "Reduce"→"Mitigate", missing Exploit/Enhance.
+
+[fitness] r2 Medium (re-tiered from P1):
+- **FR-146 [fitness:P3+P6] (M)**: ERM template sample rows use retired status "Implemented"/"Verified" — [`risk/template-enterprise-risk-register.md`](risk/template-enterprise-risk-register.md):91,169-175.
+- **FR-147 [fitness:P4] (M, ⚠️)**: Audit final-report timeline 10d ([`compliance/standard-internal-audit.md`](compliance/standard-internal-audit.md):268) vs 15d ([`compliance/procedure-audit-planning.md`](compliance/procedure-audit-planning.md):366).
+- **FR-148 [fitness:P4] (M, ⚠️)**: CAPA 90-day effectiveness validation ([`compliance/policy-compliance-and-audit-management.md`](compliance/policy-compliance-and-audit-management.md):85) not anchored in [`compliance/procedure-capa.md`](compliance/procedure-capa.md).
+- **FR-149 [fitness:P7] (M, ⚠️)**: Adversarial test-category count "five" ([`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md):539) vs six in [`ai/guide-ai-adversarial-test-reference.md`](ai/guide-ai-adversarial-test-reference.md).
+- **FR-150 [fitness:P7] (M, ⚠️)**: Children's-data Japan APPI age unsupported by Japan annex — [`privacy/framework-childrens-data.md`](privacy/framework-childrens-data.md):49.
+- **FR-151 [fitness:P6+P7] (M)**: Cross-domain PIR deadline intra-doc conflict — [`resilience/procedure-cross-domain-incident-coordination.md`](resilience/procedure-cross-domain-incident-coordination.md):86 ("10 business days for P1 and P2") vs :148 (P1=5d).
+- **FR-152 [fitness:P8] (M, ⚠️)**: Entry-path sequencing not ordered in quickstart "Next steps" vs portal:49 stated order.
+- **FR-153 [fitness:P2] (M, ⚠️)**: PBKDF2 minimum 310,000 iterations stale vs OWASP 600,000 — [`security/policy-encryption-and-key-management.md`](security/policy-encryption-and-key-management.md):92.
+- **FR-154 [fitness:P6] (M, ⚠️, grouped)**: Operational-vagueness cluster — DSR forward immediate-vs-same-day ([`privacy/procedure-data-subject-rights-management.md`](privacy/procedure-data-subject-rights-management.md):52/:84); DSR restriction clock start (:70); critical-risk interim authority ([`risk/procedure-risk-assessment-methodology.md`](risk/procedure-risk-assessment-methodology.md):124); supplier remediation gate ([`supply-chain/procedure-supplier-due-diligence.md`](supply-chain/procedure-supplier-due-diligence.md):85); whistleblower timelines ([`governance/procedure-whistleblower-and-incident-reporting.md`](governance/procedure-whistleblower-and-incident-reporting.md):103); dept-continuity template blanks; incident-reporting escalation thresholds; model-lifecycle thresholds. Several are deliberately-thin baselines — calibrate first.
 
 ### Phase 2 execution plan (current sequence)
 
@@ -98,6 +146,20 @@ Each file relocation updates the document-index, sibling references, taxonomy/po
 ## Priority 3 — Low-priority cleanup (Low severity / FYI)
 
 Deferred to a routine cleanup batch when convenient. Cross-reference only.
+
+### Trust-recovery findings re-tiered here (Low / FYI) — /full-qa + /fitness r2 (2026-06-22)
+
+[full-qa]:
+- **FR-164 [full-qa] (Low, XS)**: [`tools/lint-collection-enumeration-consistency.py`](tools/lint-collection-enumeration-consistency.py):5 docstring says "the pack's seven governance rules"; there are 8. **Closed in passing by the 9th-rule codification PR** (the docstring's rule count updates when the ninth governance rule lands).
+- **FR-165 [full-qa] (Low)**: #242 corrective record overstates remediation — [`.working/validate-sweeps/2026-06-22-sweep22-iter1.md`](.working/validate-sweeps/2026-06-22-sweep22-iter1.md):92 claims abbreviated rows relabelled "deferred…"; [`.working/validate-pr/history.md`](.working/validate-pr/history.md) rows #221-#239 still read "abbreviated spot-check" (only #240/#241 annotated).
+
+[fitness] r2 Low/FYI (re-tiered from P1):
+- **FR-155 [fitness:P3] (Low, ⚠️)**: CSA CCM "GRM" vs "GRC" domain-id drift — risk policy:136 / standard:250 / methodology:183.
+- **FR-156 [fitness:P1] (Low, ⚠️)**: Risk-policy enforcement clause ([`risk/policy-enterprise-governance-and-risk-management.md`](risk/policy-enterprise-governance-and-risk-management.md):156) not flagged in adopter-guide "what to change".
+- **FR-157 [fitness:P10] (Low)**: "DPO" unexpanded on quickstart Day-1 path — [`docs/template-quickstart.md`](docs/template-quickstart.md):43.
+- **FR-158 [fitness:P8] (Low, ⚠️)**: Multi-regulator overlapping-window guidance thin — [`docs/adopter-guide.md`](docs/adopter-guide.md):168.
+- **FR-159 [fitness:P10] (FYI, ⚠️)**: Portal Overview no glossary pointer; fix in [`tools/build-portal.py`](tools/build-portal.py) (portal.md is generated).
+- **FR-160 [fitness:P7] (FYI, ⚠️)**: DR recovery tiers vs SLM service tiers label divergence.
 
 ### Low-severity fitness findings (from 2026-06-21 review)
 
