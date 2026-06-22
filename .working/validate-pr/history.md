@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.16\
+**Version:** 1.2.17\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -12,6 +12,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | 208 | 21 | 0 (0 in-window, 0 out-of-window) | none | — | Sixteenth-batch PR (FR-51 ISO 27001 Annex-form sweep, 12 files modified). Subagent A verified all 8 failure-mode classes scoped to the 21 touched files: zero residual `27001 A.X` (without "Annex") in any touched corpus or pack SKILL.md; multi-control `/`-separated lists carry single Annex prefix correctly (`Annex A.6.1/A.6.5`, `Annex A.6.2/A.8.1`, `Annex A.8.1/A.8.3`, `Annex A.5.36/A.5.37`, `Annex A.8.25/A.8.27/A.8.28`); all 7 corpus files carry per-doc Version bump in diff (NOTICE 1.4.1→1.4.2, register-compliance 1.0.4→1.0.5, template-audit 1.0.1→1.0.2, register-document-index 1.27.27→1.27.28, specification-audit 1.14.1→1.14.2, procedure-threat-intelligence 1.3.3→1.3.4, procedure-cross-domain 1.1.1→1.1.2); 4 of 7 had pre-existing same-day Date so no diff line (expected per UTC-day rule); 5 pack SKILL.md files documented exception via pack-README 1.44.0→1.44.1 row enumerating all 5 file names. Adversarial check on `security/policy-information-security.md` (untouched) confirmed file uses Clause/generic-Annex references only, contains zero `27001 A.X` patterns, correctly excluded from PR #208 scope. Canonical-citations register operates at standard-ID granularity (no Annex-control surface to update). Row batched into PR #209. |
 | 2026-06-22 | 207 | 59 | 0 (0 in-window, 0 out-of-window) | none | — | Fifteenth-batch PR (FR-50 corpus-wide NIST citation format sweep). Subagent A spot-checked 4 sample files, standards-currency gate clean (118 standards / 358 files), reworded example preserves intent, intra-doc-refs token still matches via substring. 91 occurrences converted cleanly across 50 corpus files. Row batched into PR #208. |
 | 2026-06-22 | 206 | 13 | 0 (0 in-window, 0 out-of-window) | none | — | Fourteenth-batch PR (FR-87 + FR-88 + linter improvements). Subagent A verified all 8 RFC citations accurate; TLS 1.3 cipher names verbatim IANA-correct; 116 linter regression tests pass; CGNAT linter additions clean; no parallel SSRF lists elsewhere in primary pack. Row batched into PR #207. |
 | 2026-06-22 | 205 | 9 | 0 (0 in-window, 0 out-of-window) | none | — | Thirteenth-batch PR (FR-81 fully closed + PR #204 fixes). Subagent A: row batched into PR #206 per the batching rule. |

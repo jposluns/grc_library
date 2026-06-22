@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #209 — FR-52 (medium): Review-frequency "AND" form (2026-06-22)
+
+Maintainer-approved (decision 5): canonical review-frequency form is "annually AND on material change" (both triggers required). Two corpus documents using OR form ("Annual or upon ...") converted to AND form.
+
 ### PR #208 — FR-51 (medium): ISO 27001 Annex-form sweep — 12 files (2026-06-22)
 
 Maintainer-approved (decision 4): canonical form is `Annex A.X` with prefix. Corpus-wide sweep converted `27001 A.X` → `27001 Annex A.X` across 7 corpus files + 5 pack SKILL.md files. Pattern tightly anchored on `27001` to avoid disturbing ISO 42001/27017/27018/27701 references. Multi-control `/`-separated lists got single Annex prefix per publisher convention.

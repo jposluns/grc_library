@@ -4,6 +4,20 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-22, Library Version 2026.06.188, PR #209
+
+**Closes FR-52** (medium): review-frequency `Annual and upon ...` form. Maintainer-approved per "decision 5": canonical form is "annually AND on material change" (both triggers required, not either-or). Two documents in the corpus used the OR variant ("Annual or upon ..."); both converted to AND.
+
+Files modified:
+- [`dev-security/standard-security-baseline-and-standards-reference.md`](dev-security/standard-security-baseline-and-standards-reference.md):12 — "Annual or upon material threat, regulatory, or framework change" → "Annual and upon material threat, regulatory, or framework change". Per-doc Version `1.1.0 → 1.1.1`.
+- [`security/sop-security-ticket-reporting-scheme.md`](security/sop-security-ticket-reporting-scheme.md):12 — "Annual or upon significant change to vendor or tooling landscape" → "Annual and upon significant change to vendor or tooling landscape". Per-doc Version `1.1.0 → 1.1.1`.
+
+The semantic shift is meaningful: AND requires both triggers (the annual cycle AND a material change event); OR allowed either to trigger a review independently. The AND form is consistent with the rest of the corpus and matches the project's review-cadence discipline.
+
+Also carries PR #208's /validate-pr history row. Library `2026.06.187 → 2026.06.188`; README `1.9.58 → 1.9.59`.
+
+---
+
 ## 2026-06-22, Library Version 2026.06.187, PR #208
 
 **Closes FR-51** (medium): ISO 27001 Annex-form sweep. Maintainer-approved per "decision 4": canonical form is `Annex A.X` (with prefix), matching ISO 27001:2022 publisher convention. Corpus-wide sweep across **12 files** (7 corpus + 5 pack SKILL.md) converted `27001 A.X` → `27001 Annex A.X` (preserving multi-control `/`-separated lists by prefixing only the first control). Pattern was tightly anchored on `\b27001(:YYYY)? A\.[0-9]` to avoid false positives on non-ISO-27001 `A.X` occurrences (e.g., ISO 42001, ISO 27017, ISO 27018, ISO 27701, all of which were verified absent from `27001-prefixed A.X` matches). 7 corpus files received per-doc Version+Date patch bumps; pack README bumped `1.44.0 → 1.44.1` to cover the 5 SKILL.md edits which lack per-doc metadata. Also carries PR #207's `/validate-pr` history row (0 findings). Library `2026.06.186 → 2026.06.187`; README `1.9.57 → 1.9.58`.

@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.188, PR #209
+
+Closes **FR-52** (medium). Maintainer-approved per "decision 5": canonical review-frequency form is `Annual and upon ...` (both triggers required).
+
+### Fixed
+
+- [`dev-security/standard-security-baseline-and-standards-reference.md`](../../dev-security/standard-security-baseline-and-standards-reference.md):12: "Annual or upon material threat, regulatory, or framework change" → "Annual and ...". Per-doc Version `1.1.0 → 1.1.1`; Date 2026-06-22.
+- [`security/sop-security-ticket-reporting-scheme.md`](../../security/sop-security-ticket-reporting-scheme.md):12: "Annual or upon significant change to vendor or tooling landscape" → "Annual and ...". Per-doc Version `1.1.0 → 1.1.1`; Date 2026-06-22.
+
+### Semantic interpretation
+
+The fitness review noted "Annual and upon material..." vs "Annual or upon significant..." are **semantically different**. The AND form requires both triggers (annual cycle PLUS material-change event); the OR form treats either as sufficient. The maintainer's decision affirms AND as canonical, matching the project's broader review-cadence discipline (all other Review Frequency fields in the corpus use AND).
+
+### Changed
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for PR #208's /validate-pr (0 in-window, 0 out-of-window findings; Subagent A confirmed all 21 touched files clean and the multi-control `/`-separated lists correctly carry single `Annex` prefix).
+  - Per-document Version `1.2.16 → 1.2.17`.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates.
+
+### Discipline observation
+
+FR-52 was a 2-file sweep — the narrowest of the editorial-decision cluster. The semantic interpretation matters: the AND form is what auditors would expect (both calendar triggers AND event-driven triggers are required); the OR form would allow skipping the annual review if no material change occurred, which weakens the discipline. Maintainer's AND decision is the conservative, audit-defensible choice.
+
 ## 2026-06-22, Library Version 2026.06.187, PR #208
 
 Closes **FR-51** (medium). Corpus-wide ISO 27001 Annex-form sweep per maintainer "decision 4".
