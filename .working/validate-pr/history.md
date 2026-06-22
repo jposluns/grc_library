@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.48\
+**Version:** 1.2.49\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -12,6 +12,8 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | 243 | 8 | 0 in-window (1 cosmetic commit-message note, not actionable) | none (batched into PR2) | — | Trust-recovery routing + re-tier (working-state). Formal Subagent A on the 8 touched files: CHANGELOG root/detailed lock-step, README version bump (2026.06.221 / 1.9.92), and FR-range reconciliation (32 = 27 fitness FR-134..160 + 5 full-qa FR-161..165) all verified at source; generated artefacts and `.py` untouched. One note: squash commit-1 message reads "FR-134..FR-160" (understating full-qa FR-161..165), commit-message only, all merged files correct. Row batches into PR2. |
+| 2026-06-22 | 242 | 84 (trust-recovery window) | covered by trust-recovery /full-qa iter 1 | none | [`../full-qa/2026-06-22-iter1.md`](../full-qa/2026-06-22-iter1.md) | Sweep 22 close-out. Formal `/validate-pr` was not run by the prior session post-merge (session ended); #242 was instead re-examined by the trust-recovery `/full-qa` pass (window #218-#242): Subagent A reviewed the 4 risk-vocab fixes, Subagent F audited discipline compliance and surfaced the corrective-record overstatement (FR-165). More thorough than a per-PR sweep; recorded here for ledger completeness. Row batches into PR2. |
 | 2026-06-22 | 241 | 8 | reconciled by Sweep 22 close-out PR | — | [`../validate-sweeps/2026-06-22-sweep22-iter1.md`](../validate-sweeps/2026-06-22-sweep22-iter1.md) | Batch 2 PR-E: FR-97+98 cross-framework matrix bundle. **No formal `/validate-pr` Subagent A dispatch occurred for this PR**; the abbreviated-spot-check pattern that drove Sweep 22's discipline-failure assessment applied to this PR. Maintainer caught the abbreviation after PR #241 merged; full `/validate` (Sweep 22) reconciled the entire run of abbreviated PRs (#231-#241), surfacing 4 in-window errors traced to PR #238/#239 surface drift that the abbreviated runs missed. Per the discipline-failure assessment, the prior 10 rows (#231-#240) labelled "abbreviated spot-check" are retained as the moment-in-time record of what the orchestrator actually did; this PR #241 row is the explicit reconciliation entry. The Sweep 22 close-out PR carries the 4 in-window fixes plus the SKILL/pack-rule/CLAUDE.md vocabulary updates that prevent the abbreviation pattern recurring. |
 | 2026-06-22 | 240 | 11 | 0 in-window, 0 out-of-window | none | — | Batch 2 PR-D: FR-93+94 KRI/KPI bundle. No findings. Row carries to PR #241. **Note**: this row was recorded as "abbreviated spot-check"; the formal `/validate-pr` Subagent A dispatch did not occur. Sweep 22 close-out reconciles. |
 | 2026-06-22 | 239 | 10 | 0 in-window, 0 out-of-window | none | — | Batch 2 PR-C: FR-12 cross-doc; procedure-risk-register v1.1.0 aligned with ERM canonical 6-option set. No findings. Row carries into PR #240. |
