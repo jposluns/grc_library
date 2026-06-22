@@ -2,8 +2,8 @@
 
 **Document Title:** Reverse Framework Control Crosswalk Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`NOTICE.md`](../NOTICE.md)\
@@ -28,7 +28,7 @@ This matrix does not reproduce restricted third-party framework text, does not e
 
 ## Scope and limitations
 
-1. Coverage is partial. The matrix focuses on the framework control areas most frequently cited across the library: ISO 27001:2022 Annex A, ISO 42001:2023, NIST CSF 2.0, NIST SP 800-53 Rev 5, NIST AI RMF, CSA CCM v4.1, EU AI Act, GDPR, DORA, NIS 2, OWASP LLM Top 10, MITRE ATLAS, CTPAT MSC, BASC v6, and WCO SAFE. It is intended to grow over time as adopter demand reveals gaps.
+1. Coverage is partial. The matrix focuses on the framework control areas most frequently cited across the library: ISO 27001:2022 Annex A, ISO 42001:2023, NIST CSF 2.0, NIST SP 800-53 Rev. 5, NIST AI RMF, CSA CCM v4.1, EU AI Act, GDPR, DORA, NIS 2, OWASP LLM Top 10, MITRE ATLAS, CTPAT MSC, BASC v6, and WCO SAFE. It is intended to grow over time as adopter demand reveals gaps.
 2. Alignment is architectural unless explicitly stated otherwise. The library artefacts establish baseline control structures; adopting organisations must validate implementation, evidence, and operating effectiveness against their own jurisdiction, sector, processing role, threat model, and risk appetite.
 3. External control identifiers and clause numbers are referenced for navigation only. The library does not reproduce control text, questionnaire text, audit guidance, or metrics catalogue text from restrictively-licensed frameworks.
 4. Mappings cite the most relevant library artefacts. A document may also be relevant to controls beyond those listed here; the inverse forward matrix and per-document `References and framework alignment` sections remain authoritative.
@@ -99,7 +99,7 @@ This matrix does not reproduce restricted third-party framework text, does not e
 
 ---
 
-## NIST SP 800-53 Rev 5 (selected families)
+## NIST SP 800-53 Rev. 5 (selected families)
 
 | Control family | Library documents | Alignment type |
 | --- | --- | --- |

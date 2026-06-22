@@ -2,8 +2,8 @@
 
 **Document Title:** Operational Technology Security Overview Annex\
 **Document Type:** Annex\
-**Version:** 1.0.1\
-**Date:** 2026-05-29\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/ot/README.md`](README.md), [`operations/README.md`](../README.md), [`operations/standard-network-security-and-segmentation.md`](../standard-network-security-and-segmentation.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](../../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](../../compliance/logistics/annex-logistics-sector-requirements.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`governance/register-glossary.md`](../../governance/register-glossary.md)\
@@ -80,13 +80,13 @@ Key parts cited in this annex:
 | **62443-4-1** | Secure product development lifecycle requirements (for vendors). |
 | **62443-4-2** | Technical security requirements for IACS components (for vendors and integrators). |
 
-### 3.2 NIST SP 800-82 Rev 3
+### 3.2 NIST SP 800-82 Rev. 3
 
-NIST Special Publication 800-82 Rev 3 (September 2023) is "Guide to Operational Technology (OT) Security". Rev 3 was renamed from "Guide to Industrial Control Systems (ICS) Security" to reflect the broader OT scope.
+NIST Special Publication 800-82 Rev. 3 (September 2023) is "Guide to Operational Technology (OT) Security". Rev. 3 was renamed from "Guide to Industrial Control Systems (ICS) Security" to reflect the broader OT scope.
 
-NIST SP 800-82 Rev 3 is non-binding guidance but widely adopted in US federal and US-regulated industries. It maps OT controls to NIST SP 800-53 Rev 5 (the general security and privacy control catalogue) with OT-specific tailoring.
+NIST SP 800-82 Rev. 3 is non-binding guidance but widely adopted in US federal and US-regulated industries. It maps OT controls to NIST SP 800-53 Rev. 5 (the general security and privacy control catalogue) with OT-specific tailoring.
 
-The library uses IEC 62443 as the primary alignment and NIST SP 800-82 Rev 3 as the secondary alignment.
+The library uses IEC 62443 as the primary alignment and NIST SP 800-82 Rev. 3 as the secondary alignment.
 
 ### 3.3 IEC 61511 / IEC 61508 (functional safety)
 
@@ -219,8 +219,8 @@ Conceptually yes, but with OT-specific adaptations. NIST SP 800-207 Zero Trust p
 | IEC 62443-2-1 | Establishing an IACS security programme | OT security programme governance |
 | IEC 62443-3-2 | Security risk assessment for system design | OT risk assessment methodology |
 | IEC 62443-3-3 | System security requirements and security levels | Security level definitions (SL 1 to 4) |
-| NIST SP 800-82 Rev 3 | Guide to Operational Technology (OT) Security | US federal guidance; OT-specific tailoring of SP 800-53 |
-| NIST SP 800-53 Rev 5 | Security and Privacy Controls | Underlying control catalogue |
+| NIST SP 800-82 Rev. 3 | Guide to Operational Technology (OT) Security | US federal guidance; OT-specific tailoring of SP 800-53 |
+| NIST SP 800-53 Rev. 5 | Security and Privacy Controls | Underlying control catalogue |
 | ISO/IEC 27001:2022 | Information security management systems | ISMS scope when extended to OT |
 | ISO/IEC 27019:2024 | Information security controls for the energy utility industry | Energy-sector ICS extension to ISO/IEC 27002 |
 | IEC 61511 / IEC 61508 | Functional safety | Safety Instrumented Systems specifics |

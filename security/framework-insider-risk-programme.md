@@ -2,8 +2,8 @@
 
 **Document Title:** Insider Risk Programme Framework\
 **Document Type:** Framework\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-personnel-security-screening.md`](standard-personnel-security-screening.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/procedure-security-disciplinary-process.md`](procedure-security-disciplinary-process.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md), [`governance/procedure-whistleblower-and-incident-reporting.md`](../governance/procedure-whistleblower-and-incident-reporting.md)\
@@ -204,7 +204,7 @@ The framework deliberately does not include:
 | --- | --- | --- |
 | ISO/IEC 27001:2022 | A.6.1 to A.6.5 (people controls); A.8.2 to A.8.5 | People and access controls |
 | ISO/IEC 27002:2022 | Same plus implementation guidance | Implementation |
-| NIST SP 800-53 Rev 5 | PS family; AT family | Personnel security and awareness |
+| NIST SP 800-53 Rev. 5 | PS family; AT family | Personnel security and awareness |
 | CERT Insider Threat Center | Carnegie Mellon | Insider risk research |
 | NITTF | National Insider Threat Task Force | US federal model |
 | GDPR / UK GDPR | Articles 5, 6, 13, 14, 22, 88 | Lawful basis, transparency, ADM, employment context |

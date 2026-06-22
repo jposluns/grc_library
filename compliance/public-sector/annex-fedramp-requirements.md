@@ -2,8 +2,8 @@
 
 **Document Title:** FedRAMP Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.4\
-**Date:** 2026-06-20\
+**Version:** 0.0.5\
+**Date:** 2026-06-22\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`operations/standard-cloud-security-configuration-baseline.md`](../../operations/standard-cloud-security-configuration-baseline.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -111,10 +111,10 @@ Library gaps requiring additional documentation for a FedRAMP authorisation pack
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| FedRAMP Baseline (Low, Moderate, High) | NIST SP 800-53 Rev 5 + FedRAMP parameters | Primary control set |
+| FedRAMP Baseline (Low, Moderate, High) | NIST SP 800-53 Rev. 5 + FedRAMP parameters | Primary control set |
 | FedRAMP Tailored | LI-SaaS Authorization Process | Tailored route |
-| NIST SP 800-53 Rev 5 | Security and Privacy Controls | Underlying control catalogue |
-| NIST SP 800-37 Rev 2 | Risk Management Framework | Authorisation lifecycle |
+| NIST SP 800-53 Rev. 5 | Security and Privacy Controls | Underlying control catalogue |
+| NIST SP 800-37 Rev. 2 | Risk Management Framework | Authorisation lifecycle |
 | NIST SP 800-171 / 800-172 | Protecting CUI | Where applicable |
 | OMB M-22-09 | Federal Zero Trust Strategy | Architectural direction |
 | FIPS 199 | Standards for Security Categorization | Categorisation prerequisite |

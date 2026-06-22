@@ -2,8 +2,8 @@
 
 **Document Title:** Capacity and Performance Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/standard-site-reliability-engineering.md`](standard-site-reliability-engineering.md), [`operations/standard-observability-and-telemetry.md`](standard-observability-and-telemetry.md), [`operations/standard-it-financial-management.md`](standard-it-financial-management.md), [`ai/standard-ai-inference-cost-governance.md`](../ai/standard-ai-inference-cost-governance.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](../resilience/policy-business-continuity-and-disaster-recovery.md)\
@@ -214,7 +214,7 @@ Each capacity class has a named owner and a defined measurement.
 | FinOps Foundation | FinOps framework | Cloud financial operations |
 | Google SRE | Capacity planning | Reliability practice |
 | ISO/IEC 27001:2022 | A.8.6 Capacity management | Capacity control |
-| NIST SP 800-53 Rev 5 | SC-5, CP-2 | Resource availability; contingency planning |
+| NIST SP 800-53 Rev. 5 | SC-5, CP-2 | Resource availability; contingency planning |
 
 ---
 

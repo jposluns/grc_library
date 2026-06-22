@@ -2,8 +2,8 @@
 
 **Document Title:** Endpoint Hardening Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-byod.md`](policy-byod.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-remote-working-security.md`](standard-remote-working-security.md), [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md), [`security/framework-zero-trust-architecture.md`](framework-zero-trust-architecture.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`operations/procedure-media-handling-and-transport.md`](../operations/procedure-media-handling-and-transport.md)\
@@ -219,8 +219,8 @@ Devices used to administer production environments meet a stricter baseline.
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | CIS Benchmarks | Per OS platform | Authoritative configuration baselines |
-| NIST SP 800-46 Rev 2 | Guide to Enterprise Telework, Remote Access, and Bring Your Own Device | Remote and BYOD context |
-| NIST SP 800-124 Rev 2 | Guidelines for Managing the Security of Mobile Devices | Mobile baseline |
+| NIST SP 800-46 Rev. 2 | Guide to Enterprise Telework, Remote Access, and Bring Your Own Device | Remote and BYOD context |
+| NIST SP 800-124 Rev. 2 | Guidelines for Managing the Security of Mobile Devices | Mobile baseline |
 | ISO/IEC 27001:2022 | A.8.1 (user endpoints), A.8.3, A.8.7 | Endpoint controls |
 | CSA Cloud Controls Matrix | UEM domain | Cross-walk |
 | Microsoft Security Compliance Toolkit | Vendor baseline | Where applicable |

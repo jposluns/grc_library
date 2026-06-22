@@ -2,8 +2,8 @@
 
 **Document Title:** OT Change Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
-**Date:** 2026-05-29\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/ot/README.md`](README.md), [`operations/ot/annex-ot-security-overview.md`](annex-ot-security-overview.md), [`operations/ot/standard-ot-ics-security.md`](standard-ot-ics-security.md), [`operations/ot/procedure-ot-incident-response.md`](procedure-ot-incident-response.md), [`operations/procedure-change-management-and-configuration-control.md`](../procedure-change-management-and-configuration-control.md), [`operations/procedure-patch-management.md`](../procedure-patch-management.md), [`security/policy-acceptance-into-service.md`](../../security/policy-acceptance-into-service.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md), [`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md), [`risk/procedure-risk-register.md`](../../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md), [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](../../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`governance/register-glossary.md`](../../governance/register-glossary.md)\
@@ -385,7 +385,7 @@ The OT Security Lead and CISO review change-management metrics annually and iden
 | --- | --- | --- |
 | IEC 62443-2-1 | Establishing an IACS security programme | Change-management requirements within IACS programme |
 | IEC 62443-3-3 | System security requirements and security levels (SR 3.4 Software and information integrity; SR 7.6 Network and security configuration settings) | Configuration management technical requirements |
-| NIST SP 800-82 Rev 3 | Guide to Operational Technology (OT) Security | OT change-management guidance |
+| NIST SP 800-82 Rev. 3 | Guide to Operational Technology (OT) Security | OT change-management guidance |
 | ISO/IEC 27001:2022 | A.5.37 Documented operating procedures; A.8.32 Change management | ISMS change-management baseline |
 | IEC 61511 | Functional safety: Safety instrumented systems for the process industry sector | Management of change for SIS (mandatory integration) |
 | NERC CIP-010 | Configuration change management and vulnerability assessments | North-American electricity sector (cross-reference in energy-and-utilities annex) |

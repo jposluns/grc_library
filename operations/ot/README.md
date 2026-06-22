@@ -2,8 +2,8 @@
 
 **Document Title:** Operational Technology (OT) Sub-Directory README\
 **Document Type:** Register\
-**Version:** 1.5.1\
-**Date:** 2026-05-29\
+**Version:** 1.5.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/README.md`](../README.md), [`operations/ot/annex-ot-security-overview.md`](annex-ot-security-overview.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md), [`compliance/energy-and-utilities/`](../../compliance/energy-and-utilities/), [`compliance/logistics/`](../../compliance/logistics/)\
@@ -86,7 +86,7 @@ The OT sub-directory aligns to the following canonical standards (recorded in [`
   - 62443-3-3: System security requirements and security levels
   - 62443-4-1: Secure product development lifecycle
   - 62443-4-2: Technical security requirements for IACS components
-- **NIST SP 800-82 Rev 3**: Guide to Operational Technology (OT) Security. Authoritative US federal guidance.
+- **NIST SP 800-82 Rev. 3**: Guide to Operational Technology (OT) Security. Authoritative US federal guidance.
 - **IEC 61511 / IEC 61508**: Functional safety for Safety Instrumented Systems and electrical/electronic/programmable safety systems.
 - **NERC CIP**: for North American electricity reliability (cross-referenced from `compliance/energy-and-utilities/`).
 

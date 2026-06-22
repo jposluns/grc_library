@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.4.22\
-**Date:** 2026-06-19\
+**Version:** 1.4.23\
+**Date:** 2026-06-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/register-citation-verifications.md`](register-citation-verifications.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -46,7 +46,7 @@ Entries in this register are subject to publisher-source verification under the 
 - **Superseded versions**: comma-separated list of prior version markers the linter should flag if encountered. Includes prior years (`2013`) and prior phrasing (`draft 2024`, `draft`, `2024 draft`).
 - "-" in any column means "not applicable" or "none recorded".
 
-When citing a standard in library content, use the **Standard ID** plus the **Current version** in the format the publisher uses (for example, `ISO/IEC 42006:2025`, `NIST SP 800-53 Rev 5`). The linter relies on this exact format.
+When citing a standard in library content, use the **Standard ID** plus the **Current version** in the format the publisher uses (for example, `ISO/IEC 42006:2025`, `NIST SP 800-53 Rev. 5`). The linter relies on this exact format.
 
 ---
 
@@ -85,18 +85,18 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 
 | Standard ID | Current version | Publication date | Topic | Superseded versions |
 | --- | --- | --- | --- | --- |
-| NIST SP 800-34 | Rev 1 | 2010-05 | Contingency Planning Guide for Federal Information Systems | - |
-| NIST SP 800-53 | Rev 5 | 2020-09 | Security and Privacy Controls for Information Systems and Organizations | Rev 4 |
-| NIST SP 800-61 | Rev 3 | 2025-04 | Incident Response Recommendations and Considerations for Cybersecurity Risk Management (CSF 2.0 Community Profile) | Rev 2, Rev 1 |
-| NIST SP 800-63B | Rev 4 | 2025-07 | Digital Identity Guidelines: Authentication and Authenticator Management (part of SP 800-63 Rev 4 family) | Rev 3 |
-| NIST SP 800-88 | Rev 1 | 2014-12 | Media sanitization | - |
+| NIST SP 800-34 | Rev. 1 | 2010-05 | Contingency Planning Guide for Federal Information Systems | - |
+| NIST SP 800-53 | Rev. 5 | 2020-09 | Security and Privacy Controls for Information Systems and Organizations | Rev. 4 |
+| NIST SP 800-61 | Rev. 3 | 2025-04 | Incident Response Recommendations and Considerations for Cybersecurity Risk Management (CSF 2.0 Community Profile) | Rev. 2, Rev. 1 |
+| NIST SP 800-63B | Rev. 4 | 2025-07 | Digital Identity Guidelines: Authentication and Authenticator Management (part of SP 800-63 Rev. 4 family) | Rev. 3 |
+| NIST SP 800-88 | Rev. 1 | 2014-12 | Media sanitization | - |
 | NIST SP 800-207 | (1.0) | 2020-08 | Zero Trust Architecture | - |
 | NIST CSF | 2.0 | 2024-02 | Cybersecurity Framework | 1.1 |
 | NIST AI RMF | 1.0 | 2023-01 | AI Risk Management Framework | - |
 | NIST AI 600-1 | 1.0 | 2024-07 | Generative AI Profile for AI RMF | - |
 | NIST SP 800-218 | 1.1 | 2022-02 | Secure Software Development Framework (SSDF) | 1.0 |
-| NIST SP 800-161 | Rev 1 | 2022-05 (with 2024-11 update) | Cybersecurity Supply Chain Risk Management | Rev 0 |
-| NIST SP 800-82 | Rev 3 | 2023-09 | Guide to Operational Technology (OT) Security (formerly Guide to Industrial Control Systems Security) | Rev 2, Rev 1 |
+| NIST SP 800-161 | Rev. 1 | 2022-05 (with 2024-11 update) | Cybersecurity Supply Chain Risk Management | Rev. 0 |
+| NIST SP 800-82 | Rev. 3 | 2023-09 | Guide to Operational Technology (OT) Security (formerly Guide to Industrial Control Systems Security) | Rev. 2, Rev. 1 |
 
 ## EU regulations and directives
 
@@ -123,7 +123,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | US CCPA | 2018 (CPRA amendments 2020) | 2018 | California Consumer Privacy Act | - |
 | Illinois BIPA | 2008 as amended by Illinois SB 2979 (signed 2 August 2024 and effective immediately), which limits damages to a "single recovery" per BIPA §15(b) and §15(d) violation type per individual and recognises electronic written release | 2008 | Biometric Information Privacy Act (740 ILCS 14/) | - |
 | Colorado AI Act | 2024 (Colorado SB 24-205, signed 17 May 2024). Original effective date 1 February 2026; postponed by Colorado SB 25B-004 (signed 28 August 2025) to 30 June 2026. Enforcement effectively frozen by U.S. District Court for the District of Colorado on 27 April 2026 pending litigation (xAI v. Colorado). Governor's Working Group framework (17 March 2026) proposes further amendments with a revised effective date of 1 January 2027 | 2024-05-17 | Colorado Consumer Protections for Artificial Intelligence | - |
-| US FedRAMP | Rev 5 | 2023 | Federal Risk and Authorization Management Program (rev 5 alignment with NIST SP 800-53 Rev 5) | Rev 4 |
+| US FedRAMP | Rev. 5 | 2023 | Federal Risk and Authorization Management Program (rev 5 alignment with NIST SP 800-53 Rev. 5) | Rev. 4 |
 | US CMMC | 2.0 | 2024 | Cybersecurity Maturity Model Certification | 1.0, 1.02 |
 | Canada CPPA | Lapsed 2025-01-06 (Bill C-27 died on prorogation; no replacement bill introduced as of 2026-05) | 2022 (proposed) | Consumer Privacy Protection Act (never enacted) | n/a; PIPEDA remains in force |
 | Canada PIPEDA | 2000 (with 2015 DBSA amendments) | 2000 | Personal Information Protection and Electronic Documents Act | - |
@@ -228,7 +228,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | --- | --- | --- | --- | --- |
 | ICAO Doc 10026 | 2nd edition | 2024 | Manual on Aviation Security | 1st edition |
 | ICAO Doc 10055 | 2024 | 2024 | Aviation Cybersecurity Strategy | - |
-| IMO Resolution MSC-FAL.1/Circ.3 | Rev 2 | 2022-06 | Maritime cyber risk management guidelines | Rev 1 |
+| IMO Resolution MSC-FAL.1/Circ.3 | Rev. 2 | 2022-06 | Maritime cyber risk management guidelines | Rev. 1 |
 
 ## AI safety evaluation programmes
 
