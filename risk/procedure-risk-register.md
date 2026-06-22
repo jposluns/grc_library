@@ -2,8 +2,8 @@
 
 **Document Title:** Risk Register Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.1.0\
+**Date:** 2026-06-22\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Executive Management\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/annex-ai-risk-methodology.md`](annex-ai-risk-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md)\
@@ -31,7 +31,7 @@ This procedure defines how risks are recorded, maintained, reviewed, escalated, 
 5. **Record Existing Controls:** Identify controls already operating and their evidence.
 6. **Assess Control Effectiveness:** Determine whether controls are designed and operating adequately.
 7. **Assess Residual Risk:** Evaluate remaining likelihood and impact.
-8. **Select Treatment:** Mitigate, avoid, transfer, accept, monitor, or perform further analysis.
+8. **Select Treatment Option:** one of the six canonical options defined in [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md) Section 6: Avoid, Mitigate, Transfer, Accept, Exploit (positive-risk: act to make the upside more likely or larger), or Enhance (positive-risk: increase the likelihood or impact of an existing positive-risk scenario). "Monitor" and "Further Analysis" are NOT treatment options under the canonical set; they are workflow states tracked separately via the standard's **Treatment Status** field (Pending / In Progress / Complete). A risk being monitored is one whose Treatment Option has been selected and whose Treatment Status is Pending or In Progress.
 9. **Define Action Plan:** Record actions, owner, due date, dependency, target residual risk, and evidence required.
 10. **Review and Escalate:** Escalate overdue, high, critical, or worsening risks according to governance thresholds.
 11. **Close Risk:** Close only when treatment is complete, evidence exists, or accountable approval accepts the residual risk.
@@ -52,7 +52,8 @@ This procedure defines how risks are recorded, maintained, reviewed, escalated, 
 | Existing Controls | Control summary and evidence. |
 | Residual Likelihood | Post-control likelihood. |
 | Residual Impact | Post-control impact. |
-| Treatment Decision | Mitigate, avoid, transfer, accept, monitor, or analyze. |
+| Treatment Option | One of the six canonical options per [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md) Section 6: Avoid / Mitigate / Transfer / Accept / Exploit / Enhance. |
+| Treatment Status | Workflow state of the chosen Treatment Option: Pending / In Progress / Complete. "Monitor" and "Further Analysis" correspond to Pending or In Progress on the canonical six-option set, not to separate treatment options. |
 | Action Plan | Required treatment steps. |
 | Due Date | Target date. |
 | Status | Open, in treatment, accepted, closed, retired. |

@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #239 — Closes FR-12 cross-doc (M, S): procedure-risk-register treatment vocab aligned with ERM standard canonical 6 (2026-06-22)
+
+`risk/procedure-risk-register.md` v1.1.0: Step 8 "Select Treatment" now references the standard's canonical 6 options (Avoid/Mitigate/Transfer/Accept/Exploit/Enhance). "Monitor" / "Further Analysis" remapped to Treatment Status workflow values (Pending / In Progress / Complete). Register-field row split into Treatment Option + Treatment Status to match PR #238's standard §7.1 schema. PR-C in Batch 2.
+
 ### PR #238 — Closes FR-118 (H, S): ERM §6/§7 treatment-vocab internal inconsistency resolved (2026-06-22)
 
 `risk/standard-enterprise-risk-management.md` v1.6.0: §6 gains terminology paragraph distinguishing Treatment Option (6 choices) / Treatment Status (workflow: Pending/In Progress/Complete) / Status (risk-record lifecycle: Open/Closed). §7.1 register fields update: Treatment Status field added; Status value set narrowed from "Open/Mitigated/Accepted/Closed" to "Open/Closed" with explanatory prose. Closes the ambiguity surfaced during Pass-2 reshape (Avoided risks had no clean Status value). PR-B in Batch 2.
