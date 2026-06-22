@@ -2,7 +2,7 @@
 
 **Document Title:** Pandemic Continuity Plan\
 **Document Type:** Plan\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-06-22\
 **Owner:** Resilience Owner\
 **Approving Authority:** Executive Management\
@@ -138,7 +138,7 @@ Each in-scope function maps to one of these tiers in the business impact analysi
 | HR Lead | Workforce health, sick-leave, accommodations, mental-health support |
 | IT Operations | Remote-work scaling, capacity, help-desk surge |
 | Information Security | Maintains security posture during scaling; coordinates remote-work security |
-| Chief Privacy Officer | Lawful basis for any health-data collection; cross-border transfer review if applicable |
+| Data Protection Officer | Lawful basis for any health-data collection; cross-border transfer review if applicable |
 | Communications Lead | All audiences; board approval for public statements |
 | Legal Counsel | Employment law, contract law, regulatory engagement |
 | Facilities | Site decisions, density, sanitation |

@@ -2,9 +2,9 @@
 
 **Document Title:** Cookie and Tracker Register\
 **Document Type:** Register\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-06-22\
-**Owner:** Chief Privacy Officer\
+**Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/framework-consent-management.md`](framework-consent-management.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md)\
 **Classification:** Public\
@@ -47,7 +47,7 @@ This register covers:
 | Advertising and marketing | Track subjects across sites or sessions for targeted advertising, retargeting, attribution, or marketing measurement | Prior consent required |
 | Social media | Embedded social platform widgets or share buttons that read or write identifiers | Prior consent required |
 | Personalisation | Content or product personalisation outside the strictly necessary set | Prior consent required |
-| Other | Any technology that does not fit the above categories | Default to prior consent required pending Chief Privacy Officer review |
+| Other | Any technology that does not fit the above categories | Default to prior consent required pending Data Protection Officer review |
 
 ---
 
@@ -80,11 +80,11 @@ Each entry is one row. Mandatory fields:
 
 ## Operating expectations
 
-1. **No tracker without a register entry.** New marketing pixels, analytics tags, third-party SDKs, or fingerprinting techniques cannot be deployed without an entry in this register and a Chief Privacy Officer review.
+1. **No tracker without a register entry.** New marketing pixels, analytics tags, third-party SDKs, or fingerprinting techniques cannot be deployed without an entry in this register and a Data Protection Officer review.
 2. **Default deny for non-essential.** On first visit, no non-essential tracker fires until the subject has given consent in the consent management platform.
 3. **Granular categories.** Subjects can accept and reject categories individually. Single accept-all and reject-all controls coexist with the granular controls; reject-all is not less prominent than accept-all.
 4. **No dark patterns.** Visual prominence, default selections, button labels, and friction levels are equivalent between accept and reject paths.
-5. **Quarterly tag scan.** The Chief Privacy Officer commissions a quarterly automated scan of the website and mobile applications to detect undeclared trackers. Drift between the scan output and the register is treated as a defect and remediated.
+5. **Quarterly tag scan.** The Data Protection Officer commissions a quarterly automated scan of the website and mobile applications to detect undeclared trackers. Drift between the scan output and the register is treated as a defect and remediated.
 6. **Third-party SDKs.** SDKs that perform tracking are subject to the supplier security and privacy assurance standard in addition to this register.
 7. **Cross-jurisdiction differences.** Where the same tracker is permitted in one jurisdiction without consent and requires consent in another, the consent path is enforced wherever the subject is or may be in the consent-required jurisdiction.
 

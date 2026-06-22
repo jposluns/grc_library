@@ -2,8 +2,8 @@
 
 **Document Title:** AI Governance Council Charter\
 **Document Type:** Charter\
-**Version:** 1.2.0\
-**Date:** 2026-05-28\
+**Version:** 1.2.1\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md)\
@@ -59,7 +59,7 @@ The AIGC has authority to:
 | **Member** | Chief Financial Officer |
 | **Member** | Chief Human Resources Officer |
 | **Member** | General Counsel |
-| **Member** | Chief Privacy Officer (or Data Protection Officer) |
+| **Member** | Data Protection Officer |
 | **Member** | Chief Risk Officer |
 | **Secretariat** | AI Governance Lead (per the role authority register) |
 | **Member** | Business Domain Representative (rotating; appointed by the Enterprise Risk Committee) |

@@ -2,9 +2,9 @@
 
 **Document Title:** Kenya Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
-**Owner:** Chief Privacy Officer\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
+**Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
 **Classification:** Public\

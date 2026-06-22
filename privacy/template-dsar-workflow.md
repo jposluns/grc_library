@@ -2,9 +2,9 @@
 
 **Document Title:** Data Subject Access Request Workflow Template\
 **Document Type:** Template\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-06-22\
-**Owner:** Chief Privacy Officer\
+**Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md)\
 **Classification:** Public\
@@ -160,7 +160,7 @@ If identity verification fails, the request is closed and the submitter is infor
 2. Privacy team rotates the on-call intake role to maintain a 1-business-day acknowledgement SLA across timezones.
 3. Each system of record listed in the ROPA has a designated steward with a documented response time commitment for DSAR queries.
 4. Backups, cold storage, embeddings, vector stores, and AI training data are within scope of search unless excluded by a documented technical impossibility analysis.
-5. Volume spikes that threaten the SLA are escalated to the Chief Privacy Officer with a documented mitigation plan.
+5. Volume spikes that threaten the SLA are escalated to the Data Protection Officer with a documented mitigation plan.
 
 ---
 

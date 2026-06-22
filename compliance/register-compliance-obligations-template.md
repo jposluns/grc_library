@@ -2,7 +2,7 @@
 
 **Document Title:** Compliance Obligations Register Template\
 **Document Type:** Register\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-06-22\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -88,7 +88,7 @@ Drift in source versions is itself an obligation-management event: when the unde
 
 | Field | Description | Example |
 |---|---|---|
-| **Obligation Owner** | Role accountable for this obligation | Chief Privacy Officer |
+| **Obligation Owner** | Role accountable for this obligation | Data Protection Officer |
 | **Reviewer** | Role responsible for periodic review | Legal Counsel |
 | **Last Reviewed** | Date of most recent review | 2026-05-01 |
 | **Next Review Date** | Scheduled next review | 2027-05-01 |

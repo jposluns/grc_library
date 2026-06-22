@@ -2,7 +2,7 @@
 
 **Document Title:** Supplier Offboarding Evidence Template\
 **Document Type:** Template\
-**Version:** 1.0.3\
+**Version:** 1.0.4\
 **Date:** 2026-06-22\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -105,7 +105,7 @@ The certificate of destruction states: the items destroyed, the method (e.g. NIS
 | Indemnity | Per any in-force indemnity | Legal | Annual | Per contract |
 | Audit rights | Where the contract permits post-termination audit | Internal Audit | As needed | Per contract |
 | Source-code escrow | If applicable; release conditions | Procurement | Annual | Per escrow agreement |
-| Sub-processor obligations | Where the supplier was a processor; sub-processor offboarding cascade | Chief Privacy Officer | Until cascade complete | Per cascade |
+| Sub-processor obligations | Where the supplier was a processor; sub-processor offboarding cascade | Data Protection Officer | Until cascade complete | Per cascade |
 | Regulatory record retention | Records the organisation must keep beyond the relationship | Records Management | Annual | Per retention schedule |
 | Insurance | Tail coverage where applicable | Insurance / Risk | Annual | Per policy |
 | Outstanding payment or refund | Per contract | Procurement | Until resolved | Until resolved |
@@ -140,7 +140,7 @@ A short review within 30 business days of completion records:
 | Supplier Relationship Owner | | |
 | Supplier Risk Maintainer | | |
 | Service Owner | | |
-| Chief Privacy Officer (if personal data) | | |
+| Data Protection Officer (if personal data) | | |
 | Legal Counsel (if material) | | |
 | CISO (Tier 1 exits) | | |
 

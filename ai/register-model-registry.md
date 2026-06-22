@@ -2,7 +2,7 @@
 
 **Document Title:** Model Registry\
 **Document Type:** Register\
-**Version:** 0.0.3\
+**Version:** 0.0.4\
 **Date:** 2026-06-22\
 **Owner:** AI System Inventory Keeper\
 **Approving Authority:** Governance Library Maintainer\
@@ -129,7 +129,7 @@ For each model, the registry records two lineage chains:
 1. A model is not deployed to a production environment without a corresponding registry row in Production state.
 2. Material changes (new base model, new fine-tuning data, new restricted use, new tier) trigger a row update within five business days.
 3. The AI System Inventory Keeper reviews the registry at minimum quarterly for completeness and accuracy.
-4. The Chief Privacy Officer reviews entries for personal-data exposure at minimum annually.
+4. The Data Protection Officer reviews entries for personal-data exposure at minimum annually.
 5. The AI Security Maintainer reviews entries for adversarial-evaluation currency at minimum semi-annually.
 6. Retired model artefacts are handled per the records retention standard with explicit consideration of derived embeddings, caches, and downstream model lineage.
 

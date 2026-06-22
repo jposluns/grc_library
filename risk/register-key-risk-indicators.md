@@ -2,8 +2,8 @@
 
 **Document Title:** Key Risk Indicator Catalogue\
 **Document Type:** Register\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-06-22\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -63,11 +63,11 @@ Each KRI is defined by the following fields.
 
 | KRI ID | KRI Name | Indicator | Unit | Green | Amber | Red | Owner | Frequency |
 |---|---|---|---|---|---|---|---|---|
-| KRI-PRV-001 | Data Subject Requests Overdue | Count of DSARs not responded to within statutory deadline | Count | 0 | 1 to 2 | >2 | Chief Privacy Officer | Weekly |
-| KRI-PRV-002 | Privacy Impact Assessments Outstanding | Count of processing activities requiring DPIA without completed DPIA | Count | 0 | 1 to 3 | >3 | Chief Privacy Officer | Monthly |
-| KRI-PRV-003 | Personal Data Breach Notifications | Count of breaches requiring regulatory notification in the period | Count | 0 | 1 | >1 | Chief Privacy Officer | Monthly |
-| KRI-PRV-004 | Consent Withdrawal Rate | Percentage of individuals withdrawing consent for marketing or analytics | % | <5% | 5 to 15% | >15% | Chief Privacy Officer | Quarterly |
-| KRI-PRV-005 | Cross-Border Transfer Compliance | Count of cross-border data transfers without valid transfer mechanism | Count | 0 | 1 to 2 | >2 | Chief Privacy Officer | Quarterly |
+| KRI-PRV-001 | Data Subject Requests Overdue | Count of DSARs not responded to within statutory deadline | Count | 0 | 1 to 2 | >2 | Data Protection Officer | Weekly |
+| KRI-PRV-002 | Privacy Impact Assessments Outstanding | Count of processing activities requiring DPIA without completed DPIA | Count | 0 | 1 to 3 | >3 | Data Protection Officer | Monthly |
+| KRI-PRV-003 | Personal Data Breach Notifications | Count of breaches requiring regulatory notification in the period | Count | 0 | 1 | >1 | Data Protection Officer | Monthly |
+| KRI-PRV-004 | Consent Withdrawal Rate | Percentage of individuals withdrawing consent for marketing or analytics | % | <5% | 5 to 15% | >15% | Data Protection Officer | Quarterly |
+| KRI-PRV-005 | Cross-Border Transfer Compliance | Count of cross-border data transfers without valid transfer mechanism | Count | 0 | 1 to 2 | >2 | Data Protection Officer | Quarterly |
 
 ---
 

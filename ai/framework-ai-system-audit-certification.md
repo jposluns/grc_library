@@ -2,7 +2,7 @@
 
 **Document Title:** AI System Audit and Certification Framework\
 **Document Type:** Framework\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -86,7 +86,7 @@ The following evidence must be available for each audit tier. Evidence gaps iden
 | Bias and fairness test results | Results of bias testing performed before deployment and at the most recent periodic re-assessment; methodology documented | CISO / AI System Owner |
 | Explainability documentation | Description of explainability approach; output of explainability testing; documentation of any inherent explainability limitations | AI System Owner |
 | Human oversight records | Evidence that designated human overseers exist; training completion records (anonymized); evidence of override capability testing | AI System Owner / Business Unit Owner |
-| Fundamental rights impact assessment (FRIA) | Completed FRIA per [`ai/policy-ai-compliance.md`](policy-ai-compliance.md) Section 5.2; evidence of Chief Privacy Officer review | Chief Privacy Officer / AI System Owner |
+| Fundamental rights impact assessment (FRIA) | Completed FRIA per [`ai/policy-ai-compliance.md`](policy-ai-compliance.md) Section 5.2; evidence of Data Protection Officer review | Data Protection Officer / AI System Owner |
 | Incident register entries | Extract from the AI Incident Register for incidents involving this system in the preceding audit period | CISO |
 | Post-market monitoring data | Monitoring plan; performance metrics including accuracy trend, drift metrics, and bias drift; alerts generated and resolved | AI System Owner |
 | Conformity assessment records | EU AI Act Annex IV technical documentation; prior conformity assessment report if applicable | CISO / Legal |

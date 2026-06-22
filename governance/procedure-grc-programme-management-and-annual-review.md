@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Programme Management and Annual Review Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
+**Version:** 1.0.2\
 **Date:** 2026-06-22\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
@@ -42,7 +42,7 @@ This procedure aligns to ISO 37301:2021 §9 (Performance evaluation), ISO/IEC 27
 | --- | --- |
 | GRC Programme Manager | Coordinates the annual review cycle. Maintains the document index and version register. Collates review attestations. Drafts the annual GRC programme report. Publishes approved changes. Maintains the rolling control testing schedule. Produces quarterly GRC metrics reports. |
 | Chief Information Security Officer (CISO) | Approving authority for security and AI governance domain documents. Reviews and approves security and AI-related changes. Receives quarterly GRC metrics reports. |
-| Chief Privacy Officer | Approving authority for privacy domain documents. Reviews privacy-related changes and ensures that alignment with applicable data protection law. |
+| Data Protection Officer | Approving authority for privacy domain documents. Reviews privacy-related changes and ensures that alignment with applicable data protection law. |
 | Chief Risk Officer | Approving authority for risk domain documents. Reviews risk treatment status updates. Receives quarterly GRC metrics reports. Co-chairs risk register quarterly reviews. |
 | Chief Compliance Officer | Approving authority for compliance domain documents. Monitors regulatory change log. Ensures that compliance domain documents remain current with applicable law and regulation. |
 | AI Governance Council | Approving authority for AI governance domain documents. Reviews AI policy, standard, and procedure changes. |

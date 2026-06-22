@@ -2,7 +2,7 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.3\
+**Version:** 1.3.4\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -41,11 +41,11 @@ The procedure is aligned to ISO/IEC 27701:2025 (PII principals' rights; section 
 | Role | Responsibilities |
 | --- | --- |
 | **Chief Information Officer (CIO, acting DPO)** | Accountable executive for the data subject rights programme. Signs off on all denials. Assumes DPO responsibilities until a formal DPO is appointed. Represents the organisation in regulatory matters relating to data subject rights. |
-| **Chief Privacy Officer** | Operational ownership of the DSR process. Manages the DSR register, coordinates fulfilment, reviews responses for accuracy and completeness, and escalates complex or contentious requests to the CIO. |
+| **Data Protection Officer** | Operational ownership of the DSR process. Manages the DSR register, coordinates fulfilment, reviews responses for accuracy and completeness, and escalates complex or contentious requests to the CIO. |
 | **Legal Counsel** | Advises on exemptions, applicable law, and denial justifications. Reviews and approves responses involving potentially litigation-sensitive information or novel legal questions. |
 | **CISO** | Ensures that technical measures are available to locate, extract, restrict, and delete personal data across systems. Provides guidance on AI system data retrieval and AI-derived data scope. |
-| **IT Operations / System Owners** | Execute data location, extraction, restriction, and deletion actions as directed by the Chief Privacy Officer within defined timeframes. |
-| **All Employees** | Forward any received data subject request to the Chief Privacy Officer immediately upon receipt. No employee may respond to, dismiss, or take action on a DSR without Chief Privacy Officer involvement. |
+| **IT Operations / System Owners** | Execute data location, extraction, restriction, and deletion actions as directed by the Data Protection Officer within defined timeframes. |
+| **All Employees** | Forward any received data subject request to the Data Protection Officer immediately upon receipt. No employee may respond to, dismiss, or take action on a DSR without Data Protection Officer involvement. |
 
 ### 2.2 Acting DPO status
 
@@ -75,11 +75,11 @@ The following table defines the rights managed under this procedure, the applica
 
 Data subjects may submit requests through:
 
-- The designated privacy request contact (email address or web portal maintained by the Chief Privacy Officer).
-- Written correspondence to the organisation's registered address, directed to the Chief Privacy Officer.
-- Any other channel where a request is received by an employee; employees must forward to the Chief Privacy Officer on the same business day.
+- The designated privacy request contact (email address or web portal maintained by the Data Protection Officer).
+- Written correspondence to the organisation's registered address, directed to the Data Protection Officer.
+- Any other channel where a request is received by an employee; employees must forward to the Data Protection Officer on the same business day.
 
-The Chief Privacy Officer maintains the official DSR submission channel and ensures that it is published in the organisation's privacy notice.
+The Data Protection Officer maintains the official DSR submission channel and ensures that it is published in the organisation's privacy notice.
 
 ### 4.2 Identity verification
 
@@ -102,7 +102,7 @@ Upon receipt, every request is assigned a unique DSR identifier and logged in th
 - Right(s) requested
 - Data subject identity (verified / pending verification)
 - Applicable jurisdiction(s) and governing law
-- Assigned Chief Privacy Officer
+- Assigned Data Protection Officer
 - Response deadline (calculated from date received)
 - Current status
 - Outcome
@@ -111,14 +111,14 @@ Upon receipt, every request is assigned a unique DSR identifier and logged in th
 
 ## 5. Triage and assessment
 
-Following intake and initial logging, the Chief Privacy Officer completes a triage assessment within 3 business days:
+Following intake and initial logging, the Data Protection Officer completes a triage assessment within 3 business days:
 
 1. **Confirm identity:** Verify that identity verification has been completed or is in progress. If not in progress, initiate verification.
 2. **Determine applicable law:** Identify the jurisdiction(s) governing the request based on the data subject's location, the applicable privacy law, and the data categories involved.
 3. **Determine the right(s) invoked:** Confirm which rights under §3 apply and whether all conditions for the right are prima facie met.
 4. **Check exemptions:** Review whether any exemptions in §3 apply and document the assessment.
 5. **Scope the request:** For access requests, identify all systems, data stores, third-party processors, and AI systems that may hold relevant personal data.
-6. **Assign to Chief Privacy Officer:** Assign formal ownership and confirm the response deadline in the DSR register.
+6. **Assign to Data Protection Officer:** Assign formal ownership and confirm the response deadline in the DSR register.
 7. **Notify the data subject:** Send an acknowledgement confirming receipt, the estimated response timeframe, and any verification requirements still outstanding.
 
 ---
@@ -127,7 +127,7 @@ Following intake and initial logging, the Chief Privacy Officer completes a tria
 
 ### 6.1 Data location
 
-The Chief Privacy Officer coordinates with IT Operations and relevant System Owners to locate all personal data within scope of the request. Data location covers:
+The Data Protection Officer coordinates with IT Operations and relevant System Owners to locate all personal data within scope of the request. Data location covers:
 
 - Primary operational systems and databases.
 - Archival and backup systems (where technically accessible without disproportionate effort).
@@ -137,7 +137,7 @@ The Chief Privacy Officer coordinates with IT Operations and relevant System Own
 
 ### 6.2 Scoping the response
 
-The Chief Privacy Officer determines:
+The Data Protection Officer determines:
 
 - Which data falls within the scope of the specific right invoked.
 - Whether any exemptions apply to specific data elements.
@@ -150,7 +150,7 @@ Responses must not disclose the personal data of third parties without their con
 - Names, contact details, or identifying information of other individuals appearing in documents or records.
 - Data that, in combination with the disclosed data, would allow identification of another individual.
 
-Redaction must be documented in the fulfilment record. The Chief Privacy Officer retains the unredacted version in the case file.
+Redaction must be documented in the fulfilment record. The Data Protection Officer retains the unredacted version in the case file.
 
 ### 6.4 Preparation and delivery of response
 
@@ -186,7 +186,7 @@ A request may be denied wholly or in part on the following grounds (non-exhausti
 
 ### 7.2 Denial process
 
-1. The Chief Privacy Officer documents the proposed grounds for denial with reference to the specific legal provision.
+1. The Data Protection Officer documents the proposed grounds for denial with reference to the specific legal provision.
 2. Legal Counsel reviews the denial rationale and confirms the legal basis.
 3. The CIO (acting DPO) signs off on the denial in writing before notification is sent to the data subject.
 4. The data subject is notified in writing of the denial, the specific grounds, and their right to lodge a complaint with the relevant supervisory authority (ICO, OPC, CAI, or other applicable authority).
@@ -200,7 +200,7 @@ All denials must be justified in writing and reviewed by the CIO (acting DPO) be
 
 ### 8.1 Cross-border requests
 
-Where a request involves personal data transferred across jurisdictions, the Chief Privacy Officer:
+Where a request involves personal data transferred across jurisdictions, the Data Protection Officer:
 
 - Determines the applicable legal rights in each relevant jurisdiction.
 - Identifies any legal mechanism constraints (e.g., PIPL restrictions on disclosing China-held data in response to foreign legal requests).
@@ -211,14 +211,14 @@ Where a request involves personal data transferred across jurisdictions, the Chi
 Data subjects have the right to access data held about them regardless of whether it was directly provided or derived through automated processing, including AI systems. When fulfilling access requests:
 
 - The scope of the response includes AI-inferred or AI-derived personal data attributes (e.g., risk scores, profiling outputs, predicted categories) where those attributes are held and associated with the data subject.
-- The Chief Privacy Officer coordinates with the CISO and AI system owners to retrieve AI-derived data within the access scope.
+- The Data Protection Officer coordinates with the CISO and AI system owners to retrieve AI-derived data within the access scope.
 - The system card or model card for relevant AI systems is consulted to confirm what data is generated and retained.
 
 ### 8.3 Automated decision review (GDPR art. 22 / CPPA)
 
 Where a data subject exercises their right to human review of an automated decision:
 
-1. The Chief Privacy Officer identifies the AI system and decision record involved.
+1. The Data Protection Officer identifies the AI system and decision record involved.
 2. A qualified human reviewer (not the same system that generated the original decision) conducts an independent review within 30 days.
 3. The reviewer documents the logic reviewed, the evidence assessed, the outcome, and any changes to the original decision.
 4. The data subject is notified of the review outcome in writing.
@@ -230,7 +230,7 @@ Where a data subject exercises their right to human review of an automated decis
 
 ### 9.1 DSR register
 
-The Chief Privacy Officer maintains the DSR register as a living record of all requests received. The register must be accessible to the CIO and available for production to supervisory authorities on request. The DSR register contains, for each request, all fields defined in §4.3 plus fulfilment notes, denial grounds where applicable, and closure date.
+The Data Protection Officer maintains the DSR register as a living record of all requests received. The register must be accessible to the CIO and available for production to supervisory authorities on request. The DSR register contains, for each request, all fields defined in §4.3 plus fulfilment notes, denial grounds where applicable, and closure date.
 
 ### 9.2 Retention
 
@@ -247,7 +247,7 @@ For each completed request, the case file must include:
 - Redaction log (where applicable).
 - Copy of the response delivered to the data subject.
 - Secure delivery confirmation.
-- Closure approval by the Chief Privacy Officer.
+- Closure approval by the Data Protection Officer.
 
 ---
 

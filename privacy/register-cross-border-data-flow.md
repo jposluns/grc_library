@@ -2,9 +2,9 @@
 
 **Document Title:** Cross-Border Data Flow Register\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
-**Owner:** Chief Privacy Officer\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
+**Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/README.md`](README.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)\
 **Classification:** Public\
@@ -155,7 +155,7 @@ Cross-border data transfer restrictions apply when personal data is transmitted,
 | Review all entries following material regulatory change | On change | DPO |
 | Update on change in processing scope or recipient | Within 10 business days of change | DPO |
 | Verify TIA / TRA currency | Annually for High-risk transfers | DPO |
-| Annual full register review | Annual | DPO / Chief Privacy Officer |
+| Annual full register review | Annual | DPO / Data Protection Officer |
 | Share with supervisory authority on request | On demand | DPO / Legal |
 
 ---

@@ -2,9 +2,9 @@
 
 **Document Title:** Pseudonymisation and Anonymisation Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-06-22\
-**Owner:** Chief Privacy Officer\
+**Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
 **Classification:** Public\
@@ -75,8 +75,8 @@ Hashing without a secret key (plain SHA-256 of an identifier) is not pseudonymis
 ### 1. Selection of technique
 
 1. Each transformation use case has an owner role and a documented purpose.
-2. Selection of pseudonymisation or anonymisation is recorded with the rationale; downgrading from anonymisation to pseudonymisation requires explicit Chief Privacy Officer approval.
-3. The technique combination is chosen by the Chief Privacy Officer with cryptographic input from the CISO where keys are involved.
+2. Selection of pseudonymisation or anonymisation is recorded with the rationale; downgrading from anonymisation to pseudonymisation requires explicit Data Protection Officer approval.
+3. The technique combination is chosen by the Data Protection Officer with cryptographic input from the CISO where keys are involved.
 
 ### 2. Separation of mapping data
 
@@ -86,7 +86,7 @@ Hashing without a secret key (plain SHA-256 of an identifier) is not pseudonymis
 
 ### 3. Re-identification risk assessment
 
-1. For any release outside the original processing boundary, the Chief Privacy Officer commissions a re-identification risk assessment.
+1. For any release outside the original processing boundary, the Data Protection Officer commissions a re-identification risk assessment.
 2. The assessment considers linkage attacks against publicly available data sets, inference attacks against known sensitive attributes, and singling-out attacks based on uniqueness of quasi-identifier combinations.
 3. The assessment classifies the residual risk as Negligible, Low, Moderate, High, or Unacceptable.
 4. Releases at Moderate or higher residual risk require additional controls (contractual restriction, recipient assurance, time-limited access, secure enclave) or rejection.
@@ -100,7 +100,7 @@ Hashing without a secret key (plain SHA-256 of an identifier) is not pseudonymis
 ### 5. AI training data
 
 1. AI training data sourced from personal data is pseudonymised or anonymised before training unless the lawful basis explicitly permits training on identifiable data and the data minimisation principle has been applied.
-2. Where models are released, the Chief Privacy Officer assesses model-inversion and membership-inference risk; release is conditional on the assessment outcome.
+2. Where models are released, the Data Protection Officer assesses model-inversion and membership-inference risk; release is conditional on the assessment outcome.
 3. Synthetic data and differential-privacy training are preferred for high-risk personal data categories.
 
 ### 6. Test and staging environments
@@ -114,19 +114,19 @@ Hashing without a secret key (plain SHA-256 of an identifier) is not pseudonymis
 
 | Residual risk | Definition | Permitted use |
 | --- | --- | --- |
-| Negligible | Re-identification not reasonably likely by any party using reasonably available means; quantitative re-identification risk below 0.1% | Open release acceptable subject to Chief Privacy Officer sign-off |
+| Negligible | Re-identification not reasonably likely by any party using reasonably available means; quantitative re-identification risk below 0.1% | Open release acceptable subject to Data Protection Officer sign-off |
 | Low | Re-identification not reasonably likely under intended use and recipient profile; quantitative risk between 0.1% and 1% | Controlled release to vetted recipients with contractual restrictions |
 | Moderate | Re-identification possible under plausible attacker capability; quantitative risk between 1% and 5% | Restricted to internal use or contracts with strong recipient assurance; usually requires additional controls |
 | High | Re-identification likely under plausible attacker capability; quantitative risk above 5% | Treat as personal data; pseudonymisation only; no external release |
 | Unacceptable | Re-identification likely under low attacker capability | Reject the transformation as anonymisation; apply additional minimisation or do not release |
 
-The percentages above are default thresholds. Adopting organisations may tighten these thresholds; loosening requires Chief Privacy Officer and CISO joint approval.
+The percentages above are default thresholds. Adopting organisations may tighten these thresholds; loosening requires Data Protection Officer and CISO joint approval.
 
 ---
 
 ## Operating expectations
 
-1. The Chief Privacy Officer maintains a register of pseudonymisation and anonymisation use cases with their technique, parameters, residual risk classification, and last review date.
+1. The Data Protection Officer maintains a register of pseudonymisation and anonymisation use cases with their technique, parameters, residual risk classification, and last review date.
 2. Re-identification attempts (internal red-team exercises) are conducted at minimum annually against active anonymisation outputs.
 3. Where a re-identification attempt succeeds, the affected output is recalled and the technique re-evaluated as a P2 incident.
 4. Cryptographic keys used in pseudonymisation are managed under the cryptographic key lifecycle framework.

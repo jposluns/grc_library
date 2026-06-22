@@ -2,7 +2,7 @@
 
 **Document Title:** AI Algorithmic Compliance Checklist\
 **Document Type:** Checklist\
-**Version:** 1.0.1\
+**Version:** 1.0.2\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -20,7 +20,7 @@
 
 This checklist provides a structured assessment tool for evaluating AI system compliance before deployment and at periodic review intervals. It is used by the AIGC and CISO as part of the AI System Impact Assessment Procedure ([`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md)) and the AI System Audit and Certification Framework ([`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md)).
 
-The checklist is completed by the AI System Owner in the first instance, reviewed by the CISO, and reviewed by the Chief Privacy Officer for items in Section B. For high-risk AI systems (Tier 1), the completed checklist is submitted to the AIGC for approval before deployment.
+The checklist is completed by the AI System Owner in the first instance, reviewed by the CISO, and reviewed by the Data Protection Officer for items in Section B. For high-risk AI systems (Tier 1), the completed checklist is submitted to the AIGC for approval before deployment.
 
 ### Completion instructions
 
@@ -44,7 +44,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 | Assessment Date | |
 | Assessed By | |
 | CISO Review Date | |
-| Chief Privacy Officer Review Date | |
+| Data Protection Officer Review Date | |
 | AIGC Approval Date (Tier 1 only) | |
 
 ---
@@ -80,7 +80,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 | B4 | Where the AI system may process data relating to children, specific safeguards are implemented and documented | | | | |
 | B5 | Cross-border data transfer controls are in place and documented for any training or inference data transferred across jurisdictions | | | | |
 | B6 | Data retention and deletion obligations for training data, inference logs, and output data are documented and implemented | | | | |
-| B7 | Training data has been subject to a re-identification risk assessment; residual re-identification risk is documented and accepted by the Chief Privacy Officer | | | | |
+| B7 | Training data has been subject to a re-identification risk assessment; residual re-identification risk is documented and accepted by the Data Protection Officer | | | | |
 | B8 | Where consent is the lawful basis for using training data, consent validity has been verified and records are maintained | | | | |
 
 ---

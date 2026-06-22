@@ -2,7 +2,7 @@
 
 **Document Title:** Tabletop Exercise Template\
 **Document Type:** Template\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-06-22\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
@@ -74,7 +74,7 @@ Each exercise has between three and five specific objectives. Objectives are tes
 | --- | --- | --- |
 | Exercise Director | All exercises | Not a participating role; runs the exercise, delivers injects |
 | Incident Coordinator | Multi-domain exercises | Per the cross-domain coordination procedure |
-| Primary-domain Lead | Per the scenario domain | E.g. CISO for security; Chief Privacy Officer for privacy |
+| Primary-domain Lead | Per the scenario domain | E.g. CISO for security; Data Protection Officer for privacy |
 | Participating-domain Lead(s) | Per scenario | |
 | Communications Lead | Most scenarios | |
 | Legal Lead | Scenarios with regulatory or contractual exposure | |
@@ -101,7 +101,7 @@ An inject is a piece of information delivered during the exercise to advance the
 | --- | --- | --- | --- | --- |
 | T+0 | Email | SOC | Initial alert template | SOC triages and classifies |
 | T+15 | Phone | CISO | Severity escalation prompt | CISO declares P1, convenes Joint Command |
-| T+30 | Chat / collaboration platform | Chief Privacy Officer | Personal data implicated | Privacy stream activates per breach response procedure |
+| T+30 | Chat / collaboration platform | Data Protection Officer | Personal data implicated | Privacy stream activates per breach response procedure |
 | T+60 | Email | Communications Lead | Journalist enquiry received | Communications produces holding statement |
 | T+90 | Phone | Legal | Regulator initiating contact | Legal evaluates obligations; coordinates with Comms |
 | T+120 | Chat / collaboration platform | Incident Coordinator | Supplier confirms data exposure | Supplier stream activates; hand-off checklist |

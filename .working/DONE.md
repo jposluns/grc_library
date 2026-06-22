@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #218 — FR-46 DPO consolidation (medium): canonical flipped to Data Protection Officer (2026-06-22)
+
+Reverses the CPO-canonical direction of PR #210 (Privacy Officer → Chief Privacy Officer rename) + PR #217 (closed unmerged when maintainer redirected). Maintainer-directed canonical: **Data Protection Officer** — globally-applicable, legislatively mandated in many regimes (GDPR Art 37, LGPD Art 41, India DPDP Act 2023 §10, Malaysia PDPA, etc.). Canonical surfaces flipped: register-role-authority CPO row → Data Protection Officer row with adopter-customisation note; glossary DPO entry extended; privacy/README Role terminology section added. Corpus prose rename across 73 files via one-shot Python script with synonym-pattern pre-cleanup; ~30 OWNER-FIELD metadata flips; build-portal.py + portal + maturity-scorecard + taxonomy regenerated. **PR-2 follows**: at-top "Role-name convention" notes in privacy-relevant docs.
+
 ### PR #214 — Overnight-PR morning processing + PR #213 batched items (2026-06-22)
 
 Morning-processing PR for the overnight session ending at PR #213: routed two design decisions (FR-104 and FR-130 explicit-drop closures) into `.working/design-decisions.md`, transitioned `.working/overnight-pr.md` back to stub form, and updated TODO and Next-up recommendations to reflect FR-119 / FR-14+FR-114 closures. Also carried the PR #213 batched items per the recursion-avoidance rule: stale forward-ref fix in `validation-sweep-pr-scoped/SKILL.md:175`, validate-pr history row for PR #213, improvement-log row for PR #213 with pattern observation #1 surfaced (new-skill drafting checklist candidate).

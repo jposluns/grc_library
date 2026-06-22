@@ -2,7 +2,7 @@
 
 **Document Title:** Concentration Risk Register\
 **Document Type:** Register\
-**Version:** 1.0.3\
+**Version:** 1.0.4\
 **Date:** 2026-06-22\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -107,7 +107,7 @@ Each row records one concentration finding.
 
 ## Operating expectations
 
-1. The register is reviewed quarterly by the Supplier Risk Maintainer with input from the CISO, CIO, and Chief Privacy Officer.
+1. The register is reviewed quarterly by the Supplier Risk Maintainer with input from the CISO, CIO, and Data Protection Officer.
 2. Each Tier 1 critical third party's record cross-references the relevant concentration entries.
 3. Concentration findings rated High or Unacceptable are escalated to the Executive Sponsor within the same review cycle they are identified.
 4. The register feeds the annual supplier risk report to the board or board-equivalent.
