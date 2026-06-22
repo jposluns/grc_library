@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #211 — FR-119 (medium): Risk Owner unification across ERM standard + exception policy (2026-06-22)
+
+Maintainer-approved (decision 9): same role. ERM standard §3 Risk Owner extended from 5 to 6 accountability actions (added exception-request validation); §9.2 evidence table extended to 6 rows. Exception policy §2 cross-references the canonical ERM definition. **Convergent Finding C1 (Risk Owner role insufficiency) now fully closed** across FR-115/116/117/119.
+
 ### PR #210 — FR-46 Privacy Officer rename (medium); DPO assessment surfaced (2026-06-22)
 
 Maintainer-approved (decision 6): "Privacy Officer" not preceded by "Chief" → "Chief Privacy Officer" corpus-wide. 36 files modified, per-doc Version+Date patch bumped. DPO scope assessment: strong evidence that DPO and CPO are the same role (canonical register has only one entry, 8+ explicit equivalence statements, jurisdictions treat DPO as the privacy lead). DPO consolidation queued for separate maintainer go-ahead with named options A/B/C.

@@ -10,8 +10,8 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #210 merge).
-- **Library version as of last refresh**: `2026.06.189`. **Pack version**: `1.44.1`. **README version**: `1.9.60`.
+- **Branch at last refresh**: `main` (synced after PR #211 merge).
+- **Library version as of last refresh**: `2026.06.190`. **Pack version**: `1.44.1`. **README version**: `1.9.61`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
 - **Last validation sweep**: Sweep 17 iteration 1 (close-out PR #186); /validate-pr on PR #187 closed out in PR #188; /validate-pr on PR #188 closed out in PR #189; /validate-pr on PR #189 closed out in PR #190 (third consecutive findings-producing /validate-pr; r1/r2 cross-date ambiguity resolved structurally in PR #190).
 - **Last fitness review**: 2026-06-22's r1 (PR #188 records); Pass-1 verification pending next session.
@@ -160,7 +160,7 @@ Source: [`.working/fitness-reviews/2026-06-22-r1.md`](.working/fitness-reviews/2
 
 **Three Convergent Findings dominate** (see [`.working/fitness-reviews/2026-06-22-r1.md`](.working/fitness-reviews/2026-06-22-r1.md) Cross-Library Findings section for full text):
 
-- **C1: Risk Owner role insufficiency** (P3 + P6 + P7) — **3 of 4 closed**: FR-115 (PR #197), FR-116 (PR #198), FR-117 (PR #199); FR-119 deferred (needs maintainer decision on rename-vs-unify the two Risk Owner definitions across ERM standard §3 and exception policy §1.4).
+- **C1: Risk Owner role insufficiency** (P3 + P6 + P7) — **FULLY CLOSED**: FR-115 (PR #197), FR-116 (PR #198), FR-117 (PR #199), FR-119 (PR #211 — same role unification).
 - **C2: Emergency-access trigger ambiguity** (P2 + P6 + P7) — all 6 deferred (FR-121, FR-122, FR-123, FR-124, FR-125, FR-126). Each needs an operational-threshold decision ("material harm" definition; "declared incident response" tied to specific status; "delegated security lead" role definition; revocation timeline pick; escalation clause shape). Recommended action: single combined "Access-control operational clarity" PR after maintainer-supplied thresholds.
 - **C3: Retention chain breaks** (P4) — **fully closed**: FR-128 (PR #194), FR-129 (PR #195). PR #179's 5y→7y bump on control-testing evidence has now propagated to CAPA records and internal audit reports. AI audit reports and Supplier audit reports remain at 5y in the same register; whether to raise those is a separate maintainer decision (different audit programmes; possibly different retention drivers).
 
@@ -179,7 +179,6 @@ Source: [`.working/fitness-reviews/2026-06-22-r1.md`](.working/fitness-reviews/2
 ### Medium tier — 6 findings from the 2026-06-22 review (FR-113 closed in PR #196, FR-116 closed in PR #198, FR-117 closed in PR #199)
 
 - **FR-112** (`README.md` line 58): Maintainer-context leakage in adopter-narrative. Toolchain framed as required dependency.
-- **FR-119** (`governance/policy-exception-and-risk-acceptance-management.md` line 46): "Risk Owner" used with different responsibility set than ERM standard.
 - **FR-120** (`governance/policy-exception-and-risk-acceptance-management.md` line 99): 180-day baseline citation imprecise/circular (NIST CA-6 specifies annual+, ISO 27001:2022 Clause 9.2 doesn't prescribe interval).
 - **FR-124** (`security/procedure-access-control.md` §3.2-3.3): Access-review revocation timeline contradiction.
 - **FR-126** (`security/procedure-access-control.md` lines 54-58): Auto-escalation mechanic vague (who triggers escalation?).
