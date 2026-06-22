@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Risk Register Template\
 **Document Type:** Template\
-**Version:** 1.0.2\
-**Date:** 2026-06-21\
+**Version:** 1.1.1\
+**Date:** 2026-06-22\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -83,12 +83,12 @@ Assessed after existing controls are applied.
 
 | Field | Description | Example |
 |---|---|---|
-| **Treatment Option** | Avoid / Reduce / Transfer / Accept | Reduce |
+| **Treatment Option** | Avoid / Mitigate / Transfer / Accept / Exploit / Enhance (canonical 6 per `risk/standard-enterprise-risk-management.md` Section 6) | Mitigate |
 | **Treatment Actions** | Specific steps to reduce likelihood or impact | Deploy EDR on all endpoints; implement immutable backup; enhance network segmentation |
 | **Treatment Owner** | Role responsible for implementing treatment | CISO / IT Operations Manager |
 | **Target Residual Risk Score** | Score expected after treatment completion | 6 (Medium) |
 | **Target Completion Date** | When treatment actions should be complete | 2026-09-30 |
-| **Treatment Status** | Not Started / In Progress / Implemented / Verified | In Progress |
+| **Treatment Status** | Pending / In Progress / Complete (canonical 3 per `risk/standard-enterprise-risk-management.md` Section 6 + 7.1) | In Progress |
 | **CAPA Reference** | Link to CAPA record if treatment is tracked as a corrective action | CAPA-2026-007 |
 
 ### Acceptance (if applicable)
