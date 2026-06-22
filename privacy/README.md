@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Domain README\
 **Document Type:** Register\
-**Version:** 1.2.0\
+**Version:** 1.2.1\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -42,6 +42,7 @@ This directory contains privacy governance artefacts covering data protection po
 | Template | Privacy Notice Template | [`privacy/template-privacy-notice.md`](template-privacy-notice.md) |
 | Template | Data Subject Access Request Workflow Template | [`privacy/template-dsar-workflow.md`](template-dsar-workflow.md) |
 | Template | DPIA (Data Protection Impact Assessment) Template | [`privacy/template-dpia.md`](template-dpia.md) |
+| Template | Joint Controller Arrangement Template | [`privacy/template-joint-controller-arrangement.md`](template-joint-controller-arrangement.md) |
 
 ### Deprecated documents (retained for redirect)
 
