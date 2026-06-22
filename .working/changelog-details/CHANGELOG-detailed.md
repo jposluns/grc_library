@@ -6,6 +6,40 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.195, PR #216
+
+Hot-fix PR for the two real defects /validate-pr surfaced on PR #215 (chat-surfaced findings per the chat-surfacing discipline). Also caught up on the deferred PR #214 + PR #215 /validate-pr history rows and the PR #214 + PR #215 /retro improvement-log entries.
+
+### Fixed
+
+- (E1) [`CHANGELOG.md`](../../CHANGELOG.md) PR #215 entry: "all 24 failure-mode classes the three subagents check" rephrased to "the failure-mode classes the three subagents check". The arithmetic count (8+9+7 = 24) was technically correct as the sum of the three subagent class-sets I composed in the briefs, but contradicted the canonical SKILL.md surface which defines 8 failure-mode classes. Rephrasing drops the count to sidestep the canonical conflict.
+- (W2) [`TODO.md`](../../TODO.md) line 13: "(synced after PR #213 merge)" → "(synced after PR #215 merge)". When refreshing the resume-state cursor in PR #215, lines 14, 16, 17 were updated but line 13 was missed. Genuine miss; the line is now accurate as-of-this-PR commit time (and will become stale again when PR #216 merges per the convention that resume-state snapshots drift forward).
+
+### Added
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): two new rows — PR #215 (3 in-window findings: E1 stale prose ref, W2 stale prose ref, W3 multi-surface incompleteness defensible) and PR #214 (0 findings, backfilled — /validate-pr was skipped at the time in favour of going straight to /validate; recorded as backfill entry).
+- [`.working/improvement-log.md`](../improvement-log.md): two new rows — PR #215 retrospective (signal stage observation of "single PR refreshes parallel surfaces and misses some lines on each" pattern; second occurrence after PR #190's findings) and PR #214 retrospective (also misses TODO.md:13; pinned to PR #215 since that's where the refresh was substantive).
+
+### Discipline observation
+
+The chat-surfacing discipline added in PR #190 worked exactly as designed on this cycle: PR #215's /validate-pr surfaced 3 findings; the chat-surface listed them with severity and recommended action; the maintainer chose option A (ship the fix). The /retro pattern observation (second-occurrence signal) is also surfaced in chat per the chat-surfacing discipline shared with /validate and /validate-pr. The pattern is at signal stage; one more occurrence promotes to pattern stage and earns a Proposed-improvement candidate.
+
+### Verification
+
+- All 46 audit gates pass on post-commit state.
+- Per-document Version bump in same commit as body change (README 1.9.65→1.9.66; validate-pr/history 1.2.22→1.2.24; improvement-log 1.0.1→1.0.3).
+- Library Version 2026.06.194 → 2026.06.195 (CalVer).
+- CHANGELOG (root + detailed) carry matching lead paragraphs and the detailed mirror's structured sections per the dual-entry convention.
+
+### Files touched
+
+- `CHANGELOG.md` (root entry edit + new entry)
+- `.working/changelog-details/CHANGELOG-detailed.md` (mirror entry)
+- `README.md` (version bumps)
+- `TODO.md` (line 13 fix)
+- `.working/validate-pr/history.md` (2 rows + version bump)
+- `.working/improvement-log.md` (2 rows + version bump)
+
 ## 2026-06-22, Library Version 2026.06.194, PR #215
 
 Working-state housekeeping for local project: Sweep 18 iter 1 recording (clean bill — 0 in-window, 0 out-of-window across all three subagents A/B/C on the post-PR-#214 HEAD covering PRs #186-#214). Sweep-history row appended to [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (Version `2.0.10 → 2.0.11`); TODO resume-state cursor refreshed (sweep 17→18, library 192→193, pack 1.45.0→1.45.1, README 1.9.63→1.9.64). No detail file (zero-finding sweep).
