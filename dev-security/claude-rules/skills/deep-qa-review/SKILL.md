@@ -90,7 +90,7 @@ Unlike `/validate`'s fixed-point loop, the trust-recovery pass terminates only w
 
 ## Verification
 
-The pass is complete on a given run when: clone depth was verified full before any git-history-aware step; the mechanical baseline was clean on the full clone; all six subagents were dispatched and returned evidence-quoted findings; the orchestrator re-read each cited source and refuted or confirmed it; every confirmed finding was routed to the top-priority backlog tier tagged `[full-qa]`; the per-run record and history row were written; and the maintainer has signed off on the combined trust-recovery additions.
+The pass is complete on a given run when: clone depth was verified full before any git-history-aware step; the mechanical baseline was clean on the full clone; all six subagents were dispatched and returned evidence-quoted findings; the orchestrator re-read each cited source and refuted or confirmed it; every confirmed finding was routed to its severity-appropriate backlog tier (High[critical] and High to the top-priority tier, Medium and Low to the next-priority tier) tagged `[full-qa]`, none dropped; the per-run record and history row were written; and the maintainer has signed off on the combined trust-recovery additions.
 
 ## Common Rationalizations
 
@@ -98,7 +98,7 @@ The pass is complete on a given run when: clone depth was verified full before a
 |---|---|
 | "CI is green, so the corpus is fine." | CI on a shallow clone can be green while a subagent on the same clone reports a git-history-gate failure, or vice versa. Verify clone depth; trust the full-clone audit. |
 | "This subagent's finding is obviously real; route it." | The shallow-clone gate-31 artifact looked like 153 real failures. Re-read the source before routing every finding, especially the alarming ones. |
-| "The finding is trivial; I'll skip routing it." | Trust-recovery mode routes everything for maintainer triage. The orchestrator's job is to filter hallucinations, not to triage severity. |
+| "The finding is trivial; I'll skip routing it." | Trust-recovery mode routes everything (tiered by severity, none dropped) for maintainer triage. The orchestrator filters hallucinations and tiers findings by severity, but never drops a finding; tiering to the next-priority tier is routing it, not skipping it. |
 | "Six subagents is overkill; A and F overlap." | The overlap is deliberate (A reads an artefact as state; F audits it as a discipline record). Different lenses on the same surface is coverage, not waste. |
 | "Empty findings, so we're done." | Sign-off terminates the pass. An empty set still needs the maintainer to acknowledge confidence restored. |
 
