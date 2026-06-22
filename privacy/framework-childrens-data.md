@@ -2,9 +2,9 @@
 
 **Document Title:** Children's Data Framework\
 **Document Type:** Framework\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-06-22\
-**Owner:** Chief Privacy Officer\
+**Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/framework-consent-management.md`](framework-consent-management.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/register-automated-decision-making.md`](register-automated-decision-making.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md)\
 **Classification:** Public\
@@ -106,7 +106,7 @@ These defaults apply by design wherever the product or feature is likely to be a
 ## Profiling and automated decision-making
 
 1. Profiling of children for marketing or advertising purposes is prohibited unless explicit lawful basis exists and best-interest analysis justifies it.
-2. Automated decision-making with legal or similarly significant effect on a child requires Chief Privacy Officer review beyond the standard ADM register entry. Where lawful, additional human-review safeguards apply.
+2. Automated decision-making with legal or similarly significant effect on a child requires Data Protection Officer review beyond the standard ADM register entry. Where lawful, additional human-review safeguards apply.
 3. AI systems used in services likely to be accessed by children undergo an enhanced AI System Impact Assessment that explicitly considers child wellbeing.
 
 ---
@@ -115,9 +115,9 @@ These defaults apply by design wherever the product or feature is likely to be a
 
 1. Each product or feature likely to be accessed by children is assessed against the framework before launch.
 2. The product team identifies the applicable jurisdictional thresholds and consent mechanisms in advance.
-3. Marketing and growth experiments involving children require Chief Privacy Officer review; A/B tests on consent or privacy controls in the child-accessible surface require enhanced documentation.
+3. Marketing and growth experiments involving children require Data Protection Officer review; A/B tests on consent or privacy controls in the child-accessible surface require enhanced documentation.
 4. Incident response procedures for children's data classify breaches at one severity level higher than equivalent adult data by default.
-5. Annual review of children's data processing activities is conducted by the Chief Privacy Officer with input from a designated child-safety reviewer where the product is materially directed to children.
+5. Annual review of children's data processing activities is conducted by the Data Protection Officer with input from a designated child-safety reviewer where the product is materially directed to children.
 
 ---
 

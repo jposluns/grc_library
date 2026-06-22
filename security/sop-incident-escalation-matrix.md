@@ -2,7 +2,7 @@
 
 **Document Title:** Incident Escalation Matrix\
 **Document Type:** SOP\
-**Version:** 1.2.2\
+**Version:** 1.2.3\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -53,7 +53,7 @@ This SOP defines the incident escalation matrix for security incidents. It speci
 | CIO | Phone | Email + SMS |
 | CEO | Phone | Email + personal mobile |
 | Legal Counsel | Email / phone | Collaboration platform |
-| Chief Privacy Officer / DPO | Email / collaboration platform | Phone |
+| Data Protection Officer (DPO) | Email / collaboration platform | Phone |
 | External IR Partner | Hotline | Partner portal |
 
 Actual contact details (names, numbers, emails) are maintained in the confidential IR Contact Register held by the CISO. This SOP references roles only.
@@ -64,7 +64,7 @@ Actual contact details (names, numbers, emails) are maintained in the confidenti
 
 | Trigger | Additional Notifications Required |
 | --- | --- |
-| Confirmed or suspected PII data breach | Chief Privacy Officer / DPO; Legal Counsel; initiate regulatory notification assessment |
+| Confirmed or suspected PII data breach | Data Protection Officer (DPO); Legal Counsel; initiate regulatory notification assessment |
 | Ransomware deployment | CEO, CFO, Board notification pathway; external IR partner engaged immediately |
 | Threat actor in production environment | External IR partner activated; affected systems isolated immediately |
 | Customer system or data impacted | Legal Counsel for contract obligations review; customer notification assessment |

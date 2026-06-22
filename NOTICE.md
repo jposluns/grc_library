@@ -2,7 +2,7 @@
 
 **Document Title:** Notice: External Reference Materials and Licence Boundaries\
 **Document Type:** Policy\
-**Version:** 1.4.2\
+**Version:** 1.4.3\
 **Date:** 2026-06-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -107,7 +107,7 @@ Repository content must not include:
 - Audit evidence.
 - Screenshots or exports from internal systems.
 
-Roles must be generic, such as Chief Information Officer, Chief Information Security Officer, Chief Privacy Officer, Chief Compliance Officer, Chief Risk Officer, System Owner, Data Owner, Control Owner, and Process Owner.
+Roles must be generic, such as Chief Information Officer, Chief Information Security Officer, Data Protection Officer, Chief Compliance Officer, Chief Risk Officer, System Owner, Data Owner, Control Owner, and Process Owner.
 
 ---
 

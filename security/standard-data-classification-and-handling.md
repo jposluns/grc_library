@@ -2,7 +2,7 @@
 
 **Document Title:** Data Classification and Handling Standard\
 **Document Type:** Standard\
-**Version:** 1.3.3\
+**Version:** 1.3.4\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -41,7 +41,7 @@ To ensure that consistent handling of information according to its sensitivity, 
 | CISO | Enforces encryption, labelling, and protection controls. |
 | Data Owners / Department Heads | Classify and label data assets according to business and regulatory sensitivity. |
 | IT Operations / Cloud Administrators | Implement and maintain automated labelling, DLP, and encryption solutions. |
-| Chief Privacy Officer | Ensures that alignment with privacy and data protection laws. |
+| Data Protection Officer | Ensures that alignment with privacy and data protection laws. |
 | AI Governance Council | Oversees classification and protection of AI datasets and model data. |
 
 Sector-conditional roles (for example, a BASC Regional Compliance Officer who ensures that classification of customs, trade, and cargo data meets BASC confidentiality standards) apply where the organisation participates in a covered sector programme; see [`compliance/`](../compliance/).

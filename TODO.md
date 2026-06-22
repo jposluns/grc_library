@@ -30,7 +30,7 @@ The remaining fitness-remediation work is organised into two phases. The plan is
 **Phase 1 remaining (P1.4b, P1.5, P1.6, P1.7).** Single-document or single-cluster polish PRs. Phase 1 originally included P1.1 (README polish, closed by PR #172), P1.2 (ERM completion, closed by PR #178), P1.3 (access-control polish, closed by PR #169), and P1.4a (six small singleton mediums, closed by PR #179); those are shipped. P1.4 was split into P1.4a + P1.4b per the "always split when in doubt" discipline (FR-33 high[critical] warranted dedicated treatment).
 
 - **P1.4b — FR-33 (high[critical]) standalone** (GDPR Article 36 prior-consultation pathway). Originally bundled in P1.4; split out per "always split when in doubt" since the severity tier and scope warranted dedicated treatment. P1.4a closed by PR #179 (six mediums: FR-18, FR-25, FR-79, FR-105, FR-106, FR-110).
-- **P1.5 — Editorial consistency cluster** (FR-46, FR-47, FR-48, FR-49, FR-50, FR-51, FR-52, all medium). Role-name "Chief" inconsistency, DPO ambiguous role, H2 numbering drift, Governance heading drift, NIST citation format, ISO 27001 Annex form, review-frequency "and/or".
+- **P1.5 — Editorial consistency cluster** (2 remaining: FR-48, FR-49, both medium). H2 numbering drift, Governance heading drift. Closed: FR-46 (PR #210 + PR #218 — canonical flipped to Data Protection Officer in PR #218 after maintainer redirect; PR #217's CPO-canonical attempt was closed unmerged), FR-47 (surface-consolidated in PR #218; formal closure pending maintainer review), FR-50 (PR #207), FR-51 (PR #208), FR-52 (PR #209). **PR-2 follow-up queued**: at-top "Role-name convention" notes in privacy-relevant docs (post-metadata-block placement, pointing to register-role-authority.md).
 - **P1.6 — Cross-document contradictions** (FR-81 medium, FR-82 medium). TLS floor inconsistency; key hashing ambiguity.
 - **P1.7 — Low-tier sweep**. Opportunistic cleanup of deferred Low-tier findings (FR-67 through FR-91 / FR-107 through FR-111 per the Low tier list below). Single bundle expected; details when the maintainer triggers it.
 
@@ -46,7 +46,7 @@ The remaining fitness-remediation work is organised into two phases. The plan is
 - **P2.8 — FR-15 maturity methodology**. Median-of-medians scoring concern.
 - **P2.9 — FR-23 audit evidence**. Assembler-verification standard.
 - **P2.10 — FR-24 control testing**. Procedure thinner than peers.
-- **P2.11 — FR-47 DPO ambiguous role**. (Also surfaces in P1.5 editorial cluster; P2.11 is the structural-resolution PR; P1.5 covers the editorial trim).
+- **P2.11 — FR-47 DPO ambiguous role**: surface-consolidated in PR #218 (the three-way label drift collapsed to consistent Data Protection Officer usage + register canonical statement + glossary cross-reference); formal closure pending maintainer review.
 - **P2.12 — FR-48 H2 numbering**. Numbering patterns drift.
 - **P2.13 — FR-58 inheritance vocab**. Library-internal vs template vs reference content vocabulary.
 - **P2.14 — FR-63 worked example**. Walks ingestion not adoption.
@@ -113,7 +113,7 @@ Full list with one-line summaries available in r1.md §3 (`.working/fitness-revi
 - **Audit evidence template** (1): FR-23 ⚠️ (assembler-verification standard absent).
 - **Control testing** (1): FR-24 (procedure thinner than peers).
 - **Privacy completion** (6): FR-37 (joint controller Art 26), FR-38 (DSAR Art 12(5) thin), FR-39 (EU representative Art 27), FR-40 (PIPL Art 38-40), FR-41 (AI Art 22 + EU AI Act + FRIA workflow), FR-42 (DPO independence Art 38(3)).
-- **Editorial consistency** (3 remaining + 1 pending decision): **FR-46 Privacy Officer rename closed in PR #210** (36 files); FR-46 DPO consolidation is the second half — assessment finds DPO = CPO with ~90% confidence; pending maintainer go-ahead on named options A/B/C (see PR #210 detailed entry). FR-47 (DPO ambiguous role) is closely tied to the FR-46-DPO decision and may close together. FR-48 (H2 numbering patterns drift), FR-49 (Governance heading drift) remain. **Closed**: FR-50 (PR #207), FR-51 (PR #208), FR-52 (PR #209).
+- **Editorial consistency** (2 remaining): FR-48 (H2 numbering patterns drift), FR-49 (Governance heading drift). **Closed**: FR-46 (PR #210 Privacy Officer rename + PR #218 DPO-canonical flip, after PR #217's CPO-canonical attempt was closed unmerged), FR-47 (surface-consolidated in PR #218; formal closure pending maintainer review), FR-50 (PR #207), FR-51 (PR #208), FR-52 (PR #209). **PR-2 queued**: at-top "Role-name convention" notes in privacy-relevant docs pointing to register-role-authority.md.
 - **Adopter cluster** (5): FR-62 (AI jurisdiction annexes absent), FR-63 (worked example walks ingestion not adoption), FR-64 (contribution path workflow-shaped not pattern-shaped), FR-65 ⚠️ (upstream-sync underspecified), FR-66 (tooling assumes maintainer context).
 - **Coverage gaps** (5): FR-74 (Schrems II-light; consolidates with FR-34), FR-75 ⚠️ (ESG materiality threshold), FR-76 ⚠️ (sustainability framework escalation triggers), FR-77 (3LoD model used without explanation), FR-78 (framework-document-architecture maintainer voice).
 - **Cross-document contradictions** (1): FR-81 **fully closed** (PR #201 corpus + PR #205 pack CLAUDE.md after maintainer approval); FR-82 (key hashing ambiguity) remains.

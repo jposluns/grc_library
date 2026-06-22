@@ -2,7 +2,7 @@
 
 **Document Title:** AI Incident Response Plan\
 **Document Type:** Plan\
-**Version:** 1.0.3\
+**Version:** 1.0.4\
 **Date:** 2026-06-22\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -136,7 +136,7 @@ AI-specific containment actions, applied per the severity and the system archite
 | Re-enable capabilities incrementally | Targeted re-enable in reverse order of containment |
 | Monitor with enhanced alerting | At minimum 14 days post-incident |
 | Customer notification where required | Coordinate with the Communications Lead |
-| Regulator notification where applicable | Coordinate with the Chief Privacy Officer and Legal |
+| Regulator notification where applicable | Coordinate with the Data Protection Officer and Legal |
 
 ### 7. Post-incident review
 
