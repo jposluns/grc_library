@@ -112,6 +112,14 @@ If no scanner output is relevant to the touched files, the subagent proceeds unh
 
 Same SARIF-lite block format as `validation-sweep`. Reuse the failure-mode catalogue and the synthesis rubric.
 
+## Surfacing findings in chat
+
+**When findings exist, surface them prominently in the chat reply, not only in the per-PR record file.** The chat surface is for maintainer awareness and triage; the per-PR record file is the authoritative archive. A maintainer should not need to open `.working/validate-pr/<date>-PR-<N>.md` or scroll through `CHANGELOG-detailed.md` to see what the sweep found.
+
+Chat-surface shape: a per-finding line (or short block) carrying the ruleId, the severity / level, the `path:line` location, a one-line evidence quote, a one-line impact, a one-line recommendation, and the in-window / out-of-window classification. Group by severity tier if multiple findings landed. Zero-finding sweeps still need a one-line chat acknowledgement that the sweep ran clean.
+
+The chat surface is non-negotiable when the sweep produces findings: a finding that lives only in `.working/` files is not surfaced to the maintainer's attention.
+
 ## Termination
 
 The PR-scoped sweep is a single-iteration cycle: dispatch, check, triage, record. If findings produce a hot-fix PR, that hot-fix PR is itself a new merge that triggers its own `/validate-pr` cycle.

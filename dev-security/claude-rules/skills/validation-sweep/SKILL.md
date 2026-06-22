@@ -204,6 +204,14 @@ The per-iteration record's directory should be in `tools/lint_common.py` `DEFAUL
 
 **Zero-finding iterations write the record but do NOT create a register entry.** The convention "zero-finding sweeps leave no trace in the register" applies only to the register; the per-iteration record is the persistent trace for those iterations. Iterations with findings write to both the per-iteration record (detail) and the register (summary).
 
+## Surfacing findings in chat
+
+**When findings exist, surface them prominently in the chat reply, not only in the per-iteration detail file.** The chat surface is for maintainer awareness and triage; the per-iteration record is the authoritative archive. A maintainer should not need to open `.working/validate-sweeps/<date>-sweep<N>-iter<M>.md` or scroll through `CHANGELOG-detailed.md` to see what the sweep found.
+
+Chat-surface shape: a per-finding line (or short block) carrying the ruleId, the severity / level, the `path:line` location, a one-line evidence quote, a one-line impact, a one-line recommendation, and the in-window / out-of-window classification. Group by severity tier if multiple findings landed. Zero-finding iterations still need a one-line chat acknowledgement.
+
+The chat surface is non-negotiable when the sweep produces findings: a finding that lives only in `.working/` files is not surfaced to the maintainer's attention.
+
 ## Red Flags
 
 - Running the audit suite once and declaring the sweep complete without the post-fix re-run.

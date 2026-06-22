@@ -18,4 +18,6 @@ Reject any subagent finding that lacks an explicit `path:line` quote. A finding 
 
 `.working/validate-pr/` is exempt from corpus audit gates (frozen-state archive). Existing `path:line` references in subagent reports are kept verbatim even if the lines later shift; the record is a moment-in-time artefact.
 
+**Surface findings prominently in chat, not buried in artefact files.** When findings exist, the chat reply must enumerate them inline (per-finding: ruleId, severity/level, `path:line` location, one-line evidence quote, one-line impact, one-line recommendation, in-window vs out-of-window classification). The maintainer must be able to read the finding set without opening the per-PR record file or scrolling through CHANGELOG-detailed. The per-PR record file remains the authoritative archive; the chat surface is for awareness and triage.
+
 Report back: the audit baseline result, the Subagent A findings (grouped by severity, with `path:line` evidence per finding), the cross-reference check results, the triage decisions, the resulting hot-fix PR (if any), the new history row, and the path to the per-PR record file (if findings exist).
