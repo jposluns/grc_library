@@ -1,6 +1,6 @@
 # Improvement Log Register
 
-**Version:** 1.0.22\
+**Version:** 1.0.23\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -35,6 +35,7 @@ The register is maintainer working state, exempt from corpus audit gates per the
 
 | Date | PR | FR closed | What went well | Friction | Pattern (if any) | Proposed improvement |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | #237 | FR-36 (H, S) | 30-row Member-State table; clean first-pass language audit; clear "verify against current national law" caveat for adopters. | Two CHANGELOG link-coverage + TODO sweep-cursor catches as fail-then-fix loops; routine for late-session PRs in this batch. | Pattern continuing: CHANGELOG bare-filename refs trigger gate-4 audit; TODO sweep-cursor updates required on every /validate close-out PR. | The TODO sweep-cursor update could be automated as a pre-commit hook that runs gate 45 and offers a fix; the CHANGELOG link-coverage could be handled by the existing convention (point to detailed mirror for full file list). Both noted as worker-brief candidates. |
 | 2026-06-22 | #236 | A2 + B4 + FR-47 (P7 maintainer-decision queue) | 3 P7 items actioned cleanly. PR-F deferred surfaced the apply-time effort-recalibration pattern (TODO's (M, XS) label proved too optimistic for working-state relocations with many sibling references). | None at apply-time. Effort recalibration on PR-F surfaced honestly. | First occurrence of "TODO effort label too optimistic for working-state-relocation items that touch many sibling references". Single occurrence; not yet pattern. | Worker-brief candidate (queued): when assessing relocation-class effort, include a sibling-reference count survey before assigning XS. Apply when the next relocation PR is scoped. |
 | 2026-06-22 | #235 | C2 convergent bundle (FR-121+122+123+124+125+126) | 6 items closed in one PR with maintainer-approved sample-data defaults. Single section-level "Sample data, adjust upon adoption" callout makes the contract explicit. Pattern reusable for any future PR shipping operational defaults. | Apply-time gate-30 catch: §3.2/§3.3/§5.1 references where no matching sub-heading; the procedure uses paragraph numbers. Rephrased to descriptive prose. | First occurrence of "procedure uses paragraph numbers not sub-headings, but §-references in body trigger intra-doc-ref audit". The §1.1, §1.4 existing references pass the audit (probably via context heuristics) while new §3.2-3.3 don't. | Could refactor the procedure to use sub-headings instead of paragraph numbers, OR add paragraph-number recognition to the linter. Low priority; current workaround is descriptive prose. |
 | 2026-06-22 | #234 | FR-67 (L, XS) | New sub-tier insertion before E1 cleanly extended the Dimension E ladder without renumbering existing tiers (E1, E2, E3, E4 stay). | No friction. | No new pattern. | None. |

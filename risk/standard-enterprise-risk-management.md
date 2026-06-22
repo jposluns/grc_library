@@ -2,7 +2,7 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.5.1\
+**Version:** 1.6.0\
 **Date:** 2026-06-22\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -138,6 +138,8 @@ Treatment decisions must be documented with one of the following options:
 
 Each treatment plan must include: accountable owner, target completion date, required actions, dependencies, expected residual risk score, and current status.
 
+**Terminology**: this Section 6 "Treatment Option" names the choice the risk owner makes about how to address the risk; Section 7.1's "Treatment Status" (added in this Standard's version 1.6.0 to remove the prior ambiguity) names the workflow state of that choice's execution. The two fields are independent: a risk with Treatment Option = Mitigate may have Treatment Status = Pending (plan documented, controls not yet implemented), In Progress, or Complete. Section 7.1's "Status" field is the risk-record lifecycle state (Open / Closed) and does NOT duplicate Treatment Status.
+
 ---
 
 ## 7. Risk register entry fields
@@ -160,10 +162,11 @@ Each risk register entry must include the following fields.
 | Likelihood (Residual) | Score 1 to 5 |
 | Impact (Residual) | Score 1 to 5 |
 | Residual Risk Score | Likelihood × Impact |
-| Treatment Option | Avoid / Mitigate / Transfer / Accept / Exploit / Enhance |
+| Treatment Option | Avoid / Mitigate / Transfer / Accept / Exploit / Enhance (per Section 6) |
 | Treatment Actions | Specific steps with owner and target date |
+| Treatment Status | Pending / In Progress / Complete. Workflow state of the Treatment Option's execution; independent of the Status field below |
 | Risk Owner | Accountable individual (role title) |
-| Status | Open / Mitigated / Accepted / Closed |
+| Status | Open / Closed. Risk-record lifecycle state. A risk is Open while it remains within the organisation's risk appetite considerations; a risk is Closed when no further treatment or monitoring action remains (e.g., the underlying activity has ceased, or the residual risk is accepted indefinitely under a documented acceptance). The Status field does NOT name the treatment outcome (which is captured by Treatment Option) or the treatment workflow state (Treatment Status above). |
 | Review Frequency | Monthly / Quarterly / Annually |
 | Last Reviewed | Date |
 | Next Review | Date |

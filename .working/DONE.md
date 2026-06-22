@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #238 — Closes FR-118 (H, S): ERM §6/§7 treatment-vocab internal inconsistency resolved (2026-06-22)
+
+`risk/standard-enterprise-risk-management.md` v1.6.0: §6 gains terminology paragraph distinguishing Treatment Option (6 choices) / Treatment Status (workflow: Pending/In Progress/Complete) / Status (risk-record lifecycle: Open/Closed). §7.1 register fields update: Treatment Status field added; Status value set narrowed from "Open/Mitigated/Accepted/Closed" to "Open/Closed" with explanatory prose. Closes the ambiguity surfaced during Pass-2 reshape (Avoided risks had no clean Status value). PR-B in Batch 2.
+
 ### PR #237 — Closes FR-36 (H, S): GDPR Article 8 child-consent age table per Member State (2026-06-22)
 
 `privacy/jurisdictions/annex-privacy-european-union.md` v1.1.0: new section between Cross-border-transfers and Enforcement covering 30 Member States (27 EU + 3 EEA) with each state's chosen age (13/14/15/16) and national implementing-law citation. `privacy/framework-childrens-data.md` v1.0.5 row updated to cross-reference the new table. PR-A in Batch 2 effort-first run. Also carries Sweep 21 zero-finding history row + PR #236 register rows.

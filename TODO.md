@@ -49,7 +49,6 @@ These are **as-of-session-pause snapshots**, not "current HEAD" claims. They ref
 - **FR-59 (H, L)**: Privacy jurisdiction annexes are too shallow for operational sufficiency; deepen the 25 country annexes to operational level.
 - **FR-60 (H, L)**: HIPAA adopter has no operational detail beyond a single 261-line sector annex in `compliance/healthcare`. Deepen.
 - **FR-61 (H, L)**: Financial-services adopters outside EU/US lack regulatory regimes: UK PRA/FCA, US OCC/FRB/FDIC, MAS, FSA, APRA, OSFI, HKMA, FINMA.
-- **FR-118 (H, S)**: Cross-doc treatment-vocab divergence still open between [`risk/standard-enterprise-risk-management.md`](risk/standard-enterprise-risk-management.md) §6 (canonical six-option set: Avoid / Mitigate / Transfer / Accept / Exploit / Enhance) and [`risk/procedure-risk-register.md`](risk/procedure-risk-register.md) "Select Treatment" step (different six-option set). **Reshape during Pass-2**: scope expanded to ERM standard §6/§7 internal inconsistency.
 
 ---
 
