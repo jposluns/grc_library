@@ -164,12 +164,11 @@ Source: [`.working/fitness-reviews/2026-06-22-r1.md`](.working/fitness-reviews/2
 - **C2: Emergency-access trigger ambiguity** (P2 + P6 + P7) — closes FR-121, FR-122, FR-123, FR-124, FR-125, FR-126. Recommended action: single combined "Access-control operational clarity" PR. PR #169 added trigger conditions but "material harm", "declared incident response", "delegated security lead" lack operational definitions.
 - **C3: Retention chain breaks** (P4) — closes FR-128, FR-129. Recommended action: retention-consistency sweep PR. PR #179's 5y→7y bump on control-testing evidence was correct but localised; adjacent CAPA records and internal audit reports still at 5y.
 
-### High[critical] tier — 6 findings from the 2026-06-22 review
+### High[critical] tier — 5 findings from the 2026-06-22 review (FR-127 closed in PR #193)
 
 - **FR-114** (`governance/register-digital-trust-and-assurance-metrics.md` line 65): DTI uses 4-tier non-CMMI vocabulary; framework uses 5-tier CMMI. **Closely tied to r1 FR-14** which is still pending; recommend bundling.
 - **FR-121** (`security/procedure-access-control.md` line 64): Emergency-access "material business or safety harm" undefined. Three personas surfaced independently.
 - **FR-122** (`security/procedure-access-control.md` line 64): "Declared incident response" not tied to a specific incident status (P1/P2/P3/P4).
-- **FR-127** (`security/framework-zero-trust-architecture.md` line 75): TLS 1.2 in ZTA framework vs TLS 1.3 in encryption policy. Single-line fix.
 - **FR-128** (`governance/register-data-retention-schedule.md` line 66): CAPA records 5y vs control-testing 7y. Audit-evidence chain break.
 - **FR-129** (`governance/register-data-retention-schedule.md` line 83): Internal audit reports 5y vs procedures' 7y. Audit-evidence chain break.
 

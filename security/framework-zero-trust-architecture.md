@@ -2,8 +2,8 @@
 
 **Document Title:** Zero Trust Architecture Framework\
 **Document Type:** Framework\
-**Version:** 0.0.2\
-**Date:** 2026-05-28\
+**Version:** 0.0.3\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/policy-network-communications-security.md`](policy-network-communications-security.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md), [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`ai/standard-ai-access-and-agent-permissions.md`](../ai/standard-ai-access-and-agent-permissions.md)\
@@ -72,7 +72,7 @@ The framework adopts seven pillars consistent with the CISA Zero Trust Maturity 
 | --- | --- |
 | Macro-segmentation | Production, development, and operations environments separated at the network layer |
 | Micro-segmentation | Workload-to-workload communication explicitly allowed; default deny |
-| Encryption in transit | TLS 1.2 or above for east-west and north-south traffic; mTLS for high-sensitivity service-to-service |
+| Encryption in transit | TLS 1.3 or stronger for east-west and north-south traffic; mTLS for high-sensitivity service-to-service |
 | Software-defined access | Replaces VPN where feasible; application-level access without network-level access |
 | DNS security | DNS resolution monitored; protected against tunnelling, exfiltration, and DGA patterns |
 | Egress controls | Production egress restricted; allow-list for required external destinations |

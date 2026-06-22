@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.172, PR #193
+
+Closes **FR-127** (high[critical]) by aligning the Zero Trust Architecture framework's transport-encryption maturity expectation with the canonical encryption-and-key-management policy. First overnight-batch PR; overnight session active.
+
+### Fixed
+
+- [`security/framework-zero-trust-architecture.md`](../../security/framework-zero-trust-architecture.md) line 75: "TLS 1.2 or above" → "TLS 1.3 or stronger". The encryption policy at [`security/policy-encryption-and-key-management.md`](../../security/policy-encryption-and-key-management.md):54 mandates "TLS 1.3 or stronger; SSH 2.0 or stronger" as the in-transit encryption floor; the ZTA framework's Pillar 3 (Networks) maturity expectation should match. TLS 1.2 has reached end-of-life guidance from NIST SP 800-52 Rev 3 and the OWASP TLS Cheat Sheet 2025 edition.
+- Per-doc Version `0.0.2 → 0.0.3` (patch); Date `2026-05-28 → 2026-06-22`.
+
+### Changed
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for PR #192's /validate-pr (0 findings; batched into this PR per the new batching rule).
+  - Per-document Version `1.2.0 → 1.2.1` (patch).
+- [`.working/overnight-pr.md`](../overnight-pr.md): transitioned from `Status: stub` to `Status: in-flight` (first overnight PR).
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates.
+- `tools/run-pr-time-checks.sh` exits 0 (D1, D2, gate 45).
+
+### Discipline observation
+
+This is the first overnight-batch PR under the new batching rule (PR #192). Each subsequent overnight PR will carry one substantive item + the prior PR's /validate-pr history row + any fix for findings from the prior PR's /validate-pr. The expected morning state: a chain of merged FR-fix PRs in CHANGELOG for the maintainer to scan.
+
 ## 2026-06-22, Library Version 2026.06.171, PR #192
 
 Codified the **batching-into-the-next-PR rule** for both /validate and /validate-pr after the day's cascade made the recursion apparent. Also carries PR #191's zero-finding /validate-pr history row as the first application of the new rule.
