@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Documentation and Transparency Framework\
 **Document Type:** Framework\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md)\
@@ -35,7 +35,7 @@ Applies to all AI systems, machine learning models, generative AI tools, and aut
 | **AI Governance Council (AIGC)** | Approves documentation standards; reviews completeness for High-risk systems. |
 | **AI System Owner** | Accountable for maintaining current documentation for their AI system. |
 | **AI Development / Data Science Teams** | Produce and maintain model documentation throughout the lifecycle. |
-| **Privacy Officer / DPO** | Reviews AI documentation for privacy and personal data compliance. |
+| **Chief Privacy Officer / DPO** | Reviews AI documentation for privacy and personal data compliance. |
 | **Internal Audit** | Audits documentation completeness and currency annually. |
 
 ---

@@ -2,8 +2,8 @@
 
 **Document Title:** AI Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.1\
-**Date:** 2026-05-27\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -57,7 +57,7 @@ The organisation commits to:
 
 ### 3.1 AI governance council (AIGC)
 
-The AI Governance Council is the organisation's primary body for AI compliance oversight. It is chaired by the CISO and includes representation from the Privacy Officer, CIO, Legal, and representatives from business functions that deploy or use AI systems. The AIGC meets at least quarterly.
+The AI Governance Council is the organisation's primary body for AI compliance oversight. It is chaired by the CISO and includes representation from the Chief Privacy Officer, CIO, Legal, and representatives from business functions that deploy or use AI systems. The AIGC meets at least quarterly.
 
 ### 3.2 Accountability table
 
@@ -65,11 +65,11 @@ The AI Governance Council is the organisation's primary body for AI compliance o
 |---|---|
 | AI Governance Council (AIGC) | Owns the AI compliance programme; approves AI system classifications; reviews annual AI compliance audit findings; escalates material non-compliance to the Board |
 | Chief Information Security Officer (CISO) | Leads technical AI compliance; chairs the AIGC; ensures that AI security controls align with regulatory obligations; co-ordinates AI incident response |
-| Privacy Officer | Ensures that fundamental rights impact assessments and privacy impact assessments are completed for high-risk AI systems; advises on GDPR Art. 22 (automated decision-making) and Art. 33 (personal data breach) interactions with AI incidents |
+| Chief Privacy Officer | Ensures that fundamental rights impact assessments and privacy impact assessments are completed for high-risk AI systems; advises on GDPR Art. 22 (automated decision-making) and Art. 33 (personal data breach) interactions with AI incidents |
 | Chief Information Officer (CIO) | Accountable for AI system infrastructure compliance; ensures that AI systems are registered and lifecycle-managed; approves significant AI system changes |
 | Legal | Interprets regulatory obligations; advises on jurisdiction-specific compliance; reviews AI-generated content labelling and transparency disclosures |
 | Business Unit Owners | Designate an AI system owner for each AI system under their control; ensure that staff complete required AI training; escalate AI compliance concerns to the AIGC |
-| AI System Owner | Maintains the AI System Register entry; ensures that the model card and system card are current; coordinates with CISO and Privacy Officer on impact assessments; monitors for post-market issues |
+| AI System Owner | Maintains the AI System Register entry; ensures that the model card and system card are current; coordinates with CISO and Chief Privacy Officer on impact assessments; monitors for post-market issues |
 
 ---
 
@@ -113,7 +113,7 @@ A Fundamental Rights Impact Assessment must be completed before deploying any hi
 - Document the groups likely to be affected, including vulnerable groups.
 - Identify the specific risks arising from the intended use context.
 - Set out the human oversight and safeguard measures that will mitigate identified risks.
-- Be completed in consultation with the Privacy Officer and, where required, affected stakeholders.
+- Be completed in consultation with the Chief Privacy Officer and, where required, affected stakeholders.
 
 The FRIA is documented as part of the AI System Impact Assessment (see [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md)) and retained as part of the system's compliance documentation.
 
@@ -294,12 +294,12 @@ The CISO is responsible for preparing and submitting the report, in coordination
 
 ### 10.4 Co-ordination with privacy officer: GDPR art. 33
 
-Where an AI incident involves a personal data breach (as defined under GDPR Art. 4(12)), the Privacy Officer must be notified immediately. The Privacy Officer determines whether:
+Where an AI incident involves a personal data breach (as defined under GDPR Art. 4(12)), the Chief Privacy Officer must be notified immediately. The Chief Privacy Officer determines whether:
 
 - A GDPR Art. 33 notification to the supervisory authority within 72 hours is required.
 - A GDPR Art. 34 notification to affected individuals is required.
 
-The AI incident report and the GDPR personal data breach report are managed as parallel but co-ordinated obligations. The CISO and Privacy Officer jointly own the co-ordination process.
+The AI incident report and the GDPR personal data breach report are managed as parallel but co-ordinated obligations. The CISO and Chief Privacy Officer jointly own the co-ordination process.
 
 ### 10.5 Incident register
 
