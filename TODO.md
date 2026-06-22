@@ -15,7 +15,7 @@ These are **as-of-session-pause snapshots**, not "current HEAD" claims. They ref
 - **Branch at last refresh**: `main` (synced after PR #229 merge).
 - **Library version**: `2026.06.207`. **Pack version**: `1.45.1`. **README version**: `1.9.78`.
 - **Audit programme**: all 46 gates passing on `main`.
-- **Last validation sweep**: Sweep 20 iter 1 (post PRs #220-#228; 4 in-window warnings fixed in PR #229, plus 2 maintainer-surfaced notes now in P7).
+- **Last validation sweep**: Sweep 21 iter 1 (post PRs #229-#236 Batch 1 effort-first run; 0 in-window, 0 out-of-window across all 3 subagents; empty-delta termination; row carried into Batch 2 PR-A per recursion-avoidance).
 - **Last fitness review**: 2026-06-22's r1; Pass-1 verification complete in PR #204.
 - **Timezone convention**: UTC (codified in CLAUDE.md per PR #190).
 
@@ -45,7 +45,6 @@ These are **as-of-session-pause snapshots**, not "current HEAD" claims. They ref
 
 ### High severity (immediate priority)
 
-- **FR-36 (H, S)**: Add EU member-state per-state Article 8 age table to `privacy/framework-childrens-data.md` and the EU jurisdiction annex.
 - **FR-58 (H, M)**: Define inheritance vocabulary (library-internal vs template vs reference content). Multiple documents are inconsistent on what kind-of-content is being referenced.
 - **FR-59 (H, L)**: Privacy jurisdiction annexes are too shallow for operational sufficiency; deepen the 25 country annexes to operational level.
 - **FR-60 (H, L)**: HIPAA adopter has no operational detail beyond a single 261-line sector annex in `compliance/healthcare`. Deepen.

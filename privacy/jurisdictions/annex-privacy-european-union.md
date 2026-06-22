@@ -2,7 +2,7 @@
 
 **Document Title:** European Union Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.3\
+**Version:** 1.1.0\
 **Date:** 2026-06-22\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -57,6 +57,47 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Standard Contractual Clauses (SCCs) (Article 46(2)(c)):** The 2021 European Commission SCCs are the primary mechanism for transfers to non-adequate third countries. SCCs must be supplemented by a Transfer Impact Assessment (TIA).
 - **Binding Corporate Rules (BCRs) (Articles 46(2)(b) and 47):** Approved by a lead supervisory authority; permit intra-group international transfers. BCR approval is a multi-year process.
 - **Derogations (Article 49):** Narrow exceptions for explicit consent, contract performance, vital interests, public interest, or legal claims. Not suitable as routine transfer mechanisms.
+
+---
+
+## GDPR Article 8 child-consent age thresholds per Member State
+
+GDPR Article 8(1) sets the default age at 16 for child consent to information society services but permits each Member State to lower the age, "provided that such lower age is not below 13 years". The table below lists the age chosen by each EU/EEA Member State as of the date in the document header. **Adopters must verify against the current national implementing law before relying on these values**, since Member States can amend their national thresholds.
+
+| Member State | Age for child consent (years) | National implementing law |
+|---|---|---|
+| Austria | 14 | DSG (Datenschutzgesetz), §4(4) |
+| Belgium | 13 | Loi du 30 juillet 2018 relative à la protection des personnes physiques à l'égard des traitements de données à caractère personnel, Article 7 |
+| Bulgaria | 14 | Personal Data Protection Act, Article 25h |
+| Croatia | 16 | Act on the Implementation of the General Data Protection Regulation (default) |
+| Cyprus | 14 | Law 125(I)/2018, Article 7 |
+| Czechia | 15 | Act No. 110/2019, §7 |
+| Denmark | 13 | Databeskyttelsesloven, §6 |
+| Estonia | 13 | Personal Data Protection Act, §8(2) |
+| Finland | 13 | Tietosuojalaki (1050/2018), §5 |
+| France | 15 | Loi Informatique et Libertés, Article 45 (post-2018 amendment) |
+| Germany | 16 | BDSG (default; no derogation below 16) |
+| Greece | 15 | Law 4624/2019, Article 21 |
+| Hungary | 16 | Act CXII of 2011 (default) |
+| Iceland (EEA) | 13 | Act on Data Protection 90/2018, §10 |
+| Ireland | 16 | Data Protection Act 2018, §31 |
+| Italy | 14 | Decreto Legislativo 196/2003 (as amended by D.Lgs. 101/2018), Article 2-quinquies |
+| Latvia | 13 | Personal Data Processing Law, §3(2) |
+| Liechtenstein (EEA) | 16 | Datenschutzgesetz (default) |
+| Lithuania | 14 | Law on Legal Protection of Personal Data, Article 5(2) |
+| Luxembourg | 16 | Loi du 1er août 2018, Article 7 (default) |
+| Malta | 13 | Data Protection Act 2018, Article 9 |
+| Netherlands | 16 | UAVG (Uitvoeringswet AVG), Article 5 (default) |
+| Norway (EEA) | 13 | Personopplysningsloven §5 |
+| Poland | 16 | Act on Personal Data Protection of 10 May 2018, Article 5 (default) |
+| Portugal | 13 | Lei n.º 58/2019, Article 16 |
+| Romania | 16 | Law no. 190/2018 (default) |
+| Slovakia | 16 | Act No. 18/2018 (default) |
+| Slovenia | 15 | Personal Data Protection Act ZVOP-2, Article 6 |
+| Spain | 14 | Ley Orgánica 3/2018, Article 7 |
+| Sweden | 13 | Dataskyddslagen (2018:218), §2(3) |
+
+**Notes**: (1) the default GDPR Article 8 age of 16 applies in Member States that have not chosen a lower age. (2) The Article 8 age governs consent to information society services (online platforms, social media, gaming, etc.); other lawful bases under Article 6 may apply at different age thresholds and other provisions of national law (such as electronic-commerce, education, or child-protection law) may impose additional age-specific obligations. (3) Adopters operating across multiple Member States must apply the per-state age to subjects in that state. (4) The UK is no longer an EU Member State; the UK age is 13 under UK GDPR Article 8 and is documented separately in the United Kingdom privacy annex.
 
 ---
 
