@@ -65,7 +65,6 @@ Research files for every queued P2.x cluster are prepared in advance (per the re
 - **P2.3 — Cross-framework matrix (2 items)**: **FR-97 (M, S)** ISO 31000 clause numbering; **FR-98 (M, S)** NIS 2 annex evidence-class column.
 - **P2.4 — Adopter cluster (3 items)**: **FR-64 (M, S)** contribution path workflow-shaped not pattern-shaped; **FR-65 (M, S) ⚠️** upstream-sync underspecified; **FR-66 (M, S)** tooling assumes maintainer context.
 - **P2.5 — Coverage-gap small (2 items)**: **FR-77 (M, S)** 3LoD model used without explanation; **FR-78 (M, S)** framework-document-architecture maintainer voice.
-- **P2.6 — KRI/KPI (2 items)**: **FR-93 (M, S)** KRI escalation owner missing; **FR-94 (M, S)** Linked controls register dependency.
 - **P2.7 — FR-15 (M, M)**: Maturity-ladder methodology — median-of-medians scoring concern.
 - **P2.8 — FR-23 (M, M) ⚠️**: Audit-evidence assembler-verification standard absent.
 - **P2.9 — FR-24 (M, M)**: Control-testing procedure thinner than peers.

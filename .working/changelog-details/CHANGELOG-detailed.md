@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.218, PR #240
+
+**Closes FR-93 (M, S) + FR-94 (M, S)** — P2.6 KRI/KPI bundle. PR-D in Batch 2.
+
+### Changed
+
+- **`risk/register-key-risk-indicators.md`** v1.0.2 → 1.1.0: KRI schema gains 2 new fields per FR-93 (Red-Threshold Escalation Owner; Red-Threshold Evidence Class) addressing the prior gap where "add or update risk register entry" had no owner of escalation decision or evidence class.
+- **`risk/register-assurance-map.md`** v1.0.1 → 1.1.0: Linked-controls field schema text expanded per FR-94 to (a) name the field as adopter-defined; (b) explain the placeholder-ID convention used in the worked example; (c) describe a typical control-register column set; (d) point at the bootstrap path (extract controls from existing policies/standards).
+
+### Verification
+
+- 46 audit gates pass; PR-time checks OK.
+
 ## 2026-06-22, Library Version 2026.06.217, PR #239
 
 **Closes FR-12 cross-doc follow-up (M, S)** — `risk/procedure-risk-register.md` v1.0.0 → 1.1.0. PR-C in Batch 2.

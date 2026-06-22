@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #240 — Closes FR-93 + FR-94 (P2.6 KRI/KPI bundle, both M, S) (2026-06-22)
+
+`risk/register-key-risk-indicators.md` v1.1.0: KRI schema gains Red-Threshold Escalation Owner + Red-Threshold Evidence Class fields (closes FR-93). `risk/register-assurance-map.md` v1.1.0: Linked-controls field text expanded to name it as adopter-defined, explain the placeholder-ID convention, and bootstrap path (closes FR-94). PR-D in Batch 2.
+
 ### PR #239 — Closes FR-12 cross-doc (M, S): procedure-risk-register treatment vocab aligned with ERM standard canonical 6 (2026-06-22)
 
 `risk/procedure-risk-register.md` v1.1.0: Step 8 "Select Treatment" now references the standard's canonical 6 options (Avoid/Mitigate/Transfer/Accept/Exploit/Enhance). "Monitor" / "Further Analysis" remapped to Treatment Status workflow values (Pending / In Progress / Complete). Register-field row split into Treatment Option + Treatment Status to match PR #238's standard §7.1 schema. PR-C in Batch 2.
