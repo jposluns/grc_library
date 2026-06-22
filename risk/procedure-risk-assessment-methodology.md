@@ -2,8 +2,8 @@
 
 **Document Title:** Risk Assessment Methodology Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.1.1\
+**Date:** 2026-06-22\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md)\
@@ -129,14 +129,16 @@ Residual risk score = Inherent risk × (1 − Control effectiveness factor)
 
 ## 6. Risk treatment
 
-6.1 Risk treatment options:
+6.1 Risk treatment options (canonical six per `risk/standard-enterprise-risk-management.md` Section 6):
 
 | Option | Definition |
 | --- | --- |
-| **Mitigate** | Implement controls to reduce likelihood or impact |
-| **Transfer** | Transfer risk via insurance or contractual arrangement |
 | **Avoid** | Eliminate the activity or asset creating the risk |
+| **Mitigate** | Implement controls to reduce likelihood or impact |
+| **Transfer** | Shift financial consequence to a third party (e.g., insurance, contractual liability) |
 | **Accept** | Formally accept residual risk with documented rationale |
+| **Exploit** | Pursue a positive-risk (opportunity) scenario by acting to make it more likely to occur or to amplify its upside |
+| **Enhance** | Increase the likelihood or impact of an existing positive-risk scenario without creating a new one |
 
 6.2 Risk treatment plans include: treatment option, controls to be implemented, owner, due date, and residual risk target.
 

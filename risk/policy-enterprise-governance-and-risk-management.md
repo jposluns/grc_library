@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Governance and Risk Management Policy\
 **Document Type:** Policy\
-**Version:** 1.4.2\
-**Date:** 2026-06-21\
+**Version:** 1.4.4\
+**Date:** 2026-06-22\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -74,7 +74,7 @@ The Board shall approve risk appetite statements for each material risk category
 
 ### 4.5 Risk treatment
 
-Risk treatment plans shall document the selected option (avoid, mitigate, transfer, accept, or exploit), the accountable owner, required budget, expected residual risk, and acceptance criteria, consistent with COBIT 2019 APO12.06. Accepted risks shall follow the Risk Acceptance Procedure.
+Risk treatment plans shall document the selected option (one of the canonical six per `risk/standard-enterprise-risk-management.md` Section 6: avoid, mitigate, transfer, accept, exploit, or enhance), the accountable owner, required budget, expected residual risk, and acceptance criteria, consistent with COBIT 2019 APO12.06. Accepted risks shall follow the Risk Acceptance Procedure.
 
 ### 4.6 AI risk controls
 

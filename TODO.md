@@ -12,10 +12,10 @@ Items are organised by priority (P1-P7); fitness-review findings (from `.working
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances; that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #229 merge).
-- **Library version**: `2026.06.207`. **Pack version**: `1.45.1`. **README version**: `1.9.78`.
+- **Branch at last refresh**: `main` (synced after PR #241 merge).
+- **Library version**: `2026.06.220`. **Pack version**: `1.45.2`. **README version**: `1.9.91`.
 - **Audit programme**: all 46 gates passing on `main`.
-- **Last validation sweep**: Sweep 21 iter 1 (post PRs #229-#236 Batch 1 effort-first run; 0 in-window, 0 out-of-window across all 3 subagents; empty-delta termination; row carried into Batch 2 PR-A per recursion-avoidance).
+- **Last validation sweep**: Sweep 22 iter 1 (post PRs #231-#241 Batch 1 + Batch 2 PR-A through PR-E effort-first run; 4 in-window errors (corrected in close-out PR), 1 out-of-window note (B2 soft-law citations to register, surfaced to P7); discipline-failure assessment also surfaced after 11 PRs of abbreviated /validate-pr checks; close-out PR carries SKILL/pack-rule/CLAUDE.md vocabulary updates plus the 4 in-window fixes).
 - **Last fitness review**: 2026-06-22's r1; Pass-1 verification complete in PR #204.
 - **Timezone convention**: UTC (codified in CLAUDE.md per PR #190).
 
@@ -191,6 +191,13 @@ Three new audit-gate candidates surfaced; each needs separate maintainer decisio
 - **S2 Role definition consistency gate**: verify every role mentioned in normative documents has a row in `governance/register-role-authority.md`. Would catch FR-115-class issues mechanically.
 - **S3 Citation-precision-for-claim gate**: flag "aligned with [normative source] X" claims and verify X actually contains the supporting language. Would catch FR-120-class issues mechanically.
 
+### 4.6 QA-cadence mechanical enforcement (M, M)
+
+Surfaced from Sweep 22 (2026-06-22) discipline-failure assessment. The pack rule, SKILL files, and `.claude/CLAUDE.md` now explicitly forbid orchestrator abbreviation of `/validate-pr` and `/retro`, but the only enforcement is the maintainer's manual catch. Candidate gate would compare the post-merge history files (`.working/validate-pr/history.md`, `.working/improvement-log.md`) against the merged-PR list and fail when a PR's row is missing or marked abbreviated without a maintainer-authorised exception trailer.
+
+- **Design questions**: where does the gate live (pre-commit / CI / nightly?); what's the "abbreviated" detection rule (literal string match? row format?); how is a maintainer-authorised exception recorded mechanically (signed trailer? specific marker?).
+- **Sequencing**: not blocking; the discipline rule changes from Sweep 22 are the primary defence, the mechanical gate is the backstop.
+
 ---
 
 ## Priority 5 — Content expansion (country / programme / regulator overlays)
@@ -312,6 +319,10 @@ Items requiring user decision or external dependency before becoming actionable.
 
 ### Maintainer-surfaced from /validate Sweep 20 (2026-06-22)
 
+
+### Maintainer-surfaced from /validate Sweep 22 (2026-06-22)
+
+- **B2 additional soft-law citations to canonical-citations register (L, S)**: Sweep 22 Subagent B surfaced five soft-law references not yet registered in [`governance/register-canonical-citations.md`](governance/register-canonical-citations.md): EDPB Guidelines 07/2020, Guidelines 3/2018, Guidelines 28/2024, Opinion 05/2014, and WP248 rev.01. Out-of-window (these citations were not introduced in PRs #231-#241). Decision: add to register in a dedicated S-effort PR vs cluster with FR-21 standard-version-upgrade work vs defer. Maintainer choice.
 
 ### Formal closure pending review
 

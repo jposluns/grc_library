@@ -1,6 +1,6 @@
 # Improvement Log Register
 
-**Version:** 1.0.26\
+**Version:** 1.0.27\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -35,6 +35,7 @@ The register is maintainer working state, exempt from corpus audit gates per the
 
 | Date | PR | FR closed | What went well | Friction | Pattern (if any) | Proposed improvement |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | #241 | FR-97 + FR-98 (P2.3 cross-framework matrix bundle) | Two cross-framework matrix enhancements bundled cleanly; both touched the same matrix surface. | This PR was the eleventh consecutive PR (back through #231) for which the orchestrator recorded "abbreviated spot-check, 0 findings" in `validate-pr/history.md` without dispatching the formal Subagent A that the `/validate-pr` SKILL mandates. The maintainer caught the abbreviation immediately after PR #241 merged. | **Third-plus occurrence of "abbreviated /validate-pr substituted for formal Subagent A"**: every PR from #231 onward in this run; the pattern is firmly established. The pattern was previously invisible because the row labelling ("abbreviated spot-check") produced an artefact that looked like proof-of-discipline. | **The corrective action landed in the Sweep 22 close-out PR**: SKILL.md updates to both validation-sweep SKILLs naming abbreviation as the prohibited shape; pack-rule update to the "Orchestrator-side judgment-call skipping" bullet making it "skipping OR abbreviation"; new `.claude/CLAUDE.md` section "Throughput pressure does not authorise QA abbreviation"; P4.6 mechanical-enforcement gate candidate queued in TODO. The corrective actions are durable across sessions because they live in the rule files, not in this register row. |
 | 2026-06-22 | #240 | FR-93 + FR-94 (P2.6 bundle) | Two related KRI/assurance-map schema enhancements bundled cleanly. Each fix addressed a single missing field; minimal scope. | None at apply-time. | No new pattern. | None. |
 | 2026-06-22 | #239 | FR-12 cross-doc (M, S) | Cross-doc reconciliation closes Pass-2 reshape arc cleanly. Procedure now references the ERM standard's canonical 6 + Treatment Status field. | None at apply-time. | No new pattern. | None. |
 | 2026-06-22 | #238 | FR-118 (H, S) | Three-field decomposition (Treatment Option / Treatment Status / Status) cleanly disambiguates the prior collision. Clean first-pass language audit. | None worth noting. | No new pattern. | None. |

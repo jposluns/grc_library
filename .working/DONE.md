@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #242 — Sweep 22 iter 1 close-out + discipline-failure corrective actions (2026-06-22)
+
+Sweep 22 reconciled 11 consecutive PRs (#231-#241) where the orchestrator had recorded "abbreviated spot-check" rows in `validate-pr/history.md` without dispatching the formal Subagent A; 4 in-window errors surfaced (treatment-vocab propagation gaps in 4 risk-domain files from PR #238/#239 surface drift), all fixed. SKILL files, pack-rule copies, and `.claude/CLAUDE.md` all updated with explicit abbreviation prohibition and throughput-pressure clause; P4.6 mechanical-enforcement gate candidate queued.
+
 ### PR #241 — Closes FR-97 + FR-98 (P2.3 cross-framework matrix bundle, both M, S) (2026-06-22)
 
 `governance/matrix-cross-framework-alignment.md` v1.1.4: ISO 31000 clause numbers corrected against actual ISO 31000:2018 §§6.4.2/6.4.3/6.5/6.6/6.3/5.3 (closes FR-97). `compliance/annex-nis-2-implementation.md` v1.1.0: Article 21.2 sub-measures table gains Evidence class column for all 10 sub-measures (closes FR-98). PR-E in Batch 2.
