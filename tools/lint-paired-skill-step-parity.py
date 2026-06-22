@@ -50,6 +50,10 @@ PAIRS: list[tuple[str, str]] = [
         ".claude/commands/validate.md",
     ),
     (
+        "dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md",
+        ".claude/commands/validate-pr.md",
+    ),
+    (
         "dev-security/claude-rules/skills/library-fitness-review/SKILL.md",
         ".claude/commands/fitness.md",
     ),
