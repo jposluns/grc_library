@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.1.2\
-**Date:** 2026-06-21\
+**Version:** 1.2.0\
+**Date:** 2026-06-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -23,6 +23,15 @@ This guide is for organisations that want to use the GRC Documentation Library a
 ### Where this fits among the adopter entry points
 
 The canonical front door for adopters is [`docs/portal.md`](portal.md) (audience-keyed grouping by role). This adopter guide is one of four deeper-dive paths that branch off the portal; it covers the "fork-and-adapt principles" question. The other three are [`docs/template-quickstart.md`](template-quickstart.md) (what to copy on Day 1), [`docs/decision-tree.md`](decision-tree.md) (sequenced reading order), and [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md) (calendar phasing). The portal's "Other entry points and when to use them" table picks the right path by question; see the portal Overview.
+
+### Two reference registers you will need early
+
+Two registers carry the library's vocabulary and are worth opening before you start reading domain documents:
+
+- [`governance/register-glossary.md`](../governance/register-glossary.md) — Glossary and Acronym Index. Resolves **acronyms and external-domain terms** (regulations, standards, frameworks, regulators, sector programmes, technical concepts).
+- [`governance/register-key-terms-and-definitions.md`](../governance/register-key-terms-and-definitions.md) — Key Terms and Definitions Register. Defines **library-internal GRC concepts** (Audit, Authorize, Control, Owner roles, Exception, etc.) that may differ from generic usage.
+
+The split is by term class: external acronyms / regulators / standards in the Glossary; internal GRC vocabulary in the Key Terms register. Each register cross-references the other. Newcomers can keep both open in adjacent tabs while reading the domain documents.
 
 ## How the library is meant to be used
 
@@ -103,7 +112,9 @@ Most adopting organisations cannot operate all of the library's controls on day 
 
 ### Tier 1 starter set (minimum viable)
 
-If your organisation is small (under approximately 200 staff, low regulatory exposure, no high-risk AI in production), start with these 15 documents and operate them well before adding more:
+If your organisation is small (under approximately 200 staff, low regulatory exposure, no high-risk AI in production), start with these 15 documents and operate them well before adding more.
+
+**Approximate reading time**: 4 to 6 hours to read all 15 documents once at a moderate pace; substantially longer to internalise. **If you only read three** to get an immediate orientation, pick the three Governance documents in the table below (Charter + Framework + Role Authority Register); they ground the structure that the rest of Tier 1 operationalises.
 
 | Type | Document |
 | --- | --- |

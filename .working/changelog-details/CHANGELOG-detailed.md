@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.210, PR #232
+
+**Closes FR-107 + FR-108 + FR-111** (3 Low-severity XS items) — newcomer-UX bundle in [`docs/adopter-guide.md`](../../docs/adopter-guide.md). PR-B in Batch 1 of the effort-first batching run.
+
+### Added
+
+- **New "Two reference registers you will need early" subsection** before "How the library is meant to be used": surfaces both [`governance/register-glossary.md`](../../governance/register-glossary.md) (acronyms + external-domain terms — regulations, standards, frameworks, regulators, sector programmes, technical concepts) and [`governance/register-key-terms-and-definitions.md`](../../governance/register-key-terms-and-definitions.md) (library-internal GRC concepts — Audit, Authorize, Control, Owner roles, Exception, etc.). Explains the split-by-term-class so newcomers know which register holds what. Closes FR-107 and FR-108.
+- **Reading-time estimate** added to Tier 1 starter set introduction: "4 to 6 hours to read all 15 documents once at a moderate pace; substantially longer to internalise. **If you only read three** to get an immediate orientation, pick the three Governance documents in the table below (Charter + Framework + Role Authority Register); they ground the structure that the rest of Tier 1 operationalises." Closes FR-111.
+
+### Changed
+
+- **Per-doc Version** `1.1.2 → 1.2.0` (minor; substantive new subsection added).
+- **Generated artefacts**: [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated.
+- **`.working/validate-pr/history.md`** (Version `1.2.37 → 1.2.38`): new top row for PR #231's /validate-pr.
+- **`.working/improvement-log.md`** (Version `1.0.16 → 1.0.17`): new top row for PR #231's /retro.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates.
+- `tools/run-pr-time-checks.sh` D1, D2, gate 45 OK.
+
+### Discipline observation
+
+- **Batch 1 PR-B (newcomer-UX bundle)**: three Low-severity XS items closed in one PR; all touch the same adopter-guide file and pattern-match "newcomer cognitive load on first read". Aggressive XS bundling per maintainer's stated preference; the three items share thematic surface (adopter onboarding UX) so a single PR is appropriate.
+
 ## 2026-06-22, Library Version 2026.06.209, PR #231
 
 **Closes FR-112 (M, XS) + FR-131 (FYI, XS)** — first PR in the Batch 1 XS-effort sequence (maintainer-directed throughput run). Two adopter-facing maintainer-context cleanups.
