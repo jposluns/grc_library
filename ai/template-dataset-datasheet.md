@@ -2,7 +2,7 @@
 
 **Document Title:** Dataset Datasheet Template\
 **Document Type:** Template\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-06-22\
 **Owner:** AI Data Steward\
 **Approving Authority:** Governance Library Maintainer\
@@ -165,7 +165,7 @@ This template applies to all datasets that influence model behaviour: training, 
 | --- | --- |
 | Dataset Maintainer | |
 | AI Data Steward | |
-| Chief Privacy Officer (if personal data) | |
+| Data Protection Officer (if personal data) | |
 | Legal Counsel (if external licensing or sharing) | |
 | AI Security Maintainer (if poisoning risk material) | |
 
@@ -176,7 +176,7 @@ This template applies to all datasets that influence model behaviour: training, 
 1. A datasheet is produced before a dataset is used in any AI training, fine-tuning, evaluation, or retrieval workflow.
 2. Material change to the dataset (new sources merged, cleaning pipeline change, new labels added) triggers a datasheet update before the changed dataset is used.
 3. Datasheets are linked from the AI System Register row for every system that consumes the dataset.
-4. Datasheets for datasets containing personal data are reviewed by the Chief Privacy Officer at minimum annually.
+4. Datasheets for datasets containing personal data are reviewed by the Data Protection Officer at minimum annually.
 5. Where the dataset is acquired from a supplier, the supplier's own dataset documentation is appended as an annex.
 
 ---

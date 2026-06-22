@@ -2,9 +2,9 @@
 
 **Document Title:** Privacy Notice Template\
 **Document Type:** Template\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-06-22\
-**Owner:** Chief Privacy Officer\
+**Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/framework-consent-management.md`](framework-consent-management.md)\
 **Classification:** Public\
@@ -140,7 +140,7 @@ For just-in-time notices delivered at the point of collection (form submission, 
 2. Material changes follow the change-notification path declared in §12.
 3. Translations are version-locked to the source language.
 4. The notice is reviewed annually and upon every material change to processing, jurisdiction, supplier, or product.
-5. The Chief Privacy Officer maintains a change log including version, date, jurisdictions affected, and brief description.
+5. The Data Protection Officer maintains a change log including version, date, jurisdictions affected, and brief description.
 
 ---
 

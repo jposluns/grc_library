@@ -2,7 +2,7 @@
 
 **Document Title:** Training Data Governance Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.3\
+**Version:** 0.0.4\
 **Date:** 2026-06-22\
 **Owner:** AI Data Steward\
 **Approving Authority:** Governance Library Maintainer\
@@ -81,7 +81,7 @@ Before any training, fine-tuning, or RL pipeline consumes the dataset:
 
 | Approval | Trigger | Approver |
 | --- | --- | --- |
-| Dataset acceptance | Every new dataset or material refresh | AI Data Steward with Chief Privacy Officer co-sign if personal data; Legal Counsel co-sign if licensed corpus |
+| Dataset acceptance | Every new dataset or material refresh | AI Data Steward with Data Protection Officer co-sign if personal data; Legal Counsel co-sign if licensed corpus |
 | Use-case fit | Per training run | Service owner |
 | Risk assessment | High-risk training run (e.g. foundation-model-scale, regulated-sector model, agentic system) | AI Governance Council |
 | Sustainability check | High-compute training | Per the sustainability framework |

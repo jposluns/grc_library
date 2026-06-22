@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Domain README\
 **Document Type:** Register\
-**Version:** 1.1.2\
-**Date:** 2026-06-21\
+**Version:** 1.2.0\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -85,12 +85,18 @@ This directory contains privacy governance artefacts covering data protection po
 
 The privacy domain covers:
 
-- **Privacy governance**: programme charter, DPO accountability, privacy-by-design requirements, regulatory obligations by jurisdiction.
+- **Privacy governance**: programme charter, Data Protection Officer accountability, privacy-by-design requirements, regulatory obligations by jurisdiction.
 - **Data governance**: data quality, lineage, classification, and lifecycle management.
 - **Privacy impact assessment**: PIA/AI-IA process, cross-border transfer assessment, children's data safeguards.
 - **Data subject rights**: access, correction, deletion, portability, objection, and restriction request handling.
 - **Breach response**: privacy breach response triggers, regulatory notification timelines, coordination with security incident response.
 - **AI training data**: provenance, consent, reidentification risk, EU Data Act (Regulation (EU) 2023/2854) compliance.
+
+---
+
+## Role terminology
+
+This domain uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title, following the statutorily-mandated term in GDPR (Article 37), LGPD (Article 41), India DPDP Act 2023 (§10), Malaysia PDPA (as amended), and similar regimes. Some adopters (typically in Canada and the United States) prefer **Chief Privacy Officer (CPO)** for the same accountability set; some adopters maintain both as distinct roles (e.g., DPO regulatory-facing, CPO strategic / executive). See [`governance/register-role-authority.md`](../governance/register-role-authority.md) for the canonical role definition and adopter-customisation guidance; substitute or extend per your organisation's convention.
 
 ---
 
