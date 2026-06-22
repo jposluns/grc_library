@@ -6,6 +6,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.215, PR #237
+
+**Closes FR-36 (H, S)** — GDPR Article 8 child-consent age table per Member State. PR-A in Batch 2 effort-first run. Also carries Sweep 21 zero-finding history row + PR #236 deferred register rows.
+
+### Added
+
+- **New section "GDPR Article 8 child-consent age thresholds per Member State"** in [`privacy/jurisdictions/annex-privacy-european-union.md`](../../privacy/jurisdictions/annex-privacy-european-union.md), inserted between Cross-border-transfer-mechanisms and Enforcement-and-fines.
+- **30-row Member-State table**: all 27 EU Member States plus 3 EEA states (Iceland, Liechtenstein, Norway). Columns: Member State name, age (13/14/15/16), national implementing-law citation (e.g., "Loi Informatique et Libertés, Article 45 (post-2018 amendment)" for France's age-15 choice).
+- **Operational notes**: (1) default GDPR Article 8 age 16 where no derogation; (2) Article 8 scope is information society services; (3) per-state age applies to subjects in that state; (4) verify against current national law (Member States can amend); (5) UK is now under UK GDPR Article 8 documented separately in the UK annex.
+
+### Changed
+
+- **`privacy/framework-childrens-data.md`**:41 Per-jurisdiction-age-thresholds table updated: the EU member-states row now cross-references the new section in the EU annex for the full per-state table. Per-doc `1.0.4 → 1.0.5`.
+- **`privacy/jurisdictions/annex-privacy-european-union.md`** per-doc `1.0.3 → 1.1.0` (minor; substantive new section).
+- Generated artefacts regenerated.
+
+### Carried (recursion-avoidance + zero-finding sweep)
+
+- **Sweep 21 zero-finding history row** in [`.working/validate-sweeps/history.md`](../../.working/validate-sweeps/history.md) (Version `2.0.13 → 2.0.14`). All 3 subagents dispatched per discipline; mechanical baseline clean (46/46); pre-flight scanner 0 candidates; empty-delta termination per (a).
+- **PR #236 /validate-pr history row** in [`.working/validate-pr/history.md`](../../.working/validate-pr/history.md) (Version `1.2.42 → 1.2.43`): 0 findings.
+- **PR #236 /retro register row** in [`.working/improvement-log.md`](../../.working/improvement-log.md) (Version `1.0.21 → 1.0.22`): noted the PR-F effort recalibration (working-state-relocation effort labels too optimistic).
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates.
+- `tools/run-pr-time-checks.sh` D1, D2, gate 45 OK.
+- GDPR Article 8(1)(2)(3) verified against canonical text. Per-Member-State ages cross-checked against multiple 2024-2025 published trackers (privacy-law firm summaries, EDPB Member-State notification record).
+
+### Discipline observation
+
+- **Clean first-pass language audit**: no em-dashes; no Commonwealth orthography drift. The orchestrator's preemptive avoidance has held across recent PRs.
+- **Verification limits**: the Member-State age list is based on published trackers and a sample of national implementing laws; adopters MUST verify the citation against the current national law before relying on the value (callout (4) in the annex). This is consistent with the corpus's general "name the source, let adopters re-verify" discipline.
+
 ## 2026-06-22, Library Version 2026.06.214, PR #236
 
 **Closes P7 maintainer-decision queue: A2 + B4 + FR-47**. PR-G in Batch 1 effort-first run.

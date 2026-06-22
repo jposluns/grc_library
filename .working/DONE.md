@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #237 — Closes FR-36 (H, S): GDPR Article 8 child-consent age table per Member State (2026-06-22)
+
+`privacy/jurisdictions/annex-privacy-european-union.md` v1.1.0: new section between Cross-border-transfers and Enforcement covering 30 Member States (27 EU + 3 EEA) with each state's chosen age (13/14/15/16) and national implementing-law citation. `privacy/framework-childrens-data.md` v1.0.5 row updated to cross-reference the new table. PR-A in Batch 2 effort-first run. Also carries Sweep 21 zero-finding history row + PR #236 register rows.
+
 ### PR #236 — Closes P7 maintainer decisions (A2 + B4 + FR-47): role-authority cross-ref + canonical-citations soft-law scope (2026-06-22)
 
 PR-G in Batch 1 effort-first run. **A2**: `governance/register-role-authority.md` v1.5.1 DPO row gains cross-reference to the charter's Article 38(3)(6) independence + conflict-of-interest framework. **B4**: `governance/register-canonical-citations.md` v1.5.0 scope extended to soft-law supervisory guidance; new "Soft-law supervisory guidance" section added with WP243 rev.01 (Article 29 Working Party Guidelines on DPOs, endorsed by EDPB May 2018) as first entry. **FR-47**: formally closed (surface-consolidated in PR #218; maintainer review now recorded).

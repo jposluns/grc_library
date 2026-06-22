@@ -2,7 +2,7 @@
 
 **Document Title:** Children's Data Framework\
 **Document Type:** Framework\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-06-22\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -38,7 +38,7 @@ The framework deliberately uses "child" rather than a single age threshold becau
 
 | Jurisdiction | Threshold for parental consent | Notes |
 | --- | --- | --- |
-| EU member states | 13 to 16 depending on the state (GDPR Article 8) | National derogation; the state's chosen age applies to subjects in that state |
+| EU member states | 13 to 16 depending on the state (GDPR Article 8) | National derogation; the state's chosen age applies to subjects in that state. See [`privacy/jurisdictions/annex-privacy-european-union.md`](jurisdictions/annex-privacy-european-union.md) "GDPR Article 8 child-consent age thresholds per Member State" for the per-state table covering all 27 EU Member States plus the three EEA countries (Iceland, Liechtenstein, Norway). |
 | United Kingdom | 13 (UK GDPR Article 8) | Age Appropriate Design Code applies to a broader age range up to 17 |
 | United States: COPPA | Under 13 | Verifiable parental consent required |
 | United States: California (CCPA, AB 1394) | Specific opt-in for sale or sharing for under 16; under 13 requires parental opt-in | California-specific |

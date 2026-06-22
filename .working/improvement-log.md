@@ -1,6 +1,6 @@
 # Improvement Log Register
 
-**Version:** 1.0.21\
+**Version:** 1.0.22\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -35,6 +35,7 @@ The register is maintainer working state, exempt from corpus audit gates per the
 
 | Date | PR | FR closed | What went well | Friction | Pattern (if any) | Proposed improvement |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | #236 | A2 + B4 + FR-47 (P7 maintainer-decision queue) | 3 P7 items actioned cleanly. PR-F deferred surfaced the apply-time effort-recalibration pattern (TODO's (M, XS) label proved too optimistic for working-state relocations with many sibling references). | None at apply-time. Effort recalibration on PR-F surfaced honestly. | First occurrence of "TODO effort label too optimistic for working-state-relocation items that touch many sibling references". Single occurrence; not yet pattern. | Worker-brief candidate (queued): when assessing relocation-class effort, include a sibling-reference count survey before assigning XS. Apply when the next relocation PR is scoped. |
 | 2026-06-22 | #235 | C2 convergent bundle (FR-121+122+123+124+125+126) | 6 items closed in one PR with maintainer-approved sample-data defaults. Single section-level "Sample data, adjust upon adoption" callout makes the contract explicit. Pattern reusable for any future PR shipping operational defaults. | Apply-time gate-30 catch: §3.2/§3.3/§5.1 references where no matching sub-heading; the procedure uses paragraph numbers. Rephrased to descriptive prose. | First occurrence of "procedure uses paragraph numbers not sub-headings, but §-references in body trigger intra-doc-ref audit". The §1.1, §1.4 existing references pass the audit (probably via context heuristics) while new §3.2-3.3 don't. | Could refactor the procedure to use sub-headings instead of paragraph numbers, OR add paragraph-number recognition to the linter. Low priority; current workaround is descriptive prose. |
 | 2026-06-22 | #234 | FR-67 (L, XS) | New sub-tier insertion before E1 cleanly extended the Dimension E ladder without renumbering existing tiers (E1, E2, E3, E4 stay). | No friction. | No new pattern. | None. |
 | 2026-06-22 | #233 | FR-89 + FR-91 (2x L, XS) | Surgical control-text additions in two adjacent surfaces (Section 2 Token validation + Section 12 Webhook signing/replay-prevention); RFC citations and language-neutral primitives with two-language code-name examples. | Apply-time gate-30 caught "§3.1" / "Section 3.1" in the RFC 8725 citation as same-doc references; the linter doesn't recognize "RFC" as an external-framework prefix. Reworded to drop the section number entirely. | First occurrence of "external-standard citation in body triggers intra-doc-ref audit" — the linter's external-framework-prefix list doesn't include "RFC". Single occurrence. | Could add "RFC" to the linter's external-framework-prefix list (gate 30) so RFC-N citations don't trip the audit. Low priority; current workaround is to drop the section number. |
