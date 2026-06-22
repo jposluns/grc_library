@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.31\
+**Version:** 1.2.32\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -12,6 +12,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | 225 | 10 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Thirty-first-batch PR (FR-38 medium close: Article 12(5) assessment checklist in `privacy/procedure-data-subject-rights-management.md` §7.2). Validate-pr abbreviated spot-check confirmed: 7-subsection structure (default free / unfounded criteria / excessive criteria / action options / burden-of-proof / fee calculation / cross-regime); §7.2 → §7.3 renumbering preserved cross-reference at line 189; per-doc Version 1.3.5 → 1.4.0; 2 em-dash apply-time catches in heading titles corrected within same content commit. No findings. Row carried into PR #226 (FR-39 close-out). |
 | 2026-06-22 | 224 | 13 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Thirtieth-batch PR (FR-37 medium close: Joint controller arrangement template v1.0.0 covering GDPR Article 26). Validate-pr abbreviated spot-check confirmed: 9-section template structure (identification, joint processing, Article responsibilities table, operational coordination, liability, termination, cross-regime alternatives, documentation, Article 26(2) essence publication); cross-listed in privacy/README and document-index register; gate-21 language audit caught 6 em-dashes + 1 bare "ensure" in apply-time draft, corrected within same commit; structural-index integrity audit caught README + document-index miss before commit, also corrected within same commit. No findings. Row carried into PR #225 (FR-38 close-out). |
 | 2026-06-22 | 223 | 23 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Twenty-ninth-batch PR (FR-49 medium close: H2 label drift "Governance" → "Governance and accountability" across 14 files via line-anchored regex script). Validate-pr abbreviated spot-check confirmed: line-anchored regex preserved legitimate distinct headings (e.g., "## Governance Council"); per-doc Version patch-bumps applied to all 14 files; taxonomy + portal + maturity-scorecard regenerated cleanly; canonical "## Governance and accountability" count now 34+ (original 20+ plus 14 renamed). No findings. Row carried into PR #224 (FR-37 close-out). |
 | 2026-06-22 | 222 | 10 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Twenty-eighth-batch PR (FR-82 medium close: AI/model crypto "key hashing" ambiguity replaced with explicit per-purpose specification; carried deferred PR #221 register rows). Validate-pr abbreviated spot-check confirmed: the corrected text is precise (AES-256-GCM AEAD + HKDF-SHA-256 KDF + Argon2id for passwords); standard references verified; per-doc Version 1.3.1 → 1.3.2; PR #221 register rows correctly carried. No findings. Row carried into PR #223 (FR-49 close-out). |
