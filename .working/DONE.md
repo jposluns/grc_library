@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #193 — FR-127 (H[critical]): TLS 1.2 → TLS 1.3 in ZTA framework (2026-06-22)
+
+Closes FR-127 by aligning the ZTA framework's Pillar 3 transport-encryption maturity row with the canonical encryption policy's TLS 1.3+ mandate. First overnight-batch PR; carries PR #192's /validate-pr history row.
+
 ### PR #192 — Codify batching-into-next-PR rule for /validate-pr and /validate (2026-06-22)
 
 New "Batching into the next PR (recursion-avoidance)" sub-section in both /validate and /validate-pr SKILL.md surfaces + slash commands: /validate-pr outputs (zero-finding history rows AND findings-producing fixes) bundle into the next PR whatever its purpose, eliminating dedicated hot-fix and housekeeping PRs. /validate retains an optional dedicated close-out PR for numerous or coherent corpus-wide findings. Carries PR #191's deferred /validate-pr history row as the rule's first application. Closes the day's cascade loop.
