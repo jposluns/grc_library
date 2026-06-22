@@ -2,8 +2,8 @@
 
 **Document Title:** API Security Standard\
 **Document Type:** Standard\
-**Version:** 0.0.2\
-**Date:** 2026-05-28\
+**Version:** 0.0.3\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-software-composition-analysis.md`](standard-software-composition-analysis.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/standard-data-loss-prevention.md`](../security/standard-data-loss-prevention.md), [`security/framework-zero-trust-architecture.md`](../security/framework-zero-trust-architecture.md), [`ai/standard-ai-access-and-agent-permissions.md`](../ai/standard-ai-access-and-agent-permissions.md)\
@@ -106,7 +106,7 @@ For routine changes within an existing API contract, the security controls in th
 
 | Control area | Requirement |
 | --- | --- |
-| TLS | TLS 1.2 minimum; TLS 1.3 preferred; HSTS for browser-driven APIs |
+| TLS | TLS 1.3 or stronger (aligned to [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md) §1 (Encryption standards) canonical mandate); HSTS for browser-driven APIs |
 | Cipher suite | Strong cipher suites only; deprecated suites rejected |
 | Certificate management | Per the cryptographic key lifecycle framework |
 | mTLS | For service-to-service and high-sensitivity partner integrations |

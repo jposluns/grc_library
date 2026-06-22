@@ -6,6 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.180, PR #201
+
+Partial close of **FR-81** (medium). Ninth overnight-batch PR. Two of three FR-81 surfaces aligned; the pack `dev-security/claude-rules/CLAUDE.md` surface is deferred (pack-rule edit considered approval-needed for the overnight batch).
+
+### Fixed
+
+- [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md):151: `TLS 1.2 (minimum), TLS 1.3 (preferred)` → `TLS 1.3 (or stronger), aligned to security/policy-encryption-and-key-management.md §1 (Encryption standards) canonical mandate`. TLS 1.2 added to the Prohibited column.
+- [`dev-security/standard-api-security.md`](../../dev-security/standard-api-security.md):109: `TLS 1.2 minimum; TLS 1.3 preferred; HSTS ...` → `TLS 1.3 or stronger (aligned to security/policy-encryption-and-key-management.md §1 canonical mandate); HSTS ...`.
+- Per-doc bumps: developer security requirements `1.0.1 → 1.0.2`; API security standard `0.0.2 → 0.0.3`; both Dates `2026-05-28 → 2026-06-22`.
+
+### Changed
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for PR #200's /validate-pr (0 findings).
+  - Per-document Version `1.2.8 → 1.2.9`.
+
+### Deferred (approval-needed)
+
+- [`dev-security/claude-rules/CLAUDE.md`](../../dev-security/claude-rules/CLAUDE.md): the pack-rule file carries the same "TLS 1.2 minimum, 1.3 preferred" framing per the FR-81 finding. Pack-rule edits are in the approval-needed class for the overnight batch (per maintainer direction). Maintainer should review whether to apply the same TLS 1.3+ alignment to the pack CLAUDE.md (which would propagate to all adopter projects using the pack).
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates.
+
+### Discipline observation
+
+FR-81 marked partial-close: two of three surfaces aligned. This is the first partial-close pattern in the overnight session. Recording the deferred surface in CHANGELOG-detailed under "Deferred (approval-needed)" gives the maintainer an explicit pickup point. The pattern (FR with multiple surfaces, some doable / some needing approval) is likely to recur; the partial-close + explicit-deferral approach is the right shape.
+
 ## 2026-06-22, Library Version 2026.06.179, PR #200
 
 Closes **FR-132** (low). Eighth overnight-batch PR.

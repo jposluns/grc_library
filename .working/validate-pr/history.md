@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.8\
+**Version:** 1.2.9\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -12,6 +12,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | 200 | 7 | 0 (0 in-window, 0 out-of-window) | none | — | Eighth overnight-batch PR (FR-132 close + PR #199 batching). Subagent A verified cross-references PR #172/#179/#196 map to FR-4/106/113 correctly; em-dash check clean (pre-existing list-item separators preserved; new prose uses commas/semicolons/parens); version bumps lock-step. Row batched into PR #201. One nit-level stylistic observation ("and" / "/" mix as connector on line 109) below the finding threshold. |
 | 2026-06-22 | 199 | 9 | 0 (0 in-window, 0 out-of-window) | none | — | Seventh overnight-batch PR (FR-117 close + PR #198 batching). Subagent A verified §9.2 mapping table internally consistent with §3 / §6 / §8.1 / §9.1; corpus-wide search for `standard-enterprise-risk-management.*§9` found zero external citations (§9 → §9.1/§9.2 restructure breaks nothing); version bumps consistent. Row batched into PR #200. |
 | 2026-06-22 | 198 | 9 | 0 (0 in-window, 0 out-of-window) | none | — | Sixth overnight-batch PR (FR-116 close + PR #197 batching). Subagent A verified §8.1 cadences match §5.2 table verbatim; score-range boundaries consistent; no other documents quote the §8.1 cadence text; TODO/DONE rotation clean; version bumps consistent. Row batched into PR #199. |
 | 2026-06-22 | 197 | 10 | 0 (0 in-window, 0 out-of-window) | none | — | Fifth overnight-batch PR (FR-115 close + PR #196 batching). Subagent A verified Risk Owner row structurally consistent with adjacent register rows; reciprocal cross-reference path-correct; roles audit recognises the new role (40 known, up from 39); broader corpus-wide Risk-Owner cross-referencing flagged as out-of-window candidate FR (not a defect in this PR's stated scope). Row batched into PR #198. |
