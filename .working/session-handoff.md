@@ -15,14 +15,14 @@ On `/resume`, the assistant:
 4. Verifies the version/count snapshot below against live files (do not trust the snapshot blindly).
 5. Continues from "Next actions".
 
-## State snapshot (as of 2026-06-22, after PR #247)
+## State snapshot (as of 2026-06-22, after PR #248)
 
-- **Branch**: `claude/grc-library-takeover-jrqzn6` (all work develops here per the session mandate). A working-state preservation commit (the #247 validate-pr/retro rows + this refresh) may sit one commit ahead of `main` on the branch; the next PR's diff absorbs it.
-- **HEAD**: the PR #247 squash merge (`ebf5f46` on `main` at last refresh; verify with `git log -1`).
-- **Versions**: library `2026.06.225`, pack `1.47.0`, README `1.9.96`. (Verify against `README.md` and `dev-security/claude-rules/README.md`.)
+- **Branch**: `claude/grc-library-takeover-jrqzn6` (all work develops here per the session mandate). PR #248 (this session's closing handoff PR) is merged to `main`, so a fresh `/resume` rebuilds state from `main` rather than from an unmerged feature branch.
+- **HEAD**: the PR #248 squash merge on `main` (verify with `git log -1`).
+- **Versions**: library `2026.06.226`, pack `1.47.0`, README `1.9.97`. (Verify against `README.md` and `dev-security/claude-rules/README.md`.)
 - **Audit programme**: 46 gates, all passing on `main`. Governance rules: 9. Skills: 14 (5 paired with slash commands: validate, validate-pr, fitness, retro, full-qa). The `/resume` command also exists (a thin, non-paired command).
-- **Last merged**: #243 (trust-recovery routing + re-tier), #244 (`deep-qa-review` skill), #245 (PRIMORDIAL RULE in CLAUDE.md), #246 (ninth governance rule `trust-recovery-escalation.md`), #247 (session migration protocol).
-- **Pending into the next PR's CHANGELOG**: the #247 `/validate-pr` (clean) and `/retro` rows, recorded in the working-state preservation commit, ride into the next PR's diff per recursion-avoidance (so the next PR's close-out checklist item for "prior PR's validate-pr + retro rows" is already satisfied; just include them in that PR's CHANGELOG narrative).
+- **Last merged**: #244 (`deep-qa-review` skill), #245 (PRIMORDIAL RULE in CLAUDE.md), #246 (ninth governance rule `trust-recovery-escalation.md`), #247 (session migration protocol), #248 (session-length lesson + closing handoff).
+- **Pending into the next session's first PR**: PR #248's own `/validate-pr` and `/retro` rows ride into the next PR's diff per recursion-avoidance (run post-merge, recorded in working state, then batched). The next PR's close-out checklist item for "prior PR's validate-pr + retro rows" is satisfied by including them in that PR's CHANGELOG narrative.
 
 ## Trust-recovery state
 
