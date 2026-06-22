@@ -139,6 +139,14 @@ drive end-to-end on the maintainer's behalf:
    triage as in-window (hot-fix PR or include in next PR) or out-of-window
    (surface to maintainer with named options). Complements the corpus-wide
    `/validate` sweep, which runs every 10 merges or maintainer-triggered.
+5b. Invoke `/retro` to run the post-merge retrospective per the
+   [`pr-retrospective`](../dev-security/claude-rules/skills/pr-retrospective/SKILL.md)
+   skill. Consumes `/validate-pr` findings as input; appends one row to
+   [`.working/improvement-log.md`](../.working/improvement-log.md). Pattern and
+   Proposed-improvement entries (if any) surface in chat. The register-row
+   commit is batched into the next PR per the recursion-avoidance rule. The
+   retrospective is light-touch (single paragraph per cell); value emerges
+   over time as patterns surface across many entries.
 6. After every merge (this step is durable across sessions): consult
    [`TODO.md`](../TODO.md)'s forward-looking sections and list the upcoming next
    five planned PRs in the chat. If new items have surfaced during the just-

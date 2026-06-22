@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #213 — Continuous process-improvement loop: /retro skill + improvement-log register (2026-06-22)
+
+New pack skill `pr-retrospective` (slash command `/retro`) and the paired `.working/improvement-log.md` register. Post-merge retrospective on each successful PR; output is one entry per PR; recurring patterns surface as candidates for pack-rule updates / worker-brief additions / new audit gates. Wired into PR workflow step 5b in CLAUDE.md. Closes the three-layer learning loop (worker-brief template + apply-time catch tracking + PR retrospective). Pack `1.44.1 → 1.45.0`.
+
 ### PR #212 — FR-14 + FR-114 (H[critical]): CMMI 5-tier maturity reconciliation (2026-06-22)
 
 Maintainer-confirmed canonical: CMMI 5-tier (Initial/Managed/Defined/Quantitatively Managed/Optimized). Two surfaces aligned: template-maturity-self-assessment.md (Tier 2 Developing→Managed, Tier 4 Managed→Quantitatively Managed, Tier 5 Optimising→Optimized, all definitions extended with CMMI process-property language); register-digital-trust-and-assurance-metrics.md (DTI thresholds replaced from 4-tier variant with even 1.0-band 5-tier CMMI). Framework already canonical (no change). Closes the single largest cross-document issue in either fitness review.
