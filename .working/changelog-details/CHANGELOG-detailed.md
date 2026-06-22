@@ -6,6 +6,41 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.196, PR #218
+
+**Closes FR-46 DPO consolidation** (medium, P1.5) by **flipping the canonical privacy-lead role** from "Chief Privacy Officer" to "Data Protection Officer", reversing the canonical direction set by PR #210 (Privacy Officer → Chief Privacy Officer rename, 36 files) + PR #217 (DPO → Chief Privacy Officer rename, closed unmerged when the maintainer redirected). Maintainer-directed rationale: DPO has legislative force in many jurisdictions (GDPR Article 37, LGPD Article 41, India DPDP Act 2023 §10, Malaysia PDPA as amended by Act A1727, and similar regimes) and is the more globally-applicable canonical term; CPO is a Canadian / US convention. The canonical = the more globally-applicable title.
+
+### Added
+
+- **Canonical surface 1** ([`governance/register-role-authority.md`](../../governance/register-role-authority.md):39): Chief Privacy Officer row renamed to **Data Protection Officer** with an expanded adopter-customisation note covering: (a) canonical status following statutorily-mandated titles in GDPR Art 37, LGPD Art 41, India DPDP Act 2023 §10, Malaysia PDPA, and similar regimes; (b) the Canada / US adopter substitution to "Chief Privacy Officer" / "CPO"; (c) the both-as-distinct-roles adopter case. The accountability set defined here applies to whichever title the adopter chooses. Per-doc `1.4.0 → 1.5.0` (minor; canonical-role change).
+- **Canonical surface 2** ([`governance/register-glossary.md`](../../governance/register-glossary.md):106): DPO entry extended from a one-word definition to a full canonical statement naming the role's statutory mandates and the acceptable adopter substitutions. Per-doc `1.2.2 → 1.3.0`.
+- **Canonical surface 3** ([`privacy/README.md`](../../privacy/README.md)): new `## Role terminology` section after Domain coverage explaining the DPO-canonical convention, CPO as the North American variant, and the both-as-distinct-roles adopter case. Domain-coverage bullet `DPO accountability` renamed to `Data Protection Officer accountability` in the same commit. Per-doc `1.1.2 → 1.2.0`.
+
+### Changed
+
+- **Corpus prose rename across 73 files**: `Chief Privacy Officer` → `Data Protection Officer` via a one-shot Python script with synonym-pattern pre-cleanup. The synonym patterns handled: `Chief Privacy Officer / DPO` → `Data Protection Officer (DPO)`; `Chief Privacy Officer (or Data Protection Officer)` → `Data Protection Officer`; `Chief Privacy Officer or DPO` → `Data Protection Officer (DPO)`; `Chief Privacy Officer or domain DPO` → `Data Protection Officer (organisation-wide) or a domain privacy lead`. Every modified document received per-doc Version patch-bump + Date set to 2026-06-22 in the same script invocation.
+- **Affected domains**: privacy (~18 files), privacy jurisdictions (~25 files), AI (~10 files), supply-chain (~6 files), security (~4 files), governance (~5 files), resilience (~4 files), risk (1 file), dev-security (1 file), compliance (1 file), NOTICE.md (1 file at repo root), and the `tools/build-portal.py` portal generator's hardcoded string.
+- **OWNER-FIELD flips**: approximately 30 `**Owner:** Chief Privacy Officer` metadata fields converted to `**Owner:** Data Protection Officer` (the script handled these as part of the corpus-wide replacement; the resulting role name matches the new register's row label exactly, so gate 8 — the Owner / Approving Authority role audit — passes cleanly).
+- **Register row label form**: drafted initially as `Data Protection Officer (DPO)` to match the maintainer's stated canonical form, but gate 8 failed because the `**Owner:**` metadata fields said `Data Protection Officer` without the parenthetical. **Apply-time correction**: the register row label was changed to `Data Protection Officer` (no parenthetical) matching the convention used by other roles in the register (no inline acronym in role labels — see `Chief Information Officer`, `Chief Information Security Officer`, etc.). The DPO acronym is introduced in the glossary entry and the privacy/README Role terminology section.
+- **`taxonomy.yml`** regenerated from per-document Version+Date bumps.
+- **`docs/portal.md` and `docs/maturity-scorecard.md`** regenerated.
+
+### Intentionally retained occurrences of "Chief Privacy Officer"
+
+The three canonical surfaces (register, glossary, privacy/README) intentionally mention "Chief Privacy Officer" / "CPO" as the adopter-variant. Historical files (`CHANGELOG.md`, `.working/*`) preserve the original prose verbatim per the historical-entries-not-rewritten convention.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit (gate 8 / Owner-and-Approving-Authority audit confirms the new `Data Protection Officer` role label matches the register's first-column entry; gate 33 / taxonomy in sync and gate 34 / portal in sync both clean after regeneration).
+- Corpus-wide `\bChief Privacy Officer\b` grep returns only the canonical surfaces (intentional) plus historical files (excluded from corpus audit).
+
+### Discipline observation
+
+- **Multi-PR sequencing**: This PR pairs with PR-2 (at-top "Role-name convention" notes in privacy-relevant documents). The two-PR shape (canonical + corpus rename together in one PR; at-top notes separately) avoids the inconsistency-window concern: if the canonical surfaces flipped before the corpus rename, /validate-pr would flag the gap as a defect; bundling them sidesteps that. PR-2 is additive only (no canonical-label changes), so /validate-pr finds no misalignment on its scope either.
+- **Direction-reversal cost**: PR #210 (36-file Privacy Officer → Chief Privacy Officer rename, merged) and PR #217 (27-file DPO → Chief Privacy Officer rename, closed unmerged) both went in the CPO-canonical direction. This PR reverses both. The cost was acknowledged when authorising the flip; the canonical's globally-applicable property (DPO is statutorily mandated in many regimes; CPO is North American) is worth the unwind cost.
+- **Script-driven rename**: 73 files renamed via a one-shot Python script with synonym-pattern pre-cleanup; per-doc Version+Date bumps included in the same script. Faster than 73 individual Edit calls; the resulting file diff is auditable.
+- **Role-label form apply-time correction**: documented above under "Changed > Register row label form". The orchestrator started with the maintainer's stated form `Data Protection Officer (DPO)` and corrected at apply-time when gate 8 failed.
+
 ## 2026-06-22, Library Version 2026.06.195, PR #216
 
 Hot-fix PR for the two real defects /validate-pr surfaced on PR #215 (chat-surfaced findings per the chat-surfacing discipline). Also caught up on the deferred PR #214 + PR #215 /validate-pr history rows and the PR #214 + PR #215 /retro improvement-log entries.
