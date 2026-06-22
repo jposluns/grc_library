@@ -10,8 +10,8 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #202 merge).
-- **Library version as of last refresh**: `2026.06.181`. **Pack version**: `1.42.0`. **README version**: `1.9.52`.
+- **Branch at last refresh**: `main` (synced after PR #203 merge).
+- **Library version as of last refresh**: `2026.06.182`. **Pack version**: `1.42.0`. **README version**: `1.9.53`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
 - **Last validation sweep**: Sweep 17 iteration 1 (close-out PR #186); /validate-pr on PR #187 closed out in PR #188; /validate-pr on PR #188 closed out in PR #189; /validate-pr on PR #189 closed out in PR #190 (third consecutive findings-producing /validate-pr; r1/r2 cross-date ambiguity resolved structurally in PR #190).
 - **Last fitness review**: 2026-06-22's r1 (PR #188 records); Pass-1 verification pending next session.
@@ -160,9 +160,9 @@ Source: [`.working/fitness-reviews/2026-06-22-r1.md`](.working/fitness-reviews/2
 
 **Three Convergent Findings dominate** (see [`.working/fitness-reviews/2026-06-22-r1.md`](.working/fitness-reviews/2026-06-22-r1.md) Cross-Library Findings section for full text):
 
-- **C1: Risk Owner role insufficiency** (P3 + P6 + P7) — closes FR-115, FR-116, FR-117, FR-119. Recommended action: single combined "Risk Owner completion" PR. The role was added to ERM standard §3 in PR #178 but did not propagate to Role Authority Register / evidence expectations / monitoring cadence for non-Critical / exception policy's different "Risk Owner" definition.
-- **C2: Emergency-access trigger ambiguity** (P2 + P6 + P7) — closes FR-121, FR-122, FR-123, FR-124, FR-125, FR-126. Recommended action: single combined "Access-control operational clarity" PR. PR #169 added trigger conditions but "material harm", "declared incident response", "delegated security lead" lack operational definitions.
-- **C3: Retention chain breaks** (P4) — closes FR-128, FR-129. Recommended action: retention-consistency sweep PR. PR #179's 5y→7y bump on control-testing evidence was correct but localised; adjacent CAPA records and internal audit reports still at 5y.
+- **C1: Risk Owner role insufficiency** (P3 + P6 + P7) — **3 of 4 closed**: FR-115 (PR #197), FR-116 (PR #198), FR-117 (PR #199); FR-119 deferred (needs maintainer decision on rename-vs-unify the two Risk Owner definitions across ERM standard §3 and exception policy §1.4).
+- **C2: Emergency-access trigger ambiguity** (P2 + P6 + P7) — all 6 deferred (FR-121, FR-122, FR-123, FR-124, FR-125, FR-126). Each needs an operational-threshold decision ("material harm" definition; "declared incident response" tied to specific status; "delegated security lead" role definition; revocation timeline pick; escalation clause shape). Recommended action: single combined "Access-control operational clarity" PR after maintainer-supplied thresholds.
+- **C3: Retention chain breaks** (P4) — **fully closed**: FR-128 (PR #194), FR-129 (PR #195). PR #179's 5y→7y bump on control-testing evidence has now propagated to CAPA records and internal audit reports. AI audit reports and Supplier audit reports remain at 5y in the same register; whether to raise those is a separate maintainer decision (different audit programmes; possibly different retention drivers).
 
 ### High[critical] tier — 3 findings from the 2026-06-22 review (FR-127 closed in PR #193, FR-128 closed in PR #194, FR-129 closed in PR #195)
 
@@ -185,10 +185,9 @@ Source: [`.working/fitness-reviews/2026-06-22-r1.md`](.working/fitness-reviews/2
 - **FR-126** (`security/procedure-access-control.md` lines 54-58): Auto-escalation mechanic vague (who triggers escalation?).
 - **FR-130** (`docs/decision-tree.md` lines 107-120): Decision-tree entry sequence delays portal encounter (item 8 of 8).
 
-### Low / FYI tier — 2 findings from the 2026-06-22 review (FR-132 closed in PR #200)
+### Low / FYI tier — 1 finding from the 2026-06-22 review (FR-132 closed in PR #200, FR-133 closed in PR #203)
 
 - **FR-131** (`docs/template-quickstart.md` line 39 vs `docs/adopter-guide.md` lines 116-117): Quickstart vs adopter-guide Tier 1 risk-artefact set divergence.
-- **FR-133** (`docs/decision-tree.md` line 216): Non-Anglosphere jurisdictions less prominently surfaced (FYI; jurisdiction index exists).
 
 ### Standardization recommendations from the 2026-06-22 review
 
@@ -202,9 +201,9 @@ Three new audit-gate candidates surfaced (would need separate maintainer decisio
 
 Per [`.working/fitness-reviews/2026-06-22-r1.md`](.working/fitness-reviews/2026-06-22-r1.md) Recommendations section:
 
-1. **Risk Owner completion PR** (closes FR-115, FR-116, FR-117, FR-119) — Convergent Finding C1; closes 4 findings.
-2. **Access-control operational clarity PR** (closes FR-121, FR-122, FR-123, FR-124, FR-125, FR-126) — Convergent Finding C2; closes 6 findings.
-3. **Retention chain sweep PR** (closes FR-128, FR-129) — Convergent Finding C3; closes audit-evidence chain breaks.
+1. **Risk Owner completion PR** (FR-115 / FR-116 / FR-117 closed in PRs #197 / #198 / #199; FR-119 deferred — needs maintainer decision on rename-vs-unify the two Risk Owner definitions). Convergent Finding C1: 3 of 4 closed.
+2. **Access-control operational clarity PR** (closes FR-121, FR-122, FR-123, FR-124, FR-125, FR-126) — Convergent Finding C2; all 6 deferred — need operational-threshold decisions ("material harm" definition; "declared incident response" tied to status; "delegated security lead" role; revocation timeline pick).
+3. **Retention chain sweep PR** (FR-128 closed in PR #194, FR-129 closed in PR #195) — Convergent Finding C3: fully closed. Adjacent AI / Supplier audit retention rows still at 5y; whether to raise needs maintainer decision.
 4. **DTI / maturity ladder reconciliation PR** (closes FR-14 from the 2026-06-21 review + FR-114 from the 2026-06-22 review): high-critical from 2026-06-21, still open; full reconciliation pass.
 
 Maintainer's call on whether to interleave these with existing Phase 1 / Phase 2 plan or pause Phase 1 to address C1+C2+C3 first.

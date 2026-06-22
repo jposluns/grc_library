@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.3\
+**Version:** 1.0.4\
 **Date:** 2026-06-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -207,13 +207,16 @@ Layer the privacy jurisdiction annexes for every jurisdiction in which you proce
 
 ### 4.1 Privacy jurisdictions (per Section 1.3)
 
-Each is found in [`privacy/jurisdictions/`](../privacy/jurisdictions/). Common selections:
+Each is found in [`privacy/jurisdictions/`](../privacy/jurisdictions/). The directory carries jurisdiction annexes for every region the library covers (currently 25 jurisdictions, including the Anglosphere examples listed below and additional non-Anglosphere jurisdictions across Asia-Pacific, Latin America, Middle East, Africa, and Europe). For the complete list, see the [jurisdiction index](../privacy/annex-privacy-jurisdiction-index.md).
+
+Common Anglosphere selections (representative, not exhaustive):
 
 - EU residents: [`privacy/jurisdictions/annex-privacy-european-union.md`](../privacy/jurisdictions/annex-privacy-european-union.md)
 - UK residents: [`privacy/jurisdictions/annex-privacy-united-kingdom.md`](../privacy/jurisdictions/annex-privacy-united-kingdom.md)
 - US residents (CCPA): [`privacy/jurisdictions/annex-privacy-united-states.md`](../privacy/jurisdictions/annex-privacy-united-states.md)
 - Canadian residents: [`privacy/jurisdictions/annex-privacy-canada.md`](../privacy/jurisdictions/annex-privacy-canada.md)
-- Other jurisdictions: see the [jurisdiction index](../privacy/annex-privacy-jurisdiction-index.md) for the full list.
+
+For other jurisdictions (Australia, Singapore, India, Brazil, Japan, South Korea, China, and others), consult the [jurisdiction index](../privacy/annex-privacy-jurisdiction-index.md) above for the full list of available annexes.
 
 ### 4.2 Cross-sector horizontal regulations
 

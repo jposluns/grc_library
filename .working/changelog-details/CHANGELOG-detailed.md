@@ -6,6 +6,38 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.182, PR #203
+
+Closes **FR-133** (FYI). Eleventh overnight-batch PR. Also bundles PR #202's out-of-window TODO drift cleanup.
+
+### Fixed
+
+- [`docs/decision-tree.md`](../../docs/decision-tree.md) §4.1 restructured (lines 210-216):
+  - Lead paragraph notes the library's full jurisdiction coverage (25 annexes) including non-Anglosphere regions across Asia-Pacific, Latin America, Middle East, Africa, and Europe.
+  - "Common Anglosphere selections (representative, not exhaustive)" framing applied to the EU/UK/US/Canada list.
+  - Closing sentence names example non-Anglosphere annexes (Australia, Singapore, India, Brazil, Japan, South Korea, China, and others) with redirect to the jurisdiction index.
+- Per-doc decision-tree `1.0.3 → 1.0.4` (patch); Date stays 2026-06-22.
+
+- [`TODO.md`](../../TODO.md) "Next-up recommendations" Convergent Finding C1/C2/C3 narrative updated:
+  - C1 now reads "3 of 4 closed: FR-115 (PR #197), FR-116 (PR #198), FR-117 (PR #199); FR-119 deferred."
+  - C2 now reads "all 6 deferred" with the operational-threshold decisions enumerated.
+  - C3 now reads "fully closed: FR-128 (PR #194), FR-129 (PR #195)."
+  - "Next-up recommendations" items 1-4 updated to reflect overnight closures: items 1-3 now reference the closed PRs explicitly; item 4 (DTI/maturity-ladder reconciliation, still open) unchanged.
+
+### Changed
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for PR #202's /validate-pr (0 in-window findings + 1 out-of-window TODO-drift observation).
+  - Per-document Version `1.2.10 → 1.2.11`.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates.
+
+### Discipline observation
+
+PR #202's /validate-pr surfaced a pre-existing TODO drift pattern: when convergent-finding child PRs close, the parent "next-up recommendations" narrative wasn't being rotated in lock-step. PR #203 fixes this for the 2026-06-22 batch. Future overnight sessions that close convergent-finding items should rotate the parent narrative within the same PR, OR document the deferral and pickup it in the wrap-up PR.
+
 ## 2026-06-22, Library Version 2026.06.181, PR #202
 
 Overnight session wrap-up. Updates the overnight-pr.md file with final progress and open ambiguities; carries PR #201's /validate-pr row; bumps library/README versions. Status remains `in-flight` (the morning-processing PR by the maintainer will transition to `stub`).
