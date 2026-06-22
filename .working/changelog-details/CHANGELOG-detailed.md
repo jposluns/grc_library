@@ -6,6 +6,43 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.193, PR #214
+
+Morning-processing PR for the overnight session that ended at PR #213. Routed the overnight session's design decisions into `.working/design-decisions.md` (two explicit-drop entries for FR-104 and FR-130 closures), reset `.working/overnight-pr.md` from `Status: in-flight` back to stub, and updated TODO and the Next-up recommendations to reflect FR-119 and FR-14+FR-114 closures. Also carried the PR #213 batched items per the recursion-avoidance rule: fixed a stale forward-reference at `dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md:175` (the queued-for-PR #186 framing is now stale since the skill it referenced shipped in PR #213); appended the PR #213 validate-pr history row and the PR #213 improvement-log row with the first pattern observation (new-skill drafting checklist candidate). Pack `1.45.0 → 1.45.1` (patch on the SKILL.md prose fix).
+
+### Added
+
+- New entry in [`.working/design-decisions.md`](../design-decisions.md) § Decisions explicitly dropped: **FR-104 — Decision-tree per-regulation context not pursued**. Rationale: the decision-tree's audience is already navigating toward a specific regulation; per-regulation descriptors live in each annex and would inflate the section without changing navigation outcome.
+- New entry in [`.working/design-decisions.md`](../design-decisions.md) § Decisions explicitly dropped: **FR-130 — Decision-tree portal entry-point reorder not pursued**. Rationale: README is the canonical first-encounter surface; portal at item 8 reflects discovery sequencing (read README, then explore via portal). PR #200 explicitly preserved the existing pattern when closing the adjacent FR-132.
+- New row in [`.working/validate-pr/history.md`](../validate-pr/history.md): PR #213 validate-pr sweep, 1 in-window finding (the stale forward-ref fixed in this PR), 0 out-of-window.
+- New row in [`.working/improvement-log.md`](../improvement-log.md): PR #213 meta-self-application of `/retro` to its own introducing PR, with pattern observation #1 (new-skill drafting checklist) and proposed improvement (worker-brief template addition; candidate for a follow-up PR).
+- Three new entries in [`.working/DONE.md`](../DONE.md): PR #214 (this PR), FR-104 (decided no), FR-130 (decided keep).
+
+### Changed
+
+- [`dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md`](../../dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md) line 175: rewrote the future-tense forward-reference to `pr-retrospective` ("queued for PR #186, will live at `dev-security/claude-rules/skills/pr-retrospective/SKILL.md`") as a present-tense link to the skill that now exists ([`pr-retrospective`](../../dev-security/claude-rules/skills/pr-retrospective/SKILL.md)). The PR #186 reference was stale since the skill shipped in PR #213 instead.
+- [`.working/overnight-pr.md`](../overnight-pr.md): reset from `Status: in-flight` (with ~110 lines of session state covering authorization scope, items planned, files modified, build progress across PRs #193-#201, and 9 open ambiguities) back to stub form. All content was routed appropriately: PR closures were already in CHANGELOG / DONE from each PR's commit; design decisions for the two non-actioned items (FR-104, FR-130) were routed to `design-decisions.md`; queued follow-ups (FR-48, FR-49, FR-125, FR-126, FR-118 cross-doc, DPO consolidation) were already in TODO; ephemeral session-tracking content (planned-items list, files-touched, build-progress table, files-not-touched) was discarded per the morning-processing protocol.
+- [`TODO.md`](../../TODO.md):
+  - FR-104 removed from the Medium tier Newcomer cluster (decided no, recorded in design-decisions).
+  - FR-130 removed from the 2026-06-22 Medium tier (decided keep README, recorded in design-decisions).
+  - Next-up recommendation 1 updated to reflect FR-119 closure in PR #211 (C1 fully closed).
+  - Next-up recommendation 4 updated to reflect FR-14 + FR-114 closure in PR #212.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) `Version 1.45.0 → 1.45.1` and Date held at 2026-06-22 (UTC day unchanged).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) `Version 1.2.21 → 1.2.22` (one new row).
+- [`README.md`](../../README.md) `Library Version 2026.06.192 → 2026.06.193`, `README Version 1.9.63 → 1.9.64`.
+
+### Verification
+
+- `tools/run_all_audits.sh`: all gates pass (46/46) on the post-commit state.
+- `tools/run-pr-time-checks.sh`: passes (CHANGELOG-on-PR delta gate D1 sees both root and mirror touched; per-PR version-bump delta gate D2 sees the library / pack / README bumps; gate 45 TODO staleness clean).
+- Gate 46 (`tools/lint-overnight-file.py`): passes (`Status: stub`).
+- Gate 44 (paired skill+slash-command parity): passes; the `validation-sweep-pr-scoped` SKILL prose change does not introduce or remove a step identifier, so the step-set parity is unchanged.
+
+### Discipline observations
+
+- Recursion-avoidance batching rule (PR #192) operated as designed: PR #213's `/validate-pr` finding (1 in-window: stale forward-ref) plus PR #213's `/retro` improvement-log row are both carried in this PR rather than in a dedicated hot-fix PR. The next PR carries no PR #213 residue.
+- `/retro` meta-self-application produced its first proposed-improvement candidate (worker-brief template's "new-skill drafting checklist" DO-list addition). The candidate stays in the register; the next planning cycle picks it up if priority warrants.
+
 ## 2026-06-22, Library Version 2026.06.192, PR #213
 
 Adds the **continuous process-improvement loop**: `pr-retrospective` skill + `/retro` slash command + `.working/improvement-log.md` register. Fulfills the maintainer's earlier "design a process improvement skill" direction.

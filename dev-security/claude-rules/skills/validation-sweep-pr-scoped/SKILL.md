@@ -172,7 +172,7 @@ The PR-scoped sweep is complete when:
 ## See Also
 
 - Sibling skill [`validation-sweep`](../validation-sweep/SKILL.md) (slash command `/validate`): corpus-wide periodic sweep.
-- Related skill `pr-retrospective` (slash command `/retro`, queued for PR #186, will live at `dev-security/claude-rules/skills/pr-retrospective/SKILL.md`): consumes `/validate-pr` findings as input for the post-merge retrospective and improvement-log register.
+- Related skill [`pr-retrospective`](../pr-retrospective/SKILL.md) (slash command `/retro`): consumes `/validate-pr` findings as input for the post-merge retrospective and improvement-log register.
 - Canonical rule [`evidence-grounded-completion`](../../governance/evidence-grounded-completion.md): the assertion-side discipline this skill operationalises.
 - Canonical rule [`ai-assistant-workflow-disciplines`](../../governance/ai-assistant-workflow-disciplines.md): the workflow disciplines this skill supports; PR-scoped validation is the "every merge" discipline that complements the "every 10 merges" full sweep.
 - Pre-flight scanner [`tools/sweep-preflight-scanner.py`](../../../../tools/sweep-preflight-scanner.py): the deterministic pre-flight check shared with the corpus-wide skill.
