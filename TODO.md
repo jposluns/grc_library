@@ -31,7 +31,7 @@ The remaining fitness-remediation work is organised into two phases. The plan is
 
 - ~~**P1.4b** — FR-33 (high[critical]) closed in PR #221~~ (GDPR Article 36 prior-consultation pathway restructured Step 5 into 5.1 internal escalation, 5.2 NEW Article 36 regulatory consultation, 5.3 documentation requirements). P1.4a closed by PR #179.
 - **P1.5 — Editorial consistency cluster** (2 remaining: FR-48, FR-49, both medium). H2 numbering drift, Governance heading drift. Closed: FR-46 (PR #210 + PR #218 — canonical flipped to Data Protection Officer in PR #218 after maintainer redirect; PR #217's CPO-canonical attempt was closed unmerged), FR-47 (surface-consolidated in PR #218; formal closure pending maintainer review), FR-50 (PR #207), FR-51 (PR #208), FR-52 (PR #209). **PR-2 follow-up queued**: at-top "Role-name convention" notes in privacy-relevant docs (post-metadata-block placement, pointing to register-role-authority.md).
-- **P1.6 — Cross-document contradictions** (FR-81 medium, FR-82 medium). TLS floor inconsistency; key hashing ambiguity.
+- ~~**P1.6** — FR-82 closed in PR #222~~ (key hashing ambiguity replaced with explicit per-purpose specification in `security/policy-encryption-and-key-management.md:56`). FR-81 already closed in PRs #201 + #205.
 - **P1.7 — Low-tier sweep**. Opportunistic cleanup of deferred Low-tier findings (FR-67 through FR-91 / FR-107 through FR-111 per the Low tier list below). Single bundle expected; details when the maintainer triggers it.
 
 **Phase 2 (15 items, all research prepared as of PR #176).** Mid-weight medium-severity findings clustered by topic. Research files at `[scratchpad]/p2-1-...` through `[scratchpad]/p2-15-...` per the research-assistant discipline.
