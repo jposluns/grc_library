@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.34\
+**Version:** 1.2.35\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -12,6 +12,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | 228 | 10 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Thirty-fourth-batch PR (FR-42 medium close: DPO independence Article 38(3) + Article 38(6) conflict-of-interest framework in `privacy/charter-privacy-management-programme.md`). Validate-pr abbreviated spot-check confirmed: Article 38(3) 3-row independence table; Article 38(6) WP243 conflict-of-interest list; interim CIO-as-DPO known-conflict subsection; 5-row mitigation controls table; cross-regime equivalents. Per-doc Version 1.4.0 → 1.5.0. Note: a Subagent A finding in the subsequent /validate Sweep 20 iter 1 surfaced that `privacy/policy-privacy-and-data-governance.md:46` doesn't cross-reference this charter framework — fixed in PR #229. No PR-#228-scope findings. Row carried into PR #229 (sweep close-out). |
 | 2026-06-22 | 227 | 10 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Thirty-third-batch PR (FR-40 medium close: PIPL Articles 38-40 cross-border operationalised in cross-border procedure with 7-step workflow). Validate-pr abbreviated spot-check confirmed: 7-step workflow (applicability + CIIO, Article 38 mechanism, Article 39 consent, Article 40 obligations, Article 55 PIA, documentation + cadence, coordinated triggers); thresholds match China annex; per-doc Version 1.4.1 → 1.5.0; "recognised" → "recognized" apply-time language catch. No findings. Row carried into PR #228 (FR-42 close-out). |
 | 2026-06-22 | 226 | 10 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Thirty-second-batch PR (FR-39 medium close: EU representative Article 27 appointment process in `privacy/charter-privacy-management-programme.md` Privacy accountability structure). Validate-pr abbreviated spot-check confirmed: 7-component subsection structure (trigger, exemption, criteria, designation steps, maintenance, Article 27(5) clarification, cross-regime equivalents); per-doc Version 1.3.3 → 1.4.0; preemptive em-dash avoidance worked (clean first-pass language audit). No findings. Row carried into PR #227 (FR-40 close-out). |
 | 2026-06-22 | 225 | 10 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Thirty-first-batch PR (FR-38 medium close: Article 12(5) assessment checklist in `privacy/procedure-data-subject-rights-management.md` §7.2). Validate-pr abbreviated spot-check confirmed: 7-subsection structure (default free / unfounded criteria / excessive criteria / action options / burden-of-proof / fee calculation / cross-regime); §7.2 → §7.3 renumbering preserved cross-reference at line 189; per-doc Version 1.3.5 → 1.4.0; 2 em-dash apply-time catches in heading titles corrected within same content commit. No findings. Row carried into PR #226 (FR-39 close-out). |

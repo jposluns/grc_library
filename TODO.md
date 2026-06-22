@@ -13,7 +13,7 @@ These are **as-of-session-pause snapshots**, not "current HEAD" claims. They ref
 - **Branch at last refresh**: `main` (synced after PR #215 merge).
 - **Library version as of last refresh**: `2026.06.193`. **Pack version**: `1.45.1`. **README version**: `1.9.64`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
-- **Last validation sweep**: Sweep 19 iteration 1 (2 in-window warnings in `governance/guideline-minimum-viable-governance-structure.md` lines 67 + 114, stale "CPO" in executive-role enumerations missed by PR #218's spelled-out-only rename script; both fixed in close-out PR #220 alongside the deferred PR #219 /validate-pr + /retro register rows; post PRs #215-#219).
+- **Last validation sweep**: Sweep 20 iteration 1 (post PRs #220-#228; 4 in-window warnings + 2 maintainer-surfaced notes: 3 newly-introduced acronyms missing from glossary plus 1 cross-doc drift on the Article 38(6) framework; all 4 warnings fixed in close-out PR #229; 2 notes surfaced for maintainer judgement: A2 DPO row in role-authority register, B4 WP243/EDPB scope in canonical-citations register).
 - **Last fitness review**: 2026-06-22's r1; Pass-1 verification complete in PR #204.
 - **Timezone convention**: UTC (codified in CLAUDE.md per PR #190).
 
