@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.217, PR #239
+
+**Closes FR-12 cross-doc follow-up (M, S)** — `risk/procedure-risk-register.md` v1.0.0 → 1.1.0. PR-C in Batch 2.
+
+### Changed
+
+- **Step 8 "Select Treatment"** renamed to "Select Treatment Option" and reworded to point at the ERM standard's canonical 6 options (Avoid / Mitigate / Transfer / Accept / Exploit / Enhance). Explicit note: "Monitor" and "Further Analysis" are NOT treatment options under the canonical set; they are workflow states tracked separately via the standard's Treatment Status field (Pending / In Progress / Complete). A monitored risk has Treatment Option selected and Treatment Status Pending or In Progress.
+- **Register-field "Treatment Decision" row** (prior: "Mitigate, avoid, transfer, accept, monitor, or analyze") split into two rows aligned with the standard's §7.1 schema (per PR #238 FR-118): Treatment Option (the canonical 6 cross-referenced to standard §6) + Treatment Status (Pending / In Progress / Complete; "Monitor" and "Further Analysis" map to Pending or In Progress).
+
+### Verification
+
+- 46 audit gates pass; PR-time checks (D1, D2, gate 45) OK.
+- Cross-doc consistency: procedure-risk-register and ERM standard now use identical canonical 6-option treatment vocabulary; Status / Treatment Status / Treatment Option separation matches across both files.
+
 ## 2026-06-22, Library Version 2026.06.216, PR #238
 
 **Closes FR-118 (H, S)** — ERM standard §6/§7 treatment-vocab internal inconsistency. PR-B in Batch 2 effort-first run.

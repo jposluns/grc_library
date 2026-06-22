@@ -76,7 +76,6 @@ Research files for every queued P2.x cluster are prepared in advance (per the re
 
 ### Other Medium-severity items (not in a P2.x cluster)
 
-- **FR-12 cross-document follow-up (M, S)**: Harmonise treatment-option vocabulary between [`risk/standard-enterprise-risk-management.md`](risk/standard-enterprise-risk-management.md) §6 and [`risk/procedure-risk-register.md`](risk/procedure-risk-register.md). (Cross-listed in P1 as FR-118 since 2026-06-22 review escalated it to High.)
 - **FR-62 (M, S)**: AI jurisdiction annexes absent. (Cross-references P5.8.)
 - **FR-74 (M, M)**: Schrems II-light treatment. **Consolidates with FR-34** (Transfer Impact Assessment in P1).
 - **FR-75 (M, S) ⚠️**: ESG materiality threshold.
