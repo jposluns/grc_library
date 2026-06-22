@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.51\
+**Version:** 1.2.52\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -12,6 +12,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | 247 | 10 | 0 in-window | none (batched into next PR) | — | Session migration protocol + codification bookkeeping close-out. Formal Subagent A on the 10 touched files: session-handoff.md internally consistent (the one-PR snapshot lag is by-design and self-declared); `/resume` references resolve; FR-164 fully removed from TODO; "eight"→"nine" governance-rule count correct; DONE #243-#247 entries accurate; CHANGELOG root/detailed lock-step; all version bumps present; CLAUDE.md session-migration section + PR-workflow step 5c coherent. Clean. Row batches into the next PR. |
 | 2026-06-22 | 246 | 13 | 2 in-window (both warnings, fixed in PR #247) | none (batched into PR #247) | — | Ninth governance rule + full wiring. Formal Subagent A on the 13 touched files: all three governance-rule enumeration surfaces list the rule; `.claude/rules/` mirror byte-identical; FR-164 docstring "seven"→"nine"; the two SKILL links resolve; pack/library/README/ledger version bumps present; rollout prose updated to "ninth"/1.47.0. Two warnings: (1) FR-164 closed in CHANGELOG but not rotated TODO→DONE; (2) stale "eight governance rules" at TODO:198 exposed by the 8→9 change. Both fixed in PR #247. Row batches into PR #247. |
 | 2026-06-22 | 245 | 6 | 0 in-window (1 cosmetic note, fixed in PR #246) | none (batched into PR #246) | — | PRIMORDIAL RULE added to `.claude/CLAUDE.md`. Formal Subagent A on the 6 touched files: the three cross-referenced pack rules (gate-discipline, evidence-grounded-completion, clarify-before-acting) confirmed present and purpose-matched; CHANGELOG root/detailed lock-step; §4 cadence text matches the semantic-checkpoints-only claim; all version bumps present; no generator or `.py` touched. One cosmetic "(TODO P4)" → "(TODO P4.0)" reference imprecision, fixed in PR #246. Row batches into PR #246. |
 | 2026-06-22 | 244 | 9 | 0 in-window (1 note: squash-commit-message FR-range understatement, commit-message-only, not actionable) | none (batched into PR #246) | — | `deep-qa-review` codification. Formal Subagent A on the 9 touched files: pack-README dir-tree↔SKILL parity, gate-44 step parity {0-6}, CHANGELOG lock-step, all version bumps, the touched linter's docstring still accurate, no stale "13 skills" in adopter prose. **This row was owed to PR #245 per recursion-avoidance but was missed there (a bookkeeping slip caught while building PR #246); added here.** Row batches into PR #246. |

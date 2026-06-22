@@ -1,6 +1,6 @@
 # Session Handoff
 
-**Purpose.** This file is the single resume point for a new Claude Code session. It is refreshed at every PR close-out so that opening a fresh session and continuing requires only one instruction from the maintainer (see "How to resume"). It exists because long sessions degrade (context dilution, lossy compaction, state drift, error compounding); a fresh session that rebuilds state from this file plus the durable repo artefacts is more reliable than a long one running on accumulated memory. This file is maintainer working state, exempt from corpus audit gates per the `.working/` exemption.
+**Purpose.** This file is the single resume point for a new Claude Code session. It is refreshed at every PR close-out so that opening a fresh session and continuing requires only one instruction from the maintainer (see "How to resume"). It exists because long sessions degrade (context dilution, lossy compaction, state drift, error compounding); a fresh session that rebuilds state from this file plus the durable repo artefacts is more reliable than a long one running on accumulated memory. The mechanisms and mitigations are written up generically in [`.working/session-length-considerations.md`](session-length-considerations.md). This file is maintainer working state, exempt from corpus audit gates per the `.working/` exemption.
 
 This is an **as-of-last-refresh snapshot**, not a live-HEAD claim. Versions and counts drift forward as work advances; always verify against live files before relying on them.
 
@@ -15,17 +15,18 @@ On `/resume`, the assistant:
 4. Verifies the version/count snapshot below against live files (do not trust the snapshot blindly).
 5. Continues from "Next actions".
 
-## State snapshot (as of 2026-06-22, after PR #246)
+## State snapshot (as of 2026-06-22, after PR #248)
 
-- **Branch**: `claude/grc-library-takeover-jrqzn6` (all work develops here per the session mandate).
-- **HEAD**: the PR #246 squash merge (`f36638f` at last refresh; verify with `git log -1`).
-- **Versions**: library `2026.06.224`, pack `1.47.0`, README `1.9.95`. (Verify against `README.md` and `dev-security/claude-rules/README.md`.)
-- **Audit programme**: 46 gates, all passing on `main`. Governance rules: 9. Skills: 14 (5 paired with slash commands: validate, validate-pr, fitness, retro, full-qa).
-- **Last merged**: #243 (trust-recovery routing + re-tier), #244 (`deep-qa-review` skill), #245 (PRIMORDIAL RULE in CLAUDE.md), #246 (ninth governance rule `trust-recovery-escalation.md`).
+- **Branch**: `claude/grc-library-takeover-jrqzn6` (all work develops here per the session mandate). PR #248 (this session's closing handoff PR) is merged to `main`, so a fresh `/resume` rebuilds state from `main` rather than from an unmerged feature branch.
+- **HEAD**: the PR #248 squash merge on `main` (verify with `git log -1`).
+- **Versions**: library `2026.06.226`, pack `1.47.0`, README `1.9.97`. (Verify against `README.md` and `dev-security/claude-rules/README.md`.)
+- **Audit programme**: 46 gates, all passing on `main`. Governance rules: 9. Skills: 14 (5 paired with slash commands: validate, validate-pr, fitness, retro, full-qa). The `/resume` command also exists (a thin, non-paired command).
+- **Last merged**: #244 (`deep-qa-review` skill), #245 (PRIMORDIAL RULE in CLAUDE.md), #246 (ninth governance rule `trust-recovery-escalation.md`), #247 (session migration protocol), #248 (session-length lesson + closing handoff).
+- **Pending into the next session's first PR**: PR #248's own `/validate-pr` and `/retro` rows ride into the next PR's diff per recursion-avoidance (run post-merge, recorded in working state, then batched). The next PR's close-out checklist item for "prior PR's validate-pr + retro rows" is satisfied by including them in that PR's CHANGELOG narrative.
 
 ## Trust-recovery state
 
-The trust-recovery suite (`/full-qa` + `/fitness` r2) ran and the maintainer **signed off** (2026-06-22). Findings are in `TODO.md`: 6 H[critical] + 6 High retained in P1 (FR-134..145, actioned after the codification batch); Medium/Low/FYI re-tiered to P2/P3 (FR-146..165). Codification status: `deep-qa-review` skill (done, #244), PRIMORDIAL RULE (done, #245), ninth rule (done, #246), session migration protocol (this PR). Records: `.working/full-qa/2026-06-22-iter1.md`, `.working/fitness-reviews/2026-06-22-r2.md`.
+The trust-recovery suite (`/full-qa` + `/fitness` r2) ran and the maintainer **signed off** (2026-06-22). Findings are in `TODO.md`: 6 H[critical] + 6 High retained in P1 (FR-134..145, actioned after the codification batch); Medium/Low/FYI re-tiered to P2/P3 (FR-146..165). Codification status: `deep-qa-review` skill (done, #244), PRIMORDIAL RULE (done, #245), ninth rule (done, #246), session migration protocol (done, #247). Remaining codification: `/fitness` routing-flag amendment, structural-review skill, optional `/trust-recovery` wrapper. Records: `.working/full-qa/2026-06-22-iter1.md`, `.working/fitness-reviews/2026-06-22-r2.md`.
 
 ## Next actions (queue, from TODO)
 

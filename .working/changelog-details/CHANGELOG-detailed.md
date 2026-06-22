@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.226, PR #248
+
+**Session-closing handoff PR.** Adds the generic long-session-degradation lesson and lands the session's working-state on `main` as a green merge, per the maintainer's discipline that a session's last act is a green merge so the next session resumes from `main` rather than from an unmerged feature branch.
+
+### Added
+
+- **[`.working/session-length-considerations.md`](../session-length-considerations.md)**: a generic, reader-facing write-up (not addressed to any one questioner) of why long AI-assistant sessions become less accurate and what mitigates it. Mechanisms: context dilution / "lost in the middle", lossy compaction, state drift and stale cache, error compounding without fresh eyes, late-session throughput pressure, and the honest absence of a reliable internal degradation gauge. Mitigations in two groups: reduce reliance on in-session memory (fresh sessions at boundaries, durable state in committed files, small frequent merges, re-point at key files after compaction) and catch errors regardless of self-awareness (mechanical gates and fresh-context reviewers, maintainer nudges on the tells, memory-independent disciplines). Closes on the deepest point: build the workflow so correctness does not depend on the assistant noticing its own decline.
+
+### Changed
+
+- **[`.working/session-handoff.md`](../session-handoff.md)**: refreshed to the after-PR-#248 snapshot (library `2026.06.226`, README `1.9.97`, last-merged through #248) and a discoverability pointer to the new lesson file. Records that PR #248's own `/validate-pr` and `/retro` rows ride into the next session's first PR per recursion-avoidance.
+- **[`.working/validate-pr/history.md`](../validate-pr/history.md)** (Version `1.2.51 → 1.2.52`): PR #247 `/validate-pr` row (clean).
+- **[`.working/improvement-log.md`](../improvement-log.md)** (Version `1.0.31 → 1.0.32`): PR #247 `/retro` row.
+- **[`README.md`](../../README.md)**: library `2026.06.225 → 2026.06.226`; README `1.9.96 → 1.9.97`.
+
+### Verification
+
+- `.claude/` and `.working/` are gate-exempt; the only gated files touched are `README.md` (version lines) and `CHANGELOG.md` (this entry pair). No adopter-facing corpus content changed.
+- `tools/run_all_audits.sh` exit 0 (46/46) post-commit; `tools/run-pr-time-checks.sh` exit 0 (D1 satisfied by this entry pair, D2 by the two history-file version bumps, gate 45 clean).
+
 ## 2026-06-22, Library Version 2026.06.225, PR #247
 
 **Session migration protocol + trust-recovery codification bookkeeping close-out.** The long-session-degradation defence: a fresh session resumes with one command, and a PR close-out checklist guards the paired-bookkeeping-surface failure class.
