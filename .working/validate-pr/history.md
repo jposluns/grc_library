@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.2\
+**Version:** 1.2.3\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -12,6 +12,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | 194 | 9 | 0 (0 in-window, 0 out-of-window) | none | — | Second overnight-batch PR (FR-128 close + PR #193 batching). Subagent A deep-read all 9 touched files; verified CAPA row at retention-schedule.md:66 correctly cites procedure-capa.md:452 §12; corpus-wide CAPA 5-year search returned no stale 5y mandates (the FR-129 internal audit reports row is intentionally out-of-window for FR-128's scope; will be addressed in PR #195); TODO renumbering clean; version bumps consistent. Row batched into PR #195. |
 | 2026-06-22 | 193 | 11 | 1 (1 in-window: incomplete-rotation; 0 out-of-window) | none (bundled into PR #194 per batching rule) | — | First overnight-batch PR (FR-127 close). Subagent A deep-read all 11 touched files; ZTA TLS 1.3 matches encryption policy verbatim; generated artefacts regenerated cleanly; cross-doc TLS drift check found other TLS-version references corpus-wide tracked separately as FR-81 (out-of-window); overnight-pr.md transition stub→in-flight matches protocol; version bumps consistent. **1 finding**: `TODO.md:215` still listed FR-127 as a future "Next-up recommendation" despite FR-127 already being closed in PR #193 — incomplete TODO-rotation. The rule's anti-pattern "Closing the item in CHANGELOG only and assuming TODO will get cleaned up later" fits. Fixed in PR #194 (this PR; FR-128 + this row + TODO cleanup). |
 | 2026-06-22 | 192 | 11 | 0 (0 in-window, 0 out-of-window) | none | — | Codification PR (the batching-into-next-PR rule). Subagent A deep-read all 11 touched files; verified the new "Batching into the next PR (recursion-avoidance)" sub-sections in both SKILL.md files are structurally consistent; slash-command paragraphs match SKILL.md counterparts; /validate-pr two-sub-case structure (zero-finding rows + findings-producing fixes) coherent; /validate carve-out for corpus-wide close-out PRs preserved; pack README 1.42.0 row accurate; PR #191 cross-reference correct; version bumps consistent (library 2026.06.171, README 1.9.42, pack 1.42.0, validate-pr/history.md 1.2.0). No findings. Row batched into PR #193 per the new rule (the first overnight PR carries this row alongside its FR-127 fix). |
 | 2026-06-22 | 191 | 6 | 0 (0 in-window, 0 out-of-window) | none | — | Housekeeping PR recording PR #190's zero-finding /validate-pr. Subagent A deep-read all 6 touched files; verified version bumps consistent across surfaces, the new PR #190 row in this file correctly attributes 0 findings, CHANGELOG entry matches DONE entry, recursive-recording note is coherent. 0 broken citations. Row batched into PR #192 (the rule-codification PR) per the new batching rule itself. |

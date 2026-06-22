@@ -2285,7 +2285,7 @@ documents:
   domain: "governance"
   type: "Register"
   title: "Data Retention Schedule"
-  version: "1.0.3"
+  version: "1.0.4"
   date: "2026-06-22"
   owner: "Chief Privacy Officer"
   approving_authority: "Chief Information Officer"
