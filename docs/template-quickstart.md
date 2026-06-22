@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Quickstart Template\
 **Document Type:** Template\
-**Version:** 3.0.0\
-**Date:** 2026-06-21\
+**Version:** 3.0.1\
+**Date:** 2026-06-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md), [`README.md`](../README.md)\
@@ -36,7 +36,7 @@ Every adopter needs these three things in the first session, regardless of size 
    - [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md) (identity and access)
    - [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) (incident response)
    - [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) plus the relevant file from [`privacy/jurisdictions/`](../privacy/jurisdictions/) (privacy policy and home-jurisdiction annex)
-   - [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md) (risk register procedure)
+   - [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) (enterprise risk governance policy; aligns with the Tier 1 starter set in [`docs/adopter-guide.md`](adopter-guide.md))
 
 2. **Substitute the role names.** Every artefact in the library names roles, not people. Map each role to a real person in your organisation in a private overlay. Do not edit named individuals into the artefacts themselves.
 

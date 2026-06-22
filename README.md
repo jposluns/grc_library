@@ -4,8 +4,8 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.06.208 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.9.79 (semantic per-document version for this file)
+**Library Version:** 2026.06.209 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.9.80 (semantic per-document version for this file)
 
 ---
 
@@ -55,7 +55,7 @@ The library spans 11 governance domains and grows by routine PR cadence; the cur
 
 This repository is, primarily, a **GRC documentation corpus**: organisation-neutral, CC BY-SA 4.0 governance artefacts (charters, frameworks, policies, standards, procedures, registers, matrices, plans, guidelines, templates) across the eleven domains listed above. The corpus is the product an adopter takes away.
 
-The corpus is maintained by a small team using Claude Code as an AI coding assistant, under documented governance and discipline. To keep the corpus internally consistent under that maintenance model, the project carries an audit toolchain ([`tools/`](tools/), the multi-gate audit programme under [`tools/run_all_audits.sh`](tools/run_all_audits.sh)) and a Claude Code rules-and-skills pack at [`dev-security/claude-rules/`](dev-security/claude-rules/). The pack distils the maintenance disciplines into reusable rules that ship under CC BY-SA 4.0 alongside the corpus: an adopter who is not building a GRC library can still take the pack for use on any project. The pack is a by-product of the corpus's maintenance, not a parallel deliverable.
+The corpus is maintained by a small team using Claude Code as an AI coding assistant, under documented governance and discipline. To keep the corpus internally consistent under that maintenance model, the project carries an audit toolchain ([`tools/`](tools/), the multi-gate audit programme under [`tools/run_all_audits.sh`](tools/run_all_audits.sh)) and a Claude Code rules-and-skills pack at [`dev-security/claude-rules/`](dev-security/claude-rules/). The audit toolchain is the maintainer's quality-assurance machinery, not an adopter dependency: adopters who only consume the corpus do not need it. Adopters who want the same maintenance discipline for their own fork can adopt the toolchain (it is permissively licensed and copy-paste portable), but doing so is optional. The pack distils the maintenance disciplines into reusable rules that ship under CC BY-SA 4.0 alongside the corpus: an adopter who is not building a GRC library can still take the pack for use on any project. The pack is a by-product of the corpus's maintenance, not a parallel deliverable.
 
 The audit gates and the pack rules grew out of the corpus, not the other way around. Audit gates were added in response to specific drift modes observed in the corpus. Pack rules were extracted from real failure modes the maintainer encountered while keeping the corpus consistent (evidence-grounded completion came from a stale-claim incident; clarify-before-acting from "always confirm" feedback; action-before-explanation-of-inaction from a merge-blocked incident). The corpus is the headline; the maintenance discipline is the methodology that keeps the headline honest.
 
