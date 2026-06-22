@@ -182,6 +182,11 @@ drive end-to-end on the maintainer's behalf:
    commit is batched into the next PR per the recursion-avoidance rule. The
    retrospective is light-touch (single paragraph per cell); value emerges
    over time as patterns surface across many entries.
+5c. Refresh [`.working/session-handoff.md`](../.working/session-handoff.md) with the
+   current state snapshot, last-merged list, next-actions queue, and open decisions.
+   The refresh commit batches into the next PR per recursion-avoidance, alongside the
+   validate-pr/retro rows. See the `## Session migration and PR close-out checklist`
+   section.
 6. After every merge (this step is durable across sessions): consult
    [`TODO.md`](../TODO.md)'s forward-looking sections and list the upcoming next
    five planned PRs in the chat. If new items have surfaced during the just-
@@ -207,6 +212,48 @@ safe set per user-level Rule 8 point 1. Actions outside this routine (merging a 
 the maintainer did not author, force-pushing a protected branch, deleting a branch
 the assistant did not create) are not in the safe set and require explicit
 confirmation under the confirm-before-destructive-action discipline.
+
+## Session migration and PR close-out checklist
+
+Long sessions degrade: context dilution and "lost in the middle", lossy compaction,
+state drift, and error compounding mean the assistant late in a session is less
+reliable than early. The assistant has no reliable internal gauge of this, so the
+defence is external. Two mechanisms:
+
+1. **Session handoff.** [`.working/session-handoff.md`](../.working/session-handoff.md)
+   is the single resume point for a new session: branch, versions, counts,
+   last-merged PRs, trust-recovery state, the next-actions queue, open decisions,
+   and the standing disciplines. It is refreshed at every PR close-out (as part of
+   the recursion-avoidance batch that carries the validate-pr/retro rows into the
+   next PR). To resume in a fresh session the maintainer sends only `/resume` (the
+   [`commands/resume.md`](commands/resume.md) command), which reads the handoff
+   file, verifies the snapshot against live files, and continues from the queue.
+   Prefer starting a fresh session at batch boundaries over running a long one; a
+   fresh session that rebuilds state from durable artefacts beats a long one running
+   on accumulated memory.
+
+2. **PR close-out checklist.** Before pushing any PR, confirm every paired
+   bookkeeping surface is in the diff. The recurring degradation failure is a correct
+   substantive change with a *paired* surface dropped (a `/validate-pr` row not
+   batched, an FR closed in CHANGELOG but not rotated to DONE, a prose count left
+   stale by an enumeration change). The checklist:
+   - The prior merged PR's `/validate-pr` history row AND its `/retro` row are both
+     present (they batch into this PR per recursion-avoidance).
+   - Every TODO item this PR closes is deleted from TODO and added to
+     [`.working/DONE.md`](../.working/DONE.md) in the same diff.
+   - If this PR changed an enumerated collection (gates, governance rules, skills),
+     every prose count of that collection was checked for staleness (the
+     collection-enumeration audit catches the structured enumerations; prose counts
+     like "the eight governance rules" are not gated).
+   - [`.working/session-handoff.md`](../.working/session-handoff.md) is refreshed.
+   - CHANGELOG (root + detailed) and version bumps are present; the post-commit
+     `run_all_audits.sh` and pre-push `run-pr-time-checks.sh` are green.
+
+   This checklist is the convention-level companion to the queued P4.6 mechanical
+   QA-cadence gate; until that gate exists, the checklist is the guard. It was added
+   after two paired-bookkeeping-surface misses in one session (a validate-pr row not
+   batched into the next PR; an FR closed in CHANGELOG without the TODO-to-DONE
+   rotation), both degradation-shaped late-session slips.
 
 ## Throughput pressure does not authorise QA abbreviation
 

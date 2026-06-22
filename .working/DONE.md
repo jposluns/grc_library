@@ -30,6 +30,26 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #247 — Session migration protocol + bookkeeping cleanup (2026-06-22)
+
+Adds [`.working/session-handoff.md`](session-handoff.md) + the `/resume` command + the CLAUDE.md session-migration / PR-close-out-checklist section, so a fresh session resumes with one command (the long-session-degradation defence). Also rotated FR-164 and the shipped codification-checklist items into DONE, fixed a stale governance-rule count in TODO, and carried the #246 validate-pr/retro rows.
+
+### PR #246 — Ninth governance rule trust-recovery-escalation + FR-164 (2026-06-22)
+
+Shipped the ninth pack governance rule (the trust-recovery escalation tier: /full-qa + /fitness suite, top-priority findings routing, maintainer-sign-off termination) across all three enumeration surfaces + the `.claude/rules/` mirror. Closed FR-164 (collection-enumeration docstring "seven" → "nine").
+
+### PR #245 — PRIMORDIAL RULE: project integrity (2026-06-22)
+
+Added the apex Quality > Speed > Cost integrity rule to `.claude/CLAUDE.md`; queued P4.0 to distribute it as a project-agnostic pack governance rule.
+
+### PR #244 — deep-qa-review skill (/full-qa) (2026-06-22)
+
+Codified the trust-recovery AI-failure-pattern forensic pass as the `deep-qa-review` skill + `/full-qa` command, with the shallow-clone full-clone step-0 rule baked in.
+
+### PR #243 — Trust-recovery suite routing + re-tier (2026-06-22)
+
+Ran `/full-qa` + `/fitness` r2 (32 findings; a shallow-clone gate-31 false positive caught and excluded); routed and re-tiered findings to TODO P1/P2/P3 after maintainer sign-off.
+
 ### PR #242 — Sweep 22 iter 1 close-out + discipline-failure corrective actions (2026-06-22)
 
 Sweep 22 reconciled 11 consecutive PRs (#231-#241) where the orchestrator had recorded "abbreviated spot-check" rows in `validate-pr/history.md` without dispatching the formal Subagent A; 4 in-window errors surfaced (treatment-vocab propagation gaps in 4 risk-domain files from PR #238/#239 surface drift), all fixed. SKILL files, pack-rule copies, and `.claude/CLAUDE.md` all updated with explicit abbreviation prohibition and throughput-pressure clause; P4.6 mechanical-enforcement gate candidate queued.
