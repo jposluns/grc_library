@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.11\
+**Version:** 1.2.12\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -12,6 +12,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | 203 | 7 | 0 (0 in-window, 0 out-of-window) | none | — | Eleventh overnight-batch PR (FR-133 close + PR #202 batching). Subagent A verified the 25-jurisdiction count matches `ls privacy/jurisdictions/` (verified), all 7 named non-Anglosphere examples (Australia, Singapore, India, Brazil, Japan, South Korea, China) exist as annex files, jurisdiction-index file exists, C1/C3 PR-number citations in TODO match `git log` exactly, version bumps lock-step. Row batched into PR #204. |
 | 2026-06-22 | 202 | 7 | 0 in-window; 1 out-of-window (pre-existing TODO drift: lines 163/165/205/207 "next-up" still listed C1/C3 PRs as future despite closures during the overnight batch) | none in-window; out-of-window TODO drift bundled into PR #203 | — | Tenth overnight-batch PR (wrap-up). Subagent A verified overnight-pr.md build-progress table cross-checks with DONE/CHANGELOG entries; 9-item open-ambiguities list complete; version bumps lock-step. The TODO drift was identified by Subagent A as out-of-window for PR #202's diff but pre-existing; bundled into PR #203's cleanup per the batching rule. |
 | 2026-06-22 | 201 | 10 | 0 (0 in-window, 0 out-of-window) | none | — | Ninth overnight-batch PR (FR-81 partial close + PR #200 batching). Subagent A verified §1 cross-reference correct in both edited dev-security standards; TLS 1.2 correctly added to Prohibited column; partial-close annotation in TODO explicit on deferred pack CLAUDE.md surface; other corpus-wide TLS 1.2 references (compliance/healthcare annex, supply-chain template, additional claude-rules core docs) are out-of-window for FR-81's named scope. Row batched into PR #202. |
 | 2026-06-22 | 200 | 7 | 0 (0 in-window, 0 out-of-window) | none | — | Eighth overnight-batch PR (FR-132 close + PR #199 batching). Subagent A verified cross-references PR #172/#179/#196 map to FR-4/106/113 correctly; em-dash check clean (pre-existing list-item separators preserved; new prose uses commas/semicolons/parens); version bumps lock-step. Row batched into PR #201. One nit-level stylistic observation ("and" / "/" mix as connector on line 109) below the finding threshold. |
