@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #200 — FR-132 (low): Decision-tree glossary-order annotation (2026-06-22)
+
+Closes FR-132 by annotating `docs/decision-tree.md` §2.1 Orientation list: items 1-2 (README, adopter-guide) get inline notes that acronyms are expanded at first occurrence per FR-4 / FR-106 / FR-113 polish; item 3 (glossary) gets a note about its scope (reserved for deeper-domain docs). Adopts the recommendation's option (b) "note recent improvements" rather than option (a) "move glossary to item 1" (the existing entry-point pattern is preserved).
+
 ### PR #199 — FR-117 (medium): Risk Owner evidence by accountability action (2026-06-22)
 
 Closes FR-117 by adding a new §9.2 to the ERM standard mapping each of the five Risk Owner accountability actions (per §3) to the evidence type from §9.1 that proves execution. Mechanical mapping using existing canonical sources; no new policy. C1 Convergent Finding 3 of 4 closed (FR-115/116/117); FR-119 deferred (needs decision).
