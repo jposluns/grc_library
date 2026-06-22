@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.230, PR #252
+
+**Trust-recovery routing convention revised to severity-tiered.** Implements the maintainer's 2026-06-22 "routing flag only" decision (captured in PR #251): trust-recovery findings route tiered by severity (High[critical]+High to the top-priority tier / P1; Medium+Low to the next tier / P2) rather than all to a single top-priority tier regardless of severity. The no-drop invariant and the maintainer-sign-off termination are preserved.
+
+### Changed
+
+- **[`dev-security/claude-rules/governance/trust-recovery-escalation.md`](../../dev-security/claude-rules/governance/trust-recovery-escalation.md)** (the pack rule, project-agnostic wording): the `## Findings routing` heading and first paragraph rewritten to the severity-tiered convention (top-priority tier / next-priority tier), with an explicit clause that the change replaces the earlier single-top-priority formulation and preserves the no-drop invariant; the sign-off section's "routed top-priority additions" generalised to "routed additions"; the "Discounting a low-severity finding" prohibited anti-pattern updated to clarify that tiering is routing, not dropping; the origin-narrative line softened from "routed to top priority" to "routed (none discounted)".
+- **[`.claude/rules/governance/trust-recovery-escalation.md`](../../.claude/rules/governance/trust-recovery-escalation.md)**: byte-identical mirror re-synced from the pack source (gate 37).
+- **[`dev-security/claude-rules/skills/deep-qa-review/SKILL.md`](../../dev-security/claude-rules/skills/deep-qa-review/SKILL.md)**: frontmatter description, §4 heading + body, and the termination section updated to the severity-tiered convention (generic tier names).
+- **[`.claude/commands/full-qa.md`](../../.claude/commands/full-qa.md)**: step 4, step 6, and the report-back line updated (P1/P2). Step identifiers unchanged (gate 44 parity holds).
+- **[`dev-security/claude-rules/skills/library-fitness-review/SKILL.md`](../../dev-security/claude-rules/skills/library-fitness-review/SKILL.md)**: new step **5.5 Trust-recovery routing flag** (bold-inline, not a `###` heading, so gate-44 parity is unaffected) naming the tiered routing that replaces step 5.4's normal triage when `/fitness` runs as the suite's second pass.
+- **[`.claude/commands/fitness.md`](../../.claude/commands/fitness.md)**: step-5 prose gains a parallel trust-recovery-routing-flag clause (P1/P2).
+- **[`dev-security/claude-rules/CLAUDE.md`](../../dev-security/claude-rules/CLAUDE.md)** and **[`.claude/CLAUDE.md`](../../.claude/CLAUDE.md)**: the trust-recovery rule-description bullets updated from "top priority regardless of severity" to the severity-tiered convention (generic in the pack file; P1/P2 in the project file, with a "routing revised in 1.47.1" note).
+- **[`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md)**: pack Version `1.47.0 → 1.47.1`; new 1.47.1 version-history row (the 1.47.0 row left accurate-to-time).
+- **[`README.md`](../../README.md)**: library `2026.06.229 → 2026.06.230`; README `1.9.100 → 1.9.101`.
+
+### Verification
+
+- All em-dashes avoided (two slips were caught and corrected during drafting, consistent with the PR #244 retro lesson on new-pack-prose em-dash reintroduction); `tools/lint-language.py` and the full `tools/run_all_audits.sh` confirm clean.
+- Mirror byte-identical to pack source (gate 37); gate 44 step-parity holds (5.5 is bold-inline, not a `###` step heading); section-anchor gates (17/18) confirm no inbound reference depended on the two renamed headings.
+- `tools/run_all_audits.sh` exit 0 (46/46) post-commit; `tools/run-pr-time-checks.sh` exit 0.
+- Decision provenance: captured in PR #251's [`TODO.md`](../../TODO.md) annotations + [`.working/design-decisions.md`](../design-decisions.md); maintainer answers 2026-06-22 ("accept all", "routing flag only").
+
+### Carried (recursion-avoidance)
+
+- PR #251 `/validate-pr` row (1 note, reconciled in the same turn) and `/retro` row; the routing-surface-list reconciliation in design-decisions. These rode the working-state batch commit and land here.
+
 ## 2026-06-22, Library Version 2026.06.229, PR #251
 
 **Session decision capture (P1–P4 backlog triage).** Working-state housekeeping PR: durably records the maintainer's 2026-06-22 decisions (from the requested TODO P1–P4 analysis) before any remediation/codification PR acts on them, and carries the PR #250 `/validate-pr` + `/retro` rows per recursion-avoidance. The substantive routing-convention revision the decisions authorize is the NEXT PR, not this one (kept separate per "always split"; this PR is low-risk working-state and protects the decisions from session-boundary loss).

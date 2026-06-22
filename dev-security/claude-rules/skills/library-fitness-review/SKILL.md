@@ -115,6 +115,8 @@ Pass-1 updates the report file in place: each finding's `verification:` annotati
 
 The fitness review does not auto-defer findings to FYI. Every confirmed finding gets an explicit severity-tier action. Rejected findings are recorded in the report (with rationale) but excluded from the backlog.
 
+**5.5. Trust-recovery routing flag.** When `/fitness` runs as the second pass of the trust-recovery escalation suite (per [`governance/trust-recovery-escalation.md`](../../governance/trust-recovery-escalation.md)), the routine severity-tier triage of step 5.4 is replaced by the tier's routing convention: every Pass-1-confirmed finding routes to the backlog **tiered by severity (High[critical] and High to the top-priority tier, Medium and Low to the next-priority tier)**, tagged `[fitness]`, with the normal Low-to-routine-cleanup and FYI-to-informational deferral suspended so that **nothing the review surfaces is dropped or shelved as FYI-only**. The rationale is the rule's: the tier exists because the assistant's discretion to discount has been shown unreliable in the window under review, so severity governs the destination tier, not whether a finding is surfaced. Pass-1 apply-time verification and dedupe-against-the-existing-backlog still apply, and the tier terminates only on the maintainer's explicit sign-off (not on an empty finding-set). Outside trust-recovery mode (a routine or quarterly fitness run), step 5.4's normal triage applies unchanged.
+
 **Confirmed findings produce TODO entries** carrying the `FR-<n>` ID, the originating run reference (`r1`, `r2`, ...), and the Pass-2 verification date. The TODO entry is the bridge between the fitness-review report and the project's PR queue.
 
 ### 6. Write the combined report

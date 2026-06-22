@@ -8,11 +8,11 @@ Invoke the `deep-qa-review` skill defined in this project's pack at [`dev-securi
 
 3. **Synthesize and verify at apply-time**: the orchestrator dedupes by `(file, section, claim_type)`, tags `R|I|K`, adjudicates severity (pick higher; no averaging), and re-reads each cited source location before routing any finding. Worker false positives (the shallow-clone gate-31 artifact is the canonical example) and over-classifications are caught here, not shipped. Apply-time corrections are logged to the worker-hallucination tracking artefact.
 
-4. **Route every confirmed finding to the backlog at top priority** tagged `[full-qa]`, regardless of severity (including findings judged trivial or mechanical); the maintainer triages from there. Findings that dedupe against an existing backlog item are cross-referenced, not duplicated. Findings refuted at apply-time are recorded with the refutation, not routed.
+4. **Route every confirmed finding to the backlog, tiered by severity** tagged `[full-qa]`: High[critical] and High to P1, Medium and Low to P2 (including findings judged trivial or mechanical; none dropped, severity governs the destination tier not whether the finding is surfaced); the maintainer triages from there. Findings that dedupe against an existing backlog item are cross-referenced, not duplicated. Findings refuted at apply-time are recorded with the refutation, not routed.
 
 5. **Record**: write a per-run record (in this project `.working/full-qa/YYYY-MM-DD-iterN.md`) with one section per subagent (A-F), an orchestrator-synthesis-and-verification section, a findings-routed section, and a trust-recovery-framing section naming the prior run's discipline failures and the elevated rules applied. Append a history row. The record directory's README codifies the step-0 full-clone rule.
 
-6. **Termination is maintainer sign-off, not empty-delta**: the pass terminates only when the maintainer reviews the routed top-priority additions (from both `/full-qa` and `/fitness`) and explicitly signs off. An empty finding-set does not terminate the pass; maintainer acknowledgement does. This is the trust-rebuilding step.
+6. **Termination is maintainer sign-off, not empty-delta**: the pass terminates only when the maintainer reviews the routed additions (from both `/full-qa` and `/fitness`) and explicitly signs off. An empty finding-set does not terminate the pass; maintainer acknowledgement does. This is the trust-rebuilding step.
 
 **No orchestrator-side skip or abbreviation discretion.** Once the maintainer invokes the trust-recovery suite, the orchestrator does NOT have discretion to skip a subagent, run fewer than six, or substitute an abbreviated check, spot-check, memory-only review, or quick scan for the formal dispatch. The only sanctioned exception is a maintainer-authorised scope reduction recorded in the run record. Abbreviation is the failure mode that triggers this skill; reproducing it inside the skill is self-defeating.
 
@@ -22,4 +22,4 @@ Reject any subagent finding that lacks an explicit `path:line` quote. A finding 
 
 **Surface findings prominently in chat, not buried in artefact files.** As each skill in the suite completes, surface its confirmed findings inline in the chat reply (per-finding: ruleId, severity, `path:line`, evidence quote, impact, recommendation) and route them to the backlog; do not wait for both suite skills to finish before routing.
 
-Report back: the clone-depth verification, the audit baseline, each subagent's findings (grouped by severity, `path:line` per finding), the apply-time verification outcomes (confirmed vs refuted), the routed top-priority additions, and the path to the per-run record.
+Report back: the clone-depth verification, the audit baseline, each subagent's findings (grouped by severity, `path:line` per finding), the apply-time verification outcomes (confirmed vs refuted), the routed additions (by tier), and the path to the per-run record.

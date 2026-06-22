@@ -515,10 +515,11 @@ pack, CC BY-SA 4.0):
   changes, a skipped verification reaching the pipeline, a wrong-cadence automation,
   an unvalidated inference that cascaded), the two-skill suite (the AI-failure-pattern
   forensic pass `/full-qa` first, then the fresh-reader persona pass `/fitness`), the
-  routing convention (every confirmed finding to the backlog's top priority regardless
-  of severity, apply-time-verified, deduped), and the sign-off discipline (terminates
-  only on explicit maintainer sign-off, not on an empty finding-set). Includes the
-  full-clone methodology rule. Added 2026-06-22 (pack 1.47.0).
+  routing convention (every confirmed finding routed, tiered by severity: H[critical]
+  and High to P1, Medium and Low to P2, none dropped; apply-time-verified, deduped), and
+  the sign-off discipline (terminates only on explicit maintainer sign-off, not on an
+  empty finding-set). Includes the full-clone methodology rule. Added 2026-06-22 (pack
+  1.47.0; routing revised to severity-tiered in 1.47.1).
 
 The `dev-security/claude-rules/` pack covers security and development-governance
 discipline. The initial governance rollout completed at pack version 1.11.0

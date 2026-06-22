@@ -1,6 +1,6 @@
 ---
 name: deep-qa-review
-description: Trust-recovery deep quality-assurance pass. A six-subagent forensic review specialized for AI-failure-pattern classes, run over a defined PR window plus the files those PRs reference, when an AI coding assistant's discipline failures (abbreviated QA, skipped post-commit audits, wrong-cadence timers, inferred-not-validated premises) call for a white-box re-examination beyond the routine per-PR and periodic sweeps. Slash command `/full-qa`. Pairs with `library-fitness-review` (`/fitness`): deep-qa-review is one deeply-contextualised lens tuned to how AI assistants fail; fitness is ten context-stripped persona lenses. Together they form the trust-recovery escalation tier. Findings route to the project backlog at top priority for maintainer triage; the pass terminates on explicit maintainer sign-off, not on an empty finding-set.
+description: Trust-recovery deep quality-assurance pass. A six-subagent forensic review specialized for AI-failure-pattern classes, run over a defined PR window plus the files those PRs reference, when an AI coding assistant's discipline failures (abbreviated QA, skipped post-commit audits, wrong-cadence timers, inferred-not-validated premises) call for a white-box re-examination beyond the routine per-PR and periodic sweeps. Slash command `/full-qa`. Pairs with `library-fitness-review` (`/fitness`): deep-qa-review is one deeply-contextualised lens tuned to how AI assistants fail; fitness is ten context-stripped persona lenses. Together they form the trust-recovery escalation tier. Findings route to the project backlog tiered by severity (High[critical]/High to the top-priority tier, Medium/Low to the next tier), none dropped, for maintainer triage; the pass terminates on explicit maintainer sign-off, not on an empty finding-set.
 derives_from: ../../governance/evidence-grounded-completion.md
 ---
 
@@ -67,9 +67,9 @@ All six are dispatched on every full run. Each receives a self-contained brief c
 
 The orchestrator dedupes by `(file, section, claim_type)`, tags `R|I|K`, adjudicates severity (pick higher; no averaging), and, critically, **re-reads each cited source location before routing any finding**. Worker false positives (the shallow-clone gate-31 artifact is the canonical example) and over-classifications are caught here, not shipped. Apply-time corrections are logged to the project's worker-hallucination tracking artefact.
 
-### 4. Route every confirmed finding to the backlog at top priority
+### 4. Route every confirmed finding to the backlog, tiered by severity
 
-In trust-recovery mode, **every confirmed finding routes to the backlog's top priority tier, tagged `[full-qa]`, regardless of severity**, including findings the orchestrator judges trivial or mechanical. The maintainer triages from there; the orchestrator does not silently discount low-severity items or defer them to a sweep-close-out. Findings that dedupe against an existing backlog item are cross-referenced, not duplicated. Findings refuted at apply-time (false positives) are recorded in the run record with the refutation, not routed.
+In trust-recovery mode, **every confirmed finding routes to the backlog (none silently dropped), tagged `[full-qa]`, tiered by severity: High[critical] and High to the top-priority tier, Medium and Low to the next-priority tier**, including findings the orchestrator judges trivial or mechanical. The maintainer triages from there; the orchestrator does not silently drop low-severity items or defer them to a sweep-close-out, but tiers them by severity (tiering is routing, not dropping). Findings that dedupe against an existing backlog item are cross-referenced, not duplicated. Findings refuted at apply-time (false positives) are recorded in the run record with the refutation, not routed.
 
 ### 5. Record
 
@@ -77,7 +77,7 @@ Write a per-run record (project-specific location; in this project `.working/ful
 
 ### 6. Termination is maintainer sign-off, not empty-delta
 
-Unlike `/validate`'s fixed-point loop, the trust-recovery pass terminates only when the maintainer reviews the routed top-priority additions (from both `/full-qa` and `/fitness`) and explicitly signs off. An empty finding-set does not terminate the pass; maintainer acknowledgement does. This is the trust-rebuilding step: the maintainer, not the assistant, declares confidence restored.
+Unlike `/validate`'s fixed-point loop, the trust-recovery pass terminates only when the maintainer reviews the routed additions (from both `/full-qa` and `/fitness`) and explicitly signs off. An empty finding-set does not terminate the pass; maintainer acknowledgement does. This is the trust-rebuilding step: the maintainer, not the assistant, declares confidence restored.
 
 ## Red Flags
 
