@@ -11,10 +11,10 @@ This file is informational and is not subject to the library's metadata-block, a
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
 - **Branch at last refresh**: `main` (synced after PR #213 merge).
-- **Library version as of last refresh**: `2026.06.192`. **Pack version**: `1.45.0`. **README version**: `1.9.63`.
+- **Library version as of last refresh**: `2026.06.193`. **Pack version**: `1.45.1`. **README version**: `1.9.64`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
-- **Last validation sweep**: Sweep 17 iteration 1 (close-out PR #186); /validate-pr on PR #187 closed out in PR #188; /validate-pr on PR #188 closed out in PR #189; /validate-pr on PR #189 closed out in PR #190 (third consecutive findings-producing /validate-pr; r1/r2 cross-date ambiguity resolved structurally in PR #190).
-- **Last fitness review**: 2026-06-22's r1 (PR #188 records); Pass-1 verification pending next session.
+- **Last validation sweep**: Sweep 18 iteration 1 (clean bill: 0 in-window, 0 out-of-window across all three subagents; post PRs #186-#214). Row batched into next substantive PR per the recursion-avoidance rule.
+- **Last fitness review**: 2026-06-22's r1; Pass-1 verification complete in PR #204.
 - **Timezone convention**: UTC (codified in CLAUDE.md per PR #190).
 
 ---
