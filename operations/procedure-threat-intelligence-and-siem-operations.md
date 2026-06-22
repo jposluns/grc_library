@@ -2,7 +2,7 @@
 
 **Document Title:** Threat Intelligence and SIEM Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.3\
+**Version:** 1.3.4\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -22,7 +22,7 @@
 
 This procedure defines the operational processes for managing threat intelligence, operating the Security Information and Event Management (SIEM) platform, developing and maintaining correlation rules, conducting threat hunting, and sharing intelligence with sector peers. It establishes the practices by which threat intelligence is operationalized into detection capability and feeds back into continual improvement of the organisation's security posture.
 
-The procedure is aligned with NIST SP 800-150 (Guide to Cyber Threat Information Sharing), MITRE ATT&CK Enterprise, ISO/IEC 27001:2022 A.5.7, COBIT 2019 DSS05, and CSA CCM v4.1 TVM (Threat and Vulnerability Management) and SEF (Security Incident Management) domain controls.
+The procedure is aligned with NIST SP 800-150 (Guide to Cyber Threat Information Sharing), MITRE ATT&CK Enterprise, ISO/IEC 27001:2022 Annex A.5.7, COBIT 2019 DSS05, and CSA CCM v4.1 TVM (Threat and Vulnerability Management) and SEF (Security Incident Management) domain controls.
 
 ### 1.2 Scope
 
@@ -326,7 +326,7 @@ Metric trends are reviewed for continual improvement. Lessons learned from incid
 
 | Control Area | Framework Reference |
 | --- | --- |
-| Threat intelligence programme | NIST SP 800-150; ISO/IEC 27001:2022 A.5.7; CSA CCM TVM domain (Threat and Vulnerability Management) controls |
+| Threat intelligence programme | NIST SP 800-150; ISO/IEC 27001:2022 Annex A.5.7; CSA CCM TVM domain (Threat and Vulnerability Management) controls |
 | SIEM operations and monitoring | CSA CCM SEF-01 to SEF-10; NIST CSF Detect (DE.CM); ISO/IEC 27002:2022 §8.16 |
 | Correlation rule development | MITRE ATT&CK Enterprise; NIST SP 800-53 SI-4; CSA CCM LOG-01 to LOG-14 |
 | Threat hunting | MITRE ATT&CK; NIST CSF Detect (DE.AE); ISO/IEC 27002:2022 §8.16 |
@@ -334,7 +334,7 @@ Metric trends are reviewed for continual improvement. Lessons learned from incid
 | Incident escalation | ISO/IEC 27035; NIST SP 800-61 Rev. 3; CSA CCM SEF-04 to SEF-05 |
 | Pre-go-live SIEM validation | [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md) §3.1 to §3.2 |
 | AI-assisted detection | [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) §9; NIST AI RMF |
-| Records and audit | COBIT 2019 DSS05; ISO/IEC 27001:2022 A.5.28 |
+| Records and audit | COBIT 2019 DSS05; ISO/IEC 27001:2022 Annex A.5.28 |
 
 ---
 

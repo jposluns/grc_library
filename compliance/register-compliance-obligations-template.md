@@ -2,7 +2,7 @@
 
 **Document Title:** Compliance Obligations Register Template\
 **Document Type:** Register\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-06-22\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -78,7 +78,7 @@ Drift in source versions is itself an obligation-management event: when the unde
 
 | Field | Description | Example |
 |---|---|---|
-| **Mapped Controls** | Control IDs or policy references implementing this obligation | ISO 27001 A.8.24; [`security/policy-information-security.md`](../security/policy-information-security.md) |
+| **Mapped Controls** | Control IDs or policy references implementing this obligation | ISO 27001 Annex A.8.24; [`security/policy-information-security.md`](../security/policy-information-security.md) |
 | **Control Owner** | Role responsible for control implementation | Chief Information Security Officer |
 | **Implementation Status** | Not Started / In Progress / Implemented / Verified | Implemented |
 | **Implementation Evidence** | Where evidence of compliance can be found | Encryption configuration records; annual control testing report |
