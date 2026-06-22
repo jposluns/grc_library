@@ -2,7 +2,7 @@
 
 **Document Title:** Exception and Risk Acceptance Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.1\
+**Version:** 1.3.2\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -43,7 +43,7 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 | Role | Responsibility |
 |------|----------------|
 | **Requestor** | Initiates the exception request with justification, scope of deviation, proposed compensating controls, and target remediation date. |
-| **Risk Owner** | Validates the risk assessment, confirms residual exposure, and ensures that alignment with enterprise risk appetite. |
+| **Risk Owner** | Validates the risk assessment supporting the exception, confirms residual exposure, and confirms alignment with the enterprise risk appetite. Same role as the Risk Owner defined in [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) §3 (sixth accountability action: validates risk assessments for exception requests). |
 | **Control Owner** | Confirms impacted control applicability, remediation feasibility, and adequacy of compensating measures. |
 | **Chief Information Officer (CIO)** | Approves medium and high-risk exceptions and ensures that exceptions are tracked, reviewed, and reported to executive leadership. |
 | **Chief Information Security Officer (CISO)** | Co-approves security-related exceptions, validates risk classification, ensures that technical compensating controls are implemented, and oversees remediation closure. |

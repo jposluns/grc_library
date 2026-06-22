@@ -2,7 +2,7 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.5.0\
+**Version:** 1.5.1\
 **Date:** 2026-06-22\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -39,7 +39,7 @@ This standard defines the enterprise-wide risk management framework, taxonomy, a
 | Chief Information Security Officer | Responsible for managing information security, privacy, and AI-related risks; ensures that integration into the risk register. |
 | Enterprise Risk Committee (ERC) | Oversees risk appetite, tolerance, and periodic risk reporting; meets quarterly. |
 | Risk Manager / Compliance Officer | Administers risk registers and scoring models; facilitates risk assessments across the organisation. |
-| Risk Owner | Accountable for a specific named risk entered in the enterprise risk register: confirms the risk statement, selects the treatment option, owns the treatment plan and target dates, monitors residual exposure, and reports status per the cadence in §8. Distinct from the Chief Risk Officer (who owns the ERM framework and methodology) and from Process and System Owners (who identify risks within their operational domains but do not necessarily own each named risk in the register). Canonical role definition in [`governance/register-role-authority.md`](../governance/register-role-authority.md) §Authority register. |
+| Risk Owner | Accountable for a specific named risk entered in the enterprise risk register: confirms the risk statement, selects the treatment option, owns the treatment plan and target dates, monitors residual exposure, reports status per the cadence in §8, and validates risk assessments supporting exception requests (per [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) §2: confirms residual exposure stays within the enterprise risk appetite when an exception is requested). Distinct from the Chief Risk Officer (who owns the ERM framework and methodology) and from Process and System Owners (who identify risks within their operational domains but do not necessarily own each named risk in the register). Canonical role definition in [`governance/register-role-authority.md`](../governance/register-role-authority.md) §Authority register. |
 | Process and System Owners | Identify risks within their domains, implement controls, and report residual exposures. |
 | Internal Audit | Provides independent assurance on risk governance and control effectiveness. |
 
@@ -223,7 +223,7 @@ Required evidence for audit and assurance purposes includes, but is not limited 
 
 ### 9.2 Risk Owner evidence by accountability action
 
-The Risk Owner role's five accountability actions (defined in §3) map to specific evidence types from §9.1:
+The Risk Owner role's six accountability actions (defined in §3) map to specific evidence types from §9.1:
 
 | Risk Owner accountability action (per §3) | Evidence that proves execution |
 |---|---|
@@ -232,6 +232,7 @@ The Risk Owner role's five accountability actions (defined in §3) map to specif
 | Owns the treatment plan and target dates | Treatment plan record with target dates, Risk Owner identified as plan owner, and dated progress entries (from §9.1 "Treatment plans with status and owner confirmation"). |
 | Monitors residual exposure | Periodic risk register update entries dated per the §8.1 cadence band (annually for Low, quarterly for Moderate, monthly for High and Critical), each recording the current residual exposure and any changes from the previous review. |
 | Reports status per the §8.1 cadence | Risk Owner status reports (per the §8.1 cadence band) recorded in the risk register or in the ERC meeting record (from §9.1 "ERC and AIGC meeting records referencing risk items"). |
+| Validates risk assessments for exception requests | Exception register entries with Risk Owner sign-off confirming the residual exposure stays within enterprise risk appetite (from §9.1 "Risk acceptance approvals (per Risk Acceptance Procedure)"; cross-references [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) §2). |
 
 ---
 

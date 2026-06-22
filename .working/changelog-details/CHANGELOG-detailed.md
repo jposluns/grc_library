@@ -6,6 +6,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.190, PR #211
+
+Closes **FR-119** (medium) and **fully closes Convergent Finding C1** (Risk Owner role insufficiency).
+
+### Fixed
+
+- [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md):
+  - §3 Risk Owner row: extended from 5 to 6 accountability actions. Sixth action: "validates risk assessments supporting exception requests (per `governance/policy-exception-and-risk-acceptance-management.md` §2: confirms residual exposure stays within the enterprise risk appetite when an exception is requested)."
+  - §9.2 evidence table: extended from 5 to 6 rows. New sixth row maps the exception-request validation action to "Risk acceptance approvals (per Risk Acceptance Procedure)" evidence type.
+  - Per-doc Version `1.5.0 → 1.5.1`.
+- [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md):
+  - §2 Risk Owner row: extended to cross-reference the ERM standard's canonical definition. Same-role statement: "Same role as the Risk Owner defined in `risk/standard-enterprise-risk-management.md` §3 (sixth accountability action: validates risk assessments for exception requests)."
+  - Grammar fix: "ensures that alignment" → "confirms alignment" (language linter flagged bare "ensures" without "that"; rewrite preserves meaning).
+  - Per-doc Version `1.3.1 → 1.3.2`.
+
+### Convergent Finding C1 status
+
+- **Fully closed**: FR-115 (PR #197 register row), FR-116 (PR #198 cadence), FR-117 (PR #199 evidence map), FR-119 (this PR — unification).
+
+### Changed
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for PR #210's /validate-pr (0 findings).
+  - Per-document Version `1.2.18 → 1.2.19`.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates.
+
+### Discipline observation
+
+The unification pattern (extend one doc's role definition with a new action + cross-reference from the other doc) is the right structural fix for "same role, different responsibility set" findings. The ERM standard now owns the canonical six-action accountability set; the exception policy applies it via reciprocal cross-reference. Future role-divergence findings should follow this pattern.
+
 ## 2026-06-22, Library Version 2026.06.189, PR #210
 
 Closes the **Privacy Officer rename portion of FR-46** per maintainer "decision 6: yes". Surfaces DPO scope assessment for separate maintainer go-ahead.
