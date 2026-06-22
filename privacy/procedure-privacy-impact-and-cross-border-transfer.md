@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Impact and Cross-Border Transfer Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.1\
+**Version:** 1.5.0\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -100,9 +100,65 @@ For cross-border transfers:
 
 - Use Standard Contractual Clauses (SCCs), APEC CBPR 2.0, or approved adequacy frameworks.
 
-For transfers from China:
+**For transfers from China (PIPL Articles 38 to 40).**
 
-- Apply PIPL Articles 38 to 40.
+PIPL governs outbound transfer of personal information from China through a three-mechanism gate (Article 38), a separate-consent requirement (Article 39), and special obligations for Critical Information Infrastructure Operators and processors handling personal information at regulated quantities (Article 40). The CAC **Provisions on Promoting and Regulating the Cross-Border Flow of Data** (effective 22 March 2024) revised thresholds and introduced safe-harbor exemptions; the workflow below reflects the post-March-2024 regime. Consult [`privacy/jurisdictions/annex-privacy-china.md`](jurisdictions/annex-privacy-china.md) for the authoritative thresholds and amendments.
+
+**Step A: PIPL applicability and CIIO status assessment.**
+
+| Trigger | Determination |
+|---|---|
+| Is the controller (handler) a Critical Information Infrastructure Operator (CIIO) as designated by Chinese authorities? | Yes / No |
+| Does the transfer involve "important data" under the Data Security Law (DSL)? | Yes / No |
+| Volume of non-sensitive personal information in the calendar year | Count |
+| Volume of sensitive personal information in the calendar year | Count |
+| Is the personal information collected as part of cross-border contract performance (employment, e-commerce, education, etc.)? | Yes / No, with contract reference |
+
+CIIO designation OR "important data" presence forces the CAC Security Assessment mechanism regardless of volume.
+
+**Step B: Mechanism selection (PIPL Article 38).** Select the lowest-burden applicable mechanism:
+
+| Volume / category | Required mechanism |
+|---|---|
+| Safe-harbor (CAC 2024 Provisions): below 100,000 non-sensitive in calendar year, no sensitive, non-CIIO, no important data | No formal mechanism required; document the safe-harbor analysis and the controller's PIA |
+| Safe-harbor: cross-border contract-performance transfers (employment, e-commerce, education, etc.) per 2024 Provisions | No formal mechanism required; document the contract-performance basis |
+| 100,000 to 1,000,000 non-sensitive in calendar year (non-CIIO), OR sensitive personal information of fewer than 10,000 individuals | **PIPL Standard Contract** signed with recipient + filing of signed contract and PIA with provincial-level CAC |
+| Over 1,000,000 non-sensitive in calendar year (non-CIIO), OR sensitive personal information of 10,000 or more individuals, OR any transfer by a CIIO, OR any transfer of "important data" | **CAC Security Assessment** (mandatory); 3-year validity per 2024 Provisions |
+| Intra-group transfers under recognized professional certification | **Third-party certification** (alternative to Standard Contract) |
+
+**Step C: PIPL Article 39 separate consent.** Independent of the mechanism in Step B, the controller must obtain **separate, informed consent** from each data subject before the cross-border transfer. The consent record must include:
+
+1. The name and contact details of the overseas recipient.
+2. The purposes of the cross-border processing.
+3. The categories of personal information being transferred.
+4. The methods by which the data subject may exercise rights against the overseas recipient.
+5. The fact that the data subject has the right to withdraw consent at any time.
+
+Article 39 consent is **separate** from any general processing consent under Article 13; bundling fails the Article 39 standard.
+
+**Step D: PIPL Article 40 CIIO and regulated-quantity obligations.** Where the controller is a CIIO or processes personal information at regulated quantities:
+
+| Obligation | Source |
+|---|---|
+| Personal information must be stored within the territory of the People's Republic of China by default | Article 40 sentence 1 |
+| Outbound transfer is permitted only after passing a CAC security assessment | Article 40 sentence 2 |
+| Where international treaties or agreements provide otherwise, those provisions govern | Article 40 sentence 3 |
+
+CIIO designation is made by the relevant industry regulator under the Cybersecurity Law of China; the controller does NOT self-designate. The 2024 Provisions do not exempt CIIOs from Article 40's domestic-storage default.
+
+**Step E: PIA for the transfer.** Regardless of mechanism, conduct a personal-information impact assessment (PIPL Article 55) before the transfer. The PIA documents the lawful basis, the purposes, the categories, the volumes, the recipient's protection measures, and the risk to the data subject. The PIA is part of the Standard Contract filing under Step B and is retained for at least 3 years.
+
+**Step F: Documentation and re-assessment.**
+
+| Requirement | Cadence |
+|---|---|
+| Maintain the chosen mechanism's evidence (security-assessment report, signed Standard Contract, certification, or safe-harbor analysis) | Throughout the transfer |
+| Re-assess the volume thresholds | At least quarterly (volumes accumulate within a calendar year; threshold crossings trigger mechanism upgrade) |
+| Re-conduct security assessment | Before the 3-year validity expires (2024 Provisions); on material change to processing |
+| Update Article 39 consent | On material change to recipient, purpose, or categories |
+| Cross-reference China annex | On amendments to PIPL, DSL, or CAC implementing regulations |
+
+**Step G: Coordinated triggers across regimes.** Where the same transfer is also subject to GDPR (e.g., the data is also EU-subject data flowing through a China branch), the GDPR Chapter V mechanisms (Articles 44-49) apply in parallel; the strictest applicable regime governs. Where the transfer triggers Article 36 prior consultation, follow Step 5.2 above in addition to the PIPL mechanism.
 
 For EU transfers involving AI systems:
 

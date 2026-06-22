@@ -36,7 +36,7 @@ The remaining fitness-remediation work is organised into two phases. The plan is
 
 **Phase 2 (15 items, all research prepared as of PR #176).** Mid-weight medium-severity findings clustered by topic. Research files at `[scratchpad]/p2-1-...` through `[scratchpad]/p2-15-...` per the research-assistant discipline.
 
-- **P2.1 — Privacy completion** (3 remaining: FR-40, FR-41, FR-42 — all medium). PIPL Articles 38-40, AI Article 22 + EU AI Act + FRIA workflow, DPO independence Article 38(3). Closed: FR-37 (PR #224), FR-38 (PR #225), FR-39 (PR #226 EU representative Art 27 appointment process).
+- **P2.1 — Privacy completion** (2 remaining: FR-41, FR-42 — both medium). AI Article 22 + EU AI Act + FRIA workflow, DPO independence Article 38(3). Closed: FR-37 (PR #224), FR-38 (PR #225), FR-39 (PR #226), FR-40 (PR #227 PIPL Articles 38-40 operationalised).
 - **P2.2 — Continuous assurance / 3LoD** (FR-99 ⚠️, FR-100, FR-101 ⚠️, FR-102 — 4 items). Per-control effectiveness metrics, cloud baseline citations, closure sign-off authority, change management binary.
 - **P2.3 — Cross-framework matrix** (FR-97, FR-98). ISO 31000 clause numbering; NIS 2 annex evidence-class column.
 - **P2.4 — Adopter cluster (small)** (FR-64, FR-65 ⚠️, FR-66). Contribution path workflow-shape; upstream-sync; tooling assumptions.
