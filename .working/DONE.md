@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #219 — At-top "Role-name convention" notes in 24 privacy-relevant docs + PR #218 /validate-pr fixes (2026-06-22)
+
+Follow-up to PR #218's DPO-canonical flip. Adds a blockquote callout note immediately after the metadata block (before the first H2 heading) in 24 privacy-relevant documents (privacy core 16, AI 3, supply-chain 3, security 1, governance 1) naming **Data Protection Officer (DPO)** as canonical, **Chief Privacy Officer (CPO)** as adopter substitution, and pointing to `governance/register-role-authority.md`. Bundles two PR #218 /validate-pr fixes per the recursion-avoidance rule: `tools/build-portal.py:95` "Data Protection Officer or Data Protection Officer" collapse fix (regen `docs/portal.md`); `risk/register-key-risk-indicators.md:142` stale "CPO" → "DPO" replacement. /validate-pr record + history row + /retro register row all carried in this PR. **No formal FR closed** (PR #218 closed FR-46/-47); this is the operational follow-through.
+
 ### PR #218 — FR-46 DPO consolidation (medium): canonical flipped to Data Protection Officer (2026-06-22)
 
 Reverses the CPO-canonical direction of PR #210 (Privacy Officer → Chief Privacy Officer rename) + PR #217 (closed unmerged when maintainer redirected). Maintainer-directed canonical: **Data Protection Officer** — globally-applicable, legislatively mandated in many regimes (GDPR Art 37, LGPD Art 41, India DPDP Act 2023 §10, Malaysia PDPA, etc.). Canonical surfaces flipped: register-role-authority CPO row → Data Protection Officer row with adopter-customisation note; glossary DPO entry extended; privacy/README Role terminology section added. Corpus prose rename across 73 files via one-shot Python script with synonym-pattern pre-cleanup; ~30 OWNER-FIELD metadata flips; build-portal.py + portal + maturity-scorecard + taxonomy regenerated. **PR-2 follows**: at-top "Role-name convention" notes in privacy-relevant docs.

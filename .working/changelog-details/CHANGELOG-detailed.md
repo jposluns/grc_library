@@ -6,6 +6,45 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.197, PR #219
+
+**Follow-up to PR #218** (FR-46 DPO consolidation canonical flip): adds at-top "Role-name convention" notes in 24 privacy-relevant documents, plus bundles the two /validate-pr findings from PR #218 (build-portal.py double-DPO + risk/register-key-risk-indicators.md:142 bare CPO) per the recursion-avoidance rule.
+
+### Added
+
+- **At-top "Role-name convention" notes in 24 documents**: blockquote callout placed immediately after the metadata block (between the trailing `---` separator and the first H2 heading, typically `## Purpose`). The note format is consistent across all 24 files: it names **Data Protection Officer (DPO)** as the canonical privacy-lead role; acknowledges **Chief Privacy Officer (CPO)** as the adopter substitution (typically Canada and the United States); names the both-as-distinct-roles adopter case; and points to [`governance/register-role-authority.md`](../../governance/register-role-authority.md) for the canonical role definition and adopter-customisation guidance.
+- Privacy core (16 files): [`charter-privacy-management-programme.md`](../../privacy/charter-privacy-management-programme.md), [`policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), three procedures ([`procedure-privacy-impact-and-cross-border-transfer.md`](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`procedure-data-subject-rights-management.md`](../../privacy/procedure-data-subject-rights-management.md), [`procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md)), five templates ([`template-dpia.md`](../../privacy/template-dpia.md), [`template-record-of-processing-activities.md`](../../privacy/template-record-of-processing-activities.md), [`template-privacy-notice.md`](../../privacy/template-privacy-notice.md), [`template-dsar-workflow.md`](../../privacy/template-dsar-workflow.md)), three registers ([`register-cross-border-data-flow.md`](../../privacy/register-cross-border-data-flow.md), [`register-automated-decision-making.md`](../../privacy/register-automated-decision-making.md), [`register-cookie-and-tracker.md`](../../privacy/register-cookie-and-tracker.md)), two frameworks ([`framework-consent-management.md`](../../privacy/framework-consent-management.md), [`framework-childrens-data.md`](../../privacy/framework-childrens-data.md)), [`standard-pseudonymisation-and-anonymisation.md`](../../privacy/standard-pseudonymisation-and-anonymisation.md), and [`annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md).
+- AI (3 files): [`charter-ai-governance-council.md`](../../ai/charter-ai-governance-council.md), [`framework-ai-model-documentation-and-transparency.md`](../../ai/framework-ai-model-documentation-and-transparency.md), [`procedure-ai-evaluation.md`](../../ai/procedure-ai-evaluation.md).
+- Supply-chain (3 files): [`procedure-supplier-onboarding-security-review.md`](../../supply-chain/procedure-supplier-onboarding-security-review.md), [`procedure-supplier-exit-and-data-return.md`](../../supply-chain/procedure-supplier-exit-and-data-return.md), [`register-subprocessor-template.md`](../../supply-chain/register-subprocessor-template.md).
+- Security (1 file): [`procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md).
+- Governance (1 file): [`policy-digital-twin-and-simulation-governance.md`](../../governance/policy-digital-twin-and-simulation-governance.md).
+- Note: [`privacy/README.md`](../../privacy/README.md) already received a `## Role terminology` section in PR #218 (a section-level note rather than the blockquote callout, since the domain README is the navigational hub for the privacy domain); not in this PR's 24-doc set.
+
+### Fixed
+
+- **PR #218 /validate-pr Finding 1** (synonym-collapse double-substitution): [`tools/build-portal.py`](../../tools/build-portal.py) line 95 collapsed from `"The Data Protection Officer or Data Protection Officer needs the privacy programme charter, policy, procedures, jurisdiction annexes, and the cross-border transfer register."` to `"The Data Protection Officer needs the privacy programme charter, policy, procedures, jurisdiction annexes, and the cross-border transfer register."` Root cause: PR #218's rename script had four synonym-collapse pre-cleanup patterns but missed `"Chief Privacy Officer or Data Protection Officer"` (no parens, no DPO suffix); the fall-through to the bulk replace produced the double. [`docs/portal.md`](../../docs/portal.md) regenerated; line 411 now reads correctly.
+- **PR #218 /validate-pr Finding 2** (stale bare acronym): [`risk/register-key-risk-indicators.md`](../../risk/register-key-risk-indicators.md) line 142 `| KRI Dashboard | Monthly | Chief Risk Officer; CISO; CPO |` corrected to `| KRI Dashboard | Monthly | Chief Risk Officer; CISO; DPO |`. Root cause: PR #218's rename script scoped to spelled-out "Chief Privacy Officer" forms only; the bare acronym "CPO" was not in the substitution list. Per-doc Version `1.0.1 → 1.0.2`; Date stays 2026-06-22.
+
+### Changed
+
+- **Generated artefacts regenerated**: [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md), [`taxonomy.yml`](../../taxonomy.yml). The portal regen carries the build-portal.py fix; the maturity-scorecard regen rides along (the generator outputs both); the taxonomy regen reflects the per-doc Version+Date bumps on the 24 at-top-note files plus risk/register-key-risk-indicators.md.
+- **`.working/validate-pr/2026-06-22-PR-218.md`** (new file): per-PR /validate-pr record for PR #218 carrying the two findings, the orchestrator's triage, and the cross-reference check results.
+- **`.working/validate-pr/history.md`**: row added for PR #218's /validate-pr (2 in-window findings; per-doc `1.2.24 → 1.2.25`).
+- **`.working/improvement-log.md`**: row added for PR #218's /retro (Pattern observation: "corpus-wide rename script: incomplete substitution coverage" — first occurrence; Proposed improvement: worker-brief template addition for both-spelled-out-and-acronym substitution lists in corpus-wide rename scripts; per-doc `1.0.3 → 1.0.4`).
+- **TODO.md**: P1.5 cluster status already reflects FR-46/47 closure from PR #218; no further TODO change needed in this PR.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- `tools/run-pr-time-checks.sh` reports D1 (CHANGELOG-on-PR), D2 (per-PR version-bump), and gate 45 (TODO staleness) all OK.
+- Visual spot-check on 3 of the 24 at-top-note insertions confirms placement (between metadata block's trailing `---` and the first H2) and the relative path in the link resolves correctly for each directory depth.
+
+### Discipline observation
+
+- **Recursion-avoidance applied**: PR #218's /validate-pr findings (2 in-window, real defects) bundle into this PR alongside its substantive purpose (at-top notes). No dedicated hot-fix PR was opened for the /validate-pr findings, per the skill's "do NOT open a dedicated hot-fix PR for /validate-pr findings" instruction. The /validate-pr record + history row + /retro register row are all carried in the same diff.
+- **At-top note placement consistency**: a one-shot Python script computed the relative path from each document's location to `governance/register-role-authority.md` (`../governance` for files one level deep; `.` for files in governance/ itself) and inserted the note before the first H2 heading. This avoided 24 hand-tracked Edit calls and ensures the note's wording is byte-identical across all 24 documents.
+- **Pattern observed in /retro**: PR #218's rename script's incomplete substitution coverage (missed synonym pattern + missed acronym) is a first-occurrence observation. The worker-brief template update queued; will apply after one or two more corpus-wide rename PRs confirm the pattern.
+
 ## 2026-06-22, Library Version 2026.06.196, PR #218
 
 **Closes FR-46 DPO consolidation** (medium, P1.5) by **flipping the canonical privacy-lead role** from "Chief Privacy Officer" to "Data Protection Officer", reversing the canonical direction set by PR #210 (Privacy Officer → Chief Privacy Officer rename, 36 files) + PR #217 (DPO → Chief Privacy Officer rename, closed unmerged when the maintainer redirected). Maintainer-directed rationale: DPO has legislative force in many jurisdictions (GDPR Article 37, LGPD Article 41, India DPDP Act 2023 §10, Malaysia PDPA as amended by Act A1727, and similar regimes) and is the more globally-applicable canonical term; CPO is a Canadian / US convention. The canonical = the more globally-applicable title.
