@@ -2,7 +2,7 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.3\
+**Version:** 1.0.4\
 **Date:** 2026-06-22\
 **Owner:** Chief Privacy Officer\
 **Approving Authority:** Chief Information Officer\
@@ -80,7 +80,7 @@ This register defines the mandatory retention periods for each category of organ
 
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
-| Internal audit reports | 5 years | ISO 19011; compliance evidence |
+| Internal audit reports | 7 years | ISO 19011; compliance evidence; matches [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md):360 §8.3 (Evidence retention) canonical 7-year mandate for audit working papers, evidence, draft findings, management responses, and final reports |
 | External audit and certification records | Certification period + 5 years | ISO 27001; certification requirements |
 | Regulatory correspondence | 7 years | Legal and regulatory requirements |
 | Compliance attestations | 5 years | Compliance evidence |
