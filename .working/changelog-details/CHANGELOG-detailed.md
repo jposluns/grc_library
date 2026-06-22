@@ -6,6 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.202, PR #224
+
+**Closes FR-37 (medium, P2.1)**: New template [`privacy/template-joint-controller-arrangement.md`](../../privacy/template-joint-controller-arrangement.md) (v1.0.0) covering joint controller arrangements per GDPR Article 26.
+
+### Added
+
+- **New template** [`privacy/template-joint-controller-arrangement.md`](../../privacy/template-joint-controller-arrangement.md) (v1.0.0). 9 sections covering identification, joint processing description, GDPR Article responsibility allocation, operational coordination, liability, termination, cross-regime alternatives, documentation, and Article 26(2) essence-of-arrangement publication. Template references GDPR Articles 6, 9, 10, 13, 14, 15-22, 26(1)-(3), 27, 28, 30-39, 44-49, and EDPB Guidelines 07/2020.
+- **`privacy/README.md`** (per-doc `1.2.0 → 1.2.1`): new row in Active documents table for the joint controller arrangement template.
+- **`governance/register-document-index-and-classification.md`** (per-doc `1.27.30 → 1.27.31`): new row in Privacy section for the joint controller arrangement template; framework alignment includes GDPR Art 26, UK GDPR Art 26, LGPD Art 5(VI), PIPL Art 20, India DPDP 2023 §2(i), EDPB Guidelines 07/2020.
+
+### Changed
+
+- **Generated artefacts**: [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated. Taxonomy added 21 lines for the new template's metadata.
+- **`.working/validate-pr/history.md`** (Version `1.2.29 → 1.2.30`): new top row for PR #223's /validate-pr (deferred per recursion-avoidance; 0 findings).
+- **`.working/improvement-log.md`** (Version `1.0.8 → 1.0.9`): new top row for PR #223's /retro. Pattern observed: CHANGELOG root entries enumerating multiple files trigger gate-4 link-coverage failures. Convention recorded: name domains in root entries; point readers to detailed mirror for the per-file list.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit (the structural index integrity audit fired before the README + document-index rows were added — fail-then-fix loop closed in the same content commit).
+- `tools/run-pr-time-checks.sh` reports D1, D2, gate 45 all OK.
+- GDPR Article 26(1), 26(2), 26(3), Article 27, and EDPB Guidelines 07/2020 citations verified against the canonical citations register.
+- Cross-regime claims (LGPD Article 5(VI), PIPL Article 20, India DPDP 2023 §2(i), CPPA/PIPEDA, CCPA/CPRA) verified against the respective jurisdiction annexes.
+
+### Discipline observation
+
+- **New-template parallel-surface checklist**: this PR exercised the new-document parallel-surface pattern catalogued in [`.claude/rules/external/addyosmani/ci-cd-and-automation.md`](../../.claude/rules/external/addyosmani/ci-cd-and-automation.md) and the change-tracking rule. Surfaces touched: (1) the new template file itself; (2) the privacy/README Active documents table; (3) the governance/register-document-index-and-classification.md Privacy section row; (4) taxonomy.yml + docs/portal.md + docs/maturity-scorecard.md regenerated. The structural-index integrity audit (gate not numbered in the standard 46; surfaces via `lint-structure.py`) caught the README + document-index miss before commit. Confirms the parallel-surface discipline: a new template requires touches in 6 surfaces, and audit gates catch surface-misses.
+- **Apply-time language-audit catches**: six em-dashes in Section 1 identification rows ("Joint Controller A — authorised representative") and one bare "ensure" ("ensure consistency") corrected in the same content commit. Confirms gate-21 language audit catches drafts that mirror common English-style conventions but conflict with the project's strict no-em-dash + ensure-that conventions.
+
 ## 2026-06-22, Library Version 2026.06.201, PR #223
 
 **Closes FR-49 (medium, P1.5)**: H2 label drift across 14 files. The bare form `## Governance` was used in 14 files while the canonical form `## Governance and accountability` was used in 20+ files corpus-wide. Renamed bare form to canonical via one-shot Python script with anchored line-pattern matching.
