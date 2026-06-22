@@ -6,6 +6,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.203, PR #225
+
+**Closes FR-38 (medium, P2.1)**: GDPR Article 12(5) assessment checklist in [`privacy/procedure-data-subject-rights-management.md`](../../privacy/procedure-data-subject-rights-management.md).
+
+### Added
+
+- **§7.2.1 Default: free of charge** — table aligning default behaviour with Article 12(5) sentence 1; clarifies that all DSR communications (Articles 13/14 notices, Articles 15-22 communications, Article 34 breach notifications) are free of charge by default; charge or refusal is the exception requiring documented evidence.
+- **§7.2.2 Manifestly unfounded criteria** — 4-criterion test table with per-criterion evidence requirements: (a) no nexus to actual processing; (b) request inconsistent with stated grounds; (c) abusive purpose evident; (d) request lacks coherent specification after single clarification attempt. Includes explicit negative guidance ("not manifestly unfounded merely because the subject is unhappy with the controller, exercises rights frequently in good faith, or seeks a result the controller does not wish to provide").
+- **§7.2.3 Manifestly excessive criteria** — 4-criterion test table: (a) repetitive in short interval; (b) disproportionate volume; (c) disproportionate scope sweep; (d) use as discovery vehicle. Note that criterion (a) is the most easily evidenced; criteria (b), (c), (d) require Legal Counsel consultation before invocation.
+- **§7.2.4 Action options under Article 12(5)** — either/or election table (charge reasonable fee OR refuse); explicit note that the two actions are mutually exclusive per Article 12(5) language.
+- **§7.2.5 Burden-of-proof requirements** — 5-step documentation: written assessment, Legal Counsel sign-off, DPO sign-off, subject communication (naming determination, criterion invoked, action taken, and Articles 77-79 remedy rights), DSR register entry. Minimum 3-year retention for fee/refusal evidence.
+- **§7.2.6 Reasonable-fee calculation** — cost-recovery method table: cost categories (staff time, storage media, postage, external counsel), hourly-rate basis (salary-based, no markup), fee-cap principle (cost-recovery only, no profit margin), itemisation requirement, payment-method constraints (no advance payment that effectively denies the right), waiver for financial hardship.
+- **§7.2.7 Cross-regime equivalents table** — 6-regime alignment: UK GDPR (Article 12(5) same as EU GDPR), LGPD (Article 18; ANPD may regulate exceptions), PIPL (Article 50; "repeated" threshold ambiguous), CPPA / PIPEDA (OPC guidance allows nominal fee with prior notice), CCPA / CPRA (mirrors GDPR closely), APPI (Article 38 reasonable fee permitted; no "manifestly unfounded" gate). Notes that the strictest applicable regime governs in multi-jurisdiction operations.
+
+### Changed
+
+- **§7.2 → §7.3 renumbering**: prior §7.2 (Denial process) renumbered to §7.3 to make space for the new Article 12(5) assessment checklist as §7.2. The Denial process content is preserved verbatim under the new section number. Cross-references in the file remain stable since the file uses no inline §-references to either § beyond what was already in line 189 (which now references §7.2 as the assessment-checklist section, semantically correct).
+- **Per-doc Version**: `1.3.5 → 1.4.0` (minor; substantive new subsection added).
+- **Generated artefacts**: [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated for the per-doc Version+Date bump.
+- **`.working/validate-pr/history.md`** (Version `1.2.30 → 1.2.31`): new top row for PR #224's /validate-pr (deferred per recursion-avoidance; 0 findings).
+- **`.working/improvement-log.md`** (Version `1.0.9 → 1.0.10`): new top row for PR #224's /retro. Pattern signal: "em-dash temptation in new-template drafting" now at 2nd occurrence (1st was PR #221 FR-33 line 156 "Brazil — ANPD"). Worker-brief candidate queued: pre-flight language-audit on new-template PR drafts.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit (one fail-then-fix on gate-21 language audit for em-dashes in §7.2.2 and §7.2.3 heading titles; corrected within same content commit).
+- `tools/run-pr-time-checks.sh` reports D1, D2, gate 45 all OK.
+- GDPR Article 12(5) sentences 1-3 and the (a)/(b) action options verified against canonical GDPR text.
+- Cross-regime references (LGPD Article 18, PIPL Article 50, CCPA/CPRA, APPI Article 38) verified against the respective jurisdiction annexes.
+
+### Discipline observation
+
+- **Subsection-renumbering as a controlled operation**: shifting prior §7.2 to §7.3 to insert new §7.2 created a minor cross-reference-stability risk. The file's existing §-references (specifically line 189 referencing "§7.2") were intentional — they reference the new §7.2 (assessment checklist), which is exactly where the Article 12(5) line of reasoning belongs. The renumbering is semantically intentional, not accidental. A future grep for "§7." in this file confirms only intentional references; the discipline holds.
+
 ## 2026-06-22, Library Version 2026.06.202, PR #224
 
 **Closes FR-37 (medium, P2.1)**: New template [`privacy/template-joint-controller-arrangement.md`](../../privacy/template-joint-controller-arrangement.md) (v1.0.0) covering joint controller arrangements per GDPR Article 26.
