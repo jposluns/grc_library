@@ -13,10 +13,12 @@ logical step with two different identifiers; the drift was caught
 by subagent A's semantic triage in Sweep 3 and fixed in PR #80.
 This gate catches the same shape mechanically on future drift.
 
-Scope: only paired surfaces in the PAIRS registry are checked.
-Currently only ``validation-sweep`` has both a SKILL.md and a
-slash-command counterpart; future skills with paired slash-
-commands inherit the check automatically by being added to PAIRS.
+Scope: only paired surfaces in the PAIRS registry are checked. Skills
+that ship both a SKILL.md and a slash-command counterpart must be
+registered in PAIRS to inherit the parity check; missing the
+registration is a discipline gap the orchestrator must close at
+ship time (per `ai-assistant-workflow-disciplines.md` §3 Apply-time
+worker correction).
 
 Step-identifier extraction:
 - SKILL.md headings: ``### N. Title`` or ``### N<suffix>. Title``

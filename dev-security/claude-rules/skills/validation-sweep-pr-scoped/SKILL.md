@@ -20,6 +20,8 @@ The two are complementary, not redundant. The corpus-wide form catches drift the
 - **Mandatory** after every successful PR merge (per the project's PR workflow). Runs as part of the post-merge sequence: sync main → delete merged branch → `/validate-pr` → `/retro` → next-PR planning.
 - Optionally, after a manual investigation needs to confirm a specific PR's impact.
 
+**No orchestrator-side skip discretion.** The mandatory invocation has no carve-outs for "meta PRs", "housekeeping PRs", "sweep close-outs", "the PR that introduces this skill", or any other class. The orchestrator does NOT have discretion to skip a `/validate-pr` invocation based on a judgement that the PR is "too small to need it", "circular", or "already validated by another mechanism". Every successful merge triggers a `/validate-pr`. If the run returns zero findings, the history-row records that zero-findings state, which is itself the proof-of-discipline. Skipping a quality-assurance step is a policy deviation the orchestrator cannot authorise unilaterally; only the project maintainer can grant a documented exception, recorded explicitly in the history-row Summary cell with the rationale.
+
 `/validate-pr` does NOT run before merge (CI is the pre-merge gate). It runs AFTER merge to catch post-merge state issues , exactly the class of issue that cannot be caught by CI on the feature branch alone.
 
 ## Process

@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #187 — Codify no-orchestrator-skip-discretion discipline + fix paired-skill docstring (2026-06-22)
+
+Hot-fix after maintainer flagged that the orchestrator skipping /validate-pr on PRs #185/#186 was a real policy deviation. Three surfaces gain explicit "no skip" language (SKILL, slash command, pack-rule anti-patterns); paired-skill linter docstring updated; new failure-mode class C-9 captured in hallucination-metrics with a future-gate candidate for mechanical enforcement.
+
 ### PR #186 — Sweep 17 iter 1 close-out: SKILL forward-reference + gate 44 PAIRS registry (2026-06-21)
 
 Sweep 17 (second full sweep of the day). Two in-window findings closed: validation-sweep-pr-scoped SKILL.md:151 stale "/retro queued for PR #185" → "PR #186"; gate 44 PAIRS registry extended with the new validation-sweep-pr-scoped + /validate-pr pair (was a real defect — gate not validating new skill).
