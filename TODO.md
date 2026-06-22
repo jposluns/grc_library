@@ -56,10 +56,11 @@ Deduped against existing TODO (NOT added): P9 Art-28 DPA template = existing **F
 
 #### Trust-recovery codification (sign-off obtained 2026-06-22; in progress)
 
-Done: `deep-qa-review` SKILL + `/full-qa` (PR #244); PRIMORDIAL RULE in CLAUDE.md (PR #245); ninth governance rule `trust-recovery-escalation.md` (PR #246); session migration protocol + `/resume` (PR #247). Remaining:
+Done: `deep-qa-review` SKILL + `/full-qa` (PR #244); PRIMORDIAL RULE in CLAUDE.md (PR #245); ninth governance rule `trust-recovery-escalation.md` (PR #246); session migration protocol + `/resume` (PR #247); session-length lesson + closing handoff (PR #248); handoff-PR QA loop-break (PR #249: session-closing handoff PR skips trailing `/validate-pr`/`/retro`, `/resume` runs full `/validate` first). Remaining:
 - Amend `library-fitness-review` SKILL.md: one paragraph naming the trust-recovery routing flag (findings to P1 top, bypass Pass-2 bucket-deferral).
 - Codify the **structural audit-programme review as a recurring skill** (maintainer-confirmed): its own SKILL.md + slash command + re-run cadence; bring name + cadence options to maintainer at scoping. Runs after this codification batch lands, against the settled surface.
 - Optional `/trust-recovery` convenience wrapper (maintainer go/no-go).
+- **Generalize the handoff-PR QA loop-break into the pack layer** (M, S): the carve-out currently lives only in project `.claude/CLAUDE.md` + `/resume`. The distributable `validation-sweep-pr-scoped` SKILL and the `ai-assistant-workflow-disciplines.md` no-skip section should name the session-closing-handoff-PR exception (with the loop rationale and the `/validate`-on-resume compensating control) so adopters inherit it. Pairs with P4.6's gate design (the gate must exempt handoff PRs).
 
 ### High[critical] severity (immediate priority)
 
@@ -261,6 +262,15 @@ Surfaced from Sweep 22 (2026-06-22) discipline-failure assessment. The pack rule
 
 - **Design questions**: where does the gate live (pre-commit / CI / nightly?); what's the "abbreviated" detection rule (literal string match? row format?); how is a maintainer-authorised exception recorded mechanically (signed trailer? specific marker?).
 - **Sequencing**: not blocking; the discipline rule changes from Sweep 22 are the primary defence, the mechanical gate is the backstop.
+- **Handoff-PR exemption (must be designed in)**: the gate compares history rows against the merged-PR list, but session-closing handoff PRs intentionally have no `/validate-pr`/`/retro` row (the loop-break, CLAUDE.md PR-workflow step 5a). The gate must recognize the handoff-PR exemption (e.g., a handoff-PR marker, or the documented-exception row format) and not fail on the legitimately-absent row.
+
+### 4.7 Overnight unattended-run driver (M, L)
+
+Deferred to a future session (maintainer-directed 2026-06-22). For longer unattended runs, a single overnight session is the wrong shape: it degrades like any long session (no assistant-callable self-`/clear`/`/compact`; auto-compaction is lossy; Claude Code on the web cannot self-terminate/respawn; `--bg` and `/loop` keep one session running). The sound architecture is an **external driver loop** (cron / CI / Agent SDK script, living outside the corpus) that launches a **fresh `claude -p` or SDK session per task-unit** (print mode starts fresh by default), each reading `.working/session-handoff.md` + the TODO/DONE queue, doing one unit, committing, advancing the queue, and exiting — so no single session accumulates context. The durable-state layer this needs already exists (`session-handoff.md`, `/resume`, the green-merge-as-last-act + loop-break disciplines from PRs #247-#249); the missing piece is the driver itself plus an overnight runbook.
+
+- **Design questions**: where the driver runs (GitHub Actions scheduled workflow? a maintainer-host cron? the Agent SDK?); merge authority for unattended worker sessions; the stop condition (queue empty / window closed / N consecutive failures); how a worker signals "needs maintainer" vs "safe to continue"; interaction with the existing `## overnight-work protocol` (`.working/overnight-pr.md` `Status` lifecycle) in the change-tracking rule.
+- **Building blocks confirmed** (claude-code-guide, 2026-06-22): `claude -p` fresh-by-default; Agent SDK fresh-session-per-call; subagents isolate context but the orchestrator still grows; no built-in overnight/auto-reset scheduler in CLI or web.
+- **Sequencing**: design task, its own future session; not blocking current codification.
 
 ---
 

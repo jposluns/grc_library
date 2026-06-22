@@ -174,6 +174,22 @@ drive end-to-end on the maintainer's behalf:
    triage as in-window (hot-fix PR or include in next PR) or out-of-window
    (surface to maintainer with named options). Complements the corpus-wide
    `/validate` sweep, which runs every 10 merges or maintainer-triggered.
+   **Handoff-PR exception (loop-break)**: the session-closing handoff PR — the
+   final PR of a session, whose purpose is to land working-state (the handoff
+   refresh, the session-length and other `.working/` records) on `main` as a
+   green merge so the next session resumes from `main` — does NOT run a trailing
+   `/validate-pr` or `/retro` (step 5b). Running them on a handoff PR produces
+   ledger rows that, per recursion-avoidance, must batch into a *new* PR, whose
+   merge triggers another `/validate-pr`, which produces more rows: at a session
+   boundary there is no terminating "next substantive PR", so the cadence loops
+   without end. The compensating control is that the next session's `/resume`
+   runs a full corpus-wide `/validate` as its first task (stronger than the
+   skipped per-PR sweep, since it re-examines the whole corpus). This exception
+   is a maintainer-authorised standing rule (not the abbreviation failure mode
+   the `## Throughput pressure` section forbids); it is recorded inline in the
+   handoff PR's `.working/validate-pr/history.md` row Summary cell with this
+   rationale, satisfying the no-skip discipline's "documented exception in the
+   history row" requirement.
 5b. Invoke `/retro` to run the post-merge retrospective per the
    [`pr-retrospective`](../dev-security/claude-rules/skills/pr-retrospective/SKILL.md)
    skill. Consumes `/validate-pr` findings as input; appends one row to
@@ -254,6 +270,20 @@ defence is external. Two mechanisms:
    after two paired-bookkeeping-surface misses in one session (a validate-pr row not
    batched into the next PR; an FR closed in CHANGELOG without the TODO-to-DONE
    rotation), both degradation-shaped late-session slips.
+
+3. **Closing-handoff-PR discipline (a session's last act is a green merge).** A
+   session ends by landing its working-state on `main` as a green, merged PR — the
+   *session-closing handoff PR* — so the next session's `/resume` rebuilds state from
+   `main` rather than from an unmerged feature branch (an unmerged branch is exactly
+   the lossy, easily-lost state the handoff mechanism exists to avoid, and an
+   ephemeral container can reclaim it). This closing PR is the one case exempt from
+   the trailing `/validate-pr` + `/retro` (see PR-workflow step 5a's handoff-PR
+   exception): running them on it would start the post-merge validate-then-PR **loop**
+   that has no terminating next PR at a session boundary. The loop-break is paired
+   with a stronger compensating control: `/resume` runs a full corpus-wide `/validate`
+   as its first task. Net effect: the session terminates cleanly on a green merge, and
+   the QA that the skipped per-PR sweep would have done is subsumed by the corpus-wide
+   sweep at the next session's start.
 
 ## Throughput pressure does not authorise QA abbreviation
 
