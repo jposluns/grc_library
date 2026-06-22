@@ -3678,7 +3678,7 @@ documents:
   domain: "privacy"
   type: "Procedure"
   title: "Privacy Impact and Cross-Border Transfer Procedure"
-  version: "1.4.1"
+  version: "1.5.0"
   date: "2026-06-22"
   owner: "Chief Information Officer"
   approving_authority: "Governance Library Maintainer"
