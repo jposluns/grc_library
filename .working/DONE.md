@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #208 — FR-51 (medium): ISO 27001 Annex-form sweep — 12 files (2026-06-22)
+
+Maintainer-approved (decision 4): canonical form is `Annex A.X` with prefix. Corpus-wide sweep converted `27001 A.X` → `27001 Annex A.X` across 7 corpus files + 5 pack SKILL.md files. Pattern tightly anchored on `27001` to avoid disturbing ISO 42001/27017/27018/27701 references. Multi-control `/`-separated lists got single Annex prefix per publisher convention.
+
 ### PR #207 — FR-50 (medium): NIST citation format sweep — 50 files, 91 occurrences (2026-06-22)
 
 Maintainer-approved (decision 3): canonical NIST citation format is `Rev. N` (with period, publisher convention). Corpus-wide sweep converted `Rev N` → `Rev. N` across 50 files (excluded: CHANGELOG historical entries and `.working/` archives). All 50 files received per-doc Version+Date patch bumps in the same commit. Template's "Rev. 4 → Rev. 5" example reworded to generic framing to avoid standards-currency gate false-positive on the illustrative-of-drift use case.

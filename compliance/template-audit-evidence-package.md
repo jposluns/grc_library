@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Evidence Package Template\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-06-21\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-control-testing.md`](procedure-control-testing.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md), [`compliance/template-regulator-interaction.md`](template-regulator-interaction.md)\
@@ -95,7 +95,7 @@ The cover page is followed by a flat index of all in-scope controls. The index i
 ```
 | # | Control ID | Control title | Framework reference | Implementation status | Operating effectiveness | Section link |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | <e.g. AC-2> | <e.g. Account management> | <e.g. ISO 27001 A.5.16 / NIST SP 800-53 AC-2> | <Implemented / Partially implemented / Not implemented> | <Effective / Partially effective / Ineffective / Not yet assessed> | [link to per-control section] |
+| 1 | <e.g. AC-2> | <e.g. Account management> | <e.g. ISO 27001 Annex A.5.16 / NIST SP 800-53 AC-2> | <Implemented / Partially implemented / Not implemented> | <Effective / Partially effective / Ineffective / Not yet assessed> | [link to per-control section] |
 | 2 | ... | ... | ... | ... | ... | ... |
 [continue per in-scope control]
 ```
@@ -126,7 +126,7 @@ For each control in the inventory, the bundle contains a section using the templ
 
 ### Framework references
 
-- Primary: <e.g. ISO 27001:2022 A.5.16>
+- Primary: <e.g. ISO 27001:2022 Annex A.5.16>
 - Secondary (where the same control maps to multiple frameworks): <e.g. NIST SP 800-53 AC-2; CIS Control 5; SOC 2 CC6.1>
 - Internal control identifier (if different): <e.g. organisation's internal control number>
 
