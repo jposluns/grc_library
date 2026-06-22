@@ -4,6 +4,20 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-22, Library Version 2026.06.191, PR #212
+
+**Closes FR-14 + FR-114** (high[critical]): CMMI 5-tier maturity-ladder reconciliation. Maintainer-confirmed canonical: **CMMI 5-tier** (Initial / Managed / Defined / Quantitatively Managed / Optimized). Two corpus surfaces aligned:
+
+1. [`docs/template-maturity-self-assessment.md`](docs/template-maturity-self-assessment.md): Tier 2 renamed `Developing → Managed`; Tier 4 renamed `Managed → Quantitatively Managed`; Tier 5 renamed `Optimising → Optimized`. Definitions extended with CMMI's process-property language ("repeatable and tracked, with basic metrics defined" / "standardised and documented for organisation-wide consistency" / "statistical controls applied to quantitative objectives"). Overview prose updated to cite [`governance/framework-governance-performance-and-improvement.md`](governance/framework-governance-performance-and-improvement.md) §2 (Maturity assessment) as the canonical reference. Three per-tier next-step section headers updated (`Tier 2 (Developing) → (Managed)`, `Tier 4 (Managed) → (Quantitatively Managed)`, `Tier 5 (Optimising) → (Optimized)`). Per-doc `1.0.2 → 1.0.3`.
+
+2. [`governance/register-digital-trust-and-assurance-metrics.md`](governance/register-digital-trust-and-assurance-metrics.md):65 DTI Thresholds replaced from 4-tier variant (Developing/Managed/Integrated/Optimized) to **CMMI 5-tier** with even 1.0-band thresholds: `0.0-0.9 = Initial`; `1.0-1.9 = Managed`; `2.0-2.9 = Defined`; `3.0-3.9 = Quantitatively Managed`; `4.0-5.0 = Optimized`. Cross-reference added to the canonical framework. Per-doc `1.0.0 → 1.0.1`.
+
+The [`governance/framework-governance-performance-and-improvement.md`](governance/framework-governance-performance-and-improvement.md) §2 framework table is already CMMI-canonical (lines 41-47); no change required. **Both r1 FR-14 and r2 FR-114 close together**.
+
+Library `2026.06.190 → 2026.06.191`; README `1.9.61 → 1.9.62`. Also carries PR #211's /validate-pr history row (0 findings).
+
+---
+
 ## 2026-06-22, Library Version 2026.06.190, PR #211
 
 **Closes FR-119** (medium): Risk Owner role unification across ERM standard and exception policy. Maintainer-approved per "decision 9": same role. Two coordinated edits:

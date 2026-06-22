@@ -2,8 +2,8 @@
 
 **Document Title:** Digital Trust and Assurance Metrics Register\
 **Document Type:** Register\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-06-22\
 **Owner:** Assurance Metrics Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -62,7 +62,7 @@ The DTI is calculated annually as the weighted average of five dimensions, each 
 | Resilience | Recoverability, continuity testing, and supplier dependency management |
 | Ethical Responsibility | AI ethics, privacy compliance, and third-party accountability |
 
-**DTI Thresholds:** 0.0 to 2.4 = Developing; 2.5 to 3.4 = Managed; 3.5 to 4.4 = Integrated; 4.5 to 5.0 = Optimized.
+**DTI Thresholds (CMMI 5-tier, aligned with [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md) §2 (Maturity assessment)):** 0.0 to 0.9 = Initial; 1.0 to 1.9 = Managed; 2.0 to 2.9 = Defined; 3.0 to 3.9 = Quantitatively Managed; 4.0 to 5.0 = Optimized.
 
 ---
 

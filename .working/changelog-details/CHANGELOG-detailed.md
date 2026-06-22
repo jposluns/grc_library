@@ -6,6 +6,48 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.191, PR #212
+
+Closes **FR-14** and **FR-114** (high[critical]). Maintainer-confirmed canonical: CMMI 5-tier maturity ladder.
+
+### Fixed
+
+- [`docs/template-maturity-self-assessment.md`](../../docs/template-maturity-self-assessment.md):
+  - Tier 2 renamed: `Developing` → `Managed`. Definition extended with CMMI process-property language ("processes repeatable and tracked, with basic metrics defined").
+  - Tier 4 renamed: `Managed` → `Quantitatively Managed`. Definition extended ("statistical controls applied to quantitative objectives").
+  - Tier 5 renamed: `Optimising` → `Optimized`. CMMI canonical past-participle form.
+  - Tier 3 (`Defined`) definition extended ("processes standardised and documented for organisation-wide consistency").
+  - Overview prose updated to cite the canonical framework reference (§2 Maturity assessment).
+  - Three per-tier next-step section headers updated to match the new names.
+  - Per-doc Version `1.0.2 → 1.0.3`.
+
+- [`governance/register-digital-trust-and-assurance-metrics.md`](../../governance/register-digital-trust-and-assurance-metrics.md):
+  - DTI Thresholds replaced. Old (4-tier): `0.0-2.4 = Developing; 2.5-3.4 = Managed; 3.5-4.4 = Integrated; 4.5-5.0 = Optimized`. New (5-tier CMMI, even 1.0 bands): `0.0-0.9 = Initial; 1.0-1.9 = Managed; 2.0-2.9 = Defined; 3.0-3.9 = Quantitatively Managed; 4.0-5.0 = Optimized`.
+  - Cross-reference added to the canonical framework's §2 Maturity assessment.
+  - Per-doc Version `1.0.0 → 1.0.1`.
+
+### No-change verification
+
+- [`governance/framework-governance-performance-and-improvement.md`](../../governance/framework-governance-performance-and-improvement.md) §2 (lines 41-47) is already CMMI-canonical (Initial / Managed / Defined / Quantitatively Managed / Optimized). Confirmed no change required.
+
+### DTI threshold reasoning
+
+The maintainer's instruction was "replace the 4-tier variant with CMMI 5-tier" without specifying exact thresholds. Chose **even 1.0 bands** (0-1, 1-2, 2-3, 3-4, 4-5) because: (a) intuitive uniform spans; (b) CMMI doesn't prescribe DTI thresholds (it's a maturity model, not a metric); (c) aligns with the 0-5 dimension scoring already in use. The previous 4-tier scheme used wider bands (e.g., 2.5 wide for "Developing"); the 5-tier scheme is more granular and matches the framework's 5-level structure.
+
+### Changed
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for PR #211's /validate-pr (0 findings).
+  - Per-document Version `1.2.19 → 1.2.20`.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates.
+
+### Discipline observation
+
+This closure pair (r1 FR-14 + r2 FR-114) closes the **single largest cross-document issue** identified in either fitness review. The pattern (one canonical source + cross-references from the variants) is the same structural fix used in PR #211 (Risk Owner unification) and PR #197 (Role Authority Register Risk Owner row). Future maturity-tier consistency findings should default to the framework as the canonical source; any new maturity-tier surface should cite the framework directly rather than re-deriving tier names.
+
 ## 2026-06-22, Library Version 2026.06.190, PR #211
 
 Closes **FR-119** (medium) and **fully closes Convergent Finding C1** (Risk Owner role insufficiency).

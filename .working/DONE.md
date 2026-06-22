@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #212 — FR-14 + FR-114 (H[critical]): CMMI 5-tier maturity reconciliation (2026-06-22)
+
+Maintainer-confirmed canonical: CMMI 5-tier (Initial/Managed/Defined/Quantitatively Managed/Optimized). Two surfaces aligned: template-maturity-self-assessment.md (Tier 2 Developing→Managed, Tier 4 Managed→Quantitatively Managed, Tier 5 Optimising→Optimized, all definitions extended with CMMI process-property language); register-digital-trust-and-assurance-metrics.md (DTI thresholds replaced from 4-tier variant with even 1.0-band 5-tier CMMI). Framework already canonical (no change). Closes the single largest cross-document issue in either fitness review.
+
 ### PR #211 — FR-119 (medium): Risk Owner unification across ERM standard + exception policy (2026-06-22)
 
 Maintainer-approved (decision 9): same role. ERM standard §3 Risk Owner extended from 5 to 6 accountability actions (added exception-request validation); §9.2 evidence table extended to 6 rows. Exception policy §2 cross-references the canonical ERM definition. **Convergent Finding C1 (Risk Owner role insufficiency) now fully closed** across FR-115/116/117/119.
