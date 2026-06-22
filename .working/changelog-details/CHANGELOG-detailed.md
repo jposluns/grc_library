@@ -6,6 +6,37 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.178, PR #199
+
+Closes **FR-117** (medium). Seventh overnight-batch PR. Closes the third of the four Convergent Finding C1 items (Risk Owner role insufficiency).
+
+### Fixed
+
+- [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md) §9: existing list moved to §9.1 (General evidence catalogue); new §9.2 (Risk Owner evidence by accountability action) added with an explicit table mapping each of the five Risk Owner accountability actions from §3 to the evidence type from §9.1 that proves execution.
+- Action-to-evidence mapping uses existing canonical sources:
+  - Confirms risk statement → §9.1 "Completed risk register entries with scoring rationale".
+  - Selects treatment option → §9.1 "Treatment plans with status and owner confirmation"; treatment option from §6 six-option set (Avoid/Mitigate/Transfer/Accept/Exploit/Enhance).
+  - Owns treatment plan and target dates → §9.1 "Treatment plans with status and owner confirmation".
+  - Monitors residual exposure → periodic risk register update entries per §8.1 cadence (refined in PR #198).
+  - Reports status per §8.1 cadence → status reports in risk register or ERC meeting records (from §9.1).
+- Per-doc ERM standard `1.4.2 → 1.5.0` (minor; new subsection).
+
+### Changed
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for PR #198's /validate-pr (0 findings).
+  - Per-document Version `1.2.6 → 1.2.7`.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0.
+
+### Discipline observation
+
+C1 (Risk Owner role insufficiency) now 3 of 4 closed: FR-115 (PR #197 register row), FR-116 (PR #198 cadence), FR-117 (this PR evidence map). FR-119 (Risk Owner used with different responsibility set in exception policy) requires maintainer decision (rename one role to disambiguate, OR add the exception-validation responsibility to ERM standard scope and unify); deferred.
+
+The three closed items follow a common pattern: each fitness recommendation looked like new policy but turned out to be mechanical alignment to existing canonical sources within the same document. Worth flagging for future fitness Pass-1 verification: a recommendation that says "make X explicit" often resolves to "look for the existing implicit canonical source and lift it into explicit text".
+
 ## 2026-06-22, Library Version 2026.06.177, PR #198
 
 Closes **FR-116** (medium). Sixth overnight-batch PR. C1 Convergent Finding progress (Risk Owner role insufficiency).
