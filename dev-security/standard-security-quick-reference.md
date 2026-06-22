@@ -2,8 +2,8 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.0\
-**Date:** 2026-06-21\
+**Version:** 1.1.1\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md)\
@@ -297,7 +297,7 @@ Personal data breach? CIO must be notified immediately. Quebec Law 25 requires n
 | Privacy programme | Privacy and Data Governance Policy |
 | Cloud exit and portability | Cloud Exit and Data Portability Standard |
 | Exception request | CIO or CISO: document in Exception Register |
-| Privacy Impact Assessment | Privacy Officer / Legal |
+| Privacy Impact Assessment | Chief Privacy Officer / Legal |
 
 ---
 

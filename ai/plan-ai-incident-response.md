@@ -2,8 +2,8 @@
 
 **Document Title:** AI Incident Response Plan\
 **Document Type:** Plan\
-**Version:** 1.0.2\
-**Date:** 2026-06-19\
+**Version:** 1.0.3\
+**Date:** 2026-06-22\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md)\
@@ -136,7 +136,7 @@ AI-specific containment actions, applied per the severity and the system archite
 | Re-enable capabilities incrementally | Targeted re-enable in reverse order of containment |
 | Monitor with enhanced alerting | At minimum 14 days post-incident |
 | Customer notification where required | Coordinate with the Communications Lead |
-| Regulator notification where applicable | Coordinate with the Privacy Officer and Legal |
+| Regulator notification where applicable | Coordinate with the Chief Privacy Officer and Legal |
 
 ### 7. Post-incident review
 

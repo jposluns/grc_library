@@ -2,8 +2,8 @@
 
 **Document Title:** Consent Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Privacy Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/register-cookie-and-tracker.md`](register-cookie-and-tracker.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/framework-childrens-data.md`](framework-childrens-data.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
@@ -132,7 +132,7 @@ For cookies and similar tracking technologies, consent is governed by the cookie
 ## Operating expectations
 
 1. Each consented purpose has a single owning role accountable for the consent flow's validity.
-2. Material UI or text changes to a consent flow follow a Privacy Officer review before release.
+2. Material UI or text changes to a consent flow follow a Chief Privacy Officer review before release.
 3. Consent capture flows are tested at least annually against the validity standard, including for accessibility (screen readers, high-contrast modes).
 4. Consent records are retained for the lifetime of the processing plus the period in which a claim under applicable law could be brought.
 5. The consent register is one of the artefacts presented during supervisory authority engagement.

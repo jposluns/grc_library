@@ -2,8 +2,8 @@
 
 **Document Title:** Record of Processing Activities Template\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Privacy Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md)\
@@ -37,7 +37,7 @@ This template applies to every processing activity carried out by the organisati
 | Activity ID | Unique identifier within the ROPA | Use a stable identifier; do not reuse on activity termination |
 | Activity name | Short human-readable name | Avoid product or vendor names |
 | Business owner role | Role accountable for the activity | Role-based; not a named individual |
-| Privacy contact role | Role responsible for the privacy aspect | Typically the Privacy Officer or domain DPO |
+| Privacy contact role | Role responsible for the privacy aspect | Typically the Chief Privacy Officer or domain DPO |
 | Purposes of processing | All purposes for which the data is processed | One row may carry multiple purposes; granular description |
 | Lawful basis (per jurisdiction) | Lawful basis under each applicable regime | E.g. GDPR Art 6(1)(b) contract; CPPA Sec 12 consent |
 | Categories of data subjects | Customer, employee, supplier, prospect, visitor, child, patient, etc. | Identify children separately where applicable |
@@ -88,7 +88,7 @@ This template applies to every processing activity carried out by the organisati
 2. Material changes to an activity (new purpose, new lawful basis, new third-country transfer, new sub-processor) require a ROPA update within the same review cycle.
 3. The ROPA is reviewed at minimum annually and at every supervisory authority request.
 4. The populated ROPA is retained for at least three years after the last related processing activity ends, or longer where regulatory or contractual rules apply.
-5. Supervisory authorities may request the populated ROPA; the Privacy Officer owns submission within the authority's requested window.
+5. Supervisory authorities may request the populated ROPA; the Chief Privacy Officer owns submission within the authority's requested window.
 
 ---
 

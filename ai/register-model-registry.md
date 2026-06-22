@@ -2,8 +2,8 @@
 
 **Document Title:** Model Registry\
 **Document Type:** Register\
-**Version:** 0.0.2\
-**Date:** 2026-05-28\
+**Version:** 0.0.3\
+**Date:** 2026-06-22\
 **Owner:** AI System Inventory Keeper\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/register-ai-risk.md`](register-ai-risk.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md)\
@@ -129,7 +129,7 @@ For each model, the registry records two lineage chains:
 1. A model is not deployed to a production environment without a corresponding registry row in Production state.
 2. Material changes (new base model, new fine-tuning data, new restricted use, new tier) trigger a row update within five business days.
 3. The AI System Inventory Keeper reviews the registry at minimum quarterly for completeness and accuracy.
-4. The Privacy Officer reviews entries for personal-data exposure at minimum annually.
+4. The Chief Privacy Officer reviews entries for personal-data exposure at minimum annually.
 5. The AI Security Maintainer reviews entries for adversarial-evaluation currency at minimum semi-annually.
 6. Retired model artefacts are handled per the records retention standard with explicit consideration of derived embeddings, caches, and downstream model lineage.
 

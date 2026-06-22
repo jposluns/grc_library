@@ -2,8 +2,8 @@
 
 **Document Title:** Tabletop Exercise Template\
 **Document Type:** Template\
-**Version:** 1.0.3\
-**Date:** 2026-06-21\
+**Version:** 1.0.4\
+**Date:** 2026-06-22\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`resilience/register-resilience-metrics-and-testing-log.md`](register-resilience-metrics-and-testing-log.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md)\
@@ -74,7 +74,7 @@ Each exercise has between three and five specific objectives. Objectives are tes
 | --- | --- | --- |
 | Exercise Director | All exercises | Not a participating role; runs the exercise, delivers injects |
 | Incident Coordinator | Multi-domain exercises | Per the cross-domain coordination procedure |
-| Primary-domain Lead | Per the scenario domain | E.g. CISO for security; Privacy Officer for privacy |
+| Primary-domain Lead | Per the scenario domain | E.g. CISO for security; Chief Privacy Officer for privacy |
 | Participating-domain Lead(s) | Per scenario | |
 | Communications Lead | Most scenarios | |
 | Legal Lead | Scenarios with regulatory or contractual exposure | |
@@ -101,7 +101,7 @@ An inject is a piece of information delivered during the exercise to advance the
 | --- | --- | --- | --- | --- |
 | T+0 | Email | SOC | Initial alert template | SOC triages and classifies |
 | T+15 | Phone | CISO | Severity escalation prompt | CISO declares P1, convenes Joint Command |
-| T+30 | Chat / collaboration platform | Privacy Officer | Personal data implicated | Privacy stream activates per breach response procedure |
+| T+30 | Chat / collaboration platform | Chief Privacy Officer | Personal data implicated | Privacy stream activates per breach response procedure |
 | T+60 | Email | Communications Lead | Journalist enquiry received | Communications produces holding statement |
 | T+90 | Phone | Legal | Regulator initiating contact | Legal evaluates obligations; coordinates with Comms |
 | T+120 | Chat / collaboration platform | Incident Coordinator | Supplier confirms data exposure | Supplier stream activates; hand-off checklist |

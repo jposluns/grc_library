@@ -2,8 +2,8 @@
 
 **Document Title:** Incident Escalation Matrix\
 **Document Type:** SOP\
-**Version:** 1.2.1\
-**Date:** 2026-05-28\
+**Version:** 1.2.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/plan-business-continuity-and-crisis-management.md`](../resilience/plan-business-continuity-and-crisis-management.md)\
@@ -53,7 +53,7 @@ This SOP defines the incident escalation matrix for security incidents. It speci
 | CIO | Phone | Email + SMS |
 | CEO | Phone | Email + personal mobile |
 | Legal Counsel | Email / phone | Collaboration platform |
-| Privacy Officer / DPO | Email / collaboration platform | Phone |
+| Chief Privacy Officer / DPO | Email / collaboration platform | Phone |
 | External IR Partner | Hotline | Partner portal |
 
 Actual contact details (names, numbers, emails) are maintained in the confidential IR Contact Register held by the CISO. This SOP references roles only.
@@ -64,7 +64,7 @@ Actual contact details (names, numbers, emails) are maintained in the confidenti
 
 | Trigger | Additional Notifications Required |
 | --- | --- |
-| Confirmed or suspected PII data breach | Privacy Officer / DPO; Legal Counsel; initiate regulatory notification assessment |
+| Confirmed or suspected PII data breach | Chief Privacy Officer / DPO; Legal Counsel; initiate regulatory notification assessment |
 | Ransomware deployment | CEO, CFO, Board notification pathway; external IR partner engaged immediately |
 | Threat actor in production environment | External IR partner activated; affected systems isolated immediately |
 | Customer system or data impacted | Legal Counsel for contract obligations review; customer notification assessment |

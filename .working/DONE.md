@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #210 — FR-46 Privacy Officer rename (medium); DPO assessment surfaced (2026-06-22)
+
+Maintainer-approved (decision 6): "Privacy Officer" not preceded by "Chief" → "Chief Privacy Officer" corpus-wide. 36 files modified, per-doc Version+Date patch bumped. DPO scope assessment: strong evidence that DPO and CPO are the same role (canonical register has only one entry, 8+ explicit equivalence statements, jurisdictions treat DPO as the privacy lead). DPO consolidation queued for separate maintainer go-ahead with named options A/B/C.
+
 ### PR #209 — FR-52 (medium): Review-frequency "AND" form (2026-06-22)
 
 Maintainer-approved (decision 5): canonical review-frequency form is "annually AND on material change" (both triggers required). Two corpus documents using OR form ("Annual or upon ...") converted to AND form.

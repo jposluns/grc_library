@@ -2,8 +2,8 @@
 
 **Document Title:** AI Evaluation Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
-**Date:** 2026-05-28\
+**Version:** 1.0.3\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md)\
@@ -36,7 +36,7 @@ Applies to all AI systems under consideration for deployment, as well as deploye
 | **AI System Owner** | Commissions evaluation; provides system access and documentation. |
 | **AI Development / Data Science Teams** | Execute technical evaluation activities. |
 | **CISO** | Reviews security evaluation outcomes. |
-| **Privacy Officer / DPO** | Reviews privacy evaluation outcomes. |
+| **Chief Privacy Officer / DPO** | Reviews privacy evaluation outcomes. |
 
 ---
 

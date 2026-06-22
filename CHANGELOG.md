@@ -4,6 +4,16 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-22, Library Version 2026.06.189, PR #210
+
+**Closes FR-46 (Privacy Officer rename portion)** (medium). Maintainer-approved per "decision 6": "Privacy Officer" (used in ~50 corpus locations without the "Chief" prefix) is the same role as "Chief Privacy Officer" (the canonical role per [`governance/register-role-authority.md`](governance/register-role-authority.md):39). Corpus-wide regex sweep with negative lookbehind `(?<!Chief )Privacy Officer` → `Chief Privacy Officer` across **36 files**. Per-doc Version+Date patch-bumped for all 36 in the same commit. [`CHANGELOG.md`](CHANGELOG.md) historical entries excluded; `.working/` excluded.
+
+**DPO scope assessment** (the second half of decision 6 — "may also be the same as DPO, needs assessment"): research subagent's assessment evidence strongly supports that **DPO and Chief Privacy Officer are the same role** under different names (canonical register has no separate DPO entry; 8+ corpus locations use `Privacy Officer / DPO` as synonyms; [`ai/charter-ai-governance-council.md`](ai/charter-ai-governance-council.md):62 and [`docs/portal.md`](docs/portal.md):411 explicitly write `Chief Privacy Officer (or Data Protection Officer)`; jurisdictions like Brazil/India/Kenya/Malaysia/Nigeria/Philippines/Thailand mandate DPO appointment as the privacy lead — the same accountability the corpus assigns to its Chief Privacy Officer). One outlier ([`supply-chain/procedure-supplier-onboarding-security-review.md`](supply-chain/procedure-supplier-onboarding-security-review.md):135 escalation chain "DPO → CISO → Chief Privacy Officer") treats them as distinct hierarchy levels and appears to be a drafting error. **DPO consolidation is queued as a separate decision; named options surfaced for maintainer go-ahead.** Glossary, jurisdiction annexes, and "CIO (acting DPO)" pattern require care.
+
+Library `2026.06.188 → 2026.06.189`; README `1.9.59 → 1.9.60`. Carries PR #209's /validate-pr history row (0 findings).
+
+---
+
 ## 2026-06-22, Library Version 2026.06.188, PR #209
 
 **Closes FR-52** (medium): review-frequency `Annual and upon ...` form. Maintainer-approved per "decision 5": canonical form is "annually AND on material change" (both triggers required, not either-or). Two documents in the corpus used the OR variant ("Annual or upon ..."); both converted to AND.

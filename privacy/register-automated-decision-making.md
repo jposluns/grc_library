@@ -2,8 +2,8 @@
 
 **Document Title:** Automated Decision-Making and Profiling Register\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Privacy Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md)\
@@ -26,7 +26,7 @@ A populated ADM register identifies real systems and is sensitive operational da
 
 ## Scope
 
-This register applies to every system or workflow that takes decisions based on automated processing of personal data, including profiling, where the decision has legal or similarly significant effect on the data subject. It also applies to systems where Article 22 thresholds are not yet met but the AI Governance Council or Privacy Officer has elected to register the system to maintain visibility.
+This register applies to every system or workflow that takes decisions based on automated processing of personal data, including profiling, where the decision has legal or similarly significant effect on the data subject. It also applies to systems where Article 22 thresholds are not yet met but the AI Governance Council or Chief Privacy Officer has elected to register the system to maintain visibility.
 
 In-scope examples:
 
@@ -54,7 +54,7 @@ Each registered ADM activity is one row. Mandatory fields:
 | ADM ID | Unique identifier |
 | System name | Internal name; not vendor name |
 | Owning business function | Role that owns the decision outcome |
-| Privacy contact | Privacy Officer or domain DPO assigned to this activity |
+| Privacy contact | Chief Privacy Officer or domain DPO assigned to this activity |
 | Decision category | Underwriting, employment, fraud, access, pricing, moderation, clinical, safety, other |
 | Description of the decision | Plain-language summary of what the system decides |
 | Legal or similarly significant effect | Statement of why the threshold is met (or that it is not met and the system is registered voluntarily) |
@@ -83,7 +83,7 @@ A system is registered when any of the following is true:
 1. The system meets the Article 22 threshold (legal or similarly significant effect, solely or substantially automated).
 2. The system falls in a category that supervisory authorities have repeatedly identified as high-risk regardless of automation degree (lending, employment, insurance, essential services access).
 3. The EU AI Act classifies the system in a high-risk category under Annex III.
-4. The Privacy Officer determines that the system warrants registration due to scale, sensitivity, or public expectation.
+4. The Chief Privacy Officer determines that the system warrants registration due to scale, sensitivity, or public expectation.
 
 ---
 
@@ -101,7 +101,7 @@ A system is registered when any of the following is true:
 
 ## Coordination with the AI governance programme
 
-Where an ADM system is also an AI system (most modern cases), the AI System Register is the primary inventory and this register cross-references it. The Privacy Officer and the AI System Inventory Keeper jointly own the consistency between the two registers. The AI System Impact Assessment Procedure governs the impact analysis; the DPIA covers the privacy dimension.
+Where an ADM system is also an AI system (most modern cases), the AI System Register is the primary inventory and this register cross-references it. The Chief Privacy Officer and the AI System Inventory Keeper jointly own the consistency between the two registers. The AI System Impact Assessment Procedure governs the impact analysis; the DPIA covers the privacy dimension.
 
 ---
 
