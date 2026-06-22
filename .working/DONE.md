@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #224 — Closes FR-37 (medium, P2.1): Joint controller arrangement template (Article 26) (2026-06-22)
+
+New template `privacy/template-joint-controller-arrangement.md` (v1.0.0) covering GDPR Article 26 joint controller arrangements with 9 sections (identification, joint processing, allocation of GDPR responsibilities table, operational coordination, liability, termination, cross-regime alternatives for UK GDPR / LGPD / PIPL / India DPDP / CPPA / CCPA, documentation, essence-of-arrangement publication). Cross-listed in privacy/README and document-index register. Also carries deferred PR #223 /validate-pr + /retro register rows.
+
 ### PR #223 — Closes FR-49 (medium, P1.5): H2 label drift "Governance" → "Governance and accountability" (14 files, 2026-06-22)
 
 14 files used bare `## Governance` H2; canonical form `## Governance and accountability` (20+ uses). Renamed via line-anchored regex (`^## Governance$`) so `## Governance Council` etc. were preserved. Per-doc Version patch-bumps; taxonomy/portal/maturity-scorecard regenerated. Also carries deferred PR #222 /validate-pr + /retro register rows.
