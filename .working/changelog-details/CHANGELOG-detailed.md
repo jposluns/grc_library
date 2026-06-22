@@ -6,6 +6,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.175, PR #196
+
+Closes **FR-113** (medium). Fourth overnight-batch PR. Also bundles PR #195's out-of-window finding (fitness backlog table rotation) as a mechanical cleanup.
+
+### Fixed
+
+- [`README.md`](../../README.md) Repository Structure block:
+  - Line 108: `CAPA` → `CAPA (Corrective and Preventive Action)` at first occurrence in the `/compliance` description.
+  - Line 123: `SIEM operations` → `SIEM (Security Information and Event Management) operations` at first occurrence in the `/operations` description.
+  - Restores the acronym-first-occurrence-expansion pattern PRs #172 (FR-4/5/6/7/8 README polish bundle) and #179 (FR-106 trade-programme acronyms) established. The README's own canonical pattern is "acronym (full name) at first occurrence"; the CAPA + SIEM blocks were missed in those earlier passes.
+- [`.working/fitness-reviews/history.md`](../fitness-reviews/history.md) "Open remediation backlog items" table rows 43-48 (FR-127/128/129):
+  - Status: `pending` → `closed`.
+  - Assigned PR: `—` → PR #193 (FR-127), #194 (FR-128), #195 (FR-129) links.
+  - Out-of-window cleanup; pre-existing discipline gap. Surfaced by PR #195's /validate-pr Subagent A.
+  - Per-doc Version `1.2.2 → 1.2.3`.
+
+### Changed
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for PR #195's /validate-pr (0 in-window findings + 1 out-of-window observation).
+  - Per-document Version `1.2.3 → 1.2.4`.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates.
+- `tools/run-pr-time-checks.sh` exits 0.
+
+### Discipline observation
+
+This PR demonstrates a useful pattern: the out-of-window observation (fitness backlog table stale) is surfaced by /validate-pr and bundled into the next PR's cleanup, rather than being deferred indefinitely or shipped as a separate cleanup PR. The maintainer's batching rule extends naturally to mechanical out-of-window fixes when they're cheap.
+
+The pre-existing discipline gap (FR-127/128/129 backlog rows not rotated as the FRs closed) is itself a process-improvement note: when an FR closes in a PR, both `TODO.md` AND `.working/fitness-reviews/history.md`'s backlog table should rotate. The latter was missed for the three retention-chain FRs; this PR fixes the symptom. Whether to codify the dual-rotation discipline in a pack rule is a follow-up consideration for the maintainer.
+
 ## 2026-06-22, Library Version 2026.06.174, PR #195
 
 Closes **FR-129** (high[critical]). Third overnight-batch PR. Closes the second audit-evidence chain break after PR #194's FR-128.

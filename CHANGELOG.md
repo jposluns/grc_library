@@ -4,6 +4,12 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-22, Library Version 2026.06.175, PR #196
+
+Closes **FR-113** (medium). Fourth overnight-batch PR. [`README.md`](README.md) Repository Structure block: expanded the **CAPA** acronym to "CAPA (Corrective and Preventive Action)" at first occurrence (line 108) and the **SIEM** acronym to "SIEM (Security Information and Event Management)" at first occurrence (line 123). Restores the acronym-first-occurrence-expansion pattern PRs #172 and #179 established. Also carries (a) PR #195's /validate-pr history row (0 in-window findings + 1 out-of-window observation), and (b) the out-of-window cleanup the observation surfaced: [`.working/fitness-reviews/history.md`](.working/fitness-reviews/history.md) backlog table FR-127/128/129 rows had stale `pending` / `— PR` cells despite the three FRs closing in PRs #193/#194/#195; rotated to `closed` with the closing-PR link. Pre-existing discipline gap (the rotation wasn't applied when those FRs closed earlier in the cascade); mechanical cleanup. Library `2026.06.174 → 2026.06.175`; README `1.9.45 → 1.9.46`.
+
+---
+
 ## 2026-06-22, Library Version 2026.06.174, PR #195
 
 Closes **FR-129** (high[critical]). Third overnight-batch PR. [`governance/register-data-retention-schedule.md`](governance/register-data-retention-schedule.md):83 internal audit reports retention raised from `5 years` to `7 years`, aligning the register with the canonical [`compliance/standard-internal-audit.md`](compliance/standard-internal-audit.md):360 §8.3 (Evidence retention) which mandates a 7-year minimum for audit working papers, evidence, draft findings, management responses, and final reports. Closes the second audit-evidence chain break (after FR-128's CAPA row in PR #194). The procedure-side retention also matches: [`compliance/procedure-audit-planning.md`](compliance/procedure-audit-planning.md):447 mandates 7y. Per-doc retention register `1.0.3 → 1.0.4` (patch). Also carries PR #194's /validate-pr history row (0 findings). Library `2026.06.173 → 2026.06.174`; README `1.9.44 → 1.9.45`.
