@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.12\
+**Version:** 1.2.13\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -12,6 +12,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | 204 | 8 | 3 in-window (stale "(12 items)" count; in-flight self-correction prose escaped to root CHANGELOG; FR-114 double-counted across maintainer-decided and active-verified buckets) | none in-window; all 3 bundled into PR #205 per the batching rule | — | Twelfth-batch PR (Pass-1 verification). Subagent A found real defects in the verdict-counting and adopter-facing CHANGELOG prose. All three fixed in PR #205 alongside the FR-81 pack CLAUDE.md TLS alignment (maintainer-decided). |
 | 2026-06-22 | 203 | 7 | 0 (0 in-window, 0 out-of-window) | none | — | Eleventh overnight-batch PR (FR-133 close + PR #202 batching). Subagent A verified the 25-jurisdiction count matches `ls privacy/jurisdictions/` (verified), all 7 named non-Anglosphere examples (Australia, Singapore, India, Brazil, Japan, South Korea, China) exist as annex files, jurisdiction-index file exists, C1/C3 PR-number citations in TODO match `git log` exactly, version bumps lock-step. Row batched into PR #204. |
 | 2026-06-22 | 202 | 7 | 0 in-window; 1 out-of-window (pre-existing TODO drift: lines 163/165/205/207 "next-up" still listed C1/C3 PRs as future despite closures during the overnight batch) | none in-window; out-of-window TODO drift bundled into PR #203 | — | Tenth overnight-batch PR (wrap-up). Subagent A verified overnight-pr.md build-progress table cross-checks with DONE/CHANGELOG entries; 9-item open-ambiguities list complete; version bumps lock-step. The TODO drift was identified by Subagent A as out-of-window for PR #202's diff but pre-existing; bundled into PR #203's cleanup per the batching rule. |
 | 2026-06-22 | 201 | 10 | 0 (0 in-window, 0 out-of-window) | none | — | Ninth overnight-batch PR (FR-81 partial close + PR #200 batching). Subagent A verified §1 cross-reference correct in both edited dev-security standards; TLS 1.2 correctly added to Prohibited column; partial-close annotation in TODO explicit on deferred pack CLAUDE.md surface; other corpus-wide TLS 1.2 references (compliance/healthcare annex, supply-chain template, additional claude-rules core docs) are out-of-window for FR-81's named scope. Row batched into PR #202. |
