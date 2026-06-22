@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #192 — Codify batching-into-next-PR rule for /validate-pr and /validate (2026-06-22)
+
+New "Batching into the next PR (recursion-avoidance)" sub-section in both /validate and /validate-pr SKILL.md surfaces + slash commands: /validate-pr outputs (zero-finding history rows AND findings-producing fixes) bundle into the next PR whatever its purpose, eliminating dedicated hot-fix and housekeeping PRs. /validate retains an optional dedicated close-out PR for numerous or coherent corpus-wide findings. Carries PR #191's deferred /validate-pr history row as the rule's first application. Closes the day's cascade loop.
+
 ### PR #191 — Record /validate-pr for PR #190 (0 findings; cascade terminated) (2026-06-22)
 
 `.working/` changes for local project: appended the history row recording the zero-finding /validate-pr run against PR #190. Four-PR cascade (#187 → #188 → #189 → #190 = 2+2+2+0 findings) terminated by PR #190's structural fix (full-date Originating run column + UTC convention + chat-surfacing discipline).

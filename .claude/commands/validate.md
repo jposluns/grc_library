@@ -25,6 +25,8 @@ Step 9 (only when findings exist): write a per-iteration detail file to [`.worki
 
 Zero-finding iterations leave no detail file; the history row alone is the persistent trace.
 
+**Batching into the next PR (recursion-avoidance).** Zero-finding `/validate` history rows are **batched into the next PR, whatever its substantive purpose**. A findings-producing `/validate` may still warrant its own close-out PR when findings are numerous or coherent enough; this is the corpus-wide sweep's distinguishing case from `/validate-pr` (where the bundle is always the default). Otherwise, fixes for individual /validate findings can also be bundled into the next PR alongside the history row.
+
 `.working/validate-sweeps/` is exempt from corpus audit gates (frozen-state archive). Existing `path:line` references in subagent reports are kept verbatim even if the lines later shift; the record is a moment-in-time artefact.
 
 Reject any subagent finding that lacks an explicit `path:line` quote. A finding without quoted evidence is a hypothesis, not a finding; re-dispatch the subagent with a re-emphasized evidence requirement before synthesising.

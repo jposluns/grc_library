@@ -6,6 +6,49 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.171, PR #192
+
+Codified the **batching-into-the-next-PR rule** for both /validate and /validate-pr after the day's cascade made the recursion apparent. Also carries PR #191's zero-finding /validate-pr history row as the first application of the new rule.
+
+### Motivation
+
+The day's cascade (PR #187 → #188 → #189 → #190 → #191) showed that the naive interpretation of "every merge gets /validate-pr; every invocation gets a history row" creates a recursive PR loop. PR #190 terminated the findings cascade (0 findings) but PR #191 was still needed to record the row, and PR #191's own /validate-pr (also 0 findings) would need PR #192 to record ITS row, ad infinitum.
+
+The maintainer's direction (typed during the cascade): "If there's nothing to actually fix or correct, then keep findings to bundle into the next PR whatever it is. If there are multiple PRs queued, then the fix of anything found in validate-pr can be bundled into the next PR whatever it is. Only the full validate should have its own PR for fixing multiple things."
+
+This direction simplifies the discipline meaningfully:
+- /validate-pr findings → bundle the fix into the next PR (whatever its purpose), no dedicated hot-fix PR.
+- /validate-pr zero findings → bundle the history row into the next PR.
+- /validate (corpus-wide) findings → may have a dedicated close-out PR if findings are numerous or coherent, but bundling is also acceptable.
+- /validate zero findings → bundle the history row into the next PR.
+
+### Changed
+
+- [`dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md`](../../dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md) `## Termination` section: replaced the previous "Zero-finding history-row batching" sub-section with the broader "Batching into the next PR (recursion-avoidance)" sub-section. The new sub-section covers both zero-finding row batching AND findings-producing fix bundling.
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](../../dev-security/claude-rules/skills/validation-sweep/SKILL.md): same sub-section replaced. The /validate variant preserves the "may still warrant its own close-out PR" carve-out for the corpus-wide case where findings are numerous or coherent.
+- [`.claude/commands/validate-pr.md`](../../.claude/commands/validate-pr.md) Termination paragraph: parallel update.
+- [`.claude/commands/validate.md`](../../.claude/commands/validate.md) batching paragraph: parallel update.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md):
+  - Version `1.41.0 → 1.42.0` (minor; SKILL sub-section semantically broadened).
+  - New 1.42.0 row in version-history documenting the batching rule.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for PR #191's /validate-pr (0 findings; carried as the first application of the new rule).
+  - Per-document Version `1.1.3 → 1.2.0` (minor; semantic shift in batching policy worth a minor bump).
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates.
+- `tools/run-pr-time-checks.sh` exits 0.
+- Gate 44 (paired-skill step-parity) confirms 3 paired surfaces remain step-aligned.
+
+### Discipline observations
+
+**Cascade lesson.** The day's #187 → #188 → #189 → #190 → #191 cascade traced to taking the no-skip-discretion rule too literally. The rule's value is "every merge gets validated"; the corollary "every validation gets its own PR" was inferred but never required. The batching rule preserves the validation discipline while breaking the PR-recursion.
+
+**Asymmetric treatment of /validate-pr vs /validate.** The /validate-pr bundle-always default reflects that PR-scoped findings are typically small and local; a dedicated hot-fix PR is overkill. The /validate carve-out (may have a dedicated close-out PR) reflects that corpus-wide findings can be numerous or topically coherent in ways that a dedicated PR communicates better than a bundle. The asymmetry is a tradeoff between PR-count and PR-comprehensibility; the maintainer makes the call per-sweep.
+
+**First application of the rule**: PR #192 itself carries PR #191's deferred /validate-pr history row. This pattern is the new default.
+
 ## 2026-06-22, Library Version 2026.06.170, PR #191
 
 `.working/` housekeeping PR recording PR #190's `/validate-pr` zero-finding run. Same shape as PR #185 (which recorded PR #184's zero-finding /validate-pr).
