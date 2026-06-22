@@ -2,7 +2,7 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.4.2\
+**Version:** 1.5.0\
 **Date:** 2026-06-22\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -206,6 +206,8 @@ When the AI Flag is set to Yes, the following additional fields are required:
 
 ## 9. Evidence requirements
 
+### 9.1 General evidence catalogue
+
 Required evidence for audit and assurance purposes includes, but is not limited to:
 
 - Completed risk register entries with scoring rationale.
@@ -218,6 +220,18 @@ Required evidence for audit and assurance purposes includes, but is not limited 
 - AI impact assessments and bias test reports.
 - Business impact analyses and continuity test records.
 - Internal audit findings and management responses.
+
+### 9.2 Risk Owner evidence by accountability action
+
+The Risk Owner role's five accountability actions (defined in §3) map to specific evidence types from §9.1:
+
+| Risk Owner accountability action (per §3) | Evidence that proves execution |
+|---|---|
+| Confirms the risk statement | Risk register entry with Risk Owner attribution and scoring rationale (from §9.1 "Completed risk register entries with scoring rationale"). |
+| Selects the treatment option | Treatment plan record showing the selected option from the §6 set (Avoid / Mitigate / Transfer / Accept / Exploit / Enhance) with Risk Owner sign-off (from §9.1 "Treatment plans with status and owner confirmation"). |
+| Owns the treatment plan and target dates | Treatment plan record with target dates, Risk Owner identified as plan owner, and dated progress entries (from §9.1 "Treatment plans with status and owner confirmation"). |
+| Monitors residual exposure | Periodic risk register update entries dated per the §8.1 cadence band (annually for Low, quarterly for Moderate, monthly for High and Critical), each recording the current residual exposure and any changes from the previous review. |
+| Reports status per the §8.1 cadence | Risk Owner status reports (per the §8.1 cadence band) recorded in the risk register or in the ERC meeting record (from §9.1 "ERC and AIGC meeting records referencing risk items"). |
 
 ---
 

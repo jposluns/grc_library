@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #199 — FR-117 (medium): Risk Owner evidence by accountability action (2026-06-22)
+
+Closes FR-117 by adding a new §9.2 to the ERM standard mapping each of the five Risk Owner accountability actions (per §3) to the evidence type from §9.1 that proves execution. Mechanical mapping using existing canonical sources; no new policy. C1 Convergent Finding 3 of 4 closed (FR-115/116/117); FR-119 deferred (needs decision).
+
 ### PR #198 — FR-116 (medium): Risk Owner monitoring cadence by score band (2026-06-22)
 
 Closes FR-116 by extending ERM standard §8.1 with explicit Risk Owner review cadences per score band (Low/annual, Moderate/quarterly, High/monthly, Critical/monthly), aligning to the §5.2 scoring-threshold table's review-interval column. Mechanical alignment, no new policy. Partial C1 close (after PR #197's FR-115).
