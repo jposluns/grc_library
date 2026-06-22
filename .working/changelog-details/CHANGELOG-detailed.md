@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.222, PR #244
+
+**Codifies the `deep-qa-review` skill (`/full-qa`).** First codification PR after the trust-recovery suite sign-off: the AI-failure-pattern half of the escalation tier, paired with `library-fitness-review`.
+
+### Added
+
+- **[`dev-security/claude-rules/skills/deep-qa-review/SKILL.md`](../../dev-security/claude-rules/skills/deep-qa-review/SKILL.md)**: new skill. Six-subagent forensic QA pass over a maintainer-named PR window (A recent-PR deep review, B corpus-wide stale-reference, C audit-programme integrity, D citation forensic, E generated-artefact forensic, F discipline-violation forensic). Binding step-0 full-clone rule (verify non-shallow before any git-history-aware audit). Findings route to backlog top priority tagged `[full-qa]`; termination is maintainer sign-off, not empty-delta. `derives_from` evidence-grounded-completion.
+- **[`.claude/commands/full-qa.md`](../../.claude/commands/full-qa.md)**: slash command, process restated as numbered steps 0-6 for gate-44 step-identifier parity with the SKILL.
+
+### Changed
+
+- **[`tools/lint-paired-skill-step-parity.py`](../../tools/lint-paired-skill-step-parity.py)**: PAIRS registry extended with the `deep-qa-review` ↔ `full-qa.md` tuple (5th pair).
+- **[`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md)**: pack-skills directory-tree gains the `deep-qa-review/SKILL.md` row (13 to 14 skills, satisfying the collection-enumeration audit); new version-history row; pack Version `1.45.2 → 1.46.0`.
+- **[`README.md`](../../README.md)**: library `2026.06.221 → 2026.06.222`; README `1.9.92 → 1.9.93`.
+- **[`.working/validate-pr/history.md`](../validate-pr/history.md)** and **[`.working/improvement-log.md`](../improvement-log.md)**: deferred PR #242 and #243 `/validate-pr` and `/retro` rows appended per recursion-avoidance (with the ledgers' own Version bumps).
+
+### Verification
+
+- `tools/lint-paired-skill-step-parity.py` standalone: the `deep-qa-review` ↔ `full-qa.md` pair has matching step-identifier sets (0-6).
+- `tools/lint-collection-enumeration-consistency.py` standalone: pack-skills enumeration consistent (14 = 14).
+- `tools/run_all_audits.sh` exit 0 (all gates) on the full clone; `tools/run-pr-time-checks.sh` exit 0.
+- The skill's two references to the not-yet-existing `trust-recovery-escalation.md` are intentionally un-linked (backticked) to avoid a broken-link gate failure; they are linkified when the ninth rule lands.
+
 ## 2026-06-22, Library Version 2026.06.221, PR #243
 
 **Trust-recovery suite — findings routed and re-tiered.** Working-state PR carrying the outputs of the maintainer-directed trust-recovery escalation tier (`/full-qa` deep-qa-review iter 1, then `/fitness` r2). No adopter-facing corpus content changed.
