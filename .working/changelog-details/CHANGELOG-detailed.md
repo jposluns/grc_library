@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.224, PR #246
+
+**Adds the ninth governance rule `trust-recovery-escalation.md`.** Second trust-recovery codification PR; documents the escalation tier (`/full-qa` + `/fitness` suite, top-priority findings routing, maintainer-sign-off termination) as a distributable pack rule.
+
+### Added
+
+- **[`dev-security/claude-rules/governance/trust-recovery-escalation.md`](../../dev-security/claude-rules/governance/trust-recovery-escalation.md)**: ninth governance rule. Project-agnostic. Sections: what triggers the tier; the two complementary lenses (forensic + persona) with the full-clone methodology rule; findings routing (every confirmed finding to top priority, apply-time-verified, deduped); sign-off discipline (maintainer acknowledgement terminates, not empty-delta); after-sign-off codification; anti-patterns; framework alignment; why the rule exists.
+- **[`.claude/rules/governance/trust-recovery-escalation.md`](../../.claude/rules/governance/trust-recovery-escalation.md)**: byte-identical local mirror (gate-37 claude-rules-sync), added to the `MIRROR_MAP` in [`tools/lint-claude-rules-sync.py`](../../tools/lint-claude-rules-sync.py).
+
+### Changed
+
+- **Three governance-rule enumeration surfaces** updated to list the ninth rule (collection-enumeration audit): pack [`README.md`](../../dev-security/claude-rules/README.md) directory-tree (+ governance-section version note + new version-history row; pack `1.46.0 → 1.47.0`), pack [`CLAUDE.md`](../../dev-security/claude-rules/CLAUDE.md) Development-governance list + rollout prose, project [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) Security-and-governance list + rollout prose.
+- **[`tools/lint-collection-enumeration-consistency.py`](../../tools/lint-collection-enumeration-consistency.py)** docstring: "seven governance rules" → "nine" (**closes FR-164**).
+- **[`dev-security/claude-rules/skills/deep-qa-review/SKILL.md`](../../dev-security/claude-rules/skills/deep-qa-review/SKILL.md)**: the two forward references to `trust-recovery-escalation.md` (un-linked backticks in PR #244 because the file did not yet exist) are now linkified.
+- **[`.claude/CLAUDE.md`](../../.claude/CLAUDE.md)**: cosmetic "(TODO P4)" → "(TODO P4.0)" in the PRIMORDIAL RULE (the PR #245 `/validate-pr` cosmetic finding).
+- **[`.working/validate-pr/history.md`](../validate-pr/history.md)** (Version `1.2.49 → 1.2.50`): PR #244 and #245 `/validate-pr` rows added. The #244 row was owed to PR #245 per recursion-avoidance but missed there; this is the corrective catch, recorded transparently.
+- **[`.working/improvement-log.md`](../improvement-log.md)** (Version `1.0.29 → 1.0.30`): PR #245 `/retro` row added; records the row-batching-slip observation and a checklist/gate improvement candidate.
+- **[`README.md`](../../README.md)**: library `2026.06.223 → 2026.06.224`; README `1.9.94 → 1.9.95`.
+
+### Verification
+
+- `tools/lint-collection-enumeration-consistency.py` standalone: pack-governance-rules 9 = 9 across all three enumeration locations; pack-skills unchanged.
+- `tools/lint-claude-rules-sync.py` standalone: the new mirror is mapped and byte-identical to its pack source.
+- `tools/lint-paired-skill-step-parity.py` and the repository-internal link audit confirm the now-linkified SKILL references resolve.
+- `tools/run_all_audits.sh` exit 0 (46/46); `tools/run-pr-time-checks.sh` exit 0. Language pre-flight run on the new rule before the first commit (per the PR #244 retro lesson); zero em-dashes, zero British `-ise`.
+
 ## 2026-06-22, Library Version 2026.06.223, PR #245
 
 **Adds the PRIMORDIAL RULE: PROJECT INTEGRITY (highest precedence) to `.claude/CLAUDE.md`.** Maintainer-directed apex rule; consolidates and elevates existing pack integrity disciplines under a lexicographic Quality > Speed > Cost priority.

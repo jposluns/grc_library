@@ -12,7 +12,7 @@ The per-PR validation sweep (`/validate-pr`) catches what a single merge introdu
 
 `deep-qa-review` is that re-examination's AI-failure-pattern lens. It is a six-subagent forensic pass over an explicitly-widened PR window (not the routine two-day focus) plus every file those PRs' CHANGELOG entries reference. Each subagent is a deeply-contextualised reviewer that knows the prior session's specific failure modes and hunts the classes those failures belong to. It is the complement of `library-fitness-review`: where fitness strips the maintainer's mental model from ten persona briefs to get fresh-reader coverage, deep-qa-review keeps full context and aims its lenses at the seams where AI assistants are known to break (stale references, mis-attributed citations, multi-surface incompleteness, inferred-as-verified assertions, generated-artefact drift, and discipline-compliance gaps).
 
-The two skills run as a suite (the trust-recovery escalation tier): `/full-qa` first (smaller, fast, AI-pattern-tuned), then `/fitness` (broader, slower, persona-tuned). The escalation tier and its routing-and-sign-off discipline are codified in the pack rule `trust-recovery-escalation.md` (shipped alongside this skill in the trust-recovery codification batch).
+The two skills run as a suite (the trust-recovery escalation tier): `/full-qa` first (smaller, fast, AI-pattern-tuned), then `/fitness` (broader, slower, persona-tuned). The escalation tier and its routing-and-sign-off discipline are codified in the pack rule [`trust-recovery-escalation.md`](../../governance/trust-recovery-escalation.md).
 
 ## When to Use
 
@@ -104,7 +104,7 @@ The pass is complete on a given run when: clone depth was verified full before a
 
 ## See Also
 
-- Pack rule `trust-recovery-escalation.md` (shipped alongside this skill): the escalation tier this skill belongs to, with the routing and sign-off discipline.
+- Pack rule [`trust-recovery-escalation.md`](../../governance/trust-recovery-escalation.md): the escalation tier this skill belongs to, with the routing and sign-off discipline.
 - Sibling skill [`library-fitness-review`](../library-fitness-review/SKILL.md) (`/fitness`): the persona half of the trust-recovery suite.
 - Canonical rule [`evidence-grounded-completion`](../../governance/evidence-grounded-completion.md): the evidence bar each finding meets.
 - Canonical rule [`validate-inference-before-action`](../../governance/validate-inference-before-action.md): the discipline the step-0 clone check and the apply-time re-read operationalize.
