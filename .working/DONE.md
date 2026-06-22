@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #196 — FR-113 (medium): CAPA + SIEM acronym expansion in README (2026-06-22)
+
+Closes FR-113 by expanding `CAPA` and `SIEM` acronyms at first occurrence in `README.md`'s Repository Structure block, restoring the acronym-expansion pattern established in PRs #172 and #179. Also bundles the mechanical cleanup of fitness-reviews backlog-table rotation for FR-127/128/129 (pre-existing discipline gap surfaced by PR #195's /validate-pr).
+
 ### PR #195 — FR-129 (H[critical]): Internal audit reports retention 5y → 7y (2026-06-22)
 
 Closes FR-129 by raising internal audit reports retention in `governance/register-data-retention-schedule.md` from 5y to 7y, aligning with the internal-audit standard §8.3 canonical 7-year mandate. With PR #194's FR-128 closure, the C3 Convergent Finding (audit-evidence chain breaks) is fully resolved.
