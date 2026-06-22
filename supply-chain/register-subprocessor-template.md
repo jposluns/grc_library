@@ -2,8 +2,8 @@
 
 **Document Title:** Subprocessor Register Template\
 **Document Type:** Register\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-06-22\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/register-cross-border-data-flow.md`](../privacy/register-cross-border-data-flow.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md)\
@@ -118,18 +118,18 @@ Where a subprocessor engages its own sub-subprocessors that will process the org
 
 | Obligation | Frequency | Responsible |
 |---|---|---|
-| Add new subprocessor upon approval | Within 5 business days of DPA execution | DPO / Supplier Risk Manager |
-| Update on change in processing scope or transfer mechanism | Triggered by change | DPO |
-| Customer notification for new subprocessors | Per contract notification lead time | DPO / Legal |
-| Annual full register review | Annual | DPO / Supplier Risk Manager |
-| Remove terminated subprocessors | Within 10 business days of termination | DPO / Supplier Risk Manager |
+| Add new subprocessor upon approval | Within 5 business days of DPA execution | Chief Privacy Officer / Supplier Risk Manager |
+| Update on change in processing scope or transfer mechanism | Triggered by change | Chief Privacy Officer |
+| Customer notification for new subprocessors | Per contract notification lead time | Chief Privacy Officer / Legal |
+| Annual full register review | Annual | Chief Privacy Officer / Supplier Risk Manager |
+| Remove terminated subprocessors | Within 10 business days of termination | Chief Privacy Officer / Supplier Risk Manager |
 | Verify active certifications | Annually | Supplier Risk Manager |
 
 ---
 
 ## Connection to records of processing activities (article 30)
 
-This register forms the processor annex to the organisation's Article 30 Records of Processing Activities. The DPO must ensure that:
+This register forms the processor annex to the organisation's Article 30 Records of Processing Activities. The Chief Privacy Officer must ensure that:
 - Each subprocessor entry is reflected in the relevant processing activity record in the Article 30 register
 - Changes to subprocessors are updated in both registers concurrently
 

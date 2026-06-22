@@ -2,7 +2,7 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.3\
+**Version:** 1.3.4\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -40,16 +40,16 @@ The procedure is aligned to ISO/IEC 27701:2025 (PII principals' rights; section 
 
 | Role | Responsibilities |
 | --- | --- |
-| **Chief Information Officer (CIO, acting DPO)** | Accountable executive for the data subject rights programme. Signs off on all denials. Assumes DPO responsibilities until a formal DPO is appointed. Represents the organisation in regulatory matters relating to data subject rights. |
+| **Chief Information Officer (CIO, acting Chief Privacy Officer)** | Accountable executive for the data subject rights programme. Signs off on all denials. Assumes Chief Privacy Officer responsibilities until a formal Chief Privacy Officer is appointed. Represents the organisation in regulatory matters relating to data subject rights. |
 | **Chief Privacy Officer** | Operational ownership of the DSR process. Manages the DSR register, coordinates fulfilment, reviews responses for accuracy and completeness, and escalates complex or contentious requests to the CIO. |
 | **Legal Counsel** | Advises on exemptions, applicable law, and denial justifications. Reviews and approves responses involving potentially litigation-sensitive information or novel legal questions. |
 | **CISO** | Ensures that technical measures are available to locate, extract, restrict, and delete personal data across systems. Provides guidance on AI system data retrieval and AI-derived data scope. |
 | **IT Operations / System Owners** | Execute data location, extraction, restriction, and deletion actions as directed by the Chief Privacy Officer within defined timeframes. |
 | **All Employees** | Forward any received data subject request to the Chief Privacy Officer immediately upon receipt. No employee may respond to, dismiss, or take action on a DSR without Chief Privacy Officer involvement. |
 
-### 2.2 Acting DPO status
+### 2.2 Acting Chief Privacy Officer status
 
-The CIO currently assumes all responsibilities normally assigned to a Data Protection Officer (DPO) as documented in [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md) §Governance and [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md). All references to DPO in this procedure refer to the CIO in that acting capacity until a formal appointment is made.
+The CIO currently assumes all responsibilities normally assigned to the Chief Privacy Officer (named "Data Protection Officer" in regimes where statute mandates the title; see [`governance/register-role-authority.md`](../governance/register-role-authority.md) for the equivalence convention) as documented in [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md) §Governance and [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md). All references to the Chief Privacy Officer in this procedure refer to the CIO in that acting capacity until a formal appointment is made.
 
 ---
 
@@ -188,11 +188,11 @@ A request may be denied wholly or in part on the following grounds (non-exhausti
 
 1. The Chief Privacy Officer documents the proposed grounds for denial with reference to the specific legal provision.
 2. Legal Counsel reviews the denial rationale and confirms the legal basis.
-3. The CIO (acting DPO) signs off on the denial in writing before notification is sent to the data subject.
+3. The CIO (acting Chief Privacy Officer) signs off on the denial in writing before notification is sent to the data subject.
 4. The data subject is notified in writing of the denial, the specific grounds, and their right to lodge a complaint with the relevant supervisory authority (ICO, OPC, CAI, or other applicable authority).
 5. The denial, its grounds, and the CIO sign-off are recorded in the DSR register.
 
-All denials must be justified in writing and reviewed by the CIO (acting DPO) before being communicated to the data subject, consistent with [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md) §8.
+All denials must be justified in writing and reviewed by the CIO (acting Chief Privacy Officer) before being communicated to the data subject, consistent with [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md) §8.
 
 ---
 
@@ -279,7 +279,7 @@ The following metrics are tracked and reported to the CIO at the quarterly Priva
 | Restriction of processing | GDPR Art. 18; UK GDPR Art. 18 |
 | Objection to processing | GDPR Art. 21; UK GDPR Art. 21; CPPA s.67 |
 | Automated decision review | GDPR Art. 22; UK GDPR Art. 22; CPPA s.63(3) |
-| DPO accountability and record keeping | GDPR Art. 37 to 39; ISO/IEC 27701 §6.2.3 |
+| Chief Privacy Officer accountability and record keeping (GDPR "DPO" provisions) | GDPR Art. 37 to 39; ISO/IEC 27701 §6.2.3 |
 | Retention of DSR records | [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) |
 
 ---

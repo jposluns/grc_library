@@ -2,8 +2,8 @@
 
 **Document Title:** Nigeria Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Privacy Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -27,7 +27,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Nigeria Data Protection Act 2023 (NDPA)**: Signed July 2023; the most significant recent privacy legislation in Sub-Saharan Africa, replacing the Nigeria Data Protection Regulation 2019 (NDPR).
 - Applies to: processing of personal data of Nigerian residents; controllers and processors established in Nigeria; and controllers and processors outside Nigeria where the processing relates to Nigerian residents.
 - Mandatory breach notification within 72 hours to the NDPC for breaches likely to result in harm to data subjects.
-- Data Protection Officers required for controllers processing large volumes or sensitive categories of personal data.
+- Data Protection Officers required for controllers processing large volumes or sensitive categories of personal data. *(This role corresponds to the Chief Privacy Officer in other library prose; see [`../README.md`](../README.md) §Role terminology for the equivalence convention.)*
 - **Regulatory authority:** Nigeria Data Protection Commission (NDPC), established as an independent regulatory agency.
 
 ---

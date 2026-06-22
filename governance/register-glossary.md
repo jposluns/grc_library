@@ -2,7 +2,7 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.2.2\
+**Version:** 1.2.3\
 **Date:** 2026-06-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -103,7 +103,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **DORA** | Digital Operational Resilience Act (EU). Financial-services regulation. See [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md). |
 | **DPA** | Data Processing Agreement. |
 | **DPIA** | Data Protection Impact Assessment (GDPR Art 35). |
-| **DPO** | Data Protection Officer. |
+| **DPO** | Data Protection Officer. The regulatory-mandated name for the Chief Privacy Officer role in jurisdictions where DPO appointment is required by statute (for example, GDPR Article 37, LGPD Article 41, India DPDP Act 2023 §10). See [`register-role-authority.md`](register-role-authority.md) for the canonical role definition. |
 | **DR** | Disaster Recovery. |
 | **DSAR** | Data Subject Access Request. |
 | **DSP** | (CSA CCM domain) Data Security and Privacy Lifecycle Management. Used interchangeably with DCS in CCM v4.1. |

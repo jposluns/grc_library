@@ -2,7 +2,7 @@
 
 **Document Title:** Automated Decision-Making and Profiling Register\
 **Document Type:** Register\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-06-22\
 **Owner:** Chief Privacy Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -54,7 +54,7 @@ Each registered ADM activity is one row. Mandatory fields:
 | ADM ID | Unique identifier |
 | System name | Internal name; not vendor name |
 | Owning business function | Role that owns the decision outcome |
-| Privacy contact | Chief Privacy Officer or domain DPO assigned to this activity |
+| Privacy contact | Chief Privacy Officer or domain privacy lead assigned to this activity |
 | Decision category | Underwriting, employment, fraud, access, pricing, moderation, clinical, safety, other |
 | Description of the decision | Plain-language summary of what the system decides |
 | Legal or similarly significant effect | Statement of why the threshold is met (or that it is not met and the system is registered voluntarily) |

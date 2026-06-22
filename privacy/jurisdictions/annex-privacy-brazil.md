@@ -2,8 +2,8 @@
 
 **Document Title:** Brazil Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Privacy Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -35,7 +35,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Lawful basis (Article 7):** Processing by AI systems requires one of ten lawful bases including consent, legitimate interest, contract performance, legal obligation, and research in the public interest.
 - **Sensitive personal data (Article 11):** AI systems processing health, biometric, racial or ethnic origin, religious belief, political opinion, sexual orientation, genetic, or children's data require consent or another specific Article 11 basis. Consent must be specific, prominent, and separate.
 - **Automated decisions (Article 20):** Data subjects have the right to request review of decisions made solely on the basis of automated processing that affect their interests, including decisions defining personal, professional, consumer, or credit profiles. The controller must provide clear and adequate information about the criteria and procedures used.
-- **Data Protection Officer (DPO) (Articles 41 to 43):** Controllers must designate a DPO (Encarregado). Contact details must be published.
+- **Data Protection Officer (DPO) (Articles 41 to 43):** Controllers must designate a DPO (Encarregado). Contact details must be published. *(This role corresponds to the Chief Privacy Officer in other library prose; see [`../README.md`](../README.md) §Role terminology for the equivalence convention.)*
 - **DPIA (Article 38):** The ANPD may require a Data Protection Impact Assessment (RIPD) for high-risk processing, including processing based on legitimate interest and large-scale processing of sensitive data.
 - **Legitimate interest (Article 10):** Controllers relying on legitimate interest for AI processing must conduct a balancing test and, when requested by the ANPD, provide a DPIA.
 - **ANPD guidance (2024 to 2025):** ANPD has published guidance stating that AI training using personal data requires a specific lawful basis and that data minimization and purpose limitation apply. ANPD has signalled intent to issue sector-specific AI guidance.

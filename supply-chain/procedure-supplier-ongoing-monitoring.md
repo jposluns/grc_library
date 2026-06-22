@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Ongoing Monitoring Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-06-22\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`risk/register-key-risk-indicators.md`](../risk/register-key-risk-indicators.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md)\
@@ -87,7 +87,7 @@ In addition to scheduled activities, the following continuous signals should be 
 | Signal Type | What to Monitor | Action on Alert |
 |---|---|---|
 | **Security ratings** | External security rating drops materially (e.g., by one grade or 10+ points) | Initiate unscheduled security posture review |
-| **Dark web / threat intelligence** | Supplier's credentials or data appear in threat intelligence or breach notifications | Initiate immediate review; assess impact; notify DPO if personal data involved |
+| **Dark web / threat intelligence** | Supplier's credentials or data appear in threat intelligence or breach notifications | Initiate immediate review; assess impact; notify Chief Privacy Officer if personal data involved |
 | **Financial distress signals** | Credit rating downgrade; county court judgements; news of financial difficulty | Initiate contingency planning review; escalate to CRO |
 | **Regulatory sanctions** | Supplier named in regulatory enforcement action | Assess impact on organisation; escalate to CCO and CRO |
 | **Adverse media** | Significant negative news coverage involving security, privacy, or ethical conduct | Review and assess relevance; escalate if material |
@@ -101,10 +101,10 @@ The following events must trigger an immediate unscheduled review regardless of 
 
 | Trigger | Required Action | Timeframe |
 |---|---|---|
-| Supplier discloses a security or data breach | Assess impact; notify DPO; escalate per [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md); update risk register | Within 4 hours of notification |
+| Supplier discloses a security or data breach | Assess impact; notify Chief Privacy Officer; escalate per [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md); update risk register | Within 4 hours of notification |
 | Supplier loses trade compliance programme certification | Assess operational and regulatory impact; engage alternatives if Tier 1 logistics supplier | Within 24 hours |
 | Supplier is acquired, merged, or changes ownership | Re-initiate onboarding security review for affected scope | Within 30 days of announcement |
-| Key security contact or DPO change at supplier | Obtain updated contact details; re-confirm compliance commitments | Within 10 business days |
+| Key security contact or Chief Privacy Officer change at supplier | Obtain updated contact details; re-confirm compliance commitments | Within 10 business days |
 | Supplier announces material technology change affecting service delivery | Re-assess security and continuity implications | Within 30 days of announcement |
 | Contracted security obligation is not met (e.g., late incident notification) | Raise corrective action; document in risk register; escalate if repeated | Within 5 business days |
 

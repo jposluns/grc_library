@@ -2,7 +2,7 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.6\
+**Version:** 1.4.7\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -45,7 +45,7 @@ A personal data breach is also a security incident. The CISO and Chief Privacy O
 | Role | Responsibilities |
 | --- | --- |
 | **CISO** | Joint responsibility for initiating breach response. Leads the technical incident investigation and containment stream per [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md). Notified immediately for all P1 and P2 breaches. Coordinates with the Chief Privacy Officer on notification decisions. |
-| **Chief Information Officer (CIO, acting DPO)** | Executive accountability for regulatory notification decisions. Approves all notifications to supervisory authorities. Signs off on data subject communications. Represents the organisation before regulatory authorities. Notified immediately for all P1 and confirmed P2 privacy breaches. |
+| **Chief Information Officer (CIO, acting Chief Privacy Officer)** | Executive accountability for regulatory notification decisions. Approves all notifications to supervisory authorities. Signs off on data subject communications. Represents the organisation before regulatory authorities. Notified immediately for all P1 and confirmed P2 privacy breaches. |
 | **Chief Privacy Officer** | Operational ownership of the privacy breach response process. Manages the breach register, coordinates jurisdictional notification assessment, prepares regulatory notification content, and oversees the post-breach review. |
 | **Legal Counsel** | Determines notification obligations by jurisdiction. Advises on exemptions, litigation hold, evidence handling, and regulatory engagement strategy. Reviews and approves all regulatory and data subject notifications before submission. |
 | **Security Operations Centre (SOC)** | Detects and triages security events that may constitute personal data breaches. Preserves evidence, executes technical containment, and provides forensic information to support the Chief Privacy Officer's impact assessment. |
@@ -156,7 +156,7 @@ Following containment and initial assessment, the Chief Privacy Officer and Lega
 - Whether data subjects must be individually notified.
 - The content requirements for notifications.
 
-The notification assessment is documented in the breach record and approved by the CIO (acting DPO) before any notification is submitted.
+The notification assessment is documented in the breach record and approved by the CIO (acting Chief Privacy Officer) before any notification is submitted.
 
 ### 6.2 Jurisdiction-specific notification requirements
 
@@ -194,7 +194,7 @@ All regulatory and individual notifications must contain the following informati
 2. **Data categories and approximate volume:** Categories of personal data affected (e.g., contact details, financial data, health data, credentials) and approximate number of records and individuals affected.
 3. **Likely consequences:** Assessment of the likely consequences of the breach for affected individuals.
 4. **Measures taken or proposed:** Description of containment, mitigation, and remediation measures taken or planned.
-5. **Contact details:** Name and contact details of the DPO (or acting DPO/CIO) for further liaison with the supervisory authority.
+5. **Contact details:** Name and contact details of the Chief Privacy Officer (or, where the CIO is acting in that capacity, the CIO) for further liaison with the supervisory authority.
 6. **Affected jurisdictions:** Where the breach affects individuals in multiple jurisdictions, the notification identifies the lead authority and confirms cross-border scope.
 
 ### 7.2 Individual notification content
@@ -202,7 +202,7 @@ All regulatory and individual notifications must contain the following informati
 Individual notifications are written in plain, accessible language and include:
 
 1. A clear description of the nature of the breach.
-2. The name and contact details of the Chief Privacy Officer or acting DPO.
+2. The name and contact details of the Chief Privacy Officer (or, where the CIO is acting in that capacity, the CIO).
 3. A description of the likely consequences of the breach for the individual.
 4. Actions taken by the organisation to address the breach and mitigate its effects.
 5. Steps the individual can take to protect themselves (e.g., change passwords, monitor financial accounts, contact credit bureaus).

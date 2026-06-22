@@ -2,8 +2,8 @@
 
 **Document Title:** India Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.0\
-**Date:** 2026-05-31\
+**Version:** 1.1.1\
+**Date:** 2026-06-22\
 **Owner:** Chief Privacy Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -37,7 +37,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Consent:** Most processing of personal data requires free, specific, informed, and unambiguous consent. Consent requests must be in clear, plain language and in the language specified by the Data Principal. The Consent Manager framework provides a regulated intermediary structure.
 - **Purpose limitation:** Personal data may be processed only for the specified lawful purpose for which consent was given. Repurposing for AI training requires fresh consent or another valid legal ground.
 - **Children's data:** Data Fiduciaries must obtain verifiable consent from a parent or guardian before processing personal data of children (under 18 years; regulations may reduce this to 14 for certain services). Tracking, behavioural monitoring, and targeted advertising directed at children are prohibited without exception.
-- **Significant Data Fiduciaries (SDF):** Entities designated based on volume of data processed, risk to Data Principal rights, potential national security implications, or societal impact. SDFs are subject to: mandatory DPIAs; mandatory annual data audits by accredited auditors; appointment of a Data Protection Officer; and additional accountability mechanisms. Large AI platforms processing personal data at scale are likely SDF candidates.
+- **Significant Data Fiduciaries (SDF):** Entities designated based on volume of data processed, risk to Data Principal rights, potential national security implications, or societal impact. SDFs are subject to: mandatory DPIAs; mandatory annual data audits by accredited auditors; appointment of a Data Protection Officer; and additional accountability mechanisms. Large AI platforms processing personal data at scale are likely SDF candidates. *(The Data Protection Officer here corresponds to the Chief Privacy Officer in other library prose; see [`../README.md`](../README.md) §Role terminology for the equivalence convention.)*
 - **Automated decision-making:** Data Fiduciaries must provide transparent information about automated decision-making processes that result in significant decisions affecting Data Principals. Data Principals have the right to seek explanation and to contest such decisions.
 - **Transparency:** Notice must be provided at or before the point of data collection, including: nature of data; purpose of processing; manner of exercising Data Principal rights; and contact details of the grievance officer.
 - **Data retention:** Personal data must be erased once the purpose for which it was collected is fulfilled or consent is withdrawn, unless retention is required by law.

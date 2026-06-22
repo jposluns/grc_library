@@ -2,8 +2,8 @@
 
 **Document Title:** DPIA (Data Protection Impact Assessment) Template\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-06-21\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Privacy Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/register-automated-decision-making.md`](register-automated-decision-making.md), [`privacy/framework-childrens-data.md`](framework-childrens-data.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md)\
@@ -43,7 +43,7 @@ Where the processing involves an AI system, this template is used together with 
 1. Begin with the Article 35(1) trigger checklist (Section 1). If any explicit trigger applies, a DPIA is required.
 2. If no explicit trigger applies, work through the EDPB WP248 nine-criteria framework (Section 2). When two or more criteria apply, a DPIA is required. When one criterion applies, a DPIA may still be appropriate; document the rationale for the decision either way.
 3. If a DPIA is required, complete the Article 35(7) content checklist (Section 3) for the processing operation.
-4. Submit the completed DPIA to the Data Protection Officer (or the role acting as DPO) for review per the operative procedure.
+4. Submit the completed DPIA to the Chief Privacy Officer (or the role acting in that capacity) for review per the operative procedure.
 5. Where the residual risk after mitigation remains high, consult the supervisory authority under Article 36 prior to commencing the processing.
 6. Record the DPIA reference identifier in the Record of Processing Activities entry for the processing operation (see [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), controller-view field "DPIA reference").
 
@@ -174,7 +174,7 @@ Measures must include, at minimum: technical measures (encryption at rest and in
 | --- | --- |
 | Assessor | Role that completed the DPIA |
 | Date completed | |
-| DPO review | Date of DPO (or acting DPO) review and the DPO's opinion |
+| Chief Privacy Officer review | Date of Chief Privacy Officer (or acting Chief Privacy Officer) review and the reviewer's opinion |
 | Approver | Role with authority to approve the processing on the basis of the DPIA |
 | Date approved | |
 | Date of next scheduled review | At minimum annual; sooner upon material change |

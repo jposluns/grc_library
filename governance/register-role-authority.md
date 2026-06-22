@@ -2,7 +2,7 @@
 
 **Document Title:** Role Authority Register\
 **Document Type:** Register\
-**Version:** 1.4.0\
+**Version:** 1.4.1\
 **Date:** 2026-06-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -36,7 +36,7 @@ This register defines generic governance roles used across the GRC Documentation
 | Chief Information Security Officer | Information security programme, security risk, control assurance, incident governance, and security standards. | Security standards, security exceptions, incident response procedures. |
 | Chief Risk Officer | Enterprise risk methodology, risk appetite alignment, risk aggregation, and risk reporting. | Enterprise risk framework, risk taxonomy, risk reporting. |
 | Chief Compliance Officer | Compliance management, obligation tracking, control assurance, and regulatory response coordination. | Compliance policy, obligation register, compliance assurance plan. |
-| Chief Privacy Officer | Privacy governance, personal data protection, impact assessments, and data subject rights. | Privacy policy, impact assessment procedure, breach response procedure. |
+| Chief Privacy Officer | Privacy governance, personal data protection, impact assessments, and data subject rights. In jurisdictions where statute names a Data Protection Officer (DPO) (for example, GDPR Article 37, LGPD Article 41, India DPDP Act 2023 §10, Malaysia PDPA as amended by Act A1727), the DPO is the regulatory analogue of the Chief Privacy Officer and the two titles may be used interchangeably; the accountability set above applies in either form. Jurisdiction-specific annexes retain "DPO" as the regulatory term of the local statute. | Privacy policy, impact assessment procedure, breach response procedure. |
 | Chief Data Officer | Data governance, data quality, lifecycle management, data lineage, and data stewardship. | Data governance standards, classification model, retention model. |
 | Chief Audit Executive | Internal audit function head; audit planning, audit assurance, and audit-committee reporting. | Audit plan, audit charter, audit findings. |
 | AI Governance Lead | Umbrella AI governance role chairing the AI governance function and coordinating the AI Governance Approver, AI Data Steward, and AI System Inventory Keeper. Typically the AI Governance Council secretariat. | AI governance framework, AI impact assessment, AI exceptions. |

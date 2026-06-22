@@ -2,8 +2,8 @@
 
 **Document Title:** Turkey Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Privacy Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -25,7 +25,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 ## Applicable laws and regulatory authorities
 
 - **Law on the Protection of Personal Data (KVKK) No. 6698**: Effective April 2016; substantially amended by Law No. 7499 (enacted March 2024, in force June 2024), harmonizing the KVKK with GDPR in several respects.
-- **Key 2024 amendments:** Explicit consent requirements aligned with GDPR standards; legitimate interest introduced as a lawful basis; new cross-border transfer mechanism through commitments (analogous to SCCs); enhanced rights including data portability; strengthened DPO-type obligations for large data processors.
+- **Key 2024 amendments:** Explicit consent requirements aligned with GDPR standards; legitimate interest introduced as a lawful basis; new cross-border transfer mechanism through commitments (analogous to SCCs); enhanced rights including data portability; strengthened DPO-type obligations for large data processors. *(The DPO here corresponds to the Chief Privacy Officer in other library prose; see [`../README.md`](../README.md) §Role terminology for the equivalence convention.)*
 - **Regulatory authority:** Personal Data Protection Authority (KVKK Board / Kişisel Verileri Koruma Kurumu).
 
 ---

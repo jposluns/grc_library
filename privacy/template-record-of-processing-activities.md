@@ -2,7 +2,7 @@
 
 **Document Title:** Record of Processing Activities Template\
 **Document Type:** Template\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-06-22\
 **Owner:** Chief Privacy Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -37,7 +37,7 @@ This template applies to every processing activity carried out by the organisati
 | Activity ID | Unique identifier within the ROPA | Use a stable identifier; do not reuse on activity termination |
 | Activity name | Short human-readable name | Avoid product or vendor names |
 | Business owner role | Role accountable for the activity | Role-based; not a named individual |
-| Privacy contact role | Role responsible for the privacy aspect | Typically the Chief Privacy Officer or domain DPO |
+| Privacy contact role | Role responsible for the privacy aspect | Typically the Chief Privacy Officer or domain privacy lead |
 | Purposes of processing | All purposes for which the data is processed | One row may carry multiple purposes; granular description |
 | Lawful basis (per jurisdiction) | Lawful basis under each applicable regime | E.g. GDPR Art 6(1)(b) contract; CPPA Sec 12 consent |
 | Categories of data subjects | Customer, employee, supplier, prospect, visitor, child, patient, etc. | Identify children separately where applicable |

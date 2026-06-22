@@ -2,7 +2,7 @@
 
 **Document Title:** Supplier Security and Privacy Assurance Standard\
 **Document Type:** Standard\
-**Version:** 1.1.1\
+**Version:** 1.1.2\
 **Date:** 2026-06-22\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -158,7 +158,7 @@ Where a supplier fails to meet the requirements of this standard:
 2. **Issue a corrective action notice**: give the supplier a defined timeframe to remediate (typically 30 to 90 days depending on severity)
 3. **Escalate to senior management** if the supplier does not remediate within the agreed timeframe
 4. **Initiate exit proceedings** if the supplier is unwilling or unable to meet minimum requirements: follow [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md)
-5. **Notify the Data Protection Officer** if the gap involves a personal data processing risk
+5. **Notify the Chief Privacy Officer** if the gap involves a personal data processing risk
 
 ---
 

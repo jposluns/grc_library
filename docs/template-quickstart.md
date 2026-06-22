@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Quickstart Template\
 **Document Type:** Template\
-**Version:** 3.0.0\
-**Date:** 2026-06-21\
+**Version:** 3.0.1\
+**Date:** 2026-06-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md), [`README.md`](../README.md)\
@@ -40,7 +40,7 @@ Every adopter needs these three things in the first session, regardless of size 
 
 2. **Substitute the role names.** Every artefact in the library names roles, not people. Map each role to a real person in your organisation in a private overlay. Do not edit named individuals into the artefacts themselves.
 
-3. **Point at the portal.** Browse [`docs/portal.md`](portal.md) to see which other documents fit your audience (CIO, CISO, DPO, auditor, engineering team, etc.). Take only the documents that match your sector, jurisdiction, and operating model.
+3. **Point at the portal.** Browse [`docs/portal.md`](portal.md) to see which other documents fit your audience (CIO, CISO, Chief Privacy Officer, auditor, engineering team, etc.). Take only the documents that match your sector, jurisdiction, and operating model.
 
 That is the quickstart. An organisation that has done these three things has a defensible floor.
 

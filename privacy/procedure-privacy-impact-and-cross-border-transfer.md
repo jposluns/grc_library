@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Impact and Cross-Border Transfer Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.3\
-**Date:** 2026-06-21\
+**Version:** 1.3.4\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-dpia.md`](template-dpia.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -34,7 +34,7 @@ This procedure defines the process for conducting Privacy Impact Assessments (PI
 
 | Role | Responsibility |
 |---|---|
-| CIO (acting DPO) | Accountable for ensuring PIAs and cross-border transfer reviews are completed in compliance with global privacy laws. |
+| CIO (acting Chief Privacy Officer) | Accountable for ensuring PIAs and cross-border transfer reviews are completed in compliance with global privacy laws. |
 | CISO | Ensures that technical and organisational measures are implemented to mitigate identified risks. |
 | AIGC | Reviews AI-related impact assessments for ethical, transparency, and accountability alignment. |
 | Executive Risk Committee (ERC) | Approves high-risk processing activities requiring escalation beyond the CIO. |
@@ -54,7 +54,7 @@ High-risk processing activities require CIO approval and ERC escalation.
 - Introduction of AI or ML components.
 - Expansion of processing to new jurisdictions.
 
-The Project Owner must notify the Privacy Office or CIO (acting DPO) before data collection or processing begins. Where the processing is subject to GDPR (or an equivalent regime), the Project Owner must work through the Article 35(1) trigger checklist and the EDPB WP248 nine-criteria framework set out in Section 1 and Section 2 of [`privacy/template-dpia.md`](template-dpia.md) before concluding whether a DPIA is required.
+The Project Owner must notify the Privacy Office or CIO (acting Chief Privacy Officer) before data collection or processing begins. Where the processing is subject to GDPR (or an equivalent regime), the Project Owner must work through the Article 35(1) trigger checklist and the EDPB WP248 nine-criteria framework set out in Section 1 and Section 2 of [`privacy/template-dpia.md`](template-dpia.md) before concluding whether a DPIA is required.
 
 ---
 
@@ -108,7 +108,7 @@ For EU transfers involving AI systems:
 
 ### Step 5: Consultation and approval
 
-- The CIO (acting DPO) reviews all completed PIAs and transfer assessments.
+- The CIO (acting Chief Privacy Officer) reviews all completed PIAs and transfer assessments.
 - For AI systems or high-risk processing, the AIGC conducts additional review per ISO/IEC 42005:2025 and EU AI Act Annex IV.
 - If residual risk remains high, executive sign-off by the ERC and Legal Counsel is required before go-live.
 

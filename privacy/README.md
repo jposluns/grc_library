@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Domain README\
 **Document Type:** Register\
-**Version:** 1.1.2\
-**Date:** 2026-06-21\
+**Version:** 1.1.3\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -85,12 +85,18 @@ This directory contains privacy governance artefacts covering data protection po
 
 The privacy domain covers:
 
-- **Privacy governance**: programme charter, DPO accountability, privacy-by-design requirements, regulatory obligations by jurisdiction.
+- **Privacy governance**: programme charter, Chief Privacy Officer accountability, privacy-by-design requirements, regulatory obligations by jurisdiction.
 - **Data governance**: data quality, lineage, classification, and lifecycle management.
 - **Privacy impact assessment**: PIA/AI-IA process, cross-border transfer assessment, children's data safeguards.
 - **Data subject rights**: access, correction, deletion, portability, objection, and restriction request handling.
 - **Breach response**: privacy breach response triggers, regulatory notification timelines, coordination with security incident response.
 - **AI training data**: provenance, consent, reidentification risk, EU Data Act (Regulation (EU) 2023/2854) compliance.
+
+---
+
+## Role terminology
+
+This domain uses **Chief Privacy Officer** as the canonical role title. GDPR-jurisdiction adopters and adopters subject to other regimes that statutorily mandate a Data Protection Officer (for example, Brazil LGPD, India DPDP Act 2023, Malaysia PDPA from 1 June 2025) may substitute **Data Protection Officer (DPO)** in their forks without other changes; see [`governance/register-role-authority.md`](../governance/register-role-authority.md) for the canonical equivalence convention. Privacy-jurisdiction annexes under [`privacy/jurisdictions/`](jurisdictions/) retain "DPO" where it is the regulatory term of the local statute.
 
 ---
 

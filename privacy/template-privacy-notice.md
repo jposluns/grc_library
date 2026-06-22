@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Notice Template\
 **Document Type:** Template\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-06-22\
 **Owner:** Chief Privacy Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -41,7 +41,7 @@ Each privacy notice instantiated from this template must contain the following b
 | Legal name of the controller | The organisation's legal entity name |
 | Postal address | Registered office or other publishable contact address |
 | Privacy contact | Privacy-team contact route; commonly an email and a postal address |
-| Data Protection Officer (where appointed) | DPO contact route or statement that no DPO is appointed |
+| Data Protection Officer (where statutorily appointed under GDPR or an equivalent regime) | Contact route, or statement that no Data Protection Officer is appointed; the Chief Privacy Officer fills the equivalent role where statute does not require the DPO title |
 | EU representative (where the controller is non-EU but subject to GDPR) | Representative name and contact |
 | UK representative (where the controller is non-UK but subject to UK GDPR) | Representative name and contact |
 | Other jurisdictional representatives | As required by applicable laws |

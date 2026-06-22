@@ -2,8 +2,8 @@
 
 **Document Title:** Regulator Interaction Templates\
 **Document Type:** Template\
-**Version:** 1.0.0\
-**Date:** 2026-06-20\
+**Version:** 1.0.1\
+**Date:** 2026-06-22\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -112,7 +112,7 @@ Subject: Notification under <framework section, e.g. GDPR Article 33>
    Next update to the regulator: <date>
    Final report expected: <date or "per framework requirements">
 
-Signed: <named senior officer per the framework's signatory requirements; e.g. DPO, CISO, CCO>
+Signed: <named senior officer per the framework's signatory requirements; e.g. Chief Privacy Officer, CISO, CCO>
 ```
 
 ### Notes

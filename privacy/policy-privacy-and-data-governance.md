@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy and Data Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.4.0\
-**Date:** 2026-06-21\
+**Version:** 1.4.1\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -37,9 +37,9 @@ This policy defines principles, governance structure, and control framework for 
 
 ### Accountable roles
 
-1. The **Chief Information Officer (CIO)** serves as the accountable executive for global data governance and assumes all responsibilities normally assigned to the Data Protection Officer (DPO) until that role is appointed.
+1. The **Chief Information Officer (CIO)** serves as the accountable executive for global data governance and assumes all responsibilities normally assigned to the Chief Privacy Officer until that role is appointed.
 2. The **Chief Information Security Officer (CISO)** ensures that security controls protect data confidentiality, integrity, and availability.
-3. The CIO, in the capacity of acting DPO, represents the organisation before regulatory authorities and oversees the organisation's compliance with applicable privacy laws.
+3. The CIO, in the capacity of acting Chief Privacy Officer, represents the organisation before regulatory authorities and oversees the organisation's compliance with applicable privacy laws.
 4. **Regional Data Stewards and Privacy Leads** ensure that compliance with local data protection laws (EU GDPR, CPPA, PIPL, LGPD, etc.).
 
 ### Governance committees
@@ -51,7 +51,7 @@ This policy defines principles, governance structure, and control framework for 
 
 | Role | Responsibilities |
 |---|---|
-| CIO (acting DPO) | Accountable for compliance with privacy and data protection laws, overseeing PIMS implementation, regulatory reporting, and response to data subject requests until a DPO is appointed. |
+| CIO (acting Chief Privacy Officer) | Accountable for compliance with privacy and data protection laws, overseeing PIMS implementation, regulatory reporting, and response to data subject requests until a Chief Privacy Officer is appointed. |
 | CISO | Implements and monitors technical security measures to ensure that data protection and integrity. |
 | Data Owners | Accountable for accuracy, quality, and lawful use of data within their domain. |
 | Data Stewards | Maintain data dictionaries, classification schemes, and quality validation rules. |
@@ -111,7 +111,7 @@ This policy defines principles, governance structure, and control framework for 
 
 - Individuals shall have the right to access, correct, delete, or port their personal data as required under GDPR, CPPA, and PIPL.
 - Requests must be processed within legal timeframes (typically 30 days).
-- Denials must be justified in writing and reviewed by the CIO (acting DPO).
+- Denials must be justified in writing and reviewed by the CIO (acting Chief Privacy Officer).
 
 ### 9. Third-party and supplier governance
 
@@ -121,7 +121,7 @@ This policy defines principles, governance structure, and control framework for 
 
 ### 10. Incident response and breach management
 
-- Data breaches shall be reported immediately to the CISO and CIO (acting DPO).
+- Data breaches shall be reported immediately to the CISO and CIO (acting Chief Privacy Officer).
 - Regulatory notifications shall be issued within 72 hours (GDPR standard) or as required by local laws.
 - Post-incident reviews shall determine root cause, impact, and mitigation actions.
 

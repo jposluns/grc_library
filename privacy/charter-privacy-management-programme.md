@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Management Programme Charter\
 **Document Type:** Charter\
-**Version:** 1.3.1\
+**Version:** 1.3.2\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -37,12 +37,12 @@ The following roles hold defined accountability within the Privacy Management Pr
 | Role | Accountability |
 |---|---|
 | **Chief Information Officer (CIO)** | Executive accountability for the privacy programme. Signs off on material privacy risk decisions. |
-| **Chief Privacy Officer / DPO** | Operational ownership of the privacy programme. Manages regulatory obligations, data subject requests, PIA oversight, and cross-border transfer assessment. |
+| **Chief Privacy Officer** | Operational ownership of the privacy programme. Manages regulatory obligations, data subject requests, PIA oversight, and cross-border transfer assessment. |
 | **Chief Information Security Officer (CISO)** | Accountable for information security controls that protect personal data. Joint responsibility with the Chief Privacy Officer for data breach response. |
 | **Legal Counsel** | Advises on regulatory notification obligations; manages regulatory relationships; reviews Data Processing Agreement (DPA) documentation. |
 | **Human Resources** | Manages employee personal data; ensures that HR data processing complies with applicable employment privacy law. |
 
-> **Interim Accountability:** Where a formal Chief Privacy Officer or DPO has not yet been designated, the CIO assumes these responsibilities as interim accountability.
+> **Interim Accountability:** Where a formal Chief Privacy Officer has not yet been designated, the CIO assumes these responsibilities as interim accountability.
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Kenya Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Privacy Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -27,7 +27,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Data Protection Act 2019 (Act No. 24 of 2019)**: Fully in force. Applies to data controllers and processors established in Kenya, and to processing of personal data of persons in Kenya by controllers or processors outside Kenya.
 - Key rights: access to personal data; correction; deletion; portability; right to object to processing; right not to be subject to automated decision-making.
 - Mandatory breach notification without undue delay, and within 72 hours where feasible.
-- Data Protection Officers required for entities engaging in large-scale systematic monitoring or large-scale processing of sensitive categories.
+- Data Protection Officers required for entities engaging in large-scale systematic monitoring or large-scale processing of sensitive categories. *(This role corresponds to the Chief Privacy Officer in other library prose; see [`../README.md`](../README.md) §Role terminology for the equivalence convention.)*
 - **Regulatory authority:** Office of the Data Protection Commissioner (ODPC).
 
 ---
