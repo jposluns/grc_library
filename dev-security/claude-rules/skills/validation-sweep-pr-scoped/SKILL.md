@@ -126,6 +126,20 @@ The PR-scoped sweep is a single-iteration cycle: dispatch, check, triage, record
 
 There is no fixed-point loop (unlike `/validate`'s iterative cycle). Per-PR sweeps are short-lived; the corpus-wide sweep handles deeper iteration.
 
+### Batching into the next PR (recursion-avoidance)
+
+The no-skip-discretion discipline says every merge gets a `/validate-pr` invocation, and every invocation gets a history row. Applied naively this creates a recursion: PR #N's history row (or fix-PR) needs its own PR #N+1, whose own /validate-pr generates more recording or fix work, and so on. The PR cascade compounds even when each subsequent invocation returns trivial findings or zero findings.
+
+**Resolution**: `/validate-pr` outputs are **batched into the next PR, whatever its substantive purpose**. Two sub-cases:
+
+1. **Zero-finding invocations**: the history row alone is deferred. Append it to `.working/validate-pr/history.md` as part of the next PR's diff, alongside the next PR's other changes. The /validate-pr invocation itself still runs immediately after the merge it follows; only the row commit waits.
+
+2. **Findings-producing invocations**: the fix(es) for the surfaced findings are bundled into the next PR. Do NOT open a dedicated hot-fix PR for /validate-pr findings; the next PR (whatever its purpose) absorbs the fixes alongside its own work. This keeps the PR-per-finding cascade from compounding. The findings still get a history row immediately (same as zero-finding); the row records "fixed in PR #N+M" once the next PR ships the fix.
+
+A findings-producing `/validate` (the corpus-wide sibling) may still warrant its own close-out PR when the findings are numerous or coherent enough to make a dedicated PR clearer than a bundle, but this is the exception, not the default; for `/validate-pr` the bundle is always the default.
+
+The batching's audit trail is intact: the history row records the originating PR number and the closing PR number, so a future reader traces from the row to both the source and the fix in one hop. The discipline is preserved; only the ship-immediacy is relaxed.
+
 ## Red Flags
 
 - `/validate-pr` skipped because "no findings expected" , every merge generates new state worth checking; the per-PR record is the proof-of-check.
