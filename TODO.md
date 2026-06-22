@@ -10,8 +10,8 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #211 merge).
-- **Library version as of last refresh**: `2026.06.190`. **Pack version**: `1.44.1`. **README version**: `1.9.61`.
+- **Branch at last refresh**: `main` (synced after PR #212 merge).
+- **Library version as of last refresh**: `2026.06.191`. **Pack version**: `1.44.1`. **README version**: `1.9.62`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
 - **Last validation sweep**: Sweep 17 iteration 1 (close-out PR #186); /validate-pr on PR #187 closed out in PR #188; /validate-pr on PR #188 closed out in PR #189; /validate-pr on PR #189 closed out in PR #190 (third consecutive findings-producing /validate-pr; r1/r2 cross-date ambiguity resolved structurally in PR #190).
 - **Last fitness review**: 2026-06-22's r1 (PR #188 records); Pass-1 verification pending next session.
@@ -71,23 +71,20 @@ Source: [`.working/fitness-reviews/2026-06-21-r1.md`](.working/fitness-reviews/2
 
 **No remediation work has begun.** This section is the maintainer's review surface for prioritization. Each FR-N becomes its own (or grouped) PR at the maintainer's direction.
 
-### Special: FR-14 — Maturity-ladder reconciliation, library-wide CMMI propagation
+### Special: FR-14 + FR-114 — Maturity-ladder reconciliation (**CLOSED in PR #212**)
 
-Resolved from `🤔` to `✅` in Pass-2 with a library-wide propagation plan:
+CMMI 5-tier (Initial / Managed / Defined / Quantitatively Managed / Optimized) is now canonical across the three target surfaces:
+- `governance/framework-governance-performance-and-improvement.md` §2 — already CMMI; no change required.
+- `docs/template-maturity-self-assessment.md` — Tier 2/4/5 renamed to CMMI canonical (PR #212).
+- `governance/register-digital-trust-and-assurance-metrics.md` — DTI thresholds replaced with 5-tier CMMI even 1.0-band scheme (PR #212).
 
-- Reconcile to **CMMI 5-tier** (Initial / Managed / Defined / Quantitatively Managed / Optimized). The authoritative source.
-- Concrete scope:
-  - `governance/framework-governance-performance-and-improvement.md` — already CMMI; baseline. No change unless audit surfaces drift.
-  - `docs/template-maturity-self-assessment.md` — rename Tier 2 "Managed" (currently "Developing") and Tier 4 "Quantitatively Managed" (currently "Managed") back to CMMI canonical.
-  - `governance/register-digital-trust-and-assurance-metrics.md` — replace the 4-tier DTI variant (Developing/Managed/Integrated/Optimized) with CMMI 5-tier.
-- Forward-looking convention: prevent future divergence. Candidate mechanisms:
-  - New audit gate: prose-scan for maturity-tier vocabulary against CMMI canonical names.
-  - Or a documented standard in `governance/` (`standard-maturity-tier-vocabulary.md`) that other documents cite.
-- Severity: High[critical] (was high[critical]). Originating run: r1.
+**Forward-looking convention candidates** (deferred for future PR):
+- New audit gate: prose-scan for maturity-tier vocabulary against CMMI canonical names.
+- Or a documented standard in `governance/` (`standard-maturity-tier-vocabulary.md`) that other documents cite.
 
 ### High[critical] tier — 10 findings (immediate priority)
 
-- **FR-14** (maturity ladder): see Special section above.
+- **FR-14** (maturity ladder): **CLOSED in PR #212** — CMMI 5-tier reconciled across template + DTI register.
 - **FR-30** (privacy + supply-chain): No standalone Article 28 DPA template. Ship `privacy/template-dpa-article-28.md`.
 - **FR-31** (privacy): Privacy by Design (Article 25) has no operational artefact. Ship `privacy/framework-privacy-by-design.md` mapping seven foundational principles to architecture/dev-security workflows.
 - **FR-32** (privacy): No Legitimate Interest Assessment template. Ship `privacy/template-legitimate-interest-assessment.md`.
@@ -164,9 +161,8 @@ Source: [`.working/fitness-reviews/2026-06-22-r1.md`](.working/fitness-reviews/2
 - **C2: Emergency-access trigger ambiguity** (P2 + P6 + P7) — all 6 deferred (FR-121, FR-122, FR-123, FR-124, FR-125, FR-126). Each needs an operational-threshold decision ("material harm" definition; "declared incident response" tied to specific status; "delegated security lead" role definition; revocation timeline pick; escalation clause shape). Recommended action: single combined "Access-control operational clarity" PR after maintainer-supplied thresholds.
 - **C3: Retention chain breaks** (P4) — **fully closed**: FR-128 (PR #194), FR-129 (PR #195). PR #179's 5y→7y bump on control-testing evidence has now propagated to CAPA records and internal audit reports. AI audit reports and Supplier audit reports remain at 5y in the same register; whether to raise those is a separate maintainer decision (different audit programmes; possibly different retention drivers).
 
-### High[critical] tier — 3 findings from the 2026-06-22 review (FR-127 closed in PR #193, FR-128 closed in PR #194, FR-129 closed in PR #195)
+### High[critical] tier — 2 findings from the 2026-06-22 review (FR-127 closed in PR #193, FR-128 closed in PR #194, FR-129 closed in PR #195, FR-114 closed in PR #212)
 
-- **FR-114** (`governance/register-digital-trust-and-assurance-metrics.md` line 65): DTI uses 4-tier non-CMMI vocabulary; framework uses 5-tier CMMI. **Closely tied to r1 FR-14** which is still pending; recommend bundling.
 - **FR-121** (`security/procedure-access-control.md` line 64): Emergency-access "material business or safety harm" undefined. Three personas surfaced independently.
 - **FR-122** (`security/procedure-access-control.md` line 64): "Declared incident response" not tied to a specific incident status (P1/P2/P3/P4).
 

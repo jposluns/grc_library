@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Maturity Self-Assessment Template\
 **Document Type:** Template\
-**Version:** 1.0.2\
-**Date:** 2026-06-21\
+**Version:** 1.0.3\
+**Date:** 2026-06-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`docs/template-quickstart.md`](template-quickstart.md), [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`docs/decision-tree.md`](decision-tree.md), [`README.md`](../README.md)\
@@ -20,7 +20,7 @@
 
 This template is a guided self-assessment that lets an adopting organisation score its own programme maturity per library domain and overall. The result is a programme-shaped picture of where the adoption is mature and where it is shallow, with concrete next-step guidance per tier.
 
-The existing [`docs/maturity-scorecard.md`](maturity-scorecard.md) rates each library document's stability (Mature, Baseline, Draft). This template rates the adopter's own **adoption maturity** across five tiers, modelled on the standard process-maturity ladder (Initial, Developing, Defined, Managed, Optimising). The two scorecards are complementary: the library scorecard tells the adopter which artefacts are stable enough to copy; the adopter assessment tells the adopter how mature their own use of those artefacts is.
+The existing [`docs/maturity-scorecard.md`](maturity-scorecard.md) rates each library document's stability (Mature, Baseline, Draft). This template rates the adopter's own **adoption maturity** across five tiers, modelled on the CMMI canonical process-maturity ladder (Initial, Managed, Defined, Quantitatively Managed, Optimized; aligned with [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md) §2 (Maturity assessment)). The two scorecards are complementary: the library scorecard tells the adopter which artefacts are stable enough to copy; the adopter assessment tells the adopter how mature their own use of those artefacts is.
 
 Self-assessment is honest by design. Adopters are encouraged to score conservatively. A Tier-3 programme that knows it is Tier 3 is more useful than a Tier-3 programme that believes it is Tier 4 because the latter will be surprised by an external audit and the former will not.
 
@@ -45,10 +45,10 @@ The five tiers, modelled on the process-maturity ladder used in NIST CSF Tiers, 
 | Tier | Name | Definition |
 | --- | --- | --- |
 | 1 | Initial | Ad-hoc, reactive. Artefacts copied from the library exist but have not been customised. No assigned owner. Activity is incident-driven. |
-| 2 | Developing | Some artefacts customised. Ownership assigned for the core artefacts (policy, register). Activity is mostly reactive but a basic cadence exists. |
-| 3 | Defined | Artefacts customised to the organisation's operating model. Ownership assigned for all in-scope artefacts. Documented review cadence applied. Activity is repeatable and broadly applied. |
-| 4 | Managed | Quantitative metrics on programme health (review completion rate, control-test pass rate, finding-closure time, etc.). Programme adjustments driven by data, not by opinion. |
-| 5 | Optimising | Continuous improvement loop in place. Metrics drive targeted improvements; lessons learned feed back into artefact updates. The library-derived programme is itself a contributor to upstream improvement (issues filed against the library where the adopter has found gaps). |
+| 2 | Managed | Some artefacts customised. Ownership assigned for the core artefacts (policy, register). Activity is mostly reactive but a basic cadence exists; processes repeatable and tracked, with basic metrics defined. |
+| 3 | Defined | Artefacts customised to the organisation's operating model. Ownership assigned for all in-scope artefacts. Documented review cadence applied. Activity is repeatable and broadly applied; processes standardised and documented for organisation-wide consistency. |
+| 4 | Quantitatively Managed | Quantitative metrics on programme health (review completion rate, control-test pass rate, finding-closure time, etc.). Programme adjustments driven by data, not by opinion; statistical controls applied to quantitative objectives. |
+| 5 | Optimized | Continuous improvement loop in place. Metrics drive targeted improvements; lessons learned feed back into artefact updates. The library-derived programme is itself a contributor to upstream improvement (issues filed against the library where the adopter has found gaps). |
 
 A programme can be at different tiers per domain. A multi-national might be Tier 4 in `compliance/financial-services/` (heavy external scrutiny drives maturity) and Tier 2 in `architecture/` (less external pressure).
 
@@ -244,7 +244,7 @@ Focus: get to Tier 2 in the highest-exposure domain first. Pick one domain (typi
 
 Investing in a second domain at Tier 1 is less valuable than getting the first domain to Tier 2.
 
-### If your programme tier is 2 (Developing)
+### If your programme tier is 2 (Managed)
 
 Focus: get to Tier 3 across the in-scope domains. The differentiator between Tier 2 and Tier 3 is **consistency**. Tier-3 progression is best achieved by:
 
@@ -264,7 +264,7 @@ Focus: introduce metrics. The differentiator between Tier 3 and Tier 4 is **quan
 
 Metric inflation is a Tier-4 trap; pick fewer than 10 metrics total and keep them stable for at least four cycles before adjusting.
 
-### If your programme tier is 4 (Managed)
+### If your programme tier is 4 (Quantitatively Managed)
 
 Focus: close the improvement loop. The differentiator between Tier 4 and Tier 5 is **learning**. Tier-5 progression is best achieved by:
 
@@ -274,7 +274,7 @@ Focus: close the improvement loop. The differentiator between Tier 4 and Tier 5 
 
 A programme stays at Tier 4 if the metrics inform conversations but do not change artefacts.
 
-### If your programme tier is 5 (Optimising)
+### If your programme tier is 5 (Optimized)
 
 The programme has reached the top of the standard ladder. Maintenance at this tier requires:
 
