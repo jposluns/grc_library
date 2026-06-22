@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #225 — Closes FR-38 (medium, P2.1): GDPR Article 12(5) assessment checklist (2026-06-22)
+
+`privacy/procedure-data-subject-rights-management.md` §7 expanded from one line on Article 12(5) into a 7-subsection checklist: default free of charge; 4-criterion manifestly-unfounded test; 4-criterion manifestly-excessive test; either/or action options (fee or refuse); 5-step burden-of-proof documentation; reasonable-fee cost-recovery calculation; cross-regime equivalents (UK GDPR, LGPD, PIPL, CPPA/PIPEDA, CCPA/CPRA, APPI). Per-doc `1.3.5 → 1.4.0`. Also carries deferred PR #224 /validate-pr + /retro register rows.
+
 ### PR #224 — Closes FR-37 (medium, P2.1): Joint controller arrangement template (Article 26) (2026-06-22)
 
 New template `privacy/template-joint-controller-arrangement.md` (v1.0.0) covering GDPR Article 26 joint controller arrangements with 9 sections (identification, joint processing, allocation of GDPR responsibilities table, operational coordination, liability, termination, cross-regime alternatives for UK GDPR / LGPD / PIPL / India DPDP / CPPA / CCPA, documentation, essence-of-arrangement publication). Cross-listed in privacy/README and document-index register. Also carries deferred PR #223 /validate-pr + /retro register rows.
