@@ -13,7 +13,7 @@ These are **as-of-session-pause snapshots**, not "current HEAD" claims. They ref
 - **Branch at last refresh**: `main` (synced after PR #215 merge).
 - **Library version as of last refresh**: `2026.06.193`. **Pack version**: `1.45.1`. **README version**: `1.9.64`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
-- **Last validation sweep**: Sweep 18 iteration 1 (clean bill: 0 in-window, 0 out-of-window across all three subagents; post PRs #186-#214). Row batched into next substantive PR per the recursion-avoidance rule.
+- **Last validation sweep**: Sweep 19 iteration 1 (2 in-window warnings in `governance/guideline-minimum-viable-governance-structure.md` lines 67 + 114, stale "CPO" in executive-role enumerations missed by PR #218's spelled-out-only rename script; both fixed in close-out PR #220 alongside the deferred PR #219 /validate-pr + /retro register rows; post PRs #215-#219).
 - **Last fitness review**: 2026-06-22's r1; Pass-1 verification complete in PR #204.
 - **Timezone convention**: UTC (codified in CLAUDE.md per PR #190).
 
