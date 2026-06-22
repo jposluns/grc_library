@@ -1,7 +1,7 @@
 # PR-Scoped Validation History
 
-**Version:** 1.0.1\
-**Date:** 2026-06-21\
+**Version:** 1.1.0\
+**Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
 Reverse-chronological table of every `/validate-pr` invocation against this library. New rows on top. Each row summarises the PR-scoped sweep; detail for findings-producing sweeps lives in the per-PR file linked from the **Detail** column.
@@ -12,5 +12,6 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | 187 | 12 | 2 (2 in-window: 1 multi-surface incompleteness + 1 per-document version-bump omission; 0 out-of-window) | (this PR) | [`2026-06-22-PR-187.md`](2026-06-22-PR-187.md) | Belated `/validate-pr` after the no-skip-discretion policy correction (PR #187 itself codified the discipline). Mechanical baseline: 46/46 gates clean. Subagent A surfaced 2 in-window findings, both real-evidence (R): **finding 1** the "no orchestrator-side skip discretion" wording diverged between SKILL.md:23 and slash command:15 (different rejected-rationale lists; different "proof-of-discipline" framing); **finding 2** PR #187 bumped pack README Version 1.39.0→1.40.0 but did not bump Date from 2026-06-21 to 2026-06-22 (the commit message said "Date stamp 2026-06-22 (policy correction landed after midnight UTC)" but the file's Date field stayed at 2026-06-21 — a known timezone-boundary edge case in gate 31 since the discipline measures lag against last-commit-date and the lag opened only after midnight UTC, post-merge). Both findings fixed in this close-out PR (slash command synced to SKILL.md verbatim; pack README Date 2026-06-21→2026-06-22; pack Version 1.40.0→1.40.1 patch). Cross-reference check on all 12 touched files: 0 stale references; 0 broken citations; pair-of-surfaces multi-surface sync confirmed in gate-44 pass post-fix. |
 | 2026-06-21 | 184 | 10 | 0 (0 in-window, 0 out-of-window) | none | — | First real `/validate-pr` invocation. PR #184 was a discipline-calibration PR (worker-brief template + hallucination-assessment update protocol; no corpus content changed). Mechanical baseline clean (46/46 gates). Subagent A returned 0 findings across all 8 failure-mode classes (deep-read 10 touched files: `.claude/CLAUDE.md`, `.claude/rules/governance/ai-assistant-workflow-disciplines.md`, `.working/DONE.md`, `.working/changelog-details/CHANGELOG-detailed.md`, `.working/worker-brief-template.md` [new], `CHANGELOG.md`, `README.md`, `TODO.md`, `dev-security/claude-rules/README.md`, `dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`). Verified: prose citations resolve; multi-surface sync (12 rule pairs byte-identical per gate 37); version bumps consistent (pack 1.38.0→1.39.0, library 2026.06.162→2026.06.163, README 1.9.33→1.9.34, template v1.0.0); guard-rail provenance traces back to documented catches. Cross-reference check (`worker-brief-template.md` cited by CHANGELOG.md only; `ai-assistant-workflow-disciplines.md` cited by TODO.md:26 and CHANGELOG.md) clean. Skill plumbing exercised end-to-end successfully. |
 | 2026-06-21 | 183 | — | — | — | — | Activity bootstrap entry (this PR ships the `/validate-pr` skill; first real per-PR sweep landed at PR #184). |

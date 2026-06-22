@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #188 — Close-out: /validate-pr fixes on #187 + record /fitness r2 (2026-06-22)
+
+End-of-evening close-out bundling three independent threads: two hot-fixes for PR #187's `/validate-pr` findings (slash-command "no skip" wording harmonized to match SKILL.md verbatim; pack README Date bumped 2026-06-21→2026-06-22 with Version 1.40.0→1.40.1 patch); committing the /fitness r2 report (27 findings across 10 personas; 22 new FR IDs FR-112 through FR-133; three Convergent Findings dominate; zero regressions from the day's PRs); and the /validate-pr history record for PR #187 itself.
+
 ### PR #187 — Codify no-orchestrator-skip-discretion discipline + fix paired-skill docstring (2026-06-22)
 
 Hot-fix after maintainer flagged that the orchestrator skipping /validate-pr on PRs #185/#186 was a real policy deviation. Three surfaces gain explicit "no skip" language (SKILL, slash command, pack-rule anti-patterns); paired-skill linter docstring updated; new failure-mode class C-9 captured in hallucination-metrics with a future-gate candidate for mechanical enforcement.
