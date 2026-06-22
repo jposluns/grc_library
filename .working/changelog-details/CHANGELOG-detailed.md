@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.223, PR #245
+
+**Adds the PRIMORDIAL RULE: PROJECT INTEGRITY (highest precedence) to `.claude/CLAUDE.md`.** Maintainer-directed apex rule; consolidates and elevates existing pack integrity disciplines under a lexicographic Quality > Speed > Cost priority.
+
+### Added
+
+- **[`.claude/CLAUDE.md`](../../.claude/CLAUDE.md)**: new top-of-file `## PRIMORDIAL RULE: PROJECT INTEGRITY (HIGHEST PRECEDENCE)` section, placed above the user-level/project-layer reconciliation preamble. Four sub-parts: (1) priority enforcement (Quality > Speed > Cost, lexicographic and absolute; "done faster/cheaper" never justifies "done worse"); (2) integrity non-negotiables (no stub/mock/hardcode; no silent changes; no suppression of tests/gates/linting/error-handling; no fabrication; failing states surfaced); (3) escalation (halt and surface any forced quality compromise); (4) semantic-checkpoint self-reminder cadence emitting `Integrity check: Quality > Speed > Cost. Project integrity absolute.` at task start, before commit, before completion claims, and at quality/speed/cost tension. Cross-references the existing gate-discipline, evidence-grounded-completion, and clarify-before-acting pack rules as its detailed operationalizations.
+
+### Changed
+
+- **[`TODO.md`](../../TODO.md)**: new P4.0 item to distribute the PRIMORDIAL RULE as a project-agnostic pack governance rule (maintainer direction "CLAUDE.md now; pack rule later"), sequenced with the `trust-recovery-escalation.md` rule work.
+- **[`.working/improvement-log.md`](../improvement-log.md)**: deferred PR #244 `/retro` row appended (Version `1.0.28 → 1.0.29`); records the new-SKILL-drafting em-dash / British-`-ise` pattern and the pre-flight-language-audit improvement candidate.
+- **[`README.md`](../../README.md)**: library `2026.06.222 → 2026.06.223`; README `1.9.93 → 1.9.94`.
+
+### Verification
+
+- `.claude/` is in `DEFAULT_EXEMPT_DIRS`, so the CLAUDE.md change is not subject to corpus content gates; `tools/run_all_audits.sh` exit 0 (46/46) post-commit confirms no collateral drift; `tools/run-pr-time-checks.sh` exit 0.
+- §4 cadence rendered semantic-checkpoints-only per maintainer calibration (the prompt's per-file-write and per-10-operations triggers were dropped as noise).
+
 ## 2026-06-22, Library Version 2026.06.222, PR #244
 
 **Codifies the `deep-qa-review` skill (`/full-qa`).** First codification PR after the trust-recovery suite sign-off: the AI-failure-pattern half of the escalation tier, paired with `library-fitness-review`.
