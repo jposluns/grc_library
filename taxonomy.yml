@@ -1619,7 +1619,7 @@ documents:
   domain: "dev-security"
   type: "Standard"
   title: "API Security Standard"
-  version: "0.0.3"
+  version: "0.0.4"
   date: "2026-06-22"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"

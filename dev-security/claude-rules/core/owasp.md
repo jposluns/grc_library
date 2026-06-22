@@ -142,7 +142,7 @@ See [`core/authentication.md`](authentication.md) for full requirements. Key rul
 
 **Required pattern**:
 - Validate all URL inputs against an allowlist of permitted domains or IP ranges before making outbound requests
-- Block requests to internal IP ranges (10.x.x.x, 172.16.x.x, 192.168.x.x, 169.254.x.x, 127.x.x.x)
+- Block requests to internal and reserved IP ranges. **IPv4**: `10.0.0.0/8` (RFC 1918 private), `172.16.0.0/12` (RFC 1918 private; spans `172.16.0.0` through `172.31.255.255`), `192.168.0.0/16` (RFC 1918 private), `169.254.0.0/16` (link-local; RFC 3927; also covers AWS/GCP/Azure cloud-instance-metadata at `169.254.169.254`), `127.0.0.0/8` (loopback; RFC 1122), `100.64.0.0/10` (CGNAT; RFC 6598). **IPv6**: `::1/128` (loopback; RFC 4291), `fc00::/7` (unique local addresses / ULA; RFC 4193), `fe80::/10` (link-local; RFC 4291; also covers IPv6 cloud-instance-metadata variants such as `fd00:ec2::254` on AWS).
 - Do not follow redirects automatically when the redirect destination is user-controlled
 - Use a separate egress network policy to block outbound requests to internal services from web-facing applications
 
