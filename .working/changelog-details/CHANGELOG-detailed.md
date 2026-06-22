@@ -6,6 +6,42 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.181, PR #202
+
+Overnight session wrap-up. Updates the overnight-pr.md file with final progress and open ambiguities; carries PR #201's /validate-pr row; bumps library/README versions. Status remains `in-flight` (the morning-processing PR by the maintainer will transition to `stub`).
+
+### Changed
+
+- [`.working/overnight-pr.md`](../overnight-pr.md):
+  - Build-progress section populated with the 9 overnight PRs (FR-127/128/129/113/115/116/117/132/81-partial) in shipping order.
+  - Files-being-authored/modified section enumerated (corpus + working-state + generated).
+  - Files-NOT-touched section enumerated (pack rules + spec files + audit gates).
+  - Open-ambiguities section populated with 9 maintainer-decision items for morning review.
+  - Status remains `in-flight`.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for PR #201's /validate-pr (0 findings).
+  - Per-document Version `1.2.9 → 1.2.10`.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 (gate 46 passes on `in-flight`).
+- `tools/run-pr-time-checks.sh` exits 0.
+
+### Overnight session summary
+
+- **9 PRs shipped (PR #193 - #201)**.
+- **8 full FR closures + 1 partial**: FR-127, FR-128, FR-129, FR-113, FR-115, FR-116, FR-117, FR-132 (full); FR-81 (partial — pack CLAUDE.md surface deferred).
+- **Convergent Finding C1 (Risk Owner role insufficiency)**: 3 of 4 closed (FR-115/116/117; FR-119 deferred — needs decision).
+- **Convergent Finding C3 (retention chain breaks)**: fully closed (FR-128 + FR-129).
+- **/validate-pr cycle**: each PR's /validate-pr returned 0 or 1 in-window finding; findings bundled into next PR per the batching rule (PR #192). The discipline converged cleanly throughout the session.
+- **Quality discipline observed**: 5 candidate FRs deferred mid-session because the fix would have required a decision (FR-46 Privacy Officer per-occurrence, FR-50 NIST citation register-ambiguity, FR-51 ISO Annex form pick, FR-52 and/or semantics, FR-87/88 pack-rule edits). All deferrals are documented in the overnight file's open-ambiguities section for maintainer pickup.
+
+### Discipline observation
+
+The session demonstrates the value of strict "no-decision-needed" scoping: every FR closure was a mechanical alignment to a canonical source within the same document or to a sibling document explicitly named in the fitness recommendation. No new policy was introduced; no new content authored beyond what existing canonical sources already implied; no pack-rule edits attempted. The 5 deferrals are all genuine decisions awaiting the maintainer.
+
+The recurring pattern: many fitness recommendations LOOK like new policy but resolve to lifting an existing implicit canonical source into explicit text. The FR-116 (Risk Owner cadence) and FR-117 (Risk Owner evidence mapping) closures in this batch are both instances of this pattern. Worth flagging for future fitness Pass-1 verification: a recommendation that says "make X explicit" often resolves to "look for the existing implicit canonical source and lift it into explicit text".
+
 ## 2026-06-22, Library Version 2026.06.180, PR #201
 
 Partial close of **FR-81** (medium). Ninth overnight-batch PR. Two of three FR-81 surfaces aligned; the pack `dev-security/claude-rules/CLAUDE.md` surface is deferred (pack-rule edit considered approval-needed for the overnight batch).
