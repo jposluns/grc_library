@@ -6,6 +6,49 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.208, PR #230
+
+**TODO reorganization (maintainer-directed)**: [`TODO.md`](../../TODO.md) restructured so every backlog item fits cleanly into priority sections (P1-P7) rather than the prior mix of per-topic sections + dedicated fitness-review backlogs.
+
+### Changed
+
+- **[`TODO.md`](../../TODO.md)**: complete structural rewrite from 453 lines to ~280 lines (more scannable). Item-per-bullet format with consistent shape `**FR-N (severity, effort)**: description with location reference`. Specific structural moves:
+  - **Two fitness-review backlog sections deleted** (the 2026-06-21 r1 backlog and 2026-06-22 r1 backlog had been dedicated sections); their items distributed by severity into the matching priorities (H[critical] / H → P1; M → P2; L / FYI → P3). The authoritative per-finding evidence remains in the respective `.working/fitness-reviews/*.md` files; TODO is now the action-organised view.
+  - **Phase 1 / Phase 2 execution plan dissolved**: Phase 2 cluster items (P2.1-P2.14) live under P2; Phase 1 is fully shipped except for the deferred FR-48 H2 numbering (now P2.11).
+  - **"Investigation / blocked" promoted to P7** ("Awaiting maintainer decision") per maintainer's choice in pre-rewrite discussion. P7 now carries: Sweep 20 maintainer-surfaced notes (A2 DPO row in role-authority register; B4 WP243 / EDPB scope in canonical-citations register); FR-47 formal closure pending review; dropped-decision audit-trail entries (FR-104, FR-130).
+  - **"Critical user feedback to remember across sessions" renamed to "Standing conventions"** and kept as a meta-section after the priorities (not promoted to a priority since it's reference material, not actionable).
+  - **Floating per-topic sections collapsed into priorities**: BYOD MDM/MAM (was floating) → P2 (substantive content add); standard-version-upgrade process → P4.3; pack language coverage review → P4.4; effort-sizing labels → P4.2; S1/S2/S3 audit-gate candidates → P4.5; other queued moves (file relocations) → P2 (substantive working-state moves).
+  - **Cross-references preserved**: items that appear in one priority but have relationships to other priorities (e.g., FR-12 M cluster cross-referenced from P1 FR-118 H escalation; FR-70 H[critical] cross-referenced to P6 new-domain shape) carry inline notes.
+  - **FR-70/71/72/73 placement**: each is H[critical] severity AND creates a new domain. Per maintainer decision in pre-rewrite discussion, severity wins; all 4 live in P1 only with cross-references to P6 (single bullet per item; no duplication).
+  - **Backlog totals section** added at the end of the priorities for quick maintainer scan.
+  - **Item shape standardised**: every actionable item carries (a) identifier, (b) severity tag where applicable, (c) effort estimate per the proposed P4.2 convention, (d) one-line description, (e) location reference where the work happens.
+
+### Decisions taken during the reorganization
+
+Two structural decisions surfaced via `AskUserQuestion` before the rewrite:
+
+1. **FR-70/71/72/73 placement**: severity-driven (P1 only) vs type-driven (P6 only) vs cross-listed in both. Decision: severity wins (P1 only with cross-references). Rationale: priority-based organisation should be severity-driven; the new-domain shape is just one property and is captured via the effort label (XL) and cross-reference.
+2. **Meta-section promotion**: keep "Investigation / blocked" as a meta-section vs promote to P7 vs move "Standing conventions" out of TODO. Decision: promote "Investigation / blocked" to P7; keep Standing conventions and Notes on maintenance as meta-sections after the priorities. Rationale: the decision queue benefits from having its own priority slot; standing conventions are reference material, not actionable, and don't fit the priority model.
+
+### Changed (continued)
+
+- **`.working/validate-pr/history.md`** (Version `1.2.35 → 1.2.36`): new top row for PR #229's /validate-pr (deferred per recursion-avoidance; 0 findings; row notes that the sweep-close-out PR was abbreviated spot-check given it's itself meta-PR scope).
+- **`.working/improvement-log.md`** (Version `1.0.14 → 1.0.15`): new top row for PR #229's /retro. **Pattern firmly at pattern stage**: "newly-introduced acronym not added to glossary in same PR" has now seen 3 batch-occurrence incidents (CIIO, HKDF, AEAD in single batch); worker-brief template update due now per the three-occurrence threshold.
+- **Generated artefacts**: TODO is exempt from corpus audit gates, so no taxonomy/portal regen required for this change.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-each-edit. Gate 45 (TODO staleness audit) reports clean against the new structure.
+- `tools/run-pr-time-checks.sh` reports D1, D2, gate 45 all OK.
+- Item-coverage spot-check: every FR-N referenced in the prior `.working/fitness-reviews/2026-06-21-r1.md` Severity-Tier sections appears in this TODO under either P1 (H[critical]/H), P2 (M), or P3 (L/FYI). The closed items appear in `.working/DONE.md`, not this file (per the rotation discipline).
+- Cross-reference accuracy spot-check: FR-12 within-document closure references PR #178 (verified against CHANGELOG); FR-46 dual-reference to PR #210 + PR #218 (verified); P7 Sweep 20 A2 + B4 references match the Sweep 20 detail file at `.working/validate-sweeps/2026-06-22-sweep20-iter1.md`.
+
+### Discipline observation
+
+- **TODO as the source of truth for what's queued**: the reorganization makes TODO scannable enough that the next-5-PRs lookup is mechanical (read P1 first; if P1 is empty, read P2; etc.). Conversation history is no longer needed for queue lookup; the file is.
+- **Severity vs type as primary organising axis**: the reorganization picks severity. The trade-off: items whose shape (new domain) is more salient than their severity (e.g., FR-70 crypto-asset/blockchain) lose some grouping with their domain peers in P6. The cross-reference mitigates this but is not a full substitute. If domain-grouping becomes more important than severity-grouping for orchestrator routing in future, a re-organisation by type with severity tags inside each type is the alternative. For now, severity-first matches the maintainer's stated mental model.
+- **Fitness backlog distribution**: distributing the fitness review findings across priorities (rather than keeping them in their own section) is consistent with the "TODO is forward-looking" rule and the "DONE-shape mirrors TODO-shape" convention. The trade-off: a future maintainer scanning for "all 2026-06-21 r1 findings" must scan across P1/P2/P3 rather than one section. The authoritative per-finding evidence remains in the fitness-review-specific file; the TODO is the action view.
+
 ## 2026-06-22, Library Version 2026.06.207, PR #229
 
 **/validate Sweep 20 iter 1 close-out** — corpus-wide sweep post 8-PR FR batch (PRs #221-#228). Surfaced 4 in-window warnings + 2 maintainer-surfaced notes. Fixes applied for the 4 warnings; notes surfaced for maintainer judgement.
