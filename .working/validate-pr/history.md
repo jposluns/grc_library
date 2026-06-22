@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.41\
+**Version:** 1.2.42\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -12,6 +12,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | 235 | 10 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Forty-first-batch PR (PR-E in Batch 1: C2 emergency-access bundle 6 items in `security/procedure-access-control.md` v1.1.1 → 1.2.0). Sample-data defaults shipped per maintainer pre-approval. No findings. Row carried into PR #236. |
 | 2026-06-22 | 234 | 8 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Fortieth-batch PR (PR-D in Batch 1: FR-67 zero-headcount-with-contractor sub-tier E0 in startup-roadmap template Dimension E ladder). No findings. Row carried into PR #235. |
 | 2026-06-22 | 233 | 10 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Thirty-ninth-batch PR (PR-C in Batch 1: FR-89 + FR-91 security XS bundle in `dev-security/standard-api-security.md` v0.0.4 → 0.0.5). Validate-pr abbreviated spot-check confirmed JWT algorithm-key-type binding (Section 2 Token validation row); webhook canonical-string + constant-time comparison + replay-window (Section 12). Apply-time gate-30 catch resolved within same commit. No findings. Row carried into PR #234. |
 | 2026-06-22 | 232 | 8 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Thirty-eighth-batch PR (PR-B in Batch 1: FR-107 + FR-108 + FR-111 newcomer-UX bundle in `docs/adopter-guide.md` v1.1.2 → 1.2.0). Validate-pr abbreviated spot-check confirmed: new "Two reference registers" subsection inserted; reading-time + "if you only read three" added to Tier 1 starter set. No findings. Row carried into PR #233. |

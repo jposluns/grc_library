@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #236 — Closes P7 maintainer decisions (A2 + B4 + FR-47): role-authority cross-ref + canonical-citations soft-law scope (2026-06-22)
+
+PR-G in Batch 1 effort-first run. **A2**: `governance/register-role-authority.md` v1.5.1 DPO row gains cross-reference to the charter's Article 38(3)(6) independence + conflict-of-interest framework. **B4**: `governance/register-canonical-citations.md` v1.5.0 scope extended to soft-law supervisory guidance; new "Soft-law supervisory guidance" section added with WP243 rev.01 (Article 29 Working Party Guidelines on DPOs, endorsed by EDPB May 2018) as first entry. **FR-47**: formally closed (surface-consolidated in PR #218; maintainer review now recorded).
+
 ### PR #235 — Closes C2 convergent finding bundle (FR-121+122+123+124+125+126): emergency-access operational clarity (2026-06-22)
 
 `security/procedure-access-control.md` v1.2.0: 6 fixes ship with maintainer-approved sample-data defaults + section-level "Sample data, adjust upon adoption" callout. FR-121 material-harm defined (P1/P2 incident threshold); FR-122 declared-incident tied to P1/P2 severity; FR-123 Delegated Security Lead role row added (sample data: senior IRT member or deputy CISO); FR-124 access-review revocation timeline contradiction resolved (24h window for revocation processing post-flag, distinct from immediate-upon-instruction case); FR-125 emergency-access revocation gains 30-min/30-min escalation chain (Identity Team → SOC L2 → CISO); FR-126 auto-escalation made explicit (ITSM SLA timer, no human trigger). PR-E in Batch 1.

@@ -71,7 +71,6 @@ Research files for every queued P2.x cluster are prepared in advance (per the re
 - **P2.7 — FR-15 (M, M)**: Maturity-ladder methodology — median-of-medians scoring concern.
 - **P2.8 — FR-23 (M, M) ⚠️**: Audit-evidence assembler-verification standard absent.
 - **P2.9 — FR-24 (M, M)**: Control-testing procedure thinner than peers.
-- **P2.10 — FR-47 (M, S)**: Surface-consolidated in PR #218; formal closure pending maintainer review (see P7).
 - **P2.11 — FR-48 (M, L)**: H2 numbering patterns drift — multi-doctype structural rename. Deferred until a dedicated session is scheduled.
 - **P2.12 — FR-58 (M, M)**: Inheritance vocabulary (also listed under P1 Highs).
 - **P2.13 — FR-63 (M, M)**: Worked example walks ingestion not adoption.
@@ -318,12 +317,9 @@ Items requiring user decision or external dependency before becoming actionable.
 
 ### Maintainer-surfaced from /validate Sweep 20 (2026-06-22)
 
-- **A2 (note, in-window)**: Should [`governance/register-role-authority.md`](governance/register-role-authority.md):39 DPO row reference Article 38(3) independence / Article 38(6) conflict constraints? Register is intentionally lighter than the charter; adopters navigate to the charter for the full framework. Decision: leave as-is OR add a one-clause cross-reference.
-- **B4 (note, out-of-window)**: Should [`governance/register-canonical-citations.md`](governance/register-canonical-citations.md) scope extend to soft-law supervisory guidance (WP243 rev.01 / EDPB guidelines / opinions)? Currently scoped to formal standards / regulations / Acts. Decision: extend register scope (add WP243 rev.01 entry) OR document the scope boundary in the register's Conventions section.
 
 ### Formal closure pending review
 
-- **FR-47**: Surface-consolidated in PR #218 (three-way DPO label drift collapsed to consistent Data Protection Officer usage + register canonical statement + glossary cross-reference); formal closure pending maintainer review.
 
 ### Decisions explicitly dropped (recorded for audit trail)
 
