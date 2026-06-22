@@ -3,7 +3,7 @@
 **Document Title:** Risk Assessment Methodology Procedure\
 **Document Type:** Procedure\
 **Version:** 1.1.0\
-**Date:** 2026-05-27\
+**Date:** 2026-06-22\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md)\
