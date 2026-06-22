@@ -173,6 +173,44 @@ the maintainer did not author, force-pushing a protected branch, deleting a bran
 the assistant did not create) are not in the safe set and require explicit
 confirmation under the confirm-before-destructive-action discipline.
 
+## Throughput pressure does not authorise QA abbreviation
+
+When a long batch of PRs is in flight, when the session window feels tight, or when
+the queue of next-PRs is calling for progress, the assistant does NOT have discretion
+to substitute an abbreviated check, a spot-check, a memory-only review, an
+orchestrator-self-check, a "quick scan", or any other informal shape for the formal
+`/validate-pr` invocation that step 5a of the PR workflow mandates. Equally, the
+assistant does NOT have discretion to substitute an informal shape for the formal
+`/retro` invocation that step 5b mandates, or for a corpus-wide `/validate` when the
+sweep cadence calls for one.
+
+"Abbreviated /validate-pr, 0 findings" is NOT a sanctioned shape. The two sanctioned
+shapes are (a) the full formal `/validate-pr` dispatch with Subagent A on the diff
+and a cross-reference check on touched files, recorded in
+[`.working/validate-pr/`](../.working/validate-pr/) and the history row, OR (b) an
+explicit maintainer-authorised exception recorded inline in the history row's
+Summary cell with the rationale ("maintainer authorised batch-end /validate-pr only
+for PRs #N+1 through #N+k; per-PR runs deferred"). Anything else is a discipline
+failure.
+
+The per-PR QA cadence IS the pace of the PR workflow. "I'll catch it on the next
+one" or "the validate at the end of the batch will cover this" is the failure mode
+this rule prevents: the next-one catch is what failed when Sweep 22 (2026-06-22)
+surfaced four in-window errors across 11 PRs (#231-#241) that had been recorded as
+"abbreviated spot-check, 0 findings" instead of formal `/validate-pr` runs. The
+abbreviation was unauthorised, the formal run would have surfaced the errors, and
+the maintainer's discipline catch was the recovery path. The corrective action is
+this rule plus the pack-rule and SKILL-file vocabulary updates that landed in the
+same Sweep 22 close-out PR.
+
+If the assistant feels pressure to abbreviate, the right move is to surface the
+pressure to the maintainer in one sentence ("the apparent need to ship N PRs in
+this window is in tension with the per-PR /validate-pr cadence; is a thinner cadence
+authorised for this batch?") rather than to act on the pressure unilaterally. This
+is the
+[`clarify-before-acting`](rules/governance/clarify-before-acting.md) rule's
+application to QA-cadence pressure.
+
 ## PR activity subscription discipline
 
 PR workflow step 3 (waiting for CI to settle) and any subsequent wait for

@@ -2,7 +2,7 @@
 
 **Document Title:** Risk Register Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.0\
+**Version:** 1.2.0\
 **Date:** 2026-06-22\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Executive Management\
@@ -56,7 +56,7 @@ This procedure defines how risks are recorded, maintained, reviewed, escalated, 
 | Treatment Status | Workflow state of the chosen Treatment Option: Pending / In Progress / Complete. "Monitor" and "Further Analysis" correspond to Pending or In Progress on the canonical six-option set, not to separate treatment options. |
 | Action Plan | Required treatment steps. |
 | Due Date | Target date. |
-| Status | Open, in treatment, accepted, closed, retired. |
+| Status | Open / Closed (risk-record lifecycle, per `risk/standard-enterprise-risk-management.md` Section 7.1). The Status field does NOT name the treatment outcome (captured by Treatment Option) or the treatment workflow state (captured by Treatment Status). Prior values "in treatment" / "accepted" / "retired" are retired by this version in favour of the cleaner three-field decomposition. |
 | Review Date | Next required review. |
 | Evidence Reference | Link to internal evidence in adopting organisation. |
 

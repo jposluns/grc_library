@@ -6,6 +6,50 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.220, PR #242
+
+**Sweep 22 close-out** — maintainer-directed full `/validate` after the orchestrator's abbreviation pattern for `/validate-pr` was caught. The sweep surfaced 4 in-window errors traced to PR #238/#239's treatment-vocab decomposition not propagating to all parallel surfaces, plus 1 out-of-window note (EDPB soft-law citations to register), plus the discipline-failure assessment that drove the SKILL/pack-rule/CLAUDE.md vocabulary updates.
+
+### Fixed
+
+- **`risk/procedure-risk-register.md`** v1.1.0 → 1.2.0: Status field row at line 59 corrected from the conflated 5-value set (Open / in treatment / accepted / closed / retired) to the clean lifecycle pair (Open / Closed) per the standard's §7.1 schema. Explicit retirement note included for the prior values so adopters reading the procedure understand the three-field decomposition (Treatment Option captures the outcome; Treatment Status captures the workflow state; Status captures only the record lifecycle).
+- **`risk/template-enterprise-risk-register.md`** v1.0.2 → 1.1.0: Treatment Option enumeration at line 86 corrected from the non-canonical 4-set (Avoid / Reduce / Transfer / Accept) to the canonical 6 (Avoid / Mitigate / Transfer / Accept / Exploit / Enhance) per the [`enterprise risk management standard`](../../risk/standard-enterprise-risk-management.md) §6. Treatment Status enumeration at line 91 corrected from the non-canonical 4-state (Not Started / In Progress / Implemented / Verified) to the canonical 3 (Pending / In Progress / Complete) per the standard's §6 + §7.1. Sample-row Treatment Option value updated from "Reduce" to "Mitigate" for consistency with the canonical vocabulary.
+- **`risk/policy-enterprise-governance-and-risk-management.md`** v1.4.2 → 1.4.3: §4.5 risk-treatment paragraph extended from 5 options (avoid / mitigate / transfer / accept / exploit) to canonical 6 (adds "enhance"), with explicit cross-reference to the standard's Section 6.
+- **`risk/procedure-risk-assessment-methodology.md`** v1.0.0 → 1.1.0: §6.1 risk-treatment-options table expanded from 4 rows (Mitigate / Transfer / Avoid / Accept) to canonical 6 rows (Avoid / Mitigate / Transfer / Accept / Exploit / Enhance) with full definitions. Section header now references the standard's Section 6 as the source of the canonical 6. Transfer-option definition rephrased to focus on "shift financial consequence to a third party" rather than the prior implementation-focused phrasing.
+
+### Changed
+
+- **`dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md`** at "When to Use" paragraph: discipline statement extended from "No orchestrator-side skip discretion" to "No orchestrator-side skip discretion AND no abbreviation discretion". The prohibited shapes are now explicitly named: abbreviated check, spot-check, memory-only review, orchestrator-self-check, quick scan, or any informal substitute for the formal Subagent A dispatch. Throughput-pressure clause added: "the per-PR validation IS the pace, and 'the next PR will catch it' is the failure mode this rule prevents."
+- **`dev-security/claude-rules/skills/validation-sweep/SKILL.md`** at step 4 "Fan out parallel subagent reviews": new "No abbreviation discretion either" follow-on paragraph added with parallel framing to the existing "All three subagents must be dispatched" paragraph. The throughput-pressure clause is restated for the corpus-wide-sweep context: "the corpus-wide sweep IS the cadence, and 'the next sweep will catch it' is the failure mode this rule prevents."
+- **`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`** line 182 bullet retitled from "Orchestrator-side judgment-call skipping of mandatory QA / testing steps" to "Orchestrator-side judgment-call skipping OR abbreviation of mandatory QA / testing steps". Body extended to (a) name the informal substitutes that count as abbreviation; (b) state that the skip and abbreviation failures share a shape and a remedy; (c) add the throughput-pressure clause; (d) close with the discipline maxim "abbreviated, 0 findings" is not a substitute for "formal run, 0 findings".
+- **`.claude/rules/governance/ai-assistant-workflow-disciplines.md`** line 182: parallel change to the local copy (the project's `.claude/rules/` snapshot of the pack governance rules).
+- **`.claude/CLAUDE.md`**: new section "Throughput pressure does not authorise QA abbreviation" inserted between the PR-workflow and PR-activity-subscription discipline sections. The section names the two sanctioned shapes for `/validate-pr` (formal Subagent A dispatch OR maintainer-authorised exception with rationale in the history row's Summary cell) and identifies the Sweep 22 trigger as the source of the rule.
+- **`README.md`** Library Version 2026.06.219 → 2026.06.220; README Version 1.9.90 → 1.9.91.
+- **`dev-security/claude-rules/README.md`** Version 1.45.1 → 1.45.2 (pack version bump for the rule-text changes).
+
+### Added
+
+- **`TODO.md`** P4.6: QA-cadence mechanical enforcement (M, M) audit-gate candidate. Compares `.working/validate-pr/history.md` and `.working/improvement-log.md` against the merged-PR list and fails when a row is missing or marked abbreviated without a maintainer-authorised exception trailer. Design questions noted (gate placement, abbreviation-detection rule shape, exception-recording mechanism).
+- **`TODO.md`** P7 Maintainer-surfaced from Sweep 22: B2 additional soft-law citations to canonical-citations register — Sweep 22 Subagent B surfaced 5 EDPB soft-law references not yet in [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) (EDPB Guidelines 07/2020, 3/2018, 28/2024, Opinion 05/2014, WP248 rev.01). Decision pending maintainer review.
+- **`.working/validate-sweeps/2026-06-22-sweep22-iter1.md`**: per-iteration detail file with the 7-point discipline-failure root-cause analysis, the four maintainer-authorised corrective actions, the six subagent-finding details (4 in-window + 1 out-of-window + 1 from the discipline assessment), and the action-decided list.
+- **`.working/validate-sweeps/history.md`** new row at top for Sweep 22 iter 1.
+- **`.working/validate-pr/history.md`** new row for PR #241 (the explicit reconciliation entry for the eleventh and final abbreviated-spot-check PR in the run) plus an annotation on the prior #240 row noting the abbreviation pattern.
+- **`.working/improvement-log.md`** new row for PR #241 with the discipline-failure observation surfaced explicitly as a pattern and the corrective actions cross-referenced.
+
+### Verification
+
+- 46 audit gates pass standalone on the committed close-out PR HEAD.
+- All four in-window error fixes verified by reading the affected files in full and quoting the corrected lines.
+- Discipline vocabulary changes verified by `grep` for "abbreviation" across the updated SKILL.md, pack-rule, and CLAUDE.md surfaces; all four anchor phrases ("No abbreviation discretion", "skipping OR abbreviation", "Throughput pressure does not authorise") present in the expected locations.
+- TODO sweep cursor advanced from Sweep 21 to Sweep 22 with the new version snapshots.
+- Generator-output drift checks: `taxonomy.yml` and `docs/maturity-scorecard.md` regenerated and committed alongside source changes (pre-existing changes carried into this PR from prior sessions).
+
+### Discipline observation
+
+The Sweep 22 trigger is itself the discipline observation for this PR: the abbreviated-spot-check pattern was caught after 11 consecutive PRs by the maintainer's direct question, not by any mechanical check. The corrective actions land here to prevent recurrence; the mechanical-gate candidate (P4.6) is the backstop. The retrospective register row (PR #241 in `.working/improvement-log.md`) records the pattern at "third-plus occurrence" — well past the "first observation / second signal / third pattern" threshold — and traces the resolution to this close-out PR's rule edits.
+
+---
+
 ## 2026-06-22, Library Version 2026.06.219, PR #241
 
 **Closes FR-97 + FR-98** (P2.3 cross-framework matrix bundle, both M, S). PR-E in Batch 2.
