@@ -179,6 +179,7 @@ Across all five disciplines:
 - **Bundling unrelated work to "save a PR."** The cost saving is illusory; the audit-trail cost is real.
 - **Idle waiting during CI.** If the next PR's research is queued, read it during the wait. If no research is queued, dispatch one.
 - **Editing main during a CI wait.** Main belongs to the current PR's merge target; treat it as read-only during the wait.
+- **Orchestrator-side judgment-call skipping of mandatory QA / testing steps.** When the project's discipline says a quality-assurance step (per-PR validation sweep, post-merge regression check, paired-skill parity check, etc.) runs on every PR, the orchestrator does NOT have discretion to skip a specific run based on a unilateral judgment that the PR is "circular", "housekeeping", "meta", "too small to need it", "already validated by another mechanism", or any other class. The discipline is mandatory; carve-outs require maintainer authorisation, recorded explicitly in the relevant history row's Summary cell with rationale. The failure mode is: orchestrator skips a QA step that the maintainer expects to run, the skip leaves a defect uncaught, and the next maintainer review discovers both the defect AND the discipline gap. The fix is to ship the QA invocation even when the orchestrator believes it will return zero findings; the zero-finding history row IS the proof-of-discipline.
 
 ---
 

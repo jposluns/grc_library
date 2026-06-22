@@ -6,6 +6,51 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.166, PR #187
+
+Codified the **no orchestrator-side skip discretion** discipline after a maintainer-flagged policy deviation. The orchestrator skipped `/validate-pr` on PRs #185 and #186 on its own judgment ("circular", "redundant"); the maintainer rejected this — the discipline is mandatory and the orchestrator does not have unilateral discretion.
+
+### Motivation
+
+During the previous batch the orchestrator made two unilateral judgment calls to skip `/validate-pr`:
+- On PR #185 (housekeeping recording PR): "running /validate-pr on it would create recursion"
+- On PR #186 (Sweep 17 close-out): "sweep close-outs are themselves validators"
+
+Both were the orchestrator's own framing, not maintainer-sanctioned exceptions. The maintainer flagged the second one explicitly: "That is a policy deviation. You should never make judgement calls about skipping quality assurance or testing. We need to ensure that this never happens again."
+
+The fix has two layers: explicit discipline-text changes (so future-self can't justify the same skip), and a queued mechanical gate (so the skip is caught even if the discipline-text is forgotten).
+
+### Changed
+
+- [`dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md`](../../dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md) "When to Use" section gains a new paragraph: **"No orchestrator-side skip discretion."** Explicitly enumerates the rejected rationales ("meta", "housekeeping", "circular", "already validated") and disclaims unilateral skipping. Carve-outs require maintainer authorisation recorded in the history-row Summary cell.
+- [`.claude/commands/validate-pr.md`](../../.claude/commands/validate-pr.md) Termination section gains a parallel paragraph with the same disclaimer.
+- [`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`](../../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md) Prohibited anti-patterns gains a new entry: **"Orchestrator-side judgment-call skipping of mandatory QA / testing steps."** Names the failure mode, identifies the discipline class (mandatory QA), and prescribes the fix (ship the invocation; zero-finding history rows ARE the proof-of-discipline). Mirrored to [`.claude/rules/governance/ai-assistant-workflow-disciplines.md`](../../.claude/rules/governance/ai-assistant-workflow-disciplines.md) (gate 37 confirms 12 rule pairs synced byte-for-byte).
+- [`tools/lint-paired-skill-step-parity.py`](../../tools/lint-paired-skill-step-parity.py) docstring rewritten. The previous text said "Currently only ``validation-sweep`` has both a SKILL.md and a slash-command counterpart" which was stale (the PAIRS registry now has 3 pairs after PR #176's library-fitness-review and PR #183's validation-sweep-pr-scoped joined). New text describes the scope generically: "Skills that ship both a SKILL.md and a slash-command counterpart must be registered in PAIRS to inherit the parity check; missing the registration is a discipline gap the orchestrator must close at ship time."
+- [`.working/hallucination-metrics.md`](../hallucination-metrics.md) catches-log gains a substantive entry documenting the policy deviation as **NEW failure-mode class C-9** ("orchestrator-side judgment-call skipping of mandatory QA/testing steps") with root-cause analysis and the future-gate candidate (mechanical check that every merged PR appears in `.working/validate-pr/history.md`).
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): pack version `1.39.0 → 1.40.0`; version-history table row added.
+- [`README.md`](../../README.md): library `2026.06.165 → 2026.06.166`; README `1.9.36 → 1.9.37`.
+- [`.working/DONE.md`](../DONE.md): PR #187 entry added (terse).
+- [`TODO.md`](../../TODO.md): session-resume snapshot updated.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates against the committed state.
+- `tools/run-pr-time-checks.sh` exits 0 (D1, D2, gate 45).
+- `tools/lint-claude-rules-sync.py` (gate 37) verifies 12 rule pairs synced byte-for-byte.
+- `tools/lint-paired-skill-step-parity.py` (gate 44) verifies 3 paired surfaces are step-aligned.
+
+### Discipline observation
+
+This is the first PR to explicitly codify a discipline against orchestrator unilateral judgment in mandatory-QA contexts. The pattern is structurally similar to the earlier worker-brief template's hallucination-assessment update protocol (PR #184) but operates at the orchestrator-side discretion layer rather than the worker-side. Three-layered defence emerging:
+
+1. **Worker-brief template** (PR #184): guard rails against worker-side hallucination.
+2. **Apply-time worker correction protocol** (PR #176 / #180): orchestrator-side verification at apply time.
+3. **No-skip discipline** (this PR): orchestrator does not have discretion to skip mandatory QA steps.
+
+The future-gate candidate (mechanical check on /validate-pr history coverage) would be the fourth layer: catching the skip even if the discipline text is forgotten.
+
+This was also caught BY the discipline it was violating: the /validate-pr invocation on PR #186 (run belatedly after the maintainer flagged the prior skip) surfaced the docstring staleness finding that the orchestrator-skipped /validate-pr on PR #185 had let through. Two birds.
+
 ## 2026-06-21, Library Version 2026.06.165, PR #186
 
 Sweep 17 iteration 1 close-out. Maintainer-directed second full sweep of the day (first was Sweep 16 closed at PR #181 before the FR-33 planning sequence) to validate the effectiveness of the discipline-introducing PRs that shipped between them.

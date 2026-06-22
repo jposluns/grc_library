@@ -12,6 +12,8 @@ Invoke the `validation-sweep-pr-scoped` skill defined in this project's pack at 
 
 Termination: this is a single-iteration cycle (dispatch, check, triage, record). Hot-fix PRs from findings trigger their own `/validate-pr` cycle when merged.
 
+**No orchestrator-side skip discretion.** The mandatory post-merge invocation has no carve-outs. The orchestrator does NOT have discretion to skip a `/validate-pr` invocation based on a judgement that the PR is "meta", "housekeeping", "circular", "already validated by another mechanism", or any other class. Every successful merge triggers a `/validate-pr`. Zero-finding sweeps still get a history row; skipping a quality-assurance step is a policy deviation only the project maintainer can authorise (recorded explicitly in the history-row Summary cell).
+
 Reject any subagent finding that lacks an explicit `path:line` quote. A finding without quoted evidence is a hypothesis, not a finding; re-dispatch the subagent with a re-emphasized evidence requirement before recording.
 
 `.working/validate-pr/` is exempt from corpus audit gates (frozen-state archive). Existing `path:line` references in subagent reports are kept verbatim even if the lines later shift; the record is a moment-in-time artefact.
