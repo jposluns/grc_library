@@ -127,9 +127,7 @@ Deferred to a routine cleanup batch when convenient. Cross-reference only.
 - **FR-84 (L, S)**: Regression-testing checklist as a discrete artefact.
 - **FR-85 (L, S)**: Per-question owner in breach-response runbook.
 - **FR-86 (L, S) ⚠️**: Recovery runbook crisis-communications cross-reference. (Pass-1 noted runbook itself was hard to locate; revisit at remediation time.)
-- **FR-89 (L, XS)**: JWT algorithm-key-type binding.
 - **FR-90 (L, S)**: CSP / Trusted Types / HSTS-preload guidance.
-- **FR-91 (L, XS)**: Webhook constant-time comparison.
 - **FR-109 (L, S) ⚠️**: Charter purpose paragraph density.
 - **FR-53 (L, S) (reshape)**: Metadata field unification — evaluate whether to deprecate Classification or Confidentiality as redundant, OR document the semantic distinction.
 
