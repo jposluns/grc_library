@@ -2,8 +2,8 @@
 
 **Document Title:** Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.3.2\
-**Date:** 2026-06-21\
+**Version:** 1.3.3\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -118,7 +118,7 @@ Where the organisation participates in a sector-specific security programme (for
 ### 9. Incident response and reporting
 
 9.1 All suspected or confirmed information security incidents must be reported immediately to the security operations team.
-9.2 Incident response shall follow the NIST SP 800-61 Rev 3 framework (Incident Response Recommendations and Considerations for Cybersecurity Risk Management, 2025) and COBIT DSS02.
+9.2 Incident response shall follow the NIST SP 800-61 Rev. 3 framework (Incident Response Recommendations and Considerations for Cybersecurity Risk Management, 2025) and COBIT DSS02.
 9.3 Root cause analysis and lessons learned must be completed within ten business days of incident closure.
 
 ### 10. Monitoring and continuous improvement

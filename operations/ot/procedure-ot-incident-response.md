@@ -2,8 +2,8 @@
 
 **Document Title:** OT Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.0\
-**Date:** 2026-05-29\
+**Version:** 1.0.1\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/ot/README.md`](README.md), [`operations/ot/annex-ot-security-overview.md`](annex-ot-security-overview.md), [`operations/ot/standard-ot-ics-security.md`](standard-ot-ics-security.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../../resilience/procedure-security-incident-reporting-and-escalation.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md), [`resilience/template-lessons-learned.md`](../../resilience/template-lessons-learned.md), [`risk/procedure-risk-register.md`](../../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md), [`compliance/annex-nis-2-implementation.md`](../../compliance/annex-nis-2-implementation.md), [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](../../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`governance/register-glossary.md`](../../governance/register-glossary.md)\
@@ -349,8 +349,8 @@ OT forensics operates under constraints that do not apply to IT forensics:
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | IEC 62443-2-1 | Establishing an IACS security programme | Incident management within IACS programme |
-| NIST SP 800-82 Rev 3 | Guide to Operational Technology (OT) Security | Incident handling guidance for OT |
-| NIST SP 800-61 Rev 3 | Incident Response Recommendations and Considerations for Cybersecurity Risk Management (CSF 2.0 Community Profile) | Base IR lifecycle (preparation, detection and analysis, containment, eradication and recovery, post-incident); Rev 3 also maps these activities to the six functions of NIST CSF 2.0 |
+| NIST SP 800-82 Rev. 3 | Guide to Operational Technology (OT) Security | Incident handling guidance for OT |
+| NIST SP 800-61 Rev. 3 | Incident Response Recommendations and Considerations for Cybersecurity Risk Management (CSF 2.0 Community Profile) | Base IR lifecycle (preparation, detection and analysis, containment, eradication and recovery, post-incident); Rev. 3 also maps these activities to the six functions of NIST CSF 2.0 |
 | ISO/IEC 27035 | Information security incident management | Broader incident management framework |
 | IEC 61511 | Functional safety: Safety instrumented systems for the process industry sector | Safety-management precedence on SIS-implicated incidents |
 | NERC CIP-008 | Cyber security incident reporting and response planning | North American electricity reporting requirements |

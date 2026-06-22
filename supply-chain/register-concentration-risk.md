@@ -2,8 +2,8 @@
 
 **Document Title:** Concentration Risk Register\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`supply-chain/register-subprocessor-template.md`](register-subprocessor-template.md), [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](procedure-fourth-party-and-nth-party-risk.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md), [`compliance/annex-nis-2-implementation.md`](../compliance/annex-nis-2-implementation.md)\
@@ -160,7 +160,7 @@ Adopting financial entities populate per-CTPP fields including the designation d
 | EBA Guidelines on outsourcing arrangements | EBA/GL/2019/02 §76 to 80 | Banking concentration |
 | FSB Cyber Lexicon and Third-Party Risk Toolkit | FSB | International financial-sector practice |
 | NIS 2 | Article 21(2)(d); Article 22 (coordinated risk assessments at Union level) | EU essential entities |
-| NIST SP 800-161 Rev 1 | Cybersecurity Supply Chain Risk Management | US baseline |
+| NIST SP 800-161 Rev. 1 | Cybersecurity Supply Chain Risk Management | US baseline |
 | ISO 28000 | Security management for supply chains | International |
 | OECD Recommendation on Critical Information Infrastructure Protection | OECD | National-security framing |
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Offboarding Evidence Template\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](standard-cloud-exit-and-data-portability.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md)\
@@ -166,7 +166,7 @@ The approval set confirms that the offboarding evidence record is complete, veri
 | EBA Guidelines on outsourcing arrangements | EBA/GL/2019/02 | Exit strategy detail |
 | ISO/IEC 27036 | Information security for supplier relationships | Termination |
 | ISO 28000 | Security management for supply chains | Termination |
-| NIST SP 800-88 Rev 1 | Guidelines for Media Sanitization | Destruction method |
+| NIST SP 800-88 Rev. 1 | Guidelines for Media Sanitization | Destruction method |
 | CSA CCM v4.1 | IPY-04, IPY-05 (interoperability and portability) | Exit assistance |
 | ISO/IEC 27001:2022 | A.5.22 (information security in supplier relationships) | Closure |
 

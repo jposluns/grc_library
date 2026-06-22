@@ -2,8 +2,8 @@
 
 **Document Title:** Software Bill of Materials Register\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](procedure-fourth-party-and-nth-party-risk.md), [`dev-security/standard-software-composition-analysis.md`](../dev-security/standard-software-composition-analysis.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md)\
@@ -153,7 +153,7 @@ Where the organisation is a software vendor or delivers software-bearing product
 | CISA SBOM guidance | Multiple | SBOM operationalisation |
 | EU Cyber Resilience Act | Regulation (EU) 2024/2847 | Mandatory product-level SBOM |
 | NIST SP 800-218 | SSDF PW.4, PW.7, PW.8 | Secure software development; SBOM production |
-| NIST SP 800-161 Rev 1 | Cybersecurity Supply Chain Risk Management | Supply chain |
+| NIST SP 800-161 Rev. 1 | Cybersecurity Supply Chain Risk Management | Supply chain |
 | ISO/IEC 5230 (OpenChain) | Open source compliance | OSS programme baseline |
 | CycloneDX | OWASP standard | SBOM format |
 | SPDX | Linux Foundation standard | SBOM format |

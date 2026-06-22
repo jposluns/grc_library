@@ -2,8 +2,8 @@
 
 **Document Title:** Security Operations Centre Operating Model Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](sop-security-ticket-reporting-scheme.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../operations/procedure-security-monitoring-and-alert-management.md), [`operations/procedure-threat-intelligence-and-siem-operations.md`](../operations/procedure-threat-intelligence-and-siem-operations.md), [`security/standard-penetration-testing-and-red-team.md`](standard-penetration-testing-and-red-team.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md), [`ai/plan-ai-incident-response.md`](../ai/plan-ai-incident-response.md)\
@@ -202,7 +202,7 @@ Where the SOC is supplier-managed in whole or in part:
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | NIST CSF 2.0 | DETECT, RESPOND | Functional alignment |
-| NIST SP 800-61 Rev 3 | Incident Response Recommendations and Considerations for Cybersecurity Risk Management (CSF 2.0 Community Profile) | Incident handling |
+| NIST SP 800-61 Rev. 3 | Incident Response Recommendations and Considerations for Cybersecurity Risk Management (CSF 2.0 Community Profile) | Incident handling |
 | NIST SP 800-150 | Guide to Cyber Threat Information Sharing | Intelligence operations |
 | NIST SP 800-92 | Guide to Computer Security Log Management | Logging baseline |
 | ISO/IEC 27001:2022 | A.5.7, A.5.24 to A.5.28, A.8.15 to A.8.16 | Threat intelligence, incident management, logging |

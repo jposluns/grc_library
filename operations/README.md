@@ -2,8 +2,8 @@
 
 **Document Title:** Operations Domain README\
 **Document Type:** Register\
-**Version:** 1.2.5\
-**Date:** 2026-05-29\
+**Version:** 1.2.6\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -54,7 +54,7 @@ This directory contains production and infrastructure security standards, proced
 
 | Sub-directory | Coverage |
 | --- | --- |
-| [`operations/ot/`](ot/) | Operational Technology (OT) security: ICS, SCADA, DCS, PLC, HMI, BMS, SIS. Aligned to IEC 62443 and NIST SP 800-82 Rev 3. |
+| [`operations/ot/`](ot/) | Operational Technology (OT) security: ICS, SCADA, DCS, PLC, HMI, BMS, SIS. Aligned to IEC 62443 and NIST SP 800-82 Rev. 3. |
 
 ### Operational Technology sub-directory artefacts
 

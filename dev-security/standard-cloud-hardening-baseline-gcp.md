@@ -2,8 +2,8 @@
 
 **Document Title:** Google Cloud Platform Hardening Baseline Standard\
 **Document Type:** Standard\
-**Version:** 0.0.4\
-**Date:** 2026-06-20\
+**Version:** 0.0.5\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-container-and-image-security.md`](standard-container-and-image-security.md), [`dev-security/standard-api-security.md`](standard-api-security.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/framework-zero-trust-architecture.md`](../security/framework-zero-trust-architecture.md)\
@@ -233,7 +233,7 @@ The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and t
 | --- | --- | --- |
 | CIS Google Cloud Platform Foundations Benchmark | Current version | GCP hardening baseline |
 | Google Cloud Architecture Framework, Security Pillar | Current version | Provider design guidance |
-| NIST SP 800-53 Rev 5 | AC, AU, SC, CM, IR families | US baseline |
+| NIST SP 800-53 Rev. 5 | AC, AU, SC, CM, IR families | US baseline |
 | NIST CSF 2.0 | Identify, Protect, Detect, Respond, Recover | Risk function alignment |
 | ISO/IEC 27001:2022 | A.5, A.8 (selected) | Information security management |
 | CSA CCM v4.1 | IAM, IVS, LOG, GRC | Cloud control matrix |

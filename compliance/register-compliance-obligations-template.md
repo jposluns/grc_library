@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance Obligations Register Template\
 **Document Type:** Register\
-**Version:** 1.0.3\
-**Date:** 2026-06-21\
+**Version:** 1.0.4\
+**Date:** 2026-06-22\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
@@ -53,7 +53,7 @@ The Source Reference field must resolve the obligation to a single unambiguous s
 
 Where an obligation derives from multiple provisions of the same source, list each provision separately rather than collapsing to the standard name. Where the source is a draft or proposed instrument, include the draft identifier and date (e.g., `EU AI Act final text 13 June 2024 Article 9(2)`).
 
-Drift in source versions is itself an obligation-management event: when the underlying standard or statute is updated (e.g., `NIST SP 800-53 Rev. 4 → Rev. 5`), the register entry must be reviewed and the Source Reference updated as part of the review cycle defined under Ownership and monitoring fields.
+Drift in source versions is itself an obligation-management event: when the underlying standard or statute is updated (for example, a NIST SP publishes a new revision, or an ISO/IEC standard issues a new edition that supersedes a prior one), the register entry must be reviewed and the Source Reference updated as part of the review cycle defined under Ownership and monitoring fields.
 
 ### Applicability fields
 

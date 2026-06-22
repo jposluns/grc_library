@@ -2,8 +2,8 @@
 
 **Document Title:** Building Management Systems (BMS) Overlay Annex\
 **Document Type:** Annex\
-**Version:** 1.0.0\
-**Date:** 2026-05-29\
+**Version:** 1.0.1\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/ot/README.md`](README.md), [`operations/ot/annex-ot-security-overview.md`](annex-ot-security-overview.md), [`operations/ot/standard-ot-ics-security.md`](standard-ot-ics-security.md), [`operations/ot/procedure-ot-change-management.md`](procedure-ot-change-management.md), [`operations/ot/procedure-ot-incident-response.md`](procedure-ot-incident-response.md), [`operations/ot/register-ot-asset-inventory-and-lifecycle.md`](register-ot-asset-inventory-and-lifecycle.md), [`operations/standard-physical-security-of-it-infrastructure.md`](../standard-physical-security-of-it-infrastructure.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`governance/register-glossary.md`](../../governance/register-glossary.md)\
@@ -198,7 +198,7 @@ The asset record schema in the OT Asset Inventory and Lifecycle Register applies
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | IEC 62443 family | OT security baseline | BMS is OT; the full family applies. |
-| NIST SP 800-82 Rev 3 | OT security guide | Aligned. |
+| NIST SP 800-82 Rev. 3 | OT security guide | Aligned. |
 | ISO 16484-1 to -7 | Building Automation and Control Systems (BACS) | BMS engineering and integration standard. |
 | ASHRAE 135 (BACnet) | BACnet protocol | Including BACnet/SC for secure BACnet. |
 | NIST SP 1900 series | Smart Buildings | Smart-building IoT considerations. |
