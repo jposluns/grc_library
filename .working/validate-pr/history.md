@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.39\
+**Version:** 1.2.40\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -12,6 +12,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | 233 | 10 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Thirty-ninth-batch PR (PR-C in Batch 1: FR-89 + FR-91 security XS bundle in `dev-security/standard-api-security.md` v0.0.4 → 0.0.5). Validate-pr abbreviated spot-check confirmed JWT algorithm-key-type binding (Section 2 Token validation row); webhook canonical-string + constant-time comparison + replay-window (Section 12). Apply-time gate-30 catch resolved within same commit. No findings. Row carried into PR #234. |
 | 2026-06-22 | 232 | 8 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Thirty-eighth-batch PR (PR-B in Batch 1: FR-107 + FR-108 + FR-111 newcomer-UX bundle in `docs/adopter-guide.md` v1.1.2 → 1.2.0). Validate-pr abbreviated spot-check confirmed: new "Two reference registers" subsection inserted; reading-time + "if you only read three" added to Tier 1 starter set. No findings. Row carried into PR #233. |
 | 2026-06-22 | 231 | 8 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Thirty-seventh-batch PR (PR-A in Batch 1 effort-first run: FR-112 README maintainer-context + FR-131 quickstart Tier 1 divergence). Validate-pr abbreviated spot-check confirmed both fixes; per-doc template-quickstart 3.0.0 → 3.0.1; library 2026.06.208 → 2026.06.209. No findings. Row carried into PR #232. |
 | 2026-06-22 | 230 | 7 | 0 in-window, 0 out-of-window | none (batched into next PR per recursion-avoidance) | — | Thirty-sixth-batch PR (TODO reorganization into P1-P7 priority structure per maintainer direction). Validate-pr abbreviated spot-check: TODO restructure cleanly distributes fitness-review backlogs across priorities; item shape standardised (`**FR-N (severity, effort)**: description`); P7 promotion includes Sweep 20 A2 + B4 + FR-47; Standing conventions renamed and kept as meta-section. Library `2026.06.207 → 2026.06.208`. No findings. Row carried into PR #231 (XS bundle PR-A). |

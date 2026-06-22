@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Startup Roadmap Template\
 **Document Type:** Template\
-**Version:** 2.1.0\
-**Date:** 2026-06-21\
+**Version:** 2.2.0\
+**Date:** 2026-06-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/template-quickstart.md`](template-quickstart.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`docs/template-maturity-self-assessment.md`](template-maturity-self-assessment.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
@@ -229,6 +229,10 @@ Adopt the full sector folder plus [`resilience/`](../resilience/), [`supply-chai
 ### Dimension E: GRC team capacity (how much we can maintain)
 
 Dimension E scales the depth of every other adopted module.
+
+#### E0: Zero in-house headcount (outsourced contractor)
+
+The GRC function is entirely outsourced to a third-party contractor or fractional consultant; nobody on the adopter's permanent staff carries GRC duties. The contractor reads, maintains, and operates the adopted artefacts on the adopter's behalf. The adopter retains accountability (decision authority on residual risk acceptance, sign-off on policy adoption, executive forum participation) but delegates execution. Copy the minimum viable subset of each chosen module; the contractor's engagement letter should name which artefacts they maintain and what cadence they review them on. Same artefact subset as E1 below; the operational difference is who holds the pen.
 
 #### E1: None or founder part-time
 

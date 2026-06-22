@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #234 — Closes FR-67 (L, XS): zero-headcount-with-contractor sub-tier E0 in Dimension E (2026-06-22)
+
+`docs/template-startup-roadmap.md` v2.2.0: new E0 sub-tier inserted before E1 in the Dimension E (GRC team capacity) ladder, covering the case where GRC function is entirely outsourced to a third-party contractor or fractional consultant. Adopter retains accountability; contractor executes. Same artefact subset as E1; operational difference is who holds the pen. PR-D in Batch 1.
+
 ### PR #233 — Closes FR-89 + FR-91: security XS bundle (JWT algorithm-key-type binding + webhook signing precision) (2026-06-22)
 
 `dev-security/standard-api-security.md` v0.0.5: Token validation row gains JWT algorithm-key-type binding requirement per RFC 8725 (prevents RSA-public-key-as-HMAC-secret confusion). Webhook signing row gains canonical-string definition + constant-time comparison requirement. Replay-prevention row gains explicit 5-minute replay window + seen-nonce cache. 2 L XS items closed. PR-C in Batch 1 effort-first run.

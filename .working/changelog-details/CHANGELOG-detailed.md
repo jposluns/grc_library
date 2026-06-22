@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.212, PR #234
+
+**Closes FR-67 (L, XS)** — new Dimension E sub-tier E0 in [`docs/template-startup-roadmap.md`](../../docs/template-startup-roadmap.md). PR-D in Batch 1 effort-first run.
+
+### Added
+
+- **E0: Zero in-house headcount (outsourced contractor)** sub-tier inserted before E1 in the Dimension E ladder. Description: the GRC function is entirely outsourced to a third-party contractor or fractional consultant. The adopter retains accountability (decision authority on residual risk acceptance, sign-off on policy adoption, executive forum participation) but delegates execution. Contractor's engagement letter should name which artefacts they maintain and what cadence they review them on. Same artefact subset as E1; the operational difference is who holds the pen.
+
+### Changed
+
+- **Per-doc Version** `2.1.0 → 2.2.0` (minor; new sub-tier added to capacity ladder).
+- Generated artefacts regenerated.
+- **`.working/validate-pr/history.md`** (Version `1.2.39 → 1.2.40`): PR #233 row added.
+- **`.working/improvement-log.md`** (Version `1.0.18 → 1.0.19`): PR #233 /retro row added.
+
 ## 2026-06-22, Library Version 2026.06.211, PR #233
 
 **Closes FR-89 + FR-91** (2 L-severity XS items) — security-XS bundle in [`dev-security/standard-api-security.md`](../../dev-security/standard-api-security.md). PR-C in Batch 1 effort-first run.
