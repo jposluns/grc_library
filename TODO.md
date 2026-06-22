@@ -130,10 +130,7 @@ Deferred to a routine cleanup batch when convenient. Cross-reference only.
 - **FR-89 (L, XS)**: JWT algorithm-key-type binding.
 - **FR-90 (L, S)**: CSP / Trusted Types / HSTS-preload guidance.
 - **FR-91 (L, XS)**: Webhook constant-time comparison.
-- **FR-107 (L, XS)**: Surface glossary earlier in adopter path.
-- **FR-108 (L, XS)**: Key Terms vs Glossary cognitive hop.
 - **FR-109 (L, S) ⚠️**: Charter purpose paragraph density.
-- **FR-111 (L, XS) ⚠️**: Tier 1 reading-time estimate.
 - **FR-53 (L, S) (reshape)**: Metadata field unification — evaluate whether to deprecate Classification or Confidentiality as redundant, OR document the semantic distinction.
 
 ### FYI-tier from 2026-06-22 review

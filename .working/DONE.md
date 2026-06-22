@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #232 — Closes FR-107 + FR-108 + FR-111: newcomer-UX bundle in adopter-guide (2026-06-22)
+
+`docs/adopter-guide.md` v1.2.0: new "Two reference registers you will need early" subsection surfaces both the Glossary (acronyms + external-domain terms) and the Key Terms register (library-internal GRC concepts) BEFORE the How-the-library-is-meant-to-be-used section, explaining the split-by-term-class. Tier 1 starter set gains a "4-6 hours" reading-time estimate plus "if you only read three" pick (Charter + Framework + Role Authority Register). Closes 3 Low-severity XS items in one PR. PR-B in Batch 1 effort-first run.
+
 ### PR #231 — Closes FR-112 (M) + FR-131 (FYI): adopter-facing maintainer-context cleanup (2026-06-22)
 
 `README.md` line 58 audit-toolchain framing clarified (toolchain is maintainer's QA machinery, not an adopter dependency). `docs/template-quickstart.md` line 39 risk anchor switched from risk-register procedure to enterprise risk policy, aligning the quickstart core baseline with the adopter-guide Tier 1 starter set. Per-doc template-quickstart `3.0.0 → 3.0.1`. First PR in the effort-first batching run (Batch 1).
