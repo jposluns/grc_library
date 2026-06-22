@@ -92,7 +92,7 @@ AUDIENCES: list[tuple[str, str, list[dict]]] = [
     ),
     (
         "Privacy",
-        "The Data Protection Officer or Data Protection Officer needs the privacy programme charter, policy, procedures, jurisdiction annexes, and the cross-border transfer register.",
+        "The Data Protection Officer needs the privacy programme charter, policy, procedures, jurisdiction annexes, and the cross-border transfer register.",
         [
             {"domain": "privacy"},
         ],
