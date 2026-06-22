@@ -2,8 +2,8 @@
 
 **Document Title:** Assurance Map Register\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.1.0\
+**Date:** 2026-06-22\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-operational-risk-register.md`](template-operational-risk-register.md), [`risk/template-board-risk-report.md`](template-board-risk-report.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md)\
@@ -61,7 +61,7 @@ Each entry in the assurance map has:
 | Risk area identifier | Pointer to the enterprise or operational risk |
 | Risk area title | Short descriptive title |
 | Risk owner | Per the linked risk register |
-| Linked controls | Control identifiers from the control register |
+| Linked controls | Control identifiers from the **adopter's own control register**. The library does not ship a control register because the control identifier scheme is necessarily adopter-defined (each organisation's controls catalogue reflects its specific systems, vendors, and regulatory environment). The worked example below uses placeholder IDs in the form `CTL-IAM-001` to illustrate the field shape; adopters substitute their own scheme. A typical control register has columns: control ID, control statement, owner, frequency, evidence class, framework cross-reference. Adopters who do not yet have a control register can begin by extracting controls from their normative policies and standards into a flat register before populating the Linked-controls field here. |
 | Linked obligations | Compliance obligations from the obligations register |
 | First-line activity | What the first line does to manage the risk; cadence; evidence |
 | Second-line activity | What the second line does; cadence; evidence |

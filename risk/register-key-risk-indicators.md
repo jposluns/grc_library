@@ -2,7 +2,7 @@
 
 **Document Title:** Key Risk Indicator Catalogue\
 **Document Type:** Register\
-**Version:** 1.0.2\
+**Version:** 1.1.0\
 **Date:** 2026-06-22\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -41,6 +41,8 @@ Each KRI is defined by the following fields.
 | **Red Threshold** | Value indicating risk exceeds tolerance; immediate action required |
 | **KRI Owner** | Role responsible for collecting and reporting this KRI |
 | **Reporting To** | Risk Committee; CRO; Board |
+| **Red-Threshold Escalation Owner** | Role with decision authority when the Red threshold is breached: decides the response (add or update risk register entry; commission an investigation; invoke a control intervention; escalate further). Must be a single named role per KRI. Default for cybersecurity KRIs is the CISO; for compliance KRIs the CCO; for operational KRIs the Risk Committee. Adopters substitute their organisation's escalation hierarchy. |
+| **Red-Threshold Evidence Class** | The evidence captured when the Red threshold is breached: typically (a) timestamp of breach; (b) value at breach time and value trajectory leading into the breach; (c) the named escalation owner's decision and rationale; (d) link to risk register entry created or updated; (e) link to any incident, exception, or control intervention triggered. Retained per the records-retention schedule. |
 
 ---
 
