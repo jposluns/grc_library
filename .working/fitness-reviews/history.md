@@ -1,6 +1,6 @@
 # Library Fitness Review History
 
-**Version:** 1.2.1\
+**Version:** 1.2.2\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -12,40 +12,40 @@ See [`README.md`](README.md) for the persona catalogue, severity model, output f
 
 | Date | Run | Personas | Findings | Resulting PR | Detail | Summary |
 |---|---|---|---|---|---|---|
-| 2026-06-22 | r1 | A, B, C, D, E, F, G, H, I, J (all 10) | 27 (6 H[critical], 8 H, 11 M, 2 L/FYI; P5 Policy Editor and P9 Privacy/DPO both returned 0 findings, clean bills on editorial layer and privacy domain) | [#188](https://github.com/jposluns/grc_library/pull/188) | [`2026-06-22-r1.md`](2026-06-22-r1.md) | End-of-evening sweep validating the effectiveness of the day's 6 FR-remediation PRs (#169 access-control polish, #172 README polish bundle, #178 ERM Risk Owner completion, #179 P1.4a small-singletons bundle, plus meta-PRs #176 / #180 / #181 / #182 / #183 / #184 / #185 / #186 / #187). Aggregate: all 14 closed FRs materially addressed their cited symptoms; the corpus is meaningfully better than r1 from every persona's lens. **0 regressions** from the day's PRs. The 27 new findings are NEW issues revealed by fixes or pre-existing issues r1 missed. Three Convergent Findings dominate: **C1 Risk Owner role insufficiency** (P3+P6+P7 — FR-115/116/117/119; the role was added to ERM standard §3 in PR #178 but did not propagate to Role Authority Register, Risk Owner evidence expectations, monitoring cadence for non-Critical, or the exception policy's different "Risk Owner" definition); **C2 Emergency-access trigger ambiguity** (P2+P6+P7 — FR-121/122/123/125/126; PR #169 added trigger conditions but "material harm", "declared incident response", "delegated security lead" lack operational definitions); **C3 Retention chain breaks** (P4 — FR-128/129; PR #179's 5y→7y bump on control-testing evidence didn't propagate to adjacent CAPA and internal audit report retentions). Plus single-persona findings: FR-127 TLS 1.2 in ZTA vs TLS 1.3 in encryption policy (H[critical], P2); FR-114 DTI tier vocabulary vs framework CMMI (H[critical], P1, related to r1 FR-14); FR-130-133 adopter sequencing/discoverability (P8, mostly L/FYI). New FR IDs FR-112 through FR-133 (22 IDs covering 27 findings). All findings `verification: unverified` pending Pass-1 verification in next session. Pass-1 deferred to tomorrow morning per maintainer direction. |
+| 2026-06-22 | r1 | A, B, C, D, E, F, G, H, I, J (all 10) | 27 (6 H[critical], 8 H, 11 M, 2 L/FYI; P5 Policy Editor and P9 Privacy/DPO both returned 0 findings, clean bills on editorial layer and privacy domain) | [#188](https://github.com/jposluns/grc_library/pull/188) | [`2026-06-22-r1.md`](2026-06-22-r1.md) | End-of-evening sweep validating the effectiveness of the day's 6 FR-remediation PRs (#169 access-control polish, #172 README polish bundle, #178 ERM Risk Owner completion, #179 P1.4a small-singletons bundle, plus meta-PRs #176 / #180 / #181 / #182 / #183 / #184 / #185 / #186 / #187). Aggregate: all 14 closed FRs materially addressed their cited symptoms; the corpus is meaningfully better than the 2026-06-21 baseline from every persona's lens. **0 regressions** from the day's PRs. The 27 new findings are NEW issues revealed by fixes or pre-existing issues the 2026-06-21 review missed. Three Convergent Findings dominate: **C1 Risk Owner role insufficiency** (P3+P6+P7 — FR-115/116/117/119; the role was added to ERM standard §3 in PR #178 but did not propagate to Role Authority Register, Risk Owner evidence expectations, monitoring cadence for non-Critical, or the exception policy's different "Risk Owner" definition); **C2 Emergency-access trigger ambiguity** (P2+P6+P7 — FR-121/122/123/125/126; PR #169 added trigger conditions but "material harm", "declared incident response", "delegated security lead" lack operational definitions); **C3 Retention chain breaks** (P4 — FR-128/129; PR #179's 5y→7y bump on control-testing evidence didn't propagate to adjacent CAPA and internal audit report retentions). Plus single-persona findings: FR-127 TLS 1.2 in ZTA vs TLS 1.3 in encryption policy (H[critical], P2); FR-114 DTI tier vocabulary vs framework CMMI (H[critical], P1, related to the 2026-06-21 review's FR-14); FR-130-133 adopter sequencing/discoverability (P8, mostly L/FYI). New FR IDs FR-112 through FR-133 (22 IDs covering 27 findings). All findings `verification: unverified` pending Pass-1 verification in next session. Pass-1 deferred to tomorrow morning per maintainer direction. |
 | 2026-06-21 | r1 | A, B, C, D, E, F, G, H, I, J (all 10) | 111 (17 H[critical], 20 H, 57 M, 17 L; counts corrected from PR #124's "95/18/22/31/24" approximation in Sweep 11 iter 1) | [#124](https://github.com/jposluns/grc_library/pull/124) | [`2026-06-21-r1.md`](2026-06-21-r1.md) | First-ever fitness review. Library broadly fit for use; key clusters: maturity ladder fragmentation (3 conflicting models), data classification 4-vs-5-level split, DPO operational templates missing (DPIA/DPA/LIA/TIA/PbD), audit-discipline ceilings absent (exception/CAPA/citation-precision), README onboarding hole (GRC never expanded), 4 entry-point sequences contradict, healthcare/HIPAA + FS-outside-EU/US coverage shallow, SIEM/cloud-log retention contradiction (3y vs 90d). Strong areas: AI/agentic security (exemplar), threat modelling, OT/ICS, post-quantum, supply chain SCA/SBOM, DSAR/breach workflows. Recommendation: not publication-ready; Q1 close of audit-exposure cluster (Rec-2/3/4/5) brings library to publication-grade. |
 
 ## Open remediation backlog items
 
 Discrete remediation IDs (`FR-1`, `FR-2`, ...) generated by fitness reviews that have not yet been actioned. Each row tracks the originating review, the work item, and current status. See per-run detail files for full work-item specifications.
 
-For run r1, the full FR-1 through FR-111 backlog is enumerated in [`2026-06-21-r1.md`](2026-06-21-r1.md) §3 Page-by-Page Findings. For run r2, the full FR-112 through FR-133 backlog is enumerated in [`2026-06-22-r1.md`](2026-06-22-r1.md) §8 Remediation Backlog. The high[critical] subset across both runs is summarised below; remaining items are tracked in the detail files.
+For the 2026-06-21 run, the full FR-1 through FR-111 backlog is enumerated in [`2026-06-21-r1.md`](2026-06-21-r1.md) §3 Page-by-Page Findings. For the 2026-06-22 run, the full FR-112 through FR-133 backlog is enumerated in [`2026-06-22-r1.md`](2026-06-22-r1.md) §8 Remediation Backlog. The high[critical] subset across both runs is summarised below; remaining items are tracked in the detail files.
 
 | ID | Originating run | Title | Severity | Status | Assigned PR |
 |---|---|---|---|---|---|
-| FR-9 | r1 | ERM standard owned by CIO (category error; should be CRO or Board) | high[critical] | pending | — |
-| FR-14 | r1 | Maturity ladder fragmentation (3 conflicting models) | high[critical] | pending | — |
-| FR-16 | r1 | Exception register lacks max-duration / renewal-count fields | high[critical] | pending | — |
-| FR-19 | r1 | CAPA target-date extensions lack governance ceiling | high[critical] | pending | — |
-| FR-21 | r1 | Compliance Obligations Register accepts low-precision regulatory citations | high[critical] | pending | — |
-| FR-29 | r1 | DPIA methodology and trigger checklist absent | high[critical] | pending | — |
-| FR-30 | r1 | Article 28 DPA template missing | high[critical] | pending | — |
-| FR-31 | r1 | Privacy by Design (Art 25) no operational artefact | high[critical] | pending | — |
-| FR-32 | r1 | LIA template missing | high[critical] | pending | — |
-| FR-33 | r1 | Article 36 prior-consultation pathway absent | high[critical] | pending | — |
-| FR-34 | r1 | TIA methodology referenced 3+ places, defined nowhere | high[critical] | pending | — |
-| FR-43 | r1 | Data classification 4-level vs 5-level split across foundational docs | high[critical] | pending | — |
-| FR-70 | r1 | Crypto-asset / blockchain governance missing | high[critical] | pending | — |
-| FR-71 | r1 | M&A due diligence superficial | high[critical] | pending | — |
-| FR-72 | r1 | Sanctions / OFAC / export control screening superficial | high[critical] | pending | — |
-| FR-73 | r1 | AI ethics review process superficial | high[critical] | pending | — |
-| FR-80 | r1 | SIEM/cloud-activity-log retention contradiction (3y vs 90d) | high[critical] | pending | — |
-| FR-114 | r2 | DTI tier vocabulary vs framework CMMI (4-tier vs 5-tier; closely related to r1 FR-14) | high[critical] | pending | — |
-| FR-121 | r2 | Emergency-access "material business or safety harm" undefined | high[critical] | pending | — |
-| FR-122 | r2 | "Declared incident response" trigger not tied to specific incident status | high[critical] | pending | — |
-| FR-127 | r2 | TLS 1.2 in ZTA framework vs TLS 1.3 in encryption policy | high[critical] | pending | — |
-| FR-128 | r2 | CAPA retention 5y vs control-testing 7y (audit-evidence chain break) | high[critical] | pending | — |
-| FR-129 | r2 | Internal audit reports retention 5y vs procedures' 7y (audit-evidence chain break) | high[critical] | pending | — |
+| FR-9 | 2026-06-21 | ERM standard owned by CIO (category error; should be CRO or Board) | high[critical] | pending | — |
+| FR-14 | 2026-06-21 | Maturity ladder fragmentation (3 conflicting models) | high[critical] | pending | — |
+| FR-16 | 2026-06-21 | Exception register lacks max-duration / renewal-count fields | high[critical] | pending | — |
+| FR-19 | 2026-06-21 | CAPA target-date extensions lack governance ceiling | high[critical] | pending | — |
+| FR-21 | 2026-06-21 | Compliance Obligations Register accepts low-precision regulatory citations | high[critical] | pending | — |
+| FR-29 | 2026-06-21 | DPIA methodology and trigger checklist absent | high[critical] | pending | — |
+| FR-30 | 2026-06-21 | Article 28 DPA template missing | high[critical] | pending | — |
+| FR-31 | 2026-06-21 | Privacy by Design (Art 25) no operational artefact | high[critical] | pending | — |
+| FR-32 | 2026-06-21 | LIA template missing | high[critical] | pending | — |
+| FR-33 | 2026-06-21 | Article 36 prior-consultation pathway absent | high[critical] | pending | — |
+| FR-34 | 2026-06-21 | TIA methodology referenced 3+ places, defined nowhere | high[critical] | pending | — |
+| FR-43 | 2026-06-21 | Data classification 4-level vs 5-level split across foundational docs | high[critical] | pending | — |
+| FR-70 | 2026-06-21 | Crypto-asset / blockchain governance missing | high[critical] | pending | — |
+| FR-71 | 2026-06-21 | M&A due diligence superficial | high[critical] | pending | — |
+| FR-72 | 2026-06-21 | Sanctions / OFAC / export control screening superficial | high[critical] | pending | — |
+| FR-73 | 2026-06-21 | AI ethics review process superficial | high[critical] | pending | — |
+| FR-80 | 2026-06-21 | SIEM/cloud-activity-log retention contradiction (3y vs 90d) | high[critical] | pending | — |
+| FR-114 | 2026-06-22 | DTI tier vocabulary vs framework CMMI (4-tier vs 5-tier; closely related to the 2026-06-21 run's FR-14) | high[critical] | pending | — |
+| FR-121 | 2026-06-22 | Emergency-access "material business or safety harm" undefined | high[critical] | pending | — |
+| FR-122 | 2026-06-22 | "Declared incident response" trigger not tied to specific incident status | high[critical] | pending | — |
+| FR-127 | 2026-06-22 | TLS 1.2 in ZTA framework vs TLS 1.3 in encryption policy | high[critical] | pending | — |
+| FR-128 | 2026-06-22 | CAPA retention 5y vs control-testing 7y (audit-evidence chain break) | high[critical] | pending | — |
+| FR-129 | 2026-06-22 | Internal audit reports retention 5y vs procedures' 7y (audit-evidence chain break) | high[critical] | pending | — |
 
 (High and Medium and Low items from both runs: 93 additional items, tracked in detail files; not enumerated here to keep this table scannable.)
 

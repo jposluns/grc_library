@@ -10,11 +10,12 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #189 merge).
-- **Library version as of last refresh**: `2026.06.168`. **Pack version**: `1.40.2`. **README version**: `1.9.39`.
+- **Branch at last refresh**: `main` (synced after PR #190 merge).
+- **Library version as of last refresh**: `2026.06.169`. **Pack version**: `1.41.0`. **README version**: `1.9.40`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
-- **Last validation sweep**: Sweep 17 iteration 1 (close-out PR #186); /validate-pr on PR #187 closed out in PR #188; /validate-pr on PR #188 closed out in PR #189 (second consecutive findings-producing /validate-pr; discipline converging).
-- **Last fitness review**: 2026-06-22's r1 (PR #188 records; the per-date `rN` convention, so this is r1 of 2026-06-22 even though it is the second fitness review ever); Pass-1 verification pending next session.
+- **Last validation sweep**: Sweep 17 iteration 1 (close-out PR #186); /validate-pr on PR #187 closed out in PR #188; /validate-pr on PR #188 closed out in PR #189; /validate-pr on PR #189 closed out in PR #190 (third consecutive findings-producing /validate-pr; r1/r2 cross-date ambiguity resolved structurally in PR #190).
+- **Last fitness review**: 2026-06-22's r1 (PR #188 records); Pass-1 verification pending next session.
+- **Timezone convention**: UTC (codified in CLAUDE.md per PR #190).
 
 ---
 
