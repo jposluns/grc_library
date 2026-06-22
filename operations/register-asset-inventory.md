@@ -2,8 +2,8 @@
 
 **Document Title:** Asset Inventory Register\
 **Document Type:** Register\
-**Version:** 1.0.2\
-**Date:** 2026-06-21\
+**Version:** 1.0.3\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md)\
@@ -74,7 +74,7 @@ Each asset record must contain the following fields:
 
 ---
 
-## Governance
+## Governance and accountability
 
 ### Ownership
 

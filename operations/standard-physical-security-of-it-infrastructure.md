@@ -2,8 +2,8 @@
 
 **Document Title:** Physical Security of IT Infrastructure Standard\
 **Document Type:** Standard\
-**Version:** 1.3.0\
-**Date:** 2026-05-27\
+**Version:** 1.3.1\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-network-security-and-segmentation.md`](standard-network-security-and-segmentation.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
@@ -36,7 +36,7 @@ Defines minimum physical security requirements for IT infrastructure areas under
 
 ---
 
-## Governance
+## Governance and accountability
 
 | Role | Responsibility |
 |---|---|

@@ -2,8 +2,8 @@
 
 **Document Title:** AI Risk Register\
 **Document Type:** Register\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-06-22\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -79,7 +79,7 @@ The following entries represent the baseline risk register template. Actual oper
 
 ---
 
-## Governance
+## Governance and accountability
 
 The AI Risk Register is reviewed quarterly by the GRC Programme Manager and presented to the AI Governance Council at its quarterly meeting.
 

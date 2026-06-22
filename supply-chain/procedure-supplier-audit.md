@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
-**Date:** 2026-05-28\
+**Version:** 1.0.3\
+**Date:** 2026-06-22\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -32,7 +32,7 @@ It is aligned with ISO/IEC 27036-4:2016, COBIT 2019 BAI05.02, CSA CCM v4.1 STA-0
 
 ---
 
-## Governance
+## Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |

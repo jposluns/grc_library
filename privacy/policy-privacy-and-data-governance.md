@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy and Data Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.4.1\
+**Version:** 1.4.2\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -37,7 +37,7 @@ This policy defines principles, governance structure, and control framework for 
 
 ---
 
-## Governance
+## Governance and accountability
 
 ### Accountable roles
 

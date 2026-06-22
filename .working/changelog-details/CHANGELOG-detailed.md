@@ -6,6 +6,42 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.201, PR #223
+
+**Closes FR-49 (medium, P1.5)**: H2 label drift across 14 files. The bare form `## Governance` was used in 14 files while the canonical form `## Governance and accountability` was used in 20+ files corpus-wide. Renamed bare form to canonical via one-shot Python script with anchored line-pattern matching.
+
+### Changed
+
+- **14 files renamed**: `^## Governance$` → `## Governance and accountability` via `^## Governance$` line-anchored regex. The line-anchor ensures the script does NOT affect `## Governance and X`, `## Governance Council`, or other headings that legitimately extend "Governance". Per-doc Version patch-bump + Date refreshed to 2026-06-22 for each.
+- **Files touched**:
+  - **ai/**: [`register-ai-risk.md`](../../ai/register-ai-risk.md)
+  - **governance/**: [`framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md), [`framework-sustainability-and-responsible-technology.md`](../../governance/framework-sustainability-and-responsible-technology.md), [`standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md)
+  - **operations/**: [`register-asset-inventory.md`](../../operations/register-asset-inventory.md), [`standard-physical-security-of-it-infrastructure.md`](../../operations/standard-physical-security-of-it-infrastructure.md)
+  - **privacy/**: [`policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`procedure-privacy-impact-and-cross-border-transfer.md`](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md)
+  - **resilience/**: [`plan-pandemic-continuity.md`](../../resilience/plan-pandemic-continuity.md), [`plan-physical-site-continuity.md`](../../resilience/plan-physical-site-continuity.md)
+  - **security/**: [`policy-encryption-and-key-management.md`](../../security/policy-encryption-and-key-management.md), [`roadmap-post-quantum-cryptography.md`](../../security/roadmap-post-quantum-cryptography.md)
+  - **supply-chain/**: [`procedure-supplier-audit.md`](../../supply-chain/procedure-supplier-audit.md), [`procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md)
+- **Generated artefacts**: [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated.
+- **`.working/validate-pr/history.md`** (Version `1.2.28 → 1.2.29`): new top row for PR #222's /validate-pr (deferred per recursion-avoidance; 0 findings).
+- **`.working/improvement-log.md`** (Version `1.0.7 → 1.0.8`): new top row for PR #222's /retro (no new pattern; the "name the purpose alongside the algorithm" pattern is flagged for codification if it recurs).
+
+### Intentionally NOT renamed
+
+- `## Governance Council`, `## Governance Council charter`, `## Governance and risk management`, and similar extensions of "Governance" are legitimate distinct headings. The line-anchored `^## Governance$` regex preserved them.
+- `.working/` files were excluded (frozen archives).
+- `CHANGELOG.md` historical entries (e.g., "## 2026-06-22, Library Version ...") use a different H2 shape and are not affected.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- `tools/run-pr-time-checks.sh` reports D1, D2, gate 45 all OK.
+- Spot-check: `^## Governance$` corpus-wide grep returns 0 results post-fix (all 14 occurrences renamed; no false negatives).
+- Spot-check: `^## Governance and accountability$` corpus-wide grep returns 34+ results (the original 20+ plus the 14 just renamed).
+
+### Discipline observation
+
+- **Line-anchored regex catches non-matching extensions**: the choice of `^## Governance$` over `## Governance` (no anchor) was deliberate. Without the trailing `$` anchor, the script would have replaced `## Governance Council` with `## Governance and accountability Council`, breaking legitimate distinct headings. Anchored line-pattern matching is the discipline; `replace_all` on a bare substring is the anti-pattern this avoids.
+
 ## 2026-06-22, Library Version 2026.06.200, PR #222
 
 **Closes FR-82 (medium, P1.6)**: clarifies the "AI and Model Data" cryptography requirement row in [`security/policy-encryption-and-key-management.md`](../../security/policy-encryption-and-key-management.md):56.
