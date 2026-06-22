@@ -6,6 +6,44 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.199, PR #221
+
+**Closes FR-33 (high[critical], P1.4b standalone)**: GDPR Article 36 prior-consultation pathway in [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md). Also carries deferred PR #220 /validate-pr history row and /retro register row.
+
+### Added
+
+- **Step 5.2: GDPR Article 36 prior consultation with the supervisory authority (regulatory)** — new substep in [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md):116ff. Covers:
+  - **Trigger** (Article 36(1)): consultation mandatory before processing where DPIA residual risk remains high after planned mitigations. Explicit note that the Article 36 trigger is distinct from Step 5.1's internal-risk-appetite trigger; a processing activity may trigger one, the other, or both.
+  - **Consultation content table** (Article 36(3)): six-item list with article-reference column — responsibilities of controller/joint controllers/processors (a); purposes and means of intended processing (b); measures and safeguards (c); DPO contact details where applicable (d); the DPIA report itself (e); any other information requested (f).
+  - **Timeline** (Article 36(2)): 8 weeks default; +6 weeks extension on complexity (notice within 1 month of request); processing must not commence during the consultation period.
+  - **Supervisory authority powers**: written advice (default) OR Article 58 corrective powers (warnings, orders, processing bans, fines) where infringement is likely.
+  - **Interaction with Step 5.1**: 5-step order of operations (DPIA → Art 36 initiation → supervisory response → controller adjustment → ERC sign-off on adjusted processing for go-live). The Article 36 pathway is regulatory and external; the ERC pathway is governance and internal; both must be cleared.
+  - **Non-EU equivalents**: notable examples — LGPD Article 38 (Brazil, ANPD prior consultation); PIPL Articles 55-56 (China, CAC security assessment for high-risk transfers); UK GDPR Article 36 (post-Brexit retained equivalent). Pointer to [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md) for per-jurisdiction triggers and timelines.
+- **Step 5.3: Documentation requirements** — split-by-pathway table making the records-required dependence on which pathway(s) triggered explicit:
+  - **Step 5.1 pathway**: ERC meeting minutes; Legal Counsel sign-off memo; residual-risk acceptance signature.
+  - **Step 5.2 pathway**: Article 36(3) consultation packet as sent; supervisory authority's written response; controller's response to the supervisory authority; evidence of adjustment to processing prior to go-live.
+
+### Changed
+
+- **Step 5 (parent)**: introductory paragraph rewritten to declare the two distinct pathways and their independence (each may apply independently or in combination; the regulatory pathway is mandatory when triggered and is NOT substituted by the internal pathway).
+- **Step 5.1**: prior Step 5 content retained verbatim under the new substep label; closing sentence added noting that 5.1 is "necessary but not sufficient where the Article 36 regulatory pathway in Step 5.2 also applies".
+- **Per-doc Version**: `1.3.4 → 1.4.0` (minor; substantive new substep added that expands operational scope). Date refreshed to 2026-06-22.
+- **`taxonomy.yml`, `docs/portal.md`, `docs/maturity-scorecard.md`** regenerated for the per-doc Version bump.
+- **`.working/validate-pr/history.md`** (Version `1.2.26 → 1.2.27`): new top row for PR #220's /validate-pr (deferred from PR #220 per recursion-avoidance; carried into this PR).
+- **`.working/improvement-log.md`** (Version `1.0.5 → 1.0.6`): new top row for PR #220's /retro (deferred from PR #220 per recursion-avoidance; carried into this PR). Pattern strengthened: "corpus-wide rename script: incomplete substitution coverage" now at SECOND occurrence (signal stage).
+- **`TODO.md`**: P1.4b row closed (FR-33 closed in this PR); Phase-1 remaining narrative updated.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-each-edit (one fail-then-fix on gate 21 / language-style audit for an em-dash that landed in line 156 during the first draft; the language convention forbids em-dashes regardless of dialect and the fix substituted commas).
+- `tools/run-pr-time-checks.sh` reports D1, D2, gate 45 all OK.
+- Citation accuracy spot-check: Article 36(1), 36(2), 36(3), 58 references verified against the GDPR canonical text and the canonical citations register at [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md). LGPD Art 38, PIPL Arts 55-56, UK GDPR Art 36 external references verified.
+
+### Discipline observation
+
+- **Apply-time language-audit catch**: the first draft included em-dashes ("Brazil — ANPD", "China — CAC") that the project's language audit (gate 21) caught on the first run. Corrected to comma form ("Brazil, ANPD" / "China, CAC") in the same content commit. Confirms the language-audit guardrail is working as intended; the orchestrator did NOT bypass with --no-verify.
+- **Article 36(3) content table format**: the SKILL.md-style article-reference-column table was chosen over a bullet list because it lets adopters cross-reference each consultation content item to the precise sub-paragraph in Article 36(3). Mirror this pattern for FR-34 (Transfer Impact Assessment six-step methodology) and FR-37-FR-42 (other privacy completion items) where article-reference granularity helps the adopter implement against the canonical text rather than against a paraphrase.
+
 ## 2026-06-22, Library Version 2026.06.198, PR #220
 
 **Sweep 19 iter 1 close-out** — /validate sweep on the post-PR-#219 state (covering PRs #215-#219, the 5-PR window since Sweep 18 covered through PR #214). 2 in-window warnings surfaced; both fixed; deferred PR #219 /validate-pr and /retro register rows carried per the recursion-avoidance rule.
