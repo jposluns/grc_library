@@ -30,6 +30,18 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #214 — Overnight-PR morning processing + PR #213 batched items (2026-06-22)
+
+Morning-processing PR for the overnight session ending at PR #213: routed two design decisions (FR-104 and FR-130 explicit-drop closures) into `.working/design-decisions.md`, transitioned `.working/overnight-pr.md` back to stub form, and updated TODO and Next-up recommendations to reflect FR-119 / FR-14+FR-114 closures. Also carried the PR #213 batched items per the recursion-avoidance rule: stale forward-ref fix in `validation-sweep-pr-scoped/SKILL.md:175`, validate-pr history row for PR #213, improvement-log row for PR #213 with pattern observation #1 surfaced (new-skill drafting checklist candidate).
+
+### FR-104 (medium) — decision-tree per-regulation context not pursued (decided by maintainer, recorded PR #214, 2026-06-22)
+
+Maintainer decided 2026-06-22 not to add per-regulation context to decision-tree §1.4. Rationale logged at [`.working/design-decisions.md`](design-decisions.md) § Decisions explicitly dropped.
+
+### FR-130 (medium) — decision-tree portal entry-point reorder not pursued (decided by maintainer, recorded PR #214, 2026-06-22)
+
+Maintainer decided 2026-06-22 to keep README at decision-tree item 1; portal reorder not pursued. Rationale logged at [`.working/design-decisions.md`](design-decisions.md) § Decisions explicitly dropped.
+
 ### PR #213 — Continuous process-improvement loop: /retro skill + improvement-log register (2026-06-22)
 
 New pack skill `pr-retrospective` (slash command `/retro`) and the paired `.working/improvement-log.md` register. Post-merge retrospective on each successful PR; output is one entry per PR; recurring patterns surface as candidates for pack-rule updates / worker-brief additions / new audit gates. Wired into PR workflow step 5b in CLAUDE.md. Closes the three-layer learning loop (worker-brief template + apply-time catch tracking + PR retrospective). Pack `1.44.1 → 1.45.0`.
