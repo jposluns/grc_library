@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #231 — Closes FR-112 (M) + FR-131 (FYI): adopter-facing maintainer-context cleanup (2026-06-22)
+
+`README.md` line 58 audit-toolchain framing clarified (toolchain is maintainer's QA machinery, not an adopter dependency). `docs/template-quickstart.md` line 39 risk anchor switched from risk-register procedure to enterprise risk policy, aligning the quickstart core baseline with the adopter-guide Tier 1 starter set. Per-doc template-quickstart `3.0.0 → 3.0.1`. First PR in the effort-first batching run (Batch 1).
+
 ### PR #230 — TODO reorganization (maintainer-directed): every item fits into P1-P7 priorities (2026-06-22)
 
 Restructured `TODO.md` from 453 lines (mix of per-topic sections + dedicated fitness-review backlogs) to a priority-based layout: P1 Urgent quality (H[critical] + H, 14 items) / P2 Substantive improvements (M, ~30) / P3 Low-priority cleanup (L + FYI, ~16) / P4 Adopter experience (5 process/meta) / P5 Content expansion (8 country/regulator subsections) / P6 Domain-level (5 new-domain items) / P7 Awaiting maintainer decision. Fitness review backlogs from both 2026-06-21 r1 and 2026-06-22 r1 distributed by severity into matching priorities. "Investigation / blocked" promoted to P7. "Critical user feedback" renamed "Standing conventions" as meta-section. Item shape standardised: `**FR-N (severity, effort)**: description with location reference`. Also carries deferred PR #229 /validate-pr + /retro register rows.

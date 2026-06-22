@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.209, PR #231
+
+**Closes FR-112 (M, XS) + FR-131 (FYI, XS)** — first PR in the Batch 1 XS-effort sequence (maintainer-directed throughput run). Two adopter-facing maintainer-context cleanups.
+
+### Fixed
+
+- **FR-112 (M, XS)**: [`README.md`](../../README.md) line 58 audit-toolchain framing. Prior text framed the toolchain as if adopters needed it. Added clarifying sentence: the audit toolchain is the maintainer's quality-assurance machinery, not an adopter dependency. Adopters who only consume the corpus do not need it; adopters who want the same maintenance discipline can adopt the toolchain (it's permissively licensed and copy-paste portable) but doing so is optional. README CalVer + Version bumped in plumbing per the four-surface version-bump discipline.
+- **FR-131 (FYI, XS)**: [`docs/template-quickstart.md`](../../docs/template-quickstart.md) line 39 risk anchor in the "core baseline" set switched from `risk/procedure-risk-register.md` (risk-register procedure) to [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md) (canonical enterprise risk policy). Aligns with the adopter-guide Tier 1 starter set which uses the policy + standard rather than the register procedure. Per-doc Version `3.0.0 → 3.0.1`; Date `2026-06-21 → 2026-06-22`.
+
+### Changed
+
+- **Generated artefacts**: [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated for the per-doc Version+Date bump on template-quickstart.
+- **`.working/validate-pr/history.md`** (Version `1.2.36 → 1.2.37`): new top row for PR #230's /validate-pr (deferred per recursion-avoidance; 0 findings).
+- **`.working/improvement-log.md`** (Version `1.0.15 → 1.0.16`): new top row for PR #230's /retro (TODO reorganization).
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
+- `tools/run-pr-time-checks.sh` reports D1, D2, gate 45 all OK.
+
+### Discipline observation
+
+- **First PR in the effort-first batching run**: this batch (Batch 1) prioritises XS effort across P1-P4 per the maintainer's direction "remove as many items from the TODO list as quickly as possible". PR-A is the lightest possible opener: two unrelated XS fixes in adopter-facing docs (README + quickstart) that both pattern-match "maintainer-context leakage in adopter narrative". Bundling 2 XS items here matches the maintainer's "aggressive 3-5 related XS items per PR" preference.
+
 ## 2026-06-22, Library Version 2026.06.208, PR #230
 
 **TODO reorganization (maintainer-directed)**: [`TODO.md`](../../TODO.md) restructured so every backlog item fits cleanly into priority sections (P1-P7) rather than the prior mix of per-topic sections + dedicated fitness-review backlogs.
