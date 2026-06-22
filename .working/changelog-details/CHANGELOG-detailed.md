@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.194, PR #215
+
+Working-state housekeeping for local project: Sweep 18 iter 1 recording (clean bill — 0 in-window, 0 out-of-window across all three subagents A/B/C on the post-PR-#214 HEAD covering PRs #186-#214). Sweep-history row appended to [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (Version `2.0.10 → 2.0.11`); TODO resume-state cursor refreshed (sweep 17→18, library 192→193, pack 1.45.0→1.45.1, README 1.9.63→1.9.64). No detail file (zero-finding sweep).
+
+### Verification
+
+- All 46 audit gates pass on post-commit state.
+- PR-time delta gates pass (D1 CHANGELOG-on-PR; D2 per-PR version-bump on README + validate-sweeps/history).
+- Gate 45 (TODO staleness) passes after the cursor refresh.
+
+### Sweep summary
+
+- **Window**: PRs #186-#214 (29 PRs over 2 days, well past the 5-PR cadence; maintainer-triggered after the overnight fitness-remediation campaign and the morning-processing PR #214).
+- **Mechanical baseline**: clean (46/46) on the post-#214 HEAD.
+- **Pre-flight scanner**: 373 files scanned, 19 candidates suppressed (13 heuristic, 6 exemption); zero unsuppressed candidates.
+- **Subagent A (recent-PR deep review)**: 0 findings. Verified version-bump-paired-with-Date discipline held across all touched files; the 36-file rename is uniformly "Chief Privacy Officer"; the NIST and Annex sweeps standardised cleanly; CMMI 5-tier canonical across all three target surfaces; /retro skill cross-references /validate-pr correctly; PAIRS registry covers the new pair; improvement-log carries both meta-self entries from PR #213 and #214 per the batching rule.
+- **Subagent B (corpus-wide stale-reference sweep)**: 0 findings across all 9 failure-mode classes (stale-pr-ref, stale-fr-ref, stale-version-ref, stale-role-name, stale-tier-name, stale-citation-format, stale-review-frequency, stale-forward-ref, cross-doc-term-drift); high-confidence clean bill.
+- **Subagent C (audit-programme integrity reviewer)**: 0 findings. Four-surface parity confirmed (spec §6 + workflow + runner + pre-commit all 46 gates in identical order); cross-file gate-count consistency verified across 427 files; PAIRS registry covers all 4 paired skill+slash-command surfaces; linter docstrings accurate.
+- **Termination**: empty-delta primary stop triggered in iter 1 (zero findings AND identical-to-prior synthesised set).
+- **Clean-bill streak**: validates the cumulative discipline of the editorial sweeps (PRs #207-209), the FR-46 rename (PR #210), the CMMI reconciliation (PR #212), the /retro skill introduction (PR #213), and the morning-processing PR #214.
+
 ## 2026-06-22, Library Version 2026.06.193, PR #214
 
 Morning-processing PR for the overnight session that ended at PR #213. Routed the overnight session's design decisions into `.working/design-decisions.md` (two explicit-drop entries for FR-104 and FR-130 closures), reset `.working/overnight-pr.md` from `Status: in-flight` back to stub, and updated TODO and the Next-up recommendations to reflect FR-119 and FR-14+FR-114 closures. Also carried the PR #213 batched items per the recursion-avoidance rule: fixed a stale forward-reference at `dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md:175` (the queued-for-PR #186 framing is now stale since the skill it referenced shipped in PR #213); appended the PR #213 validate-pr history row and the PR #213 improvement-log row with the first pattern observation (new-skill drafting checklist candidate). Pack `1.45.0 → 1.45.1` (patch on the SKILL.md prose fix).
