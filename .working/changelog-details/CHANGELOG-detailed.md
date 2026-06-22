@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.228, PR #250
+
+**`/resume` Sweep 23 close-out.** The session-resume compensating-control corpus-wide `/validate`, run as the first substantive task of a fresh session per the `/resume` protocol's step 5 — the control that compensates for the session-closing handoff PRs #248/#249 skipping their trailing `/validate-pr`.
+
+### Changed
+
+- **[`.claude/CLAUDE.md`](../../.claude/CLAUDE.md)** (line 263): close-out-checklist example "the eight governance rules" → "the nine governance rules". A stale prose count surfaced by Sweep 23's Subagent B (`ruleId: stale-prose-count-self-reference`, level `note`). In-window: the `## Session migration and PR close-out checklist` section containing this line was added in PR #247, by which time the governance-rule count was already nine, so the example was stale at authoring time. Ungated (`.claude/` is gate-exempt and the count is illustrative prose, which the collection-enumeration gate 41 does not cover), but factually wrong; corrected. This is a distinct occurrence from the TODO-P4.1 "eight → nine" already fixed in PR #247.
+- **[`TODO.md`](../../TODO.md)** (line 18): the "Last validation sweep" cursor advanced from "Sweep 22 iter 1" to "Sweep 23 iter 1". Caught post-commit by gate 45 (TODO staleness audit) and the gate-36 regression test `test_runs_clean_on_corpus_at_head` as a `sweep-cursor-stale` finding — a paired-bookkeeping-surface miss (the Sweep 23 history row was added without advancing the TODO cursor in the same commit). The mechanical backstop fired exactly as the close-out-checklist degradation guard intends; fixed and folded into this commit. (The version/branch lines in the same TODO snapshot block are "as-of-session-pause" and their forward drift is expected, not gated.)
+
+### Added (working-state, gate-exempt)
+
+- **[`.working/validate-sweeps/2026-06-22-sweep23-iter1.md`](../validate-sweeps/2026-06-22-sweep23-iter1.md)** (new): the Sweep 23 iteration-1 detail file. Six H2 sections per the `validation-sweep` SKILL step 9: trigger/state snapshot, Subagent A/B/C verbatim returns, orchestrator synthesis, resulting PR. Records the unshallow step, the clean 46/46 baseline, the two confirmed false positives, the one note finding and its fix, and the deduped already-tracked drift cluster.
+- **[`.working/validate-sweeps/history.md`](../validate-sweeps/history.md)** (Version `2.0.15 → 2.0.16`): one Sweep 23 row (Subagents A, B, C; 1 in-window note; resulting PR = this close-out; detail-file link).
+
+### Verification
+
+- `.claude/` and `.working/` are gate-exempt; the gated files touched are [`README.md`](../../README.md) (version lines), [`TODO.md`](../../TODO.md) (gate-45 sweep cursor), and [`CHANGELOG.md`](../../CHANGELOG.md) (this entry pair). No adopter-facing corpus content changed.
+- Mechanical baseline (pre-fix) clean: `tools/run_all_audits.sh` exit 0 (46/46) on the unshallowed clone. Re-run post-commit to confirm no collateral drift.
+- The `/validate` sweep was a full formal three-subagent dispatch (A, B, C — no skips, no abbreviation); the dispatch is declared in the history row per `validation-sweep` Rule 5.6.
+- Clone started shallow (`git rev-parse --is-shallow-repository` = `true`); `git fetch --unshallow` run before any history-aware audit per the full-clone methodology rule (gates 31, 40 mis-attribute dates on shallow clones).
+- **[`README.md`](../../README.md)**: library `2026.06.227 → 2026.06.228`; README `1.9.98 → 1.9.99`.
+
+### Process note
+
+- Per "always split when in doubt" and the `library-fitness-review` SKILL's "do not bundle a close-out with unrelated work" red flag, this PR carries only the Sweep 23 close-out (the resume-mandated sweep plus its one trivial in-window fix), not the next queue item (the `/fitness` routing-flag amendment). The findings-producing sweep was coherent enough to warrant its own close-out PR per the `validation-sweep` batching rule. On merge it takes the normal per-PR `/validate-pr` + `/retro`, whose rows batch into the next PR.
+
 ## 2026-06-22, Library Version 2026.06.227, PR #249
 
 **Handoff-PR QA loop-break.** Codifies the maintainer-directed fix for a recursion in the per-PR QA cadence at session boundaries: the session-closing handoff PR is exempt from the trailing `/validate-pr`/`/retro`, with a full corpus-wide `/validate` on the next `/resume` as the compensating control.
