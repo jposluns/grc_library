@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.5\
+**Version:** 1.2.6\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -12,6 +12,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | 197 | 10 | 0 (0 in-window, 0 out-of-window) | none | — | Fifth overnight-batch PR (FR-115 close + PR #196 batching). Subagent A verified Risk Owner row structurally consistent with adjacent register rows; reciprocal cross-reference path-correct; roles audit recognises the new role (40 known, up from 39); broader corpus-wide Risk-Owner cross-referencing flagged as out-of-window candidate FR (not a defect in this PR's stated scope). Row batched into PR #198. |
 | 2026-06-22 | 196 | 7 | 0 (0 in-window, 0 out-of-window) | none | — | Fourth overnight-batch PR (FR-113 close + PR #195 batching). Subagent A verified CAPA + SIEM expansions match the canonical pattern; per-document acronym expansion in other domain files is intentionally out-of-window (would require its own FR); fitness backlog rotation PR numbers correct (FR-127→#193, FR-128→#194, FR-129→#195 verified via git log); version bumps consistent. Row batched into PR #197. |
 | 2026-06-22 | 195 | 9 | 0 in-window; 1 out-of-window (fitness-reviews/history.md backlog table not rotated when FR-127/128/129 closed; pre-existing discipline gap) | none in-window; out-of-window cleanup bundled into PR #196 | — | Third overnight-batch PR (FR-129 close). Subagent A verified retention-schedule.md:83 cites standard-internal-audit.md §8.3 verbatim; corpus-wide search returned no other 5y-internal-audit-report references; AI audit + Supplier audit deferral cleanly recorded in CHANGELOG-detailed.md:33; version bumps consistent. The out-of-window observation (fitness backlog table still listed FR-127/128/129 as pending) is bundled into PR #196's cleanup. Row batched into PR #196 per the batching rule. |
 | 2026-06-22 | 194 | 9 | 0 (0 in-window, 0 out-of-window) | none | — | Second overnight-batch PR (FR-128 close + PR #193 batching). Subagent A deep-read all 9 touched files; verified CAPA row at retention-schedule.md:66 correctly cites procedure-capa.md:452 §12; corpus-wide CAPA 5-year search returned no stale 5y mandates (the FR-129 internal audit reports row is intentionally out-of-window for FR-128's scope; will be addressed in PR #195); TODO renumbering clean; version bumps consistent. Row batched into PR #195. |

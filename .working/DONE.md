@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #198 — FR-116 (medium): Risk Owner monitoring cadence by score band (2026-06-22)
+
+Closes FR-116 by extending ERM standard §8.1 with explicit Risk Owner review cadences per score band (Low/annual, Moderate/quarterly, High/monthly, Critical/monthly), aligning to the §5.2 scoring-threshold table's review-interval column. Mechanical alignment, no new policy. Partial C1 close (after PR #197's FR-115).
+
 ### PR #197 — FR-115 (high): Risk Owner row in Role Authority Register (2026-06-22)
 
 Closes FR-115 by adding the Risk Owner row to the canonical Role Authority Register, mirroring the verbatim Primary Accountability text from the ERM standard §3 (added in PR #178) and adding a reciprocal cross-reference. Partial close of Convergent Finding C1; FR-116/FR-117 still doable, FR-119 deferred (needs decision).
