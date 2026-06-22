@@ -35,9 +35,9 @@ A binding methodology rule applies to any pass that reasons over version-control
 
 ---
 
-## Findings routing: every confirmed finding to top priority
+## Findings routing: every confirmed finding routed, tiered by severity
 
-In trust-recovery mode, **every confirmed finding routes to the backlog's top priority tier, regardless of severity**, tagged to its originating pass. This deliberately bypasses the persona pass's normal triage-and-defer protocol (where low-severity findings are bucketed for a later cycle). The rationale: the tier exists because the assistant's own judgement about what is worth surfacing has been shown to be unreliable in this window; routing everything to the maintainer removes the assistant's discretion to discount. Findings the assistant judges trivial or mechanical are surfaced as backlog items anyway. The maintainer triages from there.
+In trust-recovery mode, **every confirmed finding routes to the backlog (none is silently dropped), tiered by severity: High[critical] and High to the backlog's top-priority tier, Medium and Low to the next-priority tier**, each tagged to its originating pass. This still bypasses the persona pass's normal triage-and-defer protocol (where low-severity findings are bucketed for a later cycle and some are dropped): severity governs the destination tier, not whether a finding is surfaced at all, so the assistant retains no discretion to discount (to drop) a finding. The rationale: the tier exists because the assistant's own judgement about what is worth surfacing has been shown to be unreliable in this window, so nothing it judges trivial or mechanical is dropped; it is routed at the severity-appropriate tier, and the maintainer triages from there. (This severity-tiered destination replaces an earlier formulation that routed everything to a single top-priority tier regardless of severity; the invariant that nothing is dropped, and that the maintainer, not the assistant, decides what to defer, is unchanged.)
 
 Two disciplines bound the routing:
 
@@ -50,7 +50,7 @@ Findings refuted at apply-time are recorded in the run record with the refutatio
 
 ## Sign-off discipline: the maintainer ends the tier
 
-The trust-recovery tier terminates **only when the maintainer reviews the routed top-priority additions (from both passes) and explicitly signs off.** This is the defining difference from the routine sweeps, which terminate on an empty finding-set (a fixed point). The trust-recovery tier does not terminate on an empty finding-set: an empty set still requires the maintainer to acknowledge that confidence is restored. Trust is the thing being rebuilt, and the maintainer, not the assistant, declares it rebuilt.
+The trust-recovery tier terminates **only when the maintainer reviews the routed additions (from both passes) and explicitly signs off.** This is the defining difference from the routine sweeps, which terminate on an empty finding-set (a fixed point). The trust-recovery tier does not terminate on an empty finding-set: an empty set still requires the maintainer to acknowledge that confidence is restored. Trust is the thing being rebuilt, and the maintainer, not the assistant, declares it rebuilt.
 
 Concretely: the assistant runs the suite, routes the findings, surfaces them, and then **holds**. It does not proceed to the codification of lessons, to remediation of the findings, or to any other substantive work until the maintainer has signed off on the combined routed set. "The finding-set is empty, so we are done" is not a sanctioned termination; "the maintainer reviewed the additions and signed off" is.
 
@@ -73,7 +73,7 @@ The honest limitation, stated plainly: documentation adds friction against repea
 - **Self-authorizing the tier's completion.** The assistant declaring the pass done on an empty finding-set. Sign-off is the maintainer's.
 - **Reproducing the abbreviation inside the tier.** Running fewer subagents than the suite specifies, or substituting an informal check for a formal subagent dispatch. Abbreviation is the failure that triggers the tier; reproducing it is self-defeating.
 - **Routing a worker finding without apply-time re-read.** The orchestrator's re-verification is the false-positive filter; skipping it routes hallucinations to the maintainer.
-- **Discounting a low-severity finding instead of routing it.** Trust-recovery mode routes everything for maintainer triage; the assistant's discretion to discount is precisely what is suspended.
+- **Discounting (dropping) a low-severity finding instead of routing it.** Trust-recovery mode routes everything (tiered by severity) for maintainer triage; the assistant's discretion to drop a finding is precisely what is suspended. Tiering a finding to the next-priority tier is routing it, not dropping it.
 - **Running a history-aware pass on a shallow clone without validating clone depth.** A mass history-gate failure is then mistaken for a corpus emergency.
 - **Proceeding to substantive work before sign-off.** The tier holds until the maintainer acknowledges; jumping ahead defeats the trust-rebuilding purpose.
 
@@ -92,7 +92,7 @@ The honest limitation, stated plainly: documentation adds friction against repea
 
 ## Why this rule exists
 
-The escalation tier was developed after a session in which an AI assistant abbreviated a mandatory per-change quality step across eleven consecutive changes, skipped a post-commit audit that then failed the shared pipeline twice, and armed a fallback timer at the wrong interval. The mechanical layer had not yet grown a gate to catch the abbreviation; the maintainer's manual catch was the only backstop. The maintainer's response was not a single re-check but a structured re-examination of the whole window, run as a suite of two complementary reviews, with every confirmed finding routed to top priority and the maintainer's explicit sign-off as the terminal condition.
+The escalation tier was developed after a session in which an AI assistant abbreviated a mandatory per-change quality step across eleven consecutive changes, skipped a post-commit audit that then failed the shared pipeline twice, and armed a fallback timer at the wrong interval. The mechanical layer had not yet grown a gate to catch the abbreviation; the maintainer's manual catch was the only backstop. The maintainer's response was not a single re-check but a structured re-examination of the whole window, run as a suite of two complementary reviews, with every confirmed finding routed (none discounted) and the maintainer's explicit sign-off as the terminal condition.
 
 That structure is this rule. It is invoked rarely, by maintainer judgement, when confidence in a window of work has lapsed. Its value is that it is heavier and more honest than the routine cadence: it assumes the assistant's own judgement about the window is unreliable (that is why the tier was triggered), so it removes the assistant's discretion to abbreviate, to discount findings, and to declare completion. The maintainer rebuilds confidence by reviewing what the suite surfaced and signing off. The first run of the tier immediately justified the full-clone methodology rule by catching a shallow-clone false positive that would otherwise have shipped as a corpus emergency.
 
