@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #202 — Overnight session wrap-up (2026-06-22)
+
+Final overnight-batch PR. Updates `.working/overnight-pr.md` with the 9-PR build-progress list (PRs #193-#201, closing FR-127/128/129/113/115/116/117/132 fully + FR-81 partial), the files-modified inventory, the files-NOT-touched inventory, and the 9-item open-ambiguities list for maintainer morning review. Status remains `in-flight`; the morning-processing PR will transition to `stub` after routing content.
+
 ### PR #201 — FR-81 partial (medium): TLS 1.3+ alignment in dev-security standards (2026-06-22)
 
 Two of three FR-81 surfaces aligned to the canonical encryption policy's TLS 1.3+ mandate: `dev-security/standard-developer-security-requirements.md`:151 and `dev-security/standard-api-security.md`:109. Pack `dev-security/claude-rules/CLAUDE.md` surface deferred (pack-rule edit; approval-needed). Same canonical-source pattern as PR #193's FR-127 ZTA framework alignment.
