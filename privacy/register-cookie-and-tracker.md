@@ -2,7 +2,7 @@
 
 **Document Title:** Cookie and Tracker Register\
 **Document Type:** Register\
-**Version:** 1.0.3\
+**Version:** 1.0.4\
 **Date:** 2026-06-22\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -13,6 +13,10 @@
 **Repository Path:** [`privacy/register-cookie-and-tracker.md`](register-cookie-and-tracker.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
+
+---
+
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
 
 ---
 

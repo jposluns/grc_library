@@ -2,7 +2,7 @@
 
 **Document Title:** Key Risk Indicator Catalogue\
 **Document Type:** Register\
-**Version:** 1.0.1\
+**Version:** 1.0.2\
 **Date:** 2026-06-22\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -139,7 +139,7 @@ Each KRI is defined by the following fields.
 
 | Report | Frequency | Audience |
 |---|---|---|
-| KRI Dashboard | Monthly | Chief Risk Officer; CISO; CPO |
+| KRI Dashboard | Monthly | Chief Risk Officer; CISO; DPO |
 | KRI Trends Summary | Quarterly | Risk Committee; executive leadership |
 | Red KRI Escalation Report | As triggered | Board; relevant executive |
 | Annual KRI Review | Annual | Board / Risk Committee |

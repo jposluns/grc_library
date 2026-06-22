@@ -408,7 +408,7 @@ Security architects need the dev-security standards, the AI security guides, the
 
 ## Privacy
 
-The Data Protection Officer or Data Protection Officer needs the privacy programme charter, policy, procedures, jurisdiction annexes, and the cross-border transfer register.
+The Data Protection Officer needs the privacy programme charter, policy, procedures, jurisdiction annexes, and the cross-border transfer register.
 
 ### Annex
 
