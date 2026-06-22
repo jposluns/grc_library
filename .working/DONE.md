@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #194 — FR-128 (H[critical]): CAPA retention 5y → 7y (2026-06-22)
+
+Closes FR-128 by raising CAPA records retention in `governance/register-data-retention-schedule.md` from 5y to 7y, aligning with the CAPA procedure's §12 canonical 7-year mandate and closing the audit-evidence chain break with control-testing-evidence retention. Also fixes PR #193's /validate-pr finding (stale FR-127 entry in TODO's "Next-up recommendations" section) per the batching rule.
+
 ### PR #193 — FR-127 (H[critical]): TLS 1.2 → TLS 1.3 in ZTA framework (2026-06-22)
 
 Closes FR-127 by aligning the ZTA framework's Pillar 3 transport-encryption maturity row with the canonical encryption policy's TLS 1.3+ mandate. First overnight-batch PR; carries PR #192's /validate-pr history row.
