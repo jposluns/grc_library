@@ -4,6 +4,29 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-22, Library Version 2026.06.192, PR #213
+
+**Added.** New pack skill [`pr-retrospective`](dev-security/claude-rules/skills/pr-retrospective/SKILL.md) (slash command [`/retro`](.claude/commands/retro.md)) and the paired improvement-log register at [`.working/improvement-log.md`](.working/improvement-log.md). The skill is the **continuous process-improvement loop**: post-merge retrospective on each successful PR, output is one entry per PR in the register, recurring patterns surface as candidates for pack-rule updates / worker-brief template additions / new audit gates.
+
+**Process design (the maintainer's earlier "design a process improvement skill" direction)**:
+- Trigger: after every successful merge + `/validate-pr` completes (post-merge sequence: sync main → delete merged branch → `/validate-pr` → `/retro` → next-PR planning).
+- Input: `/validate-pr` findings (if any), apply-time worker corrections from [`.working/hallucination-metrics.md`](.working/hallucination-metrics.md) (if any), recently-shipped PRs in the same cluster (for pattern surfacing).
+- Output: one row appended to the improvement-log register with columns `Date | PR | FR closed | What went well | Friction | Pattern (if any) | Proposed improvement`.
+- Discipline: chat-surfacing for Pattern/Proposed-improvement entries; recursion-avoidance batching of register-row commits into the next substantive PR; no orchestrator-side skip discretion.
+
+**Three-layer learning loop**: the skill pairs with (a) the worker-side [`worker-brief-template.md`](.working/worker-brief-template.md) (catches recurring worker-side failures before they reach the orchestrator), and (b) the apply-time-catch tracking in [`hallucination-metrics.md`](.working/hallucination-metrics.md) (logs orchestrator-side verifications). Together: worker brief prevents → apply-time-catches log → /retro surfaces process-level patterns warranting pack-rule updates.
+
+**Wired-in**:
+- [`.claude/CLAUDE.md`](.claude/CLAUDE.md) PR workflow gains step 5b (the `/retro` invocation).
+- [`tools/lint-paired-skill-step-parity.py`](tools/lint-paired-skill-step-parity.py) PAIRS registry extended with the new pair (gate 44 now validates 4 paired surfaces).
+- Pack-skills enumeration in [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) tree updated.
+
+**Register seeded** with the PR #213 entry (the meta-self-application: the skill's first /retro is its own creation PR).
+
+Pack `1.44.1 → 1.45.0` (minor; new skill addition). Library `2026.06.191 → 2026.06.192`; README `1.9.62 → 1.9.63`. Also carries PR #212's /validate-pr history row (0 findings).
+
+---
+
 ## 2026-06-22, Library Version 2026.06.191, PR #212
 
 **Closes FR-14 + FR-114** (high[critical]): CMMI 5-tier maturity-ladder reconciliation. Maintainer-confirmed canonical: **CMMI 5-tier** (Initial / Managed / Defined / Quantitatively Managed / Optimized). Two corpus surfaces aligned:
