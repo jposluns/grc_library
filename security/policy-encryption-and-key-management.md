@@ -2,7 +2,7 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.2\
+**Version:** 1.3.3\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -31,7 +31,7 @@ Defines mandatory encryption and cryptographic key management requirements. Ensu
 
 ---
 
-## Governance
+## Governance and accountability
 
 | Role | Responsibility |
 |---|---|

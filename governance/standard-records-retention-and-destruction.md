@@ -2,8 +2,8 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.0\
-**Date:** 2026-05-28\
+**Version:** 1.4.1\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -31,7 +31,7 @@ This standard establishes controls, retention schedules, destruction methods, an
 
 ---
 
-## Governance
+## Governance and accountability
 
 | Role | Responsibility |
 |---|---|

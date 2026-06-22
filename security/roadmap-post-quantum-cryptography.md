@@ -2,8 +2,8 @@
 
 **Document Title:** Post-Quantum Cryptography Readiness Roadmap\
 **Document Type:** Roadmap\
-**Version:** 1.1.1\
-**Date:** 2026-05-28\
+**Version:** 1.1.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -121,7 +121,7 @@ Hybrid schemes combining classical and PQC algorithms (e.g., X25519 + ML-KEM) ar
 
 ---
 
-## Governance
+## Governance and accountability
 
 The PQC Roadmap is reviewed annually by the CISO and Security Architecture team. Milestone progress is reported to the ERC annually. Material deviations from the roadmap require CISO approval and risk documentation.
 
