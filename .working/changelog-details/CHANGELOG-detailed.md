@@ -6,6 +6,58 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.183, PR #204
+
+Pass-1 verification of the 2026-06-22 fitness review (r2). Twelfth PR in the day's batch. Maintainer-directed via "Option A" plus a batch of decisions on deferred findings.
+
+### Changed
+
+- [`.working/fitness-reviews/2026-06-22-r1.md`](../fitness-reviews/2026-06-22-r1.md):
+  - New §9 (Pass-1 Verification Results) added between former §8 (Remediation Backlog) and former §9 (Final Assessment, now renumbered §10).
+  - Three sub-sections in §9: (a) batch-tags for 9 findings already closed in PRs #193-#203 (FR-113/115/116/117/127/128/129/132/133, all ✅), (b) maintainer decisions for 3 findings (FR-119, FR-130, FR-14/FR-114), (c) 11 active Pass-1 verdicts for the remaining open r2 findings.
+  - §3 introductory note updated: "Pass-1 verification completed in PR #204 — see §9 for verdict tags per finding."
+  - §10 (Final Assessment) updated to reference the Pass-1 completion.
+- [`.working/fitness-reviews/history.md`](../fitness-reviews/history.md):
+  - r1 row's Summary cell extended with Pass-1 status.
+  - Per-doc Version `1.2.3 → 1.3.0` (minor; Pass-1 milestone).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for PR #203's /validate-pr (0 findings).
+  - Per-document Version `1.2.11 → 1.2.12`.
+
+### Pass-1 verdict summary
+
+- **✅ confirmed-as-stated (active verification):** 10 (FR-112, FR-114, FR-120, FR-121, FR-122, FR-123, FR-124, FR-125, FR-126, FR-131).
+- **⚠️ confirmed-with-modification:** 1 (FR-118 — divergence broader than originally framed; ERM standard §6 (4 options) and §7 register table (6 options) are themselves inconsistent in addition to the cross-doc divergence with the procedure (different 6 options)).
+- **❌ rejected:** 0.
+- **🤔 ambiguous-needs-maintainer:** 0.
+- **✅ batch-tagged (already closed):** 9 (FR-113/115/116/117/127/128/129/132/133).
+- **Maintainer-decided:** 3 (FR-119 = same role; FR-130 = keep README first; FR-14/FR-114 CMMI canonical).
+
+### Severity adjustment flagged
+
+**FR-124 Medium → High.** The contradiction between §3.2 ("revoked under the next access review") and §3.3 ("revoked immediately") has a 12-month risk-exposure window. Subagent A's risk assessment escalates severity. Recommended remediation: reconcile to §3.3's "immediately" canonical.
+
+### Scope expansion flagged
+
+**FR-118.** The original two-doc framing (ERM standard §6 vs procedure "Select Treatment") understated the divergence. Pass-1 finds three vocabularies across two documents:
+- Standard §6 (lines 128-135): 4 options (Avoid/Mitigate/Transfer/Accept — negative-risk core).
+- Standard §7 register table (line 163): 6 options (Avoid/Mitigate/Transfer/Accept/Exploit/Enhance — adds positive-risk per ISO 31000).
+- Procedure (line 34): 6 options (Mitigate/Avoid/Transfer/Accept/Monitor/Further-Analysis — different two additions).
+
+The standard is internally inconsistent. The procedure's "Monitor" and "Further-Analysis" arguably belong as workflow states rather than treatment options.
+
+Recommendation: reconcile to a single canonical treatment list per ISO 31000 (Avoid/Mitigate/Transfer/Accept/Exploit/Enhance); the procedure's "Monitor"/"Further-Analysis" reframed as workflow states.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0.
+
+### Discipline observation
+
+This is the first Pass-1 verification completed in the project. The protocol worked as designed: the subagent's deep-read produced structured verdict evidence, the orchestrator authored the verdict prose in the report file, and the report's §3 / §10 introductory notes were updated to reference the Pass-1 milestone.
+
+Two non-trivial outputs surfaced beyond simple ✅ tags: (1) FR-124's severity escalation (Medium → High based on the 12-month exposure window), and (2) FR-118's scope expansion (three-vocabulary divergence rather than two-doc divergence). These are the kinds of insights Pass-1 is designed to surface — they would have shaped Pass-2 triage even without maintainer decisions, and they will shape the eventual remediation PRs (the FR-118 remediation, when scheduled, will need to address §6 / §7 internal inconsistency, not just the procedure cross-doc divergence).
+
 ## 2026-06-22, Library Version 2026.06.182, PR #203
 
 Closes **FR-133** (FYI). Eleventh overnight-batch PR. Also bundles PR #202's out-of-window TODO drift cleanup.
