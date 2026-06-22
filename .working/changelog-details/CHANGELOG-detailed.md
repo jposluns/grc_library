@@ -6,6 +6,41 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.187, PR #208
+
+Closes **FR-51** (medium). Corpus-wide ISO 27001 Annex-form sweep per maintainer "decision 4".
+
+### Sweep scope
+
+- **12 files** modified (7 corpus + 5 pack SKILL.md).
+- Pattern: `\b27001(:[0-9]{4})? A\.[0-9]` → `27001\1 Annex A.\2`.
+- Tightly anchored on `27001` to avoid disturbing ISO 42001 / 27017 / 27018 / 27701 `A.X` references (verified absent from corpus).
+- Multi-control `/`-separated lists prefixed once (e.g., `ISO 27001 A.6.1/A.6.5` → `ISO 27001 Annex A.6.1/A.6.5`), matching publisher convention of single "Annex A" qualifier for adjacent controls.
+- `CHANGELOG.md` historical entries excluded.
+- `.working/` files excluded.
+
+### Fixed
+
+- 7 corpus files received `27001 A.X` → `27001 Annex A.X` editorial alignment + per-doc Version+Date patch bumps.
+- 5 pack `dev-security/claude-rules/skills/*/SKILL.md` files received the same alignment. These files use YAML frontmatter rather than per-doc Version+Date metadata; pack-README version-history row added at `1.44.1` to cover the pack-content edit.
+
+### Changed
+
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md):
+  - Pack Version `1.44.0 → 1.44.1` (patch; pack SKILL-file edits).
+  - New 1.44.1 row in version-history.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for PR #207's /validate-pr (0 findings).
+  - Per-document Version `1.2.15 → 1.2.16`.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates.
+
+### Discipline observation
+
+The narrower scope of FR-51 (vs FR-50) — 12 files vs 50 — is a direct consequence of the tighter regex anchor (`27001` is rarer than `Rev`). The sweep validates the principle that anchoring on a specific standard ID (rather than a generic version marker) keeps the substitution safe. The 5 pack SKILL.md files were touched because they cite ISO 27001 in their framework-alignment tables; pack-README bump covers them without requiring per-SKILL-file metadata, which the pack convention doesn't use.
+
 ## 2026-06-22, Library Version 2026.06.186, PR #207
 
 Closes **FR-50** (medium). Corpus-wide NIST citation format sweep per maintainer "decision 3": `Rev. N` (with period) is canonical, matching NIST's publisher convention.

@@ -69,7 +69,7 @@ The gate-discipline response is verified when:
 
 ## See Also
 
-- Canonical rule [`governance/gate-discipline.md`](../../governance/gate-discipline.md): framework alignment (OWASP ASVS V14.1 / V14.2; NIST SSDF PO.5 / PW.7 / RV.1; CSA CCM CEK-10 to 21 / GRC-04 / GRC-05 / CCC-01 to 04; ISO 27001 A.5.4 / A.5.36 / A.8.28), tool-specific anti-pattern examples for git / lint / type check / test suite / CI-CD config / generator-output drift, and the exception-handling protocol that the project's exception register implements.
+- Canonical rule [`governance/gate-discipline.md`](../../governance/gate-discipline.md): framework alignment (OWASP ASVS V14.1 / V14.2; NIST SSDF PO.5 / PW.7 / RV.1; CSA CCM CEK-10 to 21 / GRC-04 / GRC-05 / CCC-01 to 04; ISO 27001 Annex A.5.4 / A.5.36 / A.8.28), tool-specific anti-pattern examples for git / lint / type check / test suite / CI-CD config / generator-output drift, and the exception-handling protocol that the project's exception register implements.
 - Related skill [`evidence-grounded-completion`](../evidence-grounded-completion/SKILL.md): verify the fix actually closed the underlying defect before claiming the gate is back to green.
 - Related skill [`clarify-before-acting`](../clarify-before-acting/SKILL.md): when a gate failure exposes an ambiguity (e.g., the gate is reporting a defect in a way that suggests two interpretations), use clarify-before-acting before picking a response.
 - Related skill [`validation-sweep`](../validation-sweep/SKILL.md): after this skill diagnoses and fixes a gate failure, run the sweep to verify the fix did not surface a sibling failure elsewhere in the corpus.

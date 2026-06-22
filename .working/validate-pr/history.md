@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.15\
+**Version:** 1.2.16\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -12,6 +12,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | 207 | 59 | 0 (0 in-window, 0 out-of-window) | none | — | Fifteenth-batch PR (FR-50 corpus-wide NIST citation format sweep). Subagent A spot-checked 4 sample files, standards-currency gate clean (118 standards / 358 files), reworded example preserves intent, intra-doc-refs token still matches via substring. 91 occurrences converted cleanly across 50 corpus files. Row batched into PR #208. |
 | 2026-06-22 | 206 | 13 | 0 (0 in-window, 0 out-of-window) | none | — | Fourteenth-batch PR (FR-87 + FR-88 + linter improvements). Subagent A verified all 8 RFC citations accurate; TLS 1.3 cipher names verbatim IANA-correct; 116 linter regression tests pass; CGNAT linter additions clean; no parallel SSRF lists elsewhere in primary pack. Row batched into PR #207. |
 | 2026-06-22 | 205 | 9 | 0 (0 in-window, 0 out-of-window) | none | — | Thirteenth-batch PR (FR-81 fully closed + PR #204 fixes). Subagent A: row batched into PR #206 per the batching rule. |
 | 2026-06-22 | 204 | 8 | 3 in-window (stale "(12 items)" count; in-flight self-correction prose escaped to root CHANGELOG; FR-114 double-counted across maintainer-decided and active-verified buckets) | none in-window; all 3 bundled into PR #205 per the batching rule | — | Twelfth-batch PR (Pass-1 verification). Subagent A found real defects in the verdict-counting and adopter-facing CHANGELOG prose. All three fixed in PR #205 alongside the FR-81 pack CLAUDE.md TLS alignment (maintainer-decided). |

@@ -2,8 +2,8 @@
 
 **Document Title:** Notice: External Reference Materials and Licence Boundaries\
 **Document Type:** Policy\
-**Version:** 1.4.1\
-**Date:** 2026-06-19\
+**Version:** 1.4.2\
+**Date:** 2026-06-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md), [`governance/specification-citation-verification.md`](governance/specification-citation-verification.md), [`governance/register-canonical-citations.md`](governance/register-canonical-citations.md)\
@@ -31,7 +31,7 @@ The library is built on a clear principle: **we do not copy externally licensed 
 External materials are used for:
 
 - Non-verbatim analysis and original synthesis.
-- High-level alignment ("this document aligns to ISO 27001 A.5").
+- High-level alignment ("this document aligns to ISO 27001 Annex A.5").
 - Framework name and identifier reference.
 - Control family or domain-level mapping.
 - Applicability assessment structure.

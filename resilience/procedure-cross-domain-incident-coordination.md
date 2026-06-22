@@ -2,7 +2,7 @@
 
 **Document Title:** Cross-Domain Incident Coordination Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.1\
+**Version:** 1.1.2\
 **Date:** 2026-06-22\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
@@ -245,7 +245,7 @@ Maintain joint declaration record, coordination roster snapshot, joint decision 
 
 | Control area | Framework reference |
 | --- | --- |
-| Incident management programme | ISO/IEC 27035; ISO/IEC 27001:2022 A.5.24 to A.5.28 |
+| Incident management programme | ISO/IEC 27035; ISO/IEC 27001:2022 Annex A.5.24 to A.5.28 |
 | Business continuity coordination | ISO 22301:2019 §8.4 |
 | Cybersecurity incident handling | NIST SP 800-61 Rev. 3 |
 | Personal data breach coordination | GDPR Articles 33 to 34; UK GDPR Articles 33 to 34; PIPL Article 57; LGPD Articles 48 to 49 |
