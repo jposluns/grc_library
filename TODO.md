@@ -51,20 +51,6 @@ These are **as-of-session-pause snapshots**, not "current HEAD" claims. They ref
 - **FR-60 (H, L)**: HIPAA adopter has no operational detail beyond a single 261-line sector annex in `compliance/healthcare`. Deepen.
 - **FR-61 (H, L)**: Financial-services adopters outside EU/US lack regulatory regimes: UK PRA/FCA, US OCC/FRB/FDIC, MAS, FSA, APRA, OSFI, HKMA, FINMA.
 - **FR-118 (H, S)**: Cross-doc treatment-vocab divergence still open between [`risk/standard-enterprise-risk-management.md`](risk/standard-enterprise-risk-management.md) §6 (canonical six-option set: Avoid / Mitigate / Transfer / Accept / Exploit / Enhance) and [`risk/procedure-risk-register.md`](risk/procedure-risk-register.md) "Select Treatment" step (different six-option set). **Reshape during Pass-2**: scope expanded to ERM standard §6/§7 internal inconsistency.
-- **FR-123 (H, XS)**: Define "delegated security lead" in `security/procedure-access-control.md` lines 35-39 roles table. Currently undefined.
-- **FR-124 (H, S)**: Resolve access-review revocation timeline contradiction in `security/procedure-access-control.md` §3.2-3.3. **Escalated from Medium to High** during Pass-1 (12-month risk-exposure window between contradictory revocation timelines).
-- **FR-125 (H, S)**: Add escalation to emergency-access revocation enforcement in `security/procedure-access-control.md` §1.4.2.
-
-### Convergent finding: C2 Emergency-access trigger ambiguity (single bundle PR after maintainer thresholds)
-
-The 2026-06-22 review surfaced 6 emergency-access findings that share the same root: operational thresholds are not defined. **Recommended action**: single combined "Access-control operational clarity" PR after the maintainer supplies the thresholds. Components:
-
-- **FR-121 (H[critical], XS)**: Define "material business or safety harm" in `security/procedure-access-control.md` line 64. Three personas surfaced independently.
-- **FR-122 (H[critical], XS)**: Tie "declared incident response" to a specific incident status (P1/P2/P3/P4) in `security/procedure-access-control.md` line 64.
-- **FR-123**: see High-severity list above (delegated security lead role).
-- **FR-124**: see High-severity list above (revocation timeline contradiction).
-- **FR-125**: see High-severity list above (revocation enforcement escalation).
-- **FR-126 (M, XS)**: Clarify auto-escalation mechanic in `security/procedure-access-control.md` lines 54-58 (who triggers escalation?).
 
 ---
 

@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #235 — Closes C2 convergent finding bundle (FR-121+122+123+124+125+126): emergency-access operational clarity (2026-06-22)
+
+`security/procedure-access-control.md` v1.2.0: 6 fixes ship with maintainer-approved sample-data defaults + section-level "Sample data, adjust upon adoption" callout. FR-121 material-harm defined (P1/P2 incident threshold); FR-122 declared-incident tied to P1/P2 severity; FR-123 Delegated Security Lead role row added (sample data: senior IRT member or deputy CISO); FR-124 access-review revocation timeline contradiction resolved (24h window for revocation processing post-flag, distinct from immediate-upon-instruction case); FR-125 emergency-access revocation gains 30-min/30-min escalation chain (Identity Team → SOC L2 → CISO); FR-126 auto-escalation made explicit (ITSM SLA timer, no human trigger). PR-E in Batch 1.
+
 ### PR #234 — Closes FR-67 (L, XS): zero-headcount-with-contractor sub-tier E0 in Dimension E (2026-06-22)
 
 `docs/template-startup-roadmap.md` v2.2.0: new E0 sub-tier inserted before E1 in the Dimension E (GRC team capacity) ladder, covering the case where GRC function is entirely outsourced to a third-party contractor or fractional consultant. Adopter retains accountability; contractor executes. Same artefact subset as E1; operational difference is who holds the pen. PR-D in Batch 1.

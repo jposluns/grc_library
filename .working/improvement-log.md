@@ -1,6 +1,6 @@
 # Improvement Log Register
 
-**Version:** 1.0.19\
+**Version:** 1.0.20\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -35,6 +35,7 @@ The register is maintainer working state, exempt from corpus audit gates per the
 
 | Date | PR | FR closed | What went well | Friction | Pattern (if any) | Proposed improvement |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | #234 | FR-67 (L, XS) | New sub-tier insertion before E1 cleanly extended the Dimension E ladder without renumbering existing tiers (E1, E2, E3, E4 stay). | No friction. | No new pattern. | None. |
 | 2026-06-22 | #233 | FR-89 + FR-91 (2x L, XS) | Surgical control-text additions in two adjacent surfaces (Section 2 Token validation + Section 12 Webhook signing/replay-prevention); RFC citations and language-neutral primitives with two-language code-name examples. | Apply-time gate-30 caught "§3.1" / "Section 3.1" in the RFC 8725 citation as same-doc references; the linter doesn't recognize "RFC" as an external-framework prefix. Reworded to drop the section number entirely. | First occurrence of "external-standard citation in body triggers intra-doc-ref audit" — the linter's external-framework-prefix list doesn't include "RFC". Single occurrence. | Could add "RFC" to the linter's external-framework-prefix list (gate 30) so RFC-N citations don't trip the audit. Low priority; current workaround is to drop the section number. |
 | 2026-06-22 | #232 | FR-107 + FR-108 + FR-111 (3x L, XS) | 3 XS items bundled cleanly into single PR-B (all touched docs/adopter-guide.md newcomer-UX surface); per-doc Version 1.1.2 → 1.2.0. Aggressive bundling per maintainer preference produced the intended throughput improvement. | None worth noting. | No new pattern. | None. |
 | 2026-06-22 | #231 | FR-112 (M, XS) + FR-131 (FYI, XS) | First PR in effort-first batching run. Two XS items bundled cleanly (both maintainer-context cleanups in adopter-facing docs); clean first-pass language audit. | One CHANGELOG link-coverage fail-then-fix loop (bare `risk/procedure-risk-register.md` and `docs/template-quickstart.md` references in the lead paragraph). | Recurring "CHANGELOG lead-paragraph references trigger gate-4 link-coverage" pattern (also PR #223). Now 2 occurrences; observation, not yet pattern. | Continue rephrasing root CHANGELOG entries to avoid bare backticked path refs; point readers to detailed mirror for full file list. Convention informally adopted. |
