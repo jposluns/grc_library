@@ -6,6 +6,55 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.169, PR #190
+
+Hot-fix-of-hot-fix for the /validate-pr findings on PR #189 (third consecutive findings-producing /validate-pr in the day's meta-PR cascade), plus two new disciplines codified into pack rules: the UTC convention and the chat-surfacing requirement.
+
+### Motivation
+
+PR #189's /validate-pr surfaced two findings of the same class (multi-surface incompleteness): the r2→r1 relabel cascade from PR #189 missed two locations on `.working/fitness-reviews/history.md`. The fix is straightforward (replace remaining "r2" with date-based references), but the deeper signal is that the r1/r2 cross-date ambiguity is a structural problem the per-date `rN` convention couldn't resolve cleanly. PR #190's structural fix (switch "Originating run" column to full dates) resolves the ambiguity at the convention level.
+
+In parallel, the maintainer issued two durable directions during the cascade:
+1. **UTC timezone**: "Let's always work in UTC. Easier universally." Codified the convention in `.claude/CLAUDE.md` so future sessions inherit.
+2. **Chat-surfacing**: "When validate or validate-pr find something, I want the info in chat so I can be aware without looking for changelog detailed or some other file after the merge." Codified in both /validate and /validate-pr SKILL.md surfaces plus their slash commands.
+
+### Fixed
+
+- [`.working/fitness-reviews/history.md`](../fitness-reviews/history.md):
+  - Line 22 narrative: "For run r2" → "For the 2026-06-22 run".
+  - Lines 26-48 "Originating run" column: all entries switched from "r1" / "r2" to full dates (`2026-06-21` / `2026-06-22`). Resolves the cross-date ambiguity at the column level.
+  - The Run column in the table rows (lines 15, 16) preserves the per-date `rN` semantics ("r1" for 2026-06-22's first run AND for 2026-06-21's first run). Disambiguation moves to the cross-date column.
+  - Two narrative references in the Summary cell of line 15 ("better than r1", "issues r1 missed", "related to r1 FR-14") rewritten with date context.
+  - Per-document Version `1.2.1 → 1.2.2` (patch).
+
+### Changed
+
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): new "Date and timezone convention" section before "## PR workflow". States UTC as the assistant's working timezone for all date-bearing fields; notes maintainer's `America/Toronto` for awareness but does not drive metadata dates. Gate 31 timezone-boundary edge case on PR #187 cited as the justification.
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](../../dev-security/claude-rules/skills/validation-sweep/SKILL.md): new "Surfacing findings in chat" section between "Output format" and "Red Flags". Explicit per-finding chat shape (ruleId, severity, path:line, evidence quote, impact, recommendation, in-window class).
+- [`dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md`](../../dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md): same new section.
+- [`.claude/commands/validate.md`](../../.claude/commands/validate.md): parallel paragraph added above the "Report back" line.
+- [`.claude/commands/validate-pr.md`](../../.claude/commands/validate-pr.md): parallel paragraph added above the "Report back" line.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md):
+  - Version `1.40.2 → 1.41.0` (minor; new SKILL section).
+  - New 1.41.0 row in version-history documenting the chat-surfacing discipline.
+
+### Added
+
+- [`.working/validate-pr/2026-06-22-PR-189.md`](../validate-pr/2026-06-22-PR-189.md): per-PR detail file for the PR #189 /validate-pr sweep.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates against the committed state.
+- `tools/run-pr-time-checks.sh` exits 0 (D1, D2, gate 45) against the merge base.
+- Gate 44 (paired-skill step-parity) confirms 3 paired surfaces remain step-aligned after the new SKILL section.
+
+### Discipline observations
+
+- **Third consecutive findings-producing /validate-pr** (PR #187 → 2; PR #188 → 2; PR #189 → 2). All six findings have been the same broad class: small multi-surface drift in meta-PRs that touch fitness-review and validation artefacts. The /validate-pr discipline is consistently catching the drift, which validates the no-skip rule and the regular invocation cadence. Each catch is small and bounded; without /validate-pr these would have accumulated as inconsistencies in the audit-trail surfaces (fitness-reviews/history.md, pack README, etc.) and the next maintainer review would surface them in aggregate.
+- **The r1/r2 cross-date ambiguity is a convention-level issue.** The per-date `rN` convention works when there's only one run per date (1:1 mapping from date to ordinal) but loses information when cross-referencing across dates. The structural fix (full dates in the "Originating run" column) resolves it cleanly.
+- **The chat-surfacing discipline closes a real maintainer-feedback gap.** The maintainer was triaging findings by reading CHANGELOG-detailed after merges; that adds friction. Surfacing findings in chat at /validate-pr time means triage happens at the source.
+- **The UTC convention is the cheapest fix for the timezone edge case.** Always working in UTC removes the gate-31 midnight-boundary class entirely. The maintainer's mental model accepts a one-day-of-presentation drift; the assistant's mechanical correctness is preserved.
+
 ## 2026-06-22, Library Version 2026.06.168, PR #189
 
 Hot-fix for the two `/validate-pr` findings Subagent A surfaced on PR #188. Both findings are real-evidence (R); neither is a false positive. The cascade /validate-pr → hot-fix → /validate-pr is bounded and converging.

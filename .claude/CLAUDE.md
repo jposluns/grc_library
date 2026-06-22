@@ -83,6 +83,27 @@ forbidden in prose regardless of dialect; use commas, colons, or parentheses.
 - A change is green only when `tools/run_all_audits.sh` reports all gates passing.
 - Add a regression fixture in `tests/` (see `tests/README.md`) for any new linter.
 
+## Date and timezone convention
+
+The assistant works in **UTC** for all date-bearing fields and "today" calculations.
+Per-document `Date` fields, fitness-review file names (`YYYY-MM-DD-rN.md`), `/validate-pr`
+record file names (`YYYY-MM-DD-PR-<N>.md`), CHANGELOG entry date headers, and the
+fitness-review history's `Date` and `Originating run` cells are all UTC dates.
+
+Maintainer-side note: the maintainer is in `America/Toronto` (GMT-5 standard / GMT-4
+daylight). The project's audit-trail dates are therefore offset 5 or 4 hours from the
+maintainer's wall clock. When the maintainer says "today" in conversation, that may
+correspond to the previous UTC day if it is before 19:00-20:00 EST locally; the assistant
+writes the UTC date into artefacts but stays aware that the maintainer's local "today"
+can lag by one day. Where there is potential for ambiguity (e.g., recording a date in a
+report file at a UTC-midnight-boundary moment), use the UTC date.
+
+The PR #187 gate-31 timezone-boundary edge case (the pack README's `Date` field stuck
+at `2026-06-21` because both commit-date and `Date` field were `2026-06-21` at PR #187's
+local-time merge moment but the UTC date had already rolled to `2026-06-22`) traces to
+this convention. UTC is uniform; the gate logic and the metadata both agree on the UTC
+day, and the visible "drift" is one of presentation only.
+
 ## PR workflow
 PRs in this repository follow a fixed pattern that the assistant is authorised to
 drive end-to-end on the maintainer's behalf:

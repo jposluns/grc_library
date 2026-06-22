@@ -29,4 +29,6 @@ Zero-finding iterations leave no detail file; the history row alone is the persi
 
 Reject any subagent finding that lacks an explicit `path:line` quote. A finding without quoted evidence is a hypothesis, not a finding; re-dispatch the subagent with a re-emphasized evidence requirement before synthesising.
 
+**Surface findings prominently in chat, not buried in artefact files.** When findings exist, the chat reply must enumerate them inline (per-finding: ruleId, severity/level, `path:line` location, one-line evidence quote, one-line impact, one-line recommendation, in-window vs out-of-window classification). The maintainer must be able to read the finding set without opening the per-iteration detail file or scrolling through CHANGELOG-detailed. The per-iteration record file remains the authoritative archive; the chat surface is for awareness and triage.
+
 Report back: the audit baseline result, the subagent findings (grouped by severity, with `path:line` evidence per finding), the fixes applied, the final clean-bill status, the new history row, and (when findings exist) the path to the per-iteration detail file.
