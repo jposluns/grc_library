@@ -6,6 +6,64 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.168, PR #189
+
+Hot-fix for the two `/validate-pr` findings Subagent A surfaced on PR #188. Both findings are real-evidence (R); neither is a false positive. The cascade /validate-pr → hot-fix → /validate-pr is bounded and converging.
+
+### Motivation
+
+PR #188 closed out the day's work but introduced two in-window issues that Subagent A's deep-read on the touched files caught:
+
+1. **r1 vs r2 label inconsistency.** The new fitness review file was correctly named `2026-06-22-r1.md` per the README's documented per-date `rN` convention, but the report's H1 (`# Library Fitness Review — r2`), "Run ordinal" line ("**Run ordinal:** r2"), and the history.md row (`| 2026-06-22 | r2 |`) all used the cumulative-ordinal interpretation. Both the README convention and the skill spec explicitly say per-date; the cumulative framing was a drafting error.
+2. **Pack README catch-attribution drift.** The 1.40.1 version-history row added in PR #188 credited the Date catch to "gate 31 caught it via the second `/validate-pr` cycle". The /validate-pr per-PR record for PR #187 explicitly said the opposite: gate 31 did NOT fire (a timezone-boundary edge case where commit-date and Date-field were both 2026-06-21 at merge time; the lag opened only after midnight UTC, post-merge). The catch was made by /validate-pr's Subagent A deep-read, not gate 31.
+
+Both findings are in-window (introduced by PR #188), so the no-skip discipline says they get a hot-fix this cycle. This PR is that hot-fix.
+
+### Fixed
+
+- [`.working/fitness-reviews/2026-06-22-r1.md`](../fitness-reviews/2026-06-22-r1.md):
+  - Line 1 H1: `r2` → `r1`.
+  - Line 3 "Run ordinal": `r2 (second fitness review; r1 was 2026-06-21...)` → `r1 (first fitness review on 2026-06-22; ...)`.
+  - Line 12 narrative: `r2 dispatched all 10 personas` → `This run dispatched all 10 personas`.
+  - Line 127 narrative: `0 NEW findings and 0 regressions in r2` → `... in this run`.
+  - Line 176 narrative: `FR-14 from r1 still open + FR-114 r2` → `FR-14 from the 2026-06-21 run still open + FR-114 from this run`.
+  - Line 223 narrative: `real defect in r2` → `real defect in this run`.
+  - Line 241 narrative: `for r2 findings` → `for this run's findings`.
+  - Line 293 narrative: `This r2 report` → `This report`.
+- [`.working/fitness-reviews/history.md`](../fitness-reviews/history.md):
+  - Row Run column: `r2` → `r1`.
+  - Row Resulting PR column: `(this PR)` placeholder → `[#188](https://github.com/jposluns/grc_library/pull/188)` link.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md):
+  - 1.40.1 row catch-attribution prose reworded to credit /validate-pr deep-read, not gate 31.
+  - Added 1.40.2 row documenting the correction.
+  - Version `1.40.1 → 1.40.2`; Date stays 2026-06-22.
+
+### Added
+
+- [`.working/validate-pr/2026-06-22-PR-188.md`](../validate-pr/2026-06-22-PR-188.md): per-PR detail file for the PR #188 /validate-pr sweep. Six H2 sections per the SKILL spec (Trigger and state snapshot; Subagent A return; Cross-reference check; Orchestrator triage; Resulting hot-fix PR; Notes).
+
+### Changed
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for the PR #188 /validate-pr invocation (2 in-window findings, both fixed in PR #189).
+  - PR #187 row's "Resulting PR" placeholder replaced with `#188` link.
+  - Per-document Version `1.1.0 → 1.1.1` (patch).
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates against the committed state at each commit boundary.
+- `tools/run-pr-time-checks.sh` exits 0 (D1, D2, gate 45) against the merge base.
+- `tools/lint-language.py` (gate 2) initially failed twice during this PR's drafting: once on a `harmonised` → `harmonized` (-ize orthography), once on an em-dash in the pack README's new prose; both corrected.
+- The r2-as-cumulative-ordinal cascade had broken 5 citers in CHANGELOG.md, CHANGELOG-detailed.md, history.md, and TODO.md; all were addressed by re-labelling rather than file-renaming.
+
+### Discipline observations
+
+**Second consecutive findings-producing /validate-pr (PR #187 → 2 findings; PR #188 → 2 findings).** The pattern is consistent with the discipline working as designed: each meta-PR introduces opportunities for the next /validate-pr to catch, the catches are small and bounded, and the discipline-catches-itself loop is stable. The /validate-pr → hot-fix-PR → /validate-pr cascade should converge: PR #189's hot-fixes are simple substitutions, and the /validate-pr on PR #189 should ideally produce 0 findings. If it does, the cascade terminates cleanly.
+
+**Both findings are real-evidence (R), neither is a false positive.** The discipline is not surfacing noise; it's surfacing real inconsistencies that the maintainer would otherwise have caught in next-day review. Catching at /validate-pr time rather than next-day-review time is the discipline's value proposition.
+
+**Connection to the maintainer's timezone observation.** Finding 1 (r1 vs r2) is closely tied to the timezone issue the maintainer raised mid-PR-#188-work: in the maintainer's GMT-5 timezone it is still 2026-06-21, which would make this run "r2 of 2026-06-21" under per-date convention. The UTC vs maintainer-local timezone divergence is a separate forward-looking decision (a timezone-aware processing convention is a candidate for the next PR or a follow-up CLAUDE.md update). The hot-fix in this PR uses the UTC date (2026-06-22) consistent with the existing filename; the timezone convention decision will resolve the broader inconsistency.
+
 ## 2026-06-22, Library Version 2026.06.167, PR #188
 
 End-of-evening close-out PR. Three independent threads bundled because they share the "end of day" framing: (1) two hot-fixes for the `/validate-pr` findings on PR #187; (2) recording the `/fitness` r2 review; (3) `/validate-pr` history record for PR #187 itself.
