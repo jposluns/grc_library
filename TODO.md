@@ -10,8 +10,8 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #203 merge).
-- **Library version as of last refresh**: `2026.06.182`. **Pack version**: `1.42.0`. **README version**: `1.9.53`.
+- **Branch at last refresh**: `main` (synced after PR #204 merge).
+- **Library version as of last refresh**: `2026.06.183`. **Pack version**: `1.42.0`. **README version**: `1.9.54`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
 - **Last validation sweep**: Sweep 17 iteration 1 (close-out PR #186); /validate-pr on PR #187 closed out in PR #188; /validate-pr on PR #188 closed out in PR #189; /validate-pr on PR #189 closed out in PR #190 (third consecutive findings-producing /validate-pr; r1/r2 cross-date ambiguity resolved structurally in PR #190).
 - **Last fitness review**: 2026-06-22's r1 (PR #188 records); Pass-1 verification pending next session.
@@ -156,7 +156,7 @@ The FR-44 convention statement is now documented (PR #159, master spec §6.1). A
 
 Source: [`.working/fitness-reviews/2026-06-22-r1.md`](.working/fitness-reviews/2026-06-22-r1.md). Pass-1 verification deferred to next session.
 
-**Status:** all FR-112 through FR-133 carry `verification: unverified` per the unverified→confirmed labelling discipline. Pass-1 (orchestrator re-reads cited source and tags each finding ✅ / ⚠️ / ❌ / 🤔) is the next step; Pass-2 (maintainer-interactive bucket processing) follows. Severity tiers shown below are subagent-proposed, subject to Pass-1 confirmation.
+**Status:** **Pass-1 complete in PR #204.** 10 ✅ actively verified; 1 ⚠️ (FR-118 broader divergence; scope expanded to ERM standard §6/§7 internal inconsistency); 9 ✅ batch-tagged for findings already closed in PRs #193-#203; 3 maintainer-decided (FR-119 / FR-130 / FR-14+FR-114). One severity escalation flagged: **FR-124 Medium → High** (12-month risk-exposure window between contradictory revocation timelines). Pass-2 (maintainer-interactive bucket processing) is the next step.
 
 **Three Convergent Findings dominate** (see [`.working/fitness-reviews/2026-06-22-r1.md`](.working/fitness-reviews/2026-06-22-r1.md) Cross-Library Findings section for full text):
 

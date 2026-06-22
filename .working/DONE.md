@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #204 — Pass-1 verification of the 2026-06-22 fitness review (2026-06-22)
+
+First Pass-1 verification in the project. r2 report file gains a new §9 (Pass-1 Verification Results) with verdict tags: 10 ✅ actively verified, 1 ⚠️ (FR-118 broader divergence than original framing), 0 ❌, 0 🤔, 9 ✅ batch-tagged for findings closed in overnight PRs, 3 maintainer-decided. FR-124 severity flagged for escalation Medium → High (12-month risk window). Pass-2 (maintainer-interactive bucket processing) is next.
+
 ### PR #203 — FR-133 (FYI): Jurisdiction-index pointer prominence (2026-06-22)
 
 Closes FR-133 by restructuring `docs/decision-tree.md` §4.1: the jurisdiction-index pointer is now a stand-alone lead paragraph noting the full 25-jurisdiction coverage; common Anglosphere selections are framed as "representative, not exhaustive"; a closing sentence names example non-Anglosphere annexes (Australia, Singapore, India, Brazil, Japan, South Korea, China) with redirect to the jurisdiction index. Also bundles PR #202's out-of-window TODO drift cleanup (C1/C2/C3 next-up narrative rotated to reflect overnight closures).
