@@ -2,8 +2,8 @@
 
 **Document Title:** Dataset Datasheet Template\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** AI Data Steward\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/procedure-training-data-governance.md`](procedure-training-data-governance.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/standard-pseudonymisation-and-anonymisation.md`](../privacy/standard-pseudonymisation-and-anonymisation.md)\
@@ -165,7 +165,7 @@ This template applies to all datasets that influence model behaviour: training, 
 | --- | --- |
 | Dataset Maintainer | |
 | AI Data Steward | |
-| Privacy Officer (if personal data) | |
+| Chief Privacy Officer (if personal data) | |
 | Legal Counsel (if external licensing or sharing) | |
 | AI Security Maintainer (if poisoning risk material) | |
 
@@ -176,7 +176,7 @@ This template applies to all datasets that influence model behaviour: training, 
 1. A datasheet is produced before a dataset is used in any AI training, fine-tuning, evaluation, or retrieval workflow.
 2. Material change to the dataset (new sources merged, cleaning pipeline change, new labels added) triggers a datasheet update before the changed dataset is used.
 3. Datasheets are linked from the AI System Register row for every system that consumes the dataset.
-4. Datasheets for datasets containing personal data are reviewed by the Privacy Officer at minimum annually.
+4. Datasheets for datasets containing personal data are reviewed by the Chief Privacy Officer at minimum annually.
 5. Where the dataset is acquired from a supplier, the supplier's own dataset documentation is appended as an annex.
 
 ---

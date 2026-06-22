@@ -2,7 +2,7 @@
 
 **Document Title:** Cross-Domain Incident Coordination Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.2\
+**Version:** 1.1.3\
 **Date:** 2026-06-22\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
@@ -59,11 +59,11 @@ When two or more domains are participating, the coordination is run by an **Inci
 | Role | Selection rule | Responsibilities |
 | --- | --- | --- |
 | Incident Coordinator | Resilience Owner for P1; primary-domain lead otherwise | Owns the cross-stream timeline, the joint decision log, and the communication cadence. Convenes coordination calls. Escalates blockers to the Executive Sponsor. |
-| Primary-domain Lead | Set by the domain procedure (e.g. CISO for security, Privacy Officer for privacy, Supplier Risk Maintainer for supplier) | Runs the technical response within their domain. Reports status into each coordination call. |
+| Primary-domain Lead | Set by the domain procedure (e.g. CISO for security, Chief Privacy Officer for privacy, Supplier Risk Maintainer for supplier) | Runs the technical response within their domain. Reports status into each coordination call. |
 | Participating-domain Lead(s) | Same selection rule per participating domain | Runs parallel response within their domain. Hands off evidence and decisions to the Primary-domain Lead as needed. |
 | Communications Lead | Communications Owner | Owns external messaging, regulator-facing messaging, employee messaging, and customer messaging. Coordinates with Legal and primary-domain Leads on content approval. |
 | Legal Lead | Legal Counsel | Owns regulatory notification determinations, privilege decisions, litigation hold, and contractual notice obligations. |
-| Executive Sponsor | Designated by role per severity (CISO or Privacy Officer for P2; CIO for P1 affecting multiple domains; CEO for crisis-level events) | Approves decisions that exceed Coordinator authority. Owns the executive briefing line. |
+| Executive Sponsor | Designated by role per severity (CISO or Chief Privacy Officer for P2; CIO for P1 affecting multiple domains; CEO for crisis-level events) | Approves decisions that exceed Coordinator authority. Owns the executive briefing line. |
 | Evidence Custodian | SOC or domain-specific custodian | Owns the evidence index across all streams. Maintains chain of custody for forensic, legal, and audit purposes. |
 
 For P1 events, the Incident Coordinator and Executive Sponsor are notified within 15 minutes of declaration. The Joint Command convenes within 1 hour of declaration.

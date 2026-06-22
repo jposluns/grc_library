@@ -2,8 +2,8 @@
 
 **Document Title:** Training Data Governance Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.2\
-**Date:** 2026-05-28\
+**Version:** 0.0.3\
+**Date:** 2026-06-22\
 **Owner:** AI Data Steward\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/standard-pseudonymisation-and-anonymisation.md`](../privacy/standard-pseudonymisation-and-anonymisation.md), [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md)\
@@ -81,7 +81,7 @@ Before any training, fine-tuning, or RL pipeline consumes the dataset:
 
 | Approval | Trigger | Approver |
 | --- | --- | --- |
-| Dataset acceptance | Every new dataset or material refresh | AI Data Steward with Privacy Officer co-sign if personal data; Legal Counsel co-sign if licensed corpus |
+| Dataset acceptance | Every new dataset or material refresh | AI Data Steward with Chief Privacy Officer co-sign if personal data; Legal Counsel co-sign if licensed corpus |
 | Use-case fit | Per training run | Service owner |
 | Risk assessment | High-risk training run (e.g. foundation-model-scale, regulated-sector model, agentic system) | AI Governance Council |
 | Sustainability check | High-compute training | Per the sustainability framework |

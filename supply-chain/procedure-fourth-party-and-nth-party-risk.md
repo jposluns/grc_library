@@ -2,7 +2,7 @@
 
 **Document Title:** Fourth-Party and Nth-Party Risk Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-06-22\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -119,7 +119,7 @@ The SRO escalates to the Supplier Risk Maintainer when:
 3. The concentration risk crosses the appetite threshold (multiple critical third parties share an undocumented or unsubstitutable sub-tier dependency).
 4. The third party refuses or repeatedly fails to disclose sub-tier information that the contract requires.
 
-Escalation to the CISO and CIO follows for any Tier 1 critical-sub-tier event. Where personal data is implicated, the Privacy Officer is engaged.
+Escalation to the CISO and CIO follows for any Tier 1 critical-sub-tier event. Where personal data is implicated, the Chief Privacy Officer is engaged.
 
 ### Step 5: Treat
 

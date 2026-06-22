@@ -2,7 +2,7 @@
 
 **Document Title:** Insider Risk Programme Framework\
 **Document Type:** Framework\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -72,7 +72,7 @@ The framework recognises distinct risk profiles requiring different controls and
 | Insider Risk Programme Lead | Operational ownership; reports to the CISO |
 | Insider Risk Analyst | Investigates referred signals; coordinates with HR, Legal, Privacy |
 | HR Lead | Owns employment-side coordination; manages due-process discipline; coordinates with line management |
-| Privacy Officer | Reviews programme controls for lawful basis, proportionality, and subject rights |
+| Chief Privacy Officer | Reviews programme controls for lawful basis, proportionality, and subject rights |
 | Legal Counsel | Advises on disciplinary, evidentiary, and litigation matters; reviews surveillance posture |
 | Internal Audit | Independent assurance over the programme's controls including over-collection, false-positive handling, and personnel-protection safeguards |
 | Whistleblower Reporting Lead | Coordinates with the insider risk programme on referrals where appropriate |
@@ -142,7 +142,7 @@ The framework requires the following safeguards on every detection capability an
 
 | Safeguard | Requirement |
 | --- | --- |
-| Lawful basis | The Privacy Officer documents the lawful basis for each detection capability per applicable privacy law; for personal data processed under legitimate interest, a balancing test is documented |
+| Lawful basis | The Chief Privacy Officer documents the lawful basis for each detection capability per applicable privacy law; for personal data processed under legitimate interest, a balancing test is documented |
 | Proportionality | Each detection capability collects the minimum data necessary; mass surveillance is prohibited |
 | Notice | Personnel are informed of the existence of the programme and of the broad categories of monitoring in the privacy notice and the acceptable use policy; specific detection content is not disclosed |
 | Purpose limitation | Data collected for insider risk is not used for performance management, marketing, or other purposes |

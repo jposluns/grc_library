@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Management Programme Charter\
 **Document Type:** Charter\
-**Version:** 1.3.0\
-**Date:** 2026-05-27\
+**Version:** 1.3.1\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -37,12 +37,12 @@ The following roles hold defined accountability within the Privacy Management Pr
 | Role | Accountability |
 |---|---|
 | **Chief Information Officer (CIO)** | Executive accountability for the privacy programme. Signs off on material privacy risk decisions. |
-| **Privacy Officer / DPO** | Operational ownership of the privacy programme. Manages regulatory obligations, data subject requests, PIA oversight, and cross-border transfer assessment. |
-| **Chief Information Security Officer (CISO)** | Accountable for information security controls that protect personal data. Joint responsibility with the Privacy Officer for data breach response. |
+| **Chief Privacy Officer / DPO** | Operational ownership of the privacy programme. Manages regulatory obligations, data subject requests, PIA oversight, and cross-border transfer assessment. |
+| **Chief Information Security Officer (CISO)** | Accountable for information security controls that protect personal data. Joint responsibility with the Chief Privacy Officer for data breach response. |
 | **Legal Counsel** | Advises on regulatory notification obligations; manages regulatory relationships; reviews Data Processing Agreement (DPA) documentation. |
 | **Human Resources** | Manages employee personal data; ensures that HR data processing complies with applicable employment privacy law. |
 
-> **Interim Accountability:** Where a formal Privacy Officer or DPO has not yet been designated, the CIO assumes these responsibilities as interim accountability.
+> **Interim Accountability:** Where a formal Chief Privacy Officer or DPO has not yet been designated, the CIO assumes these responsibilities as interim accountability.
 
 ---
 
@@ -62,7 +62,7 @@ Privacy considerations must be incorporated into any new system, process, or dat
 | Jurisdiction | Instrument | Key Obligations |
 |---|---|---|
 | **Canada (Federal)** | PIPEDA: Personal Information Protection and Electronic Documents Act | Consent, purpose limitation, breach notification (material risk of significant harm), accountability. |
-| **Quebec (Provincial)** | Law 25: Act Respecting the Protection of Personal Information in the Private Sector (Law Modernizing Privacy) | Designated Privacy Officer mandatory; privacy impact assessments; 72-hour breach notification to the Commission d'accès à l'information (CAI); data subject rights. |
+| **Quebec (Provincial)** | Law 25: Act Respecting the Protection of Personal Information in the Private Sector (Law Modernizing Privacy) | Designated Chief Privacy Officer mandatory; privacy impact assessments; 72-hour breach notification to the Commission d'accès à l'information (CAI); data subject rights. |
 | **United States** | Applicable state breach notification and sector-specific laws | Breach notification timelines vary by state. Refer to the Global Regulatory Mapping Register for current state-level obligations. |
 | **United Kingdom** | UK GDPR / Data Protection Act 2018 | Lawful basis for processing; data subject rights; 72-hour breach notification to the ICO; international transfer mechanisms. |
 | **Latin America** | National privacy laws by jurisdiction (including Brazil LGPD and others) | Jurisdiction-specific requirements apply. Refer to the Global Regulatory Mapping Register and Regional Annexes. |
@@ -71,13 +71,13 @@ Privacy considerations must be incorporated into any new system, process, or dat
 
 ## Data breach response
 
-Privacy breaches involving personal data are managed under the Data Protection and Privacy Breach Response Procedure, which includes regulatory notification assessment. The CISO and Privacy Officer are jointly responsible for initiating breach response. Legal Counsel determines notification obligations by jurisdiction in accordance with the applicable law table above.
+Privacy breaches involving personal data are managed under the Data Protection and Privacy Breach Response Procedure, which includes regulatory notification assessment. The CISO and Chief Privacy Officer are jointly responsible for initiating breach response. Legal Counsel determines notification obligations by jurisdiction in accordance with the applicable law table above.
 
 ---
 
 ## Annual review
 
-The Privacy Management Programme is reviewed annually by the Privacy Officer and CISO. The review assesses:
+The Privacy Management Programme is reviewed annually by the Chief Privacy Officer and CISO. The review assesses:
 
 - Regulatory changes affecting obligations.
 - PIA register completeness.

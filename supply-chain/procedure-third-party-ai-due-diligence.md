@@ -2,8 +2,8 @@
 
 **Document Title:** Third-Party AI Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-06-22\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -46,7 +46,7 @@ This procedure applies globally across all business units and geographic regions
 | --- | --- |
 | AI Governance Council | Leads AI supplier classification, reviews pre-engagement assessments, approves high-risk AI engagements, and oversees ongoing AI supplier monitoring. |
 | Chief Information Security Officer | Evaluates security controls, adversarial robustness, and incident response capabilities of AI suppliers. |
-| Privacy Officer | Assesses training data consent, personal data processing practices, and cross-border data transfer obligations. |
+| Chief Privacy Officer | Assesses training data consent, personal data processing practices, and cross-border data transfer obligations. |
 | Procurement Director | Administers the AI supplier engagement process, ensures that contractual AI requirements are included, and coordinates onboarding. |
 | Legal Counsel | Reviews AI contractual obligations, regulatory compliance classifications, and exit provisions. |
 | Supplier Relationship Owner | Monitors ongoing AI supplier performance and escalates risk changes or incidents to the AI Governance Council. |

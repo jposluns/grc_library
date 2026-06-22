@@ -6,6 +6,52 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.189, PR #210
+
+Closes the **Privacy Officer rename portion of FR-46** per maintainer "decision 6: yes". Surfaces DPO scope assessment for separate maintainer go-ahead.
+
+### Fixed
+
+- 36 corpus files modified: `Privacy Officer` (not preceded by `Chief `) → `Chief Privacy Officer`. Negative-lookbehind regex `(?<!Chief )Privacy Officer` used to preserve existing `Chief Privacy Officer` instances unchanged.
+- All 36 files received per-doc Version+Date patch bumps in the same commit.
+- `CHANGELOG.md` historical entries and `.working/` files explicitly excluded.
+
+### DPO scope assessment (for maintainer decision)
+
+**Evidence**:
+- [`governance/register-role-authority.md`](../../governance/register-role-authority.md):39 has only **one** privacy-governance role (Chief Privacy Officer); no separate DPO entry exists.
+- [`ai/charter-ai-governance-council.md`](../../ai/charter-ai-governance-council.md):62 writes `Chief Privacy Officer (or Data Protection Officer)` — explicit synonym treatment.
+- [`docs/portal.md`](../../docs/portal.md):411 writes the same.
+- 8+ corpus locations use `Privacy Officer / DPO` slash pattern (e.g., `ai/procedure-ai-evaluation.md`:39, `privacy/charter-privacy-management-programme.md`:40, `security/sop-incident-escalation-matrix.md`:56,67) — synonym treatment.
+- Jurisdiction annexes (Brazil, India, Kenya, Malaysia, Nigeria, Philippines, Thailand, Turkey) use "DPO" as the regulatory-mandated privacy lead role — the same accountability the corpus assigns to its Chief Privacy Officer.
+- [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md):40-54 uses "CIO (acting DPO)" as the interim privacy lead until formal appointment — treats DPO as a single role.
+
+**One outlier**:
+- [`supply-chain/procedure-supplier-onboarding-security-review.md`](../../supply-chain/procedure-supplier-onboarding-security-review.md):135 escalation chain says "DPO → CISO → Chief Privacy Officer" — treats DPO as operationally junior to CPO. This is 1 occurrence against ~10 equivalence statements; likely a drafting error.
+
+**Assessment conclusion**: **DPO and Chief Privacy Officer are the same role** (~90% confidence based on evidence). The corpus's inconsistent naming is itself a documentation defect.
+
+**Named options for maintainer decision on DPO consolidation**:
+- **(A)** Consolidate: rename "DPO" → "Chief Privacy Officer" corpus-wide, with these exceptions: (1) jurisdiction annexes keep "DPO" as the regulatory term with a bridge note ("Chief Privacy Officer in this library's terminology"); (2) glossary entry updated to cross-reference; (3) "CIO (acting DPO)" → "CIO (acting Chief Privacy Officer)"; (4) fix the escalation hierarchy outlier in supplier-onboarding-security-review §135.
+- **(B)** Document the equivalence explicitly without renaming: add a glossary entry and update the role authority register to note "DPO is the regulatory-mandated name for the Chief Privacy Officer role in jurisdictions where DPO appointment is required by law".
+- **(C)** Keep distinct roles: add a separate "Data Protection Officer" entry to the role authority register and define the boundary explicitly (DPO = supplier-facing privacy; CPO = internal privacy governance). Would require reframing the supply-chain/ documents.
+
+**Recommendation: (A)**. Reasoning: the canonical register treats them as one role; the corpus's existing equivalence statements (8+ explicit "Chief Privacy Officer (or DPO)" patterns) demonstrate consistent intent; option (B) preserves the inconsistency while documenting it (worse audit-trail); option (C) requires a substantial reframe of supply-chain documents and contradicts the existing equivalence statements.
+
+### Changed
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for PR #209's /validate-pr (0 findings).
+  - Per-document Version `1.2.17 → 1.2.18`.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates.
+
+### Discipline observation
+
+This PR fulfills the explicit half of maintainer decision 6 (Privacy Officer rename) and surfaces the assessment for the implicit half (DPO scope). The maintainer's "needs assessment" phrasing delegates the determination to me; the evidence is strong enough that a confident assessment recommendation is appropriate, but the act of consolidating ~30+ additional files across jurisdiction annexes and supplier procedures is substantial enough that explicit go-ahead is the quality-safe path.
+
 ## 2026-06-22, Library Version 2026.06.188, PR #209
 
 Closes **FR-52** (medium). Maintainer-approved per "decision 5": canonical review-frequency form is `Annual and upon ...` (both triggers required).

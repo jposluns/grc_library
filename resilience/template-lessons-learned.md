@@ -2,7 +2,7 @@
 
 **Document Title:** Lessons Learned Template\
 **Document Type:** Template\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-06-22\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
@@ -166,7 +166,7 @@ Actions are SMART: specific, measurable, achievable, relevant, time-bound.
 
 ### Section 11: Approval and signature
 
-The Resilience Owner and Executive Sponsor sign the report. Where the event involved personal data, the Privacy Officer co-signs. Where the event involved a supplier, the Supplier Risk Maintainer co-signs.
+The Resilience Owner and Executive Sponsor sign the report. Where the event involved personal data, the Chief Privacy Officer co-signs. Where the event involved a supplier, the Supplier Risk Maintainer co-signs.
 
 ---
 
