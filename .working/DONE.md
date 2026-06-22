@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #195 — FR-129 (H[critical]): Internal audit reports retention 5y → 7y (2026-06-22)
+
+Closes FR-129 by raising internal audit reports retention in `governance/register-data-retention-schedule.md` from 5y to 7y, aligning with the internal-audit standard §8.3 canonical 7-year mandate. With PR #194's FR-128 closure, the C3 Convergent Finding (audit-evidence chain breaks) is fully resolved.
+
 ### PR #194 — FR-128 (H[critical]): CAPA retention 5y → 7y (2026-06-22)
 
 Closes FR-128 by raising CAPA records retention in `governance/register-data-retention-schedule.md` from 5y to 7y, aligning with the CAPA procedure's §12 canonical 7-year mandate and closing the audit-evidence chain break with control-testing-evidence retention. Also fixes PR #193's /validate-pr finding (stale FR-127 entry in TODO's "Next-up recommendations" section) per the batching rule.

@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.174, PR #195
+
+Closes **FR-129** (high[critical]). Third overnight-batch PR. Closes the second audit-evidence chain break after PR #194's FR-128.
+
+### Fixed
+
+- [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md) line 83: Internal audit reports retention `5 years` → `7 years`. Aligns with [`compliance/standard-internal-audit.md`](../../compliance/standard-internal-audit.md):360 §8.3 (Evidence retention) canonical 7-year mandate. The procedure-side mandate matches: [`compliance/procedure-audit-planning.md`](../../compliance/procedure-audit-planning.md):447 also 7y. Rationale cell extended to cite the canonical procedure.
+- Per-doc retention register `1.0.3 → 1.0.4`; Date stays 2026-06-22.
+
+### Changed
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for PR #194's /validate-pr (0 findings; batched per the batching rule).
+  - Per-document Version `1.2.2 → 1.2.3`.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0.
+- `tools/run-pr-time-checks.sh` exits 0.
+
+### Discipline observation
+
+C3 Convergent Finding (audit-evidence chain breaks) now fully closed: FR-128 (CAPA 5y→7y) in PR #194; FR-129 (internal audit reports 5y→7y) in PR #195. The audit-evidence chain is now consistent at 7 years across control-testing evidence (PR #179), CAPA records (PR #194), and internal audit reports (PR #195).
+
+The "AI audit reports" (line 105) and "Supplier audit reports" (line 125) are also at 5y but are out-of-scope for FR-129 (the fitness finding cited only internal audit reports). Whether those should also be raised to 7y for consistency is a maintainer decision (different audit programmes, possibly different retention drivers); not unilaterally fixed here.
+
 ## 2026-06-22, Library Version 2026.06.173, PR #194
 
 Closes **FR-128** (high[critical]). Second overnight-batch PR. Also fixes PR #193's /validate-pr finding (incomplete TODO rotation) per the batching rule.
