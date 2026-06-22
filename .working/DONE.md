@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #226 — Closes FR-39 (medium, P2.1): EU representative Article 27 appointment process (2026-06-22)
+
+`privacy/charter-privacy-management-programme.md` previously mentioned the EU representative only in passing. New subsection under Privacy accountability structure covering Article 3(2) trigger, Article 27(2) 4-criterion exemption, Article 27(3)(4) representative criteria, 7-step designation process, maintenance triggers, Article 27(5) liability clarification, and cross-regime equivalents (UK GDPR, LGPD, PIPL Art 53, India DPDP, Saudi PDPL). Per-doc `1.3.3 → 1.4.0`. Also carries deferred PR #225 /validate-pr + /retro register rows.
+
 ### PR #225 — Closes FR-38 (medium, P2.1): GDPR Article 12(5) assessment checklist (2026-06-22)
 
 `privacy/procedure-data-subject-rights-management.md` §7 expanded from one line on Article 12(5) into a 7-subsection checklist: default free of charge; 4-criterion manifestly-unfounded test; 4-criterion manifestly-excessive test; either/or action options (fee or refuse); 5-step burden-of-proof documentation; reasonable-fee cost-recovery calculation; cross-regime equivalents (UK GDPR, LGPD, PIPL, CPPA/PIPEDA, CCPA/CPRA, APPI). Per-doc `1.3.5 → 1.4.0`. Also carries deferred PR #224 /validate-pr + /retro register rows.

@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Management Programme Charter\
 **Document Type:** Charter\
-**Version:** 1.3.3\
+**Version:** 1.4.0\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -47,6 +47,66 @@ The following roles hold defined accountability within the Privacy Management Pr
 | **Human Resources** | Manages employee personal data; ensures that HR data processing complies with applicable employment privacy law. |
 
 > **Interim Accountability:** Where a formal Data Protection Officer (DPO) has not yet been designated, the CIO assumes these responsibilities as interim accountability.
+
+### EU representative (GDPR Article 27)
+
+Where the organisation is not established in the European Union but is subject to GDPR by virtue of Article 3(2) (offering goods or services to data subjects in the Union, or monitoring the behaviour of data subjects in the Union), Article 27 requires the designation in writing of an **EU representative**.
+
+**Trigger.** The Article 27 obligation is triggered when **both** of the following are true:
+
+1. The organisation is established outside the European Union (and outside the EEA more broadly: Iceland, Liechtenstein, Norway are within the EEA scope of GDPR).
+2. The organisation processes personal data of subjects in the Union in the context of offering goods or services (irrespective of payment) OR monitoring behaviour that takes place within the Union (Article 3(2)).
+
+**Article 27(2) exemptions.** The obligation does NOT apply where ALL of the following are true:
+
+| Exemption criterion | Description |
+|---|---|
+| Processing is occasional | Not part of regular activity; ad hoc rather than systematic |
+| Excludes Article 9 / Article 10 special categories | No large-scale processing of special-category (Article 9) or criminal-conviction (Article 10) data |
+| Unlikely to result in a risk to rights and freedoms | Risk assessment documents this conclusion |
+| Public authority or body | Public authorities and bodies are exempt |
+
+The DPO documents the Article 27(2) exemption analysis in the organisation's Article 30 ROPA.
+
+**Representative criteria.** The EU representative must:
+
+| Criterion | Source |
+|---|---|
+| Be established in one of the Member States where the data subjects whose data is processed (in relation to the offering of goods/services or monitoring of behaviour) are located | Article 27(3) |
+| Be designated in writing | Article 27(1) |
+| Be mandated to be addressed in addition to or instead of the controller/processor by supervisory authorities and data subjects on all issues related to processing | Article 27(4) |
+| Have sufficient knowledge of GDPR and the controller's processing activities to act as point of contact | EDPB Guidelines 3/2018 on the territorial scope of GDPR |
+| Maintain a copy of the controller's or processor's Article 30 records on Union territory where requested by the supervisory authority | Article 30(4) by extension |
+
+**Designation process.**
+
+1. The DPO assesses Article 3(2) applicability and the Article 27(2) exemption analysis annually and on material change to processing.
+2. Where the obligation applies, the DPO identifies a candidate representative in a Member State where the affected data subjects are located.
+3. Legal Counsel drafts and executes a written mandate between the organisation and the representative covering the Article 27(4) scope (responding to supervisory authorities, responding to data subjects, maintaining the ROPA copy where requested).
+4. The CIO signs the designation; the representative countersigns acceptance.
+5. The DPO publishes the representative's contact details in the organisation's privacy notices (Article 13(1)(a) and Article 14(1)(a)) using [`privacy/template-privacy-notice.md`](template-privacy-notice.md).
+6. The representative's contact details are also recorded in the Article 30 ROPA using [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md).
+7. The designation is filed with the lead supervisory authority where required by national implementing law (some Member States require notification; some do not).
+
+**Maintenance.** The designation is reviewed:
+
+- **Annually** by the DPO; if the affected data subjects' Member State distribution has changed materially, the representative may need to be re-designated.
+- **Upon material change** to the controller's processing activities (new product lines, new monitoring activities, change in EU subject base).
+- **Upon the representative's resignation or material change in capacity** (insolvency, loss of registration, change in mandate scope).
+
+**Article 27(5) clarification.** The designation of an EU representative does NOT affect legal actions which could be initiated against the controller or processor themselves. Article 27 creates an additional point of contact, not a liability shield.
+
+**Cross-regime equivalents.**
+
+| Regime | Equivalent | Notable variations |
+|---|---|---|
+| **UK GDPR** (UK) | UK representative (UK GDPR Article 27) | Required where the controller / processor is outside the UK but subject to UK GDPR; ICO is the supervisory authority |
+| **LGPD** (Brazil) | Legal representative (Article 5(VIII)) | Required for non-Brazilian controllers offering services to Brazilian subjects; ANPD is the supervisory authority |
+| **PIPL** (China, Article 53) | Designated organisation or appointed agent in China | Required for non-Chinese personal-information handlers; must be filed with the Cyberspace Administration of China (CAC) |
+| **India DPDP Act 2023** | Local representative where designated as Significant Data Fiduciary | Required at the Significant-Data-Fiduciary designation level; Data Protection Board of India is the supervisory authority |
+| **Saudi Arabia PDPL** | Local representative for non-Saudi controllers (subject to executive regulations) | SDAIA is the supervisory authority |
+
+For multi-regime non-EU controllers, the organisation may need to designate multiple regional representatives in parallel.
 
 ---
 

@@ -6,6 +6,40 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.204, PR #226
+
+**Closes FR-39 (medium, P2.1)**: EU representative (GDPR Article 27) appointment process added to [`privacy/charter-privacy-management-programme.md`](../../privacy/charter-privacy-management-programme.md).
+
+### Added
+
+- **New subsection "EU representative (GDPR Article 27)"** under "Privacy accountability structure". The subsection has 7 components:
+  1. **Trigger criteria**: AND-conjunction of (a) organisation established outside the EEA AND (b) processing of EU subjects' data in the context of offering goods/services or monitoring behaviour (Article 3(2)).
+  2. **Article 27(2) exemption table**: 4-criterion AND-conjunction (occasional processing + no Article 9/10 special categories at scale + unlikely-risk + public authority). DPO documents the exemption analysis in the Article 30 ROPA.
+  3. **Representative criteria table** (5 rows): Member-State location per Article 27(3); written designation per Article 27(1); mandate scope per Article 27(4); GDPR knowledge per EDPB Guidelines 3/2018; ROPA copy maintenance.
+  4. **7-step designation process**: DPO assessment + candidate identification + Legal Counsel mandate drafting + CIO sign-off + privacy-notice publication + ROPA entry + supervisory-authority filing where required.
+  5. **Maintenance triggers**: annual DPO review; material processing change; representative capacity change.
+  6. **Article 27(5) clarification**: designation does NOT shield the controller/processor from direct legal action.
+  7. **Cross-regime equivalents table**: UK GDPR (UK rep), LGPD (legal representative Art 5(VIII)), PIPL (designated organisation or agent in China per Article 53; must file with CAC), India DPDP 2023 (local representative for Significant Data Fiduciaries), Saudi Arabia PDPL (local representative per executive regulations).
+- Per-doc Version `1.3.3 → 1.4.0` (minor; substantive new subsection).
+
+### Changed
+
+- **Generated artefacts**: [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated for the per-doc Version+Date bump.
+- **`.working/validate-pr/history.md`** (Version `1.2.31 → 1.2.32`): new top row for PR #225's /validate-pr (deferred per recursion-avoidance; 0 findings).
+- **`.working/improvement-log.md`** (Version `1.0.10 → 1.0.11`): new top row for PR #225's /retro. **Pattern advanced to pattern stage**: "em-dash temptation in new-template / new-subsection drafting" now at 3rd occurrence (PR #221 FR-33 line 156, PR #224 FR-37 identification rows, PR #225 FR-38 §7.2.2 + §7.2.3 heading titles). Worker-brief template update due now per the three-occurrence threshold.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit (no apply-time language-audit catches this round; the orchestrator preemptively used colon delimiters instead of em-dashes throughout the FR-39 draft).
+- `tools/run-pr-time-checks.sh` reports D1, D2, gate 45 all OK.
+- Article 3(2), Article 27(1)(2)(3)(4)(5) citations verified against canonical GDPR text. EDPB Guidelines 3/2018 verified.
+- Cross-regime references: PIPL Article 53 (CAC filing), India DPDP 2023 (Significant Data Fiduciary threshold), Saudi PDPL local-representative requirement verified.
+
+### Discipline observation
+
+- **No-apply-time-em-dash this round**: prior 3 occurrences (PR #221, #224, #225) of em-dash temptation in new-content drafting prompted preemptive avoidance in this PR's draft. Clean first-pass language audit. Suggests the pattern observation is shifting orchestrator behaviour even before the worker-brief template update lands.
+- **Section-insertion vs section-renumbering**: this PR inserted a subsection without renumbering (inserted between existing subsections; no downstream renumbering). Compare to PR #225 which required §7.2 → §7.3 renumbering. Insertion-without-renumbering is the cheaper pattern when the new content fits at the end of an existing section.
+
 ## 2026-06-22, Library Version 2026.06.203, PR #225
 
 **Closes FR-38 (medium, P2.1)**: GDPR Article 12(5) assessment checklist in [`privacy/procedure-data-subject-rights-management.md`](../../privacy/procedure-data-subject-rights-management.md).
