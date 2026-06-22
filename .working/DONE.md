@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #241 — Closes FR-97 + FR-98 (P2.3 cross-framework matrix bundle, both M, S) (2026-06-22)
+
+`governance/matrix-cross-framework-alignment.md` v1.1.4: ISO 31000 clause numbers corrected against actual ISO 31000:2018 §§6.4.2/6.4.3/6.5/6.6/6.3/5.3 (closes FR-97). `compliance/annex-nis-2-implementation.md` v1.1.0: Article 21.2 sub-measures table gains Evidence class column for all 10 sub-measures (closes FR-98). PR-E in Batch 2.
+
 ### PR #240 — Closes FR-93 + FR-94 (P2.6 KRI/KPI bundle, both M, S) (2026-06-22)
 
 `risk/register-key-risk-indicators.md` v1.1.0: KRI schema gains Red-Threshold Escalation Owner + Red-Threshold Evidence Class fields (closes FR-93). `risk/register-assurance-map.md` v1.1.0: Linked-controls field text expanded to name it as adopter-defined, explain the placeholder-ID convention, and bootstrap path (closes FR-94). PR-D in Batch 2.
