@@ -10,8 +10,8 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #204 merge).
-- **Library version as of last refresh**: `2026.06.183`. **Pack version**: `1.42.0`. **README version**: `1.9.54`.
+- **Branch at last refresh**: `main` (synced after PR #205 merge).
+- **Library version as of last refresh**: `2026.06.184`. **Pack version**: `1.43.0`. **README version**: `1.9.55`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
 - **Last validation sweep**: Sweep 17 iteration 1 (close-out PR #186); /validate-pr on PR #187 closed out in PR #188; /validate-pr on PR #188 closed out in PR #189; /validate-pr on PR #189 closed out in PR #190 (third consecutive findings-producing /validate-pr; r1/r2 cross-date ambiguity resolved structurally in PR #190).
 - **Last fitness review**: 2026-06-22's r1 (PR #188 records); Pass-1 verification pending next session.
@@ -118,7 +118,7 @@ Full list with one-line summaries available in r1.md §3 (`.working/fitness-revi
 - **Editorial consistency** (7): FR-46 (role-name "Chief" inconsistency), FR-47 (DPO ambiguous role), FR-48 (H2 numbering patterns drift), FR-49 (Governance heading drift), FR-50 (NIST citation format drift), FR-51 ⚠️ (ISO 27001 Annex-form drift), FR-52 (review frequency "and" vs "or").
 - **Adopter cluster** (5): FR-62 (AI jurisdiction annexes absent), FR-63 (worked example walks ingestion not adoption), FR-64 (contribution path workflow-shaped not pattern-shaped), FR-65 ⚠️ (upstream-sync underspecified), FR-66 (tooling assumes maintainer context).
 - **Coverage gaps** (5): FR-74 (Schrems II-light; consolidates with FR-34), FR-75 ⚠️ (ESG materiality threshold), FR-76 ⚠️ (sustainability framework escalation triggers), FR-77 (3LoD model used without explanation), FR-78 (framework-document-architecture maintainer voice).
-- **Cross-document contradictions** (2): FR-81 (TLS floor inconsistency; **partial close in PR #201** — corpus surfaces aligned to encryption policy; pack `dev-security/claude-rules/CLAUDE.md` surface still pending maintainer approval for the pack-rule edit), FR-82 (key hashing ambiguity).
+- **Cross-document contradictions** (1): FR-81 **fully closed** (PR #201 corpus + PR #205 pack CLAUDE.md after maintainer approval); FR-82 (key hashing ambiguity) remains.
 - **Operational/runbook** (1): FR-83 (IC checklist absent).
 - **Security-content refinement** (2): FR-87 (SSRF range list incomplete), FR-88 (cipher suite enumeration missing).
 - **KRI/KPI** (2): FR-93 (KRI escalation owner missing), FR-94 (Linked controls assume control register).

@@ -55,7 +55,7 @@ If you see a hardcoded secret in existing code, treat it as compromised and flag
 | Key exchange | ECDHE, DHE | Static RSA |
 | Integrity hashing | SHA-256, SHA-384, SHA-512 | MD5, SHA-1 |
 | Password hashing | Argon2id (preferred), bcrypt (cost ≥12) | MD5, SHA-anything (for passwords), plain storage |
-| TLS | TLS 1.3 (preferred), TLS 1.2 (minimum) | SSL, TLS 1.0, TLS 1.1 |
+| TLS | TLS 1.3 (or stronger), aligned to [`security/policy-encryption-and-key-management.md`](../../security/policy-encryption-and-key-management.md) §1 (Encryption standards) canonical mandate | SSL, TLS 1.0, TLS 1.1, TLS 1.2 |
 | Certificates | SHA-256 RSA or ECDSA | SHA-1 |
 
 Never hardcode keys. Keys go in the secrets management service.

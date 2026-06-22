@@ -6,6 +6,40 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.184, PR #205
+
+Closes **FR-81 fully** (maintainer-approved). Also bundles three /validate-pr fixes from PR #204.
+
+### Fixed (FR-81 third surface)
+
+- [`dev-security/claude-rules/CLAUDE.md`](../../dev-security/claude-rules/CLAUDE.md):58: TLS row aligned to canonical encryption-policy TLS 1.3+ mandate. Same shape as PR #193 (ZTA framework) and PR #201 (dev-security standards). TLS 1.2 added to Prohibited column.
+
+### Fixed (PR #204 /validate-pr findings)
+
+- [`.working/fitness-reviews/2026-06-22-r1.md`](../fitness-reviews/2026-06-22-r1.md):
+  - §9 subheading stale "(12 items)" → "(10 items)". FR-114 removed from the Pass-1 active-verified list (it lives in the maintainer-decided table per CMMI-canonical decision); the §3 finding entry for FR-114 remains as the source of evidence.
+  - §9 Pass-1 verdict aggregate restructured to make bucket math explicit: 9 ✅ actively verified + 1 ⚠️ confirmed-with-modification = 10 active verifications; 9 ✅ batch-tagged for closed FRs; 3 maintainer-decided; total = 22 matching §8 backlog table.
+- [`CHANGELOG.md`](../../CHANGELOG.md) PR #204 lead paragraph: in-flight self-correction prose ("wait, that's 11; corrected: ...") rewrote to clean adopter-facing text. Original wording preserved in git history.
+
+### Changed
+
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md):
+  - Pack Version `1.42.0 → 1.43.0` (minor; FR-81 third-surface close).
+  - New 1.43.0 row in version-history.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for PR #204's /validate-pr (3 in-window findings, all bundled here).
+  - Per-document Version `1.2.12 → 1.2.13`.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates.
+
+### Discipline observation
+
+The PR #204 /validate-pr findings are a useful demonstration of the discipline working as designed. Self-correction prose escaping into adopter-facing CHANGELOG is exactly the kind of quality defect that pre-merge review and post-merge /validate-pr should catch; the latter caught it here. The fix (rewrite to clean prose; document the rewrite in the close-out PR's CHANGELOG) preserves the audit trail (git history shows the original) while restoring adopter-facing quality.
+
+The bucket-math issue (FR-114 double-counted) is the kind of category-confusion that can be hard to catch in self-review when categories are similar. The fix (one canonical home per FR, with cross-references rather than duplication) is the cleaner pattern; future Pass-1 verifications should follow it.
+
 ## 2026-06-22, Library Version 2026.06.183, PR #204
 
 Pass-1 verification of the 2026-06-22 fitness review (r2). Twelfth PR in the day's batch. Maintainer-directed via "Option A" plus a batch of decisions on deferred findings.

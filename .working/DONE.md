@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #205 — FR-81 fully closed (medium) + PR #204 /validate-pr fixes (2026-06-22)
+
+Maintainer-approved: pack `dev-security/claude-rules/CLAUDE.md` TLS row aligned to canonical encryption-policy mandate (TLS 1.3+ with TLS 1.2 in Prohibited). Same shape as PR #193/#201. FR-81 fully closed (all 3 named surfaces). Also bundles 3 /validate-pr fixes from PR #204: stale count, in-flight self-correction prose in CHANGELOG, FR-114 double-counted.
+
 ### PR #204 — Pass-1 verification of the 2026-06-22 fitness review (2026-06-22)
 
 First Pass-1 verification in the project. r2 report file gains a new §9 (Pass-1 Verification Results) with verdict tags: 10 ✅ actively verified, 1 ⚠️ (FR-118 broader divergence than original framing), 0 ❌, 0 🤔, 9 ✅ batch-tagged for findings closed in overnight PRs, 3 maintainer-decided. FR-124 severity flagged for escalation Medium → High (12-month risk window). Pass-2 (maintainer-interactive bucket processing) is next.
