@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #229 — /validate Sweep 20 iter 1 close-out: 3 glossary entries + cross-doc drift fix (2026-06-22)
+
+Sweep 20 iter 1 (post PRs #220-#228) surfaced 4 in-window warnings + 2 maintainer-surfaced notes. Fixed: 3 new glossary entries (AEAD per RFC 8439 + NIST SP 800-38D; CIIO per Cybersecurity Law of China + PIPL Arts 38/40; HKDF per RFC 5869); cross-reference sentence added to `privacy/policy-privacy-and-data-governance.md:46` pointing at the charter's Article 38(6) framework. Pattern observed: 3 newly-introduced acronyms missed glossary entries in same batch; worker-brief candidate queued. Maintainer-surfaced: A2 (DPO row in role-authority register) and B4 (WP243/EDPB scope in canonical-citations register). Also carries deferred PR #228 /validate-pr + /retro register rows.
+
 ### PR #228 — Closes FR-42 (medium, P2.1): DPO independence Article 38(3) + conflict-of-interest Article 38(6) framework (2026-06-22)
 
 `privacy/charter-privacy-management-programme.md` previously had a one-line "Interim Accountability" note declaring the CIO assumes DPO responsibilities. Added subsection making the Article 38(6) conflict (CIO acting as DPO) visible rather than silent: Article 38(3) 3-row independence requirements; Article 38(6) WP243 conflict-of-interest list; explicit "known conflict" framing with 3 adopter paths (formal DPO designation, mitigation controls, exemption analysis); 5-row mitigation controls table; cross-regime equivalents (UK GDPR, LGPD Art 41, PIPL Art 52, India DPDP). Per-doc `1.4.0 → 1.5.0`. Also carries deferred PR #227 /validate-pr + /retro register rows.

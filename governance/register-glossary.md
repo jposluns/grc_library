@@ -2,7 +2,7 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.3.0\
+**Version:** 1.4.0\
 **Date:** 2026-06-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -45,6 +45,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 
 | Term | Expansion / definition |
 | --- | --- |
+| **AEAD** | Authenticated Encryption with Associated Data. Symmetric encryption mode providing confidentiality, integrity, and authenticity in a single primitive. Canonical examples: AES-GCM (NIST SP 800-38D), AES-CCM, ChaCha20-Poly1305 (RFC 8439). |
 | **AEO** | Authorised Economic Operator. WCO SAFE Framework partnership programme administered by national customs authorities granting trade facilitation benefits to businesses meeting security and safety standards. |
 | **AEO-S** | AEO Security and Safety strand (UK-specific designation for the security-focused AEO certification). |
 | **AICM** | AI Controls Matrix. Cloud Security Alliance (CSA) framework of AI-specific controls. |
@@ -79,6 +80,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **CDO** | Chief Data Officer. |
 | **CEK** | (CSA CCM domain) Cryptography, Encryption, and Key Management. |
 | **CIA** | Confidentiality, Integrity, Availability. The classic information-security triad. |
+| **CIIO** | Critical Information Infrastructure Operator. Chinese-law designation under the Cybersecurity Law of China. Designated by the relevant industry regulator (not self-designated). Triggers mandatory CAC Security Assessment for outbound personal information transfers under PIPL Article 38 and a domestic-storage default under PIPL Article 40. |
 | **CIAM** | Customer Identity and Access Management. |
 | **CIO** | Chief Information Officer. |
 | **CIP** | Critical Infrastructure Protection. NERC CIP is the canonical reference for North American electricity reliability. |
@@ -145,6 +147,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | Term | Expansion / definition |
 | --- | --- |
 | **HIPAA** | Health Insurance Portability and Accountability Act (U.S.). |
+| **HKDF** | HMAC-based Key Derivation Function. Extract-and-expand key derivation function per RFC 5869. The canonical mechanism for deriving sub-keys from existing high-entropy material (e.g., from an HSM-held master key); not appropriate for deriving keys from passwords (use Argon2id or scrypt for password-based KDFs). |
 | **HITECH** | Health Information Technology for Economic and Clinical Health Act (U.S.). |
 | **HMI** | Human-Machine Interface. The graphical operator interface to ICS/OT systems, typically running on a workstation that displays process state and accepts operator commands. |
 | **HMRC** | His Majesty's Revenue and Customs (UK). Administers UK AEO and AEO-S. |
