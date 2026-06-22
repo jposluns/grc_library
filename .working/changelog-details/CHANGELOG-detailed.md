@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.221, PR #243
+
+**Trust-recovery suite — findings routed and re-tiered.** Working-state PR carrying the outputs of the maintainer-directed trust-recovery escalation tier (`/full-qa` deep-qa-review iter 1, then `/fitness` r2). No adopter-facing corpus content changed.
+
+### Added
+
+- **[`.working/full-qa/README.md`](full-qa/README.md)** and **[`.working/full-qa/2026-06-22-iter1.md`](full-qa/2026-06-22-iter1.md)**: new activity directory for the `/full-qa` (`deep-qa-review`) forensic pass. The iter-1 record carries six subagent returns (A recent-PR deep review, B corpus-wide stale-reference, C audit-programme integrity, D citation forensic, E generator-output forensic, F discipline-violation forensic), the orchestrator's apply-time synthesis, and a trust-recovery framing section. The README codifies the binding methodology rule that the pass MUST run on a full (non-shallow) clone before any git-history-aware audit.
+- **[`.working/fitness-reviews/2026-06-22-r2.md`](fitness-reviews/2026-06-22-r2.md)**: the ten-persona fitness report (8 sections + final assessment) for run r2, trust-recovery mode.
+
+### Changed
+
+- **[`.working/fitness-reviews/history.md`](fitness-reviews/history.md)**: r2 row appended (all ten personas; 27 findings routed as FR-134 to FR-160; 2 deduped).
+- **[`TODO.md`](../../TODO.md)**: 32 confirmed findings routed. P1 retains the 6 H[critical] (FR-134 to FR-139) and 6 High (FR-140 to FR-145), sequenced after the codification batch per maintainer direction; the Medium (FR-146 to FR-154, plus the three `/full-qa` treatment-vocab findings FR-161 to FR-163) moved to P2; the Low/FYI (FR-155 to FR-160, plus the `/full-qa` docstring note FR-164 and corrective-record warning FR-165) moved to P3. The trust-recovery codification subsection (deep-qa-review SKILL, ninth pack rule, `/fitness` amendment, structural-review skill, optional wrapper) is queued at P1.
+- **[`README.md`](../../README.md)**: Library Version 2026.06.220 → 2026.06.221; README Version 1.9.91 → 1.9.92.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 (46/46) on the unshallowed clone, both before and after the routing commit. The depth-50 shallow clone that produced the gate-31 false positive was corrected with `git fetch --unshallow` (→ 413 commits) before any audit verdict was trusted.
+- All six H[critical] and the cited High findings were re-read at source by the orchestrator (✅); Medium/Low/FYI items are marked ⚠️ (persona-quoted, maintainer verifies at action time).
+- Apply-time worker corrections logged: 1 false positive caught (Subagent C gate-31 shallow-clone), 1 over-classification corrected (Subagent F 3 raw → 1 synthesized).
+
 ## 2026-06-22, Library Version 2026.06.220, PR #242
 
 **Sweep 22 close-out** — maintainer-directed full `/validate` after the orchestrator's abbreviation pattern for `/validate-pr` was caught. The sweep surfaced 4 in-window errors traced to PR #238/#239's treatment-vocab decomposition not propagating to all parallel surfaces, plus 1 out-of-window note (EDPB soft-law citations to register), plus the discipline-failure assessment that drove the SKILL/pack-rule/CLAUDE.md vocabulary updates.
