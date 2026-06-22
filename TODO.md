@@ -121,7 +121,6 @@ Deferred to a routine cleanup batch when convenient. Cross-reference only.
 
 ### Low-severity fitness findings (from 2026-06-21 review)
 
-- **FR-67 (L, XS)**: Adopter edge case — zero-headcount-with-contractor.
 - **FR-68 (L, S) ⚠️**: Adopter edge case — mandatory-except-when-not.
 - **FR-69 (L, S)**: Adopter edge case — three baseline sizes.
 - **FR-84 (L, S)**: Regression-testing checklist as a discrete artefact.
