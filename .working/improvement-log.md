@@ -1,6 +1,6 @@
 # Improvement Log Register
 
-**Version:** 1.0.17\
+**Version:** 1.0.18\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -35,6 +35,7 @@ The register is maintainer working state, exempt from corpus audit gates per the
 
 | Date | PR | FR closed | What went well | Friction | Pattern (if any) | Proposed improvement |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | #232 | FR-107 + FR-108 + FR-111 (3x L, XS) | 3 XS items bundled cleanly into single PR-B (all touched docs/adopter-guide.md newcomer-UX surface); per-doc Version 1.1.2 → 1.2.0. Aggressive bundling per maintainer preference produced the intended throughput improvement. | None worth noting. | No new pattern. | None. |
 | 2026-06-22 | #231 | FR-112 (M, XS) + FR-131 (FYI, XS) | First PR in effort-first batching run. Two XS items bundled cleanly (both maintainer-context cleanups in adopter-facing docs); clean first-pass language audit. | One CHANGELOG link-coverage fail-then-fix loop (bare `risk/procedure-risk-register.md` and `docs/template-quickstart.md` references in the lead paragraph). | Recurring "CHANGELOG lead-paragraph references trigger gate-4 link-coverage" pattern (also PR #223). Now 2 occurrences; observation, not yet pattern. | Continue rephrasing root CHANGELOG entries to avoid bare backticked path refs; point readers to detailed mirror for full file list. Convention informally adopted. |
 | 2026-06-22 | #230 | — (TODO reorganization) | TODO structural rewrite from 453 → ~280 lines, with every actionable item placed in a priority section (P1-P7). Two design decisions surfaced via AskUserQuestion before the rewrite (FR-70/71/72/73 severity vs type placement; P7 promotion vs meta-section). Item shape standardised (`**FR-N (severity, effort)**: description with location ref`). Fitness review backlogs distributed by severity into matching priorities. | None worth noting. | Single occurrence of "TODO structural reorganization" — not a recurring pattern. | No improvement candidate. The new priority-shaped TODO supports the next session's effort-first batching directly. |
 | 2026-06-22 | #229 | — (Sweep 20 iter 1 close-out) | All three sweep subagents dispatched per no-skip discipline. Iter 2 empty-delta termination confirmed. 4 in-window warnings (3 acronym + 1 cross-doc drift) bounded and fixed in single close-out PR. 2 maintainer-surfaced notes correctly NOT auto-fixed; surfaced in chat AND in TODO P7. | None worth noting. | Third occurrence of acronym-undefined pattern across batch (CIIO, HKDF, AEAD) reinforces the worker-brief candidate: "when introducing a new acronym in corpus prose, add a glossary entry in the same PR". Now well past three-occurrence threshold. | **Worker-brief template update due now** (pattern firmly at pattern stage): for every PR that introduces new prose, the orchestrator's apply-time checklist must include: (a) corpus-wide grep for new acronyms not already in glossary; (b) add glossary entries in the same PR. Apply pre-emptively when the next new-content PR is drafted OR as a dedicated worker-brief revision PR. |

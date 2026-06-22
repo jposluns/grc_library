@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #233 — Closes FR-89 + FR-91: security XS bundle (JWT algorithm-key-type binding + webhook signing precision) (2026-06-22)
+
+`dev-security/standard-api-security.md` v0.0.5: Token validation row gains JWT algorithm-key-type binding requirement per RFC 8725 (prevents RSA-public-key-as-HMAC-secret confusion). Webhook signing row gains canonical-string definition + constant-time comparison requirement. Replay-prevention row gains explicit 5-minute replay window + seen-nonce cache. 2 L XS items closed. PR-C in Batch 1 effort-first run.
+
 ### PR #232 — Closes FR-107 + FR-108 + FR-111: newcomer-UX bundle in adopter-guide (2026-06-22)
 
 `docs/adopter-guide.md` v1.2.0: new "Two reference registers you will need early" subsection surfaces both the Glossary (acronyms + external-domain terms) and the Key Terms register (library-internal GRC concepts) BEFORE the How-the-library-is-meant-to-be-used section, explaining the split-by-term-class. Tier 1 starter set gains a "4-6 hours" reading-time estimate plus "if you only read three" pick (Charter + Framework + Role Authority Register). Closes 3 Low-severity XS items in one PR. PR-B in Batch 1 effort-first run.

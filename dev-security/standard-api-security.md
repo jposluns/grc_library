@@ -2,7 +2,7 @@
 
 **Document Title:** API Security Standard\
 **Document Type:** Standard\
-**Version:** 0.0.4\
+**Version:** 0.0.5\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -66,7 +66,7 @@ For routine changes within an existing API contract, the security controls in th
 | Federated identity | Human-driven APIs authenticate via the enterprise identity provider with OAuth 2.0 / OpenID Connect |
 | Service-to-service | mTLS for service-to-service where the network allows; workload identity where the platform supports it |
 | Token formats | JWT or platform-native; encrypted JWTs (JWE) where the token transits networks the organisation does not control |
-| Token validation | Signature, issuer, audience, expiry, and nonce validated; algorithm whitelist enforced; `none` algorithm rejected |
+| Token validation | Signature, issuer, audience, expiry, and nonce validated; algorithm whitelist enforced; `none` algorithm rejected. **Algorithm-key-type binding** required per RFC 8725 (BCP 225, the JSON Web Token Best Current Practices): validators must verify that the JWT `alg` header value is consistent with the key type used (e.g., RS256 with an RSA public key, HS256 with the corresponding shared secret); a single key MUST NOT accept multiple algorithm families. This prevents the RSA-public-key-as-HMAC-secret confusion attack. |
 | Refresh tokens | Bound to client and device; rotated on use; revocable centrally |
 | API keys | Permitted only for low-trust scenarios; rate-limited; rotated; bound to source |
 | MFA propagation | High-sensitivity API operations require step-up authentication signalled through the access token claims |
@@ -200,8 +200,8 @@ Where an API is exposed to AI agents (organisation-internal or third-party):
 
 | Control area | Requirement |
 | --- | --- |
-| Webhook signing | Webhooks signed with a shared secret or asymmetric key; recipients validate signatures |
-| Replay prevention | Timestamp plus nonce; recipients enforce freshness |
+| Webhook signing | Webhooks signed with a shared secret or asymmetric key; recipients validate signatures. **Canonical string** for signing defined per signature scheme (typical: HTTP method + canonical URL path + canonical query string + canonical headers + body hash); both sender and receiver derive the same canonical string from the request before signing / verifying. **Constant-time comparison** required for signature verification (e.g., `hmac.compare_digest` in Python; `crypto.timingSafeEqual` in Node) to prevent timing-attack key recovery. |
+| Replay prevention | Timestamp plus nonce; recipients enforce freshness. **Replay window** explicit and bounded: receivers reject requests whose timestamp is more than 5 minutes (or a documented service-specific value) outside the receiver's current time, accounting for clock skew. Receivers maintain a short-lived seen-nonce cache for the duration of the replay window. |
 | Idempotency | Receivers handle duplicate delivery without side effects |
 | Authentication on subscribe | Subscriptions to event streams authenticated and authorised |
 | Topic isolation | Multi-tenant event systems enforce per-tenant topic isolation |
