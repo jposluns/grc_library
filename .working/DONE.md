@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #222 — Closes FR-82 (medium, P1.6): AI/model crypto "key hashing" ambiguity (2026-06-22)
+
+`security/policy-encryption-and-key-management.md:56` "AI and Model Data" row's `"AES-256 + key hashing (SHA-512)"` conflated encryption, integrity, and key derivation; SHA-512 alone is NOT a KDF. Replaced with explicit per-purpose specification: AES-256-GCM (AEAD encryption with built-in integrity); HKDF-SHA-256 for key derivation from high-entropy material; Argon2id (or scrypt) for password-derived keys; explicit note that SHA-512 alone is a hash, not a KDF. Per-doc `1.3.1 → 1.3.2`. Also carries deferred PR #221 /validate-pr + /retro register rows.
+
 ### PR #221 — Closes FR-33 (H[critical]): GDPR Article 36 prior-consultation pathway (2026-06-22)
 
 Step 5 of `privacy/procedure-privacy-impact-and-cross-border-transfer.md` previously conflated internal ERC executive sign-off with the GDPR Article 36 regulatory prior-consultation pathway. Restructured into three substeps: 5.1 internal escalation (prior content), 5.2 NEW Article 36 prior consultation (trigger per Art 36(1), six-item content table per Art 36(3), 8+6 week timeline per Art 36(2), supervisory authority Art 58 corrective powers, 5-step interaction with internal pathway, non-EU equivalents to LGPD/PIPL/UK GDPR), 5.3 documentation requirements split by pathway. Per-doc `1.3.4 → 1.4.0`. Also carries deferred PR #220 /validate-pr + /retro register rows.
