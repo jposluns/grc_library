@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.225, PR #247
+
+**Session migration protocol + trust-recovery codification bookkeeping close-out.** The long-session-degradation defence: a fresh session resumes with one command, and a PR close-out checklist guards the paired-bookkeeping-surface failure class.
+
+### Added
+
+- **[`.working/session-handoff.md`](../session-handoff.md)**: the single resume point for a new session. Carries the "how to resume" instruction, an as-of-last-refresh state snapshot (branch, versions, counts), trust-recovery state, the next-actions queue, open decisions awaiting the maintainer, and the standing disciplines. Refreshed at every PR close-out.
+- **[`.claude/commands/resume.md`](../../.claude/commands/resume.md)**: the `/resume` slash command. Reads the handoff file, reads CLAUDE.md and recent CHANGELOG, verifies the snapshot against live files (unshallow check, audit, HEAD), surfaces a one-screen orientation, and continues from the queue. Not a paired skill (no SKILL.md), so not in the PAIRS registry; `.claude/` is gate-exempt.
+
+### Changed
+
+- **[`.claude/CLAUDE.md`](../../.claude/CLAUDE.md)**: new `## Session migration and PR close-out checklist` section (the two mechanisms: session handoff + the close-out checklist enumerating the paired bookkeeping surfaces) and a new PR-workflow step 5c (refresh the handoff file at close-out).
+- **[`TODO.md`](../../TODO.md)**: FR-164 deleted (closed by PR #246) and rotated to DONE; the "Trust-recovery codification" subsection header updated from "blocked behind sign-off" to "sign-off obtained; in progress" with the shipped items (deep-qa-review #244, PRIMORDIAL RULE #245, ninth rule #246, session migration #247) moved to a "Done:" line and the remaining items (`/fitness` amendment, structural-review skill, optional wrapper) kept; the stale "eight `governance/` pack rules" at the P4.1 distillation-source corrected to "nine".
+- **[`.working/DONE.md`](../DONE.md)**: entries added for PR #243-#247, bringing the closed-work ledger current for the session (it was behind).
+- **[`.working/validate-pr/history.md`](../validate-pr/history.md)** (Version `1.2.50 → 1.2.51`): PR #246 `/validate-pr` row (2 warnings, both fixed here).
+- **[`.working/improvement-log.md`](../improvement-log.md)** (Version `1.0.30 → 1.0.31`): PR #246 `/retro` row recording the "paired-bookkeeping-surface missed" pattern (now two occurrences) and the close-out-checklist improvement that this PR delivers.
+- **[`README.md`](../../README.md)**: library `2026.06.224 → 2026.06.225`; README `1.9.95 → 1.9.96`.
+
+### Verification
+
+- `tools/run_all_audits.sh` exit 0 (46/46); `tools/run-pr-time-checks.sh` exit 0. `.claude/` and `.working/` are gate-exempt; the only gated files touched are `README.md` (version lines) and `CHANGELOG.md` (this entry pair). No adopter-facing corpus content changed.
+- The two PR #246 `/validate-pr` warnings (FR-164 rotation; stale "eight" count) are both resolved in this PR.
+
 ## 2026-06-22, Library Version 2026.06.224, PR #246
 
 **Adds the ninth governance rule `trust-recovery-escalation.md`.** Second trust-recovery codification PR; documents the escalation tier (`/full-qa` + `/fitness` suite, top-priority findings routing, maintainer-sign-off termination) as a distributable pack rule.

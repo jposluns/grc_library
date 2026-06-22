@@ -54,12 +54,11 @@ High:
 
 Deduped against existing TODO (NOT added): P9 Art-28 DPA template = existing **FR-30**; P5 shall/must mixing = existing **FR-44-generalisation**; both reinforced, cross-referenced. The fitness Medium (FR-146..154) and Low/FYI (FR-155..160), plus the five [full-qa] findings (now FR-161..165), are re-tiered to P2/P3 below per maintainer direction (b).
 
-#### Trust-recovery codification (blocked behind sign-off; do not start before maintainer signs off the findings above)
+#### Trust-recovery codification (sign-off obtained 2026-06-22; in progress)
 
-- Draft `deep-qa-review` SKILL.md at `dev-security/claude-rules/skills/deep-qa-review/` (slash command `/full-qa`). MUST encode: unshallow / verify full clone before git-history-aware gates (iter-1 shallow-clone lesson); every finding carries `path:line`; findings route to TODO P1 top.
-- Draft the ninth governance rule `trust-recovery-escalation.md` (names the scenario, the /full-qa + /fitness suite, the P1-top routing convention, the sign-off discipline).
+Done: `deep-qa-review` SKILL + `/full-qa` (PR #244); PRIMORDIAL RULE in CLAUDE.md (PR #245); ninth governance rule `trust-recovery-escalation.md` (PR #246); session migration protocol + `/resume` (PR #247). Remaining:
 - Amend `library-fitness-review` SKILL.md: one paragraph naming the trust-recovery routing flag (findings to P1 top, bypass Pass-2 bucket-deferral).
-- Codify the **structural audit-programme review as a recurring skill** (maintainer-confirmed) alongside deep-qa-review — its own SKILL.md + slash command + re-run cadence; bring name + cadence options to maintainer at codification scoping. Runs after this codification batch lands, against the settled surface.
+- Codify the **structural audit-programme review as a recurring skill** (maintainer-confirmed): its own SKILL.md + slash command + re-run cadence; bring name + cadence options to maintainer at scoping. Runs after this codification batch lands, against the settled surface.
 - Optional `/trust-recovery` convenience wrapper (maintainer go/no-go).
 
 ### High[critical] severity (immediate priority)
@@ -150,7 +149,6 @@ Deferred to a routine cleanup batch when convenient. Cross-reference only.
 ### Trust-recovery findings re-tiered here (Low / FYI) — /full-qa + /fitness r2 (2026-06-22)
 
 [full-qa]:
-- **FR-164 [full-qa] (Low, XS)**: [`tools/lint-collection-enumeration-consistency.py`](tools/lint-collection-enumeration-consistency.py):5 docstring says "the pack's seven governance rules"; there are 8. **Closed in passing by the 9th-rule codification PR** (the docstring's rule count updates when the ninth governance rule lands).
 - **FR-165 [full-qa] (Low)**: #242 corrective record overstates remediation — [`.working/validate-sweeps/2026-06-22-sweep22-iter1.md`](.working/validate-sweeps/2026-06-22-sweep22-iter1.md):92 claims abbreviated rows relabelled "deferred…"; [`.working/validate-pr/history.md`](.working/validate-pr/history.md) rows #221-#239 still read "abbreviated spot-check" (only #240/#241 annotated).
 
 [fitness] r2 Low/FYI (re-tiered from P1):
@@ -195,7 +193,7 @@ Generalize the project-only `## PRIMORDIAL RULE: PROJECT INTEGRITY` apex section
 Package the cumulative documentation-and-corpus discipline this project has accumulated as a standalone Claude Code skill that anyone managing a documentation corpus with an AI coding assistant could install.
 
 - **Trigger surface**: users running Claude Code against a structured Markdown corpus (governance, policy, technical-spec libraries) who want the same disciplines that have prevented drift in this project: metadata blocks, audit gates, generator-output drift checks, version monotonicity, change-tracking conventions, sweep-style validation, fitness-style periodic review.
-- **Distillation source**: the eight `governance/` pack rules form the discipline core. The `validation-sweep` and `library-fitness-review` skills form the periodic-review surface. The audit-programme architecture (`tools/lint-*.py` + four-surface wiring + regression fixtures) forms the mechanical-enforcement surface.
+- **Distillation source**: the nine `governance/` pack rules form the discipline core. The `validation-sweep` and `library-fitness-review` skills form the periodic-review surface. The audit-programme architecture (`tools/lint-*.py` + four-surface wiring + regression fixtures) forms the mechanical-enforcement surface.
 - **Generalisation**: the patterns are corpus-shape agnostic but reference GRC-specific document types. The shareable form would carry the patterns and discipline (what to enforce, why, how) without the GRC-specific control-set citations. Adopters supply their own document-type model and metadata-field set.
 - **Format**: a skill (or skill family) under `dev-security/claude-rules/skills/` with a top-level `corpus-management-discipline/` directory.
 - **Sequencing**: starts after the fitness backlog (FR-1 through FR-111) is closed, since some of the discipline is still being calibrated against the backlog.
