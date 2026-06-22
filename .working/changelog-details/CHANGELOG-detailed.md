@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.229, PR #251
+
+**Session decision capture (P1–P4 backlog triage).** Working-state housekeeping PR: durably records the maintainer's 2026-06-22 decisions (from the requested TODO P1–P4 analysis) before any remediation/codification PR acts on them, and carries the PR #250 `/validate-pr` + `/retro` rows per recursion-avoidance. The substantive routing-convention revision the decisions authorize is the NEXT PR, not this one (kept separate per "always split"; this PR is low-risk working-state and protects the decisions from session-boundary loss).
+
+### Changed (working-state, gate-exempt unless noted)
+
+- **[`TODO.md`](../../TODO.md)** (gated by gate 45 only): decision annotations — the six H[critical] canonical values (FR-134..139 block note); the trust-recovery codification routing item rewritten to the severity-tiered convention + the 8-surface scope; P4.0 (`project-integrity.md`, 10th rule, standalone-after-codification); P4.1 (family + prescriptive-only + existing-pack); P4.4 (JS/TS+Go+Java, point-to-OWASP); P4.5 (build S1, defer S2/S3).
+- **[`.working/design-decisions.md`](../design-decisions.md)**: new decision entry "Trust-recovery findings routing: severity-tiered, not all-to-top-priority" under the slash-commands/skills section — records the revision, the "routing flag only" scope, the no-silent-drop principle retained, sign-off retained, and the project-agnostic-naming implementation note.
+- **[`.working/session-handoff.md`](../session-handoff.md)**: refreshed to the after-PR-#250 snapshot; next-actions item 0a marks the P1–P4 analysis DONE with the locked-decision summary; item 1 is now the routing-convention revision; the structural-review-skill name/cadence and `/trust-recovery` wrapper remain explicitly open (not decided this session).
+- **[`.working/validate-pr/history.md`](../validate-pr/history.md)** (Version `1.2.53 → 1.2.54`): PR #250 row (0 findings; full Subagent A + cross-reference check).
+- **[`.working/improvement-log.md`](../improvement-log.md)** (Version `1.0.32 → 1.0.33`): PR #250 `/retro` row — pattern: "paired-bookkeeping-surface missed" recurred (the TODO sweep cursor) but was caught pre-push by gate 45 + the gate-36 regression test; evidence the durable backstop is the mechanical gate.
+- **[`README.md`](../../README.md)**: library `2026.06.228 → 2026.06.229`; README `1.9.99 → 1.9.100`.
+
+### Verification
+
+- `.claude/` and `.working/` are gate-exempt; the only gated files touched are [`README.md`](../../README.md) (version lines), [`TODO.md`](../../TODO.md) (gate 45 staleness), and [`CHANGELOG.md`](../../CHANGELOG.md) (this entry pair). No corpus content, no pack-rule content changed (the routing revision is the next PR).
+- `tools/run_all_audits.sh` exit 0 (46/46) post-commit; `tools/run-pr-time-checks.sh` exit 0 expected (D1 entry pair, D2 the two `.working/*/history.md`/register Version bumps, gate 45 clean).
+
 ## 2026-06-22, Library Version 2026.06.228, PR #250
 
 **`/resume` Sweep 23 close-out.** The session-resume compensating-control corpus-wide `/validate`, run as the first substantive task of a fresh session per the `/resume` protocol's step 5 — the control that compensates for the session-closing handoff PRs #248/#249 skipping their trailing `/validate-pr`.

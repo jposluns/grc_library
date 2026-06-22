@@ -128,6 +128,10 @@ Deliberate scope boundaries documenting what the skill is NOT:
 - **Not a fact-check of external standards** (per Citation Verification Specification §14, the library does not verify standard content vs. library interpretation).
 - **Not enforced by a mechanical gate**; it's a deliverable that informs human prioritization.
 
+### Trust-recovery findings routing: severity-tiered, not all-to-top-priority (decided 2026-06-22, maintainer direction; implementation queued)
+
+The `trust-recovery-escalation.md` rule (pack 1.47.0, signed off 2026-06-22) originally routed **every confirmed finding to the backlog's top-priority tier regardless of severity**. Maintainer revised this 2026-06-22 (this session): trust-recovery findings route **tiered by severity — High[critical] and High to the top-priority tier, Medium and Low to the next-priority tier (this project: P1 and P2 respectively)** — while keeping the core principle (nothing the assistant judges trivial is silently *dropped*; it is routed at the severity-appropriate tier) and the maintainer-sign-off termination. Scope (maintainer: "routing flag only"): the routing **convention** changes (the rule + both suite skills + both commands + the two CLAUDE.md rule-description bullets + the pack README); the **general TODO P1/P2/P3 structure is unchanged**. Implementation note: the pack rule/SKILLs stay project-agnostic ("top-priority tier" / "next-priority tier"); the project-specific P1/P2 mapping lives in `.claude/CLAUDE.md` + TODO. Queued as the next substantive PR (the 8-surface revision); the `/fitness` routing-flag amendment (TODO trust-recovery codification item) folds into it.
+
 ---
 
 ## CHANGELOG and TODO/DONE conventions
