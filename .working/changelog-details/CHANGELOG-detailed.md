@@ -6,6 +6,43 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.213, PR #235
+
+**Closes C2 Emergency-access trigger ambiguity convergent finding** (6 access-control items, P1 cluster) — single combined "Access-control operational clarity" PR per the maintainer's prior plan, with maintainer-approved sample-data defaults. PR-E in Batch 1 effort-first run.
+
+### Fixed (6 P1 items + 1 P2 item, all in `security/procedure-access-control.md`)
+
+- **FR-121 (H[critical], XS)** — line 64 "material business or safety harm" undefined. Now defined inline: "delay would, on its own, more likely than not cause an outcome that would itself trigger a P1 or P2 incident under the adopter's incident-severity policy (e.g., demonstrable risk of regulated-data exposure, safety incident, customer-facing outage exceeding the adopter's SLA-breach threshold)". Includes "sample data" caveat for adopters with different severity-tier models.
+- **FR-122 (H[critical], XS)** — line 64 "declared incident response" not tied to specific incident status. Now: "a declared incident response is **active and classified as P1 or P2 severity** under [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md)". Adopters with different severity models substitute equivalent top-two bands.
+- **FR-123 (H, XS)** — Delegated Security Lead undefined in roles table. New row added to "Roles and responsibilities": "A named deputy of the CISO authorised to approve privileged-access and emergency-access requests when the CISO is unavailable. In this library's reference configuration the role is filled by a pre-named senior member of the Incident Response Team (IRT) or the deputy CISO where one exists. **Sample data, adjust upon adoption**: adopting organisations name a specific role (e.g., Director of Security Operations, Lead Security Engineer) and identify the individual currently holding it in their internal access-control runbook (not in this public template)."
+- **FR-124 (H, S)** — §3.2-3.3 access-review revocation timeline contradiction (§3.2 said "revoked under the next access review"; §3.3 said "revoked immediately"). Resolved by: §3.2 now says reviewer "must, within the access-review window, either (a) find or document a fresh business justification... or (b) flag the access for revocation"; §3.3 now provides a 24-hour window for revocation processing after the flag, distinct from the immediate-upon-instruction revocation case for security incidents in §5.
+- **FR-125 (H, S)** — §1.4.2 emergency-access revocation enforcement lacks escalation. Now: "**Escalation**: if the Identity Team has not acknowledged the revocation requirement within 30 minutes of the 24-hour mark (as evidenced by an ITSM ticket update or chat acknowledgement), the SOC escalates to the SOC L2 on-call (or equivalent second-tier security operations role). If the L2 has not acknowledged within a further 30 minutes, the SOC escalates to the CISO directly."
+- **FR-126 (M, XS)** — auto-escalation mechanic vague (lines 54-58). Now explicit: "the **ITSM portal's SLA timer** auto-escalates the request... the SLA timer fires automatically; the escalation requires no human trigger".
+
+### Added (sample-data discipline)
+
+- **Section-level sample-data note** added at the head of the Roles and Responsibilities section: "this section and §1.4 below carry sample operational thresholds (incident-severity definitions, time bounds, named roles) that are illustrative only. Adopting organisations MUST adjust these values..."
+
+### Changed
+
+- **Per-doc Version** `1.1.1 → 1.2.0` (minor; multiple related fixes + new role row in the canonical table).
+- Generated artefacts regenerated.
+- **`.working/validate-pr/history.md`** (Version `1.2.40 → 1.2.41`): PR #234 row.
+- **`.working/improvement-log.md`** (Version `1.0.19 → 1.0.20`): PR #234 /retro row.
+
+### Apply-time catches
+
+- **Intra-doc-ref audit (gate 30)** flagged §3.2, §3.3, §5.1 in my draft as same-document section references where no matching ### heading exists (the procedure uses paragraph numbers, not sub-headings). Rephrased to drop the §-references in favour of descriptive phrasings ("the preceding paragraph", "the Access revocation section below"). The existing §1.1, §1.4 references in the file were not flagged because they appeared in cross-doc context phrases the linter recognizes.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates.
+- `tools/run-pr-time-checks.sh` D1, D2, gate 45 OK.
+
+### Discipline observation
+
+- **Maintainer-approved sample-data PR**: this PR ships with operational thresholds the maintainer has explicitly approved as sample data adopters must adjust. The "sample-data note" callout makes this contract explicit; adopters who fork this procedure into their own internal runbook are responsible for recalibrating the thresholds to their incident-severity model, operational tempo, and regulatory environment. Pattern reusable for any future PR that ships operational defaults: explicit "Sample data, adjust upon adoption" callout at the section level.
+
 ## 2026-06-22, Library Version 2026.06.212, PR #234
 
 **Closes FR-67 (L, XS)** — new Dimension E sub-tier E0 in [`docs/template-startup-roadmap.md`](../../docs/template-startup-roadmap.md). PR-D in Batch 1 effort-first run.
