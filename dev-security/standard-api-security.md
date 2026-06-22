@@ -2,7 +2,7 @@
 
 **Document Title:** API Security Standard\
 **Document Type:** Standard\
-**Version:** 0.0.3\
+**Version:** 0.0.4\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -107,7 +107,7 @@ For routine changes within an existing API contract, the security controls in th
 | Control area | Requirement |
 | --- | --- |
 | TLS | TLS 1.3 or stronger (aligned to [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md) §1 (Encryption standards) canonical mandate); HSTS for browser-driven APIs |
-| Cipher suite | Strong cipher suites only; deprecated suites rejected |
+| Cipher suite | TLS 1.3 AEAD cipher suites per NIST SP 800-52 Rev. 2 §3.3.1: `TLS_AES_256_GCM_SHA384` (recommended), `TLS_AES_128_GCM_SHA256`, `TLS_CHACHA20_POLY1305_SHA256`. Older cipher suites (RC4, 3DES, MD5-based, CBC-mode without AEAD, RSA key-exchange without forward secrecy, anonymous DH) rejected. |
 | Certificate management | Per the cryptographic key lifecycle framework |
 | mTLS | For service-to-service and high-sensitivity partner integrations |
 | WebSocket | Same authentication and authorisation as the equivalent REST endpoint; ping-pong heartbeats with idle timeout |
