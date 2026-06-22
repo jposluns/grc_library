@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.170, PR #191
+
+`.working/` housekeeping PR recording PR #190's `/validate-pr` zero-finding run. Same shape as PR #185 (which recorded PR #184's zero-finding /validate-pr).
+
+### Changed
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row recording PR #190's /validate-pr (0 findings, cascade terminated, full Subagent A coverage summary).
+  - Per-document Version `1.1.2 → 1.1.3` (patch).
+- [`README.md`](../../README.md): library `2026.06.169 → 2026.06.170`; README Version `1.9.40 → 1.9.41`.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates.
+- `tools/run-pr-time-checks.sh` exits 0 (D1, D2, gate 45).
+
+### Discipline observation
+
+**Cascade termination confirmed.** Four consecutive /validate-pr invocations (#187 → 2, #188 → 2, #189 → 2, #190 → 0). PR #190's structural convention fix (full-date "Originating run" column + UTC convention + chat-surfacing discipline) closed the recurring r1/r2 cross-date drift class. The 0-finding /validate-pr on PR #190 validates the discipline's converging behavior: each meta-PR creates opportunities for the next /validate-pr to catch, the catches accumulate at first, then once a structural fix lands the cascade terminates.
+
+**Recursive-recording note.** This PR records PR #190's /validate-pr history row, which itself is a small substantive change requiring /validate-pr on PR #191. PR #191's /validate-pr is expected to be 0 findings (no corpus content changes, just a history-row append + version bumps). The /validate-pr record for PR #191 will be batched into the next substantive PR (e.g., the FR-33 P1.4b PR in the next session) rather than triggering an infinite chain of housekeeping PRs. This batching is the practical resolution of the cascade-recursion problem in the no-skip-discretion discipline; the trade-off is one-record-of-zero-findings-delayed for many-housekeeping-PRs-avoided.
+
 ## 2026-06-22, Library Version 2026.06.169, PR #190
 
 Hot-fix-of-hot-fix for the /validate-pr findings on PR #189 (third consecutive findings-producing /validate-pr in the day's meta-PR cascade), plus two new disciplines codified into pack rules: the UTC convention and the chat-surfacing requirement.

@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #191 — Record /validate-pr for PR #190 (0 findings; cascade terminated) (2026-06-22)
+
+`.working/` changes for local project: appended the history row recording the zero-finding /validate-pr run against PR #190. Four-PR cascade (#187 → #188 → #189 → #190 = 2+2+2+0 findings) terminated by PR #190's structural fix (full-date Originating run column + UTC convention + chat-surfacing discipline).
+
 ### PR #190 — Hot-fix /validate-pr findings on PR #189 + UTC convention + chat-surfacing discipline (2026-06-22)
 
 Three bundled threads: hot-fix the two multi-surface incompleteness findings from /validate-pr on PR #189 (the r2→r1 relabel missed `.working/fitness-reviews/history.md` line 22 narrative + the H[critical] backlog table's "Originating run" column; resolved structurally by switching cross-date column to full dates); codified the UTC convention in CLAUDE.md (assistant works in UTC for all date-bearing fields); codified the chat-surfacing discipline in /validate and /validate-pr SKILL.md + slash commands (findings surface in chat with per-finding shape, not buried in .working/ files). Third consecutive findings-producing /validate-pr.
