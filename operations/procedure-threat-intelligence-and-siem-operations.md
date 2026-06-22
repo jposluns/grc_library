@@ -2,8 +2,8 @@
 
 **Document Title:** Threat Intelligence and SIEM Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.2\
-**Date:** 2026-06-20\
+**Version:** 1.3.3\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -331,7 +331,7 @@ Metric trends are reviewed for continual improvement. Lessons learned from incid
 | Correlation rule development | MITRE ATT&CK Enterprise; NIST SP 800-53 SI-4; CSA CCM LOG-01 to LOG-14 |
 | Threat hunting | MITRE ATT&CK; NIST CSF Detect (DE.AE); ISO/IEC 27002:2022 §8.16 |
 | Intelligence sharing | NIST SP 800-150 §4; CSA CCM TVM domain controls covering intelligence sharing; CISA TLP Policy |
-| Incident escalation | ISO/IEC 27035; NIST SP 800-61 Rev 3; CSA CCM SEF-04 to SEF-05 |
+| Incident escalation | ISO/IEC 27035; NIST SP 800-61 Rev. 3; CSA CCM SEF-04 to SEF-05 |
 | Pre-go-live SIEM validation | [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md) §3.1 to §3.2 |
 | AI-assisted detection | [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) §9; NIST AI RMF |
 | Records and audit | COBIT 2019 DSS05; ISO/IEC 27001:2022 A.5.28 |

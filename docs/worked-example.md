@@ -2,8 +2,8 @@
 
 **Document Title:** Worked Example: Converting a Draft into a CC BY-SA 4.0 Artefact\
 **Document Type:** Guide\
-**Version:** 1.0.0\
-**Date:** 2026-06-02\
+**Version:** 1.0.1\
+**Date:** 2026-06-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`specification-ingestion.md`](../specification-ingestion.md), [`specification-master-project.md`](../specification-master-project.md), [`CONTRIBUTING.md`](../CONTRIBUTING.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md)\
@@ -163,7 +163,7 @@ against their own policy and legal requirements.
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO/IEC 27001:2022 | A.5.15 to A.5.18 | Access control and identity lifecycle |
-| NIST SP 800-53 Rev 5 | AC-2; AC-6 | Account management; least privilege |
+| NIST SP 800-53 Rev. 5 | AC-2; AC-6 | Account management; least privilege |
 | CSA CCM v4.1 | IAM-05 | Privileged account management |
 | Quebec Law 25 | Articles 8 to 9 | Accountability and access logging |
 

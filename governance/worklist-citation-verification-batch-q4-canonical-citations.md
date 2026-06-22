@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.1\
-**Date:** 2026-05-30\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md)\
@@ -58,17 +58,17 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 
 | Standard ID | Expected primary URL | Field(s) | Expected value | Captured text | Wayback URL | Result | Captured by | Confidence | Date |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| NIST SP 800-34 | https://csrc.nist.gov/pubs/sp/800/34/r1/final | all | Rev 1, 2010-05, Contingency Planning Guide for Federal Information Systems |  |  |  |  |  |  |
-| NIST SP 800-53 | https://csrc.nist.gov/pubs/sp/800/53/r5/final | all | Rev 5, 2020-09, Security and Privacy Controls; supersedes Rev 4 |  |  |  |  |  |  |
-| NIST SP 800-88 | https://csrc.nist.gov/pubs/sp/800/88/r1/final | all | Rev 1, 2014-12, Media sanitization |  |  |  |  |  |  |
+| NIST SP 800-34 | https://csrc.nist.gov/pubs/sp/800/34/r1/final | all | Rev. 1, 2010-05, Contingency Planning Guide for Federal Information Systems |  |  |  |  |  |  |
+| NIST SP 800-53 | https://csrc.nist.gov/pubs/sp/800/53/r5/final | all | Rev. 5, 2020-09, Security and Privacy Controls; supersedes Rev. 4 |  |  |  |  |  |  |
+| NIST SP 800-88 | https://csrc.nist.gov/pubs/sp/800/88/r1/final | all | Rev. 1, 2014-12, Media sanitization |  |  |  |  |  |  |
 | NIST SP 800-207 | https://csrc.nist.gov/pubs/sp/800/207/final | all | 1.0, 2020-08, Zero Trust Architecture |  |  |  |  |  |  |
 | NIST CSF | https://www.nist.gov/cyberframework | all | 2.0, 2024-02, Cybersecurity Framework; supersedes 1.1 |  |  |  |  |  |  |
 | NIST AI RMF | https://www.nist.gov/itl/ai-risk-management-framework | all | 1.0, 2023-01, AI Risk Management Framework |  |  |  |  |  |  |
 | NIST AI 600-1 | https://csrc.nist.gov/pubs/ai/600/1/final | all | 1.0, 2024-07, Generative AI Profile for AI RMF |  |  |  |  |  |  |
 | NIST SP 800-218 | https://csrc.nist.gov/pubs/sp/800/218/final | all | 1.1, 2022-02, Secure Software Development Framework (SSDF); supersedes 1.0 |  |  |  |  |  |  |
 | NIST SP 800-218A | https://csrc.nist.gov/pubs/sp/800/218/a/final | all | Final, 2024, Secure SDF GenAI profile |  |  |  |  |  |  |
-| NIST SP 800-161 | https://csrc.nist.gov/pubs/sp/800/161/r1/upd1/final | all | Rev 1, 2022-05, Cybersecurity Supply Chain Risk Management; supersedes Rev 0 |  |  |  |  |  |  |
-| NIST SP 800-82 | https://csrc.nist.gov/pubs/sp/800/82/r3/final | all | Rev 3, 2023-09, Guide to OT Security; supersedes Rev 2, Rev 1 |  |  |  |  |  |  |
+| NIST SP 800-161 | https://csrc.nist.gov/pubs/sp/800/161/r1/upd1/final | all | Rev. 1, 2022-05, Cybersecurity Supply Chain Risk Management; supersedes Rev. 0 |  |  |  |  |  |  |
+| NIST SP 800-82 | https://csrc.nist.gov/pubs/sp/800/82/r3/final | all | Rev. 3, 2023-09, Guide to OT Security; supersedes Rev. 2, Rev. 1 |  |  |  |  |  |  |
 
 ### 3.2 EU regulations and directives (9 entries): publisher `eur-lex.europa.eu`
 
@@ -92,7 +92,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | US HITECH | https://www.hhs.gov/hipaa/for-professionals/special-topics/hitech-act-enforcement-interim-final-rule/index.html | all | 2009, HITECH Act |  |  |  |  |  |  |
 | US SOX | https://www.congress.gov/bill/107th-congress/house-bill/3763 | all | 2002-07, Sarbanes-Oxley Act |  |  |  |  |  |  |
 | US CCPA | https://oag.ca.gov/privacy/ccpa | all | 2018 (with CPRA 2020 amendments) |  |  |  |  |  |  |
-| US FedRAMP | https://www.fedramp.gov/rev5-baselines/ | all | Rev 5, 2023, aligned with NIST SP 800-53 Rev 5; supersedes Rev 4 |  |  |  |  |  |  |
+| US FedRAMP | https://www.fedramp.gov/rev5-baselines/ | all | Rev. 5, 2023, aligned with NIST SP 800-53 Rev. 5; supersedes Rev. 4 |  |  |  |  |  |  |
 | US CMMC | https://dodcio.defense.gov/CMMC/ | all | 2.0, 2024, Cybersecurity Maturity Model Certification; supersedes 1.0, 1.02 |  |  |  |  |  |  |
 | Canada CPPA | https://www.parl.ca/legisinfo/en/bill/44-1/c-27 | all | 2022 (pending enactment); replaces PIPEDA |  |  |  |  |  |  |
 | Canada PIPEDA | https://laws-lois.justice.gc.ca/eng/acts/P-8.6/ | all | 2000 (with 2015 DBSA amendments) |  |  |  |  |  |  |
@@ -187,7 +187,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | WTO TFA | https://www.wto.org/english/tratop_e/tradfa_e/tradfa_e.htm | all | 2017, Trade Facilitation Agreement |  |  |  |  |  |  |
 | ICAO Doc 10026 | https://store.icao.int/en/doc-10026-manual-on-aviation-security | all | 2nd edition, 2024; supersedes 1st edition |  |  |  |  |  |  |
 | ICAO Doc 10055 | https://store.icao.int/en/aviation-cybersecurity-strategy-doc-10055 | all | 2024, Aviation Cybersecurity Strategy |  |  |  |  |  |  |
-| IMO Resolution MSC-FAL.1/Circ.3 | https://www.imo.org/en/OurWork/Security/Pages/Cyber-security.aspx | all | Rev 2, 2022-06, Maritime cyber risk management guidelines; supersedes Rev 1 |  |  |  |  |  |  |
+| IMO Resolution MSC-FAL.1/Circ.3 | https://www.imo.org/en/OurWork/Security/Pages/Cyber-security.aspx | all | Rev. 2, 2022-06, Maritime cyber risk management guidelines; supersedes Rev. 1 |  |  |  |  |  |  |
 
 ### 3.12 AI safety evaluation programmes (3 entries; note that AI tooling references cluster separately covered in Q3)
 

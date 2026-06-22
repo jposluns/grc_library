@@ -2,8 +2,8 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.15\
-**Date:** 2026-06-21\
+**Version:** 1.1.16\
+**Date:** 2026-06-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-glossary.md`](register-glossary.md), [`README.md`](../README.md), [`TODO.md`](../TODO.md)\
@@ -193,7 +193,7 @@ The library is cloud-provider-agnostic. Provider-specific guidance is recorded a
 
 | Area | Coverage | Status | Planned target | Notes |
 | --- | --- | --- | --- | --- |
-| Operational Technology (OT) security | Substantive | In library | n/a | [`operations/ot/`](../operations/ot/): overview annex (Phase 22.1), OT/ICS Security Standard (22.2), OT Incident Response Procedure (22.3), OT Change Management Procedure (22.4), OT Asset Inventory and Lifecycle Register (22.5), BMS Overlay Annex (22.6). IEC 62443 family and NIST SP 800-82 Rev 3 catalogued in canonical citations. |
+| Operational Technology (OT) security | Substantive | In library | n/a | [`operations/ot/`](../operations/ot/): overview annex (Phase 22.1), OT/ICS Security Standard (22.2), OT Incident Response Procedure (22.3), OT Change Management Procedure (22.4), OT Asset Inventory and Lifecycle Register (22.5), BMS Overlay Annex (22.6). IEC 62443 family and NIST SP 800-82 Rev. 3 catalogued in canonical citations. |
 | Identity governance (workforce IAM) | Substantive | In library | n/a | Throughout security domain |
 | Customer Identity (CIAM) | Referenced | Deferred | TODO P6.3 | Adopter UX and consumer-data dimensions |
 | Federated identity (SAML, OIDC) | Partial | In library | n/a | Referenced in IAM standards; dedicated patterns deferred |

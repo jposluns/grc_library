@@ -2,8 +2,8 @@
 
 **Document Title:** Logistics Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](register-ctpat-united-states-msc-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../../supply-chain/annex-trade-and-supply-chain-continuity-controls.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md)\
@@ -91,7 +91,7 @@ This annex applies where an organisation:
 | **ICAO Doc 10026: Aviation Security** | International Civil Aviation Organization | States; aviation operators |
 | **ICAO Doc 10055: Aviation Cybersecurity Strategy** | ICAO | States; airlines; ANSPs; airports |
 | **IMO Resolution MSC-FAL.1/Circ.3**: Maritime Cyber Risk Management | International Maritime Organization | Shipping companies; port operators |
-| **IMO MSC-FAL.1/Circ.3 Rev 1** | IMO | Incorporated into ISM Code |
+| **IMO MSC-FAL.1/Circ.3 Rev. 1** | IMO | Incorporated into ISM Code |
 | **IATA Cyber Security Guidance** | International Air Transport Association | IATA member airlines; handling agents |
 | **WCO SAFE Framework** | World Customs Organization | All customs operators |
 | **ISO 28000:2022**: Supply chain security | ISO | Supply chain organisations |
@@ -205,7 +205,7 @@ Transportation and logistics operators frequently operate Operational Technology
 
 **Applicable OT standards:**
 - IEC 62443 (Industrial Automation and Control Systems Security): primary OT security standard
-- NIST SP 800-82 Rev 3: Guide to OT Security
+- NIST SP 800-82 Rev. 3: Guide to OT Security
 - CPNI / NCSC: Operational Technology Security guidance (UK)
 - CISA ICS-CERT guidance (US)
 

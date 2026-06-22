@@ -2,8 +2,8 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.4\
-**Date:** 2026-06-21\
+**Version:** 1.4.5\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
@@ -314,7 +314,7 @@ The following metrics are tracked and reported to the CIO and CISO at the quarte
 | Regulatory breach notification: China | PIPL Art. 57 |
 | Regulatory breach notification: Brazil | LGPD Arts. 48 to 49 |
 | Regulatory breach notification: US | State breach notification laws; refer to [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md) |
-| Security incident response | ISO/IEC 27035; NIST SP 800-61 Rev 3; [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) |
+| Security incident response | ISO/IEC 27035; NIST SP 800-61 Rev. 3; [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) |
 | Evidence preservation | ISO/IEC 27037; [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §8 |
 | SIEM alert integration | CSA CCM v4.1 SEF-02; [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) |
 | Record keeping and retention | ISO/IEC 27701 §8.9; [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) |

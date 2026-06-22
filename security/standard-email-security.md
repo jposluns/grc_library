@@ -2,8 +2,8 @@
 
 **Document Title:** Email Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`security/standard-security-awareness-and-training.md`](standard-security-awareness-and-training.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`privacy/template-privacy-notice.md`](../privacy/template-privacy-notice.md)\
@@ -156,7 +156,7 @@ It does not cover messaging platforms other than email (chat, SMS, in-product me
 | BIMI | AuthIndicators Working Group | Brand indication |
 | RFC 8460 | TLS-RPT | TLS reporting |
 | RFC 8461 | MTA-STS | TLS enforcement |
-| NIST SP 800-177 Rev 1 | Trustworthy Email | US federal baseline |
+| NIST SP 800-177 Rev. 1 | Trustworthy Email | US federal baseline |
 | ISO/IEC 27001:2022 | A.5.14, A.8.21, A.8.23 | Information transfer; network security; web filtering |
 | NIST CSF 2.0 | PROTECT, DETECT | Defensive coverage |
 | OWASP Mail Header Injection prevention | OWASP | Application-layer email security |

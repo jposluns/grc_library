@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Domain README\
 **Document Type:** Register\
-**Version:** 1.4.1\
-**Date:** 2026-06-19\
+**Version:** 1.4.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -145,7 +145,7 @@ This domain draws on and references the following external projects. These refer
 ### Compliance frameworks addressed
 - ISO/IEC 27001:2022: Information security management (development-relevant controls)
 - ISO/IEC 27002:2022: Secure development controls (Annex A.8.25 to A.8.34)
-- NIST SP 800-53 Rev 5: SA (System and Services Acquisition) and SI (System and Information Integrity) families
+- NIST SP 800-53 Rev. 5: SA (System and Services Acquisition) and SI (System and Information Integrity) families
 - CSA CCM v4: Application and Interface Security (AIS) domain
 - SOC 2 CC6: Logical and physical access controls, change management
 

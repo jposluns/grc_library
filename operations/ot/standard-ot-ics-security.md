@@ -2,8 +2,8 @@
 
 **Document Title:** OT/ICS Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-05-29\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/ot/README.md`](README.md), [`operations/ot/annex-ot-security-overview.md`](annex-ot-security-overview.md), [`operations/standard-network-security-and-segmentation.md`](../standard-network-security-and-segmentation.md), [`operations/procedure-change-management-and-configuration-control.md`](../procedure-change-management-and-configuration-control.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md), [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](../../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](../../compliance/logistics/annex-logistics-sector-requirements.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`governance/register-glossary.md`](../../governance/register-glossary.md)\
@@ -22,7 +22,7 @@ This standard establishes mandatory security requirements for Operational Techno
 
 The standard codifies the conceptual model introduced in [`annex-ot-security-overview.md`](annex-ot-security-overview.md) into auditable control requirements. It applies to every OT zone and conduit under the organisation's control and to vendor and integrator activities that affect those zones and conduits.
 
-The standard aligns to IEC 62443 (primary) and NIST SP 800-82 Rev 3 (secondary). Where sector-specific regulation (NERC CIP for North American electricity; sector annexes for transportation, healthcare, energy) imposes additional requirements, the sector annex extends this standard.
+The standard aligns to IEC 62443 (primary) and NIST SP 800-82 Rev. 3 (secondary). Where sector-specific regulation (NERC CIP for North American electricity; sector annexes for transportation, healthcare, energy) imposes additional requirements, the sector annex extends this standard.
 
 ---
 
@@ -433,8 +433,8 @@ Terms used in this standard are defined in the library glossary ([`governance/re
 | IEC 62443-3-3 | System security requirements and security levels | Section 6 security-level achievement |
 | IEC 62443-4-1 | Secure product development lifecycle | Section 11.1 supplier qualification |
 | IEC 62443-4-2 | Technical security requirements for IACS components | Section 6.3 SL-C; section 9 endpoint hardening |
-| NIST SP 800-82 Rev 3 | Guide to Operational Technology (OT) Security | Cross-reference throughout; secondary alignment |
-| NIST SP 800-53 Rev 5 | Security and Privacy Controls | Underlying control catalogue (control mappings inherit from main library) |
+| NIST SP 800-82 Rev. 3 | Guide to Operational Technology (OT) Security | Cross-reference throughout; secondary alignment |
+| NIST SP 800-53 Rev. 5 | Security and Privacy Controls | Underlying control catalogue (control mappings inherit from main library) |
 | ISO/IEC 27001:2022 | ISMS requirements | ISMS scope when extended to OT |
 | ISO/IEC 27019:2024 | Information security controls for the energy utility industry | Energy-sector ICS extension |
 | IEC 61511 / IEC 61508 | Functional safety | Section 12 safety integration; safety-regulation precedence |

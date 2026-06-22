@@ -4,6 +4,12 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-22, Library Version 2026.06.186, PR #207
+
+**Closes FR-50** (medium): NIST citation format sweep. Maintainer-approved per "decision 3": canonical form is `Rev. N` (with period), matching NIST's publisher convention. Corpus-wide sweep across **50 corpus files** converted `Rev N` (no period) → `Rev. N` (with period) for 91 occurrences. Files include the canonical-citations register itself, governance registers (document-index, glossary, coverage-gaps, matrices, worklists), domain standards (security, dev-security, supply-chain, operations, OT, ai, compliance, resilience, privacy), and specification-master-project. The `compliance/register-compliance-obligations-template.md:56` example "NIST SP 800-53 Rev. 4 → Rev. 5" was reworded to a generic "for example, a NIST SP publishes a new revision" framing because the standards-currency gate (correctly) flagged "Rev. 4" as superseded. [`CHANGELOG.md`](CHANGELOG.md) historical entries deliberately preserved as written (frozen audit-trail content per artefact-and-branch-discipline). Per-doc version bumps applied to all 50 touched files (typically patch-level). Also carries PR #206's `/validate-pr` history row (0 findings). Library `2026.06.185 → 2026.06.186`; README `1.9.56 → 1.9.57`. Future Pass-1 verifications should recognize that the canonical-citations register's example line is the source of truth for citation form.
+
+---
+
 ## 2026-06-22, Library Version 2026.06.185, PR #206
 
 **Closes FR-87** (SSRF range list completion) **and FR-88** (cipher suite enumeration). Maintainer-approved per "decision 2".

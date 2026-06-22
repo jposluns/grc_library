@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #207 — FR-50 (medium): NIST citation format sweep — 50 files, 91 occurrences (2026-06-22)
+
+Maintainer-approved (decision 3): canonical NIST citation format is `Rev. N` (with period, publisher convention). Corpus-wide sweep converted `Rev N` → `Rev. N` across 50 files (excluded: CHANGELOG historical entries and `.working/` archives). All 50 files received per-doc Version+Date patch bumps in the same commit. Template's "Rev. 4 → Rev. 5" example reworded to generic framing to avoid standards-currency gate false-positive on the illustrative-of-drift use case.
+
 ### PR #206 — FR-87 + FR-88 (medium): SSRF range list + cipher suite enumeration (2026-06-22)
 
 Maintainer-approved (decision 2). Pack core/owasp.md SSRF guidance updated with canonical IPv4 + IPv6 ranges + RFC citations (previously missed IPv6 entirely and used non-CIDR notation). Dev-security standard-api-security.md cipher row enumerated TLS 1.3 AEAD suites per NIST SP 800-52 Rev. 2 §3.3.1.

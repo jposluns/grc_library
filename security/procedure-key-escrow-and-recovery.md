@@ -2,8 +2,8 @@
 
 **Document Title:** Key Escrow and Recovery Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-endpoint-hardening.md`](standard-endpoint-hardening.md), [`security/procedure-access-control.md`](procedure-access-control.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`resilience/procedure-backup-and-recovery.md`](../resilience/procedure-backup-and-recovery.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md)\
@@ -210,7 +210,7 @@ Where the affected key is in scope of the post-quantum cryptography roadmap:
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO/IEC 27002:2022 | §8.24 to §8.28 | Cryptographic controls |
-| NIST SP 800-57 Part 1 Rev 5 | Recommendation for Key Management | Key lifecycle |
+| NIST SP 800-57 Part 1 Rev. 5 | Recommendation for Key Management | Key lifecycle |
 | NIST SP 800-130 | A Framework for Designing Cryptographic Key Management Systems | CKMS design |
 | NIST SP 800-152 | A Profile for U.S. Federal Cryptographic Key Management Systems | Federal profile reference |
 | NIST FIPS 140-3 | Security Requirements for Cryptographic Modules | HSM baseline |

@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Resilience Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/register-concentration-risk.md`](register-concentration-risk.md), [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](procedure-fourth-party-and-nth-party-risk.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md)\
@@ -138,7 +138,7 @@ Five categories of signal are monitored. Each category contains specific signals
 | --- | --- | --- |
 | DORA | Articles 28, 30, 33 to 34 (monitoring, contractual provisions, risk assessments) | EU financial services |
 | EBA Guidelines on outsourcing arrangements | EBA/GL/2019/02 §82 to 95 | Banking monitoring |
-| NIST SP 800-161 Rev 1 | Cybersecurity Supply Chain Risk Management | US baseline |
+| NIST SP 800-161 Rev. 1 | Cybersecurity Supply Chain Risk Management | US baseline |
 | ISO 28000 | Security management for supply chains | International |
 | ISO/IEC 27036 | Information security for supplier relationships | Supplier monitoring |
 | FSB Cyber Lexicon and Third-Party Risk Toolkit | FSB | Financial-sector practice |

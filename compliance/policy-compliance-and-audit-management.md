@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance, Audit, and CAPA Management Policy\
 **Document Type:** Policy\
-**Version:** 1.0.1\
-**Date:** 2026-05-27\
+**Version:** 1.0.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md)\
@@ -22,7 +22,7 @@ This policy defines the governance framework for compliance assurance, internal 
 
 It consolidates previous compliance, audit, and CAPA policies into one unified governance instrument, ensuring consistent oversight of legal, regulatory, contractual, and ethical obligations; verification of control effectiveness; and continual improvement through audit findings and remediation cycles. 
 
-The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO 19011:2018** (Auditing Guidelines), **COBIT 2019 MEA01** (Monitor, Evaluate, and Assess Performance and Conformance), **Cloud Security Alliance (CSA)** frameworks, **NIST SP 800-53 Rev 5 CA** family, and regulatory expectations under the **EU AI Act**, **Canada's AIDA**, and **U.S. Executive Order 14110** on Safe, Secure, and Trustworthy AI.
+The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO 19011:2018** (Auditing Guidelines), **COBIT 2019 MEA01** (Monitor, Evaluate, and Assess Performance and Conformance), **Cloud Security Alliance (CSA)** frameworks, **NIST SP 800-53 Rev. 5 CA** family, and regulatory expectations under the **EU AI Act**, **Canada's AIDA**, and **U.S. Executive Order 14110** on Safe, Secure, and Trustworthy AI.
 
 
 
@@ -112,7 +112,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 - **ISO 19011:2018** Guidelines for Auditing 
 - **COBIT 2019 MEA01** Monitor, Evaluate, and Assess Performance and Conformance 
 - **Cloud Security Alliance (CSA)** frameworks (GOV, AUD, AICM) 
-- **NIST SP 800-53 Rev 5 CA** family (Assessment and Authorization) 
+- **NIST SP 800-53 Rev. 5 CA** family (Assessment and Authorization) 
 - **OECD AI Principles** (Accountability, Transparency, Human Oversight) 
 - **EU AI Act** Articles 9 to 16 (Risk, Quality, and Post-Market Monitoring) 
 - **Canada Artificial Intelligence and Data Act (AIDA)** 
@@ -131,7 +131,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 | Findings and CAPA | Clause 10 Improvement | Clause 10 Improvement | MEA01.05 Review and report | GOV 05, AUD 05 | NIST CA-7, IR-4 | CAPA regulations | WCO SAFE equivalence |
 | AI audit and algorithmic monitoring | [Adopted in CMS] | [Guidance] | MEA01.06 Automated assurance | AIS 01 to 03 | NIST AI RMF Measure | EU AI Act, AIDA | Not applicable |
 | Reporting and disclosure | Clause 9 Performance evaluation | Clause 6 Reporting | MEA01.04 Report results | GOV 06 | NIST CSF Communicate | All jurisdictions | WCO SAFE equivalence |
-| Supplier and trade compliance auditing | Clauses 8 to 9 | Clauses 6 to 9 | BAI05.02 Manage supplier performance | STA 05 | NIST SP 800-161 Rev 1 SCRM | Trade and customs laws | WCO SAFE equivalence |
+| Supplier and trade compliance auditing | Clauses 8 to 9 | Clauses 6 to 9 | BAI05.02 Manage supplier performance | STA 05 | NIST SP 800-161 Rev. 1 SCRM | Trade and customs laws | WCO SAFE equivalence |
 
 
 

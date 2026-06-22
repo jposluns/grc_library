@@ -2,8 +2,8 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.2.1\
-**Date:** 2026-05-30\
+**Version:** 1.2.2\
+**Date:** 2026-06-22\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`README.md`](../README.md)\
@@ -285,7 +285,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **SOC 2** | System and Organization Controls Type 2 audit report (AICPA standard). |
 | **SOX** | Sarbanes-Oxley Act (U.S.). See [`compliance/financial-services/annex-sox-itgc.md`](../compliance/financial-services/annex-sox-itgc.md). |
 | **SP 800-53** | NIST Special Publication 800-53: Security and Privacy Controls. |
-| **SP 800-82** | NIST Special Publication 800-82: Guide to Operational Technology (OT) Security. Renamed from "Industrial Control Systems (ICS) Security" in Rev 3 (2023) to reflect broader OT scope. |
+| **SP 800-82** | NIST Special Publication 800-82: Guide to Operational Technology (OT) Security. Renamed from "Industrial Control Systems (ICS) Security" in Rev. 3 (2023) to reflect broader OT scope. |
 | **SP 800-88** | NIST Special Publication 800-88: Media Sanitization. |
 | **SSPL** | Server Side Public License. |
 | **STA** | (CSA CCM domain) Supply Chain Management, Transparency, and Accountability. |

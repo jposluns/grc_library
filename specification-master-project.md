@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.6.1\
-**Date:** 2026-06-21\
+**Version:** 1.6.2\
+**Date:** 2026-06-22\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -296,7 +296,7 @@ When referencing standards and frameworks, the AI must only reference publicly r
 - ISO 31000:2018: Risk management
 - ISO 9001:2015: Quality management
 - NIST CSF 2.0: Cybersecurity Framework
-- NIST SP 800-53 Rev 5: Security and privacy controls
+- NIST SP 800-53 Rev. 5: Security and privacy controls
 - NIST SP 800-37: Risk Management Framework
 - NIST SP 800-218: Secure Software Development Framework (SSDF)
 - NIST AI RMF: AI Risk Management Framework

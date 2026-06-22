@@ -6,6 +6,45 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.186, PR #207
+
+Closes **FR-50** (medium). Corpus-wide NIST citation format sweep per maintainer "decision 3": `Rev. N` (with period) is canonical, matching NIST's publisher convention.
+
+### Sweep scope
+
+- **50 corpus files** modified.
+- **91 occurrences** converted from `Rev N` → `Rev. N`.
+- Pattern matched: `\bRev [0-9]` (word-boundary `Rev ` followed by digit).
+- All matches verified to be NIST SP / FedRAMP / IMO version references (no false positives in corpus content).
+- `CHANGELOG.md` historical entries explicitly EXCLUDED — they describe past corpus state in their original form; rewriting them would be retroactive editing (anti-pattern per artefact-and-branch-discipline).
+- `.working/` files excluded (frozen archives).
+
+### Fixed
+
+- 50 corpus files have `Rev N` → `Rev. N` substitution applied, per-doc Version patch-bumped, per-doc Date refreshed to `2026-06-22`.
+- [`compliance/register-compliance-obligations-template.md`](../../compliance/register-compliance-obligations-template.md):56 example reworded from "NIST SP 800-53 Rev. 4 → Rev. 5" to generic "for example, a NIST SP publishes a new revision" — the standards-currency gate (gate 27) correctly flagged "Rev. 4" as superseded after the sweep; the example was illustrative-of-drift, not an actual stale citation; rewording preserves the illustrative intent without triggering the gate.
+
+### Linter behaviour observation
+
+The `lint-intra-doc-refs.py` external-frameworks token list at line 119 includes `"Rev "` (with trailing space) as a heuristic to recognize external-citation patterns. After the sweep, the new format `Rev. ` (with period) is what appears in cited prose; the linter's existing token still matches because `"Rev "` is a substring of `"Rev. "` (the regex isn't anchored). No linter update needed in this PR; if a future change requires precise matching, the token list should add `"Rev. "` alongside `"Rev "`.
+
+### Changed
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for PR #206's /validate-pr (0 findings).
+  - Per-document Version `1.2.14 → 1.2.15`.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates.
+- `tools/lint-standards-currency.py` (gate 27) clean.
+
+### Discipline observation
+
+The sweep is the largest single-decision-driven corpus-wide change in the project's history (50 files, 91 substitutions, all per-doc Version+Date bumped in the same commit per gate-40 / four-surface discipline). The mechanical scaling (script-driven version-bump applied automatically across 50 files) was the only way to do this safely; manual file-by-file would have been error-prone. Future similar sweeps should follow the same pattern.
+
+The standards-currency gate catch on the template's `Rev. 4 → Rev. 5` example is a useful lesson: when an example uses a specific superseded version to demonstrate version-drift, the standards-currency gate will (correctly) flag it. Generic illustrative framing is the right alternative.
+
 ## 2026-06-22, Library Version 2026.06.185, PR #206
 
 Closes **FR-87** and **FR-88** (maintainer-approved per "decision 2"). Both findings are in the security-content-refinement cluster from r1; both required pack-rule and corpus standard edits.
