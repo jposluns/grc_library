@@ -32,23 +32,11 @@ These are **as-of-session-pause snapshots**, not "current HEAD" claims. They ref
 
 ## Priority 1 — Urgent quality (High[critical] and High severity)
 
-### Trust-recovery suite findings (maintainer triages; pass terminates on explicit sign-off of the combined [full-qa] + [fitness] set)
+### Trust-recovery suite findings — SIGNED OFF 2026-06-22 (H[critical] + High retained; actioned AFTER the codification batch)
 
-These are routed to P1 top per the trust-recovery escalation convention: every confirmed finding lands here regardless of severity; the maintainer decides which to action. Tags: `[full-qa]` (deep-qa-review six-subagent pass), `[fitness:persona]` (ten-persona pass, pending).
+Maintainer signed off the combined /full-qa + /fitness findings on 2026-06-22. Sequencing per maintainer direction (a): the 6 H[critical] and 6 High below are actioned **after** the trust-recovery codification batch lands ("criticals will come after new tools are created"). Per direction (b) the Medium/Low/FYI fitness findings and the five [full-qa] findings were re-tiered to P2/P3 (now FR-146..165). Full detail: [`.working/full-qa/2026-06-22-iter1.md`](.working/full-qa/2026-06-22-iter1.md), [`.working/fitness-reviews/2026-06-22-r2.md`](.working/fitness-reviews/2026-06-22-r2.md). (✅ orchestrator-verified at source; ⚠️ persona-quoted, verify at action time.) Excluded at /full-qa: gate-31 "153 docs" was a shallow-clone false positive (full clone audit exits 0); EDPB register note = existing P7 B2.
 
-#### [full-qa] deep-qa-review iter 1 (2026-06-22) — 5 confirmed findings
-
-- **[full-qa] (error, XS)**: [`ai/register-ai-risk.md`](ai/register-ai-risk.md):44 Treatment Option row reads "Mitigate / Transfer / Avoid / Accept" (4-option, missing Exploit/Enhance); drift from the canonical-6 set in [`risk/standard-enterprise-risk-management.md`](risk/standard-enterprise-risk-management.md) §6. Missed surface from the #238/#239/#242 treatment-vocab decomposition.
-- **[full-qa] (error, XS)**: [`ai/register-ai-risk.md`](ai/register-ai-risk.md):47 Status row reads "Open / In Treatment / Accepted / Closed"; "In Treatment"/"Accepted" were retired in favour of the Open/Closed lifecycle ([`risk/procedure-risk-register.md`](risk/procedure-risk-register.md):59, standard §7.1).
-- **[full-qa] (error, XS)**: [`risk/annex-ai-risk-methodology.md`](risk/annex-ai-risk-methodology.md):113 reads "Avoid / Reduce / Transfer / Accept"; "Reduce" should be "Mitigate", and the set is missing Exploit/Enhance.
-- **[full-qa] (note, XS)**: [`tools/lint-collection-enumeration-consistency.py`](tools/lint-collection-enumeration-consistency.py):5 docstring says "the pack's seven governance rules"; there are 8. Stale-count docstring; no gate guards it.
-- **[full-qa] (warning, S)**: the #242 corrective record overstates its own remediation — [`.working/validate-sweeps/2026-06-22-sweep22-iter1.md`](.working/validate-sweeps/2026-06-22-sweep22-iter1.md):92 claims the abbreviated `/validate-pr` rows "now read 'deferred to Sweep 22 close-out…'" but [`.working/validate-pr/history.md`](.working/validate-pr/history.md) rows #221-#239 still read "abbreviated spot-check"; the per-row reconciliation annotation reached only #240/#241. Multi-surface-incompleteness in the discipline-failure record itself.
-
-Not routed (recorded in [`.working/full-qa/2026-06-22-iter1.md`](.working/full-qa/2026-06-22-iter1.md)): Subagent C's "gate 31 fails on 153 docs" was a **shallow-clone false positive** (depth-50 takeover clone; `git log --follow` mis-attributed dates; after `git fetch --unshallow` → 413 commits, `run_all_audits.sh` exits 0, all 46 gates pass) — not a corpus defect. Subagent D's EDPB-07/2020 + 3/2018 register-completeness note is already tracked as P7 B2.
-
-#### [fitness] library-fitness-review r2 (2026-06-22) — 27 findings (FR-134 to FR-160; full detail in [`.working/fitness-reviews/2026-06-22-r2.md`](.working/fitness-reviews/2026-06-22-r2.md))
-
-H[critical] (all orchestrator-verified at source):
+#### [fitness] H[critical] (FR-134..139; all ✅ verified at source)
 - **[fitness:P3+P7] FR-134 (H[critical])**: Risk-scoring divergence — [`risk/standard-enterprise-risk-management.md`](risk/standard-enterprise-risk-management.md) §5.2 bands/labels/likelihood (1-5/6-10/11-15/16-25; Rare→Almost Certain) vs [`risk/procedure-risk-assessment-methodology.md`](risk/procedure-risk-assessment-methodology.md) §5.1 (1-4/5-9/10-16/17-25; Very Low→Very High) vs [`risk/template-enterprise-risk-register.md`](risk/template-enterprise-risk-register.md):60. Same score → different rating/cadence/escalation. Fix: one canonical scoring table cited by the others.
 - **[fitness:P2+P7] FR-135 (H[critical])**: TLS floor contradiction — [`security/policy-encryption-and-key-management.md`](security/policy-encryption-and-key-management.md):54 + [`dev-security/standard-developer-security-requirements.md`](dev-security/standard-developer-security-requirements.md):151 mandate TLS 1.3 / prohibit 1.2; [`dev-security/standard-security-quick-reference.md`](dev-security/standard-security-quick-reference.md):177 + [`dev-security/standard-security-baseline-and-standards-reference.md`](dev-security/standard-security-baseline-and-standards-reference.md):79 permit "TLS 1.2 (minimum)". Residual 1.2 surfaces: mobile-app-security:82, claude-rules/core/cryptography:15, claude-rules/ai/mcp-security:65, operations/standard-production-security-requirements:184. (FR-127 closed only the ZTA surface; FR-81 not migrated to TODO.)
 - **[fitness:P4] FR-136 (H[critical])**: Log-retention conflict — [`security/standard-logging-and-monitoring.md`](security/standard-logging-and-monitoring.md):92 ("seven years") vs [`governance/register-data-retention-schedule.md`](governance/register-data-retention-schedule.md):61-67 (1y/2y/3y) vs [`governance/standard-records-retention-and-destruction.md`](governance/standard-records-retention-and-destruction.md):77 ("1 to 3 years"). (Mechanical-gate counterpart = P4 S1 candidate.)
@@ -64,26 +52,7 @@ High:
 - **[fitness:P6] FR-144 (High)**: Privacy-breach individual-notification leg has no internal clock — breach:169-174.
 - **[fitness:P7] FR-145 (High, ⚠️persona-quoted)**: Two AI security standards overlapping scope, no precedence/crosswalk — [`ai/standard-ai-security-and-risk.md`](ai/standard-ai-security-and-risk.md) vs [`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md).
 
-Medium:
-- **[fitness:P3+P6] FR-146**: ERM template sample rows use retired status "Implemented"/"Verified" — [`risk/template-enterprise-risk-register.md`](risk/template-enterprise-risk-register.md):91,169-175.
-- **[fitness:P4] FR-147 (⚠️)**: Audit final-report timeline 10d ([`compliance/standard-internal-audit.md`](compliance/standard-internal-audit.md):268) vs 15d ([`compliance/procedure-audit-planning.md`](compliance/procedure-audit-planning.md):366).
-- **[fitness:P4] FR-148 (⚠️)**: CAPA 90-day effectiveness validation ([`compliance/policy-compliance-and-audit-management.md`](compliance/policy-compliance-and-audit-management.md):85) not anchored in [`compliance/procedure-capa.md`](compliance/procedure-capa.md).
-- **[fitness:P7] FR-149 (⚠️)**: Adversarial test-category count "five" ([`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md):539) vs six in [`ai/guide-ai-adversarial-test-reference.md`](ai/guide-ai-adversarial-test-reference.md).
-- **[fitness:P7] FR-150 (⚠️)**: Children's-data Japan APPI age unsupported by Japan annex — [`privacy/framework-childrens-data.md`](privacy/framework-childrens-data.md):49.
-- **[fitness:P6+P7] FR-151**: Cross-domain PIR deadline intra-doc conflict — [`resilience/procedure-cross-domain-incident-coordination.md`](resilience/procedure-cross-domain-incident-coordination.md):86 ("10 business days for P1 and P2") vs :148 (P1=5d).
-- **[fitness:P8] FR-152 (⚠️)**: Entry-path sequencing not ordered in quickstart "Next steps" vs portal:49 stated compose→sequence→calendar order.
-- **[fitness:P2] FR-153 (⚠️)**: PBKDF2 minimum 310,000 iterations stale vs current OWASP 600,000 — encryption-policy:92.
-- **[fitness:P6] FR-154 (⚠️, grouped)**: Operational-vagueness cluster — DSR forward "immediately" vs "same business day" (DSR-proc:52/:84); DSR restriction clock start undefined (:70); critical-risk no interim authority before ERC (methodology:124); supplier remediation gate no owner/window ([`supply-chain/procedure-supplier-due-diligence.md`](supply-chain/procedure-supplier-due-diligence.md):85); whistleblower investigation timelines ([`governance/procedure-whistleblower-and-incident-reporting.md`](governance/procedure-whistleblower-and-incident-reporting.md):103); dept-continuity template blank cells; incident-reporting escalation thresholds; model-lifecycle thresholds. Several sit in deliberately-thin baseline procedures — calibrate before treating as defects.
-
-Low / FYI:
-- **[fitness:P3] FR-155 (Low, ⚠️)**: CSA CCM "GRM" vs "GRC" domain-id drift across risk policy:136 / standard:250 / methodology:183.
-- **[fitness:P1] FR-156 (Low, ⚠️)**: Risk-policy enforcement/disciplinary clause ([`risk/policy-enterprise-governance-and-risk-management.md`](risk/policy-enterprise-governance-and-risk-management.md):156) not flagged in adopter-guide "what to change after copying".
-- **[fitness:P10] FR-157 (Low)**: "DPO" unexpanded on quickstart Day-1 path — [`docs/template-quickstart.md`](docs/template-quickstart.md):43.
-- **[fitness:P8] FR-158 (Low, ⚠️)**: Multi-regulator overlapping-window guidance thin — [`docs/adopter-guide.md`](docs/adopter-guide.md):168.
-- **[fitness:P10] FR-159 (FYI, ⚠️)**: Portal Overview has no glossary pointer; fix in [`tools/build-portal.py`](tools/build-portal.py) (portal.md is generated).
-- **[fitness:P7] FR-160 (FYI, ⚠️)**: DR recovery tiers vs SLM service tiers use overlapping-but-different labels.
-
-Deduped against existing TODO (NOT added): P9 Art-28 DPA template = existing **FR-30**; P5 shall/must mixing = existing **FR-44-generalisation**. Both reinforced by r2; cross-referenced, not duplicated. (✅ = orchestrator-verified at source; ⚠️ = persona-quoted, orchestrator re-read pending — maintainer verifies at action time.)
+Deduped against existing TODO (NOT added): P9 Art-28 DPA template = existing **FR-30**; P5 shall/must mixing = existing **FR-44-generalisation**; both reinforced, cross-referenced. The fitness Medium (FR-146..154) and Low/FYI (FR-155..160), plus the five [full-qa] findings (now FR-161..165), are re-tiered to P2/P3 below per maintainer direction (b).
 
 #### Trust-recovery codification (blocked behind sign-off; do not start before maintainer signs off the findings above)
 
@@ -116,6 +85,24 @@ Deduped against existing TODO (NOT added): P9 Art-28 DPA template = existing **F
 ## Priority 2 — Substantive improvements (Medium severity)
 
 Each item is an individual document or focused multi-doc improvement. Most are clustered into the **Phase 2 execution plan** below, which the orchestrator runs in serial PR batches.
+
+### Trust-recovery findings re-tiered here (Medium) — /full-qa + /fitness r2 (2026-06-22)
+
+[full-qa] normative-register vocabulary consistency (the three treatment-vocab errors; closely related to FR-134):
+- **FR-161 [full-qa] (M, XS)**: [`ai/register-ai-risk.md`](ai/register-ai-risk.md):44 Treatment Option "Mitigate / Transfer / Avoid / Accept" — missing canonical Exploit/Enhance ([`risk/standard-enterprise-risk-management.md`](risk/standard-enterprise-risk-management.md) §6).
+- **FR-162 [full-qa] (M, XS)**: [`ai/register-ai-risk.md`](ai/register-ai-risk.md):47 Status "Open / In Treatment / Accepted / Closed" — retired values; canonical Open/Closed lifecycle.
+- **FR-163 [full-qa] (M, XS)**: [`risk/annex-ai-risk-methodology.md`](risk/annex-ai-risk-methodology.md):113 "Avoid / Reduce / Transfer / Accept" — "Reduce"→"Mitigate", missing Exploit/Enhance.
+
+[fitness] r2 Medium (re-tiered from P1):
+- **FR-146 [fitness:P3+P6] (M)**: ERM template sample rows use retired status "Implemented"/"Verified" — [`risk/template-enterprise-risk-register.md`](risk/template-enterprise-risk-register.md):91,169-175.
+- **FR-147 [fitness:P4] (M, ⚠️)**: Audit final-report timeline 10d ([`compliance/standard-internal-audit.md`](compliance/standard-internal-audit.md):268) vs 15d ([`compliance/procedure-audit-planning.md`](compliance/procedure-audit-planning.md):366).
+- **FR-148 [fitness:P4] (M, ⚠️)**: CAPA 90-day effectiveness validation ([`compliance/policy-compliance-and-audit-management.md`](compliance/policy-compliance-and-audit-management.md):85) not anchored in [`compliance/procedure-capa.md`](compliance/procedure-capa.md).
+- **FR-149 [fitness:P7] (M, ⚠️)**: Adversarial test-category count "five" ([`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md):539) vs six in [`ai/guide-ai-adversarial-test-reference.md`](ai/guide-ai-adversarial-test-reference.md).
+- **FR-150 [fitness:P7] (M, ⚠️)**: Children's-data Japan APPI age unsupported by Japan annex — [`privacy/framework-childrens-data.md`](privacy/framework-childrens-data.md):49.
+- **FR-151 [fitness:P6+P7] (M)**: Cross-domain PIR deadline intra-doc conflict — [`resilience/procedure-cross-domain-incident-coordination.md`](resilience/procedure-cross-domain-incident-coordination.md):86 ("10 business days for P1 and P2") vs :148 (P1=5d).
+- **FR-152 [fitness:P8] (M, ⚠️)**: Entry-path sequencing not ordered in quickstart "Next steps" vs portal:49 stated order.
+- **FR-153 [fitness:P2] (M, ⚠️)**: PBKDF2 minimum 310,000 iterations stale vs OWASP 600,000 — [`security/policy-encryption-and-key-management.md`](security/policy-encryption-and-key-management.md):92.
+- **FR-154 [fitness:P6] (M, ⚠️, grouped)**: Operational-vagueness cluster — DSR forward immediate-vs-same-day ([`privacy/procedure-data-subject-rights-management.md`](privacy/procedure-data-subject-rights-management.md):52/:84); DSR restriction clock start (:70); critical-risk interim authority ([`risk/procedure-risk-assessment-methodology.md`](risk/procedure-risk-assessment-methodology.md):124); supplier remediation gate ([`supply-chain/procedure-supplier-due-diligence.md`](supply-chain/procedure-supplier-due-diligence.md):85); whistleblower timelines ([`governance/procedure-whistleblower-and-incident-reporting.md`](governance/procedure-whistleblower-and-incident-reporting.md):103); dept-continuity template blanks; incident-reporting escalation thresholds; model-lifecycle thresholds. Several are deliberately-thin baselines — calibrate first.
 
 ### Phase 2 execution plan (current sequence)
 
@@ -159,6 +146,20 @@ Each file relocation updates the document-index, sibling references, taxonomy/po
 ## Priority 3 — Low-priority cleanup (Low severity / FYI)
 
 Deferred to a routine cleanup batch when convenient. Cross-reference only.
+
+### Trust-recovery findings re-tiered here (Low / FYI) — /full-qa + /fitness r2 (2026-06-22)
+
+[full-qa]:
+- **FR-164 [full-qa] (Low, XS)**: [`tools/lint-collection-enumeration-consistency.py`](tools/lint-collection-enumeration-consistency.py):5 docstring says "the pack's seven governance rules"; there are 8. **Closed in passing by the 9th-rule codification PR** (the docstring's rule count updates when the ninth governance rule lands).
+- **FR-165 [full-qa] (Low)**: #242 corrective record overstates remediation — [`.working/validate-sweeps/2026-06-22-sweep22-iter1.md`](.working/validate-sweeps/2026-06-22-sweep22-iter1.md):92 claims abbreviated rows relabelled "deferred…"; [`.working/validate-pr/history.md`](.working/validate-pr/history.md) rows #221-#239 still read "abbreviated spot-check" (only #240/#241 annotated).
+
+[fitness] r2 Low/FYI (re-tiered from P1):
+- **FR-155 [fitness:P3] (Low, ⚠️)**: CSA CCM "GRM" vs "GRC" domain-id drift — risk policy:136 / standard:250 / methodology:183.
+- **FR-156 [fitness:P1] (Low, ⚠️)**: Risk-policy enforcement clause ([`risk/policy-enterprise-governance-and-risk-management.md`](risk/policy-enterprise-governance-and-risk-management.md):156) not flagged in adopter-guide "what to change".
+- **FR-157 [fitness:P10] (Low)**: "DPO" unexpanded on quickstart Day-1 path — [`docs/template-quickstart.md`](docs/template-quickstart.md):43.
+- **FR-158 [fitness:P8] (Low, ⚠️)**: Multi-regulator overlapping-window guidance thin — [`docs/adopter-guide.md`](docs/adopter-guide.md):168.
+- **FR-159 [fitness:P10] (FYI, ⚠️)**: Portal Overview no glossary pointer; fix in [`tools/build-portal.py`](tools/build-portal.py) (portal.md is generated).
+- **FR-160 [fitness:P7] (FYI, ⚠️)**: DR recovery tiers vs SLM service tiers label divergence.
 
 ### Low-severity fitness findings (from 2026-06-21 review)
 
