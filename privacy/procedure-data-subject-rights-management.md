@@ -2,7 +2,7 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.5\
+**Version:** 1.4.0\
 **Date:** 2026-06-22\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -186,9 +186,103 @@ A request may be denied wholly or in part on the following grounds (non-exhausti
 - Protection of the rights of third parties.
 - Statutory or regulatory retention obligation preventing deletion.
 - The right invoked does not apply under the relevant law (e.g., portability not available for data processed under legitimate interests).
-- The request is manifestly unfounded or excessive (repeat or abusive requests); this must be assessed individually and objectively.
+- The request is manifestly unfounded or excessive (repeat or abusive requests); this must be assessed individually and objectively per the Article 12(5) assessment checklist in §7.2.
 
-### 7.2 Denial process
+### 7.2 Article 12(5) assessment checklist (manifestly unfounded or excessive)
+
+GDPR Article 12(5) provides that DSR responses are **free of charge by default**. Two exceptions allow the controller to either charge a reasonable fee OR refuse the request: where the request is **manifestly unfounded** OR **manifestly excessive**. Article 12(5) imposes the **burden of proof on the controller**: the controller must demonstrate the manifestly-unfounded-or-excessive character of the request, not the data subject's good faith.
+
+This section structures that assessment as a checklist. Every invocation of Article 12(5) requires documented evidence against each applicable criterion before fee or refusal is communicated to the subject.
+
+#### 7.2.1 Default: free of charge
+
+| Default | Reference |
+|---|---|
+| All DSRs handled free of charge | GDPR Article 12(5) sentence 1 |
+| Information under Articles 13 and 14 (privacy notices) provided free | Article 12(5) sentence 1 |
+| Communications under Articles 15 to 22 (access, rectification, erasure, restriction, portability, objection, automated decision-making) provided free | Article 12(5) sentence 1 |
+| Breach notifications to data subjects under Article 34 provided free | Article 12(5) sentence 1 |
+
+A charge or refusal is the **exception**; the assessment below must support either action with documented evidence.
+
+#### 7.2.2 Manifestly unfounded: criteria
+
+A request is "manifestly unfounded" when, on the face of it, the request has no legitimate basis under Articles 15 to 22. Tests applied (assess each individually; document evidence):
+
+| Criterion | Description | Evidence required |
+|---|---|---|
+| (a) No nexus to actual processing | Subject is not, and has never been, a data subject of the controller (e.g., never customer, employee, applicant, recipient of services) | Identity verification result; absence of records in any system of record |
+| (b) Request inconsistent with stated grounds | Subject states a reason that is contradicted by the controller's records or by the subject's prior communications | Quoted statements; record cross-references |
+| (c) Abusive purpose evident | Request submitted with declared abusive intent (e.g., to harass staff, to disrupt operations, to bring leverage in an unrelated dispute) | Documented threats, public statements, or correspondence demonstrating intent |
+| (d) Request lacks coherent specification | Request is incomprehensible or non-specific after a single reasonable clarification attempt | Clarification request issued; subject's response or non-response within 30 days |
+
+A request is NOT manifestly unfounded merely because the subject is unhappy with the controller, exercises rights frequently in good faith, or seeks a result the controller does not wish to provide.
+
+#### 7.2.3 Manifestly excessive: criteria
+
+A request is "manifestly excessive" when its volume or repetition is disproportionate to legitimate exercise of the right. Tests applied:
+
+| Criterion | Description | Evidence required |
+|---|---|---|
+| (a) Repetitive in short interval | The same subject made the same or substantially similar request within a defined short interval; the prior request was responded to in full | Prior request log; date-and-content comparison; demonstrated overlap of scope |
+| (b) Disproportionate volume | Volume of records requested exceeds what is reasonably needed for the subject to verify or act on their rights | Record-count estimate; effort estimate; subject's stated purpose where available |
+| (c) Disproportionate scope sweep | Subject requests "all records" without scope limitation despite previous specific responses | History of prior requests; categorisation of available record types |
+| (d) Use of request as discovery vehicle | Pattern of requests calibrated to obtain materials for litigation, journalism, or competitive intelligence rather than for the subject's own data | Pattern documentation; volume trajectory |
+
+The repetitive-in-short-interval test (criterion a) is the most commonly used and the easiest to evidence. Other criteria require closer judgement; consult Legal Counsel before invoking criteria (b), (c), or (d).
+
+#### 7.2.4 Action options under Article 12(5)
+
+Where the assessment supports the manifestly-unfounded-or-excessive determination, the controller may take ONE of two actions:
+
+| Action | Description | Constraints |
+|---|---|---|
+| **(a) Charge a reasonable fee** | Take into account the administrative costs of providing the information, the communication, or the action requested | Fee MUST be cost-recovery, not punitive; the controller must be able to demonstrate the cost-basis of the fee |
+| **(b) Refuse to act on the request** | Decline the request entirely | Subject retains the right to lodge a complaint with the supervisory authority and to seek judicial remedy per Articles 77-79 |
+
+The controller cannot do both (charge a fee AND refuse the substantive action); the language of Article 12(5) is an either/or election.
+
+#### 7.2.5 Burden-of-proof requirements
+
+Per Article 12(5) sentence 3, the controller bears the burden of demonstrating the manifestly-unfounded-or-excessive character. The documentation required:
+
+1. Written assessment against each criterion in §7.2.2 and §7.2.3 with quoted evidence.
+2. Legal Counsel sign-off on the assessment before fee or refusal is communicated.
+3. DPO sign-off on the fee-or-refusal election.
+4. Written communication to the subject naming: the determination, the specific Article 12(5) criterion invoked, the action taken (fee with amount and basis, OR refusal), and the subject's right to lodge a complaint with the supervisory authority and to seek judicial remedy per Articles 77 to 79.
+5. Entry in the DSR register linking the assessment, sign-offs, and subject communication.
+
+Records retained per the organisation's privacy retention schedule; minimum **3 years** for fee/refusal evidence (or longer where the supervisory authority has indicated a longer retention requirement).
+
+#### 7.2.6 Reasonable-fee calculation
+
+Where the controller elects to charge a reasonable fee (Article 12(5)(a)):
+
+| Element | Method |
+|---|---|
+| Cost categories | (a) staff time for retrieval, review, and redaction; (b) storage media if physical copy requested; (c) postage if physical delivery; (d) external Legal Counsel time if involved in redaction review |
+| Hourly rate | Internal staff: salary-based cost-recovery rate (NOT a punitive markup). External counsel: actual rate charged to the controller |
+| Fee cap | The fee MUST be cost-recovery only; no profit margin |
+| Itemisation | Fee communication to the subject MUST itemise the cost categories and time/rate applied |
+| Payment method | The controller may NOT require advance payment that effectively denies the right; payment-on-delivery is acceptable; instalment options should be offered for substantial fees |
+| Waiver | The controller MAY waive the fee in cases of demonstrated financial hardship without prejudice |
+
+The fee schedule should be documented as an internal cost-recovery policy reviewed annually.
+
+#### 7.2.7 Cross-regime equivalents
+
+| Regime | Equivalent provision | Notable variations |
+|---|---|---|
+| **UK GDPR** (UK) | Article 12(5) (same as EU GDPR) | ICO Subject Access Code of Practice provides guidance; "reasonable fee" interpreted as administrative cost only |
+| **LGPD** (Brazil, Article 18) | Free of charge by default; ANPD may establish exceptions in regulation | No explicit "manifestly unfounded or excessive" exception in primary law |
+| **PIPL** (China, Article 50) | Free of charge by default; processor may charge reasonable fee for "repeated handler-of-information information requests" | "Repeated" threshold not statutorily defined; processor must justify |
+| **CPPA / PIPEDA** (Canada) | OPC guidance: free of charge by default; nominal fee permitted for non-routine requests with prior notice to the subject | Subject must have option to abandon request after fee notice |
+| **CCPA / CPRA** (California) | Generally free; "manifestly unfounded or excessive, in particular because of their repetitive nature" exception; controller may charge reasonable fee or decline | Mirrors GDPR Article 12(5) language closely |
+| **APPI** (Japan, Article 38) | Reasonable fee permitted; must be communicated in advance | No explicit "manifestly unfounded" gate |
+
+When the joint controllers or processors operate across multiple regimes, the strictest applicable regime governs (typically GDPR/UK GDPR where applicable).
+
+### 7.3 Denial process
 
 1. The Data Protection Officer documents the proposed grounds for denial with reference to the specific legal provision.
 2. Legal Counsel reviews the denial rationale and confirms the legal basis.
