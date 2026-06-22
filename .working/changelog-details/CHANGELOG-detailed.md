@@ -6,6 +6,65 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-21, Library Version 2026.06.165, PR #186
+
+Sweep 17 iteration 1 close-out. Maintainer-directed second full sweep of the day (first was Sweep 16 closed at PR #181 before the FR-33 planning sequence) to validate the effectiveness of the discipline-introducing PRs that shipped between them.
+
+### Subagents dispatched
+
+All three subagents (A, B, C) dispatched per Rule 5.6 dispatch-declaration discipline.
+
+- **Subagent A** (recent-PR deep review): 5-PR focus window (PRs #181-#185). **1 finding** (warning level, in-window).
+- **Subagent B** (corpus-wide stale-reference sweep): grep-pattern hunting across gate counts, governance-rule counts, skill counts, pack/library/README versions, citation drift, two-file CHANGELOG lock-step, mirror sync. **0 findings**. High-confidence clean bill (100%).
+- **Subagent C** (audit-programme integrity reviewer): four-surface gate parity, linter-docstring drift, exemption coverage, regression-test coverage, MIRROR_MAP integrity, gate-44 paired-skill integrity, gate-32 derives-from acceptance, slash-command integrity. **1 finding** (error level, in-window) + **4 positive verification notes** + **1 future-gate candidate**.
+
+### Findings (synthesised)
+
+- **A1** (`stale-prose-references:dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md:151`): the new `/validate-pr` skill's "See Also" section referenced "/retro queued for PR #185" when PR #185 became the housekeeping recording PR. The /retro skill is queued for PR #186 per PR #185's commit message; the SKILL.md was not updated to match. **Warning level**, in-window (introduced by PR #183 as a forward-reference; rendered stale by PR #185's renumbering).
+- **C1** (`gate-44-incomplete-pair-registry:tools/lint-paired-skill-step-parity.py:47`): gate 44 (paired-skill step-parity) hardcodes a `PAIRS` registry; PR #183 added the new `validation-sweep-pr-scoped` skill + `/validate-pr` slash command but did NOT add the pair to the registry. Gate 44 was therefore not validating step-parity on the new skill — a real defect that would have allowed silent step-drift between the SKILL and the slash-command files. **Error level**, in-window.
+
+### Failure-mode class
+
+A1 is C-1 stale-prose-reference (and C-4 inferred-as-verified — PR #185's commit message clarified the renumbering but the orchestrator did not propagate it). C1 is **a new pattern**: registry-incompleteness when adding a paired surface. Not in the catalogued C-1 through C-8 set but conceptually a sibling of multi-surface incompleteness — the orchestrator added two surfaces (SKILL + slash command) but missed registering them with the gate that's supposed to enforce parity between them.
+
+### Severity adjudication
+
+Both `should-fix-this-PR`. C1 is structurally more important (it's a discipline gap that could mask future failures); A1 is a simple stale reference.
+
+### Worker-brief template implication
+
+This sweep surfaces a NEW failure class not previously in the template's guard rails: "when shipping a new skill + slash command pair, add to gate 44's PAIRS registry." Per the hallucination-assessment update protocol (PR #184's discipline), this becomes a new orchestrator-side check item (not a worker-brief instruction — workers don't ship gate registrations). Captured below as a discipline observation; the worker-brief template itself does not need a new rail.
+
+### Changed
+
+- [`dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md`](../../dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md): line 151 "queued for PR #185" → "queued for PR #186".
+- [`tools/lint-paired-skill-step-parity.py`](../../tools/lint-paired-skill-step-parity.py): `PAIRS` registry extended with the new `validation-sweep-pr-scoped` + `/validate-pr` pair. Gate 44 now validates 3 paired surfaces (validation-sweep, validation-sweep-pr-scoped, library-fitness-review) and confirms step-identifier set match on each.
+- [`README.md`](../../README.md): library `2026.06.164 → 2026.06.165`; README `1.9.35 → 1.9.36`.
+- [`.working/DONE.md`](../DONE.md): PR #186 entry added (terse).
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): Sweep 17 iter 1 row appended.
+- [`.working/validate-sweeps/2026-06-21-sweep17-iter1.md`](../validate-sweeps/2026-06-21-sweep17-iter1.md): per-iteration detail file written.
+- [`.working/hallucination-metrics.md`](../hallucination-metrics.md): C1 logged as orchestrator-side oversight (gate-registry-incompleteness pattern).
+
+### Future-gate candidate (from Subagent C)
+
+**Collection-enumeration auto-detection**: gate 41 currently hardcodes two collection sources. As the skill / rule / collection inventory grows, a detector tool (`tools/detect-collection-candidates.py` referenced in the spec) could surface unmapped collections and suggest registry additions. The current approach is sound (explicit over implicit), but a semi-automated detector would reduce maintenance burden. Captured for consideration in a future sweep or maintenance cycle.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates against the committed state (re-baselined after fixes).
+- `tools/run-pr-time-checks.sh` exits 0 (D1, D2, gate 45).
+- Gate 44 specifically re-run: now validates 3 paired surfaces with step-identifier match. The new pair (validation-sweep-pr-scoped + validate-pr) shares 5 step identifiers (1, 2, 3, 4, 5).
+- Sweep terminates on iter 1 per empty-delta primary stop (no new High/Medium findings after fix-apply re-baseline).
+
+### Discipline observation
+
+Two patterns surfaced in this sweep that feed into the hallucination-assessment update protocol from PR #184:
+
+1. **Forward-references go stale across PR renumbering**: when a PR's prose references "queued for PR #N", and a housekeeping PR slips into that slot before #N actually ships, the reference is stale. **Orchestrator-side check**: when renumbering, search the corpus for forward-references and update them. Add to orchestrator-side checklist (not worker-brief, since workers don't typically draft forward-references to PR numbers).
+2. **Adding a paired surface requires registering with the parity gate**: PR #183 added a new skill+slash-command pair but missed gate 44's `PAIRS` registry. **Orchestrator-side check**: when shipping a new skill that includes a slash command, add to `tools/lint-paired-skill-step-parity.py` `PAIRS`. Add to orchestrator-side checklist (this is a meta-PR pattern; workers don't ship skill+slash-command pairs).
+
+Both checklist items belong in a "meta-PR shipping checklist" — distinct from worker-brief guard rails (worker-side) and distinct from per-PR orchestrator verification (which the existing workflow disciplines cover). The /retro skill (queued PR #186) is the natural home for these accumulated orchestrator-side checklist items; the retrospective surfaces them as proposed improvements that get rolled into a queued "orchestrator-side meta-PR checklist" file. This sweep's findings are the first entries in that future log.
+
 ## 2026-06-21, Library Version 2026.06.164, PR #185
 
 `.working/` changes for local project: recorded the first real `/validate-pr` invocation (run against PR #184, 0 findings) by appending a row to [`.working/validate-pr/history.md`](../validate-pr/history.md). Library `2026.06.163 → 2026.06.164`; README `1.9.34 → 1.9.35`. The history-row update was originally left uncommitted at the end of the previous batch (stop hook flagged); this PR commits it as a tiny housekeeping PR rather than carrying the change into PR #185's `/retro` skill PR (per "split when in doubt"). Note: the next tomorrow-morning PR (originally planned as #185) becomes PR #186; FR-33 becomes PR #187.

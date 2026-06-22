@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #186 — Sweep 17 iter 1 close-out: SKILL forward-reference + gate 44 PAIRS registry (2026-06-21)
+
+Sweep 17 (second full sweep of the day). Two in-window findings closed: validation-sweep-pr-scoped SKILL.md:151 stale "/retro queued for PR #185" → "PR #186"; gate 44 PAIRS registry extended with the new validation-sweep-pr-scoped + /validate-pr pair (was a real defect — gate not validating new skill).
+
 ### PR #185 — Record first /validate-pr invocation (PR #184, 0 findings) (2026-06-21)
 
 `.working/` changes for local project: appended the history row recording the first real `/validate-pr` invocation (run post-merge on PR #184; 0 findings; full Subagent A coverage). Housekeeping PR; no corpus content changes. Re-numbers tomorrow's planned PRs: /retro becomes #186, FR-33 becomes #187.
