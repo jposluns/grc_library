@@ -62,7 +62,6 @@ Research files for every queued P2.x cluster are prepared in advance (per the re
 
 - **P2.1 — Privacy completion (1 remaining)**: **FR-41 (M, L)** AI Article 22 + EU AI Act + FRIA dual/triple-compliance workflow not documented as a unified workflow. (Closed: FR-37 PR #224, FR-38 PR #225, FR-39 PR #226, FR-40 PR #227, FR-42 PR #228.)
 - **P2.2 — Continuous assurance / 3LoD (4 items)**: **FR-99 (M, M) ⚠️** per-control effectiveness metrics; **FR-100 (M, S)** cloud baseline cites families not sub-controls; **FR-101 (M, S) ⚠️** closure sign-off authority implicit; **FR-102 (M, S)** change management binary.
-- **P2.3 — Cross-framework matrix (2 items)**: **FR-97 (M, S)** ISO 31000 clause numbering; **FR-98 (M, S)** NIS 2 annex evidence-class column.
 - **P2.4 — Adopter cluster (3 items)**: **FR-64 (M, S)** contribution path workflow-shaped not pattern-shaped; **FR-65 (M, S) ⚠️** upstream-sync underspecified; **FR-66 (M, S)** tooling assumes maintainer context.
 - **P2.5 — Coverage-gap small (2 items)**: **FR-77 (M, S)** 3LoD model used without explanation; **FR-78 (M, S)** framework-document-architecture maintainer voice.
 - **P2.7 — FR-15 (M, M)**: Maturity-ladder methodology — median-of-medians scoring concern.

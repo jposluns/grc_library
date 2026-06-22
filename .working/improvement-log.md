@@ -1,6 +1,6 @@
 # Improvement Log Register
 
-**Version:** 1.0.25\
+**Version:** 1.0.26\
 **Date:** 2026-06-22\
 **License:** CC BY-SA 4.0
 
@@ -35,6 +35,7 @@ The register is maintainer working state, exempt from corpus audit gates per the
 
 | Date | PR | FR closed | What went well | Friction | Pattern (if any) | Proposed improvement |
 |---|---|---|---|---|---|---|
+| 2026-06-22 | #240 | FR-93 + FR-94 (P2.6 bundle) | Two related KRI/assurance-map schema enhancements bundled cleanly. Each fix addressed a single missing field; minimal scope. | None at apply-time. | No new pattern. | None. |
 | 2026-06-22 | #239 | FR-12 cross-doc (M, S) | Cross-doc reconciliation closes Pass-2 reshape arc cleanly. Procedure now references the ERM standard's canonical 6 + Treatment Status field. | None at apply-time. | No new pattern. | None. |
 | 2026-06-22 | #238 | FR-118 (H, S) | Three-field decomposition (Treatment Option / Treatment Status / Status) cleanly disambiguates the prior collision. Clean first-pass language audit. | None worth noting. | No new pattern. | None. |
 | 2026-06-22 | #237 | FR-36 (H, S) | 30-row Member-State table; clean first-pass language audit; clear "verify against current national law" caveat for adopters. | Two CHANGELOG link-coverage + TODO sweep-cursor catches as fail-then-fix loops; routine for late-session PRs in this batch. | Pattern continuing: CHANGELOG bare-filename refs trigger gate-4 audit; TODO sweep-cursor updates required on every /validate close-out PR. | The TODO sweep-cursor update could be automated as a pre-commit hook that runs gate 45 and offers a fix; the CHANGELOG link-coverage could be handled by the existing convention (point to detailed mirror for full file list). Both noted as worker-brief candidates. |
