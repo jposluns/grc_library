@@ -170,9 +170,8 @@ Source: [`.working/fitness-reviews/2026-06-22-r1.md`](.working/fitness-reviews/2
 - **FR-121** (`security/procedure-access-control.md` line 64): Emergency-access "material business or safety harm" undefined. Three personas surfaced independently.
 - **FR-122** (`security/procedure-access-control.md` line 64): "Declared incident response" not tied to a specific incident status (P1/P2/P3/P4).
 
-### High tier — 4 findings from the 2026-06-22 review
+### High tier — 3 findings from the 2026-06-22 review (FR-115 closed in PR #197)
 
-- **FR-115** (`governance/register-role-authority.md` lines 27-62): Risk Owner missing from Role Authority Register.
 - **FR-118** (cross-doc): FR-12 treatment-vocab divergence still open between standard §6 and procedure "Select Treatment" step. **Existing TODO item** (see "Medium tier - 40 findings (immediate priority) - FR-12 cross-document follow-up" above); the 2026-06-22 review confirms still open.
 - **FR-123** (`security/procedure-access-control.md` lines 35-39): "Delegated security lead" undefined in roles table.
 - **FR-125** (`security/procedure-access-control.md` §1.4.2): Emergency-access revocation enforcement lacks escalation.

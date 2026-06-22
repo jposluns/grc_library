@@ -6,6 +6,37 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.176, PR #197
+
+Closes **FR-115** (high) by adding the Risk Owner row to the canonical Role Authority Register. Partial close of Convergent Finding C1 (Risk Owner role insufficiency).
+
+### Added
+
+- [`governance/register-role-authority.md`](../../governance/register-role-authority.md) §Authority register: new "Risk Owner" row with Primary Accountability text verbatim from [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md):42 (added in PR #178) and a Typical Approval Authority cell summarising the three accountability surfaces (treatment-option selection, treatment-plan ownership, status reports to the ERC).
+- Reciprocal cross-reference from the ERM standard §3 Risk Owner row back to the register's canonical definition (per FR-115 recommendation: "reciprocal cross-reference to ERM standard §3").
+
+### Changed
+
+- [`governance/register-role-authority.md`](../../governance/register-role-authority.md):
+  - Per-doc Version `1.3.2 → 1.4.0` (minor; new role row).
+  - Date `2026-06-21 → 2026-06-22`.
+- [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md):
+  - Per-doc Version `1.4.0 → 1.4.1` (patch; cross-reference added).
+  - Date `2026-06-21 → 2026-06-22`.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for PR #196's /validate-pr (0 findings).
+  - Per-document Version `1.2.4 → 1.2.5`.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0.
+
+### Discipline observation
+
+**Convergent Finding C1 (Risk Owner role insufficiency) progress**: FR-115 closed in this PR; FR-116 (monitoring cadence for non-Critical risks), FR-117 (evidence expectations explicit), and FR-119 (Risk Owner used with different responsibility set in exception policy) remain. FR-116 and FR-117 are doable in subsequent overnight PRs (mechanical extensions of ERM standard §8.1 and §9); FR-119 needs maintainer decision (rename or unify the two definitions) and is on the deferred list.
+
+The reciprocal cross-reference pattern (the canonical role definition in the register + a back-reference from the originating standard) is the right structural shape: a maintainer reading the ERM standard can navigate to the register for the full role context; a maintainer reading the register sees the standard as the originating governance document. Future role additions should follow the same pattern.
+
 ## 2026-06-22, Library Version 2026.06.175, PR #196
 
 Closes **FR-113** (medium). Fourth overnight-batch PR. Also bundles PR #195's out-of-window finding (fitness backlog table rotation) as a mechanical cleanup.
