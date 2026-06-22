@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.177, PR #198
+
+Closes **FR-116** (medium). Sixth overnight-batch PR. C1 Convergent Finding progress (Risk Owner role insufficiency).
+
+### Fixed
+
+- [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md) §8.1 (Monitoring cadence): extended the existing single "Critical monthly" bullet with explicit per-score-band Risk Owner cadences. Low risks → annually; Moderate → quarterly; High → monthly; Critical → monthly (preserved). Low/Moderate/High cadences taken verbatim from the §5.2 "Score thresholds and required response" table; Critical's monthly cadence preserved from the existing §8.1 line. Mechanical alignment to existing canonical sources; no new policy decision.
+- Per-doc ERM standard `1.4.1 → 1.4.2` (patch); Date stays 2026-06-22.
+
+### Changed
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for PR #197's /validate-pr (0 findings).
+  - Per-document Version `1.2.5 → 1.2.6`.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0.
+
+### Discipline observation
+
+FR-116's fitness recommendation suggested specific cadences (Critical monthly, High monthly, Moderate quarterly, Low annual). I traced these to existing canonical sources in the same document: the §5.2 scoring-threshold table already specifies Low=annually / Moderate=quarterly / High=monthly review intervals (as part of the "Required Response" cell). Critical's cadence already lived in §8.1. The fix is therefore not a new policy decision but an alignment: §8.1 now explicitly affirms the cadences that §5.2 already implicitly mandates. This pattern (the fitness recommendation looks like new policy but actually aligns existing canonical sources) is worth noting for future fitness-finding triage.
+
+C1 progress: FR-115 (PR #197), FR-116 (this PR). FR-117 (evidence expectations explicit in §9) is the next no-approval item in the cluster.
+
 ## 2026-06-22, Library Version 2026.06.176, PR #197
 
 Closes **FR-115** (high) by adding the Risk Owner row to the canonical Role Authority Register. Partial close of Convergent Finding C1 (Risk Owner role insufficiency).

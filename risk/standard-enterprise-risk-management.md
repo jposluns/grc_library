@@ -2,7 +2,7 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.4.1\
+**Version:** 1.4.2\
 **Date:** 2026-06-22\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -189,7 +189,11 @@ When the AI Flag is set to Yes, the following additional fields are required:
 
 - Departmental risk reviews are conducted quarterly by process and system owners.
 - AI risk trends (bias recurrence, model drift, ethical deviations) are monitored on an ongoing basis and summarized quarterly.
-- Critical risks (score 16 to 25) are reviewed monthly by the risk owner and reported to the ERC.
+- Risk Owner review cadences by score band (Low / Moderate / High cadences taken verbatim from the §5.2 "Score thresholds and required response" table; Critical's cadence is the existing monthly position from this section):
+  - Critical risks (score 16 to 25) are reviewed monthly by the Risk Owner and reported to the ERC.
+  - High risks (score 11 to 15) are reviewed monthly by the Risk Owner.
+  - Moderate risks (score 6 to 10) are reviewed quarterly by the Risk Owner.
+  - Low risks (score 1 to 5) are reviewed annually by the Risk Owner.
 
 ### 8.2 Reporting
 
