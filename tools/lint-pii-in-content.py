@@ -143,6 +143,13 @@ def is_documentation_ip(addr: str) -> bool:
         # Common documentation example ranges
         ipaddress.IPv4Network("0.0.0.0/8"),
         ipaddress.IPv4Network("255.255.255.0/24"),
+        # CGNAT shared address space (RFC 6598). Python's
+        # IPv4Address.is_private returns True for this range only on
+        # Python 3.13+; this explicit network keeps recognition
+        # backward-compatible. Documentation citing the SSRF block-list
+        # (e.g., dev-security/claude-rules/core/owasp.md) must be able to
+        # quote the range without triggering this gate.
+        ipaddress.IPv4Network("100.64.0.0/10"),
     ]
     return any(ip in r for r in doc_ranges)
 

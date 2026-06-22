@@ -6,6 +6,40 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.185, PR #206
+
+Closes **FR-87** and **FR-88** (maintainer-approved per "decision 2"). Both findings are in the security-content-refinement cluster from r1; both required pack-rule and corpus standard edits.
+
+### Fixed (FR-87 — SSRF range list)
+
+- [`dev-security/claude-rules/core/owasp.md`](../../dev-security/claude-rules/core/owasp.md):145: SSRF guidance updated to enumerate canonical IPv4 and IPv6 internal/reserved ranges in CIDR notation with RFC citations. The previous list (`10.x.x.x, 172.16.x.x, 192.168.x.x, 169.254.x.x, 127.x.x.x`) had two defects: (a) it missed IPv6 entirely (no `::1`, `fc00::/7`, `fe80::/10`), and (b) `172.16.x.x` notation suggested only /16 (256 addresses) when the canonical RFC 1918 range is /12 (172.16.0.0 through 172.31.255.255, spanning 1M+ addresses). Added: CGNAT `100.64.0.0/10` (RFC 6598); IPv6 loopback `::1/128`, ULA `fc00::/7`, link-local `fe80::/10` (covers AWS IMDS IPv6 `fd00:ec2::254` and Azure/GCP link-local variants).
+
+### Fixed (FR-88 — cipher suite enumeration)
+
+- [`dev-security/standard-api-security.md`](../../dev-security/standard-api-security.md):110: cipher row no longer says "Strong cipher suites only" without enumeration. Now lists the three TLS 1.3 AEAD cipher suites per NIST SP 800-52 Rev. 2 §3.3.1:
+  - `TLS_AES_256_GCM_SHA384` (recommended)
+  - `TLS_AES_128_GCM_SHA256`
+  - `TLS_CHACHA20_POLY1305_SHA256`
+- Rejected categories enumerated (RC4, 3DES, MD5-based, CBC-mode without AEAD, RSA key-exchange without forward secrecy, anonymous DH).
+- Per-doc api-security `0.0.3 → 0.0.4`; Date stays 2026-06-22.
+
+### Changed
+
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md):
+  - Pack Version `1.43.0 → 1.44.0` (minor; pack core/owasp.md content expansion).
+  - New 1.44.0 row in version-history.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - New row for PR #205's /validate-pr (0 findings).
+  - Per-document Version `1.2.13 → 1.2.14`.
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0.
+
+### Discipline observation
+
+FR-87/88 closure pattern is the cleanest version of the canonical-source alignment: existing RFCs (1122, 1918, 3927, 4193, 4291, 6598) and NIST SP 800-52 Rev. 2 § 3.3.1 are the authoritative sources; the corpus pulls them in by citation rather than re-deriving. The SSRF range list now has citations that auditors can trace to source standards. Future Pass-1 verifications should consider whether existing items already cite authoritative sources, since "missing RFC citations" is a class that the citation-currency audit gate may surface in future runs.
+
 ## 2026-06-22, Library Version 2026.06.184, PR #205
 
 Closes **FR-81 fully** (maintainer-approved). Also bundles three /validate-pr fixes from PR #204.

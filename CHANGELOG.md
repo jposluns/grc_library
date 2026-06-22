@@ -4,6 +4,18 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-22, Library Version 2026.06.185, PR #206
+
+**Closes FR-87** (SSRF range list completion) **and FR-88** (cipher suite enumeration). Maintainer-approved per "decision 2".
+
+**FR-87** ([`dev-security/claude-rules/core/owasp.md`](dev-security/claude-rules/core/owasp.md):145): SSRF range list completed in canonical CIDR notation with RFC citations. IPv4 ranges restated (`10.0.0.0/8` RFC 1918, `172.16.0.0/12` RFC 1918 with explicit `172.16-31.x.x` span note, `192.168.0.0/16` RFC 1918, `169.254.0.0/16` link-local RFC 3927 with `169.254.169.254` cloud-metadata note, `127.0.0.0/8` loopback RFC 1122, `100.64.0.0/10` CGNAT RFC 6598). IPv6 ranges added (`::1/128` loopback, `fc00::/7` ULA RFC 4193, `fe80::/10` link-local RFC 4291 with `fd00:ec2::254` AWS IMDS IPv6 note). The previous list missed IPv6 entirely and used non-canonical `172.16.x.x` notation (suggesting only /16; should be /12 spanning 16-31).
+
+**FR-88** ([`dev-security/standard-api-security.md`](dev-security/standard-api-security.md):110): cipher row enumerated TLS 1.3 AEAD suites per NIST SP 800-52 Rev. 2 §3.3.1: `TLS_AES_256_GCM_SHA384` (recommended), `TLS_AES_128_GCM_SHA256`, `TLS_CHACHA20_POLY1305_SHA256`. Rejected suite categories enumerated (RC4, 3DES, MD5-based, CBC-mode without AEAD, RSA key-exchange without forward secrecy, anonymous DH).
+
+Pack `1.43.0 → 1.44.0` (minor; both FRs close in pack core/owasp.md + dev-security standard surfaces); new pack version-history row added. Per-doc api-security `0.0.3 → 0.0.4`. Also carries PR #205's /validate-pr history row (0 findings). Library `2026.06.184 → 2026.06.185`; README `1.9.55 → 1.9.56`.
+
+---
+
 ## 2026-06-22, Library Version 2026.06.184, PR #205
 
 **Closes FR-81 fully** (medium). Pack [`dev-security/claude-rules/CLAUDE.md`](dev-security/claude-rules/CLAUDE.md):58 TLS row updated from `TLS 1.3 (preferred), TLS 1.2 (minimum)` → `TLS 1.3 (or stronger), aligned to security/policy-encryption-and-key-management.md §1 (Encryption standards) canonical mandate`; TLS 1.2 added to Prohibited column. Same alignment pattern as PR #193 (ZTA framework) and PR #201 (dev-security standards). Maintainer-approved per "decision 1" on the deferred-items list. **FR-81 is now fully closed** across all three originally-named surfaces. Pack `1.42.0 → 1.43.0` (minor; FR-81 third-surface close); new pack version-history row added. Also carries (a) PR #204's `/validate-pr` history row (3 in-window findings), and (b) the three fixes for those findings: stale "(12 items)" count → "(10 items)" with reconciled bucket math (9 ✅ + 1 ⚠️ = 10 active; FR-114 moved out of the active-verified list to live in the maintainer-decided table only); in-flight self-correction prose in PR #204's CHANGELOG entry rewritten to clean prose; pack-README version-history row added for 1.43.0. Library `2026.06.183 → 2026.06.184`; README `1.9.54 → 1.9.55`.

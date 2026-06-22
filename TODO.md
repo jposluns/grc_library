@@ -10,8 +10,8 @@ This file is informational and is not subject to the library's metadata-block, a
 
 These are **as-of-session-pause snapshots**, not "current HEAD" claims. They reflect the state at the moment this section was last refreshed. The version snapshot and last-validation-sweep cursor each drift forward as the project advances — that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches genuine staleness shapes (queued PR already merged; sweep cursor behind history); other drift is informational.
 
-- **Branch at last refresh**: `main` (synced after PR #205 merge).
-- **Library version as of last refresh**: `2026.06.184`. **Pack version**: `1.43.0`. **README version**: `1.9.55`.
+- **Branch at last refresh**: `main` (synced after PR #206 merge).
+- **Library version as of last refresh**: `2026.06.185`. **Pack version**: `1.44.0`. **README version**: `1.9.56`.
 - **Audit programme**: all gates passing on `main` as of last refresh.
 - **Last validation sweep**: Sweep 17 iteration 1 (close-out PR #186); /validate-pr on PR #187 closed out in PR #188; /validate-pr on PR #188 closed out in PR #189; /validate-pr on PR #189 closed out in PR #190 (third consecutive findings-producing /validate-pr; r1/r2 cross-date ambiguity resolved structurally in PR #190).
 - **Last fitness review**: 2026-06-22's r1 (PR #188 records); Pass-1 verification pending next session.
@@ -120,7 +120,7 @@ Full list with one-line summaries available in r1.md §3 (`.working/fitness-revi
 - **Coverage gaps** (5): FR-74 (Schrems II-light; consolidates with FR-34), FR-75 ⚠️ (ESG materiality threshold), FR-76 ⚠️ (sustainability framework escalation triggers), FR-77 (3LoD model used without explanation), FR-78 (framework-document-architecture maintainer voice).
 - **Cross-document contradictions** (1): FR-81 **fully closed** (PR #201 corpus + PR #205 pack CLAUDE.md after maintainer approval); FR-82 (key hashing ambiguity) remains.
 - **Operational/runbook** (1): FR-83 (IC checklist absent).
-- **Security-content refinement** (2): FR-87 (SSRF range list incomplete), FR-88 (cipher suite enumeration missing).
+- **Security-content refinement**: FR-87 + FR-88 **both closed** in PR #206 (maintainer-approved; SSRF range list completed with RFC citations and IPv6 ranges; cipher suite enumerated per NIST SP 800-52 Rev. 2 §3.3.1).
 - **KRI/KPI** (2): FR-93 (KRI escalation owner missing), FR-94 (Linked controls assume control register).
 - **Cross-framework matrix** (2): FR-97 (ISO 31000 clause numbering), FR-98 (NIS 2 annex evidence-class column).
 - **Continuous-assurance / 3LoD** (4): FR-99 ⚠️ (per-control effectiveness metrics), FR-100 (cloud baseline cites families not sub-controls), FR-101 ⚠️ (closure sign-off authority implicit), FR-102 (change management binary).

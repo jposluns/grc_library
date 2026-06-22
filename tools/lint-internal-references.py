@@ -97,6 +97,11 @@ def is_documentation_subnet(cidr: str) -> bool:
         ipaddress.IPv4Network("203.0.113.0/24"),
         ipaddress.IPv4Network("0.0.0.0/8"),
         ipaddress.IPv4Network("255.255.255.0/24"),
+        # CGNAT shared address space (RFC 6598). Python's
+        # IPv4Network.is_private returns True for this range only on
+        # Python 3.13+; this explicit network keeps recognition
+        # backward-compatible.
+        ipaddress.IPv4Network("100.64.0.0/10"),
     ]
     return any(net.subnet_of(r) for r in doc_ranges)
 
