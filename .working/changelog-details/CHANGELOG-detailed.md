@@ -6,6 +6,57 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.167, PR #188
+
+End-of-evening close-out PR. Three independent threads bundled because they share the "end of day" framing: (1) two hot-fixes for the `/validate-pr` findings on PR #187; (2) recording the `/fitness` r2 review; (3) `/validate-pr` history record for PR #187 itself.
+
+### Motivation
+
+Three distinct close-out tasks share a natural seam (end of working day) and a single feature branch:
+
+- **Validate-pr findings on PR #187 must be addressed.** PR #187 itself codified the no-orchestrator-side-skip-discretion discipline; under that discipline, every `/validate-pr` finding gets fixed (in-window: hot-fix this PR or next; out-of-window: surface to maintainer with named options). Both findings were in-window (PR #187 introduced them), so hot-fix this PR cycle.
+- **The /fitness r2 report exists as an uncommitted file.** The fitness review ran earlier in the session; the report was authored but not committed. Committing it preserves the audit trail and unblocks the maintainer's morning review.
+- **The /validate-pr run on PR #187 produces an entry.** Per the discipline, every /validate-pr invocation (regardless of findings) gets a history row, and findings-producing invocations get a per-PR detail file.
+
+The three threads bundle naturally because they all attach to the same chronological seam ("end of work day, before maintainer sleeps") and produce no cross-thread conflicts. The "always split when in doubt" discipline does not override the natural seam: the three threads do not have independent CI risk, do not change adopter-facing content, and a reader of the close-out can see the day's work-state recorded in one place.
+
+### Changed
+
+- [`.claude/commands/validate-pr.md`](../../.claude/commands/validate-pr.md) line 15: "no orchestrator-side skip discretion" paragraph harmonized to match the SKILL.md's version verbatim (modulo "post-merge invocation" instead of just "invocation" for slash-command surface clarity). The two surfaces now express the discipline identically: the carve-out list and the judgement-criteria list are aligned, and the "proof-of-discipline" framing matches.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md):
+  - Version `1.40.0 → 1.40.1` (patch, for the editorial Date correction).
+  - Date `2026-06-21 → 2026-06-22` (the PR #187 omission).
+  - Version-history table gets a new row at 1.40.1 documenting the hot-fix.
+- [`.working/fitness-reviews/history.md`](../fitness-reviews/history.md):
+  - Per-document Version `1.1.1 → 1.2.0` (minor; new r2 row).
+  - Per-document Date `2026-06-21 → 2026-06-22`.
+  - New row for r2 with the full Summary describing the dispatch, aggregate finding count, severity profile, three Convergent Findings, and Pass-1-pending status.
+  - 6 new H[critical] backlog table rows (FR-114, FR-121, FR-122, FR-127, FR-128, FR-129).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):
+  - Per-document Version `1.0.1 → 1.1.0` (minor; first row with findings).
+  - Per-document Date `2026-06-21 → 2026-06-22`.
+  - New row for the PR #187 /validate-pr invocation (2 in-window findings, both fixed).
+- [`TODO.md`](../../TODO.md): new "Fitness review backlog (from r2, unverified pending Pass-1)" section with 22 FR entries grouped by severity. Backlog totals updated. Session-resume metadata updated to reflect PR #188's post-merge state.
+
+### Added
+
+- [`.working/fitness-reviews/2026-06-22-r1.md`](../fitness-reviews/2026-06-22-r1.md): the r2 fitness review report (293 lines, 8 top-level H2 sections plus a Final Assessment). All findings carry `verification: unverified` pending Pass-1 verification.
+- [`.working/validate-pr/2026-06-22-PR-187.md`](../validate-pr/2026-06-22-PR-187.md): the per-PR /validate-pr detail file for PR #187 (6 H2 sections per the SKILL spec: Trigger and state snapshot; Subagent A return; Cross-reference check; Orchestrator triage; Resulting hot-fix PR; Notes).
+
+### Verification
+
+- `tools/run_all_audits.sh` exits 0 on all 46 gates against the committed state at each commit boundary (the version-bump discipline's question 3 was checked after every commit).
+- `tools/run-pr-time-checks.sh` exits 0 (D1 CHANGELOG-on-PR, D2 per-PR version-bump, gate 45 TODO staleness) against the merge base.
+- `tools/lint-language.py` (gate 2) initially failed on "harmonised" (-ise spelling) — fixed to "harmonized" per the Canadian-first / -ize orthography convention.
+- Gate 18 (intra-document section references) initially failed on TODO.md's "r2 §4" and "r2 §6" cross-doc references — fixed by naming the document explicitly and removing the §N syntax.
+
+### Discipline observations
+
+- **First /validate-pr invocation that surfaced findings.** Subagent A successfully identified both classes (multi-surface incompleteness on a paired-skill surface, per-document version-bump omission on the pack README). Both were real-evidence (R); neither was a false positive. The skill's deep-read protocol produced specific `path:line` evidence for both findings.
+- **Gate 31 timezone-boundary edge case.** Pack README Date didn't bump in PR #187 because at PR #187's merge time both commit-date and Date-field were 2026-06-21 (gate 31 saw a 0-day lag, passed); the lag opened only post-midnight UTC, by which point PR #187 had already merged. This is a known edge case the discipline didn't catch at ship-time but /validate-pr did catch post-hoc. The fix here is one PR, not a discipline change. Worth noting for future timezone-sensitive shipping windows.
+- **The fitness r2 found zero regressions** from the day's six FR-remediation PRs. Every closed FR materially addressed its cited symptom. The 27 new findings are NEW issues revealed by the fixes (e.g., PR #178's Risk Owner addition didn't propagate to the Role Authority Register) or pre-existing issues r1 missed (TLS 1.2 in ZTA framework). This is the discipline working: each remediation cycle surfaces the next layer of issues.
+- **Three Convergent Findings (C1, C2, C3)** surfaced by 3+ personas each. The convergence-pattern is the high-confidence signal: when 3 personas independently flag the same finding from different lenses, the finding is real-evidence with low false-positive risk. C1 and C2 each have 4 FR sub-items that group cleanly into single remediation PRs.
+
 ## 2026-06-22, Library Version 2026.06.166, PR #187
 
 Codified the **no orchestrator-side skip discretion** discipline after a maintainer-flagged policy deviation. The orchestrator skipped `/validate-pr` on PRs #185 and #186 on its own judgment ("circular", "redundant"); the maintainer rejected this — the discipline is mandatory and the orchestrator does not have unilateral discretion.
