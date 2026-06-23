@@ -2,8 +2,8 @@
 
 **Document Title:** Identity and Access Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.0\
-**Date:** 2026-05-27\
+**Version:** 1.3.1\
+**Date:** 2026-06-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -72,7 +72,7 @@ To ensure that all users, human, service, and machine, are uniquely identified, 
 ### 4. Privileged access management (PAM)
 
 4.1 Privileged accounts (administrators, root, service, and API keys) must be centrally managed and audited.
-4.2 Privileged access sessions must be logged, monitored, and retained for a minimum of one year.
+4.2 Privileged access sessions must be logged, monitored, and retained per the [data-retention schedule](../governance/register-data-retention-schedule.md) (2 years for privileged-access session logs).
 4.3 Emergency ("break-glass") accounts shall have documented approval, use, and expiration controls.
 
 ### 5. Access review and certification
