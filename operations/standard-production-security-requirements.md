@@ -2,8 +2,8 @@
 
 **Document Title:** Production Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.3\
-**Date:** 2026-05-28\
+**Version:** 1.1.4\
+**Date:** 2026-06-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](../dev-security/standard-security-quick-reference.md)\
@@ -181,7 +181,7 @@ Middleware platforms that use dedicated databases for message routing, configura
 
 ### Inbound adapter security
 
-All receive locations or inbound adapters serving external or non-internal sources must enforce authentication. Anonymous inbound connections from external sources are prohibited. File transfer receive adapters must use SFTP or explicit FTPS. HTTP/SOAP adapters must enforce TLS 1.2 minimum. TLS 1.0 and 1.1 must be disabled at the OS level.
+All receive locations or inbound adapters serving external or non-internal sources must enforce authentication. Anonymous inbound connections from external sources are prohibited. File transfer receive adapters must use SFTP or explicit FTPS. HTTP/SOAP adapters must enforce TLS 1.3 minimum. TLS 1.0, 1.1, and 1.2 must be disabled at the OS level.
 
 ### Partner and certificate management
 

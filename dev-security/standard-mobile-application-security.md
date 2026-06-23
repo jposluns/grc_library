@@ -2,8 +2,8 @@
 
 **Document Title:** Mobile Application Security Standard\
 **Document Type:** Standard\
-**Version:** 1.1.1\
-**Date:** 2026-06-22\
+**Version:** 1.1.2\
+**Date:** 2026-06-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-software-composition-analysis.md`](standard-software-composition-analysis.md), [`dev-security/standard-api-security.md`](standard-api-security.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-endpoint-hardening.md`](../security/standard-endpoint-hardening.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/framework-childrens-data.md`](../privacy/framework-childrens-data.md)\
@@ -79,7 +79,7 @@ Applications classified by sensitivity tier determine the verification level app
 | Key generation | Hardware-backed where available (Secure Enclave, StrongBox) |
 | Key storage | Platform key store only; no keys in code, resources, or shared storage |
 | Random number generation | Platform-provided cryptographically secure RNG |
-| Network cryptography | TLS 1.2 minimum; TLS 1.3 preferred; ATS / Network Security Config enforce HTTPS |
+| Network cryptography | TLS 1.3 (or stronger); ATS / Network Security Config enforce HTTPS |
 | Certificate pinning | Implemented for Tier 1 and Tier 2 applications; backup pins and rotation plan documented |
 | Custom cryptography | Prohibited; rely on platform and audited libraries |
 

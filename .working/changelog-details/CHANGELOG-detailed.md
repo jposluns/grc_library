@@ -6,6 +6,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.239, PR #261
+
+**FR-135 (H[critical]): TLS 1.3 everywhere.** Migrated every org TLS-floor surface from "TLS 1.2 (minimum)" / "TLS 1.2+" to "TLS 1.3 (or stronger)" with TLS 1.2 in the prohibited set, resolving the corpus's TLS-floor self-contradiction against the authoritative mandate (`policy-encryption-and-key-management.md`:54, developer-security:151). Follows the canonical pattern FR-81 established.
+
+### Changed (corpus standards)
+
+- **[`dev-security/standard-security-quick-reference.md`](../../dev-security/standard-security-quick-reference.md)** (`1.1.2 → 1.1.3`): anti-pattern #8 row (`TLS 1.0/1.1` ⇒ `TLS 1.0/1.1/1.2`; "TLS 1.2+ only" ⇒ "TLS 1.3 only"); the four data-classification rows (Controlled/Internal/Confidential/Restricted "TLS 1.2+" ⇒ "TLS 1.3"); the transit-crypto reference row (`TLS 1.3 (preferred), TLS 1.2 (minimum)` ⇒ `TLS 1.3 (or stronger)`, with TLS 1.2 added to the prohibited column).
+- **[`dev-security/standard-security-baseline-and-standards-reference.md`](../../dev-security/standard-security-baseline-and-standards-reference.md)** (`1.1.0 → 1.1.1`): Encryption-Everywhere row `TLS 1.2 minimum; TLS 1.3 preferred` ⇒ `TLS 1.3 (or stronger)`; `TLS 1.0/1.1 prohibited` ⇒ `TLS 1.0/1.1/1.2 prohibited`.
+- **[`dev-security/standard-mobile-application-security.md`](../../dev-security/standard-mobile-application-security.md)** (`1.1.1 → 1.1.2`): network-cryptography row ⇒ `TLS 1.3 (or stronger)`.
+- **[`operations/standard-production-security-requirements.md`](../../operations/standard-production-security-requirements.md)** (`1.1.3 → 1.1.4`): the B2B/EDI inbound HTTP/SOAP adapter `TLS 1.2 minimum` ⇒ `TLS 1.3 minimum` **unconditionally** (no partner exception, per maintainer decision); "TLS 1.0 and 1.1 must be disabled" ⇒ "TLS 1.0, 1.1, and 1.2 must be disabled".
+- **[`compliance/healthcare/annex-healthcare-sector-requirements.md`](../../compliance/healthcare/annex-healthcare-sector-requirements.md)** (`1.1.0 → 1.1.1`): HIPAA transmission-security control `TLS 1.2+ required` ⇒ `TLS 1.3 required`.
+
+### Changed (pack rules; pack `1.49.0 → 1.49.1`)
+
+- **[`dev-security/claude-rules/core/cryptography.md`](../../dev-security/claude-rules/core/cryptography.md)**: the cryptography table TLS row (`TLS 1.3 (preferred), TLS 1.2 (minimum)` ⇒ `TLS 1.3 (or stronger)`, TLS 1.2 added to prohibited) and the TLS-config block (`Minimum version: TLS 1.2 / Preferred version: TLS 1.3` ⇒ `Minimum version: TLS 1.3 (TLS 1.2 and earlier prohibited)`).
+- **[`dev-security/claude-rules/ai/mcp-security.md`](../../dev-security/claude-rules/ai/mcp-security.md)**: MCP transport `TLS 1.2 minimum (TLS 1.3 preferred)` ⇒ `TLS 1.3 (or stronger)`.
+- **[`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md)**: pack Version `1.49.0 → 1.49.1` + new version-history row. (`core/cryptography.md` and `ai/mcp-security.md` carry no per-file version field and are not in the `lint-claude-rules-sync.py` MIRROR_MAP, so no `.claude/rules/` mirror update.)
+
+### Deferred to maintainer (surfaced, not force-migrated)
+
+- **[`dev-security/claude-rules/core/owasp.md`](../../dev-security/claude-rules/core/owasp.md)** :42 and :209 — represent OWASP ASVS (which permits TLS 1.2 at baseline). Force-migration would misstate the external standard; the evidence-grounded rule requires external-standard citations stay accurate. Logged in [`.working/overnight-pr.md`](../../.working/overnight-pr.md) open-items.
+- **[`dev-security/claude-rules/languages/go.md`](../../dev-security/claude-rules/languages/go.md)** :195 — the TLS example needs a coherent rewrite (TLS 1.3 ignores the explicit 1.2 CipherSuites list), not a one-line bump.
+
+### Verification
+
+- Per-document Version + Date bumped in the same commit for all five corpus docs (Date ⇒ 2026-06-23). Pack version bumped with a new version-history row. Regenerated `taxonomy.yml`, `docs/portal.md`, `docs/maturity-scorecard.md`.
+- Corpus-wide contradiction search (`TLS 1.2 (minimum)|TLS 1.2 minimum|TLS 1.2\+|Minimum version: TLS 1.2`) after edits: only the two deferred surfaces (owasp.md, go.md) remain; no org-mandate surface still permits TLS 1.2. Post-commit `run_all_audits.sh` (46 gates) + pre-push `run-pr-time-checks.sh` green; CI-green before merge.
+
+### Added (batched per recursion-avoidance)
+
+- **[`.working/validate-pr/history.md`](../../.working/validate-pr/history.md)**: PR #260 row (0 in-window; Version 1.2.63 → 1.2.64).
+- **[`.working/improvement-log.md`](../../.working/improvement-log.md)**: PR #260 `/retro` row (Version 1.0.41 → 1.0.42).
+
 ## 2026-06-23, Library Version 2026.06.238, PR #260
 
 **FR-134 (H[critical]): one canonical risk-scoring scale across the three risk documents.** The risk standard's §5.2 scale (likelihood Rare→Almost Certain; bands `1-5 / 6-10 / 11-15 / 16-25`) diverged from the canonical risk-assessment procedure's scale (Very Low→Very High; bands `1-4 / 5-9 / 10-16 / 17-25`), so the same score yielded a different rating/cadence/escalation across documents. The procedure is canonical (maintainer decision 2026-06-23); the standard and template are realigned to it.

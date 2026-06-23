@@ -2,8 +2,8 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.2\
-**Date:** 2026-06-22\
+**Version:** 1.1.3\
+**Date:** 2026-06-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md)\
@@ -37,7 +37,7 @@ Absolute prohibitions. No exception exists without written CIO or CISO approval,
 | 5 | Make a manual production change outside a declared incident | All production changes require a documented change request, CAB review where applicable, and pipeline execution. Manual changes leave no audit trail and introduce untracked drift. |
 | 6 | Give a service account Domain Admin or equivalent permanent elevated membership | Minimum required permissions only. |
 | 7 | Use SAMAccountName-only authentication in new code | LDAPS and UPN/SSO are the required patterns. |
-| 8 | Use MD5, SHA-1, RC4, 3DES, SSL, or TLS 1.0/1.1 | All deprecated. AES-256, SHA-256+, TLS 1.2+ only. |
+| 8 | Use MD5, SHA-1, RC4, 3DES, SSL, or TLS 1.0/1.1/1.2 | All deprecated. AES-256, SHA-256+, TLS 1.3 only. |
 | 9 | Send personal or Confidential data to an external AI service without a data processing agreement and CIO approval | Violates privacy law and organisational policy. |
 | 10 | Bypass a pipeline security gate | Gates exist for a reason. Disable nothing without security team approval. |
 | 11 | Reimage or modify a system you suspect is compromised | Preserve evidence. Alert the security team first. |
@@ -86,10 +86,10 @@ OAuth 2.0 client credentials flow validated by IdP token validation policy at th
 | Classification | Encryption at Rest | Encryption in Transit | Who Can Access | Can It Leave the Primary Region? |
 | --- | --- | --- | --- | --- |
 | Public | Not required (good practice) | HTTPS for web | Anyone | Yes |
-| Controlled | Not required (good practice) | TLS 1.2+ for any external sharing | Employees, contractors, and external recipients under appropriate context | Yes |
-| Internal | Required for databases and backups | TLS 1.2+ required | Employees and approved contractors | Yes, with appropriate controls |
-| Confidential | Required. AES-256 minimum. | TLS 1.2+ mandatory | Authorized personnel on a need-to-know basis | Requires data residency risk assessment and CIO/Legal approval |
-| Restricted | Required. AES-256. Key in secrets vault. | TLS 1.2+ mandatory | Named individuals only. PAM-controlled access where applicable. | Prohibited except with explicit Legal sign-off and documented justification |
+| Controlled | Not required (good practice) | TLS 1.3 for any external sharing | Employees, contractors, and external recipients under appropriate context | Yes |
+| Internal | Required for databases and backups | TLS 1.3 required | Employees and approved contractors | Yes, with appropriate controls |
+| Confidential | Required. AES-256 minimum. | TLS 1.3 mandatory | Authorized personnel on a need-to-know basis | Requires data residency risk assessment and CIO/Legal approval |
+| Restricted | Required. AES-256. Key in secrets vault. | TLS 1.3 mandatory | Named individuals only. PAM-controlled access where applicable. | Prohibited except with explicit Legal sign-off and documented justification |
 
 If you are unsure what classification applies, classify one level higher until clarified.
 
@@ -174,7 +174,7 @@ These are mandatory SLAs, not targets. Critical findings trigger immediate alert
 | Use Case | Use This | Not This |
 | --- | --- | --- |
 | Encrypting data at rest | AES-256-GCM | DES, 3DES, RC4 |
-| TLS for transit | TLS 1.3 (preferred), TLS 1.2 (minimum) | TLS 1.1, TLS 1.0, SSL anything |
+| TLS for transit | TLS 1.3 (or stronger) | TLS 1.2, TLS 1.1, TLS 1.0, SSL anything |
 | Hashing for integrity | SHA-256, SHA-384, SHA-512 | MD5, SHA-1 |
 | Hashing passwords | Argon2id, bcrypt (cost ≥12) | SHA-256 (for passwords), MD5, plain storage |
 | Asymmetric encryption | RSA-4096, EC P-256/P-384 | RSA < 2048 |

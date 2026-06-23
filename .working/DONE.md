@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #261 — FR-135 (high[critical]): TLS 1.3 everywhere (2026-06-23)
+
+Migrated every org TLS-floor surface from "TLS 1.2 minimum" / "1.2+" to TLS 1.3 (or stronger), with TLS 1.2 moved to the prohibited set, across the security quick-reference, baseline reference, mobile-app-security, production-security (B2B/EDI adapter, unconditionally), the healthcare HIPAA annex, and the pack cryptography + MCP-security rules. Two surfaces deferred to maintainer review: `core/owasp.md` (represents OWASP ASVS, which permits 1.2) and `languages/go.md` (TLS code example needs coherent rewrite).
+
 ### PR #260 — FR-134 (high[critical]): one canonical risk-scoring scale (2026-06-23)
 
 Aligned the enterprise risk standard's §5.2 likelihood labels (Rare→Almost Certain ⇒ Very Low→Very High) and score-to-rating bands (1-5/6-10/11-15/16-25 ⇒ 1-4/5-9/10-16/17-25) to the canonical risk-assessment procedure, and fixed the register template's stale likelihood labels, so a given score now yields the same rating/cadence/escalation across all three risk documents. Fourth surface (concentration-risk register) and the impact-5 label divergence surfaced to the maintainer, not folded in.
