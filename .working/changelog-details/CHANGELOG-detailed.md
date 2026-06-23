@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.252, PR #274
+
+**Session-closing handoff PR for the 2026-06-23 FR-166 / small-items session.** Working-state + TODO only; no adopter-facing corpus content changed. Lands the session's state on `main` so the next `/resume` rebuilds from `main` rather than an unmerged feature branch.
+
+### Changed
+
+- **[`.working/session-handoff.md`](../../.working/session-handoff.md)**: refreshed to after #273 — state snapshot (library `2026.06.252`, pack `1.49.3`, README `1.9.123`, **47 gates**, 10 rules, 15 skills, 8 commands), last-merged list (#271 Sweep 28 DR fix, #272 FR-166, #273 count-gate P8), and the next-actions queue reordered: **FR-167 top** (steer resolved — all 8 framework columns comprehensive; use the FR-166 `suggest-listing-surfaces.py` tool + 10+ research agents; orchestrator verifies every cell at apply-time), then DD-1..DD-11 triage, then the smallest-items batch-reduction. Open decision recorded: the FR-167 meta-artefact exclusion sub-detail.
+- **[`TODO.md`](../../TODO.md)**: FR-166 marked shipped (#272) and its details trimmed; the Priority-1 listing-surface section now carries only FR-167 with the resolved all-8-columns steer and the research-agent execution note.
+- **[`.working/DONE.md`](../../.working/DONE.md)**: added entries for #271 (Sweep 28 DR fix), #272 (FR-166 gate+tool), #273 (count-gate P8) — the rotation for this session's shipped work.
+- **Batched from #273**: [`.working/validate-pr/history.md`](../../.working/validate-pr/history.md) (`1.2.75 → 1.2.76`, #273 row, 0 findings) + [`.working/improvement-log.md`](../../.working/improvement-log.md) (`1.0.52 → 1.0.53`, #273 `/retro` — the gate-self-reference pattern).
+
+### Verification / discipline
+
+- **Handoff-PR exception**: this PR skips its trailing `/validate-pr` + `/retro` (loop-break, CLAUDE.md PR-workflow step 5a); recorded in the [`.working/validate-pr/history.md`](../../.working/validate-pr/history.md) #274 row. The compensating control is the corpus-wide `/validate` the next `/resume` runs first.
+- No corpus doc metadata changed, so no taxonomy/portal/scorecard regeneration; full `run_all_audits.sh` + `run-pr-time-checks.sh` green standalone post-commit.
+- Library `2026.06.251 → 2026.06.252`; README `1.9.122 → 1.9.123`.
+
 ## 2026-06-23, Library Version 2026.06.251, PR #273
 
 **Count-gate coverage improvement: the stale-audit-count fix bundled from PR #272's `/validate-pr` + the broaden-gate-39 P4 candidate.** Maintainer-directed lower-risk batch (chose "small items now" over starting the large FR-167 this turn).
