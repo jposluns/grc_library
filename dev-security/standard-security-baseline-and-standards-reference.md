@@ -2,8 +2,8 @@
 
 **Document Title:** Security Baseline and Standards Reference\
 **Document Type:** Standard\
-**Version:** 1.1.0\
-**Date:** 2026-06-21\
+**Version:** 1.1.1\
+**Date:** 2026-06-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)\
@@ -76,7 +76,7 @@ Deviations require a formal exception approved by the CIO or CISO.
 | **Separation of Environments** | Production, Test, and Dev are distinct environments with dedicated identity domains, network segments, and access controls. No shared credentials or paths between them. |
 | **Immutable and Auditable** | All significant actions generate audit records that cannot be deleted by the actor. Logs are forwarded to the SIEM immediately. Backup repositories use immutable (WORM) storage. |
 | **Data Residency First** | All data is hosted in primary cloud regions by default. Non-default hosting requires a risk assessment, CIO/Legal approval, and privacy impact assessment where personal data is involved. |
-| **Encryption Everywhere** | Data at rest, in transit, and in use is encrypted. TLS 1.2 minimum; TLS 1.3 preferred. RC4, 3DES, SSL, TLS 1.0/1.1 prohibited. AES-256 for symmetric encryption. NTLMv1 prohibited. |
+| **Encryption Everywhere** | Data at rest, in transit, and in use is encrypted. TLS 1.3 (or stronger). RC4, 3DES, SSL, TLS 1.0/1.1/1.2 prohibited. AES-256 for symmetric encryption. NTLMv1 prohibited. |
 | **Supply Chain Integrity** | All third-party code, libraries, models, and services are evaluated before use. Software Bill of Materials (SBOM) maintained for all applications. |
 | **Privacy by Design** | Personal data processing is minimized and purposeful. Privacy Impact Assessments (PIAs) completed before any new system processing personal data is deployed. |
 
