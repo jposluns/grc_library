@@ -70,6 +70,11 @@ run_check "D1 CHANGELOG-on-PR check" \
 run_check "D2 Per-PR version-bump check" \
     python3 tools/check-version-bump-on-pr.py "${BASE_REF}" "${HEAD_REF}"
 
+# Delta gate D3: no em/en dashes in newly-added CHANGELOG.md lines (DD-1,
+# new-entries-only; historical entries are exempt).
+run_check "D3 CHANGELOG dash-on-PR check" \
+    python3 tools/check-changelog-dash-on-pr.py "${BASE_REF}" "${HEAD_REF}"
+
 # Gate 45: TODO staleness audit. Behaves like a delta gate because its
 # inputs (git log of merged-PR commit subjects, .working/validate-sweeps/
 # history.md) include history relative to the working state of TODO.md.

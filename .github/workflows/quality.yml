@@ -170,6 +170,10 @@ jobs:
         if: github.event_name == 'pull_request'
         run: python3 tools/check-version-bump-on-pr.py
 
+      - name: CHANGELOG dash-on-PR check
+        if: github.event_name == 'pull_request'
+        run: python3 tools/check-changelog-dash-on-pr.py
+
       - name: Detect collection candidates on pack PRs (informational)
         if: github.event_name == 'pull_request'
         env:

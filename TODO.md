@@ -31,9 +31,19 @@ These are **as-of-session-pause snapshots**, not "current HEAD" claims. They ref
 
 ---
 
-## Deferred decisions from the overnight run — NEED MAINTAINER TRIAGE (new session)
+## Deferred decisions from the overnight run — TRIAGED 2026-06-23 (now queued work)
 
-Routed here from `overnight-pr.md` during its 2026-06-23 morning processing (the file is now reset to `stub`). These are **decisions, not queued work**: each needs a maintainer call before it becomes an actionable item. Surfaced for the new session. Originating PRs noted.
+Routed here from `overnight-pr.md` during its 2026-06-23 morning processing (the file is now reset to `stub`). **All twelve were triaged by the maintainer 2026-06-23** (see resolutions below); they are now actionable work items, sequenced into the execution plan the maintainer directs. Originating PRs noted.
+
+**Maintainer resolutions (2026-06-23 triage):**
+- **DD-1** → **Extend the dash gate to all of CHANGELOG**; fix the ~5 existing `P1–P4` en-dash entries to `P1-P4` in the same PR.
+- **DD-2 / DD-3 / DD-11** → **Harmonize all three risk-scoring docs fully to the canonical ERM scale** (Very Low→Very High likelihood + Low/Medium/High/Critical rating + Catastrophic impact-5). One coherent risk-vocabulary PR.
+- **DD-4 / DD-5** → **Pack stays ASVS-accurate** (keep `core/owasp.md` representing ASVS; rewrite `languages/go.md` coherently to 1.3); **raise the two governed surfaces** (`operations/procedure-media-handling-and-transport.md`, `supply-chain/template-supplier-security-questionnaire.md`) to TLS 1.3.
+- **DD-6 / DD-7** → **Canonical 7 years**; reconcile the AI-compliance-checklist "12 months" up to 7 years AND add an explicit AI-decision-logs row (7 yr; ISO 42001 + EU AI Act Annex IV) to `governance/register-data-retention-schedule.md`.
+- **DD-8** → **Yes, one coherent CPPA-scrub sweep PR** (scrub live-regime CPPA→PIPEDA in incident-response:176/182, document-index Frameworks tags, enterprise-risk:255; triage framework-list mentions; PRESERVE US-annex "CPPA = California Privacy Protection Agency").
+- **DD-9** → **Broaden the DR header to "All systems"** (bundle into a nearby resilience PR or the risk-vocab PR).
+- **DD-10** → **Verify the upstream addyosmani skill count via web, then align both surfaces** (README + setup-generator) to the verified number. Needs one web fetch.
+- **DD-12** → **Fix NET→IVS in the matrix AND migrate `PR.IP`→strict CSF 2.0 codes (PR.PS / ID.IM) corpus-wide.** The PR.IP migration is the large corpus-wide half (PR.IP is used well beyond the matrix); scope carefully as its own effort.
 
 - **DD-1 (from #259 /validate-pr, low)**: pre-existing en-dashes (`P1–P4`) in older CHANGELOG entries (`CHANGELOG.md`:41/45/49/57/61) pass CI legitimately (CHANGELOG is outside `lint-language.py`'s root-file allowlist). Decide: extend the dash gate to CHANGELOG, or keep it deliberately unscoped.
 - **DD-2 (from #260 / FR-134, medium)**: `supply-chain/register-concentration-risk.md`:95 uses the OLD enterprise likelihood labels (`Rare … Almost Certain`) + a third impact-label variant (`Severe`). Not an FR-134 named surface. Decide: harmonize to the canonical Very Low→Very High (+ canonical impact-5 label), or is its qualitative scale intentionally distinct?
@@ -61,7 +71,7 @@ High:
 - **[fitness:P6] FR-142 (High, ⚠️persona-quoted)**: Two AI procedures name no roles for any step — [`ai/procedure-ai-model-risk-assessment.md`](ai/procedure-ai-model-risk-assessment.md):69-71 & [`ai/procedure-ai-system-impact-assessment.md`](ai/procedure-ai-system-impact-assessment.md):156-158.
 - **[fitness:P6] FR-143 (High)**: Circular escalation chain DPO→CISO→DPO — [`supply-chain/procedure-supplier-onboarding-security-review.md`](supply-chain/procedure-supplier-onboarding-security-review.md):139.
 - **[fitness:P6] FR-144 (High)**: Privacy-breach individual-notification leg has no internal clock — breach:169-174.
-- **[fitness:P7] FR-145 (High, ⚠️persona-quoted)**: Two AI security standards overlapping scope, no precedence/crosswalk — [`ai/standard-ai-security-and-risk.md`](ai/standard-ai-security-and-risk.md) vs [`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md).
+- **[fitness:P7] FR-145 (High, ⚠️persona-quoted)**: Two AI security standards overlapping scope, no precedence/crosswalk — [`ai/standard-ai-security-and-risk.md`](ai/standard-ai-security-and-risk.md) vs [`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md). **DECIDED 2026-06-23 (maintainer triage): keep both; add a scope/precedence note + a crosswalk table** (⚠️ verify exact overlap at action time before authoring the precedence statement).
 
 Deduped against existing TODO (NOT added): P9 Art-28 DPA template = existing **FR-30**; P5 shall/must mixing = existing **FR-44-generalisation**; both reinforced, cross-referenced. The fitness Medium (FR-146..154) and Low/FYI (FR-155..160), plus the five [full-qa] findings (now FR-161..165), are re-tiered to P2/P3 below per maintainer direction (b).
 
@@ -74,7 +84,7 @@ Done: `deep-qa-review` SKILL + `/full-qa` (PR #244); PRIMORDIAL RULE in CLAUDE.m
 
 Maintainer decision (2026-06-23 session-resume, after Sweep 26 surfaced that [`compliance/matrix-grc-compliance-alignment.md`](compliance/matrix-grc-compliance-alignment.md) (v1.0.0, 2026-05-27, never updated) maps only 42 of 341 corpus documents): governance work must be meticulous, so build a mechanism that keeps every listing surface complete when a new document is added, and bring the matrix to comprehensive. **FR-166 shipped in PR #272** (gate 47 + `tools/suggest-listing-surfaces.py`); FR-167 remains the top-priority next item and uses the FR-166 tool to find the docs.
 
-- **FR-167 (High, L)**: Expand [`compliance/matrix-grc-compliance-alignment.md`](compliance/matrix-grc-compliance-alignment.md) to **comprehensive** and **clarify the scope-of-intent wording in the document** (soften the stale "All 42 documents" coverage summary — the corpus now has ~293 active docs). **Steer RESOLVED (maintainer, 2026-06-23): all 8 framework columns comprehensive** — assess every substantive document against each of CSA CCM v4.1 / ISO 27001:2022 / NIST CSF 2.0 / CTPAT / PIP / BASC v6 / WCO SAFE / AEO-S, with honest N/A where a customs/trade column genuinely does not apply (most non-logistics docs will be N/A in the 5 trade columns). Use `tools/suggest-listing-surfaces.py` + **10+ research agents** to find/triage docs and draft candidate mappings; the **orchestrator authors and verifies every cell at apply-time** (research-assistant discipline — workers produce candidates, never final cells; a wrong control mapping in an adopter-facing matrix is not gate-caught). Large, accuracy-critical, best started at full context. One open sub-detail to decide at start: which meta-artefacts (domain READMEs, the matrices themselves, worklists, charters) are excluded from "every substantive doc".
+- **FR-167 (High, L)**: Expand [`compliance/matrix-grc-compliance-alignment.md`](compliance/matrix-grc-compliance-alignment.md) to **comprehensive** and **clarify the scope-of-intent wording in the document** (soften the stale "All 42 documents" coverage summary — the corpus now has ~293 active docs). **Steer RESOLVED (maintainer, 2026-06-23): all 8 framework columns comprehensive** — assess every substantive document against each of CSA CCM v4.1 / ISO 27001:2022 / NIST CSF 2.0 / CTPAT / PIP / BASC v6 / WCO SAFE / AEO-S, with honest N/A where a customs/trade column genuinely does not apply (most non-logistics docs will be N/A in the 5 trade columns). Use `tools/suggest-listing-surfaces.py` + **10+ research agents** to find/triage docs and draft candidate mappings; the **orchestrator authors and verifies every cell at apply-time** (research-assistant discipline — workers produce candidates, never final cells; a wrong control mapping in an adopter-facing matrix is not gate-caught). Large, accuracy-critical, best started at full context. Meta-artefact exclusion RESOLVED in #275 (exclude matrices/crosswalks, worklists, root meta-specs, document index, generated portals/scorecards). **Domain order RESOLVED 2026-06-23 (maintainer triage): smallest-first** — risk 15 → dev-security 17 → supply-chain 18 → resilience 22 → operations 27 → compliance 30 → governance 31 → security 34 → ai 34 → privacy 42, then finish/expand the 8 partial sections. Fold the two #275 follow-ups (matrix legend `N/A` doc at :36; refresh this FR's batch-1 progress note) into batch 2.
 
 ### High[critical] severity (immediate priority)
 
@@ -268,7 +278,7 @@ Three new audit-gate candidates surfaced; each needs separate maintainer decisio
 - **S2 Role definition consistency gate**: verify every role mentioned in normative documents has a row in `governance/register-role-authority.md`. Would catch FR-115-class issues mechanically.
 - **S3 Citation-precision-for-claim gate**: flag "aligned with [normative source] X" claims and verify X actually contains the supporting language. Would catch FR-120-class issues mechanically.
 
-**DECIDED 2026-06-22 (this session)**: **build S1** once the canonical retention values land (FR-136/137 — the S1 spec falls out of that decision for free); **defer S2 and S3** to the candidate-gate backlog (higher-effort NLP-ish checks; build only if the manual sweeps prove insufficient).
+**DECIDED 2026-06-22**: build S1 once FR-136/137 land; defer S2/S3. **REVISED 2026-06-23 (maintainer triage): build ALL THREE — S1, S2, and S3.** S1 is unblocked now (FR-136/137 landed in #262/#263). S2 (role-definition-consistency: every normative role has a `register-role-authority.md` row) and S3 (citation-precision: "aligned with X" claims verified against X) are promoted from the deferred backlog. Each is a `lint-*.py` + 4-surface wiring + regression fixture; sequence per the execution plan (likely one gate per PR to keep diffs reviewable).
 
 **UNBLOCKED 2026-06-23** (surfaced by the #275 retro-log review): FR-136 (#262) and FR-137 (#263) **have landed** — the canonical retention values now exist, so **S1 is buildable and is the next mechanical-gate candidate to action**. (Surfaced because the retro-log review found several "build once X lands" items where X had landed but the build was never picked up.)
 
@@ -422,7 +432,7 @@ Items requiring user decision or external dependency before becoming actionable.
 
 ### Maintainer-surfaced from /validate Sweep 22 (2026-06-22)
 
-- **B2 additional soft-law citations to canonical-citations register (L, S)**: Sweep 22 Subagent B surfaced five soft-law references not yet registered in [`governance/register-canonical-citations.md`](governance/register-canonical-citations.md): EDPB Guidelines 07/2020, Guidelines 3/2018, Guidelines 28/2024, Opinion 05/2014, and WP248 rev.01. Out-of-window (these citations were not introduced in PRs #231-#241). Decision: add to register in a dedicated S-effort PR vs cluster with FR-21 standard-version-upgrade work vs defer. Maintainer choice.
+- **B2 additional soft-law citations to canonical-citations register (L, S)**: Sweep 22 Subagent B surfaced five soft-law references not yet registered in [`governance/register-canonical-citations.md`](governance/register-canonical-citations.md): EDPB Guidelines 07/2020, Guidelines 3/2018, Guidelines 28/2024, Opinion 05/2014, and WP248 rev.01. Out-of-window. **DECIDED 2026-06-23 (maintainer triage): add the five to the register in a dedicated S-effort PR.**
 
 ### Formal closure pending review
 
