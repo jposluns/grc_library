@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #283 — FR-161 + FR-162 + FR-163 + FR-146 (medium): risk/AI register vocabulary aligned to canonical ERM set (2026-06-23)
+
+Aligned the AI risk register and AI risk-methodology annex Treatment Option lists to the canonical six (Avoid / Mitigate / Transfer / Accept / Exploit / Enhance), and reconciled the retired/conflated Status values in the AI register and the ERM-template sample rows to the canonical lifecycle Open / Closed. PR-B of the XS/S batch.
+
 ### PR #282 — FR-142 (high) + FR-143 (high): AI-procedure step roles + de-looped supplier escalation (2026-06-23)
 
 FR-142: added a "Roles and responsibilities" subsection to both AI assessment procedures (model-risk and system-impact), naming the AI Governance Lead, the model/system owner, and the AI Governance Approver/Council. FR-143: fixed the circular DPO→CISO→Data Protection Officer escalation row in the supplier-onboarding procedure to terminate at the Chief Risk Officer. First PR of the XS/S batch-reduction sweep.

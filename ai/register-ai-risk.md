@@ -2,8 +2,8 @@
 
 **Document Title:** AI Risk Register\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-06-22\
+**Version:** 1.0.2\
+**Date:** 2026-06-23\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -41,10 +41,10 @@ Each AI risk entry must contain the following fields:
 | **Control Effectiveness** | Weak / Partial / Effective |
 | **Residual Risk Score** | Calculated residual score after controls |
 | **Risk Rating** | Low / Medium / High / Critical |
-| **Treatment Option** | Mitigate / Transfer / Avoid / Accept |
+| **Treatment Option** | Avoid / Mitigate / Transfer / Accept / Exploit / Enhance |
 | **Treatment Plan** | Actions to be taken, owner, and due date |
 | **Risk Owner** | Role title of responsible party |
-| **Status** | Open / In Treatment / Accepted / Closed |
+| **Status** | Open / Closed |
 | **Review Date** | Date of next scheduled review |
 
 ---
