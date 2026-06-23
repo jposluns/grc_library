@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.1.0\
+**Date:** 2026-06-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
@@ -142,20 +142,35 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 ---
 
+## Architecture domain
+
+| Domain | Document Title | Path | CSA CCM v4.1 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Architecture | Enterprise Architecture Framework | [`architecture/framework-enterprise-architecture.md`](../architecture/framework-enterprise-architecture.md) | GRC-01, GRC-02 | §6.1, A.5.8, A.8.27 | GV.OC, GV.RM, ID.AM, PR.IP | N/A | N/A | N/A | N/A | N/A |
+| Architecture | Architecture Review Procedure | [`architecture/procedure-architecture-review.md`](../architecture/procedure-architecture-review.md) | GRC-01, CCC-01, CCC-02 | A.5.8, A.8.27, §8.1 | GV.OC, GV.RM, PR.IP, ID.IM | N/A | N/A | N/A | N/A | N/A |
+| Architecture | API Design Standard | [`architecture/standard-api-design.md`](../architecture/standard-api-design.md) | AIS-01, AIS-02, AIS-04, IPY-01 | A.5.14, A.8.26, A.8.27 | ID.AM, PR.DS, PR.IP | N/A | N/A | N/A | N/A | N/A |
+| Architecture | Architecture Decision Records Standard | [`architecture/standard-architecture-decision-records.md`](../architecture/standard-architecture-decision-records.md) | GRC-01, CCC-02, CCC-03 | §7.5, A.8.27 | GV.OC, PR.IP, ID.IM | N/A | N/A | N/A | N/A | N/A |
+| Architecture | Data Architecture Standard | [`architecture/standard-data-architecture.md`](../architecture/standard-data-architecture.md) | DSP-01, DSP-02, DSP-03, DSP-05, DSP-07 | A.5.12, A.5.13, A.5.34, A.8.10 | GV.OC, ID.AM, PR.DS | N/A | N/A | N/A | N/A | N/A |
+| Architecture | Integration Architecture Standard | [`architecture/standard-integration-architecture.md`](../architecture/standard-integration-architecture.md) | AIS-04, IPY-01, IVS-03, DSP-04 | A.5.14, A.8.20, A.8.21, A.8.26 | ID.AM, PR.DS, PR.IR, DE.CM | N/A | N/A | N/A | N/A | N/A |
+| Architecture | Reference Architecture Standard | [`architecture/standard-reference-architecture.md`](../architecture/standard-reference-architecture.md) | GRC-01, AIS-01 | A.8.27, A.8.32 | GV.OC, ID.AM, PR.IP | N/A | N/A | N/A | N/A | N/A |
+| Architecture | Technology Radar Standard | [`architecture/standard-technology-radar.md`](../architecture/standard-technology-radar.md) | GRC-01, STA-01 | §6.1, A.5.20, A.8.30 | GV.OC, GV.SC, ID.AM | N/A | N/A | N/A | N/A | N/A |
+
+---
+
 ## Framework coverage summary
 
-The following table summarizes how many GRC library documents provide primary coverage per framework, to assist in identifying gaps.
+This matrix is being expanded toward comprehensive coverage of the library's substantive documents (policies, standards, procedures, guidelines, frameworks, plans, charters, templates, annexes, and substantive registers across every domain). Library-infrastructure and meta artefacts (the framework matrices and crosswalks themselves, worklists, root meta-specifications, the document index, and generated portals or scorecards) are out of scope. Coverage is added domain by domain, so the matrix is a living document rather than a fixed-size snapshot; the table below therefore describes where each framework's coverage concentrates rather than a per-framework document count, which would drift as the expansion proceeds.
 
-| Framework | Primary Documents in This Matrix | Notes |
-| --- | --- | --- |
-| CSA CCM v4.1 | All 42 documents | Coverage across IAM, DSP, LOG, NET, CEK, TVM, SEF, BCR, GRC, STA, DCS, UEM, HRS, CCC families |
-| ISO/IEC 27001:2022 | All 42 documents | Coverage across Annex A clauses and management system clauses §4 to §10 |
-| NIST CSF 2.0 | All 42 documents | Coverage across GV, ID, PR, DE, RS, RC functions |
-| CTPAT | 18 documents | Primary coverage in security, operations, supply chain, and resilience domains |
-| PIP (Canada) | 24 documents | Coverage across programme requirements for IT security, access, data protection, continuity |
-| BASC v6 | 38 documents | Strong coverage; operational cargo security domains out of IT scope |
-| WCO SAFE | 22 documents | Coverage in Pillar I (customs-business partnership) and Pillar II (customs-to-customs) |
-| AEO/AEO-S | 20 documents | Coverage of information systems security requirement area; physical and personnel security supported by operations and governance documents |
+| Framework | Coverage emphasis |
+| --- | --- |
+| CSA CCM v4.1 | Broad applicability across the IT and security documents, spanning the GRC, IAM, DSP, LOG, IVS, NET, CEK, TVM, SEF, BCR, STA, DCS, UEM, HRS, CCC, AIS, and IPY families |
+| ISO/IEC 27001:2022 | Broad applicability across Annex A controls and management-system clauses §4 to §10 |
+| NIST CSF 2.0 | Broad applicability across the GV, ID, PR, DE, RS, RC functions |
+| CTPAT | Focused on security, operations, supply-chain, and resilience documents; not applicable to most non-logistics IT-governance content |
+| PIP (Canada) | Focused on the programme requirements for IT security, access, data protection, and continuity |
+| BASC v6 | Broad within the logistics and IT-security scope; operational cargo-security domains are out of this matrix's IT scope |
+| WCO SAFE | Focused on Pillar I (customs-business partnership) and Pillar II (customs-to-customs) |
+| AEO/AEO-S | Focused on the information-systems-security requirement area; physical and personnel security supported by operations and governance documents |
 
 
 
