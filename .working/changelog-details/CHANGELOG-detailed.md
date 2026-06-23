@@ -6,6 +6,40 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.253, PR #275
+
+**FR-167 (batch 1 of ~11): expand the compliance alignment matrix to comprehensive coverage — Architecture domain.** The [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) mapped only ~42 of the library's ~280 substantive documents. FR-167 expands it to comprehensive coverage one domain per PR (the maintainer chose the **Broad** scope: every substantive document, excluding library-infrastructure/meta artefacts — the matrices/crosswalks themselves, worklists, root meta-specs, the document index, generated portals/scorecards). This is batch 1: the **Architecture** domain (8 documents).
+
+### Added
+
+- **[`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md)**: a new `## Architecture domain` section with 8 rows, each mapped across all eight framework columns:
+  - Enterprise Architecture Framework — CCM `GRC-01, GRC-02`; ISO `§6.1, A.5.8, A.8.27`; CSF `GV.OC, GV.RM, ID.AM, PR.IP`.
+  - Architecture Review Procedure — CCM `GRC-01, CCC-01, CCC-02`; ISO `A.5.8, A.8.27, §8.1`; CSF `GV.OC, GV.RM, PR.IP, ID.IM`.
+  - API Design Standard — CCM `AIS-01, AIS-02, AIS-04, IPY-01`; ISO `A.5.14, A.8.26, A.8.27`; CSF `ID.AM, PR.DS, PR.IP`.
+  - Architecture Decision Records Standard — CCM `GRC-01, CCC-02, CCC-03`; ISO `§7.5, A.8.27`; CSF `GV.OC, PR.IP, ID.IM`.
+  - Data Architecture Standard — CCM `DSP-01, DSP-02, DSP-03, DSP-05, DSP-07`; ISO `A.5.12, A.5.13, A.5.34, A.8.10`; CSF `GV.OC, ID.AM, PR.DS`.
+  - Integration Architecture Standard — CCM `AIS-04, IPY-01, IVS-03, DSP-04`; ISO `A.5.14, A.8.20, A.8.21, A.8.26`; CSF `ID.AM, PR.DS, PR.IR, DE.CM`.
+  - Reference Architecture Standard — CCM `GRC-01, AIS-01`; ISO `A.8.27, A.8.32`; CSF `GV.OC, ID.AM, PR.IP`.
+  - Technology Radar Standard — CCM `GRC-01, STA-01`; ISO `§6.1, A.5.20, A.8.30`; CSF `GV.OC, GV.SC, ID.AM`.
+  - All eight rows carry honest `N/A` across the five customs/trade frameworks (CTPAT, PIP, BASC v6, WCO SAFE, AEO/AEO-S): architecture-governance content has no customs/cargo/trade-security nexus, consistent with the coverage note that operational cargo-security domains are out of the matrix's IT scope.
+
+### Changed
+
+- **[`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md)** `## Framework coverage summary`: replaced the stale per-framework counts (the "All 42 documents" claims and the fixed CTPAT/PIP/BASC/WCO/AEO counts) with a count-agnostic description of where each framework's coverage concentrates, plus a scope-of-intent paragraph (the matrix is a living, mid-expansion document covering substantive documents and excluding library-infrastructure/meta artefacts). This addresses the FR-167 sub-goal of softening the scope wording; fixed counts would be perpetually stale during the multi-PR expansion.
+- Matrix per-document `Version 1.0.0 → 1.1.0` (minor: new domain section + reworked summary), `Date 2026-05-27 → 2026-06-23`.
+- **[`README.md`](../../README.md)**: Library `2026.06.252 → 2026.06.253`; README `1.9.123 → 1.9.124`.
+- **[`TODO.md`](../../TODO.md)**: added **DD-12** routing the two pre-existing matrix framework-taxonomy anomalies surfaced during the expansion (the lone non-v4.1 `NET` row at matrix line 103; the corpus-wide `PR.IP`-under-"CSF 2.0" convention). Per the maintainer's "mirror corpus convention" decision (2026-06-23), new rows mirror the corpus codes and these anomalies route here rather than mixing a correction into the expansion. Also extended **DD-11** (Sweep 29 finding: the operational-risk-register impact-5 `Severe` label).
+
+### Verification / discipline
+
+- **Research-assistant discipline.** Two background research agents produced candidate mappings for the 8 docs (split 4+4); the orchestrator re-read each document's framework-alignment self-citation table and verified every proposed cell at apply-time. **Apply-time corrections to the worker drafts**: (1) the candidate `IPY-02` (API/integration interoperability) is not in corpus use — corrected to `IPY-01` (corpus-established); (2) the candidate `DSP-10` (integration data-in-transit) is not in corpus use — corrected to `DSP-04`; (3) the agents' `PR.PS` (strict CSF 2.0) candidates were mapped to the corpus's `PR.IP` convention per the maintainer decision; (4) several secondary/tentative mappings the agents flagged (`A.5.8` on the ADR standard, which does not self-cite it; `CCC-*` on the framework and radar) were pruned to the conservative, self-cited or strongly-evidenced set. Every CCM/ISO/CSF identifier in the final rows was confirmed against established corpus usage (no invented control numbers).
+- **Mechanical baseline**: `tools/run_all_audits.sh` → all 47 gates pass on the committed state. `tools/run-pr-time-checks.sh` green against the merge base.
+- **Batched (recursion-avoidance)**: the Sweep 29 `/validate` records — [`.working/validate-sweeps/2026-06-23-sweep29-iter1.md`](../../.working/validate-sweeps/2026-06-23-sweep29-iter1.md), the history row (`2.0.21 → 2.0.22`), the sweep-cursor refresh in `TODO.md`, and the DD-11 routing — ride in this PR per the recursion-avoidance rule (Sweep 29 was a clean-bill 2-note sweep, below the threshold for its own close-out PR).
+
+### Phase context
+
+FR-167 batch 1 of ~11 (one domain per PR). Remaining domains to expand/complete: AI, Dev-security (new sections), and the existing Governance, Risk, Compliance, Security, Operations, Supply-chain, Resilience, Privacy sections (to comprehensive). The orchestrator authors and verifies every cell at apply-time; research agents produce candidates only.
+
 ## 2026-06-23, Library Version 2026.06.252, PR #274
 
 **Session-closing handoff PR for the 2026-06-23 FR-166 / small-items session.** Working-state + TODO only; no adopter-facing corpus content changed. Lands the session's state on `main` so the next `/resume` rebuilds from `main` rather than an unmerged feature branch.
