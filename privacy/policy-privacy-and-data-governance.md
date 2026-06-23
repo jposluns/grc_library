@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy and Data Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.4.3\
-**Date:** 2026-06-22\
+**Version:** 1.4.4\
+**Date:** 2026-06-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -44,7 +44,7 @@ This policy defines principles, governance structure, and control framework for 
 1. The **Chief Information Officer (CIO)** serves as the accountable executive for global data governance and assumes all responsibilities normally assigned to the Data Protection Officer (DPO) until that role is appointed.
 2. The **Chief Information Security Officer (CISO)** ensures that security controls protect data confidentiality, integrity, and availability.
 3. The CIO, in the capacity of acting DPO, represents the organisation before regulatory authorities and oversees the organisation's compliance with applicable privacy laws. This interim arrangement creates a known GDPR Article 38(6) conflict of interest (the CIO determines purposes and means of IT processing AND advises on its privacy compliance); see the "DPO independence and conflict of interest" subsection in [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md) for the constraints adopters must apply and the named mitigation controls (independent escalation, role separation in minutes, external counsel arms-length channel, annual independent effectiveness review, public statement in privacy notice and ROPA). The interim arrangement should be replaced with a formal Data Protection Officer designation as soon as practicable.
-4. **Regional Data Stewards and Privacy Leads** ensure that compliance with local data protection laws (EU GDPR, CPPA, PIPL, LGPD, etc.).
+4. **Regional Data Stewards and Privacy Leads** ensure that compliance with local data protection laws (EU GDPR, PIPEDA, PIPL, LGPD, etc.).
 
 ### Governance committees
 
@@ -113,7 +113,7 @@ This policy defines principles, governance structure, and control framework for 
 
 ### 8. Data subject rights
 
-- Individuals shall have the right to access, correct, delete, or port their personal data as required under GDPR, CPPA, and PIPL.
+- Individuals shall have the right to access, correct, delete, or port their personal data as required under GDPR, PIPL, and applicable Canadian law (PIPEDA Schedule 1 for access and correction; CPPA, which would have added disposal and portability rights, is pending reintroduction).
 - Requests must be processed within legal timeframes (typically 30 days).
 - Denials must be justified in writing and reviewed by the CIO (acting DPO).
 
@@ -141,12 +141,12 @@ This policy defines principles, governance structure, and control framework for 
 
 | Policy Area | ISO/IEC 27701 | COBIT 2019 | CSA CCM v4.1 | Regulatory References |
 |---|---|---|---|---|
-| Governance and accountability | Clauses 5 to 7 | APO13.01 | PRI-01 | GDPR Art 5, CPPA |
+| Governance and accountability | Clauses 5 to 7 | APO13.01 | PRI-01 | GDPR Art 5, PIPEDA Sch 1 Principle 1 (Accountability) |
 | Lawful processing and consent | Clause 8.2 | DSS05 | PRI-02 | GDPR, PIPL, LGPD |
 | Data classification and handling | Clause 8.5 | DSS01 | DSP-01 | ISO 8000-8 §5, SOX, SOC 2 |
 | Cross-border data transfers | Clause 8.6 | APO10 | PRI-03 | GDPR Ch V, CBPR 2.0 |
 | AI training data governance | N/A | DSS05.06 | DSP-04 | ISO 8000-8 §6, EU Data Act (Regulation (EU) 2023/2854) |
-| Data subject rights | Clause 8.7 | MEA01 | PRI-04 | GDPR Arts 15 to 22, CPPA |
+| Data subject rights | Clause 8.7 | MEA01 | PRI-04 | GDPR Arts 15 to 22, PIPEDA Sch 1 Principle 9 (Individual Access) |
 | Records management | Clause 8.8 | DSS01 | DSP-02 | ISO 8000-8 §7, Retention laws |
 | Breach management | Clause 8.9 | DSS02 | PRI-05 | GDPR Art 33, PIPL Art 57 |
 

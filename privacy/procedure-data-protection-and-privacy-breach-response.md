@@ -2,8 +2,8 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.8\
-**Date:** 2026-06-22\
+**Version:** 1.4.9\
+**Date:** 2026-06-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
@@ -26,7 +26,7 @@
 
 This procedure defines the lifecycle for detecting, containing, assessing, notifying, remediating, and closing personal data breaches and privacy incidents. It establishes mandatory roles, response timeframes, jurisdiction-specific notification obligations, and evidence requirements, and ensures that regulatory notification deadlines are met for all applicable laws.
 
-The procedure is aligned to ISO/IEC 27701:2025 (privacy incident management; section numbering changed in 2025 standalone revision), GDPR Articles 33 to 34, UK GDPR Articles 33 to 34, CPPA, PIPL Article 57, LGPD, Quebec Law 25, and CSA CCM v4.1 PRI-05 and SEF-02.
+The procedure is aligned to ISO/IEC 27701:2025 (privacy incident management; section numbering changed in 2025 standalone revision), GDPR Articles 33 to 34, UK GDPR Articles 33 to 34, PIPEDA (Breach of Security Safeguards Regulations), PIPL Article 57, LGPD, Quebec Law 25, and CSA CCM v4.1 PRI-05 and SEF-02.
 
 ### 1.2 Scope
 
@@ -168,7 +168,7 @@ The notification assessment is documented in the breach record and approved by t
 | --- | --- | --- | --- | --- | --- |
 | **European Union** | GDPR Arts. 33 to 34 | Relevant lead supervisory authority (EDPB member authority); ICO for UK data subjects | Breach likely to result in a risk to the rights and freedoms of natural persons | 72 hours from the point of becoming aware of the breach | Without undue delay where the breach is likely to result in a high risk to individuals |
 | **United Kingdom** | UK GDPR Arts. 33 to 34 | Information Commissioner's Office (ICO) | Same threshold as EU GDPR | 72 hours from becoming aware | Without undue delay where high risk |
-| **Canada (Federal)** | CPPA; PIPEDA (until CPPA in force) | Office of the Privacy Commissioner of Canada (OPC) | Real risk of significant harm to the individual | Without unreasonable delay (72-hour target) | As soon as feasible after the determination that significant harm is likely |
+| **Canada (Federal)** | PIPEDA (Breach of Security Safeguards Regulations); CPPA pending reintroduction | Office of the Privacy Commissioner of Canada (OPC) | Real risk of significant harm to the individual | Without unreasonable delay (72-hour target) | As soon as feasible after the determination that significant harm is likely |
 | **Quebec (Provincial)** | Quebec Law 25 (Bill 64); Act Respecting the Protection of Personal Information | Commission d'accès à l'information (CAI) | Confidentiality incident creating a serious injury risk | 72 hours to the CAI; promptly to affected individuals | Promptly after notifying CAI |
 | **China** | PIPL Art. 57 | Cyberspace Administration of China (CAC) / relevant PIPC authority | Breach of personal information | Immediately / without delay upon discovery | Promptly to affected individuals if high risk; may be deferred if measures have effectively prevented harm, subject to authority direction |
 | **Brazil** | LGPD Arts. 48 to 49 | Autoridade Nacional de Proteção de Dados (ANPD) | Breach likely to cause risk or harm to data subjects | Within reasonable period per ANPD guidelines (ANPD Resolution CD/ANPD No. 2 guidance: 2 business days for initial notification; 5 business days for full report) | Without undue delay |
@@ -314,7 +314,7 @@ The following metrics are tracked and reported to the CIO and CISO at the quarte
 | --- | --- |
 | Privacy breach response programme | ISO/IEC 27701:2025 (privacy incident management); CSA CCM v4.1 PRI-05 |
 | Regulatory breach notification: EU/UK | GDPR Arts. 33 to 34; UK GDPR Arts. 33 to 34 |
-| Regulatory breach notification: Canada | CPPA; PIPEDA Breach of Security Safeguards Regulations; Quebec Law 25 |
+| Regulatory breach notification: Canada | PIPEDA Breach of Security Safeguards Regulations; Quebec Law 25 (CPPA pending reintroduction) |
 | Regulatory breach notification: China | PIPL Art. 57 |
 | Regulatory breach notification: Brazil | LGPD Arts. 48 to 49 |
 | Regulatory breach notification: US | State breach notification laws; refer to [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md) |
