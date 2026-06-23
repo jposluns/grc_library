@@ -2,8 +2,8 @@
 
 **Document Title:** Key Terms and Definitions Register\
 **Document Type:** Register\
-**Version:** 1.1.1\
-**Date:** 2026-05-28\
+**Version:** 1.1.2\
+**Date:** 2026-06-23\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/register-glossary.md`](register-glossary.md)\
@@ -58,6 +58,7 @@ When in doubt: external term or acronym → the glossary. Internal governance co
 | Model | The trained or fine-tuned weights and architecture that produce predictions or outputs in response to inputs. A model is the inner artefact within an AI system or AI service. |
 | Monitor | Continuous measurement of an indicator against a baseline or threshold. Distinct from logging (recording events) and auditing (periodic formal assessment). |
 | Legal Obligation | A requirement directly arising from applicable law, regulation, order, contract, or binding authority. |
+| Lines of Defence (Three Lines Model) | The assurance model that allocates control and oversight responsibilities across three lines: the **first line** (business and operations functions that own and execute controls), the **second line** (specialist oversight functions: risk, compliance, information security, privacy, AI governance, legal, which monitor and challenge), and the **third line** (internal audit, which provides independent testing and opinion). See [`risk/register-assurance-map.md`](../risk/register-assurance-map.md) Section 1 for the full model, including external and customer-driven assurance. |
 | Matrix | A structured mapping among risks, controls, obligations, frameworks, evidence, lifecycle stages, or artefacts. |
 | Membership Inference | A model attack attempting to determine whether a specific record or individual was present in training or reference data. |
 | Model Inversion | A model attack attempting to reconstruct sensitive training or input data from model outputs or access patterns. |

@@ -2,8 +2,8 @@
 
 **Document Title:** Internal Audit Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-06-23\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -265,7 +265,7 @@ Where a dispute cannot be resolved, the finding is reported in the final report 
 
 ### 6.8 Final report
 
-The lead auditor issues the final audit report within **10 business days** of fieldwork completion. The final report includes:
+The lead auditor issues the final audit report within **10 business days** of fieldwork completion. Where the management-response window makes the 10-business-day target infeasible, the CAE/GRC Manager may extend it to **15 business days** with documented rationale (see [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md) §8.3). The final report includes:
 
 - Audit identification details (scope, dates, audit team, auditee);
 - Executive summary;

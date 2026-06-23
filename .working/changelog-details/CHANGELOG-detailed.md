@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.265, PR #287
+
+**PR-C of the XS/S batch: the assurance/3LoD + audit/CAPA bundle (seven Medium fitness items).** Built as one PR per maintainer direction, with each directional choice confirmed with a recommended option.
+
+### Changed
+- [`compliance/standard-internal-audit.md`](../../compliance/standard-internal-audit.md) (`1.0.1` → `1.0.2`): **FR-147**. §6.8 now states that where the management-response window makes the 10-business-day final-report target infeasible, the CAE/GRC Manager may extend it to 15 business days with documented rationale, cross-referencing the audit-planning procedure §8.3. Resolves the standard-vs-procedure timeline conflict (the procedure already permitted the 15-day extension; the standard stated a flat 10 days). Maintainer chose "standard acknowledges the extension" over "flat 10 days everywhere".
+- [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md) (`1.0.2` → `1.0.3`): **FR-148**. New §7.5 "Post-implementation effectiveness validation" anchors the Compliance and Audit Management Policy §4.3 requirement that CAPA effectiveness is independently validated by Internal Audit or Compliance within 90 business days of implementation, distinct from the GRC Manager's closure verification (§7.2).
+- [`risk/register-assurance-map.md`](../../risk/register-assurance-map.md) (`1.1.0` → `1.1.1`): **FR-101**. The gap-closure step's previously-implicit sign-off authority ("the relevant line of defence to confirm") now names first-line-proposes / relevant-second-line-confirms, with internal audit confirming where it raised the gap. Maintainer chose the first/second-line model over third-line or committee sign-off.
+- [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md) (`1.3.0` → `1.3.1`): **FR-102**. §6 gains a compensating-control pathway: where deferral is not operationally feasible and a rollback plan cannot be fully tested, the CAB may approve with documented compensating controls (staged rollout, enhanced monitoring, standby rollback team, extended window, verified backup) and recorded residual risk, instead of the previously-binary defer-pending-testing. The CISO veto (§3.3) continues to apply.
+- [`operations/standard-cloud-security-configuration-baseline.md`](../../operations/standard-cloud-security-configuration-baseline.md) (`1.4.4` → `1.4.5`): **FR-100**. §8 expands the ISO row from A.8.9 to the corpus-verified A.8.9/A.8.23/A.8.24 (per the compliance matrix) and adds a per-body-section (§4/§5/§6) mapping table to ISO, CIS Cloud Foundations areas (Identity and Access Management, Logging and Monitoring, Networking, Storage, email/collaboration), and NIST SP 800-53, reducing the auditor's manual-correlation effort. Maintainer chose the corpus-safe expansion; specific CIS recommendation numbers were not fabricated (the table notes they are version-specific).
+- [`governance/register-key-terms-and-definitions.md`](../../governance/register-key-terms-and-definitions.md) (`1.1.1` → `1.1.2`): **FR-77**. Adds a "Lines of Defence (Three Lines Model)" entry defining first/second/third line in organisation-neutral terms and cross-referencing the assurance-map Section 1, so documents using the model without inline explanation have a canonical definition to point to.
+
+### Added
+- [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) (`1.3.9` → `1.3.10`): **FR-83**. New §9 "Incident-command execution checklist" (one-page 60-minute / 4-hour / 24-hour time-phased action list, each line grounded in an existing §4-§7 step). Metrics → §10 and Framework alignment → §11 (low-churn renumber; no internal section cross-references broke).
+- [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md) (`1.4.10` → `1.4.11`): **FR-83**. New §10 "Privacy breach-response execution checklist" (parallel one-page 60-minute / 4-hour / 24-hour list keyed on breach awareness, grounded in existing §4-§8 steps). Metrics → §11 and Framework alignment → §12.
+
+### Notes
+- FR-83's TODO gloss ("IC = independent challenge") was a mislabel; the source finding is an **incident-command** time-phased execution checklist. The DONE entry records the correction.
+- The two checklists introduce no new obligations: every line summarizes an existing step in its procedure, cross-referenced by section.
+- Carries the batched PR #286 `/validate-pr` (0 findings) and `/retro` rows.
+- Seven items rotated TODO → DONE in the same diff.
+
+### Verification
+- `tools/lint-language.py` clean on the new prose before first commit; `tools/run_all_audits.sh` = 47/47 on the committed state; `tools/run-pr-time-checks.sh` (D1/D2/D3 + gate 45) pass; taxonomy and maturity-scorecard regenerated for the eight per-doc version bumps.
+
+Library `2026.06.264` → `2026.06.265`; README `1.9.135` → `1.9.136`.
+
 ## 2026-06-23, Library Version 2026.06.264, PR #286
 
 **Sweep 32 (`/validate`) close-out: harmonize the operational risk register to the canonical risk vocabulary and fix a self-contradicting audit-programme procedure step.** The `/resume` compensating-control corpus-wide `/validate` (Sweep 32, the standing control for the session-closing handoff PR #285, which skipped its trailing `/validate-pr`) surfaced three confirmed out-of-window findings, all `warning`-level, all apply-time-verified real.

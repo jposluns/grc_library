@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #287 — FR-147 + FR-148 + FR-101 + FR-102 + FR-100 + FR-77 + FR-83 (medium): assurance/3LoD + audit/CAPA bundle (2026-06-23)
+
+Seven Medium fitness items shipped as one PR-C: the internal-audit standard now acknowledges the audit-planning procedure's 15-business-day final-report extension (FR-147); the CAPA procedure anchors the policy's 90-business-day post-implementation effectiveness validation by Internal Audit or Compliance (FR-148); the assurance-map closure step now names first-line-proposes / second-line-confirms sign-off (FR-101); the change-management procedure gains a compensating-control pathway as an alternative to deferring an untested-rollback change (FR-102); the cloud security configuration baseline expands its ISO row and adds a per-section CIS/ISO/NIST mapping table (FR-100); the key-terms register defines the Three Lines Model (FR-77); and the security IR and privacy breach procedures each gain a one-page 60-minute / 4-hour / 24-hour incident-command execution checklist (FR-83, whose TODO gloss "independent challenge" was a mislabel for the incident-command checklist).
+
 ### PR #283 — FR-161 + FR-162 + FR-163 + FR-146 (medium): risk/AI register vocabulary aligned to canonical ERM set (2026-06-23)
 
 Aligned the AI risk register and AI risk-methodology annex Treatment Option lists to the canonical six (Avoid / Mitigate / Transfer / Accept / Exploit / Enhance), and reconciled the retired/conflated Status values in the AI register and the ERM-template sample rows to the canonical lifecycle Open / Closed. PR-B of the XS/S batch.

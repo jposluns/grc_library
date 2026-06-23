@@ -2,7 +2,7 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.10\
+**Version:** 1.4.11\
 **Date:** 2026-06-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -292,7 +292,34 @@ Copies of all submitted regulatory notifications, including phased supplementary
 
 ---
 
-## 10. Metrics
+## 10. Privacy breach-response execution checklist
+
+This one-page checklist summarizes the time-phased actions for a P1 or P2 personal data breach. The privacy stream runs in parallel with the technical incident-response stream (§1.3); its clock keys on awareness of the breach. It is a quick-reference companion to Sections 4 to 7, not a replacement for them.
+
+**First 60 minutes: initiate, joint command, protect evidence**
+
+- The CISO and DPO jointly initiate breach response the moment a potential personal data breach is identified (§2.2, §1.3).
+- Notify per severity: for a P1, the CISO and the CIO, as acting DPO, immediately (§2.1, §3).
+- Protect evidence: do not delete, overwrite, or modify any system, log, backup, or data record pending the impact assessment and notification determination; brief the DPO on evidence status before any containment that affects assessment completeness (§3.1, §5.1).
+- If a third-party processor holds the affected data, notify it immediately to preserve evidence and confirm it notified the organisation within its contractual window (§5.1, §6.3).
+
+**By 4 hours: contain by breach type**
+
+- Execute the privacy-specific containment for the breach type: revoke credentials and sessions; block exfiltration egress; request return or deletion for misdirected email or files; remote-wipe a lost or stolen enrolled device; invoke the supplier breach clause; for a trade-data breach notify the Regional BASC Compliance Officer (§5.2).
+- Apply scope isolation, not deletion: restrict further access and exposure; no premature deletion unless directed by Legal Counsel (§5.1).
+- Where an AI system or AI-related data asset is involved, begin the AI-specific assessment dimensions (§4.3).
+
+**By 24 hours: complete assessment, engage notification**
+
+- Complete the 24-hour initial assessment (personal data involved? scope? accessed or exfiltrated? risk to individuals? applicable jurisdiction? notification likely?) and retain it in the breach record (§4.2).
+- Conduct the formal notification assessment with Legal Counsel (notifiable per jurisdiction? deadline? individual notification? content?); the CIO, as acting DPO, approves before any submission (§6.1).
+- Initiate and track the jurisdictional notification clocks (for example, GDPR and UK GDPR 72 hours from awareness, Quebec Law 25 72 hours, PIPL without undue delay, Brazil LGPD 2 business days for initial notification) (§6.2).
+- Open or update the breach register entry (§9.1).
+- Initiate the post-incident review track, mandatory for P1 and P2, within 10 business days of closure (§8.1).
+
+---
+
+## 11. Metrics
 
 The following metrics are tracked and reported to the CIO and CISO at the quarterly Privacy Governance Review:
 
@@ -308,7 +335,7 @@ The following metrics are tracked and reported to the CIO and CISO at the quarte
 
 ---
 
-## 11. Framework alignment
+## 12. Framework alignment
 
 | Control Area | Framework Reference |
 | --- | --- |
