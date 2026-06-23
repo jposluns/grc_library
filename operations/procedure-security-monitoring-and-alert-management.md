@@ -2,8 +2,8 @@
 
 **Document Title:** Security Monitoring and Alert Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.1\
-**Date:** 2026-05-28\
+**Version:** 1.3.2\
+**Date:** 2026-06-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md)\
@@ -295,7 +295,7 @@ All automated AI-generated decisions, including anomaly scores, risk scores, and
 
 ### 10.4 Audit logging of automated decisions
 
-All AI-generated detections, model decisions, and automated enrichment actions are logged with their input data, model version, confidence score, and output. These logs are retained as part of the SIEM audit trail for a minimum of 7 years, consistent with the Logging and Monitoring Standard §4.1. AI model version changes that affect detection behaviour require Security Engineering review and documentation before deployment.
+All AI-generated detections, model decisions, and automated enrichment actions are logged with their input data, model version, confidence score, and output. These logs are retained as part of the SIEM audit trail for a minimum of 7 years, consistent with AI-system audit-log retention under ISO/IEC 42001 and EU AI Act Annex IV (a longer retention than the general SIEM event tier in [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), justified by AI-decision accountability). AI model version changes that affect detection behaviour require Security Engineering review and documentation before deployment.
 
 ### 10.5 Model performance review
 
