@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Risk Assessment Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-06-23\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\
@@ -69,6 +69,14 @@ Record unresolved risks, compensating controls, acceptance rationale, treatment 
 ### Step 10: Approve, defer, reject, or retire
 
 The accountable approval role must decide whether the model may proceed, proceed with conditions, remain in pilot, require remediation, be rejected, or be retired.
+
+---
+
+## Roles and responsibilities
+
+- **AI Governance Lead** coordinates and performs the assessment steps (Steps 1 to 10), drawing on the model owner and relevant subject-matter contributors for the evidence each step depends on.
+- **Model owner** supplies the model documentation, evaluation evidence, monitoring records, and supplier records the steps rely on, and owns the resulting treatment actions and residual-risk items.
+- **AI Governance Approver** makes the Step 10 decision (approve, proceed with conditions, pilot, remediate, reject, or retire). For high-tier models or unresolved high residual risk, the decision escalates to the **AI Governance Council**.
 
 ---
 

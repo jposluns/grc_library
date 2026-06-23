@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Onboarding Security Review Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.3\
-**Date:** 2026-06-22\
+**Version:** 1.0.4\
+**Date:** 2026-06-23\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/template-supplier-security-questionnaire.md`](template-supplier-security-questionnaire.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`supply-chain/register-subprocessor-template.md`](register-subprocessor-template.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md)\
@@ -136,7 +136,7 @@ This procedure is triggered when:
 | Scenario | Escalation Path | Timeframe |
 |---|---|---|
 | Tier 1 supplier with Critical residual risk | Supplier Risk Manager → CRO → executive leadership | Within 24 hours |
-| DPIA identifies High risk to individuals | DPO → CISO → Data Protection Officer | Within 24 hours |
+| DPIA identifies High risk to individuals | DPO → CISO → Chief Risk Officer (CRO) | Within 24 hours |
 | Supplier fails to provide assurance evidence | Supplier Risk Manager → Requesting Business Unit; delay access | After deadline passes |
 | Breach of trade compliance programme membership | Trade Compliance Manager → CRO; consider alternatives | Immediately on discovery |
 

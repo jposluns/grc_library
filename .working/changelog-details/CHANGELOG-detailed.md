@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.260, PR #282
+
+**FR-142 + FR-143: AI-procedure step accountability and a de-looped supplier escalation path.** First PR of the maintainer-directed XS/S backlog-reduction batch (PR-A: the High-severity items, isolated from the lower-severity bundles).
+
+### Changed
+- [`ai/procedure-ai-model-risk-assessment.md`](../../ai/procedure-ai-model-risk-assessment.md) (`1.0.1` → `1.0.2`): added a "Roles and responsibilities" subsection (AI Governance Lead performs Steps 1-10; model owner supplies evidence and owns treatment items; AI Governance Approver makes the Step 10 decision, escalating to the AI Governance Council for high-tier models or unresolved high residual risk).
+- [`ai/procedure-ai-system-impact-assessment.md`](../../ai/procedure-ai-system-impact-assessment.md) (`1.0.1` → `1.0.2`): added the parallel "Roles and responsibilities" subsection (AI Governance Lead performs the steps; system owner supplies evidence; approving authority makes the Step 9 decision, escalating to the AI Governance Council for high-impact systems).
+- [`supply-chain/procedure-supplier-onboarding-security-review.md`](../../supply-chain/procedure-supplier-onboarding-security-review.md) (`1.0.3` → `1.0.4`): the escalation row "DPIA identifies High risk to individuals" looped `DPO → CISO → Data Protection Officer`; corrected to terminate at `DPO → CISO → Chief Risk Officer (CRO)` (maintainer-chosen terminal).
+
+### Notes
+- FR-144 (the breach-procedure individual-notification clock) was **re-scoped** at maintainer direction: rather than a fixed internal clock, the resolution is an adopter-fillable breach-notification regulator register template wired into the breach procedure. Pulled out of this PR (now L-effort) and re-queued in TODO as its own deliverable.
+- Carries the batched PR #281 `/validate-pr` (0 findings) and `/retro` register rows per recursion-avoidance.
+
+### Verification
+- `tools/run_all_audits.sh` 47/47 on the committed state; `tools/run-pr-time-checks.sh` D1/D2/D3 + gate 45 pass. Per-doc Version + Date bumped together on all three touched docs.
+
+Library `2026.06.259` → `2026.06.260`; README `1.9.130` → `1.9.131`.
+
 ## 2026-06-23, Library Version 2026.06.259, PR #281
 
 `.working/` + TODO for local project: **Sweep 31 `/validate` close-out plus the maintainer-directed TODO restructure.** Working-state only; no adopter-facing corpus content changed.
