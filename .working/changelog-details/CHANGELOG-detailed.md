@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-22, Library Version 2026.06.231, PR #253
+
+**Completes the trust-recovery routing-convention revision + adds the third-party-issues log.** Closes the multi-surface-incompleteness defect PR #252's `/validate-pr` caught, and lands the maintainer-requested signing-outage writeup.
+
+### Fixed
+
+- **[`dev-security/claude-rules/skills/deep-qa-review/SKILL.md`](../../dev-security/claude-rules/skills/deep-qa-review/SKILL.md)** (the two spots PR #252's routing revision missed): line 93 (Verification completion criterion) changed from "every confirmed finding was routed to the top-priority backlog tier" to the severity-tiered wording (High[critical]/High to top-priority, Medium/Low to next-priority, none dropped); line 101 (Common-Rationalizations Reality cell) changed from "not to triage severity" to "filters hallucinations and tiers findings by severity, but never drops a finding; tiering to the next-priority tier is routing it." Generic project-agnostic tier wording (pack file). A full-file grep confirmed §4 heading/body (lines 70/72) and frontmatter (line 3) were already correct and these were the only two stale spots.
+
+### Added (working-state, gate-exempt)
+
+- **[`.working/third-party-issues.md`](../third-party-issues.md)** (new, Version 1.0.0): a reverse-chronological log of execution-environment and third-party-service issues (outages, flakes, misconfigurations) so a future session distinguishes environment artifacts from genuine defects. First entry: the 2026-06-22 commit-signing-server 503 outage (symptoms, diagnosis, the distinguish-from-real-defect discipline, resolution, and a lesson for future sessions). Maintainer-requested.
+
+### Changed
+
+- **[`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md)**: pack Version `1.47.1 → 1.47.2`; new 1.47.2 version-history row (completes 1.47.1; the 1.47.1 and 1.47.0 rows left accurate-to-time).
+- **[`README.md`](../../README.md)**: library `2026.06.230 → 2026.06.231`; README `1.9.101 → 1.9.102`.
+
+### Verification
+
+- `lint-language` clean on the pack-file edits (no em/en-dashes); the deep-qa SKILL no longer self-contradicts (full-file grep for single-tier phrasing returns only the two now-fixed lines, now consistent).
+- `tools/run_all_audits.sh` exit 0 (46/46) post-commit; `tools/run-pr-time-checks.sh` exit 0.
+
+### Carried (recursion-avoidance)
+
+- PR #252 `/validate-pr` row (2 in-window High findings, fixed in this PR) and `/retro` row (the multi-surface-incompleteness + em-dash + signing-outage friction, with the grep-the-full-file apply-time-checklist improvement candidate). `.working/validate-pr/history.md` Version `1.2.55 → 1.2.56`; `.working/improvement-log.md` Version `1.0.34 → 1.0.35`.
+
 ## 2026-06-22, Library Version 2026.06.230, PR #252
 
 **Trust-recovery routing convention revised to severity-tiered.** Implements the maintainer's 2026-06-22 "routing flag only" decision (captured in PR #251): trust-recovery findings route tiered by severity (High[critical]+High to the top-priority tier / P1; Medium+Low to the next tier / P2) rather than all to a single top-priority tier regardless of severity. The no-drop invariant and the maintainer-sign-off termination are preserved.
