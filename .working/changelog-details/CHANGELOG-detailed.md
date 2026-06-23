@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.249, PR #271
+
+**Sweep 28 (`/validate`) close-out: fix an in-window DR backup-cadence contradiction surfaced by the session-resume corpus-wide sweep.** The `/resume` compensating-control `/validate` (the standing control for the session-closing handoff PR #270, which skips its trailing `/validate-pr` per the loop-break exception) found one in-window defect; this PR fixes it and lands the sweep record.
+
+### Fixed
+
+- **[`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md)** (`1.3.0 → 1.3.1`): the "Backup and restore requirements" cadence clause (line 97) prescribed "continuous or near-continuous data protection ... for Tier 1's 1-hour RPO, **and at least daily backups for Tier 2 and lower tiers**" — but the gap clause (line 99) binds Tier 2 to a "4 hours" backup gap matching its 4-hour RPO (the RTO/RPO targets table, line 50), and line 101 treats "any backup gap exceeding the defined RPO" as a P2 risk event. Daily backups (≈24-hour gap) cannot meet a 4-hour gap, so a compliant Tier-2 system would sit permanently in P2 escalation — the precise self-contradiction PR #265/FR-139 was written to remove for Tier 1, reproduced at Tier 2. The cadence clause now reads "continuous or near-continuous data protection ... for Tier 1's 1-hour RPO, **backups at least every 4 hours for Tier 2's 4-hour RPO, and at least daily backups for Tier 3 and Tier 4**." Tier 3 (24-hour RPO) and Tier 4 (72-hour RPO) remain satisfiable by daily backups; the change makes line 97 consistent with line 99, the targets table, and line 101.
+
+### Changed
+
+- **[`TODO.md`](../../TODO.md)**: added **DD-11** (the new out-of-window observation — `risk/template-operational-risk-register.md`:123-127/:222 distinct "Very low/Low/Moderate/High/Very high" likelihood scale with "Moderate" as both likelihood and rating label, diverging from the FR-134 canonical but self-scoped at line 119 as a replaceable proposed scale; adjacent to DD-2/DD-3); and recorded the **maintainer's running-order directive (2026-06-23)** in the Queueing rules: FR-166/167 first → DD-1..DD-11 triage/action → reduce the backlog by batching the smallest items, using 10+ well-briefed research-assistant agents.
+- **[`.working/validate-sweeps/history.md`](../../.working/validate-sweeps/history.md)** (`2.0.20 → 2.0.21`): Sweep 28 row + the new **[`.working/validate-sweeps/2026-06-23-sweep28-iter1.md`](../../.working/validate-sweeps/2026-06-23-sweep28-iter1.md)** record.
+- **[`taxonomy.yml`](../../taxonomy.yml)** and **[`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md)**: regenerated for the DR plan's version bump.
+
+### Verification / discipline
+
+- **Sweep 28 (`/validate`)**: mechanical baseline 46/46; full three-subagent dispatch (A recent-PR #259-#270 + corpus-regression, B corpus-wide stale-reference, C audit-programme integrity). Subagent A: 1 in-window C3 finding (fixed) + 4 out-of-window (3 dedupe → DD-3/5/8, 1 new → DD-11). Subagent B: 0 in-window, 3 out-of-window (all dedupe to DD-8/DD-5/DD-4); free-prose counts 10/15/8/46 all match on-disk. Subagent C: 0 defects; four gate-wiring surfaces + prose counts mutually consistent. The in-window finding was re-verified at apply-time (re-read of lines 40-109 + `git show 72bde4c~1` lineage) before the fix; a post-fix `grep` for "daily|Tier|backup gap" across resilience/ + operations/ confirms the DR plan is internally coherent and no parallel Tier-2 cadence surface remains stale. Empty-delta termination after the one self-contained coherence fix.
+- **Apply-time discipline**: the fix direction was determined by the document's own authoritative targets table + the locked FR-139 principle (cadence must meet RPO), not by a new authorial decision — the same class as the Sweep 25 coherence fixes; therefore applied directly rather than re-surfaced to the maintainer (compute-don't-ask; the Sweep 25 #266 precedent).
+- All 46 gates + PR-time checks (D1/D2/gate 45) pass standalone post-commit.
+- Library `2026.06.248 → 2026.06.249`; README `1.9.119 → 1.9.120`.
+
 ## 2026-06-23, Library Version 2026.06.248, PR #270
 
 **Session-closing handoff PR for the 2026-06-23 resume + wind-down session.** Working-state only; no adopter-facing corpus content changed.
