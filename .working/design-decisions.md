@@ -14,6 +14,42 @@ The ordering below is loosely thematic rather than chronological. New decisions 
 
 ---
 
+## Overnight unattended run authorizations (decided 2026-06-23, maintainer pre-sleep)
+
+The maintainer authorized an autonomous overnight run through the P1/P2 (then P3/P4)
+backlog, with green-CI = merge authority and the hard rule that any `/validate-pr` or
+`/validate` finding is fixed immediately before the next planned PR. The formal decisions
+resolved before sleep (so the run would not stall on them):
+
+- **New-document criticals (FR-30/31/32/34/71/72)**: author all six unattended, each its
+  own PR, mirroring an existing same-type document and anchored to its named external
+  standard (GDPR Art 28 / Art 25 / Art 6(1)(f); EDPB Recommendation 01/2020; M&A
+  due-diligence; OFAC/sanctions/export-control).
+- **FR-70 crypto-asset / blockchain domain (XL)**: deferred to a dedicated session
+  (domain-level shaping is the maintainer's; not a fit for unattended work).
+- **Cross-document value conflicts**: resolve **stricter-is-safer + evidence** — toward the
+  more conservative value where one is clearly safer, and toward the external-standard- or
+  already-canonical-internal-source-supported value where one governs; document each choice;
+  skip any pick lacking both bases to morning. (Consistent with the locked-criticals pattern:
+  TLS 1.3 everywhere, 1h RPO binding, 3y DSAR.)
+- **FR-143 supplier-onboarding escalation chain**: the circular `DPO → CISO → Data Protection
+  Officer` (supplier-onboarding-security-review:139) becomes **`DPO → CISO → CRO`** (CRO is the
+  terminal risk authority in the same matrix's Tier-1 row, so internally consistent).
+- **FR-140 adopter starter-set**: **strict nesting with the quickstart 6-artefact "core baseline
+  floor" canonical** — Tier-1 (15) ⊇ the 6 (incl. IAM + acceptable-use, which Tier 1 currently
+  omits); decision-tree (23) ⊇ 15; README core-reference (~37) ⊇ 23; reconcile the quickstart vs
+  startup-roadmap 6th-artefact naming to the quickstart's.
+- **FR-73 AI ethics**: introduce a **standing independent AI Ethics Panel** — a subcommittee
+  operationally independent of the AI Governance Council's risk/compliance function, with a
+  documented challenge mechanism and the ability to escalate dissent.
+- **FR-144 breach individual-notification clock**: add an internal floor — "without undue delay,
+  and in any event within 72 hours of the high-risk determination" — mirroring the GDPR authority
+  clock (stricter rule; resolved without a separate maintainer decision).
+- **FR-58 inheritance vocabulary**: **skipped to morning** as a taxonomy-design task that
+  propagates across many documents and needs maintainer discussion.
+
+---
+
 ## Working state and `.working/` convention
 
 ### `.working/` top-level convention (decided 2026-06-21, PRs #114-#118)

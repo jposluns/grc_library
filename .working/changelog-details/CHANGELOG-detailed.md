@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.237, PR #259
+
+**Initiates a maintainer-authorized autonomous overnight run.** Working-state + AI-guidance only; no corpus content changed.
+
+### Changed
+
+- **[`.working/overnight-pr.md`](../../.working/overnight-pr.md)**: `Status: stub → in-flight` per the overnight-work protocol (gate 46 accepts `in-flight`). Filled with the authorization scope (get through P1/P2, then P3/P4; green CI = merge; `/validate-pr`+`/retro` per PR with no abbreviation; `/validate` per batch seam; findings fixed immediately before the next PR; unanticipated decisions skipped to morning), the eight design decisions resolved with the maintainer before sleep, the PR plan-of-record, and the not-touched list (FR-58, FR-70, FR-48).
+- **[`.working/design-decisions.md`](../../.working/design-decisions.md)**: new "Overnight unattended run authorizations (2026-06-23)" section recording the eight decisions (new-doc criticals authored unattended; FR-70 deferred; value conflicts resolved stricter-is-safer + evidence; FR-143 → DPO→CISO→CRO; FR-140 strict nesting with quickstart-6 canonical; FR-73 standing independent AI Ethics Panel; FR-144 72h-from-determination internal floor; FR-58 to morning).
+
+### Added (batched per recursion-avoidance)
+
+- **[`.working/validate-pr/history.md`](../../.working/validate-pr/history.md)**: PR #258 row (0 findings; Version 1.2.61 → 1.2.62).
+- **[`.working/improvement-log.md`](../../.working/improvement-log.md)**: PR #258 `/retro` row (Version 1.0.39 → 1.0.40).
+
+### Verification
+
+- Working-state and `.claude/`/`.working/` only; no document body changed, so no per-document version/date bumps apply. Library `2026.06.236 → 2026.06.237`; README `1.9.107 → 1.9.108`. Post-commit `run_all_audits.sh` (46 gates) + pre-push `run-pr-time-checks.sh` green before push; CI-green before merge.
+
 ## 2026-06-23, Library Version 2026.06.236, PR #258
 
 **Distributes the PRIMORDIAL RULE as the tenth pack governance rule `project-integrity.md`.** Closes TODO P4.0. The project-only apex integrity section becomes a project-agnostic pack rule so adopters inherit the Quality > Speed > Cost ordering.
