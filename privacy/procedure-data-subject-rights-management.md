@@ -2,7 +2,7 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.1\
+**Version:** 1.5.0\
 **Date:** 2026-06-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -24,9 +24,9 @@
 
 ### 1.1 Purpose
 
-This procedure defines the end-to-end process for receiving, validating, fulfilling, and documenting requests from individuals exercising their rights over personal data held by the organisation. It ensures that compliance with applicable data subject rights obligations under GDPR, UK GDPR, CPPA, PIPL, and related laws, and establishes consistent standards for identity verification, response timelines, denial justification, and record keeping.
+This procedure defines the end-to-end process for receiving, validating, fulfilling, and documenting requests from individuals exercising their rights over personal data held by the organisation. It ensures that compliance with applicable data subject rights obligations under GDPR, UK GDPR, PIPEDA, PIPL, and related laws, and establishes consistent standards for identity verification, response timelines, denial justification, and record keeping.
 
-The procedure is aligned to ISO/IEC 27701:2025 (PII principals' rights; section numbering changed in 2025 standalone revision), GDPR Articles 15 to 22, CPPA Part 2 Division 5, PIPL Articles 44 to 47, and CSA CCM v4.1 PRI-04.
+The procedure is aligned to ISO/IEC 27701:2025 (PII principals' rights; section numbering changed in 2025 standalone revision), GDPR Articles 15 to 22, PIPEDA Schedule 1 (CSA Model Code fair-information principles), PIPL Articles 44 to 47, and CSA CCM v4.1 PRI-04.
 
 ### 1.2 Scope
 
@@ -63,13 +63,15 @@ The following table defines the rights managed under this procedure, the applica
 
 | Right | Applicable Laws | Scope | Response Timeframe | Key Exemptions |
 | --- | --- | --- | --- | --- |
-| **Access (Subject Access Request / SAR)** | GDPR Art. 15; UK GDPR Art. 15; CPPA s.63; PIPL Art. 45 | Confirmation that data is held; categories of data; purposes; recipients; retention periods; source; automated decision logic where applicable | 30 days (extendable to 90 days for complexity or volume with notification at day 30) | Data subject rights of third parties; legal professional privilege; ongoing law enforcement cooperation; disproportionate effort for purely archival data |
-| **Correction / Rectification** | GDPR Art. 16; UK GDPR Art. 16; CPPA s.66; PIPL Art. 46 | Correction of inaccurate personal data; completion of incomplete data | 30 days | Data that is required for legal or regulatory compliance in its current form; disputes over factual accuracy subject to legal assessment |
-| **Deletion / Erasure (Right to be Forgotten)** | GDPR Art. 17; UK GDPR Art. 17; CPPA s.69 | Erasure of personal data where no longer necessary; consent withdrawn; unlawful processing; legal obligation to erase | 30 days (subject to retention obligations) | Legal obligation to retain; defence of legal claims; public interest; legitimate interests overriding erasure; statutory or regulatory retention requirements |
+| **Access (Subject Access Request / SAR)** | GDPR Art. 15; UK GDPR Art. 15; PIPEDA Sch 1 Principle 9 (Individual Access); PIPL Art. 45 | Confirmation that data is held; categories of data; purposes; recipients; retention periods; source; automated decision logic where applicable | 30 days (extendable to 90 days for complexity or volume with notification at day 30) | Data subject rights of third parties; legal professional privilege; ongoing law enforcement cooperation; disproportionate effort for purely archival data |
+| **Correction / Rectification** | GDPR Art. 16; UK GDPR Art. 16; PIPEDA Sch 1 Principle 9 (amendment of inaccurate data); PIPL Art. 46 | Correction of inaccurate personal data; completion of incomplete data | 30 days | Data that is required for legal or regulatory compliance in its current form; disputes over factual accuracy subject to legal assessment |
+| **Deletion / Erasure (Right to be Forgotten)** | GDPR Art. 17; UK GDPR Art. 17 | Erasure of personal data where no longer necessary; consent withdrawn; unlawful processing; legal obligation to erase | 30 days (subject to retention obligations) | Legal obligation to retain; defence of legal claims; public interest; legitimate interests overriding erasure; statutory or regulatory retention requirements |
 | **Data Portability** | GDPR Art. 20; UK GDPR Art. 20 | Provision of data in a structured, commonly used, machine-readable format; direct transmission to another controller where technically feasible | 30 days | Applies only to data provided by the individual and processed by consent or contract; does not apply to data processed under other legal bases |
 | **Restriction of Processing** | GDPR Art. 18; UK GDPR Art. 18 | Marking data to restrict active processing while accuracy, lawfulness, or competing interests are assessed | Acknowledgement within 72 hours; restriction applied within 30 days | Restriction lifted only on data subject consent, legal claims, overriding public interest, or resolution of the disputed grounds |
-| **Objection to Processing** | GDPR Art. 21; UK GDPR Art. 21; CPPA s.67 | Right to object to processing based on legitimate interests or for direct marketing | Halt direct marketing processing immediately; assess other objections and respond within 30 days | Compelling legitimate grounds overriding the individual's interests; legal claims |
-| **Automated Decision Review (including profiling)** | GDPR Art. 22; UK GDPR Art. 22; CPPA s.63(3) | Right to not be subject to solely automated decisions with significant legal or similarly significant effect; request human review | Acknowledgement within 5 business days; human review completed within 30 days | Decisions necessary for contract performance; authorized by law; explicit consent with appropriate safeguards |
+| **Objection to Processing** | GDPR Art. 21; UK GDPR Art. 21; PIPEDA Sch 1 Principle 3 (withdrawal of consent) | Right to object to processing based on legitimate interests or for direct marketing | Halt direct marketing processing immediately; assess other objections and respond within 30 days | Compelling legitimate grounds overriding the individual's interests; legal claims |
+| **Automated Decision Review (including profiling)** | GDPR Art. 22; UK GDPR Art. 22 | Right to not be subject to solely automated decisions with significant legal or similarly significant effect; request human review | Acknowledgement within 5 business days; human review completed within 30 days | Decisions necessary for contract performance; authorized by law; explicit consent with appropriate safeguards |
+
+**Canadian legal basis.** The in-force Canadian federal basis for these rights is PIPEDA Schedule 1 (the CSA Model Code fair-information principles): access and amendment rest on Principle 9 (Individual Access), and objection rests on Principle 3 (Consent, including withdrawal of consent). PIPEDA does not provide a standalone right to erasure or a right not to be subject to automated decision-making; for those, the basis above is GDPR (and equivalents). The Consumer Privacy Protection Act (CPPA, Part 1 of Bill C-27) would have introduced disposal and automated-decision-explanation rights, but Bill C-27 lapsed at the 2025-01-06 prorogation and is **not in force**; it would require reintroduction in a future Parliament (see [`privacy/jurisdictions/annex-privacy-canada.md`](jurisdictions/annex-privacy-canada.md)). Where the organisation processes the personal information of Quebec residents, Quebec Law 25 provides stronger rights (including portability and de-indexing) and applies in addition to PIPEDA.
 
 ---
 
@@ -276,7 +278,7 @@ The fee schedule should be documented as an internal cost-recovery policy review
 | **UK GDPR** (UK) | Article 12(5) (same as EU GDPR) | ICO Subject Access Code of Practice provides guidance; "reasonable fee" interpreted as administrative cost only |
 | **LGPD** (Brazil, Article 18) | Free of charge by default; ANPD may establish exceptions in regulation | No explicit "manifestly unfounded or excessive" exception in primary law |
 | **PIPL** (China, Article 50) | Free of charge by default; processor may charge reasonable fee for "repeated handler-of-information information requests" | "Repeated" threshold not statutorily defined; processor must justify |
-| **CPPA / PIPEDA** (Canada) | OPC guidance: free of charge by default; nominal fee permitted for non-routine requests with prior notice to the subject | Subject must have option to abandon request after fee notice |
+| **PIPEDA** (Canada) | OPC guidance: free of charge by default; nominal fee permitted for non-routine requests with prior notice to the subject | Subject must have option to abandon request after fee notice |
 | **CCPA / CPRA** (California) | Generally free; "manifestly unfounded or excessive, in particular because of their repetitive nature" exception; controller may charge reasonable fee or decline | Mirrors GDPR Article 12(5) language closely |
 | **APPI** (Japan, Article 38) | Reasonable fee permitted; must be communicated in advance | No explicit "manifestly unfounded" gate |
 
@@ -312,7 +314,7 @@ Data subjects have the right to access data held about them regardless of whethe
 - The Data Protection Officer coordinates with the CISO and AI system owners to retrieve AI-derived data within the access scope.
 - The system card or model card for relevant AI systems is consulted to confirm what data is generated and retained.
 
-### 8.3 Automated decision review (GDPR art. 22 / CPPA)
+### 8.3 Automated decision review (GDPR art. 22)
 
 Where a data subject exercises their right to human review of an automated decision:
 
@@ -370,13 +372,13 @@ The following metrics are tracked and reported to the CIO at the quarterly Priva
 | Control Area | Framework Reference |
 | --- | --- |
 | Data subject rights management | ISO/IEC 27701:2025 (PII principals' rights); CSA CCM v4.1 PRI-04 |
-| Access and transparency | GDPR Art. 15; UK GDPR Art. 15; CPPA s.63; PIPL Art. 45 |
-| Correction and rectification | GDPR Art. 16; UK GDPR Art. 16; CPPA s.66; PIPL Art. 46 |
-| Deletion and erasure | GDPR Art. 17; UK GDPR Art. 17; CPPA s.69 |
+| Access and transparency | GDPR Art. 15; UK GDPR Art. 15; PIPEDA Sch 1 Principle 9 (Individual Access); PIPL Art. 45 |
+| Correction and rectification | GDPR Art. 16; UK GDPR Art. 16; PIPEDA Sch 1 Principle 9 (amendment); PIPL Art. 46 |
+| Deletion and erasure | GDPR Art. 17; UK GDPR Art. 17 |
 | Data portability | GDPR Art. 20; UK GDPR Art. 20 |
 | Restriction of processing | GDPR Art. 18; UK GDPR Art. 18 |
-| Objection to processing | GDPR Art. 21; UK GDPR Art. 21; CPPA s.67 |
-| Automated decision review | GDPR Art. 22; UK GDPR Art. 22; CPPA s.63(3) |
+| Objection to processing | GDPR Art. 21; UK GDPR Art. 21; PIPEDA Sch 1 Principle 3 (withdrawal of consent) |
+| Automated decision review | GDPR Art. 22; UK GDPR Art. 22 |
 | DPO accountability and record keeping | GDPR Art. 37 to 39; ISO/IEC 27701 §6.2.3 |
 | Retention of DSR records | [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) |
 
