@@ -2,8 +2,8 @@
 
 **Document Title:** Logging and Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.4.1\
-**Date:** 2026-05-28\
+**Version:** 1.4.2\
+**Date:** 2026-06-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -89,7 +89,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ov
 
 ### 4. Retention and protection
 
-4.1 Security and audit logs shall be retained for a minimum of seven years or longer where legally mandated, including BASC-governed trade and customs logs required for regional audit and customs validation.
+4.1 Security and audit logs shall be retained per the tiered retention periods in [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), which is authoritative and sets retention by log class (for example: access logs 1 year, privileged-access session logs 2 years, SIEM event logs 1 year hot plus 2 years cold, security incident records 5 years). Sector-mandated logs are retained longer where legally required, including BASC-governed trade and customs logs required for regional audit and customs validation.
 4.2 Log archives must be stored in write-once, read-many (WORM) or tamper-evident repositories, with BASC trade-data logs maintained in secure BASC-approved data centres or validated cloud regions.
 4.3 Access to logs must be limited to authorized personnel with MFA and role-based access controls.
 4.4 Logs containing personal, regulated, or customs data must be protected in accordance with GDPR, CPPA, PIPL, and BASC data-protection requirements.

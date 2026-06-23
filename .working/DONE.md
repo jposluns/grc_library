@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #262 — FR-136 (high[critical]): log-retention schedule authoritative (2026-06-23)
+
+Resolved the log-retention conflict by making `register-data-retention-schedule.md` authoritative: the logging standard §4.1 (flat "seven years") and the records standard's IT/Security row ("1 to 3 years") now defer to the schedule's tiered, by-log-class periods. Reconciled a downstream citer (security-monitoring §298, which cited §4.1 for a 7-year AI-decision-log retention) onto the established ISO/IEC 42001 + EU AI Act Annex IV basis, preserving its 7-year retention. Also forward-corrected PR #261's over-broad TLS verification claim.
+
 ### PR #261 — FR-135 (high[critical]): TLS 1.3 everywhere (2026-06-23)
 
 Migrated every org TLS-floor surface from "TLS 1.2 minimum" / "1.2+" to TLS 1.3 (or stronger), with TLS 1.2 moved to the prohibited set, across the security quick-reference, baseline reference, mobile-app-security, production-security (B2B/EDI adapter, unconditionally), the healthcare HIPAA annex, and the pack cryptography + MCP-security rules. Two surfaces deferred to maintainer review: `core/owasp.md` (represents OWASP ASVS, which permits 1.2) and `languages/go.md` (TLS code example needs coherent rewrite).
