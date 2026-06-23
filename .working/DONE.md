@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #279 — DD-9 (low): DR backup-requirements header broadened to "All systems" (2026-06-23)
+
+Broadened the disaster-recovery plan's "Backup and restore requirements" header from "All Tier 1 and Tier 2 systems must have:" to "All systems must have:", matching its bullets which already span all four tiers after the FR-139 / Sweep-28 edits. Also closed the three #278 `/validate-pr` bookkeeping findings in the same PR.
+
 ### PR #278 — DD-1 (low): new-entries-only CHANGELOG dash gate (D3) (2026-06-23)
 
 Resolved DD-1 with a PR-time delta gate (D3, `check-changelog-dash-on-pr.py`) that flags em/en dashes only in lines a PR adds to `CHANGELOG.md`, leaving the ~130 historical dashes untouched. Scope narrowed from "extend to all of CHANGELOG" at action time after the dash count proved far larger than the backlog item assumed.
