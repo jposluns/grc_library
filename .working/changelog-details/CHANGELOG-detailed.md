@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.259, PR #281
+
+`.working/` + TODO for local project: **Sweep 31 `/validate` close-out plus the maintainer-directed TODO restructure.** Working-state only; no adopter-facing corpus content changed.
+
+### Added
+- [`.working/validate-sweeps/2026-06-23-sweep31-iter1.md`](../validate-sweeps/2026-06-23-sweep31-iter1.md): the Sweep 31 per-iteration detail file (six H2 sections; three-subagent verbatim returns plus orchestrator synthesis).
+- A new Sweep 31 row at the top of [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md).
+- Two new P4 items in [`TODO.md`](TODO.md): 4.9 (refresh the stale hallucination-metrics summary table, frozen since #176) and 4.10 (TODO/DONE rotation mechanical gate, escalated by two consecutive misses, to co-design with 4.6 as one post-merge bookkeeping-parity gate family).
+
+### Changed
+- **[`TODO.md`](TODO.md) restructure** (maintainer-directed 2026-06-23): dissolved the cross-cutting "Deferred decisions from the overnight run" section and the trust-recovery suite/codification/re-tiered headings; integrated every actionable item into the P1 through P7 priority sections; ordered each section lowest-effort-first; preserved every FR-N/DD-N id (the DD-2..DD-12 items distributed by severity, with the maintainer's PR-bundle groupings retained as combined items where the triage merged them). P4-P6 subsections and their stable `N.M` ids were kept and reordered by effort. First-pass effort labels were assigned to previously-unlabeled P2/P3 items for the maintainer to calibrate. Refreshed the session-resume metadata snapshot (versions, 47 gates, sweep cursor to Sweep 31) and the backlog totals.
+- The Sweep 31 `/validate` was a clean bill: full three-subagent dispatch (A recent-PR #275-#280; B corpus-wide stale-reference; C audit-programme integrity), mechanical baseline 47/47, 0 in-window corpus findings, pre-flight 9 candidates all confirmed false positives.
+
+### Fixed
+- Two note-level gate-number mislabels in [`TODO.md`](TODO.md), surfaced by Sweep 31 Subagent C and orchestrator-verified against `governance/specification-audit-programme.md` §6: the standard-version-upgrade step's "gate 27 (`tools/lint-standards-currency.py`)" corrected to **gate 6** (standards-currency); the session-resume sweep-status reference to #277 broadening "gate 27" corrected to **gate 5** (the `lint-citations.py` framework-citation-hallucination gate). Gate 27 is `lint-citation-verification-freshness.py`. The same mislabel in the frozen `CHANGELOG.md` #277 entry and this detailed mirror is append-only history and was not retroactively rewritten.
+
+### Verification
+- `tools/run_all_audits.sh`: all 47 gates pass on the committed state. Per-PR delta gates (D1/D2/D3) and gate 45 (TODO staleness, sweep cursor now at Sweep 31) verified via `tools/run-pr-time-checks.sh`. The root CHANGELOG entry is dash-free (dogfooding D3).
+
+Library `2026.06.258` to `2026.06.259`; README `1.9.129` to `1.9.130`.
+
 ## 2026-06-23, Library Version 2026.06.258, PR #280
 
 **Session-closing handoff PR (the 2026-06-23 DD-triage + Track-1-start session).** Working-state only; no adopter-facing corpus content changed. Carries the PR #279 post-merge close-out (committed earlier on the branch) plus this handoff refresh.
