@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #265 — FR-139 (high[critical]): DR Tier-1 backup cadence meets the 1h RPO (2026-06-23)
+
+Resolved the DR-plan self-contradiction where Tier 1 carried a 1-hour RPO but the backup section mandated "daily backups" and allowed a "24-hour gap" (so every Tier-1 backup would permanently breach the RPO and trigger P2 escalation). The backup cadence now requires continuous/near-continuous data protection for Tier 1's 1h RPO, and the backup-gap limit is aligned per tier (1h Tier 1, 4h Tier 2, 24h/72h Tier 3/4). **Completes the 6-item H[critical] locked-criticals batch (FR-134 through FR-139).**
+
 ### PR #264 — FR-138 (high[critical]): scrub CPPA-as-live (3 named docs) (2026-06-23)
 
 Removed Consumer Privacy Protection Act (CPPA, lapsed Bill C-27) treatment-as-in-force from the three named privacy documents: the data-subject-rights procedure (rights table + summary table + §8.3 + intro now cite PIPEDA Schedule 1 Principle 9/Principle 3, with a new "Canadian legal basis" note explaining PIPEDA lacks erasure/automated-decision rights and CPPA is pending reintroduction), the breach-response procedure (Canada federal basis = PIPEDA Breach of Security Safeguards Regulations; CPPA pending), and the privacy policy (rights + control-mapping cells). Broader corpus CPPA-as-live mentions (security incident-response, document-index framework tags, matrices, other privacy templates) deferred to a follow-up sweep.

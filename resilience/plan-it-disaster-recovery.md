@@ -2,8 +2,8 @@
 
 **Document Title:** IT Disaster Recovery Plan\
 **Document Type:** Plan\
-**Version:** 1.2.0\
-**Date:** 2026-05-27\
+**Version:** 1.3.0\
+**Date:** 2026-06-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -94,9 +94,9 @@ No production system is restored to service until the following conditions are c
 
 All Tier 1 and Tier 2 systems must have:
 
-- Automated daily backups with off-site or cloud copy.
+- Automated backups with off-site or cloud copy at a cadence that meets each system's RPO: continuous or near-continuous data protection (for example, journaled or snapshot replication, or log shipping) for Tier 1's 1-hour RPO, and at least daily backups for Tier 2 and lower tiers.
 - Backup integrity verified monthly via restore test.
-- Backup gap not exceeding 24 hours for Tier 1 and 4 hours for time-critical data.
+- Backup gap not exceeding each tier's RPO: 1 hour for Tier 1 and 4 hours for Tier 2 (the 24-hour and 72-hour RPOs apply to Tier 3 and Tier 4 respectively, per the RTO and RPO targets table above).
 
 Backup status is reported monthly to the CISO. Any backup gap exceeding the defined RPO is treated as a P2 risk event and escalated for immediate remediation.
 
