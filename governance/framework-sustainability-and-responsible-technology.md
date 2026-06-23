@@ -2,8 +2,8 @@
 
 **Document Title:** Sustainability and Responsible Technology Framework\
 **Document Type:** Framework\
-**Version:** 1.1.1\
-**Date:** 2026-06-22\
+**Version:** 1.2.0\
+**Date:** 2026-06-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)\
@@ -73,9 +73,7 @@ All procurement decisions shall include a documented assessment of supplier sust
 
 Reporting aligns with GRI Standards, TCFD recommendations, and ISO 50001 formats.
 
----
-
-## Governance and accountability
+**Escalation triggers.** The CIO escalates sustainability performance to the ERC, and to the Board where the matter is material, when any of the following occurs: a tracked KPI misses its target for two consecutive reporting periods; a substantiated human rights due-diligence finding arises in operations or the supply chain; or a material adverse ESG event occurs (a regulatory disclosure breach, a significant environmental incident, or a reportable ethics failure). These triggers are qualitative by design; each adopting organisation calibrates the specific tolerance bands to its sector and risk appetite. Escalated matters are recorded in the sustainability review and raised into the enterprise risk register where the exposure warrants.
 
 | Role | Responsibility |
 | --- | --- |

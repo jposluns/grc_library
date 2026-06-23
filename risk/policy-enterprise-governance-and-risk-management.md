@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Governance and Risk Management Policy\
 **Document Type:** Policy\
-**Version:** 1.4.4\
-**Date:** 2026-06-22\
+**Version:** 1.4.5\
+**Date:** 2026-06-23\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -133,7 +133,7 @@ Consolidated enterprise risk reporting shall be presented to executive leadershi
 | ISO 23894:2023 | AI Risk Management |
 | ISO/IEC 42001:2023 | AI Management System |
 | COBIT 2019 | APO12 Manage Risk; APO10 Manage Suppliers; MEA01; DSS04 |
-| CSA CCM v4.1 | GRM domain; BCR domain; GOV domain; AIS domain |
+| CSA CCM v4.1 | GRC domain; BCR domain; GOV domain; AIS domain |
 | NIST SP 800-39 | Managing Information Security Risk |
 | NIST AI RMF | Govern, Map, Measure, Manage |
 | OECD AI Principles | Transparency, robustness, accountability |

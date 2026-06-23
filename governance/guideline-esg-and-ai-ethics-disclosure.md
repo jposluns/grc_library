@@ -2,8 +2,8 @@
 
 **Document Title:** ESG and AI Ethics Disclosure Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.1.0\
+**Date:** 2026-06-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)\
@@ -33,6 +33,8 @@ Applies to all external ESG and AI ethics disclosures including: annual sustaina
 ### 1. Materiality
 
 Disclosures focus on matters that are material to stakeholders: those that could reasonably influence their decisions. The organisation applies a double materiality lens: impact on society and environment (impact materiality) and financial implications (financial materiality).
+
+A matter crosses the materiality threshold through a documented materiality assessment performed at least annually, owned by the GRC Programme Manager with input from affected stakeholders, applying both lenses. The assessment records which matters were considered, the evidence weighed, and the reasoning for including or excluding each; the record is retained per the Data Retention Schedule. No single quantitative cut-off is prescribed: materiality is a reasoned determination under both lenses that each adopting organisation calibrates to its sector, size, and stakeholder profile.
 
 ### 2. Accuracy and verifiability
 
