@@ -1,7 +1,7 @@
 # Worker Brief Template
 
-**Version:** 1.0.0\
-**Date:** 2026-06-21\
+**Version:** 1.1.0\
+**Date:** 2026-06-23\
 **License:** CC BY-SA 4.0
 
 Project-local template the orchestrator uses when dispatching research-assistant (worker) subagents per the research-assistant discipline in [`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`](../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md) §1.
@@ -40,6 +40,10 @@ Each guard rail is enumerated below. Workers must satisfy each rail before submi
 4. **Quote file contents verbatim**. If you assert "file A line 42 says X", you have read file A line 42 in this session and X is the actual text. Paraphrasing is acceptable; misquoting is not.
 
 5. **Surface scope expansion**. If your research uncovers that the PR would touch more files than the orchestrator scoped, surface this in your output rather than silently expanding. The orchestrator decides whether to expand the PR or to split.
+
+6. **Verify every framework / control identifier against established corpus use** before proposing it in a mapping. Do not propose a CCM / ISO 27001 / NIST CSF / framework control code (e.g. `IPY-01`, `A.8.27`, `PR.IP`) unless you have confirmed the exact identifier already appears in the corpus (grep it) OR is a verified real control. Flag any identifier you cannot confirm as "needs-verification" rather than presenting it as established. (Caught at PR #275: a worker proposed `IPY-02` and `DSP-10` — not in corpus use — corrected at apply-time to `IPY-01` / `DSP-04`; and strict-CSF-2.0 `PR.PS` where the corpus convention is `PR.IP`.)
+
+7. **Flag every newly-introduced acronym for a same-PR glossary entry**. If your research introduces an acronym not already defined in the corpus glossary, surface it explicitly so the orchestrator adds the glossary entry in the same PR. Do not assume an acronym is already defined. (Caught repeatedly — CIIO/HKDF/AEAD at Sweep 20, well past the three-occurrence threshold by PR #229.)
 ```
 
 ---
@@ -100,6 +104,20 @@ Your research must produce:
 - The scope of the cleanup (what's being moved, deleted, or refactored)
 - A file-by-file diff intent (without authoring the actual edits)
 - The discipline justification for the cleanup
+
+### Corpus-wide rename PR
+Your research (for a rename / term-substitution sweep) must produce:
+- The substitution list with BOTH the spelled-out form AND the acronym form when the term has both (e.g. "Chief Privacy Officer" AND "CPO"); a list scoped to spelled-out forms only leaves stray acronyms.
+- A cross-check of the substitution list against EVERY synonym pattern the canonical surfaces use (parenthetical, no-parenthetical, slash-form, regulatory variant).
+- A proposed final post-script corpus-wide grep for the acronym/term to surface stray instances the script missed.
+(Caught at PR #218/#219/#220: a rename script scoped to spelled-out forms left a bare "CPO" at `risk/register-key-risk-indicators.md` and produced "Data Protection Officer or Data Protection Officer" in `tools/build-portal.py`.)
+
+### Matrix-expansion PR (FR-167 compliance-alignment matrix)
+Your research (candidate framework mappings for a domain's documents) must produce:
+- For each document, candidate cells for each framework column, drawing control identifiers from the **framework-code crib**: the CCM v4.1 domains, ISO 27001:2022 Annex-A / clause numbers, and NIST CSF function codes ALREADY in established corpus use (grep to confirm), plus the DD-12 mirror-corpus conventions (the corpus uses `PR.IP`, CCM v4.1 incl. AIS/IVS/IPY). Honest "N/A" on the 5 customs/trade columns (CTPAT / PIP / BASC / WCO SAFE / AEO) for non-logistics documents.
+- A `path:line` quote from each source document supporting each proposed mapping (the orchestrator re-reads and verifies every cell; an unsupported cell is rejected, not shipped).
+- Any control identifier you could not confirm in corpus use flagged "needs-verification" (per DO rail 6).
+(Caught at PR #275: worker-proposed `IPY-02`/`DSP-10` corrected at apply-time; a wrong control mapping in an adopter-facing matrix is NOT gate-caught, so apply-time verification of every cell is mandatory.)
 ```
 
 ---

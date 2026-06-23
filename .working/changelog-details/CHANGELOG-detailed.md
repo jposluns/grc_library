@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.254, PR #276
+
+**Session-closing checkpoint handoff PR (post FR-167 batch 1).** Working-state only; no adopter-facing corpus content changed.
+
+### Changed
+
+- [`.working/worker-brief-template.md`](../worker-brief-template.md) `1.0.0 → 1.1.0`: acting on a maintainer-requested review of [`.working/improvement-log.md`](../improvement-log.md), folded in the worker-side guard rails the retro log had queued but never applied (the template had stayed at 1.0.0 since 2026-06-21 despite its own §107 self-update protocol). Added DO rail 6 (verify every framework/control identifier against established corpus use; flag unconfirmed as "needs-verification" — from PR #275's `IPY-02`/`DSP-10` catches), DO rail 7 (flag every newly-introduced acronym for a same-PR glossary entry — from the Sweep-20/PR-#229 pattern), a "Corpus-wide rename PR" per-PR-class override (both spelled-out AND acronym substitution forms + post-script grep — from PR #218/#219/#220), and a "Matrix-expansion PR (FR-167)" override codifying the framework-code crib.
+- [`TODO.md`](../../TODO.md): S1 (cross-document retention-consistency gate) flagged **unblocked** (its precondition FR-136/137 landed in #262/#263); new **§4.8 Retro-log open-loop consolidation** enumerating the still-open process loops the review surfaced (codify the orchestrator-side bare-token-contradiction-search and parallel-case-verification disciplines; codify compute-don't-ask in `clarify-before-acting`; the P4.6 QA-cadence gate; the remaining count-gate idioms).
+
+### Added
+
+- [`.working/hallucination-metrics.md`](../hallucination-metrics.md) catches-log entry for PR #275: research workers proposed framework control identifiers not in corpus use (`IPY-02`, `DSP-10`, strict-CSF-2.0 `PR.PS`), all corrected at apply-time; references the worker-brief-template `1.1.0` fix, closing the self-update loop.
+- The PR #275 `/validate-pr` record ([`.working/validate-pr/2026-06-23-PR-275.md`](../validate-pr/2026-06-23-PR-275.md)) + history row, and the #275 `/retro` row ([`.working/improvement-log.md`](../improvement-log.md)).
+- [`.working/session-handoff.md`](../session-handoff.md) refresh: FR-167 batch 2 top of queue (the worker-brief-template now codifies the crib); the per-domain in-scope counts for batches 2..N.
+
+### Verification
+
+- `tools/run_all_audits.sh` green (47/47) on the post-commit state; `tools/run-pr-time-checks.sh` green against the merge base. All changed files are working-state (`.working/`) or `TODO.md` / `README.md` / `CHANGELOG.md`; no corpus document content changed.
+
+### Discipline observation
+
+- This checkpoint demonstrates closing a retro loop rather than re-logging it: the maintainer's retro-log review found the worker-brief-template frozen at 1.0.0 with queued additions un-applied, and the fix (the 1.1.0 update) shipped in the same review's close-out. The still-open mechanical/rule-codification items (§4.8) are deliberately deferred to dedicated work at full context rather than authored at this long turn's tail.
+
 ## 2026-06-23, Library Version 2026.06.253, PR #275
 
 **FR-167 (batch 1 of ~11): expand the compliance alignment matrix to comprehensive coverage — Architecture domain.** The [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) mapped only ~42 of the library's ~280 substantive documents. FR-167 expands it to comprehensive coverage one domain per PR (the maintainer chose the **Broad** scope: every substantive document, excluding library-infrastructure/meta artefacts — the matrices/crosswalks themselves, worklists, root meta-specs, the document index, generated portals/scorecards). This is batch 1: the **Architecture** domain (8 documents).
