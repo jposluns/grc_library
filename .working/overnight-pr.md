@@ -60,4 +60,6 @@ the session is reclaimed mid-run; it is updated as PRs land.
 
 ## Open ambiguities surfaced mid-run (for morning)
 
-- (none yet)
+- **(from PR #259 /validate-pr, low)** Pre-existing en-dashes (`P1–P4`) in older CHANGELOG entries (CHANGELOG.md:41/45/49/57/61). CHANGELOG.md is outside `lint-language.py`'s root-file allowlist (README/NOTICE/specs only), so they pass CI legitimately. Decision: extend the dash gate to CHANGELOG, or keep it deliberately unscoped. Not auto-fixed (out-of-window; rewriting audit-trail prose is scope creep).
+- **(from PR #260 / FR-134, medium)** `supply-chain/register-concentration-risk.md:95` uses a "Likelihood (descriptive)" field with the OLD enterprise labels (`Rare, Unlikely, Possible, Likely, Almost Certain`) and a third impact-label variant (`Severe`, vs standard `Catastrophic` / procedure `Critical`). NOT one of FR-134's three named surfaces. Decision needed: harmonize this register's descriptive scale to the canonical Very Low→Very High (+ pick the canonical impact-5 label), or is its qualitative scale intentionally distinct? Skipped to morning (unsanctioned scope expansion otherwise).
+- **(from PR #260 / FR-134, low)** Impact-5 label divergence among the three risk-scoring docs: standard `Catastrophic` vs procedure/template `Critical`. Not named in FR-134's decision (which scoped to likelihood + bands) and does not affect the score→rating mapping; left as-is. Morning: decide whether to unify the impact-5 label (note: procedure's `Critical` collides with the top *rating* label `Critical`).

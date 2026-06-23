@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #260 — FR-134 (high[critical]): one canonical risk-scoring scale (2026-06-23)
+
+Aligned the enterprise risk standard's §5.2 likelihood labels (Rare→Almost Certain ⇒ Very Low→Very High) and score-to-rating bands (1-5/6-10/11-15/16-25 ⇒ 1-4/5-9/10-16/17-25) to the canonical risk-assessment procedure, and fixed the register template's stale likelihood labels, so a given score now yields the same rating/cadence/escalation across all three risk documents. Fourth surface (concentration-risk register) and the impact-5 label divergence surfaced to the maintainer, not folded in.
+
 ### PR #258 — P4.0: project-integrity.md tenth governance rule (2026-06-23)
 
 Distributed the PRIMORDIAL RULE (Quality > Speed > Cost apex ordering) as the tenth pack governance rule `project-integrity.md` + byte-identical `.claude/rules/` mirror, wired across all three enumeration surfaces + sync-map + rule-count. Closes TODO P4.0; resolves the PRIMORDIAL RULE's "queued as P4.0" forward-reference.

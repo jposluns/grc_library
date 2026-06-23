@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.6.0\
-**Date:** 2026-06-22\
+**Version:** 1.7.0\
+**Date:** 2026-06-23\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -80,17 +80,17 @@ Each material risk assessment must record:
 
 ### 5.2 Scoring matrix
 
-Risk scores are calculated as **Likelihood (1 to 5) × Impact (1 to 5) = Risk Score (1 to 25)**.
+Risk scores are calculated as **Likelihood (1 to 5) × Impact (1 to 5) = Risk Score (1 to 25)**. The likelihood labels and the score-to-rating thresholds below match those in the risk-assessment methodology [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md) Section 4 to Section 5 and the [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md) scoring fields, so a given score yields the same rating, review cadence, and escalation across all three documents.
 
 #### Likelihood scale
 
 | Score | Label | Description |
 |---|---|---|
-| 1 | Rare | May occur only in exceptional circumstances (less than once in 10 years) |
-| 2 | Unlikely | Could occur at some time (once in 5 to 10 years) |
-| 3 | Possible | Might occur at some time (once in 2 to 5 years) |
-| 4 | Likely | Will probably occur in most circumstances (once in 1 to 2 years) |
-| 5 | Almost Certain | Expected to occur in most circumstances (more than once per year) |
+| 1 | Very Low | May occur only in exceptional circumstances (less than once in 10 years) |
+| 2 | Low | Could occur at some time (once in 5 to 10 years) |
+| 3 | Medium | Might occur at some time (once in 2 to 5 years) |
+| 4 | High | Will probably occur in most circumstances (once in 1 to 2 years) |
+| 5 | Very High | Expected to occur in most circumstances (more than once per year) |
 
 #### Impact scale
 
@@ -116,10 +116,10 @@ Risk scores are calculated as **Likelihood (1 to 5) × Impact (1 to 5) = Risk Sc
 
 | Score Range | Rating | Required Response |
 |---|---|---|
-| 1 to 5 | Low | Monitor only; review annually |
-| 6 to 10 | Moderate | Mitigate and monitor; review quarterly |
-| 11 to 15 | High | Mitigate or transfer; assign owner; review monthly |
-| 16 to 25 | Critical | Immediate action required; ERC oversight; escalate to executive leadership |
+| 1 to 4 | Low | Monitor only; review annually |
+| 5 to 9 | Medium | Mitigate and monitor; review quarterly |
+| 10 to 16 | High | Mitigate or transfer; assign owner; review monthly |
+| 17 to 25 | Critical | Immediate action required; ERC oversight; escalate to executive leadership |
 
 ---
 
@@ -192,11 +192,11 @@ When the AI Flag is set to Yes, the following additional fields are required:
 
 - Departmental risk reviews are conducted quarterly by process and system owners.
 - AI risk trends (bias recurrence, model drift, ethical deviations) are monitored on an ongoing basis and summarized quarterly.
-- Risk Owner review cadences by score band (Low / Moderate / High cadences taken verbatim from the §5.2 "Score thresholds and required response" table; Critical's cadence is the existing monthly position from this section):
-  - Critical risks (score 16 to 25) are reviewed monthly by the Risk Owner and reported to the ERC.
-  - High risks (score 11 to 15) are reviewed monthly by the Risk Owner.
-  - Moderate risks (score 6 to 10) are reviewed quarterly by the Risk Owner.
-  - Low risks (score 1 to 5) are reviewed annually by the Risk Owner.
+- Risk Owner review cadences by score band (Low / Medium / High cadences taken verbatim from the §5.2 "Score thresholds and required response" table; Critical's cadence is the existing monthly position from this section):
+  - Critical risks (score 17 to 25) are reviewed monthly by the Risk Owner and reported to the ERC.
+  - High risks (score 10 to 16) are reviewed monthly by the Risk Owner.
+  - Medium risks (score 5 to 9) are reviewed quarterly by the Risk Owner.
+  - Low risks (score 1 to 4) are reviewed annually by the Risk Owner.
 
 ### 8.2 Reporting
 
@@ -233,7 +233,7 @@ The Risk Owner role's six accountability actions (defined in §3) map to specifi
 | Confirms the risk statement | Risk register entry with Risk Owner attribution and scoring rationale (from §9.1 "Completed risk register entries with scoring rationale"). |
 | Selects the treatment option | Treatment plan record showing the selected option from the §6 set (Avoid / Mitigate / Transfer / Accept / Exploit / Enhance) with Risk Owner sign-off (from §9.1 "Treatment plans with status and owner confirmation"). |
 | Owns the treatment plan and target dates | Treatment plan record with target dates, Risk Owner identified as plan owner, and dated progress entries (from §9.1 "Treatment plans with status and owner confirmation"). |
-| Monitors residual exposure | Periodic risk register update entries dated per the §8.1 cadence band (annually for Low, quarterly for Moderate, monthly for High and Critical), each recording the current residual exposure and any changes from the previous review. |
+| Monitors residual exposure | Periodic risk register update entries dated per the §8.1 cadence band (annually for Low, quarterly for Medium, monthly for High and Critical), each recording the current residual exposure and any changes from the previous review. |
 | Reports status per the §8.1 cadence | Risk Owner status reports (per the §8.1 cadence band) recorded in the risk register or in the ERC meeting record (from §9.1 "ERC and AIGC meeting records referencing risk items"). |
 | Validates risk assessments for exception requests | Exception register entries with Risk Owner sign-off confirming the residual exposure stays within enterprise risk appetite (from §9.1 "Risk acceptance approvals (per Risk Acceptance Procedure)"; cross-references [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) §2). |
 
