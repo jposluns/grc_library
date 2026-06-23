@@ -2,9 +2,9 @@ Resume the previous session from the durable handoff record. This is the single 
 
 Execute these steps in order:
 
-1. **Read [`.working/session-handoff.md`](../../.working/session-handoff.md) in full.** It is the as-of-last-refresh snapshot of branch, versions, counts, last-merged PRs, trust-recovery state, the next-actions queue, open decisions awaiting the maintainer, and the standing disciplines.
+1. **Read [`.working/session-handoff.md`](../../.working/session-handoff.md) in full**, including its **"Known environment behaviours"** section. It is the as-of-last-refresh snapshot of branch, versions, counts, last-merged PRs, trust-recovery state, the next-actions queue, open decisions awaiting the maintainer, the known environment behaviours, and the standing disciplines. The known-behaviours section matters: the stop-hook auto-commits and pushes uncommitted changes on turn-end (the working tree is auto-persisted, not held locally), so verify `git log` rather than assuming the tree is uncommitted.
 
-2. **Read [`.claude/CLAUDE.md`](../CLAUDE.md)** (the PRIMORDIAL RULE and project disciplines) and the most recent few entries of [`CHANGELOG.md`](../../CHANGELOG.md) to ground the recent history.
+2. **Read [`.claude/CLAUDE.md`](../CLAUDE.md)** (the PRIMORDIAL RULE and project disciplines), the most recent few entries of [`CHANGELOG.md`](../../CHANGELOG.md) to ground recent history, and **[`.working/third-party-issues.md`](../../.working/third-party-issues.md)** (the log of execution-environment / third-party-service issues) so a recurring environment flake (e.g. a commit-signing-server 503 reddening gate 36) is recognized as an artefact, not chased as a corpus regression.
 
 3. **Verify state against live files, do not trust the snapshot blindly** (the snapshot drifts forward between refreshes): run `git rev-parse --is-shallow-repository` (if `true`, `git fetch --unshallow` before any history-aware audit); `git log --oneline -5` to confirm HEAD; `tools/run_all_audits.sh` to confirm the corpus is green; and check the library/pack/README versions in `README.md` and `dev-security/claude-rules/README.md` against the snapshot.
 

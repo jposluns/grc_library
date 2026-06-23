@@ -262,6 +262,18 @@ defence is external. Two mechanisms:
      collection-enumeration audit catches the structured enumerations; prose counts
      like "the nine governance rules" are not gated).
    - [`.working/session-handoff.md`](../.working/session-handoff.md) is refreshed.
+   - If the PR adds or edits **new pack prose** (a SKILL, a rule, a slash command,
+     or new prose in the pack README/CLAUDE.md), `tools/lint-language.py` was run on
+     it **before the first commit**. New-pack-prose drafting recurrently reintroduces
+     em-dashes and British `-ise` (caught repeatedly, including PR #244 and the
+     trust-recovery codification); the pre-flight avoids the fail-then-fix loop.
+   - If the PR changed a **convention, count, routing rule, or gate-wiring that is
+     restated across surfaces**, the OLD phrasing was grepped across the full changed
+     file AND every sibling surface, with zero hits confirmed before commit. This is
+     the discipline that prevents the multi-surface-incompleteness failure mode (e.g.
+     PR #252 missed a same-file Verification criterion and Rationalizations cell when
+     it revised the routing convention; `/validate-pr` caught it, but the grep would
+     have caught it first).
    - CHANGELOG (root + detailed) and version bumps are present; the post-commit
      `run_all_audits.sh` and pre-push `run-pr-time-checks.sh` are green.
 
