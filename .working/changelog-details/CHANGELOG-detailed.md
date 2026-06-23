@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.248, PR #270
+
+**Session-closing handoff PR for the 2026-06-23 resume + wind-down session.** Working-state only; no adopter-facing corpus content changed.
+
+### Changed
+
+- **[`.working/overnight-pr.md`](../../.working/overnight-pr.md)**: morning processing of the autonomous overnight run — reset to `Status: stub` (the 8 resolved design decisions were already in [`design-decisions.md`](../../.working/design-decisions.md); the 9 deferred "Open ambiguities" routed to TODO as DD-1..DD-9). One in-window Sweep 27 note fixed: the stub narrative "11 deferred" → "9" (there were 9 bullets; "11" only reconciled via DD-4/DD-5 sub-parts).
+- **[`TODO.md`](../../TODO.md)**: added the "Deferred decisions from the overnight run" block — **DD-1..DD-9** routed from the overnight-pr.md morning processing plus **DD-10** added by Sweep 27 (the addyosmani upstream vetting-count observation) — all needing maintainer triage; the new **FR-166** (corpus listing-surface completeness gate + authoring-time sweep tool) and **FR-167** (expand the alignment matrix to comprehensive + clarify intent wording) as top-priority next-session items; and bumped the Sweep cursor to Sweep 27.
+- **[`.working/session-handoff.md`](../../.working/session-handoff.md)**: refreshed to after #270 (library 2026.06.248, README 1.9.119); next-actions reordered with FR-166/167 top; added the **compute-don't-ask** standing discipline.
+- **[`.working/validate-pr/history.md`](../../.working/validate-pr/history.md)** (#269 row, version `1.2.72 → 1.2.73`), **[`.working/improvement-log.md`](../../.working/improvement-log.md)** (#269 `/retro` row, version `1.0.49 → 1.0.50`), **[`.working/validate-sweeps/history.md`](../../.working/validate-sweeps/history.md)** (Sweep 27 row, version `2.0.19 → 2.0.20`) + the new **[`.working/validate-sweeps/2026-06-23-sweep27-iter1.md`](../../.working/validate-sweeps/2026-06-23-sweep27-iter1.md)** record.
+
+### Verification / discipline
+
+- **Sweep 27 (`/validate`)**: maintainer-directed final pre-resume corpus-wide sweep. Mechanical baseline 46/46; full three-subagent dispatch (A recent-PR + deltas, B stale-reference, C audit-programme integrity). The overnight run's clean in-window bill holds; PR #269's docstring fix verified correct + complete; live gates 35/37/39/41/44 exit 0; `lint-standards-currency.py` clean (119 standards / 364 files); counts 10/15/8/46 current. 1 in-window note (fixed) + 1 out-of-window observation (→ DD-10); 9 pre-flight candidates confirmed false positives.
+- **#269 `/retro` discipline lesson**: maintainer flagged that offering "you'll confirm the intended count" for Sweep 26's B-2 was a failure to track — a count is computable, so it should never be a question to the maintainer. Captured as the **compute-don't-ask** pattern (1st occurrence) and a candidate addition to the `clarify-before-acting` rule.
+- **Handoff-PR exception**: this PR skips its trailing `/validate-pr` + `/retro` (loop-break, CLAUDE.md PR-workflow step 5a); recorded in the [`.working/validate-pr/history.md`](../../.working/validate-pr/history.md) #270 row. The compensating control is the corpus-wide `/validate` the next `/resume` runs first.
+- Library `2026.06.247 → 2026.06.248`; README `1.9.118 → 1.9.119`.
+
 ## 2026-06-23, Library Version 2026.06.247, PR #269
 
 **Sweep 26 (`/validate`) cleanup PR.** The session-resume corpus-wide validation sweep (the compensating control for handoff PR #268, which skipped its trailing `/validate-pr`) plus the one trivial fix it surfaced. Tooling + working-state only; no adopter-facing corpus content changed.
