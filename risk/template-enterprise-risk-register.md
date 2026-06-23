@@ -2,7 +2,7 @@
 
 **Document Title:** Enterprise Risk Register Template\
 **Document Type:** Template\
-**Version:** 1.1.2\
+**Version:** 1.1.3\
 **Date:** 2026-06-23\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -168,11 +168,11 @@ The following examples illustrate correctly populated risk records.
 
 | Risk ID | Title | Category | Inherent Score | Residual Score | Treatment | Status |
 |---|---|---|---|---|---|---|
-| RSK-2026-001 | Ransomware disruption to logistics operations | Cybersecurity | 20 (Critical) | 9 (Medium) | EDR deployment; immutable backup; segmentation | In Progress |
-| RSK-2026-002 | Key supplier insolvency disrupting freight operations | Supplier | 12 (High) | 6 (Medium) | Dual-sourcing; contractual SLAs; financial monitoring | Implemented |
-| RSK-2026-003 | GDPR enforcement action for cross-border data transfer gaps | Legal and Regulatory | 16 (High) | 6 (Medium) | SCCs signed; transfer impact assessments completed | Implemented |
-| RSK-2026-004 | AI bias in automated cargo routing causing discrimination claims | AI | 9 (Medium) | 4 (Low) | Bias testing pre-deployment; quarterly fairness review | Verified |
-| RSK-2026-005 | Loss of AEO-S certification due to security compliance gap | Legal and Regulatory | 12 (High) | 4 (Low) | AEO-S self-assessment procedure; controls maintained | Implemented |
+| RSK-2026-001 | Ransomware disruption to logistics operations | Cybersecurity | 20 (Critical) | 9 (Medium) | EDR deployment; immutable backup; segmentation | Open |
+| RSK-2026-002 | Key supplier insolvency disrupting freight operations | Supplier | 12 (High) | 6 (Medium) | Dual-sourcing; contractual SLAs; financial monitoring | Open |
+| RSK-2026-003 | GDPR enforcement action for cross-border data transfer gaps | Legal and Regulatory | 16 (High) | 6 (Medium) | SCCs signed; transfer impact assessments completed | Open |
+| RSK-2026-004 | AI bias in automated cargo routing causing discrimination claims | AI | 9 (Medium) | 4 (Low) | Bias testing pre-deployment; quarterly fairness review | Open |
+| RSK-2026-005 | Loss of AEO-S certification due to security compliance gap | Legal and Regulatory | 12 (High) | 4 (Low) | AEO-S self-assessment procedure; controls maintained | Open |
 
 ---
 
