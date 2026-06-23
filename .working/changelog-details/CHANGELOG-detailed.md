@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.258, PR #280
+
+**Session-closing handoff PR (the 2026-06-23 DD-triage + Track-1-start session).** Working-state only; no adopter-facing corpus content changed. Carries the PR #279 post-merge close-out (committed earlier on the branch) plus this handoff refresh.
+
+### Added / Changed
+
+- [`.working/validate-pr/2026-06-23-PR-279.md`](../validate-pr/2026-06-23-PR-279.md) + the [`.working/validate-pr/history.md`](../validate-pr/history.md) row: the PR #279 `/validate-pr` (Subagent A 9 confirmations; one in-window finding from the orchestrator cross-reference grep, the DD-9 own-rotation miss).
+- [`.working/improvement-log.md`](../improvement-log.md): the PR #279 `/retro` row (the TODO/DONE rotation miss is now two consecutive PRs, #278 DD-1 and #279 DD-9, escalated to a mechanical-rotation-gate candidate).
+- [`../TODO.md`](../../TODO.md) + [`.working/DONE.md`](../DONE.md): DD-9 rotated TODO to DONE (the finding's fix): the DD-9 resolution line marked SHIPPED in #279, its backlog item removed, a DONE entry added.
+- [`.working/session-handoff.md`](../session-handoff.md): refreshed to the post-#279 state. Records that all 16 of the session's open decisions were triaged (dispositions in TODO), the next-actions queue (Sweep 31 `/validate` first, then a maintainer checkpoint, then the track-ordered backlog), and the maintainer directive to stop and assess after the first task of the new session.
+
+### Verification
+
+- `tools/run_all_audits.sh` green (47/47) on the post-commit state. `tools/run-pr-time-checks.sh` green (D1, D2, D3, gate 45), with the handoff CHANGELOG entry written dash-free so the new D3 gate passes on this PR.
+
+### Discipline observation
+
+- Per the handoff-PR exception (CLAUDE.md PR-workflow step 5a), this session-closing handoff PR skips its own trailing `/validate-pr` + `/retro` (the loop-break); the compensating control is the corpus-wide `/validate` (Sweep 31) the next `/resume` runs first. The session paused on a degradation self-assessment (three PR cycles deep with the rotation miss recurring), per the standing self-assess-for-degradation discipline.
+
 ## 2026-06-23, Library Version 2026.06.257, PR #279
 
 **DD-9 (DR header tidy) plus the PR #278 close-out bookkeeping fixes.** A small Track-1 quick-win bundled with the three in-window findings PR #278's `/validate-pr` surfaced (batched here per recursion-avoidance).
