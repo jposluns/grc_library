@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.238, PR #260
+
+**FR-134 (H[critical]): one canonical risk-scoring scale across the three risk documents.** The risk standard's §5.2 scale (likelihood Rare→Almost Certain; bands `1-5 / 6-10 / 11-15 / 16-25`) diverged from the canonical risk-assessment procedure's scale (Very Low→Very High; bands `1-4 / 5-9 / 10-16 / 17-25`), so the same score yielded a different rating/cadence/escalation across documents. The procedure is canonical (maintainer decision 2026-06-23); the standard and template are realigned to it.
+
+### Changed
+
+- **[`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md)** (`1.6.0 → 1.7.0`):
+  - §5.2 likelihood-scale labels: `Rare / Unlikely / Possible / Likely / Almost Certain` → `Very Low / Low / Medium / High / Very High` (the standard's frequency-based descriptions kept, relabelled).
+  - §5.2 score-to-rating thresholds: `1-5 Low / 6-10 Moderate / 11-15 High / 16-25 Critical` → `1-4 Low / 5-9 Medium / 10-16 High / 17-25 Critical` (rating label "Moderate" → "Medium").
+  - New sentence after the §5.2 score formula citing that the likelihood labels and thresholds match the procedure §4-5 and the template scoring fields, so a score yields the same rating/cadence/escalation across all three.
+  - §8.1 monitoring-cadence bands (stated "taken verbatim from §5.2"): rebanded to `Critical 17-25 / High 10-16 / Medium 5-9 / Low 1-4`; "Moderate" → "Medium".
+  - §9.1 evidence-table cadence phrase: "quarterly for Moderate" → "quarterly for Medium".
+- **[`risk/template-enterprise-risk-register.md`](../../risk/template-enterprise-risk-register.md)** (`1.1.1 → 1.1.2`): the template's bands already agreed and it already cited the procedure (line 53); its stale likelihood labels are fixed — Inherent Likelihood (line 57) and Residual Likelihood (line 76) fields move from `1 (Rare) to 5 (Almost Certain)` to `1 (Very Low) to 5 (Very High)`, and the 5×5 matrix likelihood axis (rows) from `Almost Certain / Likely / Possible / Unlikely / Rare` to `Very High / High / Medium / Low / Very Low` (matrix cell values unchanged; they already used canonical bands).
+
+### Verification
+
+- Contradiction search (corpus-wide `grep`) for old labels (`Rare|Unlikely|Almost Certain`) and old bands (`6 to 10|11 to 15|16 to 25`) after edits: zero stale references in the two edited docs (remaining `1 to 5` hits are the likelihood/impact *scale range*, not rating bands). The procedure (canonical) needed no change.
+- Per-document Version + Date bumped in the same commit for both edited docs. Post-commit `run_all_audits.sh` (46 gates) + pre-push `run-pr-time-checks.sh` green; CI-green before merge.
+
+### Deferred to maintainer (surfaced, not folded into this scoped fix)
+
+- **Fourth surface**: [`supply-chain/register-concentration-risk.md`](../../supply-chain/register-concentration-risk.md):95 uses a "Likelihood (descriptive)" field with the old enterprise labels (`Rare … Almost Certain`) and a third impact-label variant (`Severe`). Not one of FR-134's three named surfaces; its qualitative "descriptive" scale may be intentional. Logged to [`.working/overnight-pr.md`](../../.working/overnight-pr.md) open-items.
+- **Impact-5 label divergence**: standard `Catastrophic` vs procedure/template `Critical`. Not named in the FR-134 decision (scoped to likelihood + bands); does not affect the score→rating mapping; left as-is. Logged for morning.
+
+### Added (batched per recursion-avoidance)
+
+- **[`.working/validate-pr/history.md`](../../.working/validate-pr/history.md)**: PR #259 row (0 in-window; 1 out-of-window FYI; Version 1.2.62 → 1.2.63).
+- **[`.working/improvement-log.md`](../../.working/improvement-log.md)**: PR #259 `/retro` row (Version 1.0.40 → 1.0.41).
+
 ## 2026-06-23, Library Version 2026.06.237, PR #259
 
 **Initiates a maintainer-authorized autonomous overnight run.** Working-state + AI-guidance only; no corpus content changed.
