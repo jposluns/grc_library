@@ -344,3 +344,10 @@ repos:
         language: system
         pass_filenames: false
         types: [markdown]
+
+      - id: lint-listing-surface-completeness
+        name: Listing-surface completeness audit
+        entry: python3 tools/lint-listing-surface-completeness.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
