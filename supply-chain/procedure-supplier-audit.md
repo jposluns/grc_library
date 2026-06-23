@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.3\
-**Date:** 2026-06-22\
+**Version:** 1.0.4\
+**Date:** 2026-06-23\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -170,7 +170,7 @@ Sector-programme compliance metrics must be reported to the sector-conditional r
 
 - ISO/IEC 27036-4:2016: Information security for supplier relationships - Part 4: Guidelines for security of cloud services (first edition, October 2016; the "2013" date previously used in this document was incorrect).
 - COBIT 2019 BAI05.02: Manage Organizational Change.
-- CSA Cloud Controls Matrix v5, STA-05: Supply Chain Management, Transparency, and Accountability.
+- CSA Cloud Controls Matrix v4.1, STA-05: Supply Chain Management, Transparency, and Accountability.
 - ENISA AI cybersecurity work (feasibility studies and standardisation gap analyses under the EU Cybersecurity Act framework; no dedicated AI cybersecurity certification scheme has been formally published as of 2026).
 - BASC International Standard v6 2023: Business Alliance for Secure Commerce.
 - WCO SAFE Framework of Standards 2021: World Customs Organization.

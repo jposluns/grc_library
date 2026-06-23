@@ -6,6 +6,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.255, PR #277
+
+**Sweep 30 (`/validate`) close-out: correct five hallucinated "Cloud Controls Matrix v5" citations and broaden the citation gate to catch the spelled-out form.** The `/resume` compensating-control corpus-wide `/validate` (the standing control for the session-closing checkpoint handoff PR #276, which skips its trailing `/validate-pr` per CLAUDE.md PR-workflow step 5a) surfaced one new out-of-window finding: five documents cite a nonexistent "CSA Cloud Controls Matrix **v5**" against the corpus-wide v4.1 convention. The mechanical `lint-citations.py` gate already declares `CSA CCM v5` / `CCM v5` hallucinated but missed these because they use the **spelled-out** "Cloud Controls Matrix v5" form (no `CCM` substring). All five date to the initial public release (`03ca390`, 2026-05-31) and had never been caught by Sweeps 22-29 — a true gate blind spot. The maintainer authorized fixing now as a dedicated PR plus broadening the gate.
+
+### Fixed
+
+- **[`dev-security/standard-api-security.md`](../../dev-security/standard-api-security.md)**:233 crosswalk row `Cloud Controls Matrix v5 → v4.1` (`0.0.5 → 0.0.6`).
+- **[`security/standard-saas-security-posture-management.md`](../../security/standard-saas-security-posture-management.md)**:196 crosswalk row `v5 → v4.1` (`1.0.1 → 1.0.2`).
+- **[`security/procedure-key-escrow-and-recovery.md`](../../security/procedure-key-escrow-and-recovery.md)**:217 crosswalk row `v5 → v4.1`; **and** the same row's stale v3 domain code `EKM → CEK` (CCM v4.1 has no `EKM` domain — it is `CEK`, Cryptography/Encryption/Key Management; leaving `EKM` next to `v4.1` would have been internally contradictory, and the linter's own `CCM EKM → CCM CEK` entry confirms `EKM` is the stale v3 code). This `EKM → CEK` correction is a direct correctness consequence of the version fix on the same row, surfaced and fixed here rather than left as a new contradiction; flagged explicitly rather than changed silently (`1.0.4 → 1.0.5`).
+- **[`supply-chain/procedure-supplier-audit.md`](../../supply-chain/procedure-supplier-audit.md)**:173 References entry `v5 → v4.1`; resolves an intra-document contradiction (the body cited `CSA CCM v4.1 STA-05` at :23/:91 while References cited v5) (`1.0.3 → 1.0.4`).
+- **[`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md)**:160 References entry `v5 → v4.1`; resolves the same intra-document contradiction (body `v4.1` at :23, References v5) (`1.1.1 → 1.1.2`).
+
+### Changed
+
+- **[`tools/lint-citations.py`](../../tools/lint-citations.py)**: added a denylist entry for the spelled-out `Cloud Controls Matrix v5` form (suggested replacement `Cloud Controls Matrix v4.1`), with a `CHANGELOG.md` path exemption matching the sibling `CSA CCM v5` / `CCM v5` entries. Gate 27 (citation freshness) now catches both the abbreviated and the spelled-out hallucinated-version forms. After the five fixes, the new pattern has zero corpus matches — a purely forward-looking guard, the same shape as #273's gate-39 P8.
+- **[`tests/test_linters.py`](../../tests/test_linters.py)**: added `test_spelled_out_cloud_controls_matrix_v5_flagged` to `CitationsLinterTests`, asserting the linter fails on a fixture containing the spelled-out form.
+
+### Added
+
+- The Sweep 30 records: history row in [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) and the per-iteration detail file [`.working/validate-sweeps/2026-06-23-sweep30-iter1.md`](../validate-sweeps/2026-06-23-sweep30-iter1.md) (full A/B/C subagent returns + the apply-time worker-correction). Batched into this PR per recursion-avoidance.
+- [`.working/hallucination-metrics.md`](../hallucination-metrics.md) catches-log entry: Subagent B's finding set for the v5 cluster was incomplete (missed `security/procedure-key-escrow-and-recovery.md`:217) and mis-classified (listed the versionless `endpoint-hardening`:225 as a v5 sibling); the orchestrator's corpus-wide grep produced the authoritative set of 5 — the apply-time research-assistant discipline at the routing boundary.
+
+### Verification
+
+- `tools/lint-citations.py` standalone → exit 0 ("OK: no citation findings"); `grep -rn "Cloud Controls Matrix v5"` over all scanned corpus dirs → zero remaining.
+- `python3 -m unittest tests.test_linters.CitationsLinterTests` → 5/5 OK (including the new test).
+- `tools/run_all_audits.sh` green (47/47) on the post-commit state; `tools/run-pr-time-checks.sh` green against the merge base. Per-doc Version + Date bumped on all five touched documents in the same commit as their body change (gates 31/40).
+
+### Discipline observation
+
+- Apply-time worker-correction held at the routing boundary: a `/validate` subagent's enumeration of "all instances of X across the corpus" is research, not a finding, until the orchestrator re-runs the corpus-wide grep itself. Here that re-run caught both a missed instance and a mis-classification before anything was routed to the maintainer. Logged in `hallucination-metrics.md`; the lesson (for "find all X" tasks the orchestrator grep is the authoritative set) is recorded inline.
+- The `EKM → CEK` fix is a documented in-scope consequence, not silent scope creep: it sits on a row the v5 fix was already editing, and writing `v4.1` beside the v3-only `EKM` code would have shipped a fresh contradiction. Surfaced in this entry per the no-silent-changes discipline.
+
 ## 2026-06-23, Library Version 2026.06.254, PR #276
 
 **Session-closing checkpoint handoff PR (post FR-167 batch 1).** Working-state only; no adopter-facing corpus content changed.

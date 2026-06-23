@@ -48,6 +48,11 @@ DENYLIST: list[tuple[str, str, str]] = [
         "CCM v4.1",
     ),
     (
+        "Cloud Controls Matrix v5",
+        "Hallucinated framework version (spelled-out form). CSA's current Cloud Controls Matrix version is v4.1; the abbreviated 'CCM v5' denylist entry does not catch this form.",
+        "Cloud Controls Matrix v4.1",
+    ),
+    (
         "NIST AI RMF 1.1",
         "Hallucinated NIST AI RMF version. NIST AI RMF was published as version 1.0; the GenAI Profile is NIST AI 600-1.",
         "NIST AI RMF 1.0 (with AI 600-1 Generative AI Profile)",
@@ -114,6 +119,7 @@ PATH_EXEMPTIONS: dict[str, set[str]] = {
     # history of past fixes).
     "CSA CCM v5": {"CHANGELOG.md"},
     "CCM v5": {"CHANGELOG.md"},
+    "Cloud Controls Matrix v5": {"CHANGELOG.md"},
     "NIST AI RMF 1.1": {"CHANGELOG.md"},
     "AI RMF 1.1": {"CHANGELOG.md"},
     "Draft 2026 ISO 37301": {"CHANGELOG.md"},

@@ -276,6 +276,18 @@ class CitationsLinterTests(LinterTestCase):
         result = run_linter("tools/lint-citations.py", "--paths", str(fixture))
         self.assertLinterFails(result, "CCM v5")
 
+    def test_spelled_out_cloud_controls_matrix_v5_flagged(self) -> None:
+        # The spelled-out "Cloud Controls Matrix v5" form evades the
+        # abbreviated "CCM v5" entry (no "CCM" substring); it needs its
+        # own denylist entry. Sweep 30 surfaced five corpus instances of
+        # this form that the abbreviated entry had never caught.
+        fixture = self.make_fixture(
+            "standard-cloud-controls-matrix-v5.md",
+            VALID_METADATA + "\n\nAligned with the CSA Cloud Controls Matrix v5 baseline.\n",
+        )
+        result = run_linter("tools/lint-citations.py", "--paths", str(fixture))
+        self.assertLinterFails(result, "Cloud Controls Matrix v5")
+
     def test_nist_ai_rmf_11_hallucination_flagged(self) -> None:
         # NIST AI RMF 1.1 is a hallucinated version; AI RMF was
         # published as 1.0 with AI 600-1 as the GenAI profile.
