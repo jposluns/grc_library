@@ -6,6 +6,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.240, PR #262
+
+**FR-136 (H[critical]): the data-retention schedule is authoritative for log retention** + forward-correction of PR #261's TLS verification over-claim.
+
+### Changed
+
+- **[`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md)** (`1.4.1 → 1.4.2`): §4.1 flat "minimum of seven years" for security/audit logs ⇒ defers to the tiered periods in the authoritative [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md) (with examples: access 1y, privileged 2y, SIEM 1y hot + 2y cold, incident 5y); the BASC/legal-mandate longer-retention clause is retained.
+- **[`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md)** (`1.4.1 → 1.4.2`): the IT/Security domain row "1 to 3 years" ⇒ "Tiered by record class per [the schedule] (authoritative; 1 to 5 years, e.g. access logs 1 year, security incident records 5 years)". The "1 to 3 years" had under-stated the incident-record tier (5y).
+- **[`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md)** (`1.3.1 → 1.3.2`): §298 AI-decision/SIEM-log retention cited "§4.1" for its 7-year figure; since §4.1 no longer states a flat 7 years, the citation is re-grounded on ISO/IEC 42001 + EU AI Act Annex IV (the established corpus basis, cf. `supply-chain/procedure-third-party-ai-due-diligence.md`:130/190), **preserving** the 7-year retention and noting it is a longer tier than the general SIEM events.
+
+### Correction to PR #261
+
+PR #261's verification statement ("a corpus-wide contradiction search confirms no org surface still permits TLS 1.2") was over-broad: the contradiction-search regex was tuned to the migrated phrasings (`TLS 1.2 (minimum)` / `1.2+` / `Minimum version: TLS 1.2`) and did not match other permissive constructions. The #261 post-merge `/validate-pr` ran a bare-token search and surfaced two additional permissive-1.2 surfaces, both deferred to maintainer review (logged in [`.working/overnight-pr.md`](../../.working/overnight-pr.md) open-items):
+
+- [`operations/procedure-media-handling-and-transport.md`](../../operations/procedure-media-handling-and-transport.md):124 — "TLS 1.2 may be used only where a documented technical constraint prevents TLS 1.3 ... exception register ... reviewed quarterly" (a *governed* exception, distinct from a flat "1.2 minimum").
+- [`supply-chain/template-supplier-security-questionnaire.md`](../../supply-chain/template-supplier-security-questionnaire.md):87 — "Is data encrypted in transit using TLS 1.2 or higher?" (a vendor-facing minimum-bar question).
+
+FR-135's six named surfaces (plus the healthcare annex and intra-doc quick-reference surfaces) remain correctly migrated; this correction narrows the scope of the verification claim to what was actually searched. **Process lesson** (recorded in the #261 `/retro`): contradiction searches use the bare token for the concept, not the phrasing being replaced.
+
+### Verification
+
+- Per-document Version + Date bumped in the same commit for all three FR-136 docs (Date ⇒ 2026-06-23). Regenerated `taxonomy.yml`, `docs/portal.md`, `docs/maturity-scorecard.md`.
+- Bare-token contradiction search (`seven years|7 years` in log-retention context; `§4.1` citers) corpus-wide: the only §4.1-retention citer was monitoring §298 (reconciled here); other "7 years" hits are records/evidence-retention classes (legitimately 7y per the records standard's Financial/Legal/Compliance default) or the schedule's own 7y record rows, not operational log-retention. Post-commit `run_all_audits.sh` (46 gates) + pre-push `run-pr-time-checks.sh` green; CI-green before merge.
+
+### Added (batched per recursion-avoidance)
+
+- **[`.working/validate-pr/2026-06-23-PR-261.md`](../../.working/validate-pr/2026-06-23-PR-261.md)**: the #261 per-PR record (1 High in-window finding + 1 Low deferred).
+- **[`.working/validate-pr/history.md`](../../.working/validate-pr/history.md)**: PR #261 row (1 High in-window; Version 1.2.64 → 1.2.65).
+- **[`.working/improvement-log.md`](../../.working/improvement-log.md)**: PR #261 `/retro` row with the bare-token-search proposed improvement (Version 1.0.42 → 1.0.43).
+
 ## 2026-06-23, Library Version 2026.06.239, PR #261
 
 **FR-135 (H[critical]): TLS 1.3 everywhere.** Migrated every org TLS-floor surface from "TLS 1.2 (minimum)" / "TLS 1.2+" to "TLS 1.3 (or stronger)" with TLS 1.2 in the prohibited set, resolving the corpus's TLS-floor self-contradiction against the authoritative mandate (`policy-encryption-and-key-management.md`:54, developer-security:151). Follows the canonical pattern FR-81 established.
