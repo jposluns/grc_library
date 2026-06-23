@@ -2,7 +2,7 @@
 
 **Document Title:** IT Disaster Recovery Plan\
 **Document Type:** Plan\
-**Version:** 1.3.0\
+**Version:** 1.3.1\
 **Date:** 2026-06-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -94,7 +94,7 @@ No production system is restored to service until the following conditions are c
 
 All Tier 1 and Tier 2 systems must have:
 
-- Automated backups with off-site or cloud copy at a cadence that meets each system's RPO: continuous or near-continuous data protection (for example, journaled or snapshot replication, or log shipping) for Tier 1's 1-hour RPO, and at least daily backups for Tier 2 and lower tiers.
+- Automated backups with off-site or cloud copy at a cadence that meets each system's RPO: continuous or near-continuous data protection (for example, journaled or snapshot replication, or log shipping) for Tier 1's 1-hour RPO, backups at least every 4 hours for Tier 2's 4-hour RPO, and at least daily backups for Tier 3 and Tier 4.
 - Backup integrity verified monthly via restore test.
 - Backup gap not exceeding each tier's RPO: 1 hour for Tier 1 and 4 hours for Tier 2 (the 24-hour and 72-hour RPOs apply to Tier 3 and Tier 4 respectively, per the RTO and RPO targets table above).
 
