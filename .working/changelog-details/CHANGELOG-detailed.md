@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.250, PR #272
+
+**FR-166: corpus listing-surface completeness gate (gate 47) + `suggest-listing-surfaces.py` authoring tool.** Maintainer-directed top-priority item (2026-06-23): build a mechanism that keeps every listing surface complete when a new document is added. Steers resolved with the maintainer before building: hard-gate the document-index register + all 11 domain READMEs (the deterministic surfaces); SEMANTIC surfaces stay suggestion-only.
+
+### Added
+
+- **[`tools/lint-listing-surface-completeness.py`](../../tools/lint-listing-surface-completeness.py)** (new gate 47): reads the canonical active-document set from [`taxonomy.yml`](../../taxonomy.yml) (gate-33-synced) and verifies the MECHANICAL listing surfaces are complete. The register must list every domain-prefixed active document (root-level `specification-*.md` meta-specs exempt by a documented rule, since the register is domain-organized and has never indexed them); each domain README must reference every active document in its own domain (whole-file scan, because the compliance README uses sector-subdirectory sections rather than a single "Active documents" table). SEMANTIC surfaces (matrices, crosswalks, glossary, key-terms, Related Documents) are deliberately not gated. Exit 0/1/2.
+- **[`tools/suggest-listing-surfaces.py`](../../tools/suggest-listing-surfaces.py)** (new authoring helper): for a given document path, reports the MECHANICAL surfaces with present/MISSING status (register, domain README, + the regenerate-taxonomy/portal action) and a ranked high-recall list of SEMANTIC candidates (matrices scored by same-domain overlap + title-keyword overlap; glossary and Related Documents reminders). Advisory, exit 0 always.
+- **[`tests/test_linters.py`](../../tests/test_linters.py)**: `ListingSurfaceCompletenessTests` with a HEAD smoke test + three detection tests (missing register doc flagged, missing README doc flagged, root-level meta-spec correctly exempt). The detection tests import the gate module via importlib (registered in `sys.modules` before exec so the frozen `@dataclass` resolves) and call its `check_*` functions with a crafted active set.
+
+### Changed
+
+- **Gate count 46 → 47**, wired in lock-step across all four audit-programme surfaces: [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml), [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh), [`.pre-commit-config.yaml`](../../.pre-commit-config.yaml), and the §6 inventory + §5 category + §6 description of [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (`1.14.2 → 1.15.0`). Gate appended at the tail (no renumbering). Prose count refs updated: [`TODO.md`](../../TODO.md):17 ("46"→"47") and the [`guardrail-review`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md):93 growth narrative ("forty-six"→"forty-seven", a word-form count gate 39 does not parse).
+- **[`specification-ingestion.md`](../../specification-ingestion.md)** (`1.7.2 → 1.7.3`): new-document checklist item 12 points authors at `suggest-listing-surfaces.py` for the MECHANICAL + SEMANTIC surface review.
+- **[`validation-sweep`](../../dev-security/claude-rules/skills/validation-sweep/SKILL.md) SKILL** (FR-166 component 4): Subagent B scope gains a SEMANTIC listing-surface coverage-drift check, with a note that the MECHANICAL surfaces are now gate-47-enforced. Pack `1.49.2 → 1.49.3` (with the guardrail count fix).
+- **[`taxonomy.yml`](../../taxonomy.yml)** + **[`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md)**: regenerated for the two spec version bumps.
+
+### Verification
+
+- New gate passes at HEAD (293 active docs; register + 11 READMEs complete). Gate 35 parity confirms 47 gates across all four surfaces; gate 39 confirms 47-gate consistency across 434 files. The 4 new regression tests pass. `lint-language.py` clean (the one introduced `-ise` form, "organised", corrected to "organized"). Full `run_all_audits.sh` + `run-pr-time-checks.sh` green standalone post-commit.
+- Design note: the register's measured gap (the 2 root meta-specs) is resolved by the documented root-level exemption rather than a structural register change, since the register is domain-organized with no domain row for root-level meta-specs. Flagged to the maintainer.
+- Carries the batched PR #271 `/validate-pr` (0 findings) + `/retro` (verification-scope pattern) rows.
+- Library `2026.06.249 → 2026.06.250`; README `1.9.120 → 1.9.121`.
+
 ## 2026-06-23, Library Version 2026.06.249, PR #271
 
 **Sweep 28 (`/validate`) close-out: fix an in-window DR backup-cadence contradiction surfaced by the session-resume corpus-wide sweep.** The `/resume` compensating-control `/validate` (the standing control for the session-closing handoff PR #270, which skips its trailing `/validate-pr` per the loop-break exception) found one in-window defect; this PR fixes it and lands the sweep record.

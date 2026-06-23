@@ -142,6 +142,7 @@ run_gate "Follow-up ageing audit"                        python3 tools/lint-foll
 run_gate "Paired-skill step-parity audit"                python3 tools/lint-paired-skill-step-parity.py
 run_gate "TODO staleness audit"                          python3 tools/lint-todo-staleness.py
 run_gate "Overnight-work file audit"                     python3 tools/lint-overnight-file.py
+run_gate "Listing-surface completeness audit"            python3 tools/lint-listing-surface-completeness.py
 
 # ----------------------------------------------------------------------
 # Summary

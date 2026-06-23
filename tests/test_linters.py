@@ -1004,6 +1004,79 @@ class GateCountConsistencyTests(LinterTestCase):
         self.assertLinterFails(result)
 
 
+class ListingSurfaceCompletenessTests(LinterTestCase):
+    """tools/lint-listing-surface-completeness.py"""
+
+    def test_runs_clean_on_corpus_at_head(self) -> None:
+        # Smoke test: the register index and every domain README are
+        # complete against the taxonomy active-document set at HEAD.
+        result = run_linter("tools/lint-listing-surface-completeness.py")
+        self.assertEqual(
+            result.returncode, 0,
+            f"linter exited {result.returncode} on HEAD; the register and "
+            f"domain READMEs should enumerate every active document.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def _load_module(self):
+        # The linter reads fixed repository paths; for unit tests on its
+        # detection logic we import the module directly (hyphenated
+        # filename) and call its check_* functions with a crafted active
+        # set. The linter imports lint_common, so tools/ must be on the
+        # path before exec.
+        import importlib.util
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        spec = importlib.util.spec_from_file_location(
+            "_listing_surface_completeness",
+            REPO_ROOT / "tools/lint-listing-surface-completeness.py",
+        )
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        # Register before exec so the @dataclass decorator can resolve
+        # the module via sys.modules during class processing.
+        sys.modules[spec.name] = mod
+        spec.loader.exec_module(mod)
+        return mod
+
+    def test_detects_missing_register_doc(self) -> None:
+        # A domain-prefixed active document absent from the register
+        # index must be flagged as missing.
+        mod = self._load_module()
+        fake = "governance/standard-fake-missing-from-register.md"
+        active = mod.active_documents() | {fake}
+        finding = mod.check_register(active)
+        self.assertIsNotNone(
+            finding, "a domain-prefixed doc absent from the register should flag"
+        )
+        self.assertIn(fake, finding.missing)
+
+    def test_detects_missing_readme_doc(self) -> None:
+        # An active document absent from its domain README must be flagged.
+        mod = self._load_module()
+        fake = "ai/standard-fake-missing-from-readme.md"
+        active = mod.active_documents() | {fake}
+        findings = mod.check_domain_readmes(active)
+        ai_findings = [f for f in findings if f.surface == "ai/README.md"]
+        self.assertTrue(
+            ai_findings, "a doc absent from its domain README should flag"
+        )
+        self.assertIn(fake, ai_findings[0].missing)
+
+    def test_root_level_meta_spec_exempt_from_register(self) -> None:
+        # A root-level meta-specification (no domain prefix) is exempt
+        # from the register-completeness rule: adding one to the active
+        # set must NOT produce a register finding.
+        mod = self._load_module()
+        active = mod.active_documents() | {"specification-fake-root-meta.md"}
+        finding = mod.check_register(active)
+        self.assertIsNone(
+            finding,
+            "root-level meta-specs are exempt; adding one should not flag",
+        )
+
+
 class AcronymConsistencyTests(LinterTestCase):
     """tools/lint-acronym-consistency.py"""
 

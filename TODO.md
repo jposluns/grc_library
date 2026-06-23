@@ -14,7 +14,7 @@ These are **as-of-session-pause snapshots**, not "current HEAD" claims. They ref
 
 - **Branch at last refresh**: `main` (synced after PR #241 merge).
 - **Library version**: `2026.06.220`. **Pack version**: `1.45.2`. **README version**: `1.9.91`.
-- **Audit programme**: all 46 gates passing on `main`.
+- **Audit programme**: all 47 gates passing on `main`.
 - **Last validation sweep**: Sweep 28 iter 1 (the `/resume` compensating-control corpus-wide `/validate` for the session-closing handoff PR #270; full three-subagent dispatch A/B/C; mechanical baseline 46/46; all FR-134..141 overnight fixes confirmed coherent; **1 in-window defect fixed** — `resilience/plan-it-disaster-recovery.md`:97 Tier-2 backup-cadence contradiction introduced by #265/FR-139; 4 out-of-window observations: 3 dedupe → DD-3/5/8, 1 new → DD-11 (operational-risk-register "Moderate" scale); all pre-flight candidates confirmed false positives; closed out in PR #271. Prior: Sweep 27 (the #270 final pre-resume sweep) — 1 in-window note fixed + addyosmani observation → DD-10; Sweep 26 (the #268 compensating control) gave the overnight run #259-#268 a clean in-window bill.
 - **Last fitness review**: 2026-06-22's r1; Pass-1 verification complete in PR #204.
 - **Timezone convention**: UTC (codified in CLAUDE.md per PR #190).
