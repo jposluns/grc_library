@@ -152,7 +152,7 @@ drive end-to-end on the maintainer's behalf:
    between commits catches gate 40-class issues locally, before CI does.
    Before pushing, additionally run `tools/run-pr-time-checks.sh` to
    exercise the PR-only delta gates (D1 CHANGELOG-on-PR, D2 per-PR
-   version-bump) plus gate 45 (TODO staleness) locally — these gates
+   version-bump, D3 CHANGELOG-dash-on-PR) plus gate 45 (TODO staleness) locally — these gates
    need a git history range relative to the merge base and are
    therefore not part of `run_all_audits.sh`. The two runners together
    cover every gate the CI workflow runs.
