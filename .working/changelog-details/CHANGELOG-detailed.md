@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.245, PR #267
+
+**FR-141 (High): remove the invented PIPEDA breach "72-hour target".** PIPEDA's Breach of Security Safeguards Regulations set no fixed hour deadline ("as soon as feasible"); the "(72-hour target)" was fabricated (72h is GDPR's / Quebec Law 25's, not PIPEDA federal). A bare-token search surfaced the invented annotation at two surfaces (finding named only one).
+
+### Changed
+
+- **[`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md)** (`1.4.9 → 1.4.10`): §6.2 jurisdiction table, Canada-federal Regulatory-Deadline cell "Without unreasonable delay (72-hour target)" ⇒ "As soon as feasible (no fixed statutory deadline)".
+- **[`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md)** (`1.3.8 → 1.3.9`): §6 regulatory-notification table, Canada-federal deadline cell "As soon as feasible (72-hour target)" ⇒ "As soon as feasible (no fixed statutory deadline)". (This cell's separate "CPPA (Canada)" regime label is the deferred FR-138 broader-CPPA-sweep issue and was NOT touched here; only the FR-141 deadline changed.)
+
+### Verification
+
+- Bare-token search (`72.hour|72 hours` near PIPEDA/Canada/OPC) confirmed exactly two invented-PIPEDA-72h surfaces (both fixed); the other matches are correct external-standard deadlines (GDPR 72h in `risk/template-risk-appetite-statement.md`; Quebec Law 25's 72h to the CAI in `annex-privacy-canada.md` / `standard-security-baseline-and-standards-reference.md`; Malaysia's 72h in `annex-privacy-malaysia.md`) — left unchanged. Per-document Version + Date bumped in the same commit. Regenerated `taxonomy.yml`, `docs/portal.md`, `docs/maturity-scorecard.md`. Post-commit `run_all_audits.sh` (46) + pre-push `run-pr-time-checks.sh` green; CI-green before merge.
+
+### Added (batched per recursion-avoidance)
+
+- **[`.working/validate-pr/history.md`](../../.working/validate-pr/history.md)**: PR #266 row (0 in-window; Version 1.2.69 → 1.2.70).
+- **[`.working/improvement-log.md`](../../.working/improvement-log.md)**: PR #266 `/retro` row (Version 1.0.47 → 1.0.48).
+
 ## 2026-06-23, Library Version 2026.06.244, PR #266
 
 **Sweep 25 (`/validate`) close-out.** Batch-A-seam corpus-wide validation sweep after the six H[critical] locked-criticals (FR-134..139, PRs #260-#265). Three subagents (A recent-PR deep review #259-#265, B corpus-wide stale-reference, C audit-programme integrity); mechanical baseline 46/46; all 9 pre-flight candidates confirmed false positives. Subagent A: zero new cross-PR inconsistencies (the six fixes are coherent). Four Low findings (B + C), all fixed here.

@@ -2,7 +2,7 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.9\
+**Version:** 1.4.10\
 **Date:** 2026-06-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -168,7 +168,7 @@ The notification assessment is documented in the breach record and approved by t
 | --- | --- | --- | --- | --- | --- |
 | **European Union** | GDPR Arts. 33 to 34 | Relevant lead supervisory authority (EDPB member authority); ICO for UK data subjects | Breach likely to result in a risk to the rights and freedoms of natural persons | 72 hours from the point of becoming aware of the breach | Without undue delay where the breach is likely to result in a high risk to individuals |
 | **United Kingdom** | UK GDPR Arts. 33 to 34 | Information Commissioner's Office (ICO) | Same threshold as EU GDPR | 72 hours from becoming aware | Without undue delay where high risk |
-| **Canada (Federal)** | PIPEDA (Breach of Security Safeguards Regulations); CPPA pending reintroduction | Office of the Privacy Commissioner of Canada (OPC) | Real risk of significant harm to the individual | Without unreasonable delay (72-hour target) | As soon as feasible after the determination that significant harm is likely |
+| **Canada (Federal)** | PIPEDA (Breach of Security Safeguards Regulations); CPPA pending reintroduction | Office of the Privacy Commissioner of Canada (OPC) | Real risk of significant harm to the individual | As soon as feasible (no fixed statutory deadline) | As soon as feasible after the determination that significant harm is likely |
 | **Quebec (Provincial)** | Quebec Law 25 (Bill 64); Act Respecting the Protection of Personal Information | Commission d'accès à l'information (CAI) | Confidentiality incident creating a serious injury risk | 72 hours to the CAI; promptly to affected individuals | Promptly after notifying CAI |
 | **China** | PIPL Art. 57 | Cyberspace Administration of China (CAC) / relevant PIPC authority | Breach of personal information | Immediately / without delay upon discovery | Promptly to affected individuals if high risk; may be deferred if measures have effectively prevented harm, subject to authority direction |
 | **Brazil** | LGPD Arts. 48 to 49 | Autoridade Nacional de Proteção de Dados (ANPD) | Breach likely to cause risk or harm to data subjects | Within reasonable period per ANPD guidelines (ANPD Resolution CD/ANPD No. 2 guidance: 2 business days for initial notification; 5 business days for full report) | Without undue delay |

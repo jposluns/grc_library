@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #267 — FR-141 (high): remove invented PIPEDA breach "72-hour target" (2026-06-23)
+
+PIPEDA's Breach of Security Safeguards Regulations set no fixed statutory clock ("as soon as feasible"), so the invented "(72-hour target)" was removed from the Canada-federal breach-notification deadline at both surfaces the bare-token search found: the privacy breach-response procedure (§6.2 jurisdiction table) and the security incident-response procedure (§6 regulatory-notification table). Both now read "As soon as feasible (no fixed statutory deadline)". The security-incident-response cell's separate "CPPA (Canada)" label remains for the deferred broader-CPPA sweep.
+
 ### PR #265 — FR-139 (high[critical]): DR Tier-1 backup cadence meets the 1h RPO (2026-06-23)
 
 Resolved the DR-plan self-contradiction where Tier 1 carried a 1-hour RPO but the backup section mandated "daily backups" and allowed a "24-hour gap" (so every Tier-1 backup would permanently breach the RPO and trigger P2 escalation). The backup cadence now requires continuous/near-continuous data protection for Tier 1's 1h RPO, and the backup-gap limit is aligned per tier (1h Tier 1, 4h Tier 2, 24h/72h Tier 3/4). **Completes the 6-item H[critical] locked-criticals batch (FR-134 through FR-139).**
