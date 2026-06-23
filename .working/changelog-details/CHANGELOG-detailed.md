@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.257, PR #279
+
+**DD-9 (DR header tidy) plus the PR #278 close-out bookkeeping fixes.** A small Track-1 quick-win bundled with the three in-window findings PR #278's `/validate-pr` surfaced (batched here per recursion-avoidance).
+
+### Changed
+
+- **[`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md)** (`1.3.1 → 1.3.2`), DD-9: the "Backup and restore requirements" header read "All Tier 1 and Tier 2 systems must have:" but its bullets already span all four tiers (the cadence and gap bullets cite Tier 3 and Tier 4 RPOs after the FR-139 / Sweep-28 edits). Broadened the header to "All systems must have:" so it matches the tier-spanning content. Not a defect; a wording tidy.
+- **[`TODO.md`](../../TODO.md)** (PR #278 `/validate-pr` finding 1, error): the DD-1 resolution line in the triage block recorded the superseded "extend the dash gate to all of CHANGELOG, fix existing entries" plan; rewritten to the new-entries-only resolution that actually shipped in #278, noting the at-action-time scope narrowing. Also reconciled the running-order range "DD-1..DD-11" to "DD-2..DD-12" (DD-1 shipped, DD-12 added in #275).
+- **[`.claude/CLAUDE.md`](../../.claude/CLAUDE.md)** (PR #278 `/validate-pr` finding 3, warning): the PR-workflow delta-gate enumeration listed only "D1 CHANGELOG-on-PR, D2 per-PR version-bump"; added "D3 CHANGELOG-dash-on-PR" so the durable instruction matches the runner D3 now lives in.
+
+### Removed
+
+- **[`TODO.md`](../../TODO.md)** (PR #278 `/validate-pr` finding 2, warning): deleted the resolved DD-1 backlog item ("Decide: extend the dash gate to CHANGELOG, or keep it unscoped"), rotating it to [`.working/DONE.md`](../DONE.md) keyed to PR #278 per the TODO/DONE rotation discipline.
+
+### Added
+
+- The PR #278 `/validate-pr` record ([`.working/validate-pr/2026-06-23-PR-278.md`](../validate-pr/2026-06-23-PR-278.md)) + history row (3 in-window bookkeeping findings, all fixed here), and the #278 `/retro` row ([`.working/improvement-log.md`](../improvement-log.md)). Batched here per recursion-avoidance.
+
+### Verification
+
+- `tools/run_all_audits.sh` green (47/47); `tools/run-pr-time-checks.sh` green including D3 (this entry is dash-free; version separators are `→` arrows, not dashes). Per-doc Version + Date bumped on the DR plan in the same commit as its body change (gates 31/40).
+
+### Discipline observation
+
+- The three fixes are the close-out of #278's own paired-surface-lag findings: a decision re-scoped mid-session (DD-1) left its earlier-recorded disposition stale, the TODO/DONE rotation was missed, and a durable enumeration was not updated. `/validate-pr` caught all three; the `/retro` proposed two close-out-checklist reinforcements (grep the original disposition phrasing when a decision is re-scoped; on resolving a tracked DD/FR, both rotate TODO to DONE and update durable enumerations of the changed collection).
+
 ## 2026-06-23, Library Version 2026.06.256, PR #278
 
 **DD-1 (new-entries-only resolution): add PR-time delta gate D3 so new CHANGELOG entries follow the no-dash prose convention, leaving history untouched.** Deferred decision DD-1 asked whether to bring the root [`CHANGELOG.md`](../../CHANGELOG.md) under the em-dash and en-dash prohibition that [`tools/lint-language.py`](../../tools/lint-language.py) enforces on the corpus. Investigation found the CHANGELOG holds roughly 130 dashes (5 en dashes, about 125 em dashes) accumulated across its append-only entry history before the convention applied; a full rewrite would churn the historical record and risk altering past entries' meaning. The maintainer chose the new-entries-only resolution.

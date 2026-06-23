@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #278 — DD-1 (low): new-entries-only CHANGELOG dash gate (D3) (2026-06-23)
+
+Resolved DD-1 with a PR-time delta gate (D3, `check-changelog-dash-on-pr.py`) that flags em/en dashes only in lines a PR adds to `CHANGELOG.md`, leaving the ~130 historical dashes untouched. Scope narrowed from "extend to all of CHANGELOG" at action time after the dash count proved far larger than the backlog item assumed.
+
 ### PR #273 — count-gate coverage: stale-count fix + gate-39 P8 (2026-06-23)
 
 Fixed the stale "32 automated audits" in the library-health-report template (now count-agnostic; the programme has 47 gates) that PR #272's `/validate-pr` surfaced, and broadened gate 39 with pattern P8 (`<N> automated audits`) so the idiom that escaped patterns P1-P7 is now caught. Closes the #272 out-of-window finding + the broaden-the-count-gate P4 candidate.
