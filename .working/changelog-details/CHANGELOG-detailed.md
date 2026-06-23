@@ -6,9 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
-## 2026-06-23, Library Version 2026.06.246, PR #268
+## 2026-06-23, Library Version 2026.06.247, PR #269
 
-**Session-closing handoff PR for the autonomous overnight run.** Working-state only; no corpus content changed.
+**Sweep 26 (`/validate`) cleanup PR.** The session-resume corpus-wide validation sweep (the compensating control for handoff PR #268, which skipped its trailing `/validate-pr`) plus the one trivial fix it surfaced. Tooling + working-state only; no adopter-facing corpus content changed.
+
+### Changed
+
+- **[`tools/lint-collection-enumeration-consistency.py`](../../tools/lint-collection-enumeration-consistency.py)**: docstring corrected from "Phase 1 (this iteration): three hard-coded collections" to "two hard-coded collections (the pack's governance rules and its skills)", with a clarifying clause that the external-overlay sources are enumerated similarly but not yet wired into this linter. The "three" was stale from the gate's creation (commit `d333661`, 2026-06-20): the `COLLECTIONS` tuple has only two entries, the runtime reports "2 collection(s)", and [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) §6 says "two hard-coded collections". No behaviour change (docstring only); gate 41 was already passing.
+- **[`.working/validate-sweeps/2026-06-23-sweep26-iter1.md`](../../.working/validate-sweeps/2026-06-23-sweep26-iter1.md)** (new) and **[`.working/validate-sweeps/history.md`](../../.working/validate-sweeps/history.md)** (row 26, version `2.0.18 → 2.0.19`): the Sweep 26 record.
+
+### Verification / discipline
+
+- **Sweep 26 result**: mechanical baseline clean (46/46); all three subagents (A recent-PR deep review, B corpus-wide stale-reference, C audit-programme integrity) dispatched; **zero in-window regressions** across the overnight run (PRs #259-#268). Three out-of-window candidate findings; after apply-time verification: 2 confirmed (the docstring, fixed here; a CPPA-as-live row at [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md):255, folded into the deferred broader-CPPA sweep) + 1 refuted ([`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md):151 "All 42 documents" — apply-time count confirmed 42 is correct; 43 rows, one dual-domain duplicate; subagent B's low-confidence flag was a false positive).
+- **Apply-time worker correction**: subagent B's B-2 finding was refuted when the maintainer challenged the low-confidence count; the orchestrator counted unique matrix documents (42) rather than routing the hypothesis. Recorded per the research-assistant discipline.
+- Library `2026.06.246 → 2026.06.247`; README `1.9.117 → 1.9.118`.
 
 ### Changed
 

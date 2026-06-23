@@ -17,8 +17,10 @@ in the corpus can fall behind, causing drift. This audit detects that
 drift by parsing each enumeration location and comparing its set of
 items to the canonical directory listing.
 
-Phase 1 (this iteration): three hard-coded collections, each with one
-or more enumeration locations. The companion detector tool
+Phase 1 (this iteration): two hard-coded collections (the pack's
+governance rules and its skills), each with one or more enumeration
+locations. The external overlay sources noted above are enumerated
+similarly but are not yet wired into this linter. The companion detector tool
 (``tools/detect-collection-candidates.py``, separate PR) finds
 additional candidate collections by heuristic scan; the maintainer
 triages those one-by-one and adds approved candidates to this
