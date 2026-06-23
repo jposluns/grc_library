@@ -2981,7 +2981,7 @@ documents:
   domain: "operations"
   type: "Standard"
   title: "Cloud Security Configuration Baseline"
-  version: "1.4.5"
+  version: "1.4.6"
   date: "2026-06-23"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
