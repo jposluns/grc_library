@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #263 — FR-137 (high[critical]): DSAR retention harmonized to 3 years (2026-06-23)
+
+Aligned the DSAR-record retention to the authoritative schedule's 3-year value: the records standard's DSR row and the data-subject-rights procedure §9.2 moved from "2 years post-closure" to "3 years post-closure", citing `register-data-retention-schedule.md` (Data subject access request records: 3 years, GDPR Article 30). The register was already canonical and unchanged.
+
 ### PR #262 — FR-136 (high[critical]): log-retention schedule authoritative (2026-06-23)
 
 Resolved the log-retention conflict by making `register-data-retention-schedule.md` authoritative: the logging standard §4.1 (flat "seven years") and the records standard's IT/Security row ("1 to 3 years") now defer to the schedule's tiered, by-log-class periods. Reconciled a downstream citer (security-monitoring §298, which cited §4.1 for a 7-year AI-decision-log retention) onto the established ISO/IEC 42001 + EU AI Act Annex IV basis, preserving its 7-year retention. Also forward-corrected PR #261's over-broad TLS verification claim.
