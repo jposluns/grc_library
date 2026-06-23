@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.244, PR #266
+
+**Sweep 25 (`/validate`) close-out.** Batch-A-seam corpus-wide validation sweep after the six H[critical] locked-criticals (FR-134..139, PRs #260-#265). Three subagents (A recent-PR deep review #259-#265, B corpus-wide stale-reference, C audit-programme integrity); mechanical baseline 46/46; all 9 pre-flight candidates confirmed false positives. Subagent A: zero new cross-PR inconsistencies (the six fixes are coherent). Four Low findings (B + C), all fixed here.
+
+### Fixed
+
+- **[`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md)**:93 — "grew from five rules to **nine**" ⇒ "to **ten**" (project-integrity.md, the 10th rule, added pack 1.49.0 / PR #258; this free-prose growth-count was missed by #258's wiring and is not parsed by gate 41). Pack `1.49.1 → 1.49.2` + version-history row.
+- **[`TODO.md`](../../TODO.md)**:182 — "the **nine** `governance/` pack rules form the discipline core" ⇒ "**ten**" (parallel free-prose miss from #258; gate-exempt working state).
+- **[`privacy/template-record-of-processing-activities.md`](../../privacy/template-record-of-processing-activities.md)**:46 (`1.0.4 → 1.0.5`) — lawful-basis example "CPPA Sec 12 consent" (the lone unmarked live-CPPA-section citation; all other corpus CPPA section refs are marked "(proposed)") ⇒ "PIPEDA Schedule 1 Principle 3 consent (CPPA Sec 12 consent is proposed, not in force)", extending the FR-138 scrub to this surface.
+- **[`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md)**:75 (`1.3.0 → 1.3.1`) — privileged-access session retention "minimum of one year" ⇒ "retained per the [data-retention schedule] (2 years for privileged-access session logs)", resolving an under-floor against the FR-136 canonical (schedule says 2 years for that log class).
+
+### Synthesis / triage
+
+Findings 1-2 (stale rule counts) are in-window #258 misses. Findings 3-4 are pre-existing out-of-window surfaces (FR-138 / FR-136 classes), but their fix direction is **determined** by the maintainer's locked decisions (scrub CPPA-as-live; the retention schedule is authoritative) plus the stricter-is-safer overnight rule — applications of locked direction, not new authorial decisions — so per the overnight "fix `/validate` findings immediately" instruction they are fixed here rather than deferred. **Recurring pattern (3rd occurrence)**: a new governance rule is added but a free-prose rule count (SKILL body, TODO, CLAUDE.md example) is missed because gate 41 parses only the structured README enumeration (Sweep 23 caught "eight"→"nine"; Sweep 25 catches "nine"→"ten" in two more surfaces). Candidate improvement logged for the guardrail/P4 lane: broaden the enumeration gate or a pre-flight rule to catch free-prose "<word-number> governance rules" current-state counts.
+
+### Verification
+
+- Per-document Version + Date bumped in the same commit for the two corpus docs; pack version + history row for the SKILL fix. Regenerated `taxonomy.yml`, `docs/portal.md`, `docs/maturity-scorecard.md`. Empty-delta termination: all four findings are Low and fixed; no High/Medium remain. Post-commit `run_all_audits.sh` (46) + pre-push `run-pr-time-checks.sh` green; CI-green before merge. Full sweep record: [`.working/validate-sweeps/2026-06-23-sweep25-iter1.md`](2026-06-23-sweep25-iter1.md).
+
+### Added (batched per recursion-avoidance)
+
+- **[`.working/validate-sweeps/history.md`](../../.working/validate-sweeps/history.md)**: Sweep 25 iter 1 row (Version 2.0.17 → 2.0.18).
+- **[`.working/validate-pr/history.md`](../../.working/validate-pr/history.md)**: PR #265 row (0 in-window; committed earlier on the branch at the post-#265 bookkeeping commit).
+- **[`.working/improvement-log.md`](../../.working/improvement-log.md)**: PR #265 `/retro` row (committed earlier on the branch).
+
 ## 2026-06-23, Library Version 2026.06.243, PR #265
 
 **FR-139 (H[critical]): DR Tier-1 backup cadence aligned to the 1-hour RPO.** The DR plan's Tier-1 RPO (1 hour) contradicted its backup section ("daily backups", "24-hour gap for Tier 1"), and the "gap > RPO ⇒ P2" rule made a compliant Tier-1 system permanently escalated. Per the maintainer's locked decision, the 1h RPO is binding and the backup cadence/gap are aligned to it. **Closes the six-item H[critical] locked-criticals batch (FR-134..139).**
