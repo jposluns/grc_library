@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.267, PR #289
+
+**Sweep 33 (`/validate`) close-out: clarify a CIS-benchmark column label in the cloud-security baseline.** The `/resume` compensating-control corpus-wide `/validate` for the new session — the standing control for the session-closing handoff PR #288, which skipped its trailing `/validate-pr` per CLAUDE.md PR-workflow step 5a's handoff-PR exception. The #287 `/validate-pr` + `/retro` rows were already carried by #288, so this close-out carries only the Sweep 33 artefacts and the one in-window finding-fix the sweep produced.
+
+### Changed
+- [`operations/standard-cloud-security-configuration-baseline.md`](../../operations/standard-cloud-security-configuration-baseline.md) (`1.4.5` → `1.4.6`): §8's per-section ISO/CIS/NIST mapping table (added in PR #287) used the single column header "CIS Cloud Foundations area", but the §5 row maps the cloud-productivity baseline to CIS areas ("Email and collaboration security; storage; endpoint protection") that the same section's framework table attributes to the separately-named **CIS Cloud Productivity Foundations Benchmark v3.0**, not the **CIS Cloud Foundations Benchmark v2.0**. The column header is generalized to "CIS benchmark area" (the table rows span both named benchmarks; the generic header loses no information) and the preceding prose is changed from "CIS Cloud Foundations Benchmark recommendation numbers are version-specific" to name which benchmark governs each section (Cloud Foundations for §4/§6, Cloud Productivity Foundations for §5). No control identifiers changed; the ISO A.8.9/A.8.23/A.8.24 and NIST CM-2/CM-6 mappings were verified accurate during the sweep and left intact.
+
+### Verification
+- **Sweep 33 dispatch**: full three-subagent fan-out (A recent-PR deep review, B corpus-wide stale-reference, C audit-programme integrity); no abbreviation. Mechanical baseline `tools/run_all_audits.sh` = **47/47** at sweep start; pre-flight scanner 378 files, 9 candidates all confirmed false positives (pairing/comparative/historical prose).
+- **Subagent A**: 1 in-window note (the finding fixed here) + 8 verified-clean cross-citations (CAPA §7.5 ↔ policy §4.3 "90 days"; internal-audit ↔ audit-planning 15-business-day extension; incident-command checklists grounded line-by-line; risk-vocabulary harmonization clean; etc.). A's out-of-scope "doubled CC BY-SA 4.0" observation **refuted** at apply-time (orchestrator corpus-wide grep `CC BY-SA 4.0 CC BY-SA 4.0` = zero hits); not routed.
+- **Subagent B**: 0 findings; live counts 47/10/15/8 verified against spec §6, pack README tree, and `ls .claude/commands/`; the Sweep 32 "monitoring" lead validated against the live file and confirmed already-fixed in #286.
+- **Subagent C**: 0 findings; live gate count 47 established by counting `^run_gate` in the runner, §6 inventory matches in name+order; #286's spec edit clean (the "§10" in its commit subject is a benign git-history mislabel — it edited §9 step 4; corpus content correct).
+- **Apply-time re-read** of the one finding location confirmed the framework-table-vs-mapping-table imprecision before the fix; `tools/run_all_audits.sh` re-run **47/47** on the committed state; `tools/run-pr-time-checks.sh` (D1/D2/D3 + gate 45) pass; `taxonomy.yml` + `docs/maturity-scorecard.md` regenerated for the per-doc bump.
+
+### Discipline observations
+- Findings-producing `/validate` gets its own close-out PR (matching #277/#286), keeping the queued PR-E (adopter/docs UX bundle) clean per the "always split when in doubt" discipline. The single note is in-window (introduced #287), so it received a concrete fix rather than backlog routing.
+
 ## 2026-06-23, Library Version 2026.06.266, PR #288
 
 **Session-closing handoff PR for the resumed XS/S batch session, carrying the one PR #287 `/validate-pr` finding-fix.** After two full PR cycles in one turn (#286 Sweep 32 close-out, #287 PR-C), the maintainer chose to land a small session-closing handoff PR and resume fresh for PR-E, per the degradation self-assessment discipline.
