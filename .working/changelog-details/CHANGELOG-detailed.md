@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.232, PR #254
+
+**Adds the `/trust-recovery` convenience wrapper.** The maintainer-approved (go/no-go: go) thin sequencer over the two-skill trust-recovery suite.
+
+### Added
+
+- **[`.claude/commands/trust-recovery.md`](../../.claude/commands/trust-recovery.md)** (new, thin command): runs the suite in order — step 0 full-clone check, then `/full-qa` (deep-qa-review forensic pass), then `/fitness` (library-fitness-review persona pass), then holds for maintainer sign-off. Routes findings per the severity-tiered convention (H[critical]/High to top-priority tier / P1, Medium/Low to next tier / P2, tagged by pass, none dropped). Explicitly states it does not replace either skill, does not self-authorize (maintainer invokes it and names the window), and points to the `trust-recovery-escalation.md` rule for trigger classes / routing / sign-off detail. Non-paired (like `/resume`): no SKILL counterpart, not in the gate-44 PAIRS registry, so step-parity does not apply.
+
+### Changed
+
+- **[`.claude/CLAUDE.md`](../../.claude/CLAUDE.md)**: the trust-recovery rule-description bullet's two-skill-suite clause now notes the suite is "both runnable in sequence via the thin `/trust-recovery` wrapper command" (discoverability).
+- **[`README.md`](../../README.md)**: library `2026.06.231 → 2026.06.232`; README `1.9.102 → 1.9.103`.
+
+### Verification
+
+- `.claude/` is config (gate-exempt for content); the only gated file touched is [`README.md`](../../README.md) (version lines). No pack version bump (the wrapper is a project command, not pack content; the underlying skills are unchanged).
+- `lint-language` clean on the new command (no em/en-dashes, no British `-ise`); `tools/run_all_audits.sh` exit 0 (46/46) post-commit; `tools/run-pr-time-checks.sh` exit 0.
+- Command-count note: the project now ships 7 slash commands (5 paired: validate, validate-pr, fitness, retro, full-qa; 2 thin non-paired: resume, trust-recovery). The handoff command enumeration will be refreshed at the next close-out.
+
+### Carried (recursion-avoidance)
+
+- PR #253 `/validate-pr` row (0 findings) and `/retro` row (the grep-after-convention-change and lint-language-preflight disciplines demonstrated effective). `.working/validate-pr/history.md` Version `1.2.56 → 1.2.57`; `.working/improvement-log.md` Version `1.0.35 → 1.0.36`.
+
 ## 2026-06-22, Library Version 2026.06.231, PR #253
 
 **Completes the trust-recovery routing-convention revision + adds the third-party-issues log.** Closes the multi-surface-incompleteness defect PR #252's `/validate-pr` caught, and lands the maintainer-requested signing-outage writeup.
