@@ -6,6 +6,37 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.235, PR #257
+
+**Adds the fifteenth pack skill `guardrail-review` (`/guardrails`): the periodic structural-integrity review of the governance machinery.** Closes the TODO structural-review codification item (name and cadence locked this session). The skill reviews the machinery (rules, skills, gates, wiring surfaces) for overlap, gap, and drift, the structural concerns the mechanical parity gates cannot judge.
+
+### Added
+
+- **[`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md)** (new, eight-section template): `derives_from` [`gate-discipline.md`](../../dev-security/claude-rules/governance/gate-discipline.md) (the machinery-integrity rule it operationalizes at the system level). Six-step process (1 inventory + mechanical baseline; 2 three-lens review of overlap/gap/drift; 3 synthesize + apply-time re-read; 4 route severity-tiered tagged `[guardrails]`; 5 record; 6 surface + terminate single-pass). Frontmatter `description` written for trigger accuracy (when-to-use lead, the three lenses, and the catch the content sweeps miss).
+- **[`.claude/commands/guardrails.md`](../../.claude/commands/guardrails.md)** (new slash command): step-identifier parity 1-6 with the SKILL (gate 44).
+- **[`.working/guardrail-reviews/`](../guardrail-reviews/)** record-directory scaffold: `README.md` (lens model, cadence, single-pass convention) + `history.md` (Version 1.0.0, empty table awaiting the first run).
+
+### Changed
+
+- **[`tools/lint-paired-skill-step-parity.py`](../../tools/lint-paired-skill-step-parity.py)**: PAIRS registry extended with the `guardrail-review` → `guardrails.md` pair (now six pairs).
+- **[`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md)**: skills tree gains the `guardrail-review` entry (`pr-retrospective` demoted from `└──` to `├──`; gate 41); Version `1.47.3 → 1.48.0`; new 1.48.0 version-history row.
+- **[`dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md`](../../dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md)** and **[`deep-qa-review/SKILL.md`](../../dev-security/claude-rules/skills/deep-qa-review/SKILL.md)**: bidirectional `## See Also` back-references to `guardrail-review`.
+- **[`README.md`](../../README.md)**: library `2026.06.234 → 2026.06.235`; README `1.9.105 → 1.9.106`.
+
+### Design notes
+
+- **Parent rule choice (`gate-discipline.md`).** The content-review skills derive from `evidence-grounded-completion`; guardrail-review derives from `gate-discipline` instead, because its subject is the integrity of the gate/rule/skill machinery (a gate, and the apparatus around it, derives value from being meaningful and unconditional, not decorative), which is gate-discipline's domain rather than the assertion-verification domain.
+- **Single-pass termination (modelled on `/fitness`, not `/validate`).** Structural findings propose machinery changes (merge rules, add a gate, retire a check) that are maintainer-owned design decisions, so the skill routes proposals and terminates rather than looping to a fixed point; an accepted proposal becomes its own PR, which re-triggers the auto-prompt cadence.
+- **Distinct from `/full-qa` Subagent C.** Deep-qa's audit-programme-integrity subagent checks four-surface parity within a trust-recovery window; guardrail-review generalizes that to the standing machinery and adds the overlap and gap lenses. The overlap is documented bidirectionally in both See Also sections, not accidental.
+
+### Verification
+
+- `tools/lint-language.py` clean on all new pack prose (SKILL + command + README edits + the two See Also back-references) before the first commit (the new-pack-prose pre-flight discipline).
+- Step-parity verified: SKILL `### 1.`–`### 6.` headings and command `1.`–`6.` numbered items share the identifier set {1,2,3,4,5,6}; gate 44 passes.
+- Gate 41 (collection-enumeration): the skills directory now lists 15 entries and the pack README tree matches.
+- Gate 32 (skill derives-from): `derives_from` resolves to `gate-discipline.md`.
+- `tools/run_all_audits.sh` 46/46 post-commit; `tools/run-pr-time-checks.sh` exit 0.
+
 ## 2026-06-23, Library Version 2026.06.234, PR #256
 
 **Resume `/validate` close-out: pack README staleness from the trust-recovery work.** The first substantive task of this session per `/resume` step 5 is a full corpus-wide `/validate` (the compensating control for the prior session's handoff-PR loop-break). It surfaced three residual prose defects in the pack README, all R (real), all should-fix-this-PR (Medium), all in-window (the trust-recovery PRs touched this file but missed these prose surfaces).
