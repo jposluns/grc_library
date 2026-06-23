@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.262, PR #284
+
+**Complete FR-162's sample-row reconcile in the AI risk register.** Closes the single in-window finding from PR #283's `/validate-pr`.
+
+### Fixed
+- [`ai/register-ai-risk.md`](../../ai/register-ai-risk.md) (`1.0.2` → `1.0.3`): five sample-row Status cells (AIR-2026-001/002/003/004/006) still showed the retired `In Treatment` after #283 reconciled the Status *field definition* to `Open / Closed`; all five now read `Open` (ongoing monitored risks), consistent with the field def and with the ERM-template sample rows FR-146 fixed in #283.
+
+### Notes
+- Root cause (logged in the #283 `/retro`): the bare-token parallel-occurrence grep was applied to the ERM template's sample rows but not to the AI register's own sample rows in the same PR. Discipline sharpened: after a field/enum reconcile, grep the same document's example tables for the old values, for every touched doc.
+- Carries the batched PR #283 `/validate-pr` (1 in-window finding, fixed here) and `/retro` rows.
+
+### Verification
+- `tools/run_all_audits.sh` 47/47; taxonomy/portal/scorecard regenerated before commit; `tools/run-pr-time-checks.sh` D1/D2/D3 + gate 45 pass.
+
+Library `2026.06.261` → `2026.06.262`; README `1.9.132` → `1.9.133`.
+
 ## 2026-06-23, Library Version 2026.06.261, PR #283
 
 **FR-161 + FR-162 + FR-163 + FR-146: align the AI and ERM-template risk vocabulary to the canonical enterprise-risk set.** PR-B of the XS/S batch-reduction.

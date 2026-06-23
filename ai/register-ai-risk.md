@@ -2,7 +2,7 @@
 
 **Document Title:** AI Risk Register\
 **Document Type:** Register\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-06-23\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
@@ -69,12 +69,12 @@ The following entries represent the baseline risk register template. Actual oper
 
 | Risk ID | AI System | Category | Risk Description | Inherent Score | Residual Score | Rating | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| AIR-2026-001 | All deployed AI systems | Governance | AI systems lack complete model documentation, preventing regulatory audit | 4×3=12 | 4×2=8 | Medium | In Treatment |
-| AIR-2026-002 | Decision-support AI | Bias | Automated recommendations exhibit demographic disparity due to unrepresentative training data | 3×4=12 | 3×2=6 | Medium | In Treatment |
-| AIR-2026-003 | Generative AI tools | Security | Prompt injection attacks manipulate AI outputs or extract confidential training data | 4×4=16 | 4×2=8 | Medium | In Treatment |
-| AIR-2026-004 | Decision-support AI | Explainability | AI decisions affecting customers cannot be explained in plain language as required under GDPR Article 22 | 3×3=9 | 3×2=6 | Medium | In Treatment |
+| AIR-2026-001 | All deployed AI systems | Governance | AI systems lack complete model documentation, preventing regulatory audit | 4×3=12 | 4×2=8 | Medium | Open |
+| AIR-2026-002 | Decision-support AI | Bias | Automated recommendations exhibit demographic disparity due to unrepresentative training data | 3×4=12 | 3×2=6 | Medium | Open |
+| AIR-2026-003 | Generative AI tools | Security | Prompt injection attacks manipulate AI outputs or extract confidential training data | 4×4=16 | 4×2=8 | Medium | Open |
+| AIR-2026-004 | Decision-support AI | Explainability | AI decisions affecting customers cannot be explained in plain language as required under GDPR Article 22 | 3×3=9 | 3×2=6 | Medium | Open |
 | AIR-2026-005 | All AI systems | Compliance | AI systems classified as High-risk under EU AI Act are not fully compliant with Annex IV documentation requirements | 3×4=12 | 3×3=9 | Medium | Open |
-| AIR-2026-006 | ML/prediction models | Performance | Model performance drift causes incorrect outputs over time without detection | 3×3=9 | 3×1=3 | Low | In Treatment |
+| AIR-2026-006 | ML/prediction models | Performance | Model performance drift causes incorrect outputs over time without detection | 3×3=9 | 3×1=3 | Low | Open |
 | AIR-2026-007 | Third-party AI | Governance | Third-party AI embedded in procured software lacks transparency on training data or decision logic | 4×3=12 | 4×2=8 | Medium | Open |
 
 ---
