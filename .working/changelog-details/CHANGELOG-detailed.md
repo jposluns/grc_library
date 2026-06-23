@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.264, PR #286
+
+**Sweep 32 (`/validate`) close-out: harmonize the operational risk register to the canonical risk vocabulary and fix a self-contradicting audit-programme procedure step.** The `/resume` compensating-control corpus-wide `/validate` (Sweep 32, the standing control for the session-closing handoff PR #285, which skipped its trailing `/validate-pr`) surfaced three confirmed out-of-window findings, all `warning`-level, all apply-time-verified real.
+
+### Fixed
+- [`risk/template-operational-risk-register.md`](../../risk/template-operational-risk-register.md) (`1.0.1` → `1.0.2`): the Section C field-definition table used the retired risk vocabulary its now-harmonized sibling templates had moved off. The **Treatment decision** field def (:86) listed the retired four-option set `Accept, mitigate, transfer, avoid` (missing the canonical positive-risk options Exploit and Enhance); it now reads `Avoid / Mitigate / Transfer / Accept / Exploit / Enhance (canonical 6 per risk/standard-enterprise-risk-management.md Section 6)`, matching the sibling [`risk/template-enterprise-risk-register.md`](../../risk/template-enterprise-risk-register.md):86. The **Status** field def (:93) listed the non-canonical `Open, monitoring, closed`; it now reads `Open / Closed (canonical per risk/standard-enterprise-risk-management.md Section 7.1)`, consistent with the canonical lifecycle and with this document's own example row at :228 (which already read `Open`). Per the #283 minimal-reconcile precedent, no separate Treatment Status field was added where one did not already exist. The document was never swept by the FR-161/162/146 harmonization (its last content touch predated it); the maintainer chose full harmonization over a downside-only carve-out (the document carried no positive-risk carve-out rationale).
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (`1.16.0` → `1.16.1`): §10 step 4 instructed "Add the new gate's row to the §6 inventory and **update the gate count in §2.1**" but §2.1 (:29) carries no numeric gate count — it defers to §6 ("see §6 for the canonical inventory and current count"), and the same step-4 sentence ends by naming §6 (not §2.1) as the canonical source. The clause was a self-description lag from when the gate count was consolidated into §6 only. The "update the gate count in §2.1" clause is removed; the count lives solely in the §6 inventory table, which step 4 already names as canonical. Gate 39 (cross-file gate-count consistency) cannot catch this because §2.1 has no count string to compare.
+
+### Changed
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (`2.0.24` → `2.0.25`): Sweep 32 iteration-1 row added.
+
+### Added
+- [`.working/validate-sweeps/2026-06-23-sweep32-iter1.md`](../validate-sweeps/2026-06-23-sweep32-iter1.md): the per-iteration detail file (mechanical baseline 47/47; full A/B/C dispatch; Subagent A 0 findings; B 2 warnings same root cause; C 1 warning; all out-of-window; empty-delta termination at iter 1).
+
+### Notes
+- **Subagent A (recent-PR, the 6 substantive #282-#284 files): 0 findings** — the priority C1 multi-surface-incompleteness class verified absent (the AI register field defs now agree with all seven sample rows; the #283→#284 defect class is gone), the new AI-procedure "Roles and responsibilities" subsections use canonical role names, and the supplier escalation de-loop terminates at CRO.
+- All 9 pre-flight scanner candidates confirmed comparative/historical prose (same false-positive class as Sweeps 22-31).
+- The findings were surfaced to the maintainer with named options per the out-of-window protocol; the maintainer chose canonical harmonization for the operational register and a dedicated Sweep-32 close-out PR (this PR) over folding into a later track.
+
+### Verification
+- `tools/run_all_audits.sh` = 47/47 gates pass on the committed state; `tools/run-pr-time-checks.sh` (D1/D2/D3 + gate 45) pass against the merge base.
+
+Library `2026.06.263` → `2026.06.264`; README `1.9.134` → `1.9.135`.
+
 ## 2026-06-23, Library Version 2026.06.263, PR #285
 
 `.working/` for local project: **session-closing handoff PR** for the 2026-06-23 XS/S batch-reduction session. Working-state only; no adopter-facing corpus content changed.
