@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Startup Roadmap Template\
 **Document Type:** Template\
-**Version:** 2.2.0\
-**Date:** 2026-06-22\
+**Version:** 2.2.1\
+**Date:** 2026-06-23\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/template-quickstart.md`](template-quickstart.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`docs/template-maturity-self-assessment.md`](template-maturity-self-assessment.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
@@ -273,7 +273,7 @@ Adopt order: Days 1 to 30 the core baseline plus A1, A2, B1, B4. Days 30 to 90 t
 A consulting firm. Five staff. No software shipped; all customer engagement is through consulting deliverables. Customer data is meeting notes, contact details, and engagement documents. B2B audience. Light regulatory exposure (general privacy law of the home jurisdiction). Founder is the GRC function (E1).
 
 Composition:
-- Core baseline (mandatory), minus the A1 elements since no software is shipped (dev-security is optional at this scale; including it costs more than it saves).
+- Core baseline (mandatory). The A1 module (in-house software development) does not apply, since no software is shipped; dev-security is optional at this scale and including it costs more than it saves.
 - B1 (customer data, modest scope).
 - C2 (B2B audience).
 - D1.

@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Quickstart Template\
 **Document Type:** Template\
-**Version:** 3.0.1\
-**Date:** 2026-06-22\
+**Version:** 3.0.2\
+**Date:** 2026-06-23\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md), [`README.md`](../README.md)\
@@ -40,20 +40,21 @@ Every adopter needs these three things in the first session, regardless of size 
 
 2. **Substitute the role names.** Every artefact in the library names roles, not people. Map each role to a real person in your organisation in a private overlay. Do not edit named individuals into the artefacts themselves.
 
-3. **Point at the portal.** Browse [`docs/portal.md`](portal.md) to see which other documents fit your audience (CIO, CISO, DPO, auditor, engineering team, etc.). Take only the documents that match your sector, jurisdiction, and operating model.
+3. **Point at the portal.** Browse [`docs/portal.md`](portal.md) to see which other documents fit your audience (CIO, CISO, DPO (Data Protection Officer), auditor, engineering team, etc.). Take only the documents that match your sector, jurisdiction, and operating model.
 
-That is the quickstart. An organisation that has done these three things has a defensible floor.
+That is the quickstart. An organisation that has done these three things has a defensible floor. These six artefacts are the Day-1 floor; they sit inside the larger starter sets the other paths describe (the adopter guide's 15-document Tier 1 set, and the sector-conditional sets the decision tree builds) rather than competing with them.
 
 ---
 
 ## Next steps
 
-When ready to go beyond the floor:
+When ready to go beyond the floor, the adopter paths are designed to be used in the order [`docs/portal.md`](portal.md) describes: this quickstart composes the starting set, the decision tree sequences it, the implementation roadmap calendars it, and the adopter guide governs how you fork and customise it.
 
-- **[`docs/template-startup-roadmap.md`](template-startup-roadmap.md)** — the full composition workbook. Five dimensions (activity, data scope, audience, regulatory exposure, GRC capacity), 23 modules, three worked examples. Plan on an afternoon.
+- **[`docs/decision-tree.md`](decision-tree.md)** — the conditional applicability decision tree for the sector, jurisdiction, and capability questions that sequence which domains you adopt.
+- **[`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md)** — once the composition is set, this template calendars the modules into 90 / 180 / 365-day phases.
 - **[`docs/adopter-guide.md`](adopter-guide.md)** — the controlled reference on how the library is meant to be adopted, including the three adoption modes (fork the whole repo, adopt the corpus only, adopt the pack only) and the Tier 1 / Tier 2 / Tier 3 growth path.
-- **[`docs/decision-tree.md`](decision-tree.md)** — the conditional applicability decision tree for the sector, jurisdiction, and capability questions that drive which domains you adopt.
-- **[`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md)** — once the composition is set, this template sequences the modules into 90 / 180 / 365-day phases.
+
+To plan the fuller composition (what to add beyond the floor), see **[`docs/template-startup-roadmap.md`](template-startup-roadmap.md)** — the full composition workbook. Five dimensions (activity, data scope, audience, regulatory exposure, GRC capacity), 23 modules, three worked examples. Plan on an afternoon.
 
 ---
 

@@ -65,11 +65,6 @@ Individual documents or focused multi-doc improvements. The deferred-decision it
 - **FR-149 [fitness:P7] (M, S) ⚠**: Adversarial test-category count "five" ([`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md):539) vs six in [`ai/guide-ai-adversarial-test-reference.md`](ai/guide-ai-adversarial-test-reference.md).
 - **FR-150 [fitness:P7] (M, S) ⚠**: Children's-data Japan APPI age unsupported by Japan annex — [`privacy/framework-childrens-data.md`](privacy/framework-childrens-data.md):49.
 - **FR-151 [fitness:P6+P7] (M, S)**: Cross-domain PIR deadline intra-doc conflict — [`resilience/procedure-cross-domain-incident-coordination.md`](resilience/procedure-cross-domain-incident-coordination.md):86 ("10 business days for P1 and P2") vs :148 (P1=5d).
-- **FR-152 [fitness:P8] (M, S) ⚠**: Entry-path sequencing not ordered in quickstart "Next steps" vs portal:49 stated order.
-- **FR-64 (M, S)**: Contribution path workflow-shaped not pattern-shaped (adopter cluster).
-- **FR-65 (M, S) ⚠**: Upstream-sync underspecified (adopter cluster).
-- **FR-66 (M, S)**: Tooling assumes maintainer context (adopter cluster).
-- **FR-78 (M, S)**: Framework-document-architecture maintainer voice (coverage-gap small).
 - **FR-62 (M, S)**: AI jurisdiction annexes absent. (Cross-references P5.8.)
 - **FR-75 (M, S) ⚠**: ESG materiality threshold.
 - **FR-76 (M, S) ⚠**: Sustainability framework escalation triggers.
@@ -97,15 +92,10 @@ Individual documents or focused multi-doc improvements. The deferred-decision it
 
 Deferred to a routine cleanup batch when convenient. The Low/FYI trust-recovery findings, the decided low-severity deferred decisions (DD-10, DD-12), and the now-decided B2 register addition are integrated here.
 
-- **FR-157 [fitness:P10] (Low, XS)**: "DPO" unexpanded on the quickstart Day-1 path — [`docs/template-quickstart.md`](docs/template-quickstart.md):43.
 - **FR-155 [fitness:P3] (Low, S) ⚠**: CSA CCM "GRM" vs "GRC" domain-id drift — risk policy:136 / standard:250 / methodology:183.
-- **FR-156 [fitness:P1] (Low, S) ⚠**: Risk-policy enforcement clause ([`risk/policy-enterprise-governance-and-risk-management.md`](risk/policy-enterprise-governance-and-risk-management.md):156) not flagged in the adopter-guide "what to change".
-- **FR-158 [fitness:P8] (Low, S) ⚠**: Multi-regulator overlapping-window guidance thin — [`docs/adopter-guide.md`](docs/adopter-guide.md):168.
 - **FR-159 [fitness:P10] (FYI, S) ⚠**: Portal Overview has no glossary pointer; fix in [`tools/build-portal.py`](tools/build-portal.py) (portal.md is generated).
 - **FR-160 [fitness:P7] (FYI, S) ⚠**: DR recovery tiers vs SLM service tiers label divergence.
 - **FR-165 [full-qa] (Low, S)**: #242 corrective record overstates remediation — [`.working/validate-sweeps/2026-06-22-sweep22-iter1.md`](.working/validate-sweeps/2026-06-22-sweep22-iter1.md):92 claims abbreviated rows relabelled "deferred…"; [`.working/validate-pr/history.md`](.working/validate-pr/history.md) rows #221-#239 still read "abbreviated spot-check" (only #240/#241 annotated).
-- **FR-68 (L, S) ⚠**: Adopter edge case — mandatory-except-when-not.
-- **FR-69 (L, S)**: Adopter edge case — three baseline sizes.
 - **FR-84 (L, S)**: Regression-testing checklist as a discrete artefact.
 - **FR-85 (L, S)**: Per-question owner in the breach-response runbook.
 - **FR-86 (L, S) ⚠**: Recovery runbook crisis-communications cross-reference. (Pass-1 noted the runbook itself was hard to locate; revisit at remediation time.)
