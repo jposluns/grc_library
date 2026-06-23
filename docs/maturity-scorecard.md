@@ -184,7 +184,7 @@ _182 documents._
 | [compliance/policy-compliance-and-audit-management.md](../compliance/policy-compliance-and-audit-management.md) | Compliance, Audit, and CAPA Management Policy | Policy | 1.0.2 | 2026-06-22 |
 | [compliance/policy-legal-and-regulatory-compliance.md](../compliance/policy-legal-and-regulatory-compliance.md) | Legal and Regulatory Compliance Policy | Policy | 1.0.1 | 2026-05-28 |
 | [compliance/procedure-audit-planning.md](../compliance/procedure-audit-planning.md) | Audit Planning Procedure | Procedure | 1.0.1 | 2026-05-28 |
-| [compliance/procedure-capa.md](../compliance/procedure-capa.md) | Corrective and Preventive Action (CAPA) Procedure | Procedure | 1.0.3 | 2026-06-23 |
+| [compliance/procedure-capa.md](../compliance/procedure-capa.md) | Corrective and Preventive Action (CAPA) Procedure | Procedure | 1.0.4 | 2026-06-23 |
 | [compliance/procedure-control-testing.md](../compliance/procedure-control-testing.md) | Control Testing Procedure | Procedure | 1.0.2 | 2026-06-21 |
 | [compliance/register-compliance-obligations-template.md](../compliance/register-compliance-obligations-template.md) | Compliance Obligations Register Template | Register | 1.0.6 | 2026-06-22 |
 | [compliance/register-global-regulatory-applicability.md](../compliance/register-global-regulatory-applicability.md) | Global Regulatory Applicability Register | Register | 1.0.0 | 2026-05-27 |

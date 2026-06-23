@@ -16,14 +16,14 @@ On `/resume`, the assistant:
 5. **Runs a full corpus-wide `/validate` as the first substantive task** — the compensating control for the session-closing handoff PR, which skips its trailing `/validate-pr` to break the post-merge validate-then-PR loop (see CLAUDE.md PR-workflow step 5a's handoff-PR exception). Routes any findings to the backlog.
 6. Continues from "Next actions".
 
-## State snapshot (as of 2026-06-23, session-closing handoff after the XS/S batch-reduction session)
+## State snapshot (as of 2026-06-23, after PR #287 — the XS/S batch resumed in a fresh session via `/resume`)
 
-- **Branch**: the session-closing handoff PR is merged to `main`; a fresh `/resume` rebuilds state from `main`. The new session develops on whatever branch its mandate assigns.
-- **HEAD**: the handoff PR squash merge on `main` (verify with `git log -1`). Immediately prior: #281 (TODO restructure + Sweep 31), #282 (PR-A), #283 (PR-B), #284 (FR-162 completion).
-- **Versions**: library `2026.06.262`, pack `1.49.3` (unchanged), README `1.9.133`. Per-doc bumped this session: AI model-risk + system-impact procedures `1.0.2`, supplier-onboarding `1.0.4`, AI risk register `1.0.3`, AI risk-methodology annex `1.0.1`, ERM template `1.1.3`. (Verify against `README.md`.)
-- **Audit programme**: **47 numbered gates** + **3 PR-only delta gates (D1/D2/D3)** — **D3 (CHANGELOG-dash-on-PR) is new this session (#278)**; all passing on `main`. Governance rules: **10**. Skills: **15** (6 paired). Slash commands: **8**.
-- **Last merged this session**: **#281** (Sweep 31 `/validate` close-out + maintainer-directed TODO restructure); **#282** (batch PR-A: FR-142 AI-procedure role subsections + FR-143 supplier-escalation de-loop to CRO; FR-144 re-scoped to a template deliverable); **#283** (batch PR-B: FR-161/162/163/146 risk/AI register vocabulary → canonical ERM set); **#284** (FR-162 completion: AI register sample rows → Open, closing #283's `/validate-pr` finding). The **#284 `/validate-pr` (0 findings) + `/retro` rows** are carried by THIS handoff PR.
-- **`/validate` cadence**: Sweep 31 ran this session (the `/resume` loop-break control; clean bill); the next `/resume` runs **Sweep 32**.
+- **Branch**: the **session-closing handoff PR #288** carries the #287 `/validate-pr` record + history row, the #287 `/retro` row, this handoff refresh, AND the #287 finding-fix (procedure-capa §7.5 "90 business days" → "90 days", procedure-capa `1.0.3` → `1.0.4`). Once #288 merges, a fresh `/resume` rebuilds state from `main`. The new session develops on whatever branch its mandate assigns.
+- **HEAD**: `ee30280` PR #287 (PR-C) on `main` (verify with `git log -1`). Immediately prior: #286 (Sweep 32 close-out), #285 (handoff), #284, #283, #282, #281.
+- **Versions** (post-#288): library `2026.06.266`, pack `1.49.3` (unchanged), README `1.9.137`. Per-doc bumped across #286/#287/#288: operational-risk-register `1.0.2`, audit-programme spec `1.16.1`, standard-internal-audit `1.0.2`, procedure-capa `1.0.4`, register-assurance-map `1.1.1`, change-mgmt procedure `1.3.1`, cloud-security-config-baseline `1.4.5`, key-terms register `1.1.2`, IR procedure `1.3.10`, breach procedure `1.4.11`. (Verify against `README.md`.)
+- **Audit programme**: **47 numbered gates** + **3 PR-only delta gates (D1/D2/D3)**; all passing on `main`. Governance rules: **10**. Skills: **15** (6 paired). Slash commands: **8**.
+- **Last merged this session**: **#286** (`/resume` Sweep 32 `/validate` close-out: operational-risk-register vocabulary harmonized to canonical ERM set + audit-programme §10 step-4 self-contradiction removed); **#287** (PR-C: the assurance/3LoD + audit/CAPA bundle, FR-147/148/101/102/100/77/83 — 7 Medium items in one PR including two new incident-command execution checklists). The **#287 `/validate-pr` (1 note, fix bundles into PR-E) + `/retro` rows** are carried by the next PR.
+- **`/validate` cadence**: Sweep 32 ran this session (the `/resume` loop-break control; 3 out-of-window findings fixed in #286); the next `/resume` runs **Sweep 33**.
 
 ## All 16 maintainer decisions triaged this session (dispositions in TODO)
 
@@ -41,7 +41,7 @@ The maintainer triaged the full open-decision set 2026-06-23 (DD-1..DD-12, the S
 
 ## Why this session refreshed here (read before continuing)
 
-This **XS/S batch-reduction session** (2026-06-23) opened with `/resume`, ran **Sweep 31** (clean bill; fixed two gate-number mislabels in TODO), then on maintainer direction **restructured `TODO.md`** (#281: dissolved the cross-cutting "Deferred decisions"/trust-recovery headings, integrated every item into P1-P7 ordered lowest-effort-first, added P4 items 4.9/4.10). The maintainer then directed **bundling all XS/S items in P1-P3 into ~10 coherent PRs**, shipped with a **per-directional-item ask** (recommended option each time). **Shipped: PR-A (#282), PR-B (#283 + the #284 completion).** The session paused (this handoff) on a **degradation self-assessment**: #283's `/validate-pr` caught a same-document sibling-surface miss (the AI register's sample rows lagged its field-def reconcile; fixed in #284), and earlier a redundant re-ask occurred — two signals that the remaining (more directional) PRs are better done fresh. Per the PRIMORDIAL RULE (quality over pushing more PRs through a degrading turn) and the session-migration discipline, the batch resumes in a new session.
+This session (2026-06-23) **resumed the XS/S batch** via `/resume`: it ran the loop-break **Sweep 32 `/validate`** (3 out-of-window findings — operational-risk-register vocabulary never harmonized + an audit-programme §10 self-contradiction — fixed in **#286**), then shipped **PR-C (#287)**, the assurance/3LoD + audit/CAPA bundle of 7 Medium items built as one PR per maintainer direction. Each directional choice (FR-147 timeline, FR-101 closure authority, FR-100 CIS depth, FR-83 checklist placement) was confirmed with a recommended option; the FR-83 TODO gloss ("independent challenge") was caught as a mislabel for an incident-command execution checklist and corrected. #287's `/validate-pr` surfaced one note-level self-authored citation slip ("90 business days" vs the policy's "90 days"), fixed in the session-closing handoff PR #288. The session **closes here**: after two full PR cycles (#286, #287) plus the resume sweep in one turn, the maintainer chose (per the degradation self-assessment discipline) to land a small session-closing handoff PR (#288: the #287 QA rows + this refresh + the one-token fix) and resume fresh for PR-E. Per the handoff-PR exception (CLAUDE.md PR-workflow step 5a), #288 skips its own trailing `/validate-pr` + `/retro` (loop-break); the compensating control is the corpus-wide Sweep 33 the next `/resume` runs first.
 
 ## Trust-recovery state
 
@@ -49,10 +49,9 @@ The trust-recovery suite (`/full-qa` + `/fitness` r2) ran and the maintainer **s
 
 ## Next actions (queue, for the new session)
 
-0. **Full corpus-wide `/validate` first** (Sweep 32; the loop-break compensating control, "How to resume" step 5). Route findings to the backlog. Re-examines the whole corpus including the #281-#284 deltas.
-1. **Resume the XS/S batch-reduction** (maintainer-directed 2026-06-23). The maintainer grouped all XS/S items in P1-P3 into ~10 coherent PRs and wants them shipped, **asking the maintainer for each directional choice with a recommended option** (standing instruction this session). **DONE: PR-A #282 (FR-142/143; FR-144 re-scoped), PR-B #283 + #284 (FR-161/162/163/146).** Remaining PRs, in order:
-   - **PR-C** (assurance/3LoD + audit/CAPA): FR-100, FR-101, FR-102, FR-77, FR-83, FR-147, FR-148. Directional: FR-147 (audit timeline 10d vs 15d), FR-101 (closure sign-off authority), FR-148 (CAPA anchor).
-   - **PR-E** (adopter/docs UX, kept whole): FR-64, FR-65, FR-66, FR-78, FR-152, FR-69, FR-68, FR-156, FR-157, FR-158.
+0. **Full corpus-wide `/validate` first** (Sweep 33; the loop-break compensating control, "How to resume" step 5). Route findings to the backlog. Re-examines the whole corpus including the #286-#287 deltas. (Sweep 32 ran in the prior session; its 3 findings were fixed in #286.)
+1. **Resume the XS/S batch-reduction** (maintainer-directed 2026-06-23). The maintainer grouped all XS/S items in P1-P3 into ~10 coherent PRs and wants them shipped, **asking the maintainer for each directional choice with a recommended option** (standing instruction). **DONE: PR-A #282 (FR-142/143; FR-144 re-scoped), PR-B #283 + #284 (FR-161/162/163/146), PR-C #287 (FR-147/148/101/102/100/77/83 — built as one PR per maintainer direction; FR-83 TODO gloss "independent challenge" corrected to incident-command checklist).** Remaining PRs, in order:
+   - **PR-E** (adopter/docs UX, kept whole): FR-64, FR-65, FR-66, FR-78, FR-152, FR-69, FR-68, FR-156, FR-157, FR-158. (The #287 `/validate-pr` finding-fix was already landed in closing PR #288, so PR-E starts clean.)
    - **PR-F** (security/crypto): FR-153 (PBKDF2 310k→600k), BYOD (MDM vs MAM), FR-90, FR-84, FR-85, FR-86.
    - **PR-H** (governance/registers + ESG): FR-120, B2 (5 EDPB/WP citations), FR-155, **FR-53 (DECIDED: document the Classification-vs-Confidentiality distinction, non-breaking)**, FR-109, DD-6/7 (7-yr AI-log retention + schedule row), FR-75, FR-76.
    - **PR-I** (cross-doc consistency + generated/FYI): FR-12, FR-149, FR-150, FR-151, Sweep-3 follow-up, FR-159, FR-160, FR-165.
@@ -66,7 +65,7 @@ The trust-recovery suite (`/full-qa` + `/fitness` r2) ran and the maintainer **s
 
 ## Open decisions awaiting maintainer
 
-- **Per-PR directional choices for the remaining XS/S batch** (PR-C/E/F/H/I and the FR-144 template): the maintainer's standing instruction this session is to be **asked each time, with a recommended option, for any reconcile-direction choice**. FR-53 is already decided (document the distinction). The fresh session asks the rest as it reaches each PR.
+- **Per-PR directional choices for the remaining XS/S batch** (PR-E/F/H/I and the FR-144 template): the maintainer's standing instruction is to be **asked each time, with a recommended option, for any reconcile-direction choice**. FR-53 is already decided (document the distinction). The session asks the rest as it reaches each PR. (PR-C #287's directional choices are resolved.)
 - The larger-track decisions (DD-2/3/11, DD-4/5, DD-8, DD-12, S1/S2/S3, FR-167, FR-145) are RESOLVED in disposition (queued work; see the triage block above and TODO).
 - Effort-first batching rule for the remaining P2 backlog — still open if/when reached.
 - (The 8 pre-sleep overnight decisions are recorded in `.working/design-decisions.md`.)

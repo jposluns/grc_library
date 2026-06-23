@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.266, PR #288
+
+**Session-closing handoff PR for the resumed XS/S batch session, carrying the one PR #287 `/validate-pr` finding-fix.** After two full PR cycles in one turn (#286 Sweep 32 close-out, #287 PR-C), the maintainer chose to land a small session-closing handoff PR and resume fresh for PR-E, per the degradation self-assessment discipline.
+
+### Fixed
+- [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md) (`1.0.3` → `1.0.4`): §7.5 rendered the cited policy's "90 days" as "90 business days" (the one note-level finding from PR #287's `/validate-pr`); corrected to "90 days" to match [`compliance/policy-compliance-and-audit-management.md`](../../compliance/policy-compliance-and-audit-management.md) §4.3 verbatim and resolve the internal inconsistency with §7.5's own "consistent with the policy" clause.
+
+### Changed
+- [`.working/session-handoff.md`](../session-handoff.md): refreshed to the post-#287 state (library 2026.06.266; #286/#287 merged; PR-E next, starting clean; Sweep 33 is the next `/resume` compensating control).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.86` → `1.2.87`) + [`.working/validate-pr/2026-06-23-PR-287.md`](../validate-pr/2026-06-23-PR-287.md): the PR #287 `/validate-pr` row + record (1 note, fixed here).
+- [`.working/improvement-log.md`](../improvement-log.md) (`1.0.62` → `1.0.63`): the PR #287 `/retro` row (new pattern: self-authored citation over-specification).
+
+### Notes
+- Per the handoff-PR exception (CLAUDE.md PR-workflow step 5a), this PR skips its own trailing `/validate-pr` + `/retro` (loop-break); the compensating control is the corpus-wide Sweep 33 the next `/resume` runs first. This PR carries one small corpus fix (the #287 finding) so the inaccuracy does not linger across the session boundary; Sweep 33 re-examines the whole corpus including it.
+
+### Verification
+- `tools/run_all_audits.sh` 47/47; `tools/run-pr-time-checks.sh` (D1/D2/D3 + gate 45) pass; taxonomy + maturity-scorecard regenerated for the procedure-capa bump.
+
+Library `2026.06.265` → `2026.06.266`; README `1.9.136` → `1.9.137`.
+
 ## 2026-06-23, Library Version 2026.06.265, PR #287
 
 **PR-C of the XS/S batch: the assurance/3LoD + audit/CAPA bundle (seven Medium fitness items).** Built as one PR per maintainer direction, with each directional choice confirmed with a recommended option.
