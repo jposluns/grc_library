@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.234, PR #256
+
+**Resume `/validate` close-out: pack README staleness from the trust-recovery work.** The first substantive task of this session per `/resume` step 5 is a full corpus-wide `/validate` (the compensating control for the prior session's handoff-PR loop-break). It surfaced three residual prose defects in the pack README, all R (real), all should-fix-this-PR (Medium), all in-window (the trust-recovery PRs touched this file but missed these prose surfaces).
+
+### Fixed
+
+- **[`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) item-2 governance-rule enumeration** (`stale-prose-enumeration`, Subagent B): the "two areas" prose listed eight rules and omitted the ninth (`trust-recovery-escalation.md`); the closing "and AI-assistant workflow disciplines" signalled an exhaustive list. Stale since pack 1.47.0 (PR #246). The same file's own directory tree and version-history table already included the ninth rule, so this was an internal inconsistency. Fixed: the trust-recovery escalation tier is appended as the ninth item. Not caught by gate 41 (collection-enumeration), which checks the structured directory tree, not narrative prose.
+- **[`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) trust-recovery directory-tree description** (`multi-surface-incompleteness`, Subagent A): "the /full-qa + /fitness suite, **every finding to backlog top**, maintainer sign-off terminates" carried the OLD pre-1.47.1 single-tier routing. Fixed to "every finding routed tiered by severity".
+- **[`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) deep-qa-review directory-tree description** (`multi-surface-incompleteness`, Subagent A): "pairs with library-fitness-review; **findings route to backlog top**, maintainer sign-off terminates" — same OLD single-tier form, contradicting the SKILL's own severity-tiered body. Fixed to "findings routed tiered by severity".
+
+### Changed
+
+- **[`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md)**: pack `1.47.2 → 1.47.3` (Version field + Date 2026-06-23); new 1.47.3 version-history row.
+- **[`README.md`](../../README.md)**: library `2026.06.233 → 2026.06.234`; README `1.9.104 → 1.9.105`; Date `2026-06-22 → 2026-06-23`.
+
+### Working-state (gate-exempt)
+
+- **[`.working/validate-sweeps/history.md`](../validate-sweeps/history.md)**: new resume `/validate` row (Sweep 24, iter1, 3 findings, Subagents A/B/C dispatched, resulting PR #256).
+- **[`.working/validate-sweeps/2026-06-23-sweep24-iter1.md`](../validate-sweeps/2026-06-23-sweep24-iter1.md)**: per-iteration detail file (the three subagent returns + orchestrator synthesis).
+
+### Verification
+
+- Apply-time verification: each of the three findings re-read from the cited line before routing (not trusted from the worker report); the corpus-wide contradiction grep confirmed README:75 and README:96 were the only live-corpus residues of "backlog top" / "route to backlog" (the 442–444 version-history rows and CHANGELOG:21/45/53 narrative are accurate-to-time and intentionally left).
+- Subagent C (audit-programme integrity): zero findings — the 46-gate parity holds across all four surfaces and the severity-tiered routing prose is uniform across the rule, both SKILLs, and all command files.
+- `lint-language` clean (no em/en-dashes or British `-ise` in the edits); `tools/run_all_audits.sh` 46/46 post-commit; `tools/run-pr-time-checks.sh` exit 0.
+- This is iteration 1 of the sweep; a re-baseline cycle confirms no new High/Medium findings before the sweep is declared complete.
+
 ## 2026-06-23, Library Version 2026.06.233, PR #255
 
 **Session-closing handoff PR: resume-hardening guardrails + handoff refresh.** Lands this session's working-state on `main` as a green merge (the session's last act), with the guardrails that prevent the next `/resume` from repeating this session's issue-types. Maintainer-endorsed quality-first refresh before the `/guardrails` + P4.0 builds.
