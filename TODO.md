@@ -38,7 +38,6 @@ Maintainer signed off the combined /full-qa + /fitness findings on 2026-06-22. S
 
 High:
 - **[fitness:P1+P8] FR-140 (High)**: Adopter starter-set divergence — quickstart:33 (6) / adopter-guide:115 (15) / decision-tree:104 (23) / README:271 (~37); quickstart vs startup-roadmap:49 name different 6th artefact; Tier 1 omits IAM + acceptable-use the quickstart floor requires.
-- **[fitness:P9] FR-141 (High)**: PIPEDA breach "72-hour target" is invented — breach:171; PIPEDA has no fixed statutory deadline ("as soon as feasible").
 - **[fitness:P6] FR-142 (High, ⚠️persona-quoted)**: Two AI procedures name no roles for any step — [`ai/procedure-ai-model-risk-assessment.md`](ai/procedure-ai-model-risk-assessment.md):69-71 & [`ai/procedure-ai-system-impact-assessment.md`](ai/procedure-ai-system-impact-assessment.md):156-158.
 - **[fitness:P6] FR-143 (High)**: Circular escalation chain DPO→CISO→DPO — [`supply-chain/procedure-supplier-onboarding-security-review.md`](supply-chain/procedure-supplier-onboarding-security-review.md):139.
 - **[fitness:P6] FR-144 (High)**: Privacy-breach individual-notification leg has no internal clock — breach:169-174.
