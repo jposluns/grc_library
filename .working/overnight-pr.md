@@ -56,7 +56,15 @@ the session is reclaimed mid-run; it is updated as PRs land.
 
 ## Build progress (updated as PRs merge)
 
-- PR 1 (run initiation): in progress.
+**RUN PAUSED 2026-06-23 after PR #267 (FR-141).** The session-closing handoff PR (#268) lands this state on `main`; resume via `/resume` in a fresh session (see [`session-handoff.md`](session-handoff.md) Next actions). Status kept `in-flight` (not `done`) because gate 46 fails on `done` inside a CI-gated PR; the maintainer's morning processing — after triaging the "Open ambiguities" below — routes any actionable items to TODO/design-decisions and resets this file to `stub`.
+
+Merged this run (all green, all validated):
+- **PR #259** — run initiation (this file → in-flight, design-decisions, carried #258 bookkeeping).
+- **Batch A — H[critical] FR-134..139 (COMPLETE)**: #260 FR-134 (risk-scoring canonical scale), #261 FR-135 (TLS 1.3 everywhere), #262 FR-136 (log-retention schedule authoritative), #263 FR-137 (DSAR 3y), #264 FR-138 (scrub CPPA-as-live, 3 named docs), #265 FR-139 (DR Tier-1 1h RPO).
+- **#266** — corpus-wide Sweep 25 close-out (4 Low fixes: 2 stale "nine→ten" rule counts, ROPA CPPA-proposed, IAM retention→schedule).
+- **Batch B1 (started)**: #267 FR-141 (invented PIPEDA breach "72-hour target" removed, 2 surfaces).
+
+**Why paused**: 4-consecutive-PR CHANGELOG-link-coverage slip (all gate-caught) + marathon turn length = narrow but consistent degradation signal; the remaining Batch B1 Highs (FR-142/144/145) are judgment-heavier where a degraded judgment error would NOT be gate-caught. Quality-first → resume from fresh context. See `session-handoff.md` "Why this session refreshed here".
 
 ## Open ambiguities surfaced mid-run (for morning)
 

@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.246, PR #268
+
+**Session-closing handoff PR for the autonomous overnight run.** Working-state only; no corpus content changed.
+
+### Changed
+
+- **[`.working/session-handoff.md`](../../.working/session-handoff.md)**: state snapshot refreshed to after #268 (library 2026.06.246, pack 1.49.2, README 1.9.117, 10 rules / 15 skills / 8 commands / 46 gates); last-merged = #259-#268; trust-recovery codification + the 6 H[critical] criticals marked COMPLETE; next-actions = (1) maintainer review of the deferred-decision items in overnight-pr.md, (2) remaining P1 Highs FR-140/142/143/144/145 (FR-140/143/144 pre-resolved before sleep), (3) Batch B2 + P2 value-conflicts (stricter-is-safer), (4) P4 process-improvement candidates; why-refreshed = quality-first pause on the degradation signal.
+- **[`.working/overnight-pr.md`](../../.working/overnight-pr.md)**: build-progress lists all merged PRs (#259-#267); RUN-PAUSED note added; Status kept `in-flight` (gate 46 fails on `done` inside a CI-gated PR — the maintainer's morning processing routes actionable items and resets to stub after triaging the Open-ambiguities deferred decisions).
+
+### Verification / discipline
+
+- **Handoff-PR exception**: this PR skips its trailing `/validate-pr` + `/retro` (the loop-break, CLAUDE.md PR-workflow step 5a); recorded in the [`.working/validate-pr/history.md`](../../.working/validate-pr/history.md) #268 row per the no-skip discipline. The compensating control is the corpus-wide `/validate` the next session's `/resume` runs first.
+- Carries the batched PR #267 `/validate-pr` (0 in-window) + `/retro` rows. No per-document version bumps (no corpus body changed); library + README CalVer bumped. Post-commit `run_all_audits.sh` (46) + pre-push `run-pr-time-checks.sh` green; CI-green before merge.
+
 ## 2026-06-23, Library Version 2026.06.245, PR #267
 
 **FR-141 (High): remove the invented PIPEDA breach "72-hour target".** PIPEDA's Breach of Security Safeguards Regulations set no fixed hour deadline ("as soon as feasible"); the "(72-hour target)" was fabricated (72h is GDPR's / Quebec Law 25's, not PIPEDA federal). A bare-token search surfaced the invented annotation at two surfaces (finding named only one).
