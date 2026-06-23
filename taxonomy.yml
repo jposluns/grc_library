@@ -414,7 +414,7 @@ documents:
   domain: "ai"
   type: "Register"
   title: "AI Risk Register"
-  version: "1.0.2"
+  version: "1.0.3"
   date: "2026-06-23"
   owner: "GRC Programme Manager"
   approving_authority: "Chief Information Officer"
