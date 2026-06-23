@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Programme Specification\
 **Document Type:** Specification\
-**Version:** 1.16.0\
+**Version:** 1.16.1\
 **Date:** 2026-06-23\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -196,7 +196,7 @@ The procedure for adding a gate:
 1. Write the linter as `tools/lint-<feature>.py` (Python 3.11, stdlib only).
 2. Confirm the linter exits 0 on the current corpus (zero false positives) or that its rule set is conservatively scaffolded.
 3. Add the gate to [`.github/workflows/quality.yml`](../.github/workflows/quality.yml), [`tools/run_all_audits.sh`](../tools/run_all_audits.sh), [`.pre-commit-config.yaml`](../.pre-commit-config.yaml), and the §6 inventory table above.
-4. Add the new gate's row to the §6 inventory and update the gate count in §2.1; §5 places the gate in its functional category. The §6 inventory table is the canonical source of truth for the gate count.
+4. Add the new gate's row to the §6 inventory; §5 places the gate in its functional category. The §6 inventory table is the canonical source of truth for the gate count.
 5. Record the addition in the CHANGELOG under a new phase entry.
 
 ## 10. Modifying or retiring a gate

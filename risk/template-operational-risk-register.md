@@ -2,8 +2,8 @@
 
 **Document Title:** Operational Risk Register Template\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-23\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/guideline-quantitative-risk-analysis.md`](guideline-quantitative-risk-analysis.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md)\
@@ -83,14 +83,14 @@ Each operational risk entry has the following fields:
 | Residual likelihood | After existing controls |
 | Residual impact | After existing controls |
 | Residual rating | Combined residual rating |
-| Treatment decision | Accept, mitigate, transfer, avoid |
+| Treatment decision | Avoid / Mitigate / Transfer / Accept / Exploit / Enhance (canonical 6 per `risk/standard-enterprise-risk-management.md` Section 6) |
 | Treatment plan | Where mitigation is selected, the action plan |
 | Treatment owner | The person accountable for treatment delivery |
 | Treatment target date | When the treatment is expected to be effective |
 | Linked enterprise risk | Where this risk aggregates upward, the linked enterprise risk identifier |
 | Linked controls | Control identifiers from the control register |
 | Linked KRIs | Key risk indicators that monitor this risk |
-| Status | Open, monitoring, closed |
+| Status | Open / Closed (canonical per `risk/standard-enterprise-risk-management.md` Section 7.1) |
 | Last updated | Date of last material update |
 | Comments | Free-text context |
 
