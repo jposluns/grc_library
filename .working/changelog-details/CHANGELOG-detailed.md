@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.233, PR #255
+
+**Session-closing handoff PR: resume-hardening guardrails + handoff refresh.** Lands this session's working-state on `main` as a green merge (the session's last act), with the guardrails that prevent the next `/resume` from repeating this session's issue-types. Maintainer-endorsed quality-first refresh before the `/guardrails` + P4.0 builds.
+
+### Changed
+
+- **[`.claude/CLAUDE.md`](../../.claude/CLAUDE.md)**: the PR close-out checklist gains two durable items — (1) `lint-language` pre-flight on new pack prose before the first commit (recurring em-dash / British-`-ise` reintroduction, PR #244 and the trust-recovery codification); (2) grep-after-wiring (after a convention/count/routing/gate-wiring change restated across surfaces, grep the old phrasing across the full file + every sibling surface, zero hits before commit — the discipline that would have pre-empted PR #252's multi-surface-incompleteness defect).
+- **[`.claude/commands/resume.md`](../../.claude/commands/resume.md)**: step 1 now points at the handoff's "Known environment behaviours" section and the stop-hook auto-persist fact; step 2 now reads [`.working/third-party-issues.md`](../third-party-issues.md) so a recurring env flake is recognized, not chased.
+- **[`README.md`](../../README.md)**: library `2026.06.232 → 2026.06.233`; README `1.9.103 → 1.9.104`.
+
+### Working-state (gate-exempt)
+
+- **[`.working/session-handoff.md`](../session-handoff.md)**: full refresh to the after-#255 snapshot; new "Known environment behaviours" section (stop-hook auto-commit/push; commit-signing-server 503 with the distinguish-from-defect test; shallow-clone unshallow); a "Why this session refreshed here" note (rising slip rate + the two highest-multi-surface-wiring builds ahead); the next-session queue (full `/validate` → `/guardrails` [name/cadence LOCKED] → P4.0 → criticals); standing disciplines extended with lint-language-preflight, grep-after-wiring, and self-assess-for-degradation; trust-recovery codification status updated (routing-flag amendment folded into #252/#253; `/trust-recovery` wrapper done #254; only `/guardrails` + P4.0 remain).
+- **[`.working/validate-pr/history.md`](../validate-pr/history.md)** (Version `1.2.58 → 1.2.59`): the #255 handoff-PR loop-break exemption row (recorded per the no-skip discipline) plus the #254 0-finding row from the prior batch.
+- **[`.working/improvement-log.md`](../improvement-log.md)** (Version `1.0.37`): the #254 `/retro` row (from the prior batch commit).
+
+### Verification
+
+- `.claude/` and `.working/` are gate-exempt; the only gated file touched is [`README.md`](../../README.md) (version lines). No pack change (the guardrails are project config; no pack version bump).
+- No em/en-dashes in the edited prose; `tools/run_all_audits.sh` exit 0 (46/46) post-commit; `tools/run-pr-time-checks.sh` exit 0.
+- **Handoff-PR exemption**: as the session-closing handoff PR, #255 runs no trailing `/validate-pr` or `/retro` (CLAUDE.md PR-workflow step 5a loop-break); the compensating control is the next session's `/resume` full corpus `/validate`. Recorded in the `.working/validate-pr/history.md` #255 row per the no-skip discipline.
+
 ## 2026-06-23, Library Version 2026.06.232, PR #254
 
 **Adds the `/trust-recovery` convenience wrapper.** The maintainer-approved (go/no-go: go) thin sequencer over the two-skill trust-recovery suite.
