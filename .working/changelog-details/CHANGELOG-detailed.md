@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.263, PR #285
+
+`.working/` for local project: **session-closing handoff PR** for the 2026-06-23 XS/S batch-reduction session. Working-state only; no adopter-facing corpus content changed.
+
+### Changed
+- [`.working/session-handoff.md`](../session-handoff.md): refreshed to the post-#284 snapshot (library 2026.06.262; per-doc bumps this session listed; last-merged #281-#284; Sweep 31 ran, next is Sweep 32) and the remaining XS/S batch queue (PR-C/E/F/H/I/J/K1/K2 + the FR-144 template, FR-53 pre-decided, FR-62 recalibration), with the per-directional-item ask discipline and the degradation-wind-down rationale recorded.
+- Carries the batched PR #284 `/validate-pr` (0 findings) and `/retro` rows.
+
+### Notes
+- Session wind-down at four PRs (#281-#284) was a deliberate degradation-signal response (same-document sibling-surface miss in #283, fixed in #284; a redundant re-ask) per the PRIMORDIAL RULE and session-migration discipline. The remaining batch resumes in a fresh session via `/resume`.
+- Per the handoff-PR exception (CLAUDE.md PR-workflow step 5a), this PR skips its own trailing `/validate-pr` + `/retro` (loop-break); the compensating control is the corpus-wide `/validate` (Sweep 32) the next `/resume` runs first.
+
+Library `2026.06.262` → `2026.06.263`; README `1.9.133` → `1.9.134`.
+
 ## 2026-06-23, Library Version 2026.06.262, PR #284
 
 **Complete FR-162's sample-row reconcile in the AI risk register.** Closes the single in-window finding from PR #283's `/validate-pr`.
