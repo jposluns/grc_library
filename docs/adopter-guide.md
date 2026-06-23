@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.2.0\
-**Date:** 2026-06-22\
+**Version:** 1.3.0\
+**Date:** 2026-06-23\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -112,7 +112,7 @@ Most adopting organisations cannot operate all of the library's controls on day 
 
 ### Tier 1 starter set (minimum viable)
 
-If your organisation is small (under approximately 200 staff, low regulatory exposure, no high-risk AI in production), start with these 15 documents and operate them well before adding more.
+If your organisation is small (under approximately 200 staff, low regulatory exposure, no high-risk AI in production), start with these 15 documents and operate them well before adding more. This Tier 1 set includes the six-artefact Day-1 floor named in [`docs/template-quickstart.md`](template-quickstart.md) and is itself a subset of the larger sector-conditional sets the [`docs/decision-tree.md`](decision-tree.md) builds (for example about 25 documents for an EU-fintech path); the three sizes nest rather than compete.
 
 **Approximate reading time**: 4 to 6 hours to read all 15 documents once at a moderate pace; substantially longer to internalise. **If you only read three** to get an immediate orientation, pick the three Governance documents in the table below (Charter + Framework + Role Authority Register); they ground the structure that the rest of Tier 1 operationalises.
 
@@ -165,7 +165,8 @@ These items almost always need adapting before the artefacts become operational 
 | --- | --- | --- |
 | Owner and Approving Authority roles | Every document's metadata block | Map each role to a named function in your organisation, recorded in a private overlay. |
 | Risk appetite and thresholds | `risk/` and `governance/` policies and standards | Replace illustrative thresholds with values your board has approved. |
-| Severity definitions and notification windows | [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Replace with the thresholds your incident commander uses. Regulatory windows (e.g. GDPR 72 hours) are fixed. |
+| Severity definitions and notification windows | [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Replace with the thresholds your incident commander uses. Regulatory windows (e.g. GDPR 72 hours) are fixed. Where more than one regulator applies with different clocks (for example a privacy regulator plus a sector regulator plus a US state breach law), set the procedure to the shortest binding window. |
+| Enforcement and disciplinary clauses | Policy `## Enforcement` sections (for example [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) section 9) and the privacy jurisdiction annexes | Reconcile disciplinary language ("up to and including termination") and regulatory-reporting language with your HR policy, employment contracts, and local labour law before going live. |
 | Jurisdiction scope | `privacy/jurisdictions/` and `compliance/` sector annexes | Remove jurisdictions and sectors you do not operate in. Keep the relevant ones. Do not delete documents merely because they do not apply yet; mark them deprecated in the index so you do not lose the option. |
 | Framework references | Throughout | Confirm that each cited framework is current. Frameworks change versions; the corpus is reviewed annually for currency. |
 | Tier classification and supplier categories | [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | Adapt the criteria to your supplier landscape. |
@@ -194,6 +195,16 @@ The library publishes phase-level releases through the [CHANGELOG](../CHANGELOG.
 1. Read the changelog entry for the period since your last pull.
 2. Run `tools/run_all_audits.sh` to confirm your fork is still conformant after the merge.
 3. Resolve any version conflicts by keeping your fork's version on the artefact and recording an upstream-reconciliation note in your local change record.
+
+A customised fork hits three recurring cases the pull does not resolve on its own:
+
+- **Merge conflicts in artefacts you have edited.** Where you have adapted an artefact and upstream also changed it, resolve the conflict in favour of your adaptation, then re-apply any upstream correction that still matters (a fixed citation, a new control) on top. Record what you took and what you kept in your local change record.
+- **A new upstream audit gate your fork now fails.** Upstream sometimes adds a gate that your customised content trips (see "Running the audit toolchain on your fork" below). The library's own posture is to fix the artefact rather than weaken the gate; an adopter may instead relax or scope a gate locally where a customisation legitimately requires it, but should document the deviation and a review date in the local change record (the same exception discipline the pack's gate-discipline rule describes) rather than silently disabling the check.
+- **Version-monotonicity conflicts.** If both you and upstream bumped the same artefact, keep your fork's version line and record the upstream version you reconciled against, so your local history stays monotonic.
+
+### Running the audit toolchain on your fork
+
+Some audit gates are calibrated for this library's organisation-neutral public corpus and will raise false positives once you insert real values. In particular, [`tools/lint-pii-in-content.py`](../tools/lint-pii-in-content.py) and [`tools/lint-secrets-in-content.py`](../tools/lint-secrets-in-content.py) will flag the real role-holders, names, internal system names, or credentials a fork legitimately carries. Keep organisation-specific values in a private overlay directory the linters do not scan (the toolchain reads its exempt directories from `DEFAULT_EXEMPT_DIRS` in [`tools/lint_common.py`](../tools/lint_common.py); add your overlay directory there), or keep those values out of the committed fork entirely. Relax or scope a gate only with a documented deviation, per the upstream-tracking guidance above.
 
 ## When to file an issue upstream
 

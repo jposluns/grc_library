@@ -2,8 +2,8 @@
 
 **Document Title:** Document Architecture and Interrelationship Framework\
 **Document Type:** Framework\
-**Version:** 1.1.0\
-**Date:** 2026-05-28\
+**Version:** 1.1.1\
+**Date:** 2026-06-23\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-role-authority.md`](register-role-authority.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md), [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md)\
@@ -20,7 +20,7 @@
 
 This framework defines how documents in the GRC Documentation Library relate to each other. It establishes a hierarchy that connects governance authority to policies, standards, procedures, plans, evidence, metrics, and cross-framework mappings.
 
-The framework provides a reusable architecture for organisations that need a coherent policy corpus rather than disconnected documents performing audit theatre with nicer fonts.
+The framework provides a reusable architecture for organisations that need a coherent policy corpus rather than a collection of disconnected documents.
 
 ---
 
