@@ -2,8 +2,8 @@
 
 **Document Title:** Corrective and Preventive Action (CAPA) Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
-**Date:** 2026-06-21\
+**Version:** 1.0.3\
+**Date:** 2026-06-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -337,6 +337,10 @@ A CAPA is marked as **Closed** in the register when:
 - For CAPAs linked to an internal audit finding: the corresponding finding in the audit register is also marked as closed.
 
 CAPAs are not closed until verification is complete. The domain owner's assertion that actions are complete is not sufficient: objective evidence is required.
+
+### 7.5 Post-implementation effectiveness validation
+
+Closure verification (§7.2) confirms that corrective actions were implemented and that the control operates as intended at the point of closure. In addition, the effectiveness of each CAPA is independently validated by Internal Audit or Compliance within **90 business days of implementation**, consistent with the Compliance and Audit Management Policy (compliance/policy-compliance-and-audit-management.md §4.3). This post-implementation validation confirms that the corrective action remains effective in sustained operation, not only at the moment of closure, and is distinct from the GRC Manager's closure verification. Where the validation finds that the corrective action has not held, the original CAPA is re-opened or a new CAPA is raised, and the recurrence is captured in the annual pattern analysis (§9.2).
 
 ---
 

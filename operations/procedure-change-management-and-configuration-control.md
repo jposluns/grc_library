@@ -2,8 +2,8 @@
 
 **Document Title:** Change Management and Configuration Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.0\
-**Date:** 2026-05-27\
+**Version:** 1.3.1\
+**Date:** 2026-06-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md)\
@@ -179,6 +179,8 @@ Every CAB-reviewed change must include a documented rollback plan that has been 
 - Verification steps to confirm successful rollback.
 
 Rollback plans that have not been tested must be explicitly flagged in the CR; the CAB may defer approval pending testing.
+
+Where deferral is not operationally feasible (for example, a time-sensitive security patch or a regulatory deadline) and the rollback plan cannot be fully tested before the change window, the CAB may instead approve the change with documented compensating controls in place of completed rollback testing, rather than defer. Compensating controls include, for example: a staged or canary rollout that limits blast radius; enhanced monitoring during and after the change window; a standby rollback team for the duration of the window; an extended maintenance window; or a verified point-in-time backup that enables restoration if rollback fails. The CAB records the compensating controls, the residual risk, and the named approver in the change record. The CISO veto for unresolved security concerns (§3.3) continues to apply. This pathway does not waive the rollback-plan requirement; it provides a risk-managed alternative to outright deferral where deferral itself carries unacceptable risk.
 
 ---
 

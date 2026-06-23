@@ -2,7 +2,7 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.9\
+**Version:** 1.3.10\
 **Date:** 2026-06-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -274,7 +274,39 @@ Every incident, regardless of severity, must have a completed incident record co
 
 ---
 
-## 9. Metrics
+## 9. Incident-command execution checklist
+
+This one-page checklist summarizes the time-phased actions for a declared P1 or P2 incident. It is a quick-reference companion to the detailed mechanics in Sections 4 to 7, not a replacement for them. All actions are logged with UTC timestamps under Incident Commander direction (§5.1).
+
+**First 60 minutes: detect, declare, contain**
+
+- Validate the event against at least one corroborating source (§4.2).
+- Classify severity per §3.1 (P1 response SLA: immediate, within 15 minutes of detection).
+- Preserve evidence before any containment action: log snapshots, SIEM results, EDR telemetry, network flows (§4.2, §5.1).
+- Assign an Incident ID and open the formal incident record (§4.2).
+- Notify per §3.1: for a P1, the Incident Commander, CISO, and CIO immediately; the IR partner by the CISO.
+- Brief the Incident Commander on what is known, the affected systems and data, the suspected vector, and the containment options (§4.2).
+- Begin short-term containment under Incident Commander direction (segmentation, block attacker IPs, disable compromised credentials, revoke sessions); do not isolate or reimage without Incident Commander direction (§5.1, §5.2).
+
+**By 4 hours: confirm containment, begin eradication**
+
+- Confirm containment (the P1 mean-time-to-contain target is under 4 hours; see §10).
+- Complete evidence capture: memory acquisition, disk images, SIEM exports, authentication and EDR telemetry (§5.2, §8.1).
+- Begin eradication once scope is confirmed: remove malware, persistence mechanisms, backdoors, and unauthorized accounts; rotate exposed credentials, API keys, and certificates; patch the root vulnerability (§5.3).
+- For a P1, engage the IR partner, authorized by the CISO (§3.1).
+- If personal data is involved, the Privacy Lead assesses impact and coordinates with the breach-response procedure (§2.1; see [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md)).
+
+**By 24 hours: recover, engage notification, track closure**
+
+- Validate eradication with a follow-on scan or forensic review before recovery (§5.3).
+- Recover: restore from known-good backups or clean-rebuilt images verified against integrity hashes; confirm monitoring rules are operational; apply enhanced monitoring for at least 14 days; obtain Incident Commander and System Owner sign-off (§5.4).
+- Where a regulatory threshold is met, initiate and track the notification clocks per §6 (for example, GDPR 72 hours from awareness); Legal Counsel approves the content and the CIO, as acting DPO, submits (§6).
+- Document the return-to-service date and the basis for confirming eradication (§5.4).
+- Initiate the post-incident review track, mandatory for P1 and P2, due within 5 business days of closure (§7.1).
+
+---
+
+## 10. Metrics
 
 The SOC shall track and report the following metrics at the monthly security operations review and quarterly governance review:
 
@@ -291,7 +323,7 @@ The SOC shall track and report the following metrics at the monthly security ope
 
 ---
 
-## 10. Framework alignment
+## 11. Framework alignment
 
 | Control Area | ISO/IEC 27035 | NIST SP 800-61 | ISO/IEC 27001:2022 | COBIT 2019 | CSA CCM v4.1 |
 | --- | --- | --- | --- | --- | --- |
