@@ -74,6 +74,7 @@ WORKFLOW_SETUP_STEPS = {"Checkout", "Set up Python"}
 WORKFLOW_DELTA_GATE_STEPS = {
     "CHANGELOG-on-PR check",
     "Per-PR version-bump check",
+    "CHANGELOG dash-on-PR check",
     "Detect collection candidates on pack PRs (informational)",
 }
 

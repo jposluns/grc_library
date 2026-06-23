@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.256, PR #278
+
+**DD-1 (new-entries-only resolution): add PR-time delta gate D3 so new CHANGELOG entries follow the no-dash prose convention, leaving history untouched.** Deferred decision DD-1 asked whether to bring the root [`CHANGELOG.md`](../../CHANGELOG.md) under the em-dash and en-dash prohibition that [`tools/lint-language.py`](../../tools/lint-language.py) enforces on the corpus. Investigation found the CHANGELOG holds roughly 130 dashes (5 en dashes, about 125 em dashes) accumulated across its append-only entry history before the convention applied; a full rewrite would churn the historical record and risk altering past entries' meaning. The maintainer chose the new-entries-only resolution.
+
+### Added
+
+- **[`tools/check-changelog-dash-on-pr.py`](../../tools/check-changelog-dash-on-pr.py)**: new PR-time delta gate D3. It compares the PR head to its merge-base, inspects only the lines the PR adds to the root `CHANGELOG.md`, and fails when any added line contains an em dash (U+2014) or en dash (U+2013). Historical entries (already in the merge-base) are never inspected, so the gate is forward-only. Scope is the root CHANGELOG only; the detailed mirror under `.working/` is maintainer working state and is not checked. Exit codes mirror D1/D2 (0 clean, 1 finding, 2 environment error), with the same `GITHUB_BASE_REF` fallback for CI.
+
+### Changed
+
+- **[`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh)**: added the D3 `run_check` after D2, so the local pre-push runner exercises it alongside D1, D2, and gate 45.
+- **[`.github/workflows/quality.yml`](../../.github/workflows/quality.yml)**: added a "CHANGELOG dash-on-PR check" step, PR-only (`if: github.event_name == 'pull_request'`), alongside the existing D1/D2 PR-only steps.
+- **[`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md)** (`1.15.0 → 1.16.0`): added the D3 row to the section 6.1 delta-gate table and a description paragraph explaining the new-entries-only rationale and the DD-1 lineage.
+
+### Verification
+
+- `python3 tools/check-changelog-dash-on-pr.py origin/main HEAD` exits 0 on this PR (the new entries below are written dash-free, using commas, colons, parentheses, and `→` arrows, none of which are em/en dashes). A manual negative check confirmed the gate fails when an em dash is introduced into an added CHANGELOG line.
+- `tools/run_all_audits.sh` green (47/47) on the post-commit state (D3 is a delta gate, not one of the 47; it is exempt from gate 35 parity per section 6.1, same as D1/D2). `tools/run-pr-time-checks.sh` green against the merge base, now including D3.
+
+### Discipline observation
+
+- DD-1 was chosen on the premise (recorded in the TODO entry) that the CHANGELOG held only about five `P1–P4` en dashes. Investigation at action time found roughly 130 dashes, dominated by em dashes in entry prose, which made "extend the whole-file gate to all of CHANGELOG" a large, history-churning change rather than the small fix the decision assumed. The scope discovery was surfaced to the maintainer and the decision was re-taken (new-entries-only) before any edit. This is the validate-inference-before-action discipline applied to a maintainer decision whose premise drifted from reality.
+
 ## 2026-06-23, Library Version 2026.06.255, PR #277
 
 **Sweep 30 (`/validate`) close-out: correct five hallucinated "Cloud Controls Matrix v5" citations and broaden the citation gate to catch the spelled-out form.** The `/resume` compensating-control corpus-wide `/validate` (the standing control for the session-closing checkpoint handoff PR #276, which skips its trailing `/validate-pr` per CLAUDE.md PR-workflow step 5a) surfaced one new out-of-window finding: five documents cite a nonexistent "CSA Cloud Controls Matrix **v5**" against the corpus-wide v4.1 convention. The mechanical `lint-citations.py` gate already declares `CSA CCM v5` / `CCM v5` hallucinated but missed these because they use the **spelled-out** "Cloud Controls Matrix v5" form (no `CCM` substring). All five date to the initial public release (`03ca390`, 2026-05-31) and had never been caught by Sweeps 22-29 — a true gate blind spot. The maintainer authorized fixing now as a dedicated PR plus broadening the gate.
