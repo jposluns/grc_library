@@ -15,7 +15,7 @@ These are **as-of-session-pause snapshots**, not "current HEAD" claims. They ref
 - **Branch at last refresh**: `main` (synced after PR #241 merge).
 - **Library version**: `2026.06.220`. **Pack version**: `1.45.2`. **README version**: `1.9.91`.
 - **Audit programme**: all 46 gates passing on `main`.
-- **Last validation sweep**: Sweep 23 iter 1 (the `/resume` compensating-control corpus-wide `/validate` for the session-closing handoff PRs #248/#249; full three-subagent dispatch A/B/C; 1 in-window note — stale "eight governance rules" prose count at `.claude/CLAUDE.md:263`, corrected; 2 pre-flight candidates confirmed false positives; cross-document drift cluster FR-134..139/FR-161/FR-163 deduped against the existing backlog, not re-routed; closed out in PR #250).
+- **Last validation sweep**: Sweep 24 iter 1 (the `/resume` compensating-control corpus-wide `/validate` for the session-closing handoff PR #255; full three-subagent dispatch A/B/C; 3 in-window should-fix findings, all in `dev-security/claude-rules/README.md` — the ninth-rule omission in the "two areas" enumeration plus two directory-tree descriptions still on the superseded single-tier routing phrasing, all corrected; 2 pre-flight candidates confirmed false positives; Subagent C clean; closed out in PR #256).
 - **Last fitness review**: 2026-06-22's r1; Pass-1 verification complete in PR #204.
 - **Timezone convention**: UTC (codified in CLAUDE.md per PR #190).
 
