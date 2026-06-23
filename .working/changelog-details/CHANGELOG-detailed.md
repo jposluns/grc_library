@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.241, PR #263
+
+**FR-137 (H[critical]): DSAR-record retention harmonized to 3 years.** The authoritative retention register (`register-data-retention-schedule.md`:74, "Data subject access request records | 3 years | GDPR Article 30") disagreed with the records standard ("2 years post-closure") and the privacy procedure ("2 years following the closure date"). Per the maintainer's locked decision, 3 years is canonical.
+
+### Changed
+
+- **[`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md)** (`1.4.2 → 1.4.3`): the Privacy / DSR domain row "2 years post-closure" ⇒ "3 years post-closure (per [`register-data-retention-schedule.md`](register-data-retention-schedule.md), Data subject access request records)".
+- **[`privacy/procedure-data-subject-rights-management.md`](../../privacy/procedure-data-subject-rights-management.md)** (`1.4.0 → 1.4.1`): §9.2 Retention — "retained for 2 years following the closure date ... (Privacy / Data Subject Requests: 2 years post-closure)" ⇒ "3 years following the closure date ... (Privacy / Data Subject Requests: 3 years post-closure)".
+
+### Verification
+
+- Bare-token contradiction search (`(DSR|DSAR|data subject)...2 year`, `2 years post-closure`, `2 years following`) corpus-wide after edits: zero remaining DSR-retention surfaces at 2 years. Register `:74` confirmed unchanged at 3 years (canonical). Per-document Version + Date bumped in the same commit. Regenerated `taxonomy.yml`, `docs/portal.md`, `docs/maturity-scorecard.md`. Post-commit `run_all_audits.sh` (46) + pre-push `run-pr-time-checks.sh` green; CI-green before merge.
+
+### Added (batched per recursion-avoidance)
+
+- **[`.working/validate-pr/history.md`](../../.working/validate-pr/history.md)**: PR #262 row (0 in-window; 1 out-of-window FYI; Version 1.2.65 → 1.2.66).
+- **[`.working/improvement-log.md`](../../.working/improvement-log.md)**: PR #262 `/retro` row (Version 1.0.43 → 1.0.44).
+
 ## 2026-06-23, Library Version 2026.06.240, PR #262
 
 **FR-136 (H[critical]): the data-retention schedule is authoritative for log retention** + forward-correction of PR #261's TLS verification over-claim.
