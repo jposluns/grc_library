@@ -2,8 +2,8 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.5\
-**Date:** 2026-06-22\
+**Version:** 1.0.6\
+**Date:** 2026-06-23\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md)\
@@ -105,6 +105,7 @@ This register defines the mandatory retention periods for each category of organ
 | AI audit reports | 5 years | ISO 42001; regulatory compliance |
 | Training data provenance records | Model decommission + 5 years | EU AI Act; bias accountability |
 | AI incident records | 5 years | EU AI Act; regulatory requirements |
+| AI decision and detection logs (inputs, outputs, model version, confidence scores) | 7 years | ISO/IEC 42001; EU AI Act Annex IV; AI-decision accountability (longer than the general SIEM event tier) |
 
 ### 8. BASC and trade compliance records
 

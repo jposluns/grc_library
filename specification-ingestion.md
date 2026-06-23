@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Ingestion and Transformation Specification\
 **Document Type:** Specification\
-**Version:** 1.7.3\
+**Version:** 1.7.4\
 **Date:** 2026-06-23\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -231,6 +231,8 @@ Related Documents and Repository Path use markdown links. The display text is th
 Metadata must use role names only and must not use named individuals.
 
 Dates must use ISO 8601 format: `YYYY-MM-DD`.
+
+`Classification` and `Confidentiality` are distinct fields, not duplicates, even though every document in this corpus carries `Public` for both. `Classification` is the document's handling and lifecycle category within the library's own classification model (`Public`, `Reference Only`, or `Deprecated`; see [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md)): it records whether a document is publishable, retained only for reference, or retired. `Confidentiality` is the information-sensitivity tier of the content itself (the conventional information-security confidentiality label); for this organisation-neutral, openly-licensed corpus it is always `Public`. The two coincide at `Public` here because the corpus is public on both axes, but they are conceptually independent: an adopter who forks the library may, for example, hold a document that is `Reference Only` on the lifecycle axis while being `Confidential` on the sensitivity axis. Both fields are retained so a fork inherits both axes rather than conflating them.
 
 ---
 

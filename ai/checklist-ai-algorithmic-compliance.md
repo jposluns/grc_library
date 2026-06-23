@@ -2,8 +2,8 @@
 
 **Document Title:** AI Algorithmic Compliance Checklist\
 **Document Type:** Checklist\
-**Version:** 1.0.2\
-**Date:** 2026-06-22\
+**Version:** 1.0.3\
+**Date:** 2026-06-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -96,7 +96,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 | C3 | Model inversion and membership inference risks assessed (NIST AI RMF MAP 2.3; not a distinct OWASP LLM Top 10:2025 category but related to LLM02 Sensitive Information Disclosure): risk assessment documented; mitigations implemented where risk is material | | | | |
 | C4 | Output validation implemented before AI outputs are used in downstream decisions or communicated to users: validation logic documented and tested | | | | |
 | C5 | AI system access controls verified: principle of least privilege applied; service accounts are isolated; privileged access is logged and reviewed | | | | |
-| C6 | AI system logs (inputs, outputs, decisions, anomalies) forwarded to the SIEM platform and retained for a minimum of 12 months per [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) | | | | |
+| C6 | AI system logs (inputs, outputs, decisions, anomalies) forwarded to the SIEM platform and retained for a minimum of 7 years per the AI decision and detection logs row in [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md) | | | | |
 | C7 | Adversarial robustness testing completed per MITRE ATLAS evaluation: test scenarios documented; results recorded; findings remediated or risk-accepted | | | | |
 | C8 | Third-party model and API dependencies assessed for supply chain risk: provider security posture reviewed; dependency inventory maintained; fallback arrangements documented | | | | |
 
