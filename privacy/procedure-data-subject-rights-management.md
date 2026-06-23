@@ -2,8 +2,8 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.0\
-**Date:** 2026-06-22\
+**Version:** 1.4.1\
+**Date:** 2026-06-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -332,7 +332,7 @@ The Data Protection Officer maintains the DSR register as a living record of all
 
 ### 9.2 Retention
 
-DSR records, including intake records, identity verification evidence, internal assessments, response copies, denial documentation, and CIO sign-off records, are retained for 2 years following the closure date of each request, consistent with the retention schedule in [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) (Privacy / Data Subject Requests: 2 years post-closure).
+DSR records, including intake records, identity verification evidence, internal assessments, response copies, denial documentation, and CIO sign-off records, are retained for 3 years following the closure date of each request, consistent with the retention schedule in [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) (Privacy / Data Subject Requests: 3 years post-closure).
 
 Records subject to regulatory investigation, litigation hold, or supervisory authority inquiry are retained until the hold is formally lifted by Legal Counsel, regardless of the standard retention period.
 
