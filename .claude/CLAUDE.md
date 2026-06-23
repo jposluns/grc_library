@@ -514,7 +514,8 @@ pack, CC BY-SA 4.0):
   in a window of work in question. Names the trigger (abbreviated/skipped QA across
   changes, a skipped verification reaching the pipeline, a wrong-cadence automation,
   an unvalidated inference that cascaded), the two-skill suite (the AI-failure-pattern
-  forensic pass `/full-qa` first, then the fresh-reader persona pass `/fitness`), the
+  forensic pass `/full-qa` first, then the fresh-reader persona pass `/fitness`; both
+  runnable in sequence via the thin `/trust-recovery` wrapper command), the
   routing convention (every confirmed finding routed, tiered by severity: H[critical]
   and High to P1, Medium and Low to P2, none dropped; apply-time-verified, deduped), and
   the sign-off discipline (terminates only on explicit maintainer sign-off, not on an
