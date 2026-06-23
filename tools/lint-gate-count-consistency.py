@@ -28,6 +28,12 @@ Patterns scanned (case-insensitive):
       intervenes between the digit and ``gates`` (e.g. ``N corpus
       gates``); same negative lookahead as P6 (added after a follow-on
       Sweep finding where P6 missed an adjective-intervening case)
+  P8  ``<N> automated audits`` -- the audit programme referred to by
+      its audits rather than its gates; anchors on the exact phrase
+      ``automated audits`` (not a bare ``N audits``) to avoid
+      false-positives on audit-event counts (added after PR #272's
+      /validate-pr found a stale ``<N> automated audits`` phrasing that
+      no P1-P7 pattern caught)
 
 Captured ``N`` is compared to the canonical count from §6. Mismatch
 means the prose was not updated when a gate was added or retired.
@@ -125,6 +131,20 @@ PATTERNS: list[tuple[str, re.Pattern[str]]] = [
             r"\b(\d{2,})\s+[a-z]{2,12}\s+gates?(?![-\w])",
             re.IGNORECASE,
         ),
+    ),
+    # P8: "<N> automated audits". The audit programme is sometimes
+    # referred to by its audits rather than its gates ("the N automated
+    # audits"); this idiom carries the gate count but uses "audits" as
+    # the noun, so patterns P1-P7 (which all anchor on "gate(s)") miss
+    # it. Added after PR #272's /validate-pr cross-reference check found
+    # a stale "the <N> automated audits" phrasing in the library-health
+    # report template that no P1-P7 pattern caught. Narrow by design: it requires the
+    # exact "automated audits" phrasing (not a bare "N audits", which
+    # would false-positive on audit-event counts), so it matches only
+    # references to the audit programme's gate set.
+    (
+        "N automated audits",
+        re.compile(r"\b(\d+)\s+automated\s+audits?\b", re.IGNORECASE),
     ),
 ]
 

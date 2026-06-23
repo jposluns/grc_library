@@ -1003,6 +1003,20 @@ class GateCountConsistencyTests(LinterTestCase):
         result = run_linter("tools/lint-gate-count-consistency.py", fixture)
         self.assertLinterFails(result)
 
+    def test_stale_automated_audits_count_flagged(self) -> None:
+        # P8: the "N automated audits" idiom (the audit programme
+        # referred to by its audits rather than its gates). "0 automated
+        # audits" can never match the canonical count, so the linter
+        # must flag it. Added after PR #272 found this idiom escaping
+        # patterns P1-P7.
+        fixture = self.make_fixture(
+            "standard-bad-automated-audits-count.md",
+            VALID_METADATA
+            + "\n\nThis stub mentions the 0 automated audits in the suite.\n",
+        )
+        result = run_linter("tools/lint-gate-count-consistency.py", fixture)
+        self.assertLinterFails(result)
+
 
 class ListingSurfaceCompletenessTests(LinterTestCase):
     """tools/lint-listing-surface-completeness.py"""

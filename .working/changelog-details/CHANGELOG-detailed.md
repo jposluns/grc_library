@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.251, PR #273
+
+**Count-gate coverage improvement: the stale-audit-count fix bundled from PR #272's `/validate-pr` + the broaden-gate-39 P4 candidate.** Maintainer-directed lower-risk batch (chose "small items now" over starting the large FR-167 this turn).
+
+### Fixed
+
+- **[`governance/template-library-health-report.md`](../../governance/template-library-health-report.md)** (`1.0.1 → 1.0.2`): §C audit-suite-status line said "Aggregated output of the **32** automated audits" — stale since the initial public release (the programme now has 47 gates). Re-phrased count-agnostically: "Aggregated output of the automated audits (see [...] §6 for the canonical gate inventory **and current count**)", matching the count-agnostic style every other audit-programme citer uses, so it cannot drift again. This was the out-of-window finding PR #272's `/validate-pr` cross-reference check surfaced; per the batching rule it is fixed here, in the next PR.
+
+### Changed
+
+- **[`tools/lint-gate-count-consistency.py`](../../tools/lint-gate-count-consistency.py)** (gate 39): added pattern **P8** `<N> automated audits`. Gate 39's patterns P1-P7 all anchor on "gate(s)"; the escaped phrase used "automated audits", so no pattern caught it. P8 is narrow by design — it requires the exact "automated audits" phrasing, not a bare "N audits" (which would false-positive on audit-event counts like "3 audits per year") — verified against the corpus: after the health-report rephrase, the only "automated audits" occurrences are "automated audit programme"/"automated audit-programme work" (no preceding digit, no match), so P8 has zero current matches and is a purely forward-looking guard. Docstring P8 entry + inline comment added; both use the `<N>` placeholder rather than a literal digit so the gate does not flag its own documentation (the self-reference that the first draft tripped). Gate 39 itself is unchanged in count/name, so no parity impact and no §6 description change (the description's "and similar idioms" already covers P8).
+- **[`tests/test_linters.py`](../../tests/test_linters.py)**: `GateCountConsistencyTests.test_stale_automated_audits_count_flagged` — a fixture mentioning "0 automated audits" must fail the linter (mirrors the existing "0-gate" P1 test).
+- **[`taxonomy.yml`](../../taxonomy.yml)** + **[`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md)**: regenerated for the template version bump.
+
+### Verification
+
+- Gate 39 passes standalone (47 gates consistent across 434 files) after both the rephrase and the P8 addition. The new regression test passes (and the pre-existing P1 test still passes). First-draft self-reference defect (the gate flagging the literal "32 automated audits" in its own docstring/comment) was caught by running gate 39 standalone and fixed by switching to the `<N>` placeholder. Full `run_all_audits.sh` + `run-pr-time-checks.sh` green standalone post-commit.
+- Scope note: the smallest TODO content items (e.g. FR-157 DPO-expansion) were evaluated for this batch but carry small consistency judgments (which roles to expand in a shared parenthetical) better suited to the dedicated batch-reduction phase with the acronym-convention verification; this PR is held to the two clearly-mechanical, gate-checked backlog items. Word-form count idioms (e.g. "forty-six") remain a further gate-39 candidate (a word-to-number map), not implemented here.
+- Carries the batched PR #272 `/validate-pr` (0 in-window) + `/retro` rows.
+- Library `2026.06.250 → 2026.06.251`; README `1.9.121 → 1.9.122`.
+
 ## 2026-06-23, Library Version 2026.06.250, PR #272
 
 **FR-166: corpus listing-surface completeness gate (gate 47) + `suggest-listing-surfaces.py` authoring tool.** Maintainer-directed top-priority item (2026-06-23): build a mechanism that keeps every listing surface complete when a new document is added. Steers resolved with the maintainer before building: hard-gate the document-index register + all 11 domain READMEs (the deterministic surfaces); SEMANTIC surfaces stay suggestion-only.

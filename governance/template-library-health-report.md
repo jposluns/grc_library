@@ -2,8 +2,8 @@
 
 **Document Title:** Library Health Report Template\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-23\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`governance/register-document-review-schedule.md`](register-document-review-schedule.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md)\
@@ -60,7 +60,7 @@ One paragraph (3-5 sentences) stating:
 
 ### Section C: audit suite status
 
-Aggregated output of the 32 automated audits (see [`governance/specification-audit-programme.md`](specification-audit-programme.md) §6 for the canonical gate inventory):
+Aggregated output of the automated audits (see [`governance/specification-audit-programme.md`](specification-audit-programme.md) §6 for the canonical gate inventory and current count):
 
 | Audit | Status | Findings count | Notes |
 | --- | --- | --- | --- |

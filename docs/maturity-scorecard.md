@@ -217,7 +217,7 @@ _183 documents._
 | [governance/register-main-branch-protection.md](../governance/register-main-branch-protection.md) | Main Branch Protection Configuration Register | Register | 1.0.13 | 2026-06-21 |
 | [governance/template-citation-verification-worklist.md](../governance/template-citation-verification-worklist.md) | Citation Verification Worklist Template | Template | 1.0.2 | 2026-06-20 |
 | [governance/template-document-review-record.md](../governance/template-document-review-record.md) | Document Review Record Template | Template | 1.0.1 | 2026-06-02 |
-| [governance/template-library-health-report.md](../governance/template-library-health-report.md) | Library Health Report Template | Template | 1.0.1 | 2026-06-02 |
+| [governance/template-library-health-report.md](../governance/template-library-health-report.md) | Library Health Report Template | Template | 1.0.2 | 2026-06-23 |
 | [governance/worklist-citation-verification-batch-q2-iso-iec.md](../governance/worklist-citation-verification-batch-q2-iso-iec.md) | Citation Verification Worklist: Batch Q2 (ISO and ISO/IEC) | Worklist | 1.0.0 | 2026-05-29 |
 | [governance/worklist-citation-verification-batch-q3-1-new-citations.md](../governance/worklist-citation-verification-batch-q3-1-new-citations.md) | Citation Verification Worklist: Batch Q3.1 (New Canonical Citations) | Worklist | 1.0.1 | 2026-05-30 |
 | [governance/worklist-citation-verification-batch-q3-ai-tooling.md](../governance/worklist-citation-verification-batch-q3-ai-tooling.md) | Citation Verification Worklist: Batch Q3 (AI Security Tooling Landscape Provenance) | Worklist | 1.0.0 | 2026-05-30 |
