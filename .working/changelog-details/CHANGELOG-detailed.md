@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.261, PR #283
+
+**FR-161 + FR-162 + FR-163 + FR-146: align the AI and ERM-template risk vocabulary to the canonical enterprise-risk set.** PR-B of the XS/S batch-reduction.
+
+### Changed
+- [`ai/register-ai-risk.md`](../../ai/register-ai-risk.md) (`1.0.1` → `1.0.2`): Treatment Option `Mitigate / Transfer / Avoid / Accept` → `Avoid / Mitigate / Transfer / Accept / Exploit / Enhance` (FR-161); Status `Open / In Treatment / Accepted / Closed` → `Open / Closed` (FR-162, minimal reconcile; no Treatment Status field added per maintainer direction).
+- [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md) (`1.0.0` → `1.0.1`): "standard Avoid / Reduce / Transfer / Accept treatment options" → "the standard Avoid / Mitigate / Transfer / Accept / Exploit / Enhance treatment options" (FR-163; renamed Reduce→Mitigate, added the positive-risk options).
+- [`risk/template-enterprise-risk-register.md`](../../risk/template-enterprise-risk-register.md) (`1.1.2` → `1.1.3`): the five sample-row Status cells `In Progress` / `Implemented` (×3) / `Verified` → `Open` (FR-146; canonical lifecycle Status, all five being ongoing monitored risks). The Treatment Status field definition at :91 was already canonical and left unchanged.
+
+### Notes
+- All four reconciled to the canonical vocabulary in `risk/standard-enterprise-risk-management.md` §6/§7.1 (authoritative source). Maintainer chose: align Treatment Options to the canonical six; minimal Status reconcile (Open/Closed) without adding a Treatment Status field.
+- Carries the batched PR #282 `/validate-pr` (0 findings) and `/retro` rows.
+
+### Verification
+- `tools/run_all_audits.sh` 47/47 on the committed state; taxonomy/portal/scorecard regenerated for the three per-doc bumps (regen run before the first commit, per the #282 retro lesson). `tools/run-pr-time-checks.sh` D1/D2/D3 + gate 45 pass.
+
+Library `2026.06.260` → `2026.06.261`; README `1.9.131` → `1.9.132`.
+
 ## 2026-06-23, Library Version 2026.06.260, PR #282
 
 **FR-142 + FR-143: AI-procedure step accountability and a de-looped supplier escalation path.** First PR of the maintainer-directed XS/S backlog-reduction batch (PR-A: the High-severity items, isolated from the lower-severity bundles).
