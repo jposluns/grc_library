@@ -2,7 +2,7 @@
 
 **Document Title:** Cloud Security Configuration Baseline\
 **Document Type:** Standard\
-**Version:** 1.4.5\
+**Version:** 1.4.6\
 **Date:** 2026-06-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -194,9 +194,9 @@ A workload built on a cloud provider must conform to both: the enterprise-tenant
 | COBIT 2019 | DSS05 | Manage Security Services |
 | CSA CCM v4.1 | IVS-01, IVS-04 | Infrastructure and Virtualization Security |
 
-To reduce the manual correlation an auditor would otherwise perform, the baseline's control sections map to the cited frameworks as follows. CIS Cloud Foundations Benchmark recommendation numbers are version-specific; consult the applicable benchmark version for the exact recommendation identifiers within each named area.
+To reduce the manual correlation an auditor would otherwise perform, the baseline's control sections map to the cited frameworks as follows. CIS benchmark recommendation numbers are version-specific; consult the applicable benchmark (Cloud Foundations Benchmark for §4 and §6, Cloud Productivity Foundations Benchmark for §5) for the exact recommendation identifiers within each named area.
 
-| Baseline section | ISO/IEC 27001:2022 | CIS Cloud Foundations area | NIST SP 800-53 |
+| Baseline section | ISO/IEC 27001:2022 | CIS benchmark area | NIST SP 800-53 |
 |---|---|---|---|
 | §4 Enterprise identity provider baseline | A.8.9, A.8.24 | Identity and Access Management | CM-2, CM-6 |
 | §5 Cloud productivity platform baseline | A.8.9, A.8.23 | Email and collaboration security; storage; endpoint protection | CM-2, CM-6 |
