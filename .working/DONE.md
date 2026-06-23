@@ -30,6 +30,18 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #257 — guardrail-review skill + /guardrails (2026-06-23)
+
+Shipped the fifteenth pack skill `guardrail-review` (`/guardrails`): the periodic structural-integrity review of the governance machinery (rules, skills, gates, wiring surfaces) for overlap, gap, and drift the mechanical parity gates cannot judge. Closes the trust-recovery-batch structural-review codification item; wired across SKILL + command + PAIRS + README tree + version bumps.
+
+### PR #254 — /trust-recovery convenience wrapper (2026-06-23)
+
+Added the thin non-paired `/trust-recovery` command that sequences the escalation suite (full-clone check → `/full-qa` → `/fitness` → hold for sign-off). Closes the optional-wrapper codification item.
+
+### PR #252 + #253 — Trust-recovery routing convention severity-tiered (2026-06-22/23)
+
+Revised the trust-recovery findings-routing convention from "every finding to one top tier" to severity-tiered (H[critical]/High → top tier, Medium/Low → next; nothing dropped), propagated across the rule, both SKILLs, the commands, and both CLAUDE.md bullets (#252), then completed two same-file spots the propagation missed (#253). Closes the routing-revision codification item.
+
 ### PR #247 — Session migration protocol + bookkeeping cleanup (2026-06-22)
 
 Adds [`.working/session-handoff.md`](session-handoff.md) + the `/resume` command + the CLAUDE.md session-migration / PR-close-out-checklist section, so a fresh session resumes with one command (the long-session-degradation defence). Also rotated FR-164 and the shipped codification-checklist items into DONE, fixed a stale governance-rule count in TODO, and carried the #246 validate-pr/retro rows.
