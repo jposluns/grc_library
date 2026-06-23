@@ -12,7 +12,7 @@
 | Password hashing | Argon2id (preferred), bcrypt (cost ≥ 12) | MD5, SHA-1, SHA-256 (unsalted), SHA-512 (unsalted) |
 | Integrity hashing | SHA-256, SHA-384, SHA-512 | MD5, SHA-1 |
 | Digital signatures | ECDSA P-256/P-384, RSA-PSS-4096 | RSA-PKCS1v1.5 < 2048, SHA-1 signatures |
-| TLS version | TLS 1.3 (preferred), TLS 1.2 (minimum) | SSL 2.0, SSL 3.0, TLS 1.0, TLS 1.1 |
+| TLS version | TLS 1.3 (or stronger) | SSL 2.0, SSL 3.0, TLS 1.0, TLS 1.1, TLS 1.2 |
 | TLS certificate | SHA-256 RSA or ECDSA | SHA-1 signed certificates |
 | HMAC | HMAC-SHA-256, HMAC-SHA-384 | HMAC-MD5, HMAC-SHA-1 |
 
@@ -74,8 +74,7 @@ Key lifecycle requirements:
 When configuring TLS in application code or infrastructure:
 
 ```
-Minimum version:   TLS 1.2
-Preferred version: TLS 1.3
+Minimum version:   TLS 1.3 (TLS 1.2 and earlier prohibited)
 Certificate:       SHA-256 RSA or ECDSA; valid from approved CA; not self-signed in production
 Cipher suites:     Prefer ECDHE-based forward-secret suites
 Validation:        Always validate peer certificates; never disable certificate validation

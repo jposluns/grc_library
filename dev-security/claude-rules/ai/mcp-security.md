@@ -62,7 +62,7 @@ MCP resource handlers expose data to the model. Treat them as APIs:
 
 ## Transport security
 
-- MCP servers must use TLS 1.2 minimum (TLS 1.3 preferred) for all transport
+- MCP servers must use TLS 1.3 (or stronger) for all transport
 - Validate TLS certificates: do not use `verify=False` or equivalent in MCP clients
 - Do not expose MCP servers on public networks without an authentication gateway in front
 
