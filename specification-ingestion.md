@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Ingestion and Transformation Specification\
 **Document Type:** Specification\
-**Version:** 1.7.2\
-**Date:** 2026-06-20\
+**Version:** 1.7.3\
+**Date:** 2026-06-23\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -326,6 +326,7 @@ Before committing a document, validate that:
 9. Related Documents field references existing files using canonical paths.
 10. The domain-level [`README.md`](README.md) Active Documents table is updated for all new documents.
 11. The document index register ([`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md)) is updated for all new active documents.
+12. The listing surfaces for each new document have been reviewed via [`tools/suggest-listing-surfaces.py`](tools/suggest-listing-surfaces.py) `<doc-path>`, which enumerates the MECHANICAL surfaces (items 10 and 11 above, plus the auto-generated taxonomy and portal, hard-gated by the listing-surface-completeness, taxonomy-sync, and portal-sync audits) and the SEMANTIC surfaces (the framework matrices and crosswalks, the glossary, and the document's own Related Documents field, which a human ratifies because their inclusion is relevance-based).
 
 ---
 

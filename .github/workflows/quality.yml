@@ -159,6 +159,9 @@ jobs:
       - name: Overnight-work file audit
         run: python3 tools/lint-overnight-file.py
 
+      - name: Listing-surface completeness audit
+        run: python3 tools/lint-listing-surface-completeness.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py
