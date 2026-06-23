@@ -2,8 +2,8 @@
 
 **Document Title:** Bring Your Own Device (BYOD) Policy\
 **Document Type:** Policy\
-**Version:** 1.0.1\
-**Date:** 2026-06-21\
+**Version:** 1.1.0\
+**Date:** 2026-06-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-remote-working-security.md`](standard-remote-working-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md)\
@@ -20,7 +20,18 @@
 
 This policy governs the use of personally owned devices, including smartphones, tablets, and laptops, to access corporate data and applications. It defines the technical controls applied to personal devices, the obligations of the device owner, and the boundaries of the organisation's access to the device.
 
-The organisation's BYOD model uses mobile application management (MAM) without device enrolment. The organisation does not enrol personal devices into device management (MDM) and does not apply device-level policies. Controls are applied at the application and data layer only. The device itself remains under the full ownership and control of the individual.
+This policy supports two BYOD deployment models, mobile application management (MAM) and mobile device management (MDM), defined in the next section. The adopting organisation selects the model, or a combination, that matches its risk appetite and data-sensitivity profile. The model chosen determines how much of the personal device the organisation controls and what it may wipe.
+
+---
+
+## BYOD deployment models
+
+The organisation may operate either model below, or both (different models for different device classes or data sensitivities). The choice is a risk decision the organisation records in its control baseline.
+
+- **Mobile application management (MAM), container model.** The organisation controls a container of corporate applications and data on the personal device, enforced by application protection policies. The device itself is not enrolled and stays fully under the owner's control; the organisation applies no device-level configuration and can wipe only the corporate container. MAM is the lighter-touch model, appropriate where the organisation accepts application-layer control and does not require device-level assurance. The controls in the Approved access model section below are the MAM control set.
+- **Mobile device management (MDM), full-device model.** The owner explicitly enrols the personal device into the organisation's device-management platform, and the organisation applies device-level policies (passcode strength, disk encryption, screen-lock timeout, OS-patch enforcement, configuration profiles) and may perform a full-device wipe. MDM gives the organisation device-level assurance at the cost of greater control over a personally owned device. It requires the owner's informed, recorded consent, because it extends the organisation's reach beyond the corporate container.
+
+An organisation choosing MDM must obtain and record the device owner's explicit enrolment consent before applying device-level policies, and must state in its enrolment notice what the organisation can see, configure, and wipe. An organisation choosing MAM applies the container controls below without device enrolment. An organisation operating both must define which model applies to which device class or data classification.
 
 ---
 
@@ -36,15 +47,15 @@ The organisation's BYOD model uses mobile application management (MAM) without d
 
 | Role | Responsibility |
 | --- | --- |
-| **Chief Information Security Officer (CISO)** | Owns this policy; approves exceptions for Confidential data access from personal devices; oversees MAM policy configuration. |
-| **IT Operations** | Configures and maintains MAM policies; monitors MAM enrolment records; initiates selective wipe on notification of device loss or departure. |
+| **Chief Information Security Officer (CISO)** | Owns this policy; approves exceptions for Confidential data access from personal devices; oversees the configured BYOD model or models, including MAM application-protection policies and, where MDM is used, device-management policies and enrolment-consent records. |
+| **IT Operations** | Configures and maintains the controls for the deployed model or models, MAM application-protection policies and, under MDM, device-level policies and enrolment; monitors enrolment records; initiates the model-appropriate wipe (corporate-container selective wipe under MAM, or full-device wipe under MDM where the device is enrolled) on notification of device loss or departure. |
 | **Employees / Contractors** | Comply with all requirements in this policy when using personal devices for work purposes; report loss, theft, or suspected compromise immediately. |
 
 ---
 
 ## Approved access model
 
-Personal devices may access corporate applications through the cloud productivity platform (email, collaboration, file storage) only. Access is governed by the following controls, enforced at the application and identity layer:
+Under the MAM model, personal devices may access corporate applications through the cloud productivity platform (email, collaboration, file storage) only. Access is governed by the following controls, enforced at the application and identity layer. Under the MDM model the organisation enforces these and additionally applies the device-level policies named in the BYOD deployment models section:
 
 | Control | Enforcement |
 | --- | --- |
@@ -63,7 +74,7 @@ Personal devices may access corporate applications through the cloud productivit
 
 ## What the organisation does not do
 
-The organisation does not enrol personal devices into MDM. The following actions are explicitly not taken under this policy:
+Under the MAM model, the organisation does not enrol personal devices into MDM, and the following actions are explicitly not taken:
 
 - The organisation does not apply device configuration profiles to personal devices.
 - The organisation does not manage device-level security settings (password policy, encryption, screen lock) on personal devices.
@@ -71,7 +82,7 @@ The organisation does not enrol personal devices into MDM. The following actions
 - The organisation does not perform a full device wipe. Remote wipe is scoped to corporate application data only.
 - The organisation does not track device location.
 
-These boundaries are enforced by the MAM-without-MDM architecture. Enrolment of personal devices into MDM requires separate explicit consent and is not covered by this policy.
+These boundaries are properties of the MAM model. Under the MDM model the organisation does apply device-level configuration and may perform a full-device wipe; that model requires the owner's explicit, recorded enrolment consent (see the BYOD deployment models section), and the organisation states in its enrolment notice what it can configure, see, and wipe.
 
 ---
 
@@ -93,19 +104,19 @@ When accessing corporate applications on a personal device, the Acceptable Use P
 
 ## Incident and loss reporting
 
-If a personal device with active access to corporate applications is lost, stolen, or compromised, the employee must notify the IT service desk immediately. IT Operations will initiate a selective wipe of corporate application data within 1 hour of notification. The individual is responsible for reporting the loss to their mobile carrier and taking appropriate personal data protection steps for the device itself.
+If a personal device with active access to corporate applications is lost, stolen, or compromised, the employee must notify the IT service desk immediately. IT Operations will initiate the model-appropriate wipe within 1 hour of notification: a selective wipe of corporate application data under the MAM model, or a full-device wipe under the MDM model where the device is enrolled. The individual is responsible for reporting the loss to their mobile carrier and taking appropriate personal data protection steps for the device itself.
 
 ---
 
 ## Termination and offboarding
 
-Upon departure, all corporate application data is selectively wiped from personal devices as part of the standard offboarding process. The individual does not need to surrender the device. Corporate applications and data are removed; the device and personal data are unaffected.
+Upon departure, corporate access is removed from personal devices as part of the standard offboarding process. Under the MAM model, corporate application data is selectively wiped and personal data is unaffected; under the MDM model, the device is unenrolled and, where required by the enrolment consent terms, a full-device wipe is performed. The individual does not need to surrender the device.
 
 ---
 
 ## Policy violations
 
-Violations of this policy, including attempts to circumvent MAM controls, deliberate data exfiltration to personal applications, or use of jailbroken devices, are subject to disciplinary action under the Acceptable Use Policy.
+Violations of this policy, including attempts to circumvent MAM or MDM controls, deliberate data exfiltration to personal applications, or use of jailbroken devices, are subject to disciplinary action under the Acceptable Use Policy.
 
 ---
 
@@ -120,7 +131,7 @@ Exceptions to this policy require CISO approval, documented business justificati
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO/IEC 27001:2022 | A.6.2, Teleworking; A.8.1, User Endpoint Devices | BYOD controls, endpoint security requirements |
-| NIST SP 800-124r2 | Guidelines for Managing the Security of Mobile Devices in the Enterprise | MAM-without-MDM architecture, mobile security controls |
+| NIST SP 800-124r2 | Guidelines for Managing the Security of Mobile Devices in the Enterprise | MDM and MAM architectures, mobile security controls |
 | CSA CCM v4.1 | UEM-03, UEM-06: Mobile Device Management and BYOD | Mobile endpoint management, BYOD access controls |
 | NIST SP 800-63B | Digital Identity Guidelines: Authentication | MFA and conditional access requirements |
 
