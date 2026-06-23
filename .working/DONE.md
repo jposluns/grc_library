@@ -30,6 +30,18 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #273 — count-gate coverage: stale-count fix + gate-39 P8 (2026-06-23)
+
+Fixed the stale "32 automated audits" in the library-health-report template (now count-agnostic; the programme has 47 gates) that PR #272's `/validate-pr` surfaced, and broadened gate 39 with pattern P8 (`<N> automated audits`) so the idiom that escaped patterns P1-P7 is now caught. Closes the #272 out-of-window finding + the broaden-the-count-gate P4 candidate.
+
+### PR #272 — FR-166 (high): corpus listing-surface completeness gate + authoring tool (2026-06-23)
+
+Shipped audit gate 47 (`lint-listing-surface-completeness.py`), which hard-gates the MECHANICAL listing surfaces (the document-index register + all 11 domain READMEs) against the taxonomy active-document set, with root-level meta-specs exempt by a documented rule; plus `tools/suggest-listing-surfaces.py`, which reports MECHANICAL present/missing + ranked SEMANTIC candidates for a new doc. Fully wired across all four audit-programme surfaces with a regression fixture; SEMANTIC surfaces (matrices, glossary, Related Documents) left to suggestions + a `/validate` coverage-drift check, not a hard gate.
+
+### PR #271 — Sweep 28 `/validate` close-out: DR Tier-2 backup-cadence fix (2026-06-23)
+
+The `/resume` compensating-control corpus-wide `/validate` found one in-window defect: FR-139/#265 fixed Tier 1's backup cadence but left Tier 2 on "daily" while binding it to a 4-hour gap/RPO, reproducing the "compliant system permanently in P2 escalation" trap one tier down (and escaping #265's own `/validate-pr`). Fixed: Tier 2 cadence now "at least every 4 hours", daily scoped to Tier 3/4.
+
 ### PR #267 — FR-141 (high): remove invented PIPEDA breach "72-hour target" (2026-06-23)
 
 PIPEDA's Breach of Security Safeguards Regulations set no fixed statutory clock ("as soon as feasible"), so the invented "(72-hour target)" was removed from the Canada-federal breach-notification deadline at both surfaces the bare-token search found: the privacy breach-response procedure (§6.2 jurisdiction table) and the security incident-response procedure (§6 regulatory-notification table). Both now read "As soon as feasible (no fixed statutory deadline)". The security-incident-response cell's separate "CPPA (Canada)" label remains for the deferred broader-CPPA sweep.
