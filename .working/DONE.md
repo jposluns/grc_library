@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #282 — FR-142 (high) + FR-143 (high): AI-procedure step roles + de-looped supplier escalation (2026-06-23)
+
+FR-142: added a "Roles and responsibilities" subsection to both AI assessment procedures (model-risk and system-impact), naming the AI Governance Lead, the model/system owner, and the AI Governance Approver/Council. FR-143: fixed the circular DPO→CISO→Data Protection Officer escalation row in the supplier-onboarding procedure to terminate at the Chief Risk Officer. First PR of the XS/S batch-reduction sweep.
+
 ### PR #279 — DD-9 (low): DR backup-requirements header broadened to "All systems" (2026-06-23)
 
 Broadened the disaster-recovery plan's "Backup and restore requirements" header from "All Tier 1 and Tier 2 systems must have:" to "All systems must have:", matching its bullets which already span all four tiers after the FR-139 / Sweep-28 edits. Also closed the three #278 `/validate-pr` bookkeeping findings in the same PR.
