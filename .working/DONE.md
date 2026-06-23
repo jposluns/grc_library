@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #258 — P4.0: project-integrity.md tenth governance rule (2026-06-23)
+
+Distributed the PRIMORDIAL RULE (Quality > Speed > Cost apex ordering) as the tenth pack governance rule `project-integrity.md` + byte-identical `.claude/rules/` mirror, wired across all three enumeration surfaces + sync-map + rule-count. Closes TODO P4.0; resolves the PRIMORDIAL RULE's "queued as P4.0" forward-reference.
+
 ### PR #257 — guardrail-review skill + /guardrails (2026-06-23)
 
 Shipped the fifteenth pack skill `guardrail-review` (`/guardrails`): the periodic structural-integrity review of the governance machinery (rules, skills, gates, wiring surfaces) for overlap, gap, and drift the mechanical parity gates cannot judge. Closes the trust-recovery-batch structural-review codification item; wired across SKILL + command + PAIRS + README tree + version bumps.
