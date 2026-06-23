@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.270, PR #292
+
+**Session-closing handoff PR for the 2026-06-23 resume session.** The session resumed via `/resume`, ran the loop-break Sweep 33 `/validate` (fixed in #289), and shipped PR-E (#290) and PR-F (#291). It closes here on a degradation signal: the #291 `/retro` recorded a 2nd-occurrence redundant-re-ask (the PR-F directional questions were re-asked after they had already been answered) late in a three-merge turn, so per the self-assess-for-degradation discipline the session lands its working-state and resumes fresh for PR-H rather than pushing a fourth substantive PR.
+
+### Fixed
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (`1.27.31` → `1.27.32`): the BYOD policy's index-row relevance descriptor read "...CSA CCM UEM, MAM controls"; PR #291 reframed the BYOD policy to cover both MAM and MDM deployment models, making "MAM controls" an incomplete descriptor. Updated to "MAM and MDM controls". This was the sole in-window finding from PR #291's `/validate-pr` cross-reference check (the index register is hand-maintained, not generated, so the descriptor was hand-authored and made stale by #291).
+
+### Changed
+- Carries the **#291 `/validate-pr`** record ([`.working/validate-pr/2026-06-23-PR-291.md`](2026-06-23-PR-291.md)) + history row (1 in-window note, fixed here) and the **#291 `/retro`** row in [`.working/improvement-log.md`](improvement-log.md) (the redundant-re-ask degradation signal, 2nd occurrence). Refreshes [`.working/session-handoff.md`](session-handoff.md) to the post-#291 state.
+
+### Verification
+- Per the handoff-PR exception (CLAUDE.md PR-workflow step 5a), this PR skips its own trailing `/validate-pr` + `/retro` (loop-break, no terminating next PR at a session boundary); the compensating control is the corpus-wide Sweep 34 the next `/resume` runs first.
+- `tools/run_all_audits.sh` and `tools/run-pr-time-checks.sh` results recorded at commit time; `taxonomy.yml` + `docs/maturity-scorecard.md` regenerated for the index-register version bump.
+
 ## 2026-06-23, Library Version 2026.06.269, PR #291
 
 **PR-F of the XS/S batch: a six-item security and crypto bundle (FR-153, BYOD MDM/MAM, FR-90, FR-84, FR-85, FR-86), built as one PR per maintainer direction.** A research worker surfaced each item's defect, fix shape, and directional choices, and verified the OWASP PBKDF2 values against the canonical OWASP GitHub source (HTML egress was 403-blocked); the orchestrator re-read every target file at apply-time. Four directional choices were maintainer-confirmed: FR-153 PBKDF2 target = SHA-256 at 600,000 (SHA-512 at 220,000 noted, Argon2id preferred); BYOD kept in PR-F as a structural rewrite; FR-90 and FR-84 done in-document (not as new standalone artefacts); FR-85 leads distributed across DPO / CISO / Legal.
