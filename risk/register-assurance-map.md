@@ -2,8 +2,8 @@
 
 **Document Title:** Assurance Map Register\
 **Document Type:** Register\
-**Version:** 1.1.0\
-**Date:** 2026-06-22\
+**Version:** 1.1.1\
+**Date:** 2026-06-23\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-operational-risk-register.md`](template-operational-risk-register.md), [`risk/template-board-risk-report.md`](template-board-risk-report.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md)\
@@ -176,7 +176,7 @@ The assurance plan is the prospective view; the map is the current state.
 | Classification | Material (warrants formal treatment) or minor (managed through routine activity) |
 | Treatment | Specific actions, owner, and target date |
 | Tracking | Tracked in the assurance map until closed |
-| Closure | Closure requires the relevant line of defence to confirm |
+| Closure | The accountable first-line risk or control owner proposes closure with evidence; the relevant second-line function (risk, compliance, information security, privacy, or AI governance, per the gap's domain) confirms and signs off the closure. Where the gap was raised by the third line (internal audit), internal audit confirms the closure evidence resolves the finding. |
 | Reporting | Material gaps reported to the board until closed |
 | Persistent gaps | Repeated or persistent gaps escalate as a finding of the second line |
 

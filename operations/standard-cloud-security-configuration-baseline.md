@@ -2,8 +2,8 @@
 
 **Document Title:** Cloud Security Configuration Baseline\
 **Document Type:** Standard\
-**Version:** 1.4.4\
-**Date:** 2026-06-21\
+**Version:** 1.4.5\
+**Date:** 2026-06-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md)\
@@ -187,12 +187,20 @@ A workload built on a cloud provider must conform to both: the enterprise-tenant
 
 | Framework | Reference | Topic |
 |---|---|---|
-| ISO/IEC 27001:2022 | A.8.9 | Configuration Management |
+| ISO/IEC 27001:2022 | A.8.9, A.8.23, A.8.24 | Configuration management (A.8.9), web filtering (A.8.23), use of cryptography (A.8.24) |
 | CIS Cloud Foundations Benchmark | v2.0 | Secure cloud platform configuration |
 | CIS Cloud Productivity Foundations Benchmark | v3.0 | Secure cloud productivity configuration |
 | NIST SP 800-53 | CM-2, CM-6 | Configuration Baseline and Settings |
 | COBIT 2019 | DSS05 | Manage Security Services |
 | CSA CCM v4.1 | IVS-01, IVS-04 | Infrastructure and Virtualization Security |
+
+To reduce the manual correlation an auditor would otherwise perform, the baseline's control sections map to the cited frameworks as follows. CIS Cloud Foundations Benchmark recommendation numbers are version-specific; consult the applicable benchmark version for the exact recommendation identifiers within each named area.
+
+| Baseline section | ISO/IEC 27001:2022 | CIS Cloud Foundations area | NIST SP 800-53 |
+|---|---|---|---|
+| §4 Enterprise identity provider baseline | A.8.9, A.8.24 | Identity and Access Management | CM-2, CM-6 |
+| §5 Cloud productivity platform baseline | A.8.9, A.8.23 | Email and collaboration security; storage; endpoint protection | CM-2, CM-6 |
+| §6 Cloud platform baseline | A.8.9, A.8.24 | Identity and Access Management; Logging and Monitoring; Networking; Storage | CM-2, CM-6 |
 
 ---
 
