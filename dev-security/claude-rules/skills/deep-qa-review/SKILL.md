@@ -109,6 +109,7 @@ The pass is complete on a given run when: clone depth was verified full before a
 - Canonical rule [`evidence-grounded-completion`](../../governance/evidence-grounded-completion.md): the evidence bar each finding meets.
 - Canonical rule [`validate-inference-before-action`](../../governance/validate-inference-before-action.md): the discipline the step-0 clone check and the apply-time re-read operationalize.
 - Sibling skills [`validation-sweep`](../validation-sweep/SKILL.md) and [`validation-sweep-pr-scoped`](../validation-sweep-pr-scoped/SKILL.md): the routine sweeps this skill escalates beyond.
+- Related skill [`guardrail-review`](../guardrail-review/SKILL.md) (`/guardrails`): generalizes this skill's audit-programme-integrity subagent (C) into a standing, periodic review of the whole governance machinery for overlap, gap, and drift, outside the trust-recovery window.
 
 ## Why this skill exists
 
