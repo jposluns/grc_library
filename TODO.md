@@ -270,6 +270,8 @@ Three new audit-gate candidates surfaced; each needs separate maintainer decisio
 
 **DECIDED 2026-06-22 (this session)**: **build S1** once the canonical retention values land (FR-136/137 — the S1 spec falls out of that decision for free); **defer S2 and S3** to the candidate-gate backlog (higher-effort NLP-ish checks; build only if the manual sweeps prove insufficient).
 
+**UNBLOCKED 2026-06-23** (surfaced by the #275 retro-log review): FR-136 (#262) and FR-137 (#263) **have landed** — the canonical retention values now exist, so **S1 is buildable and is the next mechanical-gate candidate to action**. (Surfaced because the retro-log review found several "build once X lands" items where X had landed but the build was never picked up.)
+
 ### 4.6 QA-cadence mechanical enforcement (M, M)
 
 Surfaced from Sweep 22 (2026-06-22) discipline-failure assessment. The pack rule, SKILL files, and `.claude/CLAUDE.md` now explicitly forbid orchestrator abbreviation of `/validate-pr` and `/retro`, but the only enforcement is the maintainer's manual catch. Candidate gate would compare the post-merge history files (`.working/validate-pr/history.md`, `.working/improvement-log.md`) against the merged-PR list and fail when a PR's row is missing or marked abbreviated without a maintainer-authorised exception trailer.
@@ -285,6 +287,16 @@ Deferred to a future session (maintainer-directed 2026-06-22). For longer unatte
 - **Design questions**: where the driver runs (GitHub Actions scheduled workflow? a maintainer-host cron? the Agent SDK?); merge authority for unattended worker sessions; the stop condition (queue empty / window closed / N consecutive failures); how a worker signals "needs maintainer" vs "safe to continue"; interaction with the existing `## overnight-work protocol` (`.working/overnight-pr.md` `Status` lifecycle) in the change-tracking rule.
 - **Building blocks confirmed** (claude-code-guide, 2026-06-22): `claude -p` fresh-by-default; Agent SDK fresh-session-per-call; subagents isolate context but the orchestrator still grows; no built-in overnight/auto-reset scheduler in CLI or web.
 - **Sequencing**: design task, its own future session; not blocking current codification.
+
+### 4.8 Retro-log open-loop consolidation (S, S) — surfaced 2026-06-23
+
+A review of [`.working/improvement-log.md`](.working/improvement-log.md) (maintainer-requested, 2026-06-23) found that the **convention/checklist layer** absorbs retro candidates well (lint-language pre-flight, grep-after-convention-change, CHANGELOG-link front-loading are all codified in the CLAUDE.md close-out checklist and demonstrably holding), but the **mechanical-gate and rule-codification layers** accumulate "queued, apply next time" candidates that do not self-clear. Items actioned in the #275 close-out: worker-brief-template **1.0.0 → 1.1.0** (the worker-side queued additions: control-identifier verification, new-acronym-glossary, corpus-wide-rename override, matrix-expansion override); S1 flagged unblocked (above). **Still open** (action deliberately, not at a long-turn tail):
+
+- **Codify the orchestrator-side apply-time disciplines into the pack layer** (not the worker brief — these are orchestrator-side): (a) **bare-token contradiction search** (#261/#262 — search the bare token for a changed concept, inspect+classify each hit, never state a corpus-wide completeness claim from a phrasing-specific search); (b) **parallel-case verification scope** (#271 — when an edit rewrites a clause enumerating parallel cases (multi-tier/-row/-jurisdiction), re-verify EVERY enumerated case, not just the targeted one). Candidate homes: the CLAUDE.md close-out checklist and/or `ai-assistant-workflow-disciplines.md` §3.
+- **Codify compute-don't-ask** (#269, maintainer-flagged) into the `clarify-before-acting` rule's "ask vs default" test — it currently distinguishes ask-vs-sensible-default but not ask-vs-self-compute. Already a standing discipline in the handoff; needs the rule edit.
+- **New-skill-drafting checklist** (#213) — enumerate the parallel surfaces (link depths, pack-README skills-table row, PAIRS registry, language pre-flight, slash-command sibling). Orchestrator-side; candidate for the close-out checklist or a worker-brief override for skill-drafting research.
+- **P4.6 QA-cadence mechanical gate** (the durable backstop named in ~6 retro entries) remains the highest-value unbuilt mechanical candidate.
+- **Broaden the count gate (remainder)**: gate 39 P8 closed "N automated audits" (#273); still open are word-form counts ("forty-six") via a word→number map and the free-prose rule-count gate (gate 41 can't parse "the N governance rules").
 
 ---
 
