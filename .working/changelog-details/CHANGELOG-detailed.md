@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.243, PR #265
+
+**FR-139 (H[critical]): DR Tier-1 backup cadence aligned to the 1-hour RPO.** The DR plan's Tier-1 RPO (1 hour) contradicted its backup section ("daily backups", "24-hour gap for Tier 1"), and the "gap > RPO ⇒ P2" rule made a compliant Tier-1 system permanently escalated. Per the maintainer's locked decision, the 1h RPO is binding and the backup cadence/gap are aligned to it. **Closes the six-item H[critical] locked-criticals batch (FR-134..139).**
+
+### Changed
+
+- **[`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md)** (`1.2.0 → 1.3.0`): in the backup-requirements list (§ for Tier 1 and Tier 2 systems) —
+  - "Automated daily backups with off-site or cloud copy." ⇒ "Automated backups with off-site or cloud copy at a cadence that meets each system's RPO: continuous or near-continuous data protection (for example, journaled or snapshot replication, or log shipping) for Tier 1's 1-hour RPO, and at least daily backups for Tier 2 and lower tiers."
+  - "Backup gap not exceeding 24 hours for Tier 1 and 4 hours for time-critical data." ⇒ "Backup gap not exceeding each tier's RPO: 1 hour for Tier 1 and 4 hours for Tier 2 (the 24-hour and 72-hour RPOs apply to Tier 3 and Tier 4 respectively, per the RTO and RPO targets table above)."
+  - The RTO/RPO targets table (Tier 1 = 1h RPO) and the "gap > RPO ⇒ P2" escalation rule were already correct and are unchanged; they are now mutually consistent with the backup section.
+
+### Verification
+
+- Bare-token contradiction search (`Tier 1`, `RPO`, `24 hour`, `daily backup`, `1 hour`) in the DR plan and corpus-wide: the DR plan is now internally consistent; other corpus "Tier 1" hits are unrelated contexts (privileged-access credential-rotation tiers, logistics-supplier tiers, SaaS backup independence, mobile cert-pinning); `operations/standard-production-security-requirements.md`:43 ("RPO 1 hour. RTO 4 hours baseline.") corroborates the DR Tier-1 targets. Per-document Version + Date bumped in the same commit. Regenerated `taxonomy.yml`, `docs/portal.md`, `docs/maturity-scorecard.md`.
+
+### Added (batched per recursion-avoidance)
+
+- **[`.working/validate-pr/history.md`](../../.working/validate-pr/history.md)**: PR #264 row (0 in-window; Version 1.2.67 → 1.2.68).
+- **[`.working/improvement-log.md`](../../.working/improvement-log.md)**: PR #264 `/retro` row (Version 1.0.45 → 1.0.46).
+
 ## 2026-06-23, Library Version 2026.06.242, PR #264
 
 **FR-138 (H[critical]): scrub CPPA-as-live from the three named privacy documents.** CPPA (Bill C-27) lapsed 2025-01-06 and is not in force, yet three docs cited it as a live basis with section numbers presented as current obligations. Replaced with the in-force PIPEDA Schedule 1 basis + "CPPA pending reintroduction" notes, per the maintainer's locked decision. PIPEDA principle numbering grounded in the corpus's own usage (`template-privacy-notice.md`:158 "Principle 8 = Openness" → Principle 9 = Individual Access, Principle 3 = Consent).
