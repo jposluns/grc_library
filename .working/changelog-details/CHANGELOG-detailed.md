@@ -6,6 +6,43 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.236, PR #258
+
+**Distributes the PRIMORDIAL RULE as the tenth pack governance rule `project-integrity.md`.** Closes TODO P4.0. The project-only apex integrity section becomes a project-agnostic pack rule so adopters inherit the Quality > Speed > Cost ordering.
+
+### Added
+
+- **[`dev-security/claude-rules/governance/project-integrity.md`](../../dev-security/claude-rules/governance/project-integrity.md)** (new, tenth governance rule): the project-agnostic generalization of `.claude/CLAUDE.md`'s `## PRIMORDIAL RULE`. Sections: lexicographic priority statement; (1) priority enforcement; (2) integrity non-negotiables; (3) escalation; (4) self-reminder cadence; relationship-to-the-rest-of-the-pack; prohibited anti-patterns; framework-alignment table; why-this-rule-exists. References sibling rules (`gate-discipline`, `evidence-grounded-completion`, `clarify-before-acting`, `change-tracking`) by backtick name in prose (the rule-prose convention), carrying no project-specific vocabulary.
+- **[`.claude/rules/governance/project-integrity.md`](../../.claude/rules/governance/project-integrity.md)** (new mirror): byte-identical copy of the pack source (created via `cp`; governance mirrors carry no frontmatter/provenance comment, so gate 37 compares whole-file).
+
+### Changed
+
+- **[`tools/lint-claude-rules-sync.py`](../../tools/lint-claude-rules-sync.py)**: MIRROR_MAP gains the `project-integrity.md` pair (gate 37 enforces the mirror's existence and body-match).
+- **Three governance-rule enumeration surfaces (gate 41)**: the pack [`README.md`](../../dev-security/claude-rules/README.md) directory-tree (new `└── project-integrity.md`, `trust-recovery-escalation.md` demoted to `├──`) AND its "two areas" item-2 prose list (the surface that was *missed* for the ninth rule, per the 1.47.3 patch, fixed proactively here); the pack [`CLAUDE.md`](../../dev-security/claude-rules/CLAUDE.md) Development-governance list; the project [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) Security-and-governance list.
+- **Rollout-history narrative** in both CLAUDE.md files extended to name the tenth rule (the "ninth rule = trust-recovery" clauses kept as historically accurate; a 1.49.0 sentence appended).
+- **[`tools/lint-collection-enumeration-consistency.py`](../../tools/lint-collection-enumeration-consistency.py)** docstring: "nine governance rules" → "ten" (prose, not gate-parsed; the FR-164-class fix).
+- **[`.claude/CLAUDE.md`](../../.claude/CLAUDE.md)**: the PRIMORDIAL RULE forward-reference ("A project-agnostic distributable form is queued ... (TODO P4.0)") now resolves to the shipped rule; the close-out-checklist illustrative count "the nine governance rules" → "ten".
+- **[`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md)**: `governance/` tree-header version list extended to `..., 1.47.0, and 1.49.0`; Version `1.48.0 → 1.49.0`; new 1.49.0 version-history row.
+- **[`README.md`](../../README.md)**: library `2026.06.235 → 2026.06.236`; README `1.9.106 → 1.9.107`.
+
+### Working-state (gate-exempt)
+
+- **[`TODO.md`](../../TODO.md)**: P4.0 item deleted (rotated to DONE).
+- **[`.working/DONE.md`](../DONE.md)**: new #258 entry.
+
+### Design notes
+
+- **Serial, not bundled (per TODO P4.0's decision).** The rule shipped as a standalone PR after the trust-recovery codification batch, deliberately separate from the ninth-rule PR, to avoid a rule-count collision in one diff.
+- **README "When to use which rule" table left unchanged (surfaced, not silently expanded).** The audience table (pack README) already omits the ninth rule (trust-recovery), so it is evidently selective rather than an exhaustive per-rule index; adding only project-integrity would be inconsistent, and adding both would expand scope into fixing a pre-existing gap. Left as-is; the pre-existing trust-recovery omission is surfaced to the maintainer as an observation.
+- **Apex precedence is documentation, not a mechanical gate.** The rule states it sits above the others; nothing mechanically enforces a precedence ordering among rules (none could). The value is a single place that resolves dimension conflicts so they are not re-litigated under pressure.
+
+### Verification
+
+- `tools/lint-language.py` clean on all new pack prose (the rule, the mirror, the README/CLAUDE.md edits, the version-history row) **after all prose was assembled** (applying the sharpened pre-flight from PR #257's retro).
+- Mirror byte-identical (`diff -q` confirmed); gate 37 passes.
+- Gate 41 (collection-enumeration): the governance directory now lists ten rules and all three enumeration surfaces match.
+- `tools/run_all_audits.sh` 46/46 post-commit; `tools/run-pr-time-checks.sh` exit 0.
+
 ## 2026-06-23, Library Version 2026.06.235, PR #257
 
 **Adds the fifteenth pack skill `guardrail-review` (`/guardrails`): the periodic structural-integrity review of the governance machinery.** Closes the TODO structural-review codification item (name and cadence locked this session). The skill reviews the machinery (rules, skills, gates, wiring surfaces) for overlap, gap, and drift, the structural concerns the mechanical parity gates cannot judge.

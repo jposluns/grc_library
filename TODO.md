@@ -184,12 +184,6 @@ Deferred to a routine cleanup batch when convenient. Cross-reference only.
 
 Items that affect how the library is used, evolved, or extended by maintainers and adopters. Not direct corpus content changes.
 
-### 4.0 Distribute the PRIMORDIAL RULE as a pack governance rule (M, M)
-
-**DECIDED 2026-06-22 (this session)**: accepted — ship as `dev-security/claude-rules/governance/project-integrity.md`, the **10th** governance rule, as a **standalone PR after the trust-recovery codification batch lands** (serial, not bundled, to avoid a rule-count collision in one diff).
-
-Generalize the project-only `## PRIMORDIAL RULE: PROJECT INTEGRITY` apex section of [`.claude/CLAUDE.md`](.claude/CLAUDE.md) into a project-agnostic pack governance rule (e.g. `dev-security/claude-rules/governance/project-integrity.md`) so adopters inherit the lexicographic Quality > Speed > Cost ordering and the integrity non-negotiables. Wire across the enumeration surfaces (pack README rule directory-tree, pack [`CLAUDE.md`](dev-security/claude-rules/CLAUDE.md) Development-governance-discipline list, project [`.claude/CLAUDE.md`](.claude/CLAUDE.md) Security-and-governance list, `.claude/rules/governance/` mirror) and update the governance-rule count (collection-enumeration audit). Maintainer direction 2026-06-22 ("CLAUDE.md now; pack rule later"). Sequence with the trust-recovery `trust-recovery-escalation.md` rule work (both add to the governance-rule collection).
-
 ### 4.1 Corpus-management discipline as a shareable skill (M, XL)
 
 Package the cumulative documentation-and-corpus discipline this project has accumulated as a standalone Claude Code skill that anyone managing a documentation corpus with an AI coding assistant could install.

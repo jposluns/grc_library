@@ -31,7 +31,7 @@ The assistant has no internal timer. Re-anchor to this rule at these semantic ch
 At each checkpoint, emit one line, then confirm compliance or halt:
 `Integrity check: Quality > Speed > Cost. Project integrity absolute.`
 
-This rule was added 2026-06-22 by maintainer direction as the project's apex statement; it consolidates and elevates the integrity disciplines already in the `dev-security/claude-rules/governance/` pack (gate-discipline, evidence-grounded-completion, clarify-before-acting, change-tracking) under a single lexicographic priority. A project-agnostic distributable form is queued as a pack governance rule (TODO P4.0).
+This rule was added 2026-06-22 by maintainer direction as the project's apex statement; it consolidates and elevates the integrity disciplines already in the `dev-security/claude-rules/governance/` pack (gate-discipline, evidence-grounded-completion, clarify-before-acting, change-tracking) under a single lexicographic priority. The project-agnostic distributable form ships as the pack governance rule [`governance/project-integrity.md`](../dev-security/claude-rules/governance/project-integrity.md) (added pack 1.49.0).
 
 ---
 
@@ -260,7 +260,7 @@ defence is external. Two mechanisms:
    - If this PR changed an enumerated collection (gates, governance rules, skills),
      every prose count of that collection was checked for staleness (the
      collection-enumeration audit catches the structured enumerations; prose counts
-     like "the nine governance rules" are not gated).
+     like "the ten governance rules" are not gated).
    - [`.working/session-handoff.md`](../.working/session-handoff.md) is refreshed.
    - If the PR adds or edits **new pack prose** (a SKILL, a rule, a slash command,
      or new prose in the pack README/CLAUDE.md), `tools/lint-language.py` was run on
@@ -533,6 +533,17 @@ pack, CC BY-SA 4.0):
   the sign-off discipline (terminates only on explicit maintainer sign-off, not on an
   empty finding-set). Includes the full-clone methodology rule. Added 2026-06-22 (pack
   1.47.0; routing revised to severity-tiered in 1.47.1).
+- `.claude/rules/governance/project-integrity.md` — the apex rule of the pack: the
+  project-agnostic distribution of this file's PRIMORDIAL RULE. Fixes the priority
+  ordering on the optimization-dimension axis (**lexicographic Quality > Speed > Cost,
+  project integrity non-negotiable**): where each other rule constrains a specific
+  behaviour, this rule decides which dimension wins when they conflict, and re-states
+  the integrity non-negotiables (no stub/mock/fabrication; no gate suppression; no
+  silent changes; failing states surfaced) as the apex-precedence forms of
+  `gate-discipline`, `evidence-grounded-completion`, and `clarify-before-acting`, with a
+  self-reminder checkpoint at task start, before persistence, before completion claims,
+  and at tension points. Added pack 1.49.0 (the distributable form the PRIMORDIAL RULE
+  section above signalled was queued).
 
 The `dev-security/claude-rules/` pack covers security and development-governance
 discipline. The initial governance rollout completed at pack version 1.11.0
@@ -542,7 +553,9 @@ discipline. The initial governance rollout completed at pack version 1.11.0
 version 1.36.0 added the eighth rule (`ai-assistant-workflow-disciplines.md`);
 pack version 1.47.0 added the ninth rule (`trust-recovery-escalation.md`) after a
 session whose discipline failures required a structured white-box re-examination of
-the window. See `dev-security/claude-rules/README.md` for the authoritative pack version
+the window; pack version 1.49.0 added the tenth rule (`project-integrity.md`), the
+project-agnostic distribution of the PRIMORDIAL RULE's Quality > Speed > Cost apex
+ordering. See `dev-security/claude-rules/README.md` for the authoritative pack version
 history and future-work signalling. Pack changes are tracked through the
 library's CHANGELOG and per-rule version metadata.
 
