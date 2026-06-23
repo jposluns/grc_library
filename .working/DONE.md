@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #264 — FR-138 (high[critical]): scrub CPPA-as-live (3 named docs) (2026-06-23)
+
+Removed Consumer Privacy Protection Act (CPPA, lapsed Bill C-27) treatment-as-in-force from the three named privacy documents: the data-subject-rights procedure (rights table + summary table + §8.3 + intro now cite PIPEDA Schedule 1 Principle 9/Principle 3, with a new "Canadian legal basis" note explaining PIPEDA lacks erasure/automated-decision rights and CPPA is pending reintroduction), the breach-response procedure (Canada federal basis = PIPEDA Breach of Security Safeguards Regulations; CPPA pending), and the privacy policy (rights + control-mapping cells). Broader corpus CPPA-as-live mentions (security incident-response, document-index framework tags, matrices, other privacy templates) deferred to a follow-up sweep.
+
 ### PR #263 — FR-137 (high[critical]): DSAR retention harmonized to 3 years (2026-06-23)
 
 Aligned the DSAR-record retention to the authoritative schedule's 3-year value: the records standard's DSR row and the data-subject-rights procedure §9.2 moved from "2 years post-closure" to "3 years post-closure", citing `register-data-retention-schedule.md` (Data subject access request records: 3 years, GDPR Article 30). The register was already canonical and unchanged.

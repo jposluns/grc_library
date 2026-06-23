@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-23, Library Version 2026.06.242, PR #264
+
+**FR-138 (H[critical]): scrub CPPA-as-live from the three named privacy documents.** CPPA (Bill C-27) lapsed 2025-01-06 and is not in force, yet three docs cited it as a live basis with section numbers presented as current obligations. Replaced with the in-force PIPEDA Schedule 1 basis + "CPPA pending reintroduction" notes, per the maintainer's locked decision. PIPEDA principle numbering grounded in the corpus's own usage (`template-privacy-notice.md`:158 "Principle 8 = Openness" → Principle 9 = Individual Access, Principle 3 = Consent).
+
+### Changed
+
+- **[`privacy/procedure-data-subject-rights-management.md`](../../privacy/procedure-data-subject-rights-management.md)** (`1.4.1 → 1.5.0`, minor — new note): rights table (§3) and summary mapping table (§framework) — Access/Correction now cite "PIPEDA Sch 1 Principle 9 (Individual Access / amendment)"; Objection cites "PIPEDA Sch 1 Principle 3 (withdrawal of consent)"; Deletion/Erasure and Automated-Decision-Review drop "CPPA s.69"/"CPPA s.63(3)" (PIPEDA provides no such right; GDPR remains the basis). New **"Canadian legal basis" note** after the rights table explains the PIPEDA basis, the PIPEDA gaps (no erasure/ADM right), CPPA's not-in-force status, and Quebec Law 25's stronger rights. Intro (§1), §2 alignment line ("CPPA Part 2 Division 5" → "PIPEDA Schedule 1"), the fees table row ("CPPA / PIPEDA" → "PIPEDA"), and the §8.3 heading ("GDPR art. 22 / CPPA" → "GDPR art. 22") de-CPPA'd.
+- **[`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md)** (`1.4.8 → 1.4.9`): §2 alignment line "CPPA" → "PIPEDA (Breach of Security Safeguards Regulations)"; the Canada-federal jurisdiction row (§6.2) governing-law cell "CPPA; PIPEDA (until CPPA in force)" → "PIPEDA (Breach of Security Safeguards Regulations); CPPA pending reintroduction"; the §notification-basis row aligned. (The same row's "(72-hour target)" deadline is the separate FR-141 issue, scheduled for a later PR — not touched here.)
+- **[`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md)** (`1.4.3 → 1.4.4`): the Regional Data Stewards list ("CPPA" → "PIPEDA"), the data-subject-rights bullet (rephrased: GDPR/PIPL + PIPEDA Schedule 1 for access/correction; CPPA pending for disposal/portability), and two control-mapping cells (Governance → "PIPEDA Sch 1 Principle 1 (Accountability)"; Data subject rights → "PIPEDA Sch 1 Principle 9 (Individual Access)"). The §metadata Applicable-Frameworks line already correctly marked CPPA "(Bill C-27 lapsed January 2025)" — unchanged.
+
+### Verification
+
+- Contradiction search after edits: every remaining "CPPA" in the three docs is correctly qualified ("not in force" / "pending reintroduction" / "lapsed"); no live section citations remain. PIPEDA Schedule 1 principle mapping (Principle 9 access/amendment; Principle 3 consent/withdrawal; no PIPEDA erasure or ADM right) grounded in `annex-privacy-canada.md`:28 (CPPA *proposed* disposal/portability → PIPEDA lacks them) and the corpus's existing principle numbering. Per-document Version + Date bumped in the same commit. Regenerated `taxonomy.yml`, `docs/portal.md`, `docs/maturity-scorecard.md`.
+- **Scope**: limited to the three locked-named docs. The broader CPPA-as-live sweep (security-incident-response, document-index framework tags, matrices, other privacy templates) is deferred to a follow-up, logged in [`.working/overnight-pr.md`](../../.working/overnight-pr.md); the US-annex / joint-controller "CPPA" (= California Privacy Protection **Agency**) is explicitly out of scope (different entity).
+
+### Added (batched per recursion-avoidance)
+
+- **[`.working/validate-pr/history.md`](../../.working/validate-pr/history.md)**: PR #263 row (0 in-window; Version 1.2.66 → 1.2.67).
+- **[`.working/improvement-log.md`](../../.working/improvement-log.md)**: PR #263 `/retro` row (Version 1.0.44 → 1.0.45).
+
 ## 2026-06-23, Library Version 2026.06.241, PR #263
 
 **FR-137 (H[critical]): DSAR-record retention harmonized to 3 years.** The authoritative retention register (`register-data-retention-schedule.md`:74, "Data subject access request records | 3 years | GDPR Article 30") disagreed with the records standard ("2 years post-closure") and the privacy procedure ("2 years following the closure date"). Per the maintainer's locked decision, 3 years is canonical.
