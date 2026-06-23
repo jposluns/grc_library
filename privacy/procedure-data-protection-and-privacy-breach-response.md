@@ -2,7 +2,7 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.12\
+**Version:** 1.4.13\
 **Date:** 2026-06-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -97,7 +97,7 @@ Personal data breaches may be detected from any of the following sources:
 
 ### 4.2 24-hour initial assessment
 
-Within 24 hours of a potential personal data breach being identified, the Data Protection Officer and CISO jointly conduct an initial assessment. The two roles conduct it jointly, but each determination has a named lead accountable for the answer:
+Within 24 hours of a potential personal data breach being identified, the Data Protection Officer and CISO jointly conduct an initial assessment, drawing in Legal where a determination requires it. Each determination has a named lead accountable for the answer:
 
 | # | Determination | Lead |
 | --- | --- | --- |

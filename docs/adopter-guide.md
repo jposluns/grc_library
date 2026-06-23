@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.0\
+**Version:** 1.3.1\
 **Date:** 2026-06-23\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -112,7 +112,7 @@ Most adopting organisations cannot operate all of the library's controls on day 
 
 ### Tier 1 starter set (minimum viable)
 
-If your organisation is small (under approximately 200 staff, low regulatory exposure, no high-risk AI in production), start with these 15 documents and operate them well before adding more. This Tier 1 set includes the six-artefact Day-1 floor named in [`docs/template-quickstart.md`](template-quickstart.md) and is itself a subset of the larger sector-conditional sets the [`docs/decision-tree.md`](decision-tree.md) builds (for example about 25 documents for an EU-fintech path); the three sizes nest rather than compete.
+If your organisation is small (under approximately 200 staff, low regulatory exposure, no high-risk AI in production), start with these 15 documents and operate them well before adding more. This Tier 1 set overlaps the six-artefact Day-1 floor named in [`docs/template-quickstart.md`](template-quickstart.md): it shares four of those six artefacts, while the Day-1 floor additionally names the acceptable-use and identity-and-access-management policies that this Tier 1 set leaves for a later pass. Tier 1 in turn sits within the larger sector-conditional sets the [`docs/decision-tree.md`](decision-tree.md) builds (for example about 25 documents for an EU-fintech path). The three sizes are complementary starting points rather than competing ones.
 
 **Approximate reading time**: 4 to 6 hours to read all 15 documents once at a moderate pace; substantially longer to internalise. **If you only read three** to get an immediate orientation, pick the three Governance documents in the table below (Charter + Framework + Role Authority Register); they ground the structure that the rest of Tier 1 operationalises.
 

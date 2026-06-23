@@ -3645,7 +3645,7 @@ documents:
   domain: "privacy"
   type: "Procedure"
   title: "Data Protection and Privacy Breach Response Procedure"
-  version: "1.4.12"
+  version: "1.4.13"
   date: "2026-06-23"
   owner: "Chief Information Officer"
   approving_authority: "Governance Library Maintainer"
