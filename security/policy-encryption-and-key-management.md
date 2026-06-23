@@ -2,8 +2,8 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.3\
-**Date:** 2026-06-22\
+**Version:** 1.3.4\
+**Date:** 2026-06-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -89,7 +89,7 @@ Retired or expired keys destroyed using cryptographic erase (per NIST SP 800-88)
 | Symmetric encryption | AES-256, ChaCha20-Poly1305 |
 | Asymmetric encryption | RSA-4096, ECC P-384 or stronger |
 | Hashing | SHA-512, BLAKE2b |
-| Password-based encryption | PBKDF2 or Argon2id with minimum 310,000 iterations |
+| Password-based encryption | Argon2id (preferred) at minimum m=19456 (19 MiB), t=2, p=1; or PBKDF2-HMAC-SHA256 at minimum 600,000 iterations (PBKDF2-HMAC-SHA512 at minimum 220,000), per the OWASP Password Storage Cheat Sheet |
 | Post-quantum cryptography | ML-KEM (formerly CRYSTALS-Kyber; NIST FIPS 203, August 2024) for key encapsulation; ML-DSA (formerly CRYSTALS-Dilithium; NIST FIPS 204, August 2024) for digital signatures; hybrid key exchange (ECC + PQC) during migration |
 
 ---

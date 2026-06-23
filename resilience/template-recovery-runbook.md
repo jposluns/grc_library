@@ -2,8 +2,8 @@
 
 **Document Title:** Recovery Runbook Template\
 **Document Type:** Template\
-**Version:** 1.0.2\
-**Date:** 2026-06-22\
+**Version:** 1.0.3\
+**Date:** 2026-06-23\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`resilience/procedure-backup-and-recovery.md`](procedure-backup-and-recovery.md), [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -126,6 +126,8 @@ Recovery is not complete until validation passes. The runbook defines specific v
 | Regulator notification | Per regulator | Supervisory authority | Per the applicable regulatory window |
 | Executive briefing | Email or call | Executive Sponsor | At declaration; hourly during P1 |
 | Post-recovery report | Email | Recipients per incident report distribution | Within 5 business days of closure |
+
+The cadence above is the recovery-runbook view of communications. Align message content, spokesperson designation, and the approval chain with [`plan-crisis-communication.md`](plan-crisis-communication.md) (the organisation's authoritative crisis-communications plan) so the runbook and the crisis-communication plan do not drift.
 
 ### Section 8: Rollback
 

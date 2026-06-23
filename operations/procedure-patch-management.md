@@ -2,8 +2,8 @@
 
 **Document Title:** Patch Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
-**Date:** 2026-06-22\
+**Version:** 1.0.2\
+**Date:** 2026-06-23\
 **Owner:** IT Operations Lead\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -79,12 +79,16 @@ Emergency patches may be deployed directly to production without prior staging w
 
 ### 2.3 Regression testing
 
-Before any Standard patch is promoted to production, IT Operations and the relevant System Owner must complete a regression testing checklist covering:
+Before any Standard patch is promoted to production, IT Operations and the relevant System Owner must complete the following regression-testing checklist and record the result against each item:
 
-- Service availability verification (critical functions operational post-patch).
-- Integration point validation (downstream and upstream dependencies unaffected).
-- Security configuration verification (patch has not altered security-relevant settings).
-- Performance baseline comparison where applicable.
+| # | Check | Pass / Fail | Notes |
+| --- | --- | --- | --- |
+| 1 | Service availability: critical functions operational post-patch | | |
+| 2 | Integration points: downstream and upstream dependencies unaffected | | |
+| 3 | Security configuration: patch has not altered security-relevant settings | | |
+| 4 | Performance baseline comparison (where applicable) | | |
+
+The completed checklist is retained with the change record.
 
 ---
 
