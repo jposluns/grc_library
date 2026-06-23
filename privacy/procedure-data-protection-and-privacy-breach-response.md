@@ -2,7 +2,7 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.11\
+**Version:** 1.4.12\
 **Date:** 2026-06-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -97,14 +97,16 @@ Personal data breaches may be detected from any of the following sources:
 
 ### 4.2 24-hour initial assessment
 
-Within 24 hours of a potential personal data breach being identified, the Data Protection Officer and CISO jointly conduct an initial assessment to determine:
+Within 24 hours of a potential personal data breach being identified, the Data Protection Officer and CISO jointly conduct an initial assessment. The two roles conduct it jointly, but each determination has a named lead accountable for the answer:
 
-1. **Is personal data involved?** Confirm whether the affected data includes information that identifies or is capable of identifying natural persons.
-2. **What is the likely scope?** Estimate the number of individuals affected, the categories of data involved, and the approximate volume of records.
-3. **Has data been accessed or exfiltrated?** Determine whether the breach is limited to availability impact (e.g., system outage) or includes confidentiality impact (unauthorized access or disclosure).
-4. **What is the risk to individuals?** Assess the likely consequences for affected individuals, including risk of identity theft, financial harm, discrimination, reputational damage, or physical harm.
-5. **What is the applicable jurisdiction?** Identify which privacy laws govern the affected individuals and data.
-6. **Is notification likely to be required?** Make a preliminary determination on whether regulatory or individual notification thresholds appear to be met, and in which jurisdictions.
+| # | Determination | Lead |
+| --- | --- | --- |
+| 1 | **Is personal data involved?** Confirm whether the affected data includes information that identifies or is capable of identifying natural persons. | Data Protection Officer |
+| 2 | **What is the likely scope?** Estimate the number of individuals affected, the categories of data involved, and the approximate volume of records. | Data Protection Officer |
+| 3 | **Has data been accessed or exfiltrated?** Determine whether the breach is limited to availability impact (e.g., system outage) or includes confidentiality impact (unauthorized access or disclosure). | CISO |
+| 4 | **What is the risk to individuals?** Assess the likely consequences for affected individuals, including risk of identity theft, financial harm, discrimination, reputational damage, or physical harm. | Data Protection Officer |
+| 5 | **What is the applicable jurisdiction?** Identify which privacy laws govern the affected individuals and data. | Data Protection Officer, with Legal |
+| 6 | **Is notification likely to be required?** Make a preliminary determination on whether regulatory or individual notification thresholds appear to be met, and in which jurisdictions. | Data Protection Officer, with Legal |
 
 The assessment is documented and retained as part of the breach record.
 

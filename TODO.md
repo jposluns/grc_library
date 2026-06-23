@@ -58,7 +58,6 @@ The trust-recovery suite findings (signed off 2026-06-22) and the deferred-decis
 
 Individual documents or focused multi-doc improvements. The deferred-decision items DD-2..DD-8 (maintainer-triaged 2026-06-23) and the Medium trust-recovery findings are integrated here. Research files for queued clusters are prepared in advance per the research-assistant discipline in [`ai-assistant-workflow-disciplines.md`](.claude/rules/governance/ai-assistant-workflow-disciplines.md).
 
-- **FR-153 [fitness:P2] (M, XS) ⚠**: PBKDF2 minimum 310,000 iterations stale vs OWASP 600,000 — [`security/policy-encryption-and-key-management.md`](security/policy-encryption-and-key-management.md):92.
 - **Working-state relocation (M, XS)**: `tools/sweep-preflight-exemptions.json` → `.working/validate-sweeps/preflight-exemptions.json` (co-locate with the validate-sweeps activity).
 - **Working-state relocation (M, XS)**: citation-verification cluster (6 files) — `register-citation-verifications.md` + `register-citation-verification-bundle.md` + four `worklist-citation-verification-batch-*.md` → `.working/citation-verifications/` (project-specific in-flight verification campaign).
 - **Working-state relocation (M, XS)**: `governance/register-main-branch-protection.md` → `.working/` (snapshot of THIS repo's branch protection; meaningless to adopters configuring their own). Each relocation updates the document-index, sibling references, taxonomy/portal regen, version bumps, CHANGELOG entry.
@@ -70,7 +69,6 @@ Individual documents or focused multi-doc improvements. The deferred-decision it
 - **FR-76 (M, S) ⚠**: Sustainability framework escalation triggers.
 - **FR-120 (M, S)**: 180-day baseline citation imprecise/circular in [`governance/policy-exception-and-risk-acceptance-management.md`](governance/policy-exception-and-risk-acceptance-management.md):99 (NIST CA-6 specifies annual+; ISO 27001:2022 Clause 9.2 doesn't prescribe an interval).
 - **FR-12 (M, S)**: Cross-document harmonisation follow-up (the within-document closure was PR #178).
-- **BYOD MDM vs MAM (M, S)**: Expand [`security/policy-byod.md`](security/policy-byod.md) to distinguish MDM (org manages the whole device) from MAM (org controls a container of org apps/data); adopters choose MDM, MAM, or both. Per maintainer direction.
 - **DD-6 / DD-7 (M, S)**: Canonical 7-year AI-log retention — reconcile [`ai/checklist-ai-algorithmic-compliance.md`](ai/checklist-ai-algorithmic-compliance.md):99 ("minimum of 12 months") up to 7 years, and add an explicit AI-decision/detection-logs row (7 yr; ISO/IEC 42001 + EU AI Act Annex IV) to [`governance/register-data-retention-schedule.md`](governance/register-data-retention-schedule.md) (authoritative for [`operations/procedure-security-monitoring-and-alert-management.md`](operations/procedure-security-monitoring-and-alert-management.md):298).
 - **Generalize the handoff-PR QA loop-break into the pack layer (M, S)**: the carve-out currently lives only in `.claude/CLAUDE.md` + `/resume`. The distributable `validation-sweep-pr-scoped` SKILL and the `ai-assistant-workflow-disciplines.md` no-skip section should name the session-closing-handoff-PR exception (with the loop rationale and the `/validate`-on-resume compensating control) so adopters inherit it. Pairs with 4.6's gate design (the gate must exempt handoff PRs).
 - **FR-99 (M, M) ⚠**: Per-control effectiveness metrics (continuous assurance / 3LoD).
@@ -96,10 +94,6 @@ Deferred to a routine cleanup batch when convenient. The Low/FYI trust-recovery 
 - **FR-159 [fitness:P10] (FYI, S) ⚠**: Portal Overview has no glossary pointer; fix in [`tools/build-portal.py`](tools/build-portal.py) (portal.md is generated).
 - **FR-160 [fitness:P7] (FYI, S) ⚠**: DR recovery tiers vs SLM service tiers label divergence.
 - **FR-165 [full-qa] (Low, S)**: #242 corrective record overstates remediation — [`.working/validate-sweeps/2026-06-22-sweep22-iter1.md`](.working/validate-sweeps/2026-06-22-sweep22-iter1.md):92 claims abbreviated rows relabelled "deferred…"; [`.working/validate-pr/history.md`](.working/validate-pr/history.md) rows #221-#239 still read "abbreviated spot-check" (only #240/#241 annotated).
-- **FR-84 (L, S)**: Regression-testing checklist as a discrete artefact.
-- **FR-85 (L, S)**: Per-question owner in the breach-response runbook.
-- **FR-86 (L, S) ⚠**: Recovery runbook crisis-communications cross-reference. (Pass-1 noted the runbook itself was hard to locate; revisit at remediation time.)
-- **FR-90 (L, S)**: CSP / Trusted Types / HSTS-preload guidance.
 - **FR-109 (L, S) ⚠**: Charter purpose paragraph density.
 - **FR-53 (L, S)**: Metadata field unification — evaluate whether to deprecate Classification or Confidentiality as redundant, OR document the semantic distinction.
 - **B2 (L, S)**: Add five soft-law citations to [`governance/register-canonical-citations.md`](governance/register-canonical-citations.md) — EDPB Guidelines 07/2020, Guidelines 3/2018, Guidelines 28/2024, Opinion 05/2014, WP248 rev.01. Decided 2026-06-23; dedicated S-effort PR.
