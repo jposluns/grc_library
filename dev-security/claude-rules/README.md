@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.49.4\
+**Version:** 1.49.5\
 **Date:** 2026-06-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -424,14 +424,14 @@ These rule files draw on and are aligned to the following external projects and 
 
 ### Cloud security alliance
 
-**CSA Cloud Controls Matrix (CCM) v4.0**
+**CSA Cloud Controls Matrix (CCM) v4.1.0**
 - URL: `https://cloudsecurityalliance.org/research/cloud-controls-matrix/`
 - Coverage: 207 controls across 17 domains
 - Direct application: framework alignment tables in all `core/` rule files
 
-**CSA AI Controls Matrix (AICM) v1.0.3**
+**CSA AI Controls Matrix (AICM) v1.1.0**
 - URL: `https://cloudsecurityalliance.org/research/ai-controls-matrix/`
-- Coverage: 13 AI-specific security controls mapped to CCM domains
+- Coverage: 247 controls across 18 domains (CCM's 17 plus the AI-specific Model Development and Security (MDS) domain)
 - Direct application: framework alignment tables in all `ai/` rule files
 
 ---
@@ -440,6 +440,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.49.5 | 2026.06.279 | 2026-06-24 | Sweep 36 close-out, pack surface: refreshed the external-reference framework versions in the "Cloud security alliance" section, CCM `v4.0` to `v4.1.0` and AICM `v1.0.3` to `v1.1.0`, and corrected the AICM coverage line from "13 AI-specific security controls" (which is the MDS-domain subset) to "247 controls across 18 domains" (the full v1.1.0 scope: CCM's 17 domains plus the AI-specific Model Development and Security domain). Part of the corpus-wide CCM/AICM citation-residual completion: the #298 reconciliation was token-scoped (it checked `<DOMAIN>-<NN>` codes and `\| CODE \| title \|` rows) and so left bare domain-code mentions and framework-version-currency strings uncorrected. Pack `1.49.4 → 1.49.5` (patch; citation currency). |
 | 1.49.4 | 2026.06.276 | 2026-06-24 | CCM/AICM citation-accuracy reconciliation, pack surfaces (part of the corpus-wide reconciliation grounded in the uploaded authoritative CSA CCM v4.1.0 and AICM v1.1.0 catalogues): corrected the superseded CCM v4.0 domain code `IVS` to the authoritative v4.1.0 `I&S` in [`ai/mcp-security.md`](ai/mcp-security.md), [`core/cryptography.md`](core/cryptography.md), and [`pipeline/cicd-gates.md`](pipeline/cicd-gates.md) (the same fix landed in the byte-identical [`.claude/rules/`](../../.claude/rules/cicd-gates.md) mirror), and tightened the loose framework-basis reference `CSA CCM v4 / AICM v1` to `CSA CCM v4.1 / AICM v1.1` in [`CLAUDE.md`](CLAUDE.md). Pack `1.49.3 → 1.49.4` (patch; citation fixes). |
 | 1.49.3 | 2026.06.250 | 2026-06-23 | FR-166 pack-surface touches (the new project audit gate 47 itself is project tooling, not pack content): the [`validation-sweep`](skills/validation-sweep/SKILL.md) SKILL's Subagent B scope gains a SEMANTIC listing-surface coverage-drift check (the framework matrices and crosswalks, the glossary and key-terms registers, per-document `Related Documents`), since the MECHANICAL surfaces (document-index register, domain READMEs) are now hard-gated by gate 47 and the sweep's value is the relevance-based surfaces a gate cannot enforce; and the [`guardrail-review`](skills/guardrail-review/SKILL.md) SKILL growth-narrative count "a dozen gates to **forty-six**" corrected to "**forty-seven**" (free-prose count, invisible to the gate-39 digit-form check). Pack `1.49.2 → 1.49.3` (patch; SKILL scope + stale-count). |
 | 1.49.2 | 2026.06.244 | 2026-06-23 | Corpus-wide `/validate` (Sweep 25) close-out fix: the `guardrail-review` SKILL's growth-narrative count "grew from five rules to **nine**" corrected to "**ten**" (project-integrity.md, the 10th rule, was added in pack 1.49.0 / PR #258 but this free-prose count (invisible to the gate-41 enumeration check) was missed). Pack `1.49.1 → 1.49.2` (patch; stale-count fix). |

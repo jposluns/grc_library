@@ -2,8 +2,8 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.4.0\
-**Date:** 2026-06-22\
+**Version:** 1.4.1\
+**Date:** 2026-06-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`README.md`](../README.md)\
@@ -167,6 +167,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **IMO** | International Maritime Organization. |
 | **IPS** | Intrusion Prevention System. |
 | **IPY** | (CSA CCM domain) Interoperability and Portability. |
+| **I&S** | (CSA CCM domain) Infrastructure Security. Renamed from the v4.0 IVS (Infrastructure and Virtualization Security) domain in CCM v4.1.0. |
 | **ISACA** | Information Systems Audit and Control Association. Publishes COBIT. |
 | **ISM** | Information Security Manual (Australia). |
 | **ISO** | International Organization for Standardization. |
@@ -174,7 +175,6 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **ITSM** | IT Service Management. |
 | **IT/OT convergence** | The progressive integration of Information Technology (IT) and Operational Technology (OT) networks, identities, and management tooling. Drives joint governance, network segmentation discipline, and unified incident response. |
 | **IVDR** | In-Vitro Diagnostic Regulation (EU). |
-| **IVS** | (CSA CCM domain) Infrastructure and Virtualization Security. |
 
 ## K
 

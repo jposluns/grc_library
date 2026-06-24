@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.33\
+**Version:** 1.27.34\
 **Date:** 2026-06-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -99,13 +99,13 @@ All active repository documents should be Public.
 | Security | Standard | Personnel Security Screening Standard | [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md) | Chief Information Security Officer | Annual | ISO 27001 Annex A.6.1/A.6.5, NIST SP 800-53 PS, four-tier screening, jurisdiction |
 | Security | Standard | Penetration Testing and Red Team Standard | [`security/standard-penetration-testing-and-red-team.md`](../security/standard-penetration-testing-and-red-team.md) | Chief Information Security Officer | Annual | PTES, OWASP, CVSS v3.1, CREST, red team RoE, remediation SLA |
 | Security | Standard | Threat Modelling Standard | [`security/standard-threat-modelling.md`](../security/standard-threat-modelling.md) | Chief Information Security Officer | Annual and upon material change to the system's trust-boundary inventory or the underlying methodology | STRIDE (Microsoft SDL), LINDDUN (KU Leuven), OWASP ASVS, NIST SSDF, NIST SP 800-154, ISO/IEC 27001 Annex A.8.25/A.8.27/A.8.28 |
-| Security | Policy | Network Communications Security Policy | [`security/policy-network-communications-security.md`](../security/policy-network-communications-security.md) | Chief Information Security Officer | Annual | ISO 27033, NIST SP 800-207, CSA CCM IVS, BASC v6 §6, WCO SAFE |
+| Security | Policy | Network Communications Security Policy | [`security/policy-network-communications-security.md`](../security/policy-network-communications-security.md) | Chief Information Security Officer | Annual | ISO 27033, NIST SP 800-207, CSA CCM I&S, BASC v6 §6, WCO SAFE |
 | Security | Policy | Bring Your Own Device (BYOD) Policy | [`security/policy-byod.md`](../security/policy-byod.md) | Chief Information Security Officer | Annual | ISO 27001 Annex A.6.2/A.8.1, NIST SP 800-124r2, CSA CCM UEM, MAM and MDM controls |
 | Security | Standard | Remote Working Security Standard | [`security/standard-remote-working-security.md`](../security/standard-remote-working-security.md) | Chief Information Security Officer | Annual | ISO 27001 Annex A.6.2, NIST SP 800-46r2, CSA CCM HRS-09, CIS Controls v8 |
 | Security | Procedure | Onboarding and Offboarding Procedure | [`security/procedure-onboarding-and-offboarding.md`](../security/procedure-onboarding-and-offboarding.md) | Chief Information Officer | Annual | ISO 27001 Annex A.6.1/A.6.5, NIST SP 800-53 PS, CIS Controls v8 Control 5 |
 | Operations | Standard | Production Security Requirements | [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md) | Chief Information Officer | Annual | ISO 27001 Annex A.8.6, NIST SP 800-53 CM, CIS Benchmarks |
 | Operations | Standard | Cloud Security Configuration Baseline | [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md) | Chief Information Security Officer | Annual | CSA CCM v4.1, NIST SP 800-53, cloud shared responsibility model |
-| Operations | Standard | Network Security and Segmentation | [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md) | Chief Information Security Officer | Annual | ISO 27001 Annex A.8.20 to 21, NIST SP 800-41, CSA CCM IVS, BASC Section 6 |
+| Operations | Standard | Network Security and Segmentation | [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md) | Chief Information Security Officer | Annual | ISO 27001 Annex A.8.20 to 21, NIST SP 800-41, CSA CCM I&S, BASC Section 6 |
 | Operations | Standard | Physical Security of IT Infrastructure | [`operations/standard-physical-security-of-it-infrastructure.md`](../operations/standard-physical-security-of-it-infrastructure.md) | Chief Information Officer | Annual | ISO 27001 Annex A.7, NIST SP 800-116, BASC physical security |
 | Operations | Standard | Certificate Authority Management | [`operations/standard-certificate-authority-management.md`](../operations/standard-certificate-authority-management.md) | Chief Information Security Officer | Annual | RFC 5280, CA/Browser Forum Baseline Requirements, NIST SP 800-57 |
 | Operations | Procedure | Change Management and Configuration Control | [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md) | Chief Information Officer | Annual | ISO 20000, COBIT CCC, NIST SP 800-128 |
