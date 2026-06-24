@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.295, PR #317
+
+**FR-167 batch 3: comprehensive Dev-security domain coverage in the GRC compliance alignment matrix.** Third FR-167 batch (batch 1 = Architecture #275; batch 2 = Risk #313). Adds all 17 active dev-security documents as a new matrix section.
+
+### Added
+
+- A new "## Dev-security domain" section in [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) (`1.2.1` to `1.3.0`), inserted after the Architecture section, with one row for each of the 17 active `dev-security/` corpus documents (the policy, the secure-code-review procedure, the AI-coding-assistant guideline, the compliance-controls-and-gap register, and 13 standards including the three cloud-hardening baselines, API, mobile, container, devops, developer-requirements, SCA, QA-and-testing, software-lifecycle, and the two security-reference standards). Each row maps the document across the 8 framework columns; the five customs/trade columns (CTPAT, PIP, BASC v6, WCO SAFE, AEO/AEO-S) are `N/A` for every row (dev-security is IT/engineering content with no customs nexus).
+
+### Changed
+
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) to reflect the matrix `1.3.0` bump ([`docs/portal.md`](../../docs/portal.md) unchanged).
+
+### Method and verification
+
+- **Research-assistant fan-out**: six background workers each read an assigned cluster of the 17 docs in full and proposed candidate CCM/ISO/NIST mappings with per-control section citations. The orchestrator verified every cell at apply-time.
+- **CCM code validation**: all 38 unique CSA CCM v4.1 codes used were validated against [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py) (`CCM_V41`); zero invalid. Gate 48 (CSA CCM/AICM citation-accuracy) passes on the new section.
+- **#313-retro lesson applied** (audit the target section for pre-existing defects first): none of the 17 docs were previously cross-listed in the matrix, so no de-duplication was needed (distinct from batch 2, which had cross-section duplicates to resolve).
+- **Apply-time worker corrections** (3): (1) the cloud worker flagged `DSP-05` as a possible GCP "DLP" code, but `DSP-05` is "Data Flow Documentation", not DLP, so it was dropped and the three cloud rows kept consistent on the materially-supported set; (2) the QA-and-testing doc self-cites "SEF-06: Testing and Quality Assurance", but CCM v4.1 `SEF-06` is "Event Triage Processes", so that mislabel was not propagated and `CCC-02` Quality Testing was used instead; (3) the developer-requirements doc cites an AICM `TVM-12` code for threat modelling, which is not the CCM v4.1 `TVM-12` (Vulnerability Management Metrics), so the CCM-column code was kept as `TVM-04` (Threat Analysis and Modelling).
+- ISO 27001:2022 cells use representative single Annex A controls / management clauses (not the ranges some docs cite); NIST CSF 2.0 cells use valid 2.0 categories (no 1.1-only categories).
+- `tools/run_all_audits.sh` 48/48 on the committed state; `tools/run-pr-time-checks.sh` green (D1/D2/D3 + gate 45) against the merge base.
+
+### Phase context
+
+FR-167 remaining batches (smallest-first): supply-chain (18), resilience (22), operations (27), compliance (30), governance (31), security (34), ai (34), privacy (42), then the partial sections. Batch 4 = supply-chain.
+
+### Batched
+
+- Carries the #316 `/validate-pr` (0 findings) + `/retro` rows per recursion-avoidance (committed earlier on this branch). Library `2026.06.294` to `2026.06.295`; README `1.9.165` to `1.9.166`.
+
 ## 2026-06-24, Library Version 2026.06.294, PR #316
 
 **Working-state and backlog scheduling for local project: recover a stranded design record and queue the multi-session orchestration codification track.** A maintainer-directed scheduling/tracking PR; no corpus content changed.
