@@ -2618,6 +2618,59 @@ class CcmAicmCitationTests(LinterTestCase):
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    def test_bare_domain_code_in_ccm_context_flagged(self) -> None:
+        # Check 4: a bare superseded/fabricated domain code (no -NN suffix) on a
+        # line that names the matrices is flagged (the family-list residual
+        # shape Sweep 36 found).
+        fixture = self.make_fixture(
+            "fake-ccm-bare-family.md",
+            "# X\n\nMaps to the CSA CCM v4.1 IVS and NET families.\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+        self.assertLinterFails(result, "ccm-bare-domain-code")
+
+    def test_bare_domain_code_under_ccm_section_flagged(self) -> None:
+        # Check 4: a bare bad code in a domain-keyed crosswalk row under a CSA
+        # CCM section is flagged even though the row line itself does not name
+        # the matrix (the reverse-crosswalk residual shape).
+        fixture = self.make_fixture(
+            "fake-ccm-bare-section.md",
+            "# X\n\n## CSA CCM v4.1 (selected domains)\n\n"
+            "| GOV Governance, Risk Management, Compliance | docs | note |\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+        self.assertLinterFails(result, "ccm-bare-domain-code")
+
+    def test_bare_code_rename_note_not_flagged(self) -> None:
+        # False-positive guard: a historical rename-note legitimately names the
+        # old code while describing its replacement (the glossary I&S entry).
+        fixture = self.make_fixture(
+            "fake-ccm-rename-note.md",
+            "# X\n\n| **I&S** | (CSA CCM domain) Infrastructure Security. "
+            "Renamed from the v4.0 IVS domain in CCM v4.1.0. |\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"a CCM rename-note naming the old code must not be flagged.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_dotnet_and_currency_not_flagged(self) -> None:
+        # False-positive guards: '.NET' on a CCM-context line (leading dot) and
+        # currency 'AUD' outside any CCM context must both pass.
+        fixture = self.make_fixture(
+            "fake-ccm-dotnet-aud.md",
+            "# X\n\nThe CSA CCM guidance applies to .NET and ASP.NET services.\n\n"
+            "## Penalties\n\nFines up to AUD 50 million apply.\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"'.NET' in CCM context and currency 'AUD' must not be flagged.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

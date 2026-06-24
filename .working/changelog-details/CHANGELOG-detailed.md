@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.287, PR #309
+
+**S5: gate 48 bare-domain-code check (Check 4).** Closes TODO §4.5 S5 (surfaced by Sweep 36). Completes the gate-48 enhancement pair with S4 (#308). The maintainer chose "build now, precision-first" after the orchestrator surfaced that S5's false-positive surface (the glossary rename-note, the pack-README version-history, TODO meta, currency `AUD`) made it thornier than its `(S)` tag.
+
+### Changed
+- [`tools/lint-ccm-aicm-citations.py`](../../tools/lint-ccm-aicm-citations.py): added Check 4 (`ccm-bare-domain-code`). A `BARE_BAD_CODE_RE` (built from `KNOWN_BAD_DOMAINS`, boundary excludes `.NET`, `AI-GOV`/`MODEL-GOV`, and `<CODE>-<NN>`) flags a bare bad code when the line matches `CCM_CONTEXT_RE` (names the matrices) OR sits under a CCM/AICM section (the existing `section` tracker) AND does not match `HISTORICAL_RE` (rename-note / supersession verbs). `TODO.md` added to `EXEMPT_FILES`. Docstring updated with the Check-4 behaviour and its documented recall limit.
+
+### Added
+- [`tests/test_linters.py`](../../tests/test_linters.py): four cases, `test_bare_domain_code_in_ccm_context_flagged` (family-list fire), `test_bare_domain_code_under_ccm_section_flagged` (CCM-section domain-keyed row fire), `test_bare_code_rename_note_not_flagged` (glossary rename-note guard), `test_dotnet_and_currency_not_flagged` (`.NET` + currency `AUD` guard). Gate-48 fixture seven to eleven cases.
+
+### Removed
+- The S5 item from [`TODO.md`](../../TODO.md) (rotated to DONE). This also resolved the out-of-window note from #308's `/validate-pr` (S5's "Pairs with S4" back-reference, stranded when #308 deleted the S4 line, is gone with the S5 line).
+
+### Verification
+- The design is precision-first per the maintainer's choice: zero corpus false positives confirmed (gate 48 clean across 376 files post-change, TODO now exempt); the glossary I&S rename-note, the pack-README version-history rows, the privacy-annex currency `AUD`, and `.NET` all correctly pass.
+- Recall limit documented in the docstring, the CHANGELOG, and the DONE entry: a bad code in a multi-framework mapping table with an unlabelled CCM column under a generic heading is not caught (the `## Compliance mapping table` GRC/A&A-column shape); the apply-time standalone-token grep and the periodic sweep remain the backstop for that tail.
+- All 48 gates pass on the committed state (gate 36 runs the 4 new regression cases, gate 35 parity unchanged, gate 39 count unchanged at 48); `tools/run-pr-time-checks.sh` green. No corpus content changed; no generated-artefact regen needed.
+- Carries the batched #308 `/validate-pr` (0 in-window) + `/retro` records.
+
 ## 2026-06-24, Library Version 2026.06.286, PR #308
 
 **S4: gate 48 section-aware + cross-catalogue title check.** Closes TODO §4.5 S4 (surfaced by PR #299's `/validate-pr`, where the union-dict title check let the I&S-07 cross-catalogue confusion through and the per-PR sweep caught it by hand).
