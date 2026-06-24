@@ -2,8 +2,8 @@
 
 **Document Title:** Physical Security of IT Infrastructure Standard\
 **Document Type:** Standard\
-**Version:** 1.3.1\
-**Date:** 2026-06-22\
+**Version:** 1.3.2\
+**Date:** 2026-06-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-network-security-and-segmentation.md`](standard-network-security-and-segmentation.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
@@ -105,7 +105,7 @@ IT Operations areas and the server room must maintain a clean desk policy. Print
 |---|---|
 | ISO/IEC 27001:2022 | Annex A.7: Physical Controls (server room and IT equipment scope only) |
 | NIST SP 800-53 | PE-2, PE-3, PE-6: Physical Access Authorization, Control, and Monitoring |
-| CSA CCM v4.1 | IVS-03: Infrastructure and Virtualization Security: Physical Security |
+| CSA CCM v4.1 | I&S-03: Infrastructure and Virtualization Security: Physical Security |
 | CTPAT Minimum Security Criteria | Physical Access Controls for IT Systems |
 | Canada PIP | Physical Security of IT Infrastructure |
 

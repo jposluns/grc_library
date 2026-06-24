@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Security and Privacy Assurance Standard\
 **Document Type:** Standard\
-**Version:** 1.1.1\
-**Date:** 2026-06-22\
+**Version:** 1.1.2\
+**Date:** 2026-06-24\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/template-supplier-security-questionnaire.md`](template-supplier-security-questionnaire.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
@@ -189,7 +189,7 @@ Metric definitions and supporting data collection are operationalized in [`suppl
 | NIST SP 800-53 Rev. 5 | SA-9 External System Services; SR family (Supply Chain Risk Management) including SR-3 Supply Chain Controls and Processes, SR-5 Acquisition Strategies and Tools, SR-6 Supplier Assessments and Reviews. Note: SA-12 was the Rev. 4 supply chain protection control; Rev. 5 moved supply chain controls into the dedicated SR family. |
 | GDPR / UK GDPR | Article 28: Processor obligations |
 | NIST Privacy Framework | CT-P.2: Data processing ecosystem management |
-| CSA CCM v4 | STA: Supply Chain Management, Transparency, and Accountability |
+| CSA CCM v4.1 | STA: Supply Chain Management, Transparency, and Accountability |
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Digital Trust and Assurance Metrics Register\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-06-22\
+**Version:** 1.0.2\
+**Date:** 2026-06-24\
 **Owner:** Assurance Metrics Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -126,7 +126,7 @@ Each metric should define:
 | ISO 9001:2015 | §9 to 10: Measurement, analysis, and improvement | Continual improvement metrics |
 | ISO/IEC 42001:2023 | §10: AI performance and continual improvement | AI governance KPIs |
 | ISO/IEC 27014 | Governance of information security | Security governance performance measurement |
-| CSA CCM v4.1 | GOV-09, GOV-10: Governance and digital trust | Control coverage and assurance metrics |
+| CSA CCM v4.1 | A&A-02: Independent Assessments | Assurance coverage metrics |
 
 ---
 

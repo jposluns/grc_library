@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.2\
-**Date:** 2026-06-22\
+**Version:** 1.0.3\
+**Date:** 2026-06-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md)\
@@ -46,7 +46,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 - **Meta CyberSecEval v4**: confirm v4 is current (v3 was earlier).
 - **MITRE ATT&CK v15**: verify version (releases are quarterly; current may be later).
 - **MITRE ATLAS v4.7**: same caveat.
-- **CSA AICM v1.0.3**: verify current version.
+- **CSA AICM v1.1**: verify current version.
 - **Basel III**: multiple amendments since 2017; verify current state.
 - **NFPA 72 2025**: confirm 2025 edition published.
 

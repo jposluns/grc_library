@@ -2,8 +2,8 @@
 
 **Document Title:** Sustainability and Responsible Technology Framework\
 **Document Type:** Framework\
-**Version:** 1.2.0\
-**Date:** 2026-06-23\
+**Version:** 1.2.1\
+**Date:** 2026-06-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)\
@@ -20,7 +20,7 @@
 
 This framework defines the organisation's approach to environmental sustainability, ethical technology development, and human rights due diligence across all operations and digital systems. It consolidates the Sustainability Framework, Ethical Technology Use Framework, and Human Rights Due Diligence Framework into a unified enterprise structure.
 
-Aligned with ISO 50001 (Energy Management), ISO 26000 (Social Responsibility), OECD Digital Security Framework, UN SDGs, GPAI Model Governance Playbook, and CSA CCM v4.1 GOV-10.
+Aligned with ISO 50001 (Energy Management), ISO 26000 (Social Responsibility), OECD Digital Security Framework, UN SDGs, GPAI Model Governance Playbook, and the CSA AI Controls Matrix (AICM v1.1) responsible-AI governance controls.
 
 ---
 
@@ -95,7 +95,7 @@ Reporting aligns with GRI Standards, TCFD recommendations, and ISO 50001 formats
 | UN SDGs | Sustainable Development Goals | Strategic sustainability alignment |
 | GPAI Model Governance Playbook | AI sustainability and ethics | Responsible AI development |
 | COBIT 2019 | APO02: Manage Strategy | Sustainable technology strategy |
-| CSA CCM v4.1 | GOV-10: Sustainability and Responsible Technology | Cloud sustainability governance |
+| CSA AICM v1.1 | GRC-10, GRC-11, GRC-12: AI Impact Assessment; Bias and Fairness Assessment; Ethics Committee | Responsible AI governance |
 
 ---
 

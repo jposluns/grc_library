@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.32\
-**Date:** 2026-06-23\
+**Version:** 1.27.33\
+**Date:** 2026-06-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -176,7 +176,7 @@ All active repository documents should be Public.
 | Dev Security | Standard | DevOps Security Requirements Standard | [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md) | Security Architecture Maintainer | Annual | NIST SP 800-218, SLSA, CIS Benchmarks, OWASP SAMM |
 | Dev Security | Standard | Security Baseline and Standards Reference | [`dev-security/standard-security-baseline-and-standards-reference.md`](../dev-security/standard-security-baseline-and-standards-reference.md) | Security Architecture Maintainer | Annual | CIS Benchmarks, NIST SP 800-53, ISO 27001 technical controls |
 | Dev Security | Standard | Security Quick Reference | [`dev-security/standard-security-quick-reference.md`](../dev-security/standard-security-quick-reference.md) | Security Architecture Maintainer | Annual | OWASP, NIST, ISO 27001, developer-facing control summary |
-| Dev Security | Register | Compliance Controls and Gap Register Template | [`dev-security/register-compliance-controls-and-gap-register.md`](../dev-security/register-compliance-controls-and-gap-register.md) | Security Architecture Maintainer | Quarterly | CSA CCM v4.1, AICM v1.0.3, COBIT 2019, gap tracking, control evidence |
+| Dev Security | Register | Compliance Controls and Gap Register Template | [`dev-security/register-compliance-controls-and-gap-register.md`](../dev-security/register-compliance-controls-and-gap-register.md) | Security Architecture Maintainer | Quarterly | CSA CCM v4.1, AICM v1.1, COBIT 2019, gap tracking, control evidence |
 | Dev Security | Guideline | AI Coding Assistant Security Guideline | [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md) | Security Architecture Maintainer | Annual and upon material AI coding assistant or framework change | AI coding assistant safe usage, prompt and output controls, SDLC integration |
 | Resilience | Framework | Business Continuity and Resilience Framework | [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md) | Resilience Maintainer | Annual or after major incident | ISO 22301, NIST SP 800-34, continuity governance |
 | Resilience | Policy | Business Continuity and Disaster Recovery Policy | [`resilience/policy-business-continuity-and-disaster-recovery.md`](../resilience/policy-business-continuity-and-disaster-recovery.md) | Resilience Owner | Annual | ISO 22301, continuity governance, recovery objectives, supplier resilience |
@@ -206,7 +206,7 @@ All active repository documents should be Public.
 | Supply Chain | Procedure | Third-Party AI Due Diligence Procedure | [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md) | Supplier Risk Maintainer | 6 to 12 months | EU AI Act, ISO 42001, NIST AI RMF, OWASP LLM Top 10, AI supply chain |
 | Supply Chain | Standard | Cloud Exit and Data Portability Standard | [`supply-chain/standard-cloud-exit-and-data-portability.md`](../supply-chain/standard-cloud-exit-and-data-portability.md) | Chief Information Security Officer | Annual | CSA CCM v4.1 IPY-01 to 05, ISO 27001 Annex A.5.20, GDPR Art 20, NIST SP 800-53 SA-9 |
 | Governance | Framework | Human Capital and Ethical Conduct Framework | [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md) | Chief Information Officer | Annual | ISO 37001:2025, ISO 37301, ISO/PAS 8800, OECD AI Principles, COBIT APO07 |
-| Governance | Framework | Sustainability and Responsible Technology Framework | [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md) | Chief Information Officer | Annual | ISO 50001, ISO 26000, OECD Digital Security Framework, UN SDGs, CSA CCM GOV-10 |
+| Governance | Framework | Sustainability and Responsible Technology Framework | [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md) | Chief Information Officer | Annual | ISO 50001, ISO 26000, OECD Digital Security Framework, UN SDGs, CSA AICM v1.1 |
 | Governance | Policy | Digital Twin and Simulation Governance Policy | [`governance/policy-digital-twin-and-simulation-governance.md`](policy-digital-twin-and-simulation-governance.md) | Chief Information Officer | Annual | ISO 42001 §8, ISO 27001, ISO 23247, NIST SP 800-82r3 |
 | Governance | Register | Data Retention Schedule | [`governance/register-data-retention-schedule.md`](register-data-retention-schedule.md) | Data Protection Officer | Annual | GDPR Arts 5/17/30, PIPEDA, ISO 27001 Annex A.5.33, BASC v6, ISO 15489 |
 | Governance | Procedure | Continuous Improvement Register Procedure | [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md) | GRC Programme Manager | Annual | ISO 9001 §10.3, ISO 27001 §10.2, ISO 42001 §10, COBIT MEA01/APO11 |

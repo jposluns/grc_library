@@ -2,8 +2,8 @@
 
 **Document Title:** Cloud Security Configuration Baseline\
 **Document Type:** Standard\
-**Version:** 1.4.6\
-**Date:** 2026-06-23\
+**Version:** 1.4.7\
+**Date:** 2026-06-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md)\
@@ -192,7 +192,7 @@ A workload built on a cloud provider must conform to both: the enterprise-tenant
 | CIS Cloud Productivity Foundations Benchmark | v3.0 | Secure cloud productivity configuration |
 | NIST SP 800-53 | CM-2, CM-6 | Configuration Baseline and Settings |
 | COBIT 2019 | DSS05 | Manage Security Services |
-| CSA CCM v4.1 | IVS-01, IVS-04 | Infrastructure and Virtualization Security |
+| CSA CCM v4.1 | I&S-01, I&S-04 | Infrastructure and Virtualization Security |
 
 To reduce the manual correlation an auditor would otherwise perform, the baseline's control sections map to the cited frameworks as follows. CIS benchmark recommendation numbers are version-specific; consult the applicable benchmark (Cloud Foundations Benchmark for §4 and §6, Cloud Productivity Foundations Benchmark for §5) for the exact recommendation identifiers within each named area.
 

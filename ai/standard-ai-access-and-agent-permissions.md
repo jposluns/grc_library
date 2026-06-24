@@ -2,8 +2,8 @@
 
 **Document Title:** AI Access and Agent Permissions Standard\
 **Document Type:** Standard\
-**Version:** 0.0.4\
-**Date:** 2026-06-22\
+**Version:** 0.0.5\
+**Date:** 2026-06-24\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/register-mcp-server.md`](register-mcp-server.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md), [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
@@ -190,7 +190,7 @@ Every agent tool invocation logs:
 | Timestamp | UTC |
 | Cost | Inference cost plus tool cost where applicable |
 
-Logs are retained per the logging and monitoring standard with a minimum AI-specific retention of 12 months.
+Logs are retained per the logging and monitoring standard with a minimum AI-specific retention of 7 years, per the AI decision and detection logs row in [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md).
 
 ---
 

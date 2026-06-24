@@ -2,8 +2,8 @@
 
 **Document Title:** Metrics, Monitoring and Performance Reporting Framework\
 **Document Type:** Framework\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-06-24\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md), [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -82,7 +82,6 @@ Poorly defined metrics without these fields must not be published in governance 
 | ISO 22301:2019 | Business continuity performance | BCP/DR metrics |
 | COBIT 2019 | MEA01: Monitor, Evaluate, and Assess Performance | Performance governance |
 | COBIT 2019 | Digital Trust Indicators | Stakeholder confidence and service quality |
-| CSA CCM v4.1 | GOV-09: Governance and Continuous Improvement | Cloud control governance metrics |
 | BASC v6 (2023) | Trade-Security Performance Measurement | BASC KPI and customs incident reporting |
 | WCO SAFE Framework (2021) | AEO performance standards | Trade security performance measurement |
 | ISO 28000:2022 | Supply chain security measurement | Supply chain security metrics |

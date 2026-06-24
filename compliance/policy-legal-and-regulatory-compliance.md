@@ -2,8 +2,8 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-06-24\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md)\
@@ -139,7 +139,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 | --- | --- | --- |
 | ISO 37301:2021 | Compliance Management Systems | CMS structure, obligations register, CAPA |
 | COBIT 2019 | MEA03, Monitor Compliance; APO12, Managed Risk | Regulatory governance, compliance metrics |
-| CSA CCM v4.1 | GOV-01 to GOV-07, GOV-08: Compliance governance | Control mapping and compliance reporting |
+| CSA CCM v4.1 | GRC-01 to GRC-08: Compliance governance | Control mapping and compliance reporting |
 | ISO/IEC 27001:2022 | Annex A: Information security controls | Security compliance evidence |
 | ISO 28000:2022 | Supply-Chain Security and Resilience | Trade compliance controls |
 | BASC v6 (2023) | Trade and Customs Compliance | BASC obligations, Chapter reporting |

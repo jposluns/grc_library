@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance Controls and Gap Register Template\
 **Document Type:** Register\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-06-24\
 **Owner:** Security Architecture Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register is the primary traceability artefact for audit, insurance, board reporting, and regulatory purposes. It maps security and compliance controls to CSA CCM v4.1, AICM v1.0.3, and COBIT 2019 process identifiers, and records implementation status, evidence type, and responsible party for each control.
+This register is the primary traceability artefact for audit, insurance, board reporting, and regulatory purposes. It maps security and compliance controls to CSA CCM v4.1, AICM v1.1, and COBIT 2019 process identifiers, and records implementation status, evidence type, and responsible party for each control.
 
 Organisations should populate this template with their specific implementation status, evidence references, and responsible parties. The register must be updated when implementation status changes and reviewed quarterly at minimum.
 
@@ -195,13 +195,13 @@ Organisations should populate this template with their specific implementation s
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
-| IVS-01 | Audit Logging and Monitoring | | | | |
-| IVS-03 | Migration and Asset Ownership | | | | |
-| IVS-04 | Network Architecture | | | | |
-| IVS-06 | Network Defense | | | | |
-| IVS-07 | Segmentation and Segregation | | | | |
-| IVS-08 | Production and Non-Production Environments | | | | |
-| IVS-09 | Vulnerability and Patch Management | | | | |
+| I&S-01 | Audit Logging and Monitoring | | | | |
+| I&S-03 | Migration and Asset Ownership | | | | |
+| I&S-04 | Network Architecture | | | | |
+| I&S-06 | Network Defense | | | | |
+| I&S-07 | Segmentation and Segregation | | | | |
+| I&S-08 | Production and Non-Production Environments | | | | |
+| I&S-09 | Vulnerability and Patch Management | | | | |
 
 ### Logging and monitoring (LOG)
 
@@ -271,7 +271,7 @@ Organisations should populate this template with their specific implementation s
 
 ---
 
-## AICM v1.0.3: AI-specific controls
+## AICM v1.1: AI-specific controls
 
 Applies to any AI or ML system in production. See [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) for detailed requirements.
 

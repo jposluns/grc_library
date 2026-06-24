@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #298 — Sweep 35 close-out + corpus-wide CCM/AICM citation reconciliation; DD-12(a) (2026-06-24)
+
+Sweep 35 `/validate` (the #297 handoff loop-break control) found A-1 (GRM→GRC matrix) and B-1 (AI-log 12mo→7yr); verifying A-1 exposed a systemic CCM/AICM citation problem, and the maintainer supplied the authoritative CSA CCM v4.1.0 + AICM v1.1.0 catalogues for a full reconciliation. Removed the fabricated `GOV` domain (no such domain in either; governance is `GRC`) across ~9 docs (GOV-01..08→GRC; fabricated GOV-09/10 removed with A&A / AICM GRC-10/11/12 add-backs where real); renamed the superseded `IVS`→`I&S` (34×, corpus + pack); mapped the non-existent `NET`→real I&S network controls (resolving **DD-12 part a**); fixed out-of-range `IPY-05`→`IPY-04`; bumped AICM v1.0.3→v1.1; tightened loose `CCM v4`/`v4.0.12`→`v4.1`. A catalogue-derived validator confirms zero residual invalid codes. Catalogues kept in scratchpad only (no-redistribution licence). A `lint-ccm-aicm-citations.py` gate is queued next.
+
 ### PR #297 — Session-closing handoff (2026-06-24 resume session); FR-160 third-surface fix (2026-06-24)
 
 Session-closing handoff PR for the 2026-06-24 resume session (which shipped #293 Sweep 34 close-out, #294 PR-H, #295 metrics refresh, #296 PR-I). Discharges the #296 `/validate-pr` finding: `operations/register-asset-inventory.md` DR tier labels "Essential"/"Important" → "Business Essential"/"Standard" (`1.0.3`→`1.0.4`), so all three carriers (DR plan, SLM standard, asset inventory) now agree — completing FR-160's harmonization. Carries the batched #296 `/validate-pr` + `/retro` records and the session-handoff refresh (queues the relocation bundle R1/R2/R3 with full ripple map, then the integrity-tooling phase). Wound down on the SOP's large-series clause (the relocation bundle is the atomic-or-break series, deferred to a focused next session — matching a prior session's identical judgment). Skips its own trailing `/validate-pr` + `/retro` per the handoff-PR exception; Sweep 35 is the next `/resume` compensating control.

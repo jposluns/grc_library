@@ -2,7 +2,7 @@
 
 **Document Title:** Logging and Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.4.3\
+**Version:** 1.4.4\
 **Date:** 2026-06-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -20,7 +20,7 @@ This standard establishes enterprise-wide requirements for system logging, monit
 
 ## Purpose
 
-To ensure that consistent, auditable, and secure handling of log data aligned with ISO/IEC 27002:2022 §8.15, NIST SP 800-92, COBIT 2019 DSS05, CSA CCM v4.1 IVS-09 and SEF-01, and the EU NIS 2 Directive.
+To ensure that consistent, auditable, and secure handling of log data aligned with ISO/IEC 27002:2022 §8.15, NIST SP 800-92, COBIT 2019 DSS05, CSA CCM v4.1 I&S-09 and SEF-01, and the EU NIS 2 Directive.
 
 ---
 
@@ -136,11 +136,11 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ov
 
 | Control Area | ISO/IEC 27002 | NIST | COBIT 2019 | CSA CCM v4.1 | Legal |
 | --- | --- | --- | --- | --- | --- |
-| Log management | §8.15 | SP 800-92 | DSS05.01 | IVS-09 | GDPR Art. 32, CPPA |
+| Log management | §8.15 | SP 800-92 | DSS05.01 | I&S-09 | GDPR Art. 32, CPPA |
 | Time synchronization | §8.15.3 | SP 800-92 §4.2 | DSS01.03 | ISM-04 | SOX |
 | Central collection and retention | §8.15.5 | CSF Detect | DSS05.02 | SEF-01 | NIS 2 Directive |
 | Access and protection | §8.15.7 | SP 800-53 AC-6 | DSS05.04 | ISM-03 | Privacy laws |
-| AI system traceability | N/A | AI RMF | DSS05.06 | IVS-09 | ENISA AI Certification Scheme |
+| AI system traceability | N/A | AI RMF | DSS05.06 | I&S-09 | ENISA AI Certification Scheme |
 | Monitoring and alerting | §8.16 | CSF Respond | DSS05.03 | SEF-01 | Incident reporting laws |
 | BASC trade logging | N/A |, | N/A |, | BASC v6, WCO SAFE, ISO 28000 |
 
