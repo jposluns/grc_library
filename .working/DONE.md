@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #326 — §4.6a: gate 49 NIST CSF 2.0 category-membership + 17-cell remap (2026-06-24)
+
+Closed the §4.6a follow-up: extended gate 49 to validate each NIST token's CATEGORY against the authoritative CSF 2.0 22-Category set (wired `nist_csf_reference.py`, sourced from NIST CSWP 29), and remapped the 17 CSF-1.1-era cells the membership check flags (`ID.SC`×5 → `GV.SC`, `ID.BE`×1 → `GV.OC`, `PR.IP`×11 to per-row 2.0 categories). Gate 49 now checks well-formedness + membership; matrix `1.3.0`→`1.3.1`.
+
 ### PR #325 — gate 49: matrix control-code validity audit (2026-06-24)
 
 Built the §4.6a control-code-validity gate (`lint-matrix-control-codes.py`) over the FR-167 compliance matrix: ISO 27001:2022 Annex A membership + clause format, NIST CSF 2.0 well-formedness; CCM stays gate 48's job; customs/trade columns free-text/out-of-scope. Wired into all four surfaces + a regression class; 48→49 gates. NIST category-membership + the 17 CSF-1.1-cell remap deferred to the §4.6a follow-up (kept open in TODO; the maintainer supplied NIST CSWP.29 for it).

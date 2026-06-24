@@ -6,6 +6,38 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.305, PR #326
+
+Closed the §4.6a follow-up: extended gate 49 to validate NIST CSF 2.0 category-level membership (not only well-formedness) against the authoritative 22-Category set, and remapped the 17 CSF-1.1-era cells the new check flags.
+
+### Added
+
+- Membership check in [`tools/lint-matrix-control-codes.py`](../../tools/lint-matrix-control-codes.py): `check_nist_token` now runs a third check after well-formedness and Function-prefix membership, validating the full `FUNCTION.CATEGORY` against [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py) via `is_valid_category`. A well-formed token that names no CSF 2.0 Category emits a `nist-category` finding; where the token is a known CSF-1.1-era code, `relocation_note` appends where the content moved in 2.0.
+- [`tests/test_linters.py`](../../tests/test_linters.py): three new `MatrixControlCodeTests` membership cases (`test_nist_csf11_category_flagged` for `PR.IP`, `test_nist_relocated_supply_chain_category_flagged` for `ID.SC`, `test_nist_unknown_category_flagged` for a never-existed `GV.ZZ`). Class now 11 tests.
+
+### Changed
+
+- [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py): wired into gate 49 (previously committed as unwired groundwork). No content change; it is now imported by the linter.
+- [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) (`1.3.0` → `1.3.1`): the 17 CSF-1.1-era NIST-column cells remapped to CSF 2.0 Categories. `ID.SC`×5 → `GV.SC` (lines 53, 64, 130, 131, 132); `ID.BE`×1 → `GV.OC` (line 141); `PR.IP`×11 → per-row 2.0 Categories: lines 52 and 101 drop `PR.IP` keeping `PR.DS`; 105 → `ID.RA, PR.PS, DE.CM`; 113 → `PR.PS, DE.CM`; 115 → `PR.PS, PR.IR`; 118 → `PR.PS, ID.IM`; 159 → `GV.OC, GV.RM, ID.AM, PR.PS`; 160 → `GV.OC, GV.RM, PR.PS, ID.IM`; 161 → `ID.AM, PR.DS, PR.PS`; 162 → `GV.OC, PR.PS, ID.IM`; 165 → `GV.OC, ID.AM, PR.PS`.
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (`1.16.4` → `1.16.5`): gate-49 §6 narrative rewritten to state membership is validated against the `nist_csf_reference.py` 22-Category set (CSWP 29), dropping the "deferred" language. Gate-49 module docstring updated correspondingly (NIST section + the `4.6a` scope reference removed).
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the matrix and spec Version bumps.
+- [`TODO.md`](../../TODO.md): §4.6a deleted (follow-up complete); rotated to [`.working/DONE.md`](../../.working/DONE.md) keyed by PR #326.
+
+### Design rationale (PR.IP per-row remap)
+
+CSF 1.1 `PR.IP` ("Information Protection Processes and Procedures") was redistributed in 2.0, mainly to `PR.PS` (Platform Security), `PR.DS` (Data Security), and `ID.AM` (Asset Management). The per-row choice followed each document's subject: the two records/data-classification rows (52, 101) already carried `PR.DS`, so `PR.IP` was dropped as redundant; the vulnerability/production/cloud/change-management and architecture rows map to `PR.PS` as the platform-security-as-built successor. `ID.SC` → `GV.SC` and `ID.BE` → `GV.OC` are the documented 2.0 relocations and are near-mechanical.
+
+### Verification
+
+- `tools/lint-matrix-control-codes.py` flagged exactly 17 `nist-category` findings before the remap (matching the grep), and exits 0 after; a residue grep for `PR.IP`/`ID.SC`/`ID.BE` returns nothing.
+- `python3 -m unittest tests.test_linters.MatrixControlCodeTests` → 11 tests pass (incl. the three new membership cases and the updated false-positive guard, which now uses `PR.PS` since `PR.IP` is no longer format-valid-but-unchecked).
+- `python3 tools/build-taxonomy.py --check` and `python3 tools/build-portal.py --check` clean after regeneration.
+- `tools/run_all_audits.sh` → 49/49; `tools/run-pr-time-checks.sh` green against the merge base.
+
+### Discipline observation
+
+This PR carries the batched #325 `/validate-pr` (0 findings) and `/retro` rows committed in the groundwork commit. The membership remap applied the per-row `PR.IP` mapping I proposed for sign-off; the maintainer directed "do the NIST gate next now that you have the file", which I read as authorising the proposed mapping, so the per-row choices are documented in the design-rationale section above for review rather than held for per-row approval.
+
 ## 2026-06-24, Library Version 2026.06.304, PR #325
 
 Added gate 49 (Matrix control-code validity audit), the §4.6a maintainer-asked control-code-validity gate for the FR-167 compliance matrix, scoped to the columns no existing gate covers.

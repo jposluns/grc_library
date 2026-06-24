@@ -11,7 +11,7 @@ or drawn from a superseded edition) IS mechanically checkable, and this
 gate checks it for the columns whose frameworks expose a closed, well-formed
 code set.
 
-Scope (deliberately bounded; see TODO ``4.6a``):
+Scope (deliberately bounded):
 
   * **ISO 27001:2022 column** -- every token is validated as either an
     Annex A control code ``A.<theme>.<n>`` with theme in 5-8 and ``<n>``
@@ -22,19 +22,18 @@ Scope (deliberately bounded; see TODO ``4.6a``):
     The Annex A control counts and the clause range are structural facts
     of ISO/IEC 27001:2022, verified against multiple published references.
 
-  * **NIST CSF 2.0 column** -- every token is validated for
-    *well-formedness* only: it must be ``FUNCTION.CATEGORY`` with FUNCTION
-    one of the six CSF 2.0 Core Functions (GV, ID, PR, DE, RS, RC; the
-    matrix's own column key lists these). Category-level *membership*
-    (whether ``GV.OC`` etc. is a real CSF 2.0 category) is NOT validated
-    here: the authoritative CSF 2.0 category set is not yet encoded in the
-    repository, so validating membership would require either an
-    unverified hand-encoded set (forbidden) or an authoritative source not
-    currently reachable. Membership validation is deferred to a follow-up
-    once the CSF 2.0 category set is sourced (TODO ``4.6a``); that
-    follow-up will also catch the known CSF-1.1-era residue in this column
-    (``PR.IP``, ``ID.SC``, ``ID.BE``), which is format-valid and therefore
-    passes the well-formedness check.
+  * **NIST CSF 2.0 column** -- every token is validated for both
+    *well-formedness* and category-level *membership*. Well-formedness:
+    the token must be ``FUNCTION.CATEGORY`` with FUNCTION one of the six
+    CSF 2.0 Core Functions (GV, ID, PR, DE, RS, RC; the matrix's own
+    column key lists these). Membership: the full ``FUNCTION.CATEGORY``
+    code must name a real CSF 2.0 Category, validated against the
+    authoritative 22-Category set encoded in ``nist_csf_reference.py``
+    (transcribed from NIST CSWP 29 Table 1, *The NIST Cybersecurity
+    Framework (CSF) 2.0*). A token that is well-formed but names a
+    CSF-1.1-era category removed or relocated in 2.0 (``PR.IP``, ``ID.SC``,
+    ``ID.BE``, etc.) is flagged with a relocation note pointing at where
+    the content went in 2.0.
 
 Out of scope (by design):
 
@@ -68,6 +67,7 @@ from collections import namedtuple
 from pathlib import Path
 
 from lint_common import REPO_ROOT, read_text_safe
+from nist_csf_reference import is_valid_category, relocation_note
 
 MATRIX_REL = "compliance/matrix-grc-compliance-alignment.md"
 MATRIX_PATH = REPO_ROOT / MATRIX_REL
@@ -154,10 +154,11 @@ def check_iso_token(tok: str) -> tuple[str, str] | None:
 
 
 def check_nist_token(tok: str) -> tuple[str, str] | None:
-    """Return ``(rule, message)`` if ``tok`` is not a well-formed NIST token, else None.
+    """Return ``(rule, message)`` if ``tok`` is not a valid NIST token, else None.
 
-    Well-formedness only: FUNCTION.CATEGORY with FUNCTION a CSF 2.0 Core
-    Function. Category membership is intentionally not validated (deferred).
+    Three checks in order: well-formedness (FUNCTION.CATEGORY shape), Core
+    Function prefix membership, then full-code Category membership against
+    the authoritative CSF 2.0 set in ``nist_csf_reference``.
     """
     if tok == "N/A":
         return None
@@ -174,6 +175,18 @@ def check_nist_token(tok: str) -> tuple[str, str] | None:
             "nist-function",
             f"invalid NIST CSF 2.0 Core Function prefix in '{tok}' "
             f"(valid: GV, ID, PR, DE, RS, RC)",
+        )
+    if not is_valid_category(tok):
+        note = relocation_note(tok)
+        if note:
+            return (
+                "nist-category",
+                f"'{tok}' is not a CSF 2.0 Category ({note})",
+            )
+        return (
+            "nist-category",
+            f"'{tok}' is not a CSF 2.0 Category "
+            f"(no such FUNCTION.CATEGORY in the CSF 2.0 Core)",
         )
     return None
 
@@ -223,7 +236,8 @@ def main(argv: list[str]) -> int:
         print(
             f"OK: matrix framework-control codes valid in {rel} "
             f"(ISO 27001:2022 Annex A membership + clause format; "
-            f"NIST CSF 2.0 well-formedness; CCM/AICM covered by the CSA citation gate)."
+            f"NIST CSF 2.0 well-formedness + Category membership; "
+            f"CCM/AICM covered by the CSA citation gate)."
         )
         return 0
     print(f"=== {rel} ===")
@@ -232,7 +246,8 @@ def main(argv: list[str]) -> int:
     print(
         f"\nFAIL: {len(findings)} matrix control-code issue(s). ISO codes are "
         f"validated against the ISO/IEC 27001:2022 Annex A control set and "
-        f"clause range; NIST tokens against the CSF 2.0 Core Function prefixes.",
+        f"clause range; NIST tokens against the CSF 2.0 Core Function prefixes "
+        f"and the authoritative 22-Category set.",
         file=sys.stderr,
     )
     return 1
