@@ -3127,7 +3127,7 @@ documents:
   domain: "privacy"
   type: "Annex"
   title: "Privacy Jurisdiction Index"
-  version: "1.0.4"
+  version: "1.0.5"
   date: "2026-06-24"
   owner: "Data Protection Officer"
   approving_authority: "Governance Library Maintainer"

@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.1\
-**Date:** 2026-06-23\
+**Version:** 1.3.2\
+**Date:** 2026-06-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -112,9 +112,9 @@ Most adopting organisations cannot operate all of the library's controls on day 
 
 ### Tier 1 starter set (minimum viable)
 
-If your organisation is small (under approximately 200 staff, low regulatory exposure, no high-risk AI in production), start with these 15 documents and operate them well before adding more. This Tier 1 set overlaps the six-artefact Day-1 floor named in [`docs/template-quickstart.md`](template-quickstart.md): it shares four of those six artefacts, while the Day-1 floor additionally names the acceptable-use and identity-and-access-management policies that this Tier 1 set leaves for a later pass. Tier 1 in turn sits within the larger sector-conditional sets the [`docs/decision-tree.md`](decision-tree.md) builds (for example about 25 documents for an EU-fintech path). The three sizes are complementary starting points rather than competing ones.
+If your organisation is small (under approximately 200 staff, low regulatory exposure, no high-risk AI in production), start with these 17 documents and operate them well before adding more. This Tier 1 set is a strict superset of the six-artefact Day-1 floor named in [`docs/template-quickstart.md`](template-quickstart.md): it contains all six floor artefacts, including the acceptable-use and identity-and-access-management policies. Tier 1 in turn sits within the larger sector-conditional sets the [`docs/decision-tree.md`](decision-tree.md) builds (for example about 25 documents for an EU-fintech path). The three sizes are progressively-nested, complementary starting points rather than competing ones.
 
-**Approximate reading time**: 4 to 6 hours to read all 15 documents once at a moderate pace; substantially longer to internalise. **If you only read three** to get an immediate orientation, pick the three Governance documents in the table below (Charter + Framework + Role Authority Register); they ground the structure that the rest of Tier 1 operationalises.
+**Approximate reading time**: 5 to 7 hours to read all 17 documents once at a moderate pace; substantially longer to internalise. **If you only read three** to get an immediate orientation, pick the three Governance documents in the table below (Charter + Framework + Role Authority Register); they ground the structure that the rest of Tier 1 operationalises.
 
 | Type | Document |
 | --- | --- |
@@ -127,6 +127,8 @@ If your organisation is small (under approximately 200 staff, low regulatory exp
 | Procedure | [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md) |
 | Procedure | [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md) |
 | Policy | [`security/policy-information-security.md`](../security/policy-information-security.md) |
+| Policy | [`security/policy-acceptable-use.md`](../security/policy-acceptable-use.md) |
+| Policy | [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md) |
 | Standard | [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) |
 | Procedure | [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) |
 | Policy | [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) |

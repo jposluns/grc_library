@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.299, PR #321
+
+**FR-140: resolve the adopter starter-set divergence (count harmonization + floor-as-subset-of-Tier-1).**
+
+The library's adopter on-ramps presented divergent "starter set" sizes (6-artefact Day-1 floor in the quickstart, 15-document Tier 1 in the adopter guide, ~25-document sector path in the decision tree, ~37-artefact "Core reference set" in the README). The prose in the first three had already been reconciled (in #303 and follow-ups) to frame the 6/15/~25 sizes as complementary, progressively-larger sets. Two residual defects remained, which this PR closes: (1) the 6-artefact Day-1 floor named the acceptable-use and identity-and-access-management policies as non-negotiable, but the *larger* 15-document Tier 1 set omitted both, so the floor was not a subset of Tier 1 (a logical inconsistency in the guidance); and (2) the README still labelled its ~37-artefact catalogue "the current authoritative starter set", competing with the actual starter tiers. The maintainer chose Option A (add the two policies to Tier 1) over reframing the floor.
+
+### Changed
+
+- [`docs/adopter-guide.md`](../../docs/adopter-guide.md) (`1.3.1` → `1.3.2`): added [`security/policy-acceptable-use.md`](../../security/policy-acceptable-use.md) and [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md) to the Tier 1 table (15 → 17 documents), grouped with the existing information-security Policy row; updated the count (`15` → `17`) and reading-time estimate (`4 to 6 hours` → `5 to 7 hours`) at the section head; and rewrote the floor/Tier-1 reconciliation sentence from "shares four of those six artefacts, while the Day-1 floor additionally names [the two policies] that this Tier 1 set leaves for a later pass" to "is a strict superset of the six-artefact Day-1 floor … it contains all six floor artefacts".
+- [`docs/template-quickstart.md`](../../docs/template-quickstart.md) (`3.0.3` → `3.0.4`): rewrote the floor/Tier-1 reconciliation sentence (line 45) from "Four of them also appear in the adopter guide's 15-document Tier 1 set; the other two … the Day-1 floor adds on top" to "all six now also appear in the adopter guide's 17-document Tier 1 set, so the Day-1 floor is a strict subset of Tier 1".
+- [`docs/decision-tree.md`](../../docs/decision-tree.md) (`1.0.6` → `1.0.7`): updated the cross-reference "the 15-document Tier 1 starter set" → "the 17-document Tier 1 starter set" (the only `15`-count surface in this file).
+- [`README.md`](../../README.md) (Library `2026.06.298` → `2026.06.299`, README `1.9.169` → `1.9.170`): reframed the "Core reference set" lead sentence from "The current authoritative starter set is organized around these foundational artefacts:" to a description of the ~37-artefact curated catalogue an adopter grows toward, cross-referenced to the quickstart Day-1 floor and the adopter-guide Tier 1 as the actual starting points. The section heading was already "Core reference set"; only the body sentence that mislabelled it a "starter set" changed.
+- [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the four per-document version bumps.
+
+### Fixed (bundled #320 `/validate-pr` out-of-window finding, per recursion-avoidance)
+
+- [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md) (`1.0.4` → `1.0.5`): the "2026 Update summary" bullet said Bill C-27 "Remained under parliamentary study as of early 2026", contradicting the corpus consensus ([`privacy/jurisdictions/annex-privacy-canada.md`](../../privacy/jurisdictions/annex-privacy-canada.md):28, [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md):130) and #320's own glossary rewrite. Corrected to "Lapsed at the 2025-01-06 prorogation (died on the order paper); not in force and would require reintroduction … PIPEDA remains the in-force federal private-sector privacy law". Surfaced by the #320 `/validate-pr` (record: [`.working/validate-pr/2026-06-24-PR-320.md`](../validate-pr/2026-06-24-PR-320.md)), classified out-of-window (pre-existing line, scrub near-miss).
+
+### Verification
+
+`tools/run_all_audits.sh` green (48/48) post-commit; `tools/run-pr-time-checks.sh` green pre-push. The `15`→`17` count change was grepped corpus-wide before editing (`15 document` / `15-document` / Tier-1-count patterns) and confirmed bounded to the three on-ramp docs (the many other "Tier 1" mentions are unrelated forum/supplier/risk-tier senses; the minimum-viable-governance guideline carries no document count). Both added security-policy paths confirmed to exist (`ls`); the broken-link gate re-confirms.
+
+### Discipline observation
+
+This PR also carries the batched #320 working-state per recursion-avoidance: the #320 `/validate-pr` history row + per-PR record, the #320 `/retro` register row, and the TODO §4.8 retro-candidate addition (corpus-wide-scrub narrative-surface scope). The retro's pattern (multi-surface incompleteness on a corpus-wide edit) is the same class as the `:133` finding fixed here; the proposed guard rail (scan narrative/currency surfaces of every touched file, not only the lists/tables) was applied to *this* PR's `15`→`17` change via the pre-edit corpus-wide count grep.
+
 ## 2026-06-24, Library Version 2026.06.298, PR #320
 
 **DD-8: scrub the live-regime sense of CPPA to PIPEDA across the corpus.** CPPA (Consumer Privacy Protection Act, Part 1 of Canada's Bill C-27) lapsed at the 2025-01-06 prorogation and never became law; PIPEDA remains the in-force Canadian federal private-sector privacy regime. The corpus carried residual treatment of CPPA as a live/applicable regime; PR #264 (FR-138) scrubbed three privacy-document bodies and explicitly deferred the broader sweep, which is DD-8. The maintainer chose the **full principled scrub** option over named-targets-only or qualify-in-place.

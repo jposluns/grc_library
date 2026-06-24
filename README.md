@@ -4,8 +4,8 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.06.298 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.9.169 (semantic per-document version for this file)
+**Library Version:** 2026.06.299 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.9.170 (semantic per-document version for this file)
 
 ---
 
@@ -268,7 +268,7 @@ Owners and approving authorities must be role-based, not person-specific. Docume
 
 ## Core reference set
 
-The current authoritative starter set is organized around these foundational artefacts:
+This core reference set is the curated catalogue of the library's foundational artefacts across domains; it is the fuller set an adopter grows toward, not the day-one starting point. An adopter begins with the much smaller Day-1 floor and Tier 1 starter set (see [`docs/template-quickstart.md`](docs/template-quickstart.md) and [`docs/adopter-guide.md`](docs/adopter-guide.md)) and adds toward this catalogue as the programme matures. The foundational artefacts are:
 
 | Domain | Artefact |
 | --- | --- |
