@@ -2,7 +2,7 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.4.1\
+**Version:** 1.4.2\
 **Date:** 2026-06-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -87,7 +87,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **CISO** | Chief Information Security Officer. |
 | **CMS** | Compliance Management System (ISO 37301-aligned). |
 | **COBIT** | Control Objectives for Information and Related Technologies. ISACA framework. |
-| **CPPA** | Consumer Privacy Protection Act (Canada). Distinct from CCPA. |
+| **CPPA** | Consumer Privacy Protection Act (Canada); proposed in Bill C-27, which lapsed in 2025 (not in force). Distinct from CCPA and from the California Privacy Protection Agency. |
 | **CRO** | Chief Risk Officer. |
 | **CSA** | Cloud Security Alliance. |
 | **CSP** | Cloud Service Provider. (In financial-services contexts, CSP also denotes SWIFT Customer Security Programme; that sector annex uses the SWIFT meaning explicitly.) |
@@ -243,7 +243,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **PII** | Personally Identifiable Information. |
 | **PIM** | Privileged Identity Management. |
 | **PIP** | Partners in Protection (Canada). CBSA trusted-trader programme. See [`compliance/logistics/register-pip-canada-controls.md`](../compliance/logistics/register-pip-canada-controls.md). |
-| **PIPEDA** | Personal Information Protection and Electronic Documents Act (Canada). Being superseded by CPPA. |
+| **PIPEDA** | Personal Information Protection and Electronic Documents Act (Canada). The in-force federal private-sector privacy law; the proposed CPPA (Bill C-27) that would have replaced it lapsed in 2025. |
 | **PIPL** | Personal Information Protection Law (China). |
 | **PKI** | Public Key Infrastructure. |
 | **PLC** | Programmable Logic Controller. An industrial computer used in OT/ICS to automate electromechanical processes. PLCs are foundational components of most ICS deployments. |

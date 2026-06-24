@@ -2,7 +2,7 @@
 
 **Document Title:** Logging and Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.4.4\
+**Version:** 1.4.5\
 **Date:** 2026-06-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -92,7 +92,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ov
 4.1 Security and audit logs shall be retained per the tiered retention periods in [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), which is authoritative and sets retention by log class (for example: access logs 1 year, privileged-access session logs 2 years, SIEM event logs 1 year hot plus 2 years cold, security incident records 5 years, AI decision and detection logs 7 years). Sector-mandated logs are retained longer where legally required, including BASC-governed trade and customs logs required for regional audit and customs validation.
 4.2 Log archives must be stored in write-once, read-many (WORM) or tamper-evident repositories, with BASC trade-data logs maintained in secure BASC-approved data centres or validated cloud regions.
 4.3 Access to logs must be limited to authorized personnel with MFA and role-based access controls.
-4.4 Logs containing personal, regulated, or customs data must be protected in accordance with GDPR, CPPA, PIPL, and BASC data-protection requirements.
+4.4 Logs containing personal, regulated, or customs data must be protected in accordance with GDPR, PIPEDA, PIPL, and BASC data-protection requirements.
 
 ### 5. Monitoring and alerting
 
@@ -136,7 +136,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ov
 
 | Control Area | ISO/IEC 27002 | NIST | COBIT 2019 | CSA CCM v4.1 | Legal |
 | --- | --- | --- | --- | --- | --- |
-| Log management | §8.15 | SP 800-92 | DSS05.01 | I&S-09 | GDPR Art. 32, CPPA |
+| Log management | §8.15 | SP 800-92 | DSS05.01 | I&S-09 | GDPR Art. 32, PIPEDA |
 | Time synchronization | §8.15.3 | SP 800-92 §4.2 | DSS01.03 | ISM-04 | SOX |
 | Central collection and retention | §8.15.5 | CSF Detect | DSS05.02 | SEF-01 | NIS 2 Directive |
 | Access and protection | §8.15.7 | SP 800-53 AC-6 | DSS05.04 | ISM-03 | Privacy laws |

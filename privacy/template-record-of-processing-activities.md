@@ -2,8 +2,8 @@
 
 **Document Title:** Record of Processing Activities Template\
 **Document Type:** Template\
-**Version:** 1.0.5\
-**Date:** 2026-06-23\
+**Version:** 1.0.6\
+**Date:** 2026-06-24\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md)\
@@ -22,7 +22,7 @@
 
 ## Purpose
 
-This template defines the structure of a Record of Processing Activities (ROPA) sufficient to satisfy GDPR Article 30 and equivalent record-keeping obligations under UK GDPR, LGPD, PIPEDA, CPPA, PIPL, and similar privacy regimes. It provides separate field sets for the controller view and the processor view. Adopting organisations populate one row per processing activity per controller or processor role.
+This template defines the structure of a Record of Processing Activities (ROPA) sufficient to satisfy GDPR Article 30 and equivalent record-keeping obligations under UK GDPR, LGPD, PIPEDA, PIPL, and similar privacy regimes. It provides separate field sets for the controller view and the processor view. Adopting organisations populate one row per processing activity per controller or processor role.
 
 A populated ROPA is sensitive operational data and must not be published in this public CC BY-SA 4.0 repository. Use this template structurally; populate, classify, and store internally.
 

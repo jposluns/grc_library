@@ -2,7 +2,7 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.6.3\
+**Version:** 1.6.4\
 **Date:** 2026-06-24\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
@@ -310,7 +310,7 @@ When referencing standards and frameworks, the AI must only reference publicly r
 
 - GDPR: General Data Protection Regulation (EU)
 - UK GDPR: United Kingdom General Data Protection Regulation
-- PIPEDA / CPPA: Canadian privacy legislation
+- PIPEDA: Canadian privacy legislation
 - AIDA: Artificial Intelligence and Data Act (Canada)
 - PIPL: Personal Information Protection Law (China)
 - LGPD: Lei Geral de Proteção de Dados (Brazil)

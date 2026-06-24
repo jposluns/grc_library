@@ -2,8 +2,8 @@
 
 **Document Title:** Healthcare Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.1.1\
-**Date:** 2026-06-23\
+**Version:** 1.1.2\
+**Date:** 2026-06-24\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -50,7 +50,7 @@ This annex applies where an organisation:
 
 | Regulation / Standard | Authority | Scope |
 |---|---|---|
-| **PIPEDA / CPPA** (personal health information provisions) | OPC | Health information about identifiable individuals |
+| **PIPEDA** (personal health information provisions) | OPC | Health information about identifiable individuals |
 | **PHIPA**: Personal Health Information Protection Act | Ontario IPC | Ontario health information custodians |
 | **PIPA** (Alberta) | OIPC Alberta | Alberta health organisations |
 | **HIA**: Health Information Act | Alberta | Alberta custodians of health information |

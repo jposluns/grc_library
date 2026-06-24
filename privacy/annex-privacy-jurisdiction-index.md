@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.3\
-**Date:** 2026-06-22\
+**Version:** 1.0.4\
+**Date:** 2026-06-24\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -42,7 +42,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 
 | Jurisdiction | File |
 | --- | --- |
-| Canada (PIPEDA, CPPA, Quebec Law 25, AIDA) | [`privacy/jurisdictions/annex-privacy-canada.md`](jurisdictions/annex-privacy-canada.md) |
+| Canada (PIPEDA, CPPA (pending), Quebec Law 25, AIDA) | [`privacy/jurisdictions/annex-privacy-canada.md`](jurisdictions/annex-privacy-canada.md) |
 | United States (FTC Act, CCPA/CPRA, state laws) | [`privacy/jurisdictions/annex-privacy-united-states.md`](jurisdictions/annex-privacy-united-states.md) |
 | Brazil (LGPD) | [`privacy/jurisdictions/annex-privacy-brazil.md`](jurisdictions/annex-privacy-brazil.md) |
 | Latin America (Argentina, Mexico, Colombia, Chile, Peru) | [`privacy/jurisdictions/annex-privacy-latin-america.md`](jurisdictions/annex-privacy-latin-america.md) |

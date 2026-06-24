@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.2\
-**Date:** 2026-06-23\
+**Version:** 1.1.3\
+**Date:** 2026-06-24\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -58,7 +58,7 @@ All suppliers must complete a Supplier Pre-Qualification Questionnaire (SPQ) bef
 - Corporate registration, ownership structure, and beneficial ownership disclosure.
 - Financial stability and credit standing.
 - Applicable security certifications (for example, ISO/IEC 27001, SOC 2; plus sector-specific certifications such as BASC where the supplier is in scope of a covered programme, per [`compliance/`](../compliance/)).
-- Data privacy compliance posture (GDPR, CPPA, PIPL, LGPD).
+- Data privacy compliance posture (GDPR, PIPEDA, PIPL, LGPD).
 - Environmental, social, and governance (ESG) and sustainability disclosures.
 
 Suppliers providing AI or cloud services must additionally submit:
@@ -87,7 +87,7 @@ Assessments must be conducted across all applicable domains. Suppliers scoring b
 | Domain | Assessment Focus | Applicable Standards |
 | --- | --- | --- |
 | Security Controls | Encryption, access control, incident response, vulnerability management. | ISO/IEC 27001, SOC 2. |
-| Privacy Compliance | Data protection obligations, consent management, cross-border transfer controls. | GDPR, CPPA, LGPD, PIPL. |
+| Privacy Compliance | Data protection obligations, consent management, cross-border transfer controls. | GDPR, PIPEDA, LGPD, PIPL. |
 | Business Continuity | Recovery capabilities, resilience planning, dependency management. | ISO 22301, COBIT DSS04. |
 | AI Governance | Model transparency, bias controls, fairness, auditability. | ISO/IEC 42001, CSA AICM. |
 | Trade Security | Supply chain security programme compliance (where the supplier is in scope). | WCO SAFE Framework 2021, ISO 28000:2022; plus sector-specific overlays per [`compliance/`](../compliance/). |
