@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.301, PR #322
+
+`.working/` + TODO/README housekeeping for local project: **session-closing handoff PR.** Refreshed [`.working/session-handoff.md`](../session-handoff.md) to post-#321 state (FR-140 and DD-8 marked closed; the FR-167 next-batch pointer corrected from the stale "dev-security" to supply-chain, since dev-security shipped in #317; the FR-167 control-code-validity gate recommendation recorded as TODO §4.6a; the README catalogue-label NOTE tracked in TODO), batched the #321 `/validate-pr` (1 out-of-window NOTE, README catalogue label) and `/retro` (candidates D/E/F) register rows into [`../validate-pr/history.md`](../validate-pr/history.md) and [`../improvement-log.md`](../improvement-log.md), and added the [`../validate-pr/2026-06-24-PR-321.md`](../validate-pr/2026-06-24-PR-321.md) record. No corpus-content change. Per the handoff-PR loop-break (PR-workflow step 5a exception) this PR skips its own trailing `/validate-pr` + `/retro`; the next `/resume`'s corpus-wide Sweep 40 is the stronger compensating control. Library `2026.06.300` to `2026.06.301`; README `1.9.171` to `1.9.172`.
+
 ## 2026-06-24, Library Version 2026.06.300, PR #321
 
 **FR-140: resolve the adopter starter-set divergence (count harmonization + floor-as-subset-of-Tier-1).**
