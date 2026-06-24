@@ -6,6 +6,40 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.293, PR #315
+
+**Sweep 39 close-out: fix two pre-existing WCO SAFE and marker inconsistencies in the GRC compliance alignment matrix.** The `/resume` corpus-wide validation sweep (Sweep 39) for the new session, re-examining the whole corpus plus the #313 and #314 deltas, with the two surfaced findings fixed and the outstanding #314 QA records backfilled.
+
+### Context
+
+The prior session advanced `main` to PR #314 (project-governance separation spec) but paused right after the merge without a session-closing handoff PR, so the session-handoff snapshot was stale at #312-content and #314's own per-PR `/validate-pr` and `/retro` were never run. `/resume` ran Sweep 39 as its first substantive task (the loop-break compensating control). The corpus-wide sweep is the stronger superset of #314's missing diff-scoped per-PR sweep and subsumes it: Subagent A formally deep-read #314's full diff (the new spec plus both wiring surfaces) and returned 0 findings on #314's content.
+
+### Fixed
+
+- [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) (`1.2.0` to `1.2.1`):
+  - The Records Retention and Destruction row's WCO SAFE cell: `Pillar II (Customs-to-Customs)` to `Pillar II (Customs-to-Business)`. The numeral "Pillar II" was correct (records retention and documentation security is a Customs-to-Business, AEO and ICT matter), but the parenthetical sub-name contradicted the matrix's own column key and its framework-coverage summary, both of which fix Pillar I as Customs-to-Customs and Pillar II as Customs-to-Business, and contradicted all five sibling Pillar II cells. The `§7.5` standard reference is preserved; no fabrication.
+  - Four PIP-column cells (the Exception-and-Risk-Acceptance policy, the Document-Index register, the BASC-IT-responsibilities register, and the BASC-IT-compliance-KPIs register rows): the legacy bare `: ` marker to `N/A`, normalizing the four cells still using the pre-legend form.
+  - The legend paragraph: removed the `(or the legacy marker ": ")` accommodation clause, since no legacy markers remain after the normalization.
+
+### Changed
+
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) to reflect the matrix `1.2.1` bump ([`docs/portal.md`](../../docs/portal.md) unchanged).
+- [`TODO.md`](../../TODO.md): the validation-sweep cursor advanced from Sweep 38 to Sweep 39.
+
+### QA records (this PR's batch)
+
+- Sweep 39 history row in [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) plus the per-iteration detail file [`.working/validate-sweeps/2026-06-24-sweep39-iter1.md`](../validate-sweeps/2026-06-24-sweep39-iter1.md).
+- The outstanding PR #314 `/validate-pr` row in [`.working/validate-pr/history.md`](../validate-pr/history.md), recorded as subsumed by Sweep 39, and the backfilled #314 `/retro` row in [`.working/improvement-log.md`](../improvement-log.md).
+- This PR's own `/validate-pr` and `/retro` batch into the next PR (the first M-cluster PR) per recursion-avoidance.
+
+### Discipline observation
+
+The two findings were surfaced as out-of-window (pre-existing) with named options per the validation-sweep step-6 protocol, not auto-fixed; the maintainer chose "fix both, dedicated PR". Apply-time orchestrator correction: both subagents attributed the line-52 contradiction to PR #313's matrix-wide WCO relabel, but `git log -S 'Pillar II (Customs-to-Customs)'` and `git show` of #313 showed the string predates #313 (introduced at the initial public release) and #313 touched the Records Retention row only as an unchanged context line. The finding (the contradiction) is real; the attribution was an inference, corrected before routing per the validate-inference-before-action discipline.
+
+### Verification
+
+`tools/run_all_audits.sh` 48 of 48 on the committed state; `tools/run-pr-time-checks.sh` green (D1 both CHANGELOG files, D2 version bumps, D3 no new dashes, gate 45 sweep cursor) against the merge base. Library `2026.06.292` to `2026.06.293`; README `1.9.163` to `1.9.164`.
+
 ## 2026-06-24, Library Version 2026.06.292, PR #314
 
 **Project-governance separation specification; closes R2 by principle.** Spec-only PR: defines the corpus-versus-project governance boundary and queues the migration. No files move.
