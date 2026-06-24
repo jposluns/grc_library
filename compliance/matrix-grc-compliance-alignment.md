@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.1.1\
+**Version:** 1.1.2\
 **Date:** 2026-06-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -163,7 +163,7 @@ This matrix is being expanded toward comprehensive coverage of the library's sub
 
 | Framework | Coverage emphasis |
 | --- | --- |
-| CSA CCM v4.1 | Broad applicability across the IT and security documents, spanning the GRC, IAM, DSP, LOG, IVS, NET, CEK, TVM, SEF, BCR, STA, DCS, UEM, HRS, CCC, AIS, and IPY families |
+| CSA CCM v4.1 | Broad applicability across the IT and security documents, spanning the GRC, IAM, DSP, LOG, I&S, CEK, TVM, SEF, BCR, STA, DCS, UEM, HRS, CCC, AIS, and IPY families |
 | ISO/IEC 27001:2022 | Broad applicability across Annex A controls and management-system clauses §4 to §10 |
 | NIST CSF 2.0 | Broad applicability across the GV, ID, PR, DE, RS, RC functions |
 | CTPAT | Focused on security, operations, supply-chain, and resilience documents; not applicable to most non-logistics IT-governance content |

@@ -2,7 +2,7 @@
 
 **Document Title:** Security Baseline and Standards Reference\
 **Document Type:** Standard\
-**Version:** 1.1.2\
+**Version:** 1.1.3\
 **Date:** 2026-06-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -46,7 +46,7 @@ In the event of conflict, higher layers take precedence.
 | Framework | Version | Role |
 | --- | --- | --- |
 | CSA Cloud Controls Matrix (CCM) | v4.1.0 | Primary cloud security control framework. 207 controls across 17 domains. |
-| CSA AI Controls Matrix (AICM) | v1.0.3 | AI-specific controls. Mandatory for all AI/ML workloads. |
+| CSA AI Controls Matrix (AICM) | v1.1.0 | AI-specific controls. Mandatory for all AI/ML workloads. |
 | COBIT | 2019 | IT governance framework. Process-level traceability for audit and board reporting. |
 | ISO/IEC 27001:2022 | 2022 | Information Security Management System (ISMS). |
 | ISO/IEC 27002:2022 | 2022 | Security controls implementation guidance. |
