@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #314 — Project-governance separation specification; R2 closed by principle (2026-06-24)
+
+Added `governance/specification-project-governance-separation.md` defining the corpus-versus-project governance boundary: the reusable-pattern-versus-operational-instance criterion, the one-way dependency rule (project may cite corpus; corpus must not cite project), the `.project-governance/` destination convention (dot-prefixed, not exempt, fully audited), and the phased migration procedure. Closes R2: the citation-verification cluster is classified project governance and migrates in Phase 1; `register-canonical-citations.md` resolved to stays-corpus; R1 confirmed correct in `tools/`.
+
 ### PR #310 — DD-2/3/11: risk-vocabulary harmonization to the canonical ERM scale (medium) (2026-06-24)
 
 Aligned every risk-scoring scale label across four docs to the canonical ERM scale (likelihood Very Low/Low/Medium/High/Very High; impact Negligible/Minor/Moderate/Major/Catastrophic; rating Low/Medium/High/Critical): concentration-risk (Rare…Almost Certain → canonical likelihood; Severe → Catastrophic), operational-risk-register (Moderate → Medium likelihood + sample rating; Severe → Catastrophic impact; casing), procedure (impact-5 Critical → Catastrophic), and enterprise-risk-register template (impact-5 Critical → Catastrophic in two fields + the matrix header). The rating-top "Critical" (17-25) was preserved everywhere; the impact-5/rating "Critical" conflation is resolved. Corpus-wide grep confirmed all risk-scoring docs now agree.

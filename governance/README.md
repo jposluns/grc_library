@@ -2,7 +2,7 @@
 
 **Document Title:** Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.10.5\
+**Version:** 1.10.6\
 **Date:** 2026-06-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -65,6 +65,7 @@ This directory contains the enterprise-wide governance foundation of the GRC Doc
 | Register | Document Review Schedule Register | [`governance/register-document-review-schedule.md`](register-document-review-schedule.md) |
 | Template | Document Review Record Template | [`governance/template-document-review-record.md`](template-document-review-record.md) |
 | Template | Library Health Report Template | [`governance/template-library-health-report.md`](template-library-health-report.md) |
+| Specification | Project Governance Separation Specification | [`governance/specification-project-governance-separation.md`](specification-project-governance-separation.md) |
 
 ---
 
