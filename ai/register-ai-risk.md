@@ -2,8 +2,8 @@
 
 **Document Title:** AI Risk Register\
 **Document Type:** Register\
-**Version:** 1.0.3\
-**Date:** 2026-06-23\
+**Version:** 1.0.4\
+**Date:** 2026-06-24\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -35,7 +35,7 @@ Each AI risk entry must contain the following fields:
 | **Threat Source** | Technical failure / Human error / External threat / Regulatory change |
 | **Affected Stakeholders** | Internal users / Customers / Regulators / Third parties |
 | **Inherent Likelihood** | 1 (Very Low) to 5 (Very High) |
-| **Inherent Impact** | 1 (Negligible) to 5 (Critical) |
+| **Inherent Impact** | 1 (Negligible) to 5 (Catastrophic) |
 | **Inherent Risk Score** | Likelihood × Impact |
 | **Current Controls** | Description of controls currently in place |
 | **Control Effectiveness** | Weak / Partial / Effective |
