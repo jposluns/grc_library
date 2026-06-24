@@ -4,8 +4,8 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.06.299 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.9.170 (semantic per-document version for this file)
+**Library Version:** 2026.06.300 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.9.171 (semantic per-document version for this file)
 
 ---
 
@@ -287,7 +287,9 @@ This core reference set is the curated catalogue of the library's foundational a
 | Compliance | Compliance, Audit, and CAPA Management Policy |
 | Compliance | Global Regulatory Applicability Register |
 | Security | Information Security Policy |
+| Security | Acceptable Use Policy |
 | Security | Identity and Access Management Policy |
+| Security | Security Incident Response Procedure |
 | Security | Logging and Monitoring Standard |
 | Security | Data Classification and Handling Standard |
 | AI | AI Governance and Risk Framework |

@@ -32,7 +32,7 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ### PR #321 — FR-140 (high): adopter starter-set divergence (2026-06-24)
 
-Resolved the starter-set count/scope divergence: added `policy-acceptable-use` and `policy-identity-and-access-management` to the adopter-guide Tier 1 set (15 → 17 docs) so the 6-artefact Day-1 floor is now a strict subset, harmonized the 15→17 count and reconciliation prose across quickstart/adopter-guide/decision-tree, and reframed the README "Core reference set" so its ~37-artefact catalogue no longer competes with the starter tiers. Bundled the #320 `/validate-pr` out-of-window fix (annex-privacy-jurisdiction-index Bill C-27 "under parliamentary study" → lapsed-2025 consensus) per recursion-avoidance.
+Resolved the starter-set count/scope divergence: added `policy-acceptable-use` and `policy-identity-and-access-management` to the adopter-guide Tier 1 set (15 → 17 docs) so the 6-artefact Day-1 floor is now a strict subset, harmonized the 15→17 count and reconciliation prose across quickstart/adopter-guide/decision-tree, and reframed the README "Core reference set" (and added the two floor artefacts it was missing, acceptable-use and incident-response, ~37 → ~39) so its catalogue no longer competes with the starter tiers and the floor nests cleanly inside it. Bundled the #320 `/validate-pr` out-of-window fix (annex-privacy-jurisdiction-index Bill C-27 "under parliamentary study" → lapsed-2025 consensus) per recursion-avoidance.
 
 ### PR #320 — DD-8: CPPA-as-live → PIPEDA scrub (medium) (2026-06-24)
 
