@@ -192,16 +192,14 @@ func securityHeaders(next http.Handler) http.Handler {
 ## TLS configuration
 
 ```go
-// CORRECT: TLS 1.2 minimum, secure cipher suites
+// CORRECT: TLS 1.3 minimum (TLS 1.2 and below are prohibited by the
+// cryptography standard)
 tlsConfig := &tls.Config{
-    MinVersion: tls.VersionTLS12,
-    CipherSuites: []uint16{
-        tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-        tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-        tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
-        tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
-    },
-    PreferServerCipherSuites: true,
+    MinVersion: tls.VersionTLS13,
+    // TLS 1.3 cipher suites are not configurable in Go: the runtime selects
+    // from a fixed AEAD set (AES-GCM, ChaCha20-Poly1305). The CipherSuites and
+    // PreferServerCipherSuites fields apply only to TLS 1.2 and below, so they
+    // are omitted here.
 }
 server := &http.Server{
     TLSConfig: tlsConfig,
