@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #325 — gate 49: matrix control-code validity audit (2026-06-24)
+
+Built the §4.6a control-code-validity gate (`lint-matrix-control-codes.py`) over the FR-167 compliance matrix: ISO 27001:2022 Annex A membership + clause format, NIST CSF 2.0 well-formedness; CCM stays gate 48's job; customs/trade columns free-text/out-of-scope. Wired into all four surfaces + a regression class; 48→49 gates. NIST category-membership + the 17 CSF-1.1-cell remap deferred to the §4.6a follow-up (kept open in TODO; the maintainer supplied NIST CSWP.29 for it).
+
 ### PR #324 — handoff asserted-expectations convention (2026-06-24)
 
 Codified the maintainer-accepted handoff-QA convention: a session-closing handoff records what it asserts clean (scoped to surfaces it actually verified) plus a green-at-sha mechanical baseline, and the next `/resume` `/validate` cross-checks findings against those claims. Replaces the rejected (wasteful, noisy) two-run-diff idea. Not previously in TODO; surfaced as the maintainer's `/resume` design question this session.

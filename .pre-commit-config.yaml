@@ -358,3 +358,10 @@ repos:
         language: system
         pass_filenames: false
         types: [markdown]
+
+      - id: lint-matrix-control-codes
+        name: Matrix control-code validity audit
+        entry: python3 tools/lint-matrix-control-codes.py
+        language: system
+        pass_filenames: false
+        types: [markdown]

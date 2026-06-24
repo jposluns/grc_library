@@ -6,6 +6,41 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.304, PR #325
+
+Added gate 49 (Matrix control-code validity audit), the §4.6a maintainer-asked control-code-validity gate for the FR-167 compliance matrix, scoped to the columns no existing gate covers.
+
+### Added
+
+- [`tools/lint-matrix-control-codes.py`](../../tools/lint-matrix-control-codes.py): the gate-49 linter. Scans [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) (default target; a path arg overrides for the regression harness), locates the framework-column header, and validates: **ISO 27001:2022** tokens as Annex A control codes (`A.5`-`A.8`, each within its theme's verified control count: A.5 37, A.6 8, A.7 14, A.8 34) or management-system clauses (`§4`-`§10`); **NIST CSF 2.0** tokens for well-formedness (`FUNCTION.CATEGORY` with a Core Function prefix GV/ID/PR/DE/RS/RC). Exit 0/1/2.
+- [`tests/test_linters.py`](../../tests/test_linters.py): a `MatrixControlCodeTests` class (8 tests, 7 positive/negative rule cases + a HEAD smoke test) exercising every rule plus false-positive guards (valid codes pass; format-valid `PR.IP` passes; CCM codes are not policed here).
+
+### Changed
+
+- Wired gate 49 "Matrix control-code validity audit" into all four audit surfaces: [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh), [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml), [`.pre-commit-config.yaml`](../../.pre-commit-config.yaml), and the §6 inventory + narrative of [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (row 49 + a gate-49 description paragraph).
+- Gate count 48 → 49: [`TODO.md`](../../TODO.md) "all 49 gates" (gate 39 enforces corpus prose; `.working/` snapshot counts left to drift per the snapshot convention).
+- [`TODO.md`](../../TODO.md) §4.6a rewritten from a gate *proposal* to the **NIST CSF 2.0 membership follow-up** (gate shipped; remaining = encode the CSF 2.0 category set from the maintainer-supplied NIST CSWP.29, add the membership check, and remap the 17 CSF-1.1-era cells it will flag).
+
+### Design rationale (bounded scope)
+
+The §4.6a item asked for a control-code-validity gate over the matrix. Three scope decisions, each to honour "reuse, don't duplicate" and "no fabrication":
+
+1. **CCM via gate 48, not re-checked here.** Gate 48 (`lint-ccm-aicm-citations.py`) already validates CCM/AICM codes corpus-wide, and the matrix is not in its exempt set, so the matrix's CCM column is already gated. Re-validating it in gate 49 would be redundant coverage; gate 49 documents the delegation instead.
+2. **NIST well-formedness now, category-membership deferred.** Validating NIST *category* membership requires the authoritative CSF 2.0 category set, which could not be sourced at build time (WebFetch of NIST/csf.tools returned 403; encoding from memory would be fabrication for a correctness gate). The maintainer then supplied NIST CSWP.29 locally; encoding it + the membership check + the consequent 17-cell remap is the §4.6a follow-up (its own PR, because the remap is semantic).
+3. **Customs/trade columns out of scope.** CTPAT/PIP/BASC/WCO SAFE/AEO-S express requirements as free-text labels with no closed code catalogue; there is nothing to validate membership against.
+
+### Discipline observation
+
+Building the gate surfaced (and confirmed by grep) that the matrix's "NIST CSF 2.0" column carries 17 CSF-1.1-era codes (`PR.IP` ×11, `ID.SC` ×5, `ID.BE` ×1) that are format-valid but not CSF 2.0 categories. These were escalated to the maintainer with named options; the chosen path was to ship the CCM+ISO gate now and defer NIST membership + the remap to the follow-up. The deferral is honest (the gate's docstring, the §6 narrative, and §4.6a all state it), not a silenced finding.
+
+### Verification
+
+- `tools/lint-matrix-control-codes.py` exits 0 on the live matrix; a throwaway negative fixture confirmed it flags bad ISO themes/ranges/clauses and bad NIST functions.
+- `python3 -m unittest tests.test_linters.MatrixControlCodeTests` → 8 tests pass.
+- Gate 35 (four-surface parity) and gate 39 (gate-count consistency) pass with the new gate. `tools/run_all_audits.sh` → 49/49.
+
+Library `2026.06.303` to `2026.06.304`; README `1.9.174` to `1.9.175`.
+
 ## 2026-06-24, Library Version 2026.06.303, PR #324
 
 `.claude/` + `.working/` process codification: the maintainer-accepted handoff asserted-expectations convention (the design question the maintainer raised at this session's `/resume` and decided "accept + codify now" after the assistant pressure-tested the rejected two-run-diff alternative).
