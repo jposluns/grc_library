@@ -2,8 +2,8 @@
 
 **Document Title:** Control Testing Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
-**Date:** 2026-06-21\
+**Version:** 1.0.3\
+**Date:** 2026-06-24\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md)\
@@ -146,7 +146,7 @@ The chosen sample size and selection method are recorded in the test's "Sampling
 | ISO 19011:2018 | Guidelines for Auditing Management Systems | Control testing methodology |
 | NIST SP 800-53A | Assessing Security and Privacy Controls | Control testing guidance |
 | COBIT 2019 | MEA01: Monitor, Evaluate, and Assess Performance | Control monitoring and assurance |
-| CSA CCM v4.1 | GOV-09: Governance and Continuous Improvement | Continuous control assurance |
+| CSA CCM v4.1 | A&A-02, A&A-05: Independent Assessments; Audit Management Process | Continuous control assurance |
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Production Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.4\
-**Date:** 2026-06-23\
+**Version:** 1.1.5\
+**Date:** 2026-06-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](../dev-security/standard-security-quick-reference.md)\
@@ -32,7 +32,7 @@ This standard defines security requirements for production infrastructure and op
 
 **Remote access:** All on-premises remote administration must originate from a Privileged Access Workstation (PAW) or approved jump host on the Management VLAN. Direct RDP/SSH from general workstations is prohibited. External vendor access must use the approved path or VPN with MFA, subject to PAM workflow.
 
-**Framework:** CSA CCM IVS-03, IVS-06, IVS-08, IVS-09
+**Framework:** CSA CCM I&S-03, I&S-06, I&S-08, I&S-09
 
 ---
 
@@ -163,7 +163,7 @@ The following must be maintained as living artefacts:
 
 **Endpoint protection and SIEM:** Enterprise endpoint protection must be deployed on all servers. Hybrid server management is required for all on-premises servers enrolled in cloud management. All endpoint protection alerts must be forwarded to the SIEM. SIEM workspace deletion is restricted to break-glass roles.
 
-**Framework:** CSA CCM IVS-01 through IVS-09, LOG-01 through LOG-14
+**Framework:** CSA CCM I&S-01 through I&S-09, LOG-01 through LOG-14
 
 ---
 
@@ -218,9 +218,9 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 
 ## Framework alignment
 
-| Control Area | ISO 27001:2022 | CSA CCM v4 | NIST SP 800-53 | NIST SSDF |
+| Control Area | ISO 27001:2022 | CSA CCM v4.1 | NIST SP 800-53 | NIST SSDF |
 | --- | --- | --- | --- | --- |
-| Network security | A.8.20 to 8.23 | IVS-01 to 09 | SC-7, SC-8 | N/A |
+| Network security | A.8.20 to 8.23 | I&S-01 to 09 | SC-7, SC-8 | N/A |
 | Backup and recovery | A.8.13 to 8.14 | BCR-08 to 10 | CP-9, CP-10 | N/A |
 | Monitoring and incident response | A.8.15 to 8.16, A.5.24 to 5.28 | LOG-01 to 14, SEF-01 to 10 | IR-1 to 8, SI-4 | RV.1 |
 | Vulnerability management | A.8.8 | TVM-03 to 12 | RA-5, SI-2 | PO.5 |

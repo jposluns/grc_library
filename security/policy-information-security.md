@@ -2,8 +2,8 @@
 
 **Document Title:** Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.3.3\
-**Date:** 2026-06-22\
+**Version:** 1.3.4\
+**Date:** 2026-06-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -136,7 +136,7 @@ Where the organisation participates in a sector-specific security programme (for
 | Governance and ISMS | Clauses 4 to 10 | 5.1, 5.2 (policies and roles) | Identify, Protect | DSS01.01 | ISM-01 |
 | Asset Management | A.5.9 to A.5.11 | 5.9 to 5.14 | Identify | DSS01.02 | ISM-02 |
 | Access Control | A.5.15 to A.5.20 | 5.15 to 5.18; 8.2 to 8.5 | Protect | DSS05 | IAM-01 to 09 |
-| Network and Cloud Security | A.5.21 to A.5.23 | 5.14 (information transfer); 8.20 to 8.24 (network security and cryptography) | Protect, Detect | DSS01, DSS04 | IVS-01 to 10 |
+| Network and Cloud Security | A.5.21 to A.5.23 | 5.14 (information transfer); 8.20 to 8.24 (network security and cryptography) | Protect, Detect | DSS01, DSS04 | I&S-01 to 10 |
 | Vulnerability and Patch | A.8.8, A.8.9 | 8.8 (technical vulnerabilities); 8.9 (configuration management) | Detect, Respond | DSS05 | ISM-04 |
 | Incident Management | A.5.24 | 5.24 to 5.30; 6.8 (event reporting) | Respond, Recover | DSS02 | ISM-05 |
 | AI Model Security | A.8 (emerging) | N/A | Protect, Detect | DSS01.06 | ISM-10 |

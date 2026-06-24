@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.1.0\
-**Date:** 2026-06-23\
+**Version:** 1.1.1\
+**Date:** 2026-06-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
@@ -100,7 +100,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Domain | Document Title | Path | CSA CCM v4.1 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Operations | Standard: Production Security Requirements | [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md) | CCC-01, CCC-02, TVM-01 | A.8.8, A.8.9, A.8.31 | PR.IP, DE.CM | IT security controls | IT security | §8.1, §8.4 | Pillar II (ICT security) | IT systems protection |
-| Operations | Standard: Network Security and Segmentation | [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md) | NET-01, NET-02, NET-03, NET-04, NET-05, NET-06 | A.8.20, A.8.21, A.8.22 | PR.IR, DE.CM | IT security controls | Network security | §8.4 | Pillar II (ICT security) | IT systems protection |
+| Operations | Standard: Network Security and Segmentation | [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md) | I&S-03, I&S-06, I&S-08, I&S-09 | A.8.20, A.8.21, A.8.22 | PR.IR, DE.CM | IT security controls | Network security | §8.4 | Pillar II (ICT security) | IT systems protection |
 | Operations | Standard: Cloud Security Configuration Baseline | [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md) | CCC-01, CCC-02, CEK-01, IAM-01 | A.8.9, A.8.23, A.8.24 | PR.IP, PR.IR | IT security controls | IT security | §8.4 | Pillar II (ICT security) | Information systems security |
 | Operations | Standard: Physical Security of IT Infrastructure | [`operations/standard-physical-security-of-it-infrastructure.md`](../operations/standard-physical-security-of-it-infrastructure.md) | DCS-01, DCS-02, DCS-03, DCS-04, DCS-05 | A.7.1, A.7.2, A.7.3, A.7.4, A.7.5, A.7.6, A.7.7, A.7.8 | PR.IR | Physical access controls | Physical security | §8.4 | Pillar I (Standard 3, physical security) | Physical and access security |
 | Operations | Standard: Certificate Authority Management | [`operations/standard-certificate-authority-management.md`](../operations/standard-certificate-authority-management.md) | CEK-03, CEK-04, IAM-08 | A.8.24 | PR.DS | IT security controls | IT security | §8.4 | Pillar II (ICT security) | Information systems security |
@@ -151,7 +151,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Architecture | API Design Standard | [`architecture/standard-api-design.md`](../architecture/standard-api-design.md) | AIS-01, AIS-02, AIS-04, IPY-01 | A.5.14, A.8.26, A.8.27 | ID.AM, PR.DS, PR.IP | N/A | N/A | N/A | N/A | N/A |
 | Architecture | Architecture Decision Records Standard | [`architecture/standard-architecture-decision-records.md`](../architecture/standard-architecture-decision-records.md) | GRC-01, CCC-02, CCC-03 | §7.5, A.8.27 | GV.OC, PR.IP, ID.IM | N/A | N/A | N/A | N/A | N/A |
 | Architecture | Data Architecture Standard | [`architecture/standard-data-architecture.md`](../architecture/standard-data-architecture.md) | DSP-01, DSP-02, DSP-03, DSP-05, DSP-07 | A.5.12, A.5.13, A.5.34, A.8.10 | GV.OC, ID.AM, PR.DS | N/A | N/A | N/A | N/A | N/A |
-| Architecture | Integration Architecture Standard | [`architecture/standard-integration-architecture.md`](../architecture/standard-integration-architecture.md) | AIS-04, IPY-01, IVS-03, DSP-04 | A.5.14, A.8.20, A.8.21, A.8.26 | ID.AM, PR.DS, PR.IR, DE.CM | N/A | N/A | N/A | N/A | N/A |
+| Architecture | Integration Architecture Standard | [`architecture/standard-integration-architecture.md`](../architecture/standard-integration-architecture.md) | AIS-04, IPY-01, I&S-03, DSP-04 | A.5.14, A.8.20, A.8.21, A.8.26 | ID.AM, PR.DS, PR.IR, DE.CM | N/A | N/A | N/A | N/A | N/A |
 | Architecture | Reference Architecture Standard | [`architecture/standard-reference-architecture.md`](../architecture/standard-reference-architecture.md) | GRC-01, AIS-01 | A.8.27, A.8.32 | GV.OC, ID.AM, PR.IP | N/A | N/A | N/A | N/A | N/A |
 | Architecture | Technology Radar Standard | [`architecture/standard-technology-radar.md`](../architecture/standard-technology-radar.md) | GRC-01, STA-01 | §6.1, A.5.20, A.8.30 | GV.OC, GV.SC, ID.AM | N/A | N/A | N/A | N/A | N/A |
 

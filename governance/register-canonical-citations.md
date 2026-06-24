@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.0\
-**Date:** 2026-06-22\
+**Version:** 1.5.1\
+**Date:** 2026-06-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/register-citation-verifications.md`](register-citation-verifications.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -152,7 +152,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | Standard ID | Current version | Publication date | Topic | Superseded versions |
 | --- | --- | --- | --- | --- |
 | CSA CCM | v4.1 | 2024 | Cloud Controls Matrix | v3.0.1, v4.0 |
-| CSA AICM | v1.0.3 | 2025 | AI Controls Matrix | v1.0.0, v1.0.1, v1.0.2 |
+| CSA AICM | v1.1 | 2026 | AI Controls Matrix | v1.0.0, v1.0.1, v1.0.2, v1.0.3 |
 | CSA STAR | continuous | - | Security, Trust, Assurance and Risk programme | - |
 
 ## ISACA frameworks
