@@ -62,7 +62,6 @@ Individual documents or focused multi-doc improvements. The deferred-decision it
 - **Working-state relocation (M, XS)**: `tools/sweep-preflight-exemptions.json` → `.working/validate-sweeps/preflight-exemptions.json` (co-locate with the validate-sweeps activity).
 - **Working-state relocation (M, XS)**: citation-verification cluster (6 files) — `register-citation-verifications.md` + `register-citation-verification-bundle.md` + four `worklist-citation-verification-batch-*.md` → `.working/citation-verifications/` (project-specific in-flight verification campaign).
 - **FR-62 (M, S)**: AI jurisdiction annexes absent. (Cross-references P5.8.)
-- **Generalize the handoff-PR QA loop-break into the pack layer (M, S)**: the carve-out currently lives only in `.claude/CLAUDE.md` + `/resume`. The distributable `validation-sweep-pr-scoped` SKILL and the `ai-assistant-workflow-disciplines.md` no-skip section should name the session-closing-handoff-PR exception (with the loop rationale and the `/validate`-on-resume compensating control) so adopters inherit it. Pairs with 4.6's gate design (the gate must exempt handoff PRs).
 - **FR-99 (M, M) ⚠**: Per-control effectiveness metrics (continuous assurance / 3LoD).
 - **FR-15 (M, M)**: Maturity-ladder methodology — median-of-medians scoring concern.
 - **FR-23 (M, M) ⚠**: Audit-evidence assembler-verification standard absent.
