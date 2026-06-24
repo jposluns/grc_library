@@ -13,12 +13,12 @@ On `/resume`, the assistant:
 2. Reads `.claude/CLAUDE.md` (the PRIMORDIAL RULE and project disciplines), the most recent few `CHANGELOG.md` entries, and **[`.working/third-party-issues.md`](third-party-issues.md)**.
 3. Runs `git rev-parse --is-shallow-repository` (unshallow with `git fetch --unshallow` if `true`, **before any history-aware audit**), then `tools/run_all_audits.sh` to confirm the corpus is green, and `git log --oneline -5` to confirm HEAD.
 4. Verifies the version/count snapshot below against live files.
-5. **Runs a full corpus-wide `/validate` as the first substantive task** — the loop-break compensating control for whatever session-closing handoff PR last closed (which skips its trailing `/validate-pr` + `/retro`). The next such sweep is **Sweep 39**. (Sweep 38 already ran this session, as the control for handoff PR #311; it found and fixed two in-window residuals in close-out PR #312.) Routes any findings to the backlog.
+5. **Runs a full corpus-wide `/validate` as the first substantive task** — the loop-break compensating control for whatever session-closing handoff PR last closed (which skips its trailing `/validate-pr` + `/retro`). The next such sweep is **Sweep 40**. (Sweep 39 already ran at this session's resume, covering the #313/#314 deltas because the prior session paused without a session-closing handoff PR; it found and fixed two pre-existing matrix inconsistencies in close-out PR #315.) Routes any findings to the backlog.
 6. Continues from "Next actions" below.
 
 ## Next actions (the queue for the next session)
 
-The 2026-06-24 work (the overnight run plus this morning's continuation, including the next-session resume that ran Sweep 38) is complete and merged through **#312**. The remaining backlog is **M content clusters** (the bounded XS/S items and the gate-48 tooling are done). Re-read [`../TODO.md`](../TODO.md) live; it is the source of truth. Effort-ordered:
+The 2026-06-24 work (the overnight run, the morning continuation, FR-167 batch 2 in #313, the project-governance separation spec in #314, and this resume session's Sweep 39 close-out in #315) is complete and merged through **#315**. The remaining backlog is **M content clusters** (the bounded XS/S items and the gate-48 tooling are done). Re-read [`../TODO.md`](../TODO.md) live; it is the source of truth. Effort-ordered:
 
 - **M content clusters (dispositions recorded in TODO where noted):**
   - **DD-4 / DD-5 — TLS 1.3** (`M, M`): rewrite [`dev-security/claude-rules/languages/go.md`](../dev-security/claude-rules/languages/go.md):195 coherently to TLS 1.3 (rework the `CipherSuites` block; keep `core/owasp.md` ASVS-accurate), and raise the two governed surfaces [`operations/procedure-media-handling-and-transport.md`](../operations/procedure-media-handling-and-transport.md):124 and [`supply-chain/template-supplier-security-questionnaire.md`](../supply-chain/template-supplier-security-questionnaire.md):87 to TLS 1.3. **Pack prose involved (`go.md`): run `lint-language.py` pre-flight; bump the pack version.**
@@ -33,6 +33,8 @@ The maintainer-directed running order (2026-06-23) remains: FR-167, then the def
 
 ## This session's work (2026-06-24) — read before continuing
 
+**Update (resume session, post-narrative):** after the two-part day below, the prior session continued to ship #313 (FR-167 batch 2) and #314 (project-governance separation spec, which closed R2), then paused without a session-closing handoff PR. This resume session ran Sweep 39 (the loop-break control covering the #313/#314 deltas) and shipped close-out #315. The narrative below covers the morning continuation through #310 only.
+
 A two-part day. **Overnight run** (autonomous, maintainer asleep): shipped #301 (Sweep 36 close-out, CCM/AICM citation-residual completion), #302 (gate-count word-form), #303 (Day-1-floor option A), #304 (R3 relocation), and prepared #305 (loop-break generalization into the pack) which could not be merged then because the GitHub MCP server disconnected after #304. **Morning continuation** (this session, resumed via `/resume` with the maintainer awake; the screenshot of the prior session surfaced the unmerged #305):
 
 - Opened and merged **#305** (once the MCP reconnected) — the loop-break-generalize pack-layer change, carrying the batched #304 QA rows.
@@ -43,18 +45,18 @@ A two-part day. **Overnight run** (autonomous, maintainer asleep): shipped #301 
 
 **Quality held throughout** — every non-handoff PR got a formal `/validate-pr` (all 0 in-window findings after the apply-time fixes) + `/retro`; the post-commit audits caught the expected bookkeeping consequences (artefact regen, TODO sweep-cursor, link-coverage) and they were fixed before push, never reaching CI as a surprise.
 
-## State snapshot (as of 2026-06-24, post-#312 Sweep 38 close-out)
+## State snapshot (as of 2026-06-24, post-#315 Sweep 39 close-out)
 
-- **Branch**: the resume session is developing on `claude/resume-review-h95prg`, synced to `main`. **Pending batched into the NEXT PR** (per recursion-avoidance): the #312 `/validate-pr` row (0 findings), the #312 `/retro` row (surfaced a multi-surface-incompleteness pattern + a gate-spec-prose paired-surface candidate, now in TODO §4.8), and this handoff refresh. These sit on the feature branch (stop-hook auto-persisted); a fresh `/resume` finds them and the next substantive PR carries them.
-- **HEAD**: `main` at **#312** (`7d5ead2`; verify with `git log -1`). Immediately prior: #311 (session-closing handoff), #310 (DD-2/3/11), #309 (S5), #308 (S4), #307 (morning-processing), #306 (Sweep 37 close-out), #305 (loop-break generalization).
-- **Versions** (post-#312): library `2026.06.290`, pack `1.49.7`, README `1.9.161`. (Verify against `README.md`.)
+- **Branch**: this resume session develops on `claude/awesome-noether-yeynzj`, synced to `main` then advanced with the #315 Sweep 39 close-out. **Pending batched into the NEXT PR** (per recursion-avoidance): the #315 `/validate-pr` row and `/retro` row (this PR's own per-PR QA) plus the next handoff refresh. These sit on the feature branch (stop-hook auto-persisted); a fresh `/resume` finds them and the next substantive PR carries them.
+- **HEAD**: `main` at **#315** once this PR merges (Sweep 39 close-out; verify with `git log -1`). Immediately prior: #314 (project-governance separation spec, closed R2 by principle), #313 (FR-167 batch 2: Risk-domain matrix + WCO pillar fix), #312 (Sweep 38 close-out), #311 (session-closing handoff), #310 (DD-2/3/11).
+- **Versions** (post-#315): library `2026.06.293`, pack `1.49.7`, README `1.9.164`. (Verify against `README.md`.)
 - **Audit programme**: **48 numbered gates** + **3 PR-only delta gates (D1/D2/D3)**; all passing on `main`. Gate 48 (CSA CCM/AICM citation-accuracy) has the S4 section-aware + cross-catalogue title check and the S5 bare-domain-code check; its §6 spec prose was corrected to describe all four checks in #312. Governance rules: **10**. Skills: **15** (6 paired). Slash commands: **8**.
-- **Last merged**: **#312** (Sweep 38 close-out: F1 `ai/register-ai-risk.md` impact-5 `Critical`->`Catastrophic`, F3 spec gate-48 prose two->four checks). Before it: #311 (handoff), #310, #309, #308, #307, #306, #305.
-- **`/validate` cadence**: **Sweep 38** ran this resume session (the #311 loop-break; close-out #312, 2 in-window warnings fixed). The next `/resume` runs **Sweep 39** (the loop-break control for the next session-closing handoff PR).
+- **Last merged**: **#315** (Sweep 39 close-out: matrix line-52 WCO pillar `Customs-to-Customs`->`Customs-to-Business`, four PIP cells `:`->`N/A` + legend trim). Before it: #314, #313, #312, #311, #310, #309, #308.
+- **`/validate` cadence**: **Sweep 39** ran at this session's resume (covering the #313/#314 deltas, since the prior session paused without a handoff PR; close-out #315, 2 pre-existing matrix findings fixed). The next `/resume` runs **Sweep 40** (the loop-break control for the next session-closing handoff PR).
 
 ## Open decisions awaiting maintainer
 
-- **R2 relocation** (the 6-file citation-verification cluster → `.working/citation-verifications/`): deferred with a convention-conflict note in TODO. It is cross-cited by active-corpus governance docs and two linters hardcode the paths, so a `.working/` move conflicts with the "don't link `.working/` from adopter-facing files" convention OR changes linter load paths. Three options noted in TODO (recommend keep-in-`governance/`-and-close-won't-move, parallel to R1, or move only the four transient worklist files). Needs a maintainer decision.
+- **R2 relocation**: CLOSED by principle in #314 (the project-governance separation spec classifies the 6-file citation-verification cluster as project governance, so it migrates in Phase 1). The Phase-1 migration, the queued directional-dependency gate (§7.3), and the 2 deferred §5.3 classifications are now forward-looking TODO items, not open decisions awaiting the maintainer.
 - The larger-track decisions (FR-167 batches 2..N, the High[critical] net-new docs, the L/XL items) remain queued and scheduled deliberately.
 
 ## Trust-recovery state

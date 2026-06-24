@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.2.0\
+**Version:** 1.2.1\
 **Date:** 2026-06-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -33,7 +33,7 @@ This matrix maps GRC library documents to the control domains and section refere
 | WCO SAFE | WCO SAFE Framework of Standards | Pillar and standard references |
 | AEO/AEO-S | UK HMRC Authorized Economic Operator (Security and Safety) | Requirement area headings |
 
-Read across a row to identify which frameworks a given document supports. Read down a column to identify which GRC library documents collectively satisfy a framework's requirements. A cell containing "N/A" (or the legacy marker ": ") indicates no direct mapping; the document may still provide contextual support. "N/A" is used in particular for the customs and trade-security columns (CTPAT, PIP, BASC, WCO SAFE, AEO/AEO-S) on documents whose subject is not customs or trade security.
+Read across a row to identify which frameworks a given document supports. Read down a column to identify which GRC library documents collectively satisfy a framework's requirements. A cell containing "N/A" indicates no direct mapping; the document may still provide contextual support. "N/A" is used in particular for the customs and trade-security columns (CTPAT, PIP, BASC, WCO SAFE, AEO/AEO-S) on documents whose subject is not customs or trade security.
 
 ---
 
@@ -48,10 +48,10 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Domain | Document Title | Path | CSA CCM v4.1 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Governance | Governance Library Charter | [`governance/charter-governance-library.md`](../governance/charter-governance-library.md) | GRC-01, GRC-02 | §5.1, §5.2, §6.1 | GV.OC, GV.RM | N/A | Programme governance | §5.1, §7.5 | Pillar II (Customs-to-Business Partnership) | Management commitment |
-| Governance | Policy: Exception and Risk Acceptance Management | [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) | GRC-04, GRC-05 | §6.1.3, §8.2 | GV.RM, ID.RA | N/A |: | §6.1, §10 | N/A | Risk management |
-| Governance | Standard: Records Retention and Destruction | [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) | DSP-07, DSP-08 | A.5.33, A.8.10 | PR.DS, PR.IP | Documentation and record-keeping | Record retention | §7.5 | Pillar II (Customs-to-Customs) | Documentation security; Trade records retention |
+| Governance | Policy: Exception and Risk Acceptance Management | [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) | GRC-04, GRC-05 | §6.1.3, §8.2 | GV.RM, ID.RA | N/A | N/A | §6.1, §10 | N/A | Risk management |
+| Governance | Standard: Records Retention and Destruction | [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) | DSP-07, DSP-08 | A.5.33, A.8.10 | PR.DS, PR.IP | Documentation and record-keeping | Record retention | §7.5 | Pillar II (Customs-to-Business) | Documentation security; Trade records retention |
 | Supply Chain | Standard: Supplier Security and Privacy Assurance | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | STA-01, STA-02, STA-03 | A.5.19, A.5.20, A.5.21, A.5.22 | GV.SC, ID.SC | Business partner requirements | Third-party security | §8.6 | Pillar II (Customs-to-Business; Standard 6) | Business partners |
-| Governance | Register: Document Index and Classification | [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md) | GRC-01 | §7.5 | GV.OC | N/A |: | §7.5 | N/A | Documentation security |
+| Governance | Register: Document Index and Classification | [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md) | GRC-01 | §7.5 | GV.OC | N/A | N/A | §7.5 | N/A | Documentation security |
 
 ---
 
@@ -83,8 +83,8 @@ This matrix is indicative only. It reflects the best available assessment of con
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Compliance | Policy: Compliance, Audit, and CAPA Management | [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md) | GRC-06, GRC-07, GRC-08 | §9.2, §9.3, §10.1, §10.2 | GV.OC, ID.IM | N/A | Programme governance | §9.2, §10 | N/A | IT controls review and testing |
 | Compliance | Register: Global Regulatory Applicability | [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md) | GRC-01, GRC-06 | §4.1, §4.2, §6.1 | GV.OC, GV.RM | N/A | Programme governance | §4.1, §6.1 | N/A | Management commitment |
-| Compliance | Register: BASC IT and Information Security Responsibilities | [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md) | GRC-01, GRC-02 | §5.3, §6.1, §9.1 | GV.OC, GV.RM | N/A |: | §5.1, §6.1, §7.2, §7.5, §8.1, §8.3, §8.4, §8.5, §9.1, §9.2, §10 | Pillar II (Customs-to-Business; Standard 6) | All AEO-S IT requirement areas |
-| Compliance | Register: BASC IT Compliance Monitoring and KPIs | [`compliance/logistics/register-basc-it-compliance-kpis.md`](../compliance/logistics/register-basc-it-compliance-kpis.md) | GRC-04, GRC-08 | §9.1 | GV.OC, ID.IM | N/A |: | §9.1 | N/A | IT controls review and testing |
+| Compliance | Register: BASC IT and Information Security Responsibilities | [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md) | GRC-01, GRC-02 | §5.3, §6.1, §9.1 | GV.OC, GV.RM | N/A | N/A | §5.1, §6.1, §7.2, §7.5, §8.1, §8.3, §8.4, §8.5, §9.1, §9.2, §10 | Pillar II (Customs-to-Business; Standard 6) | All AEO-S IT requirement areas |
+| Compliance | Register: BASC IT Compliance Monitoring and KPIs | [`compliance/logistics/register-basc-it-compliance-kpis.md`](../compliance/logistics/register-basc-it-compliance-kpis.md) | GRC-04, GRC-08 | §9.1 | GV.OC, ID.IM | N/A | N/A | §9.1 | N/A | IT controls review and testing |
 | Compliance | Annex: AEO-S IT and Cybersecurity Requirements | [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md) | IAM-01, SEF-01, DSP-01 | §5.3, §8.1, §9.1 | GV.OC, PR.AA, DE.CM | IT security requirements | IT security | §8.4, §8.5 | Pillar II (ICT security) | Access to IT systems; Information systems security; IT security incidents; Trade records retention |
 
 ---
