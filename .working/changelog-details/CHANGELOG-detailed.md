@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.281, PR #303
+
+**Day-1-floor risk-artefact harmonization (option A) + batched #302 QA records.** A Sweep 34 / PR #293 `/validate-pr` out-of-window finding: two adopter-onboarding surfaces defined a "six-artefact Day-1 floor" but disagreed on the risk-domain artefact. Maintainer-recommended option A applied (policy canonical in both; register-population kept as guidance).
+
+### Changed
+- [`docs/template-startup-roadmap.md`](../../docs/template-startup-roadmap.md) (`2.2.1` to `2.2.2`): the core-baseline table's `risk/` row named [`risk/procedure-risk-register.md`](../../risk/procedure-risk-register.md) ("with the register populated with the actual top 10 risks") as the floor artefact; changed to name [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md) (the posture-setting enterprise risk governance policy), matching [`docs/template-quickstart.md`](../../docs/template-quickstart.md):39 and the adopter-guide Tier 1 set. Populating the risk register is now framed as the recommended early follow-on, not a separate Day-1 floor artefact. The "six artefacts" count is unchanged (governance 1 + security 3 + privacy 1 + risk 1). The quickstart was already correct and needed no edit.
+- [`TODO.md`](../../TODO.md): the Day-1-floor item rotated to [`.working/DONE.md`](DONE.md); FR-140's text updated to record that its "different 6th artefact" sub-part is now resolved (remaining FR-140 scope: starter-set count divergence + Tier 1 omissions).
+
+### Verification
+- All 48 gates pass on the committed state; pre-push `run-pr-time-checks.sh` green; taxonomy/scorecard regenerated for the roadmap version bump.
+- Apply-time: confirmed the six artefacts agree across quickstart and roadmap after the edit (info-sec, acceptable-use, IAM, incident-response, privacy+annex, risk policy); confirmed the quickstart and adopter-guide Tier 1 already name the policy (so option A harmonizes all three surfaces).
+- Carries the batched **#302 `/validate-pr`** (history row only; **0 findings**, clean) and **#302 `/retro`** (the recurring late-CHANGELOG em-dash pattern, ~7th of the late-bookkeeping-surface family; reinforces the #293 pre-commit-dash-grep candidate) records.
+
 ## 2026-06-24, Library Version 2026.06.280, PR #302
 
 **Sweep 36 follow-up: `guardrail-review` skill growth-narrative gate count "forty-seven" → "forty-eight", plus the batched #301 QA records.** The second of Sweep 36's two findings (the first, the CCM/AICM citation residual class, shipped in #301). Kept separate per always-split: this is audit-gate-count currency, a distinct theme from CCM/AICM citation accuracy.

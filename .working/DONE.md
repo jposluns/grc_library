@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #303 — Day-1-floor risk-artefact drift (medium): harmonize the named 6th floor artefact (2026-06-24)
+
+Resolved the two "six-artefact Day-1 floor" definitions disagreeing on the risk artefact: the startup-roadmap named `procedure-risk-register.md` while the quickstart and adopter-guide Tier 1 named `policy-enterprise-governance-and-risk-management.md`. Per maintainer option A, the policy is now the named risk floor artefact in both surfaces, with register-population kept as recommended-follow-on guidance. Also resolves the "different 6th artefact" sub-part of FR-140 (which remains open for the starter-set count divergence and Tier 1 omissions).
+
 ### PR #299 — Gate 48 (CCM/AICM citation-accuracy audit) + gap-register full title alignment (2026-06-24)
 
 Shipped the mechanical backstop for the CCM/AICM citation class: gate 48 (`lint-ccm-aicm-citations.py`) validates domain/range and code-to-title against a fair-use catalogue reference (`ccm_aicm_reference.py`, derived from CSA CCM v4.1.0 / AICM v1.1.0, no normative content), wired into all four surfaces + regression fixture; gate count 47 to 48. Fully aligned the compliance-controls gap register's control titles to authoritative values (the PR #298 `/validate-pr` finding, found to be systematic). Implements the #298 `/retro` proposed improvement (the code-to-title gate). Carries the batched #298 `/validate-pr` + `/retro` rows.
