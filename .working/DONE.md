@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #321 — FR-140 (high): adopter starter-set divergence (2026-06-24)
+
+Resolved the starter-set count/scope divergence: added `policy-acceptable-use` and `policy-identity-and-access-management` to the adopter-guide Tier 1 set (15 → 17 docs) so the 6-artefact Day-1 floor is now a strict subset, harmonized the 15→17 count and reconciliation prose across quickstart/adopter-guide/decision-tree, and reframed the README "Core reference set" (and added the two floor artefacts it was missing, acceptable-use and incident-response, ~37 → ~39) so its catalogue no longer competes with the starter tiers and the floor nests cleanly inside it. Bundled the #320 `/validate-pr` out-of-window fix (annex-privacy-jurisdiction-index Bill C-27 "under parliamentary study" → lapsed-2025 consensus) per recursion-avoidance.
+
 ### PR #320 — DD-8: CPPA-as-live → PIPEDA scrub (medium) (2026-06-24)
 
 Corpus-wide scrub of the live-regime-sense Consumer Privacy Protection Act (CPPA, lapsed Bill C-27) to PIPEDA (the in-force Canadian federal privacy law) across 29 documents, full principled scrub per maintainer choice: bare CPPA in live-applicable lists → PIPEDA, "PIPEDA / CPPA" pairs → drop the redundant live-CPPA, CPPA-specific content (algorithmic-transparency row, jurisdiction-coverage index) qualified "(proposed)/(pending)", and the glossary "PIPEDA being superseded by CPPA" factual error fixed. Preserved the distinct California Privacy Protection Agency sense and all already-qualified pending/proposed mentions. Surfaced by PR #264 (FR-138), which scrubbed three privacy docs and deferred the broader sweep.
