@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.296, PR #318
+
+**DD-4/DD-5: complete the TLS 1.3 migration of the Go pack rule and the supplier questionnaire.** Completes the two TLS surfaces explicitly deferred in FR-135 (pack 1.49.1's version-history row named both `languages/go.md` and `core/owasp.md` as deferrals).
+
+### Changed
+
+- [`dev-security/claude-rules/languages/go.md`](../../dev-security/claude-rules/languages/go.md) "TLS configuration" example rewritten coherently to TLS 1.3: `MinVersion` changed from `tls.VersionTLS12` to `tls.VersionTLS13`, and the explicit TLS-1.2 cipher-suite list (`CipherSuites` + `PreferServerCipherSuites`) removed. Rationale, recorded in a code comment: Go does not allow configuring TLS 1.3 cipher suites (the runtime selects from a fixed AEAD set), the `CipherSuites`/`PreferServerCipherSuites` fields apply only to TLS 1.2 and below, and TLS 1.2 is in the prohibited column of the pack cryptography mandate ([`dev-security/claude-rules/CLAUDE.md`](../../dev-security/claude-rules/CLAUDE.md)), so a 1.2 fallback block would contradict the pack. This is the coherent rewrite FR-135 deferred ("Go ignores the explicit 1.2 cipher-suite list under a 1.3 minimum"). Pack `1.49.7` to `1.49.8` (version-history row added).
+- [`supply-chain/template-supplier-security-questionnaire.md`](../../supply-chain/template-supplier-security-questionnaire.md) (`1.0.1` to `1.0.2`, Date `2026-05-28` to `2026-06-24`): Q5.4 raised from "Is data encrypted in transit using TLS 1.2 or higher?" to "TLS 1.3 or higher", aligning the supplier-assessment bar with the corpus-wide TLS 1.3 stance.
+
+### Not changed (with rationale)
+
+- [`operations/procedure-media-handling-and-transport.md`](../../operations/procedure-media-handling-and-transport.md): the DD-4/DD-5 item named `:124` as a surface to raise, but all four of its TLS references (lines 59, 60, 115, 124) were already at TLS 1.3 (a prior PR raised them; the TODO line-reference was stale). Verified by grep before deciding not to touch it.
+- [`dev-security/claude-rules/core/owasp.md`](../../dev-security/claude-rules/core/owasp.md): intentionally left at "TLS 1.2 minimum" / "TLS 1.2+, cert validation" because that document represents OWASP ASVS, which permits TLS 1.2 at baseline. This is the second FR-135 deferral, and the DD-4/DD-5 disposition explicitly says "keep core/owasp.md ASVS-accurate". The pack mandate (TLS 1.3) and the ASVS-representation (TLS 1.2 floor) are different reference frames, both correct.
+
+### Discipline observation
+
+The pack's own [`CLAUDE.md`](../../dev-security/claude-rules/CLAUDE.md) cryptography table (loaded mid-task) lists TLS 1.2 in the *prohibited* column. An initial draft of the go.md rewrite kept a "TLS 1.2 by documented exception" fallback block (mirroring the corpus operations doc's exception path); reading the pack mandate caught that this would contradict the pack's own prohibition, so the fallback was dropped and go.md is TLS 1.3 only. This is `validate-inference-before-action` applied to a pack-prose edit: the inferred "keep a 1.2 fallback for completeness" was refuted by the pack's actual stance before it shipped.
+
+### Verification
+
+`tools/lint-language.py` clean on the edited `go.md` (pack prose pre-flight, before first commit). Gate 37 confirmed `go.md` is not in the `.claude/rules/` mirror map (only `languages/python.md` is), so no sync copy needed. `tools/run_all_audits.sh` 48/48 on the committed state; `tools/run-pr-time-checks.sh` green (D1/D2/D3 + gate 45). DD-4/DD-5 rotated from TODO to DONE (keyed #318). Carries the batched #317 `/validate-pr` (0 findings) + `/retro` rows.
+
 ## 2026-06-24, Library Version 2026.06.295, PR #317
 
 **FR-167 batch 3: comprehensive Dev-security domain coverage in the GRC compliance alignment matrix.** Third FR-167 batch (batch 1 = Architecture #275; batch 2 = Risk #313). Adds all 17 active dev-security documents as a new matrix section.

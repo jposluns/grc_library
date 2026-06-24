@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Security Questionnaire\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-06-24\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md)\
@@ -84,7 +84,7 @@ This questionnaire is issued to suppliers and third-party service providers to g
 | 5.1 Are firewalls deployed to control inbound and outbound network traffic? | | |
 | 5.2 Are intrusion detection or prevention systems (IDS/IPS) deployed? | | |
 | 5.3 Are production, development, and test environments logically separated? | | |
-| 5.4 Is data encrypted in transit using TLS 1.2 or higher? | | |
+| 5.4 Is data encrypted in transit using TLS 1.3 or higher? | | |
 | 5.5 Is sensitive data encrypted at rest? | | |
 | 5.6 Are network access logs retained and reviewed? | | |
 

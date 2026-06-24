@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #318 — DD-4/DD-5: TLS 1.3 (medium) (2026-06-24)
+
+Completed the FR-135-deferred TLS-1.3 rewrite of the pack's `languages/go.md` (MinVersion now TLS 1.3; dropped the now-prohibited explicit TLS-1.2 cipher-suite list, which Go ignores under a 1.3 minimum) and raised supplier-questionnaire Q5.4 from "TLS 1.2 or higher" to "TLS 1.3 or higher". The operations media-handling surface was already TLS 1.3 (no change needed); `core/owasp.md` intentionally left at the OWASP ASVS baseline.
+
 ### PR #314 — Project-governance separation specification; R2 closed by principle (2026-06-24)
 
 Added `governance/specification-project-governance-separation.md` defining the corpus-versus-project governance boundary: the reusable-pattern-versus-operational-instance criterion, the one-way dependency rule (project may cite corpus; corpus must not cite project), the `.project-governance/` destination convention (dot-prefixed, not exempt, fully audited), and the phased migration procedure. Closes R2: the citation-verification cluster is classified project governance and migrates in Phase 1; `register-canonical-citations.md` resolved to stays-corpus; R1 confirmed correct in `tools/`.
