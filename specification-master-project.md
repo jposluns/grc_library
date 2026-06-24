@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.6.2\
-**Date:** 2026-06-22\
+**Version:** 1.6.3\
+**Date:** 2026-06-24\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -301,7 +301,7 @@ When referencing standards and frameworks, the AI must only reference publicly r
 - NIST SP 800-218: Secure Software Development Framework (SSDF)
 - NIST AI RMF: AI Risk Management Framework
 - COBIT 2019: IT governance and management
-- CSA CCM v4: Cloud Controls Matrix
+- CSA CCM v4.1: Cloud Controls Matrix
 - CIS Benchmarks: Configuration security baselines
 - MITRE ATT&CK: Adversarial tactics and techniques
 - MITRE ATLAS: Adversarial ML threat landscape

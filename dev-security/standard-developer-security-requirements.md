@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.0\
-**Date:** 2026-06-23\
+**Version:** 1.1.1\
+**Date:** 2026-06-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -343,7 +343,7 @@ All of the following must be validated before any application onboards to a prod
 
 ## Framework alignment
 
-| Control Area | ISO 27001/27002 | CSA CCM v4 | NIST SSDF | OWASP ASVS | OWASP Top 10 |
+| Control Area | ISO 27001/27002 | CSA CCM v4.1 | NIST SSDF | OWASP ASVS | OWASP Top 10 |
 | --- | --- | --- | --- | --- | --- |
 | Secure SDLC | A.8.25 to 8.26 | AIS-01 to 06 | PW.1 to PW.4 | V1 | N/A |
 | Authentication | A.5.15 to 5.18 | IAM-13 to 15 | N/A | V2 | A01, A07 |

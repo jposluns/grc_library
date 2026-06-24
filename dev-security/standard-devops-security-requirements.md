@@ -2,8 +2,8 @@
 
 **Document Title:** DevOps Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.0.3\
-**Date:** 2026-05-28\
+**Version:** 1.0.4\
+**Date:** 2026-06-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`operations/README.md`](../operations/README.md)\
@@ -105,7 +105,7 @@ Test consolidates all pre-production testing (integration, QA, UAT). Multiple se
 - Environment-specific configuration must not be shared across environments.
 - Developers do not have standing production access. Production access for incident response is time-bound, through PAM, and audited.
 
-*CCM: IVS-05, DSP-15*
+*CCM: I&S-05, DSP-15*
 
 ---
 
@@ -119,7 +119,7 @@ Test consolidates all pre-production testing (integration, QA, UAT). Multiple se
 
 **Image registry:** Private container registry only. No runtime pulls from public registries in production.
 
-*CCM: IVS-04*
+*CCM: I&S-04*
 
 ---
 
@@ -201,14 +201,14 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 
 ## Framework alignment
 
-| Control Area | ISO 27001/27002 | CSA CCM v4 | NIST SSDF | NIST SP 800-53 | SLSA |
+| Control Area | ISO 27001/27002 | CSA CCM v4.1 | NIST SSDF | NIST SP 800-53 | SLSA |
 | --- | --- | --- | --- | --- | --- |
 | CI/CD pipeline security | A.8.25 to 8.27 | CCC-01 to 09, AIS-04 | PW.8 | SA-10, SA-15 | Level 2 to 3 |
 | Pipeline secret scanning | A.8.10 | CEK-10 to 21 | PW.8.2 | IA-5 | Level 2 |
 | Artifact signing and integrity | A.8.27 | CCC-04 to 05 | DS.2 | SA-12 | Level 3 |
 | IaC security | A.8.25 | CCC-06 | PW.4 | CM-2, CM-3 | N/A |
-| Environment separation | A.8.31 | IVS-05 | PO.5 | SC-3, SC-7 | N/A |
-| Container security | A.8.25 | IVS-04 | PW.2 | CM-7, SI-3 | N/A |
+| Environment separation | A.8.31 | I&S-05 | PO.5 | SC-3, SC-7 | N/A |
+| Container security | A.8.25 | I&S-04 | PW.2 | CM-7, SI-3 | N/A |
 | EOL and patch management | A.8.8 | TVM-01 to 10 | PW.4.4 | SI-2 | N/A |
 | Change management | A.8.32 | CCC-01 to 09 | N/A | CM-3 | N/A |
 

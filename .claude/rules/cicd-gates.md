@@ -136,7 +136,7 @@ Pipeline definition files (YAML, JSON, HCL) must:
 | Secret scanning | CEK-10 to 21 | PW.8.2 | A.8.10 | Level 2 |
 | SAST | AIS-04 | VE.1 | A.8.29 | Level 2 |
 | SCA | TVM-06 | PO.5, PW.4 | A.8.8 | Level 2 |
-| Container scan | IVS-04 | VE.1 | A.8.8 | Level 2 |
+| Container scan | I&S-04 | VE.1 | A.8.8 | Level 2 |
 | IaC scan | CCC-06 | PW.9 | A.8.9 | N/A |
 | Artefact signing | CCC-04 to 05 | DS.2 | A.8.27 | Level 3 |
 | Manual approval | CCC-01 to 03 | N/A | A.8.32 | Level 2 |

@@ -2,8 +2,8 @@
 
 **Document Title:** Cross-Framework Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.1.4\
-**Date:** 2026-06-22\
+**Version:** 1.1.5\
+**Date:** 2026-06-24\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/matrix-reverse-framework-control-crosswalk.md`](matrix-reverse-framework-control-crosswalk.md), [`NOTICE.md`](../NOTICE.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md), [`governance/guideline-esg-and-ai-ethics-disclosure.md`](guideline-esg-and-ai-ethics-disclosure.md), [`risk/guideline-quantitative-risk-analysis.md`](../risk/guideline-quantitative-risk-analysis.md)\
@@ -61,15 +61,15 @@ The following table maps the enterprise risk management control areas to externa
 
 | Control Area | ISO 31000 | ISO 23894 | NIST SP 800-39 | NIST AI RMF | COBIT 2019 | CSA CCM v4.1 | Legal and Regulatory | Trade and Supply-Chain Programmes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Risk framework and governance | Clause 5 Framework | Clause 5 Governance | Organisation-wide RMF | Govern | APO12.01 Define risk context | GRM domain; GOV domain | Corporate governance charters | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO, AEO-S |
-| Risk identification and analysis | Clause 6.4.2 Risk identification; Clause 6.4.3 Risk analysis (ISO 31000:2018) | Clause 6.2 Identification; Clause 6.3 Analysis | Tasks 1 and 2 | Map; Measure | APO12.03 Assess risk | GRM domain | GDPR Article 25; CPPA accountability | WCO SAFE equivalence |
-| Risk appetite and tolerance | Clause 5.4 Integration; Clause 5.6 Evaluation | Clause 5 Governance | Organisational risk strategy | Govern | APO12.02 Define risk appetite | GRM domain | Board-approved appetite statements | WCO SAFE equivalence |
-| Treatment and control selection | Clause 6.5 Risk treatment (ISO 31000:2018) | Clause 6.4 Treatment | Task 3 Respond | Manage | APO12.06 Respond to risk | GRM domain | ISO 27001 Annex A controls | WCO SAFE equivalence |
-| Monitoring and review | Clause 6.6 Monitoring and review (ISO 31000:2018) | Clause 6.5 Monitoring | Task 4 Monitor | Manage | MEA01; MEA02 | GRM domain | Regulatory reporting duties | WCO SAFE equivalence |
+| Risk framework and governance | Clause 5 Framework | Clause 5 Governance | Organisation-wide RMF | Govern | APO12.01 Define risk context | GRC domain | Corporate governance charters | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO, AEO-S |
+| Risk identification and analysis | Clause 6.4.2 Risk identification; Clause 6.4.3 Risk analysis (ISO 31000:2018) | Clause 6.2 Identification; Clause 6.3 Analysis | Tasks 1 and 2 | Map; Measure | APO12.03 Assess risk | GRC domain | GDPR Article 25; CPPA accountability | WCO SAFE equivalence |
+| Risk appetite and tolerance | Clause 5.4 Integration; Clause 5.6 Evaluation | Clause 5 Governance | Organisational risk strategy | Govern | APO12.02 Define risk appetite | GRC domain | Board-approved appetite statements | WCO SAFE equivalence |
+| Treatment and control selection | Clause 6.5 Risk treatment (ISO 31000:2018) | Clause 6.4 Treatment | Task 3 Respond | Manage | APO12.06 Respond to risk | GRC domain | ISO 27001 Annex A controls | WCO SAFE equivalence |
+| Monitoring and review | Clause 6.6 Monitoring and review (ISO 31000:2018) | Clause 6.5 Monitoring | Task 4 Monitor | Manage | MEA01; MEA02 | GRC domain | Regulatory reporting duties | WCO SAFE equivalence |
 | AI model governance | Clause 6 Process applied iteratively across the AI lifecycle (ISO 31000:2018) | Clauses 5 and 6 lifecycle | Organisational context | Govern; Manage | APO12; BAI03; DSS06 | AIS domain | EU AI Act; AIDA (pending, Canada) | Not applicable |
 | Third-party and supply-chain risk | Clause 6.3 Scope, context, criteria (third-party scope inclusion) and Clause 5.3 Integration (ISO 31000:2018) | Clause 6.2 Context and third-party data | Organisational context | Govern | APO10 Manage Suppliers | STA domain | Contractual clauses; data processing agreements; transfer impact assessments | WCO SAFE equivalence |
 | Business continuity and resilience | Clause 5.2 Leadership | Not applicable | Organisational resilience context | Manage | DSS04 Manage Continuity | BCR domain | Local continuity regulations | WCO SAFE equivalence |
-| Exception and acceptance | Clause 6.5 Risk treatment, acceptance option (ISO 31000:2018) | Clause 6.4 Acceptance criteria | Risk response acceptance | Govern | APO12.07 Risk acceptance | GRM domain | Documented approvals and durations | WCO SAFE equivalence |
+| Exception and acceptance | Clause 6.5 Risk treatment, acceptance option (ISO 31000:2018) | Clause 6.4 Acceptance criteria | Risk response acceptance | Govern | APO12.07 Risk acceptance | GRC domain | Documented approvals and durations | WCO SAFE equivalence |
 
 ---
 
