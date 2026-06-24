@@ -2,7 +2,7 @@
 
 **Document Title:** Compliance Controls and Gap Register Template\
 **Document Type:** Register\
-**Version:** 1.0.1\
+**Version:** 1.0.2\
 **Date:** 2026-06-24\
 **Owner:** Security Architecture Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -68,8 +68,8 @@ Organisations should populate this template with their specific implementation s
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
-| AIS-01 | Application Security Policy | | | | |
-| AIS-02 | Application Security Baseline | | | | |
+| AIS-01 | Application and Interface Security Policy and Procedures | | | | |
+| AIS-02 | Application Security Baseline Requirements | | | | |
 | AIS-03 | Application Security Metrics | | | | |
 | AIS-04 | Secure Application Development Lifecycle | | | | |
 | AIS-05 | Application Security Testing | | | | |
@@ -81,7 +81,7 @@ Organisations should populate this template with their specific implementation s
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
-| BCR-01 | BCM Policy and Procedures | | | | |
+| BCR-01 | Business Continuity Management Policy and Procedures | | | | |
 | BCR-02 | Risk Assessment and Impact Analysis | | | | |
 | BCR-03 | Business Continuity Strategy | | | | |
 | BCR-04 | Business Continuity Planning | | | | |
@@ -95,7 +95,7 @@ Organisations should populate this template with their specific implementation s
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
-| CCC-01 | Change Management Policy | | | | |
+| CCC-01 | Change Management Policy and Procedures | | | | |
 | CCC-02 | Quality Testing | | | | |
 | CCC-03 | Change Management Technology | | | | |
 | CCC-04 | Unauthorized Change Protection | | | | |
@@ -109,31 +109,31 @@ Organisations should populate this template with their specific implementation s
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
-| CEK-01 | Encryption and Key Management Policy | | | | |
+| CEK-01 | Encryption and Key Management Policy and Procedures | | | | |
 | CEK-03 | Data Protection | | | | |
 | CEK-04 | Encryption Algorithm | | | | |
-| CEK-06 | Encryption Change Management | | | | |
-| CEK-09 | Encryption Key Generation | | | | |
-| CEK-10 | Encryption Key Purpose | | | | |
-| CEK-11 | Encryption Key Rotation | | | | |
-| CEK-12 | Encryption Key Revocation | | | | |
-| CEK-13 | Encryption Key Destruction | | | | |
-| CEK-19 | Encryption Key Inventory | | | | |
-| CEK-21 | Unmanaged Certificates | | | | |
+| CEK-06 | Encryption Change Cost Benefit Analysis | | | | |
+| CEK-09 | Encryption and Key Management Audit | | | | |
+| CEK-10 | Key Generation | | | | |
+| CEK-11 | Key Purpose | | | | |
+| CEK-12 | Key Rotation | | | | |
+| CEK-13 | Key Revocation | | | | |
+| CEK-19 | Key Compromise | | | | |
+| CEK-21 | Key Inventory Management | | | | |
 
 ### Data security and privacy (DSP)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
-| DSP-01 | Security and Privacy Policy | | | | |
+| DSP-01 | Security and Privacy Policy and Procedures | | | | |
 | DSP-03 | Data Inventory | | | | |
 | DSP-04 | Data Classification | | | | |
 | DSP-05 | Data Flow Documentation | | | | |
-| DSP-07 | Secure Disposal | | | | |
-| DSP-08 | Privacy by Design | | | | |
+| DSP-07 | Data Protection by Design and Default | | | | |
+| DSP-08 | Data Privacy by Design and Default | | | | |
 | DSP-09 | Data Protection Impact Assessment | | | | |
 | DSP-15 | Limitation of Production Data Use | | | | |
-| DSP-17 | Personal Data Access | | | | |
+| DSP-17 | Sensitive Data Protection | | | | |
 | DSP-18 | Disclosure Notification | | | | |
 | DSP-19 | Data Location | | | | |
 
@@ -141,80 +141,80 @@ Organisations should populate this template with their specific implementation s
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
-| DCS-01 | Off-site Equipment Disposal | | | | |
-| DCS-04 | Secure Area Authorization | | | | |
-| DCS-06 | Secure Area Visitor Access | | | | |
-| DCS-07 | Secure Area System Installation | | | | |
-| DCS-09 | Controlled Access Points | | | | |
-| DCS-11 | CCTV | | | | |
-| DCS-12 | Cabling Security | | | | |
-| DCS-13 | Environmental Risks | | | | |
+| DCS-01 | Physical and Environmental Security Policy and Procedures | | | | |
+| DCS-04 | Secure Area Policy and Procedures | | | | |
+| DCS-06 | Assets Classification | | | | |
+| DCS-07 | Assets Cataloguing and Tracking | | | | |
+| DCS-09 | Equipment Identification | | | | |
+| DCS-11 | Surveillance System | | | | |
+| DCS-12 | Adverse Event Response Training | | | | |
+| DCS-13 | Cabling Security | | | | |
 
 ### Governance, risk and compliance (GRC)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
-| GRC-01 | Governance Programme Policy | | | | |
-| GRC-02 | Risk Management Programme | | | | |
-| GRC-03 | Organisational Policy Reviews | | | | |
+| GRC-01 | Governance Program Policy and Procedures | | | | |
+| GRC-02 | Risk Management Program | | | | |
+| GRC-03 | Organizational Policy Reviews | | | | |
 | GRC-04 | Policy Exception Process | | | | |
-| GRC-05 | Information Security Programme | | | | |
-| GRC-06 | Regulatory Change | | | | |
+| GRC-05 | Information Security Program | | | | |
+| GRC-06 | Governance Responsibility Model | | | | |
 | GRC-07 | Information System Regulatory Mapping | | | | |
 
 ### Human resources (HRS)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
-| HRS-01 | Background Verification | | | | |
-| HRS-02 | Acceptable Use Policy | | | | |
-| HRS-03 | Clean Desk Policy | | | | |
+| HRS-01 | Background Screening Policy and Procedures | | | | |
+| HRS-02 | Acceptable Use of Technology Policy and Procedures | | | | |
+| HRS-03 | Clean Desk Policy and Procedures | | | | |
 | HRS-06 | Employment Termination | | | | |
-| HRS-09 | Personnel Training and Awareness | | | | |
+| HRS-09 | Personnel Roles and Responsibilities | | | | |
 | HRS-11 | Security Awareness Training | | | | |
 
 ### Identity and access management (IAM)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
-| IAM-01 | IAM Policy and Procedures | | | | |
-| IAM-02 | Strong Password Policy and Procedures | | | | |
+| IAM-01 | Identity and Access Management Policy and Procedures | | | | |
+| IAM-02 | Credentials Management Policy and Procedures | | | | |
 | IAM-03 | Identity Inventory | | | | |
 | IAM-04 | Separation of Duties | | | | |
 | IAM-05 | Least Privilege | | | | |
 | IAM-07 | Access Changes and Revocation | | | | |
 | IAM-08 | Access Review | | | | |
-| IAM-09 | Segregation of Privileged Access | | | | |
-| IAM-10 | Management of Privileged Access | | | | |
+| IAM-09 | Segregation of Privileged Access Roles | | | | |
+| IAM-10 | Management of Privileged Access Roles | | | | |
 | IAM-12 | Unique Identities | | | | |
 | IAM-13 | Strong Authentication | | | | |
 | IAM-14 | Credentials Management | | | | |
 | IAM-15 | Authorization Mechanisms | | | | |
 
-### Infrastructure and virtualization security (IVS)
+### Infrastructure security (I&S)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
-| I&S-01 | Audit Logging and Monitoring | | | | |
-| I&S-03 | Migration and Asset Ownership | | | | |
-| I&S-04 | Network Architecture | | | | |
-| I&S-06 | Network Defense | | | | |
-| I&S-07 | Segmentation and Segregation | | | | |
-| I&S-08 | Production and Non-Production Environments | | | | |
-| I&S-09 | Vulnerability and Patch Management | | | | |
+| I&S-01 | Infrastructure and Virtualization Security Policy and Procedures | | | | |
+| I&S-03 | Network Security | | | | |
+| I&S-04 | OS Hardening and Base Controls | | | | |
+| I&S-06 | Segmentation and Segregation | | | | |
+| I&S-07 | Migration to Hosted Environments | | | | |
+| I&S-08 | Network Architecture Documentation | | | | |
+| I&S-09 | Network Defense | | | | |
 
 ### Logging and monitoring (LOG)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
-| LOG-01 | Logging and Monitoring Policy | | | | |
+| LOG-01 | Logging and Monitoring Policy and Procedures | | | | |
 | LOG-02 | Audit Logs Protection | | | | |
 | LOG-03 | Security Monitoring and Alerting | | | | |
 | LOG-06 | Clock Synchronization | | | | |
 | LOG-07 | Logging Scope | | | | |
 | LOG-09 | Log Records | | | | |
 | LOG-10 | Audit Records Protection | | | | |
-| LOG-12 | Transaction / Activity Logging | | | | |
+| LOG-12 | Transaction/Activity Logging | | | | |
 | LOG-13 | Access Control Logs | | | | |
 | LOG-14 | Failures and Anomalies Reporting | | | | |
 
@@ -222,7 +222,7 @@ Organisations should populate this template with their specific implementation s
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
-| SEF-01 | Security Incident Management Policy | | | | |
+| SEF-01 | Security Incident Management Policy and Procedures | | | | |
 | SEF-03 | Incident Response Plans | | | | |
 | SEF-04 | Incident Response Testing | | | | |
 | SEF-07 | Incident Management and Response | | | | |
@@ -234,19 +234,19 @@ Organisations should populate this template with their specific implementation s
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
-| STA-01 | Supply Chain Risk Management Policy | | | | |
-| STA-04 | Supply Chain Agreement Review | | | | |
+| STA-01 | Supply Chain Risk Management Policies and Procedures | | | | |
+| STA-04 | SSRM Guidance | | | | |
 | STA-08 | Supply Chain Inventory | | | | |
-| STA-09 | Service Bill of Materials | | | | |
+| STA-09 | Service Bill of Material (BOM) | | | | |
 | STA-10 | Supply Chain Risk Management | | | | |
-| STA-13 | Supply Chain Agreement | | | | |
+| STA-13 | Supply Chain Compliance Assessment | | | | |
 
 ### Threat and vulnerability management (TVM)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
-| TVM-01 | TVM Policy and Procedures | | | | |
-| TVM-02 | Malware Protection Policy | | | | |
+| TVM-01 | Threat and Vulnerability Management Policy and Procedures | | | | |
+| TVM-02 | Malware and Malicious Instructions Protection Policy and Procedures | | | | |
 | TVM-03 | Vulnerability Identification | | | | |
 | TVM-04 | Threat Analysis and Modelling | | | | |
 | TVM-05 | Detection Updates | | | | |
@@ -260,14 +260,14 @@ Organisations should populate this template with their specific implementation s
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
-| UEM-01 | Endpoint Devices Policy | | | | |
+| UEM-01 | Endpoint Devices Policy and Procedures | | | | |
 | UEM-02 | Application and Service Approval | | | | |
-| UEM-03 | Endpoint Inventory | | | | |
-| UEM-05 | Mobile Endpoint Management | | | | |
-| UEM-08 | Operating System Hardening | | | | |
-| UEM-09 | Protection of Data on End-User Devices | | | | |
-| UEM-11 | BYOD / Personal Device Policy | | | | |
-| UEM-14 | Third-Party Application Security | | | | |
+| UEM-03 | Compatibility | | | | |
+| UEM-05 | Endpoint Management | | | | |
+| UEM-08 | Storage Encryption | | | | |
+| UEM-09 | Anti-Malware Detection and Prevention | | | | |
+| UEM-11 | Data Loss Prevention | | | | |
+| UEM-14 | Third-Party Endpoint Security Posture | | | | |
 
 ---
 
@@ -277,23 +277,23 @@ Applies to any AI or ML system in production. See [`ai/standard-ai-security-and-
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
-| GRC-09 | Acceptable Use of AI Service | | | | |
+| GRC-09 | Acceptable Use of the AI Service | | | | |
 | GRC-10 | AI Impact Assessment | | | | |
 | GRC-12 | Ethics Committee | | | | |
 | HRS-15 | AI Acceptable Use | | | | |
-| MDS-01 | Model Inventory | | | | |
-| MDS-02 | Model Documentation | | | | |
-| MDS-03 | Training Data Governance | | | | |
-| MDS-04 | Model Bias and Fairness Assessment | | | | |
-| MDS-05 | Explainability and Transparency | | | | |
-| MDS-06 | Adversarial Robustness Testing | | | | |
-| MDS-07 | Model Access Controls | | | | |
-| MDS-08 | Inference Input Validation | | | | |
-| MDS-09 | Model Output Validation | | | | |
-| MDS-10 | Prompt Injection Controls | | | | |
-| MDS-11 | Agents Security Boundaries | | | | |
-| MDS-12 | Model Monitoring and Drift Detection | | | | |
-| MDS-13 | Model Decommissioning | | | | |
+| MDS-01 | Training Pipeline Security | | | | |
+| MDS-02 | Model Artifact Scanning | | | | |
+| MDS-03 | Model Documentation | | | | |
+| MDS-04 | Model Documentation Requirements | | | | |
+| MDS-05 | Model Documentation Validation | | | | |
+| MDS-06 | Adversarial Attack Analysis | | | | |
+| MDS-07 | Robustness against Adversarial Attack / Model Hardening | | | | |
+| MDS-08 | Model Integrity Checks | | | | |
+| MDS-09 | Model Signing/Ownership Verification | | | | |
+| MDS-10 | Model Continuous Monitoring | | | | |
+| MDS-11 | Model Failure | | | | |
+| MDS-12 | Open Model Risk Assessment | | | | |
+| MDS-13 | Secure Model Format | | | | |
 
 ---
 
