@@ -2438,7 +2438,7 @@ documents:
   domain: "governance"
   type: "Specification"
   title: "Project Governance Separation Specification"
-  version: "1.0.0"
+  version: "1.0.1"
   date: "2026-06-24"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"

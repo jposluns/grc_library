@@ -2,7 +2,7 @@
 
 **Document Title:** Project Governance Separation Specification\
 **Document Type:** Specification\
-**Version:** 1.0.0\
+**Version:** 1.0.1\
 **Date:** 2026-06-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
