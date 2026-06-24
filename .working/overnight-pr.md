@@ -20,6 +20,10 @@ _(updated as PRs merge)_
   - Separate finding (different theme): guardrail-review/SKILL.md:93 word-form "forty-seven"→"forty-eight" (gate-39 can't parse word-forms; TODO §4.8 gap). → PR-B.
   - Surfaced for morning (out-of-window, judgment needed): operations/standard-physical-security-of-it-infrastructure.md:108 cites "I&S-03: ... Physical Security" but I&S-03 = "Network Security" (physical security is the DCS domain) — looks like a control mis-citation; correct replacement (DCS-NN?) needs determination. See morning-review list.
 
+### Shipped
+- **PR #301** (MERGED) — Sweep 36 close-out: CCM/AICM citation residual completion (13 corpus docs + pack README; IVS→I&S, GOV→GRC, AUD→A&A, EKM→CEK, NET removed, AICM v1.0.3→v1.1). All 48 gates green; `/validate-pr` clean; `/retro` recorded (pattern: unfiltered-grep discipline). Library 2026.06.279, pack 1.49.5.
+- **PR #302** (in flight) — Sweep 36 follow-up: guardrail-review word-form gate count forty-seven→forty-eight; carries batched #301 QA rows. Library 2026.06.280, pack 1.49.6.
+
 ## Design decisions made
 
 _(accumulates; routed to design-decisions.md in morning processing)_
