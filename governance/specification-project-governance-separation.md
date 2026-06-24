@@ -83,7 +83,7 @@ Two consequences follow:
 1. **`register-document-index-and-classification.md` indexes corpus files only.** The corpus document index is corpus governance; under the direction rule it cannot list project-governance artefacts. Project-governance artefacts are indexed by `.project-governance/README.md` instead (§6.2).
 2. **Migration is citation surgery, not a file move.** Before any artefact moves to `.project-governance/`, every inbound citation from a corpus document is severed or reworked (§8.2). A leftover corpus-to-project citation violates the direction rule and, because both layers are audited (§6.3), is caught by the broken-link gate.
 
-Because `.project-governance/` is audited rather than exempt, links *within* it and *into* it from non-deliverable surfaces (the pack, `TODO.md`, `CHANGELOG.md`, generated indexes) do not dangle; the direction rule, not link-resolvability, is what the separation turns on. A future mechanical gate can enforce the direction rule directly (a check that no corpus document links into `.project-governance/`); §7.3 records it as queued.
+Because `.project-governance/` is audited rather than exempt, links *within* it and *into* it from non-deliverable surfaces (the pack, the repository backlog and `CHANGELOG.md`, generated indexes) do not dangle; the direction rule, not link-resolvability, is what the separation turns on. A future mechanical gate can enforce the direction rule directly (a check that no corpus document links into `.project-governance/`); §7.3 records it as queued.
 
 ---
 
@@ -114,6 +114,7 @@ The 40 Markdown artefacts in `governance/` as of this specification's date, plus
 | `procedure-library-quality-and-review-cadence.md` | Procedure | Reusable procedure pattern |
 | `procedure-whistleblower-and-incident-reporting.md` | Procedure | Published procedure |
 | `register-ai-security-tooling-landscape.md` | Register | Adopter-facing reference landscape |
+| `register-canonical-citations.md` | Register | Reusable citation *reference* an adopter adapts; the verification *log* (`register-citation-verifications.md`) is the operational instance, not this list |
 | `register-data-retention-schedule.md` | Register | Adopter-facing reference content |
 | `register-digital-trust-and-assurance-metrics.md` | Register | Adopter-facing reference content |
 | `register-document-index-and-classification.md` | Register | Corpus index (corpus files only, per §4) |
@@ -147,7 +148,6 @@ These six are the purest operational instances and their inbound corpus citation
 | --- | --- | --- |
 | `register-coverage-gaps.md` | Register | Operational tracker, but woven into adopter guides (`docs/decision-tree.md`, `docs/template-startup-roadmap.md`); inbound rework is larger |
 | `register-document-review-schedule.md` | Register | Operational schedule, but cited by adopter templates (`docs/template-maturity-self-assessment.md`) and staying procedures/templates |
-| `register-canonical-citations.md` | Register | Arguably an adopter-facing citation *reference*, not pure operational state; heavily cited by corpus and by the pack; classification itself needs a decision |
 
 The deferred set is not a backlog of "move eventually"; each is an open classification question that a later phase resolves on its own merits, with "stays corpus" a legitimate outcome.
 

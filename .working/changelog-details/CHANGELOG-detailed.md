@@ -6,6 +6,37 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.292, PR #314
+
+**Project-governance separation specification; closes R2 by principle.** Spec-only PR: defines the corpus-versus-project governance boundary and queues the migration. No files move.
+
+### Added
+
+- [`governance/specification-project-governance-separation.md`](../../governance/specification-project-governance-separation.md) (v1.0.0): a Specification with nine sections. §3 the classifying criterion (reusable pattern → corpus governance; filled-in operational instance of running this project → project governance), with the citation-verification family worked as the boundary case (the spec and template are reusable patterns and stay corpus; the verifications register and batch worklists are operational instances and move). §4 the one-way dependency rule (project governance may cite corpus; corpus must not cite project governance), the basis the maintainer's "not exempt" decision made cleaner than deletability; consequences: the corpus document index becomes corpus-only, and migration is citation surgery not a file move. §5 the full classification of all 40 current `governance/` artefacts (§5.1 corpus, §5.2 Phase-1 movers, §5.3 deferred). §6 the `.project-governance/` destination (dot-prefixed, its own README index, NOT added to `DEFAULT_EXEMPT_DIRS` so fully audited). §7 gate/generator consequences (corpus index corpus-only; generators exclude the dir; the two path-targeted linters re-point; a directional-dependency gate is queued). §8 the phased migration with the per-move citation-surgery discipline. §8.3 records R1 (correct in `tools/`) and closes R2 (→ Phase 1).
+
+### Changed
+
+- [`governance/README.md`](../../governance/README.md) (`1.10.5` to `1.10.6`): added the Specification to the Active documents table.
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (`1.27.35` to `1.27.36`): indexed the new Specification (it is corpus governance). Note: §4 of the new spec makes this index corpus-only going forward; no project artefacts are present to remove in this PR (none have moved yet).
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the new corpus document via `build-taxonomy.py` and `build-portal.py`.
+- [`TODO.md`](../../TODO.md): removed the R2 deferred-decision item (superseded by the spec); added three forward items (Phase-1 migration, the queued directional-dependency gate, the deferred §5.3 classifications).
+- [`.working/DONE.md`](../DONE.md): R2 closure entry.
+
+### Classification decisions (maintainer, 2026-06-24)
+
+- `framework-document-architecture-and-interrelationship.md` stays corpus: a forking org reuses it as a valid reference document.
+- `register-canonical-citations.md` stays corpus: the canonical citation list is the reusable reference; `register-citation-verifications.md` (the record of having verified those citations) is the operational instance that moves. No good justification to move the reference was found, and the criterion argues for keeping it corpus.
+
+### Verification
+
+- `tools/run_all_audits.sh`: expected 48/48 on the committed state (the new corpus doc is wired into README + index + generators, so no index-coverage or drift failure).
+- `tools/run-pr-time-checks.sh`: expected green (D1 CHANGELOG-on-PR both files, D2 version bump, D3 CHANGELOG-dash, gate 45 TODO staleness) against the merge base.
+- No em/en-dashes in the new spec; `lint-language.py` clean; house spelling (`organisation`) matches the corpus.
+
+### Discipline observation
+
+This PR is the decision record that retires R2 by principle rather than by fiat: instead of choosing a destination for one cluster, it defines the criterion that classifies every artefact, so future artefacts are placed correctly at creation time and the corpus does not re-accumulate operational state. The spec was drafted and held uncommitted (WIP checkpoint `796fd8e`) for maintainer plan-validation before the wiring and bookkeeping were executed, per the explicit "validate before executing" gate.
+
 ## 2026-06-24, Library Version 2026.06.291, PR #313
 
 **FR-167 batch 2: comprehensive Risk-domain coverage + matrix-wide WCO SAFE pillar correction.** Second FR-167 batch (batch 1 = Architecture, #275); next = dev-security (17 docs).
