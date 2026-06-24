@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #309 — S5: gate-48 bare-domain-code check (medium) (2026-06-24)
+
+Added Check 4 to `tools/lint-ccm-aicm-citations.py`: a bare superseded/fabricated CCM domain code (no `-NN` suffix) is flagged when its line names the matrices or sits under a CCM/AICM section and is not a historical rename-note, the family-list / domain-keyed-crosswalk residual class gate 48 was previously blind to. Precision-first (zero corpus false positives: `.NET`, currency `AUD`, MODEL-GOV, and rename-notes all pass; TODO meta-exempted); four regression cases added. Completes the gate-48 enhancement pair with S4.
+
 ### PR #308 — S4: gate-48 section-aware + cross-catalogue title check (medium) (2026-06-24)
 
 Extended `tools/lint-ccm-aicm-citations.py` to look up control-listing titles section-aware (a row under a `## CSA CCM` heading checks against CCM v4.1.0, under `## AICM` against AICM v1.1.0, else the union) and added a cross-catalogue check that flags a divergent-title control (I&S-07) cited with the other catalogue's distinctive word, the gate-escaping class the #299 `/validate-pr` had to catch by hand. Two regression cases added; gate stays clean on the corpus.

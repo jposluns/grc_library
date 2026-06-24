@@ -57,6 +57,21 @@ Checks:
     Controls whose titles differ only by punctuation (IAM-11's apostrophe)
     have no distinctive content word and are intentionally not policed.
 
+  * **Bare domain code** (CCM/CSA-context lines): a superseded or fabricated
+    domain code cited as a bare token with no ``-NN`` suffix (a framework
+    family list, a domain-keyed crosswalk row, a glossary-style entry) carries
+    nothing for the code-validity check to see. This check flags such a bare
+    known-bad code when the line either names the matrices (CCM / CSA / Cloud
+    Controls Matrix / AICM) or sits under a CCM/AICM section heading, and is
+    not a historical rename-note (``renamed`` / ``superseded`` / ``corrected``
+    and similar). The boundary excludes ``.NET``, the corpus-internal
+    ``AI-GOV`` / ``MODEL-GOV`` identifiers, and the ``<CODE>-<NN>`` tokens; the
+    CCM-context requirement excludes currency ``AUD`` and "government" prose.
+    Recall is deliberately precision-first: a bad code in a multi-framework
+    mapping table where the CCM column is unlabelled on the row and the section
+    heading is generic is not caught here (the orchestrator's apply-time
+    standalone-token grep and the periodic sweep cover that tail).
+
 Scope: ``*.md`` under the repository root, minus DEFAULT_EXEMPT_DIRS (which
 includes ``.working`` and ``.claude``) and the append-only CHANGELOG files.
 
@@ -93,11 +108,16 @@ except ImportError as exc:  # pragma: no cover - import guard
 # contain the codes the gate searches for; per the audit-programme spec §3.4
 # (design principle 4, meta-document exception) they are exempted by name.
 # CHANGELOG.md (and its .working detailed mirror) carry historical examples;
-# the audit-programme and citation-verification specs document the gate itself.
+# the audit-programme and citation-verification specs document the gate itself;
+# TODO.md is forward-looking backlog meta that names the superseded codes when
+# describing the gate's own follow-up items (the S5 entry, DD-12, the sweep
+# cursor), not corpus citation content, so the bare-domain-code check (Check 4)
+# would otherwise false-positive on it.
 EXEMPT_FILES = frozenset({
     "CHANGELOG.md",
     "specification-audit-programme.md",
     "specification-citation-verification.md",
+    "TODO.md",
 })
 
 # CCM/AICM-family domain prefixes worth policing: the valid domains plus the
@@ -124,6 +144,31 @@ ROW_RE = re.compile(r"^\|\s*([A-Z&]{2,5}-\d{1,2})\s*\|\s*([^|]*?)\s*\|")
 # to Hosted Environments" in AICM v1.1.0), and because the two titles share content
 # words the conservative content-word check below never fires on the mix-up.
 HEADING_RE = re.compile(r"^#{1,6}\s+(.*)$")
+
+# Known-bad domain codes as BARE standalone tokens (no ``-NN`` suffix, which the
+# Check-1 code-validity scan handles). The boundary excludes ``.NET`` (a leading
+# dot), the corpus-internal ``AI-GOV`` / ``MODEL-GOV`` identifiers (a leading
+# hyphen), and the ``<CODE>-<NN>`` control tokens (a trailing hyphen). Built from
+# KNOWN_BAD_DOMAINS so the set stays in sync with the reference module.
+_BARE_BAD_ALTERNATION = "|".join(
+    re.escape(c) for c in sorted(KNOWN_BAD_DOMAINS, key=len, reverse=True))
+BARE_BAD_CODE_RE = re.compile(
+    r"(?<![A-Za-z0-9.&\-])(" + _BARE_BAD_ALTERNATION + r")(?![A-Za-z0-9\-])")
+
+# A line names the matrices explicitly (the Check-4 line-local CCM/CSA signal).
+# Combined with the section tracker, this scopes the bare-domain-code check so it
+# does not fire on ``.NET``, currency ``AUD``, "government" prose, or other
+# non-CCM uses of these letters that happen to sit outside any CCM context.
+CCM_CONTEXT_RE = re.compile(r"(?i)(CCM|CSA|Cloud Controls Matrix|AICM|AI Controls Matrix)")
+
+# A historical / rename-note / supersession line legitimately names an old code
+# while describing its replacement (it is not a current citation), so Check 4
+# exempts it. The canonical cases are the glossary I&S rename-note ("Renamed from
+# the v4.0 IVS ... domain") and the pack README version-history rows ("corrected
+# the superseded CCM v4.0 domain code IVS to ...").
+HISTORICAL_RE = re.compile(
+    r"(?i)(renamed|superseded|formerly|previously|deprecated|corrected|"
+    r"fabricated|no such|does not exist)")
 
 _STOPWORDS = frozenset(
     {"and", "the", "of", "for", "to", "in", "on", "by", "with", "or",
@@ -266,6 +311,32 @@ def scan_file(path: Path) -> list[Finding]:
                             f"'{title}', which matches the {other_cat} variant, "
                             f"not the {section_label} title '{canonical}'",
                             line.strip()[:140]))
+
+        # Check 4: bare known-bad domain codes (no -NN suffix) in a CCM/CSA
+        # context. Catches superseded / fabricated domain *names* (framework
+        # family lists, domain-keyed crosswalk rows, glossary-style entries)
+        # that carry no <CODE>-<NN> token for Check 1 to see. Scoped to lines
+        # that name the matrices OR sit under a CCM/AICM section, and exempting
+        # historical rename-notes, so it does not fire on `.NET`, currency
+        # `AUD`, "government" prose, or the corpus-internal MODEL-GOV / AI-GOV
+        # identifiers. Recall is deliberately bounded to high-confidence CCM
+        # contexts (precision-first): a bad code in a multi-framework mapping
+        # table where the CCM column is unlabelled on the row and the section
+        # heading is generic is NOT caught here; the orchestrator's apply-time
+        # standalone-token grep and the periodic /validate sweep cover that tail.
+        if not HISTORICAL_RE.search(line) and (
+                section in ("ccm", "aicm") or CCM_CONTEXT_RE.search(line)):
+            seen_bad: set[str] = set()
+            for bm in BARE_BAD_CODE_RE.finditer(line):
+                bad = bm.group(1)
+                if bad in seen_bad:
+                    continue
+                seen_bad.add(bad)
+                findings.append(Finding(
+                    path, i, "ccm-bare-domain-code",
+                    f"bare '{bad}' in a CCM/CSA context is not a CCM v4.1 / "
+                    f"AICM v1.1 domain code; use {KNOWN_BAD_DOMAINS[bad]}",
+                    line.strip()[:140]))
     return findings
 
 
