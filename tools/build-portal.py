@@ -317,7 +317,7 @@ def build_portal(docs: list[dict]) -> str:
     out.append("")
     out.append("## Overview")
     out.append("")
-    out.append("This page is a navigation aid for the most common adopter audiences. Each section lists the documents most likely to be useful to that role, drawn from the machine-readable taxonomy and grouped by document type. The full document index lives in [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md).")
+    out.append("This page is a navigation aid for the most common adopter audiences. Each section lists the documents most likely to be useful to that role, drawn from the machine-readable taxonomy and grouped by document type. The full document index lives in [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md); term definitions and acronym expansions are in the [`governance/register-glossary.md`](../governance/register-glossary.md).")
     out.append("")
     out.append("This portal is the canonical front door for adopters. The audience-keyed groupings below are the primary entry point. Four further adopter-facing documents support the portal as deeper-dive paths for specific questions; the \"Other entry points and when to use them\" section immediately below maps each to its purpose so a reader can pick the path that matches their question.")
     out.append("")

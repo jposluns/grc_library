@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-portal.py`.
 **Document Title:** Adopter Portal\
 **Document Type:** Guide\
 **Version:** 1.2.0\
-**Date:** 2026-06-23\
+**Date:** 2026-06-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
@@ -23,7 +23,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-portal.py`.
 
 ## Overview
 
-This page is a navigation aid for the most common adopter audiences. Each section lists the documents most likely to be useful to that role, drawn from the machine-readable taxonomy and grouped by document type. The full document index lives in [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md).
+This page is a navigation aid for the most common adopter audiences. Each section lists the documents most likely to be useful to that role, drawn from the machine-readable taxonomy and grouped by document type. The full document index lives in [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md); term definitions and acronym expansions are in the [`governance/register-glossary.md`](../governance/register-glossary.md).
 
 This portal is the canonical front door for adopters. The audience-keyed groupings below are the primary entry point. Four further adopter-facing documents support the portal as deeper-dive paths for specific questions; the "Other entry points and when to use them" section immediately below maps each to its purpose so a reader can pick the path that matches their question.
 
