@@ -18,17 +18,24 @@ The ratio `shipped escapes / total worker errors` is the discipline's leak rate.
 
 ---
 
-## Current state (as of PR #176, 2026-06-21)
+## Current state (as of PR #294, 2026-06-24)
+
+Two clarifications surfaced on this recompute (the table had been frozen at PR #176):
+
+1. **Scope drift in the log.** The file's Definitions scope the metric to **worker-draft errors**, but the catches log has accumulated a distinct class: **orchestrator-side discipline catches** (multi-surface incompleteness, the C-9 mandatory-QA skip, registry/docstring oversights). These are not worker hallucinations; they are counted on a separate row below rather than inflating the worker-error rate.
+2. **Log currency.** The per-event catches/escapes logs below run through Sweep 30 / PR #275. Catches recorded since then (PR #277-#294) live in the per-PR `/retro` ([`improvement-log.md`](improvement-log.md)) and `/validate-pr` ([`validate-pr/`](validate-pr/)) records; they are summarized here, not re-logged line-by-line.
 
 | Metric | Count | Notes |
 | --- | --- | --- |
-| Worker-driven PRs shipped under the research-assistant discipline | ~30 | Discipline introduced mid-session; precise count includes all Phase 1 bundles plus the meta-PRs that used research drafts. |
-| Apply-time catches | ~5 | Stale version numbers, file-path confabulations, PR / FR cross-references, ISO/IEC publication years. |
-| Shipped escapes (caught post-merge) | 2 | P1.3 worker drafted a non-existent file path (caught pre-apply by orchestrator's `find`, so technically apply-time, but borderline); Sweep 15 worker cited `ISO/IEC 29134:2023` which is unverified (caught by `/validate` Sweep 15, fixed in PR #167). |
-| Apply-time catch rate (catches / (catches + escapes)) | ~5 / ~7 = 71% | Sample size is small; trend signal more than calibrated rate. |
-| Shipped escape rate (escapes / worker-driven PRs) | ~2 / ~30 = 7% | Each escape was low-impact (single citation year, single file path) and was caught within the next sweep or fitness pass. |
+| Worker-driven PRs under the research-assistant discipline | ~55 (approx) | ~30 as of #176 + the XS/S batch (PR-A/B/C/E/F/H = #282/#283/#287/#290/#291/#294), the FR-167 matrix batches, and assorted fitness PRs since. Approximate per this file's "trend over precision" protocol. |
+| Worker-draft apply-time catches (logged through #275) | 10 | Stale version/library bumps (#172/#178/#179), wrong PR/FR cross-refs (#172/#178), confabulated file path (#169), control-identifier hallucination (#275), subagent incomplete-enumeration (Sweep 30). |
+| Worker-draft apply-time catches (post-#275, in /retro + /validate-pr records) | ~3 | #290 stale FR-pointer reconciliation; #294 FR-155 premise correction; #294 B2 unverifiable-citation deferral (a prevented escape). |
+| Worker-draft shipped escapes | 2 | ISO/IEC 29134:2023 citation year (#162, caught `/validate` Sweep 15, fixed #167); the #169 file-path (borderline, caught at the apply boundary). No worker-draft escape logged since #167 (~127 PRs). |
+| Worker-draft apply-time catch rate | ~13 / ~15 ≈ 87% | Catches / (catches + escapes), worker-draft class only. Both escapes predate #167, so the recent-window rate is ~100%. Small sample; trend signal. |
+| Worker-draft shipped-escape rate | 2 / ~55 ≈ 4% | Trending down: the worker-brief template hardening (1.1.0, #275: control-id verification) addressed the most recent worker-error class at source. |
+| Orchestrator-side discipline catches (distinct class) | ~9 | Multi-surface incompleteness (#181 ×2, #294 range-summary ripple), paired-surface/registry/docstring misses (#186 ×3), C-9 mandatory-QA skip (#187), Date-bump near-escape (#179), self-authored citation over-specification (#287). Caught by `/validate`, `/validate-pr`, or CI, not by worker review. |
 
-The two shipped escapes were both caught within one cycle of the validation programme. No worker error has shipped that was not caught at the next regression interval.
+**Trend read.** The worker-draft escape rate is low and falling (no worker-draft escape logged since #167); the worker-brief template now guards the most recent worker-error class (control identifiers) at source. The **active** class is now orchestrator-side: the multi-surface / paired-surface incompleteness family the `/retro` log keeps surfacing (#181, #278, #294), which is exactly the signal driving the TODO §4.8 codification backlog. The metric's usefulness going forward is less about worker hallucination (controlled) and more about whether the orchestrator-side apply-time disciplines get codified before they recur.
 
 ---
 

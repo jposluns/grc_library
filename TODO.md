@@ -87,6 +87,7 @@ Individual documents or focused multi-doc improvements. The deferred-decision it
 
 Deferred to a routine cleanup batch when convenient. The Low/FYI trust-recovery findings, the decided low-severity deferred decisions (DD-10, DD-12), and the now-decided B2 register addition are integrated here.
 
+- **Retention-range ripple from DD-6/7 (Low, XS) — #294 `/validate-pr`, fixes bundle into PR-I**: the new "AI decision and detection logs | 7 years" register row (DD-6/7) outdated two citers' summaries of the register's range. Fix in PR-I: (1, warning) [`governance/standard-records-retention-and-destruction.md`](governance/standard-records-retention-and-destruction.md):77 widen the IT/Security "1 to 5 years" bound to "1 to 7 years" and add "AI decision and detection logs 7 years" to the example; (2, note) [`security/standard-logging-and-monitoring.md`](security/standard-logging-and-monitoring.md):92 append ", AI decision and detection logs 7 years" to the §4.1 example list. Both need a per-doc Version+Date bump. See [`.working/validate-pr/2026-06-24-PR-294.md`](.working/validate-pr/2026-06-24-PR-294.md).
 - **ERC acronym expansion inconsistency (Low, S) — surfaced 2026-06-23 (PR-H authoring)**: "ERC" is expanded as both "Enterprise Risk Committee" (×12) and "Executive Risk Committee" (×10) across the corpus. Pick one canonical expansion (recommend "Enterprise Risk Committee", matching [`risk/policy-enterprise-governance-and-risk-management.md`](risk/policy-enterprise-governance-and-risk-management.md):39) and reconcile the other surfaces. Candidate for PR-I (cross-doc consistency).
 - **FR-159 [fitness:P10] (FYI, S) ⚠**: Portal Overview has no glossary pointer; fix in [`tools/build-portal.py`](tools/build-portal.py) (portal.md is generated).
 - **FR-160 [fitness:P7] (FYI, S) ⚠**: DR recovery tiers vs SLM service tiers label divergence.
@@ -111,10 +112,6 @@ A review of [`.working/improvement-log.md`](.working/improvement-log.md) found t
 - **Codify compute-don't-ask** (#269) into the `clarify-before-acting` rule's "ask vs default" test — it currently distinguishes ask-vs-sensible-default but not ask-vs-self-compute.
 - **New-skill-drafting checklist** (#213) — enumerate the parallel surfaces (link depths, pack-README skills-table row, PAIRS registry, language pre-flight, slash-command sibling).
 - **Broaden the count gate (remainder)**: gate 39 P8 closed "N automated audits" (#273); still open are word-form counts ("forty-six") via a word→number map and the free-prose rule-count gate (gate 41 can't parse "the N governance rules").
-
-### 4.9 Refresh the hallucination-metrics summary table (S) — surfaced 2026-06-23
-
-The summary table in [`.working/hallucination-metrics.md`](.working/hallucination-metrics.md) is frozen "as of PR #176" while the catches/escapes logs are current through Sweep 30 / #275 (~100 PRs of drift), so the headline trend signal — the file's purpose — is currently unreadable. Recompute the counts (worker-driven PRs, apply-time catches, shipped escapes, catch/escape rates) from the live logs; the file's own protocol says refresh every 5-10 PRs or at session-pause. Pure working-state housekeeping; surface the recomputed counts before committing.
 
 ### 4.2 Backlog effort-sizing labels convention (M, S)
 
@@ -285,7 +282,7 @@ Approximate active counts after the 2026-06-23 restructure (the priority section
 - **P1 (urgent quality)**: ~18 items (8 H[critical] + 10 H).
 - **P2 (substantive improvements)**: ~36 items (Medium fitness findings + the former Phase 2 clusters + DD-2/3/4/5/8/11 + relocations + loop-break-generalize).
 - **P3 (low-priority cleanup)**: ~20 items (Low/FYI findings + DD-10 + DD-12 + B2 + routine cleanup).
-- **P4 (adopter experience)**: 10 subsections (4.1-4.10).
+- **P4 (adopter experience)**: 9 subsections (4.1-4.8, 4.10; 4.9 closed in PR #295).
 - **P5 (content expansion)**: 8 subsections (5.1-5.8).
 - **P6 (domain-level)**: 5 items (6.1-6.5).
 - **P7 (awaiting decision)**: 0 pending + 2 dropped-decision audit-trail entries.
