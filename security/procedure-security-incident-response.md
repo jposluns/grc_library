@@ -2,8 +2,8 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.10\
-**Date:** 2026-06-23\
+**Version:** 1.3.11\
+**Date:** 2026-06-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md)\
@@ -49,9 +49,9 @@ This procedure applies to:
 | **Chief Information Officer (CIO)** | Notified immediately for P1 incidents. Provides executive oversight and approves communications to affected customers, partners, and regulators. |
 | **Security Operations Centre (SOC)** | Operates SIEM and endpoint monitoring. Performs initial triage, severity classification, and evidence preservation. Executes containment and eradication steps under Incident Commander direction. Maintains timestamped logs of all IR actions. |
 | **IT Operations** | Supports containment and recovery activities. Executes technical remediation steps as directed by the Incident Commander. |
-| **Legal Counsel** | Advises on regulatory notification obligations (for example, GDPR, CPPA, PIPL; plus sector-programme regulatory obligations such as BASC where the organisation participates). Provides guidance on evidence preservation, litigation hold, and third-party disclosure. |
+| **Legal Counsel** | Advises on regulatory notification obligations (for example, GDPR, PIPEDA, PIPL; plus sector-programme regulatory obligations such as BASC where the organisation participates). Provides guidance on evidence preservation, litigation hold, and third-party disclosure. |
 | **IR Partner** | External incident response partner engaged by the CISO for P1 incidents. Contact details are maintained in the operational state register. |
-| **Privacy Lead / Acting DPO** | Assesses privacy impact of incidents involving personal data. Coordinates regulatory breach notifications under GDPR, CPPA, and PIPL. |
+| **Privacy Lead / Acting DPO** | Assesses privacy impact of incidents involving personal data. Coordinates regulatory breach notifications under GDPR, PIPEDA, and PIPL. |
 | **All Employees** | Responsible for immediately reporting any suspected security incident to the SOC or security operations team. No silent remediation is permitted. |
 
 Sector-conditional roles (for example, a BASC Regional Compliance Officer who is notified for any incident affecting trade, customs, or cargo systems and coordinates sector-programme reporting and corrective actions) apply where the organisation participates in a covered sector programme; see [`compliance/`](../compliance/).
@@ -173,13 +173,13 @@ Once the scope of compromise is confirmed, the SOC and IT Operations shall:
 | Regulation | Trigger | Notification Deadline | Notifying Authority |
 | --- | --- | --- | --- |
 | **GDPR (EU)** | Confirmed breach of personal data of EU data subjects with likely risk to individuals | 72 hours from confirmation | CISO / Privacy Lead to relevant supervisory authority; individuals where high risk |
-| **CPPA (Canada)** | Confirmed breach of personal information with real risk of significant harm | As soon as feasible (no fixed statutory deadline) | CIO (acting DPO) to Privacy Commissioner of Canada |
+| **PIPEDA (Canada)** | Confirmed breach of personal information with real risk of significant harm | As soon as feasible (no fixed statutory deadline) | CIO (acting DPO) to Privacy Commissioner of Canada |
 | **Quebec Law 25** | Confirmed breach of personal information with serious risk of injury | 72 hours to Commission d'accès à l'information | CIO (acting DPO) |
 | **PIPL (China)** | Confirmed breach of personal data of China data subjects | Immediately / without delay | CISO / Privacy Lead to relevant authority |
 
 Sector-programme notification obligations (for example, BASC requirements for trade, cargo, or customs anomalies meeting the BASC breach threshold) apply where the organisation participates in a covered sector programme. The relevant sector annex states the trigger, timeframe, and notification path; see [`compliance/`](../compliance/).
 
-### 6.2 GDPR and CPPA notification process
+### 6.2 GDPR and PIPEDA notification process
 
 1. The Privacy Lead assesses whether the incident involves personal data and whether the risk threshold for notification is met.
 2. Legal Counsel reviews and approves notification content before submission.

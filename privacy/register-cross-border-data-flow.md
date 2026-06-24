@@ -2,8 +2,8 @@
 
 **Document Title:** Cross-Border Data Flow Register\
 **Document Type:** Register\
-**Version:** 1.0.3\
-**Date:** 2026-06-22\
+**Version:** 1.0.4\
+**Date:** 2026-06-24\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/README.md`](README.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)\
@@ -22,7 +22,7 @@
 
 ## Purpose
 
-This register documents all cross-border transfers of personal data from the organisation's operating jurisdictions to third countries. It provides the basis for demonstrating compliance with Chapter V of the GDPR, Schedule 21 of the UK GDPR, and equivalent requirements under applicable privacy laws in Canada (PIPEDA/CPPA), Quebec (Law 25), Brazil (LGPD), China (PIPL), and other applicable regimes.
+This register documents all cross-border transfers of personal data from the organisation's operating jurisdictions to third countries. It provides the basis for demonstrating compliance with Chapter V of the GDPR, Schedule 21 of the UK GDPR, and equivalent requirements under applicable privacy laws in Canada (PIPEDA), Quebec (Law 25), Brazil (LGPD), China (PIPL), and other applicable regimes.
 
 ---
 
@@ -34,7 +34,7 @@ Cross-border data transfer restrictions apply when personal data is transmitted,
 |---|---|---|
 | **GDPR (EU)** | Transfer outside EEA | Adequacy decision; Standard Contractual Clauses (SCCs 2021); Binding Corporate Rules (BCRs); Derogations (Article 49) |
 | **UK GDPR** | Transfer outside UK | UK adequacy regulations; International Data Transfer Agreement (IDTA); UK Addendum to EU SCCs; BCRs; Derogations |
-| **PIPEDA / CPPA (Canada)** | Transfer outside Canada | Contractual protection; consent where appropriate |
+| **PIPEDA (Canada)** | Transfer outside Canada | Contractual protection; consent where appropriate |
 | **Quebec Law 25** | Transfer outside Quebec | Privacy Impact Assessment (PIA); contractual protection |
 | **LGPD (Brazil)** | Transfer outside Brazil | Adequacy decision by ANPD; contractual clauses; BCRs; specific consent; international convention |
 | **PIPL (China)** | Transfer outside China | Cyberspace Administration of China (CAC) security assessment; standard contract filed with CAC; personal information protection certification; applicable treaty |

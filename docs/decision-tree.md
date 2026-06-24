@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.5\
-**Date:** 2026-06-23\
+**Version:** 1.0.6\
+**Date:** 2026-06-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
@@ -79,7 +79,7 @@ Answer each of the following to determine your reading path.
 - Process personal data of EU residents (GDPR)
 - Process personal data of UK residents (UK GDPR)
 - Process personal data of California residents (CCPA/CPRA)
-- Process personal data of Canadian residents (CPPA / PIPEDA / Quebec Law 25)
+- Process personal data of Canadian residents (PIPEDA / Quebec Law 25)
 - Operate as a financial-services entity in the EU (DORA in scope)
 - Publicly-traded in the US (SOX in scope)
 - Provide cloud services to US federal agencies (FedRAMP in scope)

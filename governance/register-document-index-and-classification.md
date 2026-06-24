@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.36\
+**Version:** 1.27.37\
 **Date:** 2026-06-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -115,12 +115,12 @@ All active repository documents should be Public.
 | Operations | Procedure | Security Monitoring and Alert Management | [`operations/procedure-security-monitoring-and-alert-management.md`](../operations/procedure-security-monitoring-and-alert-management.md) | Chief Information Security Officer | Annual | ISO 27001 Annex A.8.15 to 16, NIST SP 800-53 SI, MITRE ATT&CK |
 | Operations | Procedure | Threat Intelligence and SIEM Operations | [`operations/procedure-threat-intelligence-and-siem-operations.md`](../operations/procedure-threat-intelligence-and-siem-operations.md) | Chief Information Security Officer | Annual | NIST SP 800-150, MITRE ATT&CK, STIX/TAXII, CSA CCM TVM |
 | Operations | Procedure | Patch Management Procedure | [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md) | Chief Information Officer | Annual | NIST SP 800-40, ISO 27001 Annex A.8.8, CSA CCM TVM-08, CIS Controls v8 |
-| Privacy | Charter | Privacy Management Programme Charter | [`privacy/charter-privacy-management-programme.md`](../privacy/charter-privacy-management-programme.md) | Data Protection Officer | Annual | ISO 27701, GDPR, CPPA, PIPEDA, Quebec Law 25 |
-| Privacy | Policy | Privacy and Data Governance Policy | [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) | Data Protection Officer | 6 to 12 months | ISO/IEC 27701:2025, ISO 8000-8, GDPR, CPPA, PIPL, LGPD, EU Data Act (Regulation (EU) 2023/2854) |
+| Privacy | Charter | Privacy Management Programme Charter | [`privacy/charter-privacy-management-programme.md`](../privacy/charter-privacy-management-programme.md) | Data Protection Officer | Annual | ISO 27701, GDPR, PIPEDA, Quebec Law 25 |
+| Privacy | Policy | Privacy and Data Governance Policy | [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) | Data Protection Officer | 6 to 12 months | ISO/IEC 27701:2025, ISO 8000-8, GDPR, PIPEDA, PIPL, LGPD, EU Data Act (Regulation (EU) 2023/2854) |
 | Privacy | Procedure | Privacy Impact and Cross-Border Transfer Procedure | [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | Data Protection Officer | Annual | GDPR Art 35, ISO 27701 §7.4, PIPL Arts 38 to 40, AIDA §29 |
-| Privacy | Procedure | Data Subject Rights Management Procedure | [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md) | Data Protection Officer | Annual | GDPR Arts 15 to 22, CPPA, PIPL Arts 44 to 47, ISO 27701 §7.3 |
-| Privacy | Procedure | Data Protection and Privacy Breach Response Procedure | [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Data Protection Officer | Annual | GDPR Arts 33 to 34, CPPA, PIPL Art 57, LGPD, Quebec Law 25, breach assessment, notification |
-| Privacy | Template | Record of Processing Activities Template | [`privacy/template-record-of-processing-activities.md`](../privacy/template-record-of-processing-activities.md) | Data Protection Officer | Annual | GDPR Art 30, UK GDPR, LGPD Art 37, CPPA, PIPL Art 55, ISO 27701 §7.2.8 / §8.2.6 |
+| Privacy | Procedure | Data Subject Rights Management Procedure | [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md) | Data Protection Officer | Annual | GDPR Arts 15 to 22, PIPEDA, PIPL Arts 44 to 47, ISO 27701 §7.3 |
+| Privacy | Procedure | Data Protection and Privacy Breach Response Procedure | [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Data Protection Officer | Annual | GDPR Arts 33 to 34, PIPEDA, PIPL Art 57, LGPD, Quebec Law 25, breach assessment, notification |
+| Privacy | Template | Record of Processing Activities Template | [`privacy/template-record-of-processing-activities.md`](../privacy/template-record-of-processing-activities.md) | Data Protection Officer | Annual | GDPR Art 30, UK GDPR, LGPD Art 37, PIPEDA, PIPL Art 55, ISO 27701 §7.2.8 / §8.2.6 |
 | Privacy | Template | Privacy Notice Template | [`privacy/template-privacy-notice.md`](../privacy/template-privacy-notice.md) | Data Protection Officer | Annual | GDPR Arts 12 to 14, UK GDPR, LGPD Arts 6/9/18, PIPL Arts 17 to 21, CCPA/CPRA, ISO/IEC 29184 |
 | Privacy | Template | Data Subject Access Request Workflow Template | [`privacy/template-dsar-workflow.md`](../privacy/template-dsar-workflow.md) | Data Protection Officer | Annual | GDPR Arts 12 to 23, LGPD Arts 17 to 22, PIPL Arts 44 to 50, CCPA/CPRA, ISO 27701 §7.3 |
 | Privacy | Template | Data Protection Impact Assessment Template | [`privacy/template-dpia.md`](../privacy/template-dpia.md) | Data Protection Officer | Annual | GDPR Art 35, EDPB WP248, UK GDPR Art 35, LGPD Art 38, PIPL Art 55, EU AI Act Art 27, ISO/IEC 29134:2017, ISO/IEC 27701:2025 |

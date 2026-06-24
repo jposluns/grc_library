@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #320 — DD-8: CPPA-as-live → PIPEDA scrub (medium) (2026-06-24)
+
+Corpus-wide scrub of the live-regime-sense Consumer Privacy Protection Act (CPPA, lapsed Bill C-27) to PIPEDA (the in-force Canadian federal privacy law) across 29 documents, full principled scrub per maintainer choice: bare CPPA in live-applicable lists → PIPEDA, "PIPEDA / CPPA" pairs → drop the redundant live-CPPA, CPPA-specific content (algorithmic-transparency row, jurisdiction-coverage index) qualified "(proposed)/(pending)", and the glossary "PIPEDA being superseded by CPPA" factual error fixed. Preserved the distinct California Privacy Protection Agency sense and all already-qualified pending/proposed mentions. Surfaced by PR #264 (FR-138), which scrubbed three privacy docs and deferred the broader sweep.
+
 ### PR #318 — DD-4/DD-5: TLS 1.3 (medium) (2026-06-24)
 
 Completed the FR-135-deferred TLS-1.3 rewrite of the pack's `languages/go.md` (MinVersion now TLS 1.3; dropped the now-prohibited explicit TLS-1.2 cipher-suite list, which Go ignores under a 1.3 minimum) and raised supplier-questionnaire Q5.4 from "TLS 1.2 or higher" to "TLS 1.3 or higher". The operations media-handling surface was already TLS 1.3 (no change needed); `core/owasp.md` intentionally left at the OWASP ASVS baseline.

@@ -2,7 +2,7 @@
 
 **Document Title:** Compliance Obligations Register Template\
 **Document Type:** Register\
-**Version:** 1.0.7\
+**Version:** 1.0.8\
 **Date:** 2026-06-24\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -113,7 +113,7 @@ Populate the register across the following obligation categories. Each category 
 
 | Category | Typical Sources | Priority |
 |---|---|---|
-| **Data Protection and Privacy** | GDPR, UK GDPR, PIPEDA, CPPA, PIPL, LGPD, Quebec Law 25 | High |
+| **Data Protection and Privacy** | GDPR, UK GDPR, PIPEDA, PIPL, LGPD, Quebec Law 25 | High |
 | **Information Security** | ISO 27001, NIST CSF, sector-specific cybersecurity regulations | High |
 | **Trade and Customs Compliance** | CTPAT, PIP, AEO-S, BASC, NEEC, OEA, WCO SAFE, import/export regulations | High |
 | **AI and Algorithmic Systems** | EU AI Act, AIDA, proposed national AI regulations | High |

@@ -2,8 +2,8 @@
 
 **Document Title:** Data Classification and Handling Standard\
 **Document Type:** Standard\
-**Version:** 1.3.4\
-**Date:** 2026-06-22\
+**Version:** 1.3.5\
+**Date:** 2026-06-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -140,7 +140,7 @@ Where the organisation participates in a sector programme that imposes additiona
 
 | Control Area | ISO/IEC 27002 | COBIT 2019 | CSA CCM v4.1 | Legal / Regulatory |
 | --- | --- | --- | --- | --- |
-| Classification and labelling | §§5.12 to 5.15 | DSS05 | DSP-02 | GDPR Art. 32, CPPA |
+| Classification and labelling | §§5.12 to 5.15 | DSS05 | DSP-02 | GDPR Art. 32, PIPEDA |
 | Encryption | §8.24 | DSS05.03 | CEK-01 to 21 | BASC §6 |
 | Retention and disposal | §8.10 | DSS05 | DSP-07 | ISO/IEC 27701 §8.8 |
 | AI data handling | N/A | DSS05.06 | N/A | AIDA, PIPEDA |

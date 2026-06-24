@@ -2,8 +2,8 @@
 
 **Document Title:** Joint Controller Arrangement Template\
 **Document Type:** Template\
-**Version:** 1.0.0\
-**Date:** 2026-06-22\
+**Version:** 1.0.1\
+**Date:** 2026-06-24\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md)\
@@ -163,7 +163,7 @@ Joint controllership exists under several regimes with substantively similar req
 | **LGPD** (Brazil) | Co-controllers / operadores conjuntos (Article 5(VI)) | ANPD is the supervisory authority; written arrangement required |
 | **PIPL** (China) | Joint personal information handlers (Article 20) | Public notice of arrangement required; CAC is the supervisory authority |
 | **India DPDP Act 2023** | Joint data fiduciaries | Data Protection Board of India is the supervisory authority |
-| **CPPA / PIPEDA** (Canada) | No formal "joint controller" concept; contractual allocation between controllers; OPC is the supervisory authority | Contractual best-practice mirrors GDPR Article 26 |
+| **PIPEDA** (Canada) | No formal "joint controller" concept; contractual allocation between controllers; OPC is the supervisory authority | Contractual best-practice mirrors GDPR Article 26 |
 | **CCPA / CPRA** (California) | "Business-to-business" or "joint operators" patterns; agreement required for shared purposes | California Privacy Protection Agency (CPPA) is the regulator |
 
 For multi-jurisdiction arrangements, the arrangement must satisfy the strictest applicable regime in each section.

@@ -2,8 +2,8 @@
 
 **Document Title:** Exception and Risk Acceptance Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.3\
-**Date:** 2026-06-23\
+**Version:** 1.3.4\
+**Date:** 2026-06-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md)\
@@ -141,7 +141,7 @@ The renewal number and the approving authority shall be recorded on the exceptio
 | Control Area | ISO/IEC 27001 | COBIT 2019 | CSA | NIST | Legal and Regulatory | Trade and Supply Chain Programs |
 |---------------|----------------|-------------|-----|------|----------------------|---------------------------------|
 | Governance and oversight | Annex A.5.36 | APO12.06 | CCM GRC-12 | SP 800-37 Step 6 | SOX, GDPR Article 32 Accountability | WCO SAFE equivalence |
-| Risk assessment and approval | Clause 6 and ISO 31000 | APO12.03 | CCM GRC-02 | SP 800-30, SP 800-37 Step 3 | CPPA, AIDA | WCO SAFE equivalence |
+| Risk assessment and approval | Clause 6 and ISO 31000 | APO12.03 | CCM GRC-02 | SP 800-30, SP 800-37 Step 3 | PIPEDA, AIDA | WCO SAFE equivalence |
 | Time-bound authorization | Annex A.5.36 | APO12.06 | CCM GRC-12 | SP 800-37 Step 6 | Contractual risk governance | WCO SAFE equivalence |
 | Exception tracking and reporting | Annex A.5.36 | MEA01 | CCM GRC-12 | SP 800-53 CA-6 | Audit transparency | WCO SAFE equivalence |
 | Closure and validation | Annex A.5.36 | DSS04 | CCM GRC-12 | SP 800-37 Step 6 | Regulatory evidence requirements | WCO SAFE equivalence |

@@ -2,7 +2,7 @@
 
 **Document Title:** Compliance, Audit, and CAPA Management Policy\
 **Document Type:** Policy\
-**Version:** 1.0.3\
+**Version:** 1.0.4\
 **Date:** 2026-06-24\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -125,7 +125,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 
 | Control Area | ISO 37301 | ISO 19011 | COBIT 2019 | CSA | NIST | Legal / Regulatory | Trade and Supply Chain Programs |
 |---------------|------------|------------|-------------|------|-------|--------------------|--------------------------------|
-| Compliance governance | Clauses 5 to 6 Leadership | Clause 5 Governance | MEA01.01 Establish governance | GRC 01 to 03 | NIST CSF Govern | GDPR, CPPA | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO |
+| Compliance governance | Clauses 5 to 6 Leadership | Clause 5 Governance | MEA01.01 Establish governance | GRC 01 to 03 | NIST CSF Govern | GDPR, PIPEDA | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO |
 | Compliance risk and obligations register | Clauses 6 to 7 Planning | N/A | APO12 linkage | GRC 04 | NIST RMF Prepare | Multi-jurisdiction | WCO SAFE equivalence |
 | Audit planning and execution | Clauses 8 to 9 Operation | Clauses 6 to 9 | MEA01.02 Conduct assessments | A&A 01 to 04 | NIST SP 800-53 CA-2, CA-5 | AI Act, sectoral laws | WCO SAFE equivalence |
 | Findings and CAPA | Clause 10 Improvement | Clause 10 Improvement | MEA01.05 Review and report | GRC 05, A&A 05 | NIST CA-7, IR-4 | CAPA regulations | WCO SAFE equivalence |

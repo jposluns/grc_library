@@ -2,8 +2,8 @@
 
 **Document Title:** Financial Services Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.3\
-**Date:** 2026-05-28\
+**Version:** 1.0.4\
+**Date:** 2026-06-24\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -62,7 +62,7 @@ This annex applies where an organisation:
 | **OSFI Guideline B-10: Third-Party Risk Management** | OSFI | FRFIs |
 | **OSFI Guideline B-7: Derivatives** | OSFI | FRFIs |
 | **FINTRAC**: Proceeds of Crime (Money Laundering) and Terrorist Financing Act | FINTRAC | All reporting entities under the Act |
-| **PIPEDA / CPPA** | OPC / Privacy Commissioner | All organisations processing Canadians' personal data |
+| **PIPEDA** | OPC / Privacy Commissioner | All organisations processing Canadians' personal data |
 | **CSA (investment) obligations** | Canadian Securities Administrators | Federally registered investment dealers |
 
 ### United states

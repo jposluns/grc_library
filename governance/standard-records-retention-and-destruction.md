@@ -2,7 +2,7 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.4\
+**Version:** 1.4.5\
 **Date:** 2026-06-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -65,7 +65,7 @@ The Records Retention Schedule (RRS) defines minimum retention periods based on:
 - Legal or regulatory mandates.
 - Contractual obligations.
 - Business or audit requirements.
-- Data protection laws including GDPR, CPPA, and LGPD.
+- Data protection laws including GDPR, PIPEDA, and LGPD.
 
 ### Domain-specific minimum retention periods
 

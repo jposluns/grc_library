@@ -2,7 +2,7 @@
 
 **Document Title:** Enterprise Governance and Risk Management Policy\
 **Document Type:** Policy\
-**Version:** 1.4.6\
+**Version:** 1.4.7\
 **Date:** 2026-06-24\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -138,7 +138,7 @@ Consolidated enterprise risk reporting shall be presented to executive leadershi
 | NIST AI RMF | Govern, Map, Measure, Manage |
 | OECD AI Principles | Transparency, robustness, accountability |
 | GDPR | As applicable to EU personal data |
-| CPPA | As applicable to Canadian personal information |
+| PIPEDA | As applicable to Canadian personal information |
 | PIPL | As applicable to personal information in China |
 | LGPD | As applicable to Brazilian personal data |
 | CBPR 2.0 | Cross-Border Privacy Rules as applicable |

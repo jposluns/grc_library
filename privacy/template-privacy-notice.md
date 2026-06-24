@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Notice Template\
 **Document Type:** Template\
-**Version:** 1.0.4\
-**Date:** 2026-06-22\
+**Version:** 1.0.5\
+**Date:** 2026-06-24\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/framework-consent-management.md`](framework-consent-management.md)\
@@ -22,7 +22,7 @@
 
 ## Purpose
 
-This template defines the structure of a privacy notice that satisfies the information duties of GDPR Articles 13 and 14, UK GDPR equivalents, LGPD, PIPEDA, CPPA, PIPL, CCPA, and similar regimes. It accommodates both website-style standing notices and just-in-time notices delivered at the point of collection. Adopting organisations populate the placeholders, validate jurisdictional coverage, and publish through the appropriate channel.
+This template defines the structure of a privacy notice that satisfies the information duties of GDPR Articles 13 and 14, UK GDPR equivalents, LGPD, PIPEDA, PIPL, CCPA, and similar regimes. It accommodates both website-style standing notices and just-in-time notices delivered at the point of collection. Adopting organisations populate the placeholders, validate jurisdictional coverage, and publish through the appropriate channel.
 
 A populated privacy notice is a public-facing document specific to an organisation; this template intentionally contains no organisation-specific content.
 

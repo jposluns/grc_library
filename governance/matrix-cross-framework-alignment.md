@@ -2,7 +2,7 @@
 
 **Document Title:** Cross-Framework Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.1.5\
+**Version:** 1.1.6\
 **Date:** 2026-06-24\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -47,7 +47,7 @@ This matrix provides an original, non-verbatim alignment structure for mapping r
 | AI | AI Security and Risk Standard | OWASP LLM Top 10, MITRE ATLAS, AI control, cloud control, secure engineering, and adversarial AI references | Architectural recommendation | AI systems process sensitive data, invoke tools, use retrieval, or expose inference interfaces. | Threat model, data flow, prompt injection test, access review, monitoring record. |
 | AI | AI and Agentic Development Security Standard | OWASP LLM Top 10 (excessive agency), MITRE ATLAS, CSA AICM (agentic and autonomy domains), NIST AI RMF, ISO/IEC 42001 operational families | Architectural recommendation | AI systems use agentic tools, autonomous or semi-autonomous actions, MCP servers, code execution, or production action capability. | Agent threat model, tool allow-list, reversibility classification, recovery-test result, production-authority evidence record, immutable audit trail. |
 | AI | AI System Impact Assessment Procedure | Privacy, security, human oversight, AI governance, and supplier risk families | Evidence category | AI system is proposed, changed, retired, or materially repurposed. | Impact assessment, risk decision, mitigation plan, approval record. |
-| Privacy | Privacy and Data Governance Policy | GDPR, CPPA, PIPEDA, Quebec Law 25, PIPL, LGPD, privacy management and data protection families | Legal obligation or regulatory interpretation | Personal data or regulated data is processed. | Data inventory, impact assessment, transfer assessment, retention schedule. |
+| Privacy | Privacy and Data Governance Policy | GDPR, PIPEDA, Quebec Law 25, PIPL, LGPD, privacy management and data protection families | Legal obligation or regulatory interpretation | Personal data or regulated data is processed. | Data inventory, impact assessment, transfer assessment, retention schedule. |
 | Supply Chain | Supplier and Cloud Governance Framework | Supplier risk, cloud assurance, NIST SP 800-161 SCRM, security, privacy, and resilience families | Industry practice or contractual requirement | External providers process data, host workloads, operate critical services, or provide AI capabilities. | Due diligence record, contractual control schedule, supplier risk register, exit plan. |
 | Supply Chain | Trade and Supply-Chain Continuity Controls | WCO SAFE, ISO 28000, CTPAT, BASC, PIP, AEO, AEO-S, NEEC, OEA | Regulatory interpretation or contractual requirement | Organisation participates in customs, logistics, or trade-security programmes. | Programme audit record, gap assessment, corrective action evidence. |
 | Resilience | Business Continuity and Resilience Framework | ISO 22301 continuity, NIST SP 800-34 continuity planning, COBIT DSS04, operational resilience families | Industry practice or regulatory interpretation | Services have recovery, availability, regulatory, or customer-impact obligations. | BIA, RTO/RPO register, test report, recovery plan, corrective action log. |
@@ -62,7 +62,7 @@ The following table maps the enterprise risk management control areas to externa
 | Control Area | ISO 31000 | ISO 23894 | NIST SP 800-39 | NIST AI RMF | COBIT 2019 | CSA CCM v4.1 | Legal and Regulatory | Trade and Supply-Chain Programmes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Risk framework and governance | Clause 5 Framework | Clause 5 Governance | Organisation-wide RMF | Govern | APO12.01 Define risk context | GRC domain | Corporate governance charters | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO, AEO-S |
-| Risk identification and analysis | Clause 6.4.2 Risk identification; Clause 6.4.3 Risk analysis (ISO 31000:2018) | Clause 6.2 Identification; Clause 6.3 Analysis | Tasks 1 and 2 | Map; Measure | APO12.03 Assess risk | GRC domain | GDPR Article 25; CPPA accountability | WCO SAFE equivalence |
+| Risk identification and analysis | Clause 6.4.2 Risk identification; Clause 6.4.3 Risk analysis (ISO 31000:2018) | Clause 6.2 Identification; Clause 6.3 Analysis | Tasks 1 and 2 | Map; Measure | APO12.03 Assess risk | GRC domain | GDPR Article 25; PIPEDA accountability | WCO SAFE equivalence |
 | Risk appetite and tolerance | Clause 5.4 Integration; Clause 5.6 Evaluation | Clause 5 Governance | Organisational risk strategy | Govern | APO12.02 Define risk appetite | GRC domain | Board-approved appetite statements | WCO SAFE equivalence |
 | Treatment and control selection | Clause 6.5 Risk treatment (ISO 31000:2018) | Clause 6.4 Treatment | Task 3 Respond | Manage | APO12.06 Respond to risk | GRC domain | ISO 27001 Annex A controls | WCO SAFE equivalence |
 | Monitoring and review | Clause 6.6 Monitoring and review (ISO 31000:2018) | Clause 6.5 Monitoring | Task 4 Monitor | Manage | MEA01; MEA02 | GRC domain | Regulatory reporting duties | WCO SAFE equivalence |
