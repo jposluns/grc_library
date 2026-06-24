@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #304 — Working-state relocation R3: register-main-branch-protection.md → .working/ (medium) (2026-06-24)
+
+Relocated the Main Branch Protection Configuration Register (a snapshot of *this* repo's GitHub branch protection, project-application state meaningless to adopters) from `governance/` into `.working/`, per the PR #116 corpus-doc-relocation precedent: slimmed its metadata to a working-state header, deleted its rows from the governance README and the document-index register, and regenerated taxonomy/portal/scorecard. One of the three queued working-state relocations (R1 the exemption-file and R2 the citation cluster remain; R1 deferred for a pack-design decision, see overnight-pr morning-review).
+
 ### PR #303 — Day-1-floor risk-artefact drift (medium): harmonize the named 6th floor artefact (2026-06-24)
 
 Resolved the two "six-artefact Day-1 floor" definitions disagreeing on the risk artefact: the startup-roadmap named `procedure-risk-register.md` while the quickstart and adopter-guide Tier 1 named `policy-enterprise-governance-and-risk-management.md`. Per maintainer option A, the policy is now the named risk floor artefact in both surfaces, with register-population kept as recommended-follow-on guidance. Also resolves the "different 6th artefact" sub-part of FR-140 (which remains open for the starter-set count divergence and Tier 1 omissions).
