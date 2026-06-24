@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.290, PR #312
+
+**Sweep 38 close-out: two in-window residuals from the #306-#310 arc, surfaced by the `/resume` loop-break corpus-wide `/validate`.** Sweep 38 is the standing compensating control for the session-closing handoff PR #311 (which skipped its trailing `/validate-pr` + `/retro`). Full three-subagent dispatch (A, B, C) over the whole corpus plus the #306-#311 deltas; mechanical baseline 48/48; clone unshallowed before history-aware gates.
+
+### Fixed
+
+- **F1 (warning, C3 multi-surface incompleteness)**: [`ai/register-ai-risk.md`](../../ai/register-ai-risk.md) (`1.0.3` to `1.0.4`, Date to 2026-06-24) register-schema "Inherent Impact" field read `1 (Negligible) to 5 (Critical)`. This is the impact-5-versus-rating "Critical" conflation PR #310 set out to resolve across the risk-scoring corpus. #310 harmonized the four named risk-scoring documents to the canonical ERM scale (impact-5 = "Catastrophic"; "Critical" reserved for the 17-25 rating band) but missed this sibling AI register. The register cites the canonical methodology ([`risk/procedure-risk-assessment-methodology.md`](../../risk/procedure-risk-assessment-methodology.md) in its Related Documents) and already matched canon on the adjacent surfaces (line 37 likelihood `1 (Very Low) to 5 (Very High)`; line 43 rating `Low / Medium / High / Critical`), so its impact-5 "Critical" was a genuine residual, not an intentional AI-specific scale. Corrected to `1 (Negligible) to 5 (Catastrophic)`; the rating-top "Critical" at line 43 and the "High and Critical risks" rating-band reference at line 86 are preserved. A corpus-wide grep confirmed this was the only surviving `1 (Negligible) to 5 (Critical)` scale-field (the sole other `(Critical)` hit, [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md):104 "score at 25 (Critical)", is the rating-top at score 25, correct).
+- **F3 (warning, C7 stale spec)**: [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (`1.16.2` to `1.16.3`) §6 narrative for gate 48 said the gate "checks two things across the corpus" and described only code-validity and title-match. After the #308 (S4 section-aware cross-catalogue title check) and #309 (S5 bare-domain-code check) enhancements, the linter ([`tools/lint-ccm-aicm-citations.py`](../../tools/lint-ccm-aicm-citations.py)) performs four checks. The linter's own module docstring (lines 22-72) already described all four; only the spec was stale. The §6 prose is rewritten to describe all four checks (code validity, section-aware title match, cross-catalogue title, bare domain code) and closes with a note that the §6 description is kept in step with the linter's module docstring.
+
+### Changed
+
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated to reflect the two bumped documents' Version/Date.
+- [`TODO.md`](../../TODO.md) sweep cursor advanced 37 to 38 (gate 45 / gate-36 TodoStaleness).
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) Sweep 38 row added (`2.0.30` to `2.0.31`); per-iteration detail [`.working/validate-sweeps/2026-06-24-sweep38-iter1.md`](../validate-sweeps/2026-06-24-sweep38-iter1.md) written.
+
+### Verification
+
+- `tools/run_all_audits.sh` 48/48 on the committed state; `tools/run-pr-time-checks.sh` green against the merge base.
+- F2 (note, C4 inferred-as-verified): #310's CHANGELOG "every risk-scoring document now agrees with the canonical scale" was contradicted by F1; the #310 entry is not retroactively rewritten (CHANGELOG entries are append-only history), and the claim becomes accurate once F1 lands. No separate edit; documented here and in the Sweep 38 detail file.
+- Apply-time orchestrator re-read independently confirmed F1 (read `ai/register-ai-risk.md` schema table + corpus-wide `5 (Critical)` grep) and F3 (read spec §6 line 131 + linter docstring; confirmed docstring current and spec stale) before routing. Subagent B: 0 findings. All 9 pre-flight candidates dismissed.
+
+### Discipline observation
+
+The two findings share a shape with prior sweeps' catches: an enhancement or harmonization PR that updated its named target surfaces but missed a structurally-parallel surface (F1, a sibling document outside #310's enumerated set; F3, the spec prose that #308/#309 left un-touched while updating the linter and its docstring). Both are the find-every-carrier / multi-surface-incompleteness class. The orchestrator workers were treated as research: each finding was re-read against the live file before the fix, and the corpus-wide grep for F1 confirmed no further carriers.
+
 ## 2026-06-24, Library Version 2026.06.289, PR #311
 
 **Session-closing handoff PR for the 2026-06-24 morning continuation.** Working-state only (no corpus content). Refreshes the session handoff and carries the batched #310 QA records.
