@@ -13,12 +13,12 @@ On `/resume`, the assistant:
 2. Reads `.claude/CLAUDE.md` (the PRIMORDIAL RULE and project disciplines), the most recent few `CHANGELOG.md` entries, and **[`.working/third-party-issues.md`](third-party-issues.md)**.
 3. Runs `git rev-parse --is-shallow-repository` (unshallow with `git fetch --unshallow` if `true`, **before any history-aware audit**), then `tools/run_all_audits.sh` to confirm the corpus is green, and `git log --oneline -5` to confirm HEAD.
 4. Verifies the version/count snapshot below against live files.
-5. **Runs a full corpus-wide `/validate` as the first substantive task** (this will be **Sweep 38** — the loop-break compensating control for the session-closing handoff PR #311, which skips its trailing `/validate-pr` + `/retro`). Routes any findings to the backlog.
+5. **Runs a full corpus-wide `/validate` as the first substantive task** — the loop-break compensating control for whatever session-closing handoff PR last closed (which skips its trailing `/validate-pr` + `/retro`). The next such sweep is **Sweep 39**. (Sweep 38 already ran this session, as the control for handoff PR #311; it found and fixed two in-window residuals in close-out PR #312.) Routes any findings to the backlog.
 6. Continues from "Next actions" below.
 
 ## Next actions (the queue for the next session)
 
-The 2026-06-24 work (the overnight run plus this morning's continuation) is complete and merged through **#310**. The remaining backlog is **M content clusters** (the bounded XS/S items and the gate-48 tooling are done). Re-read [`../TODO.md`](../TODO.md) live; it is the source of truth. Effort-ordered:
+The 2026-06-24 work (the overnight run plus this morning's continuation, including the next-session resume that ran Sweep 38) is complete and merged through **#312**. The remaining backlog is **M content clusters** (the bounded XS/S items and the gate-48 tooling are done). Re-read [`../TODO.md`](../TODO.md) live; it is the source of truth. Effort-ordered:
 
 - **M content clusters (dispositions recorded in TODO where noted):**
   - **DD-4 / DD-5 — TLS 1.3** (`M, M`): rewrite [`dev-security/claude-rules/languages/go.md`](../dev-security/claude-rules/languages/go.md):195 coherently to TLS 1.3 (rework the `CipherSuites` block; keep `core/owasp.md` ASVS-accurate), and raise the two governed surfaces [`operations/procedure-media-handling-and-transport.md`](../operations/procedure-media-handling-and-transport.md):124 and [`supply-chain/template-supplier-security-questionnaire.md`](../supply-chain/template-supplier-security-questionnaire.md):87 to TLS 1.3. **Pack prose involved (`go.md`): run `lint-language.py` pre-flight; bump the pack version.**
@@ -43,14 +43,14 @@ A two-part day. **Overnight run** (autonomous, maintainer asleep): shipped #301 
 
 **Quality held throughout** — every non-handoff PR got a formal `/validate-pr` (all 0 in-window findings after the apply-time fixes) + `/retro`; the post-commit audits caught the expected bookkeeping consequences (artefact regen, TODO sweep-cursor, link-coverage) and they were fixed before push, never reaching CI as a surprise.
 
-## State snapshot (as of 2026-06-24, the session-closing handoff PR #311)
+## State snapshot (as of 2026-06-24, post-#312 Sweep 38 close-out)
 
-- **Branch**: this session developed on `claude/resume-review-gtx8fo`. The session-closing handoff PR **#311** carries this handoff refresh + the batched #310 `/validate-pr` (0 findings) + `/retro` rows. Once #311 merges, a fresh `/resume` rebuilds state from `main`.
-- **HEAD**: `main` at **#310** (`f7e7992`; verify with `git log -1`); #311 merges on top. Immediately prior: #309 (S5), #308 (S4), #307 (morning-processing), #306 (Sweep 37 close-out), #305 (loop-break generalization).
-- **Versions** (post-#311): library `2026.06.289`, pack `1.49.7`, README `1.9.160`. (Verify against `README.md`.)
-- **Audit programme**: **48 numbered gates** + **3 PR-only delta gates (D1/D2/D3)**; all passing on `main`. Gate 48 (CSA CCM/AICM citation-accuracy) now has the S4 section-aware + cross-catalogue title check and the S5 bare-domain-code check. Governance rules: **10**. Skills: **15** (6 paired). Slash commands: **8**.
-- **Last merged**: **#310** (DD-2/3/11 risk-vocabulary harmonization). Before it: #309 (S5), #308 (S4), #307, #306, #305.
-- **`/validate` cadence**: **Sweep 37** ran this session (the #305 loop-break; close-out #306). The next `/resume` runs **Sweep 38** (the loop-break control for the session-closing handoff PR #311).
+- **Branch**: the resume session is developing on `claude/resume-review-h95prg`, synced to `main`. **Pending batched into the NEXT PR** (per recursion-avoidance): the #312 `/validate-pr` row (0 findings), the #312 `/retro` row (surfaced a multi-surface-incompleteness pattern + a gate-spec-prose paired-surface candidate, now in TODO §4.8), and this handoff refresh. These sit on the feature branch (stop-hook auto-persisted); a fresh `/resume` finds them and the next substantive PR carries them.
+- **HEAD**: `main` at **#312** (`7d5ead2`; verify with `git log -1`). Immediately prior: #311 (session-closing handoff), #310 (DD-2/3/11), #309 (S5), #308 (S4), #307 (morning-processing), #306 (Sweep 37 close-out), #305 (loop-break generalization).
+- **Versions** (post-#312): library `2026.06.290`, pack `1.49.7`, README `1.9.161`. (Verify against `README.md`.)
+- **Audit programme**: **48 numbered gates** + **3 PR-only delta gates (D1/D2/D3)**; all passing on `main`. Gate 48 (CSA CCM/AICM citation-accuracy) has the S4 section-aware + cross-catalogue title check and the S5 bare-domain-code check; its §6 spec prose was corrected to describe all four checks in #312. Governance rules: **10**. Skills: **15** (6 paired). Slash commands: **8**.
+- **Last merged**: **#312** (Sweep 38 close-out: F1 `ai/register-ai-risk.md` impact-5 `Critical`->`Catastrophic`, F3 spec gate-48 prose two->four checks). Before it: #311 (handoff), #310, #309, #308, #307, #306, #305.
+- **`/validate` cadence**: **Sweep 38** ran this resume session (the #311 loop-break; close-out #312, 2 in-window warnings fixed). The next `/resume` runs **Sweep 39** (the loop-break control for the next session-closing handoff PR).
 
 ## Open decisions awaiting maintainer
 
@@ -59,7 +59,7 @@ A two-part day. **Overnight run** (autonomous, maintainer asleep): shipped #301 
 
 ## Trust-recovery state
 
-The trust-recovery suite (`/full-qa` + `/fitness` r2) ran and the maintainer **signed off** (2026-06-22). Codification COMPLETE. Not re-triggered since; quality held throughout the 2026-06-24 overnight run and morning continuation.
+The trust-recovery suite (`/full-qa` + `/fitness` r2) ran and the maintainer **signed off** (2026-06-22). Codification COMPLETE. Not re-triggered since; quality held throughout the 2026-06-24 overnight run, morning continuation, and the resume session (Sweep 38 + close-out #312, both warnings fixed first try, post-commit + pre-push green).
 
 ## Known environment behaviours (read before assuming working-tree state)
 
