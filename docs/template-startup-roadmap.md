@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Startup Roadmap Template\
 **Document Type:** Template\
-**Version:** 2.2.1\
-**Date:** 2026-06-23\
+**Version:** 2.2.2\
+**Date:** 2026-06-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/template-quickstart.md`](template-quickstart.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`docs/template-maturity-self-assessment.md`](template-maturity-self-assessment.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
@@ -51,7 +51,7 @@ Every adopter copies this set on Day 1, regardless of size, sector, or maturity.
 | `governance/` | one foundational policy (e.g. [`security/policy-information-security.md`](../security/policy-information-security.md) or equivalent) | A single overarching policy that names the organisation's posture and the owner of that posture. |
 | `security/` | [`policy-acceptable-use.md`](../security/policy-acceptable-use.md), [`policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) | The three documents that the largest share of incidents touch. |
 | `privacy/` | [`policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) plus the home-jurisdiction annex from [`privacy/jurisdictions/`](../privacy/jurisdictions/) | Even an organisation that does not collect customer data has staff data; the home-jurisdiction privacy law is the floor. |
-| `risk/` | [`procedure-risk-register.md`](../risk/procedure-risk-register.md), with the register populated with the actual top 10 risks | A short, real risk register beats a long imagined one. Populating it is part of the baseline; copying an empty template is not. |
+| `risk/` | [`policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | The posture-setting enterprise risk governance policy: it names the organisation's risk appetite and who owns it, and it is the same risk artefact named in the quickstart Day-1 floor and the adopter-guide Tier 1 set. Populating [`procedure-risk-register.md`](../risk/procedure-risk-register.md) with the actual top 10 risks is the recommended early follow-on (a short, real register beats a long imagined one), not a separate Day-1 floor artefact. |
 
 The baseline is six artefacts. An organisation that has copied and customised these six has a defensible floor. Layer modules on top.
 
