@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.280, PR #302
+
+**Sweep 36 follow-up: `guardrail-review` skill growth-narrative gate count "forty-seven" → "forty-eight", plus the batched #301 QA records.** The second of Sweep 36's two findings (the first, the CCM/AICM citation residual class, shipped in #301). Kept separate per always-split: this is audit-gate-count currency, a distinct theme from CCM/AICM citation accuracy.
+
+### Fixed
+- [`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md):93 (pack `1.49.5` → `1.49.6`): the "Why this skill exists" growth narrative read "from a dozen gates to forty-seven"; corrected to "forty-eight". Gate 48 (the CCM/AICM citation-accuracy audit) was added by #299 after Sweep 34 last refreshed this word-form, but gate 39's cross-file gate-count consistency check keys on digit-form references ("48-gate", "gates 1-48"), so this spelled-out word-form is invisible to it (the documented gate-39 word-form gap, TODO §4.8 "broaden the count gate"). Pack README version-history row added.
+
+### Verification
+- All 48 audit gates pass on the committed state; pre-push `tools/run-pr-time-checks.sh` green.
+- Carries the batched **#301 `/validate-pr`** record (history row only; **0 findings**, clean — Subagent A verified all 13 corpus version+date bumps, every domain-code mapping against `tools/ccm_aicm_reference.py`, the glossary placement, the crosswalk ranges, and a corpus-wide residual scan returning none) and the **#301 `/retro`** row (pattern: a content-filtered completeness grep (`grep ... | grep -i ccm`) under-scoped the code-rename check and hid the `EKM` crosswalk row, caught only by the unfiltered standalone-token grep; proposed refinement: completeness greps for a rename must be unfiltered standalone-token searches; durable backstop = TODO §4.5 S5).
+
 ## 2026-06-24, Library Version 2026.06.279, PR #301
 
 **Sweep 36 (`/validate`) close-out: completing the CSA CCM/AICM citation residuals that PR #298's token-scoped reconciliation left behind.** Sweep 36 (the `/resume` loop-break corpus-wide `/validate`, the compensating control for handoff PR #300) dispatched all three subagents. Subagent C (audit-programme integrity) was clean: gate 48 is correctly wired across all four surfaces and the reference module matches the catalogues (207/207 CCM, 247/247 AICM). Subagents A and B, plus the orchestrator's apply-time grep, surfaced one dominant in-window finding-class: PR #298's reconciliation claimed "zero residual invalid codes", but its validator and gate 48 are **token-scoped** (they check `<DOMAIN>-<NN>` tokens and `| CODE | title |` rows), so they were structurally blind to **bare domain-code mentions** (in framework-coverage family lists, the glossary, and the domain-by-domain reverse crosswalk) and to framework **version-currency strings**. The orchestrator's grep found more than the subagents reported (the numbered `GOV`/`AUD` crosswalk in the compliance audit-management policy and the `EKM` row in the reverse crosswalk), reinforcing the incomplete-mechanical-sweep lesson: a bulk fix must re-grep every adjacent surface, not trust a phrasing-specific search.
