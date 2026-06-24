@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.278, PR #300
+
+**Session-closing handoff PR for the 2026-06-24 CCM/AICM session, carrying the one PR #299 `/validate-pr` finding-fix and setting up an authorized overnight mission.** The session resumed via `/resume`, ran Sweep 35, and on its findings pivoted to a maintainer-directed CCM/AICM citation-accuracy programme: #298 (corpus-wide reconciliation grounded in the maintainer-supplied authoritative CSA CCM v4.1.0 / AICM v1.1.0 catalogues) and #299 (gate 48 + full gap-register title alignment). This handoff lands working state on `main` as a green merge so the next `/resume` rebuilds from `main`.
+
+### Fixed
+- [`dev-security/register-compliance-controls-and-gap-register.md`](../../dev-security/register-compliance-controls-and-gap-register.md) (`1.0.2` → `1.0.3`): **PR #299 `/validate-pr` finding (A-299-1)**. The I&S-07 row sits under the "CSA CCM v4.1" section but carried "Migration to Hosted Environments", which is the **AICM v1.1** title; the CCM v4.1 title is "Migration to Cloud Environments". I&S-07 is the only control whose title diverges between the two catalogues and appears in the register; #299's alignment used the AICM-wins union dict and picked the AICM value for a CCM-section row. Corrected to the CCM value. The durable fix (a section-aware gate-48 title check) is queued as TODO S4.
+
+### Changed
+- [`TODO.md`](../../TODO.md): added **S4** (gate-48 section-aware title check) under §4.5; refreshed the session-resume metadata.
+- Refreshed [`.working/session-handoff.md`](session-handoff.md) to the post-#299 state and, per maintainer authorization (2026-06-24), set up the **overnight mission**: the next session is an autonomous ~8-hour run whose goal is to close all XS and S items and as many Medium items as possible from TODO for morning review, following the overnight-work protocol and every per-PR QA discipline (no abbreviation). The handoff enumerates the effort-ordered work-list and the autonomy guidance (proceed on recorded dispositions; sensible-default-and-flag for new bounded choices; defer costly/ambiguous choices to morning; no fabrication on egress-gated items).
+
+### Verification
+- Carries the batched **#299 `/validate-pr`** record ([`.working/validate-pr/2026-06-24-PR-299.md`](validate-pr/2026-06-24-PR-299.md), 1 in-window error, fixed here) + history row and the **#299 `/retro`** row ([`.working/improvement-log.md`](improvement-log.md): the 4th-occurrence incomplete-mechanical-sweep pattern, with the gate-48 section-aware enhancement as the proposed durable fix).
+- Per the handoff-PR exception (CLAUDE.md PR-workflow step 5a), this PR **skips its own trailing `/validate-pr` + `/retro`** (loop-break, no terminating next PR at a session boundary); the compensating control is the corpus-wide **Sweep 36** the next `/resume` runs first. The skip is recorded inline in the [`.working/validate-pr/history.md`](validate-pr/history.md) #300 row.
+- `tools/run_all_audits.sh` and `tools/run-pr-time-checks.sh` results recorded at commit time; `taxonomy.yml` + `docs/maturity-scorecard.md` regenerated for the gap-register version bump.
+
 ## 2026-06-24, Library Version 2026.06.277, PR #299
 
 **New gate 48 (CSA CCM/AICM citation-accuracy audit) backed by a fair-use catalogue reference, plus the full v4.1/v1.1 title alignment of the compliance-controls gap register (the PR #298 `/validate-pr` finding, expanded).** The follow-up to PR #298's reconciliation: a mechanical backstop so the CCM/AICM citation-accuracy class cannot recur. PR #298's `/validate-pr` found the gap register's I&S and AICM/MDS control titles were mis-attributed; building the gate's title check revealed the mismatch was systematic (the register's control catalogue had been authored against an older CCM version), so the maintainer directed a full alignment of every control row to its authoritative title.

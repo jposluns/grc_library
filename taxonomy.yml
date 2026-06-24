@@ -1602,7 +1602,7 @@ documents:
   domain: "dev-security"
   type: "Register"
   title: "Compliance Controls and Gap Register Template"
-  version: "1.0.2"
+  version: "1.0.3"
   date: "2026-06-24"
   owner: "Security Architecture Maintainer"
   approving_authority: "Governance Library Maintainer"
