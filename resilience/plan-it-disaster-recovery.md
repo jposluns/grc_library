@@ -2,8 +2,8 @@
 
 **Document Title:** IT Disaster Recovery Plan\
 **Document Type:** Plan\
-**Version:** 1.3.2\
-**Date:** 2026-06-23\
+**Version:** 1.3.3\
+**Date:** 2026-06-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -47,8 +47,8 @@ This plan defines the system-specific recovery procedures, RTO and RPO targets, 
 | System / Service Tier | Examples | RTO | RPO |
 | --- | --- | --- | --- |
 | **Tier 1: Mission Critical** | Core ERP, on-premises directory service, enterprise identity provider, production virtual infrastructure | 4 hours | 1 hour |
-| **Tier 2: Essential** | Email platform, collaboration platform, financial systems, HR management system | 24 hours | 4 hours |
-| **Tier 3: Important** | Reporting and analytics, departmental tools, collaboration and file storage platforms | 72 hours | 24 hours |
+| **Tier 2: Business Essential** | Email platform, collaboration platform, financial systems, HR management system | 24 hours | 4 hours |
+| **Tier 3: Standard** | Reporting and analytics, departmental tools, collaboration and file storage platforms | 72 hours | 24 hours |
 | **Tier 4: Non-Critical** | Non-production environments, internal knowledge bases | 7 days | 72 hours |
 
 Specific per-system RTO/RPO targets for ongoing system modernization workstreams will be incorporated into this plan upon project completion.

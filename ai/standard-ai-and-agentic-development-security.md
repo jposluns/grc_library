@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.2\
-**Date:** 2026-06-21\
+**Version:** 1.8.3\
+**Date:** 2026-06-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md)\
@@ -536,7 +536,7 @@ Log retention per Data Retention Schedule.
 
 ## 22. Adversarial testing requirements
 
-The adversarial test suite must cover five categories on every system in scope. Required categories and test cases are in the AI Adversarial Test Reference.
+The adversarial test suite must cover the categories defined in the AI Adversarial Test Reference on every system in scope; the required categories and their test cases are specified there.
 
 **ADTEST-SEC-01:** The test suite must be updated quarterly with new techniques sourced from OWASP GenAI Security Project, MITRE ATLAS, GitHub Security Lab AI research, and internal incident-derived cases.
 
