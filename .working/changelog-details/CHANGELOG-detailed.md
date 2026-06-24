@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.302, PR #323
+
+Sweep 41 close-out: the `/resume` loop-break corpus-wide `/validate` (the compensating control for session-closing handoff PR #322, which skipped its own trailing `/validate-pr` + `/retro`) covering the #320/#321/#322 deltas. Full A/B/C dispatch, clone unshallowed, mechanical baseline 48/48; one out-of-window finding, fixed by maintainer choice.
+
+### Fixed
+
+- [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md):102 (`1.0.5` to `1.0.6`): the cross-jurisdiction compliance-mapping summary's Canada row presented CPPA-specific obligations as if operative, an "AI-Specific Obligation" of "Algorithmic transparency (CPPA)", a "Cross-Border Mechanism" of "adequacy under CPPA", and a "Max Fine" of "CAD 25M / 5% revenue (CPPA)", qualified only by a loose "(pending)" on the law-name cell. CPPA (Consumer Privacy Protection Act, Part 1 of the lapsed Bill C-27) is not in force, as the same file states at :133 and as the corpus-wide DD-8 scrub (#320) asserted. The three CPPA-attributed cells are now qualified "(if enacted)". This is a third carrier of the CPPA-as-live class in this file after :45 (fixed in #320) and :133 (fixed in #321), which the #320 scrub and #321 follow-up both missed because they stopped at the first surfaces edited rather than scanning every surface of the file.
+
+### Changed
+
+- Working-state: [`.working/validate-sweeps/history.md`](history.md) gains the Sweep 41 row (`2.0.33` to `2.0.34`); [`.working/validate-sweeps/2026-06-24-sweep41-iter1.md`](../validate-sweeps/2026-06-24-sweep41-iter1.md) is the per-iteration detail file; [`TODO.md`](../../TODO.md)'s sweep cursor advanced to Sweep 41 and its corpus-wide-scrub retro item annotated with the :102 third-carrier evidence; [`.working/session-handoff.md`](../session-handoff.md)'s two `/validate`-cadence references corrected.
+- [`taxonomy.yml`](../../taxonomy.yml) regenerated for the jurisdiction-index Version bump (portal and scorecard unchanged).
+
+### Discipline observations
+
+- **Sweep-cursor drift caught at resume.** The #322 handoff snapshot labelled this sweep "Sweep 40", but the history file's top row showed Sweep 40 had already run as the loop-break control for handoff PR #319 (landed in PR #320). The #322 handoff refresh advanced the PR pointers but not the `/validate` cadence cursor. Corrected to Sweep 41 (the control for #322, covering the #320/#321 deltas Sweep 40 did not reach); surfaced to the maintainer and flagged as a handoff-close-out retro candidate (the close-out checklist should advance the cadence cursor, not only the PR list). This is the validate-inference-before-action discipline paying off: the anomalous `sweep40-iter1.md` file in the focus window was checked, not assumed-correct.
+- **A-vs-B divergence resolved by parent re-read.** Subagent B classified :102 clean on the law-name "(pending)"; Subagent A flagged the unqualified downstream cells. Apply-time re-read of line 102 confirmed A (the "(pending)" qualifies only the law-name cell). Adjudicated without a debate round; evidence letter R.
+- **Scope note (no silent changes).** The fix qualified three cells, not only the two named in the finding (adequacy mechanism and max fine); the obligations cell "Algorithmic transparency (CPPA)" is the same class and leaving it would re-create the exact fixed-some-missed-the-rest pattern. The law-name cell's existing "(pending)" (set by #320) was left untouched.
+
+### Verification
+
+- `tools/run_all_audits.sh`: 48/48 on the committed state (clone unshallowed first).
+- `tools/run-pr-time-checks.sh`: D1 (both CHANGELOG files), D2 (versioned-doc bump), D3 (no new CHANGELOG dashes), gate 45 (TODO staleness, sweep cursor advanced) all pass.
+- Subagent B (corpus-wide stale-reference) and Subagent C (audit-programme integrity) returned zero findings; counts (48/10/15), library/pack/README versions, CPPA residuals, FR-140 set-membership, four-surface gate parity, governance-rule mirror-sync, and generated-artefact sync all verified.
+
+Library `2026.06.301` to `2026.06.302`; README `1.9.172` to `1.9.173`.
+
 ## 2026-06-24, Library Version 2026.06.301, PR #322
 
 `.working/` + TODO/README housekeeping for local project: **session-closing handoff PR.** Refreshed [`.working/session-handoff.md`](../session-handoff.md) to post-#321 state (FR-140 and DD-8 marked closed; the FR-167 next-batch pointer corrected from the stale "dev-security" to supply-chain, since dev-security shipped in #317; the FR-167 control-code-validity gate recommendation recorded as TODO §4.6a; the README catalogue-label NOTE tracked in TODO), batched the #321 `/validate-pr` (1 out-of-window NOTE, README catalogue label) and `/retro` (candidates D/E/F) register rows into [`../validate-pr/history.md`](../validate-pr/history.md) and [`../improvement-log.md`](../improvement-log.md), and added the [`../validate-pr/2026-06-24-PR-321.md`](../validate-pr/2026-06-24-PR-321.md) record. No corpus-content change. Per the handoff-PR loop-break (PR-workflow step 5a exception) this PR skips its own trailing `/validate-pr` + `/retro`; the next `/resume`'s corpus-wide Sweep 40 is the stronger compensating control. Library `2026.06.300` to `2026.06.301`; README `1.9.171` to `1.9.172`.
