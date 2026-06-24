@@ -23,7 +23,8 @@ _(updated as PRs merge)_
 ### Shipped
 - **PR #301** (MERGED) — Sweep 36 close-out: CCM/AICM citation residual completion (13 corpus docs + pack README; IVS→I&S, GOV→GRC, AUD→A&A, EKM→CEK, NET removed, AICM v1.0.3→v1.1). All 48 gates green; `/validate-pr` clean; `/retro` recorded (pattern: unfiltered-grep discipline). Library 2026.06.279, pack 1.49.5.
 - **PR #302** (MERGED) — Sweep 36 follow-up: guardrail-review word-form gate count forty-seven→forty-eight; carried batched #301 QA rows. Library 2026.06.280, pack 1.49.6. (`/validate-pr` clean; `/retro`: recurring CHANGELOG em-dash pattern.)
-- **PR #303** (in flight) — Day-1-floor risk-artefact drift, option A: startup-roadmap risk floor artefact aligned to the quickstart/Tier 1 policy; carries batched #302 QA rows. Library 2026.06.281. Closes the `(M, XS)` TODO item; partially resolves FR-140.
+- **PR #303** (MERGED) — Day-1-floor risk-artefact drift, option A: startup-roadmap risk floor artefact aligned to the quickstart/Tier 1 policy. Closed the `(M, XS)` TODO item; partially resolved FR-140. (`/validate-pr` clean; `/retro`: dash-grep applied successfully.)
+- **PR #304** (in flight) — R3 relocation: register-main-branch-protection.md → .working/ (PR #116 precedent); carries batched #303 QA rows. Library 2026.06.282. Closes R3; R1 deferred (pack-design), R2 pending (heavy).
 
 ### Relocations R1/R2/R3 — sequencing decision (overnight)
 - **R3** (`governance/register-main-branch-protection.md` → `.working/`): clean corpus-doc move, NO pack coupling (PR #116 precedent). Proceed overnight.

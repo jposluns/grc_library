@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.282, PR #304
+
+**Working-state relocation R3 (`register-main-branch-protection.md` → `.working/`) + batched #303 QA records.** The first of the three queued working-state relocations to ship, chosen first because it is the cleanest: a pure corpus-doc move with no distributable-pack coupling (the PR #116 precedent shape). The register is a snapshot of this repository's own branch-protection configuration, project-application state that is meaningless to an adopter (who configures their own repository), so it belongs in `.working/` rather than the adopter-facing corpus.
+
+### Changed
+- Moved [`governance/register-main-branch-protection.md`](../../governance/register-main-branch-protection.md) to [`.working/register-main-branch-protection.md`](register-main-branch-protection.md) via `git mv`. Metadata slimmed from the full 13-field corpus block to a working-state header (Version `1.0.13` → `1.0.14`, Date, License, plus a relocation note and corrected relative links); the corpus-only fields (Owner/Approving/Classification/Category/Review-Frequency/Confidentiality/Document-Type) were dropped since `.working/` is exempt from the metadata-block gates.
+- [`governance/README.md`](../../governance/README.md) (`1.10.4` → `1.10.5`): deleted the register's row from the governance domain index table.
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (`1.27.34` → `1.27.35`): deleted the register's row from the corpus document-index.
+- [`TODO.md`](../../TODO.md): the R3 relocation item rotated to [`.working/DONE.md`](DONE.md). R1 and R2 relocation items remain queued (R1 deferred, see below).
+
+### Deferred (recorded in [`.working/overnight-pr.md`](overnight-pr.md) morning-review)
+- **R1** (`tools/sweep-preflight-exemptions.json` → `.working/validate-sweeps/`): functionally safe (the scanner opens the path directly), but the file is referenced from two *distributable* pack SKILLs; pointing them at a `.working/` path is a pack-design decision (adopters may delete `.working/`) that the maintainer should weigh. Deferred rather than guess on distributable pack content.
+- **R2** (the 6-file citation-verification cluster): the maintainer pre-flagged this as the heavy/risky relocation needing its own PR and extra grep-completeness care.
+
+### Verification
+- All 48 gates pass on the committed state; pre-push `run-pr-time-checks.sh` green. [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated to drop the relocated doc from the active-corpus listings (gate 47 listing-surface completeness stays consistent: the doc is no longer in taxonomy, and its index/README rows are removed in the same diff).
+- Apply-time: confirmed only two inbound citers (the two index surfaces, both fixed); no substantive document cites the register; no exact total-doc-count prose claim to update (the corpus count references are approximate).
+- Carries the batched **#303 `/validate-pr`** (history row only; **0 findings**, clean) and **#303 `/retro`** (the pre-commit dash-grep proposed in #302's retro, applied on #303 with D3 passing first-try) records.
+
 ## 2026-06-24, Library Version 2026.06.281, PR #303
 
 **Day-1-floor risk-artefact harmonization (option A) + batched #302 QA records.** A Sweep 34 / PR #293 `/validate-pr` out-of-window finding: two adopter-onboarding surfaces defined a "six-artefact Day-1 floor" but disagreed on the risk-domain artefact. Maintainer-recommended option A applied (policy canonical in both; register-population kept as guidance).

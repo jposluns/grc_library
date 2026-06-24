@@ -2,8 +2,8 @@
 
 **Document Title:** Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.10.4\
-**Date:** 2026-06-21\
+**Version:** 1.10.5\
+**Date:** 2026-06-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md)\
@@ -63,7 +63,6 @@ This directory contains the enterprise-wide governance foundation of the GRC Doc
 | Guideline | Minimum Viable Governance Structure Guideline | [`governance/guideline-minimum-viable-governance-structure.md`](guideline-minimum-viable-governance-structure.md) |
 | Procedure | Library Quality and Review Cadence Procedure | [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md) |
 | Register | Document Review Schedule Register | [`governance/register-document-review-schedule.md`](register-document-review-schedule.md) |
-| Register | Main Branch Protection Configuration Register | [`governance/register-main-branch-protection.md`](register-main-branch-protection.md) |
 | Template | Document Review Record Template | [`governance/template-document-review-record.md`](template-document-review-record.md) |
 | Template | Library Health Report Template | [`governance/template-library-health-report.md`](template-library-health-report.md) |
 

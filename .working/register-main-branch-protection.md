@@ -1,18 +1,10 @@
 # Main Branch Protection Configuration Register
 
-**Document Title:** Main Branch Protection Configuration Register\
-**Document Type:** Register\
-**Version:** 1.0.13\
-**Date:** 2026-06-21\
-**Owner:** Governance Library Maintainer\
-**Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`dev-security/claude-rules/governance/artefact-and-branch-discipline.md`](../dev-security/claude-rules/governance/artefact-and-branch-discipline.md), [`governance/specification-audit-programme.md`](specification-audit-programme.md), [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`README.md`](../README.md)\
-**Classification:** Public\
-**Category:** Core Governance\
-**Review Frequency:** Annual and upon any change to the configured ruleset, the audit programme's required-checks list, or the bypass-actors list\
-**Repository Path:** [`governance/register-main-branch-protection.md`](register-main-branch-protection.md)\
-**Confidentiality:** Public\
+**Version:** 1.0.14\
+**Date:** 2026-06-24\
 **License:** CC BY-SA 4.0
+
+> **Relocated to `.working/` (PR #304).** This register is a snapshot of *this* repository's GitHub branch-protection configuration, project-application working state rather than adopter-facing template content (an adopter configures their own repository's protection, so the snapshot is meaningless to them). It was previously at `governance/register-main-branch-protection.md`; it now lives under `.working/` and is exempt from the corpus audit gates per the `.working/` exemption. Related: [`dev-security/claude-rules/governance/artefact-and-branch-discipline.md`](../dev-security/claude-rules/governance/artefact-and-branch-discipline.md), [`governance/specification-audit-programme.md`](../governance/specification-audit-programme.md), [`governance/procedure-library-quality-and-review-cadence.md`](../governance/procedure-library-quality-and-review-cadence.md), [`README.md`](../README.md).
 
 ---
 
