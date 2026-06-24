@@ -30,6 +30,14 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #324 — handoff asserted-expectations convention (2026-06-24)
+
+Codified the maintainer-accepted handoff-QA convention: a session-closing handoff records what it asserts clean (scoped to surfaces it actually verified) plus a green-at-sha mechanical baseline, and the next `/resume` `/validate` cross-checks findings against those claims. Replaces the rejected (wasteful, noisy) two-run-diff idea. Not previously in TODO; surfaced as the maintainer's `/resume` design question this session.
+
+### PR #323 — Sweep 41 close-out: jurisdiction-index:102 CPPA-as-live fix (2026-06-24)
+
+The `/resume` loop-break corpus-wide `/validate` (control for handoff #322) found and fixed one out-of-window finding: the privacy jurisdiction-index cross-jurisdiction row presented CPPA adequacy + max-fine as operative (a third carrier after :45/#320 and :133/#321), qualified "(if enacted)". Also corrected the stale sweep cursor (handoff said "Sweep 40"; Sweep 40 had already run as the #319 control).
+
 ### PR #321 — FR-140 (high): adopter starter-set divergence (2026-06-24)
 
 Resolved the starter-set count/scope divergence: added `policy-acceptable-use` and `policy-identity-and-access-management` to the adopter-guide Tier 1 set (15 → 17 docs) so the 6-artefact Day-1 floor is now a strict subset, harmonized the 15→17 count and reconciliation prose across quickstart/adopter-guide/decision-tree, and reframed the README "Core reference set" (and added the two floor artefacts it was missing, acceptable-use and incident-response, ~37 → ~39) so its catalogue no longer competes with the starter tiers and the floor nests cleanly inside it. Bundled the #320 `/validate-pr` out-of-window fix (annex-privacy-jurisdiction-index Bill C-27 "under parliamentary study" → lapsed-2025 consensus) per recursion-avoidance.

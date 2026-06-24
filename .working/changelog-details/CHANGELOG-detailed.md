@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.303, PR #324
+
+`.claude/` + `.working/` process codification: the maintainer-accepted handoff asserted-expectations convention (the design question the maintainer raised at this session's `/resume` and decided "accept + codify now" after the assistant pressure-tested the rejected two-run-diff alternative).
+
+### Changed
+
+- [`.working/session-handoff.md`](../session-handoff.md): added a `## Asserted expectations (session close-out convention)` section (purpose, the why-not-a-two-run-diff rationale, the scope discipline, and this session's populated asserted expectations) and a `green-at-<sha>` mechanical-baseline bullet in the state snapshot.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): PR-workflow step 5c now records the asserted-expectations + green-at-`<sha>` at a session-closing handoff; the close-out checklist's session-handoff bullet says the same; handoff mechanism 1 lists the two new fields; the closing-handoff-PR discipline (mechanism 3) explains the cross-check and why it replaces a second close-time `/validate`.
+- [`.claude/commands/resume.md`](../../.claude/commands/resume.md): step 3 adds the green-at-`<sha>` mechanical close-vs-start confirmation; step 5 adds the cross-check of `/validate` findings against the asserted-clean claims.
+
+### Design rationale
+
+The rejected alternative (closing session runs a full `/validate`, receiving session runs its own and diffs the two, "discrepancy = major issue") is wasteful and noisy: (1) the corpus is byte-identical across the boundary (same `main` commit), so there is no corpus delta for two runs to legitimately differ on; (2) `/validate`'s expensive layer is non-deterministic subagent fan-out (confirmed by re-reading the `validation-sweep` SKILL: step 4 mandates three subagent passes; only step 1 `run_all_audits.sh` and the step-3a regex pre-flight are deterministic), so two runs differ by sampling variance, not corpus facts, and "discrepancy = major" would fire on noise; (3) it collides with the loop-break (a closing-session finding can only ride the prompt forward, the lossy state the handoff exists to avoid). The asserted-expectations shape captures the real signal (a contradiction of a claimed-clean touched surface) for the cost of a few lines, with the scope bounded to touched surfaces so it functions as a lightweight proxy for the `/validate-pr` the handoff PR skips. The only deterministic close-vs-start diff worth keeping is the mechanical `green-at-<sha>`, which `/resume` already re-checks.
+
+### Scope
+
+This is a project-surface codification (handoff file, project CLAUDE.md, resume command), not a pack-distributable rule: the asserted-expectations convention is tied to this project's `session-handoff.md` + `/resume` mechanism. If it proves out, a future PR can generalize it into the pack's handoff-PR-exception clause.
+
+### Verification
+
+- These surfaces are all under `.claude/` and `.working/`, exempt from corpus audit gates (including `lint-language`); a manual em/en-dash scan of the added prose was run anyway (two prose em-dashes found and converted; the validate-pr Detail-column `—` placeholder, conventional per the SKILL, left as-is).
+- `tools/run_all_audits.sh` 48/48 post-commit; `tools/run-pr-time-checks.sh` D1/D2/D3 + gate 45 green.
+
+### Discipline observation
+
+Carries the batched #323 `/validate-pr` (0 findings) and `/retro` (post-Version-bump artefact-regen pattern, third instance, with the sharpened close-out-checklist candidate) register rows per recursion-avoidance.
+
+Library `2026.06.302` to `2026.06.303`; README `1.9.173` to `1.9.174`.
+
 ## 2026-06-24, Library Version 2026.06.302, PR #323
 
 Sweep 41 close-out: the `/resume` loop-break corpus-wide `/validate` (the compensating control for session-closing handoff PR #322, which skipped its own trailing `/validate-pr` + `/retro`) covering the #320/#321/#322 deltas. Full A/B/C dispatch, clone unshallowed, mechanical baseline 48/48; one out-of-window finding, fixed by maintainer choice.
