@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.291, PR #313
+
+**FR-167 batch 2: comprehensive Risk-domain coverage + matrix-wide WCO SAFE pillar correction.** Second FR-167 batch (batch 1 = Architecture, #275); next = dev-security (17 docs).
+
+### Added / Changed
+
+- [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) (`1.1.2` to `1.2.0`): the "Risk domain" section expanded from 3 curated rows to all **15** active `risk/` documents (policy, ERM standard, third-party/supply-chain standard, risk-assessment-methodology + risk-register + risk-acceptance procedures, assurance-map + KRI + scenario-catalogue registers, quantitative-analysis guideline, enterprise + operational risk-register templates, risk-appetite + board-risk-report templates, AI-risk-methodology annex), each across 8 framework columns. CSA CCM codes verified against [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py); the AI annex maps to GRC/AIS/A&A only (no MDS/AI-specific codes exist in the reference, so none were invented). Existing-row corrections folded in: the ERM standard and risk-register procedure had `GRC-03/04/05` and `GRC-04/05` narrowed to the materially-supported `GRC-01/GRC-02` and `GRC-02` (GRC-05 Information Security Program was not supported).
+- **Path-domain de-duplication** (maintainer decision 2026-06-24): each document appears once, in its home-domain section. The enterprise-governance-and-risk-management policy was removed from the Governance section (it had been duplicated there with conflicting ISO/NIST cells) and now lives only in Risk; the third-party-and-supply-chain-risk standard was moved out of the Supply Chain section into Risk. The convention for the remaining still-curated sections: de-duplicate to home domain as each batch runs (recorded in [`TODO.md`](../../TODO.md) FR-167).
+- **WCO SAFE pillar labelling corrected matrix-wide** (maintainer decision 2026-06-24): WCO SAFE Pillar 1 = Customs-to-Customs, Pillar 2 = Customs-to-Business. The matrix had business-partner/supply-chain rows mislabelled "Pillar I (Standard 6)" and the WCO SAFE column-key note defined the two pillars in reverse. Corrected to Pillar II: the governance charter, supplier-security-and-privacy-assurance standard, BASC-IT-responsibilities register, supplier-and-cloud-governance framework, supplier-due-diligence and supplier-audit procedures, and the relocated third-party-risk standard; plus the WCO SAFE column-key note. The standard numbers in the parentheticals were preserved (only the pillar numeral changed) to avoid fabricating WCO standard references. The operations physical-security row ("Pillar I (Standard 3, physical security)") is not a business-partner mapping and was intentionally left for the operations batch (logged in TODO FR-167).
+- The legend now documents the `N/A` no-mapping marker (the #275 follow-up (a)); this item's batch-progress note refreshed in TODO (follow-up (b)). Both #275 follow-ups closed.
+- [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated for the matrix Version/Date bump.
+
+### Batched (recursion-avoidance)
+
+- The #312 `/validate-pr` row (0 findings) in [`.working/validate-pr/history.md`](../validate-pr/history.md) and the #312 `/retro` row in [`.working/improvement-log.md`](../improvement-log.md) (surfaced a multi-surface-incompleteness pattern + a gate-spec-prose paired-surface candidate, queued as TODO §4.8), plus the [`.working/session-handoff.md`](../session-handoff.md) refresh.
+
+### Verification
+
+- `tools/run_all_audits.sh` 48/48 on the committed state; `tools/run-pr-time-checks.sh` green against the merge base.
+- Methodology: 3 research-assistant subagents (5 docs each) produced grounded candidate mappings; the orchestrator re-read every target doc's metadata title, re-verified every CSA CCM code against the authoritative reference, and authored every final cell. Customs/trade columns are `N/A` for the non-trade risk docs (consistent with the Architecture-batch precedent), with the third-party/supply-chain-risk standard the one risk doc carrying real trade mappings.
+- Post-edit self-review confirmed: 15 well-formed Risk rows; both relocated docs appear exactly once (de-dup verified by grep); only the intentionally-left physical-security row and the corrected note retain "Pillar I".
+
 ## 2026-06-24, Library Version 2026.06.290, PR #312
 
 **Sweep 38 close-out: two in-window residuals from the #306-#310 arc, surfaced by the `/resume` loop-break corpus-wide `/validate`.** Sweep 38 is the standing compensating control for the session-closing handoff PR #311 (which skipped its trailing `/validate-pr` + `/retro`). Full three-subagent dispatch (A, B, C) over the whole corpus plus the #306-#311 deltas; mechanical baseline 48/48; clone unshallowed before history-aware gates.
