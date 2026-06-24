@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.289, PR #311
+
+**Session-closing handoff PR for the 2026-06-24 morning continuation.** Working-state only (no corpus content). Refreshes the session handoff and carries the batched #310 QA records.
+
+### Changed
+- [`.working/session-handoff.md`](session-handoff.md): rewritten from the overnight-morning-handoff form to reflect the completed morning continuation. The "Next actions" queue is now the M content clusters (DD-4/5 TLS 1.3, DD-8 CPPA scrub, the High/Medium FR content items, the P4 process items) plus the deferred R2 decision; the state snapshot is post-#311 (library `2026.06.289`, 48 gates, 10 rules, 15 skills); a "This session's work" section records the #305-#310 arc; the Known-environment-behaviours section gains the squash-merge-divergence reset note and the GitHub-MCP-disconnect recovery note; the standing disciplines gain the pre-commit dash-grep, the sweep-close-out bookkeeping-triplet, and the find-every-carrier refinements surfaced this session.
+
+### Verification
+- This is the session-closing handoff PR; per the handoff-PR exception it skips its own `/validate-pr` + `/retro` (recorded as the exception row in [`.working/validate-pr/history.md`](validate-pr/history.md)). The compensating control is the corpus-wide Sweep 38 the next `/resume` runs first.
+- Carries the batched #310 `/validate-pr` (0 findings, clean) + `/retro` (the find-every-carrier positive-pattern) records.
+- `tools/run_all_audits.sh` 48/48 and `tools/run-pr-time-checks.sh` green on the committed state; no corpus content changed.
+
 ## 2026-06-24, Library Version 2026.06.288, PR #310
 
 **DD-2/3/11: risk-vocabulary harmonization to the canonical ERM scale.** Closes the TODO DD-2/DD-3/DD-11 cluster (one coherent risk-vocabulary PR per the recorded disposition). Canonical source: [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md) (likelihood Very Low/Low/Medium/High/Very High; impact Negligible/Minor/Moderate/Major/Catastrophic; rating bands Low/Medium/High/Critical).
