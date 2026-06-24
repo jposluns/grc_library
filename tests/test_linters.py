@@ -2586,6 +2586,38 @@ class CcmAicmCitationTests(LinterTestCase):
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    def test_cross_catalogue_title_flagged(self) -> None:
+        # Section-aware check: I&S-07 under a CSA CCM section titled with the
+        # AICM variant ("Migration to Hosted Environments") cites the wrong
+        # catalogue's title (CCM v4.1.0 I&S-07 is "Migration to Cloud
+        # Environments"). The two titles share content words, so the
+        # conservative content-word check cannot catch it; the divergent-title
+        # check must.
+        fixture = self.make_fixture(
+            "fake-ccm-cross-catalogue.md",
+            "# X\n\n## CSA CCM v4.1 control mapping\n\n"
+            "| Control ID | Control Title |\n| --- | --- |\n"
+            "| I&S-07 | Migration to Hosted Environments |\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+        self.assertLinterFails(result, "ccm-title-cross-catalogue")
+
+    def test_correct_catalogue_title_not_flagged(self) -> None:
+        # False-positive guard for the divergent-title check: I&S-07 under a
+        # CSA CCM section titled with the CORRECT CCM variant must pass.
+        fixture = self.make_fixture(
+            "fake-ccm-correct-catalogue.md",
+            "# X\n\n## CSA CCM v4.1 control mapping\n\n"
+            "| Control ID | Control Title |\n| --- | --- |\n"
+            "| I&S-07 | Migration to Cloud Environments |\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"the correct CCM-section title for I&S-07 must not be flagged.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
