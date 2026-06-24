@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.288, PR #310
+
+**DD-2/3/11: risk-vocabulary harmonization to the canonical ERM scale.** Closes the TODO DD-2/DD-3/DD-11 cluster (one coherent risk-vocabulary PR per the recorded disposition). Canonical source: [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md) (likelihood Very Low/Low/Medium/High/Very High; impact Negligible/Minor/Moderate/Major/Catastrophic; rating bands Low/Medium/High/Critical).
+
+### Changed
+- [`supply-chain/register-concentration-risk.md`](../../supply-chain/register-concentration-risk.md) (`1.0.4` to `1.0.5`): the descriptive likelihood row "Rare, Unlikely, Possible, Likely, Almost Certain" to "Very Low, Low, Medium, High, Very High"; the descriptive impact row's "Severe" to "Catastrophic".
+- [`risk/template-operational-risk-register.md`](../../risk/template-operational-risk-register.md) (`1.0.2` to `1.0.3`): likelihood scale "Moderate" to "Medium" and casing to canonical ("Very Low"/"Very High"); impact scale "Severe" to "Catastrophic"; worked-example rows "Inherent likelihood: Moderate" to "Medium" and "Residual rating: Moderate" to "Medium" (the "Residual impact: Moderate" row is impact-3, canonically "Moderate", left unchanged).
+- [`risk/procedure-risk-assessment-methodology.md`](../../risk/procedure-risk-assessment-methodology.md) (`1.1.1` to `1.1.2`): impact-scale level-5 label "Critical" to "Catastrophic" (description aligned to the standard's phrasing to avoid a "Catastrophic: Catastrophic impact" redundancy). The rating-band "Critical" (17-25) at line 124 preserved.
+- [`risk/template-enterprise-risk-register.md`](../../risk/template-enterprise-risk-register.md) (`1.1.3` to `1.1.4`): the inherent-impact and residual-impact scale fields "5 (Critical)" to "5 (Catastrophic)" and the 5x5 matrix impact-5 column header "5 Critical" to "5 Catastrophic". The rating "Critical" in the rating-band fields and the matrix score cells preserved.
+
+### Removed
+- The DD-2/DD-3/DD-11 item from [`TODO.md`](../../TODO.md) (rotated to DONE).
+
+### Verification
+- The conflation resolved is impact-5-versus-rating: several docs labelled impact-5 "Critical" or "Severe" while the canonical impact-5 is "Catastrophic" and "Critical" is the rating-top; the rating-top "Critical" (17-25) was preserved in every document (corpus-wide grep confirmed `17 to 25 | Critical` and the rating cells intact).
+- Corpus-wide grep for surviving divergent scale labels returned only non-defects: `annex-ai-risk-methodology.md:104` "25 (Critical)" is a score-to-rating mention (not impact-5); `template-operational-risk-register.md:133` "Moderate" is impact-3 (canonically "Moderate"). `annex-ai-risk-methodology.md` uses the canonical numeric scale (its "Moderate external" is an exposure-tier modifier, not a scale label) and needed no edit.
+- The concentration register's "Overall residual risk" descriptor (Negligible/Low/Moderate/High/Unacceptable) is a doc-specific qualitative output scale, not the canonical 4-band rating; left intact (forcing it would lose the "Unacceptable" level and was not in the disposition).
+- All 48 gates pass on the committed state; `tools/run-pr-time-checks.sh` green; taxonomy/portal/scorecard regenerated for the four version bumps.
+- Carries the batched #309 `/validate-pr` (0 findings) + `/retro` records.
+
 ## 2026-06-24, Library Version 2026.06.287, PR #309
 
 **S5: gate 48 bare-domain-code check (Check 4).** Closes TODO §4.5 S5 (surfaced by Sweep 36). Completes the gate-48 enhancement pair with S4 (#308). The maintainer chose "build now, precision-first" after the orchestrator surfaced that S5's false-positive surface (the glossary rename-note, the pack-README version-history, TODO meta, currency `AUD`) made it thornier than its `(S)` tag.

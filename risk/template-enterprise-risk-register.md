@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Risk Register Template\
 **Document Type:** Template\
-**Version:** 1.1.3\
-**Date:** 2026-06-23\
+**Version:** 1.1.4\
+**Date:** 2026-06-24\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -55,7 +55,7 @@ Assessed before any controls are applied, based on the likelihood × impact matr
 | Field | Scale | Value |
 |---|---|---|
 | **Inherent Likelihood** | 1 (Very Low) to 5 (Very High) | |
-| **Inherent Impact** | 1 (Negligible) to 5 (Critical) | |
+| **Inherent Impact** | 1 (Negligible) to 5 (Catastrophic) | |
 | **Inherent Risk Score** | Likelihood × Impact (1 to 25) | |
 | **Inherent Risk Rating** | Low (1 to 4) / Medium (5 to 9) / High (10 to 16) / Critical (17 to 25) | |
 
@@ -74,7 +74,7 @@ Assessed after existing controls are applied.
 | Field | Scale | Value |
 |---|---|---|
 | **Residual Likelihood** | 1 (Very Low) to 5 (Very High) | |
-| **Residual Impact** | 1 (Negligible) to 5 (Critical) | |
+| **Residual Impact** | 1 (Negligible) to 5 (Catastrophic) | |
 | **Residual Risk Score** | Likelihood × Impact (1 to 25) | |
 | **Residual Risk Rating** | Low / Medium / High / Critical | |
 | **Within Risk Appetite?** | Yes / No / Borderline: compare against [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md) | |
@@ -139,7 +139,7 @@ If residual risk is not within appetite and is being formally accepted, complete
 
 The full 5×5 matrix is defined in [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md). Summary:
 
-| | **1 Negligible** | **2 Minor** | **3 Moderate** | **4 Major** | **5 Critical** |
+| | **1 Negligible** | **2 Minor** | **3 Moderate** | **4 Major** | **5 Catastrophic** |
 |---|---|---|---|---|---|
 | **5 Very High** | Medium (5) | High (10) | High (15) | Critical (20) | Critical (25) |
 | **4 High** | Low (4) | Medium (8) | High (12) | High (16) | Critical (20) |

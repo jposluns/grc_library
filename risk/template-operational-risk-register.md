@@ -2,8 +2,8 @@
 
 **Document Title:** Operational Risk Register Template\
 **Document Type:** Template\
-**Version:** 1.0.2\
-**Date:** 2026-06-23\
+**Version:** 1.0.3\
+**Date:** 2026-06-24\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/guideline-quantitative-risk-analysis.md`](guideline-quantitative-risk-analysis.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md)\
@@ -120,11 +120,11 @@ The likelihood and impact scales use the organisation's risk methodology. For co
 
 | Likelihood | Description |
 | --- | --- |
-| Very low | Event not expected within the planning horizon |
+| Very Low | Event not expected within the planning horizon |
 | Low | Could occur but unlikely; would be unusual |
-| Moderate | Could occur occasionally |
+| Medium | Could occur occasionally |
 | High | Likely to occur within the planning horizon |
-| Very high | Expected to occur, possibly more than once |
+| Very High | Expected to occur, possibly more than once |
 
 | Impact | Description |
 | --- | --- |
@@ -132,7 +132,7 @@ The likelihood and impact scales use the organisation's risk methodology. For co
 | Minor | Localised effect; short-duration |
 | Moderate | Material effect on a business unit or function |
 | Major | Material effect across business units; regulatory attention possible |
-| Severe | Existential impact; significant regulatory or reputational consequence |
+| Catastrophic | Existential impact; significant regulatory or reputational consequence |
 
 For quantitative assessments, the FAIR-aligned guideline supplies a quantitative model.
 
@@ -212,14 +212,14 @@ The example below illustrates a single risk entry. Adopting organisations replac
 | Risk taxonomy | Business disruption and system failures; third party |
 | Risk owner | Head of Payments Engineering |
 | Process or activity affected | Customer checkout |
-| Inherent likelihood | Moderate |
+| Inherent likelihood | Medium |
 | Inherent impact | Major |
 | Inherent rating | High |
 | Existing controls | Multi-processor routing; processor-failover automation; runbook; provider monitoring |
 | Control effectiveness | Partially effective; multi-processor tested at quarter-end |
 | Residual likelihood | Low |
 | Residual impact | Moderate |
-| Residual rating | Moderate |
+| Residual rating | Medium |
 | Treatment decision | Mitigate |
 | Treatment plan | Add second-line failover provider; complete by Q3 |
 | Linked enterprise risk | ERR-OPS-003 (revenue continuity) |
