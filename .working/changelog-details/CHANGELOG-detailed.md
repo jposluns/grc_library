@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.284, PR #306
+
+**Sweep 37 close-out: corrected two superseded CSA CCM v4.0 domain-name residuals on the operations framework-alignment tables.** The `/resume` loop-break corpus-wide `/validate` (Sweep 37) for session-closing handoff PR #305. PR #305 was prepared by the prior overnight session but could not be opened/merged then (the GitHub MCP server disconnected, recorded in [`.working/third-party-issues.md`](../third-party-issues.md)); this morning session merged it once the MCP reconnected, then ran Sweep 37 as the compensating control. Full three-subagent dispatch over the whole corpus plus the #301-#305 deltas.
+
+### Fixed
+- [`operations/standard-cloud-security-configuration-baseline.md`](../../operations/standard-cloud-security-configuration-baseline.md) (`1.4.7` to `1.4.8`): §framework-alignment row `:195` named the domain by its superseded CCM v4.0 title "Infrastructure and Virtualization Security" while carrying correct v4.1.0 codes (`I&S-01, I&S-04`); completed the domain name to the v4.1.0 short form "Infrastructure Security" (the same rename PR #301 applied to the glossary and reverse crosswalk; this file was outside #301's 13-doc scope).
+- [`operations/standard-physical-security-of-it-infrastructure.md`](../../operations/standard-physical-security-of-it-infrastructure.md) (`1.3.2` to `1.3.3`): §framework-alignment row `:108` was a compound defect, the superseded v4.0 domain name plus a wrong control code (it cited `I&S-03`, whose canonical CCM v4.1.0 title is "Network Security", for physical security; physical and datacenter security is the `DCS` (Datacenter Security) domain). Per the maintainer's chosen option (DCS physical-access trio), the CCM cell now reads "DCS-04, DCS-08, DCS-10: Secure Area Policy, Controlled Physical Access Points, Secure Area Authorization", paralleling the row's NIST PE-2/PE-3/PE-6 physical-access triple and the doc's server-room/IT-equipment/physical-access scope.
+
+### Changed
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (`2.0.29` to `2.0.30`): added the Sweep 37 iter 1 row.
+
+### Added
+- [`.working/validate-sweeps/2026-06-24-sweep37-iter1.md`](../validate-sweeps/2026-06-24-sweep37-iter1.md): the per-iteration detail file (six H2 sections; subagent returns, synthesis, triage).
+
+### Verification
+- Both findings were the pre-known Sweep 36 morning-review item #1, deferred at the time for the F2 control-mapping judgment call; the maintainer resolved F2 this session (DCS trio) and F1 is an unambiguous completion of the settled #301 rename.
+- Subagents A and B independently converged on the same two findings (dedupe confirmed); Subagent C (audit-programme integrity) returned 0 findings; the in-window scope (#301-#305) returned 0 defects.
+- Gate 48 (`lint-ccm-aicm-citations.py`) re-confirmed exit 0 across 377 files post-edit; `tools/run_all_audits.sh` 48/48 on the committed state; `tools/run-pr-time-checks.sh` green.
+- The I&S-01 canonical control title at [`dev-security/register-compliance-controls-and-gap-register.md`](../../dev-security/register-compliance-controls-and-gap-register.md):198 ("Infrastructure and Virtualization Security Policy and Procedures") legitimately retains the longer phrase and was left untouched (non-defect guard, surfaced by Subagent A).
+- This PR is not a handoff PR; it carries its own `/validate-pr` + `/retro` (batched into the next PR per recursion-avoidance).
+
 ## 2026-06-24, Library Version 2026.06.283, PR #305
 
 **Generalized the session-closing-handoff-PR QA loop-break exception into the distributable pack layer + batched #304 QA records.** Closes the TODO P2 item "Generalize the handoff-PR QA loop-break into the pack layer (M, S)". The exception was fully specified project-locally (`.claude/CLAUDE.md` PR-workflow step 5a, the closing-handoff-PR discipline, and the `/resume` command) but the distributable pack's no-skip disciplines did not name it, so an adopter taking the pack would inherit "every merge gets `/validate-pr`, no carve-outs" without the one legitimate exception.
