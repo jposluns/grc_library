@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.1.2\
+**Version:** 1.2.0\
 **Date:** 2026-06-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -33,7 +33,7 @@ This matrix maps GRC library documents to the control domains and section refere
 | WCO SAFE | WCO SAFE Framework of Standards | Pillar and standard references |
 | AEO/AEO-S | UK HMRC Authorized Economic Operator (Security and Safety) | Requirement area headings |
 
-Read across a row to identify which frameworks a given document supports. Read down a column to identify which GRC library documents collectively satisfy a framework's requirements. A cell containing ": " indicates no direct mapping; the document may still provide contextual support.
+Read across a row to identify which frameworks a given document supports. Read down a column to identify which GRC library documents collectively satisfy a framework's requirements. A cell containing "N/A" (or the legacy marker ": ") indicates no direct mapping; the document may still provide contextual support. "N/A" is used in particular for the customs and trade-security columns (CTPAT, PIP, BASC, WCO SAFE, AEO/AEO-S) on documents whose subject is not customs or trade security.
 
 ---
 
@@ -47,11 +47,10 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 | Domain | Document Title | Path | CSA CCM v4.1 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Governance | Governance Library Charter | [`governance/charter-governance-library.md`](../governance/charter-governance-library.md) | GRC-01, GRC-02 | §5.1, §5.2, §6.1 | GV.OC, GV.RM | N/A | Programme governance | §5.1, §7.5 | Pillar I (Customs-Business Partnership) | Management commitment |
-| Governance | Policy: Governance and Risk Management | [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | GRC-01, GRC-02, GRC-03 | §5.2, §6.1, §6.2 | GV.RM, GV.OC | N/A | Programme governance | §5.1, §6.1 | N/A | Management commitment |
+| Governance | Governance Library Charter | [`governance/charter-governance-library.md`](../governance/charter-governance-library.md) | GRC-01, GRC-02 | §5.1, §5.2, §6.1 | GV.OC, GV.RM | N/A | Programme governance | §5.1, §7.5 | Pillar II (Customs-to-Business Partnership) | Management commitment |
 | Governance | Policy: Exception and Risk Acceptance Management | [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) | GRC-04, GRC-05 | §6.1.3, §8.2 | GV.RM, ID.RA | N/A |: | §6.1, §10 | N/A | Risk management |
 | Governance | Standard: Records Retention and Destruction | [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) | DSP-07, DSP-08 | A.5.33, A.8.10 | PR.DS, PR.IP | Documentation and record-keeping | Record retention | §7.5 | Pillar II (Customs-to-Customs) | Documentation security; Trade records retention |
-| Supply Chain | Standard: Supplier Security and Privacy Assurance | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | STA-01, STA-02, STA-03 | A.5.19, A.5.20, A.5.21, A.5.22 | GV.SC, ID.SC | Business partner requirements | Third-party security | §8.6 | Pillar I (Standard 6) | Business partners |
+| Supply Chain | Standard: Supplier Security and Privacy Assurance | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | STA-01, STA-02, STA-03 | A.5.19, A.5.20, A.5.21, A.5.22 | GV.SC, ID.SC | Business partner requirements | Third-party security | §8.6 | Pillar II (Customs-to-Business; Standard 6) | Business partners |
 | Governance | Register: Document Index and Classification | [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md) | GRC-01 | §7.5 | GV.OC | N/A |: | §7.5 | N/A | Documentation security |
 
 ---
@@ -60,9 +59,21 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 | Domain | Document Title | Path | CSA CCM v4.1 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Risk | Policy: Enterprise Governance and Risk Management | [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | GRC-01, GRC-02, GRC-03 | §5.3, §6.1, §6.2 | GV.RM, ID.RA | N/A | Programme governance | §5.1, §6.1 | N/A | Management commitment; Risk management |
-| Risk | Standard: Enterprise Risk Management | [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) | GRC-03, GRC-04, GRC-05 | §6.1.2, §6.1.3 | ID.RA, GV.RM | N/A | Risk assessment | §6.1 | N/A | IT security risk management |
-| Risk | Procedure: Risk Register | [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md) | GRC-04, GRC-05 | §6.1.2, §6.1.3, §9.1 | ID.RA, GV.RM | N/A | Risk assessment | §6.1, §9.1 | N/A | IT security risk management |
+| Risk | Policy: Enterprise Governance and Risk Management | [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | GRC-01, GRC-02, GRC-03 | §5.1, §5.3, §6.1, §6.2 | GV.RM, GV.OC, ID.RA | N/A | Programme governance | §5.1, §6.1 | N/A | Management commitment; Risk management |
+| Risk | Standard: Enterprise Risk Management | [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) | GRC-01, GRC-02 | §6.1.1, §6.1.2, §6.1.3, §8.2, §8.3 | ID.RA, GV.RM | N/A | Risk assessment | §6.1 | N/A | IT security risk management; Risk management |
+| Risk | Standard: Third-Party and Supply Chain Risk | [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md) | STA-01, STA-02, STA-03 | A.5.19, A.5.20, A.5.21, A.5.22 | GV.SC, ID.SC | Business partner requirements | Third-party security | §6.1, §8.6 | Pillar II (Customs-to-Business; Standard 6) | Business partners; IT security risk management |
+| Risk | Procedure: Risk Assessment Methodology | [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md) | GRC-01, GRC-02 | §6.1.1, §6.1.2, §6.1.3, §8.2, §8.3 | ID.RA, GV.RM | N/A | Risk assessment | §6.1 | N/A | IT security risk management |
+| Risk | Procedure: Risk Register | [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md) | GRC-02 | §6.1.2, §6.1.3, §8.2, §8.3, §9.1 | ID.RA, GV.RM | N/A | Risk assessment | §6.1, §9.1 | N/A | IT security risk management |
+| Risk | Procedure: Risk Acceptance | [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md) | GRC-02, GRC-04 | §6.1.3, §8.3 | GV.RM, ID.RA | N/A | N/A | §6.1, §10 | N/A | Risk management |
+| Risk | Register: Assurance Map | [`risk/register-assurance-map.md`](../risk/register-assurance-map.md) | A&A-02, A&A-03, GRC-02 | §9.1, §9.2, A.5.35 | GV.OV, GV.RM, ID.IM | N/A | N/A | §9.1, §9.2 | N/A | IT controls review and testing |
+| Risk | Register: Key Risk Indicators | [`risk/register-key-risk-indicators.md`](../risk/register-key-risk-indicators.md) | GRC-02, A&A-03 | §6.1, §9.1 | GV.RM, ID.RA, ID.IM | N/A | N/A | §6.1, §9.1 | N/A | IT controls review and testing |
+| Risk | Register: Scenario Risk Catalogue | [`risk/register-scenario-risk-catalogue.md`](../risk/register-scenario-risk-catalogue.md) | GRC-02, BCR-02, A&A-03 | §6.1, §8.2 | ID.RA, GV.RM, RC.RP | N/A | N/A | §6.1 | N/A | IT security risk management |
+| Risk | Guideline: Quantitative Risk Analysis | [`risk/guideline-quantitative-risk-analysis.md`](../risk/guideline-quantitative-risk-analysis.md) | GRC-02, A&A-03 | §6.1.2, §8.2 | ID.RA, GV.RM | N/A | N/A | N/A | N/A | IT security risk management |
+| Risk | Template: Enterprise Risk Register | [`risk/template-enterprise-risk-register.md`](../risk/template-enterprise-risk-register.md) | GRC-02, GRC-04 | §6.1.2, §6.1.3, §9.1 | ID.RA, GV.RM | N/A | N/A | §6.1 | N/A | IT security risk management |
+| Risk | Template: Operational Risk Register | [`risk/template-operational-risk-register.md`](../risk/template-operational-risk-register.md) | GRC-02, GRC-04 | §6.1.2, §6.1.3, §9.1 | ID.RA, GV.RM | N/A | N/A | §6.1 | N/A | IT security risk management |
+| Risk | Template: Risk Appetite Statement | [`risk/template-risk-appetite-statement.md`](../risk/template-risk-appetite-statement.md) | GRC-02 | §5.1, §6.1.1, §6.1.3 | GV.RM, GV.OV | N/A | N/A | N/A | N/A | Management commitment; Risk management |
+| Risk | Template: Board Risk Report | [`risk/template-board-risk-report.md`](../risk/template-board-risk-report.md) | GRC-02, GRC-06 | §5.1, §9.1, §9.3 | GV.RM, GV.OV | N/A | N/A | N/A | N/A | Management commitment |
+| Risk | Annex: AI-Specific Risk Methodology | [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) | GRC-02, AIS-01, A&A-03 | §6.1.2, §6.1.3, §8.2 | ID.RA, GV.RM, GV.OC | N/A | N/A | N/A | N/A | IT security risk management |
 
 ---
 
@@ -72,7 +83,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Compliance | Policy: Compliance, Audit, and CAPA Management | [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md) | GRC-06, GRC-07, GRC-08 | §9.2, §9.3, §10.1, §10.2 | GV.OC, ID.IM | N/A | Programme governance | §9.2, §10 | N/A | IT controls review and testing |
 | Compliance | Register: Global Regulatory Applicability | [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md) | GRC-01, GRC-06 | §4.1, §4.2, §6.1 | GV.OC, GV.RM | N/A | Programme governance | §4.1, §6.1 | N/A | Management commitment |
-| Compliance | Register: BASC IT and Information Security Responsibilities | [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md) | GRC-01, GRC-02 | §5.3, §6.1, §9.1 | GV.OC, GV.RM | N/A |: | §5.1, §6.1, §7.2, §7.5, §8.1, §8.3, §8.4, §8.5, §9.1, §9.2, §10 | Pillar I (Standard 6) | All AEO-S IT requirement areas |
+| Compliance | Register: BASC IT and Information Security Responsibilities | [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md) | GRC-01, GRC-02 | §5.3, §6.1, §9.1 | GV.OC, GV.RM | N/A |: | §5.1, §6.1, §7.2, §7.5, §8.1, §8.3, §8.4, §8.5, §9.1, §9.2, §10 | Pillar II (Customs-to-Business; Standard 6) | All AEO-S IT requirement areas |
 | Compliance | Register: BASC IT Compliance Monitoring and KPIs | [`compliance/logistics/register-basc-it-compliance-kpis.md`](../compliance/logistics/register-basc-it-compliance-kpis.md) | GRC-04, GRC-08 | §9.1 | GV.OC, ID.IM | N/A |: | §9.1 | N/A | IT controls review and testing |
 | Compliance | Annex: AEO-S IT and Cybersecurity Requirements | [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md) | IAM-01, SEF-01, DSP-01 | §5.3, §8.1, §9.1 | GV.OC, PR.AA, DE.CM | IT security requirements | IT security | §8.4, §8.5 | Pillar II (ICT security) | Access to IT systems; Information systems security; IT security incidents; Trade records retention |
 
@@ -116,10 +127,9 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 | Domain | Document Title | Path | CSA CCM v4.1 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Supply Chain | Framework: Supplier and Cloud Governance | [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md) | STA-01, STA-02, STA-03, STA-04, STA-05 | A.5.19, A.5.20, A.5.21, A.5.22, A.5.23 | GV.SC, ID.SC | Business partner requirements; Cargo security | Third-party and supply chain security | §8.6 | Pillar I (Standard 6, business partners); Pillar I (Standard 5, supply chain) | Business partners |
-| Supply Chain | Standard: Third-Party Risk | [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md) | STA-01, STA-03, STA-04 | A.5.19, A.5.21, A.5.22 | GV.SC, ID.SC | Business partner requirements | Third-party security | §8.6 | Pillar I (Standard 6) | Business partners |
-| Supply Chain | Procedure: Supplier Due Diligence | [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md) | STA-02, STA-04 | A.5.19, A.5.20 | GV.SC, ID.SC | Business partner vetting | Third-party vetting | §8.6 | Pillar I (Standard 6) | Business partners |
-| Supply Chain | Procedure: Supplier Audit | [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md) | STA-04, STA-05, GRC-07 | A.5.20, A.5.22, §9.2 | GV.SC, ID.SC | Business partner requirements | Third-party audit | §8.6, §9.2 | Pillar I (Standard 6) | Business partners; IT controls review and testing |
+| Supply Chain | Framework: Supplier and Cloud Governance | [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md) | STA-01, STA-02, STA-03, STA-04, STA-05 | A.5.19, A.5.20, A.5.21, A.5.22, A.5.23 | GV.SC, ID.SC | Business partner requirements; Cargo security | Third-party and supply chain security | §8.6 | Pillar II (Standard 6, business partners); Pillar II (Standard 5, supply chain) | Business partners |
+| Supply Chain | Procedure: Supplier Due Diligence | [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md) | STA-02, STA-04 | A.5.19, A.5.20 | GV.SC, ID.SC | Business partner vetting | Third-party vetting | §8.6 | Pillar II (Customs-to-Business; Standard 6) | Business partners |
+| Supply Chain | Procedure: Supplier Audit | [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md) | STA-04, STA-05, GRC-07 | A.5.20, A.5.22, §9.2 | GV.SC, ID.SC | Business partner requirements | Third-party audit | §8.6, §9.2 | Pillar II (Customs-to-Business; Standard 6) | Business partners; IT controls review and testing |
 
 ---
 
@@ -169,7 +179,7 @@ This matrix is being expanded toward comprehensive coverage of the library's sub
 | CTPAT | Focused on security, operations, supply-chain, and resilience documents; not applicable to most non-logistics IT-governance content |
 | PIP (Canada) | Focused on the programme requirements for IT security, access, data protection, and continuity |
 | BASC v6 | Broad within the logistics and IT-security scope; operational cargo-security domains are out of this matrix's IT scope |
-| WCO SAFE | Focused on Pillar I (customs-business partnership) and Pillar II (customs-to-customs) |
+| WCO SAFE | Focused on Pillar II (Customs-to-Business partnership: AEO and ICT-security requirements); Pillar I (Customs-to-Customs) is largely outside this matrix's IT scope |
 | AEO/AEO-S | Focused on the information-systems-security requirement area; physical and personnel security supported by operations and governance documents |
 
 
