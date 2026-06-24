@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.49.6\
+**Version:** 1.49.7\
 **Date:** 2026-06-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -440,6 +440,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.49.7 | 2026.06.283 | 2026-06-24 | Generalized the session-closing-handoff-PR QA loop-break exception into the distributable pack layer (it previously lived only in this project's `.claude/CLAUDE.md` and `/resume` command). Named the exception in the [`validation-sweep-pr-scoped`](skills/validation-sweep-pr-scoped/SKILL.md) SKILL (the one sanctioned skip of the otherwise-mandatory per-PR `/validate-pr`) and in the no-skip clause of [`governance/ai-assistant-workflow-disciplines.md`](governance/ai-assistant-workflow-disciplines.md), each with the loop-termination rationale and the stronger compensating control (a full corpus-wide validation sweep at the next session's start), so adopters inherit the exemption and any future mechanical QA-cadence gate knows to build it in. Pack `1.49.6 → 1.49.7` (minor; distributable-exception generalization). |
 | 1.49.6 | 2026.06.280 | 2026-06-24 | Sweep 36 finding (separate theme from the #301 close-out): the [`guardrail-review`](skills/guardrail-review/SKILL.md) SKILL growth-narrative count "a dozen gates to **forty-seven**" corrected to "**forty-eight**" (gate 48 was added by #299 after Sweep 34; this is a free-prose word-form count, invisible to gate 39's digit-form check). Pack `1.49.5 → 1.49.6` (patch; stale-count). |
 | 1.49.5 | 2026.06.279 | 2026-06-24 | Sweep 36 close-out, pack surface: refreshed the external-reference framework versions in the "Cloud security alliance" section, CCM `v4.0` to `v4.1.0` and AICM `v1.0.3` to `v1.1.0`, and corrected the AICM coverage line from "13 AI-specific security controls" (which is the MDS-domain subset) to "247 controls across 18 domains" (the full v1.1.0 scope: CCM's 17 domains plus the AI-specific Model Development and Security domain). Part of the corpus-wide CCM/AICM citation-residual completion: the #298 reconciliation was token-scoped (it checked `<DOMAIN>-<NN>` codes and `\| CODE \| title \|` rows) and so left bare domain-code mentions and framework-version-currency strings uncorrected. Pack `1.49.4 → 1.49.5` (patch; citation currency). |
 | 1.49.4 | 2026.06.276 | 2026-06-24 | CCM/AICM citation-accuracy reconciliation, pack surfaces (part of the corpus-wide reconciliation grounded in the uploaded authoritative CSA CCM v4.1.0 and AICM v1.1.0 catalogues): corrected the superseded CCM v4.0 domain code `IVS` to the authoritative v4.1.0 `I&S` in [`ai/mcp-security.md`](ai/mcp-security.md), [`core/cryptography.md`](core/cryptography.md), and [`pipeline/cicd-gates.md`](pipeline/cicd-gates.md) (the same fix landed in the byte-identical [`.claude/rules/`](../../.claude/rules/cicd-gates.md) mirror), and tightened the loose framework-basis reference `CSA CCM v4 / AICM v1` to `CSA CCM v4.1 / AICM v1.1` in [`CLAUDE.md`](CLAUDE.md). Pack `1.49.3 → 1.49.4` (patch; citation fixes). |

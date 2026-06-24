@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #305 — Generalize the handoff-PR QA loop-break into the pack layer (medium) (2026-06-24)
+
+Named the session-closing-handoff-PR exception (the one sanctioned skip of the mandatory per-PR `/validate-pr` + `/retro`) in the two distributable pack surfaces (the `validation-sweep-pr-scoped` SKILL and the `ai-assistant-workflow-disciplines.md` no-skip clause + its `.claude/` mirror), with the loop-termination rationale and the corpus-wide-`/validate`-on-resume compensating control, so adopters inherit the exemption. Previously the exception lived only in this project's `.claude/CLAUDE.md` + `/resume`.
+
 ### PR #304 — Working-state relocation R3: register-main-branch-protection.md → .working/ (medium) (2026-06-24)
 
 Relocated the Main Branch Protection Configuration Register (a snapshot of *this* repo's GitHub branch protection, project-application state meaningless to adopters) from `governance/` into `.working/`, per the PR #116 corpus-doc-relocation precedent: slimmed its metadata to a working-state header, deleted its rows from the governance README and the document-index register, and regenerated taxonomy/portal/scorecard. One of the three queued working-state relocations (R1 the exemption-file and R2 the citation cluster remain; R1 deferred for a pack-design decision, see overnight-pr morning-review).

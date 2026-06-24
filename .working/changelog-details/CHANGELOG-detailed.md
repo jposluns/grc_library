@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.283, PR #305
+
+**Generalized the session-closing-handoff-PR QA loop-break exception into the distributable pack layer + batched #304 QA records.** Closes the TODO P2 item "Generalize the handoff-PR QA loop-break into the pack layer (M, S)". The exception was fully specified project-locally (`.claude/CLAUDE.md` PR-workflow step 5a, the closing-handoff-PR discipline, and the `/resume` command) but the distributable pack's no-skip disciplines did not name it, so an adopter taking the pack would inherit "every merge gets `/validate-pr`, no carve-outs" without the one legitimate exception.
+
+### Changed
+- [`dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md`](../../dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md): added a "**The one standing exception: the session-closing handoff PR**" paragraph immediately after the no-skip-discretion paragraph, stating that this is the single sanctioned skip, with the loop-termination rationale (running `/validate-pr` on the handoff PR produces a row that recursion-avoidance batches into a new PR, whose merge triggers another `/validate-pr`, with no terminating next substantive PR at a session boundary), the stronger compensating control (the next session's resume runs a full corpus-wide `/validate` first), and the requirement that a mechanical QA-cadence gate build in the exemption.
+- [`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`](../../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md) and its byte-identical mirror [`.claude/rules/governance/ai-assistant-workflow-disciplines.md`](../../.claude/rules/governance/ai-assistant-workflow-disciplines.md): appended the same exception (condensed) to the no-skip clause's closing sentence. Both copies updated identically (gate 37 sync).
+- [`TODO.md`](../../TODO.md): the loop-break-generalize item rotated to [`.working/DONE.md`](DONE.md).
+
+### Verification
+- `tools/lint-language.py` pre-flight ran clean on all three pack-prose surfaces BEFORE the first commit (the new-pack-prose discipline; no em-dashes, no British `-ise`).
+- All 48 gates pass on the committed state (gate 37 confirms the rule mirror is byte-identical); pre-push `run-pr-time-checks.sh` green.
+- Carries the batched **#304 `/validate-pr`** (history row only; **0 findings**, clean) and **#304 `/retro`** records.
+
+### Environment note
+- The GitHub MCP server disconnected mid-session after #304 merged, so this PR could not be opened or merged via MCP during the session. The work is committed and pushed to the feature branch; opening and merging PR #305 awaits MCP reconnection or the next session. Recorded in [`.working/third-party-issues.md`](third-party-issues.md).
+
 ## 2026-06-24, Library Version 2026.06.282, PR #304
 
 **Working-state relocation R3 (`register-main-branch-protection.md` → `.working/`) + batched #303 QA records.** The first of the three queued working-state relocations to ship, chosen first because it is the cleanest: a pure corpus-doc move with no distributable-pack coupling (the PR #116 precedent shape). The register is a snapshot of this repository's own branch-protection configuration, project-application state that is meaningless to an adopter (who configures their own repository), so it belongs in `.working/` rather than the adopter-facing corpus.

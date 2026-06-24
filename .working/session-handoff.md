@@ -16,48 +16,44 @@ On `/resume`, the assistant:
 5. **Runs a full corpus-wide `/validate` as the first substantive task** (this will be **Sweep 36** — the loop-break compensating control for the session-closing handoff PR #300, which skips its trailing `/validate-pr` + `/retro`). Routes any findings to the backlog.
 6. Continues from "Next actions" — **which this time is the OVERNIGHT MISSION below.**
 
-## ⏰ OVERNIGHT MISSION (the goal for the next session) — read this first
+## ☀️ MORNING HAND-OFF (read this first) — overnight run executed, clean-up pending
 
-**Maintainer authorization (2026-06-24):** the next session is an **autonomous overnight run of about 8 hours**. The maintainer types `/resume`, then sleeps. **Goal: close out ALL the XS and S items, and as many of the Medium (M) items as possible, from [`TODO.md`](../TODO.md), for the maintainer to review in the morning.** This is a standing maintainer-authorized autonomous window (not an abbreviation of QA — every per-PR discipline below still runs).
+The 2026-06-24 autonomous overnight run executed and the maintainer directed a hand-off to a fresh session for the morning clean-up. **First actions for this session, in order:**
 
-### Work-list (effort-ordered, lowest-first per the TODO convention). Snapshot as of this handoff; re-read TODO live, it is the source of truth.
+1. **Open and merge PR #305.** It is committed and pushed to `claude/aicm-ccm-resume-3jd277` but **UNMERGED**: the GitHub MCP server disconnected mid-session (after #304 merged), so the PR could not be opened or merged via MCP. See [`third-party-issues.md`](third-party-issues.md). #305 = the loop-break-generalize pack-layer change + the batched #304 QA rows + this handoff refresh. Confirm `git log` shows the #305 commit ahead of `main`, open the PR (MCP), confirm CI green, merge. If MCP is still down, surface to the maintainer; do NOT merge by any non-MCP path.
+2. **Morning-process [`overnight-pr.md`](overnight-pr.md)** (its `Status` is `in-flight`): route its content (design decisions → [`design-decisions.md`](design-decisions.md); closed work → [`DONE.md`](DONE.md); deferred items → [`../TODO.md`](../TODO.md)), then reset it to `stub`. Gate 46 passes on `in-flight`; this is the required clean-up.
+3. **Run the corpus-wide `/validate` (Sweep 37)** as the loop-break compensating control for #305 (the session-closing PR took the handoff exception and skipped its own `/validate-pr` + `/retro`). Route findings.
+4. **Review TODO with the maintainer** and let them decide how to proceed.
 
-**XS (4) — do these first, quick mechanical wins:**
-- The **3 working-state relocations** (TODO P-listing-surface area, the old "relocation bundle R1/R2/R3"): `tools/sweep-preflight-exemptions.json` → `.working/validate-sweeps/`; the 6-file citation-verification cluster → `.working/citation-verifications/`; `governance/register-main-branch-protection.md` → `.working/`. Follow the **PR #116 precedent** (slim moved-doc metadata, update `**Repository Path:**`, delete index/README rows in the SAME PR, update tool load-path constants, regenerate taxonomy/portal/scorecard, leave historical CHANGELOG refs). **R2 (citation cluster) is the heavy/risky one — its own PR, extra grep-completeness care; full ripple map is in the PRIOR handoff (git history of this file, the #297 version) and in the relevant tools' load-path constants.** Do R1/R2/R3 as **3 separate PRs** (always-split).
-- **Day-1-floor risk-artefact drift** (TODO, `(M, XS)`): the two six-artefact-floor definitions disagree on the sixth artefact. Maintainer pre-stated recommendation is option (A) (make `risk/policy-enterprise-governance-and-risk-management.md` canonical in both); proceed with (A) unless re-reading shows it wrong, and flag in the PR for morning review.
+### What shipped overnight (all MERGED except #305)
+- **Sweep 36** (the #300 loop-break `/validate`) found and fixed the CCM/AICM bare-domain-code (IVS/NET/GOV/AUD/EKM) + version-currency residuals that #298's token-scoped reconciliation left → **PR #301** (Sweep 36 close-out, 13 corpus docs + pack README).
+- **PR #302**: `guardrail-review` word-form gate count `forty-seven`→`forty-eight` (the second Sweep 36 finding, split by theme).
+- **PR #303**: Day-1-floor risk-artefact drift, option A (closed the XS item; partially resolved FR-140).
+- **PR #304**: R3 relocation (`register-main-branch-protection.md` → `.working/`, PR #116 precedent).
+- **PR #305 (PUSHED, UNMERGED — GitHub MCP outage)**: generalized the handoff-PR QA loop-break into the distributable pack layer (closed the S item). Per-PR QA on #301-#304 was formal `/validate-pr` + `/retro`, all clean (0 substantive findings); the only friction was one known-pattern CHANGELOG em-dash on #302 (D3-caught, amended) and the orchestrator's own filtered-grep that initially under-scoped the EKM residual on Sweep 36 (caught by the unfiltered re-grep before commit).
 
-**S (6):**
-- **Generalize the handoff-PR QA loop-break into the pack layer** `(M, S)`: name the session-closing-handoff-PR exception in the `validation-sweep-pr-scoped` SKILL + `ai-assistant-workflow-disciplines.md`. Run `lint-language.py` pre-flight (new pack prose). Pack version bump.
-- **S4 gate-48 section-aware title check** `(S)` (TODO §4.5, surfaced by #299 `/validate-pr`): extend `tools/lint-ccm-aicm-citations.py` to check CCM-section rows against `CCM_V41` and AICM-section rows against `AICM_V11` (catches the I&S-07 / IAM-11 cross-catalogue divergence the union-dict check misses).
-- **FR-62** `(M, S)`: AI jurisdiction annexes absent (cross-references P5.8) — likely needs scoping; if it balloons past S, defer with a note.
-- **Sweep 3 follow-up** `(L, S)`: cross-document term/identifier consistency manual pass.
-- **B2** `(L, S)` and **DD-10** `(L, S)`: BOTH **egress-gated** (EDPB/WP29 citations; addyosmani upstream skill count). **Attempt the web fetch; if 403/blocked, defer with a note — do NOT fabricate** (no-fabrication discipline). These two may not be closable overnight if egress is blocked, as it has been all recent sessions.
+### Morning-review decisions the maintainer needs to make (detail in [`overnight-pr.md`](overnight-pr.md))
+- **I&S-03 probable mis-citation**, `operations/standard-physical-security-of-it-infrastructure.md:108`: cites I&S-03 (catalogue title "Network Security") in a physical-security context, but physical/datacenter security is the CCM `DCS` domain. Surfaced by Sweep 36, NOT fixed (correct replacement needs judgment).
+- **R1 relocation pack-design decision**: moving `tools/sweep-preflight-exemptions.json` → `.working/` is functionally safe, but the file is referenced from two *distributable* pack SKILLs; pointing them at a `.working/` path bakes a project-working-dir path into the pack (adopters may delete `.working/`). Options (a) point SKILLs at the new path, (b) genericize the SKILL prose, (c) keep it in `tools/` and close R1 as won't-move. Deferred rather than guess on distributable content.
 
-**M (18) — work through as many as possible after XS+S:**
-- **Risk-vocabulary harmonization DD-2/DD-3/DD-11** `(M, M)`: one coherent PR to the canonical ERM scale (disposition recorded in TODO).
-- **DD-4/DD-5 TLS 1.3** `(M, M)`: rewrite `go.md` coherently to 1.3 + raise the 2 governed surfaces (disposition recorded).
-- **DD-8 CPPA-as-live scrub** `(M, M)`: one coherent sweep, PRESERVE the US-annex "CPPA = California Privacy Protection Agency" sense (disposition recorded).
-- **FR-58** (inheritance vocabulary), **FR-140** (adopter starter-set divergence — note this overlaps the Day-1-floor XS item; reconcile together), **FR-145** (two AI-security standards, decided: keep both + crosswalk; verify overlap at action time), **FR-73** (AI ethics independence), all `(H, M)` content items.
-- **FR-15, FR-23, FR-24, FR-63, FR-74, FR-99, FR-154** `(M, M)` content items (several are deliberately-thin baselines — calibrate before "fixing"; FR-154 explicitly says calibrate first).
-- The **P4 process/meta items** with M effort (§4.2, §4.3, §4.4, §4.6, §4.10) as time allows.
+### Still-queued work (effort-ordered; re-read TODO live, it is the source of truth)
+- **XS/S remaining**: **R1** (blocked on the pack-design decision above), **R2** (the 6-file citation-verification cluster → `.working/citation-verifications/`; the maintainer-flagged heavy relocation, own PR, extra grep care), **FR-62** (AI jurisdiction annexes; likely needs scoping), **Sweep 3 follow-up** (manual term/identifier consistency pass), **B2** + **DD-10** (egress-gated; attempt fetch, defer if blocked, never fabricate), and the new **S4 + S5 gate-48 enhancements** (S4 section-aware title check, S5 bare-domain-code check; non-trivial *tooling*, design notes in TODO §4.5 — a gate bug is higher-stakes than a content error, so give these focused attention with full regression tests).
+- **M content clusters** (dispositions recorded in TODO): DD-2/3/11 risk-vocabulary harmonization, DD-4/5 TLS 1.3, DD-8 CPPA-as-live scrub, FR-58/140/145/73, FR-15/23/24/63/74/99/154 (several deliberately-thin baselines, calibrate first), the P4 process/meta items.
 
-### How to run the overnight mission (autonomy with the maintainer asleep)
+### The autonomy disciplines that governed the overnight run (kept for reference)
 
-- **Follow the overnight-work protocol** ([`change-tracking.md`](../dev-security/claude-rules/governance/change-tracking.md) overnight section): at mission start, set [`.working/overnight-pr.md`](overnight-pr.md) `Status: in-flight` and accumulate design decisions, surfaced ambiguities, and morning-review flags there. The morning-processing step (first thing the maintainer's next interaction triggers, or the assistant on request) routes it and resets to `stub`. **Gate 46 fails on `Status: done`**, so leave it `in-flight` while working and only set `done` at the very end if you stop cleanly.
-- **Per-PR QA is NOT abbreviated overnight.** Every merged PR gets the formal `/validate-pr` + `/retro` (no skip — the only standing exception is a session-closing handoff PR). Post-commit `run_all_audits.sh` + pre-push `run-pr-time-checks.sh` every PR. CI-green-then-merge via the subscription + 60s-fallback-timer discipline. **Always-split**: one coherent change per PR.
-- **Directional choices with the maintainer asleep:** (a) if TODO already records a maintainer disposition (most DD items do), proceed on it; (b) if a NEW directional choice is needed and a wrong guess is bounded to a quick edit, make a **documented sensible default**, state it in the PR description, and add it to a **morning-review list** in `overnight-pr.md`; (c) if a wrong guess would be costly or hard to unwind (a breaking change, a deletion, a public-API or precedence decision), **defer the item to morning** rather than guess. Bias toward shipping the unambiguous items and deferring the genuinely-ambiguous ones; do not block the whole mission on one ambiguous item.
-- **No fabrication, ever** — egress-gated citation items defer rather than invent (B2, DD-10).
-- **Self-monitor for degradation** per the SOP below: if quality genuinely declines (not just steady-state QA-caught misses), wind down to a clean handoff rather than pushing through.
-- **Leave a clear morning-review summary**: what shipped (PR list), what was deferred and why, what needs a maintainer decision, and the updated TODO/DONE state.
+- **Overnight-work protocol** ([`change-tracking.md`](../dev-security/claude-rules/governance/change-tracking.md) overnight section): `overnight-pr.md` is `in-flight` during a run, morning-processing routes it and resets to `stub`. **Gate 46 fails on `Status: done`**; it currently reads `in-flight` (correct for the pending state).
+- **Per-PR QA never abbreviated**: every merged PR got the formal `/validate-pr` + `/retro`; the only standing exception is the session-closing PR (the loop-break, taken by #305).
+- **Directional choices (maintainer away):** proceed on a recorded TODO disposition; sensible-default-and-flag for a new bounded choice; defer costly/ambiguous/precedence/distributable-pack choices to morning. No fabrication ever.
 
-## State snapshot (as of 2026-06-24, after the session-closing handoff PR #300)
+## State snapshot (as of 2026-06-24, end of the autonomous overnight run; #305 pushed-but-unmerged)
 
-- **Branch**: the **session-closing handoff PR #300** carries the **#299 `/validate-pr` finding-fix** ([`dev-security/register-compliance-controls-and-gap-register.md`](../dev-security/register-compliance-controls-and-gap-register.md) I&S-07 title `Migration to Hosted Environments` → the CCM v4.1 value `Migration to Cloud Environments`; `1.0.2`→`1.0.3`), the batched **#299 `/validate-pr` row + detail file** and **#299 `/retro` row**, the new TODO item **S4** (gate-48 section-aware check), and this handoff refresh. Once #300 merges, a fresh `/resume` rebuilds state from `main`.
-- **HEAD**: `c245c0c` PR #299 on `main` (verify with `git log -1`); #300 merges on top. Immediately prior: #298 (CCM/AICM reconciliation), #297 (prior handoff), #296 (PR-I), #295, #294.
-- **Versions** (post-#300): library `2026.06.278`, pack `1.49.4`, README `1.9.149`. (Verify against `README.md`.)
-- **Audit programme**: **48 numbered gates** + **3 PR-only delta gates (D1/D2/D3)**; all passing on `main`. **Gate 48 = the new CSA CCM/AICM citation-accuracy audit.** Governance rules: **10**. Skills: **15** (6 paired). Slash commands: **8**.
-- **Last merged**: **#299** (gate 48 + gap-register full title alignment). Before it: **#298** (corpus-wide CCM/AICM citation reconciliation grounded in the maintainer-supplied authoritative catalogues), **#297** (prior handoff).
-- **`/validate` cadence**: Sweep 35 ran this session (#298 close-out). The next `/resume` runs **Sweep 36** (the loop-break control for handoff PR #300).
+- **Branch**: `claude/aicm-ccm-resume-3jd277`. `main` is at **#304** (last MCP-merged PR). The branch is **one commit ahead of `main`**: the **#305** commit (loop-break-generalize + batched #304 QA rows + this handoff refresh), pushed but UNMERGED due to the GitHub MCP outage. First action: open + merge #305 (see the MORNING HAND-OFF section).
+- **HEAD** (branch): the #305 commit. `main` tip: the #304 squash-merge (`git log origin/main -1` to confirm). Verify with `git log --oneline -6`.
+- **Versions** (in the #305 commit, become live once #305 merges): library `2026.06.283`, pack `1.49.7`, README `1.9.154`. On `main` (pre-#305): library `2026.06.282`, pack `1.49.6`, README `1.9.153`. (Verify against `README.md`.)
+- **Audit programme**: **48 numbered gates** + **3 PR-only delta gates (D1/D2/D3)**; all passing on the #305 committed state. Governance rules: **10**. Skills: **15** (6 paired). Slash commands: **8**.
+- **Last merged**: **#304** (R3 relocation). Before it, this session: **#303** (Day-1-floor), **#302** (word-form), **#301** (Sweep 36 close-out). **#305 is pushed, not yet merged.**
+- **`/validate` cadence**: **Sweep 36** ran this session (the #300 loop-break; close-out #301). The next `/resume` runs **Sweep 37** (the loop-break control for the session-closing #305, which took the handoff exception).
 
 ## This session's work (2026-06-24, the CCM/AICM session) — read before continuing
 
