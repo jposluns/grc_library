@@ -2672,5 +2672,107 @@ class CcmAicmCitationTests(LinterTestCase):
         )
 
 
+class MatrixControlCodeTests(LinterTestCase):
+    """tools/lint-matrix-control-codes.py"""
+
+    HEADER = (
+        "| Domain | Document Title | Path | CSA CCM v4.1 | ISO 27001:2022 "
+        "| NIST CSF 2.0 | CTPAT |\n"
+        "| --- | --- | --- | --- | --- | --- | --- |\n"
+    )
+
+    def _matrix(self, ccm: str, iso: str, nist: str) -> str:
+        return (
+            "# X\n\n## Section\n\n"
+            + self.HEADER
+            + f"| Gov | Doc | path | {ccm} | {iso} | {nist} | N/A |\n"
+        )
+
+    def test_runs_clean_on_matrix_at_head(self) -> None:
+        # Smoke test: the live matrix's ISO and NIST framework columns are
+        # all well-formed at HEAD.
+        result = run_linter("tools/lint-matrix-control-codes.py")
+        self.assertEqual(
+            result.returncode, 0,
+            f"linter exited {result.returncode} on the live matrix; ISO/NIST "
+            f"codes should be valid.\nstdout:\n{result.stdout}\n"
+            f"stderr:\n{result.stderr}",
+        )
+
+    def test_iso_annex_out_of_range_flagged(self) -> None:
+        # ISO 27001:2022 Annex A theme A.5 has 37 controls; A.5.99 is out of range.
+        fixture = self.make_fixture(
+            "fake-matrix-iso-range.md",
+            self._matrix("GRC-01", "A.5.99", "GV.OC"),
+        )
+        result = run_linter("tools/lint-matrix-control-codes.py", fixture)
+        self.assertLinterFails(result, "iso-annex-range")
+
+    def test_iso_invalid_theme_flagged(self) -> None:
+        # Annex A has only themes A.5-A.8; A.9 does not exist.
+        fixture = self.make_fixture(
+            "fake-matrix-iso-theme.md",
+            self._matrix("GRC-01", "A.9.1", "GV.OC"),
+        )
+        result = run_linter("tools/lint-matrix-control-codes.py", fixture)
+        self.assertLinterFails(result, "iso-annex-theme")
+
+    def test_iso_clause_out_of_range_flagged(self) -> None:
+        # Management-system clauses run §4-§10; §11 does not exist.
+        fixture = self.make_fixture(
+            "fake-matrix-iso-clause.md",
+            self._matrix("GRC-01", "§11.2", "GV.OC"),
+        )
+        result = run_linter("tools/lint-matrix-control-codes.py", fixture)
+        self.assertLinterFails(result, "iso-clause-range")
+
+    def test_nist_invalid_function_flagged(self) -> None:
+        # 'XX' is not one of the six CSF 2.0 Core Function prefixes.
+        fixture = self.make_fixture(
+            "fake-matrix-nist-func.md",
+            self._matrix("GRC-01", "A.5.1", "XX.YY"),
+        )
+        result = run_linter("tools/lint-matrix-control-codes.py", fixture)
+        self.assertLinterFails(result, "nist-function")
+
+    def test_nist_malformed_flagged(self) -> None:
+        # A token that is not FUNCTION.CATEGORY shape.
+        fixture = self.make_fixture(
+            "fake-matrix-nist-malformed.md",
+            self._matrix("GRC-01", "A.5.1", "notacode"),
+        )
+        result = run_linter("tools/lint-matrix-control-codes.py", fixture)
+        self.assertLinterFails(result, "nist-malformed")
+
+    def test_valid_codes_not_flagged(self) -> None:
+        # False-positive guard: a valid Annex A code, a valid clause, and a
+        # well-formed NIST token (including PR.IP, whose category-membership is
+        # intentionally NOT validated, deferred) must all pass.
+        fixture = self.make_fixture(
+            "fake-matrix-valid.md",
+            self._matrix("GRC-01", "A.5.1, A.8.34, §6.1", "GV.OC, PR.IP"),
+        )
+        result = run_linter("tools/lint-matrix-control-codes.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"valid ISO/NIST tokens (including format-valid PR.IP) must not be "
+            f"flagged.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_ccm_column_not_policed_here(self) -> None:
+        # CCM codes are validated by gate 48, not this gate; an invalid CCM
+        # code in the matrix's CCM column must NOT be flagged by this linter.
+        fixture = self.make_fixture(
+            "fake-matrix-ccm-skip.md",
+            self._matrix("GOV-99", "A.5.1", "GV.OC"),
+        )
+        result = run_linter("tools/lint-matrix-control-codes.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"the CCM column is gate 48's responsibility; this gate must not "
+            f"flag CCM codes.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
