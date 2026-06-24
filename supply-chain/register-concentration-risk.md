@@ -2,8 +2,8 @@
 
 **Document Title:** Concentration Risk Register\
 **Document Type:** Register\
-**Version:** 1.0.4\
-**Date:** 2026-06-22\
+**Version:** 1.0.5\
+**Date:** 2026-06-24\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`supply-chain/register-subprocessor-template.md`](register-subprocessor-template.md), [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](procedure-fourth-party-and-nth-party-risk.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md), [`compliance/annex-nis-2-implementation.md`](../compliance/annex-nis-2-implementation.md)\
@@ -92,8 +92,8 @@ Each row records one concentration finding.
 | Concentration subject | The shared attribute (e.g. cloud platform name, country, parent company) |
 | Affected third parties | List of in-scope third parties exhibiting this concentration |
 | Critical service impact | What organisational service is at risk if the concentration crystallises |
-| Likelihood (descriptive) | Rare, Unlikely, Possible, Likely, Almost Certain |
-| Impact (descriptive) | Negligible, Minor, Moderate, Major, Severe |
+| Likelihood (descriptive) | Very Low, Low, Medium, High, Very High |
+| Impact (descriptive) | Negligible, Minor, Moderate, Major, Catastrophic |
 | Overall residual risk | Negligible, Low, Moderate, High, Unacceptable |
 | Detection mechanism | How the concentration was identified (intelligence, contract disclosure, SOC 2 review, public registry, audit) |
 | Treatment status | Open, Treating, Accepted (with reference to the exception register), Closed |

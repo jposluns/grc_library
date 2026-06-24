@@ -2,8 +2,8 @@
 
 **Document Title:** Risk Assessment Methodology Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.1\
-**Date:** 2026-06-22\
+**Version:** 1.1.2\
+**Date:** 2026-06-24\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md)\
@@ -102,7 +102,7 @@ Establish Context → Identify Risks → Analyse Risks → Evaluate Risks → Tr
 | 2 | Minor | Limited impact; contained within one system or team |
 | 3 | Moderate | Significant operational disruption; potential regulatory notice |
 | 4 | Major | Significant breach, regulatory investigation, or material financial loss |
-| 5 | Critical | Catastrophic impact; existential regulatory or reputational damage |
+| 5 | Catastrophic | Existential regulatory or reputational damage; loss of operating licence |
 
 4.2 Inherent risk score = Likelihood × Impact.
 
