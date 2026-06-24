@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.285, PR #307
+
+**Morning-processing of the 2026-06-24 overnight run + closed relocation R1 won't-move.** The morning-processing PR the overnight-work protocol ([`change-tracking.md`](../dev-security/claude-rules/governance/change-tracking.md) overnight section) requires after a session sets [`.working/overnight-pr.md`](overnight-pr.md) to `in-flight`.
+
+### Changed
+- [`.working/overnight-pr.md`](overnight-pr.md): reset from `Status: in-flight` to the `Status: stub` form (with the `<!-- OVERNIGHT-PR-STUB -->` marker and a "Last run" summary of the #301-#306 arc, including the GitHub MCP outage that deferred #305's merge to the morning session). Gate 46 passes on `stub`.
+- [`.working/design-decisions.md`](design-decisions.md): added two entries under "Audit programme architecture" and "Working state and `.working/` convention" respectively, DD-overnight-1 (gate 48 is token-scoped and blind to the bare-domain-code/name class; durable fix queued as TODO S5) and the R1 won't-move decision rationale.
+- [`TODO.md`](../TODO.md): deleted the R1 relocation item (closed won't-move); rewrote the R2 relocation item with the convention-conflict surfaced during the overnight assessment (the 6 citation-cluster files are cross-cited by active-corpus governance docs and hardcoded in two linters, so a `.working/` move conflicts with the no-`.working/`-link convention and changes linter load paths), tagged it `(M, S)` deferred pending a maintainer decision with three options.
+
+### Removed
+- The R1 working-state-relocation item from [`TODO.md`](../TODO.md) (rotated to DONE).
+
+### Added
+- [`.working/DONE.md`](DONE.md): R1 won't-move closure entry keyed by PR #307.
+
+### Verification
+- All 48 gates pass on the committed state; `tools/run-pr-time-checks.sh` (D1/D2/D3 + gate 45) green.
+- Gate 46 (overnight-work file) passes on the reset `stub` state.
+- Carries the batched #306 `/validate-pr` (0 findings, clean) and `/retro` records (the sweep-close-out bookkeeping-triplet observation).
+- This is the morning-processing PR; no corpus content changed (working-state routing + TODO/DONE rotation only).
+
 ## 2026-06-24, Library Version 2026.06.284, PR #306
 
 **Sweep 37 close-out: corrected two superseded CSA CCM v4.0 domain-name residuals on the operations framework-alignment tables.** The `/resume` loop-break corpus-wide `/validate` (Sweep 37) for session-closing handoff PR #305. PR #305 was prepared by the prior overnight session but could not be opened/merged then (the GitHub MCP server disconnected, recorded in [`.working/third-party-issues.md`](../third-party-issues.md)); this morning session merged it once the MCP reconnected, then ran Sweep 37 as the compensating control. Full three-subagent dispatch over the whole corpus plus the #301-#305 deltas.

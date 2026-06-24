@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #307 — Working-state relocation R1: closed won't-move (medium) (2026-06-24)
+
+The `tools/sweep-preflight-exemptions.json` relocation was closed **won't-move**: the file is the pre-flight scanner's config and belongs with the scanner in `tools/`; moving it to `.working/` would bake a `.working/` path into the two distributable pack SKILLs that reference it. Maintainer-decided. (R2, the citation-cluster relocation, stays deferred.) Closed in the morning-processing PR alongside resetting the overnight file to stub.
+
 ### PR #305 — Generalize the handoff-PR QA loop-break into the pack layer (medium) (2026-06-24)
 
 Named the session-closing-handoff-PR exception (the one sanctioned skip of the mandatory per-PR `/validate-pr` + `/retro`) in the two distributable pack surfaces (the `validation-sweep-pr-scoped` SKILL and the `ai-assistant-workflow-disciplines.md` no-skip clause + its `.claude/` mirror), with the loop-termination rationale and the corpus-wide-`/validate`-on-resume compensating control, so adopters inherit the exemption. Previously the exception lived only in this project's `.claude/CLAUDE.md` + `/resume`.
