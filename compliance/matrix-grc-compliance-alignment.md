@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.2.1\
+**Version:** 1.3.0\
 **Date:** 2026-06-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -164,6 +164,30 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Architecture | Integration Architecture Standard | [`architecture/standard-integration-architecture.md`](../architecture/standard-integration-architecture.md) | AIS-04, IPY-01, I&S-03, DSP-04 | A.5.14, A.8.20, A.8.21, A.8.26 | ID.AM, PR.DS, PR.IR, DE.CM | N/A | N/A | N/A | N/A | N/A |
 | Architecture | Reference Architecture Standard | [`architecture/standard-reference-architecture.md`](../architecture/standard-reference-architecture.md) | GRC-01, AIS-01 | A.8.27, A.8.32 | GV.OC, ID.AM, PR.IP | N/A | N/A | N/A | N/A | N/A |
 | Architecture | Technology Radar Standard | [`architecture/standard-technology-radar.md`](../architecture/standard-technology-radar.md) | GRC-01, STA-01 | §6.1, A.5.20, A.8.30 | GV.OC, GV.SC, ID.AM | N/A | N/A | N/A | N/A | N/A |
+
+---
+
+## Dev-security domain
+
+| Domain | Document Title | Path | CSA CCM v4.1 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Dev-security | AI Coding Assistant Security Guideline | [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md) | AIS-04, AIS-05, AIS-07, TVM-06 | A.8.27, A.8.29, A.5.36 | GV.SC, PR.PS, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Dev-security | Secure Development and Engineering Policy | [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md) | AIS-04, AIS-05, AIS-06, CCC-01, TVM-06 | A.8.25, A.8.28, A.8.29, A.8.30, A.8.31 | PR.PS, ID.RA, GV.RR | N/A | N/A | N/A | N/A | N/A |
+| Dev-security | Secure Code Review Procedure | [`dev-security/procedure-secure-code-review.md`](../dev-security/procedure-secure-code-review.md) | AIS-04, AIS-05, CCC-01, CCC-02, TVM-06 | A.8.28, A.8.29, A.8.30, A.8.4 | PR.PS, ID.RA, DE.CM | N/A | N/A | N/A | N/A | N/A |
+| Dev-security | Compliance Controls and Gap Register Template | [`dev-security/register-compliance-controls-and-gap-register.md`](../dev-security/register-compliance-controls-and-gap-register.md) | A&A-04, GRC-07, A&A-05, A&A-06, GRC-01 | A.5.36, A.5.35, §9.1 | GV.OC, ID.IM, GV.RM | N/A | N/A | N/A | N/A | N/A |
+| Dev-security | API Security Standard | [`dev-security/standard-api-security.md`](../dev-security/standard-api-security.md) | AIS-08, AIS-05, IAM-15, IAM-13, LOG-03 | A.8.26, A.8.28, A.8.25, A.5.14 | PR.AA, PR.DS, DE.CM | N/A | N/A | N/A | N/A | N/A |
+| Dev-security | AWS Cloud Hardening Baseline Standard | [`dev-security/standard-cloud-hardening-baseline-aws.md`](../dev-security/standard-cloud-hardening-baseline-aws.md) | I&S-04, I&S-03, IAM-01, LOG-01, CEK-01 | A.8.9, A.8.20, A.8.24, A.8.15, A.5.15 | PR.AA, PR.DS, DE.CM, PR.PS | N/A | N/A | N/A | N/A | N/A |
+| Dev-security | Azure Cloud Hardening Baseline Standard | [`dev-security/standard-cloud-hardening-baseline-azure.md`](../dev-security/standard-cloud-hardening-baseline-azure.md) | I&S-04, I&S-03, IAM-01, LOG-01, CEK-01 | A.8.9, A.8.20, A.8.24, A.8.15, A.5.15 | PR.AA, PR.DS, DE.CM, PR.PS | N/A | N/A | N/A | N/A | N/A |
+| Dev-security | Google Cloud Platform Hardening Baseline Standard | [`dev-security/standard-cloud-hardening-baseline-gcp.md`](../dev-security/standard-cloud-hardening-baseline-gcp.md) | I&S-04, I&S-03, IAM-01, LOG-01, CEK-01 | A.8.9, A.8.20, A.8.24, A.8.15, A.5.15 | PR.AA, PR.DS, DE.CM, PR.PS | N/A | N/A | N/A | N/A | N/A |
+| Dev-security | Container and Image Security Standard | [`dev-security/standard-container-and-image-security.md`](../dev-security/standard-container-and-image-security.md) | I&S-04, AIS-06, TVM-03, STA-09, I&S-06 | A.8.25, A.8.8, A.8.7, A.8.28 | PR.PS, ID.RA, PR.AA | N/A | N/A | N/A | N/A | N/A |
+| Dev-security | Developer Security Requirements | [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md) | AIS-02, AIS-05, CEK-01, IAM-13, TVM-04 | A.8.28, A.8.25, A.5.17, A.8.24, A.8.8 | PR.PS, PR.AA, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Dev-security | DevOps Security Requirements | [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md) | CCC-01, CCC-04, CCC-05, I&S-05, I&S-04 | A.8.25, A.8.27, A.8.31, A.8.32 | PR.PS, PR.AA, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Dev-security | Mobile Application Security Standard | [`dev-security/standard-mobile-application-security.md`](../dev-security/standard-mobile-application-security.md) | UEM-01, AIS-05, CEK-03, IAM-13, AIS-04 | A.8.26, A.8.25, A.8.28, A.8.24 | PR.DS, PR.AA, PR.PS | N/A | N/A | N/A | N/A | N/A |
+| Dev-security | Quality Assurance and Testing Standard | [`dev-security/standard-quality-assurance-and-testing.md`](../dev-security/standard-quality-assurance-and-testing.md) | CCC-02, AIS-05, CCC-01, TVM-07, AIS-07 | A.8.29, A.8.31, A.8.32 | PR.PS, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Dev-security | Security Baseline and Standards Reference | [`dev-security/standard-security-baseline-and-standards-reference.md`](../dev-security/standard-security-baseline-and-standards-reference.md) | GRC-01, GRC-05, IAM-01, DSP-01, CEK-01, LOG-01 | A.5.1, A.5.12, A.5.15, A.8.15, A.8.24 | GV.OC, PR.AA, DE.CM, PR.DS | N/A | N/A | N/A | N/A | N/A |
+| Dev-security | Security Quick Reference | [`dev-security/standard-security-quick-reference.md`](../dev-security/standard-security-quick-reference.md) | IAM-01, CEK-03, DSP-01, TVM-01, CCC-01, AIS-05 | A.5.15, A.5.12, A.8.24, A.8.8, A.8.32 | PR.AA, PR.DS, PR.PS | N/A | N/A | N/A | N/A | N/A |
+| Dev-security | Software Composition Analysis Standard | [`dev-security/standard-software-composition-analysis.md`](../dev-security/standard-software-composition-analysis.md) | STA-09, TVM-06, TVM-08, TVM-03 | A.8.30, A.8.31, A.5.21 | ID.AM, GV.SC, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Dev-security | Software Evaluation, Acceptance and Lifecycle Management Standard | [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) | STA-01, AIS-06, CCC-05, TVM-08, STA-13 | A.8.30, A.8.29, A.8.31, A.8.32 | GV.SC, PR.PS, ID.AM | N/A | N/A | N/A | N/A | N/A |
 
 ---
 
