@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.286, PR #308
+
+**S4: gate 48 section-aware + cross-catalogue title check.** Closes TODO §4.5 S4 (surfaced by PR #299's `/validate-pr`, where the union-dict title check let the I&S-07 cross-catalogue confusion through and the per-PR sweep caught it by hand).
+
+### Changed
+- [`tools/lint-ccm-aicm-citations.py`](../../tools/lint-ccm-aicm-citations.py): the Check-2 title lookup is now section-aware (imports `CCM_V41` and `AICM_V11` alongside `ALL_TITLES`; tracks the current `## ...` heading via a new `HEADING_RE` + `_section_kind` helper; a row under a CCM section resolves its canonical title from `CCM_V41`, under an AICM section from `AICM_V11`, else the union). Added Check 3 (`ccm-title-cross-catalogue`): a `_divergent_controls()` table records, per code whose CCM and AICM titles differ by a distinctive content word, the words unique to each catalogue; a row under a CCM/AICM section carrying the OTHER catalogue's distinctive word (and none of THIS catalogue's) is flagged. Docstring updated with both new behaviours.
+
+### Added
+- [`tests/test_linters.py`](../../tests/test_linters.py): `test_cross_catalogue_title_flagged` (I&S-07 titled "Migration to Hosted Environments" under a `## CSA CCM` section must fail with `ccm-title-cross-catalogue`) and `test_correct_catalogue_title_not_flagged` (the correct CCM-section title for I&S-07 must pass), taking the gate-48 fixture from five cases to seven.
+
+### Verification
+- The two divergent controls were computed from the live reference module: only **I&S-07** has a content-word divergence ("Cloud" vs "Hosted"); **IAM-11** differs only by an apostrophe ("Customers" vs "Customers'"), which tokenizes identically, so it has no distinctive content word and is correctly not policed (documented in the docstring and the CHANGELOG, consistent with the gate's tolerance of localized wording).
+- Gate 48 stays clean on the live corpus (0 findings across 377 files) after the change, so the section-aware lookup introduces no false positives (CCM_V41 and ALL_TITLES differ only for I&S-07 / IAM-11, both of which still share content words with the conservative check).
+- All 48 gates pass on the committed state (gate 36 runs the 2 new regression cases, gate 35 parity unchanged, gate 39 count unchanged at 48); `tools/run-pr-time-checks.sh` green. No corpus content changed; no generated-artefact regen needed.
+- This PR is not a handoff PR; carries its own `/validate-pr` + `/retro` (batched into the next PR). Carries the batched #307 `/validate-pr` (0 findings) + `/retro` records.
+
 ## 2026-06-24, Library Version 2026.06.285, PR #307
 
 **Morning-processing of the 2026-06-24 overnight run + closed relocation R1 won't-move.** The morning-processing PR the overnight-work protocol ([`change-tracking.md`](../dev-security/claude-rules/governance/change-tracking.md) overnight section) requires after a session sets [`.working/overnight-pr.md`](overnight-pr.md) to `in-flight`.

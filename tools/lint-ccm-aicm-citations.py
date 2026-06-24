@@ -36,11 +36,26 @@ Checks:
 
   * **Title match** (control-listing tables only): a markdown row of the
     shape ``| <CODE> | <title> | ...`` whose CODE is a known control is
-    checked against the canonical title. To tolerate the corpus's localized
-    and abbreviated titles (Canadian/Commonwealth spelling, shortened
-    forms), the check is deliberately conservative: it fails ONLY when the
-    cited title shares NO significant content word with the canonical title
-    (the fabricated-title signal), never on a mere wording difference.
+    checked against the canonical title. The lookup is **section-aware**: a
+    row under a ``## CSA CCM ...`` heading is checked against the CCM v4.1.0
+    title, one under an ``## AICM ...`` heading against the AICM v1.1.0 title,
+    and one under neither against the AICM-wins union (the prior behaviour on
+    unscoped tables). To tolerate the corpus's localized and abbreviated
+    titles (Canadian/Commonwealth spelling, shortened forms), the check is
+    deliberately conservative: it fails ONLY when the cited title shares NO
+    significant content word with the canonical title (the fabricated-title
+    signal), never on a mere wording difference.
+
+  * **Cross-catalogue title** (control-listing tables under a CCM/AICM
+    section): a small set of controls share a code across both matrices but
+    carry a title that differs by a distinctive content word (e.g. I&S-07 is
+    "Migration to Cloud Environments" in CCM v4.1.0 but "Migration to Hosted
+    Environments" in AICM v1.1.0). Because the two titles share most content
+    words, the conservative content-word check above never fires on the mix-up.
+    This check fails a row under a CCM section whose title carries the AICM
+    variant's distinctive word (and none of the CCM variant's), and vice versa.
+    Controls whose titles differ only by punctuation (IAM-11's apostrophe)
+    have no distinctive content word and are intentionally not policed.
 
 Scope: ``*.md`` under the repository root, minus DEFAULT_EXEMPT_DIRS (which
 includes ``.working`` and ``.claude``) and the append-only CHANGELOG files.
@@ -63,7 +78,13 @@ from lint_common import (
 )
 
 try:
-    from ccm_aicm_reference import ALL_TITLES, KNOWN_BAD_DOMAINS, VALID_DOMAINS
+    from ccm_aicm_reference import (
+        AICM_V11,
+        ALL_TITLES,
+        CCM_V41,
+        KNOWN_BAD_DOMAINS,
+        VALID_DOMAINS,
+    )
 except ImportError as exc:  # pragma: no cover - import guard
     print(f"ERROR: cannot load ccm_aicm_reference: {exc}", file=sys.stderr)
     sys.exit(2)
@@ -93,6 +114,17 @@ CODE_RE = re.compile(r"(?<![A-Za-z0-9-])([A-Z&]{2,5})-(\d{1,2})(?![0-9])")
 # A control-listing table row: first cell a bare code, second cell the title.
 ROW_RE = re.compile(r"^\|\s*([A-Z&]{2,5}-\d{1,2})\s*\|\s*([^|]*?)\s*\|")
 
+# A markdown heading (any level). Used to track which catalogue a control-listing
+# table sits under, so a row under a "## CSA CCM ..." section is title-checked
+# against the CCM v4.1.0 catalogue and one under an "## AICM ..." section against
+# AICM v1.1.0, rather than the AICM-wins union ALL_TITLES. This catches the
+# cross-catalogue title confusion the union check is blind to: a handful of
+# controls share a code across both matrices but carry a slightly different title
+# (e.g. I&S-07 is "Migration to Cloud Environments" in CCM v4.1.0 but "Migration
+# to Hosted Environments" in AICM v1.1.0), and because the two titles share content
+# words the conservative content-word check below never fires on the mix-up.
+HEADING_RE = re.compile(r"^#{1,6}\s+(.*)$")
+
 _STOPWORDS = frozenset(
     {"and", "the", "of", "for", "to", "in", "on", "by", "with", "or",
      "a", "an", "&", "is", "as", "at"}
@@ -102,6 +134,49 @@ _STOPWORDS = frozenset(
 def _content_words(title: str) -> set[str]:
     toks = re.split(r"[^A-Za-z0-9]+", title.lower())
     return {t for t in toks if len(t) >= 2 and t not in _STOPWORDS}
+
+
+def _section_kind(heading_text: str) -> str | None:
+    """Classify a heading as a CCM-only, AICM-only, or unscoped section.
+
+    AICM is checked first because an AICM heading may also mention CCM (the AI
+    matrix extends the cloud matrix); a heading naming AICM / "AI Controls
+    Matrix" is an AICM section even if "CCM" also appears. A heading mentioning
+    only CCM / "Cloud Controls Matrix" is a CCM section. Anything else returns
+    None, so the title check falls back to the union ALL_TITLES (current
+    behaviour) rather than tightening on an ambiguous heading.
+    """
+    h = heading_text.lower()
+    if "aicm" in h or "ai controls matrix" in h:
+        return "aicm"
+    if "ccm" in h or "cloud controls matrix" in h:
+        return "ccm"
+    return None
+
+
+# Controls whose CCM v4.1.0 and AICM v1.1.0 titles diverge by at least one
+# distinctive content word. For each such code we record the set of content
+# words unique to each catalogue's title; a control-listing row under a CCM
+# section that carries an AICM-distinctive word (and none of the CCM-distinctive
+# words) is citing the wrong catalogue's title, and vice versa. Controls that
+# differ only by punctuation (e.g. IAM-11 "Customers" vs "Customers'") collapse
+# to identical content-word sets and so produce no distinctive words: they are
+# intentionally NOT policed, consistent with the gate's tolerance of localized
+# and abbreviated wording.
+def _divergent_controls() -> dict[str, tuple[set[str], set[str]]]:
+    out: dict[str, tuple[set[str], set[str]]] = {}
+    for code in set(CCM_V41) & set(AICM_V11):
+        ccm_t, aicm_t = CCM_V41[code], AICM_V11[code]
+        if ccm_t == aicm_t:
+            continue
+        ccm_w, aicm_w = _content_words(ccm_t), _content_words(aicm_t)
+        ccm_only, aicm_only = ccm_w - aicm_w, aicm_w - ccm_w
+        if ccm_only and aicm_only:
+            out[code] = (ccm_only, aicm_only)
+    return out
+
+
+DIVERGENT_CONTROLS = _divergent_controls()
 
 
 @dataclass
@@ -119,6 +194,7 @@ def scan_file(path: Path) -> list[Finding]:
         return []
     findings: list[Finding] = []
     in_fence = False
+    section: str | None = None
     for i, line in enumerate(text.splitlines(), start=1):
         stripped = line.lstrip()
         if stripped.startswith("```") or stripped.startswith("~~~"):
@@ -126,6 +202,11 @@ def scan_file(path: Path) -> list[Finding]:
             continue
         if in_fence:
             continue
+
+        # Track the current catalogue section for the title check below.
+        hm = HEADING_RE.match(line)
+        if hm:
+            section = _section_kind(hm.group(1))
 
         # Check 1: code validity.
         for m in CODE_RE.finditer(line):
@@ -145,18 +226,46 @@ def scan_file(path: Path) -> list[Finding]:
                     f"({domain}-01..{domain}-{VALID_DOMAINS[domain]:02d})",
                     line.strip()[:140]))
 
-        # Check 2: title match on control-listing rows.
+        # Check 2: title match on control-listing rows. The lookup is
+        # section-aware: under a CCM section the canonical title is the CCM
+        # v4.1.0 value, under an AICM section the AICM v1.1.0 value, otherwise
+        # the AICM-wins union (preserving the prior behaviour on unscoped tables).
         rm = ROW_RE.match(line)
         if rm:
             code, title = rm.group(1), rm.group(2).strip()
-            canonical = ALL_TITLES.get(code)
+            if section == "ccm":
+                canonical = CCM_V41.get(code, ALL_TITLES.get(code))
+            elif section == "aicm":
+                canonical = AICM_V11.get(code, ALL_TITLES.get(code))
+            else:
+                canonical = ALL_TITLES.get(code)
             if canonical and title and title.lower() != "control title":
-                if not (_content_words(title) & _content_words(canonical)):
+                title_words = _content_words(title)
+                if not (title_words & _content_words(canonical)):
                     findings.append(Finding(
                         path, i, "ccm-title-mismatch",
                         f"'{code}' titled '{title}' shares no content word "
                         f"with the catalogue title '{canonical}'",
                         line.strip()[:140]))
+                # Check 3 (section-aware): a divergent-title control under a
+                # CCM/AICM section whose title carries the OTHER catalogue's
+                # distinctive word (and none of this catalogue's) is citing the
+                # wrong-version title. The conservative check above cannot see
+                # this because the two catalogue titles share content words.
+                elif section in ("ccm", "aicm") and code in DIVERGENT_CONTROLS:
+                    ccm_only, aicm_only = DIVERGENT_CONTROLS[code]
+                    this_only, other_only, other_cat = (
+                        (ccm_only, aicm_only, "AICM v1.1.0")
+                        if section == "ccm"
+                        else (aicm_only, ccm_only, "CCM v4.1.0"))
+                    if (title_words & other_only) and not (title_words & this_only):
+                        section_label = "CSA CCM v4.1.0" if section == "ccm" else "AICM v1.1.0"
+                        findings.append(Finding(
+                            path, i, "ccm-title-cross-catalogue",
+                            f"'{code}' under a {section_label} section is titled "
+                            f"'{title}', which matches the {other_cat} variant, "
+                            f"not the {section_label} title '{canonical}'",
+                            line.strip()[:140]))
     return findings
 
 

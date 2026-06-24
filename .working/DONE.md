@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #308 — S4: gate-48 section-aware + cross-catalogue title check (medium) (2026-06-24)
+
+Extended `tools/lint-ccm-aicm-citations.py` to look up control-listing titles section-aware (a row under a `## CSA CCM` heading checks against CCM v4.1.0, under `## AICM` against AICM v1.1.0, else the union) and added a cross-catalogue check that flags a divergent-title control (I&S-07) cited with the other catalogue's distinctive word, the gate-escaping class the #299 `/validate-pr` had to catch by hand. Two regression cases added; gate stays clean on the corpus.
+
 ### PR #307 — Working-state relocation R1: closed won't-move (medium) (2026-06-24)
 
 The `tools/sweep-preflight-exemptions.json` relocation was closed **won't-move**: the file is the pre-flight scanner's config and belongs with the scanner in `tools/`; moving it to `.working/` would bake a `.working/` path into the two distributable pack SKILLs that reference it. Maintainer-decided. (R2, the citation-cluster relocation, stays deferred.) Closed in the morning-processing PR alongside resetting the overnight file to stub.
