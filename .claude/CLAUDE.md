@@ -200,9 +200,19 @@ drive end-to-end on the maintainer's behalf:
    over time as patterns surface across many entries.
 5c. Refresh [`.working/session-handoff.md`](../.working/session-handoff.md) with the
    current state snapshot, last-merged list, next-actions queue, and open decisions.
-   The refresh commit batches into the next PR per recursion-avoidance, alongside the
-   validate-pr/retro rows. See the `## Session migration and PR close-out checklist`
-   section.
+   At a **session-closing** handoff PR, also refresh the `## Asserted expectations`
+   section (the surfaces this session mechanically verified or covered with a formal
+   `/validate-pr` / `/validate` pass, scoped to what it actually touched, plus known
+   soft spots NOT asserted clean) and the **green-at-`<sha>`** line in the state
+   snapshot (the `run_all_audits.sh` gate count and the merge commit it was green at).
+   These are the loop-break compensating control's cheap signal: the next session's
+   `/resume` `/validate` cross-checks findings against the asserted-clean claims (a
+   contradiction of a claimed-clean touched surface is a genuine miss, escalated), and
+   re-running the audit confirms the green-at-`<sha>` (the one deterministic
+   close-vs-start diff). This replaces a second close-time `/validate`, which would be
+   noise: same commit, non-deterministic subagent layer. The refresh commit batches
+   into the next PR per recursion-avoidance, alongside the validate-pr/retro rows. See
+   the `## Session migration and PR close-out checklist` section.
 6. After every merge (this step is durable across sessions): consult
    [`TODO.md`](../TODO.md)'s forward-looking sections and list the upcoming next
    five planned PRs in the chat. If new items have surfaced during the just-
@@ -239,7 +249,9 @@ defence is external. Two mechanisms:
 1. **Session handoff.** [`.working/session-handoff.md`](../.working/session-handoff.md)
    is the single resume point for a new session: branch, versions, counts,
    last-merged PRs, trust-recovery state, the next-actions queue, open decisions,
-   and the standing disciplines. It is refreshed at every PR close-out (as part of
+   the standing disciplines, the **green-at-`<sha>`** mechanical baseline, and (at
+   session close) the **asserted-expectations** section the receiving `/resume`
+   `/validate` cross-checks against. It is refreshed at every PR close-out (as part of
    the recursion-avoidance batch that carries the validate-pr/retro rows into the
    next PR). To resume in a fresh session the maintainer sends only `/resume` (the
    [`commands/resume.md`](commands/resume.md) command), which reads the handoff
@@ -261,7 +273,11 @@ defence is external. Two mechanisms:
      every prose count of that collection was checked for staleness (the
      collection-enumeration audit catches the structured enumerations; prose counts
      like "the ten governance rules" are not gated).
-   - [`.working/session-handoff.md`](../.working/session-handoff.md) is refreshed.
+   - [`.working/session-handoff.md`](../.working/session-handoff.md) is refreshed. At a
+     session-closing handoff PR, the `## Asserted expectations` section and the
+     green-at-`<sha>` snapshot line are refreshed too (scoped to what this session
+     actually verified), so the next `/resume` `/validate` has claims to cross-check
+     against.
    - If the PR adds or edits **new pack prose** (a SKILL, a rule, a slash command,
      or new prose in the pack README/CLAUDE.md), `tools/lint-language.py` was run on
      it **before the first commit**. New-pack-prose drafting recurrently reintroduces
@@ -295,7 +311,16 @@ defence is external. Two mechanisms:
    with a stronger compensating control: `/resume` runs a full corpus-wide `/validate`
    as its first task. Net effect: the session terminates cleanly on a green merge, and
    the QA that the skipped per-PR sweep would have done is subsumed by the corpus-wide
-   sweep at the next session's start.
+   sweep at the next session's start. The closing PR also records, in the handoff's
+   `## Asserted expectations` section, what this session mechanically verified or
+   covered with a formal QA pass (scoped to touched surfaces) plus the green-at-`<sha>`
+   baseline; the receiving `/validate` cross-checks its findings against those claims,
+   so a contradiction of a claimed-clean touched surface reads as a genuine miss rather
+   than an ordinary out-of-window finding. This is the cheap signal that replaces a
+   wasteful second close-time `/validate` (the corpus is byte-identical across the
+   boundary, so two non-deterministic subagent runs would differ only by sampling
+   variance; the one deterministic close-vs-start diff worth keeping is the mechanical
+   green-at-`<sha>`).
 
 ## Throughput pressure does not authorise QA abbreviation
 
