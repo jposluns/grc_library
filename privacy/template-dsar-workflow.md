@@ -2,8 +2,8 @@
 
 **Document Title:** Data Subject Access Request Workflow Template\
 **Document Type:** Template\
-**Version:** 1.0.4\
-**Date:** 2026-06-22\
+**Version:** 1.0.5\
+**Date:** 2026-06-24\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md)\
@@ -22,7 +22,7 @@
 
 ## Purpose
 
-This template defines an operational workflow for handling Data Subject Access Requests (DSARs) and equivalent rights requests under GDPR, UK GDPR, LGPD, CPPA, PIPL, CCPA, and similar regimes. It complements the Data Subject Rights Management Procedure by providing the request-record structure, the stage gates, the identity verification ladder, and the response artefact format that the procedure relies on. Adopting organisations populate the placeholders, configure their own systems of record, and integrate the workflow with their case-management tooling.
+This template defines an operational workflow for handling Data Subject Access Requests (DSARs) and equivalent rights requests under GDPR, UK GDPR, LGPD, PIPEDA, PIPL, CCPA, and similar regimes. It complements the Data Subject Rights Management Procedure by providing the request-record structure, the stage gates, the identity verification ladder, and the response artefact format that the procedure relies on. Adopting organisations populate the placeholders, configure their own systems of record, and integrate the workflow with their case-management tooling.
 
 ---
 

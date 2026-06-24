@@ -2,7 +2,7 @@
 
 **Document Title:** Children's Data Framework\
 **Document Type:** Framework\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-06-24\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -42,7 +42,7 @@ The framework deliberately uses "child" rather than a single age threshold becau
 | United Kingdom | 13 (UK GDPR Article 8) | Age Appropriate Design Code applies to a broader age range up to 17 |
 | United States: COPPA | Under 13 | Verifiable parental consent required |
 | United States: California (CCPA, AB 1394) | Specific opt-in for sale or sharing for under 16; under 13 requires parental opt-in | California-specific |
-| Canada (federal): PIPEDA / CPPA | No fixed numeric age but heightened obligations where the data subject is a child | Office of the Privacy Commissioner guidance applies |
+| Canada (federal): PIPEDA | No fixed numeric age but heightened obligations where the data subject is a child | Office of the Privacy Commissioner guidance applies |
 | Canada (Quebec): Law 25 | Under 14 requires parental consent | Quebec-specific |
 | Brazil: LGPD | Under 18 considered child or adolescent; under 12 child | Best-interest principle |
 | China: PIPL | Under 14 | Parental or guardian consent required |

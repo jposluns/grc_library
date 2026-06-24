@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.7.0\
-**Date:** 2026-06-23\
+**Version:** 1.7.1\
+**Date:** 2026-06-24\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -252,7 +252,7 @@ The Risk Owner role's six accountability actions (defined in §3) map to specifi
 | NIST AI RMF | Govern, Map, Measure, Manage functions |
 | OECD AI Principles | Transparency, robustness, accountability |
 | GDPR | As applicable to EU personal data |
-| CPPA (Canadian Consumer Privacy Protection Act, Bill C-27) | As applicable to Canadian personal information |
+| PIPEDA (Canada Personal Information Protection and Electronic Documents Act) | As applicable to Canadian personal information |
 | PIPL | As applicable to personal information in China |
 | LGPD | As applicable to Brazilian personal data |
 | CBPR 2.0 | Cross-Border Privacy Rules as applicable |

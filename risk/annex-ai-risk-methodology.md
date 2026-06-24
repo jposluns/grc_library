@@ -2,8 +2,8 @@
 
 **Document Title:** AI-Specific Risk Methodology Annex\
 **Document Type:** Annex\
-**Version:** 1.0.1\
-**Date:** 2026-06-23\
+**Version:** 1.0.2\
+**Date:** 2026-06-24\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](../ai/procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-audit.md`](../ai/procedure-ai-audit.md), [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -146,7 +146,7 @@ The following events must trigger an unscheduled AI risk review:
 | **AIDA (Canada)** | Risk mitigation for high-impact AI systems; transparency; algorithmic impact assessments | Canadian operations; Canadian personal data |
 | **UK AI approach** | Principles-based; sector regulator-led; cross-sector AI Safety Institute oversight | UK operations and markets |
 | **GDPR / UK GDPR** | Automated decision-making rights (Article 22); purpose limitation in training data; Data Protection Impact Assessments for AI | Processing EU/UK personal data |
-| **CPPA (Canada)** | Algorithmic transparency obligations; automated decision explanation rights | Canadian personal data processing |
+| **CPPA (Canada, proposed)** | Algorithmic transparency obligations; automated decision explanation rights | Canadian personal data processing |
 | **PIPL (China)** | Automated decision-making transparency; user right to refuse profiling | Processing data of individuals in China |
 
 ---

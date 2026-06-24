@@ -2,8 +2,8 @@
 
 **Document Title:** Consent Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.4\
-**Date:** 2026-06-22\
+**Version:** 1.0.5\
+**Date:** 2026-06-24\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/register-cookie-and-tracker.md`](register-cookie-and-tracker.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/framework-childrens-data.md`](framework-childrens-data.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
@@ -24,7 +24,7 @@
 
 This framework defines the operating model for capturing, recording, refreshing, and honouring consent across the organisation. It distinguishes consent from other lawful bases, sets the validity standard, identifies the granularity required for different purposes, and defines the audit trail that supports a defensible position with supervisory authorities and data subjects.
 
-This framework supports GDPR, UK GDPR, ePrivacy expectations, LGPD, PIPL, CPPA, COPPA, and equivalent regimes. It supports both web and mobile interfaces and in-product or service-channel consent flows.
+This framework supports GDPR, UK GDPR, ePrivacy expectations, LGPD, PIPL, PIPEDA, COPPA, and equivalent regimes. It supports both web and mobile interfaces and in-product or service-channel consent flows.
 
 ---
 
