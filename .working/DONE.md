@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #299 — Gate 48 (CCM/AICM citation-accuracy audit) + gap-register full title alignment (2026-06-24)
+
+Shipped the mechanical backstop for the CCM/AICM citation class: gate 48 (`lint-ccm-aicm-citations.py`) validates domain/range and code-to-title against a fair-use catalogue reference (`ccm_aicm_reference.py`, derived from CSA CCM v4.1.0 / AICM v1.1.0, no normative content), wired into all four surfaces + regression fixture; gate count 47 to 48. Fully aligned the compliance-controls gap register's control titles to authoritative values (the PR #298 `/validate-pr` finding, found to be systematic). Implements the #298 `/retro` proposed improvement (the code-to-title gate). Carries the batched #298 `/validate-pr` + `/retro` rows.
+
 ### PR #298 — Sweep 35 close-out + corpus-wide CCM/AICM citation reconciliation; DD-12(a) (2026-06-24)
 
 Sweep 35 `/validate` (the #297 handoff loop-break control) found A-1 (GRM→GRC matrix) and B-1 (AI-log 12mo→7yr); verifying A-1 exposed a systemic CCM/AICM citation problem, and the maintainer supplied the authoritative CSA CCM v4.1.0 + AICM v1.1.0 catalogues for a full reconciliation. Removed the fabricated `GOV` domain (no such domain in either; governance is `GRC`) across ~9 docs (GOV-01..08→GRC; fabricated GOV-09/10 removed with A&A / AICM GRC-10/11/12 add-backs where real); renamed the superseded `IVS`→`I&S` (34×, corpus + pack); mapped the non-existent `NET`→real I&S network controls (resolving **DD-12 part a**); fixed out-of-range `IPY-05`→`IPY-04`; bumped AICM v1.0.3→v1.1; tightened loose `CCM v4`/`v4.0.12`→`v4.1`. A catalogue-derived validator confirms zero residual invalid codes. Catalogues kept in scratchpad only (no-redistribution licence). A `lint-ccm-aicm-citations.py` gate is queued next.

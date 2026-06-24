@@ -351,3 +351,10 @@ repos:
         language: system
         pass_filenames: false
         types: [markdown]
+
+      - id: lint-ccm-aicm-citations
+        name: CSA CCM/AICM citation-accuracy audit
+        entry: python3 tools/lint-ccm-aicm-citations.py
+        language: system
+        pass_filenames: false
+        types: [markdown]

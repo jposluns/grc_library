@@ -14,7 +14,7 @@ These are **as-of-session-pause snapshots**, not "current HEAD" claims. They dri
 
 - **Branch at last refresh**: `main` (synced after PR #280 merge).
 - **Library version**: `2026.06.276`. **Pack version**: `1.49.4`. **README version**: `1.9.147`.
-- **Audit programme**: all 47 gates passing on `main`.
+- **Audit programme**: all 48 gates passing on `main`.
 - **Last validation sweep**: Sweep 35 iter 1 (the `/resume` loop-break corpus-wide `/validate` after the session-closing handoff PR #297; full three-subagent dispatch A/B/C; clone unshallowed first; mechanical baseline **47/47**; re-examined the whole corpus + the #293-#297 deltas; 2 findings, A-1 a `GRM`->`GRC` stale CCM domain code in the cross-framework matrix and B-1 a `12 months`->`7 years` AI-log retention figure, both fixed in close-out PR #298; verifying A-1 surfaced a systemic CCM/AICM citation problem and the maintainer supplied the authoritative CSA CCM v4.1.0 + AICM v1.1.0 catalogues for a full corpus-wide reconciliation, all fixed in #298, validated by a catalogue-derived code checker with 0 residual; a `lint-ccm-aicm-citations.py` gate is queued next). Prior: Sweep 34 iter 1 (#293, 2 in-window warnings + 1 note fixed, the false "Day-1 floor nests inside Tier 1" claim); Sweep 33 iter 1 (#289, 1 in-window note fixed, CIS-benchmark column label); Sweep 32 iter 1 (#286, 3 out-of-window fixed).
 - **Last fitness review**: 2026-06-22's r2.
 - **Timezone convention**: UTC (codified in CLAUDE.md per PR #190).
@@ -89,7 +89,7 @@ Deferred to a routine cleanup batch when convenient. The Low/FYI trust-recovery 
 - **DD-10 (L, S)**: Reconcile the addyosmani upstream skill-count wording — [`README.md`](README.md) ("5 in full + 18 spot-scanned" = 23) vs [`dev-security/claude-rules/setup-generator-prompt.md`](dev-security/claude-rules/setup-generator-prompt.md):230 ("24 … 5 fully vetted, 18 spot-scanned"). Verify the upstream repo's count via web fetch, then align both surfaces. (Needs network egress; surface and defer if blocked.)
 - **Sweep 3 follow-up (L, S)**: Cross-document term-and-identifier consistency gap (the prose-and-numbering C3 surface mechanical gates 35/39/41 don't cover). Candidate for a future mechanical gate; a manual sweep closes the open items meanwhile.
 - **FR-44-generalisation (L, M)**: Corpus-wide sweep replacing legacy "shall" / "shall not" in normative prose with "must" / "must not" where the verb is not a direct quotation of an external standard. Per file small but numerous. The convention statement landed in PR #159 (master spec §6.1); this is the derivative harmonisation pass.
-- **DD-12 (L, L)**: Migrate the corpus-wide `PR.IP`-under-CSF-2.0 convention to strict CSF 2.0 codes (`PR.PS` / `ID.IM`) — large, corpus-wide (`PR.IP` is used well beyond the matrix); scope carefully as its own effort. (Part (a), the matrix `NET-01..06` CCM-domain error, was resolved by the CCM/AICM citation reconciliation — `NET` mapped to the real `I&S` network controls, since the authoritative CCM v4.1.0 uses no `NET` domain; see DONE.)
+- **DD-12 (L, L)**: Migrate the corpus-wide `PR.IP`-under-CSF-2.0 convention to strict CSF 2.0 codes (`PR.PS` / `ID.IM`) — large, corpus-wide (`PR.IP` is used well beyond the matrix); scope carefully as its own effort. (Part (a), the matrix's fabricated `NET` CCM-domain rows, was resolved by the CCM/AICM citation reconciliation, which mapped them to the real `I&S` network controls since the authoritative CCM v4.1.0 has no `NET` domain; see DONE.)
 
 ---
 

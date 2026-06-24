@@ -143,6 +143,7 @@ run_gate "Paired-skill step-parity audit"                python3 tools/lint-pair
 run_gate "TODO staleness audit"                          python3 tools/lint-todo-staleness.py
 run_gate "Overnight-work file audit"                     python3 tools/lint-overnight-file.py
 run_gate "Listing-surface completeness audit"            python3 tools/lint-listing-surface-completeness.py
+run_gate "CSA CCM/AICM citation-accuracy audit"          python3 tools/lint-ccm-aicm-citations.py
 
 # ----------------------------------------------------------------------
 # Summary
