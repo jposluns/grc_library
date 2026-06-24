@@ -212,6 +212,14 @@ Local PR-time discipline requires running BOTH [`../tools/run_all_audits.sh`](..
 
 Phrases like `"the N-gate audit programme"`, `"all N gates"`, `"gates 1-N"` are removed from corpus prose. The spec §6 inventory in [`../governance/specification-audit-programme.md`](../governance/specification-audit-programme.md) is the canonical single source for both the gate list and the current count; downstream prose points to §6 instead of repeating the count. Gate 39 (cross-file gate-count consistency audit) retained as the defence against new decorations creeping back in.
 
+### Gate 48 (CCM/AICM citation-accuracy) is token-scoped; the bare-domain-code class is gate-blind (DD-overnight-1, surfaced Sweep 36, recorded 2026-06-24)
+
+Gate 48 checks `<DOMAIN>-<NN>` control tokens and `| CODE | title |` rows against the fair-use CCM v4.1.0 / AICM v1.1.0 reference, but it is structurally blind to **bare domain-code and domain-name mentions** in prose, framework-coverage family lists, the glossary, and domain-by-domain crosswalks (a row reading `Infrastructure and Virtualization Security`, or a list naming `IVS`, carries no `<DOMAIN>-<NN>` token for the gate to parse). The #298/#301 reconciliation and the Sweep 36/37 residuals both lived in this blind spot. The durable mechanical fix is queued as TODO §4.5 **S5** (extend gate 48 to flag bare known-bad CCM domain codes in a CCM/CSA context, with care to avoid false positives on `.NET`, currency `AUD`, corpus-internal `MODEL-GOV`/`AI-GOV`, and "government" prose). Until S5 ships, the orchestrator's unfiltered standalone-token grep (the #301 retro discipline) is the working control.
+
+### R1 working-state relocation closed "won't-move" (decided 2026-06-24, maintainer)
+
+The XS "Working-state relocation" item to move `tools/sweep-preflight-exemptions.json` into `.working/validate-sweeps/` was closed **won't-move**. The file is the pre-flight scanner's exemption config and the scanner ([`../tools/sweep-preflight-scanner.py`](../tools/sweep-preflight-scanner.py)) lives in `tools/`; co-locating the config with the tool is correct for adopters (who take the pack and its tools), and moving it into `.working/` would either bake a `.working/` path into the two distributable pack SKILLs that reference it (`validation-sweep`, `validation-sweep-pr-scoped`) or require genericizing their prose. Keeping it in `tools/` avoids both. The original "co-locate with the validate-sweeps activity" premise did not weigh the distributable-pack coupling. (R2, the citation-verification cluster relocation, remains deferred in TODO with a related convention-conflict noted.)
+
 ---
 
 ## Language and style
