@@ -2,8 +2,8 @@
 
 **Document Title:** Asset Inventory Register\
 **Document Type:** Register\
-**Version:** 1.0.3\
-**Date:** 2026-06-22\
+**Version:** 1.0.4\
+**Date:** 2026-06-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md)\
@@ -39,8 +39,8 @@ Covers all organisational assets including:
 | Classification | Description | Examples |
 | --- | --- | --- |
 | **Tier 1: Mission Critical** | Assets whose failure causes immediate operational halt or significant customer impact | Core ERP, identity systems, production network infrastructure |
-| **Tier 2: Essential** | Assets whose failure causes significant operational disruption within 24 hours | Email platform, financial systems, primary data systems |
-| **Tier 3: Important** | Assets whose failure causes limited disruption; recoverable within 72 hours | Reporting tools, collaboration platforms, departmental applications |
+| **Tier 2: Business Essential** | Assets whose failure causes significant operational disruption within 24 hours | Email platform, financial systems, primary data systems |
+| **Tier 3: Standard** | Assets whose failure causes limited disruption; recoverable within 72 hours | Reporting tools, collaboration platforms, departmental applications |
 | **Tier 4: Non-Critical** | Assets whose failure has minimal operational impact | Development environments, test systems, legacy archives |
 
 ---

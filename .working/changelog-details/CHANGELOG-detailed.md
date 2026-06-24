@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.275, PR #297
+
+**Session-closing handoff PR for the 2026-06-24 resume session.** The session resumed via `/resume`, ran the loop-break Sweep 34 `/validate` (3 findings → #293), then shipped #294 (PR-H), #295 (metrics refresh), and #296 (PR-I), then wound down on the session-continuation SOP's large-series clause: the next queued item (the relocation bundle PR-J = R1/R2/R3, an atomic-or-break 8-move series a prior session had also deferred per CHANGELOG-detailed:1358) is deferred to a focused next session with a full ripple map now recorded in the handoff. No degradation occurred (four clean merges; the only apply-time misses were the steady-state missed-parallel-carrier class, both caught by `/validate-pr`).
+
+### Fixed
+- [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md) (`1.0.3` → `1.0.4`): **PR #296 `/validate-pr` finding (FR-160 third surface)**. The asset-criticality tiers read "Tier 2: Essential" / "Tier 3: Important", the old DR-plan labels that PR #296 (FR-160) re-labelled to the SLM-canonical "Business Essential" / "Standard". FR-160 aligned the DR plan and the SLM standard but missed this third carrier (same four-tier model, near-identical example systems). Aligned to "Tier 2: Business Essential" / "Tier 3: Standard"; a corpus-wide grep confirms all three carriers (DR plan, SLM standard, asset inventory) now agree and no other carrier of the old labels remains.
+
+### Changed
+- Carries the batched **#296 `/validate-pr`** record ([`.working/validate-pr/2026-06-24-PR-296.md`](2026-06-24-PR-296.md)) + history row (1 warning, the FR-160 third surface, fixed here) and the **#296 `/retro`** row ([`.working/improvement-log.md`](improvement-log.md): the 2nd-occurrence missed-parallel-carrier signal). Refreshes [`.working/session-handoff.md`](session-handoff.md) to the post-#296 state, including the full R1/R2/R3 relocation ripple map (PR #116 precedent; per-relocation load-path edits and index/README deletions) for the next session, and the integrity-tooling phase as the post-XS/S priority. Rotates the asset-inventory FR-160 third-surface item to DONE.
+
+### Verification
+- Per the handoff-PR exception (CLAUDE.md PR-workflow step 5a), this PR skips its own trailing `/validate-pr` + `/retro` (loop-break, no terminating next PR at a session boundary); the compensating control is the corpus-wide Sweep 35 the next `/resume` runs first. The skip is recorded inline in the [`.working/validate-pr/history.md`](validate-pr/history.md) #297 row per the documented-exception requirement.
+- `tools/run_all_audits.sh` and `tools/run-pr-time-checks.sh` results recorded at commit time; `taxonomy.yml` + `docs/maturity-scorecard.md` regenerated for the asset-inventory version bump. Corpus-wide grep confirmed the DR-tier-label harmonization is now complete across all three carriers.
+
 ## 2026-06-24, Library Version 2026.06.274, PR #296
 
 **PR-I of the XS/S batch: a cross-document-consistency bundle (FR-149, FR-150, FR-151, FR-159, FR-160, FR-165; FR-12 found already-closed), plus the two PR #294 `/validate-pr` retention-ripple fixes and the PR #295 README-Date fix.** A research worker scoped each item against the live corpus; the orchestrator re-read every target at apply-time and authored the final prose. Four directional choices were maintainer-confirmed (FR-149 genericize; FR-150 soften to a hedge; FR-151 severity-table-canonical P1=5 days; FR-160 align DR to SLM labels); three were maintainer-announced defaults (FR-12 stale-line deletion, FR-159 generator-Overview placement, FR-165 footnote-not-relabel).
