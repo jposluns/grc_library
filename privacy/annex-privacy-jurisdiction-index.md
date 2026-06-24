@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-06-24\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -130,7 +130,7 @@ The following material regulatory developments occurred or were anticipated betw
 
 - **EU AI Act:** High-risk AI system obligations under Annex III became applicable in August 2026. GPAI model obligations applied from August 2025. National AI supervisory authorities were designated across EU member states.
 - **China Generative AI Regulations:** Updated regulations anticipated in 2026, extending obligations to additional generative AI service categories with enhanced training data provenance requirements.
-- **Canada Bill C-27 (CPPA/AIDA):** Remained under parliamentary study as of early 2026; monitoring required for Royal Assent and transitional provisions.
+- **Canada Bill C-27 (CPPA/AIDA):** Lapsed at the 2025-01-06 prorogation (died on the order paper); not in force and would require reintroduction in a future Parliament. PIPEDA remains the in-force federal private-sector privacy law; monitor for any reintroduced successor bill.
 - **Brazil LGPD:** ANPD continued to develop sector-specific AI guidance; administrative enforcement matured with increasing fine activity.
 - **Australia Privacy Act:** Privacy and Other Legislation Amendment Act 2024 reforms took effect; statutory tort for serious invasions of privacy became actionable.
 - **APEC CBPR 2.0:** Additional economies joined the Global CBPR Forum; interoperability with GDPR SCCs was under active negotiation.

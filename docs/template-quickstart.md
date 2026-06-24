@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Quickstart Template\
 **Document Type:** Template\
-**Version:** 3.0.3\
-**Date:** 2026-06-23\
+**Version:** 3.0.4\
+**Date:** 2026-06-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md), [`README.md`](../README.md)\
@@ -42,7 +42,7 @@ Every adopter needs these three things in the first session, regardless of size 
 
 3. **Point at the portal.** Browse [`docs/portal.md`](portal.md) to see which other documents fit your audience (CIO, CISO, DPO (Data Protection Officer), auditor, engineering team, etc.). Take only the documents that match your sector, jurisdiction, and operating model.
 
-That is the quickstart. An organisation that has done these three things has a defensible floor. These six artefacts are the Day-1 floor. Four of them also appear in the adopter guide's 15-document Tier 1 set; the other two (the acceptable-use and identity-and-access-management policies) the Day-1 floor adds on top. The Day-1 floor, the Tier 1 set, and the sector-conditional sets the decision tree builds are complementary starting points rather than competing ones.
+That is the quickstart. An organisation that has done these three things has a defensible floor. These six artefacts are the Day-1 floor, and all six now also appear in the adopter guide's 17-document Tier 1 set, so the Day-1 floor is a strict subset of Tier 1. The Day-1 floor, the Tier 1 set, and the sector-conditional sets the decision tree builds are progressively-nested, complementary starting points rather than competing ones.
 
 ---
 

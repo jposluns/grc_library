@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-06-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -317,7 +317,7 @@ Deliverable: a substantive enterprise GRC implementation covering size, sector, 
 
 **"I'm a 50-person fintech in the EU. What do I read first?"**
 
-Universal baseline (Section 2), then `compliance/financial-services/` (3.2), then [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md), then [`privacy/jurisdictions/annex-privacy-european-union.md`](../privacy/jurisdictions/annex-privacy-european-union.md), then [`compliance/annex-nis-2-implementation.md`](../compliance/annex-nis-2-implementation.md) if in scope. About 25 documents for this sector-conditional EU-fintech path; this is larger than the universal Day-1 floor (six artefacts in [`docs/template-quickstart.md`](template-quickstart.md)) and the 15-document Tier 1 starter set in [`docs/adopter-guide.md`](adopter-guide.md), which it builds on rather than replaces.
+Universal baseline (Section 2), then `compliance/financial-services/` (3.2), then [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md), then [`privacy/jurisdictions/annex-privacy-european-union.md`](../privacy/jurisdictions/annex-privacy-european-union.md), then [`compliance/annex-nis-2-implementation.md`](../compliance/annex-nis-2-implementation.md) if in scope. About 25 documents for this sector-conditional EU-fintech path; this is larger than the universal Day-1 floor (six artefacts in [`docs/template-quickstart.md`](template-quickstart.md)) and the 17-document Tier 1 starter set in [`docs/adopter-guide.md`](adopter-guide.md), which it builds on rather than replaces.
 
 **"I'm a 200-person 3PL operating in the US, Canada, and Mexico. What do I read first?"**
 
