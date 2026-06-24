@@ -2,7 +2,7 @@
 
 **Document Title:** Compliance Controls and Gap Register Template\
 **Document Type:** Register\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-06-24\
 **Owner:** Security Architecture Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -199,7 +199,7 @@ Organisations should populate this template with their specific implementation s
 | I&S-03 | Network Security | | | | |
 | I&S-04 | OS Hardening and Base Controls | | | | |
 | I&S-06 | Segmentation and Segregation | | | | |
-| I&S-07 | Migration to Hosted Environments | | | | |
+| I&S-07 | Migration to Cloud Environments | | | | |
 | I&S-08 | Network Architecture Documentation | | | | |
 | I&S-09 | Network Defense | | | | |
 
