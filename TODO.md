@@ -113,10 +113,6 @@ A review of [`.working/improvement-log.md`](.working/improvement-log.md) found t
 - **New-skill-drafting checklist** (#213) — enumerate the parallel surfaces (link depths, pack-README skills-table row, PAIRS registry, language pre-flight, slash-command sibling).
 - **Broaden the count gate (remainder)**: gate 39 P8 closed "N automated audits" (#273); still open are word-form counts ("forty-six") via a word→number map and the free-prose rule-count gate (gate 41 can't parse "the N governance rules").
 
-### 4.9 Refresh the hallucination-metrics summary table (S) — surfaced 2026-06-23
-
-The summary table in [`.working/hallucination-metrics.md`](.working/hallucination-metrics.md) is frozen "as of PR #176" while the catches/escapes logs are current through Sweep 30 / #275 (~100 PRs of drift), so the headline trend signal — the file's purpose — is currently unreadable. Recompute the counts (worker-driven PRs, apply-time catches, shipped escapes, catch/escape rates) from the live logs; the file's own protocol says refresh every 5-10 PRs or at session-pause. Pure working-state housekeeping; surface the recomputed counts before committing.
-
 ### 4.2 Backlog effort-sizing labels convention (M, S)
 
 Backlog items now carry `(severity, effort)`; this item formalises the convention. Proposed scale:
@@ -286,7 +282,7 @@ Approximate active counts after the 2026-06-23 restructure (the priority section
 - **P1 (urgent quality)**: ~18 items (8 H[critical] + 10 H).
 - **P2 (substantive improvements)**: ~36 items (Medium fitness findings + the former Phase 2 clusters + DD-2/3/4/5/8/11 + relocations + loop-break-generalize).
 - **P3 (low-priority cleanup)**: ~20 items (Low/FYI findings + DD-10 + DD-12 + B2 + routine cleanup).
-- **P4 (adopter experience)**: 10 subsections (4.1-4.10).
+- **P4 (adopter experience)**: 9 subsections (4.1-4.8, 4.10; 4.9 closed in PR #295).
 - **P5 (content expansion)**: 8 subsections (5.1-5.8).
 - **P6 (domain-level)**: 5 items (6.1-6.5).
 - **P7 (awaiting decision)**: 0 pending + 2 dropped-decision audit-trail entries.
