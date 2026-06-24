@@ -2745,19 +2745,50 @@ class MatrixControlCodeTests(LinterTestCase):
         self.assertLinterFails(result, "nist-malformed")
 
     def test_valid_codes_not_flagged(self) -> None:
-        # False-positive guard: a valid Annex A code, a valid clause, and a
-        # well-formed NIST token (including PR.IP, whose category-membership is
-        # intentionally NOT validated, deferred) must all pass.
+        # False-positive guard: a valid Annex A code, a valid clause, and two
+        # real CSF 2.0 Categories must all pass. (PR.PS and GV.OC are members
+        # of the authoritative 22-Category set.)
         fixture = self.make_fixture(
             "fake-matrix-valid.md",
-            self._matrix("GRC-01", "A.5.1, A.8.34, §6.1", "GV.OC, PR.IP"),
+            self._matrix("GRC-01", "A.5.1, A.8.34, §6.1", "GV.OC, PR.PS"),
         )
         result = run_linter("tools/lint-matrix-control-codes.py", fixture)
         self.assertEqual(
             result.returncode, 0,
-            f"valid ISO/NIST tokens (including format-valid PR.IP) must not be "
-            f"flagged.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            f"valid ISO/NIST tokens must not be flagged.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
+
+    def test_nist_csf11_category_flagged(self) -> None:
+        # PR.IP is a CSF 1.1 category redistributed in 2.0; it is well-formed
+        # (PR is a valid Function prefix) but is not a CSF 2.0 Category, so the
+        # membership check must flag it with a relocation note.
+        fixture = self.make_fixture(
+            "fake-matrix-nist-csf11.md",
+            self._matrix("GRC-01", "A.5.1", "PR.IP"),
+        )
+        result = run_linter("tools/lint-matrix-control-codes.py", fixture)
+        self.assertLinterFails(result, "nist-category")
+
+    def test_nist_relocated_supply_chain_category_flagged(self) -> None:
+        # ID.SC (CSF 1.1 Supply Chain Risk Management) became GV.SC in 2.0;
+        # well-formed but not a 2.0 Category.
+        fixture = self.make_fixture(
+            "fake-matrix-nist-idsc.md",
+            self._matrix("GRC-01", "A.5.19", "ID.SC"),
+        )
+        result = run_linter("tools/lint-matrix-control-codes.py", fixture)
+        self.assertLinterFails(result, "nist-category")
+
+    def test_nist_unknown_category_flagged(self) -> None:
+        # A well-formed token with a valid Function prefix but a category that
+        # exists in no CSF edition (GV.ZZ) is flagged by the membership check.
+        fixture = self.make_fixture(
+            "fake-matrix-nist-unknown-cat.md",
+            self._matrix("GRC-01", "A.5.1", "GV.ZZ"),
+        )
+        result = run_linter("tools/lint-matrix-control-codes.py", fixture)
+        self.assertLinterFails(result, "nist-category")
 
     def test_ccm_column_not_policed_here(self) -> None:
         # CCM codes are validated by gate 48, not this gate; an invalid CCM
