@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.297, PR #319
+
+`.working/` for local project: **session-closing handoff PR** for the 2026-06-24 resume session. Refreshes [`.working/session-handoff.md`](../../.working/session-handoff.md) to the post-#318 state (HEAD #319, library `2026.06.297` / pack `1.49.8` / README `1.9.168`; next-actions queue led by DD-8 then FR-167 batch 4 supply-chain; the §4.11 orchestration track; the branch-cleanup-pending note for the two verified-stale remote branches the assistant's environment cannot delete; the worker-brief-template guard-rail candidates from the #317/#318 retros). Carries the batched #318 `/validate-pr` (0 findings) + `/retro` rows. Per the handoff-PR exception (CLAUDE.md PR-workflow step 5a; pack-generalized in #305) it skips its own trailing `/validate-pr` + `/retro` (loop-break, recorded as an exception row in [`.working/validate-pr/history.md`](../validate-pr/history.md)); the compensating control is the corpus-wide Sweep 40 the next `/resume` runs first. `tools/run_all_audits.sh` 48/48 and `tools/run-pr-time-checks.sh` green on the committed state; no corpus content changed. Library `2026.06.296` to `2026.06.297`; README `1.9.167` to `1.9.168`.
+
 ## 2026-06-24, Library Version 2026.06.296, PR #318
 
 **DD-4/DD-5: complete the TLS 1.3 migration of the Go pack rule and the supplier questionnaire.** Completes the two TLS surfaces explicitly deferred in FR-135 (pack 1.49.1's version-history row named both `languages/go.md` and `core/owasp.md` as deferrals).
