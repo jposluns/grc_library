@@ -2,8 +2,8 @@
 
 **Document Title:** API Security Standard\
 **Document Type:** Standard\
-**Version:** 0.0.6\
-**Date:** 2026-06-23\
+**Version:** 0.0.7\
+**Date:** 2026-06-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-software-composition-analysis.md`](standard-software-composition-analysis.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/standard-data-loss-prevention.md`](../security/standard-data-loss-prevention.md), [`security/framework-zero-trust-architecture.md`](../security/framework-zero-trust-architecture.md), [`ai/standard-ai-access-and-agent-permissions.md`](../ai/standard-ai-access-and-agent-permissions.md)\
@@ -230,7 +230,7 @@ Where an API is exposed to AI agents (organisation-internal or third-party):
 | RFC 6749, 7519, 8725, 9068 | OAuth 2.0, JWT, JWT BCP, OAuth 2.0 access tokens | Token standards |
 | OpenID Connect Core 1.0 | OIDF | Identity layer |
 | FAPI 2.0 | OIDF | Financial-grade API profile |
-| CSA Cloud Controls Matrix v4.1 | AIS, IAM, IVS, LOG | Cross-walk |
+| CSA Cloud Controls Matrix v4.1 | AIS, IAM, I&S, LOG | Cross-walk |
 
 ---
 

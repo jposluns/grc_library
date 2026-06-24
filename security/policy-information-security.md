@@ -2,7 +2,7 @@
 
 **Document Title:** Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.3.4\
+**Version:** 1.3.5\
 **Date:** 2026-06-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -87,7 +87,7 @@ Where the organisation participates in a sector-specific security programme (for
 
 4.1 The network shall be segmented according to sensitivity, criticality, and regulatory requirements.
 4.2 Firewalls, intrusion prevention systems, and secure gateways shall be configured, monitored, and updated regularly.
-4.3 Cloud environments shall implement shared responsibility models and continuous monitoring aligned to CSA CCM IVS controls.
+4.3 Cloud environments shall implement shared responsibility models and continuous monitoring aligned to CSA CCM I&S controls.
 4.4 All network traffic shall be logged and retained per the Logging and Monitoring Standard.
 
 ### 5. Endpoint and mobile security
