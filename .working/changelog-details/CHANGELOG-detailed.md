@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-24, Library Version 2026.06.294, PR #316
+
+**Working-state and backlog scheduling for local project: recover a stranded design record and queue the multi-session orchestration codification track.** A maintainer-directed scheduling/tracking PR; no corpus content changed.
+
+### Context
+
+The maintainer asked to queue (not start) a track to stand up the parallel-worker capability, and first to verify the design record exists on `main`. It did NOT: the "Multi-session / multi-worker orchestration model" entry was on the unmerged `origin/claude/resume-review-h95prg` branch in commit `da8e051` ("Record multi-session/multi-worker orchestration decisions"), stranded because the prior session paused before it reached a merged PR. Per the maintainer's "trust the repo" instruction, the confirmed gap was surfaced and the content recovered.
+
+### Added
+
+- [`.working/design-decisions.md`](../../.working/design-decisions.md): recovered the full "Multi-session / multi-worker orchestration model" decision section verbatim from `da8e051` (scratch-repo role and invariants; Model B partitioned-branch parallelism; the no-bypass HARD INVARIANT; the two worker primitives; the scratch-versus-`.working/` test; the Option-A gate-family decision), with a one-line recovery-provenance note.
+- [`TODO.md`](../../TODO.md): new §4.11 "Multi-session / multi-worker orchestration codification (track; maintainer-scheduled)" in Priority 4 (process and meta), pointing to the design record as authoritative. Four deliverables (runbook, worker-brief Model-B section, light SOP default, worker-provenance gate co-designed with the queued §4.6 and §4.10 gates). Carries the scheduling rule (default after P1/P2; a do-not-self-authorize pull-forward exception) and a feasibility note (`grc_library_scratch` reachable but empty; the external-collaborator primitive and repo-event subscription unconfirmed).
+
+### Notes
+
+- **Rotation/supersession:** the maintainer flagged that this item supersedes any earlier inline "codify multi-session" framing in TODO or the handoff. A grep of both surfaces found NO prior such framing, so there was nothing to remove; recorded here so the absence is explicit rather than inferred.
+- **Feasibility surfaced against live state:** `grc_library_scratch` is in this session's repo scope and reachable but currently empty (no commits / no default branch), so the exchange channel must be seeded before use; the separate-session external-collaborator worker primitive and harness repo-event subscription are not yet confirmed (the design already gates event-driven triggering as opt-in). No contradiction with live state found in the recovered design.
+
+### QA records (this PR's batch)
+
+- The #315 `/validate-pr` row (0 findings, fix-verification pass) in [`.working/validate-pr/history.md`](../validate-pr/history.md) and the #315 `/retro` row in [`.working/improvement-log.md`](../improvement-log.md).
+- This PR's own `/validate-pr` and `/retro` batch into the next PR per recursion-avoidance.
+
+### Verification
+
+`tools/run_all_audits.sh` 48 of 48 on the committed state; `tools/run-pr-time-checks.sh` green (D1 both CHANGELOG files, D2 version bump, D3 no new dashes, gate 45) against the merge base. Library `2026.06.293` to `2026.06.294`; README `1.9.164` to `1.9.165`.
+
 ## 2026-06-24, Library Version 2026.06.293, PR #315
 
 **Sweep 39 close-out: fix two pre-existing WCO SAFE and marker inconsistencies in the GRC compliance alignment matrix.** The `/resume` corpus-wide validation sweep (Sweep 39) for the new session, re-examining the whole corpus plus the #313 and #314 deltas, with the two surfaced findings fixed and the outstanding #314 QA records backfilled.
