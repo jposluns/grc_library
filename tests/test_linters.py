@@ -2528,5 +2528,64 @@ class OvernightFileTests(LinterTestCase):
         self.assertIn("done", mod.VALID_FAIL_STATUSES)
 
 
+class CcmAicmCitationTests(LinterTestCase):
+    """tools/lint-ccm-aicm-citations.py"""
+
+    def test_runs_clean_on_corpus_at_head(self) -> None:
+        # Smoke test: every CCM/AICM citation in the corpus names a valid
+        # domain and in-range control, and control-listing titles match the
+        # authoritative catalogue.
+        result = run_linter("tools/lint-ccm-aicm-citations.py")
+        self.assertEqual(
+            result.returncode, 0,
+            f"linter exited {result.returncode} on HEAD; CCM/AICM citations "
+            f"should all be valid.\nstdout:\n{result.stdout}\n"
+            f"stderr:\n{result.stderr}",
+        )
+
+    def test_invalid_domain_flagged(self) -> None:
+        # 'GOV' is not a CCM v4.1 / AICM v1.1 domain (governance is GRC).
+        fixture = self.make_fixture(
+            "fake-ccm-gov.md",
+            "# X\n\nMaps to CSA CCM v4.1 GOV-01 for governance.\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+        self.assertLinterFails(result, "invalid-ccm-domain")
+
+    def test_out_of_range_control_flagged(self) -> None:
+        # The IPY domain has only four controls (IPY-01..04).
+        fixture = self.make_fixture(
+            "fake-ccm-ipy.md",
+            "# X\n\nMaps to IPY-05 for interoperability.\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+        self.assertLinterFails(result, "ccm-control-out-of-range")
+
+    def test_title_mismatch_flagged(self) -> None:
+        # A control-listing row titling MDS-01 with an unrelated title (the
+        # catalogue MDS-01 is "Training Pipeline Security").
+        fixture = self.make_fixture(
+            "fake-ccm-title.md",
+            "# X\n\n| Control ID | Control Title |\n| --- | --- |\n"
+            "| MDS-01 | Quantum Teapot Calibration |\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+        self.assertLinterFails(result, "ccm-title-mismatch")
+
+    def test_internal_model_gov_not_flagged(self) -> None:
+        # Corpus-internal MODEL-GOV-NN / AI-GOV-NN identifiers are not CCM
+        # citations and must not be policed.
+        fixture = self.make_fixture(
+            "fake-internal.md",
+            "# X\n\n**MODEL-GOV-01:** internal control. AI-GOV-03 too.\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"corpus-internal MODEL-GOV/AI-GOV IDs should not be flagged.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -162,6 +162,9 @@ jobs:
       - name: Listing-surface completeness audit
         run: python3 tools/lint-listing-surface-completeness.py
 
+      - name: CSA CCM/AICM citation-accuracy audit
+        run: python3 tools/lint-ccm-aicm-citations.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py
