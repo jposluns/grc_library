@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #310 — DD-2/3/11: risk-vocabulary harmonization to the canonical ERM scale (medium) (2026-06-24)
+
+Aligned every risk-scoring scale label across four docs to the canonical ERM scale (likelihood Very Low/Low/Medium/High/Very High; impact Negligible/Minor/Moderate/Major/Catastrophic; rating Low/Medium/High/Critical): concentration-risk (Rare…Almost Certain → canonical likelihood; Severe → Catastrophic), operational-risk-register (Moderate → Medium likelihood + sample rating; Severe → Catastrophic impact; casing), procedure (impact-5 Critical → Catastrophic), and enterprise-risk-register template (impact-5 Critical → Catastrophic in two fields + the matrix header). The rating-top "Critical" (17-25) was preserved everywhere; the impact-5/rating "Critical" conflation is resolved. Corpus-wide grep confirmed all risk-scoring docs now agree.
+
 ### PR #309 — S5: gate-48 bare-domain-code check (medium) (2026-06-24)
 
 Added Check 4 to `tools/lint-ccm-aicm-citations.py`: a bare superseded/fabricated CCM domain code (no `-NN` suffix) is flagged when its line names the matrices or sits under a CCM/AICM section and is not a historical rename-note, the family-list / domain-keyed-crosswalk residual class gate 48 was previously blind to. Precision-first (zero corpus false positives: `.NET`, currency `AUD`, MODEL-GOV, and rename-notes all pass; TODO meta-exempted); four regression cases added. Completes the gate-48 enhancement pair with S4.
