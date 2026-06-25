@@ -80,8 +80,17 @@ resolved before sleep (so the run would not stall on them):
 - **FR-144 breach individual-notification clock**: add an internal floor — "without undue delay,
   and in any event within 72 hours of the high-risk determination" — mirroring the GDPR authority
   clock (stricter rule; resolved without a separate maintainer decision).
-- **FR-58 inheritance vocabulary**: **skipped to morning** as a taxonomy-design task that
-  propagates across many documents and needs maintainer discussion.
+- **FR-58 inheritance vocabulary**: skipped to morning 2026-06-23 as a taxonomy-design task;
+  **resolved 2026-06-25** (maintainer, during the continued overnight run) to apply the canonical
+  **3-label scheme** corpus-wide: `library-internal` (cross-references between library documents),
+  `template` (adopter-fillable content), and `reference` (external-standard / source content cited,
+  not authored), with per-document apply-time verification (surface any document that does not fit
+  cleanly). Tracked as the disposition on TODO P1 FR-58.
+- **Deepen-all thin baselines** (decided 2026-06-25, maintainer, continued overnight run):
+  override the earlier "calibrate first, several are deliberately-thin baselines" guidance; deepen
+  ALL of the thin-baseline cluster (FR-15, FR-23, FR-24, FR-63, FR-74, FR-99, FR-154) to operational
+  depth rather than treating any as an intentional baseline. Tracked as the disposition on the
+  corresponding TODO P2 items.
 
 ---
 
