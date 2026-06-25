@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-25, Library Version 2026.06.321, PR #342
+
+`.working/` session-close housekeeping for local project: session-closing handoff PR for the 2026-06-25 continued-resume session (resumed from #339; ran the mandatory Sweep 46 which found + fixed the gate-10 README-cadence overstatement in #340, then shipped #341 FR-167 batch 4). Refreshes [`.working/session-handoff.md`](../../.working/session-handoff.md) to the post-#341 snapshot (49 gates, library `2026.06.320`, README `1.9.191`, green-at-`479cb53`, the matrix now comprehensive across Architecture/Risk/Dev-security/Supply-chain with batch 5 = resilience next, Sweep-47 cadence, this session's asserted-expectations, and the next-actions queue with the §4.11 worker-provenance gate still the pinned top item). Batches the #341 `/validate-pr` (0 findings) + `/retro` rows. [`.working/overnight-pr.md`](../../.working/overnight-pr.md) stays in-flight (the overnight authorization continues into the next session). Per the handoff-PR loop-break this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide Sweep 47 the next `/resume` runs first, cross-checked against this handoff's asserted-expectations. No corpus-content change. Library `2026.06.320` to `2026.06.321`; README `1.9.191` to `1.9.192`.
+
+This entry deliberately uses the same lead-paragraph wording as the root [`CHANGELOG.md`](../../CHANGELOG.md) entry, per the two-file-split convention. The detailed mirror carries no additional structured sections because the PR is `.working/`-only session-close housekeeping with no corpus-content change.
+
 ## 2026-06-25, Library Version 2026.06.320, PR #341
 
 **FR-167 batch 4 (supply-chain domain)** expansion of [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) (`1.3.1`→`1.4.0`, Date `2026-06-24`→`2026-06-25`).
