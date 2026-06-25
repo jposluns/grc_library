@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-25, Library Version 2026.06.311, PR #332
+
+Multi-session orchestration, §4.11 part 2 (the light SOP). This is the codification track's PR-3: the project-agnostic default and the project-specific pointer, landing the "fan out research workers where partitionable" SOP on `main` without disturbing the serial-apply / CI-gating / validate-then-apply invariants.
+
+### Added
+- [`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`](../../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md) §2: a "The partitionable-work default (light SOP)" subsection. States the default-to-fan-out-where-partitionable directive, the three-condition eligibility gate (verified-disjoint files with per-wave re-verification; no shared-surface edits; not a corpus-wide sweep/rename/migration or single indivisible artefact), the explicit "does not disturb disciplines 2 and 3" guard, and the two worker primitives (in-session subagent fan-out; separate-session external-collaborator least-privilege workers), with a pointer to a project-local runbook for the how-to. Placed inside §2 (elaborating discipline 2), so the rule's "five disciplines" framing is unchanged.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): a `## Multi-session orchestration` section (project-specific) pointing at the [`.working/multi-session-orchestration.md`](../../.working/multi-session-orchestration.md) runbook (#330), naming the two primitives, the `grc_library_scratch` exchange channel, the trust-split `ref/` base, and the non-partitionable cases; restates that the serial-apply / CI-gating / per-PR-QA / validate-then-apply invariants are unchanged.
+
+### Changed
+- [`.claude/rules/governance/ai-assistant-workflow-disciplines.md`](../../.claude/rules/governance/ai-assistant-workflow-disciplines.md): synced byte-identically to the pack source (gate 37). Verified identical via `diff -q` and `lint-language` clean before commit.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): pack `Version` `1.49.10` to `1.49.11` (patch; additive SOP subsection in an existing rule, not a new rule) plus a version-history row.
+- [`README.md`](../../README.md): library `2026.06.310` to `2026.06.311`, README `1.9.181` to `1.9.182`.
+
+### Verification
+- `tools/lint-language.py` on the changed pack rule before the first commit: no findings.
+- `diff -q` source vs mirror: identical (gate 37).
+- Post-commit `tools/run_all_audits.sh`: 49/49 (to be confirmed at commit time); pre-push `tools/run-pr-time-checks.sh` against the merge base.
+
+### Notes
+- Carries the batched zero-finding **Sweep 43** `/validate` history row (the #331 session-closing handoff PR's loop-break compensating control; full A/B/C dispatch, clean, no asserted-expectations contradiction, bounded DD-12 soft-spot inventory re-confirmed).
+- Pack rule files under `dev-security/claude-rules/` are exempt from the per-document gate-31/gate-40 Version/Date checks, so no per-document metadata bump applies to the rule; the pack version surface is `dev-security/claude-rules/README.md`.
+
 ## 2026-06-25, Library Version 2026.06.310, PR #331
 
 `.working/` session-close housekeeping for local project: session-closing handoff PR for the 2026-06-25 overnight resume session.
