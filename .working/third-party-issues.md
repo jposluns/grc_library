@@ -1,7 +1,7 @@
 # Third-Party and Infrastructure Issues
 
-**Version:** 1.0.1\
-**Date:** 2026-06-24\
+**Version:** 1.0.2\
+**Date:** 2026-06-25\
 **License:** CC BY-SA 4.0
 
 A running log of third-party service and execution-environment issues encountered during maintenance of this library: outages, flakes, and misconfigurations in infrastructure the project depends on but does not own (the commit-signing service, the remote execution sandbox, CI runners, external citation sources, MCP servers). The purpose is to distinguish environment artifacts from genuine corpus or tooling defects, so a future session does not mistake an infrastructure flake for a regression and chase a non-existent bug.
@@ -9,6 +9,54 @@ A running log of third-party service and execution-environment issues encountere
 This file is maintainer working state, exempt from corpus audit gates per the `.working/` directory exemption. Entries are reverse-chronological (newest first). Each entry records: what was observed, the diagnosis, the impact, how it was distinguished from a real defect, and the resolution.
 
 ## Entries
+
+### 2026-06-25: git proxy rejects writes to `grc_library_scratch` after the first push (HTTP 403)
+
+**Observed.** While seeding the multi-session exchange repo `grc_library_scratch`, the
+local git proxy (`127.0.0.1:41729`) accepted the FIRST push (a tiny probe that created
+`main` from empty) and then returned `HTTP 403 (curl 22)` on EVERY subsequent push to
+that repo, including a clean, tiny, fast-forward text-only push. Reads worked
+throughout (`git ls-remote` rc=0). Writes to `grc_library` via the same proxy worked
+throughout (the overnight feature branch pushed fine, rc=0). Writes to
+`grc_library_scratch` via the GitHub MCP API (`create_or_update_file`, `push_files`,
+a different transport) ALSO worked.
+
+**Diagnosis.** A write restriction specific to `grc_library_scratch` on the local git
+proxy: either a very low per-repo write quota (one push, then blocked) or a throttle
+from the burst of push attempts that did not clear within the session. NOT an egress
+policy denial (the egress proxy at port 34359 reports `recentRelayFailures: []`; the
+git proxy at 41729 is a separate component, bypassed by the `127.0.0.0/8` no-proxy
+rule). NOT a fast-forward problem (a clean ff push to unchanged `main` still 403'd).
+NOT a credential/corpus problem (`grc_library` writes and scratch reads both work).
+The earlier hypothesis of a payload SIZE cap was not confirmable: once the burst
+tripped the restriction, even a few-KB text push 403'd, so size could not be isolated.
+
+**How it was distinguished from a real defect.** Three transports cross-checked:
+git-proxy→`grc_library` (works), git-proxy→`grc_library_scratch` (1 then 403),
+MCP→`grc_library_scratch` (works). Only the git-proxy→scratch path is affected, so the
+overnight PR workflow (all on `grc_library` via git) is unaffected.
+
+**Impact.** Bounded. The scratch `ref/` text indexes (root `README.md`, the calibrated
+`ref/README.md`, `.gitignore`) WERE seeded via the MCP API. The reference BINARIES
+(CSA CCM v4.1 / AICM v1.1 / CAIQ catalogues + guidance PDFs, NIST CSF 2.0 PDF, the
+AI-security and threat-intel PDFs, ~34 MB) could NOT be pushed: the git-proxy→scratch
+path is blocked, and binary content is not safely expressible through the MCP
+string-content interface (double-base64 corruption risk). The maintainer chose to
+re-upload the binaries tomorrow rather than block the overnight run.
+
+**Resolution / handoff.** Binary seed DEFERRED. The full categorized `ref/` tree is
+built and committed locally on the scratch-seed working repo (in the session
+scratchpad), ready to push the moment the git-proxy scratch-write restriction clears.
+The `ref/README.md` already documents the intended location of every file, so a
+re-upload drops cleanly into place. Next session / tomorrow: retry a single paced git
+push to scratch; if it still 403s, surface to the maintainer that the git-proxy
+scratch-write path needs an infrastructure fix (the repo may need a write-quota raise).
+
+**Lesson for a future session.** To seed `grc_library_scratch`: use the GitHub MCP API
+for TEXT files (reliable), and a SINGLE paced git push for binaries (do not burst
+multiple pushes; the burst appears to trip the restriction). If the git-proxy
+scratch-write path 403s on a clean small push, treat it as the environment restriction
+recorded here, not a corpus/credential defect, and fall back to maintainer re-upload.
 
 ### 2026-06-24: GitHub MCP server disconnected mid-session
 

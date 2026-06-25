@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-25, Library Version 2026.06.308, PR #329
+
+Resume session-start close-out: corpus-wide Sweep 42 (the loop-break control for handoff PR #327) plus the session's bookkeeping.
+
+### Fixed
+- [`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md):93 — the "Why this skill exists" growth-narrative gate count "a dozen gates to forty-eight" corrected to "forty-nine". Gate 49 (matrix control-code validity) shipped in #325 after the count was last set to "forty-eight" in pack 1.49.6; this is a free-prose word-form count, invisible to the digit-form gate-count gate (gate 39), so it survived CI. Sweep 42 Subagents A and B independently surfaced it. Pack [`README.md`](../../dev-security/claude-rules/README.md) `1.49.9`→`1.49.10` with a version-history row.
+
+### Added
+- [`.working/validate-sweeps/2026-06-25-sweep42-iter1.md`](2026-06-25-sweep42-iter1.md) — Sweep 42 detail file (3-subagent dispatch; the in-window fix; the verified-clean high-value targets) + a history row in [`history.md`](../../.working/validate-sweeps/history.md) (`2.0.34`→`2.0.35`).
+- [`TODO.md`](../../TODO.md): a **gate-49-extension** item (validate framework codes in per-document reference tables, not only the central matrix; maintainer-approved 2026-06-25) and a new **§4.12 publications-assessment / poisoning-detection process** for the scratch reference base (maintainer-directed).
+- [`.working/third-party-issues.md`](../../.working/third-party-issues.md) (`1.0.1`→`1.0.2`) — entry recording the git-proxy restriction that rejects writes to `grc_library_scratch` after the first push (distinguished from a real defect: `grc_library` git writes and scratch MCP writes both work).
+- [`.working/overnight-pr.md`](../../.working/overnight-pr.md) transitioned stub→in-flight with the maintainer's overnight authorization scope, the two-round decision set, and the build-progress log (Sweep 42; scratch ref/ framework + worker `CLAUDE.md` seeded to `grc_library_scratch` via the MCP text path).
+
+### Changed
+- [`TODO.md`](../../TODO.md): **DD-12** scope broadened from `PR.IP`-only to all CSF-1.1 carriers (`PR.IP`/`ID.SC`/`ID.BE`/`RS.RP`/`DE.DP`/`PR.AC`/`PR.PT`/...), per the maintainer-approved "broaden + extend gate 49" decision; known out-of-matrix carriers cited.
+- [`.working/validate-pr/history.md`](../../.working/validate-pr/history.md) (`1.2.123`→`1.2.124`) — a #328 subsumption row: #328's `/validate-pr`+`/retro` were not run (session force-stopped after merge); Sweep 42's window covered the #328 deltas, so its QA is subsumed with no ledger gap.
+
+### Verification
+- `tools/run_all_audits.sh` → **49/49 green** after each commit. `tools/lint-language.py` clean on the changed pack SKILL line. Sweep 42 mechanical baseline 49/49; empty-delta termination at iteration 1. No asserted-expectations contradiction (no genuine-miss escalation). Library `2026.06.307`→`2026.06.308`; README `1.9.178`→`1.9.179`; pack `1.49.9`→`1.49.10`.
+
+### Discipline observation
+- The scratch reference base was seeded via the GitHub MCP API (text transport) after the git proxy hard-blocked scratch writes; the ~2.84 MB of text extracts are staged locally pending a working write path or maintainer binary re-upload. Inlining the full extract tree through MCP was deferred to protect the session's priority work (multi-session capability, FR-167) — a Quality>Speed>Cost call where consuming context on a workaround would degrade the priority work.
+
 ## 2026-06-25, Library Version 2026.06.307, PR #328
 
 `.claude/` + `.working/` process change for local project: codified the maintainer-directed session-start clarification step into the resume workflow.
