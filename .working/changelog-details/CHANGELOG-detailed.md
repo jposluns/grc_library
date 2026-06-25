@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-25, Library Version 2026.06.307, PR #328
+
+`.claude/` + `.working/` process change for local project: codified the maintainer-directed session-start clarification step into the resume workflow.
+
+Touched: [`.claude/commands/resume.md`](../../.claude/commands/resume.md) (new step 5 "Batch the unattended-run clarifications up front"; old steps 5/6 renumbered to 6/7, with step 6 noting the `/validate` sweep can run while the clarification answers come back, and step 7 referencing the recorded step-5 decisions); [`.working/session-handoff.md`](../../.working/session-handoff.md) ("How to resume" gains step 4a mirroring the convention and pointing to the authoritative `/resume` step 5); [`README.md`](../../README.md) (library `2026.06.306`→`2026.06.307`, README `1.9.177`→`1.9.178`); root + this CHANGELOG.
+
+Why: the maintainer asked (2026-06-25) to begin each session by surfacing, in advance, the decisions that would let the session run unattended longer, scoped to all P1/P2 items plus the next 10-plus planned PRs, and chose the handoff resume prompt as the home for the convention. This front-loads authorial decisions so an otherwise-unattended run is not repeatedly paused; the compute-don't-ask gate keeps it from devolving into asking what the assistant can verify itself.
+
+Verification: `tools/run_all_audits.sh` 49/49 green (the changed files are under `.claude/` and `.working/`, both exempt from corpus gates; README version surfaces are gated and consistent); `tools/run-pr-time-checks.sh` D1/D2/D3 + gate 45 green against the merge base. Per-PR `/validate-pr` + `/retro` run after merge (rows batch into the next PR per recursion-avoidance).
+
 ## 2026-06-25, Library Version 2026.06.306, PR #327
 
 `.working/` session-close housekeeping for local project: session-closing handoff PR for the 2026-06-24/25 resume session. Refreshes [`.working/session-handoff.md`](../../.working/session-handoff.md) to the post-#326 snapshot and carries the batched #326 QA rows. No corpus-content change; working-state + version surfaces only.
