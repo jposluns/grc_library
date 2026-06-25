@@ -77,9 +77,24 @@ maintainer-attached uploads. Use at apply-time for the work that needs them
 ## Build progress (running log; newest at bottom)
 
 - 2026-06-25: session started; state verified (main @ 6d3d23c / #328, 49/49 green,
-  Library 2026.06.307 / pack 1.49.9 / README 1.9.178, clone unshallowed); scratch
-  write access confirmed; this file set to in-flight. Next: Sweep 42 `/validate`.
+  Library 2026.06.307 / pack 1.49.9 / README 1.9.178, clone unshallowed); this file
+  set to in-flight.
+- 2026-06-25: scratch `ref/` seeding (maintainer-requested, with a second batch of
+  reference uploads). Assessed all 9 supplied references + the 4 earlier ones; built a
+  categorized `ref/` tree (standards-frameworks / csa-ccm-aicm / ai-security /
+  threat-intel-reports) with a calibrated `ref/README.md` (citable-primary vs
+  orientation-only). Seeded the TEXT indexes via the GitHub MCP API (root README,
+  ref/README, .gitignore). The reference BINARIES (~34 MB) could NOT be pushed: the
+  git proxy 403s all writes to `grc_library_scratch` after the first (see
+  third-party-issues.md 2026-06-25). Maintainer directed: defer, they re-upload
+  tomorrow. Binary tree is built+committed locally, ready to push when the restriction
+  clears. `grc_library` writes are unaffected (overnight branch pushed fine).
+- 2026-06-25: NEXT: Sweep 42 `/validate` (mandated loop-break control), then the
+  §4.11 multi-session capability + gate family, then FR-167, then decided items.
 
 ## Surfaced ambiguities / morning-review items
 
-- (none yet)
+- **Scratch binary seed deferred** (infra): git-proxy 403s scratch writes after the
+  first push; maintainer will re-upload the reference binaries tomorrow. Text indexes
+  are already up; the binary tree is staged locally. No decision needed; flagged for
+  awareness.
