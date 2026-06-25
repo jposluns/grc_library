@@ -140,6 +140,32 @@ maintainer-attached uploads. Use at apply-time for the work that needs them
   merged + QA'd; multi-session capability core (runbook + worker brief) delivered. NOT yet
   done (queued): the §4.11 SOP + gate family, FR-167, the decided content items. Maintainer
   tomorrow: re-upload scratch binaries; provision the external-worker account.
+- 2026-06-25: **NEXT RESUME SESSION started** (continued from handoff #334 via `/resume`).
+  State verified: main/feature @ `9d36f41` (#334), 49/49 green (matches green-at-`33c770b`),
+  Library 2026.06.313 / pack 1.49.11 / README 1.9.184, clone unshallowed. §4.11 parts 1-3
+  (runbook #330, light SOP #332, pre-push-runner gate #333) confirmed DONE. **Resume
+  clarification batch answered (2026-06-25):** (1) **standing authority CONFIRMED operative
+  for this session** — continue unattended, green-CI=merge, per-PR `/validate-pr`+`/retro`,
+  stricter-is-safer+evidence on conflicts, recorded running order (project-gov Phase 1 →
+  §4.11 worker-provenance gate family → FR-167 → decided content); (2) **maintainer will
+  re-attach the CCM/AICM/NIST references this session**, so FR-167 batch 4 STAYS in the
+  running order (verified at session start that scratch `ref/` still holds only manifest
+  stubs; reach batch 4 after Phase 1 + the gate family, by which point the refs should be
+  available; verify presence before authoring any batch-4 cell). About to run the mandatory
+  **Sweep 44** (loop-break `/validate` control for handoff #334, covering the #332/#333
+  deltas).
+- 2026-06-25: **FR-167 references RE-ATTACHED by maintainer** (Q2 answer in action):
+  CCM/CAIQ v4.1 Bundle, AICM v1.1, NIST CSWP.29 (CSF 2.0). Extracted to greppable text in
+  the session scratchpad `fr167-refs/` (`CCM_v4_1.txt`, `AICM_v1_1.txt`,
+  `NIST_CSWP_29_CSF2.0.txt`; originals + full bundle PDFs alongside). These are the
+  authoritative apply-time sources for FR-167 batch 4 (supply-chain) CCM/ISO/NIST cells and
+  the DD-12 CSF-1.1→2.0 migration. (Scratchpad is session-durable; if a later session needs
+  them, re-attach. The scratch-repo binary seed remains blocked by the git-proxy 403 and is
+  separate maintainer/infra work.) **FR-167 batch 4 is unblocked.**
+- 2026-06-25: **Maintainer task queued**: add **Philip Veilleux** (`@menoche`,
+  https://github.com/menoche) to the AUTHORS.md "Acknowledged contributors" list; bundle
+  into the first resume-bookkeeping PR (NOT the project-gov Phase 1 migration PR, which stays
+  surgically scoped). Versioned doc → bump AUTHORS.md Version + Date in the same commit.
 
 ## Surfaced ambiguities / morning-review items
 
