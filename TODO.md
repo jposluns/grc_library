@@ -84,7 +84,8 @@ Deferred to a routine cleanup batch when convenient. The Low/FYI trust-recovery 
 - **DD-10 (L, S)**: Reconcile the addyosmani upstream skill-count wording — [`README.md`](README.md) ("5 in full + 18 spot-scanned" = 23) vs [`dev-security/claude-rules/setup-generator-prompt.md`](dev-security/claude-rules/setup-generator-prompt.md):230 ("24 … 5 fully vetted, 18 spot-scanned"). Verify the upstream repo's count via web fetch, then align both surfaces. (Needs network egress; surface and defer if blocked.)
 - **Sweep 3 follow-up (L, S)**: Cross-document term-and-identifier consistency gap (the prose-and-numbering C3 surface mechanical gates 35/39/41 don't cover). Candidate for a future mechanical gate; a manual sweep closes the open items meanwhile.
 - **FR-44-generalisation (L, M)**: Corpus-wide sweep replacing legacy "shall" / "shall not" in normative prose with "must" / "must not" where the verb is not a direct quotation of an external standard. Per file small but numerous. The convention statement landed in PR #159 (master spec §6.1); this is the derivative harmonisation pass.
-- **DD-12 (L, L)**: Migrate the corpus-wide `PR.IP`-under-CSF-2.0 convention to strict CSF 2.0 codes (`PR.PS` / `ID.IM`) — large, corpus-wide (`PR.IP` is used well beyond the matrix); scope carefully as its own effort. (Part (a), the matrix's fabricated `NET` CCM-domain rows, was resolved by the CCM/AICM citation reconciliation, which mapped them to the real `I&S` network controls since the authoritative CCM v4.1.0 has no `NET` domain; see DONE.)
+- **DD-12 (L, L)**: Migrate the corpus-wide **CSF-1.1-era NIST codes** to strict CSF 2.0 codes across the whole corpus, not only the central matrix. **Scope broadened 2026-06-25 (maintainer-approved "broaden + extend gate 49")** from `PR.IP`-only to ALL CSF-1.1 carriers found outside the matrix: `PR.IP`, `ID.SC` (→`GV.SC`), `ID.BE` (→`GV.OC`), `RS.RP` (→`RC.RP` under CSF 2.0), `DE.DP`, `PR.AC` (→`PR.AA`), `PR.PT`, and any others a corpus-wide sweep surfaces. The matrix itself is already clean (gate 49 enforces CSF 2.0 membership there since #325/#326); this item is the corpus-wide migration of the per-document framework-reference tables that gate 49 does not yet scan. Known carriers: [`risk/standard-third-party-and-supply-chain-risk.md`](risk/standard-third-party-and-supply-chain-risk.md):230 (`ID.SC`); [`operations/procedure-security-monitoring-and-alert-management.md`](operations/procedure-security-monitoring-and-alert-management.md):333/336/337 (`RS.RP`/`DE.DP`). Pairs with the gate-49-extension item below (build the mechanical scanner first so the migration is gate-verified). Large, corpus-wide; scope carefully as its own effort. (Part (a), the matrix's fabricated `NET` CCM-domain rows, was resolved by the CCM/AICM citation reconciliation, which mapped them to the real `I&S` network controls since the authoritative CCM v4.1.0 has no `NET` domain; see DONE.)
+- **Gate-49 extension: validate framework codes in per-document reference tables (M, M) — surfaced 2026-06-25 (#326 `/validate-pr`; maintainer-approved)**: extend gate 49 (or a sibling linter) to validate NIST CSF (and ISO Annex A) control codes wherever they appear in corpus documents' framework-reference / crosswalk tables, not only the central compliance matrix. The defect class (CSF-1.1 codes surviving in NIST-bearing sibling tables) is corpus-wide but the current gate scope is matrix-only; this closes the "gate scope narrower than the defect class" gap mechanically. Build the scanner (a `lint-*.py` + four-surface wiring + regression fixture), then use it to gate the DD-12 corpus-wide migration above. Reuses `tools/nist_csf_reference.py` (the 22-Category set).
 
 ---
 
@@ -185,6 +186,25 @@ The codification PRs are themselves NOT partitionable (single orchestrator sessi
 
 - **Feasibility (assessed 2026-06-24; re-confirm at implementation time):** `grc_library_scratch` IS in this session's repo scope and is reachable, but is currently **empty** (no commits, no default branch yet), so standing up the exchange channel means seeding it first. The in-session subagent primitive is already exercised (the Sweep 39 fan-out this session). The separate-session external-collaborator primitive and harness support for repo-event subscription (for the opt-in event-driven triggering) are NOT yet confirmed and need a check at implementation time (the design already gates event-driven triggering as opt-in, not the default).
 - **SCHEDULING (maintainer decides when):** default is to implement this AFTER the Priority 1 and Priority 2 backlog items are addressed. **Standing exception (do NOT self-authorize):** if at any point the orchestrator judges that standing up this capability would clear the REMAINING P1/P2 backlog faster than working solo on those items, net of the codification cost and counting only partitionable remaining work, surface a pull-forward recommendation with the reasoning (estimated remaining partitionable volume, expected speedup, build cost) and let the maintainer decide.
+
+### 4.12 Publications-assessment / poisoning-detection process for the scratch reference base (M, M) — surfaced 2026-06-25
+
+The `grc_library_scratch` reference knowledge base is split by trust into `ref/standards/`
+(accepted standards, trusted, cite-as-authoritative) and `ref/publications/` (vendor
+explainers, surveys, threat reports, interpretive guidance, **untrusted by default**).
+The publications bucket is an AI trust-boundary / attack surface (an untrusted external
+document in an AI's reference context can carry bias, error, or prompt-injection /
+poisoning). **Maintainer-directed 2026-06-25**: create a formal process to (a) assess each
+publication for useful and relevant information, and (b) identify poisoning or false
+information, before any publication's content informs corpus work. Deliverables: a process
+doc (likely a `skills/`-style workflow + a `ref/publications/README.md` protocol pointer)
+covering intake screening (provenance, integrity, instruction-like-content detection per
+the OWASP LLM prompt-injection / improper-output-handling guidance the corpus already
+cites), an assess-and-tag step (relevant/useful vs discard; corroborate load-bearing
+claims against a `standards/` source), and a recorded assessment per publication. Pairs
+with the §4.11 multi-session track (the scratch ref base is part of that capability) and
+the existing `governance/` trust disciplines. Honest-backstop framing: the process raises
+the bar against poisoned reference input; it does not by itself guarantee detection.
 
 ---
 

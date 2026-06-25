@@ -89,8 +89,35 @@ maintainer-attached uploads. Use at apply-time for the work that needs them
   third-party-issues.md 2026-06-25). Maintainer directed: defer, they re-upload
   tomorrow. Binary tree is built+committed locally, ready to push when the restriction
   clears. `grc_library` writes are unaffected (overnight branch pushed fine).
-- 2026-06-25: NEXT: Sweep 42 `/validate` (mandated loop-break control), then the
-  §4.11 multi-session capability + gate family, then FR-167, then decided items.
+- 2026-06-25: **Sweep 42 `/validate` complete** (loop-break control for #327; covers
+  #323-#328). Mechanical baseline 49/49. Full 3-subagent dispatch (A/B/C). Findings: ONE
+  genuine in-window low (`guardrail-review/SKILL.md`:93 "forty-eight"->"forty-nine", gate
+  count word-form lag from #325; gate-39-blind) FIXED on this branch; ONE low note
+  (`session-handoff.md`:84 stale `/resume` step ref after #328 renumber; .working/
+  frozen-state, fix at handoff refresh). Subagent C 0 findings (gate 49 four-surface
+  parity, NIST ref 22-cat clean, linter+regression pass). 17-cell NIST remap verified
+  semantically sound. Matrix CSF-1.1 clean. No asserted-expectations contradiction (no
+  escalation). All 9 pre-flight candidates dismissed. OWED: Sweep 42 history row + detail
+  file (batch into first PR).
+- 2026-06-25: **scratch ref/ knowledge base** (maintainer iterated the design live across
+  several messages). DELIVERED via MCP text path (git proxy blocks scratch writes):
+  (1) text-extracted all 13 supplied binaries (pymupdf/openpyxl) into AI-readable form
+  (PDF->md, XLSX->per-sheet CSV with greppable Control IDs); (2) two-bucket TRUST model
+  per maintainer direction: `ref/standards/` (NIST CSF, CSA CCM/AICM/CAIQ; trusted,
+  cite-as-authoritative) vs `ref/publications/` (vendor explainers, surveys, threat
+  reports, CSA interpretive guidance; UNTRUSTED by default, assess + screen for poisoning
+  before use); (3) `originals/` manifest dirs per bucket for the pending binaries;
+  (4) per-directory READMEs (files + origin + trust class); (5) **worker onboarding
+  `CLAUDE.md`** at scratch root (operating model, hard invariants, standards, canonical-
+  pack pointers — the maintainer-flagged worker-safety requirement). Framework + worker
+  CLAUDE.md SEEDED (scratch commits aa4ac10/864988c/1f0add8/470b093). The ~2.84MB text
+  extracts are STAGED locally (committed in the session scratch-seed repo), pending a
+  working scratch-write path or maintainer binary re-upload (offered).
+- 2026-06-25: NEXT: owed bookkeeping (Sweep 42 row, DD-12 broaden, gate-49-extension
+  queue, publications-assessment-process TODO, #328 /validate-pr note, handoff refresh)
+  as the first PR; then the §4.11 multi-session capability IN GRC_LIBRARY (runbook +
+  worker-brief Model-B section + SOP + gate family) — the scratch-side worker onboarding
+  is done, the grc_library-side codification remains; then FR-167; then decided items.
 
 ## Surfaced ambiguities / morning-review items
 
