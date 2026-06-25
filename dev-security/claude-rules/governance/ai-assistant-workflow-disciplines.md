@@ -92,6 +92,20 @@ The buffer size is project-configurable. A typical default: prepare research for
 - **Out-of-order applies.** Without serial applies, two simultaneous edits on the same target file collide. With serial applies + CI gating, each PR's changes ground in the previous PR's merged state.
 - **Lost work on CI failure.** Without CI gating between applies, a failure in PR #N is discovered after PRs #N+1, #N+2 are already pushed; the cascade is expensive. With CI gating, each PR's CI completes before the next is started.
 
+### The partitionable-work default (light SOP)
+
+When a backlog decomposes into a verified-disjoint set of files, the orchestrator's default first move is to fan out research workers (discipline 1) across the partition rather than research each item serially. This is the standing operating default for partitionable work; the parallelism is exactly the pipeline's point (many workers research at once, the orchestrator applies one diff at a time).
+
+The default is gated, not automatic. Fan out only when every condition holds:
+
+- The work decomposes into files that are **verified disjoint** (no two workers touch the same file; re-verify per wave, not once, because files move and merge between waves).
+- No **shared surface** is a worker's to touch (the version surfaces, the CHANGELOG, the generated artefacts, the backlog and done ledgers, the session handoff, and the QA records are orchestrator-only).
+- The work is **not** a corpus-wide sweep, rename, or convention migration, and **not** a single indivisible artefact. Those touch an unbounded or non-partitionable set and stay single-session.
+
+Crucially, the default does **not** disturb the serial-apply and CI-gating invariants of discipline 2, nor the apply-time verification of discipline 3. Each worker diff is validated and QA-checked before it is applied (the orchestrator re-reads every changed line, re-verifies citations and control identifiers, runs the relevant checks), applied in one commit, and gated through the normal pipeline. Worker provenance never reduces the QA a change receives; it only adds a pre-apply screen on top of it. There is no trusted-worker fast path: parallelism lives in the research stage, authority and seriality live in the apply stage.
+
+Two worker primitives serve the default: **in-session subagent fan-out** (workers launched inside the orchestrator's own session, sharing its credentials, the lowest-setup form, available wherever the harness offers a subagent primitive) and **separate-session external-collaborator workers** (workers in their own sessions under their own accounts, granted write access only to an exchange channel and never to the protected repository, the least-privilege form). A project that runs multi-session or multi-worker work should keep a project-local runbook documenting its exchange channel, its durable claims-ledger coordination (read at launch, never a poll loop), and its partitionability checklist; the pack rule states the discipline, the runbook states the project's how-to.
+
 ---
 
 ## 3. Apply-time worker correction
