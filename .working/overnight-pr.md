@@ -113,11 +113,23 @@ maintainer-attached uploads. Use at apply-time for the work that needs them
   CLAUDE.md SEEDED (scratch commits aa4ac10/864988c/1f0add8/470b093). The ~2.84MB text
   extracts are STAGED locally (committed in the session scratch-seed repo), pending a
   working scratch-write path or maintainer binary re-upload (offered).
-- 2026-06-25: NEXT: owed bookkeeping (Sweep 42 row, DD-12 broaden, gate-49-extension
-  queue, publications-assessment-process TODO, #328 /validate-pr note, handoff refresh)
-  as the first PR; then the §4.11 multi-session capability IN GRC_LIBRARY (runbook +
-  worker-brief Model-B section + SOP + gate family) — the scratch-side worker onboarding
-  is done, the grc_library-side codification remains; then FR-167; then decided items.
+- 2026-06-25: **PR #329 MERGED** (Sweep 42 close-out + resume bookkeeping; green CI,
+  squash `86b9d81`). Its `/validate-pr` ran: 1 in-window Medium (orchestrator wrote
+  `RS.RP`→`RC.RP` from memory in the DD-12 broaden; reference says `RS.MA`),
+  apply-time-verified + fixed; 1 low note accepted. `/retro` logged the
+  control-code-from-memory orchestrator-prose pattern + proposed improvement. Rows + fix
+  batched into PR-2.
+- 2026-06-25: **PR-2 / #330 (multi-session codification, part 1)** assembled: new runbook
+  `.working/multi-session-orchestration.md` (1.0.0); worker-brief-template 1.1.0->1.2.0
+  (Model-B worker section + corrected stale `PR.IP` guidance now that gate 49 enforces CSF
+  2.0 in the matrix); carries the #329 QA rows + the DD-12 `RS.RP`->`RS.MA` fix. Library
+  308->309, README 1.9.180. About to run verification + push + PR.
+- 2026-06-25: NEXT after #330: PR-3 (SOP light-touch in `.claude/CLAUDE.md` +
+  `ai-assistant-workflow-disciplines` pack rule, with mirror sync + pack bump); then the
+  bookkeeping-parity gate family (pre-push-runner gate FIRST, then worker-provenance +
+  §4.6 QA-cadence + §4.10 rotation); then FR-167 batch 4 (supply-chain) with project-gov-sep
+  Phase 1 pulled ahead; then decided items. (Gate family + FR-167 are higher-complexity;
+  good candidates to start from a fresher context if degradation shows.)
 
 ## Surfaced ambiguities / morning-review items
 

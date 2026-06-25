@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-25, Library Version 2026.06.309, PR #330
+
+Multi-session / multi-worker orchestration codification, part 1 (runbook + worker brief). The worker-facing half of the §4.11 track; the pack-layer SOP and the bookkeeping-parity gate family follow in later PRs.
+
+### Added
+- [`.working/multi-session-orchestration.md`](../../.working/multi-session-orchestration.md) (new, `1.0.0`) — the orchestrator-side runbook executing the design in [`.working/design-decisions.md`](../../.working/design-decisions.md). Sections: roles (one orchestrator = sole merge authority; workers produce research/diffs only); the no-bypass validate-then-apply HARD INVARIANT; Model-B partitioned-branch parallelism + eligibility checklist (corpus-wide sweeps/renames/migrations and the single-file FR-167 matrix are NOT partitionable); the two worker primitives (in-session `Agent` fan-out, available now; separate-session external-collaborator workers, pending maintainer-provisioned least-privilege accounts); claims-ledger coordination with human-on-demand default and no poll loops; the trust-split `ref/` reference base; the prep / knowledge-base pre-load discipline; defense-in-depth layering; a quick-start; and an explicit "does NOT authorize" list. Companion to the worker-facing root `CLAUDE.md` seeded in `grc_library_scratch`.
+
+### Changed
+- [`.working/worker-brief-template.md`](../../.working/worker-brief-template.md) (`1.1.0`→`1.2.0`): added a **Model-B worker section** (deliver diffs to `inbox/<id>/`, never merge; stay inside the claimed partition; write to scratch only; use the trust-split `ref/`; escalate non-partitionable work) and **corrected now-stale `PR.IP` guidance**. Rail 6's example code `PR.IP` and its "the corpus convention is `PR.IP`" note, and the FR-167 matrix-expansion override's "the corpus uses `PR.IP`", were all REVERSED by gate 49 (#325/#326): the matrix NIST column is now strict CSF 2.0. The guidance now directs workers to validate NIST codes against `tools/nist_csf_reference.py` (gate 49 enforces Category membership) and to use CSF 2.0 successors (`PR.PS`/`PR.DS`/`GV.SC`/`GV.OC`/`PR.AA`/`RS.MA`), not the CSF-1.1 codes (being migrated out under DD-12).
+
+### Fixed (batched from #329 `/validate-pr`, recursion-avoidance)
+- [`TODO.md`](../../TODO.md):87 — the broadened DD-12 text gave `RS.RP`'s CSF-2.0 relocation target as `RC.RP`; corrected to mainly `RS.MA` per [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py):80 (RC.RP is in Recover; RS.RP redistributed to RS.MA in Respond). The #329 `/validate-pr` in-window finding, apply-time-verified.
+
+### Verification
+- `tools/run_all_audits.sh` 49/49 after each commit; `tools/run-pr-time-checks.sh` (D1/D2/D3 + gate 45) green. `.working/` codification + the TODO fix; no corpus-content change. Library `2026.06.308`→`2026.06.309`; README `1.9.179`→`1.9.180`. The #329 `/validate-pr` record + history row + `/retro` row are carried in this PR per recursion-avoidance.
+
+### Discipline observation
+- The worker-brief `PR.IP` correction is a second-order consequence of the gate-49 convention change (#325/#326): a convention flip leaves stale guidance in the *meta* layer (the worker brief that tells workers which codes to use), not only in corpus cells. This is the same multi-surface-incompleteness class the close-out checklist tracks, applied to process docs; surfaced here while writing the multi-session worker brief rather than caught later by a worker proposing a now-invalid `PR.IP` cell.
+
 ## 2026-06-25, Library Version 2026.06.308, PR #329
 
 Resume session-start close-out: corpus-wide Sweep 42 (the loop-break control for handoff PR #327) plus the session's bookkeeping.

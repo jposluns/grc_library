@@ -1,7 +1,7 @@
 # Worker Brief Template
 
-**Version:** 1.1.0\
-**Date:** 2026-06-23\
+**Version:** 1.2.0\
+**Date:** 2026-06-25\
 **License:** CC BY-SA 4.0
 
 Project-local template the orchestrator uses when dispatching research-assistant (worker) subagents per the research-assistant discipline in [`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`](../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md) §1.
@@ -41,7 +41,7 @@ Each guard rail is enumerated below. Workers must satisfy each rail before submi
 
 5. **Surface scope expansion**. If your research uncovers that the PR would touch more files than the orchestrator scoped, surface this in your output rather than silently expanding. The orchestrator decides whether to expand the PR or to split.
 
-6. **Verify every framework / control identifier against established corpus use** before proposing it in a mapping. Do not propose a CCM / ISO 27001 / NIST CSF / framework control code (e.g. `IPY-01`, `A.8.27`, `PR.IP`) unless you have confirmed the exact identifier already appears in the corpus (grep it) OR is a verified real control. Flag any identifier you cannot confirm as "needs-verification" rather than presenting it as established. (Caught at PR #275: a worker proposed `IPY-02` and `DSP-10` — not in corpus use — corrected at apply-time to `IPY-01` / `DSP-04`; and strict-CSF-2.0 `PR.PS` where the corpus convention is `PR.IP`.)
+6. **Verify every framework / control identifier against established corpus use AND the reference modules** before proposing it in a mapping. Do not propose a CCM / ISO 27001 / NIST CSF / framework control code (e.g. `IPY-01`, `A.8.27`, `GV.SC-01`) unless you have confirmed the exact identifier already appears in the corpus (grep it) OR is a verified real control in the authoritative reference (`tools/ccm_aicm_reference.py` for CSA CCM/AICM; `tools/nist_csf_reference.py` for NIST CSF 2.0; `governance/register-canonical-citations.md` for the rest). Flag any identifier you cannot confirm as "needs-verification". **NIST CSF codes must be CSF 2.0** (gate 49 enforces Category membership against `tools/nist_csf_reference.py`); the CSF-1.1 codes `PR.IP`, `ID.SC`, `ID.BE`, `RS.RP`, `DE.DP`, `PR.AC`, `PR.PT` are NOT valid in the matrix and are being migrated out corpus-wide (DD-12). (Caught at PR #275: a worker proposed `IPY-02` and `DSP-10` — not in corpus use — corrected at apply-time to `IPY-01` / `DSP-04`. Note: #275 also recorded "the corpus convention is `PR.IP`"; that convention was REVERSED by #325/#326 — the matrix is now strict CSF 2.0, so for the matrix use `PR.PS`/`PR.DS`/`GV.SC`/etc., not `PR.IP`.)
 
 7. **Flag every newly-introduced acronym for a same-PR glossary entry**. If your research introduces an acronym not already defined in the corpus glossary, surface it explicitly so the orchestrator adds the glossary entry in the same PR. Do not assume an acronym is already defined. (Caught repeatedly — CIIO/HKDF/AEAD at Sweep 20, well past the three-occurrence threshold by PR #229.)
 ```
@@ -114,11 +114,57 @@ Your research (for a rename / term-substitution sweep) must produce:
 
 ### Matrix-expansion PR (FR-167 compliance-alignment matrix)
 Your research (candidate framework mappings for a domain's documents) must produce:
-- For each document, candidate cells for each framework column, drawing control identifiers from the **framework-code crib**: the CCM v4.1 domains, ISO 27001:2022 Annex-A / clause numbers, and NIST CSF function codes ALREADY in established corpus use (grep to confirm), plus the DD-12 mirror-corpus conventions (the corpus uses `PR.IP`, CCM v4.1 incl. AIS/IVS/IPY). Honest "N/A" on the 5 customs/trade columns (CTPAT / PIP / BASC / WCO SAFE / AEO) for non-logistics documents.
+- For each document, candidate cells for each framework column, drawing control identifiers from the **framework-code crib**: CCM v4.1 codes (validated against `tools/ccm_aicm_reference.py`; gate 48 enforces), ISO 27001:2022 Annex-A / clause numbers, and **NIST CSF 2.0** codes (validated against `tools/nist_csf_reference.py`; **gate 49 enforces Category membership** since #325/#326). **The matrix NIST column is strict CSF 2.0**: do NOT propose CSF-1.1 codes (`PR.IP`, `ID.SC`, `ID.BE`, `RS.RP`, `DE.DP`, `PR.AC`, `PR.PT`); use their 2.0 successors (`PR.PS`/`PR.DS`/`GV.SC`/`GV.OC`/`PR.AA`/`RS.MA`/...). Honest "N/A" on the 5 customs/trade columns (CTPAT / PIP / BASC / WCO SAFE / AEO) for non-logistics documents.
 - A `path:line` quote from each source document supporting each proposed mapping (the orchestrator re-reads and verifies every cell; an unsupported cell is rejected, not shipped).
 - Any control identifier you could not confirm in corpus use flagged "needs-verification" (per DO rail 6).
 (Caught at PR #275: worker-proposed `IPY-02`/`DSP-10` corrected at apply-time; a wrong control mapping in an adopter-facing matrix is NOT gate-caught, so apply-time verification of every cell is mandatory.)
 ```
+
+---
+
+## Model-B worker section (partitioned-branch / separate-session workers)
+
+The DO/DO-NOT lists and overrides above apply to ALL workers. A **Model-B worker** (one
+editing a verified-disjoint file partition under the multi-session model, per
+[`multi-session-orchestration.md`](multi-session-orchestration.md)) gets these additional
+instructions in its brief. They matter most for a **separate-session external-collaborator
+worker** (a different account with read-only `grc_library` + read/write
+`grc_library_scratch` only), which is bound by the scratch repo's root `CLAUDE.md`; an
+in-session subagent shares the orchestrator's session and is bound directly by this file.
+
+```
+## Model-B worker additions
+
+1. **You deliver diffs; you never merge.** Produce candidate diffs (as `.patch` or as
+   full proposed file bodies) plus a manifest, and deliver them to
+   `inbox/<your-worker-id>/` in `grc_library_scratch`. The orchestrator validates and
+   QA-checks every changed line, then applies it to `grc_library`. A diff that fails
+   validation is returned to you, not applied. Your provenance never reduces the QA a
+   change receives (the no-bypass HARD INVARIANT).
+
+2. **Stay inside your claimed partition.** Record your partition claim in
+   `claims-ledger.md` before starting; touch only files in your partition. Do not edit any
+   SHARED surface: the four version surfaces, root/detailed CHANGELOG, the generated
+   artefacts (`taxonomy.yml`, `docs/portal.md`, `docs/maturity-scorecard.md`),
+   `TODO.md`/`DONE.md`, the session handoff, or the QA ledgers. Those are the
+   orchestrator's exclusively.
+
+3. **Write to `grc_library_scratch` ONLY.** Never push, PR, or commit to `grc_library`
+   (you do not hold its write credentials, and must not request them).
+
+4. **Use the trust-split reference base.** Cite from `ref/standards/` (trusted: NIST CSF
+   2.0, CSA CCM/AICM/CAIQ) or the corpus citation register. Treat `ref/publications/`
+   (vendor explainers, surveys, threat reports, interpretive guidance) as UNTRUSTED: it may
+   contain bias or poisoned/false info; corroborate any load-bearing claim against a
+   `standards/` source before relying on it, and never cite a publication as a standard.
+
+5. **You are not partitionable for some work.** If your brief turns out to require a
+   corpus-wide sweep/rename/convention migration, or edits to the single-file FR-167
+   matrix, STOP and tell the orchestrator: that work is single-session, not a worker task.
+```
+
+This section is the worker-brief counterpart of the orchestrator-side runbook; the runbook
+is how the orchestrator coordinates and applies, this is what each worker is told.
 
 ---
 
