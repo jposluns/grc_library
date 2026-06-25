@@ -1565,6 +1565,32 @@ class ReviewCadenceTests(LinterTestCase):
                 break
         self.assertEqual(biennial_months, 24, "biennial should map to 24 months")
 
+    def test_project_governance_in_domains(self) -> None:
+        # Regression for Sweep 45: per the maintainer decision to read
+        # specification-project-governance-separation.md section 6.3's "full
+        # corpus audit sweep" to include review-cadence, the .project-governance/
+        # directory must be in this gate's DOMAINS so its periodic-cadence
+        # artefacts (the README's annual review; the verifications register's
+        # 12-month re-verification) are scheduled rather than unenforced. The
+        # #336 migration originally omitted it (it walks a fixed domain list);
+        # asserting the constant directly because the walk takes no fixture path.
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "check_review_cadence",
+            REPO_ROOT / "tools" / "check-review-cadence.py",
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        self.assertIn(
+            ".project-governance",
+            mod.DOMAINS,
+            "gate 10 must scan .project-governance so its README annual "
+            "review and the register's 12-month cadence are scheduled.",
+        )
+
 
 class CitationVerificationFreshnessTests(LinterTestCase):
     """tools/lint-citation-verification-freshness.py
@@ -2216,6 +2242,38 @@ class DocumentDateStalenessTests(LinterTestCase):
             )
         finally:
             shutil.rmtree(synthetic_root, ignore_errors=True)
+
+    def test_project_governance_in_default_scan_paths(self) -> None:
+        # Regression for Sweep 45: the .project-governance/ directory is
+        # audited-not-exempt per specification-project-governance-separation.md
+        # section 6.3, which explicitly names "per-document version and date
+        # currency". This gate is the date-currency check, so .project-governance
+        # must be in its default scan set; the #336 migration originally missed
+        # it (it walks an explicit allow-list, not exempt-minus-walk), so the
+        # 7 moved files were silently skipped until this was fixed. Asserting
+        # the constant directly, in the ReviewCadenceTests.FREQUENCY_MAP style,
+        # because the default scan set is a fixed allow-list a fixture cannot
+        # exercise.
+        import importlib.util
+        import sys
+
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        spec = importlib.util.spec_from_file_location(
+            "lint_document_date_staleness",
+            REPO_ROOT / "tools" / "lint-document-date-staleness.py",
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        self.assertIn(
+            ".project-governance",
+            mod.DEFAULT_SCAN_PATHS,
+            "gate 31 must scan .project-governance (section 6.3 names "
+            "date currency); dropping it silently skips the campaign artefacts.",
+        )
 
 
 class ClaudeRulesSyncTests(LinterTestCase):
