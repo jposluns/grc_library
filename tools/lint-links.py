@@ -94,6 +94,7 @@ def main(argv: list[str]) -> int:
         "compliance",
         "dev-security",
         "governance",
+        ".project-governance",
         "operations",
         "privacy",
         "resilience",

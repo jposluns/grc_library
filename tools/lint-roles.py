@@ -67,6 +67,7 @@ DEFAULT_PATHS = [
     "compliance",
     "dev-security",
     "governance",
+    ".project-governance",
     "operations",
     "privacy",
     "resilience",

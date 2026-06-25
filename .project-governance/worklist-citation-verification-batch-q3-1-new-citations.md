@@ -2,15 +2,15 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q3.1 (New Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.1\
-**Date:** 2026-05-30\
+**Version:** 1.0.2\
+**Date:** 2026-06-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md)\
+**Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](../governance/template-citation-verification-worklist.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md), [`.project-governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md)\
 **Classification:** Public\
 **Category:** Core Governance\
 **Review Frequency:** This worklist is a per-batch working artefact; it does not have a recurring review cadence. The authoritative record is the Citation Verifications Register.\
-**Repository Path:** [`governance/worklist-citation-verification-batch-q3-1-new-citations.md`](worklist-citation-verification-batch-q3-1-new-citations.md)\
+**Repository Path:** [`.project-governance/worklist-citation-verification-batch-q3-1-new-citations.md`](worklist-citation-verification-batch-q3-1-new-citations.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
 
@@ -20,7 +20,7 @@
 
 Worklist for batch Q3.1: the 6 truly-new canonical citations added in Phase 23.6 that are not covered by the Q3 tooling-register provenance batch.
 
-Phase 23.6 added 35 new entries to [`governance/register-canonical-citations.md`](register-canonical-citations.md): 26 are AI security tools that overlap with the Q3 tooling-register worklist (the human verifier captures evidence once and satisfies both registrations simultaneously, recorded via cross-reference notes in the master bundle index). The remaining 9 are non-tooling citations split as follows:
+Phase 23.6 added 35 new entries to [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md): 26 are AI security tools that overlap with the Q3 tooling-register worklist (the human verifier captures evidence once and satisfies both registrations simultaneously, recorded via cross-reference notes in the master bundle index). The remaining 9 are non-tooling citations split as follows:
 
 - **3 covered by Q3 as overlapping tool/programme entries**: HarmBench (Q3 5.2.8), Meta CyberSecEval (Q3 5.1.12 PurpleLlama bundle), UK AISI inspect_evals (Q3 5.2.18).
 - **6 truly new in this Q3.1 worklist**: AVID, MLCommons AILuminate, OWASP GenAI Security Project, OWASP Agentic AI Top 10 2026, OWASP MCP Top 10 2025, NIST SP 800-218A.

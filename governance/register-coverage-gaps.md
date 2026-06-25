@@ -2,8 +2,8 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.16\
-**Date:** 2026-06-22\
+**Version:** 1.1.17\
+**Date:** 2026-06-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-glossary.md`](register-glossary.md), [`README.md`](../README.md), [`TODO.md`](../TODO.md)\
@@ -207,7 +207,7 @@ The library is cloud-provider-agnostic. Provider-specific guidance is recorded a
 | Multimodal AI threats (image, audio, video, OCR, PDF, QR) | Substantive | In library | n/a | RUNTIME-SEC-07 / 08 in agentic standard; TC-13 multimodal injection threat class |
 | Agent goal stability and inter-agent communication compromise | Substantive | In library | n/a | AGENT-SEC-15 / 16; TC-14 / TC-15 threat classes |
 | Classical ML adversarial taxonomy (evasion, poisoning, extraction, inference) | Substantive | In library | n/a | [`standard-ai-model-risk.md`](../ai/standard-ai-model-risk.md) §5 restructured into 6 subsections covering ART/AIJack/HEART-equivalent threats |
-| Citation verification methodology and freshness governance | Substantive | In library | n/a | [`specification-citation-verification.md`](specification-citation-verification.md); [`register-citation-verifications.md`](register-citation-verifications.md); [`register-canonical-citations.md`](register-canonical-citations.md); [`register-citation-verification-bundle.md`](register-citation-verification-bundle.md); [`lint-citation-verification-freshness.py`](../tools/lint-citation-verification-freshness.py); [`lint-tooling-provenance-freshness.py`](../tools/lint-tooling-provenance-freshness.py) |
+| Citation verification methodology and freshness governance | Substantive | In library | n/a | [`specification-citation-verification.md`](specification-citation-verification.md); [`register-canonical-citations.md`](register-canonical-citations.md); [`lint-citation-verification-freshness.py`](../tools/lint-citation-verification-freshness.py); [`lint-tooling-provenance-freshness.py`](../tools/lint-tooling-provenance-freshness.py) |
 | AI security tooling landscape (curated index) | Substantive | In library | n/a | [`register-ai-security-tooling-landscape.md`](register-ai-security-tooling-landscape.md) with 55 entries across 9 categories, per-entry Provenance blocks |
 | Audit programme (automated linting and conformance) | Substantive | In library | n/a | Audit programme running in CI on every PR (see [`governance/specification-audit-programme.md`](../governance/specification-audit-programme.md) §6 for the canonical gate inventory and current gate count); coverage spans metadata integrity, language and style, reference integrity, content-drift defence, programme and index integrity, security and privacy, and freshness and lifecycle (see specification §5 for the functional categorisation and §6 for the per-gate detail) |
 | MCP server security | Substantive | In library | n/a | Throughout AI domain; MCP-SEC-01 to 10 in agentic standard; [`register-mcp-server.md`](../ai/register-mcp-server.md); Lasso MCP Gateway pattern referenced |

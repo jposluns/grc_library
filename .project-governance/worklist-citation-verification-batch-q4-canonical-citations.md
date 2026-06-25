@@ -2,15 +2,15 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.3\
-**Date:** 2026-06-24\
+**Version:** 1.0.4\
+**Date:** 2026-06-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md)\
+**Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](../governance/template-citation-verification-worklist.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md), [`.project-governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md)\
 **Classification:** Public\
 **Category:** Core Governance\
 **Review Frequency:** This worklist is a per-batch working artefact; the authoritative record is the Citation Verifications Register.\
-**Repository Path:** [`governance/worklist-citation-verification-batch-q4-canonical-citations.md`](worklist-citation-verification-batch-q4-canonical-citations.md)\
+**Repository Path:** [`.project-governance/worklist-citation-verification-batch-q4-canonical-citations.md`](worklist-citation-verification-batch-q4-canonical-citations.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
 
@@ -20,7 +20,7 @@
 
 Verification batch Q4 covers the 82 canonical citation entries that are not in scope of the Q2 (ISO/IEC, 24 entries) or Q3 (tooling provenance, 55 entries) batches. Together with Q2 and Q3, this completes the human-verifier workflow for the entire canonical citations register and tooling landscape register.
 
-Per the Citation Verification Specification ([`specification-citation-verification.md`](specification-citation-verification.md)) §8 and the AI/human operating model in §3, the AI verifier has pre-filled this worklist's expected publisher URLs, expected values, and field-to-verify columns. The human verifier executes the browser fetches, captures verbatim text, submits Wayback snapshots, assigns confidence ratings, and signs the captured-by column.
+Per the Citation Verification Specification ([`specification-citation-verification.md`](../governance/specification-citation-verification.md)) §8 and the AI/human operating model in §3, the AI verifier has pre-filled this worklist's expected publisher URLs, expected values, and field-to-verify columns. The human verifier executes the browser fetches, captures verbatim text, submits Wayback snapshots, assigns confidence ratings, and signs the captured-by column.
 
 ---
 

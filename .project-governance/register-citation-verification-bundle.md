@@ -2,15 +2,15 @@
 
 **Document Title:** Citation Verification Bundle Index\
 **Document Type:** Register\
-**Version:** 1.0.3\
-**Date:** 2026-06-20\
+**Version:** 1.0.4\
+**Date:** 2026-06-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-ai-security-tooling-landscape.md`](register-ai-security-tooling-landscape.md), [`governance/worklist-citation-verification-batch-q2-iso-iec.md`](worklist-citation-verification-batch-q2-iso-iec.md), [`governance/worklist-citation-verification-batch-q3-ai-tooling.md`](worklist-citation-verification-batch-q3-ai-tooling.md), [`governance/worklist-citation-verification-batch-q3-1-new-citations.md`](worklist-citation-verification-batch-q3-1-new-citations.md)\
+**Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md), [`governance/register-ai-security-tooling-landscape.md`](../governance/register-ai-security-tooling-landscape.md), [`.project-governance/worklist-citation-verification-batch-q2-iso-iec.md`](worklist-citation-verification-batch-q2-iso-iec.md), [`.project-governance/worklist-citation-verification-batch-q3-ai-tooling.md`](worklist-citation-verification-batch-q3-ai-tooling.md), [`.project-governance/worklist-citation-verification-batch-q3-1-new-citations.md`](worklist-citation-verification-batch-q3-1-new-citations.md)\
 **Classification:** Public\
 **Category:** Core Governance\
 **Review Frequency:** Per-campaign; updated when new verification batches are queued or completed\
-**Repository Path:** [`governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md)\
+**Repository Path:** [`.project-governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
 
@@ -20,7 +20,7 @@
 
 This index consolidates the four pending citation verification batches (Q2, Q3, Q3.1, Q4) into a single navigable bundle. It exists so the human verifier can execute the verification campaign in one focused session (typically over a few days) without losing context between batches.
 
-The bundle covers everything in the library that requires human-verifier confirmation per the [Citation Verification Specification](specification-citation-verification.md): existing canonical citations from earlier phases, the Phase 23.7 tooling-register provenance, and the Phase 23.6 new canonical citations.
+The bundle covers everything in the library that requires human-verifier confirmation per the [Citation Verification Specification](../governance/specification-citation-verification.md): existing canonical citations from earlier phases, the Phase 23.7 tooling-register provenance, and the Phase 23.6 new canonical citations.
 
 ---
 
@@ -146,7 +146,7 @@ Recommended workflow for the human verifier:
 - **Wayback Machine submission**: `https://web.archive.org/save/<publisher-url>`. Wait for the snapshot to complete; record the resulting URL.
 - **GitHub commit SHA capture**: from the repo page, the latest commit on the default branch is shown at the top of the file listing. Copy the full 40-character SHA.
 - **Web page content hash**: for commercial vendor pages, save the page HTML and compute SHA-256 (e.g., `curl -L <url> | shasum -a 256`).
-- **Spot-check buddy**: at end of each batch, the human verifier (or a delegated reviewer) spot-checks 5+ rows from that batch by re-opening the URLs and confirming the captured text still matches the live page. This is the spot-check requirement defined in [`specification-citation-verification.md`](specification-citation-verification.md) §8.6.
+- **Spot-check buddy**: at end of each batch, the human verifier (or a delegated reviewer) spot-checks 5+ rows from that batch by re-opening the URLs and confirming the captured text still matches the live page. This is the spot-check requirement defined in [`specification-citation-verification.md`](../governance/specification-citation-verification.md) §8.6.
 
 ---
 
@@ -155,8 +155,8 @@ Recommended workflow for the human verifier:
 When all four batches are complete, the following library state updates apply:
 
 - **[`register-citation-verifications.md`](register-citation-verifications.md)**: ~85 new rows.
-- **[`register-canonical-citations.md`](register-canonical-citations.md)**: corrections applied where divergence was found.
-- **[`register-ai-security-tooling-landscape.md`](register-ai-security-tooling-landscape.md)**: 55 Provenance blocks transitioned from `AI-captured-pending-human-verification` to `human-verified`.
+- **[`register-canonical-citations.md`](../governance/register-canonical-citations.md)**: corrections applied where divergence was found.
+- **[`register-ai-security-tooling-landscape.md`](../governance/register-ai-security-tooling-landscape.md)**: 55 Provenance blocks transitioned from `AI-captured-pending-human-verification` to `human-verified`.
 - **[`lint-citation-verification-freshness.py`](../tools/lint-citation-verification-freshness.py)** engages with real entries (currently passes vacuously).
 - **[`lint-tooling-provenance-freshness.py`](../tools/lint-tooling-provenance-freshness.py)** transitions from "55 entries within window" to "55 entries human-verified within window".
 

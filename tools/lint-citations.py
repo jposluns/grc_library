@@ -113,7 +113,7 @@ PATH_EXEMPTIONS: dict[str, set[str]] = {
     # citations register (the warning's source of truth), Q4 worklist
     # (verification campaign), and the Audit Programme Specification
     # (which uses the exemption as a worked example under §8's numbered list).
-    "COBIT 2025": {"CHANGELOG.md", "governance/register-canonical-citations.md", "governance/worklist-citation-verification-batch-q4-canonical-citations.md", "governance/specification-audit-programme.md"},
+    "COBIT 2025": {"CHANGELOG.md", "governance/register-canonical-citations.md", ".project-governance/worklist-citation-verification-batch-q4-canonical-citations.md", "governance/specification-audit-programme.md"},
     # All other denylist terms appear nowhere in the canonical-citations
     # register; their only legitimate occurrence is in CHANGELOG (phase
     # history of past fixes).
@@ -141,6 +141,7 @@ DEFAULT_PATHS = [
     "compliance",
     "dev-security",
     "governance",
+    ".project-governance",
     "operations",
     "privacy",
     "resilience",

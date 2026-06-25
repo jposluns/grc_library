@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-portal.py`.
 **Document Title:** Adopter Portal\
 **Document Type:** Guide\
 **Version:** 1.2.0\
-**Date:** 2026-06-24\
+**Date:** 2026-06-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
@@ -267,8 +267,6 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [BASC IT and Information Security Responsibilities](../compliance/logistics/register-basc-it-responsibilities.md)
 - [Canada PIP IT and Cybersecurity Compliance Controls Register](../compliance/logistics/register-pip-canada-controls.md)
 - [Canonical Citations Register](../governance/register-canonical-citations.md)
-- [Citation Verification Bundle Index](../governance/register-citation-verification-bundle.md)
-- [Citation Verifications Register](../governance/register-citation-verifications.md)
 - [Compliance Obligations Register Template](../compliance/register-compliance-obligations-template.md)
 - [Coverage Gap Analysis Register](../governance/register-coverage-gaps.md)
 - [Data Retention Schedule](../governance/register-data-retention-schedule.md)
@@ -309,13 +307,6 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [Regulator Interaction Templates](../compliance/template-regulator-interaction.md)
 - [Risk Appetite Statement Template](../risk/template-risk-appetite-statement.md)
 - [Trade Compliance Programme Gap Assessment Template](../compliance/logistics/template-trade-compliance-gap-assessment.md)
-
-### Worklist
-
-- [Citation Verification Worklist: Batch Q2 (ISO and ISO/IEC)](../governance/worklist-citation-verification-batch-q2-iso-iec.md)
-- [Citation Verification Worklist: Batch Q3 (AI Security Tooling Landscape Provenance)](../governance/worklist-citation-verification-batch-q3-ai-tooling.md)
-- [Citation Verification Worklist: Batch Q3.1 (New Canonical Citations)](../governance/worklist-citation-verification-batch-q3-1-new-citations.md)
-- [Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)](../governance/worklist-citation-verification-batch-q4-canonical-citations.md)
 
 ---
 

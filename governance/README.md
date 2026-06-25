@@ -2,8 +2,8 @@
 
 **Document Title:** Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.10.6\
-**Date:** 2026-06-24\
+**Version:** 1.10.7\
+**Date:** 2026-06-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md)\
@@ -41,14 +41,8 @@ This directory contains the enterprise-wide governance foundation of the GRC Doc
 | Register | Canonical Citations Register | [`governance/register-canonical-citations.md`](register-canonical-citations.md) |
 | Specification | Citation Verification Specification | [`governance/specification-citation-verification.md`](specification-citation-verification.md) |
 | Specification | Audit Programme Specification | [`governance/specification-audit-programme.md`](specification-audit-programme.md) |
-| Register | Citation Verifications Register | [`governance/register-citation-verifications.md`](register-citation-verifications.md) |
 | Template | Citation Verification Worklist Template | [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md) |
-| Worklist | Citation Verification Worklist: Batch Q2 (ISO and ISO/IEC) | [`governance/worklist-citation-verification-batch-q2-iso-iec.md`](worklist-citation-verification-batch-q2-iso-iec.md) |
 | Register | AI Security Tooling Landscape Register | [`governance/register-ai-security-tooling-landscape.md`](register-ai-security-tooling-landscape.md) |
-| Worklist | Citation Verification Worklist: Batch Q3 (AI Security Tooling Landscape Provenance) | [`governance/worklist-citation-verification-batch-q3-ai-tooling.md`](worklist-citation-verification-batch-q3-ai-tooling.md) |
-| Worklist | Citation Verification Worklist: Batch Q3.1 (New Canonical Citations) | [`governance/worklist-citation-verification-batch-q3-1-new-citations.md`](worklist-citation-verification-batch-q3-1-new-citations.md) |
-| Worklist | Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations) | [`governance/worklist-citation-verification-batch-q4-canonical-citations.md`](worklist-citation-verification-batch-q4-canonical-citations.md) |
-| Register | Citation Verification Bundle Index | [`governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md) |
 | Register | Coverage Gap Analysis Register | [`governance/register-coverage-gaps.md`](register-coverage-gaps.md) |
 | Register | Digital Trust and Assurance Metrics Register | [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md) |
 | Standard | Records Retention and Destruction Standard | [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) |

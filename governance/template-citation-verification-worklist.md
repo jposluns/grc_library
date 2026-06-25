@@ -2,11 +2,11 @@
 
 **Document Title:** Citation Verification Worklist Template\
 **Document Type:** Template\
-**Version:** 1.0.2\
-**Date:** 2026-06-20\
+**Version:** 1.0.3\
+**Date:** 2026-06-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md)\
+**Related Documents:** [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md)\
 **Classification:** Public\
 **Category:** Core Governance\
 **Review Frequency:** Annual and upon material change to the Citation Verification Specification\
@@ -20,7 +20,7 @@
 
 This template is the working artefact for a citation verification batch under the Citation Verification Specification ([`specification-citation-verification.md`](specification-citation-verification.md)). It enforces the AI/human operating split defined in that specification §3: the AI verifier pre-fills the worklist, the human verifier fetches publisher pages and captures verbatim text, and the AI verifier transcribes the captured text into the Citation Verifications Register.
 
-A worklist is per batch. Copy this template at the start of each batch and rename it (for example, [`worklist-citation-verification-batch-q2-iso-iec.md`](worklist-citation-verification-batch-q2-iso-iec.md)). Worklists are working artefacts; the authoritative record is the Citation Verifications Register.
+A worklist is per batch. Copy this template at the start of each batch and rename it (for example, `worklist-citation-verification-batch-q2-iso-iec.md`). Worklists are working artefacts; the authoritative record is the Citation Verifications Register.
 
 ---
 
@@ -88,7 +88,7 @@ _Add one row per Standard ID in scope of this batch. Delete the example row befo
 | Batch closed |  |
 | Spot-check entries (per Citation Verification Specification §8.6) |  |
 | Spot-check verifier |  |
-| Recorded register rows | (URL or anchor links into [`register-citation-verifications.md`](register-citation-verifications.md)) |
+| Recorded register rows | (URL or anchor links into the Citation Verifications Register) |
 | Downstream library edits triggered | (URL or commit hash) |
 
 ---

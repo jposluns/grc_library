@@ -69,6 +69,7 @@ DEFAULT_TARGETS = [
     "dev-security",
     "docs",
     "governance",
+    ".project-governance",
     "operations",
     "privacy",
     "resilience",
