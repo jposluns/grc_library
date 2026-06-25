@@ -1569,11 +1569,15 @@ class ReviewCadenceTests(LinterTestCase):
         # Regression for Sweep 45: per the maintainer decision to read
         # specification-project-governance-separation.md section 6.3's "full
         # corpus audit sweep" to include review-cadence, the .project-governance/
-        # directory must be in this gate's DOMAINS so its periodic-cadence
-        # artefacts (the README's annual review; the verifications register's
-        # 12-month re-verification) are scheduled rather than unenforced. The
-        # #336 migration originally omitted it (it walks a fixed domain list);
-        # asserting the constant directly because the walk takes no fixture path.
+        # directory must be in this gate's DOMAINS so its non-README cadence-
+        # bearing artefacts (the citation-verification registers and worklists,
+        # e.g. the verifications register's 12-month re-verification) are
+        # scheduled rather than unenforced. Gate 10 skips every README by design
+        # (see iter_active_docs), so the directory's README is not cadence-
+        # scheduled here; its date currency is covered by gate 31. The #336
+        # migration originally omitted the directory (it walks a fixed domain
+        # list); asserting the constant directly because the walk takes no
+        # fixture path.
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(

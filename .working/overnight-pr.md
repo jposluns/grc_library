@@ -194,6 +194,18 @@ maintainer-attached uploads. Use at apply-time for the work that needs them
   re-attach FR-167 refs (ephemeral scratchpad) or seed scratch; provision external-worker
   account; review the §6.3-vs-§7.3 spec-gap decision.
 
+- 2026-06-25: **NEXT RESUME SESSION started** (continued from handoff #339 via `/resume`).
+  State verified: main/feature @ `203ca06` (#339), 49/49 green (descendant of green-at-`bac5ddb`),
+  Library 2026.06.318 / pack 1.49.11 / README 1.9.189, clone unshallowed; no drift. **Resume
+  clarification batch answered (2026-06-25):** (1) **standing unattended authority CONFIRMED
+  operative for this session** — green-CI=merge, per-PR `/validate-pr`+`/retro` (no abbreviation),
+  stricter-is-safer+evidence on conflicts, skip-to-morning anything lacking both bases;
+  (2) **running order this session = FR-167 batch 4 FIRST** (after the mandatory Sweep 46), to use
+  the freshly re-attached but session-ephemeral references (NIST CSWP.29, CCM/CAIQ v4.1, AICM v1.1)
+  before they expire (they expired unused the prior two sessions), THEN the §4.11 worker-provenance
+  / bookkeeping-parity gate (needs no references), then the decided content items. About to run the
+  mandatory **Sweep 46** (loop-break `/validate` control for handoff #339, covering the #338 delta).
+
 ## Surfaced ambiguities / morning-review items
 
 - **Scratch binary seed deferred** (infra): git-proxy 403s scratch writes after the
