@@ -322,6 +322,29 @@ defence is external. Two mechanisms:
    variance; the one deterministic close-vs-start diff worth keeping is the mechanical
    green-at-`<sha>`).
 
+## Multi-session orchestration
+
+For partitionable backlog work, the default first move is to fan out research workers
+per the research-assistant discipline, then apply their diffs serially through the
+validate-then-apply gate. The full model lives in the runbook
+[`.working/multi-session-orchestration.md`](../.working/multi-session-orchestration.md):
+the two worker primitives (in-session `Agent` subagent fan-out, available now;
+separate-session external-collaborator workers, pending maintainer-provisioned
+least-privilege accounts that write to `grc_library_scratch` only), the Model-B
+eligibility checklist (what is and is not partitionable), the `grc_library_scratch`
+exchange channel and its inbox-not-bypass invariants, and the trust-split `ref/`
+reference base (`standards/` trusted, `publications/` screened).
+
+The serial-apply, CI-gating, per-PR `/validate-pr` + `/retro`, and validate-then-apply
+invariants are unchanged: parallelism lives only in the research stage, never in the
+apply stage, and worker or scratch provenance never reduces the QA a change receives (it
+only adds a pre-apply screen on top of the normal pipeline; there is no trusted-worker
+fast path). Corpus-wide sweeps, renames, convention migrations, and the single-file
+FR-167 matrix are NOT partitionable and stay single-session. The project-agnostic form
+of this default is the partitionable-work SOP in the
+[`ai-assistant-workflow-disciplines`](rules/governance/ai-assistant-workflow-disciplines.md)
+pack rule (its §2).
+
 ## Throughput pressure does not authorise QA abbreviation
 
 When a long batch of PRs is in flight, when the session window feels tight, or when
