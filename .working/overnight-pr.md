@@ -124,12 +124,22 @@ maintainer-attached uploads. Use at apply-time for the work that needs them
   (Model-B worker section + corrected stale `PR.IP` guidance now that gate 49 enforces CSF
   2.0 in the matrix); carries the #329 QA rows + the DD-12 `RS.RP`->`RS.MA` fix. Library
   308->309, README 1.9.180. About to run verification + push + PR.
-- 2026-06-25: NEXT after #330: PR-3 (SOP light-touch in `.claude/CLAUDE.md` +
-  `ai-assistant-workflow-disciplines` pack rule, with mirror sync + pack bump); then the
-  bookkeeping-parity gate family (pre-push-runner gate FIRST, then worker-provenance +
-  §4.6 QA-cadence + §4.10 rotation); then FR-167 batch 4 (supply-chain) with project-gov-sep
-  Phase 1 pulled ahead; then decided items. (Gate family + FR-167 are higher-complexity;
-  good candidates to start from a fresher context if degradation shows.)
+- 2026-06-25: **#330 MERGED** (green CI, squash `93567f4`); its `/validate-pr` returned
+  **0 findings** (PR.IP correction complete on both surfaces, CSF codes verified real,
+  runbook consistent); `/retro` clean (positive counter-instance).
+- 2026-06-25: **SESSION WIND-DOWN.** Deliberate close at a clean boundary (very long
+  context; the remaining §4.11 gate family + FR-167 are high-complexity/high-stakes and
+  better fresh, per Quality>Speed + session-migration discipline). Session-closing handoff
+  **PR #331** lands this overnight session's working-state on `main` (handoff full refresh
+  + batched #330 QA rows). **overnight-pr.md STAYS in-flight**: the overnight authorization
+  CONTINUES into the next session for the queued remainder. The next `/resume` runs Sweep 43
+  (loop-break control for #331), then continues the queue: PR-3 SOP → gate family
+  (pre-push-runner first) → project-gov-sep Phase 1 → FR-167 batch 4 → decided items.
+- 2026-06-25: **Overnight outcome**: scratch exchange repo set up (framework + worker
+  CLAUDE.md seeded; extracts staged for maintainer re-upload); Sweep 42 done; #329 + #330
+  merged + QA'd; multi-session capability core (runbook + worker brief) delivered. NOT yet
+  done (queued): the §4.11 SOP + gate family, FR-167, the decided content items. Maintainer
+  tomorrow: re-upload scratch binaries; provision the external-worker account.
 
 ## Surfaced ambiguities / morning-review items
 

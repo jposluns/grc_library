@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-25, Library Version 2026.06.310, PR #331
+
+`.working/` session-close housekeeping for local project: session-closing handoff PR for the 2026-06-25 overnight resume session.
+
+Touched: [`.working/session-handoff.md`](../../.working/session-handoff.md) (full refresh: post-#330 state snapshot + green-at-`93567f4`, this-session asserted-expectations, post-#330 next-actions queue per the maintainer's overnight redirect, the `grc_library_scratch` setup note, resolved DD-12 scope + queued §4.12, Sweep-43 cadence, a 2026-06-25 "this session's work" narrative); [`.working/validate-pr/history.md`](../../.working/validate-pr/history.md) (`1.2.126`→`1.2.127`, the #331 handoff-PR skip-exception row); [`.working/overnight-pr.md`](../../.working/overnight-pr.md) (final progress note; stays in-flight); [`README.md`](../../README.md) (library `2026.06.309`→`2026.06.310`, README `1.9.180`→`1.9.181`); root + this CHANGELOG. Carries the batched #330 `/validate-pr` (0 findings) + `/retro` rows.
+
+Why: lands the 2026-06-25 overnight session's working-state on `main` as a green merge so the next `/resume` rebuilds from `main`. The session wound down deliberately at a clean boundary (a long context; the §4.11 gate family + FR-167 are high-complexity and queued for fresh continuation). Per the loop-break discipline the handoff PR skips its own `/validate-pr` + `/retro` (no terminating next substantive PR at the session boundary); the compensating control is the corpus-wide Sweep 43 the next `/resume` runs first. `overnight-pr.md` stays in-flight because the overnight authorization continues into the next session.
+
 ## 2026-06-25, Library Version 2026.06.309, PR #330
 
 Multi-session / multi-worker orchestration codification, part 1 (runbook + worker brief). The worker-facing half of the §4.11 track; the pack-layer SOP and the bookkeeping-parity gate family follow in later PRs.
