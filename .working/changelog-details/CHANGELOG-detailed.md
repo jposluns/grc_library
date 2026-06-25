@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-25, Library Version 2026.06.314, PR #335
+
+Resume session-start bookkeeping for local project (2026-06-25 continued resume). Adds a maintainer-requested contributor acknowledgement and batches the zero-finding Sweep 44 `/validate` history row plus the session-start record.
+
+### Added
+- [`AUTHORS.md`](../../AUTHORS.md): **Philip Veilleux** ([@menoche](https://github.com/menoche)) added to the "Acknowledged contributors" list, at the maintainer's request. Per-document `1.1.2`→`1.1.3`, Date→`2026-06-25`.
+
+### Changed
+- [`.working/validate-sweeps/history.md`](../../.working/validate-sweeps/history.md): appended the **Sweep 44 iter 1** row (zero actionable findings, so no detail file; the row is the trace). Sweep 44 is the `/resume` loop-break compensating control for session-closing handoff PR #334, covering the #332 (§4.11 light SOP) and #333 (§4.11 pre-push-runner gate) deltas. Full three-subagent A/B/C dispatch (no abbreviation), clone unshallowed, mechanical baseline 49/49 (matches handoff green-at-`33c770b`). Result: **clean** — 0 in-window, 0 out-of-window, 0 audit-programme findings; the 3 known DD-12 CSF-1.1 carriers and the tracked ERC term-drift confirmed present but pre-tracked (not new misses); no asserted-expectations contradiction (every #332/#333 asserted-clean claim independently re-verified).
+- [`.working/overnight-pr.md`](../../.working/overnight-pr.md): recorded the 2026-06-25 continued-resume session-start (state verified at #334, 49/49 green), the two resume clarification answers (standing authority confirmed operative; FR-167 references to be re-attached), the maintainer's FR-167 reference re-upload (CCM v4.1 / AICM v1.1 / NIST CSWP.29, extracted to the session scratchpad for apply-time use, FR-167 batch 4 unblocked), and the queued AUTHORS.md addition. `Status` stays `in-flight` (overnight authority continues).
+
+### Verification
+- Post-commit [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh): all 49 gates pass.
+- Pre-push [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh): all checks pass.
+- AUTHORS.md is a versioned register; Version and Date bumped in the same commit as the body edit (gates 40/31). `AUTHORS.md` is not included in the generated artefacts (`taxonomy.yml`, `docs/portal.md`, `docs/maturity-scorecard.md` carry zero references to it), so the regenerators are a confirmed no-op here; no other corpus document body changed.
+
+### Notes
+- This is a focused resume-bookkeeping PR kept separate from the upcoming project-gov separation Phase 1 migration (which stays surgically scoped). The AUTHORS addition was bundled here per the maintainer's "bundle into one of the next PRs" direction.
+
 ## 2026-06-25, Library Version 2026.06.313, PR #334
 
 `.working/` + version-surface housekeeping for local project: session-closing handoff PR for the 2026-06-25 continued resume session (resumed from #331; ran Sweep 43 clean; shipped #332 light SOP + #333 pre-push-runner gate). Refreshes [`.working/session-handoff.md`](../../.working/session-handoff.md) — state snapshot post-#333 (green-at-`33c770b`, library `2026.06.313`/pack `1.49.11`/README `1.9.184`), the `## Asserted expectations` section scoped to what this session verified (Sweep 43 clean; #332/#333 diffs clean per `/validate-pr`; both local runners green; the untouched soft spots, incl. project-gov Phase 1 NOT started, explicitly not asserted clean), Sweep 43→44 cadence, and the next-actions queue with **project-gov separation Phase 1 promoted to the top item** (the migration-class, non-partitionable task this session deliberately wound down before, on Quality > Speed). Batches the #333 `/validate-pr` (0 findings) history row and `/retro` row per recursion-avoidance. `overnight-pr.md` stays `in-flight`. Per the handoff-PR loop-break exception (CLAUDE.md PR-workflow step 5a), this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide **Sweep 44** the next `/resume` runs first, cross-checked against the asserted-expectations section.
