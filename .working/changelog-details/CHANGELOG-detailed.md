@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-25, Library Version 2026.06.312, PR #333
+
+§4.11 pre-push-runner gate (Option A, built first and separately): folded the history-aware gates 40 (version-bump-recency) and 31 (document-date-staleness) into [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh), alongside the gate 45 it already ran, so a single pre-push invocation is a complete commit-graph-aware guard. The orthogonal, build-first piece of the §4.11 "bookkeeping-parity" gate family; the worker-provenance gate it pairs with stays a next-session deliverable.
+
+### Changed
+- [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh): added two `run_check` invocations after the existing gate 45 block, for gate 40 ([`tools/lint-version-bump-recency.py`](../../tools/lint-version-bump-recency.py)) and gate 31 ([`tools/lint-document-date-staleness.py`](../../tools/lint-document-date-staleness.py)). Rewrote the header comment to describe the runner's two gate groups accurately: (1) the PR-only delta gates D1/D2/D3 (which need the merge-base range and are absent from [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh)), and (2) the history-aware commit-graph gates 45/40/31 (which also run in `run_all_audits.sh` and are re-invoked here as a complete pre-push guard). The two folded gates examine per-file commit history, so they operate from HEAD and need no base ref.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) PR-workflow step 1: corrected the `run-pr-time-checks.sh` description to list D1/D2/D3 plus the history-aware trio 45/40/31, distinguishing the merge-base-relative delta gates (absent from `run_all_audits.sh`) from the history-aware gates (present in both). Replaced the prior text, which listed only D1/D2/D3 + gate 45 and wrongly implied all of them are absent from `run_all_audits.sh`; also removed a stray em dash from that passage per house style.
+- [`.working/design-decisions.md`](../../.working/design-decisions.md): updated the PR-time-discipline note (the runner now covers D1 + D2 + D3 + gates 45/40/31; the prior text said "D1 + D2 + gate 45", omitting D3 and the newly-folded gates).
+
+### Verification
+- Post-commit [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh): all 49 gates pass.
+- `bash -n tools/run-pr-time-checks.sh` clean; gate 40 and gate 31 confirmed passing standalone on the post-edit state.
+- Pre-push [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh) run against the merge base (now exercising the two folded gates as well as D1/D2/D3 + gate 45).
+- No corpus document body changed, so no per-document Version/Date bumps and no taxonomy/portal/scorecard regeneration; the spec §6.1 (delta-gate inventory) was deliberately NOT edited, because gates 40/31 are corpus gates already inventoried in §6, not delta gates, and §6.1 does not describe the runner-script composition.
+
+### Notes
+- Batches the #332 `/validate-pr` (0 findings) history row and `/retro` row per recursion-avoidance.
+
 ## 2026-06-25, Library Version 2026.06.311, PR #332
 
 Multi-session orchestration, §4.11 part 2 (the light SOP). This is the codification track's PR-3: the project-agnostic default and the project-specific pointer, landing the "fan out research workers where partitionable" SOP on `main` without disturbing the serial-apply / CI-gating / validate-then-apply invariants.

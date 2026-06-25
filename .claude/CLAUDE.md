@@ -150,12 +150,19 @@ drive end-to-end on the maintainer's behalf:
    graph) only see committed state, so running the audit on the working
    tree before committing misses what would happen post-commit. Running
    between commits catches gate 40-class issues locally, before CI does.
-   Before pushing, additionally run `tools/run-pr-time-checks.sh` to
-   exercise the PR-only delta gates (D1 CHANGELOG-on-PR, D2 per-PR
-   version-bump, D3 CHANGELOG-dash-on-PR) plus gate 45 (TODO staleness) locally — these gates
-   need a git history range relative to the merge base and are
-   therefore not part of `run_all_audits.sh`. The two runners together
-   cover every gate the CI workflow runs.
+   Before pushing, additionally run `tools/run-pr-time-checks.sh`. It
+   runs the PR-only delta gates (D1 CHANGELOG-on-PR, D2 per-PR
+   version-bump, D3 CHANGELOG-dash-on-PR), which compare the PR head to
+   its merge base and are therefore not part of `run_all_audits.sh`,
+   plus the history-aware gates that examine each file's commit graph
+   (gate 45 TODO staleness, gate 40 version-bump-recency, gate 31
+   document-date-staleness). That history-aware trio also runs in
+   `run_all_audits.sh`; the pre-push runner re-invokes the three so a
+   single pre-push command is a complete commit-graph-aware guard, which
+   matters most for large multi-commit or file-move changes such as the
+   governance Phase-1 migration (gates 40, 31, 45 folded in per the
+   design-decisions "Gate-family coherence, Option A" decision). The two
+   runners together cover every gate the CI workflow runs.
 2. Push with `git push -u origin <branch>` and open the PR via
    `mcp__github__create_pull_request`.
 3. Wait for the `Lint markdown corpus` CI check using the subscription
