@@ -2,8 +2,8 @@
 
 **Document Title:** Project Governance Separation Specification\
 **Document Type:** Specification\
-**Version:** 1.0.1\
-**Date:** 2026-06-24\
+**Version:** 1.0.2\
+**Date:** 2026-06-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/specification-audit-programme.md`](specification-audit-programme.md), [`governance/README.md`](README.md), [`.working/README.md`](../.working/README.md)\
@@ -186,6 +186,15 @@ The taxonomy, portal, and maturity-scorecard generators derive from the publishe
 Two linters reference the campaign artefacts by hardcoded path and must re-point when those artefacts move: `lint-citation-verification-freshness.py` (loads the verifications register) and `lint-citations.py` (lists a batch worklist in a citation-source set). Re-pointing keeps the freshness and citation audits live on the moved artefacts, consistent with §6.3.
 
 A new directional-dependency gate is queued (not built in this specification): a check that no corpus document contains a link whose target path is under `.project-governance/`. It is the mechanical enforcement of §4; until it exists, the rule is enforced by the migration discipline (§8.2) and the broken-link gate.
+
+### 7.4 Explicit-allow-list content linters must add the directory
+
+The content linters that implement §6.3's audit obligations fall into two file-discovery shapes, and only one of them picks up `.project-governance/` automatically:
+
+- **Exempt-list walk** (the inclusive shape): the linter walks the repository root for `*.md` and subtracts `DEFAULT_EXEMPT_DIRS`. Because §6.3 deliberately keeps `.project-governance/` out of the exempt set, these linters scan it with no further change. The corpus version-bump-recency audit is one such linter.
+- **Explicit allow-list** (the enumerated shape): the linter selects scan roots from a hardcoded list of domain directories plus repository-root meta files (a `DEFAULT_SCAN_PATHS` or `DOMAINS` constant). These linters do **not** pick up a new top-level directory automatically; `.project-governance` must be added to the constant, or the directory is silently skipped.
+
+Every gate that implements a §6.3-named obligation (metadata-block completeness, per-document version and date currency, language, citation accuracy, link coverage) and uses the explicit-allow-list shape must therefore include `.project-governance` in its scan constant. The same applies to any further gate the maintainer classifies as part of the "full corpus audit sweep" beyond §6.3's enumerated list (the per-document review-cadence gate is one such gate, included by maintainer decision so the directory's stated review cadences are scheduled, not merely asserted). When Phase 1 introduces the directory, this addition is made to each explicit-allow-list content linter alongside the path-targeted re-pointing in §7.3, and each addition is protected by a scope-coverage regression assertion so a future refactor cannot silently drop the directory. The Phase-1 migration originally enumerated the explicit-allow-list set incompletely (the date-staleness and review-cadence gates were missed and silently skipped the directory until a validation sweep caught them); this subsection makes the completeness obligation explicit so the gap class does not recur.
 
 ---
 

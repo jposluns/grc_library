@@ -132,6 +132,7 @@ DEFAULT_SCAN_PATHS: tuple[str, ...] = (
     "dev-security",
     "docs",
     "governance",
+    ".project-governance",
     "operations",
     "privacy",
     "resilience",
