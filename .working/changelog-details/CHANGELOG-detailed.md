@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-25, Library Version 2026.06.325, PR #346
+
+`.working/` QA close-out for local project: **Sweep 48 close-out**, the `/resume` loop-break corpus-wide `/validate` for session-closing handoff PR #345 (covering the #343 gate-50 and #344 `/guardrails`-r1 deltas).
+
+### Fixed
+
+- [`.working/changelog-details/CHANGELOG-detailed.md`](CHANGELOG-detailed.md): the #343 entry's Added section said "the four TODO-rotation precision cases" where the same parenthetical enumerates five, and `BookkeepingParityTests` has exactly five `test_todo_*` methods; corrected "four" to "five". The load-bearing "13-case" total (8 non-todo + 5 todo) was already correct.
+- [`.working/guardrail-reviews/2026-06-25-r1.md`](../guardrail-reviews/2026-06-25-r1.md): replaced two em-dashes (the title at L1 and a finding bullet at L27) with a comma and a colon. These violated the em-dash-forbidden prose convention but were un-gated because `.working/` is gate-exempt; same class the #344 `/retro` flagged, missed by #344's find-every-carrier pass on its own newly-created record.
+
+### Added
+
+- [`.working/validate-sweeps/2026-06-25-sweep48-iter1.md`](../validate-sweeps/2026-06-25-sweep48-iter1.md): the Sweep 48 iteration-1 detail file (six-section record, all three subagent returns + orchestrator synthesis).
+- Sweep 48 history row in [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (`2.0.40` to `2.0.41`).
+
+### Verification
+
+- Mechanical baseline `tools/run_all_audits.sh` 50/50 green at `cd02c39` (#345), matching the #345 handoff green-at-`cbab1e5` (corpus byte-identical across #345). Full three-subagent A/B/C dispatch (no abbreviation). Subagents B and C: 0 findings (counts 50/10/15/8, all versions current, gate-50 four-surface parity clean). Subagent A: 2 low `warning` findings, both apply-time-verified (re-read `CHANGELOG-detailed.md:48` and confirmed five `test_todo_*` methods; `grep -nP` confirmed the two em-dashes), both fixed here. No High/Medium; empty-delta primary termination at iteration 1. No asserted-expectations contradiction. Pre-flight 9 candidates all dismissed (comparative/historical-growth prose). Post-fix `run_all_audits.sh` re-run green; `run-pr-time-checks.sh` green.
+- No corpus-content change; both findings and all additions are in gate-exempt `.working/`. Library `2026.06.324` to `2026.06.325`; README `1.9.195` to `1.9.196`.
+
 ## 2026-06-25, Library Version 2026.06.324, PR #345
 
 `.working/` session-close housekeeping for local project: session-closing handoff PR for the 2026-06-25 continued-resume session (resumed from #342; ran Sweep 47 clean; shipped #343, gate 50 bookkeeping-parity, and #344, the first `/guardrails` r1 coherence review which verified the 50-gate machinery coherent). Refreshes [`.working/session-handoff.md`](../session-handoff.md) to the post-#344 snapshot, batches the #344 `/validate-pr` (1 Low detailed-mirror em-dash, fixed here) + `/retro` rows and the [`.working/validate-pr/2026-06-25-PR-344.md`](../validate-pr/2026-06-25-PR-344.md) record, and records #345's own handoff-exemption row inline. `.working/overnight-pr.md` stays in-flight. Per the handoff-PR loop-break this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide Sweep 48 the next `/resume` runs first. No corpus-content change. Library `2026.06.323` to `2026.06.324`; README `1.9.194` to `1.9.195`.
@@ -45,7 +64,7 @@ Gate 50 (Bookkeeping-parity audit) added to the audit programme, the §4.11 work
 ### Added
 
 - [`tools/lint-bookkeeping-parity.py`](../../tools/lint-bookkeeping-parity.py) (gate 50). **Check 1, QA-cadence parity**: derives the merged-PR list from the `## YYYY-MM-DD, Library Version X, PR #N` headers in [`CHANGELOG.md`](../../CHANGELOG.md); for each PR in `[INCEPTION=329, max(PR))` requires a row in [`.working/validate-pr/history.md`](../validate-pr/history.md) and (for substantive PRs) [`.working/improvement-log.md`](../improvement-log.md). Exemptions designed in: the single highest-numbered PR (batch-lag, its rows ride into the next PR); a session-closing handoff PR (detected by the `SKIPPED`/`handoff-PR exception` Findings cell, exempt from both rows per the loop-break); a subsumption / maintainer-exception row (`SUBSUMED`/`NOT run`/maintainer-authorised, satisfies validate-pr with no retro required, the #328 instance); and a `KNOWN_HANDOFF_NO_ROW` allowlist (`#300`, `#322`, `#334`) for handoff PRs merged before the exemption-row convention existed. **Check 2, TODO/DONE rotation parity**: precision-first / FP-free, flags only unambiguous self-completion markers on a backlog bullet (uppercase `SHIPPED in #N`/`DONE in #N`, `Status: completed|done|shipped`, `[done]`/`[shipped]`/`[x]` checkbox/suffix, leading strikethrough on the bullet), with two precision levers (bullet-start match for strikethrough/checkbox; code-span stripping for the suffix/status/uppercase markers) so the open FR-167 batch-sequence inline strikethrough and the maintenance-note convention reference are not flagged. **Check 3, worker-provenance**: a documented dormant stub (no-op) until a worker-delivered marking convention and the external-collaborator worker primitive both exist; it does not fabricate an attestation format.
-- A 13-case `BookkeepingParityTests` regression class in [`tests/test_linters.py`](../../tests/test_linters.py): the HEAD smoke test, missing-validate-pr-row (fail), missing-retro-row (fail), handoff-exempt (pass), subsumption-pass, highest-PR batch-lag (pass), known-handoff allowlist (pass), Findings-cell classification, and the four TODO-rotation precision cases (strikethrough-bullet fail, Status:done fail, inline-strikethrough-in-open-item pass, backticked-convention-reference pass, lowercase-shipped pass).
+- A 13-case `BookkeepingParityTests` regression class in [`tests/test_linters.py`](../../tests/test_linters.py): the HEAD smoke test, missing-validate-pr-row (fail), missing-retro-row (fail), handoff-exempt (pass), subsumption-pass, highest-PR batch-lag (pass), known-handoff allowlist (pass), Findings-cell classification, and the five TODO-rotation precision cases (strikethrough-bullet fail, Status:done fail, inline-strikethrough-in-open-item pass, backticked-convention-reference pass, lowercase-shipped pass).
 
 ### Changed
 
