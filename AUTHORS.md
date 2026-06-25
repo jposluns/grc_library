@@ -2,8 +2,8 @@
 
 **Document Title:** Authors and Acknowledgements\
 **Document Type:** Register\
-**Version:** 1.1.2\
-**Date:** 2026-06-21\
+**Version:** 1.1.3\
+**Date:** 2026-06-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`NOTICE.md`](NOTICE.md)\
@@ -82,6 +82,7 @@ The substance of this library draws on knowledge, experience, war stories, and p
 - **Brian J Adams** ([@0xbja](https://github.com/0xbja))
 - **Marc-Andre Heroux** ([@maheroux](https://github.com/maheroux))
 - **Ryk Edelstein** ([@fedelst](https://github.com/fedelst))
+- **Philip Veilleux** ([@menoche](https://github.com/menoche))
 
 and to the many other old-timers whose habits of thought, governance instincts, and willingness to share what they had learned in the trenches shaped how this library frames problems, drafts controls, and treats edge cases. Their fingerprints are throughout this corpus, even where individual artefacts are written entirely in this library's own words.
 
