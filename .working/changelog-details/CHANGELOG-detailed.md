@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-25, Library Version 2026.06.327, PR #348
+
+`.working/` housekeeping for local project: refreshed [`.working/hallucination-metrics.md`](../hallucination-metrics.md) from its frozen "as of PR #294" state to current (PR #347), per the maintainer's lagging-metric note.
+
+### Changed
+
+- [`.working/hallucination-metrics.md`](../hallucination-metrics.md): advanced the "Current state (as of ...)" marker from #294 to #347; updated the metric table (worker-driven PRs ~55 to ~59 with the FR-167 batches 2/3/4 and the #336 research-subagent migration; worker-draft apply-time catches post-#275 ~3 to ~8 with the matrix-batch control-code catches; orchestrator-side discipline catches ~9 to ~16 with the #295-#347 window: #329 control-code-from-memory, the #336/#338/#340 multi-surface-incompleteness run, the #343 mid-PR-narrative slip, the #344/#346 em-dash-in-`.working/` class, the #347 table-row-edit slip); rewrote the trend read to record that gate 50 now mechanically backstops part of the orchestrator-side class and §4.14 is queued for the ungated `.working/`-prose residue; added one summarized catches-log entry for the FR-167 matrix-batch worker control-code catches (#313/#317/#341, zero shipped worker escapes). The file carries no Version metadata block (it is maintainer working state, updated opportunistically per its own "trend over precision" protocol), so no per-document version bump applies.
+
+### Added
+
+- The #347 `/validate-pr` (0 findings) row in [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.140` to `1.2.141`) and the #347 `/retro` row in [`.working/improvement-log.md`](../improvement-log.md) (`1.0.107` to `1.0.108`), batched per recursion-avoidance.
+
+### Verification
+
+- `tools/run_all_audits.sh` 50/50 green post-commit; `tools/run-pr-time-checks.sh` green. No corpus-content change; all edits in gate-exempt `.working/` plus the README/CHANGELOG version surfaces. Library `2026.06.326` to `2026.06.327`; README `1.9.197` to `1.9.198`.
+
 ## 2026-06-25, Library Version 2026.06.326, PR #347
 
 `.working/` + TODO morning-processing for local project: closed out the multi-session overnight run, reset [`.working/overnight-pr.md`](../overnight-pr.md) to `stub` (ends overnight mode), and routed its two genuinely-unrouted 2026-06-25 decisions to the durable ledgers.
