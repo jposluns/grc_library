@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-25, Library Version 2026.06.306, PR #327
+
+`.working/` session-close housekeeping for local project: session-closing handoff PR for the 2026-06-24/25 resume session. Refreshes [`.working/session-handoff.md`](../../.working/session-handoff.md) to the post-#326 snapshot and carries the batched #326 QA rows. No corpus-content change; working-state + version surfaces only.
+
+Touched: [`.working/session-handoff.md`](../../.working/session-handoff.md) (full session-close refresh: How-to-resume Sweep-42 framing, Next-actions FR-167-batch-4-next, this-session narrative #323-#327, State snapshot post-#326, Asserted-expectations gate-49/matrix/handoff-convention, Open-decisions §4.6a-resolved + DD-12-scope-new, green-at-`78c0258`); [`.working/validate-pr/history.md`](../../.working/validate-pr/history.md) (#326 findings row + #327 handoff-skip exception row; Version `1.2.121`→`1.2.123`); [`.working/validate-pr/2026-06-24-PR-326.md`](../../.working/validate-pr/2026-06-24-PR-326.md) (new per-PR record); [`.working/improvement-log.md`](../../.working/improvement-log.md) (#326 `/retro` row; Version `1.0.94`→`1.0.95`); [`README.md`](../../README.md) (library `2026.06.305`→`2026.06.306`, README `1.9.176`→`1.9.177`, Date `2026-06-25`); root + this CHANGELOG.
+
+Loop-break: this handoff PR skips its own `/validate-pr` + `/retro` (recorded as the #327 exception row in `history.md`); the compensating control is Sweep 42 at the next `/resume`. Verification: `tools/run_all_audits.sh` 49/49 green; `tools/run-pr-time-checks.sh` D1/D2/D3 + gate 45 green against the merge base.
+
 ## 2026-06-24, Library Version 2026.06.305, PR #326
 
 Closed the §4.6a follow-up: extended gate 49 to validate NIST CSF 2.0 category-level membership (not only well-formedness) against the authoritative 22-Category set, and remapped the 17 CSF-1.1-era cells the new check flags.
