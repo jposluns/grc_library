@@ -30,6 +30,14 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #344 — §4.13: 50-gate `/guardrails` coherence review (2026-06-25)
+
+Ran the first `/guardrails` structural-integrity review (maintainer-directed, auto-prompted by the gate-50 addition) over the 50 gates + 10 rules + 15 skills: 0 overlap findings, 0 drift findings, machinery verdict coherent. Routed two new low-severity items (§4.14 CHANGELOG-hygiene pre-flight aid; §4.15 §5 functional-category-index currency + the keep-append-order gate-ordering decision); three gap candidates were dedup-confirmed against already-queued TODO 61/62/88.
+
+### PR #343 — Gate 50 (bookkeeping-parity) added to the audit programme (2026-06-25)
+
+Added the §4.11 worker-provenance / bookkeeping-parity gate (`tools/lint-bookkeeping-parity.py`): QA-cadence parity + TODO/DONE rotation parity + a dormant worker-provenance stub, wired into all four surfaces (49→50 gates) with a 13-case regression class. Its first live run caught a real pre-existing gap (#342's missing handoff-exemption row).
+
 ### PR #336 — Project-governance separation Phase 1: citation-verification cluster migration (2026-06-25)
 
 Executed the §8.1 migration: created the audited-not-exempt `.project-governance/` directory with its own README index and moved the six citation-verification campaign artefacts (verifications register, bundle index, four batch worklists) out of `governance/`, severing every corpus→project inbound citation per the one-way dependency rule. Re-pointed the two path-targeted linters and added `.project-governance` to the explicit-list content linters so the new dir gets the full §6.3 audit sweep; generators exclude it by their include-list design. Closes the R2 cluster relocation.
