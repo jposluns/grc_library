@@ -2,8 +2,8 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.49.9\
-**Date:** 2026-06-24\
+**Version:** 1.49.10\
+**Date:** 2026-06-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](../standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../standard-devops-security-requirements.md), [`dev-security/guideline-ai-coding-assistant-security.md`](../guideline-ai-coding-assistant-security.md), [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md)\
@@ -440,6 +440,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.49.10 | 2026.06.308 | 2026-06-25 | Sweep 42 (`/resume` corpus-wide `/validate`) in-window fix: the [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) "Why this skill exists" growth-narrative count "a dozen gates to **forty-eight**" corrected to "**forty-nine**" (gate 49, matrix control-code validity, was added in #325 after the count was last set to forty-eight in 1.49.6; this is a free-prose word-form count, gate-39-blind, the same recurring one-lag class). Pack `1.49.9` to `1.49.10` (patch; stale-count). |
 | 1.49.9 | 2026.06.298 | 2026-06-24 | Sweep 40 (`/resume` corpus-wide `/validate`) note, folded into the DD-8 PR by maintainer choice: the [`languages/go.md`](languages/go.md) TLS-config comment grouped `PreferServerCipherSuites` with `CipherSuites` as "apply only to TLS 1.2 and below", but per Go's `crypto/tls` docs `PreferServerCipherSuites` is a deprecated, ignored field (distinct from `CipherSuites` being TLS-1.2-scoped). Reworded so the deprecated/ignored status is stated; the #318 load-bearing claim (TLS 1.3 cipher suites not configurable; TLS 1.2 prohibited by the pack mandate) is unchanged and accurate. Pack `1.49.8` to `1.49.9` (patch; pack-prose precision). |
 | 1.49.8 | 2026.06.296 | 2026-06-24 | DD-4/DD-5: completed the FR-135-deferred TLS rewrite of [`languages/go.md`](languages/go.md). The TLS-config example now sets `MinVersion: tls.VersionTLS13` and drops the explicit TLS-1.2 cipher-suite list, with a comment noting that Go does not allow configuring TLS 1.3 cipher suites (the `CipherSuites` and `PreferServerCipherSuites` fields apply only to TLS 1.2 and below) and that TLS 1.2 is prohibited by the pack cryptography mandate. [`core/owasp.md`](core/owasp.md) is intentionally left at the OWASP ASVS baseline (which permits TLS 1.2), the other FR-135 deferral. Pack `1.49.7` to `1.49.8` (patch; deferred-rewrite completion). |
 | 1.49.7 | 2026.06.283 | 2026-06-24 | Generalized the session-closing-handoff-PR QA loop-break exception into the distributable pack layer (it previously lived only in this project's `.claude/CLAUDE.md` and `/resume` command). Named the exception in the [`validation-sweep-pr-scoped`](skills/validation-sweep-pr-scoped/SKILL.md) SKILL (the one sanctioned skip of the otherwise-mandatory per-PR `/validate-pr`) and in the no-skip clause of [`governance/ai-assistant-workflow-disciplines.md`](governance/ai-assistant-workflow-disciplines.md), each with the loop-termination rationale and the stronger compensating control (a full corpus-wide validation sweep at the next session's start), so adopters inherit the exemption and any future mechanical QA-cadence gate knows to build it in. Pack `1.49.6 → 1.49.7` (minor; distributable-exception generalization). |
