@@ -365,3 +365,10 @@ repos:
         language: system
         pass_filenames: false
         types: [markdown]
+
+      - id: lint-bookkeeping-parity
+        name: Bookkeeping-parity audit
+        entry: python3 tools/lint-bookkeeping-parity.py
+        language: system
+        pass_filenames: false
+        always_run: true
