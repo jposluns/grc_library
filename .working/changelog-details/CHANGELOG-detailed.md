@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-25, Library Version 2026.06.316, PR #337
+
+`.working/` session-close housekeeping for local project: session-closing handoff PR for the 2026-06-25 continued-resume session (resumed from #334; ran Sweep 44 clean; shipped #335 resume-bookkeeping + the Philip Veilleux AUTHORS addition, and #336 the project-governance separation Phase 1 migration). Refreshes [`.working/session-handoff.md`](../../.working/session-handoff.md) to the post-#336 snapshot (49 gates, library `2026.06.315` / README `1.9.186`, green-at-`b09375d`, the new audited `.project-governance/` directory, Sweep-45 next cadence, this session's asserted-expectations including the §4 one-way-dependency Phase-1 invariant, the §6.3-vs-§7.3 audit-scope spec-gap open decision, and the next-actions queue with the §4.11 worker-provenance gate now the top item), and batches the #336 `/validate-pr` (0 error/0 warning/1 cosmetic note) + `/retro` rows. [`.working/overnight-pr.md`](../../.working/overnight-pr.md) stays in-flight (the overnight authorization continues into the next session). Per the handoff-PR loop-break this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide Sweep 45 the next `/resume` runs first, cross-checked against this handoff's asserted-expectations. No corpus-content change. Library `2026.06.315` to `2026.06.316`; README `1.9.186` to `1.9.187`.
+
+This entry deliberately uses the same lead-paragraph wording as the root [`CHANGELOG.md`](../../CHANGELOG.md) entry, per the two-file-split convention (the #336 `/retro` noted a lead-wording divergence; this entry applies the lesson). The detailed mirror carries no additional structured sections because the PR is `.working/`-only session-close housekeeping with no corpus-content change.
+
 ## 2026-06-25, Library Version 2026.06.315, PR #336
 
 Project-governance separation Phase 1: the §8.1 citation-verification cluster migration. Single PR scoped to the move, per [`governance/specification-project-governance-separation.md`](../../governance/specification-project-governance-separation.md) §8.1.
