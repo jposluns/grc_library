@@ -207,26 +207,13 @@ with the §4.11 multi-session track (the scratch ref base is part of that capabi
 the existing `governance/` trust disciplines. Honest-backstop framing: the process raises
 the bar against poisoned reference input; it does not by itself guarantee detection.
 
-### 4.13 Audit-programme coherence review at 50 gates (M, M) — maintainer-requested 2026-06-25
+### 4.14 CHANGELOG-hygiene first-commit pre-flight aid (S, S) — surfaced 2026-06-25 (`/guardrails` r1, finding [guardrails])
 
-The audit programme has reached **50 numbered gates** (gate 50, bookkeeping-parity, added
-this session). The maintainer asked for a deliberate review that the full gate set still
-makes sense: that every gate still earns its place, that the gates are in a sensible order,
-and that there is no overlap, redundancy, or coherence drift across the 50. This is exactly
-the [`guardrail-review`](dev-security/claude-rules/skills/guardrail-review/SKILL.md) skill's
-remit (slash command `/guardrails`): a judgment-based, maintainer-gated pass over the
-machinery for overlap (two gates covering the same ground), gap (a stated discipline no gate
-enforces), and drift (a gate whose intent has diverged across its wiring surfaces in a way
-the mechanical parity gates cannot see). The skill is documented as auto-prompted after any
-PR that adds a gate, so the gate-50 addition is its trigger. **Schedule (maintainer-directed):
-run IMMEDIATELY upon the gate-50 addition** (2026-06-25, superseding the earlier "after the P1/P2/P3 catch-up" placement); the run and its routed findings follow in this session, and this item rotates to DONE when the findings PR lands. Deliverable:
-a `/guardrails` run over the 50-gate inventory (plus the 10 rules and 15 skills it also covers),
-with every confirmed finding routed to this backlog per the skill's routing convention. The
-ordering question specifically: gates 38-50 were each "appended at the tail to avoid
-renumbering the meta-gates above", so the inventory's numeric order is now append-history,
-not functional grouping; the review should decide whether a one-time functional reordering
-(or a functional-category index over the existing numbers, like the functional-category grouping the audit-programme specification already maintains) is worth the renumbering
-churn, or whether append-order plus those functional categories is the right steady state.
+Recurring CHANGELOG-hygiene friction caught at pre-push rather than prevented at first commit (#330/#332/#340/#341, [`improvement-log.md`](.working/improvement-log.md)): the link-coverage gate runs pre-commit-over-all-files and the D3 em-dash check runs only PR-time, so neither fires on the first commit's staged CHANGELOG diff, and the standing discipline (dash-grep + link-coverage pre-flight) is skipped under apply-volume. Proposed: a small [`tools/`](tools/) staged-CHANGELOG-diff pre-flight helper (em-dash grep + [`tools/lint-changelog-link-coverage.py`](tools/lint-changelog-link-coverage.py) on the staged root-CHANGELOG lines, prints PASS/FAIL), runnable as one command before the first commit; OR move the em-dash check to pre-commit so a CHANGELOG dash fails at commit-time. **Not a new audit gate** (the gates already exist at post-commit/PR-time); a convenience that moves the existing discipline earlier. Low priority (the #341 retro gated it on a 3rd recurrence and framed it as convenience); routed here so the trigger is tracked rather than relying on retro-memory.
+
+### 4.15 Audit-programme functional-category-index currency + gate-ordering decision (S, S) — surfaced 2026-06-25 (`/guardrails` r1)
+
+The `/guardrails` r1 review confirmed the 50-gate machinery is coherent (no overlap, no drift, every gate earns its place), with one stale-index coherence gap: gates **49 and 50 are absent from the functional-category index** (the "functional categories" section) in [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md), which runs through gate 48. That section is explicitly "descriptive, not prescriptive" and is not a gate-35 parity surface, so this is not gate-caught. Two parts: (a) bring the index current (place gate 49 in "Content drift defence" alongside gate 48, gate 50 in "Programme and index integrity" alongside 35/39/41/44/47), and going forward keep it current as gates are appended; (b) record the **gate-ordering decision** the maintainer's review question raised: **keep the numeric append-order** (gates 38-50 were each appended at the tail; renumbering would break every gate-number cross-reference across the corpus, prose, and tooling, a high-churn change for no functional gain) and use the **functional-category section as the functional-grouping index** over the append-ordered numbers. Low priority; pairs naturally with any future audit-programme-spec edit.
 
 ---
 
