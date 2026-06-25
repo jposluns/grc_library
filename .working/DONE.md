@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #336 — Project-governance separation Phase 1: citation-verification cluster migration (2026-06-25)
+
+Executed the §8.1 migration: created the audited-not-exempt `.project-governance/` directory with its own README index and moved the six citation-verification campaign artefacts (verifications register, bundle index, four batch worklists) out of `governance/`, severing every corpus→project inbound citation per the one-way dependency rule. Re-pointed the two path-targeted linters and added `.project-governance` to the explicit-list content linters so the new dir gets the full §6.3 audit sweep; generators exclude it by their include-list design. Closes the R2 cluster relocation.
+
 ### PR #326 — §4.6a: gate 49 NIST CSF 2.0 category-membership + 17-cell remap (2026-06-24)
 
 Closed the §4.6a follow-up: extended gate 49 to validate each NIST token's CATEGORY against the authoritative CSF 2.0 22-Category set (wired `nist_csf_reference.py`, sourced from NIST CSWP 29), and remapped the 17 CSF-1.1-era cells the membership check flags (`ID.SC`×5 → `GV.SC`, `ID.BE`×1 → `GV.OC`, `PR.IP`×11 to per-row 2.0 categories). Gate 49 now checks well-formedness + membership; matrix `1.3.0`→`1.3.1`.

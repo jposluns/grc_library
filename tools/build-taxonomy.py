@@ -39,6 +39,14 @@ DOMAINS = [
     "supply-chain",
 ]
 
+# DOMAINS is the corpus deliverable's domain set. `.project-governance/`
+# is deliberately NOT a domain: it holds project-governance operational
+# records (not the published deliverable) and is excluded from the
+# taxonomy, portal, and maturity scorecard per the project-governance
+# separation specification (governance/specification-project-governance-separation.md
+# section 7.2). Because the walk below is restricted to DOMAINS, the
+# exclusion is structural; do not add `.project-governance` here.
+
 EXEMPT_FROM_INDEX = {
     "privacy/annex-regional-privacy-requirements.md",
 }

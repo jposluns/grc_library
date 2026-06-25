@@ -2,11 +2,11 @@
 
 **Document Title:** AI Security Tooling Landscape Register\
 **Document Type:** Register\
-**Version:** 1.1.2\
-**Date:** 2026-06-20\
+**Version:** 1.1.3\
+**Date:** 2026-06-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-model-risk.md`](../ai/standard-ai-model-risk.md), [`ai/guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md), [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md)\
+**Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-model-risk.md`](../ai/standard-ai-model-risk.md), [`ai/guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md), [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md)\
 **Classification:** Public\
 **Category:** Core Governance\
 **Review Frequency:** Annual, and on material change to the AI security tooling landscape (project archival, license change, vendor acquisition, major version release)\
@@ -1222,7 +1222,7 @@ The following table cross-references the gaps surfaced by projects in this regis
 - New projects entering the AI security landscape are added at the maintainer's discretion. Material additions trigger a minor version bump.
 - Project status changes (archival, license change, acquisition, major version) trigger an entry update with version bump.
 - Annual review confirms each entry's library reference status and capabilities, and identifies projects no longer relevant.
-- Citation verification for entries in this register is managed via the Citation Verifications Register ([`register-citation-verifications.md`](register-citation-verifications.md)) under the Q-track methodology.
+- Citation verification for entries in this register is managed via the Citation Verifications Register under the Q-track methodology.
 
 ### Provenance re-verification cadence
 

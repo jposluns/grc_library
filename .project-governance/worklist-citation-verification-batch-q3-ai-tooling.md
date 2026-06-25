@@ -2,15 +2,15 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q3 (AI Security Tooling Landscape Provenance)\
 **Document Type:** Worklist\
-**Version:** 1.0.0\
-**Date:** 2026-05-30\
+**Version:** 1.0.1\
+**Date:** 2026-06-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-ai-security-tooling-landscape.md`](register-ai-security-tooling-landscape.md)\
+**Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](../governance/template-citation-verification-worklist.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-ai-security-tooling-landscape.md`](../governance/register-ai-security-tooling-landscape.md)\
 **Classification:** Public\
 **Category:** Core Governance\
 **Review Frequency:** This worklist is a per-batch working artefact; it does not have a recurring review cadence. The authoritative record is the Citation Verifications Register; the integrity anchors live in the AI Security Tooling Landscape Register's per-entry Provenance blocks.\
-**Repository Path:** [`governance/worklist-citation-verification-batch-q3-ai-tooling.md`](worklist-citation-verification-batch-q3-ai-tooling.md)\
+**Repository Path:** [`.project-governance/worklist-citation-verification-batch-q3-ai-tooling.md`](worklist-citation-verification-batch-q3-ai-tooling.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
 
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This is the worklist for batch Q3 of citation verification under the Citation Verification Specification ([`specification-citation-verification.md`](specification-citation-verification.md)). The batch scope is the 55 Provenance blocks added to the AI Security Tooling Landscape Register ([`register-ai-security-tooling-landscape.md`](register-ai-security-tooling-landscape.md)) in Phase 23.10.
+This is the worklist for batch Q3 of citation verification under the Citation Verification Specification ([`specification-citation-verification.md`](../governance/specification-citation-verification.md)). The batch scope is the 55 Provenance blocks added to the AI Security Tooling Landscape Register ([`register-ai-security-tooling-landscape.md`](../governance/register-ai-security-tooling-landscape.md)) in Phase 23.10.
 
 At register creation (Phase 23.7), the entries documented project scope, license, capabilities, and GRC concerns surfaced. At Phase 23.10, a Provenance block was added to each entry with AI-captured fields (Source URL, Version at assessment, Date assessed) and human-pending fields (Integrity anchor, Wayback snapshot URL). This worklist enumerates the entries whose Provenance blocks still need human verification.
 

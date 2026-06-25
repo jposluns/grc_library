@@ -2,15 +2,15 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q2 (ISO and ISO/IEC)\
 **Document Type:** Worklist\
-**Version:** 1.0.0\
-**Date:** 2026-05-29\
+**Version:** 1.0.1\
+**Date:** 2026-06-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md)\
+**Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](../governance/template-citation-verification-worklist.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md)\
 **Classification:** Public\
 **Category:** Core Governance\
 **Review Frequency:** This worklist is a per-batch working artefact; it does not have a recurring review cadence. The authoritative record is the Citation Verifications Register.\
-**Repository Path:** [`governance/worklist-citation-verification-batch-q2-iso-iec.md`](worklist-citation-verification-batch-q2-iso-iec.md)\
+**Repository Path:** [`.project-governance/worklist-citation-verification-batch-q2-iso-iec.md`](worklist-citation-verification-batch-q2-iso-iec.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
 
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This is the working worklist for the second batch (Q2) of citation verification under the Citation Verification Specification ([`specification-citation-verification.md`](specification-citation-verification.md)).
+This is the working worklist for the second batch (Q2) of citation verification under the Citation Verification Specification ([`specification-citation-verification.md`](../governance/specification-citation-verification.md)).
 
 Scope: every ISO and ISO/IEC entry in the Canonical Citations Register at the time of batch open (24 entries). This deliberately includes ISO 16484, which appears in the register's sector-specific section but is an ISO standard and is naturally grouped here for batch efficiency.
 
