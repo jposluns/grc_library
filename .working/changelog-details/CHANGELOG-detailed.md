@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-25, Library Version 2026.06.326, PR #347
+
+`.working/` + TODO morning-processing for local project: closed out the multi-session overnight run, reset [`.working/overnight-pr.md`](../overnight-pr.md) to `stub` (ends overnight mode), and routed its two genuinely-unrouted 2026-06-25 decisions to the durable ledgers.
+
+### Changed
+
+- [`.working/overnight-pr.md`](../overnight-pr.md): `Status: in-flight` to `Status: stub`. The morning-processing routed its content (per the overnight-work protocol in the change-tracking rule): the build-progress running log was discarded as pure noise; the 2026-06-23 carried authorizations were already in [`design-decisions.md`](../design-decisions.md); the open maintainer actions (scratch reference-binary re-seed; external-collaborator worker-account provisioning) are already recorded in [`session-handoff.md`](../session-handoff.md) + [`third-party-issues.md`](../third-party-issues.md); the queued forward work (FR-167 batch 5 onward, the decided-content series, the §4.11 follow-up gates) stays in [`TODO.md`](../../TODO.md). Ending overnight mode is the maintainer's 2026-06-25 direction; the maintainer retains a standing attended green-CI = merge authority that is deliberately NOT overnight mode (normal per-PR `/validate-pr` + `/retro` logging; no in-flight lifecycle on this file).
+- [`.working/design-decisions.md`](../design-decisions.md): recorded the two unrouted decisions, FR-58's resolution (the canonical 3-label inheritance vocabulary `library-internal` / `template` / `reference`, applied corpus-wide with per-document apply-time verification, superseding its earlier "skipped to morning" status) and the deepen-all thin-baseline-cluster decision (deepen all of FR-15/23/24/63/74/99/154 to operational depth, overriding the earlier "calibrate first" guidance).
+- [`TODO.md`](../../TODO.md): recorded both decisions as dispositions on their backlog items (P1 FR-58; P2 FR-154 and the thin-baseline cluster).
+
+### Added
+
+- The #346 `/validate-pr` (0 findings) history row in [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.139` to `1.2.140`) and the #346 `/retro` row in [`.working/improvement-log.md`](../improvement-log.md) (`1.0.106` to `1.0.107`), batched per recursion-avoidance.
+
+### Verification
+
+- `tools/run_all_audits.sh` 50/50 green post-commit (gate 46 overnight-work-file audit passes on `Status: stub`); `tools/run-pr-time-checks.sh` green. No corpus-content change; all edits are in gate-exempt `.working/` or informational `TODO.md` plus the README/CHANGELOG version surfaces. Library `2026.06.325` to `2026.06.326`; README `1.9.196` to `1.9.197`.
+
 ## 2026-06-25, Library Version 2026.06.325, PR #346
 
 `.working/` QA close-out for local project: **Sweep 48 close-out**, the `/resume` loop-break corpus-wide `/validate` for session-closing handoff PR #345 (covering the #343 gate-50 and #344 `/guardrails`-r1 deltas).
