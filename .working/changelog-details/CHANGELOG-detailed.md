@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-25, Library Version 2026.06.324, PR #345
+
+`.working/` session-close housekeeping for local project: session-closing handoff PR for the 2026-06-25 continued-resume session (resumed from #342; ran Sweep 47 clean; shipped #343, gate 50 bookkeeping-parity, and #344, the first `/guardrails` r1 coherence review which verified the 50-gate machinery coherent). Refreshes [`.working/session-handoff.md`](../session-handoff.md) to the post-#344 snapshot, batches the #344 `/validate-pr` (1 Low detailed-mirror em-dash, fixed here) + `/retro` rows and the [`.working/validate-pr/2026-06-25-PR-344.md`](../validate-pr/2026-06-25-PR-344.md) record, and records #345's own handoff-exemption row inline. `.working/overnight-pr.md` stays in-flight. Per the handoff-PR loop-break this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide Sweep 48 the next `/resume` runs first. No corpus-content change. Library `2026.06.323` to `2026.06.324`; README `1.9.194` to `1.9.195`.
+
+This entry uses the same lead-paragraph wording as the root [`CHANGELOG.md`](../../CHANGELOG.md) entry, per the two-file-split convention; no additional structured sections because the PR is `.working/`-only session-close housekeeping with no corpus-content change.
+
 ## 2026-06-25, Library Version 2026.06.323, PR #344
 
 `.working/` + TODO process close-out for local project: the first `/guardrails` (guardrail-review) run plus the #343 per-PR QA batch. No corpus-content change.
@@ -22,7 +28,7 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 - [`.working/validate-pr/history.md`](../validate-pr/history.md): added the #343 `/validate-pr` row (1 in-window warning, fix bundled here); `1.2.137` to `1.2.138`.
 - [`.working/improvement-log.md`](../improvement-log.md): added the #343 `/retro` row (pattern: narrative-surface-stale-after-a-mid-PR-scope-change, the #336→#338→#340→#343 multi-surface-incompleteness lineage with a distinct mid-PR-redirect trigger); `1.0.104` to `1.0.105`.
 - [`.working/DONE.md`](../DONE.md): rotated §4.13 (the now-completed 50-gate review) plus a #343 gate-50 headline.
-- [`CHANGELOG.md`](../../CHANGELOG.md) + this mirror: the **#343 `/validate-pr` finding fix** — the #343 lead's "scheduled after the P1/P2/P3 catch-up" corrected to "maintainer-directed to run immediately upon the gate-50 addition", reconciling the CHANGELOG narrative to the same-PR §4.13 revision it had contradicted (the maintainer's "run now" direction landed after the #343 CHANGELOG lead was drafted).
+- [`CHANGELOG.md`](../../CHANGELOG.md) + this mirror: the **#343 `/validate-pr` finding fix**, the #343 lead's "scheduled after the P1/P2/P3 catch-up" corrected to "maintainer-directed to run immediately upon the gate-50 addition", reconciling the CHANGELOG narrative to the same-PR §4.13 revision it had contradicted (the maintainer's "run now" direction landed after the #343 CHANGELOG lead was drafted).
 
 ### Verification
 
