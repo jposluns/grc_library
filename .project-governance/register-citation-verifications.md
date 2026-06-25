@@ -2,15 +2,15 @@
 
 **Document Title:** Citation Verifications Register\
 **Document Type:** Register\
-**Version:** 1.1.0\
-**Date:** 2026-05-29\
+**Version:** 1.1.1\
+**Date:** 2026-06-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md)\
+**Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
 **Classification:** Public\
 **Category:** Core Governance\
-**Review Frequency:** Per the verification freshness rule in [`governance/specification-citation-verification.md`](specification-citation-verification.md) §12: each entry re-verified every 12 months from its last Date checked\
-**Repository Path:** [`governance/register-citation-verifications.md`](register-citation-verifications.md)\
+**Review Frequency:** Per the verification freshness rule in [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md) §12: each entry re-verified every 12 months from its last Date checked\
+**Repository Path:** [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
 
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register records every verification performed against an entry in the Canonical Citations Register ([`register-canonical-citations.md`](register-canonical-citations.md)) under the methodology in the Citation Verification Specification ([`specification-citation-verification.md`](specification-citation-verification.md)).
+This register records every verification performed against an entry in the Canonical Citations Register ([`register-canonical-citations.md`](../governance/register-canonical-citations.md)) under the methodology in the Citation Verification Specification ([`specification-citation-verification.md`](../governance/specification-citation-verification.md)).
 
 Each row is a dated, source-anchored, evidence-bearing claim that a citation in the canonical register has been checked against the publisher's own canonical domain. Rows are append-only: a re-verification adds a new row rather than overwriting the prior one, preserving the historical trail.
 
@@ -108,9 +108,9 @@ This section is updated at the end of each verification batch. It summarises, fo
 
 ## Cross-references
 
-- [`governance/specification-citation-verification.md`](specification-citation-verification.md): the methodology this register implements.
-- [`governance/register-canonical-citations.md`](register-canonical-citations.md): the register whose entries are verified here.
-- [`tools/lint-citation-verification-freshness.py`](../tools/lint-citation-verification-freshness.py): linter that flags entries older than 12 months. Shipped as gate 27 of the audit programme per [`governance/specification-audit-programme.md`](specification-audit-programme.md) §6.
+- [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md): the methodology this register implements.
+- [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md): the register whose entries are verified here.
+- [`tools/lint-citation-verification-freshness.py`](../tools/lint-citation-verification-freshness.py): linter that flags entries older than 12 months. Shipped as gate 27 of the audit programme per [`governance/specification-audit-programme.md`](../governance/specification-audit-programme.md) §6.
 
 ---
 

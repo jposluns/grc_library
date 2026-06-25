@@ -2,11 +2,11 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.1\
-**Date:** 2026-05-29\
+**Version:** 1.2.2\
+**Date:** 2026-06-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py), [`specification-ingestion.md`](../specification-ingestion.md)\
+**Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py), [`specification-ingestion.md`](../specification-ingestion.md)\
 **Classification:** Public\
 **Category:** Core Governance\
 **Review Frequency:** Annual and upon material change to publisher source patterns, AI verifier environmental capabilities, or verification methodology\
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This specification defines how citations recorded in the Canonical Citations Register ([`register-canonical-citations.md`](register-canonical-citations.md)) are verified against authoritative publisher sources, how verification results are logged in the Citation Verifications Register ([`register-citation-verifications.md`](register-citation-verifications.md)), and how verification confidence is recorded and refreshed.
+This specification defines how citations recorded in the Canonical Citations Register ([`register-canonical-citations.md`](register-canonical-citations.md)) are verified against authoritative publisher sources, how verification results are logged in the Citation Verifications Register, and how verification confidence is recorded and refreshed.
 
 It exists because the library's audit programme (see [`specification-audit-programme.md`](specification-audit-programme.md) §6 for the canonical inventory) primarily verifies structural integrity and the limited factual checks coded into individual linters (the citation-hallucination denylist, standards-currency comparisons, freshness cadences). It cannot verify that a cited standard exists, that its version is current, or that its publication date is accurate. This specification provides that publisher-grounded factual control.
 

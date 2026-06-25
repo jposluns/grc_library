@@ -445,6 +445,7 @@ def main(argv: list[str]) -> int:
         "dev-security",
         "docs",
         "governance",
+        ".project-governance",
         "operations",
         "privacy",
         "resilience",

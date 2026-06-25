@@ -34,7 +34,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-VERIFICATIONS = REPO_ROOT / "governance" / "register-citation-verifications.md"
+VERIFICATIONS = REPO_ROOT / ".project-governance" / "register-citation-verifications.md"
 CADENCE_MONTHS = 12  # per Citation Verification Specification §12.1
 
 
@@ -114,7 +114,7 @@ def main(argv: list[str]) -> int:
     )
     args = parser.parse_args(argv[1:])
     if args.root is not None:
-        VERIFICATIONS = args.root.resolve() / "governance" / "register-citation-verifications.md"
+        VERIFICATIONS = args.root.resolve() / ".project-governance" / "register-citation-verifications.md"
     today = args.today
     # Distinguish "register file missing" (environmental failure;
     # exit 2) from "register present but parses zero rows" (the
