@@ -40,6 +40,7 @@ DOMAINS = [
     "compliance",
     "dev-security",
     "governance",
+    ".project-governance",
     "operations",
     "privacy",
     "resilience",
