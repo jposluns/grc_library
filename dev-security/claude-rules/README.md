@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.49.11\
+**Version:** 1.49.12\
 **Date:** 2026-06-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -440,6 +440,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.49.12 | 2026.06.322 | 2026-06-25 | Gate 50 (bookkeeping-parity) added to the audit programme; the [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) "Why this skill exists" growth-narrative count "a dozen gates to **forty-nine**" corrected to "**fifty**" (gate-39-blind word-form, the same recurring one-lag class as the `forty-eight`→`forty-nine` fix in 1.49.10, fixed proactively in the gate-50 PR rather than left for the next sweep). Pack `1.49.11` to `1.49.12` (patch; stale-count). |
 | 1.49.11 | 2026.06.311 | 2026-06-25 | §4.11 multi-session codification (PR-3, the light SOP): added a "The partitionable-work default (light SOP)" subsection to [`governance/ai-assistant-workflow-disciplines.md`](governance/ai-assistant-workflow-disciplines.md) §2 (the project-agnostic default-to-fan-out-where-partitionable directive, its disjointness/shared-surface/non-partitionable eligibility gate, and the two worker primitives, all without disturbing the serial-apply / CI-gating / validate-then-apply invariants of disciplines 2 and 3). The byte-identical local mirror and a project-specific `## Multi-session orchestration` section in `.claude/CLAUDE.md` (pointing at the `.working/multi-session-orchestration.md` runbook from #330) ship in the same PR. Pack `1.49.10` to `1.49.11` (patch; additive SOP subsection in an existing rule, not a new rule, so the "five disciplines" framing is unchanged). |
 | 1.49.10 | 2026.06.308 | 2026-06-25 | Sweep 42 (`/resume` corpus-wide `/validate`) in-window fix: the [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) "Why this skill exists" growth-narrative count "a dozen gates to **forty-eight**" corrected to "**forty-nine**" (gate 49, matrix control-code validity, was added in #325 after the count was last set to forty-eight in 1.49.6; this is a free-prose word-form count, gate-39-blind, the same recurring one-lag class). Pack `1.49.9` to `1.49.10` (patch; stale-count). |
 | 1.49.9 | 2026.06.298 | 2026-06-24 | Sweep 40 (`/resume` corpus-wide `/validate`) note, folded into the DD-8 PR by maintainer choice: the [`languages/go.md`](languages/go.md) TLS-config comment grouped `PreferServerCipherSuites` with `CipherSuites` as "apply only to TLS 1.2 and below", but per Go's `crypto/tls` docs `PreferServerCipherSuites` is a deprecated, ignored field (distinct from `CipherSuites` being TLS-1.2-scoped). Reworded so the deprecated/ignored status is stated; the #318 load-bearing claim (TLS 1.3 cipher suites not configurable; TLS 1.2 prohibited by the pack mandate) is unchanged and accurate. Pack `1.49.8` to `1.49.9` (patch; pack-prose precision). |

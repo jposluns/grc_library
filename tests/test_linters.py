@@ -2868,5 +2868,167 @@ class MatrixControlCodeTests(LinterTestCase):
         )
 
 
+class BookkeepingParityTests(LinterTestCase):
+    """tools/lint-bookkeeping-parity.py (gate 50)"""
+
+    def _load_module(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "_lint_bookkeeping_parity",
+            REPO_ROOT / "tools/lint-bookkeeping-parity.py",
+        )
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def test_runs_clean_on_corpus_at_head(self) -> None:
+        # Smoke test: the live bookkeeping records satisfy parity at HEAD.
+        result = run_linter("tools/lint-bookkeeping-parity.py")
+        self.assertEqual(
+            result.returncode, 0,
+            f"linter exited {result.returncode} on HEAD; the live "
+            f"validate-pr / improvement-log / TODO records should be in "
+            f"parity.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_missing_validate_pr_row_flagged(self) -> None:
+        # PR #11 is in-window (inception 10, max 12) but has no validate-pr
+        # row and is not a known handoff: must flag.
+        mod = self._load_module()
+        findings = mod.qa_cadence_findings(
+            {10, 11, 12}, {10: "normal"}, {10, 11},
+            inception=10, known_handoff=frozenset(),
+        )
+        self.assertTrue(findings, "missing validate-pr row should flag")
+        self.assertIn("no row", findings[0])
+        self.assertIn("#11", findings[0])
+
+    def test_missing_retro_row_flagged(self) -> None:
+        # PR #11 has a normal validate-pr row but no retro row: must flag.
+        mod = self._load_module()
+        findings = mod.qa_cadence_findings(
+            {10, 11, 12}, {10: "normal", 11: "normal"}, {10},
+            inception=10, known_handoff=frozenset(),
+        )
+        self.assertTrue(findings, "missing retro row should flag")
+        self.assertIn("/retro", findings[0])
+        self.assertIn("#11", findings[0])
+
+    def test_handoff_row_exempt_from_both(self) -> None:
+        # PR #11 is a handoff PR (validate-pr + retro both legitimately
+        # absent): must NOT flag despite no retro row.
+        mod = self._load_module()
+        findings = mod.qa_cadence_findings(
+            {10, 11, 12}, {10: "normal", 11: "handoff"}, {10},
+            inception=10, known_handoff=frozenset(),
+        )
+        self.assertEqual(findings, [], f"handoff PR must be exempt; got {findings}")
+
+    def test_subsumption_row_satisfies_no_retro_required(self) -> None:
+        # PR #11's QA was subsumed by a later sweep: validate-pr satisfied,
+        # no retro required: must NOT flag.
+        mod = self._load_module()
+        findings = mod.qa_cadence_findings(
+            {10, 11, 12}, {10: "normal", 11: "subsumption"}, {10},
+            inception=10, known_handoff=frozenset(),
+        )
+        self.assertEqual(findings, [], f"subsumption PR must pass; got {findings}")
+
+    def test_highest_pr_batch_lag_exempt(self) -> None:
+        # The single highest-numbered PR (#12) is exempt even with no rows:
+        # its rows batch into the next, not-yet-existent PR.
+        mod = self._load_module()
+        findings = mod.qa_cadence_findings(
+            {10, 11, 12}, {10: "normal", 11: "normal"}, {10, 11},
+            inception=10, known_handoff=frozenset(),
+        )
+        self.assertEqual(findings, [], f"highest PR must be exempt; got {findings}")
+
+    def test_known_handoff_no_row_allowlist_exempt(self) -> None:
+        # A pre-convention handoff PR with no row at all is exempt via the
+        # allowlist.
+        mod = self._load_module()
+        findings = mod.qa_cadence_findings(
+            {10, 11, 12}, {10: "normal"}, {10},
+            inception=10, known_handoff=frozenset({11}),
+        )
+        self.assertEqual(findings, [], f"allowlisted handoff must pass; got {findings}")
+
+    def test_findings_cell_handoff_classification(self) -> None:
+        # The parser classifies a SKIPPED-handoff Findings cell as 'handoff'
+        # and a SUBSUMED cell as 'subsumption', from field 4.
+        mod = self._load_module()
+        text = (
+            "| Date | PR | Touched | Findings | Hot-fix | Detail | Summary |\n"
+            "|---|---|---|---|---|---|---|\n"
+            "| 2026-06-25 | 99 | x | **`/validate-pr` SKIPPED (handoff-PR "
+            "exception, loop-break)** | none | - | s |\n"
+            "| 2026-06-25 | 98 | x | **NOT run; SUBSUMED by Sweep 42** | none | - | s |\n"
+            "| 2026-06-25 | 97 | x | **0 findings (clean)** | none | - | s |\n"
+        )
+        status = mod.parse_validate_pr_status(text)
+        self.assertEqual(status.get(99), "handoff")
+        self.assertEqual(status.get(98), "subsumption")
+        self.assertEqual(status.get(97), "normal")
+
+    def test_todo_strikethrough_bullet_flagged(self) -> None:
+        # A whole backlog bullet struck through is a rotation failure.
+        mod = self._load_module()
+        findings = mod.todo_rotation_findings(
+            "# TODO\n\n- ~~FR-99: do the thing (shipped)~~\n"
+        )
+        self.assertTrue(findings, "struck-through bullet should flag")
+        self.assertIn("strikethrough-on-bullet", findings[0])
+
+    def test_todo_status_done_flagged(self) -> None:
+        mod = self._load_module()
+        findings = mod.todo_rotation_findings(
+            "# TODO\n\n- **FR-99**: do the thing. Status: completed\n"
+        )
+        self.assertTrue(findings, "Status: completed should flag")
+        self.assertIn("status-completed", findings[0])
+
+    def test_todo_inline_strikethrough_in_open_item_not_flagged(self) -> None:
+        # Inline strikethrough marking completed sub-steps within a still-open
+        # item (the FR-167 batch sequence) must NOT flag: the bullet content
+        # does not BEGIN with the strikethrough.
+        mod = self._load_module()
+        findings = mod.todo_rotation_findings(
+            "# TODO\n\n- **FR-167 (H, L)**: smallest-first: ~~risk 15~~ -> "
+            "~~dev-security 17~~ -> resilience 22.\n"
+        )
+        self.assertEqual(
+            findings, [],
+            f"inline progress strikethrough in an open item must not flag; "
+            f"got {findings}",
+        )
+
+    def test_todo_backticked_convention_reference_not_flagged(self) -> None:
+        # The maintenance note describing the convention ("no `[done]`
+        # suffixes") references the marker inside a code span: must NOT flag.
+        mod = self._load_module()
+        findings = mod.todo_rotation_findings(
+            "# TODO\n\n- When an item is completed, delete it (no "
+            "strikethroughs, no `[done]` suffixes) and add to DONE.\n"
+        )
+        self.assertEqual(
+            findings, [],
+            f"backticked convention reference must not flag; got {findings}",
+        )
+
+    def test_todo_lowercase_shipped_in_open_item_not_flagged(self) -> None:
+        # Descriptive lowercase "shipped in #275" inside an open item is not a
+        # self-completion marker (uppercase SHIPPED is the precision lever).
+        mod = self._load_module()
+        findings = mod.todo_rotation_findings(
+            "# TODO\n\n- **FR-167**: batch 1 shipped in #275; batch 2 in flight.\n"
+        )
+        self.assertEqual(
+            findings, [],
+            f"descriptive lowercase 'shipped in #N' must not flag; got {findings}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
