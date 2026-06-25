@@ -2,12 +2,27 @@
 #
 # run-pr-time-checks.sh
 #
-# Wrapper that runs every PR-only delta gate locally against the current
-# branch. The corpus-wide audit programme (tools/run_all_audits.sh)
-# covers the corpus gates that operate from HEAD; this wrapper
-# covers the two PR-only delta gates plus gate 45 (TODO staleness),
-# which behave like delta gates because their inputs include git
-# history relative to the merge base.
+# Wrapper that runs the commit-graph-aware checks locally against the
+# current branch, so their diagnoses appear before push instead of after
+# CI has flipped the check red. Two groups:
+#
+#   1. The PR-only delta gates (D1 CHANGELOG-on-PR, D2 per-PR
+#      version-bump, D3 CHANGELOG-dash-on-PR). These compare the PR head
+#      to its merge base, so their inputs are not available in
+#      tools/run_all_audits.sh; they run only here and in quality.yml.
+#   2. The history-aware gates that examine each file's commit graph
+#      (gate 45 TODO staleness, gate 40 version-bump-recency, gate 31
+#      document-date-staleness). These ALSO run in run_all_audits.sh;
+#      this wrapper re-invokes them so a single pre-push command is a
+#      complete commit-graph-aware guard. That matters most for large
+#      multi-commit or file-move changes (e.g. the governance Phase-1
+#      migration), where the per-commit version-bump-recency and
+#      date-staleness checks are easiest to confirm in one pre-push pass.
+#
+# Together with run_all_audits.sh (the corpus gates from HEAD), the two
+# runners cover every gate the CI workflow runs. Gates 40, 31, and 45
+# were folded in here per the design-decisions "Gate-family coherence
+# (Option A)" decision.
 #
 # Usage:
 #   tools/run-pr-time-checks.sh            # run against origin/main..HEAD
@@ -80,6 +95,17 @@ run_check "D3 CHANGELOG dash-on-PR check" \
 # history.md) include history relative to the working state of TODO.md.
 run_check "Gate 45 TODO staleness audit" \
     python3 tools/lint-todo-staleness.py
+
+# History-aware corpus gates 40 and 31. These also run in
+# run_all_audits.sh; re-invoking them here makes the pre-push runner a
+# complete commit-graph-aware guard (see the header comment). Each
+# examines per-file commit history, so it operates from HEAD and needs
+# no base ref.
+run_check "Gate 40 version-bump-recency audit" \
+    python3 tools/lint-version-bump-recency.py
+
+run_check "Gate 31 document-date-staleness audit" \
+    python3 tools/lint-document-date-staleness.py
 
 echo ""
 if [ "${FAILED}" -eq 0 ]; then
