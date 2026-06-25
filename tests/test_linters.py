@@ -1591,8 +1591,9 @@ class ReviewCadenceTests(LinterTestCase):
         self.assertIn(
             ".project-governance",
             mod.DOMAINS,
-            "gate 10 must scan .project-governance so its README annual "
-            "review and the register's 12-month cadence are scheduled.",
+            "gate 10 must scan .project-governance so the register's 12-month "
+            "re-verification cadence is scheduled (gate 10 skips all READMEs "
+            "by design, so the directory's README cadence is not scheduled here).",
         )
 
 
