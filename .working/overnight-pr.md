@@ -166,6 +166,33 @@ maintainer-attached uploads. Use at apply-time for the work that needs them
   https://github.com/menoche) to the AUTHORS.md "Acknowledged contributors" list; bundle
   into the first resume-bookkeeping PR (NOT the project-gov Phase 1 migration PR, which stays
   surgically scoped). Versioned doc → bump AUTHORS.md Version + Date in the same commit.
+- 2026-06-25: **#335 MERGED** (resume bookkeeping; green CI, squash `1c01e80`). AUTHORS.md
+  +Philip Veilleux (`1.1.2`→`1.1.3`); batched the clean Sweep 44 row. `/validate-pr` **0
+  findings**; `/retro` clean (caught + corrected my own apply-time CHANGELOG overclaim before
+  commit). Library `2026.06.313`→`2026.06.314`.
+- 2026-06-25: **#336 MERGED** — the major milestone: **project-governance separation Phase 1**
+  (green CI, squash `b09375d`). Executed the §8.1 citation-verification cluster migration:
+  `git mv` 6 artefacts `governance/`→ new audited `.project-governance/` dir + README index;
+  severed 7 corpus→project citations (one-way dependency rule); re-pointed 2 path-targeted
+  linters + added `.project-governance` to 9 content linters (§6.3 full-audit, resolving the
+  §6.3-vs-§7.3 spec gap stricter+evidenced, surfaced to maintainer); generators exclude it by
+  include-list design; taxonomy/portal/scorecard regenerated. Built via the research-assistant
+  discipline (read-only research subagent → exhaustive migration map → orchestrator apply-time
+  verification → both runners). `/validate-pr` **0 error/0 warning/1 cosmetic note** (§4
+  one-way-dependency invariant confirmed clean by direct grep + Subagent A); `/retro` logged
+  the spec-gap + the cosmetic CHANGELOG-lead-wording note. Library `2026.06.314`→`2026.06.315`.
+  Closes R2.
+- 2026-06-25: **SESSION WIND-DOWN.** Deliberate close at a clean boundary on Quality > Speed:
+  the major Phase-1 migration (deferred by two prior sessions for freshness) is shipped green,
+  and the remaining queue (§4.11 worker-provenance gate family, FR-167's 8 batches, decided
+  content) is a large series better served fresh in a heavy-context session. Session-closing
+  handoff **PR #337** lands this session's working-state on `main` (handoff full refresh +
+  batched #336 QA rows). **overnight-pr.md STAYS in-flight**: the overnight authorization
+  CONTINUES into the next session for the queued remainder. The next `/resume` runs **Sweep 45**
+  (loop-break control for #337, over the #335/#336 deltas), then continues the queue:
+  §4.11 worker-provenance gate → FR-167 batch 4 → decided content. **Maintainer items**:
+  re-attach FR-167 refs (ephemeral scratchpad) or seed scratch; provision external-worker
+  account; review the §6.3-vs-§7.3 spec-gap decision.
 
 ## Surfaced ambiguities / morning-review items
 
