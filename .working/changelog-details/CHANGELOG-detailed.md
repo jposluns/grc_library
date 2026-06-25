@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-25, Library Version 2026.06.323, PR #344
+
+`.working/` + TODO process close-out for local project: the first `/guardrails` (guardrail-review) run plus the #343 per-PR QA batch. No corpus-content change.
+
+### Added
+
+- [`.working/guardrail-reviews/2026-06-25-r1.md`](../guardrail-reviews/2026-06-25-r1.md): the first `/guardrails` per-run record. Maintainer-directed, auto-prompted by the gate-50 addition (#343), closing TODO §4.13. Three lens subagents (overlap / gap / drift) over 50 gates + 10 rules + 15 skills. **Overlap: 0** (every adjacent gate pair, 48/49, 50-vs-35/39/41/44, 45/50, 5-6/48-49, 3/23, carries an explicit documented boundary). **Drift: 0** (gates 48/49/50 §6 narratives match their linter docstrings + code constants; rule pack bodies match their CLAUDE.md one-liners). **Gap: 4 blocks**, 3 dedup-confirmed against TODO 61/62/88, 1 genuinely-unqueued (CHANGELOG-hygiene pre-flight). Verdict: machinery coherent, no defects.
+- [`.working/validate-pr/2026-06-25-PR-343.md`](../validate-pr/2026-06-25-PR-343.md): the #343 per-PR validation record (1 in-window Low finding).
+- [`TODO.md`](../../TODO.md) §4.14 (CHANGELOG-hygiene first-commit pre-flight aid, low) and §4.15 (audit-programme §5 functional-category-index currency + the keep-numeric-append-order gate-ordering decision, low), the two new `[guardrails]`-routed findings.
+
+### Changed
+
+- [`.working/guardrail-reviews/history.md`](../guardrail-reviews/history.md): first real row (replacing the placeholder); `1.0.0` to `1.0.1`.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): added the #343 `/validate-pr` row (1 in-window warning, fix bundled here); `1.2.137` to `1.2.138`.
+- [`.working/improvement-log.md`](../improvement-log.md): added the #343 `/retro` row (pattern: narrative-surface-stale-after-a-mid-PR-scope-change, the #336→#338→#340→#343 multi-surface-incompleteness lineage with a distinct mid-PR-redirect trigger); `1.0.104` to `1.0.105`.
+- [`.working/DONE.md`](../DONE.md): rotated §4.13 (the now-completed 50-gate review) plus a #343 gate-50 headline.
+- [`CHANGELOG.md`](../../CHANGELOG.md) + this mirror: the **#343 `/validate-pr` finding fix** — the #343 lead's "scheduled after the P1/P2/P3 catch-up" corrected to "maintainer-directed to run immediately upon the gate-50 addition", reconciling the CHANGELOG narrative to the same-PR §4.13 revision it had contradicted (the maintainer's "run now" direction landed after the #343 CHANGELOG lead was drafted).
+
+### Verification
+
+- `tools/run_all_audits.sh` 50/50 on the committed state; `tools/run-pr-time-checks.sh` (D1/D2/D3 + history-aware 45/40/31) green. No corpus-content change (only `.working/`, TODO, CHANGELOG, README version surfaces).
+
+### Discipline observation
+
+- The `/guardrails` run is the maintainer-directed "run immediately" execution of §4.13 (raised and revised mid-#343); routing its findings and rotating §4.13 in the same close-out PR that batches the #343 QA rows keeps the recursion-avoidance chain to one hop. The #343 `/validate-pr` finding (CHANGELOG-vs-§4.13 schedule contradiction) and its `/retro` pattern both trace to the same mid-PR-redirect root; the proposed close-out-checklist line (re-grep narrative surfaces after a mid-PR scope change) is recorded in the retro row for the next integrity-tooling pass.
+
 ## 2026-06-25, Library Version 2026.06.322, PR #343
 
 Gate 50 (Bookkeeping-parity audit) added to the audit programme, the §4.11 worker-provenance / bookkeeping-parity gate family member (pinned design + historical-irregularity map in [`.working/design-decisions.md`](../design-decisions.md)). The honest mechanical backstop for the per-PR QA cadence and the backlog-to-DONE rotation discipline: it enforces the PRESENCE of the bookkeeping records the process mandates, not their semantic correctness.
@@ -19,7 +45,7 @@ Gate 50 (Bookkeeping-parity audit) added to the audit programme, the §4.11 work
 
 - Wired gate 50 into all four audit surfaces (gate-35 parity): [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml), [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh), [`.pre-commit-config.yaml`](../../.pre-commit-config.yaml), and the §6 inventory + narrative of [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (`1.16.5` to `1.16.6`). Gate count 49 to 50. Deliberately NOT added to the pre-push history-aware runner [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh): gate 50 parses committed file content (not the commit graph), so `run_all_audits.sh` already covers it pre-push; the pre-push runner is reserved for the delta gates and the commit-graph-aware trio (45/40/31).
 - [`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md):93 growth-narrative word-form "a dozen gates to forty-nine" to "fifty" (gate-39-blind; the same recurring one-lag class fixed at `forty-eight` to `forty-nine` in pack 1.49.10, fixed proactively in this gate-50 PR rather than left for the next sweep to flag). Pack [`README.md`](../../dev-security/claude-rules/README.md) `1.49.11` to `1.49.12` with a version-history row.
-- [`TODO.md`](../../TODO.md): added §4.13 (maintainer-requested 2026-06-25), a `/guardrails` coherence review of the now-50-gate inventory scheduled after the P1/P2/P3 catch-up; advanced the resume-metadata gate count to 50 and the sweep cursor to Sweep 47; reworded two historical "49-gate four-surface parity" sweep-summary idioms to "four-surface gate parity" (drop the now-stale count). taxonomy/portal/scorecard regenerated after the spec Version bump.
+- [`TODO.md`](../../TODO.md): added §4.13 (maintainer-requested 2026-06-25), a `/guardrails` coherence review of the now-50-gate inventory, maintainer-directed to run immediately upon the gate-50 addition; advanced the resume-metadata gate count to 50 and the sweep cursor to Sweep 47; reworded two historical "49-gate four-surface parity" sweep-summary idioms to "four-surface gate parity" (drop the now-stale count). taxonomy/portal/scorecard regenerated after the spec Version bump.
 
 ### Verification
 
