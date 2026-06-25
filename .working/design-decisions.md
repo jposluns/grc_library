@@ -226,7 +226,7 @@ See "Subagent dispatch (Rule 5.6) audit trail" above. Recording for cross-refere
 
 ### Wrapper-script-plus-corpus-runner discipline (decided PR #128)
 
-Local PR-time discipline requires running BOTH [`../tools/run_all_audits.sh`](../tools/run_all_audits.sh) (corpus gates) AND [`../tools/run-pr-time-checks.sh`](../tools/run-pr-time-checks.sh) (PR-only delta gates D1 + D2 + gate 45) before push. The two runners together cover every gate the CI workflow runs. Structural fix for the PR-time-delta-gate omission failure mode that surfaced in PR #127's first push.
+Local PR-time discipline requires running BOTH [`../tools/run_all_audits.sh`](../tools/run_all_audits.sh) (corpus gates) AND [`../tools/run-pr-time-checks.sh`](../tools/run-pr-time-checks.sh) (PR-only delta gates D1 + D2 + D3, plus the history-aware gates 45 + 40 + 31) before push. The two runners together cover every gate the CI workflow runs. Structural fix for the PR-time-delta-gate omission failure mode that surfaced in PR #127's first push. (Gates 40 and 31 were folded into the pre-push runner per the "Gate-family coherence (Option A)" decision above; they also run in `run_all_audits.sh`, but re-invoking them pre-push makes the runner a complete commit-graph-aware guard for large multi-commit or file-move changes such as the governance Phase-1 migration.)
 
 ### Decorative gate-count narrations forbidden in prose (decided PR #130)
 
