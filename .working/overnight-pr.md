@@ -1,32 +1,85 @@
-<!-- OVERNIGHT-PR-STUB -->
+<!-- OVERNIGHT-PR-IN-FLIGHT -->
 # Overnight PR
 
-**Status:** stub
+**Status:** in-flight
 
-No overnight session is in flight. This file is the durable handoff record for a
-maintainer-authorized autonomous overnight session: when one is active its `Status`
-is `in-flight` and it carries the session's authorization scope, design decisions,
-build progress, and surfaced ambiguities. When a session ends, the next-morning
-processing routes its content to the durable ledgers (design decisions →
-[`design-decisions.md`](design-decisions.md); closed work → [`DONE.md`](DONE.md);
-queued follow-ups and deferred decisions → [`../TODO.md`](../TODO.md)) and resets this
-file to `stub`. Audit gate 46 enforces the lifecycle: it fails on `Status: done`
-(session ended but morning processing missing) and passes on `stub` / `in-flight`.
+A maintainer-authorized autonomous overnight session is active (started 2026-06-25,
+maintainer pre-sleep). This file carries its authorization scope, the decision set
+resolved before sleep, the running order, build progress, and surfaced ambiguities.
+The next-morning processing routes this content to the durable ledgers and resets the
+file to `stub` (gate 46 enforces the lifecycle).
 
-Last run: the 2026-06-24 CCM/AICM-and-relocations overnight run (PRs #301-#305),
-authorized to close out the XS/S backlog and as many Medium items as possible. It
-shipped #301 (Sweep 36 close-out, CCM/AICM citation-residual completion), #302
-(guardrail-review word-form gate count), #303 (Day-1-floor option A), #304 (R3
-relocation), and prepared #305 (loop-break generalization into the pack) which could
-not be merged at the time because the GitHub MCP server disconnected (recorded in
-[`third-party-issues.md`](third-party-issues.md)). The fresh morning session (2026-06-24)
-merged #305 once MCP reconnected, ran the corpus-wide Sweep 37 loop-break control
-(close-out PR #306, which fixed the two out-of-window CCM v4.0 domain-name residuals
-Sweep 36 had surfaced), and morning-processed this file. Its content was routed:
-DD-overnight-1 (the gate-48 bare-domain-code coverage gap) and the R1 won't-move
-decision were recorded in [`design-decisions.md`](design-decisions.md); R1 (the
-sweep-preflight-exemptions.json relocation) was closed won't-move and rotated to
-[`DONE.md`](DONE.md); the two morning-review items (the operations-file CCM residuals,
-and R1) were resolved by the maintainer this morning; R2 (the citation-cluster
-relocation) remains a deferred follow-up in [`../TODO.md`](../TODO.md) with its
-convention-conflict noted. This file reset to `stub`.
+## Authorization scope (maintainer, 2026-06-25 pre-sleep)
+
+Maintainer is asleep. Autonomous run authorized with green-CI = merge authority,
+per-PR `/validate-pr` + `/retro` (no skip, no abbreviation), and the standing
+overnight conflict rule (stricter-is-safer + evidence; document each choice; skip to
+morning anything lacking both bases). All file-mutating tracks below are
+maintainer-authorized to run unattended ("All authorized, run top-down").
+
+Top priority, maintainer's words: "I would like the multi-session capabilities
+developed so that we can start using them tomorrow. Once that's done, begin with
+FR-167 and then highest priority items that you are able to complete without asking
+me questions or needing my permission to write a file."
+
+## Decision set (resolved via two AskUserQuestion rounds, 2026-06-25)
+
+Recorded here durably so the run survives a mid-night compaction.
+
+1. **Running order**: (1) Sweep 42 `/validate` (loop-break control for handoff #327);
+   (2) §4.11 multi-session capability IN FULL; (3) FR-167 with project-gov-separation
+   Phase 1 PULLED AHEAD of remaining FR-167 batches; (4) highest-priority autonomous
+   items.
+2. **Multi-session gate scope**: build the WHOLE bookkeeping-parity gate family
+   tonight — pre-push-runner gate FIRST (it protects the pulled-ahead Phase-1
+   migration), then worker-provenance + §4.6 QA-cadence + §4.10 rotation gates,
+   co-designed as one family, each told the pre-push-runner gate already exists.
+3. **External-collaborator worker**: codify BOTH worker primitives; seed scratch and
+   make in-session fan-out usable now; the separate-session external-collaborator
+   path is fully documented and ready for the maintainer to provision a worker
+   account tomorrow (read `grc_library` / write `grc_library_scratch` only) to
+   activate. (Scratch WRITE access from this environment is confirmed.)
+4. **FR-58 inheritance vocabulary**: apply the canonical 3-label scheme corpus-wide —
+   `library-internal` (cross-references between library docs), `template`
+   (adopter-fillable content), `reference` (external-standard/source content cited,
+   not authored) — with per-doc apply-time verification; surface any doc that does not
+   fit cleanly.
+5. **Write scope**: ALL authorized to run top-down — project-gov Phase-1 migration,
+   FR-30/31/32/34/71/72 net-new docs, deepen-all thin baselines (FR-15/24/63/74/154),
+   FR-73 (independent ethics panel), FR-145 (keep both + crosswalk), FR-167 batches.
+6. **Carried pre-decisions** (from `design-decisions.md` "Overnight unattended run
+   authorizations" 2026-06-23, still in force): FR-30/31/32/34/71/72 author all six
+   (one PR each, mirror same-type docs, anchored to named external standards); FR-70
+   crypto/blockchain domain DEFERRED to a dedicated session; FR-73 = standing
+   independent AI Ethics Panel; FR-144 internal-clock floor already resolved;
+   FR-143 escalation chain DPO→CISO→CRO.
+7. **Q3 (earlier round)**: deepen ALL the thin-baseline cluster (override the
+   "calibrate, several are deliberate baselines" note); Q2: project-gov separation
+   Phase 1 pulled ahead of remaining FR-167 batches.
+
+## Owed bookkeeping (fold into the first substantive PR)
+
+- Record a #328 `/validate-pr` history row noting Sweep 42 subsumption (no per-PR ledger gap).
+- Apply approved DD-12 decision: broaden DD-12 in TODO from `PR.IP`-only to ALL
+  CSF-1.1 carriers (`PR.IP`, `ID.SC`, `ID.BE`, `RS.RP`, `DE.DP`, `PR.AC`, `PR.PT`, ...);
+  queue a new item to extend gate 49 (or a sibling) to validate framework codes in
+  per-document framework-reference tables, not only the central matrix. Known carriers:
+  `risk/standard-third-party-and-supply-chain-risk.md`:230 (`ID.SC`);
+  `operations/procedure-security-monitoring-and-alert-management.md`:333/336/337 (`RS.RP`/`DE.DP`).
+- Refresh `session-handoff.md` to post-#328.
+
+## Reference files supplied (authoritative sources, de-risk no-fabrication)
+
+NIST CSWP.29 (CSF 2.0), CCM/CAIQ v4.1 bundle, AICM v1.1, AI Security Checklist —
+maintainer-attached uploads. Use at apply-time for the work that needs them
+(FR-167 supply-chain CCM/ISO/NIST cells; DD-12 CSF migration; AI-domain content).
+
+## Build progress (running log; newest at bottom)
+
+- 2026-06-25: session started; state verified (main @ 6d3d23c / #328, 49/49 green,
+  Library 2026.06.307 / pack 1.49.9 / README 1.9.178, clone unshallowed); scratch
+  write access confirmed; this file set to in-flight. Next: Sweep 42 `/validate`.
+
+## Surfaced ambiguities / morning-review items
+
+- (none yet)
