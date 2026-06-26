@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.337, PR #358
+
+`.working/` session-close housekeeping for local project: **session-closing handoff PR** for the 2026-06-26 Sweep-50 + gate-51 session. Batches #357's `/validate-pr` (0 findings) + `/retro` rows; refreshes [`.working/session-handoff.md`](../session-handoff.md) to the post-#357 snapshot (Last-merged #357, green-at-`c482bc3` 51/51, this session's asserted-expectations, the Sweep-50-ran / Sweep-51-next cadence, and the deferred scan-scope-parity-meta-check next action). Per the handoff-PR loop-break this PR skips its own trailing `/validate-pr` + `/retro`, with its exemption row recorded inline in [`.working/validate-pr/history.md`](../validate-pr/history.md) (closing the loop on the #357 retro's handoff-exemption-row-omission pattern); the compensating control is the corpus-wide Sweep 51 the next `/resume` runs first. No corpus-content change. Library `2026.06.336` to `2026.06.337`; README `1.9.207` to `1.9.208`.
+
 ## 2026-06-26, Library Version 2026.06.336, PR #357
 
 **Tier-1 working-tree prose-hygiene gate (gate 51).** A new audit gate that ratchets the 2026-06-26 `.working/` em-dash conformance (#353) so it cannot silently regress, plus the batched Sweep 50 loop-break `/validate` history row.
