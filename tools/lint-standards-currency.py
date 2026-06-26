@@ -33,7 +33,7 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import iter_non_code_lines, read_text_safe
+from lint_common import AUDITED_DOMAIN_DIRS, iter_non_code_lines, read_text_safe
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CANONICAL_REGISTER = REPO_ROOT / "governance" / "register-canonical-citations.md"
@@ -57,18 +57,9 @@ DEFAULT_PATHS = [
     "CONTRIBUTING.md",
     "specification-master-project.md",
     "specification-ingestion.md",
-    "ai",
-    "architecture",
-    "compliance",
-    "dev-security",
-    "governance",
-    ".project-governance",
-    "operations",
-    "privacy",
-    "resilience",
-    "risk",
-    "security",
-    "supply-chain",
+    # Domain run splatted from lint_common (scan-scope parity gate
+    # forbids hardcoding the run).
+    *AUDITED_DOMAIN_DIRS,
 ]
 
 
