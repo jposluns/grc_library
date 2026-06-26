@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.350, PR #371
+
+Integrity-tooling track, PR 2 of 3 (closes DD-12): migrated the corpus's 5 surviving CSF-1.1-era NIST CSF codes (across 3 documents) to CSF 2.0, using the #370 scanner to verify completeness. Mappings grounded in NIST CSWP 29 subcategory text; the removed-category `DE.DP` cells mapped by row activity (maintainer's choice).
+
+### Changed
+
+- [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md):230 (`1.1.1` to `1.1.2`, Date to 2026-06-26): the NIST CSF 2.0 framework-row cell dropped the redundant `; ID.SC Supply Chain Cybersecurity` clause. `ID.SC` (CSF 1.1 Supply Chain Risk Management) was folded into `GV.SC` (Cybersecurity Supply Chain Risk Management) in CSF 2.0, and `GV.SC Supply Chain Risk Management` is already the cell's first clause, so the migration is a deduplication, no information lost.
+- [`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md) (`1.3.2` to `1.3.3`, Date to 2026-06-26), the NIST CSF column of the control-mapping table:
+  - :333 "Alert triage and response": `Respond: RS.RP-1` to `Respond: RS.MA-02`. CSF 2.0 folded Response Planning (RS.RP) into Incident Management (RS.MA); CSWP 29 RS.MA-02 is "Incident reports are triaged and validated", the precise match for the row.
+  - :336 "Dashboards and reporting": `Detect: DE.DP-5` to `Detect: DE.AE-06`. DE.DP (Detection Processes) was removed in CSF 2.0; mapped by row activity to DE.AE-06 "Information on adverse events is provided to authorized staff and tools", keeping the Detect function.
+  - :337 "Rule tuning and MITRE mapping": `Detect: DE.DP-3` to `Detect: DE.AE-07`. Mapped by row activity to DE.AE-07 "Cyber threat intelligence and other contextual information are integrated into the analysis" (MITRE mapping is threat-intel integration), keeping the Detect function.
+- [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md):475 (`1.0.4` to `1.0.5`, Date to 2026-06-26): `RC.IM (Recovery: Improvements)` to `ID.IM (Identify: Improvement)`. CSF 2.0 moved the Improvement category out of Recover into the Identify Function (ID.IM); the mapping note ("incorporating lessons learned into recovery strategy and GRC programme improvement") stays valid.
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the three per-document Version bumps.
+- [`TODO.md`](../../TODO.md): DD-12 rotated out (closed); the gate-49-extension bullet updated to "scanner built (#370), migration done (PR 2), gate-wiring remains (PR 3)"; the P3 enumeration and preamble de-referenced DD-12. [`.working/DONE.md`](../DONE.md): added the PR #371 / DD-12 entry.
+
+### Verification
+
+- **Migration completeness**: [`tools/lint-document-control-codes.py`](../../tools/lint-document-control-codes.py) (the #370 scanner) re-run post-edit reports **0 findings across 310 documents** (was 5 findings across 3 files pre-migration). The migration is mechanically verified complete, not merely "the carriers I knew about", which is exactly why the maintainer chose scanner-first.
+- **Mapping authority**: the CSF 2.0 subcategory texts (RS.MA-02, DE.AE-06, DE.AE-07, ID.IM) were read directly from NIST CSWP 29 (the authoritative Core), not inferred; the category-level relocations (ID.SC→GV.SC, RS.RP→RS.MA, DE.DP redistributed, RC.IM→ID.IM) match [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py).
+- **Mechanical**: `tools/run_all_audits.sh` 53/53 green post-commit (gate 40 + gate 31 confirm each touched doc bumped Version and Date in the same commit; gate 49 confirms the central matrix unaffected; taxonomy/portal/scorecard `--check` in sync). `tools/run-pr-time-checks.sh` all-pass.
+- Batches the PR #370 `/validate-pr` (0 findings) + `/retro` rows.
+
+### Discipline observation
+
+- The DE.DP cells were a genuine authorial fork (map the removed category by old-code-meaning to ID.IM, flipping the Function to Identify; or by row-activity to DE.AE, keeping Detect). Per clarify-before-acting this was surfaced to the maintainer with the CSWP 29 evidence rather than silently picked; the maintainer chose by-row-activity. The mapping is a control-mapping decision the gate cannot check (gate 49 / the new scanner validate code *validity*, not mapping *correctness*), so the apply-time author-and-confirm discipline carried it.
+
 ## 2026-06-26, Library Version 2026.06.349, PR #370
 
 Integrity-tooling track, PR 1 of 3 (the gate-49 extension / DD-12 corpus-wide CSF-1.1 migration): built the per-document NIST CSF 2.0 control-code scanner as a discovery tool, ran it to establish the authoritative carrier inventory, and recorded the Sweep 54 loop-break `/validate` result. The scanner is deliberately not yet wired as a gate (the corpus still carries the 5 codes it flags; wiring lands in PR 3 after the PR-2 migration).
