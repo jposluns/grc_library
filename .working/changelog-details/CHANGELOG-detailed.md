@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.357, PR #378
+
+FR-167 batch 5 (resilience domain): the GRC compliance matrix Resilience section expands from 3 rows to 21 (18 net-new). This is the fifth FR-167 domain batch (after Architecture #275, Risk #313, Dev-security #317, Supply-chain #341), resumed this session as the maintainer-directed next big activity. Authored via the research-assistant discipline: 5 verified-disjoint research workers read the 22 resilience docs in full and proposed mappings with `path:line` evidence, validating every code against the in-repo reference modules; the orchestrator re-read the reference modules, made every authorial cell decision, and relied on gates 48/49 as the mechanical backstop.
+
+### Changed
+
+- [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) (`1.4.0` to `1.5.0`): 18 net-new Resilience rows (framework; BC-crisis, IT-DR, pandemic, physical-site, crisis-communication plans; BIA, continuity-and-recovery-testing, crisis-management/EOC-activation, cross-domain-incident-coordination, security-incident-reporting procedures; EOC-contact-directory and resilience-metrics-and-testing-log registers; departmental-continuity, lessons-learned, recovery-runbook, tabletop-exercise templates). All CCM (BCR/SEF/A&A families), ISO 27001:2022 Annex A, and NIST CSF 2.0 codes validated against [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py) and [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py); no retired CSF-1.1 code used (lessons-learned and tabletop correctly use `ID.IM`, not the retired `RC.IM`). Customs/trade columns follow the established resilience-section convention (CTPAT/WCO `N/A`; PIP "Business continuity"/BASC "§8.1" for continuity-family docs; "Incident response"/"§8.4, §10" for the two incident procedures; `N/A` for the crisis-communication, emergency-response, lessons-learned, and tabletop docs whose subject is not continuity or trade security).
+- [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) existing row 156 (Procedure: Backup and Recovery) tightened from `BCR-06, BCR-07, BCR-08, BCR-09, BCR-10, BCR-11` to `BCR-08, BCR-09, BCR-10`. Re-audit (per the #313 expansion-surfaces-defects lesson, re-verified by re-reading the procedure in full) found the procedure has no communications section (BCR-07) and no equipment-redundancy content (BCR-11), and its recovery testing maps to BCR-10 (Response Plan Exercise) rather than BCR-06 (Business Continuity Exercises). Rows 154 (Policy) and 155 (Standard) re-audited clean.
+- [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated for the matrix Version bump.
+- [`.working/pending-decisions.md`](../pending-decisions.md): recorded the project-governance separation §5.3 register-classification decision as `deferred-blocked: needs maintainer`. The Sweep-56 resume investigation found the coverage-gaps register is cited 4 times as adopter routing in the decision tree and framed in the corpus index as adopter-facing "honest disclosure", which the separation spec's own §3.1 lists as corpus, conflicting with the abstractly-recorded "move both to project-governance" decision. Recommendation recorded: keep coverage-gaps as corpus, migrate only the document-review-schedule register. Routed around to this FR-167 batch.
+
+### Added
+
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): the **Sweep 56** row (the `/resume` loop-break corpus-wide `/validate`, the #377 handoff compensating control over the #374/#375/#376/#377 deltas; 0 findings across all three subagents; no asserted-expectations contradiction).
+
+### Verification
+
+- Gate 48 (CCM/AICM citation accuracy): OK across 378 files. Gate 49 (matrix control-code validity): OK (ISO Annex A membership + clause format; NIST CSF 2.0 Category membership). `tools/run_all_audits.sh`: all 54 gates pass post-commit. Matrix body + Version + Date bumped in the same commit (gates 40/31).
+
+### Discipline observation
+
+Apply-time corrections to the worker research were minimal (the 5 workers produced cross-consistent, code-verified research): (1) the AEO/AEO-S free-text cell was set per W2's mischaracterization insight (generic "Business continuity" for the non-IT continuity docs rather than verbatim "IT systems backup and continuity", which only the genuinely-IT-recovery docs carry); (2) the `register-resilience-terms-and-definitions` omit and the row-156 tightening were applied per the workers' precedent and re-audit findings after orchestrator re-verification; (3) soft per-cell options the workers flagged (the emergency-response WCO/PIP cells, the incident-doc WCO cell) were resolved to the stricter `N/A` where the document body carried no trade-security content.
+
 ## 2026-06-26, Library Version 2026.06.356, PR #377
 
 `.working/` session-close housekeeping for local project: **session-closing handoff PR** for the 2026-06-26 wind-down-decision-framework session (resumed from handoff #373). Lands working-state on `main` as a green merge so the next `/resume` rebuilds from `main`, and applies the one addressed in-window finding from #376's `/validate-pr`. Per the handoff-PR loop-break (CLAUDE.md PR-workflow step 5a) this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide **Sweep 56** the next `/resume` runs first (covering the #374/#375/#376/#377 deltas), cross-checked against this handoff's asserted-expectations.
