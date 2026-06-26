@@ -31,6 +31,17 @@ historical entries that predate the conventions never false-alarm. Dash
 detection strips inline code spans first (a regex character class or a
 quoted format literal may legitimately contain a dash), matching gate 51.
 
+Known limitation: because the aid scans the added diff-lines in isolation,
+it does NOT track fenced (```` ``` ````) code-block state the way the
+authoritative link-coverage gate does (that gate skips path-shaped spans
+inside fenced blocks). A path-shaped span added inside a fenced block in a
+CHANGELOG entry would therefore make this aid exit 1 (over-block) where the
+gate exits 0. The divergence fails safe (it over-blocks the author's own
+commit; it never lets a defect through) and is latent (CHANGELOG entries do
+not currently use fenced blocks), so full fenced-block tracking is left
+unimplemented; if a CHANGELOG entry ever needs a fenced path-span, run the
+commit without the aid and rely on the authoritative gate.
+
 Usage:
     python3 tools/preflight-changelog.py            # working tree vs HEAD
     python3 tools/preflight-changelog.py --staged   # staged diff only
