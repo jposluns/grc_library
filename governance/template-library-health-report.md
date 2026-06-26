@@ -2,11 +2,11 @@
 
 **Document Title:** Library Health Report Template\
 **Document Type:** Template\
-**Version:** 1.0.2\
-**Date:** 2026-06-23\
+**Version:** 1.0.3\
+**Date:** 2026-06-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`governance/register-document-review-schedule.md`](register-document-review-schedule.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md)\
+**Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md)\
 **Classification:** Public\
 **Category:** Core Governance\
 **Review Frequency:** Annual and upon material change to the library quality and review cadence procedure\

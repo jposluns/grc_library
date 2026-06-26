@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Maturity Self-Assessment Template\
 **Document Type:** Template\
-**Version:** 1.0.3\
-**Date:** 2026-06-22\
+**Version:** 1.0.4\
+**Date:** 2026-06-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`docs/template-quickstart.md`](template-quickstart.md), [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`docs/decision-tree.md`](decision-tree.md), [`README.md`](../README.md)\
@@ -249,7 +249,7 @@ Investing in a second domain at Tier 1 is less valuable than getting the first d
 Focus: get to Tier 3 across the in-scope domains. The differentiator between Tier 2 and Tier 3 is **consistency**. Tier-3 progression is best achieved by:
 
 - Applying ownership and review cadence to all in-scope artefacts, not just the core few.
-- Documenting the review schedule centrally (e.g., as a copy of [`governance/register-document-review-schedule.md`](../governance/register-document-review-schedule.md)).
+- Documenting the review schedule centrally (e.g., following the review-cadence pattern in [`governance/procedure-library-quality-and-review-cadence.md`](../governance/procedure-library-quality-and-review-cadence.md)).
 - Ensuring approval records are kept (consider copying [`governance/template-document-review-record.md`](../governance/template-document-review-record.md)).
 
 Resist the urge to start measuring (Tier-4 behaviour) before Tier 3 is consistent.

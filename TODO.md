@@ -58,7 +58,6 @@ The trust-recovery suite findings (signed off 2026-06-22) and the deferred-decis
 
 Individual documents or focused multi-doc improvements. The deferred-decision items DD-2..DD-8 (maintainer-triaged 2026-06-23) and the Medium trust-recovery findings are integrated here. Research files for queued clusters are prepared in advance per the research-assistant discipline in [`ai-assistant-workflow-disciplines.md`](.claude/rules/governance/ai-assistant-workflow-disciplines.md).
 
-- **Project-governance separation: deferred classifications (M, S)**: per [`governance/specification-project-governance-separation.md`](governance/specification-project-governance-separation.md) §5.3, decide per artefact whether `register-coverage-gaps.md` and `register-document-review-schedule.md` move to `.project-governance/` or stay corpus; each resolves on its own merits ("stays corpus" is a legitimate outcome). `register-canonical-citations.md` resolved 2026-06-24 → stays corpus (the canonical list is the reusable reference; the verification log is the operational instance). (R1 = `sweep-preflight-exemptions.json`, closed won't-move 2026-06-24, correct in `tools/`; R2 = this cluster, superseded by the separation spec → Phase 1 migration shipped in #336; R3 shipped in #304.)
 - **FR-62 (M, S)**: AI jurisdiction annexes absent. (Cross-references P5.8.)
 - **FR-99 (M, M) ⚠**: Per-control effectiveness metrics (continuous assurance / 3LoD).
 - **FR-15 (M, M)**: Maturity-ladder methodology — median-of-medians scoring concern.
