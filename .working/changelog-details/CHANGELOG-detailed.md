@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.352, PR #373
+
+`.working/` session-close housekeeping for local project: **session-closing handoff PR** for the 2026-06-26 Sweep-54 + gate-49-extension-track session (resumed from handoff #369). Lands working-state on `main` as a green merge so the next session's `/resume` rebuilds from `main`, and applies the one addressed in-window finding from #372's `/validate-pr`. Per the handoff-PR loop-break (CLAUDE.md PR-workflow step 5a) this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide **Sweep 55** the next `/resume` runs first (covering the #370/#371/#372/#373 deltas), cross-checked against this handoff's asserted-expectations.
+
+### Changed
+
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) (`1.49.18` to `1.49.19`): fixed the #372 `/validate-pr` finding (`pack-version-history-row-missing`) by adding the omitted `1.49.18` `## Version history` row (documenting #372's gate-54 addition + guardrail-SKILL word-form bump), plus a `1.49.19` row for this correction. The newest version-history row now equals the metadata `Version` again. The Version bump is required because the handoff commit edits the pack README body (gate 40 scans the pack README, which is not under `DEFAULT_EXEMPT_DIRS`).
+- [`.working/session-handoff.md`](../session-handoff.md): refreshed to the post-#372 snapshot (state, asserted-expectations for the #370/#371/#372 track, green-at-`dbe1697` 54/54, the Sweep-55-next cadence, the next-actions queue led by §5.3 then FR-167 batch 5).
+- [`.working/session-metrics.md`](../session-metrics.md): wrote the complete session row (elapsed wall-clock, 6 subagents, measured subagent tokens by phase; orchestrator main-loop `not instrumented`).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): the #373 handoff-exemption row recorded inline; batched the #372 `/validate-pr` row. [`.working/improvement-log.md`](../improvement-log.md): batched the #372 `/retro` row (which surfaced the paired-bookkeeping-surface pattern and the proposed pack-version-history-completeness check).
+
+### Verification
+
+- `tools/run_all_audits.sh` **54/54 green** post-commit (the pack version-history fix is not gate-affecting; gate 40 satisfied by the paired pack Version bump). `tools/run-pr-time-checks.sh` all-pass.
+- No corpus-document change; the only non-`.working/` edits are the pack README version-history table + the version surfaces (README, pack README).
+
 ## 2026-06-26, Library Version 2026.06.351, PR #372
 
 Integrity-tooling track, PR 3 of 3 (closes the gate-49-extension item): wired the per-document NIST CSF 2.0 control-code scanner (built in #370, corpus left clean by the #371 DD-12 migration) into the audit programme as gate 54. The per-document CSF-1.1-carrier defect class is now a standing mechanical check, not a one-time migration that could silently regress.
