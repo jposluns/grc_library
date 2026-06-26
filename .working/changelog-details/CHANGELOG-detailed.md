@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.361, PR #382
+
+`.working/` session-close housekeeping: **session-closing handoff PR** for the 2026-06-26 FR-167-batch-6 + §5.3-migration session (resumed from handoff #379). Lands working-state on `main` as a green merge so the next session's `/resume` rebuilds from `main`. Per the handoff-PR loop-break (CLAUDE.md PR-workflow step 5a) this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide **Sweep 58** the next `/resume` runs first (over the #380/#381/#382 deltas), cross-checked against this handoff's asserted-expectations. No corpus-document change.
+
+### Changed
+
+- [`.working/session-handoff.md`](../session-handoff.md): refreshed to the post-#381 snapshot. The resume-step-5 sweep cadence (Sweep 57 ran, Sweep 58 next over #380/#381/#382), the "This session" FR-167-batch-6 + §5.3-migration narrative block (the prior FR-167-batch-5 session demoted to "Prior session"), the State snapshot (Last-merged #381, green-at-`6c63640` 54/54, matrix `1.6.0`, separation spec `1.0.5`, next batch 7 = compliance), the asserted-expectations section (this session's Sweep-57 + #380 + #381 block prepended), and the next-session queue (FR-167 batch 7 then the #376 paired-surface gate then decided-content).
+- [`.working/pending-decisions.md`](../pending-decisions.md): reset to `Status: empty`; the §5.3 entry rotated out (resolved Option A and applied in #381).
+
+### Added
+
+- [`.working/session-metrics.md`](../session-metrics.md) (`1.0.5` to `1.0.6`): the FR-167-batch-6 + §5.3-migration session row. Measured subagent tokens **2,719,366 across 11 dispatches** (Sweep 57 A/B/C 821,282; FR-167 batch 6 workers 1,288,961; §5.3 migration research worker 230,505; `/validate-pr` #380 + #381 Subagent A 378,618); all counts captured precisely (no compacted-window gap this session). Orchestrator main-loop tokens `not instrumented`. Wall-clock an inferred ~1h20m bound (the session-start `date -u` capture was missed again at resume).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (to `1.2.172`): the #382 handoff-exemption row (`/validate-pr` SKIPPED, loop-break, recorded inline at #382's own merge per the gate-50 highest-PR exemption).
+
+### Verification
+
+- `tools/run_all_audits.sh` **54/54** post-commit; `tools/run-pr-time-checks.sh` all-pass (D1-D4 + history-aware 45/40/31) pre-push. The #380 + #381 `/validate-pr` (both 0 findings) + `/retro` rows were committed in the prior batch commits (`dc56995`, `08f74eb`) and are carried by this PR. The CHANGELOG pre-flight aid was run before the first commit.
+- Library `2026.06.360` to `2026.06.361`; README `1.9.231` to `1.9.232`. No corpus-document change; no per-document Version/Date bumps; no generated-artefact regen required.
+
 ## 2026-06-26, Library Version 2026.06.360, PR #381
 
 Project-governance separation: §5.3 deferred classifications resolved, and Phase 2 migrates the document review schedule register to `.project-governance/`. This is the maintainer-directed item the Sweep-57 resume surfaced (the §5.3 decision was `deferred-blocked` in [`pending-decisions.md`](../pending-decisions.md); resolved Option A this session). Two authorial sub-decisions were surfaced and answered: the spec records Phase 2 in a distinct `### 5.4` subsection (not a generalized §5.2), and the adopter example re-points to the corpus review-cadence procedure (not the review-record template). Migration map produced by a research worker; every citer re-read and every re-point authored at apply-time (one citer reference the worker missed, the procedure's `:9` Related-Documents pointer, was caught by the orchestrator's post-edit grep).
