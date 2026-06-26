@@ -1,6 +1,6 @@
 # Pending Decisions
 
-**Status:** non-empty
+**Status:** empty (the one entry below was resolved by the maintainer at the 2026-06-26 Sweep-57 resume; it is retained as a resolved record and rotates out at the next handoff refresh)
 
 This file is the durable queue for the **attended-autonomous operating mode** (see the
 `## Attended-autonomous operating mode` section in [`.claude/CLAUDE.md`](../.claude/CLAUDE.md)):
@@ -57,4 +57,15 @@ the maintainer, resolves those tasks, and only then continues to the next queued
   recorded "move both" AND avoids degrading adopter deliverables / overriding §3.1). Routed
   AROUND to the next independent queue item (FR-167 batch 5, resilience), which has no
   unresolved authorial decision. The §5.3 work is held pending the maintainer's pick.
-- **Status**: pending.
+- **Resolution (maintainer, 2026-06-26 Sweep-57 resume, via `AskUserQuestion`)**: **Option A**:
+  keep `register-coverage-gaps.md` as corpus (resolve its §5.3 row to §5.1 "stays corpus", on
+  the spec's own §3.1 adopter-routing criterion + the gate-53 no-deliverable-link constraint),
+  and **migrate only `register-document-review-schedule.md`** to `.project-governance/` with
+  careful re-pointing of its corpus citers (the Related-Documents pointers sever clean; the
+  `procedure-library-quality-and-review-cadence.md`:93 body row and the
+  `template-maturity-self-assessment.md`:252 adopter example re-point to the review-record
+  TEMPLATE pattern rather than this project's filled instance). The review-schedule migration
+  is now a **decided, queued** TODO item (not this session's primary track; the maintainer
+  chose FR-167 batch 6 as the track). The TODO P2 §5.3 row is updated to record this split when
+  the migration ships.
+- **Status**: resolved (Option A); review-schedule migration queued.
