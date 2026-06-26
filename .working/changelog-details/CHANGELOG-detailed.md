@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.354, PR #375
+
+`.claude/` operating-procedure change for local project: codified the **wind-down decision framework**, which converts the session-ending handoff from a silent unilateral call into a surfaced, evidence-backed decision. Maintainer-directed (this session's purpose, per the `claude/handoff-decision-framework-xho247` branch name); it addresses the recurring pattern (#351/#358/#361/#369/#373) of winding down at a clean boundary on the assistant's own conclusion, which is the `clarify-before-acting` / `action-before-explanation-of-inaction` failure (narrating an inaction as forced) applied at the wind-down boundary.
+
+### Added
+
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): new `## Wind-down decision framework` section (placed after `## Attended-autonomous operating mode`). The trigger: whenever the assistant concludes a session-closing handoff is right, it surfaces (via `AskUserQuestion`) (1) its justification in objective terms (drift/hallucination/mistakes the QA layer missed, OR a large fresh-context-best series, OR a tractability-anchored degradation read), (2) a per-PR likelihood-of-success assessment of the pending next-five PRs anchored to objective tractability factors (partitionable vs single-session, incremental vs fresh-context-class, cross-surface touchpoints, unresolved authorial decisions, references-in-hand), and (3) named options A handoff (conservative default) / B recommended additional PRs / C higher-risk order / D the "do more than we should" Ulysses-pact impulse-check (picking D triggers an immediate handoff). The timer is the same roughly-2-minute background-`sleep` as the attended-autonomous pending-decisions mechanism (unified, maintainer-chosen over a separate 5-minute value), defaulting to option A (handoff) on no answer; a no-answer timeout never auto-selects B/C/D, and overnight runs use the overnight conflict rules instead. Quality > Speed stays the tiebreaker; B/C are bounded ("one more, re-assess, repeat", full per-PR `/validate-pr` + `/retro` each, self-terminating on a degradation signal).
+
+### Changed
+
+- [`.working/session-handoff.md`](../session-handoff.md): the `Self-assess for degradation / session-continuation SOP` standing-disciplines bullet now cross-references the framework (run it when the conclusion is "hand off", do not take the handoff silently).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.163` to `1.2.164`): batched the PR #374 `/validate-pr` zero-finding row. [`.working/improvement-log.md`](../improvement-log.md) (`1.0.125` to `1.0.126`): batched the PR #374 `/retro` row, which surfaced the update-one-of-a-pair pattern (a migration updates a coded value but leaves the paired prose description echoing the old value) and a Low worker-brief / apply-time-checklist candidate.
+
+### Verification
+
+- New-prose hygiene: the framework section is em/en-dash-free and uses `-ize` orthography (house style; `.claude/` is gate-exempt but the convention applies).
+- `tools/run_all_audits.sh` 54/54 green post-commit; `tools/run-pr-time-checks.sh` all-pass. No corpus-document change (the only edits are the CLAUDE.md operating-procedure file, the working-state ledgers, the changelog, and the version surfaces); no generated-artefact regen needed.
+
 ## 2026-06-26, Library Version 2026.06.353, PR #374
 
 **Sweep 55 close-out** (the `/resume` loop-break corpus-wide `/validate`, the compensating control for session-closing handoff PR #373, covering the #370/#371/#372/#373 deltas): one in-window finding, apply-time-verified and fixed. Subagents B (corpus-wide stale-reference) and C (audit-programme integrity) returned 0 findings; the corpus is CSF-1.1-clean (gate 54 enforcing, 0 carriers across 310 documents) and gate 54's four-surface wiring is coherent. The finding contradicts #373's asserted-clean #371 surface, so it is flagged a genuine miss: the loop-break sweep is the compensating control that caught what #371's `/validate-pr` did not.
