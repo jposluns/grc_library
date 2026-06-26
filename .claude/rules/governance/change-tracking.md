@@ -184,7 +184,7 @@ DONE complements CHANGELOG, does not duplicate it:
 Terse DONE-entry shape:
 
 ```
-### PR #N — [headline] (YYYY-MM-DD)
+### PR #N: [headline] (YYYY-MM-DD)
 
 [One sentence on what was accomplished, optionally a second sentence for cross-references that matter at a glance.]
 ```
@@ -192,7 +192,7 @@ Terse DONE-entry shape:
 Worked example:
 
 ```
-### PR #172 — FR-4+5+6+7+8: README polish bundle (2026-06-21)
+### PR #172: FR-4+5+6+7+8: README polish bundle (2026-06-21)
 
 Five medium README polish findings closed in one PR: acronym expansion, doc count pointer, CalVer placement, audience-signal panel, version-line demote.
 ```
