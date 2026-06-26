@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.355, PR #376
+
+`.claude/` + `.working/` operating-procedure change for local project: built two **paired-surface completeness guard rails**, closing the two routed-not-built improvement-log candidates this session surfaced (the #372 pack-version-history-completeness candidate and the #374 update-one-of-a-pair candidate). Option B of the wind-down framework's first live application (maintainer-chosen).
+
+### Added
+
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md), PR close-out checklist: a `Paired-surface completeness` bullet naming the update-one-of-a-pair guard with its two recurring instances: (a) if the PR bumps the pack README metadata `Version`, the paired `## Version history` row was added in the same commit (the #372 miss, `/validate-pr`-caught not gate-caught); (b) when the PR migrates a control code (or any coded value) in a framework-mapping or crosswalk table, the paired description cell was re-read for echoes of the OLD code's function (the #371/#374 miss, Sweep-55-caught). It explicitly generalizes the adjacent grep-after-convention-change bullet from restated-prose surfaces to coded-value / metadata pairs, and points to the worker-brief migration form for fan-out workers.
+- [`.working/worker-brief-template.md`](../worker-brief-template.md) (`1.2.1` to `1.2.2`), DO list: new rail 8, "the code cell and its description cell are a paired surface". When a worker proposes or revises a framework-mapping / crosswalk row, the description must describe the proposed code's actual function; a code change requires re-reading the same-row description for old-function echoes. Cites the #371/#374 catch inline (per the hallucination-assessment update protocol) and notes the gate-blindness (gate 54 = code validity only).
+
+### Changed
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.164` to `1.2.165`): batched the PR #375 `/validate-pr` zero-finding row. [`.working/improvement-log.md`](../improvement-log.md) (`1.0.126` to `1.0.127`): batched the PR #375 `/retro` row.
+
+### Verification
+
+- Both guard rails are convention-level prose (a mechanical gate is impractical on the semantic prose half, the same status as the QA-cadence checklist until its gate lands); no new gate, no four-surface wiring.
+- New-prose hygiene: the CLAUDE.md bullet and the worker-brief rail are em/en-dash-free and `-ize`-orthography (the worker-brief is gate-51-checked; CLAUDE.md is gate-exempt but the convention applies).
+- `tools/run_all_audits.sh` 54/54 green post-commit; `tools/run-pr-time-checks.sh` all-pass. No corpus-document change; no generated-artefact regen.
+
 ## 2026-06-26, Library Version 2026.06.354, PR #375
 
 `.claude/` operating-procedure change for local project: codified the **wind-down decision framework**, which converts the session-ending handoff from a silent unilateral call into a surfaced, evidence-backed decision. Maintainer-directed (this session's purpose, per the `claude/handoff-decision-framework-xho247` branch name); it addresses the recurring pattern (#351/#358/#361/#369/#373) of winding down at a clean boundary on the assistant's own conclusion, which is the `clarify-before-acting` / `action-before-explanation-of-inaction` failure (narrating an inaction as forced) applied at the wind-down boundary.

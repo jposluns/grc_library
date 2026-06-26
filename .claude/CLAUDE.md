@@ -314,6 +314,21 @@ defence is external. Two mechanisms:
      surfaced before the first commit to close the commit-then-amend loop
      (improvement-log #341/#347/#349/#355). It is an aid, not a new gate; the
      authoritative gates still run in CI.
+   - **Paired-surface completeness** (the update-one-of-a-pair guard): when a change
+     updates one field of a paired structure, the sibling field was updated in the
+     same commit. Two recurring instances this guard names: (a) if the PR bumps the
+     pack README metadata `Version`, the paired `## Version history` table row was
+     added in the same commit (the #372 miss: the metadata `Version` moved to
+     `1.49.18` with no `1.49.18` history row, `/validate-pr`-caught not gate-caught);
+     (b) when the PR migrates a control code (or any coded value) in a
+     framework-mapping or crosswalk table, the paired description cell in the same row
+     was re-read for echoes of the OLD code's function or meaning (the #371/#374 miss:
+     the `RC.IM` to `ID.IM` migration left the word "recovery" in the description,
+     mismatched against the Identify function; Sweep-55-caught). A mechanical gate is
+     impractical on the prose half (the drift is semantic), so this checklist line is
+     the guard; the worker-brief template carries the migration form of (b) (DO rail 8)
+     for fan-out workers. This generalizes the grep-after-convention-change bullet
+     above from restated-prose surfaces to coded-value / metadata pairs.
    - CHANGELOG (root + detailed) and version bumps are present; the post-commit
      `run_all_audits.sh` and pre-push `run-pr-time-checks.sh` are green.
 
