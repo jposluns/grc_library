@@ -47,7 +47,12 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import DEFAULT_EXEMPT_DIRS, iter_non_code_lines, read_text_safe
+from lint_common import (
+    AUDITED_DOMAIN_DIRS,
+    DEFAULT_EXEMPT_DIRS,
+    iter_non_code_lines,
+    read_text_safe,
+)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -63,19 +68,10 @@ DEFAULT_TARGETS = [
     "specification-master-project.md",
     "specification-ingestion.md",
     "instruction-ai-document-ingestion.md",
-    "ai",
-    "architecture",
-    "compliance",
-    "dev-security",
     "docs",
-    "governance",
-    ".project-governance",
-    "operations",
-    "privacy",
-    "resilience",
-    "risk",
-    "security",
-    "supply-chain",
+    # Domain run splatted from lint_common (scan-scope parity gate
+    # forbids hardcoding the run); ``docs`` above is a per-linter extra.
+    *AUDITED_DOMAIN_DIRS,
 ]
 
 

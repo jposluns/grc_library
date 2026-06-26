@@ -98,6 +98,7 @@ import sys
 from pathlib import Path
 
 from lint_common import (
+    AUDITED_DOMAIN_DIRS,
     DEFAULT_EXEMPT_DIRS,
     iter_markdown_targets,
     read_text_safe,
@@ -118,6 +119,13 @@ DEFAULT_BASELINE_DATE = datetime.date(2026, 6, 19)
 # and via dev-security exempt prefixes; this linter relies on the
 # DEFAULT_EXEMPT_DIRS skip for .claude/ and additionally exempts
 # the dev-security/claude-rules/ tree below).
+# Meta files plus ``docs`` (the generated-artefact directory, a
+# per-linter extra not in the shared domain set) plus the canonical
+# audited domain directories. The domain run is splatted from
+# ``AUDITED_DOMAIN_DIRS`` (the single source of truth in
+# ``lint_common``) rather than hardcoded, so a future top-level
+# audited directory propagates here automatically; the
+# directory-scan-scope parity gate enforces this.
 DEFAULT_SCAN_PATHS: tuple[str, ...] = (
     "README.md",
     "NOTICE.md",
@@ -126,19 +134,8 @@ DEFAULT_SCAN_PATHS: tuple[str, ...] = (
     "AUTHORS.md",
     "specification-master-project.md",
     "specification-ingestion.md",
-    "ai",
-    "architecture",
-    "compliance",
-    "dev-security",
     "docs",
-    "governance",
-    ".project-governance",
-    "operations",
-    "privacy",
-    "resilience",
-    "risk",
-    "security",
-    "supply-chain",
+    *AUDITED_DOMAIN_DIRS,
 )
 
 # Generated markdown files: the Date is set by the generator at

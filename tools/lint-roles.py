@@ -29,6 +29,8 @@ import re
 import sys
 from pathlib import Path
 
+from lint_common import AUDITED_DOMAIN_DIRS
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 ROLE_REGISTER = REPO_ROOT / "governance" / "register-role-authority.md"
 
@@ -62,18 +64,9 @@ DEFAULT_PATHS = [
     "NOTICE.md",
     "specification-master-project.md",
     "specification-ingestion.md",
-    "ai",
-    "architecture",
-    "compliance",
-    "dev-security",
-    "governance",
-    ".project-governance",
-    "operations",
-    "privacy",
-    "resilience",
-    "risk",
-    "security",
-    "supply-chain",
+    # Domain run splatted from lint_common (scan-scope parity gate
+    # forbids hardcoding the run).
+    *AUDITED_DOMAIN_DIRS,
 ]
 
 OWNER_PATTERN = re.compile(r"^\*\*Owner:\*\*\s+(.+?)\s*$", re.MULTILINE)

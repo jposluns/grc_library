@@ -46,7 +46,7 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import REPO_ROOT, read_text_safe
+from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, read_text_safe
 
 # Uncertainty markers that should not appear in mandatory text.
 UNCERTAINTY_PATTERNS = [
@@ -83,18 +83,9 @@ EXEMPT_FILES = {
 DEFAULT_PATHS = [
     "README.md",
     "NOTICE.md",
-    "ai",
-    "architecture",
-    "compliance",
-    "dev-security",
-    "governance",
-    ".project-governance",
-    "operations",
-    "privacy",
-    "resilience",
-    "risk",
-    "security",
-    "supply-chain",
+    # Domain run splatted from lint_common (scan-scope parity gate
+    # forbids hardcoding the run).
+    *AUDITED_DOMAIN_DIRS,
 ]
 
 # Window: report uncertainty + mandatory if they appear within N lines of each other.

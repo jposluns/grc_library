@@ -32,22 +32,16 @@ import re
 import sys
 from pathlib import Path
 
+from lint_common import AUDITED_DOMAIN_DIRS
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-DOMAINS = [
-    "ai",
-    "architecture",
-    "compliance",
-    "dev-security",
-    "governance",
-    ".project-governance",
-    "operations",
-    "privacy",
-    "resilience",
-    "risk",
-    "security",
-    "supply-chain",
-]
+# The review-cadence scan roots are exactly the audited domain
+# directories (no meta files, no ``docs``). Sourced from the single
+# ``AUDITED_DOMAIN_DIRS`` declaration in ``lint_common`` so a future
+# top-level audited directory is scheduled here automatically; the
+# directory-scan-scope parity gate enforces that this is not hardcoded.
+DOMAINS = list(AUDITED_DOMAIN_DIRS)
 
 EXEMPT_FROM_INDEX = {
     "privacy/annex-regional-privacy-requirements.md",
