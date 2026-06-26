@@ -182,7 +182,7 @@ After the cycle terminates, append a row to the project's validation-sweep histo
 - **Subagents** declares which subagents were dispatched (e.g. `A, B, C` for a full sweep; `A only` for a thin sweep, with the authorisation reason in the Summary cell). Per Rule 5.6, every iteration declares this, including zero-finding ones; a subagent's silent absence cannot be reconstructed later.
 - **Findings** is a brief count (e.g. `0`, `3 (1H, 1M, 1L)`, or class-coded `4 (C3, C1)`).
 - **Resulting PR** is the GitHub PR link or `none` for zero-finding iterations.
-- **Detail** is a link to the per-iteration file (see step 9), or a single dash for zero-finding iterations.
+- **Detail** is a link to the per-iteration file (see step 9), or the marker `none` for zero-finding iterations.
 - **Summary** is a one-line description of what the iteration found (or what the sweep verified, for zero-finding iterations).
 
 New rows on top. Zero-finding iterations still get a row: the history is the audit trail of every invocation, not just the ones that found something. The trend signal (which classes recur, how iteration counts shrink to convergence) lives in the table itself.

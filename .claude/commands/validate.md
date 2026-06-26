@@ -12,7 +12,7 @@ Invoke the `validation-sweep` skill defined in this project's pack at [`dev-secu
 
 Termination (replaces the older fixed 3-iteration cap; first matching condition fires): (a) empty-delta primary stop: zero new High/Medium findings AND the synthesised finding-set is identical (by dedupe-key) to the previous iteration; (b) patience-plateau secondary stop: 2 consecutive iterations with no strict shrinkage, surface residual to operator with named decision; (c) hard-ceiling 6 iterations runaway guard, defect signal not completion (report cycle vs scope creep).
 
-Step 8 (every iteration): append a row to [`.working/validate-sweeps/history.md`](../../.working/validate-sweeps/history.md) (this project's path; adopters relocate to a project-appropriate location) with columns `Date | Sweep | Subagents | Findings | Resulting PR | Detail | Summary`. New row on top (reverse-chronological). Zero-finding iterations still get a row; the `Detail` column is `—` and the `Resulting PR` is `none` for those.
+Step 8 (every iteration): append a row to [`.working/validate-sweeps/history.md`](../../.working/validate-sweeps/history.md) (this project's path; adopters relocate to a project-appropriate location) with columns `Date | Sweep | Subagents | Findings | Resulting PR | Detail | Summary`. New row on top (reverse-chronological). Zero-finding iterations still get a row; the `Detail` column is `none` and the `Resulting PR` is `none` for those.
 
 Step 9 (only when findings exist): write a per-iteration detail file to [`.working/validate-sweeps/`](../../.working/validate-sweeps/). Filename `YYYY-MM-DD-sweepN-iterM.md`. Six top-level H2 sections, comma form (per SKILL.md step 9):
 

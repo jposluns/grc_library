@@ -146,7 +146,7 @@ Add a row to the top of `.working/fitness-reviews/history.md` with columns:
 - **Personas** is `A through J` for a full ten-persona dispatch, or a comma-separated subset for a scoped run (rare; with authorisation reason in the Summary cell).
 - **Findings** is a brief count with severity breakdown (e.g., `0`, `7 (2H, 1H[critical], 3M, 1L)`).
 - **Resulting PR** is the close-out PR link, or `none` for zero-finding runs (or `pending` if the maintainer hasn't decided which findings to action yet).
-- **Detail** is a link to the per-run file at step 6, or a single dash for zero-finding runs.
+- **Detail** is a link to the per-run file at step 6, or the marker `none` for zero-finding runs.
 - **Summary** is a one-line description of the run's key findings or "library passes fitness review" for zero-finding runs.
 
 Zero-finding runs still write a history row. The history is the audit trail of every invocation, not just the productive ones.

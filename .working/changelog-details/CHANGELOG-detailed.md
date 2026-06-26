@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.331, PR #352
+
+Pack convention conformance for local project and adopters: the pack's own documented working-state conventions that used an em-dash are migrated to dash-free forms, so the pack templates obey the house-style no-em-dash rule the pack itself documents. This is the convention-definition step of the maintainer-directed full `.working/` em-dash conformance pass; the bulk application to existing `.working/` records follows in subsequent PRs.
+
+### Changed
+
+- [`dev-security/claude-rules/governance/change-tracking.md`](../../dev-security/claude-rules/governance/change-tracking.md) (and its byte-identical mirror [`.claude/rules/governance/change-tracking.md`](../../.claude/rules/governance/change-tracking.md), gate 37): the DONE-ledger terse-entry template and worked example change their header separator from `### PR #N` plus an em-dash to `### PR #N:` (colon). The em-dash heading separator was the dominant carrier of em-dashes in `.working/DONE.md`.
+- [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](../../dev-security/claude-rules/skills/validation-sweep/SKILL.md) and [`dev-security/claude-rules/skills/library-fitness-review/SKILL.md`](../../dev-security/claude-rules/skills/library-fitness-review/SKILL.md): the zero-finding `Detail`-column convention changes from "a single dash" to "the marker `none`".
+- [`.claude/commands/validate.md`](../../.claude/commands/validate.md) and [`.claude/commands/fitness.md`](../../.claude/commands/fitness.md): the documented zero-finding `Detail`-column placeholder changes from a single em-dash to `none`, matching the SKILLs.
+
+### Why
+
+The house-style rule forbids em-dashes in prose, but the pack's own templates documented two em-dash conventions (the DONE header separator and the history-table zero-finding `Detail` placeholder). The maintainer directed full `.working/` conformance with the separator changed too (2026-06-26). Defining the dash-free conventions in the pack first lets the subsequent bulk `.working/` pass apply them uniformly, and lets the planned `.working/` prose-hygiene gate forbid em-dashes in `.working/` without a heading-separator exemption.
+
+### Verification
+
+All 50 audit gates pass standalone. Gate 37 (claude-rules local-copy sync) confirms the change-tracking rule and its mirror remain byte-identical after the edit (verified by `diff -q`). A corpus-wide grep confirmed zero remaining `### PR #N` em-dash-separator templates and zero "single dash" placeholder descriptions outside `.working/`. New CHANGELOG lines confirmed em-dash-free by `grep -nP`.
+
 ## 2026-06-26, Library Version 2026.06.330, PR #351
 
 `.working/` session-close housekeeping for local project: session-closing handoff PR for the 2026-06-25/26 continued-resume session (#6). Refreshes [`.working/session-handoff.md`](../session-handoff.md) to the post-#350 snapshot (operating-mode change to attended-autonomous with overnight mode ended; state snapshot 50 gates / library `2026.06.329` / README `1.9.200` / green-at-`d065eaa`; this session's asserted-expectations covering Sweep 48 and the #346-#350 `/validate-pr` results and the #349/#347 codification/morning-processing consistency; the Sweep-49 cadence; the CWD-reset known-environment note; and the next-actions queue with FR-167 batch 5 / resilience as the directed next big activity, the multi-session §4.16 maintainer-timed, and the decided-content items), batches the #350 `/validate-pr` (0 findings) + `/retro` rows, and records #351's own handoff-exemption row inline in [`.working/validate-pr/history.md`](../validate-pr/history.md) (gate 50 detection). Per the handoff-PR loop-break this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide Sweep 49 the next `/resume` runs first, cross-checked against this handoff's asserted-expectations. No corpus-content change. Library `2026.06.329` to `2026.06.330`; README `1.9.200` to `1.9.201`.
