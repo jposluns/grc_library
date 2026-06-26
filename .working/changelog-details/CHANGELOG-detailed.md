@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.336, PR #357
+
+**Tier-1 working-tree prose-hygiene gate (gate 51).** A new audit gate that ratchets the 2026-06-26 `.working/` em-dash conformance (#353) so it cannot silently regress, plus the batched Sweep 50 loop-break `/validate` history row.
+
+### Added
+- [`tools/lint-working-prose-hygiene.py`](../../tools/lint-working-prose-hygiene.py): gate 51. Forbids em-dashes and en-dashes in `.working/` prose; allows them inside inline code spans and fenced code blocks (the principled boundary the #353 bulk apply established, where a handful of regex-literal and quoted-format-string dashes legitimately remain inside code spans). Scans the `.working/` tree only, overriding the default `.working` exemption via a narrowed `EXEMPT_DIRS`; accepts optional positional paths so the regression fixtures can target a single file. The root `CHANGELOG.md` is deliberately out of scope: its historical entries carry legitimate en-dashes, and the D3 PR-time dash gate covers it.
+- `WorkingProseHygieneTests` in [`tests/test_linters.py`](../../tests/test_linters.py): four regression cases (prose em-dash flagged, prose en-dash flagged, code-span dash not flagged, fenced-block dash not flagged).
+
+### Changed
+- Wired gate 51 into all four audit surfaces: [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) (after gate 50), [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml) (after the bookkeeping-parity step), [`.pre-commit-config.yaml`](../../.pre-commit-config.yaml) (a full-scan `always_run` hook), and [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) §6 (row 51 plus a tail narrative sentence in the gate-33-to-50 paragraph).
+- [`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md): growth-narrative word-form count "a dozen gates to fifty" corrected to "fifty-one" (the gate-39-blind carrier; gate 39 catches numeric "N gates" prose but not the spelled-out word form).
+- Version surfaces: spec [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) `1.16.6` to `1.16.7` (Date to 2026-06-26); pack [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) `1.49.14` to `1.49.15` (version-history row added); Library `2026.06.335` to `2026.06.336`; README `1.9.206` to `1.9.207`.
+- [`.working/session-handoff.md`](../session-handoff.md): the Next-actions gate-51 design block updated to "shipped this PR" (which also removed a malformed-backtick self-referential line, see the design note below); [`TODO.md`](../../TODO.md) sweep cursor advanced to Sweep 50 and the current-state gate-count refreshed to 51.
+
+### Verification
+- `tools/run_all_audits.sh`: all 51 gates pass on the committed state.
+- `tools/run-pr-time-checks.sh`: D1/D2/D3 plus the history-aware trio (45/40/31) pass against the merge base.
+- Gate 51 standalone: passes on live `.working/` (90 files, 0 prose dashes). The four-case regression class passes both directions.
+- Gate 39 (gate-count consistency): green after refreshing the TODO current-state count to 51 and dropping the count idiom from two historical TODO references. Sweep 49 and the guardrails r1 review each examined 50 gates; bumping those references to 51 would falsify history, so the count idiom was removed rather than incremented (the current-state snapshot was bumped to 51).
+
+### Design note (apply-time correction)
+The handoff design sketched a naive single-backtick code-span strip (`` `[^`]*` ``). At apply-time that strip false-positived on [`.working/session-handoff.md`](../session-handoff.md) line 28, a self-referential line whose 37 backticks (an odd count) included a fragment quoting the regex itself, leaving the literal dash example exposed in the residue. Per gate-discipline both the artefact and the gate logic were corrected rather than suppressed: the stripper was upgraded to the standard CommonMark code-span regex (a run of N backticks, the shortest content, a closing run of N), and the now-obsolete design block (which the shipped gate consumes) was rephrased so its prose is well-formed. This is the same apply-time-worker-correction pattern the workflow disciplines describe, applied to a pinned design rather than a worker draft.
+
+### Sweep 50 (batched, recursion-avoidance)
+The Sweep 50 loop-break corpus-wide `/validate` history row was added to [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (its own Version `2.0.42` to `2.0.43`). Sweep 50 is the deferred compensating control for session-closing handoff PRs #354 and #356, covering the #352 to #356 deltas (Sweep 50 never ran for #352-#354 either, so the delta scope accumulated). All three subagents (A recent-PR deep review, B corpus-wide stale-reference, C audit-programme integrity) returned 0 findings; the corpus is byte-identical to the Sweep-48/49 state because every delta was pack-prose convention, `.working/` or version-surface housekeeping, or the #355 design capture. No detail file (zero-finding convention); the row batches into this PR.
+
 ## 2026-06-26, Library Version 2026.06.335, PR #356
 
 **Session-closing handoff PR** for the 2026-06-26 session-state-safety design-capture session. Lands the session's working-state on `main` as a green merge so the next `/resume` rebuilds from `main`. Per the handoff-PR loop-break (CLAUDE.md PR-workflow step 5a) this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide Sweep 50 the next `/resume` runs first.

@@ -171,6 +171,9 @@ jobs:
       - name: Bookkeeping-parity audit
         run: python3 tools/lint-bookkeeping-parity.py
 
+      - name: Working-tree prose-hygiene audit
+        run: python3 tools/lint-working-prose-hygiene.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py
