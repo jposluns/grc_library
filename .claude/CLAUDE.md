@@ -352,6 +352,55 @@ of this default is the partitionable-work SOP in the
 [`ai-assistant-workflow-disciplines`](rules/governance/ai-assistant-workflow-disciplines.md)
 pack rule (its §2).
 
+## Attended-autonomous operating mode
+
+Between fully-attended (the maintainer authorises each step) and overnight mode (a
+maintainer-asleep autonomous run logged through [`.working/overnight-pr.md`](../.working/overnight-pr.md)'s
+in-flight lifecycle) there is a third, default-for-active-sessions mode the maintainer set
+2026-06-26: **attended-autonomous**. The maintainer is reachable but not watching every step
+(a side monitor, glanceable every 15-20 minutes), and the assistant keeps moving rather than
+blocking on each merge or each decision. Its three standing rules:
+
+1. **Green CI = merge authority.** When a PR's `Lint markdown corpus` check is green, the
+   assistant merges it and proceeds to the next task WITHOUT asking the maintainer to authorise
+   the merge; the maintainer redirects by exception, not by per-merge approval. This promotes
+   the PR-workflow step-4 merge into a standing authority for the active session. It is NOT
+   overnight mode: logging stays normal (per-PR `/validate-pr` + `/retro`, CHANGELOG, handoff),
+   there is no `overnight-pr.md` in-flight lifecycle, and the autonomous-conflict "skip-to-morning"
+   rule does not apply, because the maintainer is reachable.
+
+2. **Stricter-is-safer always.** On a cross-value conflict (two documents disagree on a number,
+   a control mapping, a regime status), resolve toward the more conservative value where one is
+   clearly safer, or toward the external-standard- or canonical-internal-source-supported value
+   where one governs; document the choice and its evidence. This is the overnight conflict rule,
+   and it holds in every mode, not only overnight.
+
+3. **The pending-decisions graceful-degradation mechanism.** When the next action depends on a
+   decision that is genuinely the maintainer's (per `clarify-before-acting`), the assistant
+   surfaces it with named options AND arms a short timer (default about 2 minutes, tunable;
+   mechanically a background `sleep`). If the maintainer answers before the timer fires, the
+   assistant acts on the answer. If the timer fires with no answer, the assistant does NOT stall
+   and does NOT guess an authorial decision; it takes exactly one of two logged paths:
+   - **Apply a stricter-safe default** when rule 2 yields a defensible, more-conservative,
+     evidence-backed option AND the action is reversible / on-branch. Record it in
+     [`.working/pending-decisions.md`](../.working/pending-decisions.md) as "proceeded with X
+     (stricter-safe default); confirm or redirect on resume", and continue.
+   - **Defer-and-skip** when the decision is genuinely authorial, irreversible, or outward-facing,
+     so there is no safe default. Record it as "deferred-blocked: needs maintainer", route AROUND
+     it to the next independent task (never guess), and hold any task that depends on the deferred
+     decision.
+   The reversibility gate from `action-before-explanation-of-inaction` governs which path applies:
+   a timeout never auto-proceeds on a destructive or outward-facing action. If every remaining task
+   depends on the one pending decision, there is no independent work; the assistant wraps a clean
+   handoff or idles on a longer check-in rather than guessing.
+
+On `/resume` the assistant reads [`.working/pending-decisions.md`](../.working/pending-decisions.md)
+first (a step in the resume command), surfaces the still-pending entries (confirming "proceeded"
+stricter-safe defaults for redirect, asking "deferred-blocked" questions), and resolves those tasks
+before the next queued items. This mode is the `clarify-before-acting` rule's "ask" refined for a
+reachable-but-not-watching maintainer: still ask (surface the decision, named options), but degrade
+gracefully instead of stalling, and never convert a timeout into a silent authorial pick.
+
 ## Throughput pressure does not authorise QA abbreviation
 
 When a long batch of PRs is in flight, when the session window feels tight, or when

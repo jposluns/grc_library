@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.328, PR #349
+
+`.claude/` + `.working/` for local project: codified the **attended-autonomous operating mode** the maintainer set 2026-06-26 (the third mode between fully-attended and overnight).
+
+### Added
+
+- A `## Attended-autonomous operating mode` section in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) with three standing rules: (1) green CI = standing merge authority for the active session (NOT overnight mode; normal per-PR logging, no `overnight-pr.md` lifecycle); (2) stricter-is-safer always (the overnight conflict rule, every mode); (3) the pending-decisions graceful-degradation mechanism (a maintainer decision unanswered within a ~2-minute background-`sleep` timer leads to either a logged stricter-safe default on reversible/on-branch work, or a defer-and-skip to the next independent task, never a silent authorial pick; the reversibility gate from `action-before-explanation-of-inaction` governs which).
+- [`.working/pending-decisions.md`](../pending-decisions.md): the durable decision queue (empty stub, `Status: empty`), with the per-entry schema (question, options, originating task, interim action, status) and the `/resume`-reads-it-first protocol. Maintainer working state, gate-exempt; distinct from `overnight-pr.md`.
+
+### Changed
+
+- [`.claude/commands/resume.md`](../../.claude/commands/resume.md): added a new step 7 that reads `pending-decisions.md` and resolves any pending decisions before the queued work; the prior step 7 (continue from Next actions) renumbered to 8.
+
+### Added (batched QA)
+
+- The #348 `/validate-pr` (0 findings) row in [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.141` to `1.2.142`) and the #348 `/retro` row in [`.working/improvement-log.md`](../improvement-log.md) (`1.0.108` to `1.0.109`), batched per recursion-avoidance.
+
+### Verification
+
+- `lint-language.py` pre-flight on the new prose: the added `.claude/CLAUDE.md` section, the `resume.md` step, and `pending-decisions.md` are all dash-free (the file-level `lint-language` run on `.claude/CLAUDE.md` reports only pre-existing em-dashes in the long-standing rule-list, an exempt surface, not the new section). `tools/run_all_audits.sh` 50/50 green post-commit; `tools/run-pr-time-checks.sh` green. No corpus-content change; all edits in gate-exempt `.claude/` + `.working/` plus the README/CHANGELOG version surfaces. Library `2026.06.327` to `2026.06.328`; README `1.9.198` to `1.9.199` (Date to `2026-06-26`, the UTC day having rolled).
+
 ## 2026-06-25, Library Version 2026.06.327, PR #348
 
 `.working/` housekeeping for local project: refreshed [`.working/hallucination-metrics.md`](../hallucination-metrics.md) from its frozen "as of PR #294" state to current (PR #347), per the maintainer's lagging-metric note.
