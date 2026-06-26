@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.49.18\
+**Version:** 1.49.19\
 **Date:** 2026-06-26\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -440,6 +440,8 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.49.19 | 2026.06.352 | 2026-06-26 | Version-history table correction: added the `1.49.18` row omitted in PR #372 (surfaced by that PR's `/validate-pr` as a paired-surface miss, the metadata `Version` was bumped to `1.49.18` but the table row was not added). No pack-content change beyond completing the table. Pack `1.49.18` to `1.49.19` (patch; bookkeeping). |
+| 1.49.18 | 2026.06.351 | 2026-06-26 | Gate 54 (per-document control-code validity) added to the audit programme, the corpus-wide sibling of gate 49: it validates NIST CSF 2.0 control codes wherever they appear in any corpus document's framework-reference or crosswalk tables, not only the central matrix (the gate-49-extension track: scanner in PR #370, the DD-12 CSF-1.1 corpus migration in PR #371, the gate wiring in PR #372). The [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) growth-narrative count "a dozen gates to **fifty-three**" advanced to "**fifty-four**" (gate-39-blind word-form). Pack `1.49.17` to `1.49.18` (patch; new gate plus stale-count). |
 | 1.49.17 | 2026.06.341 | 2026-06-26 | Gate 53 (corpus-to-project directional-dependency) added to the audit programme, the mechanical backstop for the project-governance-separation spec §4 one-way dependency rule: it flags any deliverable-corpus document that links into `.project-governance/`, the §4 counterpart to gate 52's §7.4 scan-scope parity. The [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) growth-narrative count "a dozen gates to **fifty-two**" advanced to "**fifty-three**" (gate-39-blind word-form). Pack `1.49.16` to `1.49.17` (patch; new gate plus stale-count). |
 | 1.49.16 | 2026.06.339 | 2026-06-26 | Gate 52 (directory-scan-scope parity) added to the audit programme, the mechanical backstop for the project-governance-separation spec §7.4: it forbids any content linter from hardcoding the audited-domain run (matching literal directory names, robust to all three declaration styles), now that the run has a single source of truth in [`tools/lint_common.py`](../../tools/lint_common.py) `AUDITED_DOMAIN_DIRS` (groundwork shipped in PR #359). The [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) growth-narrative count "a dozen gates to **fifty-one**" advanced to "**fifty-two**" (gate-39-blind word-form). Pack `1.49.15` to `1.49.16` (patch; new gate plus stale-count). |
 | 1.49.15 | 2026.06.336 | 2026-06-26 | Gate 51 (working-tree prose-hygiene) added to the audit programme; the [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) "Why this skill exists" growth-narrative count "a dozen gates to **fifty**" corrected to "**fifty-one**" (gate-39-blind word-form, the same recurring one-lag class as the `forty-nine`→`fifty` fix in 1.49.12, fixed in the gate-51 PR rather than left for the next sweep). Pack `1.49.14` to `1.49.15` (patch; stale-count). |
