@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.356, PR #377
+
+`.working/` session-close housekeeping for local project: **session-closing handoff PR** for the 2026-06-26 wind-down-decision-framework session (resumed from handoff #373). Lands working-state on `main` as a green merge so the next `/resume` rebuilds from `main`, and applies the one addressed in-window finding from #376's `/validate-pr`. Per the handoff-PR loop-break (CLAUDE.md PR-workflow step 5a) this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide **Sweep 56** the next `/resume` runs first (covering the #374/#375/#376/#377 deltas), cross-checked against this handoff's asserted-expectations.
+
+### Fixed
+
+- [`.working/hallucination-metrics.md`](../hallucination-metrics.md): added the catch-log entry closing the worker-brief update protocol's loop for the #376 rail-8 / template-`1.2.2` catch (protocol steps 1+4, which #376 omitted while claiming compliance). The entry records the root cause (the orchestrator did the template half but not the metrics half, the paired-surface class rail 8 itself guards), the discipline-gap fix (this entry), and the escalation (paired-surface-incompleteness recurred at #372/#374/#376-itself, so a mechanical paired-surface check is the durable fix, not more convention).
+
+### Changed
+
+- [`.working/session-handoff.md`](../session-handoff.md): refreshed to the post-#376 snapshot (state, this session's asserted-expectations for #374/#375/#376, green-at-`be2068c` 54/54, the Sweep-56-next cadence, the next-actions queue led by §5.3 then FR-167 batch 5, plus the new mechanical-paired-surface-check candidate in the soft-spots).
+- [`.working/session-metrics.md`](../session-metrics.md) (`1.0.3` to `1.0.4`): wrote the complete session row (6 subagents, 1,329,034 measured subagent tokens by phase; wall-clock an inferred bound since session-start `date -u` was not armed at resume, a process slip noted for correction; orchestrator main-loop `not instrumented`).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.166` to `1.2.167`): the #377 handoff-exemption row recorded inline + the batched #376 `/validate-pr` row. [`.working/improvement-log.md`](../improvement-log.md) (`1.0.127` to `1.0.128`): the batched #376 `/retro` row (which escalated the paired-surface pattern and the mechanical-check candidate).
+
+### Verification
+
+- `tools/run_all_audits.sh` **54/54 green** post-commit; `tools/run-pr-time-checks.sh` all-pass. No corpus-document change; the only edits are `.working/` ledgers and the README/changelog version surfaces; no generated-artefact regen.
+- New `.working/` prose (the hallucination-metrics entry, the handoff refresh, the metrics row) is em/en-dash-free (gate 51).
+
 ## 2026-06-26, Library Version 2026.06.355, PR #376
 
 `.claude/` + `.working/` operating-procedure change for local project: built two **paired-surface completeness guard rails**, closing the two routed-not-built improvement-log candidates this session surfaced (the #372 pack-version-history-completeness candidate and the #374 update-one-of-a-pair candidate). Option B of the wind-down framework's first live application (maintainer-chosen).
