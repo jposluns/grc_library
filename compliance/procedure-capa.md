@@ -2,8 +2,8 @@
 
 **Document Title:** Corrective and Preventive Action (CAPA) Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.4\
-**Date:** 2026-06-23\
+**Version:** 1.0.5\
+**Date:** 2026-06-26\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -472,7 +472,7 @@ Records are stored in the designated secure GRC document repository. Access is r
 | COBIT 2019 | MEA02 (Managed Assurance) | Assurance-linked corrective action and monitoring requirements |
 | CSA Cloud Controls Matrix | A&A-06 (Audit and Assurance: Remediation) | Requirements for tracking and remediating audit findings |
 | BASC Standard | §10 Improvement | Corrective action and improvement requirements within the BASC management system |
-| NIST Cybersecurity Framework 2.0 | RC.IM (Recovery: Improvements) | Incorporating lessons learned into recovery strategy and GRC programme improvement |
+| NIST Cybersecurity Framework 2.0 | ID.IM (Identify: Improvement) | Incorporating lessons learned into recovery strategy and GRC programme improvement |
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Security Monitoring and Alert Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.2\
-**Date:** 2026-06-23\
+**Version:** 1.3.3\
+**Date:** 2026-06-26\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md)\
@@ -330,11 +330,11 @@ The following metrics are tracked by the SOC, reported to the CISO monthly, and 
 | Log ingestion and integrity | §8.15 | Detect: DE.CM-7 | DSS05.03 | LOG-01, LOG-04, LOG-07 |
 | Time synchronization | §8.15.3 | Detect: DE.CM-1 | DSS01.03 | LOG-03 |
 | Alert rules and coverage | §8.16 | Detect: DE.CM-3, DE.CM-4 | DSS05.03 | LOG-09, SEF-01 |
-| Alert triage and response | §8.16 | Respond: RS.RP-1 | DSS05.03 | SEF-02, SEF-03 |
+| Alert triage and response | §8.16 | Respond: RS.MA-02 | DSS05.03 | SEF-02, SEF-03 |
 | Automated ticket creation | §8.16 | Respond: RS.CO-1 | DSS05.03 | SEF-04 |
 | Escalation to incident response | §5.25, §5.26 | Respond: RS.CO-3 | DSS02.01 | SEF-05, SEF-06 |
-| Dashboards and reporting | §8.16 | Detect: DE.DP-5 | MEA01.04 | LOG-11, LOG-14 |
-| Rule tuning and MITRE mapping | §8.16 | Detect: DE.DP-3 | DSS05.03 | LOG-10, SEF-09 |
+| Dashboards and reporting | §8.16 | Detect: DE.AE-06 | MEA01.04 | LOG-11, LOG-14 |
+| Rule tuning and MITRE mapping | §8.16 | Detect: DE.AE-07 | DSS05.03 | LOG-10, SEF-09 |
 | AI-assisted detection | §8.16 | Detect: DE.CM-7 | DSS05.03 | SEF-10 |
 
 ---
