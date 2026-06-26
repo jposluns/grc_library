@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.49.14\
+**Version:** 1.49.15\
 **Date:** 2026-06-26\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -440,6 +440,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.49.15 | 2026.06.336 | 2026-06-26 | Gate 51 (working-tree prose-hygiene) added to the audit programme; the [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) "Why this skill exists" growth-narrative count "a dozen gates to **fifty**" corrected to "**fifty-one**" (gate-39-blind word-form, the same recurring one-lag class as the `forty-nine`→`fifty` fix in 1.49.12, fixed in the gate-51 PR rather than left for the next sweep). Pack `1.49.14` to `1.49.15` (patch; stale-count). |
 | 1.49.14 | 2026.06.332 | 2026-06-26 | Metadata `Date` aligned to 2026-06-26 to match the 1.49.13 version-bump date. The #352 `/retro` flagged that the 1.49.13 bump changed the `Version` line but left the `Date` at 2026-06-25 (the recurring version-bump incidental-edit sub-shape, within gate-31 1-day tolerance so CI stayed green). No pack-content change. Pack `1.49.13` to `1.49.14` (patch; metadata alignment). |
 | 1.49.13 | 2026.06.331 | 2026-06-26 | House-style conformance of the pack's own working-state conventions: the [`governance/change-tracking.md`](governance/change-tracking.md) DONE-ledger entry template changes its header separator from `### PR #N` followed by an em-dash to `### PR #N:` (colon), and the zero-finding `Detail`-column placeholder in the validation-sweep and library-fitness-review history tables changes from a single em-dash to the marker `none` (updated in [`skills/validation-sweep/SKILL.md`](skills/validation-sweep/SKILL.md), [`skills/library-fitness-review/SKILL.md`](skills/library-fitness-review/SKILL.md), and the `/validate` and `/fitness` slash commands). Conforms the pack templates to the no-em-dash house-style rule the pack itself documents. Pack `1.49.12` to `1.49.13` (patch; convention conformance, no behaviour change). |
 | 1.49.12 | 2026.06.322 | 2026-06-25 | Gate 50 (bookkeeping-parity) added to the audit programme; the [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) "Why this skill exists" growth-narrative count "a dozen gates to **forty-nine**" corrected to "**fifty**" (gate-39-blind word-form, the same recurring one-lag class as the `forty-eight`→`forty-nine` fix in 1.49.10, fixed proactively in the gate-50 PR rather than left for the next sweep). Pack `1.49.11` to `1.49.12` (patch; stale-count). |
