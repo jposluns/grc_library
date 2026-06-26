@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #367: §4.15 audit-programme functional-category-index currency (2026-06-26)
+
+Closed TODO §4.15: brought the audit-programme spec §5 functional-category list current with gates 49-53 (49→Content-drift; 50/52→Programme-and-index-integrity; 51→Language-and-style with the em-dash gate 9; 53→Reference-integrity as a link-target check) and recorded the gate-ordering decision (keep numeric append-order; §5 is the orthogonal functional view, §6 the canonical numbered inventory). Batches the #366 `/validate-pr` (0 findings) + `/retro` rows.
+
 ### PR #366: §4.17 Version-Date co-bump check (delta gate D4) (2026-06-26)
 
 Closed TODO §4.17: added PR-only delta gate D4 (`tools/check-date-cobump-on-pr.py`), which fails when a PR bumps a versioned document's Version but leaves its Date not equal to the bump commit's UTC date, closing the residue gates 40 and 31 leave open (gate 31's 1-day tolerance passed the #325/#352 cases). Built as a delta gate rather than a gate-40 extension because prototyping showed a HEAD-state form has a 78-doc historical false-positive surface; the delta form has none. Wired into quality.yml, the PR-time runner, and spec §6.1 with a `DateCobumpOnPrTests` regression class. Also batches the Sweep 53 loop-break `/validate` row (1 out-of-window note, cross-referenced into DD-12).
