@@ -3030,5 +3030,49 @@ class BookkeepingParityTests(LinterTestCase):
         )
 
 
+class WorkingProseHygieneTests(LinterTestCase):
+    """tools/lint-working-prose-hygiene.py (gate 51)"""
+
+    def test_prose_em_dash_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "working-prose-em-dash.md",
+            "# Working note\n\nThe quick brown fox — jumped over the lazy dog.\n",
+        )
+        result = run_linter("tools/lint-working-prose-hygiene.py", fixture)
+        self.assertLinterFails(result, "prose-dash")
+
+    def test_prose_en_dash_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "working-prose-en-dash.md",
+            "# Working note\n\nThe range 2024–2026 carries an en-dash in prose.\n",
+        )
+        result = run_linter("tools/lint-working-prose-hygiene.py", fixture)
+        self.assertLinterFails(result, "prose-dash")
+
+    def test_code_span_dash_not_flagged(self) -> None:
+        # A dash inside an inline code span is content, not prose; allowed.
+        fixture = self.make_fixture(
+            "working-codespan-dash.md",
+            "# Working note\n\nThe regex `[–—]` matches an en or em dash.\n",
+        )
+        result = run_linter("tools/lint-working-prose-hygiene.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"code-span dash must not flag.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_fenced_block_dash_not_flagged(self) -> None:
+        # A dash inside a fenced code block is skipped (iter_non_code_lines).
+        fixture = self.make_fixture(
+            "working-fenced-dash.md",
+            "# Working note\n\n```\nsed -e 's/—/-/'  # em dash in a code fence\n```\n",
+        )
+        result = run_linter("tools/lint-working-prose-hygiene.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"fenced-block dash must not flag.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

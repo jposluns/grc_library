@@ -372,3 +372,10 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+
+      - id: lint-working-prose-hygiene
+        name: Working-tree prose-hygiene audit
+        entry: python3 tools/lint-working-prose-hygiene.py
+        language: system
+        pass_filenames: false
+        always_run: true
