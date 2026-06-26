@@ -2,11 +2,11 @@
 
 **Document Title:** Document Review Record Template\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`governance/register-document-review-schedule.md`](register-document-review-schedule.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md)\
+**Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md)\
 **Classification:** Public\
 **Category:** Core Governance\
 **Review Frequency:** Annual and upon material change to the review procedure or schedule schema\

@@ -37,7 +37,7 @@ The metadata block above carries a generator schema constant for `Version` and t
 
 ---
 
-_Summary as of last regeneration: Mature: 93, Baseline: 174, Draft: 20, Unknown: 0._
+_Summary as of last regeneration: Mature: 93, Baseline: 173, Draft: 20, Unknown: 0._
 
 ## Mature
 
@@ -75,7 +75,7 @@ _93 documents._
 | [governance/register-ai-security-tooling-landscape.md](../governance/register-ai-security-tooling-landscape.md) | AI Security Tooling Landscape Register | Register | 1.1.3 | 2026-06-25 |
 | [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.2 | 2026-06-25 |
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.17 | 2026-06-25 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.38 | 2026-06-25 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.39 | 2026-06-26 |
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.2 | 2026-06-24 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.2 | 2026-06-23 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.5.1 | 2026-06-22 |
@@ -143,7 +143,7 @@ _93 documents._
 
 ## Baseline
 
-_174 documents._
+_173 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
@@ -208,15 +208,14 @@ _174 documents._
 | [governance/policy-digital-twin-and-simulation-governance.md](../governance/policy-digital-twin-and-simulation-governance.md) | Digital Twin and Simulation Governance Policy | Policy | 1.0.3 | 2026-06-22 |
 | [governance/procedure-continuous-improvement-register.md](../governance/procedure-continuous-improvement-register.md) | Continuous Improvement Register Procedure | Procedure | 1.0.0 | 2026-05-27 |
 | [governance/procedure-grc-programme-management-and-annual-review.md](../governance/procedure-grc-programme-management-and-annual-review.md) | GRC Programme Management and Annual Review Procedure | Procedure | 1.0.2 | 2026-06-22 |
-| [governance/procedure-library-quality-and-review-cadence.md](../governance/procedure-library-quality-and-review-cadence.md) | Library Quality and Review Cadence Procedure | Procedure | 1.0.13 | 2026-06-21 |
+| [governance/procedure-library-quality-and-review-cadence.md](../governance/procedure-library-quality-and-review-cadence.md) | Library Quality and Review Cadence Procedure | Procedure | 1.0.14 | 2026-06-26 |
 | [governance/procedure-whistleblower-and-incident-reporting.md](../governance/procedure-whistleblower-and-incident-reporting.md) | Whistleblower and Incident Reporting Procedure | Procedure | 1.0.2 | 2026-05-28 |
 | [governance/register-data-retention-schedule.md](../governance/register-data-retention-schedule.md) | Data Retention Schedule | Register | 1.0.6 | 2026-06-23 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.0.2 | 2026-06-24 |
-| [governance/register-document-review-schedule.md](../governance/register-document-review-schedule.md) | Document Review Schedule Register | Register | 1.0.1 | 2026-06-02 |
-| [governance/specification-project-governance-separation.md](../governance/specification-project-governance-separation.md) | Project Governance Separation Specification | Specification | 1.0.4 | 2026-06-26 |
+| [governance/specification-project-governance-separation.md](../governance/specification-project-governance-separation.md) | Project Governance Separation Specification | Specification | 1.0.5 | 2026-06-26 |
 | [governance/template-citation-verification-worklist.md](../governance/template-citation-verification-worklist.md) | Citation Verification Worklist Template | Template | 1.0.3 | 2026-06-25 |
-| [governance/template-document-review-record.md](../governance/template-document-review-record.md) | Document Review Record Template | Template | 1.0.1 | 2026-06-02 |
-| [governance/template-library-health-report.md](../governance/template-library-health-report.md) | Library Health Report Template | Template | 1.0.2 | 2026-06-23 |
+| [governance/template-document-review-record.md](../governance/template-document-review-record.md) | Document Review Record Template | Template | 1.0.2 | 2026-06-26 |
+| [governance/template-library-health-report.md](../governance/template-library-health-report.md) | Library Health Report Template | Template | 1.0.3 | 2026-06-26 |
 | [operations/framework-it-service-management.md](../operations/framework-it-service-management.md) | IT Service Management Framework | Framework | 1.0.1 | 2026-06-24 |
 | [operations/ot/annex-bms-overlay.md](../operations/ot/annex-bms-overlay.md) | Building Management Systems (BMS) Overlay Annex | Annex | 1.0.1 | 2026-06-22 |
 | [operations/ot/annex-ot-security-overview.md](../operations/ot/annex-ot-security-overview.md) | Operational Technology Security Overview Annex | Annex | 1.0.2 | 2026-06-22 |

@@ -2,15 +2,15 @@
 
 **Document Title:** Document Review Schedule Register\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md)\
+**Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](../governance/procedure-library-quality-and-review-cadence.md), [`governance/template-document-review-record.md`](../governance/template-document-review-record.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/procedure-continuous-improvement-register.md`](../governance/procedure-continuous-improvement-register.md)\
 **Classification:** Public\
 **Category:** Core Governance\
 **Review Frequency:** Continuous; refreshed in line with document additions, retirements, and conducted reviews\
-**Repository Path:** [`governance/register-document-review-schedule.md`](register-document-review-schedule.md)\
+**Repository Path:** [`.project-governance/register-document-review-schedule.md`](register-document-review-schedule.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
 
@@ -161,7 +161,7 @@ Where this register and the checker disagree, the checker output is treated as p
 
 | Path | Owner | Last review | Frequency | Next due | Status |
 | --- | --- | --- | --- | --- | --- |
-| [`governance/charter-governance-library.md`](charter-governance-library.md) | Governance Library Maintainer | 2026-05-27 | 12 months | 2027-05-27 | Current |
+| [`governance/charter-governance-library.md`](../governance/charter-governance-library.md) | Governance Library Maintainer | 2026-05-27 | 12 months | 2027-05-27 | Current |
 | [`security/policy-information-security.md`](../security/policy-information-security.md) | Chief Information Security Officer | 2026-05-27 | 12 months | 2027-05-27 | Current |
 | [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md) | Chief AI Officer | 2026-05-27 | 12 months | 2027-05-27 | Current |
 | [`risk/template-operational-risk-register.md`](../risk/template-operational-risk-register.md) | Chief Risk Officer | 2026-05-28 | 12 months | 2027-05-28 | Current |

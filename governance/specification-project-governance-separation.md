@@ -2,7 +2,7 @@
 
 **Document Title:** Project Governance Separation Specification\
 **Document Type:** Specification\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-06-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -89,7 +89,7 @@ Because `.project-governance/` is audited rather than exempt, links *within* it 
 
 ## 5. Classification of the current `governance/` corpus
 
-The 40 Markdown artefacts in `governance/` as of this specification's date, plus this specification itself, classify as follows. "Stays" means the artefact remains corpus governance in `governance/`. "Move (Phase 1)" and "Deferred" are project-governance artefacts; the phase column records when they migrate (§8).
+The 40 Markdown artefacts in `governance/` as of this specification's original authoring date, plus this specification itself, classify as follows. "Stays" means the artefact remains corpus governance in `governance/`. "Move (Phase 1)", "Move (Phase 2)", and "Deferred" are project-governance artefacts; the phase column records when they migrate (§8). The Phase-1 cluster and the Phase-2 review-schedule register have since migrated, and both formerly-deferred candidates are now resolved (§5.3); the tables below record the as-classified disposition of each artefact, not the live `governance/` population.
 
 ### 5.1 Corpus governance (stays in `governance/`)
 
@@ -115,6 +115,7 @@ The 40 Markdown artefacts in `governance/` as of this specification's date, plus
 | `procedure-whistleblower-and-incident-reporting.md` | Procedure | Published procedure |
 | `register-ai-security-tooling-landscape.md` | Register | Adopter-facing reference landscape |
 | `register-canonical-citations.md` | Register | Reusable citation *reference* an adopter adapts; the verification *log* (`register-citation-verifications.md`) is the operational instance, not this list |
+| `register-coverage-gaps.md` | Register | Adopter-facing reference woven into the adopter guides (`docs/decision-tree.md`, `docs/template-startup-roadmap.md`) as routing logic; the honest-disclosure content an adopter references (resolved from §5.3 to stays-corpus, 2026-06-26, on the §3.1 adopter-referenced-register criterion and the §4 no-deliverable-link-into-project constraint) |
 | `register-data-retention-schedule.md` | Register | Adopter-facing reference content |
 | `register-digital-trust-and-assurance-metrics.md` | Register | Adopter-facing reference content |
 | `register-document-index-and-classification.md` | Register | Corpus index (corpus files only, per §4) |
@@ -142,14 +143,24 @@ The 40 Markdown artefacts in `governance/` as of this specification's date, plus
 
 These six are the purest operational instances and their inbound corpus citations are bounded (the corpus index, the staying spec, and the staying template), so they migrate first.
 
-### 5.3 Project governance candidates, Deferred (decide per artefact in a later phase)
+### 5.3 Project governance candidates, Deferred (resolved 2026-06-26)
 
-| Artefact | Type | Why deferred |
+Both deferred candidates have been resolved, each on its own merits (per the §9 maintenance rule, a resolved candidate's row moves to its destination section and the resolution is recorded):
+
+| Artefact | Type | Resolution |
 | --- | --- | --- |
-| `register-coverage-gaps.md` | Register | Operational tracker, but woven into adopter guides (`docs/decision-tree.md`, `docs/template-startup-roadmap.md`); inbound rework is larger |
-| `register-document-review-schedule.md` | Register | Operational schedule, but cited by adopter templates (`docs/template-maturity-self-assessment.md`) and staying procedures/templates |
+| `register-coverage-gaps.md` | Register | **Stays corpus** (moved to §5.1). The citation evidence showed it is woven into the adopter guides (`docs/decision-tree.md` cites it 4x as routing logic, `docs/template-startup-roadmap.md` once) and the §3.1 criterion lists adopter-referenced registers as corpus; a move would force severing adopter-guide routing with no §4-permitted re-point target (a deliverable cannot link into `.project-governance/`). |
+| `register-document-review-schedule.md` | Register | **Moved (Phase 2)** to `.project-governance/` (see §5.4). It is a §3.2 filled-in operational instance (this project's review schedule); its corpus citers were severed or re-pointed to the reusable patterns. |
 
-The deferred set is not a backlog of "move eventually"; each is an open classification question that a later phase resolves on its own merits, with "stays corpus" a legitimate outcome.
+No deferred classifications remain. The deferred set was never a backlog of "move eventually"; each was an open classification question resolved on its own merits, and "stays corpus" was a legitimate outcome (realized here for `register-coverage-gaps.md`).
+
+### 5.4 Project governance, Moved in Phase 2 (the document review schedule register)
+
+| Artefact | Type | Why project |
+| --- | --- | --- |
+| `register-document-review-schedule.md` | Register | This project's filled-in review schedule (a §3.2 operational instance), distinct from the reusable review-cadence procedure (`procedure-library-quality-and-review-cadence.md`) and review-record template (`template-document-review-record.md`), which stay corpus |
+
+Phase 2 migrated this single register after Phase 1, resolving the heavier of the two deferred classifications. Its inbound corpus citations were more woven than the Phase-1 cluster's (a corpus index row, a domain README row, two staying templates' Related-Documents pointers, a staying procedure's maintenance-table row, and an adopter-template example); each was severed (the staying templates and procedure do not depend on the project instance) or re-pointed to the reusable corpus pattern (the adopter example now points to the review-cadence procedure), so no corpus deliverable links into `.project-governance/` (§4, gate 53).
 
 ---
 
@@ -202,8 +213,9 @@ The audited-domain run now has a **single source of truth**: `AUDITED_DOMAIN_DIR
 
 ### 8.1 Phasing
 
-- **Phase 1** moves the §5.2 citation-verification campaign cluster (six artefacts), creates `.project-governance/` and its README index, applies the §7 gate and generator changes, and re-points the two path-targeted linters. Phase 1 is a single PR scoped to the move; it ships after this specification (PR 1) merges.
-- **Later phases** resolve each §5.3 deferred candidate on its own merits.
+- **Phase 1** moves the §5.2 citation-verification campaign cluster (six artefacts), creates `.project-governance/` and its README index, applies the §7 gate and generator changes, and re-points the two path-targeted linters. Phase 1 is a single PR scoped to the move; it ships after this specification (PR 1) merges. (Shipped in PR #336.)
+- **Phase 2** moves the §5.4 document review schedule register (one artefact) into the existing `.project-governance/` directory, severing or re-pointing its inbound corpus citations to the reusable corpus patterns, and regenerating the adopter-facing artefacts. Phase 2 is a single PR scoped to the move; it ships after the §5.3 classification is resolved. (Shipped in PR #381.)
+- **Both §5.3 deferred candidates are now resolved** (§5.3, 2026-06-26): `register-coverage-gaps.md` stays corpus (§5.1) and `register-document-review-schedule.md` moved in Phase 2 (§5.4). No deferred candidates remain.
 
 ### 8.2 Per-artefact migration discipline (applies to every move)
 

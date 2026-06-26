@@ -2,8 +2,8 @@
 
 **Document Title:** Project Governance README\
 **Document Type:** Register\
-**Version:** 1.0.0\
-**Date:** 2026-06-25\
+**Version:** 1.0.1\
+**Date:** 2026-06-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/specification-project-governance-separation.md`](../governance/specification-project-governance-separation.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
@@ -30,7 +30,7 @@ This directory is **audited, not exempt**: its artefacts receive the full corpus
 
 ## Project-governance artefacts
 
-The citation-verification campaign cluster, migrated here in the project-governance separation Phase 1 (see the separation specification §5.2 and §8.1):
+The project-governance artefacts migrated here under the project-governance separation (see the separation specification §5.2, the Phase 2 subsection, and §8.1). Phase 1 migrated the citation-verification campaign cluster; the Phase 2 migration moved the document review schedule register (this project's filled-in review schedule, a §3.2 operational instance):
 
 | Type | Title | Path |
 | --- | --- | --- |
@@ -40,6 +40,7 @@ The citation-verification campaign cluster, migrated here in the project-governa
 | Worklist | Citation Verification Worklist: Batch Q3 (AI Tooling Provenance) | [`.project-governance/worklist-citation-verification-batch-q3-ai-tooling.md`](worklist-citation-verification-batch-q3-ai-tooling.md) |
 | Worklist | Citation Verification Worklist: Batch Q3.1 (New Canonical Citations) | [`.project-governance/worklist-citation-verification-batch-q3-1-new-citations.md`](worklist-citation-verification-batch-q3-1-new-citations.md) |
 | Worklist | Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations) | [`.project-governance/worklist-citation-verification-batch-q4-canonical-citations.md`](worklist-citation-verification-batch-q4-canonical-citations.md) |
+| Register | Document Review Schedule Register | [`.project-governance/register-document-review-schedule.md`](register-document-review-schedule.md) |
 
 ---
 

@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.360, PR #381
+
+Project-governance separation: §5.3 deferred classifications resolved, and Phase 2 migrates the document review schedule register to `.project-governance/`. This is the maintainer-directed item the Sweep-57 resume surfaced (the §5.3 decision was `deferred-blocked` in [`pending-decisions.md`](../pending-decisions.md); resolved Option A this session). Two authorial sub-decisions were surfaced and answered: the spec records Phase 2 in a distinct `### 5.4` subsection (not a generalized §5.2), and the adopter example re-points to the corpus review-cadence procedure (not the review-record template). Migration map produced by a research worker; every citer re-read and every re-point authored at apply-time (one citer reference the worker missed, the procedure's `:9` Related-Documents pointer, was caught by the orchestrator's post-edit grep).
+
+### Added
+
+- [`.project-governance/register-document-review-schedule.md`](../../.project-governance/register-document-review-schedule.md) (`1.0.1` to `1.0.2`): the review schedule register, `git mv`d from `governance/`. Its `Repository Path` re-pointed to `.project-governance/`; its five Related-Documents targets and one bare-basename body link (the charter link at `:164`) re-pathed to `../governance/` (project to corpus links, permitted by §4); these were the dangling-link landmines the move created.
+- [`governance/specification-project-governance-separation.md`](../../governance/specification-project-governance-separation.md) (`1.0.4` to `1.0.5`): a new `### 5.4 Project governance, Moved in Phase 2` subsection; [`governance/register-coverage-gaps.md`](../../governance/register-coverage-gaps.md) added to §5.1 (stays corpus); §5.3 rewritten to record both candidates resolved; §8.1 phasing prose updated (Phase 1 shipped #336, Phase 2 shipped #381, no deferred candidates remain); the §5 intro count anchored to the original authoring date and the Phase-2 column added.
+- [`.project-governance/README.md`](../../.project-governance/README.md) (`1.0.0` to `1.0.1`): the review-schedule register added to the artefacts index; the preamble reworded to describe both migration phases.
+
+### Changed
+
+- Citer re-points (each a corpus document whose link to the moved register was severed or re-pointed; all Version + Date bumped): [`governance/template-document-review-record.md`](../../governance/template-document-review-record.md) (`1.0.1` to `1.0.2`, Related-Documents pointer severed); [`governance/template-library-health-report.md`](../../governance/template-library-health-report.md) (`1.0.2` to `1.0.3`, severed); [`governance/procedure-library-quality-and-review-cadence.md`](../../governance/procedure-library-quality-and-review-cadence.md) (`1.0.13` to `1.0.14`, the Step-5 maintenance-table row and the `:9` Related-Documents pointer both removed); [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (`1.27.38` to `1.27.39`, corpus index row removed); [`governance/README.md`](../../governance/README.md) (`1.10.7` to `1.10.8`, domain index row removed); [`docs/template-maturity-self-assessment.md`](../../docs/template-maturity-self-assessment.md) (`1.0.3` to `1.0.4`, the adopter example re-pointed to the review-cadence procedure per the maintainer's choice).
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated; the review-schedule register drops out of all three (the generators exclude `.project-governance/`).
+- [`TODO.md`](../../TODO.md): the §5.3 item rotated to [`DONE.md`](../DONE.md) (closed).
+
+### Discipline observation
+
+The research worker's migration map flagged the 7 known corpus citers but counted the procedure's reference as one (the `:93` body row); the orchestrator's post-edit `grep` caught a second reference in the same file (the `:9` Related-Documents pointer), which the move would have left as a broken link. Caught and severed pre-audit. This is the apply-time-verification value of the research-assistant discipline: the worker's map is a hypothesis, and the orchestrator's independent re-grep is the backstop.
+
+### Verification
+
+- Gate 53 (corpus-to-project directional-dependency) passes: no corpus deliverable links into `.project-governance/`. Gate 3 (broken links) passes (the severed/re-pointed/re-pathed links all resolve). `tools/run_all_audits.sh` **54/54** post-commit (after regenerating artefacts following the spec Version bump; an initial regen-before-version-bump left taxonomy stale, caught by gate 33 and re-run); `tools/run-pr-time-checks.sh` all-pass pre-push. The CHANGELOG pre-flight aid was run before the first commit.
+- Batched (recursion-avoidance): the #380 `/validate-pr` (0 findings) history row and the #380 `/retro` register row (committed in the prior batch commit `dc56995`).
+- Library `2026.06.359` to `2026.06.360`; README `1.9.230` to `1.9.231`; separation spec `1.0.4` to `1.0.5`; nine documents bumped Version + Date (the moved register, the spec, the project-README, and the six re-pointed citers).
+
 ## 2026-06-26, Library Version 2026.06.359, PR #380
 
 FR-167 batch 6 (operations domain): the GRC compliance matrix Operations section expands by 11 net-new rows (10 to 21), giving the operations domain comprehensive coverage across the 8 framework columns. This is the sixth FR-167 domain batch (after Architecture #275, Risk #313, Dev-security #317, Supply-chain #341, Resilience #378). Authored via the research-assistant discipline: 5 verified-disjoint research workers read the 11 net-new operations docs in full and proposed mappings with `path:line` evidence, validating every code against the in-repo reference modules; the orchestrator re-read each document's own framework-alignment table and the reference modules, made every authorial cell decision, and relied on gates 48/49 as the mechanical backstop.
