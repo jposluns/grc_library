@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.346, PR #367
+
+Integrity-tooling bookkeeping closing TODO §4.15 (audit-programme functional-category-index currency): brought the audit-programme spec §5 "Gate categories" functional list current with gates 49-53, which had accumulated outside §5 under the standing append-and-defer pattern, and recorded the gate-ordering decision §4.15 named.
+
+### Changed
+
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (`1.16.10` to `1.16.11`): added gates 49-53 to the §5 functional categories: gate 49 (matrix control-code validity) to **Content drift defence** alongside gate 48; gate 50 (bookkeeping-parity) and gate 52 (directory-scan-scope parity) to **Programme and index integrity**; gate 51 (working-tree prose-hygiene) to **Language and style** alongside the em-dash gate 9 (its functional sibling); gate 53 (corpus-to-project directional-dependency) to **Reference integrity** as a link-target check alongside the other link gates. Extended the existing descriptive-not-prescriptive note to record the **numeric append-order decision**: gates are numbered by append order at the tail of §6 (so adding one never renumbers the meta-gates above), §5 is the orthogonal functional view, and a category's gate list is non-contiguous by design.
+- [`TODO.md`](../../TODO.md): rotated §4.15 out (shipped). [`.working/DONE.md`](../DONE.md): added the PR #367 entry.
+- [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the spec Version bump.
+
+### Verification
+
+- `tools/run_all_audits.sh` 53/53 green post-commit; `tools/run-pr-time-checks.sh` all-pass (the spec Version bump co-bumps its Date, which D4 validates).
+- §5 category placement is a considered refinement of §4.15's tentative "gates 51/52/53 all in Programme integrity" sketch (gate 51 is functionally a style check, gate 53 a link check), which the §5 descriptive-not-prescriptive note expressly permits; no gate behaviour changed (gate 35 parity and gate 39 count both green at 53).
+
+### Discipline observation
+
+Batches the PR #366 `/validate-pr` (0 findings) + `/retro` rows per recursion-avoidance. The §4.15 closure removes the recurring "gates N absent from §5" known soft spot that every recent sweep noted; going forward the new-gate authoring reflex (the #366 retro candidate) includes adding the gate to its §5 category in the same PR.
+
 ## 2026-06-26, Library Version 2026.06.345, PR #366
 
 Integrity-tooling delta gate closing TODO §4.17 (the Version-Date co-bump check): added **delta gate D4 (per-PR Version-Date co-bump)**, [`tools/check-date-cobump-on-pr.py`](../../tools/check-date-cobump-on-pr.py), a PR-only check (sibling to D1/D2/D3) that fails when a PR bumps a versioned document's `**Version:**` field but leaves its `**Date:**` field not equal to the date of the bump commit (UTC). It closes the residue that gates 40 (corpus version-bump-recency) and 31 (document-date-staleness) leave open: gate 40 is silent on the Date, and gate 31 tolerates a 1-day lag, so a Version bump whose Date was left one day stale passes (the recurring sub-shape `/retro` confirmed at PR #325 and PR #352). Also batches the **Sweep 53** loop-break `/validate` history row and per-iteration detail file.
