@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.345, PR #366
+
+Integrity-tooling delta gate closing TODO §4.17 (the Version-Date co-bump check): added **delta gate D4 (per-PR Version-Date co-bump)**, [`tools/check-date-cobump-on-pr.py`](../../tools/check-date-cobump-on-pr.py), a PR-only check (sibling to D1/D2/D3) that fails when a PR bumps a versioned document's `**Version:**` field but leaves its `**Date:**` field not equal to the date of the bump commit (UTC). It closes the residue that gates 40 (corpus version-bump-recency) and 31 (document-date-staleness) leave open: gate 40 is silent on the Date, and gate 31 tolerates a 1-day lag, so a Version bump whose Date was left one day stale passes (the recurring sub-shape `/retro` confirmed at PR #325 and PR #352). Also batches the **Sweep 53** loop-break `/validate` history row and per-iteration detail file.
+
+### Added
+
+- [`tools/check-date-cobump-on-pr.py`](../../tools/check-date-cobump-on-pr.py): delta gate D4. For each versioned markdown file whose Version value changed between the PR merge-base and head, it compares the head `**Date:**` against the UTC committer date of the most-recent commit in the PR range that touched the file (the bump commit), and fails on a mismatch. Exempt files match D2 ([`CHANGELOG.md`](../../CHANGELOG.md), generated artefacts, files without a Version field).
+- `DateCobumpOnPrTests` in [`tests/test_linters.py`](../../tests/test_linters.py): a regression class with three cases over a synthetic two-commit repo with pinned committer dates (Version bump without Date co-bump flagged; Version and Date co-bumped not flagged; body change without Version bump out of scope).
+- [`.working/validate-sweeps/2026-06-26-sweep53-iter1.md`](../validate-sweeps/2026-06-26-sweep53-iter1.md): the Sweep 53 per-iteration detail file (1 out-of-window note B-1, cross-referenced into DD-12).
+
+### Changed
+
+- [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml): added the D4 step after D3 (PR-only).
+- [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh): added D4 to the delta-gate group (header comment and a `run_check` invocation) so the pre-push runner covers it locally.
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (`1.16.9` to `1.16.10`): added the D4 row to the §6.1 delta-gate table and a narrative paragraph documenting its scope, its delta-vs-HEAD-state design rationale (a HEAD-state form has a roughly 78-doc historical false-positive surface; the delta form has none), and its false-positive-free behaviour on same-day sequential PRs.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): extended the PR-workflow delta-gate enumeration to include D4.
+- [`TODO.md`](../../TODO.md): rotated §4.17 out (shipped); reconciled the §4.18 "pairs with" reference; cross-referenced the Sweep 53 B-1 new CSF-1.1 carrier ([`compliance/procedure-capa.md`](../../compliance/procedure-capa.md):475, `RC.IM` to `ID.IM`) into DD-12's known-carriers list.
+- [`.working/DONE.md`](../DONE.md): added the PR #366 closed-item entry. [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (`2.0.45` to `2.0.46`): added the Sweep 53 row.
+
+### Verification
+
+- New gate runs clean on the empty `origin/main..HEAD` diff and FP-free on the prototype corpus scan; the three `DateCobumpOnPrTests` cases pass (`python3 -m unittest tests.test_linters.DateCobumpOnPrTests`).
+- `tools/run_all_audits.sh` 53/53 green post-commit; `tools/run-pr-time-checks.sh` all-pass (D1/D2/D3/D4 + history-aware 45/40/31) against the merge base before push. D4 is dogfooded by this PR: the audit-programme spec's Version bump co-bumps its Date to today, which D4 validates.
+- Sweep 53 (full A/B/C dispatch, no abbreviation): 53/53 mechanical baseline, 1 out-of-window note (B-1, apply-time-verified, routed to DD-12 by cross-reference), 0 in-window, 0 audit-programme; no asserted-expectations contradiction.
+
+### Discipline observation
+
+The planned home for §4.17 (a gate-40 HEAD-state extension) was surfaced as unviable before building: prototyping the precise check flagged 78 of 327 versioned documents (dominated by a historical 2026-05-31 mass commit), which would have required an unmanageable grandfathering exempt list. The PR-time delta form was chosen with the maintainer (precision-first, surface-the-FP-surface discipline) and has zero historical false-positive surface.
+
 ## 2026-06-26, Library Version 2026.06.344, PR #365
 
 `.working/` session-close housekeeping for local project: **second session-closing handoff PR** of the 2026-06-26 session (the session continued past the #363 handoff to ship the #364 durable-session-metrics convention on maintainer direction; #365 re-closes cleanly on a green merge). Refreshes [`.working/session-handoff.md`](../session-handoff.md) to the post-#364 snapshot (Last-merged #364; green-at-`41f0dce` 53/53, the byte-identical corpus #365 carries since #364/#365 touch only `.claude/`/`.working/`/version surfaces; asserted-expectations extended with the #364 diff-clean entry; the Sweep-53-next cadence now covering the #362/#363/#364/#365 deltas, since the session spans both closing handoffs). Writes the **inaugural row** in [`.working/session-metrics.md`](../session-metrics.md), honestly marked partial: the convention was added mid-session in #364, so no session-start `date -u` was armed and the `/validate-pr` #362 subagent token count was not captured; the recorded measured floor (at least 1,004,629 subagent tokens: Sweep 52 A/B/C 766,124 + `/validate-pr` #364 A 238,505) plus 5 subagents dispatched and orchestrator tokens `not instrumented`. Batches the #364 `/validate-pr` (0 findings) + `/retro` rows. Per the handoff-PR loop-break this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide Sweep 53 the next `/resume` runs first, cross-checked against this handoff's asserted-expectations. No corpus-content change; terse entry per the change-tracking rule. Library `2026.06.343` to `2026.06.344`; README `1.9.214` to `1.9.215`.

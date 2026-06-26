@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #366: §4.17 Version-Date co-bump check (delta gate D4) (2026-06-26)
+
+Closed TODO §4.17: added PR-only delta gate D4 (`tools/check-date-cobump-on-pr.py`), which fails when a PR bumps a versioned document's Version but leaves its Date not equal to the bump commit's UTC date, closing the residue gates 40 and 31 leave open (gate 31's 1-day tolerance passed the #325/#352 cases). Built as a delta gate rather than a gate-40 extension because prototyping showed a HEAD-state form has a 78-doc historical false-positive surface; the delta form has none. Wired into quality.yml, the PR-time runner, and spec §6.1 with a `DateCobumpOnPrTests` regression class. Also batches the Sweep 53 loop-break `/validate` row (1 out-of-window note, cross-referenced into DD-12).
+
 ### PR #362: corpus-to-project directional-dependency gate (gate 53) (2026-06-26)
 
 Closed the TODO P2 directional-dependency gate: added gate 53 (`tools/lint-directional-dependency.py`), the mechanical backstop for the project-governance-separation spec §4 one-way dependency rule, flagging any deliverable-corpus document that links into `.project-governance/` (the §4 counterpart to gate 52's §7.4 scan-scope parity); deliverable-corpus scan set derived from `AUDITED_DOMAIN_DIRS` minus `.project-governance` plus the root specs, pack subtree excluded per §4. Wired into all four surfaces with a `DirectionalDependencyTests` regression class; §7.3 rewritten from "queued" to built, §4 cross-reference updated. Also batches the Sweep 52 loop-break `/validate` row (0 findings).
