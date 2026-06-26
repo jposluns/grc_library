@@ -6,9 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
-## 2026-06-26, Library Version 2026.06.332, PR #353
+## 2026-06-26, Library Version 2026.06.333, PR #354
 
-`.working/` em-dash conformance bulk apply (the application step of the maintainer-directed full `.working/` conformance pass; #352 defined the conventions in the pack). Also opens the autonomous overnight integrity-tooling run.
+**Session-closing handoff PR** for the 2026-06-26 integrity-tooling session. Lands the session's working-state on `main` as a green merge so the next `/resume` rebuilds from `main` with no unmerged feature-branch state. Per the handoff-PR loop-break (CLAUDE.md PR-workflow step 5a) this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide Sweep 50 the next `/resume` runs first.
+
+### Changed
+
+- [`.working/session-handoff.md`](session-handoff.md) refreshed to the post-#353 close-out snapshot: Last-merged (#353), the `/validate` cadence (Sweep 49 ran clean at this resume as the #351 loop-break control; next `/resume` runs Sweep 50 over the #352/#353/#354 deltas), and a rewritten `## Asserted expectations` block for this session (Sweep 49 corpus-clean A/B/C 0 findings; #352 and #353 each `/validate-pr` 0 in-window findings; `.working/` prose em/en-dash-free except the 11 documented code-span literals; counts 50/10/15/8; green-at-`70b93a5` 50/50; soft spots include the Tier-1 prose-hygiene gate built-then-reverted this session, design captured in next-actions, gate count stays 50).
+- [`.working/overnight-pr.md`](overnight-pr.md) reset from `in-flight` to `stub` via the overnight protocol's maintainer-returned exception path (the maintainer awoke and directed the wind-down). The overnight run's content (the 20-PR plan and the Tier-1 prose-hygiene-gate design) was routed to the handoff next-actions queue; no design decision left unrouted.
+- [`.working/improvement-log.md`](improvement-log.md) (`1.0.112` to `1.0.113`) and [`.working/validate-pr/history.md`](validate-pr/history.md) (`1.2.146` to `1.2.147`) carry the batched #353 `/retro` and `/validate-pr` rows per the recursion-avoidance rule.
+- Version surfaces: Library `2026.06.332` to `2026.06.333`; README `1.9.203` to `1.9.204`. Pack (`1.49.14`) and audit-programme spec (`1.16.6`) unchanged (no pack or spec edit this PR). No corpus-content change.
+
+### Verification
+
+- `tools/run_all_audits.sh` 50/50 and `tools/run-pr-time-checks.sh` all-pass (D1/D2/D3 + history-aware 45/40/31) on the #354 state before push.
+- Per the loop-break, no `/validate-pr` or `/retro` runs on this handoff PR; recorded as the handoff-exemption row in [`validate-pr/history.md`](validate-pr/history.md) with this rationale.
 
 ### Changed
 
