@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.330, PR #351
+
+`.working/` session-close housekeeping for local project: session-closing handoff PR for the 2026-06-25/26 continued-resume session (#6). Refreshes [`.working/session-handoff.md`](../session-handoff.md) to the post-#350 snapshot (operating-mode change to attended-autonomous with overnight mode ended; state snapshot 50 gates / library `2026.06.329` / README `1.9.200` / green-at-`d065eaa`; this session's asserted-expectations covering Sweep 48 and the #346-#350 `/validate-pr` results and the #349/#347 codification/morning-processing consistency; the Sweep-49 cadence; the CWD-reset known-environment note; and the next-actions queue with FR-167 batch 5 / resilience as the directed next big activity, the multi-session §4.16 maintainer-timed, and the decided-content items), batches the #350 `/validate-pr` (0 findings) + `/retro` rows, and records #351's own handoff-exemption row inline in [`.working/validate-pr/history.md`](../validate-pr/history.md) (gate 50 detection). Per the handoff-PR loop-break this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide Sweep 49 the next `/resume` runs first, cross-checked against this handoff's asserted-expectations. No corpus-content change. Library `2026.06.329` to `2026.06.330`; README `1.9.200` to `1.9.201`.
+
+This entry uses the same lead-paragraph wording as the root [`CHANGELOG.md`](../../CHANGELOG.md) entry, per the two-file-split convention; no additional structured sections because the PR is `.working/`-only session-close housekeeping with no corpus-content change.
+
 ## 2026-06-26, Library Version 2026.06.329, PR #350
 
 `TODO.md` + `.working/` for local project: queued the multi-session research-brief capability and sharpened the §4.14 pre-flight item.
