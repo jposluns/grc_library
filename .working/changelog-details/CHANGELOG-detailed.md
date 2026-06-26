@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.335, PR #356
+
+**Session-closing handoff PR** for the 2026-06-26 session-state-safety design-capture session. Lands the session's working-state on `main` as a green merge so the next `/resume` rebuilds from `main`. Per the handoff-PR loop-break (CLAUDE.md PR-workflow step 5a) this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide Sweep 50 the next `/resume` runs first.
+
+### Changed
+
+- [`.working/session-handoff.md`](session-handoff.md) refreshed to the post-#355 snapshot: a new "this session" narrative (the session-state-safety design capture), Last-merged #355, HEAD #356, versions (Library `2026.06.334`→`.335` on this PR, README `1.9.205`→`.206`), green-at-`d5395fc` 50/50, a rewritten `## Asserted expectations` block for this session, and a prominent **Sweep 50 deferral** note in both the cadence line and the asserted-expectations block (the #354 loop-break sweep did not run this session; the next `/resume` runs it over the accumulated #352/#353/#354/#355/#356 deltas).
+- [`.working/validate-pr/history.md`](validate-pr/history.md) (Version `1.2.147`→`1.2.148`): added the #355 row (0 actionable findings; 1 consistent-with-convention note).
+- [`.working/improvement-log.md`](improvement-log.md) (Version `1.0.113`→`1.0.114`): added the #355 `/retro` row (the CHANGELOG bare-path-code-span pattern's 4th occurrence; re-affirms the §4.14 commit-gating-pre-flight build).
+
+### Verification
+
+- No corpus-content change; all edits are gate-exempt `.working/` plus the README/CHANGELOG version surfaces. `tools/run_all_audits.sh` 50/50 and `tools/run-pr-time-checks.sh` all-pass on this state before push.
+
 ## 2026-06-26, Library Version 2026.06.334, PR #355
 
 Captured the recommended **session-concurrency-safety** design and queued its build, at the maintainer's request. The maintainer's concern: a `/resume` issued while another session is still running could corrupt shared `main` state. Design-only this session; the build (and three open sub-decisions) is deferred to a later session, per the maintainer's "add your thoughts to the decisions file for the next resume" framing.
