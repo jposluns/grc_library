@@ -767,6 +767,107 @@ class VersionBumpRecencyTests(LinterTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
 
+class DateCobumpOnPrTests(LinterTestCase):
+    """tools/check-date-cobump-on-pr.py (delta gate D4).
+
+    A PR-only delta gate, so the fixtures build a synthetic two-commit
+    git repo (base then head) and run the gate over the range, the same
+    shape VersionBumpRecencyTests uses. Committer dates are pinned via
+    GIT_*_DATE so the bump-commit-date comparison is deterministic.
+    """
+
+    HEAD_DATE = "2026-06-26T12:00:00+00:00"
+
+    def _build_repo(self, base_doc: str, head_doc: str):
+        import shutil
+        import subprocess as sp
+        import tempfile
+
+        tmp = Path(tempfile.mkdtemp(prefix="lint-cobump-test-"))
+        env = dict(os.environ)
+        # Pin both commit dates to 2026-06-26 UTC so the gate's
+        # bump-commit-date (committer date) is deterministic.
+        env["GIT_AUTHOR_DATE"] = self.HEAD_DATE
+        env["GIT_COMMITTER_DATE"] = self.HEAD_DATE
+        sp.run(["git", "init", "-q", "-b", "main", str(tmp)], check=True)
+        sp.run(["git", "-C", str(tmp), "config", "user.email", "test@test"], check=True)
+        sp.run(["git", "-C", str(tmp), "config", "user.name", "Test"], check=True)
+        target = tmp / "doc.md"
+        target.write_text(base_doc, encoding="utf-8")
+        sp.run(["git", "-C", str(tmp), "add", "-A"], check=True, env=env)
+        sp.run(["git", "-C", str(tmp), "commit", "-q", "-m", "Initial"], check=True, env=env)
+        base_sha = sp.run(
+            ["git", "-C", str(tmp), "rev-parse", "HEAD"],
+            capture_output=True, text=True, check=True,
+        ).stdout.strip()
+        target.write_text(head_doc, encoding="utf-8")
+        sp.run(["git", "-C", str(tmp), "add", "-A"], check=True, env=env)
+        sp.run(["git", "-C", str(tmp), "commit", "-q", "-m", "Second"], check=True, env=env)
+        return tmp, base_sha, shutil
+
+    def _run(self, tmp: Path, base_sha: str):
+        import subprocess as sp
+
+        return sp.run(
+            [
+                sys.executable,
+                str(REPO_ROOT / "tools/check-date-cobump-on-pr.py"),
+                base_sha,
+                "HEAD",
+            ],
+            capture_output=True, text=True, cwd=str(tmp),
+        )
+
+    def test_version_bump_without_date_cobump_flagged(self) -> None:
+        # Version bumps 1.0.0 -> 1.0.1 but Date stays 2026-06-25 while the
+        # bump commit is dated 2026-06-26: the gate must fire.
+        base = "# Doc\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-25\\\n\n## Body\n\nA.\n"
+        head = "# Doc\n\n**Version:** 1.0.1\\\n**Date:** 2026-06-25\\\n\n## Body\n\nB.\n"
+        tmp, base_sha, shutil = self._build_repo(base, head)
+        try:
+            result = self._run(tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 1,
+                f"gate should FAIL on Version-bump-without-Date-cobump; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+            self.assertIn("doc.md", result.stdout + result.stderr)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_version_and_date_cobumped_not_flagged(self) -> None:
+        # Version bumps and Date co-bumps to the 2026-06-26 commit date:
+        # the gate must pass.
+        base = "# Doc\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-25\\\n\n## Body\n\nA.\n"
+        head = "# Doc\n\n**Version:** 1.0.1\\\n**Date:** 2026-06-26\\\n\n## Body\n\nB.\n"
+        tmp, base_sha, shutil = self._build_repo(base, head)
+        try:
+            result = self._run(tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 0,
+                f"gate should PASS when Version and Date co-bump; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_body_change_without_version_bump_out_of_scope(self) -> None:
+        # Version unchanged (body edited, stale Date): D4 has nothing to
+        # assert (D2 governs the missing-bump case), so it must pass.
+        base = "# Doc\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\n## Body\n\nA.\n"
+        head = "# Doc\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\n## Body\n\nB.\n"
+        tmp, base_sha, shutil = self._build_repo(base, head)
+        try:
+            result = self._run(tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 0,
+                f"gate should PASS when Version did not bump; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
 class ExternalOverlayLicenseTests(LinterTestCase):
     """tools/lint-external-overlay-license.py"""
 

@@ -7,9 +7,10 @@
 # CI has flipped the check red. Two groups:
 #
 #   1. The PR-only delta gates (D1 CHANGELOG-on-PR, D2 per-PR
-#      version-bump, D3 CHANGELOG-dash-on-PR). These compare the PR head
-#      to its merge base, so their inputs are not available in
-#      tools/run_all_audits.sh; they run only here and in quality.yml.
+#      version-bump, D3 CHANGELOG-dash-on-PR, D4 per-PR Version-Date
+#      co-bump). These compare the PR head to its merge base, so their
+#      inputs are not available in tools/run_all_audits.sh; they run
+#      only here and in quality.yml.
 #   2. The history-aware gates that examine each file's commit graph
 #      (gate 45 TODO staleness, gate 40 version-bump-recency, gate 31
 #      document-date-staleness). These ALSO run in run_all_audits.sh;
@@ -89,6 +90,13 @@ run_check "D2 Per-PR version-bump check" \
 # new-entries-only; historical entries are exempt).
 run_check "D3 CHANGELOG dash-on-PR check" \
     python3 tools/check-changelog-dash-on-pr.py "${BASE_REF}" "${HEAD_REF}"
+
+# Delta gate D4: when a PR bumps a versioned document's Version, require
+# the same change to co-bump its Date to the bump commit's date (the
+# residue gates 31/40 leave open, scoped to the PR diff so historical
+# carriers are never in scope).
+run_check "D4 Per-PR Version-Date co-bump check" \
+    python3 tools/check-date-cobump-on-pr.py "${BASE_REF}" "${HEAD_REF}"
 
 # Gate 45: TODO staleness audit. Behaves like a delta gate because its
 # inputs (git log of merged-PR commit subjects, .working/validate-sweeps/
