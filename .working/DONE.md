@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #372: gate-49 extension wired as gate 54 (track PR 3/3, closes the gate-49-extension item) (2026-06-26)
+
+Wired [`tools/lint-document-control-codes.py`](../tools/lint-document-control-codes.py) into all four audit surfaces as **gate 54** (per-document control-code validity), now that PR #371 left the corpus clean; added the runs-clean-on-corpus-at-HEAD smoke test, the §5/§6 spec entries, and bumped the gate count 53→54 across the prose carriers (including the gate-39-blind guardrail-SKILL word-form). Closes the gate-49-extension item; the per-document defect class (CSF-1.1 codes in NIST tables) is now a standing mechanical check. ISO Annex A per-document validation deferred to a P3 follow-up.
+
 ### PR #371: DD-12 corpus-wide CSF-1.1 to CSF 2.0 migration (gate-49-extension track PR 2/3) (2026-06-26)
 
 Closed DD-12: migrated the 5 surviving CSF-1.1-era NIST codes in per-document framework tables to CSF 2.0, using the #370 scanner to verify the corpus clean (310 docs). `ID.SC`→`GV.SC` dedup (risk), `RS.RP-1`→`RS.MA-02` + `DE.DP-5`→`DE.AE-06` + `DE.DP-3`→`DE.AE-07` (operations), `RC.IM`→`ID.IM` (compliance), all grounded in NIST CSWP 29 subcategory text with the maintainer's by-row-activity choice for the removed DE.DP category. PR 3 wires the scanner as a gate.
