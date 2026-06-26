@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #360: directory-scan-scope parity meta-check (gate 52) (2026-06-26)
+
+Closed the TODO P2 directory-scan-scope parity meta-check: added gate 52 (`tools/lint-scan-scope-parity.py`), the mechanical backstop for the project-governance-separation spec §7.4, forbidding any content linter from hardcoding the audited-domain run now that PR #359 gave it a single source of truth (`lint_common.AUDITED_DOMAIN_DIRS`); robust to all three declaration styles because it matches literal directory names, with a documented EXEMPT set for the corpus-only-set divergent files (section-placement gate, taxonomy generator, collection-candidate helper). Wired into all four surfaces with a `ScanScopeParityTests` regression class; §7.4 narrative updated to the single-source-of-truth model.
+
 ### PR #357: Gate 51 (working-tree prose-hygiene) added to the audit programme (2026-06-26)
 
 Added gate 51 forbidding em-dashes and en-dashes in `.working/` prose (allowed inside inline code spans and fenced blocks), ratcheting the #353 `.working/` em-dash conformance so it cannot silently regress; wired into all four surfaces with a `WorkingProseHygieneTests` regression class, and the gate-39-blind guardrail-review growth-narrative word-form bumped to fifty-one. Not previously a TODO P-item; from the handoff 20-PR integrity-tooling plan. Also batches the deferred Sweep 50 loop-break `/validate` row (0 findings).
