@@ -3074,5 +3074,58 @@ class WorkingProseHygieneTests(LinterTestCase):
         )
 
 
+class ScanScopeParityTests(LinterTestCase):
+    """tools/lint-scan-scope-parity.py (gate 52)
+
+    The gate scans a tools-style directory for ``*.py`` files that
+    enumerate the audited-domain run as standalone string literals. It is
+    pointed at an isolated temporary directory (not the shared fixture
+    dir) so a stray ``.py`` fixture from another test cannot contaminate
+    the glob. The gate imports ``AUDITED_DOMAIN_DIRS`` from the real
+    ``tools/lint_common.py`` (its own directory is on ``sys.path``), so
+    the temp directory needs only the file under test.
+    """
+
+    _HARDCODED_RUN = (
+        "PATHS = [\n"
+        '    "ai",\n'
+        '    "architecture",\n'
+        '    "compliance",\n'
+        '    "dev-security",\n'
+        '    "governance",\n'
+        '    "operations",\n'
+        '    "privacy",\n'
+        '    "resilience",\n'
+        '    "risk",\n'
+        '    "security",\n'
+        '    "supply-chain",\n'
+        "]\n"
+    )
+
+    _DERIVED_RUN = (
+        "from lint_common import AUDITED_DOMAIN_DIRS\n"
+        'PATHS = ["README.md", *AUDITED_DOMAIN_DIRS]\n'
+    )
+
+    def test_hardcoded_domain_run_flagged(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "lint-hardcoded.py").write_text(
+                self._HARDCODED_RUN, encoding="utf-8"
+            )
+            result = run_linter("tools/lint-scan-scope-parity.py", d)
+            self.assertLinterFails(result, "enumerates the domain run")
+
+    def test_derived_run_not_flagged(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "lint-derived.py").write_text(
+                self._DERIVED_RUN, encoding="utf-8"
+            )
+            result = run_linter("tools/lint-scan-scope-parity.py", d)
+            self.assertEqual(
+                result.returncode, 0,
+                f"a deriving linter must not flag.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
