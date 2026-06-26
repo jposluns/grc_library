@@ -284,7 +284,12 @@ defence is external. Two mechanisms:
      session-closing handoff PR, the `## Asserted expectations` section and the
      green-at-`<sha>` snapshot line are refreshed too (scoped to what this session
      actually verified), so the next `/resume` `/validate` has claims to cross-check
-     against.
+     against. At a session-closing handoff PR, the session's
+     [`.working/session-metrics.md`](../.working/session-metrics.md) row is also
+     written (measured subagent tokens by phase + elapsed wall-clock + PR/subagent
+     counts; orchestrator main-loop tokens recorded as `not instrumented`, never a
+     fabricated figure), batched into the handoff diff and never placed in
+     `CHANGELOG.md`. See that file's measured-versus-not-instrumented discipline.
    - If the PR adds or edits **new pack prose** (a SKILL, a rule, a slash command,
      or new prose in the pack README/CLAUDE.md), `tools/lint-language.py` was run on
      it **before the first commit**. New-pack-prose drafting recurrently reintroduces
