@@ -177,6 +177,9 @@ jobs:
       - name: Directory-scan-scope parity audit
         run: python3 tools/lint-scan-scope-parity.py
 
+      - name: Corpus-to-project directional-dependency audit
+        run: python3 tools/lint-directional-dependency.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

@@ -386,3 +386,10 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+
+      - id: lint-directional-dependency
+        name: Corpus-to-project directional-dependency audit
+        entry: python3 tools/lint-directional-dependency.py
+        language: system
+        pass_filenames: false
+        always_run: true

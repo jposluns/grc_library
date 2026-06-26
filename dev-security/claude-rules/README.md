@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.49.16\
+**Version:** 1.49.17\
 **Date:** 2026-06-26\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -440,6 +440,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.49.17 | 2026.06.341 | 2026-06-26 | Gate 53 (corpus-to-project directional-dependency) added to the audit programme, the mechanical backstop for the project-governance-separation spec §4 one-way dependency rule: it flags any deliverable-corpus document that links into `.project-governance/`, the §4 counterpart to gate 52's §7.4 scan-scope parity. The [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) growth-narrative count "a dozen gates to **fifty-two**" advanced to "**fifty-three**" (gate-39-blind word-form). Pack `1.49.16` to `1.49.17` (patch; new gate plus stale-count). |
 | 1.49.16 | 2026.06.339 | 2026-06-26 | Gate 52 (directory-scan-scope parity) added to the audit programme, the mechanical backstop for the project-governance-separation spec §7.4: it forbids any content linter from hardcoding the audited-domain run (matching literal directory names, robust to all three declaration styles), now that the run has a single source of truth in [`tools/lint_common.py`](../../tools/lint_common.py) `AUDITED_DOMAIN_DIRS` (groundwork shipped in PR #359). The [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) growth-narrative count "a dozen gates to **fifty-one**" advanced to "**fifty-two**" (gate-39-blind word-form). Pack `1.49.15` to `1.49.16` (patch; new gate plus stale-count). |
 | 1.49.15 | 2026.06.336 | 2026-06-26 | Gate 51 (working-tree prose-hygiene) added to the audit programme; the [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) "Why this skill exists" growth-narrative count "a dozen gates to **fifty**" corrected to "**fifty-one**" (gate-39-blind word-form, the same recurring one-lag class as the `forty-nine`→`fifty` fix in 1.49.12, fixed in the gate-51 PR rather than left for the next sweep). Pack `1.49.14` to `1.49.15` (patch; stale-count). |
 | 1.49.14 | 2026.06.332 | 2026-06-26 | Metadata `Date` aligned to 2026-06-26 to match the 1.49.13 version-bump date. The #352 `/retro` flagged that the 1.49.13 bump changed the `Version` line but left the `Date` at 2026-06-25 (the recurring version-bump incidental-edit sub-shape, within gate-31 1-day tolerance so CI stayed green). No pack-content change. Pack `1.49.13` to `1.49.14` (patch; metadata alignment). |

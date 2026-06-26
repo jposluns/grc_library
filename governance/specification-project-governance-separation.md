@@ -2,7 +2,7 @@
 
 **Document Title:** Project Governance Separation Specification\
 **Document Type:** Specification\
-**Version:** 1.0.3\
+**Version:** 1.0.4\
 **Date:** 2026-06-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -83,7 +83,7 @@ Two consequences follow:
 1. **`register-document-index-and-classification.md` indexes corpus files only.** The corpus document index is corpus governance; under the direction rule it cannot list project-governance artefacts. Project-governance artefacts are indexed by `.project-governance/README.md` instead (§6.2).
 2. **Migration is citation surgery, not a file move.** Before any artefact moves to `.project-governance/`, every inbound citation from a corpus document is severed or reworked (§8.2). A leftover corpus-to-project citation violates the direction rule and, because both layers are audited (§6.3), is caught by the broken-link gate.
 
-Because `.project-governance/` is audited rather than exempt, links *within* it and *into* it from non-deliverable surfaces (the pack, the repository backlog and `CHANGELOG.md`, generated indexes) do not dangle; the direction rule, not link-resolvability, is what the separation turns on. A future mechanical gate can enforce the direction rule directly (a check that no corpus document links into `.project-governance/`); §7.3 records it as queued.
+Because `.project-governance/` is audited rather than exempt, links *within* it and *into* it from non-deliverable surfaces (the pack, the repository backlog and `CHANGELOG.md`, generated indexes) do not dangle; the direction rule, not link-resolvability, is what the separation turns on. A mechanical gate enforces the direction rule directly (gate 53, a check that no deliverable-corpus document links into `.project-governance/`); §7.3 records it.
 
 ---
 
@@ -181,11 +181,11 @@ The one sweep behaviour that changes is adopter-facing inclusion: the generators
 
 The taxonomy, portal, and maturity-scorecard generators derive from the published corpus; they exclude `.project-governance/` so project artefacts do not appear in adopter-facing generated output. The exclusion is added to the generators when Phase 1 introduces the directory.
 
-### 7.3 Path-targeted linters re-point; a direction gate is queued
+### 7.3 Path-targeted linters re-point; a direction gate enforces §4
 
 Two linters reference the campaign artefacts by hardcoded path and must re-point when those artefacts move: `lint-citation-verification-freshness.py` (loads the verifications register) and `lint-citations.py` (lists a batch worklist in a citation-source set). Re-pointing keeps the freshness and citation audits live on the moved artefacts, consistent with §6.3.
 
-A new directional-dependency gate is queued (not built in this specification): a check that no corpus document contains a link whose target path is under `.project-governance/`. It is the mechanical enforcement of §4; until it exists, the rule is enforced by the migration discipline (§8.2) and the broken-link gate.
+The directional-dependency gate that enforces §4 is built as **gate 53** ([`tools/lint-directional-dependency.py`](../tools/lint-directional-dependency.py)): it flags any deliverable-corpus document that contains a markdown link whose resolved target is inside `.project-governance/`, the mechanical enforcement of the one-way dependency rule. The deliverable-corpus scan set is derived from `AUDITED_DOMAIN_DIRS` minus `.project-governance` plus the root deliverable specifications; the non-deliverable surfaces §4 permits to link into the directory (the pack under `dev-security/claude-rules/`, the repository backlog, the root `CHANGELOG.md`, the generated indexes, the `.working/` and `.claude/` trees) are out of scope, and so is `.project-governance/` itself (links within it are allowed). Before the gate existed the rule rested on the migration discipline (§8.2) and the broken-link gate; the gate makes it a standing mechanical check, the §4 counterpart to the §7.4 scan-scope parity gate (gate 52).
 
 ### 7.4 Explicit-allow-list content linters must add the directory
 
