@@ -1,6 +1,6 @@
 # Session Metrics
 
-**Version:** 1.0.0\
+**Version:** 1.0.1\
 **Date:** 2026-06-26\
 **License:** CC BY-SA 4.0
 
@@ -72,3 +72,4 @@ back-fabricated.
 
 | Session (UTC) | Wall-clock (elapsed) | PRs merged | Subagents | Subagent tokens (measured) | Orchestrator tokens | Notes |
 |---|---|---|---|---|---|---|
+| 2026-06-26 (resume from handoff #361) | not captured (convention added mid-session; no `date -u` armed at this resume) | #362, #363, #364, #365 | 5 (Sweep 52 A/B/C; `/validate-pr` #362 A; `/validate-pr` #364 A) | **partial: at least 1,004,629** (Sweep 52: A 271,038 + B 247,968 + C 247,118 = 766,124; `/validate-pr` #364 A 238,505); `/validate-pr` #362 A return fell in a compacted window and was not captured | not instrumented | **First (partial) row; convention was added mid-session in #364**, so the early-session tally is incomplete (the `/validate-pr` #362 subagent token count was not captured, and no session-start `date -u` was armed). Subagent QA (the two validation sweeps plus per-PR Subagent A dispatches) was the clear majority of token weight. Subsequent sessions arm the tally at `/resume` and record a complete row. |
