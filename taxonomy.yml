@@ -1354,7 +1354,7 @@ documents:
   domain: "compliance"
   type: "Procedure"
   title: "Corrective and Preventive Action (CAPA) Procedure"
-  version: "1.0.5"
+  version: "1.0.6"
   date: "2026-06-26"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"

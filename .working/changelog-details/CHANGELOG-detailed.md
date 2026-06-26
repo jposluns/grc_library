@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.353, PR #374
+
+**Sweep 55 close-out** (the `/resume` loop-break corpus-wide `/validate`, the compensating control for session-closing handoff PR #373, covering the #370/#371/#372/#373 deltas): one in-window finding, apply-time-verified and fixed. Subagents B (corpus-wide stale-reference) and C (audit-programme integrity) returned 0 findings; the corpus is CSF-1.1-clean (gate 54 enforcing, 0 carriers across 310 documents) and gate 54's four-surface wiring is coherent. The finding contradicts #373's asserted-clean #371 surface, so it is flagged a genuine miss: the loop-break sweep is the compensating control that caught what #371's `/validate-pr` did not.
+
+### Fixed
+
+- [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md) (`1.0.5` to `1.0.6`), line 475 NIST CSF mapping description: the DD-12 migration (#371) changed the code from `RC.IM (Recovery: Improvements)` to `ID.IM (Identify: Improvement)` but left the word "recovery" in the description ("Incorporating lessons learned into recovery strategy and GRC programme improvement"), an echo of the old Recovery function now mismatched against the Identify function it sits beside. Reworded to "Incorporating lessons learned into corrective-action and GRC programme improvement" (drops "recovery", reflects the Identify-Improvement function and the CAPA continual-improvement nature). Gate 54 validates control-code *validity* only (the spec gate-54 narrative is explicit that mapping correctness stays the apply-time author-every-cell responsibility), so this description-vs-function prose drift is the class the gate cannot catch. Find-every-carrier check: the other two migrated docs ([`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md) rows, [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md) row) carry no analogous leftover, and a `recover` grep across all three migrated docs returns only this one row, so A-1 is isolated.
+
+### Changed
+
+- [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the CAPA Version bump (generator-output discipline; CI `--check` enforces sync).
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (`2.0.47` to `2.0.48`): added the Sweep 55 iter-1 row. [`.working/validate-sweeps/2026-06-26-sweep55-iter1.md`](../validate-sweeps/2026-06-26-sweep55-iter1.md): the per-iteration detail file (findings exist, so step 9 applies), with the verbatim A/B/C returns + orchestrator synthesis + the genuine-miss escalation note.
+- [`TODO.md`](../../TODO.md): advanced the `Last validation sweep` cursor to Sweep 55 (gate 45 + the gate-36 TodoStaleness regression require the cursor not lag the history).
+
+### Verification
+
+- A-1 apply-time-verified: re-read `compliance/procedure-capa.md:468-479` and confirmed the row reads exactly as quoted before the reword; ran the find-every-carrier grep across the three #371-migrated docs (only `procedure-capa.md:475` carried the leftover).
+- `tools/run_all_audits.sh` **54/54 green** post-commit (gate 54 reports 0 carriers across 310 documents; taxonomy + scorecard in sync). `tools/run-pr-time-checks.sh` all-pass (D1-D4 + history-aware 45/40/31).
+- Asserted-expectations cross-check: A-1 contradicts `session-handoff.md:135` ("#371 is diff-clean per its formal /validate-pr (0 findings)"), escalated as a genuine miss; B and C found no other contradiction (corpus CSF-1.1-clean + gate-54 coherence + counts 54/10/15/8 + version cascade all hold).
+
 ## 2026-06-26, Library Version 2026.06.352, PR #373
 
 `.working/` session-close housekeeping for local project: **session-closing handoff PR** for the 2026-06-26 Sweep-54 + gate-49-extension-track session (resumed from handoff #369). Lands working-state on `main` as a green merge so the next session's `/resume` rebuilds from `main`, and applies the one addressed in-window finding from #372's `/validate-pr`. Per the handoff-PR loop-break (CLAUDE.md PR-workflow step 5a) this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide **Sweep 55** the next `/resume` runs first (covering the #370/#371/#372/#373 deltas), cross-checked against this handoff's asserted-expectations.
