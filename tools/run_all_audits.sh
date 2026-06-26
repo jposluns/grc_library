@@ -147,6 +147,7 @@ run_gate "CSA CCM/AICM citation-accuracy audit"          python3 tools/lint-ccm-
 run_gate "Matrix control-code validity audit"            python3 tools/lint-matrix-control-codes.py
 run_gate "Bookkeeping-parity audit"                      python3 tools/lint-bookkeeping-parity.py
 run_gate "Working-tree prose-hygiene audit"              python3 tools/lint-working-prose-hygiene.py
+run_gate "Directory-scan-scope parity audit"             python3 tools/lint-scan-scope-parity.py
 
 # ----------------------------------------------------------------------
 # Summary
