@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #371: DD-12 corpus-wide CSF-1.1 to CSF 2.0 migration (gate-49-extension track PR 2/3) (2026-06-26)
+
+Closed DD-12: migrated the 5 surviving CSF-1.1-era NIST codes in per-document framework tables to CSF 2.0, using the #370 scanner to verify the corpus clean (310 docs). `ID.SC`→`GV.SC` dedup (risk), `RS.RP-1`→`RS.MA-02` + `DE.DP-5`→`DE.AE-06` + `DE.DP-3`→`DE.AE-07` (operations), `RC.IM`→`ID.IM` (compliance), all grounded in NIST CSWP 29 subcategory text with the maintainer's by-row-activity choice for the removed DE.DP category. PR 3 wires the scanner as a gate.
+
 ### PR #368: §4.14 CHANGELOG-hygiene first-commit pre-flight aid (2026-06-26)
 
 Closed TODO §4.14: added [`tools/preflight-changelog.py`](../tools/preflight-changelog.py), a commit-gating aid run as `python3 tools/preflight-changelog.py && git commit ...` that exits non-zero when the added lines of the root CHANGELOG or its detailed mirror carry an em/en dash in prose or an unlinked path-shaped reference, closing the recurring commit-then-amend loop (#341/#347/#349/#355). A standalone helper rather than a pre-commit hook because no pre-commit git hook fires on commits in this environment. Batches the #367 `/validate-pr` (0 findings) + `/retro` rows.
