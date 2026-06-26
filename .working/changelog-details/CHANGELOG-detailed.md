@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.329, PR #350
+
+`TODO.md` + `.working/` for local project: queued the multi-session research-brief capability and sharpened the §4.14 pre-flight item.
+
+### Added
+
+- [`TODO.md`](../../TODO.md) **§4.16** (Multi-session research-brief staging + `/subagent` external-worker entry, M/M, maintainer-requested 2026-06-26, timing maintainer-directed): the INPUT half of the §4.11 multi-session track. Three deliverables (a `research/<id>/brief.md` convention in `grc_library_scratch` authored from the worker-brief template; a `/subagent` external-worker entry command with read-only-on-main enforced by the worker account's GitHub permissions, not the prompt; codification in the runbook), the gating maintainer action (provision the least-privilege worker account), the partitionability note (decided-content TODOs cleanest; FR-167 research partitions per batch but the matrix apply stays single-session), and the invariant that the apply stage keeps full QA regardless of worker provenance.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md) **§4.14** (CHANGELOG-hygiene pre-flight aid): escalated from "convenience aid" to a **commit-gating** mechanism after the bare-path-code-span class recurred a 3rd time (#341 → #347 → #349) and #349 demonstrated that a non-gating sibling check does not prevent the commit (a `&& git commit` chain discards the check's exit code). Sharpened requirement: the pre-flight must exit non-zero or live in the pre-commit hook.
+
+### Added (batched QA)
+
+- The #349 `/validate-pr` (0 findings) row in [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.142` to `1.2.143`) and the #349 `/retro` row in [`.working/improvement-log.md`](../improvement-log.md) (`1.0.109` to `1.0.110`), batched per recursion-avoidance.
+
+### Verification
+
+- `tools/run_all_audits.sh` 50/50 green post-commit; `tools/run-pr-time-checks.sh` green. No corpus-content change; all edits in informational `TODO.md` and gate-exempt `.working/` plus the README/CHANGELOG version surfaces. Library `2026.06.328` to `2026.06.329`; README `1.9.199` to `1.9.200`.
+
 ## 2026-06-26, Library Version 2026.06.328, PR #349
 
 `.claude/` + `.working/` for local project: codified the **attended-autonomous operating mode** the maintainer set 2026-06-26 (the third mode between fully-attended and overnight).
