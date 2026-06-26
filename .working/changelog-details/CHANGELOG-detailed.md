@@ -6,6 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.351, PR #372
+
+Integrity-tooling track, PR 3 of 3 (closes the gate-49-extension item): wired the per-document NIST CSF 2.0 control-code scanner (built in #370, corpus left clean by the #371 DD-12 migration) into the audit programme as gate 54. The per-document CSF-1.1-carrier defect class is now a standing mechanical check, not a one-time migration that could silently regress.
+
+### Added
+
+- **Gate 54 (per-document control-code validity)**, [`tools/lint-document-control-codes.py`](../../tools/lint-document-control-codes.py), wired name-identically across all four audit surfaces: [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml) (after the gate-53 step), [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) (after gate 53), [`.pre-commit-config.yaml`](../../.pre-commit-config.yaml) (after the directional-dependency hook), and [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) §6 inventory row 54 + the §6 descriptive narrative. Gate 35 (four-surface parity) confirms the wiring at 54 gates.
+- A `test_runs_clean_on_corpus_at_head` smoke test in the `DocumentControlCodeTests` class ([`tests/test_linters.py`](../../tests/test_linters.py)): the live corpus carries no CSF-1.1-era NIST codes (the #371 migration left it clean), so the gate passes at HEAD. (This test was deliberately absent in #370, when the corpus still carried the 5 carriers.)
+
+### Changed
+
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (`1.16.11` to `1.16.12`): §5 placed gate 54 in the **Content drift defence** category (gates 5, 6, 25, 48, 49, 54) with a one-clause description; updated the category-3 append-order example to include 54; added the §6 gate-54 narrative paragraph (corpus-wide sibling of gate 49, precision-first, NIST-CSF-2.0-scoped, derives its scan set from `AUDITED_DOMAIN_DIRS`, excludes the matrix and the pack subtree).
+- Gate-count prose bumped 53 to 54: [`TODO.md`](../../TODO.md) resume-metadata "all N gates passing" (gate-39-checked) and the gate-39-blind growth-narrative word-form in [`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md):93 ("fifty-three" to "fifty-four"). The two historical Sweep-53/54 narratives in TODO that referenced "53-gate parity" / "all 53 gates" were reworded to drop the now-stale count idiom (they describe sweeps that ran when the corpus had 53 gates, so bumping to 54 would be false; the count was dropped instead).
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) (`1.49.17` to `1.49.18`): pack version bump for the guardrail-SKILL prose change (per the #362 precedent that a pack-content edit bumps the pack version).
+- [`TODO.md`](../../TODO.md): the gate-49-extension item rotated out (closed); a new P3 item added for the deferred per-document ISO Annex A validation follow-up. [`.working/DONE.md`](../DONE.md): added the PR #372 entry.
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the audit-spec Version bump.
+
+### Verification
+
+- `tools/run_all_audits.sh` reports **all 54 audit gates pass** post-commit (gate 35 parity confirms the four-surface wiring at 54; gate 39 confirms no stale gate-count prose; gate 54 itself passes on the clean corpus). `tools/run-pr-time-checks.sh` all-pass.
+- `DocumentControlCodeTests` 7/7 pass (the 6 fixture cases from #370 plus the new corpus-at-HEAD smoke test).
+- The scanner is now subject to gate 36 (linter regression) and gate 35 (parity) like every other numbered gate.
+- Batches the PR #371 `/validate-pr` (0 findings) + `/retro` rows.
+
+### Discipline observation
+
+- The historical-vs-current count distinction was handled correctly: gate 39 flagged six "53"-as-count references, but only the live resume-metadata claim was bumped to 54; the frozen Sweep-narrative references (which describe sweeps that genuinely ran at 53 gates) were reworded to drop the count idiom rather than falsely advanced. Bumping a historical record to match the current count would have been a fabrication; the gate cannot tell historical from current, so the author must.
+
 ## 2026-06-26, Library Version 2026.06.350, PR #371
 
 Integrity-tooling track, PR 2 of 3 (closes DD-12): migrated the corpus's 5 surviving CSF-1.1-era NIST CSF codes (across 3 documents) to CSF 2.0, using the #370 scanner to verify completeness. Mappings grounded in NIST CSWP 29 subcategory text; the removed-category `DE.DP` cells mapped by row activity (maintainer's choice).

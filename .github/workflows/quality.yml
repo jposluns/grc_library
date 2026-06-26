@@ -180,6 +180,9 @@ jobs:
       - name: Corpus-to-project directional-dependency audit
         run: python3 tools/lint-directional-dependency.py
 
+      - name: Per-document control-code validity audit
+        run: python3 tools/lint-document-control-codes.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

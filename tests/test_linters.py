@@ -2974,6 +2974,18 @@ class DocumentControlCodeTests(LinterTestCase):
 
     SCRIPT = "tools/lint-document-control-codes.py"
 
+    def test_runs_clean_on_corpus_at_head(self) -> None:
+        # Smoke test: the live corpus carries no CSF-1.1-era NIST codes in
+        # per-document framework tables (the DD-12 carriers were migrated in
+        # PR #371). Added when the scanner was wired as gate 54.
+        result = run_linter(self.SCRIPT)
+        self.assertEqual(
+            result.returncode, 0,
+            f"linter exited {result.returncode} on the live corpus; "
+            f"per-document NIST CSF codes should all be valid CSF 2.0.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
     def _row_doc(self, label: str, code_cell: str, notes_cell: str | None = None) -> str:
         # A framework-as-row table: the framework name is the first cell of a
         # body row; codes live in the code cell (cell 1); notes (if any) in cell 2.
