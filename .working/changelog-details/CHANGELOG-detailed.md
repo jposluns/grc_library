@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.358, PR #379
+
+`.working/` session-close housekeeping: **session-closing handoff PR** for the 2026-06-26 FR-167-batch-5 session (resumed from handoff #377). Lands working-state on `main` as a green merge so the next session's `/resume` rebuilds from `main`. Per the handoff-PR loop-break (CLAUDE.md PR-workflow step 5a) this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide **Sweep 57** the next `/resume` runs first (over the #378/#379 deltas), cross-checked against this handoff's asserted-expectations. No corpus-document change.
+
+### Changed
+
+- [`.working/session-handoff.md`](../session-handoff.md): refreshed to the post-#378 snapshot. State snapshot (Last-merged #378; green-at-`12d5347` 54/54; compliance matrix `1.5.0`; gate count 54; next FR-167 batch 6 = operations), the resume-step-5 sweep narrative (Sweep 56 ran, Sweep 57 next over the #378/#379 deltas), the "This session" FR-167-batch-5 narrative block (the wind-down session demoted to "Prior session"), the asserted-expectations section (this session's Sweep-56 + #378 block prepended, the prior wind-down block demoted), and the next-session queue (led by the `deferred-blocked` §5.3 decision, then FR-167 batch 6).
+
+### Added
+
+- [`.working/session-metrics.md`](../session-metrics.md) (`1.0.4` to `1.0.5`): the FR-167-batch-5 session row. Measured subagent tokens 2,089,484 across 8 of 9 dispatches (Sweep 56 A/B/C 783,015; the 5 FR-167 research workers 1,306,469); the `/validate-pr` #378 Subagent A count was not captured in the retrievable transcript (a compacted-window gap, the #362-row precedent) and is excluded from the measured sum rather than recorded as an estimate. Orchestrator main-loop tokens `not instrumented` per the discipline.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.168` to `1.2.169`): the #379 handoff-exemption row (`/validate-pr` SKIPPED, loop-break, recorded inline at #379's own merge per the gate-50 highest-PR exemption).
+
+### Verification
+
+- `tools/run_all_audits.sh` **54/54** post-commit; `tools/run-pr-time-checks.sh` all-pass (D1-D4 + history-aware 45/40/31) pre-push. The #378 `/validate-pr` (0 findings) + `/retro` rows and the [`third-party-issues.md`](../third-party-issues.md) `AskUserQuestion`-flake entry were committed in the prior batch commit (`3f25fac`) and are carried by this PR. The CHANGELOG pre-flight aid was run before the first commit; all added paths linked, dash-free.
+- Library `2026.06.357` to `2026.06.358`; README `1.9.228` to `1.9.229`. No corpus-document change; no per-document Version/Date bumps; no generated-artefact regen required.
+
 ## 2026-06-26, Library Version 2026.06.357, PR #378
 
 FR-167 batch 5 (resilience domain): the GRC compliance matrix Resilience section expands from 3 rows to 21 (18 net-new). This is the fifth FR-167 domain batch (after Architecture #275, Risk #313, Dev-security #317, Supply-chain #341), resumed this session as the maintainer-directed next big activity. Authored via the research-assistant discipline: 5 verified-disjoint research workers read the 22 resilience docs in full and proposed mappings with `path:line` evidence, validating every code against the in-repo reference modules; the orchestrator re-read the reference modules, made every authorial cell decision, and relied on gates 48/49 as the mechanical backstop.

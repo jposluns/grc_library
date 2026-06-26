@@ -1,7 +1,7 @@
 # Third-Party and Infrastructure Issues
 
-**Version:** 1.0.2\
-**Date:** 2026-06-25\
+**Version:** 1.0.3\
+**Date:** 2026-06-26\
 **License:** CC BY-SA 4.0
 
 A running log of third-party service and execution-environment issues encountered during maintenance of this library: outages, flakes, and misconfigurations in infrastructure the project depends on but does not own (the commit-signing service, the remote execution sandbox, CI runners, external citation sources, MCP servers). The purpose is to distinguish environment artifacts from genuine corpus or tooling defects, so a future session does not mistake an infrastructure flake for a regression and chase a non-existent bug.
@@ -9,6 +9,20 @@ A running log of third-party service and execution-environment issues encountere
 This file is maintainer working state, exempt from corpus audit gates per the `.working/` directory exemption. Entries are reverse-chronological (newest first). Each entry records: what was observed, the diagnosis, the impact, how it was distinguished from a real defect, and the resolution.
 
 ## Entries
+
+### 2026-06-26: `AskUserQuestion` tool errors with "permission stream closed"
+
+**Observed.** During the 2026-06-26 resume session, every `AskUserQuestion` call failed with `Tool permission request failed: Error: Tool permission stream closed before response received`. This affected the resume clarification batch (the step-5 unattended-run decisions: which track, the paired-surface-gate design, the FR-167 running order) and a follow-up §5.3 register-classification question. Plain chat messages from the maintainer ("Confirming unattended run") were delivered normally throughout; only the structured `AskUserQuestion` primitive failed.
+
+**Diagnosis.** A transient failure of the harness's tool-permission stream for the `AskUserQuestion` primitive specifically, not a corpus, tooling, or credential defect. The GitHub MCP server also flapped (disconnect/reconnect) in the same session, suggesting a broader intermittent harness/connection instability rather than anything `AskUserQuestion`-specific.
+
+**How it was distinguished from a real defect.** The plain-chat channel worked (the maintainer answered in chat), and every other tool (Bash, Edit, Read, Skill, GitHub MCP after reconnect) functioned. The failure was confined to the `AskUserQuestion` permission round-trip.
+
+**Impact.** Bounded. The maintainer's decisions could not be collected through the structured (auditable) channel, so the session fell back to surfacing decisions in plain chat plus the attended-autonomous graceful-degradation mechanism: the §5.3 decision was recorded `deferred-blocked` in [`pending-decisions.md`](pending-decisions.md) and routed around; the maintainer confirmed the unattended run in chat. No work was lost or guessed.
+
+**How it was distinguished from a prior occurrence.** This is the second observed occurrence of the structured-clarification channel not delivering (the 2026-06-25 #342/#345 session recorded the same class: "the maintainer's clarification batch did not deliver (a transient permission-stream error)").
+
+**Resolution / lesson for a future session.** If `AskUserQuestion` errors with "permission stream closed", treat it as this known environment flake, not a tooling bug. Fall back to: surface the decision in plain chat with named options, record genuinely-authorial unanswered decisions in [`pending-decisions.md`](pending-decisions.md) per the attended-autonomous graceful-degradation mechanism, and route around. Do not re-attempt `AskUserQuestion` repeatedly; one retry is enough to confirm the flake.
 
 ### 2026-06-25: git proxy rejects writes to `grc_library_scratch` after the first push (HTTP 403)
 
