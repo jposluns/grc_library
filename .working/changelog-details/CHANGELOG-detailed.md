@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.334, PR #355
+
+Captured the recommended **session-concurrency-safety** design and queued its build, at the maintainer's request. The maintainer's concern: a `/resume` issued while another session is still running could corrupt shared `main` state. Design-only this session; the build (and three open sub-decisions) is deferred to a later session, per the maintainer's "add your thoughts to the decisions file for the next resume" framing.
+
+### Changed
+
+- [`.working/design-decisions.md`](design-decisions.md): added the "Session-concurrency safety" decision entry. It records the problem (the serial-session assumption, shared-`main`-surface clobbering, version-monotonicity collisions, and the stop-hook that makes a paused session non-idle because it auto-pushes on turn-end), the three options (A lease-only, B git-state-only, C both, recommended), the concrete `.working/session-state.md` lease schema and the `/resume` step-0 lease-plus-git-cross-check, the honest limitations (an advisory interlock, not a hard mutex; no cross-container lock primitive exists), the build plan, and three open sub-decisions for the maintainer.
+- [`TODO.md`](../../TODO.md): added §4.18 (session-concurrency safety: session-state lease plus git cross-check; M, M) pointing to the design entry, with the open sub-decisions flagged for build-time confirmation.
+
+### Verification
+
+- No corpus-content change; both substantive edits are in gate-exempt `.working/` and root `TODO.md`. Version surfaces bumped per the version-bump discipline (library CalVer and README Version in the last commit). `tools/run_all_audits.sh` (post-commit) and `tools/run-pr-time-checks.sh` (pre-push) confirm green before push.
+
 ## 2026-06-26, Library Version 2026.06.333, PR #354
 
 **Session-closing handoff PR** for the 2026-06-26 integrity-tooling session. Lands the session's working-state on `main` as a green merge so the next `/resume` rebuilds from `main` with no unmerged feature-branch state. Per the handoff-PR loop-break (CLAUDE.md PR-workflow step 5a) this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide Sweep 50 the next `/resume` runs first.
