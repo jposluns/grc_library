@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #368: §4.14 CHANGELOG-hygiene first-commit pre-flight aid (2026-06-26)
+
+Closed TODO §4.14: added [`tools/preflight-changelog.py`](../tools/preflight-changelog.py), a commit-gating aid run as `python3 tools/preflight-changelog.py && git commit ...` that exits non-zero when the added lines of the root CHANGELOG or its detailed mirror carry an em/en dash in prose or an unlinked path-shaped reference, closing the recurring commit-then-amend loop (#341/#347/#349/#355). A standalone helper rather than a pre-commit hook because no pre-commit git hook fires on commits in this environment. Batches the #367 `/validate-pr` (0 findings) + `/retro` rows.
+
 ### PR #367: §4.15 audit-programme functional-category-index currency (2026-06-26)
 
 Closed TODO §4.15: brought the audit-programme spec §5 functional-category list current with gates 49-53 (49→Content-drift; 50/52→Programme-and-index-integrity; 51→Language-and-style with the em-dash gate 9; 53→Reference-integrity as a link-target check) and recorded the gate-ordering decision (keep numeric append-order; §5 is the orthogonal functional view, §6 the canonical numbered inventory). Batches the #366 `/validate-pr` (0 findings) + `/retro` rows.

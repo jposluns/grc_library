@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.347, PR #368
+
+Integrity-tooling aid closing TODO §4.14 (CHANGELOG-hygiene first-commit pre-flight): added a commit-gating helper that surfaces the two recurring CHANGELOG-hygiene defect classes (em/en dashes in prose; unlinked path-shaped references) BEFORE the first commit, closing the commit-then-amend loop that recurred across #341/#347/#349/#355.
+
+### Added
+
+- [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py): run as `python3 tools/preflight-changelog.py && git commit ...`, it inspects the lines a PR *adds* (working tree or `--staged`, vs HEAD) to the root [`CHANGELOG.md`](../../CHANGELOG.md) and the detailed mirror, and exits non-zero when an added line carries an em-dash or en-dash in prose (code spans stripped first, matching gate 51) or a path-shaped backtick code span not wrapped in a markdown link (mirroring [`tools/lint-changelog-link-coverage.py`](../../tools/lint-changelog-link-coverage.py)). Scoped to added lines so historical entries never false-alarm.
+
+### Changed
+
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): added a PR close-out-checklist bullet requiring the pre-flight be run before the first commit of any CHANGELOG-editing PR, with the rationale (no pre-commit git hook fires on commits here, so a standalone helper in an `&&` chain is the only form that actually gates the commit).
+- [`TODO.md`](../../TODO.md): rotated §4.14 out (shipped). [`.working/DONE.md`](../DONE.md): added the PR #368 entry.
+
+### Verification
+
+- Functional test: clean working tree → exit 0; a crafted added line with an em-dash and a bare unlinked path-shaped reference → exit 1 with both flagged; a line whose only dash is inside a code span (a regex character class) → exit 0 (dash allowed inside code spans). The detection mirrors delta gate D3, gate 51, and the link-coverage gate. (The helper dogfooded itself on this very PR: an illustrative path-shaped example span in this entry's first draft tripped it, and was reworded.)
+- `tools/run_all_audits.sh` 53/53 green post-commit; `tools/run-pr-time-checks.sh` all-pass. No new gate, no four-surface wiring, no §6 row (the helper is a developer aid; the authoritative gates remain in CI).
+
+### Discipline observation
+
+This is the durable form the §4.14 escalation (improvement-log #349/#355) called for: a check that *gates* the commit (exits non-zero) rather than merely reporting alongside an unconditional `&& git commit`. The pre-commit-hook alternative the escalation also named is a non-starter here because no `.git/hooks/pre-commit` is installed, verified before building. Batches the PR #367 `/validate-pr` (0 findings) + `/retro` rows per recursion-avoidance. The #367 retro's low-priority root-vs-detailed-lead-wording reconciliation candidate is recorded against the change-tracking rule for a future edit (not actioned here).
+
 ## 2026-06-26, Library Version 2026.06.346, PR #367
 
 Integrity-tooling bookkeeping closing TODO §4.15 (audit-programme functional-category-index currency): brought the audit-programme spec §5 "Gate categories" functional list current with gates 49-53, which had accumulated outside §5 under the standing append-and-defer pattern, and recorded the gate-ordering decision §4.15 named.

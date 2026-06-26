@@ -303,6 +303,17 @@ defence is external. Two mechanisms:
      PR #252 missed a same-file Verification criterion and Rationalizations cell when
      it revised the routing convention; `/validate-pr` caught it, but the grep would
      have caught it first).
+   - `tools/preflight-changelog.py` was run **before the first commit** (as
+     `python3 tools/preflight-changelog.py && git commit ...`). It gates em/en
+     dashes and unlinked path-shaped references in the *added* lines of both the
+     root [`CHANGELOG.md`](../CHANGELOG.md) and the detailed mirror, exiting
+     non-zero so the `&&` chain blocks on a defect. It is the commit-gating form
+     of the recurring CHANGELOG-hygiene pre-flight (no pre-commit git hook fires
+     on commits here, so a standalone helper in an `&&` chain is what actually
+     gates); it mirrors delta gate D3, gate 51, and the link-coverage gate,
+     surfaced before the first commit to close the commit-then-amend loop
+     (improvement-log #341/#347/#349/#355). It is an aid, not a new gate; the
+     authoritative gates still run in CI.
    - CHANGELOG (root + detailed) and version bumps are present; the post-commit
      `run_all_audits.sh` and pre-push `run-pr-time-checks.sh` are green.
 
