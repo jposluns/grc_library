@@ -3127,5 +3127,63 @@ class ScanScopeParityTests(LinterTestCase):
             )
 
 
+class DirectionalDependencyTests(LinterTestCase):
+    """tools/lint-directional-dependency.py (gate 53)
+
+    The gate is pointed at an isolated temporary directory so a corpus
+    document carrying a markdown link into ``.project-governance/`` can be
+    detected without depending on the live corpus (which is clean). The
+    ``.project-governance`` path-component test fires on the resolved
+    target regardless of where the scan root lives.
+    """
+
+    def test_corpus_to_project_link_flagged(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "note.md").write_text(
+                "# Note\n\nSee [the register](.project-governance/register.md).\n",
+                encoding="utf-8",
+            )
+            result = run_linter("tools/lint-directional-dependency.py", d)
+            self.assertLinterFails(result, "corpus-to-project link")
+
+    def test_relative_parent_link_flagged(self) -> None:
+        # A ``../.project-governance/`` shape resolves into the directory too.
+        with tempfile.TemporaryDirectory() as d:
+            sub = Path(d) / "sub"
+            sub.mkdir()
+            (sub / "deep.md").write_text(
+                "# Sub\n\nSee [reg](../.project-governance/x.md).\n",
+                encoding="utf-8",
+            )
+            result = run_linter("tools/lint-directional-dependency.py", str(sub))
+            self.assertLinterFails(result, "corpus-to-project link")
+
+    def test_ordinary_link_not_flagged(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "clean.md").write_text(
+                "# Clean\n\nSee [the index](register-document-index.md) and "
+                "[the spec](../governance/specification-master-project.md).\n",
+                encoding="utf-8",
+            )
+            result = run_linter("tools/lint-directional-dependency.py", d)
+            self.assertEqual(
+                result.returncode, 0,
+                f"an ordinary corpus link must not flag.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+
+    def test_fenced_block_link_not_flagged(self) -> None:
+        # A link-like token inside a fenced code block is documentation, skipped.
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "fenced.md").write_text(
+                "# Fenced\n\n```\n[reg](.project-governance/register.md)\n```\n",
+                encoding="utf-8",
+            )
+            result = run_linter("tools/lint-directional-dependency.py", d)
+            self.assertEqual(
+                result.returncode, 0,
+                f"a fenced-block link must not flag.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

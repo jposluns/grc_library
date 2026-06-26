@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #362: corpus-to-project directional-dependency gate (gate 53) (2026-06-26)
+
+Closed the TODO P2 directional-dependency gate: added gate 53 (`tools/lint-directional-dependency.py`), the mechanical backstop for the project-governance-separation spec §4 one-way dependency rule, flagging any deliverable-corpus document that links into `.project-governance/` (the §4 counterpart to gate 52's §7.4 scan-scope parity); deliverable-corpus scan set derived from `AUDITED_DOMAIN_DIRS` minus `.project-governance` plus the root specs, pack subtree excluded per §4. Wired into all four surfaces with a `DirectionalDependencyTests` regression class; §7.3 rewritten from "queued" to built, §4 cross-reference updated. Also batches the Sweep 52 loop-break `/validate` row (0 findings).
+
 ### PR #360: directory-scan-scope parity meta-check (gate 52) (2026-06-26)
 
 Closed the TODO P2 directory-scan-scope parity meta-check: added gate 52 (`tools/lint-scan-scope-parity.py`), the mechanical backstop for the project-governance-separation spec §7.4, forbidding any content linter from hardcoding the audited-domain run now that PR #359 gave it a single source of truth (`lint_common.AUDITED_DOMAIN_DIRS`); robust to all three declaration styles because it matches literal directory names, with a documented EXEMPT set for the corpus-only-set divergent files (section-placement gate, taxonomy generator, collection-candidate helper). Wired into all four surfaces with a `ScanScopeParityTests` regression class; §7.4 narrative updated to the single-source-of-truth model.
