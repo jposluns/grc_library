@@ -192,6 +192,10 @@ jobs:
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-dash-on-pr.py
 
+      - name: Per-PR Version-Date co-bump check
+        if: github.event_name == 'pull_request'
+        run: python3 tools/check-date-cobump-on-pr.py
+
       - name: Detect collection candidates on pack PRs (informational)
         if: github.event_name == 'pull_request'
         env:
