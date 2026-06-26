@@ -272,7 +272,6 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [Data Retention Schedule](../governance/register-data-retention-schedule.md)
 - [Digital Trust and Assurance Metrics Register](../governance/register-digital-trust-and-assurance-metrics.md)
 - [Document Index and Classification Register](../governance/register-document-index-and-classification.md)
-- [Document Review Schedule Register](../governance/register-document-review-schedule.md)
 - [Global Regulatory Applicability Register](../compliance/register-global-regulatory-applicability.md)
 - [Glossary and Acronym Index](../governance/register-glossary.md)
 - [Key Risk Indicator Catalogue](../risk/register-key-risk-indicators.md)

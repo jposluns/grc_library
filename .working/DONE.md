@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #381: project-governance separation §5.3 resolved + Phase 2 review-schedule migration (2026-06-26)
+
+Closed the §5.3 deferred-classifications item: `register-coverage-gaps.md` stays corpus (adopter-routing role), and `register-document-review-schedule.md` migrated to `.project-governance/` (Phase 2) with its 7 corpus citers severed or re-pointed to the reusable corpus patterns. The separation spec gained a distinct §5.4 Phase-2 subsection.
+
 ### PR #372: gate-49 extension wired as gate 54 (track PR 3/3, closes the gate-49-extension item) (2026-06-26)
 
 Wired [`tools/lint-document-control-codes.py`](../tools/lint-document-control-codes.py) into all four audit surfaces as **gate 54** (per-document control-code validity), now that PR #371 left the corpus clean; added the runs-clean-on-corpus-at-HEAD smoke test, the §5/§6 spec entries, and bumped the gate count 53→54 across the prose carriers (including the gate-39-blind guardrail-SKILL word-form). Closes the gate-49-extension item; the per-document defect class (CSF-1.1 codes in NIST tables) is now a standing mechanical check. ISO Annex A per-document validation deferred to a P3 follow-up.
