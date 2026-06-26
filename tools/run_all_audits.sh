@@ -148,6 +148,7 @@ run_gate "Matrix control-code validity audit"            python3 tools/lint-matr
 run_gate "Bookkeeping-parity audit"                      python3 tools/lint-bookkeeping-parity.py
 run_gate "Working-tree prose-hygiene audit"              python3 tools/lint-working-prose-hygiene.py
 run_gate "Directory-scan-scope parity audit"             python3 tools/lint-scan-scope-parity.py
+run_gate "Corpus-to-project directional-dependency audit" python3 tools/lint-directional-dependency.py
 
 # ----------------------------------------------------------------------
 # Summary
