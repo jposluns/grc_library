@@ -2969,6 +2969,113 @@ class MatrixControlCodeTests(LinterTestCase):
         )
 
 
+class DocumentControlCodeTests(LinterTestCase):
+    """tools/lint-document-control-codes.py (per-document NIST CSF 2.0 codes)"""
+
+    SCRIPT = "tools/lint-document-control-codes.py"
+
+    def _row_doc(self, label: str, code_cell: str, notes_cell: str | None = None) -> str:
+        # A framework-as-row table: the framework name is the first cell of a
+        # body row; codes live in the code cell (cell 1); notes (if any) in cell 2.
+        if notes_cell is None:
+            return (
+                "# X\n\n## Framework alignment\n\n"
+                "| Framework | Reference |\n| --- | --- |\n"
+                f"| {label} | {code_cell} |\n"
+            )
+        return (
+            "# X\n\n## Framework alignment\n\n"
+            "| Framework | Code | Notes |\n| --- | --- | --- |\n"
+            f"| {label} | {code_cell} | {notes_cell} |\n"
+        )
+
+    def _col_doc(self, nist_body_cell: str) -> str:
+        # A framework-as-column table: a NIST CSF column header, then a body
+        # row whose NIST column holds the code.
+        return (
+            "# X\n\n## Control mapping\n\n"
+            "| Control Area | NIST CSF | CSA CCM v4.1 |\n| --- | --- | --- |\n"
+            f"| Some control | {nist_body_cell} | LOG-01 |\n"
+        )
+
+    def test_framework_row_carrier_flagged(self) -> None:
+        # ID.SC (CSF 1.1 Supply Chain Risk Management; became GV.SC) in the
+        # code cell of a NIST CSF framework row must be flagged.
+        fixture = self.make_fixture(
+            "fake-doc-row-carrier.md",
+            self._row_doc("NIST CSF 2.0", "GV.SC Supply Chain; ID.SC Supply Chain Cybersecurity"),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "nist-csf1-carrier")
+
+    def test_framework_column_carrier_flagged(self) -> None:
+        # RS.RP-1 in a NIST CSF column cell: the -1 subcategory suffix is
+        # stripped and RS.RP (CSF 1.1 Response Planning) is flagged.
+        fixture = self.make_fixture(
+            "fake-doc-col-carrier.md",
+            self._col_doc("Respond: RS.RP-1"),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "nist-csf1-carrier")
+
+    def test_notes_cell_carrier_not_flagged(self) -> None:
+        # Precision guard: a CSF 1.1 code that appears only in a *notes* cell
+        # as part of a rename note must NOT be flagged (the operative code in
+        # the code cell, PR.AA, is valid).
+        fixture = self.make_fixture(
+            "fake-doc-notes-note.md",
+            self._row_doc(
+                "NIST Cybersecurity Framework 2.0",
+                "PR.AA (Identity Management, Authentication, and Access Control)",
+                "Note: PR.AC was the CSF 1.1 subcategory; CSF 2.0 renamed it to PR.AA.",
+            ),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"a CSF 1.1 code in a notes cell must not be flagged.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_valid_codes_not_flagged(self) -> None:
+        # False-positive guard: valid CSF 2.0 Categories, including a
+        # subcategory-suffixed one (DE.CM-7 -> DE.CM), must all pass.
+        fixture = self.make_fixture(
+            "fake-doc-valid.md",
+            self._col_doc("Detect: DE.CM-7"),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"valid CSF 2.0 codes must not be flagged.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_nist_sp_row_not_scanned(self) -> None:
+        # A "NIST SP 800-53" framework row is not a CSF row; its control
+        # families (SR, SA-9) must not be scanned as CSF codes.
+        fixture = self.make_fixture(
+            "fake-doc-nist-sp.md",
+            self._row_doc("NIST SP 800-53 Rev. 5", "SA-9 External System Services; SR Supply Chain"),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"a NIST SP 800-53 row must not be scanned as a CSF table.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_unknown_category_flagged(self) -> None:
+        # A well-formed FUNCTION.CATEGORY with a valid Function prefix but a
+        # category in no CSF edition (GV.ZZ) is flagged as unknown.
+        fixture = self.make_fixture(
+            "fake-doc-unknown-cat.md",
+            self._row_doc("NIST CSF 2.0", "GV.ZZ"),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "nist-unknown-category")
+
+
 class BookkeepingParityTests(LinterTestCase):
     """tools/lint-bookkeeping-parity.py (gate 50)"""
 
