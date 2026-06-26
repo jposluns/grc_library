@@ -1,6 +1,6 @@
 # Worker Brief Template
 
-**Version:** 1.2.1\
+**Version:** 1.2.2\
 **Date:** 2026-06-26\
 **License:** CC BY-SA 4.0
 
@@ -44,6 +44,8 @@ Each guard rail is enumerated below. Workers must satisfy each rail before submi
 6. **Verify every framework / control identifier against established corpus use AND the reference modules** before proposing it in a mapping. Do not propose a CCM / ISO 27001 / NIST CSF / framework control code (e.g. `IPY-01`, `A.8.27`, `GV.SC-01`) unless you have confirmed the exact identifier already appears in the corpus (grep it) OR is a verified real control in the authoritative reference (`tools/ccm_aicm_reference.py` for CSA CCM/AICM; `tools/nist_csf_reference.py` for NIST CSF 2.0; `governance/register-canonical-citations.md` for the rest). Flag any identifier you cannot confirm as "needs-verification". **NIST CSF codes must be CSF 2.0** (gate 49 enforces Category membership against `tools/nist_csf_reference.py`); the CSF-1.1 codes `PR.IP`, `ID.SC`, `ID.BE`, `RS.RP`, `DE.DP`, `PR.AC`, `PR.PT` are NOT valid in the matrix and are being migrated out corpus-wide (DD-12). (Caught at PR #275: a worker proposed `IPY-02` and `DSP-10`, not in corpus use, corrected at apply-time to `IPY-01` / `DSP-04`. Note: #275 also recorded "the corpus convention is `PR.IP`"; that convention was REVERSED by #325/#326, the matrix is now strict CSF 2.0, so for the matrix use `PR.PS`/`PR.DS`/`GV.SC`/etc., not `PR.IP`.)
 
 7. **Flag every newly-introduced acronym for a same-PR glossary entry**. If your research introduces an acronym not already defined in the corpus glossary, surface it explicitly so the orchestrator adds the glossary entry in the same PR. Do not assume an acronym is already defined. (Caught repeatedly, CIIO/HKDF/AEAD at Sweep 20, well past the three-occurrence threshold by PR #229.)
+
+8. **The code cell and its description cell are a paired surface.** When you propose or revise a framework-mapping / crosswalk row, the description must describe the proposed code's actual function, not a different or superseded one; if you change the code, re-read the description in the same row for echoes of the OLD code's function or meaning. (Caught at PR #371/#374: the corpus DD-12 migration changed `RC.IM` (Recovery: Improvements) to `ID.IM` (Identify: Improvement) but left the word "recovery" in the description, mismatched against the Identify function. Gate-blind: gate 54 validates control-code validity only, not the prose half, so the description-vs-function drift is the orchestrator's and worker's to catch by re-reading the paired cell.)
 ```
 
 ---
