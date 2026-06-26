@@ -25,7 +25,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from lint_common import iter_non_code_lines, read_text_safe
+from lint_common import AUDITED_DOMAIN_DIRS, iter_non_code_lines, read_text_safe
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -136,18 +136,9 @@ DEFAULT_PATHS = [
     "specification-master-project.md",
     "specification-ingestion.md",
     "instruction-ai-document-ingestion.md",
-    "ai",
-    "architecture",
-    "compliance",
-    "dev-security",
-    "governance",
-    ".project-governance",
-    "operations",
-    "privacy",
-    "resilience",
-    "risk",
-    "security",
-    "supply-chain",
+    # Domain run splatted from the single source of truth in
+    # ``lint_common``; the scan-scope parity gate forbids hardcoding it.
+    *AUDITED_DOMAIN_DIRS,
 ]
 
 

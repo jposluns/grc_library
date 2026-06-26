@@ -56,6 +56,46 @@ DEFAULT_EXEMPT_DIRS: frozenset[str] = frozenset(
 )
 
 
+# Canonical list of audited-not-exempt top-level directories: the
+# eleven domain directories plus ``.project-governance``. This is the
+# single source of truth for the "explicit allow-list" content linters
+# (the ones that enumerate scan roots rather than walking the
+# repository root and subtracting ``DEFAULT_EXEMPT_DIRS``). Each such
+# linter splats ``AUDITED_DOMAIN_DIRS`` into its scan-root list rather
+# than hardcoding the directory run inline, so that adding a future
+# top-level audited directory propagates to every content linter from
+# one place. The directory-scan-scope parity gate
+# (``tools/lint-scan-scope-parity.py``) enforces that no content
+# linter hardcodes this run; the governance contract is in
+# ``governance/specification-project-governance-separation.md`` section 7.4.
+#
+# ``docs`` is deliberately NOT in this set: it holds generated
+# artefacts (``docs/portal.md``, ``docs/maturity-scorecard.md``) and is
+# a per-linter extra that only the date/version-currency linters add,
+# not a corpus domain. Each linter keeps its own meta-file entries
+# (``README.md``, ``NOTICE.md``, the root specifications, etc.) and any
+# extra directories alongside the splatted ``AUDITED_DOMAIN_DIRS``.
+#
+# The ordering matches the historical scan-root ordering across the
+# linters (``.project-governance`` after ``governance``), so the
+# refactor that introduces the splat is a no-op on the resulting file
+# list.
+AUDITED_DOMAIN_DIRS: tuple[str, ...] = (
+    "ai",
+    "architecture",
+    "compliance",
+    "dev-security",
+    "governance",
+    ".project-governance",
+    "operations",
+    "privacy",
+    "resilience",
+    "risk",
+    "security",
+    "supply-chain",
+)
+
+
 # Default suffix set for markdown-only linters.
 MARKDOWN_SUFFIXES: frozenset[str] = frozenset({".md"})
 

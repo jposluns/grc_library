@@ -51,6 +51,8 @@ import re
 import sys
 from pathlib import Path
 
+from lint_common import AUDITED_DOMAIN_DIRS
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 EXEMPT_DIRECTORY_PREFIXES: tuple[str, ...] = (
@@ -72,20 +74,10 @@ EXEMPT_FILENAMES: set[str] = {
     "README.md",
 }
 
-DEFAULT_PATHS = [
-    "ai",
-    "architecture",
-    "compliance",
-    "dev-security",
-    "governance",
-    ".project-governance",
-    "operations",
-    "privacy",
-    "resilience",
-    "risk",
-    "security",
-    "supply-chain",
-]
+# The audited domain directories, sourced from the single
+# ``AUDITED_DOMAIN_DIRS`` declaration in ``lint_common`` (the scan-scope
+# parity gate forbids hardcoding the run here).
+DEFAULT_PATHS = list(AUDITED_DOMAIN_DIRS)
 
 DOCTYPES = {
     "annex", "charter", "checklist", "framework", "guide", "guideline",
