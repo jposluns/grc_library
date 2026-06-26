@@ -328,3 +328,63 @@ Decision: not pursued. The decision tree's audience is a reader who is already n
 Fitness review 2026-06-22 r1 surfaced FR-130 (medium severity): [`docs/decision-tree.md`](../docs/decision-tree.md) lines 107-120 list the README as the first entry point and the portal as item 8 of 8, which one persona felt delayed encounter with the portal navigational surface. The finding proposed moving the portal to item 1.
 
 Decision: not pursued. The README is the canonical first-encounter surface for adopters cloning the library; the decision tree's ordering reflects that intent. The portal is a secondary navigational artefact useful once a reader has the corpus open, and its position at item 8 reflects discovery sequencing (read the README, then explore via the portal). Reordering would invert the intent. PR #200 explicitly preserved the existing pattern when closing the adjacent FR-132.
+
+---
+
+## Session-concurrency safety: a session-state lease + git cross-check (design captured 2026-06-26; BUILD deferred to a later session)
+
+_Captured at the maintainer's request during the `claude/session-state-safety-vzsj19` session. The maintainer's concern: "if I make a mistake and resume a session when you are still running in another, there could be corruption." The maintainer proposed a `.working/session-state.md` tracking main-session and worker states, plus a freshness signal ("a time stamp on each PR or something") to identify stale sessions. This entry records the recommended design so the next session implements it; the build is intentionally NOT done in the capturing session (the maintainer asked to "consider the best option and add your thoughts to the decisions file for the next resume")._
+
+### The problem
+
+The handoff / resume model assumes strictly **serial** sessions: a session ends by landing a green session-closing handoff PR on `main`, and the next session's `/resume` rebuilds state from `main`. Nothing today detects or prevents a **concurrent** session. If the maintainer starts a second session (sends `/resume`, or opens a fresh container) while a prior session is still live, two orchestrators run at once. The realistic failure modes:
+
+- **Shared-`main`-surface clobbering.** Both sessions eventually merge to `main` and both write the shared state surfaces: `session-handoff.md`, `TODO.md`, `DONE.md`, `validate-sweeps/history.md`, the detailed CHANGELOG mirror, and the four version surfaces (library CalVer + README Version + per-document Version/Date). Two merges racing these produce lost edits, conflicting refreshes, and **version-monotonicity collisions** (two sessions both bumping CalVer to the same value, which gate 40 / the monotonicity audit would then flag, but only after the damage).
+- **Feature-branch isolation is partial, not total.** Each session gets a uniquely-suffixed branch (this session: `claude/session-state-safety-vzsj19`), so direct git-object collisions on the branches themselves are unlikely. The corruption surface is the shared state and the version registers that *both* sessions write *through their merges*, not the branch commits.
+- **A "paused" session is not an idle session.** The stop-hook auto-commits AND pushes uncommitted work at every turn-end (see the handoff's "Known environment behaviours"). A session the maintainer believes is parked can still push on its next turn, so "I'll just resume; the other one is sitting still" is unsafe.
+
+### Options considered
+
+- **(A) Explicit lease file only (`.working/session-state.md`), the maintainer's suggestion.** The active orchestrator writes a lease (session id = branch name, status, a heartbeat UTC stamp, the active worker dispatches and their partitions); `/resume` reads it first and holds if it shows an un-released session. Pro: explicit, human-readable, and it naturally carries the "main-session AND worker states" the maintainer asked for. Con: the lease lives on the feature branch until merged, so a brand-new session reading `main` sees only the *last-merged* lease, not the in-flight session's branch-local heartbeat. On its own it cannot see a session that started after the last merge.
+- **(B) Git-state cross-check only.** On `/resume`, `git fetch`, enumerate remote `claude/*` branches ahead of `main`, and read their newest commit timestamps; a recent unmerged branch implies a live session. Pro: authoritative *external* timestamps (commit times are not something the assistant has to remember to write), and it sees across sessions because the stop-hook pushes branches to `origin`. Con: heuristic (an abandoned-weeks-ago branch is a false positive), and it carries no worker state.
+- **(C) Both: lease file as the declared state, git cross-check as the external verification. RECOMMENDED.** This is the `validate-inference-before-action` pattern applied to "is another session live": the lease is the *claim*, the live remote git state is the *observation* that confirms or refutes it. The lease (refreshed onto `main` at each PR close-out, like the handoff) records the last-merged session's close and the worker dispatches; `/resume` ALSO fetches and inspects live remote `claude/*` branches for recent unmerged activity. A concurrent session is detected when EITHER the lease is not `released` with a fresh heartbeat, OR a remote `claude/*` branch other than the one being resumed has a commit inside the staleness window. The git check catches the crash case (a session that died before writing or releasing its lease); the lease carries the clean-close bookkeeping and the worker state.
+
+### Recommended mechanism (C), concretely
+
+- **New file `.working/session-state.md`** (gate-exempt under the `.working/` exemption). Fields: `Active-session:` (branch name or `none`), `Status:` (`active` | `winding-down` | `released`), `Last-heartbeat-UTC:` (a `date -u` stamp, the authoritative-clock note below), `Current-task:` (one line), `Worker-dispatches:` (list of worker-id, partition, status, cross-referencing the scratch `claims-ledger.md`).
+- **Acquire** at session start, right after the `/resume` orientation: write `Active-session: <this branch>`, `Status: active`, heartbeat = `date -u`.
+- **Refresh** the heartbeat at each PR close-out (cheap; folds into the existing handoff-refresh batch). Optionally each turn (the stop-hook persists it for free).
+- **Release** in the session-closing handoff PR: `Status: released`, `Active-session: none`. A cleanly-closed session therefore leaves a `released` lease on `main`.
+- **`/resume` new step 0 (before reading the handoff):**
+  1. `git fetch origin`, read `.working/session-state.md` from `main`.
+  2. If `Status` is not `released` AND `Last-heartbeat-UTC` is within the staleness window: a session is likely live. HOLD and surface ("branch X looks active, last heartbeat T, N minutes ago; confirm it is closed before I proceed"). Do not proceed without explicit maintainer confirmation.
+  3. Cross-check git: list `origin/claude/*` branches ahead of `main`; for any branch other than the one being resumed, read its newest commit time. A commit inside the staleness window triggers the same HOLD + surface (this is the crash-case net: the lease may never have been written or released).
+  4. If the lease is `released` (or stale beyond the window) AND no recent unmerged sibling branch exists: safe. Record acquisition and continue the normal resume.
+
+### The freshness / "stale session" signal (the maintainer's "timestamp on each PR")
+
+Two-tier, and the maintainer's instinct is correct: **git commit / PR timestamps are the authoritative external clock**; the lease heartbeat is the finer-grained in-session clock.
+
+- Use **commit time** (git) as the source of truth on the cross-check path: it cannot drift from reality and does not depend on the assistant remembering to write it.
+- Use the **heartbeat** for the declared-state path (the lease).
+- The **staleness window** is the threshold that separates "live" from "abandoned". On a not-`released` lease whose heartbeat is OLDER than the window, surface it as an abandoned-session takeover decision ("prior session appears abandoned, heartbeat N old, branch unmerged; take over? (recommended) / investigate / leave it") rather than auto-proceeding or auto-blocking.
+
+### Honest limitations (state plainly, do not oversell)
+
+- This is an **advisory interlock, not a hard mutex.** No atomic cross-container lock primitive is available, so two sessions started within the same heartbeat window, before either writes its lease, can still both proceed. The mechanism shrinks the vulnerable window from "always" to "both start within the staleness window AND the git cross-check misses", which covers the realistic accidental-double-resume the maintainer is worried about. It does not defeat a determined simultaneous launch.
+- The lease on `main` only reflects the *last-merged* session; the **git cross-check is the part that sees an in-flight session** (its branch is on `origin` because the stop-hook pushes). The two halves of (C) are not redundant; each covers the other's blind spot.
+- A mechanical **well-formedness gate** (a lint mirroring `lint-overnight-file`, failing on a malformed or missing `session-state.md`) is worth adding to keep the file honest, but it CANNOT enforce the interlock itself (CI runs per-branch and cannot see across concurrent sessions); it only guards the file's shape.
+
+### Build plan for the implementing session (NOT the capturing one)
+
+1. Create `.working/session-state.md` with the field schema and an initial `released` / `Active-session: none` stub.
+2. Add `/resume` **step 0** (the lock check above) to [`.claude/commands/resume.md`](../.claude/commands/resume.md).
+3. Wire the acquire / refresh / release writes into the session lifecycle and document them in [`.claude/CLAUDE.md`](../.claude/CLAUDE.md)'s `## Session migration and PR close-out checklist` section and the handoff's "How to resume".
+4. Decide and (if chosen) build the well-formedness gate, four-surface-wired with a regression fixture, per the standard new-gate recipe. If built, it pairs with the §4.6 / §4.10 / §4.17 bookkeeping-parity gate family.
+5. Integrate worker state: `session-state.md`'s `Worker-dispatches` summarizes the current orchestrator's launched workers and partitions, cross-referencing the scratch `claims-ledger.md`, so a resuming orchestrator knows what is mid-flight.
+
+### Open sub-decisions for the maintainer (confirm at the implementing session)
+
+- **Staleness window value** (proposed default: 60 minutes; long enough not to false-positive on a session that is thinking or waiting on CI, short enough that a truly-dead session does not block for hours).
+- **Hard-block vs advisory-warn** on a fresh-heartbeat `active` lease (proposed: advisory HOLD requiring explicit maintainer confirmation, because the assistant cannot truly know the other session is dead, and a hard block would strand the maintainer if a session crashed without releasing).
+- **Whether to add the well-formedness gate now or defer** it as a follow-up.
