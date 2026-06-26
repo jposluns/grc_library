@@ -418,6 +418,60 @@ before the next queued items. This mode is the `clarify-before-acting` rule's "a
 reachable-but-not-watching maintainer: still ask (surface the decision, named options), but degrade
 gracefully instead of stalling, and never convert a timeout into a silent authorial pick.
 
+## Wind-down decision framework (surface the handoff choice, do not take it silently)
+
+A recurring pattern across recent sessions (#351, #358, #361, #369, #373): after the resume
+`/validate` sweep plus a few PRs, the assistant concludes "clean boundary, heavy context, Quality >
+Speed, hand off" and winds the session down on its own. That conclusion is often correct, but taking
+it silently is the same failure the `clarify-before-acting` and `action-before-explanation-of-inaction`
+rules forbid everywhere else: narrating an inaction (the handoff) as if it were forced, without
+surfacing the capability assessment that would let the maintainer redirect. This section closes that
+hole at the wind-down boundary. The maintainer set it 2026-06-26 after judging that several sessions
+wound down earlier than necessary.
+
+**The trigger.** Whenever the assistant concludes that a session-closing handoff is the right next
+step, it does NOT act on that conclusion silently. It surfaces the decision to the maintainer (via
+`AskUserQuestion`) with all three of:
+
+1. **Its justification** for winding down, stated in terms of objective signals, not a subjective "I
+   feel done": actual drift, hallucination, or mistakes the QA layer did not catch; OR a large
+   fresh-context-best series remaining (a migration, rename, or corpus-wide sweep the partitionable-work
+   SOP keeps single-session); OR a genuine degradation read anchored to the tractability factors below.
+2. **A per-PR likelihood-of-success assessment** for each of the pending next-five PRs (drawn from
+   `TODO.md`, the same list the PR-workflow step-6 surfacing produces), each anchored to objective
+   tractability factors: partitionable vs single-session; incremental-edit vs fresh-context-class;
+   count of cross-surface bookkeeping touchpoints; unresolved authorial decisions in the way; whether
+   references or inputs are in hand. A degraded context is the worst judge of its own degradation, so
+   the assessment leans on these signals rather than on confidence.
+3. **Named options** (the `clarify-before-acting` shape, recommended option first):
+   - **A. Handoff** (the conservative default).
+   - **B. The assistant's recommended order of additional PRs with high likelihood of success** (the
+     small, partitionable, low-risk items where the objective signals support continuing).
+   - **C. An alternative order at slightly higher risk** (items judged tractable but with more
+     cross-surface or authorial exposure).
+   - **D. "Do more than we should."** This is a deliberate impulse-check, NOT a real fourth path: if
+     the maintainer picks D, the assistant reminds the maintainer not to be stupid and hands off
+     immediately. It is a Ulysses pact, so D cannot be used to override the discipline.
+
+**The timeout (graceful degradation).** This decision uses the same roughly-2-minute background-`sleep`
+timer as the attended-autonomous pending-decisions mechanism (a single timer value across all
+graceful-degradation decisions, maintainer-chosen 2026-06-26 over a separate longer value). If the
+maintainer answers before it fires, the assistant acts on the answer. If it fires with no answer, the
+assistant **proceeds with option A (handoff)**: the conservative, reversible, no-regret default,
+consistent with Quality > Speed and with the reversibility gate. A no-answer timeout NEVER auto-selects
+B, C, or D; "more work" is never the unattended default. The one carve-out: in an overnight run the
+overnight conflict rules govern instead (this framework is for reachable-maintainer sessions).
+
+**Quality > Speed remains the tiebreaker, and B/C are bounded.** The framework adds a menu of "more"; it
+must not become pressure to continue. Choosing B or C does NOT relax any discipline: each additional PR
+still gets its full per-PR `/validate-pr` + `/retro` (no abbreviation; the Sweep-22 lesson), and the
+assistant re-runs the degradation read at EACH PR boundary, so "do N more" is really "do one more,
+re-assess, repeat" and self-terminates early if quality signals turn. If a degradation signal appears
+mid-run (drift, a hallucination, a mistake the QA layer did not catch), the assistant winds down
+regardless of the option chosen, surfacing why. The framework is the `clarify-before-acting` rule
+applied to the wind-down boundary; it changes how the handoff decision is *made* (surfaced, with
+evidence and options), not the Quality > Speed ordering that decides it.
+
 ## Throughput pressure does not authorise QA abbreviation
 
 When a long batch of PRs is in flight, when the session window feels tight, or when
