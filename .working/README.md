@@ -1,4 +1,4 @@
-# `.working/` — Maintainer Working Space
+# `.working/`: Maintainer Working Space
 
 This directory holds operational artefacts produced by maintainer-invoked tooling: per-run records, detailed reports, working drafts, and other outputs that assist the maintainer but are not part of the published GRC library content.
 
@@ -12,7 +12,7 @@ This directory holds operational artefacts produced by maintainer-invoked toolin
 
 - **Not library content.** Adopters reading the corpus do not need to read `.working/`. The library's normative content lives in the domain directories (`ai/`, `compliance/`, `governance/`, etc.) and the dev-security claude-rules pack.
 - **Not generated artefacts.** `docs/portal.md`, `docs/maturity-scorecard.md`, and `taxonomy.yml` are mechanically generated from corpus metadata. `.working/` is hand-curated or AI-assisted but human-reviewed; not a build output.
-- **Not for adopter consumption.** Adopters cloning the library should treat `.working/` as the upstream maintainer's local state; delete it, ignore it, or keep it as historical context — their choice.
+- **Not for adopter consumption.** Adopters cloning the library should treat `.working/` as the upstream maintainer's local state; delete it, ignore it, or keep it as historical context, their choice.
 
 ## Standard layout for each activity
 
@@ -49,9 +49,9 @@ Single-file artefacts that don't fit the activity-subdirectory shape because the
 
 If you fork or clone this library as a starting point for your own GRC programme:
 
-- **You may safely delete `.working/`** — nothing in the library's canonical content depends on it.
-- **You may keep it as historical reference** — the contents document decisions the upstream maintainer made and may inform your own adaptation.
-- **You should not extend the upstream `.working/` with your own working state** — create a fresh `.working/` for your own outputs; mixing the two histories defeats the audit-trail value on both sides.
+- **You may safely delete `.working/`**, nothing in the library's canonical content depends on it.
+- **You may keep it as historical reference**, the contents document decisions the upstream maintainer made and may inform your own adaptation.
+- **You should not extend the upstream `.working/` with your own working state**, create a fresh `.working/` for your own outputs; mixing the two histories defeats the audit-trail value on both sides.
 
 ## License
 

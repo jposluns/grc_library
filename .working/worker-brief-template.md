@@ -1,7 +1,7 @@
 # Worker Brief Template
 
-**Version:** 1.2.0\
-**Date:** 2026-06-25\
+**Version:** 1.2.1\
+**Date:** 2026-06-26\
 **License:** CC BY-SA 4.0
 
 Project-local template the orchestrator uses when dispatching research-assistant (worker) subagents per the research-assistant discipline in [`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`](../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md) §1.
@@ -33,7 +33,7 @@ Each guard rail is enumerated below. Workers must satisfy each rail before submi
 
 1. **Verify every file path** before citing it in your research. Use `find` or `Glob` to confirm the file exists. Drafting a path from memory is a known failure mode (caught at PR #169 P1.3 boundary; worker referenced a non-existent `policy-information-security-incident-management.md`). When in doubt about a file's existence, list the candidate directory and confirm.
 
-2. **Source external-standard citations** from the project's canonical-citations register at `governance/register-canonical-citations.md`. Do not cite ISO/IEC, NIST, GDPR, etc. by quoting year, edition, or clause numbers from memory. The register is the source of truth; if a citation isn't in the register, surface it as a question rather than drafting an unverified citation. (Caught at Sweep 15: worker drafted `ISO/IEC 29134:2023` — the publicly verifiable edition is 2017; no 2023 republication.)
+2. **Source external-standard citations** from the project's canonical-citations register at `governance/register-canonical-citations.md`. Do not cite ISO/IEC, NIST, GDPR, etc. by quoting year, edition, or clause numbers from memory. The register is the source of truth; if a citation isn't in the register, surface it as a question rather than drafting an unverified citation. (Caught at Sweep 15: worker drafted `ISO/IEC 29134:2023`, the publicly verifiable edition is 2017; no 2023 republication.)
 
 3. **Verify PR / FR cross-references** against `.working/DONE.md`. If you reference "FR-X closed in PR #N", grep DONE.md for the FR and confirm the closing PR. (Caught at PR #172: worker drafted FR-3 as closed in PR #158; actual closing PR is #147.)
 
@@ -41,9 +41,9 @@ Each guard rail is enumerated below. Workers must satisfy each rail before submi
 
 5. **Surface scope expansion**. If your research uncovers that the PR would touch more files than the orchestrator scoped, surface this in your output rather than silently expanding. The orchestrator decides whether to expand the PR or to split.
 
-6. **Verify every framework / control identifier against established corpus use AND the reference modules** before proposing it in a mapping. Do not propose a CCM / ISO 27001 / NIST CSF / framework control code (e.g. `IPY-01`, `A.8.27`, `GV.SC-01`) unless you have confirmed the exact identifier already appears in the corpus (grep it) OR is a verified real control in the authoritative reference (`tools/ccm_aicm_reference.py` for CSA CCM/AICM; `tools/nist_csf_reference.py` for NIST CSF 2.0; `governance/register-canonical-citations.md` for the rest). Flag any identifier you cannot confirm as "needs-verification". **NIST CSF codes must be CSF 2.0** (gate 49 enforces Category membership against `tools/nist_csf_reference.py`); the CSF-1.1 codes `PR.IP`, `ID.SC`, `ID.BE`, `RS.RP`, `DE.DP`, `PR.AC`, `PR.PT` are NOT valid in the matrix and are being migrated out corpus-wide (DD-12). (Caught at PR #275: a worker proposed `IPY-02` and `DSP-10` — not in corpus use — corrected at apply-time to `IPY-01` / `DSP-04`. Note: #275 also recorded "the corpus convention is `PR.IP`"; that convention was REVERSED by #325/#326 — the matrix is now strict CSF 2.0, so for the matrix use `PR.PS`/`PR.DS`/`GV.SC`/etc., not `PR.IP`.)
+6. **Verify every framework / control identifier against established corpus use AND the reference modules** before proposing it in a mapping. Do not propose a CCM / ISO 27001 / NIST CSF / framework control code (e.g. `IPY-01`, `A.8.27`, `GV.SC-01`) unless you have confirmed the exact identifier already appears in the corpus (grep it) OR is a verified real control in the authoritative reference (`tools/ccm_aicm_reference.py` for CSA CCM/AICM; `tools/nist_csf_reference.py` for NIST CSF 2.0; `governance/register-canonical-citations.md` for the rest). Flag any identifier you cannot confirm as "needs-verification". **NIST CSF codes must be CSF 2.0** (gate 49 enforces Category membership against `tools/nist_csf_reference.py`); the CSF-1.1 codes `PR.IP`, `ID.SC`, `ID.BE`, `RS.RP`, `DE.DP`, `PR.AC`, `PR.PT` are NOT valid in the matrix and are being migrated out corpus-wide (DD-12). (Caught at PR #275: a worker proposed `IPY-02` and `DSP-10`, not in corpus use, corrected at apply-time to `IPY-01` / `DSP-04`. Note: #275 also recorded "the corpus convention is `PR.IP`"; that convention was REVERSED by #325/#326, the matrix is now strict CSF 2.0, so for the matrix use `PR.PS`/`PR.DS`/`GV.SC`/etc., not `PR.IP`.)
 
-7. **Flag every newly-introduced acronym for a same-PR glossary entry**. If your research introduces an acronym not already defined in the corpus glossary, surface it explicitly so the orchestrator adds the glossary entry in the same PR. Do not assume an acronym is already defined. (Caught repeatedly — CIIO/HKDF/AEAD at Sweep 20, well past the three-occurrence threshold by PR #229.)
+7. **Flag every newly-introduced acronym for a same-PR glossary entry**. If your research introduces an acronym not already defined in the corpus glossary, surface it explicitly so the orchestrator adds the glossary entry in the same PR. Do not assume an acronym is already defined. (Caught repeatedly, CIIO/HKDF/AEAD at Sweep 20, well past the three-occurrence threshold by PR #229.)
 ```
 
 ---
@@ -193,7 +193,7 @@ When dispatching a worker, the orchestrator assembles:
 
 [PR-specific brief: FR ID, scope, target files, special considerations]
 
-[Guard rails — the full DO and DO-NOT lists from this template]
+[Guard rails, the full DO and DO-NOT lists from this template]
 
 [Override section for the relevant PR class]
 

@@ -1,4 +1,4 @@
-# `.working/fitness-reviews/` — Maintainer Working State
+# `.working/fitness-reviews/`: Maintainer Working State
 
 This subdirectory holds project-specific working state for the `library-fitness-review` discipline. The discipline itself (persona definitions, review criteria, severity model, output structure) is template content and lives in the [`library-fitness-review` skill](../../dev-security/claude-rules/skills/library-fitness-review/SKILL.md) in the dev-security claude-rules pack; the files here are *our* log of *our* fitness reviews performed against THIS library.
 
@@ -16,14 +16,14 @@ Adopters cloning the library inherit no historical fitness-review entries (their
 
 When a fitness review produces findings, the detail file uses these eight H2 sections in order:
 
-1. `## Executive Summary` — overall comprehensibility, usability, consistency; highest-risk issues; remediation priorities; fit-for-use assessment
-2. `## Review Method` — number and type of personas dispatched; pages reviewed; evaluation criteria applied; assumptions or limitations
-3. `## Page-by-Page Findings` — per-page entries with title, path, intended purpose (as inferred), actual clarity, intended audience (as inferred), key issues, severity, impact, recommended remediation, retention decision (retain / revise / merge / split / rename / retire / relocate)
-4. `## Cross-Library Findings` — systemic issues: terminology inconsistencies, structural problems, missing document types, duplicated/conflicting guidance, navigation weaknesses, broken or weak cross-linking, inconsistent requirement language, missing ownership or review metadata, unclear hierarchy
-5. `## Severity Model` — explicit definitions used in this run (see "Severity model" below for the canonical definitions; this section restates them so the report is self-contained)
-6. `## Recommendations` — priority-grouped with recommendation, rationale, affected pages, expected benefit, estimated effort (Small/Medium/Large), suggested owner, dependencies, proposed implementation order
-7. `## Standardization Recommendations` — page taxonomy, naming conventions, required metadata, required page sections, requirement-language rules, ownership model, review cadence, cross-linking model, versioning model, status labels, template recommendations
-8. `## Remediation Backlog` — discrete work items with IDs (`FR-1`, `FR-2`, ...), title, description, severity, affected pages, recommended action, acceptance criteria, estimated effort, dependencies
+1. `## Executive Summary`, overall comprehensibility, usability, consistency; highest-risk issues; remediation priorities; fit-for-use assessment
+2. `## Review Method`, number and type of personas dispatched; pages reviewed; evaluation criteria applied; assumptions or limitations
+3. `## Page-by-Page Findings`, per-page entries with title, path, intended purpose (as inferred), actual clarity, intended audience (as inferred), key issues, severity, impact, recommended remediation, retention decision (retain / revise / merge / split / rename / retire / relocate)
+4. `## Cross-Library Findings`, systemic issues: terminology inconsistencies, structural problems, missing document types, duplicated/conflicting guidance, navigation weaknesses, broken or weak cross-linking, inconsistent requirement language, missing ownership or review metadata, unclear hierarchy
+5. `## Severity Model`, explicit definitions used in this run (see "Severity model" below for the canonical definitions; this section restates them so the report is self-contained)
+6. `## Recommendations`, priority-grouped with recommendation, rationale, affected pages, expected benefit, estimated effort (Small/Medium/Large), suggested owner, dependencies, proposed implementation order
+7. `## Standardization Recommendations`, page taxonomy, naming conventions, required metadata, required page sections, requirement-language rules, ownership model, review cadence, cross-linking model, versioning model, status labels, template recommendations
+8. `## Remediation Backlog`, discrete work items with IDs (`FR-1`, `FR-2`, ...), title, description, severity, affected pages, recommended action, acceptance criteria, estimated effort, dependencies
 
 Optional `## Final Assessment` section as a coda when sections 1 and 6-8 leave material to summarise (fit-for-use, fit-for-audit-support, fit-for-executive-consumption, fit-for-operational-execution).
 
@@ -52,7 +52,7 @@ Each fitness review dispatches independent persona subagents who review every pa
 | 9 | Privacy / data protection officer | Privacy-specific obligations | Data subject rights covered? Jurisdiction-aware? Cross-border transfer guidance? DPIA triggers? Breach notification thresholds? Vendor processor obligations? |
 | 10 | Newcomer / onboarding engineer | Zero-knowledge entry | What jargon is unexplained? Where does the document assume prior context I don't have? Can I follow the navigation without a guide? What's the minimum reading order? |
 
-Each persona has explicit exclusions to avoid overlap — see the skill's SKILL.md `## Process` step 3 for per-persona scope and exclusion definitions.
+Each persona has explicit exclusions to avoid overlap, see the skill's SKILL.md `## Process` step 3 for per-persona scope and exclusion definitions.
 
 ## Dispatch declaration
 

@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-26, Library Version 2026.06.332, PR #353
+
+`.working/` em-dash conformance bulk apply (the application step of the maintainer-directed full `.working/` conformance pass; #352 defined the conventions in the pack). Also opens the autonomous overnight integrity-tooling run.
+
+### Changed
+
+- All `.working/` markdown (74 files, roughly 1299 prose lines) converted to the dash-free conventions via a code-span-aware transform: DONE and FR entry-header separators to `### PR #N:` (colon); history-table zero-finding `Detail` placeholders to `none`; prose em-dashes to commas; en-dash numeric ranges to hyphens.
+- Preserved (NOT converted): 11 em/en-dashes that sit inside inline code spans and are literal content, namely the queued-PR regex character class in [`.working/changelog-details/CHANGELOG-detailed.md`](CHANGELOG-detailed.md) (a frozen entry), frozen historical quotes of old placeholders/headers, the SARIF-lite finding-format literal in [`.working/design-decisions.md`](../design-decisions.md), and the house-style rule statement's own `—`/`–` glyph examples in [`.working/design-decisions.md`](../design-decisions.md). This is the principled boundary the planned prose-hygiene gate enforces: dashes are forbidden in `.working/` prose, allowed inside inline code spans.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): pack `Date` aligned to `2026-06-26` and `Version` `1.49.13` to `1.49.14` (co-bump), with a history row, correcting the #352 missing same-commit Date bump.
+- [`.working/overnight-pr.md`](../overnight-pr.md): transitioned `stub` to `in-flight` with the overnight integrity-tooling authorization scope, the 20-PR plan, and the Phase-D held-for-confirmation list.
+- [`TODO.md`](../../TODO.md): added §4.17 (Version-Date co-bump check), surfaced by the #352 `/retro`.
+
+### Added (batched bookkeeping)
+
+- Sweep 49 history row in [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (`2.0.41` to `2.0.42`) plus the TODO sweep-cursor advance to Sweep 49.
+- #352 `/validate-pr` row in [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.145` to `1.2.146`) and `/retro` row in [`.working/improvement-log.md`](../improvement-log.md) (`1.0.111` to `1.0.112`).
+
+### Why
+
+The maintainer directed full `.working/` conformance to the no-em-dash house style (including the DONE header separator) and a regular `.working/` cleanup discipline. #352 redefined the pack's documented conventions; this PR applies them to the existing records. The code-span exemption is necessary because some `.working/` dashes are intentional literals (a regex matching dashes; the rule statement quoting the forbidden glyphs), which a blind conversion would corrupt.
+
+### Verification
+
+All 50 audit gates pass standalone post-commit; both PR-time runners green. A corpus-wide grep confirms the only remaining `.working/` em/en-dashes are the 11 inside inline code spans. New CHANGELOG lines confirmed em/en-dash-free by `grep -nP`. Sweep 49 (A/B/C) returned 0 findings with no asserted-expectations contradiction. The #352 `/validate-pr` returned 0 in-window findings (1 within-tolerance note, fixed here).
+
 ## 2026-06-26, Library Version 2026.06.331, PR #352
 
 Pack convention conformance for local project and adopters: the pack's own documented working-state conventions that used an em-dash are migrated to dash-free forms, so the pack templates obey the house-style no-em-dash rule the pack itself documents. This is the convention-definition step of the maintainer-directed full `.working/` em-dash conformance pass; the bulk application to existing `.working/` records follows in subsequent PRs.
@@ -289,7 +314,7 @@ Resume session-start bookkeeping for local project (2026-06-25 continued resume)
 - [`AUTHORS.md`](../../AUTHORS.md): **Philip Veilleux** ([@menoche](https://github.com/menoche)) added to the "Acknowledged contributors" list, at the maintainer's request. Per-document `1.1.2`→`1.1.3`, Date→`2026-06-25`.
 
 ### Changed
-- [`.working/validate-sweeps/history.md`](../../.working/validate-sweeps/history.md): appended the **Sweep 44 iter 1** row (zero actionable findings, so no detail file; the row is the trace). Sweep 44 is the `/resume` loop-break compensating control for session-closing handoff PR #334, covering the #332 (§4.11 light SOP) and #333 (§4.11 pre-push-runner gate) deltas. Full three-subagent A/B/C dispatch (no abbreviation), clone unshallowed, mechanical baseline 49/49 (matches handoff green-at-`33c770b`). Result: **clean** — 0 in-window, 0 out-of-window, 0 audit-programme findings; the 3 known DD-12 CSF-1.1 carriers and the tracked ERC term-drift confirmed present but pre-tracked (not new misses); no asserted-expectations contradiction (every #332/#333 asserted-clean claim independently re-verified).
+- [`.working/validate-sweeps/history.md`](../../.working/validate-sweeps/history.md): appended the **Sweep 44 iter 1** row (zero actionable findings, so no detail file; the row is the trace). Sweep 44 is the `/resume` loop-break compensating control for session-closing handoff PR #334, covering the #332 (§4.11 light SOP) and #333 (§4.11 pre-push-runner gate) deltas. Full three-subagent A/B/C dispatch (no abbreviation), clone unshallowed, mechanical baseline 49/49 (matches handoff green-at-`33c770b`). Result: **clean**, 0 in-window, 0 out-of-window, 0 audit-programme findings; the 3 known DD-12 CSF-1.1 carriers and the tracked ERC term-drift confirmed present but pre-tracked (not new misses); no asserted-expectations contradiction (every #332/#333 asserted-clean claim independently re-verified).
 - [`.working/overnight-pr.md`](../../.working/overnight-pr.md): recorded the 2026-06-25 continued-resume session-start (state verified at #334, 49/49 green), the two resume clarification answers (standing authority confirmed operative; FR-167 references to be re-attached), the maintainer's FR-167 reference re-upload (CCM v4.1 / AICM v1.1 / NIST CSWP.29, extracted to the session scratchpad for apply-time use, FR-167 batch 4 unblocked), and the queued AUTHORS.md addition. `Status` stays `in-flight` (overnight authority continues).
 
 ### Verification
@@ -302,7 +327,7 @@ Resume session-start bookkeeping for local project (2026-06-25 continued resume)
 
 ## 2026-06-25, Library Version 2026.06.313, PR #334
 
-`.working/` + version-surface housekeeping for local project: session-closing handoff PR for the 2026-06-25 continued resume session (resumed from #331; ran Sweep 43 clean; shipped #332 light SOP + #333 pre-push-runner gate). Refreshes [`.working/session-handoff.md`](../../.working/session-handoff.md) — state snapshot post-#333 (green-at-`33c770b`, library `2026.06.313`/pack `1.49.11`/README `1.9.184`), the `## Asserted expectations` section scoped to what this session verified (Sweep 43 clean; #332/#333 diffs clean per `/validate-pr`; both local runners green; the untouched soft spots, incl. project-gov Phase 1 NOT started, explicitly not asserted clean), Sweep 43→44 cadence, and the next-actions queue with **project-gov separation Phase 1 promoted to the top item** (the migration-class, non-partitionable task this session deliberately wound down before, on Quality > Speed). Batches the #333 `/validate-pr` (0 findings) history row and `/retro` row per recursion-avoidance. `overnight-pr.md` stays `in-flight`. Per the handoff-PR loop-break exception (CLAUDE.md PR-workflow step 5a), this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide **Sweep 44** the next `/resume` runs first, cross-checked against the asserted-expectations section.
+`.working/` + version-surface housekeeping for local project: session-closing handoff PR for the 2026-06-25 continued resume session (resumed from #331; ran Sweep 43 clean; shipped #332 light SOP + #333 pre-push-runner gate). Refreshes [`.working/session-handoff.md`](../../.working/session-handoff.md), state snapshot post-#333 (green-at-`33c770b`, library `2026.06.313`/pack `1.49.11`/README `1.9.184`), the `## Asserted expectations` section scoped to what this session verified (Sweep 43 clean; #332/#333 diffs clean per `/validate-pr`; both local runners green; the untouched soft spots, incl. project-gov Phase 1 NOT started, explicitly not asserted clean), Sweep 43→44 cadence, and the next-actions queue with **project-gov separation Phase 1 promoted to the top item** (the migration-class, non-partitionable task this session deliberately wound down before, on Quality > Speed). Batches the #333 `/validate-pr` (0 findings) history row and `/retro` row per recursion-avoidance. `overnight-pr.md` stays `in-flight`. Per the handoff-PR loop-break exception (CLAUDE.md PR-workflow step 5a), this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide **Sweep 44** the next `/resume` runs first, cross-checked against the asserted-expectations section.
 
 ## 2026-06-25, Library Version 2026.06.312, PR #333
 
@@ -357,13 +382,13 @@ Why: lands the 2026-06-25 overnight session's working-state on `main` as a green
 Multi-session / multi-worker orchestration codification, part 1 (runbook + worker brief). The worker-facing half of the §4.11 track; the pack-layer SOP and the bookkeeping-parity gate family follow in later PRs.
 
 ### Added
-- [`.working/multi-session-orchestration.md`](../../.working/multi-session-orchestration.md) (new, `1.0.0`) — the orchestrator-side runbook executing the design in [`.working/design-decisions.md`](../../.working/design-decisions.md). Sections: roles (one orchestrator = sole merge authority; workers produce research/diffs only); the no-bypass validate-then-apply HARD INVARIANT; Model-B partitioned-branch parallelism + eligibility checklist (corpus-wide sweeps/renames/migrations and the single-file FR-167 matrix are NOT partitionable); the two worker primitives (in-session `Agent` fan-out, available now; separate-session external-collaborator workers, pending maintainer-provisioned least-privilege accounts); claims-ledger coordination with human-on-demand default and no poll loops; the trust-split `ref/` reference base; the prep / knowledge-base pre-load discipline; defense-in-depth layering; a quick-start; and an explicit "does NOT authorize" list. Companion to the worker-facing root `CLAUDE.md` seeded in `grc_library_scratch`.
+- [`.working/multi-session-orchestration.md`](../../.working/multi-session-orchestration.md) (new, `1.0.0`), the orchestrator-side runbook executing the design in [`.working/design-decisions.md`](../../.working/design-decisions.md). Sections: roles (one orchestrator = sole merge authority; workers produce research/diffs only); the no-bypass validate-then-apply HARD INVARIANT; Model-B partitioned-branch parallelism + eligibility checklist (corpus-wide sweeps/renames/migrations and the single-file FR-167 matrix are NOT partitionable); the two worker primitives (in-session `Agent` fan-out, available now; separate-session external-collaborator workers, pending maintainer-provisioned least-privilege accounts); claims-ledger coordination with human-on-demand default and no poll loops; the trust-split `ref/` reference base; the prep / knowledge-base pre-load discipline; defense-in-depth layering; a quick-start; and an explicit "does NOT authorize" list. Companion to the worker-facing root `CLAUDE.md` seeded in `grc_library_scratch`.
 
 ### Changed
 - [`.working/worker-brief-template.md`](../../.working/worker-brief-template.md) (`1.1.0`→`1.2.0`): added a **Model-B worker section** (deliver diffs to `inbox/<id>/`, never merge; stay inside the claimed partition; write to scratch only; use the trust-split `ref/`; escalate non-partitionable work) and **corrected now-stale `PR.IP` guidance**. Rail 6's example code `PR.IP` and its "the corpus convention is `PR.IP`" note, and the FR-167 matrix-expansion override's "the corpus uses `PR.IP`", were all REVERSED by gate 49 (#325/#326): the matrix NIST column is now strict CSF 2.0. The guidance now directs workers to validate NIST codes against `tools/nist_csf_reference.py` (gate 49 enforces Category membership) and to use CSF 2.0 successors (`PR.PS`/`PR.DS`/`GV.SC`/`GV.OC`/`PR.AA`/`RS.MA`), not the CSF-1.1 codes (being migrated out under DD-12).
 
 ### Fixed (batched from #329 `/validate-pr`, recursion-avoidance)
-- [`TODO.md`](../../TODO.md):87 — the broadened DD-12 text gave `RS.RP`'s CSF-2.0 relocation target as `RC.RP`; corrected to mainly `RS.MA` per [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py):80 (RC.RP is in Recover; RS.RP redistributed to RS.MA in Respond). The #329 `/validate-pr` in-window finding, apply-time-verified.
+- [`TODO.md`](../../TODO.md):87, the broadened DD-12 text gave `RS.RP`'s CSF-2.0 relocation target as `RC.RP`; corrected to mainly `RS.MA` per [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py):80 (RC.RP is in Recover; RS.RP redistributed to RS.MA in Respond). The #329 `/validate-pr` in-window finding, apply-time-verified.
 
 ### Verification
 - `tools/run_all_audits.sh` 49/49 after each commit; `tools/run-pr-time-checks.sh` (D1/D2/D3 + gate 45) green. `.working/` codification + the TODO fix; no corpus-content change. Library `2026.06.308`→`2026.06.309`; README `1.9.179`→`1.9.180`. The #329 `/validate-pr` record + history row + `/retro` row are carried in this PR per recursion-avoidance.
@@ -376,23 +401,23 @@ Multi-session / multi-worker orchestration codification, part 1 (runbook + worke
 Resume session-start close-out: corpus-wide Sweep 42 (the loop-break control for handoff PR #327) plus the session's bookkeeping.
 
 ### Fixed
-- [`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md):93 — the "Why this skill exists" growth-narrative gate count "a dozen gates to forty-eight" corrected to "forty-nine". Gate 49 (matrix control-code validity) shipped in #325 after the count was last set to "forty-eight" in pack 1.49.6; this is a free-prose word-form count, invisible to the digit-form gate-count gate (gate 39), so it survived CI. Sweep 42 Subagents A and B independently surfaced it. Pack [`README.md`](../../dev-security/claude-rules/README.md) `1.49.9`→`1.49.10` with a version-history row.
+- [`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md):93, the "Why this skill exists" growth-narrative gate count "a dozen gates to forty-eight" corrected to "forty-nine". Gate 49 (matrix control-code validity) shipped in #325 after the count was last set to "forty-eight" in pack 1.49.6; this is a free-prose word-form count, invisible to the digit-form gate-count gate (gate 39), so it survived CI. Sweep 42 Subagents A and B independently surfaced it. Pack [`README.md`](../../dev-security/claude-rules/README.md) `1.49.9`→`1.49.10` with a version-history row.
 
 ### Added
-- [`.working/validate-sweeps/2026-06-25-sweep42-iter1.md`](2026-06-25-sweep42-iter1.md) — Sweep 42 detail file (3-subagent dispatch; the in-window fix; the verified-clean high-value targets) + a history row in [`history.md`](../../.working/validate-sweeps/history.md) (`2.0.34`→`2.0.35`).
+- [`.working/validate-sweeps/2026-06-25-sweep42-iter1.md`](2026-06-25-sweep42-iter1.md), Sweep 42 detail file (3-subagent dispatch; the in-window fix; the verified-clean high-value targets) + a history row in [`history.md`](../../.working/validate-sweeps/history.md) (`2.0.34`→`2.0.35`).
 - [`TODO.md`](../../TODO.md): a **gate-49-extension** item (validate framework codes in per-document reference tables, not only the central matrix; maintainer-approved 2026-06-25) and a new **§4.12 publications-assessment / poisoning-detection process** for the scratch reference base (maintainer-directed).
-- [`.working/third-party-issues.md`](../../.working/third-party-issues.md) (`1.0.1`→`1.0.2`) — entry recording the git-proxy restriction that rejects writes to `grc_library_scratch` after the first push (distinguished from a real defect: `grc_library` git writes and scratch MCP writes both work).
+- [`.working/third-party-issues.md`](../../.working/third-party-issues.md) (`1.0.1`→`1.0.2`), entry recording the git-proxy restriction that rejects writes to `grc_library_scratch` after the first push (distinguished from a real defect: `grc_library` git writes and scratch MCP writes both work).
 - [`.working/overnight-pr.md`](../../.working/overnight-pr.md) transitioned stub→in-flight with the maintainer's overnight authorization scope, the two-round decision set, and the build-progress log (Sweep 42; scratch ref/ framework + worker `CLAUDE.md` seeded to `grc_library_scratch` via the MCP text path).
 
 ### Changed
 - [`TODO.md`](../../TODO.md): **DD-12** scope broadened from `PR.IP`-only to all CSF-1.1 carriers (`PR.IP`/`ID.SC`/`ID.BE`/`RS.RP`/`DE.DP`/`PR.AC`/`PR.PT`/...), per the maintainer-approved "broaden + extend gate 49" decision; known out-of-matrix carriers cited.
-- [`.working/validate-pr/history.md`](../../.working/validate-pr/history.md) (`1.2.123`→`1.2.124`) — a #328 subsumption row: #328's `/validate-pr`+`/retro` were not run (session force-stopped after merge); Sweep 42's window covered the #328 deltas, so its QA is subsumed with no ledger gap.
+- [`.working/validate-pr/history.md`](../../.working/validate-pr/history.md) (`1.2.123`→`1.2.124`), a #328 subsumption row: #328's `/validate-pr`+`/retro` were not run (session force-stopped after merge); Sweep 42's window covered the #328 deltas, so its QA is subsumed with no ledger gap.
 
 ### Verification
 - `tools/run_all_audits.sh` → **49/49 green** after each commit. `tools/lint-language.py` clean on the changed pack SKILL line. Sweep 42 mechanical baseline 49/49; empty-delta termination at iteration 1. No asserted-expectations contradiction (no genuine-miss escalation). Library `2026.06.307`→`2026.06.308`; README `1.9.178`→`1.9.179`; pack `1.49.9`→`1.49.10`.
 
 ### Discipline observation
-- The scratch reference base was seeded via the GitHub MCP API (text transport) after the git proxy hard-blocked scratch writes; the ~2.84 MB of text extracts are staged locally pending a working write path or maintainer binary re-upload. Inlining the full extract tree through MCP was deferred to protect the session's priority work (multi-session capability, FR-167) — a Quality>Speed>Cost call where consuming context on a workaround would degrade the priority work.
+- The scratch reference base was seeded via the GitHub MCP API (text transport) after the git proxy hard-blocked scratch writes; the ~2.84 MB of text extracts are staged locally pending a working write path or maintainer binary re-upload. Inlining the full extract tree through MCP was deferred to protect the session's priority work (multi-session capability, FR-167), a Quality>Speed>Cost call where consuming context on a workaround would degrade the priority work.
 
 ## 2026-06-25, Library Version 2026.06.307, PR #328
 
@@ -581,7 +606,7 @@ The scrub applied a documented per-occurrence triage rule:
 
 ### Fixed
 
-- [`governance/register-glossary.md`](../../governance/register-glossary.md):246 — a factual error: the PIPEDA entry read "Being superseded by CPPA." PIPEDA is not being superseded; CPPA lapsed. Rewritten to "The in-force federal private-sector privacy law; the proposed CPPA (Bill C-27) that would have replaced it lapsed in 2025." The CPPA glossary entry (:90) was also given a "proposed; Bill C-27 lapsed; not in force; distinct from CCPA and the California Privacy Protection Agency" qualifier.
+- [`governance/register-glossary.md`](../../governance/register-glossary.md):246, a factual error: the PIPEDA entry read "Being superseded by CPPA." PIPEDA is not being superseded; CPPA lapsed. Rewritten to "The in-force federal private-sector privacy law; the proposed CPPA (Bill C-27) that would have replaced it lapsed in 2025." The CPPA glossary entry (:90) was also given a "proposed; Bill C-27 lapsed; not in force; distinct from CCPA and the California Privacy Protection Agency" qualifier.
 
 ### Verification
 
@@ -958,7 +983,7 @@ The two findings share a shape with prior sweeps' catches: an enhancement or har
 
 ### Verification
 - All 48 audit gates pass on the committed state; pre-push `tools/run-pr-time-checks.sh` green.
-- Carries the batched **#301 `/validate-pr`** record (history row only; **0 findings**, clean — Subagent A verified all 13 corpus version+date bumps, every domain-code mapping against `tools/ccm_aicm_reference.py`, the glossary placement, the crosswalk ranges, and a corpus-wide residual scan returning none) and the **#301 `/retro`** row (pattern: a content-filtered completeness grep (`grep ... | grep -i ccm`) under-scoped the code-rename check and hid the `EKM` crosswalk row, caught only by the unfiltered standalone-token grep; proposed refinement: completeness greps for a rename must be unfiltered standalone-token searches; durable backstop = TODO §4.5 S5).
+- Carries the batched **#301 `/validate-pr`** record (history row only; **0 findings**, clean, Subagent A verified all 13 corpus version+date bumps, every domain-code mapping against `tools/ccm_aicm_reference.py`, the glossary placement, the crosswalk ranges, and a corpus-wide residual scan returning none) and the **#301 `/retro`** row (pattern: a content-filtered completeness grep (`grep ... | grep -i ccm`) under-scoped the code-rename check and hid the `EKM` crosswalk row, caught only by the unfiltered standalone-token grep; proposed refinement: completeness greps for a rename must be unfiltered standalone-token searches; durable backstop = TODO §4.5 S5).
 
 ## 2026-06-24, Library Version 2026.06.279, PR #301
 
@@ -984,7 +1009,7 @@ All domain-code corrections are grounded in the authoritative CSA catalogues (CC
 - [`operations/standard-physical-security-of-it-infrastructure.md`](../../operations/standard-physical-security-of-it-infrastructure.md):108 cites "I&S-03: Infrastructure and Virtualization Security: Physical Security", but the catalogue title of I&S-03 is "Network Security", and physical/datacenter security is the `DCS` domain. This looks like a control mis-citation (correct replacement likely a DCS control), but the right fix needs judgment, so it is left for morning review rather than guess-fixed. (Two operations files, this one and [`operations/standard-cloud-security-configuration-baseline.md`](../../operations/standard-cloud-security-configuration-baseline.md):195, also carry the old "Infrastructure and Virtualization Security" domain *name* alongside correct I&S codes; that softer domain-name-currency refresh is bundled into the same morning-review note.)
 
 ### Changed
-- [`TODO.md`](../../TODO.md): added a new §4.5 gate candidate — extend gate 48 to flag bare known-bad CCM domain codes (`IVS`/`NET`/`GOV`/`EKM`/`GRM`/`AUD`/`MOS`/`DSI`) in CCM/CSA context, which the current token-only check cannot see (this is the durable mechanical fix for this PR's finding-class). Refreshed the session-resume metadata and the last-validation-sweep cursor to Sweep 36.
+- [`TODO.md`](../../TODO.md): added a new §4.5 gate candidate, extend gate 48 to flag bare known-bad CCM domain codes (`IVS`/`NET`/`GOV`/`EKM`/`GRM`/`AUD`/`MOS`/`DSI`) in CCM/CSA context, which the current token-only check cannot see (this is the durable mechanical fix for this PR's finding-class). Refreshed the session-resume metadata and the last-validation-sweep cursor to Sweep 36.
 
 ### Verification
 - All 48 audit gates pass on the committed state (`tools/run_all_audits.sh`); [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated for the per-document version bumps. Pre-push `tools/run-pr-time-checks.sh` recorded at commit time.
@@ -1031,12 +1056,12 @@ All domain-code corrections are grounded in the authoritative CSA catalogues (CC
 **Sweep 35 (`/validate`) close-out plus a maintainer-directed corpus-wide CSA CCM / AICM citation-accuracy reconciliation, grounded in the authoritative CSA-published catalogues.** The `/resume` loop-break Sweep 35 surfaced two findings (A-1: a `GRM`→`GRC` stale CCM domain code in the cross-framework matrix; B-1: a `12 months`→`7 years` stale AI-log retention figure). Apply-time verification of A-1 surfaced an adjacent invalid `GOV domain` reference, and a corpus-wide grep exposed a **systemic CCM/AICM citation-accuracy problem**. The maintainer supplied the authoritative **CSA Cloud Controls Matrix v4.1.0** and **AI Controls Matrix v1.1.0** catalogues (XLSX + guidance PDFs) and directed a full reconciliation. The catalogues were used as the definitive reference but, per their explicit no-redistribution licence (CCM/AICM "may not be redistributed ... may not be modified"), are **not committed** to this CC BY-SA 4.0 repository; they were parsed in the session scratchpad only, and a fair-use reference of the factual domain codes + control-ID ranges will back a follow-up validation gate. A validator built from the catalogues confirmed the complete defect set and **zero residual defects** after the fixes.
 
 ### Fixed
-- **GOV-NN cited as CSA CCM v4.1 (fabricated domain; ~9 documents).** Neither CCM v4.1 nor AICM v1.1 has a `GOV` domain — governance is `GRC` in both (CCM: GRC-01..08; AICM extends to GRC-15). `GOV-01..08` (governance base) corrected to `GRC-01..08` in [`compliance/policy-legal-and-regulatory-compliance.md`](../../compliance/policy-legal-and-regulatory-compliance.md) and [`dev-security/standard-security-baseline-and-standards-reference.md`](../../dev-security/standard-security-baseline-and-standards-reference.md). The `GOV-09`/`GOV-10` citations carried **fabricated control titles** ("Sustainability and Responsible Technology", "Governance and Continuous Improvement", "Governance Metrics and Monitoring", "Governance and digital trust") that match no real CCM/AICM control; all six rows removed (each table already cited the genuinely-correct COBIT MEA01 reference) from [`governance/framework-metrics-monitoring-and-performance-reporting.md`](../../governance/framework-metrics-monitoring-and-performance-reporting.md), [`governance/framework-governance-performance-and-improvement.md`](../../governance/framework-governance-performance-and-improvement.md), [`governance/framework-continuous-assurance-and-improvement.md`](../../governance/framework-continuous-assurance-and-improvement.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../../governance/register-digital-trust-and-assurance-metrics.md), [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md), and [`governance/framework-sustainability-and-responsible-technology.md`](../../governance/framework-sustainability-and-responsible-technology.md). Bare `GOV domain` refs removed from [`governance/matrix-cross-framework-alignment.md`](../../governance/matrix-cross-framework-alignment.md):64 and [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md):136.
+- **GOV-NN cited as CSA CCM v4.1 (fabricated domain; ~9 documents).** Neither CCM v4.1 nor AICM v1.1 has a `GOV` domain, governance is `GRC` in both (CCM: GRC-01..08; AICM extends to GRC-15). `GOV-01..08` (governance base) corrected to `GRC-01..08` in [`compliance/policy-legal-and-regulatory-compliance.md`](../../compliance/policy-legal-and-regulatory-compliance.md) and [`dev-security/standard-security-baseline-and-standards-reference.md`](../../dev-security/standard-security-baseline-and-standards-reference.md). The `GOV-09`/`GOV-10` citations carried **fabricated control titles** ("Sustainability and Responsible Technology", "Governance and Continuous Improvement", "Governance Metrics and Monitoring", "Governance and digital trust") that match no real CCM/AICM control; all six rows removed (each table already cited the genuinely-correct COBIT MEA01 reference) from [`governance/framework-metrics-monitoring-and-performance-reporting.md`](../../governance/framework-metrics-monitoring-and-performance-reporting.md), [`governance/framework-governance-performance-and-improvement.md`](../../governance/framework-governance-performance-and-improvement.md), [`governance/framework-continuous-assurance-and-improvement.md`](../../governance/framework-continuous-assurance-and-improvement.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../../governance/register-digital-trust-and-assurance-metrics.md), [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md), and [`governance/framework-sustainability-and-responsible-technology.md`](../../governance/framework-sustainability-and-responsible-technology.md). Bare `GOV domain` refs removed from [`governance/matrix-cross-framework-alignment.md`](../../governance/matrix-cross-framework-alignment.md):64 and [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md):136.
 - **GRM → GRC (Sweep 35 A-1).** Six cells in [`governance/matrix-cross-framework-alignment.md`](../../governance/matrix-cross-framework-alignment.md) under the "CSA CCM v4.1" column used the v3.0.1 `GRM` domain code; corrected to `GRC`. Same error class as #294's FR-155, which this PR completes for the matrix surface FR-155 did not enumerate.
 - **IVS → I&S (34 occurrences, corpus + pack).** CCM v4.1.0 renamed the Infrastructure & Virtualization Security domain code from `IVS` (v4.0) to `I&S` (controls I&S-01..09, titles preserved 1:1). All `IVS-NN` citations corrected to `I&S-NN` across 11 corpus documents and the distributed pack ([`dev-security/claude-rules/ai/mcp-security.md`](../../dev-security/claude-rules/ai/mcp-security.md), [`core/cryptography.md`](../../dev-security/claude-rules/core/cryptography.md), [`pipeline/cicd-gates.md`](../../dev-security/claude-rules/pipeline/cicd-gates.md), and the byte-identical [`.claude/rules/cicd-gates.md`](../../.claude/rules/cicd-gates.md) mirror).
 - **NET → I&S (not a CCM domain).** CCM v4.1 has no `NET` domain; network controls live in I&S (I&S-03 Network Security, I&S-06 Segmentation, I&S-08 Network Architecture, I&S-09 Network Defense). [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md):103 `NET-01..06` → `I&S-03, I&S-06, I&S-08, I&S-09`; [`dev-security/standard-security-baseline-and-standards-reference.md`](../../dev-security/standard-security-baseline-and-standards-reference.md):227 `NET-01 to 09` → `I&S-03, I&S-08, I&S-09`. **Resolves TODO DD-12 part (a)** (which had targeted the wrong `IVS` code, itself a v4.0 artefact).
 - **IPY-05 (out of range).** The Interoperability & Portability domain has exactly four controls (IPY-01..04) in both CCM v4.1 and AICM v1.1. [`supply-chain/standard-cloud-exit-and-data-portability.md`](../../supply-chain/standard-cloud-exit-and-data-portability.md) "IPY-01 through IPY-05" → "IPY-01 through IPY-04"; [`supply-chain/template-supplier-offboarding-evidence.md`](../../supply-chain/template-supplier-offboarding-evidence.md) "IPY-04, IPY-05" → "IPY-04 (data portability contractual obligations)".
-- **AI-log retention 12 months → 7 years (Sweep 35 B-1).** [`ai/standard-ai-access-and-agent-permissions.md`](../../ai/standard-ai-access-and-agent-permissions.md):193 — the agent tool-invocation audit-log retention, the fourth carrier DD-6/7 (#294) missed; aligned to the canonical 7-year AI decision/detection-log figure with a cross-reference to [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md). A corpus-wide grep confirmed it was the sole remaining stale carrier.
+- **AI-log retention 12 months → 7 years (Sweep 35 B-1).** [`ai/standard-ai-access-and-agent-permissions.md`](../../ai/standard-ai-access-and-agent-permissions.md):193, the agent tool-invocation audit-log retention, the fourth carrier DD-6/7 (#294) missed; aligned to the canonical 7-year AI decision/detection-log figure with a cross-reference to [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md). A corpus-wide grep confirmed it was the sole remaining stale carrier.
 
 ### Changed
 - **AICM v1.0.3 → v1.1 (currency).** AICM v1.1.0 was released 2026-06-23. [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) updated (current version v1.1, 2026, v1.0.3 moved to superseded); carriers updated in [`ai/framework-ai-system-audit-certification.md`](../../ai/framework-ai-system-audit-certification.md), [`dev-security/register-compliance-controls-and-gap-register.md`](../../dev-security/register-compliance-controls-and-gap-register.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md), and the [`governance/worklist-citation-verification-batch-q4-canonical-citations.md`](../../governance/worklist-citation-verification-batch-q4-canonical-citations.md) task line.
@@ -1118,8 +1143,8 @@ All domain-code corrections are grounded in the authoritative CSA catalogues (CC
 **Sweep 34 (`/validate`) close-out: correct a false "the Day-1 floor nests inside Tier 1" claim across two adopter-onboarding surfaces, and reconcile a breach-response role lead-in.** The `/resume` compensating-control corpus-wide `/validate` (Sweep 34, the standing loop-break control for the session-closing handoff PR #292, which skipped its trailing `/validate-pr` + `/retro` per CLAUDE.md PR-workflow step 5a) ran a full three-subagent dispatch over the whole corpus plus the #289-#292 deltas. Subagents B (corpus-wide stale-reference) and C (audit-programme integrity) returned 0 findings; the security-critical FR-153 crypto and FR-90 browser-hardening citations from #291 verified clean and current, and a subagent WebSearch over-correction (PBKDF2-HMAC-SHA512 "210,000") was refuted at apply-time against the authoritative OWASP source (the corpus's 220,000 is correct). Subagent A (recent-PR deep review) surfaced one defect across two parallel surfaces plus one note, all in-window.
 
 ### Fixed
-- [`docs/adopter-guide.md`](../../docs/adopter-guide.md) (`1.3.0` → `1.3.1`) and [`docs/template-quickstart.md`](../../docs/template-quickstart.md) (`3.0.2` → `3.0.3`): **Sweep 34 F1/F2 (C4/C3 multi-surface incompleteness, in-window from #290/FR-69)**. Both docs claimed the six-artefact Day-1 floor "includes" / "sits inside" / "is a subset of" the 15-document Tier 1 starter set and that "the three sizes nest rather than compete". This is false: two of the six Day-1-floor artefacts — [`security/policy-acceptable-use.md`](../../security/policy-acceptable-use.md) and [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md) — do not appear in the Tier 1 table, so the floor overlaps Tier 1 in only four of its six items and does not nest inside it. The maintainer chose to soften the prose (preserve the deliberately-curated 15-document Tier 1 and its 4-to-6-hour reading time) rather than expand Tier 1 to 17 documents. Both surfaces now state the accurate overlap ("shares four of those six artefacts, while the Day-1 floor additionally names the acceptable-use and identity-and-access-management policies") and describe the three sizes as "complementary starting points rather than competing ones". Fixed in lock-step across the two parallel surfaces.
-- [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md) (`1.4.12` → `1.4.13`): **Sweep 34 F3 (C6 internal tension, in-window from #291/FR-85, note-level)**. The §4.2 lead-in read "the Data Protection Officer and CISO jointly conduct an initial assessment. The two roles conduct it jointly, but each determination has a named lead", while the table immediately below assigns determinations 5 and 6 to "Data Protection Officer, with Legal" — a third contributing role the "two roles" phrasing did not admit. The lead-in now reads "...jointly conduct an initial assessment, drawing in Legal where a determination requires it. Each determination has a named lead", reconciling the prose with the table.
+- [`docs/adopter-guide.md`](../../docs/adopter-guide.md) (`1.3.0` → `1.3.1`) and [`docs/template-quickstart.md`](../../docs/template-quickstart.md) (`3.0.2` → `3.0.3`): **Sweep 34 F1/F2 (C4/C3 multi-surface incompleteness, in-window from #290/FR-69)**. Both docs claimed the six-artefact Day-1 floor "includes" / "sits inside" / "is a subset of" the 15-document Tier 1 starter set and that "the three sizes nest rather than compete". This is false: two of the six Day-1-floor artefacts, [`security/policy-acceptable-use.md`](../../security/policy-acceptable-use.md) and [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), do not appear in the Tier 1 table, so the floor overlaps Tier 1 in only four of its six items and does not nest inside it. The maintainer chose to soften the prose (preserve the deliberately-curated 15-document Tier 1 and its 4-to-6-hour reading time) rather than expand Tier 1 to 17 documents. Both surfaces now state the accurate overlap ("shares four of those six artefacts, while the Day-1 floor additionally names the acceptable-use and identity-and-access-management policies") and describe the three sizes as "complementary starting points rather than competing ones". Fixed in lock-step across the two parallel surfaces.
+- [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md) (`1.4.12` → `1.4.13`): **Sweep 34 F3 (C6 internal tension, in-window from #291/FR-85, note-level)**. The §4.2 lead-in read "the Data Protection Officer and CISO jointly conduct an initial assessment. The two roles conduct it jointly, but each determination has a named lead", while the table immediately below assigns determinations 5 and 6 to "Data Protection Officer, with Legal", a third contributing role the "two roles" phrasing did not admit. The lead-in now reads "...jointly conduct an initial assessment, drawing in Legal where a determination requires it. Each determination has a named lead", reconciling the prose with the table.
 
 ### Changed
 - Carries the Sweep 34 history row ([`.working/validate-sweeps/history.md`](../validate-sweeps/history.md), `2.0.26` → `2.0.27`) and the per-iteration detail file [`.working/validate-sweeps/2026-06-23-sweep34-iter1.md`](../validate-sweeps/2026-06-23-sweep34-iter1.md).
@@ -1188,7 +1213,7 @@ All domain-code corrections are grounded in the authoritative CSA catalogues (CC
 
 ## 2026-06-23, Library Version 2026.06.267, PR #289
 
-**Sweep 33 (`/validate`) close-out: clarify a CIS-benchmark column label in the cloud-security baseline.** The `/resume` compensating-control corpus-wide `/validate` for the new session — the standing control for the session-closing handoff PR #288, which skipped its trailing `/validate-pr` per CLAUDE.md PR-workflow step 5a's handoff-PR exception. The #287 `/validate-pr` + `/retro` rows were already carried by #288, so this close-out carries only the Sweep 33 artefacts and the one in-window finding-fix the sweep produced.
+**Sweep 33 (`/validate`) close-out: clarify a CIS-benchmark column label in the cloud-security baseline.** The `/resume` compensating-control corpus-wide `/validate` for the new session, the standing control for the session-closing handoff PR #288, which skipped its trailing `/validate-pr` per CLAUDE.md PR-workflow step 5a's handoff-PR exception. The #287 `/validate-pr` + `/retro` rows were already carried by #288, so this close-out carries only the Sweep 33 artefacts and the one in-window finding-fix the sweep produced.
 
 ### Changed
 - [`operations/standard-cloud-security-configuration-baseline.md`](../../operations/standard-cloud-security-configuration-baseline.md) (`1.4.5` → `1.4.6`): §8's per-section ISO/CIS/NIST mapping table (added in PR #287) used the single column header "CIS Cloud Foundations area", but the §5 row maps the cloud-productivity baseline to CIS areas ("Email and collaboration security; storage; endpoint protection") that the same section's framework table attributes to the separately-named **CIS Cloud Productivity Foundations Benchmark v3.0**, not the **CIS Cloud Foundations Benchmark v2.0**. The column header is generalized to "CIS benchmark area" (the table rows span both named benchmarks; the generic header loses no information) and the preceding prose is changed from "CIS Cloud Foundations Benchmark recommendation numbers are version-specific" to name which benchmark governs each section (Cloud Foundations for §4/§6, Cloud Productivity Foundations for §5). No control identifiers changed; the ISO A.8.9/A.8.23/A.8.24 and NIST CM-2/CM-6 mappings were verified accurate during the sweep and left intact.
@@ -1197,7 +1222,7 @@ All domain-code corrections are grounded in the authoritative CSA catalogues (CC
 - **Sweep 33 dispatch**: full three-subagent fan-out (A recent-PR deep review, B corpus-wide stale-reference, C audit-programme integrity); no abbreviation. Mechanical baseline `tools/run_all_audits.sh` = **47/47** at sweep start; pre-flight scanner 378 files, 9 candidates all confirmed false positives (pairing/comparative/historical prose).
 - **Subagent A**: 1 in-window note (the finding fixed here) + 8 verified-clean cross-citations (CAPA §7.5 ↔ policy §4.3 "90 days"; internal-audit ↔ audit-planning 15-business-day extension; incident-command checklists grounded line-by-line; risk-vocabulary harmonization clean; etc.). A's out-of-scope "doubled CC BY-SA 4.0" observation **refuted** at apply-time (orchestrator corpus-wide grep `CC BY-SA 4.0 CC BY-SA 4.0` = zero hits); not routed.
 - **Subagent B**: 0 findings; live counts 47/10/15/8 verified against spec §6, pack README tree, and `ls .claude/commands/`; the Sweep 32 "monitoring" lead validated against the live file and confirmed already-fixed in #286.
-- **Subagent C**: 0 findings; live gate count 47 established by counting `^run_gate` in the runner, §6 inventory matches in name+order; #286's spec edit clean (the "§10" in its commit subject is a benign git-history mislabel — it edited §9 step 4; corpus content correct).
+- **Subagent C**: 0 findings; live gate count 47 established by counting `^run_gate` in the runner, §6 inventory matches in name+order; #286's spec edit clean (the "§10" in its commit subject is a benign git-history mislabel, it edited §9 step 4; corpus content correct).
 - **Apply-time re-read** of the one finding location confirmed the framework-table-vs-mapping-table imprecision before the fix; `tools/run_all_audits.sh` re-run **47/47** on the committed state; `tools/run-pr-time-checks.sh` (D1/D2/D3 + gate 45) pass; `taxonomy.yml` + `docs/maturity-scorecard.md` regenerated for the per-doc bump.
 
 ### Discipline observations
@@ -1256,7 +1281,7 @@ Library `2026.06.264` → `2026.06.265`; README `1.9.135` → `1.9.136`.
 
 ### Fixed
 - [`risk/template-operational-risk-register.md`](../../risk/template-operational-risk-register.md) (`1.0.1` → `1.0.2`): the Section C field-definition table used the retired risk vocabulary its now-harmonized sibling templates had moved off. The **Treatment decision** field def (:86) listed the retired four-option set `Accept, mitigate, transfer, avoid` (missing the canonical positive-risk options Exploit and Enhance); it now reads `Avoid / Mitigate / Transfer / Accept / Exploit / Enhance (canonical 6 per risk/standard-enterprise-risk-management.md Section 6)`, matching the sibling [`risk/template-enterprise-risk-register.md`](../../risk/template-enterprise-risk-register.md):86. The **Status** field def (:93) listed the non-canonical `Open, monitoring, closed`; it now reads `Open / Closed (canonical per risk/standard-enterprise-risk-management.md Section 7.1)`, consistent with the canonical lifecycle and with this document's own example row at :228 (which already read `Open`). Per the #283 minimal-reconcile precedent, no separate Treatment Status field was added where one did not already exist. The document was never swept by the FR-161/162/146 harmonization (its last content touch predated it); the maintainer chose full harmonization over a downside-only carve-out (the document carried no positive-risk carve-out rationale).
-- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (`1.16.0` → `1.16.1`): §10 step 4 instructed "Add the new gate's row to the §6 inventory and **update the gate count in §2.1**" but §2.1 (:29) carries no numeric gate count — it defers to §6 ("see §6 for the canonical inventory and current count"), and the same step-4 sentence ends by naming §6 (not §2.1) as the canonical source. The clause was a self-description lag from when the gate count was consolidated into §6 only. The "update the gate count in §2.1" clause is removed; the count lives solely in the §6 inventory table, which step 4 already names as canonical. Gate 39 (cross-file gate-count consistency) cannot catch this because §2.1 has no count string to compare.
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (`1.16.0` → `1.16.1`): §10 step 4 instructed "Add the new gate's row to the §6 inventory and **update the gate count in §2.1**" but §2.1 (:29) carries no numeric gate count, it defers to §6 ("see §6 for the canonical inventory and current count"), and the same step-4 sentence ends by naming §6 (not §2.1) as the canonical source. The clause was a self-description lag from when the gate count was consolidated into §6 only. The "update the gate count in §2.1" clause is removed; the count lives solely in the §6 inventory table, which step 4 already names as canonical. Gate 39 (cross-file gate-count consistency) cannot catch this because §2.1 has no count string to compare.
 
 ### Changed
 - [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (`2.0.24` → `2.0.25`): Sweep 32 iteration-1 row added.
@@ -1265,7 +1290,7 @@ Library `2026.06.264` → `2026.06.265`; README `1.9.135` → `1.9.136`.
 - [`.working/validate-sweeps/2026-06-23-sweep32-iter1.md`](../validate-sweeps/2026-06-23-sweep32-iter1.md): the per-iteration detail file (mechanical baseline 47/47; full A/B/C dispatch; Subagent A 0 findings; B 2 warnings same root cause; C 1 warning; all out-of-window; empty-delta termination at iter 1).
 
 ### Notes
-- **Subagent A (recent-PR, the 6 substantive #282-#284 files): 0 findings** — the priority C1 multi-surface-incompleteness class verified absent (the AI register field defs now agree with all seven sample rows; the #283→#284 defect class is gone), the new AI-procedure "Roles and responsibilities" subsections use canonical role names, and the supplier escalation de-loop terminates at CRO.
+- **Subagent A (recent-PR, the 6 substantive #282-#284 files): 0 findings**, the priority C1 multi-surface-incompleteness class verified absent (the AI register field defs now agree with all seven sample rows; the #283→#284 defect class is gone), the new AI-procedure "Roles and responsibilities" subsections use canonical role names, and the supplier escalation de-loop terminates at CRO.
 - All 9 pre-flight scanner candidates confirmed comparative/historical prose (same false-positive class as Sweeps 22-31).
 - The findings were surfaced to the maintainer with named options per the out-of-window protocol; the maintainer chose canonical harmonization for the operational register and a dedicated Sweep-32 close-out PR (this PR) over folding into a later track.
 
@@ -1431,25 +1456,25 @@ Library `2026.06.258` to `2026.06.259`; README `1.9.129` to `1.9.130`.
 
 ## 2026-06-23, Library Version 2026.06.255, PR #277
 
-**Sweep 30 (`/validate`) close-out: correct five hallucinated "Cloud Controls Matrix v5" citations and broaden the citation gate to catch the spelled-out form.** The `/resume` compensating-control corpus-wide `/validate` (the standing control for the session-closing checkpoint handoff PR #276, which skips its trailing `/validate-pr` per CLAUDE.md PR-workflow step 5a) surfaced one new out-of-window finding: five documents cite a nonexistent "CSA Cloud Controls Matrix **v5**" against the corpus-wide v4.1 convention. The mechanical `lint-citations.py` gate already declares `CSA CCM v5` / `CCM v5` hallucinated but missed these because they use the **spelled-out** "Cloud Controls Matrix v5" form (no `CCM` substring). All five date to the initial public release (`03ca390`, 2026-05-31) and had never been caught by Sweeps 22-29 — a true gate blind spot. The maintainer authorized fixing now as a dedicated PR plus broadening the gate.
+**Sweep 30 (`/validate`) close-out: correct five hallucinated "Cloud Controls Matrix v5" citations and broaden the citation gate to catch the spelled-out form.** The `/resume` compensating-control corpus-wide `/validate` (the standing control for the session-closing checkpoint handoff PR #276, which skips its trailing `/validate-pr` per CLAUDE.md PR-workflow step 5a) surfaced one new out-of-window finding: five documents cite a nonexistent "CSA Cloud Controls Matrix **v5**" against the corpus-wide v4.1 convention. The mechanical `lint-citations.py` gate already declares `CSA CCM v5` / `CCM v5` hallucinated but missed these because they use the **spelled-out** "Cloud Controls Matrix v5" form (no `CCM` substring). All five date to the initial public release (`03ca390`, 2026-05-31) and had never been caught by Sweeps 22-29, a true gate blind spot. The maintainer authorized fixing now as a dedicated PR plus broadening the gate.
 
 ### Fixed
 
 - **[`dev-security/standard-api-security.md`](../../dev-security/standard-api-security.md)**:233 crosswalk row `Cloud Controls Matrix v5 → v4.1` (`0.0.5 → 0.0.6`).
 - **[`security/standard-saas-security-posture-management.md`](../../security/standard-saas-security-posture-management.md)**:196 crosswalk row `v5 → v4.1` (`1.0.1 → 1.0.2`).
-- **[`security/procedure-key-escrow-and-recovery.md`](../../security/procedure-key-escrow-and-recovery.md)**:217 crosswalk row `v5 → v4.1`; **and** the same row's stale v3 domain code `EKM → CEK` (CCM v4.1 has no `EKM` domain — it is `CEK`, Cryptography/Encryption/Key Management; leaving `EKM` next to `v4.1` would have been internally contradictory, and the linter's own `CCM EKM → CCM CEK` entry confirms `EKM` is the stale v3 code). This `EKM → CEK` correction is a direct correctness consequence of the version fix on the same row, surfaced and fixed here rather than left as a new contradiction; flagged explicitly rather than changed silently (`1.0.4 → 1.0.5`).
+- **[`security/procedure-key-escrow-and-recovery.md`](../../security/procedure-key-escrow-and-recovery.md)**:217 crosswalk row `v5 → v4.1`; **and** the same row's stale v3 domain code `EKM → CEK` (CCM v4.1 has no `EKM` domain, it is `CEK`, Cryptography/Encryption/Key Management; leaving `EKM` next to `v4.1` would have been internally contradictory, and the linter's own `CCM EKM → CCM CEK` entry confirms `EKM` is the stale v3 code). This `EKM → CEK` correction is a direct correctness consequence of the version fix on the same row, surfaced and fixed here rather than left as a new contradiction; flagged explicitly rather than changed silently (`1.0.4 → 1.0.5`).
 - **[`supply-chain/procedure-supplier-audit.md`](../../supply-chain/procedure-supplier-audit.md)**:173 References entry `v5 → v4.1`; resolves an intra-document contradiction (the body cited `CSA CCM v4.1 STA-05` at :23/:91 while References cited v5) (`1.0.3 → 1.0.4`).
 - **[`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md)**:160 References entry `v5 → v4.1`; resolves the same intra-document contradiction (body `v4.1` at :23, References v5) (`1.1.1 → 1.1.2`).
 
 ### Changed
 
-- **[`tools/lint-citations.py`](../../tools/lint-citations.py)**: added a denylist entry for the spelled-out `Cloud Controls Matrix v5` form (suggested replacement `Cloud Controls Matrix v4.1`), with a `CHANGELOG.md` path exemption matching the sibling `CSA CCM v5` / `CCM v5` entries. Gate 27 (citation freshness) now catches both the abbreviated and the spelled-out hallucinated-version forms. After the five fixes, the new pattern has zero corpus matches — a purely forward-looking guard, the same shape as #273's gate-39 P8.
+- **[`tools/lint-citations.py`](../../tools/lint-citations.py)**: added a denylist entry for the spelled-out `Cloud Controls Matrix v5` form (suggested replacement `Cloud Controls Matrix v4.1`), with a `CHANGELOG.md` path exemption matching the sibling `CSA CCM v5` / `CCM v5` entries. Gate 27 (citation freshness) now catches both the abbreviated and the spelled-out hallucinated-version forms. After the five fixes, the new pattern has zero corpus matches, a purely forward-looking guard, the same shape as #273's gate-39 P8.
 - **[`tests/test_linters.py`](../../tests/test_linters.py)**: added `test_spelled_out_cloud_controls_matrix_v5_flagged` to `CitationsLinterTests`, asserting the linter fails on a fixture containing the spelled-out form.
 
 ### Added
 
 - The Sweep 30 records: history row in [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) and the per-iteration detail file [`.working/validate-sweeps/2026-06-23-sweep30-iter1.md`](../validate-sweeps/2026-06-23-sweep30-iter1.md) (full A/B/C subagent returns + the apply-time worker-correction). Batched into this PR per recursion-avoidance.
-- [`.working/hallucination-metrics.md`](../hallucination-metrics.md) catches-log entry: Subagent B's finding set for the v5 cluster was incomplete (missed `security/procedure-key-escrow-and-recovery.md`:217) and mis-classified (listed the versionless `endpoint-hardening`:225 as a v5 sibling); the orchestrator's corpus-wide grep produced the authoritative set of 5 — the apply-time research-assistant discipline at the routing boundary.
+- [`.working/hallucination-metrics.md`](../hallucination-metrics.md) catches-log entry: Subagent B's finding set for the v5 cluster was incomplete (missed `security/procedure-key-escrow-and-recovery.md`:217) and mis-classified (listed the versionless `endpoint-hardening`:225 as a v5 sibling); the orchestrator's corpus-wide grep produced the authoritative set of 5, the apply-time research-assistant discipline at the routing boundary.
 
 ### Verification
 
@@ -1468,7 +1493,7 @@ Library `2026.06.258` to `2026.06.259`; README `1.9.129` to `1.9.130`.
 
 ### Changed
 
-- [`.working/worker-brief-template.md`](../worker-brief-template.md) `1.0.0 → 1.1.0`: acting on a maintainer-requested review of [`.working/improvement-log.md`](../improvement-log.md), folded in the worker-side guard rails the retro log had queued but never applied (the template had stayed at 1.0.0 since 2026-06-21 despite its own §107 self-update protocol). Added DO rail 6 (verify every framework/control identifier against established corpus use; flag unconfirmed as "needs-verification" — from PR #275's `IPY-02`/`DSP-10` catches), DO rail 7 (flag every newly-introduced acronym for a same-PR glossary entry — from the Sweep-20/PR-#229 pattern), a "Corpus-wide rename PR" per-PR-class override (both spelled-out AND acronym substitution forms + post-script grep — from PR #218/#219/#220), and a "Matrix-expansion PR (FR-167)" override codifying the framework-code crib.
+- [`.working/worker-brief-template.md`](../worker-brief-template.md) `1.0.0 → 1.1.0`: acting on a maintainer-requested review of [`.working/improvement-log.md`](../improvement-log.md), folded in the worker-side guard rails the retro log had queued but never applied (the template had stayed at 1.0.0 since 2026-06-21 despite its own §107 self-update protocol). Added DO rail 6 (verify every framework/control identifier against established corpus use; flag unconfirmed as "needs-verification", from PR #275's `IPY-02`/`DSP-10` catches), DO rail 7 (flag every newly-introduced acronym for a same-PR glossary entry, from the Sweep-20/PR-#229 pattern), a "Corpus-wide rename PR" per-PR-class override (both spelled-out AND acronym substitution forms + post-script grep, from PR #218/#219/#220), and a "Matrix-expansion PR (FR-167)" override codifying the framework-code crib.
 - [`TODO.md`](../../TODO.md): S1 (cross-document retention-consistency gate) flagged **unblocked** (its precondition FR-136/137 landed in #262/#263); new **§4.8 Retro-log open-loop consolidation** enumerating the still-open process loops the review surfaced (codify the orchestrator-side bare-token-contradiction-search and parallel-case-verification disciplines; codify compute-don't-ask in `clarify-before-acting`; the P4.6 QA-cadence gate; the remaining count-gate idioms).
 
 ### Added
@@ -1487,19 +1512,19 @@ Library `2026.06.258` to `2026.06.259`; README `1.9.129` to `1.9.130`.
 
 ## 2026-06-23, Library Version 2026.06.253, PR #275
 
-**FR-167 (batch 1 of ~11): expand the compliance alignment matrix to comprehensive coverage — Architecture domain.** The [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) mapped only ~42 of the library's ~280 substantive documents. FR-167 expands it to comprehensive coverage one domain per PR (the maintainer chose the **Broad** scope: every substantive document, excluding library-infrastructure/meta artefacts — the matrices/crosswalks themselves, worklists, root meta-specs, the document index, generated portals/scorecards). This is batch 1: the **Architecture** domain (8 documents).
+**FR-167 (batch 1 of ~11): expand the compliance alignment matrix to comprehensive coverage, Architecture domain.** The [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) mapped only ~42 of the library's ~280 substantive documents. FR-167 expands it to comprehensive coverage one domain per PR (the maintainer chose the **Broad** scope: every substantive document, excluding library-infrastructure/meta artefacts, the matrices/crosswalks themselves, worklists, root meta-specs, the document index, generated portals/scorecards). This is batch 1: the **Architecture** domain (8 documents).
 
 ### Added
 
 - **[`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md)**: a new `## Architecture domain` section with 8 rows, each mapped across all eight framework columns:
-  - Enterprise Architecture Framework — CCM `GRC-01, GRC-02`; ISO `§6.1, A.5.8, A.8.27`; CSF `GV.OC, GV.RM, ID.AM, PR.IP`.
-  - Architecture Review Procedure — CCM `GRC-01, CCC-01, CCC-02`; ISO `A.5.8, A.8.27, §8.1`; CSF `GV.OC, GV.RM, PR.IP, ID.IM`.
-  - API Design Standard — CCM `AIS-01, AIS-02, AIS-04, IPY-01`; ISO `A.5.14, A.8.26, A.8.27`; CSF `ID.AM, PR.DS, PR.IP`.
-  - Architecture Decision Records Standard — CCM `GRC-01, CCC-02, CCC-03`; ISO `§7.5, A.8.27`; CSF `GV.OC, PR.IP, ID.IM`.
-  - Data Architecture Standard — CCM `DSP-01, DSP-02, DSP-03, DSP-05, DSP-07`; ISO `A.5.12, A.5.13, A.5.34, A.8.10`; CSF `GV.OC, ID.AM, PR.DS`.
-  - Integration Architecture Standard — CCM `AIS-04, IPY-01, IVS-03, DSP-04`; ISO `A.5.14, A.8.20, A.8.21, A.8.26`; CSF `ID.AM, PR.DS, PR.IR, DE.CM`.
-  - Reference Architecture Standard — CCM `GRC-01, AIS-01`; ISO `A.8.27, A.8.32`; CSF `GV.OC, ID.AM, PR.IP`.
-  - Technology Radar Standard — CCM `GRC-01, STA-01`; ISO `§6.1, A.5.20, A.8.30`; CSF `GV.OC, GV.SC, ID.AM`.
+  - Enterprise Architecture Framework, CCM `GRC-01, GRC-02`; ISO `§6.1, A.5.8, A.8.27`; CSF `GV.OC, GV.RM, ID.AM, PR.IP`.
+  - Architecture Review Procedure, CCM `GRC-01, CCC-01, CCC-02`; ISO `A.5.8, A.8.27, §8.1`; CSF `GV.OC, GV.RM, PR.IP, ID.IM`.
+  - API Design Standard, CCM `AIS-01, AIS-02, AIS-04, IPY-01`; ISO `A.5.14, A.8.26, A.8.27`; CSF `ID.AM, PR.DS, PR.IP`.
+  - Architecture Decision Records Standard, CCM `GRC-01, CCC-02, CCC-03`; ISO `§7.5, A.8.27`; CSF `GV.OC, PR.IP, ID.IM`.
+  - Data Architecture Standard, CCM `DSP-01, DSP-02, DSP-03, DSP-05, DSP-07`; ISO `A.5.12, A.5.13, A.5.34, A.8.10`; CSF `GV.OC, ID.AM, PR.DS`.
+  - Integration Architecture Standard, CCM `AIS-04, IPY-01, IVS-03, DSP-04`; ISO `A.5.14, A.8.20, A.8.21, A.8.26`; CSF `ID.AM, PR.DS, PR.IR, DE.CM`.
+  - Reference Architecture Standard, CCM `GRC-01, AIS-01`; ISO `A.8.27, A.8.32`; CSF `GV.OC, ID.AM, PR.IP`.
+  - Technology Radar Standard, CCM `GRC-01, STA-01`; ISO `§6.1, A.5.20, A.8.30`; CSF `GV.OC, GV.SC, ID.AM`.
   - All eight rows carry honest `N/A` across the five customs/trade frameworks (CTPAT, PIP, BASC v6, WCO SAFE, AEO/AEO-S): architecture-governance content has no customs/cargo/trade-security nexus, consistent with the coverage note that operational cargo-security domains are out of the matrix's IT scope.
 
 ### Changed
@@ -1511,9 +1536,9 @@ Library `2026.06.258` to `2026.06.259`; README `1.9.129` to `1.9.130`.
 
 ### Verification / discipline
 
-- **Research-assistant discipline.** Two background research agents produced candidate mappings for the 8 docs (split 4+4); the orchestrator re-read each document's framework-alignment self-citation table and verified every proposed cell at apply-time. **Apply-time corrections to the worker drafts**: (1) the candidate `IPY-02` (API/integration interoperability) is not in corpus use — corrected to `IPY-01` (corpus-established); (2) the candidate `DSP-10` (integration data-in-transit) is not in corpus use — corrected to `DSP-04`; (3) the agents' `PR.PS` (strict CSF 2.0) candidates were mapped to the corpus's `PR.IP` convention per the maintainer decision; (4) several secondary/tentative mappings the agents flagged (`A.5.8` on the ADR standard, which does not self-cite it; `CCC-*` on the framework and radar) were pruned to the conservative, self-cited or strongly-evidenced set. Every CCM/ISO/CSF identifier in the final rows was confirmed against established corpus usage (no invented control numbers).
+- **Research-assistant discipline.** Two background research agents produced candidate mappings for the 8 docs (split 4+4); the orchestrator re-read each document's framework-alignment self-citation table and verified every proposed cell at apply-time. **Apply-time corrections to the worker drafts**: (1) the candidate `IPY-02` (API/integration interoperability) is not in corpus use, corrected to `IPY-01` (corpus-established); (2) the candidate `DSP-10` (integration data-in-transit) is not in corpus use, corrected to `DSP-04`; (3) the agents' `PR.PS` (strict CSF 2.0) candidates were mapped to the corpus's `PR.IP` convention per the maintainer decision; (4) several secondary/tentative mappings the agents flagged (`A.5.8` on the ADR standard, which does not self-cite it; `CCC-*` on the framework and radar) were pruned to the conservative, self-cited or strongly-evidenced set. Every CCM/ISO/CSF identifier in the final rows was confirmed against established corpus usage (no invented control numbers).
 - **Mechanical baseline**: `tools/run_all_audits.sh` → all 47 gates pass on the committed state. `tools/run-pr-time-checks.sh` green against the merge base.
-- **Batched (recursion-avoidance)**: the Sweep 29 `/validate` records — [`.working/validate-sweeps/2026-06-23-sweep29-iter1.md`](../../.working/validate-sweeps/2026-06-23-sweep29-iter1.md), the history row (`2.0.21 → 2.0.22`), the sweep-cursor refresh in `TODO.md`, and the DD-11 routing — ride in this PR per the recursion-avoidance rule (Sweep 29 was a clean-bill 2-note sweep, below the threshold for its own close-out PR).
+- **Batched (recursion-avoidance)**: the Sweep 29 `/validate` records, [`.working/validate-sweeps/2026-06-23-sweep29-iter1.md`](../../.working/validate-sweeps/2026-06-23-sweep29-iter1.md), the history row (`2.0.21 → 2.0.22`), the sweep-cursor refresh in `TODO.md`, and the DD-11 routing, ride in this PR per the recursion-avoidance rule (Sweep 29 was a clean-bill 2-note sweep, below the threshold for its own close-out PR).
 
 ### Phase context
 
@@ -1525,10 +1550,10 @@ FR-167 batch 1 of ~11 (one domain per PR). Remaining domains to expand/complete:
 
 ### Changed
 
-- **[`.working/session-handoff.md`](../../.working/session-handoff.md)**: refreshed to after #273 — state snapshot (library `2026.06.252`, pack `1.49.3`, README `1.9.123`, **47 gates**, 10 rules, 15 skills, 8 commands), last-merged list (#271 Sweep 28 DR fix, #272 FR-166, #273 count-gate P8), and the next-actions queue reordered: **FR-167 top** (steer resolved — all 8 framework columns comprehensive; use the FR-166 `suggest-listing-surfaces.py` tool + 10+ research agents; orchestrator verifies every cell at apply-time), then DD-1..DD-11 triage, then the smallest-items batch-reduction. Open decision recorded: the FR-167 meta-artefact exclusion sub-detail.
+- **[`.working/session-handoff.md`](../../.working/session-handoff.md)**: refreshed to after #273, state snapshot (library `2026.06.252`, pack `1.49.3`, README `1.9.123`, **47 gates**, 10 rules, 15 skills, 8 commands), last-merged list (#271 Sweep 28 DR fix, #272 FR-166, #273 count-gate P8), and the next-actions queue reordered: **FR-167 top** (steer resolved, all 8 framework columns comprehensive; use the FR-166 `suggest-listing-surfaces.py` tool + 10+ research agents; orchestrator verifies every cell at apply-time), then DD-1..DD-11 triage, then the smallest-items batch-reduction. Open decision recorded: the FR-167 meta-artefact exclusion sub-detail.
 - **[`TODO.md`](../../TODO.md)**: FR-166 marked shipped (#272) and its details trimmed; the Priority-1 listing-surface section now carries only FR-167 with the resolved all-8-columns steer and the research-agent execution note.
-- **[`.working/DONE.md`](../../.working/DONE.md)**: added entries for #271 (Sweep 28 DR fix), #272 (FR-166 gate+tool), #273 (count-gate P8) — the rotation for this session's shipped work.
-- **Batched from #273**: [`.working/validate-pr/history.md`](../../.working/validate-pr/history.md) (`1.2.75 → 1.2.76`, #273 row, 0 findings) + [`.working/improvement-log.md`](../../.working/improvement-log.md) (`1.0.52 → 1.0.53`, #273 `/retro` — the gate-self-reference pattern).
+- **[`.working/DONE.md`](../../.working/DONE.md)**: added entries for #271 (Sweep 28 DR fix), #272 (FR-166 gate+tool), #273 (count-gate P8), the rotation for this session's shipped work.
+- **Batched from #273**: [`.working/validate-pr/history.md`](../../.working/validate-pr/history.md) (`1.2.75 → 1.2.76`, #273 row, 0 findings) + [`.working/improvement-log.md`](../../.working/improvement-log.md) (`1.0.52 → 1.0.53`, #273 `/retro`, the gate-self-reference pattern).
 
 ### Verification / discipline
 
@@ -1542,12 +1567,12 @@ FR-167 batch 1 of ~11 (one domain per PR). Remaining domains to expand/complete:
 
 ### Fixed
 
-- **[`governance/template-library-health-report.md`](../../governance/template-library-health-report.md)** (`1.0.1 → 1.0.2`): §C audit-suite-status line said "Aggregated output of the **32** automated audits" — stale since the initial public release (the programme now has 47 gates). Re-phrased count-agnostically: "Aggregated output of the automated audits (see [...] §6 for the canonical gate inventory **and current count**)", matching the count-agnostic style every other audit-programme citer uses, so it cannot drift again. This was the out-of-window finding PR #272's `/validate-pr` cross-reference check surfaced; per the batching rule it is fixed here, in the next PR.
+- **[`governance/template-library-health-report.md`](../../governance/template-library-health-report.md)** (`1.0.1 → 1.0.2`): §C audit-suite-status line said "Aggregated output of the **32** automated audits", stale since the initial public release (the programme now has 47 gates). Re-phrased count-agnostically: "Aggregated output of the automated audits (see [...] §6 for the canonical gate inventory **and current count**)", matching the count-agnostic style every other audit-programme citer uses, so it cannot drift again. This was the out-of-window finding PR #272's `/validate-pr` cross-reference check surfaced; per the batching rule it is fixed here, in the next PR.
 
 ### Changed
 
-- **[`tools/lint-gate-count-consistency.py`](../../tools/lint-gate-count-consistency.py)** (gate 39): added pattern **P8** `<N> automated audits`. Gate 39's patterns P1-P7 all anchor on "gate(s)"; the escaped phrase used "automated audits", so no pattern caught it. P8 is narrow by design — it requires the exact "automated audits" phrasing, not a bare "N audits" (which would false-positive on audit-event counts like "3 audits per year") — verified against the corpus: after the health-report rephrase, the only "automated audits" occurrences are "automated audit programme"/"automated audit-programme work" (no preceding digit, no match), so P8 has zero current matches and is a purely forward-looking guard. Docstring P8 entry + inline comment added; both use the `<N>` placeholder rather than a literal digit so the gate does not flag its own documentation (the self-reference that the first draft tripped). Gate 39 itself is unchanged in count/name, so no parity impact and no §6 description change (the description's "and similar idioms" already covers P8).
-- **[`tests/test_linters.py`](../../tests/test_linters.py)**: `GateCountConsistencyTests.test_stale_automated_audits_count_flagged` — a fixture mentioning "0 automated audits" must fail the linter (mirrors the existing "0-gate" P1 test).
+- **[`tools/lint-gate-count-consistency.py`](../../tools/lint-gate-count-consistency.py)** (gate 39): added pattern **P8** `<N> automated audits`. Gate 39's patterns P1-P7 all anchor on "gate(s)"; the escaped phrase used "automated audits", so no pattern caught it. P8 is narrow by design, it requires the exact "automated audits" phrasing, not a bare "N audits" (which would false-positive on audit-event counts like "3 audits per year"), verified against the corpus: after the health-report rephrase, the only "automated audits" occurrences are "automated audit programme"/"automated audit-programme work" (no preceding digit, no match), so P8 has zero current matches and is a purely forward-looking guard. Docstring P8 entry + inline comment added; both use the `<N>` placeholder rather than a literal digit so the gate does not flag its own documentation (the self-reference that the first draft tripped). Gate 39 itself is unchanged in count/name, so no parity impact and no §6 description change (the description's "and similar idioms" already covers P8).
+- **[`tests/test_linters.py`](../../tests/test_linters.py)**: `GateCountConsistencyTests.test_stale_automated_audits_count_flagged`, a fixture mentioning "0 automated audits" must fail the linter (mirrors the existing "0-gate" P1 test).
 - **[`taxonomy.yml`](../../taxonomy.yml)** + **[`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md)**: regenerated for the template version bump.
 
 ### Verification
@@ -1587,18 +1612,18 @@ FR-167 batch 1 of ~11 (one domain per PR). Remaining domains to expand/complete:
 
 ### Fixed
 
-- **[`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md)** (`1.3.0 → 1.3.1`): the "Backup and restore requirements" cadence clause (line 97) prescribed "continuous or near-continuous data protection ... for Tier 1's 1-hour RPO, **and at least daily backups for Tier 2 and lower tiers**" — but the gap clause (line 99) binds Tier 2 to a "4 hours" backup gap matching its 4-hour RPO (the RTO/RPO targets table, line 50), and line 101 treats "any backup gap exceeding the defined RPO" as a P2 risk event. Daily backups (≈24-hour gap) cannot meet a 4-hour gap, so a compliant Tier-2 system would sit permanently in P2 escalation — the precise self-contradiction PR #265/FR-139 was written to remove for Tier 1, reproduced at Tier 2. The cadence clause now reads "continuous or near-continuous data protection ... for Tier 1's 1-hour RPO, **backups at least every 4 hours for Tier 2's 4-hour RPO, and at least daily backups for Tier 3 and Tier 4**." Tier 3 (24-hour RPO) and Tier 4 (72-hour RPO) remain satisfiable by daily backups; the change makes line 97 consistent with line 99, the targets table, and line 101.
+- **[`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md)** (`1.3.0 → 1.3.1`): the "Backup and restore requirements" cadence clause (line 97) prescribed "continuous or near-continuous data protection ... for Tier 1's 1-hour RPO, **and at least daily backups for Tier 2 and lower tiers**", but the gap clause (line 99) binds Tier 2 to a "4 hours" backup gap matching its 4-hour RPO (the RTO/RPO targets table, line 50), and line 101 treats "any backup gap exceeding the defined RPO" as a P2 risk event. Daily backups (≈24-hour gap) cannot meet a 4-hour gap, so a compliant Tier-2 system would sit permanently in P2 escalation, the precise self-contradiction PR #265/FR-139 was written to remove for Tier 1, reproduced at Tier 2. The cadence clause now reads "continuous or near-continuous data protection ... for Tier 1's 1-hour RPO, **backups at least every 4 hours for Tier 2's 4-hour RPO, and at least daily backups for Tier 3 and Tier 4**." Tier 3 (24-hour RPO) and Tier 4 (72-hour RPO) remain satisfiable by daily backups; the change makes line 97 consistent with line 99, the targets table, and line 101.
 
 ### Changed
 
-- **[`TODO.md`](../../TODO.md)**: added **DD-11** (the new out-of-window observation — `risk/template-operational-risk-register.md`:123-127/:222 distinct "Very low/Low/Moderate/High/Very high" likelihood scale with "Moderate" as both likelihood and rating label, diverging from the FR-134 canonical but self-scoped at line 119 as a replaceable proposed scale; adjacent to DD-2/DD-3); and recorded the **maintainer's running-order directive (2026-06-23)** in the Queueing rules: FR-166/167 first → DD-1..DD-11 triage/action → reduce the backlog by batching the smallest items, using 10+ well-briefed research-assistant agents.
+- **[`TODO.md`](../../TODO.md)**: added **DD-11** (the new out-of-window observation, `risk/template-operational-risk-register.md`:123-127/:222 distinct "Very low/Low/Moderate/High/Very high" likelihood scale with "Moderate" as both likelihood and rating label, diverging from the FR-134 canonical but self-scoped at line 119 as a replaceable proposed scale; adjacent to DD-2/DD-3); and recorded the **maintainer's running-order directive (2026-06-23)** in the Queueing rules: FR-166/167 first → DD-1..DD-11 triage/action → reduce the backlog by batching the smallest items, using 10+ well-briefed research-assistant agents.
 - **[`.working/validate-sweeps/history.md`](../../.working/validate-sweeps/history.md)** (`2.0.20 → 2.0.21`): Sweep 28 row + the new **[`.working/validate-sweeps/2026-06-23-sweep28-iter1.md`](../../.working/validate-sweeps/2026-06-23-sweep28-iter1.md)** record.
 - **[`taxonomy.yml`](../../taxonomy.yml)** and **[`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md)**: regenerated for the DR plan's version bump.
 
 ### Verification / discipline
 
 - **Sweep 28 (`/validate`)**: mechanical baseline 46/46; full three-subagent dispatch (A recent-PR #259-#270 + corpus-regression, B corpus-wide stale-reference, C audit-programme integrity). Subagent A: 1 in-window C3 finding (fixed) + 4 out-of-window (3 dedupe → DD-3/5/8, 1 new → DD-11). Subagent B: 0 in-window, 3 out-of-window (all dedupe to DD-8/DD-5/DD-4); free-prose counts 10/15/8/46 all match on-disk. Subagent C: 0 defects; four gate-wiring surfaces + prose counts mutually consistent. The in-window finding was re-verified at apply-time (re-read of lines 40-109 + `git show 72bde4c~1` lineage) before the fix; a post-fix `grep` for "daily|Tier|backup gap" across resilience/ + operations/ confirms the DR plan is internally coherent and no parallel Tier-2 cadence surface remains stale. Empty-delta termination after the one self-contained coherence fix.
-- **Apply-time discipline**: the fix direction was determined by the document's own authoritative targets table + the locked FR-139 principle (cadence must meet RPO), not by a new authorial decision — the same class as the Sweep 25 coherence fixes; therefore applied directly rather than re-surfaced to the maintainer (compute-don't-ask; the Sweep 25 #266 precedent).
+- **Apply-time discipline**: the fix direction was determined by the document's own authoritative targets table + the locked FR-139 principle (cadence must meet RPO), not by a new authorial decision, the same class as the Sweep 25 coherence fixes; therefore applied directly rather than re-surfaced to the maintainer (compute-don't-ask; the Sweep 25 #266 precedent).
 - All 46 gates + PR-time checks (D1/D2/gate 45) pass standalone post-commit.
 - Library `2026.06.248 → 2026.06.249`; README `1.9.119 → 1.9.120`.
 
@@ -1608,15 +1633,15 @@ FR-167 batch 1 of ~11 (one domain per PR). Remaining domains to expand/complete:
 
 ### Changed
 
-- **[`.working/overnight-pr.md`](../../.working/overnight-pr.md)**: morning processing of the autonomous overnight run — reset to `Status: stub` (the 8 resolved design decisions were already in [`design-decisions.md`](../../.working/design-decisions.md); the 9 deferred "Open ambiguities" routed to TODO as DD-1..DD-9). One in-window Sweep 27 note fixed: the stub narrative "11 deferred" → "9" (there were 9 bullets; "11" only reconciled via DD-4/DD-5 sub-parts).
-- **[`TODO.md`](../../TODO.md)**: added the "Deferred decisions from the overnight run" block — **DD-1..DD-9** routed from the overnight-pr.md morning processing plus **DD-10** added by Sweep 27 (the addyosmani upstream vetting-count observation) — all needing maintainer triage; the new **FR-166** (corpus listing-surface completeness gate + authoring-time sweep tool) and **FR-167** (expand the alignment matrix to comprehensive + clarify intent wording) as top-priority next-session items; and bumped the Sweep cursor to Sweep 27.
+- **[`.working/overnight-pr.md`](../../.working/overnight-pr.md)**: morning processing of the autonomous overnight run, reset to `Status: stub` (the 8 resolved design decisions were already in [`design-decisions.md`](../../.working/design-decisions.md); the 9 deferred "Open ambiguities" routed to TODO as DD-1..DD-9). One in-window Sweep 27 note fixed: the stub narrative "11 deferred" → "9" (there were 9 bullets; "11" only reconciled via DD-4/DD-5 sub-parts).
+- **[`TODO.md`](../../TODO.md)**: added the "Deferred decisions from the overnight run" block, **DD-1..DD-9** routed from the overnight-pr.md morning processing plus **DD-10** added by Sweep 27 (the addyosmani upstream vetting-count observation), all needing maintainer triage; the new **FR-166** (corpus listing-surface completeness gate + authoring-time sweep tool) and **FR-167** (expand the alignment matrix to comprehensive + clarify intent wording) as top-priority next-session items; and bumped the Sweep cursor to Sweep 27.
 - **[`.working/session-handoff.md`](../../.working/session-handoff.md)**: refreshed to after #270 (library 2026.06.248, README 1.9.119); next-actions reordered with FR-166/167 top; added the **compute-don't-ask** standing discipline.
 - **[`.working/validate-pr/history.md`](../../.working/validate-pr/history.md)** (#269 row, version `1.2.72 → 1.2.73`), **[`.working/improvement-log.md`](../../.working/improvement-log.md)** (#269 `/retro` row, version `1.0.49 → 1.0.50`), **[`.working/validate-sweeps/history.md`](../../.working/validate-sweeps/history.md)** (Sweep 27 row, version `2.0.19 → 2.0.20`) + the new **[`.working/validate-sweeps/2026-06-23-sweep27-iter1.md`](../../.working/validate-sweeps/2026-06-23-sweep27-iter1.md)** record.
 
 ### Verification / discipline
 
 - **Sweep 27 (`/validate`)**: maintainer-directed final pre-resume corpus-wide sweep. Mechanical baseline 46/46; full three-subagent dispatch (A recent-PR + deltas, B stale-reference, C audit-programme integrity). The overnight run's clean in-window bill holds; PR #269's docstring fix verified correct + complete; live gates 35/37/39/41/44 exit 0; `lint-standards-currency.py` clean (119 standards / 364 files); counts 10/15/8/46 current. 1 in-window note (fixed) + 1 out-of-window observation (→ DD-10); 9 pre-flight candidates confirmed false positives.
-- **#269 `/retro` discipline lesson**: maintainer flagged that offering "you'll confirm the intended count" for Sweep 26's B-2 was a failure to track — a count is computable, so it should never be a question to the maintainer. Captured as the **compute-don't-ask** pattern (1st occurrence) and a candidate addition to the `clarify-before-acting` rule.
+- **#269 `/retro` discipline lesson**: maintainer flagged that offering "you'll confirm the intended count" for Sweep 26's B-2 was a failure to track, a count is computable, so it should never be a question to the maintainer. Captured as the **compute-don't-ask** pattern (1st occurrence) and a candidate addition to the `clarify-before-acting` rule.
 - **Handoff-PR exception**: this PR skips its trailing `/validate-pr` + `/retro` (loop-break, CLAUDE.md PR-workflow step 5a); recorded in the [`.working/validate-pr/history.md`](../../.working/validate-pr/history.md) #270 row. The compensating control is the corpus-wide `/validate` the next `/resume` runs first.
 - Library `2026.06.247 → 2026.06.248`; README `1.9.118 → 1.9.119`.
 
@@ -1631,14 +1656,14 @@ FR-167 batch 1 of ~11 (one domain per PR). Remaining domains to expand/complete:
 
 ### Verification / discipline
 
-- **Sweep 26 result**: mechanical baseline clean (46/46); all three subagents (A recent-PR deep review, B corpus-wide stale-reference, C audit-programme integrity) dispatched; **zero in-window regressions** across the overnight run (PRs #259-#268). Three out-of-window candidate findings; after apply-time verification: 2 confirmed (the docstring, fixed here; a CPPA-as-live row at [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md):255, folded into the deferred broader-CPPA sweep) + 1 refuted ([`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md):151 "All 42 documents" — apply-time count confirmed 42 is correct; 43 rows, one dual-domain duplicate; subagent B's low-confidence flag was a false positive).
+- **Sweep 26 result**: mechanical baseline clean (46/46); all three subagents (A recent-PR deep review, B corpus-wide stale-reference, C audit-programme integrity) dispatched; **zero in-window regressions** across the overnight run (PRs #259-#268). Three out-of-window candidate findings; after apply-time verification: 2 confirmed (the docstring, fixed here; a CPPA-as-live row at [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md):255, folded into the deferred broader-CPPA sweep) + 1 refuted ([`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md):151 "All 42 documents", apply-time count confirmed 42 is correct; 43 rows, one dual-domain duplicate; subagent B's low-confidence flag was a false positive).
 - **Apply-time worker correction**: subagent B's B-2 finding was refuted when the maintainer challenged the low-confidence count; the orchestrator counted unique matrix documents (42) rather than routing the hypothesis. Recorded per the research-assistant discipline.
 - Library `2026.06.246 → 2026.06.247`; README `1.9.117 → 1.9.118`.
 
 ### Changed
 
 - **[`.working/session-handoff.md`](../../.working/session-handoff.md)**: state snapshot refreshed to after #268 (library 2026.06.246, pack 1.49.2, README 1.9.117, 10 rules / 15 skills / 8 commands / 46 gates); last-merged = #259-#268; trust-recovery codification + the 6 H[critical] criticals marked COMPLETE; next-actions = (1) maintainer review of the deferred-decision items in overnight-pr.md, (2) remaining P1 Highs FR-140/142/143/144/145 (FR-140/143/144 pre-resolved before sleep), (3) Batch B2 + P2 value-conflicts (stricter-is-safer), (4) P4 process-improvement candidates; why-refreshed = quality-first pause on the degradation signal.
-- **[`.working/overnight-pr.md`](../../.working/overnight-pr.md)**: build-progress lists all merged PRs (#259-#267); RUN-PAUSED note added; Status kept `in-flight` (gate 46 fails on `done` inside a CI-gated PR — the maintainer's morning processing routes actionable items and resets to stub after triaging the Open-ambiguities deferred decisions).
+- **[`.working/overnight-pr.md`](../../.working/overnight-pr.md)**: build-progress lists all merged PRs (#259-#267); RUN-PAUSED note added; Status kept `in-flight` (gate 46 fails on `done` inside a CI-gated PR, the maintainer's morning processing routes actionable items and resets to stub after triaging the Open-ambiguities deferred decisions).
 
 ### Verification / discipline
 
@@ -1656,7 +1681,7 @@ FR-167 batch 1 of ~11 (one domain per PR). Remaining domains to expand/complete:
 
 ### Verification
 
-- Bare-token search (`72.hour|72 hours` near PIPEDA/Canada/OPC) confirmed exactly two invented-PIPEDA-72h surfaces (both fixed); the other matches are correct external-standard deadlines (GDPR 72h in `risk/template-risk-appetite-statement.md`; Quebec Law 25's 72h to the CAI in `annex-privacy-canada.md` / `standard-security-baseline-and-standards-reference.md`; Malaysia's 72h in `annex-privacy-malaysia.md`) — left unchanged. Per-document Version + Date bumped in the same commit. Regenerated `taxonomy.yml`, `docs/portal.md`, `docs/maturity-scorecard.md`. Post-commit `run_all_audits.sh` (46) + pre-push `run-pr-time-checks.sh` green; CI-green before merge.
+- Bare-token search (`72.hour|72 hours` near PIPEDA/Canada/OPC) confirmed exactly two invented-PIPEDA-72h surfaces (both fixed); the other matches are correct external-standard deadlines (GDPR 72h in `risk/template-risk-appetite-statement.md`; Quebec Law 25's 72h to the CAI in `annex-privacy-canada.md` / `standard-security-baseline-and-standards-reference.md`; Malaysia's 72h in `annex-privacy-malaysia.md`), left unchanged. Per-document Version + Date bumped in the same commit. Regenerated `taxonomy.yml`, `docs/portal.md`, `docs/maturity-scorecard.md`. Post-commit `run_all_audits.sh` (46) + pre-push `run-pr-time-checks.sh` green; CI-green before merge.
 
 ### Added (batched per recursion-avoidance)
 
@@ -1669,14 +1694,14 @@ FR-167 batch 1 of ~11 (one domain per PR). Remaining domains to expand/complete:
 
 ### Fixed
 
-- **[`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md)**:93 — "grew from five rules to **nine**" ⇒ "to **ten**" (project-integrity.md, the 10th rule, added pack 1.49.0 / PR #258; this free-prose growth-count was missed by #258's wiring and is not parsed by gate 41). Pack `1.49.1 → 1.49.2` + version-history row.
-- **[`TODO.md`](../../TODO.md)**:182 — "the **nine** `governance/` pack rules form the discipline core" ⇒ "**ten**" (parallel free-prose miss from #258; gate-exempt working state).
-- **[`privacy/template-record-of-processing-activities.md`](../../privacy/template-record-of-processing-activities.md)**:46 (`1.0.4 → 1.0.5`) — lawful-basis example "CPPA Sec 12 consent" (the lone unmarked live-CPPA-section citation; all other corpus CPPA section refs are marked "(proposed)") ⇒ "PIPEDA Schedule 1 Principle 3 consent (CPPA Sec 12 consent is proposed, not in force)", extending the FR-138 scrub to this surface.
-- **[`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md)**:75 (`1.3.0 → 1.3.1`) — privileged-access session retention "minimum of one year" ⇒ "retained per the [data-retention schedule] (2 years for privileged-access session logs)", resolving an under-floor against the FR-136 canonical (schedule says 2 years for that log class).
+- **[`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md)**:93, "grew from five rules to **nine**" ⇒ "to **ten**" (project-integrity.md, the 10th rule, added pack 1.49.0 / PR #258; this free-prose growth-count was missed by #258's wiring and is not parsed by gate 41). Pack `1.49.1 → 1.49.2` + version-history row.
+- **[`TODO.md`](../../TODO.md)**:182, "the **nine** `governance/` pack rules form the discipline core" ⇒ "**ten**" (parallel free-prose miss from #258; gate-exempt working state).
+- **[`privacy/template-record-of-processing-activities.md`](../../privacy/template-record-of-processing-activities.md)**:46 (`1.0.4 → 1.0.5`), lawful-basis example "CPPA Sec 12 consent" (the lone unmarked live-CPPA-section citation; all other corpus CPPA section refs are marked "(proposed)") ⇒ "PIPEDA Schedule 1 Principle 3 consent (CPPA Sec 12 consent is proposed, not in force)", extending the FR-138 scrub to this surface.
+- **[`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md)**:75 (`1.3.0 → 1.3.1`), privileged-access session retention "minimum of one year" ⇒ "retained per the [data-retention schedule] (2 years for privileged-access session logs)", resolving an under-floor against the FR-136 canonical (schedule says 2 years for that log class).
 
 ### Synthesis / triage
 
-Findings 1-2 (stale rule counts) are in-window #258 misses. Findings 3-4 are pre-existing out-of-window surfaces (FR-138 / FR-136 classes), but their fix direction is **determined** by the maintainer's locked decisions (scrub CPPA-as-live; the retention schedule is authoritative) plus the stricter-is-safer overnight rule — applications of locked direction, not new authorial decisions — so per the overnight "fix `/validate` findings immediately" instruction they are fixed here rather than deferred. **Recurring pattern (3rd occurrence)**: a new governance rule is added but a free-prose rule count (SKILL body, TODO, CLAUDE.md example) is missed because gate 41 parses only the structured README enumeration (Sweep 23 caught "eight"→"nine"; Sweep 25 catches "nine"→"ten" in two more surfaces). Candidate improvement logged for the guardrail/P4 lane: broaden the enumeration gate or a pre-flight rule to catch free-prose "<word-number> governance rules" current-state counts.
+Findings 1-2 (stale rule counts) are in-window #258 misses. Findings 3-4 are pre-existing out-of-window surfaces (FR-138 / FR-136 classes), but their fix direction is **determined** by the maintainer's locked decisions (scrub CPPA-as-live; the retention schedule is authoritative) plus the stricter-is-safer overnight rule, applications of locked direction, not new authorial decisions, so per the overnight "fix `/validate` findings immediately" instruction they are fixed here rather than deferred. **Recurring pattern (3rd occurrence)**: a new governance rule is added but a free-prose rule count (SKILL body, TODO, CLAUDE.md example) is missed because gate 41 parses only the structured README enumeration (Sweep 23 caught "eight"→"nine"; Sweep 25 catches "nine"→"ten" in two more surfaces). Candidate improvement logged for the guardrail/P4 lane: broaden the enumeration gate or a pre-flight rule to catch free-prose "<word-number> governance rules" current-state counts.
 
 ### Verification
 
@@ -1694,7 +1719,7 @@ Findings 1-2 (stale rule counts) are in-window #258 misses. Findings 3-4 are pre
 
 ### Changed
 
-- **[`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md)** (`1.2.0 → 1.3.0`): in the backup-requirements list (§ for Tier 1 and Tier 2 systems) —
+- **[`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md)** (`1.2.0 → 1.3.0`): in the backup-requirements list (§ for Tier 1 and Tier 2 systems) , 
   - "Automated daily backups with off-site or cloud copy." ⇒ "Automated backups with off-site or cloud copy at a cadence that meets each system's RPO: continuous or near-continuous data protection (for example, journaled or snapshot replication, or log shipping) for Tier 1's 1-hour RPO, and at least daily backups for Tier 2 and lower tiers."
   - "Backup gap not exceeding 24 hours for Tier 1 and 4 hours for time-critical data." ⇒ "Backup gap not exceeding each tier's RPO: 1 hour for Tier 1 and 4 hours for Tier 2 (the 24-hour and 72-hour RPOs apply to Tier 3 and Tier 4 respectively, per the RTO and RPO targets table above)."
   - The RTO/RPO targets table (Tier 1 = 1h RPO) and the "gap > RPO ⇒ P2" escalation rule were already correct and are unchanged; they are now mutually consistent with the backup section.
@@ -1714,9 +1739,9 @@ Findings 1-2 (stale rule counts) are in-window #258 misses. Findings 3-4 are pre
 
 ### Changed
 
-- **[`privacy/procedure-data-subject-rights-management.md`](../../privacy/procedure-data-subject-rights-management.md)** (`1.4.1 → 1.5.0`, minor — new note): rights table (§3) and summary mapping table (§framework) — Access/Correction now cite "PIPEDA Sch 1 Principle 9 (Individual Access / amendment)"; Objection cites "PIPEDA Sch 1 Principle 3 (withdrawal of consent)"; Deletion/Erasure and Automated-Decision-Review drop "CPPA s.69"/"CPPA s.63(3)" (PIPEDA provides no such right; GDPR remains the basis). New **"Canadian legal basis" note** after the rights table explains the PIPEDA basis, the PIPEDA gaps (no erasure/ADM right), CPPA's not-in-force status, and Quebec Law 25's stronger rights. Intro (§1), §2 alignment line ("CPPA Part 2 Division 5" → "PIPEDA Schedule 1"), the fees table row ("CPPA / PIPEDA" → "PIPEDA"), and the §8.3 heading ("GDPR art. 22 / CPPA" → "GDPR art. 22") de-CPPA'd.
-- **[`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md)** (`1.4.8 → 1.4.9`): §2 alignment line "CPPA" → "PIPEDA (Breach of Security Safeguards Regulations)"; the Canada-federal jurisdiction row (§6.2) governing-law cell "CPPA; PIPEDA (until CPPA in force)" → "PIPEDA (Breach of Security Safeguards Regulations); CPPA pending reintroduction"; the §notification-basis row aligned. (The same row's "(72-hour target)" deadline is the separate FR-141 issue, scheduled for a later PR — not touched here.)
-- **[`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md)** (`1.4.3 → 1.4.4`): the Regional Data Stewards list ("CPPA" → "PIPEDA"), the data-subject-rights bullet (rephrased: GDPR/PIPL + PIPEDA Schedule 1 for access/correction; CPPA pending for disposal/portability), and two control-mapping cells (Governance → "PIPEDA Sch 1 Principle 1 (Accountability)"; Data subject rights → "PIPEDA Sch 1 Principle 9 (Individual Access)"). The §metadata Applicable-Frameworks line already correctly marked CPPA "(Bill C-27 lapsed January 2025)" — unchanged.
+- **[`privacy/procedure-data-subject-rights-management.md`](../../privacy/procedure-data-subject-rights-management.md)** (`1.4.1 → 1.5.0`, minor, new note): rights table (§3) and summary mapping table (§framework), Access/Correction now cite "PIPEDA Sch 1 Principle 9 (Individual Access / amendment)"; Objection cites "PIPEDA Sch 1 Principle 3 (withdrawal of consent)"; Deletion/Erasure and Automated-Decision-Review drop "CPPA s.69"/"CPPA s.63(3)" (PIPEDA provides no such right; GDPR remains the basis). New **"Canadian legal basis" note** after the rights table explains the PIPEDA basis, the PIPEDA gaps (no erasure/ADM right), CPPA's not-in-force status, and Quebec Law 25's stronger rights. Intro (§1), §2 alignment line ("CPPA Part 2 Division 5" → "PIPEDA Schedule 1"), the fees table row ("CPPA / PIPEDA" → "PIPEDA"), and the §8.3 heading ("GDPR art. 22 / CPPA" → "GDPR art. 22") de-CPPA'd.
+- **[`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md)** (`1.4.8 → 1.4.9`): §2 alignment line "CPPA" → "PIPEDA (Breach of Security Safeguards Regulations)"; the Canada-federal jurisdiction row (§6.2) governing-law cell "CPPA; PIPEDA (until CPPA in force)" → "PIPEDA (Breach of Security Safeguards Regulations); CPPA pending reintroduction"; the §notification-basis row aligned. (The same row's "(72-hour target)" deadline is the separate FR-141 issue, scheduled for a later PR, not touched here.)
+- **[`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md)** (`1.4.3 → 1.4.4`): the Regional Data Stewards list ("CPPA" → "PIPEDA"), the data-subject-rights bullet (rephrased: GDPR/PIPL + PIPEDA Schedule 1 for access/correction; CPPA pending for disposal/portability), and two control-mapping cells (Governance → "PIPEDA Sch 1 Principle 1 (Accountability)"; Data subject rights → "PIPEDA Sch 1 Principle 9 (Individual Access)"). The §metadata Applicable-Frameworks line already correctly marked CPPA "(Bill C-27 lapsed January 2025)", unchanged.
 
 ### Verification
 
@@ -1735,7 +1760,7 @@ Findings 1-2 (stale rule counts) are in-window #258 misses. Findings 3-4 are pre
 ### Changed
 
 - **[`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md)** (`1.4.2 → 1.4.3`): the Privacy / DSR domain row "2 years post-closure" ⇒ "3 years post-closure (per [`register-data-retention-schedule.md`](register-data-retention-schedule.md), Data subject access request records)".
-- **[`privacy/procedure-data-subject-rights-management.md`](../../privacy/procedure-data-subject-rights-management.md)** (`1.4.0 → 1.4.1`): §9.2 Retention — "retained for 2 years following the closure date ... (Privacy / Data Subject Requests: 2 years post-closure)" ⇒ "3 years following the closure date ... (Privacy / Data Subject Requests: 3 years post-closure)".
+- **[`privacy/procedure-data-subject-rights-management.md`](../../privacy/procedure-data-subject-rights-management.md)** (`1.4.0 → 1.4.1`): §9.2 Retention, "retained for 2 years following the closure date ... (Privacy / Data Subject Requests: 2 years post-closure)" ⇒ "3 years following the closure date ... (Privacy / Data Subject Requests: 3 years post-closure)".
 
 ### Verification
 
@@ -1760,8 +1785,8 @@ Findings 1-2 (stale rule counts) are in-window #258 misses. Findings 3-4 are pre
 
 PR #261's verification statement ("a corpus-wide contradiction search confirms no org surface still permits TLS 1.2") was over-broad: the contradiction-search regex was tuned to the migrated phrasings (`TLS 1.2 (minimum)` / `1.2+` / `Minimum version: TLS 1.2`) and did not match other permissive constructions. The #261 post-merge `/validate-pr` ran a bare-token search and surfaced two additional permissive-1.2 surfaces, both deferred to maintainer review (logged in [`.working/overnight-pr.md`](../../.working/overnight-pr.md) open-items):
 
-- [`operations/procedure-media-handling-and-transport.md`](../../operations/procedure-media-handling-and-transport.md):124 — "TLS 1.2 may be used only where a documented technical constraint prevents TLS 1.3 ... exception register ... reviewed quarterly" (a *governed* exception, distinct from a flat "1.2 minimum").
-- [`supply-chain/template-supplier-security-questionnaire.md`](../../supply-chain/template-supplier-security-questionnaire.md):87 — "Is data encrypted in transit using TLS 1.2 or higher?" (a vendor-facing minimum-bar question).
+- [`operations/procedure-media-handling-and-transport.md`](../../operations/procedure-media-handling-and-transport.md):124, "TLS 1.2 may be used only where a documented technical constraint prevents TLS 1.3 ... exception register ... reviewed quarterly" (a *governed* exception, distinct from a flat "1.2 minimum").
+- [`supply-chain/template-supplier-security-questionnaire.md`](../../supply-chain/template-supplier-security-questionnaire.md):87, "Is data encrypted in transit using TLS 1.2 or higher?" (a vendor-facing minimum-bar question).
 
 FR-135's six named surfaces (plus the healthcare annex and intra-doc quick-reference surfaces) remain correctly migrated; this correction narrows the scope of the verification claim to what was actually searched. **Process lesson** (recorded in the #261 `/retro`): contradiction searches use the bare token for the concept, not the phrasing being replaced.
 
@@ -1796,8 +1821,8 @@ FR-135's six named surfaces (plus the healthcare annex and intra-doc quick-refer
 
 ### Deferred to maintainer (surfaced, not force-migrated)
 
-- **[`dev-security/claude-rules/core/owasp.md`](../../dev-security/claude-rules/core/owasp.md)** :42 and :209 — represent OWASP ASVS (which permits TLS 1.2 at baseline). Force-migration would misstate the external standard; the evidence-grounded rule requires external-standard citations stay accurate. Logged in [`.working/overnight-pr.md`](../../.working/overnight-pr.md) open-items.
-- **[`dev-security/claude-rules/languages/go.md`](../../dev-security/claude-rules/languages/go.md)** :195 — the TLS example needs a coherent rewrite (TLS 1.3 ignores the explicit 1.2 CipherSuites list), not a one-line bump.
+- **[`dev-security/claude-rules/core/owasp.md`](../../dev-security/claude-rules/core/owasp.md)** :42 and :209, represent OWASP ASVS (which permits TLS 1.2 at baseline). Force-migration would misstate the external standard; the evidence-grounded rule requires external-standard citations stay accurate. Logged in [`.working/overnight-pr.md`](../../.working/overnight-pr.md) open-items.
+- **[`dev-security/claude-rules/languages/go.md`](../../dev-security/claude-rules/languages/go.md)** :195, the TLS example needs a coherent rewrite (TLS 1.3 ignores the explicit 1.2 CipherSuites list), not a one-line bump.
 
 ### Verification
 
@@ -1821,7 +1846,7 @@ FR-135's six named surfaces (plus the healthcare annex and intra-doc quick-refer
   - New sentence after the §5.2 score formula citing that the likelihood labels and thresholds match the procedure §4-5 and the template scoring fields, so a score yields the same rating/cadence/escalation across all three.
   - §8.1 monitoring-cadence bands (stated "taken verbatim from §5.2"): rebanded to `Critical 17-25 / High 10-16 / Medium 5-9 / Low 1-4`; "Moderate" → "Medium".
   - §9.1 evidence-table cadence phrase: "quarterly for Moderate" → "quarterly for Medium".
-- **[`risk/template-enterprise-risk-register.md`](../../risk/template-enterprise-risk-register.md)** (`1.1.1 → 1.1.2`): the template's bands already agreed and it already cited the procedure (line 53); its stale likelihood labels are fixed — Inherent Likelihood (line 57) and Residual Likelihood (line 76) fields move from `1 (Rare) to 5 (Almost Certain)` to `1 (Very Low) to 5 (Very High)`, and the 5×5 matrix likelihood axis (rows) from `Almost Certain / Likely / Possible / Unlikely / Rare` to `Very High / High / Medium / Low / Very Low` (matrix cell values unchanged; they already used canonical bands).
+- **[`risk/template-enterprise-risk-register.md`](../../risk/template-enterprise-risk-register.md)** (`1.1.1 → 1.1.2`): the template's bands already agreed and it already cited the procedure (line 53); its stale likelihood labels are fixed, Inherent Likelihood (line 57) and Residual Likelihood (line 76) fields move from `1 (Rare) to 5 (Almost Certain)` to `1 (Very Low) to 5 (Very High)`, and the 5×5 matrix likelihood axis (rows) from `Almost Certain / Likely / Possible / Unlikely / Rare` to `Very High / High / Medium / Low / Very Low` (matrix cell values unchanged; they already used canonical bands).
 
 ### Verification
 
@@ -1919,7 +1944,7 @@ FR-135's six named surfaces (plus the healthcare annex and intra-doc quick-refer
 ### Verification
 
 - `tools/lint-language.py` clean on all new pack prose (SKILL + command + README edits + the two See Also back-references) before the first commit (the new-pack-prose pre-flight discipline).
-- Step-parity verified: SKILL `### 1.`–`### 6.` headings and command `1.`–`6.` numbered items share the identifier set {1,2,3,4,5,6}; gate 44 passes.
+- Step-parity verified: SKILL `### 1.`, `### 6.` headings and command `1.`, `6.` numbered items share the identifier set {1,2,3,4,5,6}; gate 44 passes.
 - Gate 41 (collection-enumeration): the skills directory now lists 15 entries and the pack README tree matches.
 - Gate 32 (skill derives-from): `derives_from` resolves to `gate-discipline.md`.
 - `tools/run_all_audits.sh` 46/46 post-commit; `tools/run-pr-time-checks.sh` exit 0.
@@ -1932,7 +1957,7 @@ FR-135's six named surfaces (plus the healthcare annex and intra-doc quick-refer
 
 - **[`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) item-2 governance-rule enumeration** (`stale-prose-enumeration`, Subagent B): the "two areas" prose listed eight rules and omitted the ninth (`trust-recovery-escalation.md`); the closing "and AI-assistant workflow disciplines" signalled an exhaustive list. Stale since pack 1.47.0 (PR #246). The same file's own directory tree and version-history table already included the ninth rule, so this was an internal inconsistency. Fixed: the trust-recovery escalation tier is appended as the ninth item. Not caught by gate 41 (collection-enumeration), which checks the structured directory tree, not narrative prose.
 - **[`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) trust-recovery directory-tree description** (`multi-surface-incompleteness`, Subagent A): "the /full-qa + /fitness suite, **every finding to backlog top**, maintainer sign-off terminates" carried the OLD pre-1.47.1 single-tier routing. Fixed to "every finding routed tiered by severity".
-- **[`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) deep-qa-review directory-tree description** (`multi-surface-incompleteness`, Subagent A): "pairs with library-fitness-review; **findings route to backlog top**, maintainer sign-off terminates" — same OLD single-tier form, contradicting the SKILL's own severity-tiered body. Fixed to "findings routed tiered by severity".
+- **[`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) deep-qa-review directory-tree description** (`multi-surface-incompleteness`, Subagent A): "pairs with library-fitness-review; **findings route to backlog top**, maintainer sign-off terminates", same OLD single-tier form, contradicting the SKILL's own severity-tiered body. Fixed to "findings routed tiered by severity".
 
 ### Changed
 
@@ -1946,8 +1971,8 @@ FR-135's six named surfaces (plus the healthcare annex and intra-doc quick-refer
 
 ### Verification
 
-- Apply-time verification: each of the three findings re-read from the cited line before routing (not trusted from the worker report); the corpus-wide contradiction grep confirmed README:75 and README:96 were the only live-corpus residues of "backlog top" / "route to backlog" (the 442–444 version-history rows and CHANGELOG:21/45/53 narrative are accurate-to-time and intentionally left).
-- Subagent C (audit-programme integrity): zero findings — the 46-gate parity holds across all four surfaces and the severity-tiered routing prose is uniform across the rule, both SKILLs, and all command files.
+- Apply-time verification: each of the three findings re-read from the cited line before routing (not trusted from the worker report); the corpus-wide contradiction grep confirmed README:75 and README:96 were the only live-corpus residues of "backlog top" / "route to backlog" (the 442-444 version-history rows and CHANGELOG:21/45/53 narrative are accurate-to-time and intentionally left).
+- Subagent C (audit-programme integrity): zero findings, the 46-gate parity holds across all four surfaces and the severity-tiered routing prose is uniform across the rule, both SKILLs, and all command files.
 - `lint-language` clean (no em/en-dashes or British `-ise` in the edits); `tools/run_all_audits.sh` 46/46 post-commit; `tools/run-pr-time-checks.sh` exit 0.
 - This is iteration 1 of the sweep; a re-baseline cycle confirms no new High/Medium findings before the sweep is declared complete.
 
@@ -1957,7 +1982,7 @@ FR-135's six named surfaces (plus the healthcare annex and intra-doc quick-refer
 
 ### Changed
 
-- **[`.claude/CLAUDE.md`](../../.claude/CLAUDE.md)**: the PR close-out checklist gains two durable items — (1) `lint-language` pre-flight on new pack prose before the first commit (recurring em-dash / British-`-ise` reintroduction, PR #244 and the trust-recovery codification); (2) grep-after-wiring (after a convention/count/routing/gate-wiring change restated across surfaces, grep the old phrasing across the full file + every sibling surface, zero hits before commit — the discipline that would have pre-empted PR #252's multi-surface-incompleteness defect).
+- **[`.claude/CLAUDE.md`](../../.claude/CLAUDE.md)**: the PR close-out checklist gains two durable items, (1) `lint-language` pre-flight on new pack prose before the first commit (recurring em-dash / British-`-ise` reintroduction, PR #244 and the trust-recovery codification); (2) grep-after-wiring (after a convention/count/routing/gate-wiring change restated across surfaces, grep the old phrasing across the full file + every sibling surface, zero hits before commit, the discipline that would have pre-empted PR #252's multi-surface-incompleteness defect).
 - **[`.claude/commands/resume.md`](../../.claude/commands/resume.md)**: step 1 now points at the handoff's "Known environment behaviours" section and the stop-hook auto-persist fact; step 2 now reads [`.working/third-party-issues.md`](../third-party-issues.md) so a recurring env flake is recognized, not chased.
 - **[`README.md`](../../README.md)**: library `2026.06.232 → 2026.06.233`; README `1.9.103 → 1.9.104`.
 
@@ -1979,7 +2004,7 @@ FR-135's six named surfaces (plus the healthcare annex and intra-doc quick-refer
 
 ### Added
 
-- **[`.claude/commands/trust-recovery.md`](../../.claude/commands/trust-recovery.md)** (new, thin command): runs the suite in order — step 0 full-clone check, then `/full-qa` (deep-qa-review forensic pass), then `/fitness` (library-fitness-review persona pass), then holds for maintainer sign-off. Routes findings per the severity-tiered convention (H[critical]/High to top-priority tier / P1, Medium/Low to next tier / P2, tagged by pass, none dropped). Explicitly states it does not replace either skill, does not self-authorize (maintainer invokes it and names the window), and points to the `trust-recovery-escalation.md` rule for trigger classes / routing / sign-off detail. Non-paired (like `/resume`): no SKILL counterpart, not in the gate-44 PAIRS registry, so step-parity does not apply.
+- **[`.claude/commands/trust-recovery.md`](../../.claude/commands/trust-recovery.md)** (new, thin command): runs the suite in order, step 0 full-clone check, then `/full-qa` (deep-qa-review forensic pass), then `/fitness` (library-fitness-review persona pass), then holds for maintainer sign-off. Routes findings per the severity-tiered convention (H[critical]/High to top-priority tier / P1, Medium/Low to next tier / P2, tagged by pass, none dropped). Explicitly states it does not replace either skill, does not self-authorize (maintainer invokes it and names the window), and points to the `trust-recovery-escalation.md` rule for trigger classes / routing / sign-off detail. Non-paired (like `/resume`): no SKILL counterpart, not in the gate-44 PAIRS registry, so step-parity does not apply.
 
 ### Changed
 
@@ -2051,15 +2076,15 @@ FR-135's six named surfaces (plus the healthcare annex and intra-doc quick-refer
 
 ## 2026-06-22, Library Version 2026.06.229, PR #251
 
-**Session decision capture (P1–P4 backlog triage).** Working-state housekeeping PR: durably records the maintainer's 2026-06-22 decisions (from the requested TODO P1–P4 analysis) before any remediation/codification PR acts on them, and carries the PR #250 `/validate-pr` + `/retro` rows per recursion-avoidance. The substantive routing-convention revision the decisions authorize is the NEXT PR, not this one (kept separate per "always split"; this PR is low-risk working-state and protects the decisions from session-boundary loss).
+**Session decision capture (P1, P4 backlog triage).** Working-state housekeeping PR: durably records the maintainer's 2026-06-22 decisions (from the requested TODO P1, P4 analysis) before any remediation/codification PR acts on them, and carries the PR #250 `/validate-pr` + `/retro` rows per recursion-avoidance. The substantive routing-convention revision the decisions authorize is the NEXT PR, not this one (kept separate per "always split"; this PR is low-risk working-state and protects the decisions from session-boundary loss).
 
 ### Changed (working-state, gate-exempt unless noted)
 
-- **[`TODO.md`](../../TODO.md)** (gated by gate 45 only): decision annotations — the six H[critical] canonical values (FR-134..139 block note); the trust-recovery codification routing item rewritten to the severity-tiered convention + the 8-surface scope; P4.0 (`project-integrity.md`, 10th rule, standalone-after-codification); P4.1 (family + prescriptive-only + existing-pack); P4.4 (JS/TS+Go+Java, point-to-OWASP); P4.5 (build S1, defer S2/S3).
-- **[`.working/design-decisions.md`](../design-decisions.md)**: new decision entry "Trust-recovery findings routing: severity-tiered, not all-to-top-priority" under the slash-commands/skills section — records the revision, the "routing flag only" scope, the no-silent-drop principle retained, sign-off retained, and the project-agnostic-naming implementation note.
-- **[`.working/session-handoff.md`](../session-handoff.md)**: refreshed to the after-PR-#250 snapshot; next-actions item 0a marks the P1–P4 analysis DONE with the locked-decision summary; item 1 is now the routing-convention revision; the structural-review-skill name/cadence and `/trust-recovery` wrapper remain explicitly open (not decided this session).
+- **[`TODO.md`](../../TODO.md)** (gated by gate 45 only): decision annotations, the six H[critical] canonical values (FR-134..139 block note); the trust-recovery codification routing item rewritten to the severity-tiered convention + the 8-surface scope; P4.0 (`project-integrity.md`, 10th rule, standalone-after-codification); P4.1 (family + prescriptive-only + existing-pack); P4.4 (JS/TS+Go+Java, point-to-OWASP); P4.5 (build S1, defer S2/S3).
+- **[`.working/design-decisions.md`](../design-decisions.md)**: new decision entry "Trust-recovery findings routing: severity-tiered, not all-to-top-priority" under the slash-commands/skills section, records the revision, the "routing flag only" scope, the no-silent-drop principle retained, sign-off retained, and the project-agnostic-naming implementation note.
+- **[`.working/session-handoff.md`](../session-handoff.md)**: refreshed to the after-PR-#250 snapshot; next-actions item 0a marks the P1, P4 analysis DONE with the locked-decision summary; item 1 is now the routing-convention revision; the structural-review-skill name/cadence and `/trust-recovery` wrapper remain explicitly open (not decided this session).
 - **[`.working/validate-pr/history.md`](../validate-pr/history.md)** (Version `1.2.53 → 1.2.54`): PR #250 row (0 findings; full Subagent A + cross-reference check).
-- **[`.working/improvement-log.md`](../improvement-log.md)** (Version `1.0.32 → 1.0.33`): PR #250 `/retro` row — pattern: "paired-bookkeeping-surface missed" recurred (the TODO sweep cursor) but was caught pre-push by gate 45 + the gate-36 regression test; evidence the durable backstop is the mechanical gate.
+- **[`.working/improvement-log.md`](../improvement-log.md)** (Version `1.0.32 → 1.0.33`): PR #250 `/retro` row, pattern: "paired-bookkeeping-surface missed" recurred (the TODO sweep cursor) but was caught pre-push by gate 45 + the gate-36 regression test; evidence the durable backstop is the mechanical gate.
 - **[`README.md`](../../README.md)**: library `2026.06.228 → 2026.06.229`; README `1.9.99 → 1.9.100`.
 
 ### Verification
@@ -2069,12 +2094,12 @@ FR-135's six named surfaces (plus the healthcare annex and intra-doc quick-refer
 
 ## 2026-06-22, Library Version 2026.06.228, PR #250
 
-**`/resume` Sweep 23 close-out.** The session-resume compensating-control corpus-wide `/validate`, run as the first substantive task of a fresh session per the `/resume` protocol's step 5 — the control that compensates for the session-closing handoff PRs #248/#249 skipping their trailing `/validate-pr`.
+**`/resume` Sweep 23 close-out.** The session-resume compensating-control corpus-wide `/validate`, run as the first substantive task of a fresh session per the `/resume` protocol's step 5, the control that compensates for the session-closing handoff PRs #248/#249 skipping their trailing `/validate-pr`.
 
 ### Changed
 
 - **[`.claude/CLAUDE.md`](../../.claude/CLAUDE.md)** (line 263): close-out-checklist example "the eight governance rules" → "the nine governance rules". A stale prose count surfaced by Sweep 23's Subagent B (`ruleId: stale-prose-count-self-reference`, level `note`). In-window: the `## Session migration and PR close-out checklist` section containing this line was added in PR #247, by which time the governance-rule count was already nine, so the example was stale at authoring time. Ungated (`.claude/` is gate-exempt and the count is illustrative prose, which the collection-enumeration gate 41 does not cover), but factually wrong; corrected. This is a distinct occurrence from the TODO-P4.1 "eight → nine" already fixed in PR #247.
-- **[`TODO.md`](../../TODO.md)** (line 18): the "Last validation sweep" cursor advanced from "Sweep 22 iter 1" to "Sweep 23 iter 1". Caught post-commit by gate 45 (TODO staleness audit) and the gate-36 regression test `test_runs_clean_on_corpus_at_head` as a `sweep-cursor-stale` finding — a paired-bookkeeping-surface miss (the Sweep 23 history row was added without advancing the TODO cursor in the same commit). The mechanical backstop fired exactly as the close-out-checklist degradation guard intends; fixed and folded into this commit. (The version/branch lines in the same TODO snapshot block are "as-of-session-pause" and their forward drift is expected, not gated.)
+- **[`TODO.md`](../../TODO.md)** (line 18): the "Last validation sweep" cursor advanced from "Sweep 22 iter 1" to "Sweep 23 iter 1". Caught post-commit by gate 45 (TODO staleness audit) and the gate-36 regression test `test_runs_clean_on_corpus_at_head` as a `sweep-cursor-stale` finding, a paired-bookkeeping-surface miss (the Sweep 23 history row was added without advancing the TODO cursor in the same commit). The mechanical backstop fired exactly as the close-out-checklist degradation guard intends; fixed and folded into this commit. (The version/branch lines in the same TODO snapshot block are "as-of-session-pause" and their forward drift is expected, not gated.)
 
 ### Added (working-state, gate-exempt)
 
@@ -2085,7 +2110,7 @@ FR-135's six named surfaces (plus the healthcare annex and intra-doc quick-refer
 
 - `.claude/` and `.working/` are gate-exempt; the gated files touched are [`README.md`](../../README.md) (version lines), [`TODO.md`](../../TODO.md) (gate-45 sweep cursor), and [`CHANGELOG.md`](../../CHANGELOG.md) (this entry pair). No adopter-facing corpus content changed.
 - Mechanical baseline (pre-fix) clean: `tools/run_all_audits.sh` exit 0 (46/46) on the unshallowed clone. Re-run post-commit to confirm no collateral drift.
-- The `/validate` sweep was a full formal three-subagent dispatch (A, B, C — no skips, no abbreviation); the dispatch is declared in the history row per `validation-sweep` Rule 5.6.
+- The `/validate` sweep was a full formal three-subagent dispatch (A, B, C, no skips, no abbreviation); the dispatch is declared in the history row per `validation-sweep` Rule 5.6.
 - Clone started shallow (`git rev-parse --is-shallow-repository` = `true`); `git fetch --unshallow` run before any history-aware audit per the full-clone methodology rule (gates 31, 40 mis-attribute dates on shallow clones).
 - **[`README.md`](../../README.md)**: library `2026.06.227 → 2026.06.228`; README `1.9.98 → 1.9.99`.
 
@@ -2100,7 +2125,7 @@ FR-135's six named surfaces (plus the healthcare annex and intra-doc quick-refer
 ### Changed
 
 - **[`.claude/CLAUDE.md`](../../.claude/CLAUDE.md)**: PR-workflow step 5a gains a **handoff-PR exception** paragraph (the loop rationale: trailing `/validate-pr`/`/retro` on a handoff PR produce ledger rows that batch into a new PR whose merge triggers another sweep, unterminating at a session boundary; the compensating control is `/resume`'s full `/validate`; recorded as a maintainer-authorised standing exception in the history-row Summary per the no-skip discipline). The `## Session migration and PR close-out checklist` section gains a third point, "Closing-handoff-PR discipline (a session's last act is a green merge)", tying the green-merge-as-last-act practice to the loop-break.
-- **[`.claude/commands/resume.md`](../../.claude/commands/resume.md)**: new step 5 — run a full corpus-wide `/validate` as the first substantive task (the compensating control), with the loop rationale inline; the continue-from-queue step renumbers to 6 and now says "formal per-PR `/validate-pr` + `/retro` for every non-handoff PR".
+- **[`.claude/commands/resume.md`](../../.claude/commands/resume.md)**: new step 5, run a full corpus-wide `/validate` as the first substantive task (the compensating control), with the loop rationale inline; the continue-from-queue step renumbers to 6 and now says "formal per-PR `/validate-pr` + `/retro` for every non-handoff PR".
 - **[`.working/session-handoff.md`](../session-handoff.md)**: how-to-resume gains the `/validate`-first step; the state snapshot advances to after-PR-#249 (library `2026.06.227`, README `1.9.98`) and replaces the "pending validate-pr/retro batch" note with "no rows pending (handoff PRs exempt)"; next-actions gains item 0 (full `/validate` first); standing disciplines note the one standing exception.
 - **[`TODO.md`](../../TODO.md)**: the trust-recovery codification "Done" line adds #248 and #249; a new remaining item to **generalize the carve-out into the pack layer** (`validation-sweep-pr-scoped` SKILL + `ai-assistant-workflow-disciplines` no-skip section); P4.6 gains a "Handoff-PR exemption (must be designed in)" bullet; new **P4.7 Overnight unattended-run driver** (external fresh-session-per-unit driver loop; deferred to a future session, building blocks confirmed via claude-code-guide).
 - **[`.working/validate-pr/history.md`](../validate-pr/history.md)** (Version `1.2.52 → 1.2.53`): one row covering PRs #248+#249 recording the maintainer-authorised handoff-PR exemption and the compensating control; notes the informational zero-finding Subagent A run on #248's diff.
@@ -2225,7 +2250,7 @@ FR-135's six named surfaces (plus the healthcare annex and intra-doc quick-refer
 
 ## 2026-06-22, Library Version 2026.06.221, PR #243
 
-**Trust-recovery suite — findings routed and re-tiered.** Working-state PR carrying the outputs of the maintainer-directed trust-recovery escalation tier (`/full-qa` deep-qa-review iter 1, then `/fitness` r2). No adopter-facing corpus content changed.
+**Trust-recovery suite, findings routed and re-tiered.** Working-state PR carrying the outputs of the maintainer-directed trust-recovery escalation tier (`/full-qa` deep-qa-review iter 1, then `/fitness` r2). No adopter-facing corpus content changed.
 
 ### Added
 
@@ -2246,7 +2271,7 @@ FR-135's six named surfaces (plus the healthcare annex and intra-doc quick-refer
 
 ## 2026-06-22, Library Version 2026.06.220, PR #242
 
-**Sweep 22 close-out** — maintainer-directed full `/validate` after the orchestrator's abbreviation pattern for `/validate-pr` was caught. The sweep surfaced 4 in-window errors traced to PR #238/#239's treatment-vocab decomposition not propagating to all parallel surfaces, plus 1 out-of-window note (EDPB soft-law citations to register), plus the discipline-failure assessment that drove the SKILL/pack-rule/CLAUDE.md vocabulary updates.
+**Sweep 22 close-out**, maintainer-directed full `/validate` after the orchestrator's abbreviation pattern for `/validate-pr` was caught. The sweep surfaced 4 in-window errors traced to PR #238/#239's treatment-vocab decomposition not propagating to all parallel surfaces, plus 1 out-of-window note (EDPB soft-law citations to register), plus the discipline-failure assessment that drove the SKILL/pack-rule/CLAUDE.md vocabulary updates.
 
 ### Fixed
 
@@ -2268,7 +2293,7 @@ FR-135's six named surfaces (plus the healthcare annex and intra-doc quick-refer
 ### Added
 
 - **`TODO.md`** P4.6: QA-cadence mechanical enforcement (M, M) audit-gate candidate. Compares `.working/validate-pr/history.md` and `.working/improvement-log.md` against the merged-PR list and fails when a row is missing or marked abbreviated without a maintainer-authorised exception trailer. Design questions noted (gate placement, abbreviation-detection rule shape, exception-recording mechanism).
-- **`TODO.md`** P7 Maintainer-surfaced from Sweep 22: B2 additional soft-law citations to canonical-citations register — Sweep 22 Subagent B surfaced 5 EDPB soft-law references not yet in [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) (EDPB Guidelines 07/2020, 3/2018, 28/2024, Opinion 05/2014, WP248 rev.01). Decision pending maintainer review.
+- **`TODO.md`** P7 Maintainer-surfaced from Sweep 22: B2 additional soft-law citations to canonical-citations register, Sweep 22 Subagent B surfaced 5 EDPB soft-law references not yet in [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) (EDPB Guidelines 07/2020, 3/2018, 28/2024, Opinion 05/2014, WP248 rev.01). Decision pending maintainer review.
 - **`.working/validate-sweeps/2026-06-22-sweep22-iter1.md`**: per-iteration detail file with the 7-point discipline-failure root-cause analysis, the four maintainer-authorised corrective actions, the six subagent-finding details (4 in-window + 1 out-of-window + 1 from the discipline assessment), and the action-decided list.
 - **`.working/validate-sweeps/history.md`** new row at top for Sweep 22 iter 1.
 - **`.working/validate-pr/history.md`** new row for PR #241 (the explicit reconciliation entry for the eleventh and final abbreviated-spot-check PR in the run) plus an annotation on the prior #240 row noting the abbreviation pattern.
@@ -2284,7 +2309,7 @@ FR-135's six named surfaces (plus the healthcare annex and intra-doc quick-refer
 
 ### Discipline observation
 
-The Sweep 22 trigger is itself the discipline observation for this PR: the abbreviated-spot-check pattern was caught after 11 consecutive PRs by the maintainer's direct question, not by any mechanical check. The corrective actions land here to prevent recurrence; the mechanical-gate candidate (P4.6) is the backstop. The retrospective register row (PR #241 in `.working/improvement-log.md`) records the pattern at "third-plus occurrence" — well past the "first observation / second signal / third pattern" threshold — and traces the resolution to this close-out PR's rule edits.
+The Sweep 22 trigger is itself the discipline observation for this PR: the abbreviated-spot-check pattern was caught after 11 consecutive PRs by the maintainer's direct question, not by any mechanical check. The corrective actions land here to prevent recurrence; the mechanical-gate candidate (P4.6) is the backstop. The retrospective register row (PR #241 in `.working/improvement-log.md`) records the pattern at "third-plus occurrence", well past the "first observation / second signal / third pattern" threshold, and traces the resolution to this close-out PR's rule edits.
 
 ---
 
@@ -2303,7 +2328,7 @@ The Sweep 22 trigger is itself the discipline observation for this PR: the abbre
 
 ## 2026-06-22, Library Version 2026.06.218, PR #240
 
-**Closes FR-93 (M, S) + FR-94 (M, S)** — P2.6 KRI/KPI bundle. PR-D in Batch 2.
+**Closes FR-93 (M, S) + FR-94 (M, S)**, P2.6 KRI/KPI bundle. PR-D in Batch 2.
 
 ### Changed
 
@@ -2316,7 +2341,7 @@ The Sweep 22 trigger is itself the discipline observation for this PR: the abbre
 
 ## 2026-06-22, Library Version 2026.06.217, PR #239
 
-**Closes FR-12 cross-doc follow-up (M, S)** — `risk/procedure-risk-register.md` v1.0.0 → 1.1.0. PR-C in Batch 2.
+**Closes FR-12 cross-doc follow-up (M, S)**, `risk/procedure-risk-register.md` v1.0.0 → 1.1.0. PR-C in Batch 2.
 
 ### Changed
 
@@ -2330,7 +2355,7 @@ The Sweep 22 trigger is itself the discipline observation for this PR: the abbre
 
 ## 2026-06-22, Library Version 2026.06.216, PR #238
 
-**Closes FR-118 (H, S)** — ERM standard §6/§7 treatment-vocab internal inconsistency. PR-B in Batch 2 effort-first run.
+**Closes FR-118 (H, S)**, ERM standard §6/§7 treatment-vocab internal inconsistency. PR-B in Batch 2 effort-first run.
 
 ### Changed
 
@@ -2353,7 +2378,7 @@ The prior §7.1 Status values (Open / Mitigated / Accepted / Closed) had ambiguo
 
 ## 2026-06-22, Library Version 2026.06.215, PR #237
 
-**Closes FR-36 (H, S)** — GDPR Article 8 child-consent age table per Member State. PR-A in Batch 2 effort-first run. Also carries Sweep 21 zero-finding history row + PR #236 deferred register rows.
+**Closes FR-36 (H, S)**, GDPR Article 8 child-consent age table per Member State. PR-A in Batch 2 effort-first run. Also carries Sweep 21 zero-finding history row + PR #236 deferred register rows.
 
 ### Added
 
@@ -2390,8 +2415,8 @@ The prior §7.1 Status values (Open / Mitigated / Accepted / Closed) had ambiguo
 
 ### Added
 
-- **B4 fix — Soft-law supervisory guidance section** in [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md): new section before Maintenance with WP243 rev.01 (Article 29 Working Party Guidelines on DPOs) as first entry. Conventions section gains a "Scope (extended)" paragraph naming the soft-law-guidance scope extension and its rules (publisher = supervisory authority; current version = revision number e.g. `rev.01`).
-- **A2 fix — Cross-reference clause** in [`governance/register-role-authority.md`](../../governance/register-role-authority.md) DPO row: "The role is subject to the GDPR Article 38(3) independence requirements and the Article 38(6) conflict-of-interest constraint elaborated in [`privacy/charter-privacy-management-programme.md`](../privacy/charter-privacy-management-programme.md)."
+- **B4 fix, Soft-law supervisory guidance section** in [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md): new section before Maintenance with WP243 rev.01 (Article 29 Working Party Guidelines on DPOs) as first entry. Conventions section gains a "Scope (extended)" paragraph naming the soft-law-guidance scope extension and its rules (publisher = supervisory authority; current version = revision number e.g. `rev.01`).
+- **A2 fix, Cross-reference clause** in [`governance/register-role-authority.md`](../../governance/register-role-authority.md) DPO row: "The role is subject to the GDPR Article 38(3) independence requirements and the Article 38(6) conflict-of-interest constraint elaborated in [`privacy/charter-privacy-management-programme.md`](../privacy/charter-privacy-management-programme.md)."
 
 ### Changed
 
@@ -2416,16 +2441,16 @@ Surface-consolidated in PR #218 (DPO canonical flip): the three-way label drift 
 
 ## 2026-06-22, Library Version 2026.06.213, PR #235
 
-**Closes C2 Emergency-access trigger ambiguity convergent finding** (6 access-control items, P1 cluster) — single combined "Access-control operational clarity" PR per the maintainer's prior plan, with maintainer-approved sample-data defaults. PR-E in Batch 1 effort-first run.
+**Closes C2 Emergency-access trigger ambiguity convergent finding** (6 access-control items, P1 cluster), single combined "Access-control operational clarity" PR per the maintainer's prior plan, with maintainer-approved sample-data defaults. PR-E in Batch 1 effort-first run.
 
 ### Fixed (6 P1 items + 1 P2 item, all in `security/procedure-access-control.md`)
 
-- **FR-121 (H[critical], XS)** — line 64 "material business or safety harm" undefined. Now defined inline: "delay would, on its own, more likely than not cause an outcome that would itself trigger a P1 or P2 incident under the adopter's incident-severity policy (e.g., demonstrable risk of regulated-data exposure, safety incident, customer-facing outage exceeding the adopter's SLA-breach threshold)". Includes "sample data" caveat for adopters with different severity-tier models.
-- **FR-122 (H[critical], XS)** — line 64 "declared incident response" not tied to specific incident status. Now: "a declared incident response is **active and classified as P1 or P2 severity** under [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md)". Adopters with different severity models substitute equivalent top-two bands.
-- **FR-123 (H, XS)** — Delegated Security Lead undefined in roles table. New row added to "Roles and responsibilities": "A named deputy of the CISO authorised to approve privileged-access and emergency-access requests when the CISO is unavailable. In this library's reference configuration the role is filled by a pre-named senior member of the Incident Response Team (IRT) or the deputy CISO where one exists. **Sample data, adjust upon adoption**: adopting organisations name a specific role (e.g., Director of Security Operations, Lead Security Engineer) and identify the individual currently holding it in their internal access-control runbook (not in this public template)."
-- **FR-124 (H, S)** — §3.2-3.3 access-review revocation timeline contradiction (§3.2 said "revoked under the next access review"; §3.3 said "revoked immediately"). Resolved by: §3.2 now says reviewer "must, within the access-review window, either (a) find or document a fresh business justification... or (b) flag the access for revocation"; §3.3 now provides a 24-hour window for revocation processing after the flag, distinct from the immediate-upon-instruction revocation case for security incidents in §5.
-- **FR-125 (H, S)** — §1.4.2 emergency-access revocation enforcement lacks escalation. Now: "**Escalation**: if the Identity Team has not acknowledged the revocation requirement within 30 minutes of the 24-hour mark (as evidenced by an ITSM ticket update or chat acknowledgement), the SOC escalates to the SOC L2 on-call (or equivalent second-tier security operations role). If the L2 has not acknowledged within a further 30 minutes, the SOC escalates to the CISO directly."
-- **FR-126 (M, XS)** — auto-escalation mechanic vague (lines 54-58). Now explicit: "the **ITSM portal's SLA timer** auto-escalates the request... the SLA timer fires automatically; the escalation requires no human trigger".
+- **FR-121 (H[critical], XS)**, line 64 "material business or safety harm" undefined. Now defined inline: "delay would, on its own, more likely than not cause an outcome that would itself trigger a P1 or P2 incident under the adopter's incident-severity policy (e.g., demonstrable risk of regulated-data exposure, safety incident, customer-facing outage exceeding the adopter's SLA-breach threshold)". Includes "sample data" caveat for adopters with different severity-tier models.
+- **FR-122 (H[critical], XS)**, line 64 "declared incident response" not tied to specific incident status. Now: "a declared incident response is **active and classified as P1 or P2 severity** under [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md)". Adopters with different severity models substitute equivalent top-two bands.
+- **FR-123 (H, XS)**, Delegated Security Lead undefined in roles table. New row added to "Roles and responsibilities": "A named deputy of the CISO authorised to approve privileged-access and emergency-access requests when the CISO is unavailable. In this library's reference configuration the role is filled by a pre-named senior member of the Incident Response Team (IRT) or the deputy CISO where one exists. **Sample data, adjust upon adoption**: adopting organisations name a specific role (e.g., Director of Security Operations, Lead Security Engineer) and identify the individual currently holding it in their internal access-control runbook (not in this public template)."
+- **FR-124 (H, S)**, §3.2-3.3 access-review revocation timeline contradiction (§3.2 said "revoked under the next access review"; §3.3 said "revoked immediately"). Resolved by: §3.2 now says reviewer "must, within the access-review window, either (a) find or document a fresh business justification... or (b) flag the access for revocation"; §3.3 now provides a 24-hour window for revocation processing after the flag, distinct from the immediate-upon-instruction revocation case for security incidents in §5.
+- **FR-125 (H, S)**, §1.4.2 emergency-access revocation enforcement lacks escalation. Now: "**Escalation**: if the Identity Team has not acknowledged the revocation requirement within 30 minutes of the 24-hour mark (as evidenced by an ITSM ticket update or chat acknowledgement), the SOC escalates to the SOC L2 on-call (or equivalent second-tier security operations role). If the L2 has not acknowledged within a further 30 minutes, the SOC escalates to the CISO directly."
+- **FR-126 (M, XS)**, auto-escalation mechanic vague (lines 54-58). Now explicit: "the **ITSM portal's SLA timer** auto-escalates the request... the SLA timer fires automatically; the escalation requires no human trigger".
 
 ### Added (sample-data discipline)
 
@@ -2453,7 +2478,7 @@ Surface-consolidated in PR #218 (DPO canonical flip): the three-way label drift 
 
 ## 2026-06-22, Library Version 2026.06.212, PR #234
 
-**Closes FR-67 (L, XS)** — new Dimension E sub-tier E0 in [`docs/template-startup-roadmap.md`](../../docs/template-startup-roadmap.md). PR-D in Batch 1 effort-first run.
+**Closes FR-67 (L, XS)**, new Dimension E sub-tier E0 in [`docs/template-startup-roadmap.md`](../../docs/template-startup-roadmap.md). PR-D in Batch 1 effort-first run.
 
 ### Added
 
@@ -2468,12 +2493,12 @@ Surface-consolidated in PR #218 (DPO canonical flip): the three-way label drift 
 
 ## 2026-06-22, Library Version 2026.06.211, PR #233
 
-**Closes FR-89 + FR-91** (2 L-severity XS items) — security-XS bundle in [`dev-security/standard-api-security.md`](../../dev-security/standard-api-security.md). PR-C in Batch 1 effort-first run.
+**Closes FR-89 + FR-91** (2 L-severity XS items), security-XS bundle in [`dev-security/standard-api-security.md`](../../dev-security/standard-api-security.md). PR-C in Batch 1 effort-first run.
 
 ### Fixed
 
-- **FR-89 (L, XS)**: Section 2 authentication-controls table, Token validation row — JWT algorithm-key-type binding made explicit. Added: validators must verify that the `alg` header is consistent with the key type used; a single key MUST NOT accept multiple algorithm families. Prevents RSA-public-key-as-HMAC-secret confusion. Cited as RFC 8725 (BCP 225, JSON Web Token Best Current Practices).
-- **FR-91 (L, XS)**: Section 12 event-driven and webhook APIs table — webhook signing row expanded with (a) canonical-string definition (HTTP method + canonical URL path + canonical query string + canonical headers + body hash); (b) constant-time comparison requirement (`hmac.compare_digest` in Python; `crypto.timingSafeEqual` in Node) to prevent timing-attack key recovery. Replay-prevention row expanded with explicit 5-minute (or documented service-specific) replay window and seen-nonce cache for the window duration.
+- **FR-89 (L, XS)**: Section 2 authentication-controls table, Token validation row, JWT algorithm-key-type binding made explicit. Added: validators must verify that the `alg` header is consistent with the key type used; a single key MUST NOT accept multiple algorithm families. Prevents RSA-public-key-as-HMAC-secret confusion. Cited as RFC 8725 (BCP 225, JSON Web Token Best Current Practices).
+- **FR-91 (L, XS)**: Section 12 event-driven and webhook APIs table, webhook signing row expanded with (a) canonical-string definition (HTTP method + canonical URL path + canonical query string + canonical headers + body hash); (b) constant-time comparison requirement (`hmac.compare_digest` in Python; `crypto.timingSafeEqual` in Node) to prevent timing-attack key recovery. Replay-prevention row expanded with explicit 5-minute (or documented service-specific) replay window and seen-nonce cache for the window duration.
 
 ### Changed
 
@@ -2497,11 +2522,11 @@ Surface-consolidated in PR #218 (DPO canonical flip): the three-way label drift 
 
 ## 2026-06-22, Library Version 2026.06.210, PR #232
 
-**Closes FR-107 + FR-108 + FR-111** (3 Low-severity XS items) — newcomer-UX bundle in [`docs/adopter-guide.md`](../../docs/adopter-guide.md). PR-B in Batch 1 of the effort-first batching run.
+**Closes FR-107 + FR-108 + FR-111** (3 Low-severity XS items), newcomer-UX bundle in [`docs/adopter-guide.md`](../../docs/adopter-guide.md). PR-B in Batch 1 of the effort-first batching run.
 
 ### Added
 
-- **New "Two reference registers you will need early" subsection** before "How the library is meant to be used": surfaces both [`governance/register-glossary.md`](../../governance/register-glossary.md) (acronyms + external-domain terms — regulations, standards, frameworks, regulators, sector programmes, technical concepts) and [`governance/register-key-terms-and-definitions.md`](../../governance/register-key-terms-and-definitions.md) (library-internal GRC concepts — Audit, Authorize, Control, Owner roles, Exception, etc.). Explains the split-by-term-class so newcomers know which register holds what. Closes FR-107 and FR-108.
+- **New "Two reference registers you will need early" subsection** before "How the library is meant to be used": surfaces both [`governance/register-glossary.md`](../../governance/register-glossary.md) (acronyms + external-domain terms, regulations, standards, frameworks, regulators, sector programmes, technical concepts) and [`governance/register-key-terms-and-definitions.md`](../../governance/register-key-terms-and-definitions.md) (library-internal GRC concepts, Audit, Authorize, Control, Owner roles, Exception, etc.). Explains the split-by-term-class so newcomers know which register holds what. Closes FR-107 and FR-108.
 - **Reading-time estimate** added to Tier 1 starter set introduction: "4 to 6 hours to read all 15 documents once at a moderate pace; substantially longer to internalise. **If you only read three** to get an immediate orientation, pick the three Governance documents in the table below (Charter + Framework + Role Authority Register); they ground the structure that the rest of Tier 1 operationalises." Closes FR-111.
 
 ### Changed
@@ -2522,7 +2547,7 @@ Surface-consolidated in PR #218 (DPO canonical flip): the three-way label drift 
 
 ## 2026-06-22, Library Version 2026.06.209, PR #231
 
-**Closes FR-112 (M, XS) + FR-131 (FYI, XS)** — first PR in the Batch 1 XS-effort sequence (maintainer-directed throughput run). Two adopter-facing maintainer-context cleanups.
+**Closes FR-112 (M, XS) + FR-131 (FYI, XS)**, first PR in the Batch 1 XS-effort sequence (maintainer-directed throughput run). Two adopter-facing maintainer-context cleanups.
 
 ### Fixed
 
@@ -2589,7 +2614,7 @@ Two structural decisions surfaced via `AskUserQuestion` before the rewrite:
 
 ## 2026-06-22, Library Version 2026.06.207, PR #229
 
-**/validate Sweep 20 iter 1 close-out** — corpus-wide sweep post 8-PR FR batch (PRs #221-#228). Surfaced 4 in-window warnings + 2 maintainer-surfaced notes. Fixes applied for the 4 warnings; notes surfaced for maintainer judgement.
+**/validate Sweep 20 iter 1 close-out**, corpus-wide sweep post 8-PR FR batch (PRs #221-#228). Surfaced 4 in-window warnings + 2 maintainer-surfaced notes. Fixes applied for the 4 warnings; notes surfaced for maintainer judgement.
 
 ### Added
 
@@ -2605,7 +2630,7 @@ Two structural decisions surfaced via `AskUserQuestion` before the rewrite:
 - **`.working/validate-sweeps/2026-06-22-sweep20-iter1.md`** (new file): per-iteration detail file with the 6 H2 sections; documents A1/A2 + B1/B2/B3/B4 + Subagent C clean bill.
 - **`.working/validate-sweeps/history.md`** (Version `2.0.12 → 2.0.13`): new top row for Sweep 20 iter 1.
 - **`.working/validate-pr/history.md`** (Version `1.2.34 → 1.2.35`): new top row for PR #228's /validate-pr (deferred per recursion-avoidance; 0 findings).
-- **`.working/improvement-log.md`** (Version `1.0.13 → 1.0.14`): new top row for PR #228's /retro. Pattern observed: "new charter framework subsection not cross-referenced from policy creating the same arrangement" — single occurrence, not yet pattern; worker-brief candidate queued.
+- **`.working/improvement-log.md`** (Version `1.0.13 → 1.0.14`): new top row for PR #228's /retro. Pattern observed: "new charter framework subsection not cross-referenced from policy creating the same arrangement", single occurrence, not yet pattern; worker-brief candidate queued.
 - **Generated artefacts**: [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated.
 
 ### Surfaced for maintainer judgement (not fixed in this PR)
@@ -2731,13 +2756,13 @@ Two structural decisions surfaced via `AskUserQuestion` before the rewrite:
 
 ### Added
 
-- **§7.2.1 Default: free of charge** — table aligning default behaviour with Article 12(5) sentence 1; clarifies that all DSR communications (Articles 13/14 notices, Articles 15-22 communications, Article 34 breach notifications) are free of charge by default; charge or refusal is the exception requiring documented evidence.
-- **§7.2.2 Manifestly unfounded criteria** — 4-criterion test table with per-criterion evidence requirements: (a) no nexus to actual processing; (b) request inconsistent with stated grounds; (c) abusive purpose evident; (d) request lacks coherent specification after single clarification attempt. Includes explicit negative guidance ("not manifestly unfounded merely because the subject is unhappy with the controller, exercises rights frequently in good faith, or seeks a result the controller does not wish to provide").
-- **§7.2.3 Manifestly excessive criteria** — 4-criterion test table: (a) repetitive in short interval; (b) disproportionate volume; (c) disproportionate scope sweep; (d) use as discovery vehicle. Note that criterion (a) is the most easily evidenced; criteria (b), (c), (d) require Legal Counsel consultation before invocation.
-- **§7.2.4 Action options under Article 12(5)** — either/or election table (charge reasonable fee OR refuse); explicit note that the two actions are mutually exclusive per Article 12(5) language.
-- **§7.2.5 Burden-of-proof requirements** — 5-step documentation: written assessment, Legal Counsel sign-off, DPO sign-off, subject communication (naming determination, criterion invoked, action taken, and Articles 77-79 remedy rights), DSR register entry. Minimum 3-year retention for fee/refusal evidence.
-- **§7.2.6 Reasonable-fee calculation** — cost-recovery method table: cost categories (staff time, storage media, postage, external counsel), hourly-rate basis (salary-based, no markup), fee-cap principle (cost-recovery only, no profit margin), itemisation requirement, payment-method constraints (no advance payment that effectively denies the right), waiver for financial hardship.
-- **§7.2.7 Cross-regime equivalents table** — 6-regime alignment: UK GDPR (Article 12(5) same as EU GDPR), LGPD (Article 18; ANPD may regulate exceptions), PIPL (Article 50; "repeated" threshold ambiguous), CPPA / PIPEDA (OPC guidance allows nominal fee with prior notice), CCPA / CPRA (mirrors GDPR closely), APPI (Article 38 reasonable fee permitted; no "manifestly unfounded" gate). Notes that the strictest applicable regime governs in multi-jurisdiction operations.
+- **§7.2.1 Default: free of charge**, table aligning default behaviour with Article 12(5) sentence 1; clarifies that all DSR communications (Articles 13/14 notices, Articles 15-22 communications, Article 34 breach notifications) are free of charge by default; charge or refusal is the exception requiring documented evidence.
+- **§7.2.2 Manifestly unfounded criteria**, 4-criterion test table with per-criterion evidence requirements: (a) no nexus to actual processing; (b) request inconsistent with stated grounds; (c) abusive purpose evident; (d) request lacks coherent specification after single clarification attempt. Includes explicit negative guidance ("not manifestly unfounded merely because the subject is unhappy with the controller, exercises rights frequently in good faith, or seeks a result the controller does not wish to provide").
+- **§7.2.3 Manifestly excessive criteria**, 4-criterion test table: (a) repetitive in short interval; (b) disproportionate volume; (c) disproportionate scope sweep; (d) use as discovery vehicle. Note that criterion (a) is the most easily evidenced; criteria (b), (c), (d) require Legal Counsel consultation before invocation.
+- **§7.2.4 Action options under Article 12(5)**, either/or election table (charge reasonable fee OR refuse); explicit note that the two actions are mutually exclusive per Article 12(5) language.
+- **§7.2.5 Burden-of-proof requirements**, 5-step documentation: written assessment, Legal Counsel sign-off, DPO sign-off, subject communication (naming determination, criterion invoked, action taken, and Articles 77-79 remedy rights), DSR register entry. Minimum 3-year retention for fee/refusal evidence.
+- **§7.2.6 Reasonable-fee calculation**, cost-recovery method table: cost categories (staff time, storage media, postage, external counsel), hourly-rate basis (salary-based, no markup), fee-cap principle (cost-recovery only, no profit margin), itemisation requirement, payment-method constraints (no advance payment that effectively denies the right), waiver for financial hardship.
+- **§7.2.7 Cross-regime equivalents table**, 6-regime alignment: UK GDPR (Article 12(5) same as EU GDPR), LGPD (Article 18; ANPD may regulate exceptions), PIPL (Article 50; "repeated" threshold ambiguous), CPPA / PIPEDA (OPC guidance allows nominal fee with prior notice), CCPA / CPRA (mirrors GDPR closely), APPI (Article 38 reasonable fee permitted; no "manifestly unfounded" gate). Notes that the strictest applicable regime governs in multi-jurisdiction operations.
 
 ### Changed
 
@@ -2745,7 +2770,7 @@ Two structural decisions surfaced via `AskUserQuestion` before the rewrite:
 - **Per-doc Version**: `1.3.5 → 1.4.0` (minor; substantive new subsection added).
 - **Generated artefacts**: [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated for the per-doc Version+Date bump.
 - **`.working/validate-pr/history.md`** (Version `1.2.30 → 1.2.31`): new top row for PR #224's /validate-pr (deferred per recursion-avoidance; 0 findings).
-- **`.working/improvement-log.md`** (Version `1.0.9 → 1.0.10`): new top row for PR #224's /retro. Pattern signal: "em-dash temptation in new-template drafting" now at 2nd occurrence (1st was PR #221 FR-33 line 156 "Brazil — ANPD"). Worker-brief candidate queued: pre-flight language-audit on new-template PR drafts.
+- **`.working/improvement-log.md`** (Version `1.0.9 → 1.0.10`): new top row for PR #224's /retro. Pattern signal: "em-dash temptation in new-template drafting" now at 2nd occurrence (1st was PR #221 FR-33 line 156 "Brazil, ANPD"). Worker-brief candidate queued: pre-flight language-audit on new-template PR drafts.
 
 ### Verification
 
@@ -2756,7 +2781,7 @@ Two structural decisions surfaced via `AskUserQuestion` before the rewrite:
 
 ### Discipline observation
 
-- **Subsection-renumbering as a controlled operation**: shifting prior §7.2 to §7.3 to insert new §7.2 created a minor cross-reference-stability risk. The file's existing §-references (specifically line 189 referencing "§7.2") were intentional — they reference the new §7.2 (assessment checklist), which is exactly where the Article 12(5) line of reasoning belongs. The renumbering is semantically intentional, not accidental. A future grep for "§7." in this file confirms only intentional references; the discipline holds.
+- **Subsection-renumbering as a controlled operation**: shifting prior §7.2 to §7.3 to insert new §7.2 created a minor cross-reference-stability risk. The file's existing §-references (specifically line 189 referencing "§7.2") were intentional, they reference the new §7.2 (assessment checklist), which is exactly where the Article 12(5) line of reasoning belongs. The renumbering is semantically intentional, not accidental. A future grep for "§7." in this file confirms only intentional references; the discipline holds.
 
 ## 2026-06-22, Library Version 2026.06.202, PR #224
 
@@ -2776,7 +2801,7 @@ Two structural decisions surfaced via `AskUserQuestion` before the rewrite:
 
 ### Verification
 
-- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit (the structural index integrity audit fired before the README + document-index rows were added — fail-then-fix loop closed in the same content commit).
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit (the structural index integrity audit fired before the README + document-index rows were added, fail-then-fix loop closed in the same content commit).
 - `tools/run-pr-time-checks.sh` reports D1, D2, gate 45 all OK.
 - GDPR Article 26(1), 26(2), 26(3), Article 27, and EDPB Guidelines 07/2020 citations verified against the canonical citations register.
 - Cross-regime claims (LGPD Article 5(VI), PIPL Article 20, India DPDP 2023 §2(i), CPPA/PIPEDA, CCPA/CPRA) verified against the respective jurisdiction annexes.
@@ -2784,7 +2809,7 @@ Two structural decisions surfaced via `AskUserQuestion` before the rewrite:
 ### Discipline observation
 
 - **New-template parallel-surface checklist**: this PR exercised the new-document parallel-surface pattern catalogued in [`.claude/rules/external/addyosmani/ci-cd-and-automation.md`](../../.claude/rules/external/addyosmani/ci-cd-and-automation.md) and the change-tracking rule. Surfaces touched: (1) the new template file itself; (2) the privacy/README Active documents table; (3) the governance/register-document-index-and-classification.md Privacy section row; (4) taxonomy.yml + docs/portal.md + docs/maturity-scorecard.md regenerated. The structural-index integrity audit (gate not numbered in the standard 46; surfaces via `lint-structure.py`) caught the README + document-index miss before commit. Confirms the parallel-surface discipline: a new template requires touches in 6 surfaces, and audit gates catch surface-misses.
-- **Apply-time language-audit catches**: six em-dashes in Section 1 identification rows ("Joint Controller A — authorised representative") and one bare "ensure" ("ensure consistency") corrected in the same content commit. Confirms gate-21 language audit catches drafts that mirror common English-style conventions but conflict with the project's strict no-em-dash + ensure-that conventions.
+- **Apply-time language-audit catches**: six em-dashes in Section 1 identification rows ("Joint Controller A, authorised representative") and one bare "ensure" ("ensure consistency") corrected in the same content commit. Confirms gate-21 language audit catches drafts that mirror common English-style conventions but conflict with the project's strict no-em-dash + ensure-that conventions.
 
 ## 2026-06-22, Library Version 2026.06.201, PR #223
 
@@ -2828,7 +2853,7 @@ Two structural decisions surfaced via `AskUserQuestion` before the rewrite:
 
 ### Fixed
 
-- **`security/policy-encryption-and-key-management.md`:56**: the prior text `"AES-256 + key hashing (SHA-512)"` was ambiguous and partially incorrect. SHA-512 is a hash function appropriate for integrity verification (e.g., HMAC-SHA-512) but is NOT a key derivation function — using SHA-512 alone to derive keys from passwords or other low-entropy inputs is cryptographically insufficient. The corrected text disambiguates by purpose:
+- **`security/policy-encryption-and-key-management.md`:56**: the prior text `"AES-256 + key hashing (SHA-512)"` was ambiguous and partially incorrect. SHA-512 is a hash function appropriate for integrity verification (e.g., HMAC-SHA-512) but is NOT a key derivation function, using SHA-512 alone to derive keys from passwords or other low-entropy inputs is cryptographically insufficient. The corrected text disambiguates by purpose:
   - **Encryption**: AES-256-GCM. GCM is the AEAD (Authenticated Encryption with Associated Data) mode that pairs confidentiality with a built-in integrity tag; no separate HMAC step is required.
   - **Key derivation from high-entropy material** (e.g., deriving sub-keys from a master key, or from an HSM-held entropy source): HKDF-SHA-256 per RFC 5869. Adopters should NOT use bare SHA-256 or SHA-512 here.
   - **Key derivation from low-entropy material** (e.g., user passwords): Argon2id (preferred) or scrypt. Both are memory-hard KDFs that resist GPU/ASIC attacks; bare hash functions are inappropriate for this purpose.
@@ -2858,14 +2883,14 @@ Two structural decisions surfaced via `AskUserQuestion` before the rewrite:
 
 ### Added
 
-- **Step 5.2: GDPR Article 36 prior consultation with the supervisory authority (regulatory)** — new substep in [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md):116ff. Covers:
+- **Step 5.2: GDPR Article 36 prior consultation with the supervisory authority (regulatory)**, new substep in [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md):116ff. Covers:
   - **Trigger** (Article 36(1)): consultation mandatory before processing where DPIA residual risk remains high after planned mitigations. Explicit note that the Article 36 trigger is distinct from Step 5.1's internal-risk-appetite trigger; a processing activity may trigger one, the other, or both.
-  - **Consultation content table** (Article 36(3)): six-item list with article-reference column — responsibilities of controller/joint controllers/processors (a); purposes and means of intended processing (b); measures and safeguards (c); DPO contact details where applicable (d); the DPIA report itself (e); any other information requested (f).
+  - **Consultation content table** (Article 36(3)): six-item list with article-reference column, responsibilities of controller/joint controllers/processors (a); purposes and means of intended processing (b); measures and safeguards (c); DPO contact details where applicable (d); the DPIA report itself (e); any other information requested (f).
   - **Timeline** (Article 36(2)): 8 weeks default; +6 weeks extension on complexity (notice within 1 month of request); processing must not commence during the consultation period.
   - **Supervisory authority powers**: written advice (default) OR Article 58 corrective powers (warnings, orders, processing bans, fines) where infringement is likely.
   - **Interaction with Step 5.1**: 5-step order of operations (DPIA → Art 36 initiation → supervisory response → controller adjustment → ERC sign-off on adjusted processing for go-live). The Article 36 pathway is regulatory and external; the ERC pathway is governance and internal; both must be cleared.
-  - **Non-EU equivalents**: notable examples — LGPD Article 38 (Brazil, ANPD prior consultation); PIPL Articles 55-56 (China, CAC security assessment for high-risk transfers); UK GDPR Article 36 (post-Brexit retained equivalent). Pointer to [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md) for per-jurisdiction triggers and timelines.
-- **Step 5.3: Documentation requirements** — split-by-pathway table making the records-required dependence on which pathway(s) triggered explicit:
+  - **Non-EU equivalents**: notable examples, LGPD Article 38 (Brazil, ANPD prior consultation); PIPL Articles 55-56 (China, CAC security assessment for high-risk transfers); UK GDPR Article 36 (post-Brexit retained equivalent). Pointer to [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md) for per-jurisdiction triggers and timelines.
+- **Step 5.3: Documentation requirements**, split-by-pathway table making the records-required dependence on which pathway(s) triggered explicit:
   - **Step 5.1 pathway**: ERC meeting minutes; Legal Counsel sign-off memo; residual-risk acceptance signature.
   - **Step 5.2 pathway**: Article 36(3) consultation packet as sent; supervisory authority's written response; controller's response to the supervisory authority; evidence of adjustment to processing prior to go-live.
 
@@ -2887,17 +2912,17 @@ Two structural decisions surfaced via `AskUserQuestion` before the rewrite:
 
 ### Discipline observation
 
-- **Apply-time language-audit catch**: the first draft included em-dashes ("Brazil — ANPD", "China — CAC") that the project's language audit (gate 21) caught on the first run. Corrected to comma form ("Brazil, ANPD" / "China, CAC") in the same content commit. Confirms the language-audit guardrail is working as intended; the orchestrator did NOT bypass with --no-verify.
+- **Apply-time language-audit catch**: the first draft included em-dashes ("Brazil, ANPD", "China, CAC") that the project's language audit (gate 21) caught on the first run. Corrected to comma form ("Brazil, ANPD" / "China, CAC") in the same content commit. Confirms the language-audit guardrail is working as intended; the orchestrator did NOT bypass with --no-verify.
 - **Article 36(3) content table format**: the SKILL.md-style article-reference-column table was chosen over a bullet list because it lets adopters cross-reference each consultation content item to the precise sub-paragraph in Article 36(3). Mirror this pattern for FR-34 (Transfer Impact Assessment six-step methodology) and FR-37-FR-42 (other privacy completion items) where article-reference granularity helps the adopter implement against the canonical text rather than against a paraphrase.
 
 ## 2026-06-22, Library Version 2026.06.198, PR #220
 
-**Sweep 19 iter 1 close-out** — /validate sweep on the post-PR-#219 state (covering PRs #215-#219, the 5-PR window since Sweep 18 covered through PR #214). 2 in-window warnings surfaced; both fixed; deferred PR #219 /validate-pr and /retro register rows carried per the recursion-avoidance rule.
+**Sweep 19 iter 1 close-out**, /validate sweep on the post-PR-#219 state (covering PRs #215-#219, the 5-PR window since Sweep 18 covered through PR #214). 2 in-window warnings surfaced; both fixed; deferred PR #219 /validate-pr and /retro register rows carried per the recursion-avoidance rule.
 
 ### Fixed
 
-- **Finding 1 (warning, in-window)** — [`governance/guideline-minimum-viable-governance-structure.md`](../../governance/guideline-minimum-viable-governance-structure.md) line 67: replaced "CPO" with "DPO" in the executive-role enumeration `"...formal roles the library uses (CISO, CIO, CRO, CCO, CPO, etc.)..."` → `"...formal roles the library uses (CISO, CIO, CRO, CCO, DPO, etc.)..."`. Per-doc Version `1.0.1 → 1.0.2`; Date `2026-06-02 → 2026-06-22`.
-- **Finding 2 (warning, in-window)** — [`governance/guideline-minimum-viable-governance-structure.md`](../../governance/guideline-minimum-viable-governance-structure.md) line 114: replaced "CPO" with "DPO" in the Senior-executive row `"...CEO/equivalent, CIO, CISO, CRO, CCO, CPO, CTO, CFO, CHRO, General Counsel, Chief Audit Executive..."` → `"...CEO/equivalent, CIO, CISO, CRO, CCO, DPO, CTO, CFO, CHRO, General Counsel, Chief Audit Executive..."`. Same commit as Finding 1; single Version+Date bump covers both.
+- **Finding 1 (warning, in-window)**, [`governance/guideline-minimum-viable-governance-structure.md`](../../governance/guideline-minimum-viable-governance-structure.md) line 67: replaced "CPO" with "DPO" in the executive-role enumeration `"...formal roles the library uses (CISO, CIO, CRO, CCO, CPO, etc.)..."` → `"...formal roles the library uses (CISO, CIO, CRO, CCO, DPO, etc.)..."`. Per-doc Version `1.0.1 → 1.0.2`; Date `2026-06-02 → 2026-06-22`.
+- **Finding 2 (warning, in-window)**, [`governance/guideline-minimum-viable-governance-structure.md`](../../governance/guideline-minimum-viable-governance-structure.md) line 114: replaced "CPO" with "DPO" in the Senior-executive row `"...CEO/equivalent, CIO, CISO, CRO, CCO, CPO, CTO, CFO, CHRO, General Counsel, Chief Audit Executive..."` → `"...CEO/equivalent, CIO, CISO, CRO, CCO, DPO, CTO, CFO, CHRO, General Counsel, Chief Audit Executive..."`. Same commit as Finding 1; single Version+Date bump covers both.
 
 ### Added
 
@@ -2913,15 +2938,15 @@ Two structural decisions surfaced via `AskUserQuestion` before the rewrite:
 
 ### Verification
 
-- `tools/run_all_audits.sh` exits 0 on all 46 gates post-each-edit (one fail-then-fix cycle on gate 45 / TODO staleness for the sweep-cursor update; one fail-then-fix on gate 36 / linter regression which exercises gate 45 in test form — same root cause).
+- `tools/run_all_audits.sh` exits 0 on all 46 gates post-each-edit (one fail-then-fix cycle on gate 45 / TODO staleness for the sweep-cursor update; one fail-then-fix on gate 36 / linter regression which exercises gate 45 in test form, same root cause).
 - `tools/run-pr-time-checks.sh` reports D1 (CHANGELOG-on-PR), D2 (per-PR version-bump), gate 45 all OK post-commit.
 - Iter 2 verification: direct corpus-wide `\bCPO\b` grep returns only intentional locations (24 at-top notes line 19; 3 canonical surfaces; TODO/CHANGELOG historical; `.working/` archives). No further re-dispatch of subagents needed; the only finding-producing surface was Subagent A's recent-PR-deep-review and its findings are fixed.
 
 ### Discipline observation
 
-- **Pattern strengthened**: the "corpus-wide rename script: incomplete substitution coverage" pattern first surfaced in PR #218's /retro is now at SECOND occurrence (signal stage) per the three-occurrence progression — PR #218 /validate-pr Finding 2 (risk/register-key-risk-indicators.md:142) and this sweep's two findings have the same root cause (rename script scoped to spelled-out forms only). The queued worker-brief candidate (require both spelled-out and acronym substitution lists in corpus-wide rename scripts, plus a final post-script acronym grep) is strengthened. Next corpus-wide rename PR should already adopt the discipline; a worker-brief template update PR should follow.
+- **Pattern strengthened**: the "corpus-wide rename script: incomplete substitution coverage" pattern first surfaced in PR #218's /retro is now at SECOND occurrence (signal stage) per the three-occurrence progression, PR #218 /validate-pr Finding 2 (risk/register-key-risk-indicators.md:142) and this sweep's two findings have the same root cause (rename script scoped to spelled-out forms only). The queued worker-brief candidate (require both spelled-out and acronym substitution lists in corpus-wide rename scripts, plus a final post-script acronym grep) is strengthened. Next corpus-wide rename PR should already adopt the discipline; a worker-brief template update PR should follow.
 - **Iter 2 verification via grep**: the SKILL allows skipping subagent re-dispatch when the iter-1 findings are narrowly bounded and a direct mechanical check answers the only remaining hypothesis. Both Subagents B and C returned 0 findings in iter 1; Subagent A's 2 findings are bounded to 2 lines in 1 file. Re-dispatching all three subagents for iter 2 would be corroboration-only per the pre-tool-preamble's skip rule (no new hypothesis to test that a grep doesn't already answer). The corpus-wide `\bCPO\b` grep confirms iter 2 cleanliness; the per-iteration detail file documents this verification path explicitly.
-- **Out-of-scope-noted promotion**: PR #218's /validate-pr record had flagged the two `governance/guideline-minimum-viable-governance-structure.md` lines as "out-of-scope but noted — will surface in the next corpus-wide /validate sweep as out-of-window". The /validate sweep has now surfaced them; their classification is **in-window** per Subagent A's stated-scope reasoning (PR #218's stated scope was corpus-wide DPO consolidation, even though this file was not in PR #218's diff), not out-of-window. The earlier strict-touched-file-set classification was correct for /validate-pr; the broader frame applies for /validate.
+- **Out-of-scope-noted promotion**: PR #218's /validate-pr record had flagged the two `governance/guideline-minimum-viable-governance-structure.md` lines as "out-of-scope but noted, will surface in the next corpus-wide /validate sweep as out-of-window". The /validate sweep has now surfaced them; their classification is **in-window** per Subagent A's stated-scope reasoning (PR #218's stated scope was corpus-wide DPO consolidation, even though this file was not in PR #218's diff), not out-of-window. The earlier strict-touched-file-set classification was correct for /validate-pr; the broader frame applies for /validate.
 
 ## 2026-06-22, Library Version 2026.06.197, PR #219
 
@@ -2947,7 +2972,7 @@ Two structural decisions surfaced via `AskUserQuestion` before the rewrite:
 - **Generated artefacts regenerated**: [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md), [`taxonomy.yml`](../../taxonomy.yml). The portal regen carries the build-portal.py fix; the maturity-scorecard regen rides along (the generator outputs both); the taxonomy regen reflects the per-doc Version+Date bumps on the 24 at-top-note files plus risk/register-key-risk-indicators.md.
 - **`.working/validate-pr/2026-06-22-PR-218.md`** (new file): per-PR /validate-pr record for PR #218 carrying the two findings, the orchestrator's triage, and the cross-reference check results.
 - **`.working/validate-pr/history.md`**: row added for PR #218's /validate-pr (2 in-window findings; per-doc `1.2.24 → 1.2.25`).
-- **`.working/improvement-log.md`**: row added for PR #218's /retro (Pattern observation: "corpus-wide rename script: incomplete substitution coverage" — first occurrence; Proposed improvement: worker-brief template addition for both-spelled-out-and-acronym substitution lists in corpus-wide rename scripts; per-doc `1.0.3 → 1.0.4`).
+- **`.working/improvement-log.md`**: row added for PR #218's /retro (Pattern observation: "corpus-wide rename script: incomplete substitution coverage", first occurrence; Proposed improvement: worker-brief template addition for both-spelled-out-and-acronym substitution lists in corpus-wide rename scripts; per-doc `1.0.3 → 1.0.4`).
 - **TODO.md**: P1.5 cluster status already reflects FR-46/47 closure from PR #218; no further TODO change needed in this PR.
 
 ### Verification
@@ -2976,8 +3001,8 @@ Two structural decisions surfaced via `AskUserQuestion` before the rewrite:
 
 - **Corpus prose rename across 73 files**: `Chief Privacy Officer` → `Data Protection Officer` via a one-shot Python script with synonym-pattern pre-cleanup. The synonym patterns handled: `Chief Privacy Officer / DPO` → `Data Protection Officer (DPO)`; `Chief Privacy Officer (or Data Protection Officer)` → `Data Protection Officer`; `Chief Privacy Officer or DPO` → `Data Protection Officer (DPO)`; `Chief Privacy Officer or domain DPO` → `Data Protection Officer (organisation-wide) or a domain privacy lead`. Every modified document received per-doc Version patch-bump + Date set to 2026-06-22 in the same script invocation.
 - **Affected domains**: privacy (~18 files), privacy jurisdictions (~25 files), AI (~10 files), supply-chain (~6 files), security (~4 files), governance (~5 files), resilience (~4 files), risk (1 file), dev-security (1 file), compliance (1 file), NOTICE.md (1 file at repo root), and the `tools/build-portal.py` portal generator's hardcoded string.
-- **OWNER-FIELD flips**: approximately 30 `**Owner:** Chief Privacy Officer` metadata fields converted to `**Owner:** Data Protection Officer` (the script handled these as part of the corpus-wide replacement; the resulting role name matches the new register's row label exactly, so gate 8 — the Owner / Approving Authority role audit — passes cleanly).
-- **Register row label form**: drafted initially as `Data Protection Officer (DPO)` to match the maintainer's stated canonical form, but gate 8 failed because the `**Owner:**` metadata fields said `Data Protection Officer` without the parenthetical. **Apply-time correction**: the register row label was changed to `Data Protection Officer` (no parenthetical) matching the convention used by other roles in the register (no inline acronym in role labels — see `Chief Information Officer`, `Chief Information Security Officer`, etc.). The DPO acronym is introduced in the glossary entry and the privacy/README Role terminology section.
+- **OWNER-FIELD flips**: approximately 30 `**Owner:** Chief Privacy Officer` metadata fields converted to `**Owner:** Data Protection Officer` (the script handled these as part of the corpus-wide replacement; the resulting role name matches the new register's row label exactly, so gate 8, the Owner / Approving Authority role audit, passes cleanly).
+- **Register row label form**: drafted initially as `Data Protection Officer (DPO)` to match the maintainer's stated canonical form, but gate 8 failed because the `**Owner:**` metadata fields said `Data Protection Officer` without the parenthetical. **Apply-time correction**: the register row label was changed to `Data Protection Officer` (no parenthetical) matching the convention used by other roles in the register (no inline acronym in role labels, see `Chief Information Officer`, `Chief Information Security Officer`, etc.). The DPO acronym is introduced in the glossary entry and the privacy/README Role terminology section.
 - **`taxonomy.yml`** regenerated from per-document Version+Date bumps.
 - **`docs/portal.md` and `docs/maturity-scorecard.md`** regenerated.
 
@@ -3008,8 +3033,8 @@ Hot-fix PR for the two real defects /validate-pr surfaced on PR #215 (chat-surfa
 
 ### Added
 
-- [`.working/validate-pr/history.md`](../validate-pr/history.md): two new rows — PR #215 (3 in-window findings: E1 stale prose ref, W2 stale prose ref, W3 multi-surface incompleteness defensible) and PR #214 (0 findings, backfilled — /validate-pr was skipped at the time in favour of going straight to /validate; recorded as backfill entry).
-- [`.working/improvement-log.md`](../improvement-log.md): two new rows — PR #215 retrospective (signal stage observation of "single PR refreshes parallel surfaces and misses some lines on each" pattern; second occurrence after PR #190's findings) and PR #214 retrospective (also misses TODO.md:13; pinned to PR #215 since that's where the refresh was substantive).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): two new rows, PR #215 (3 in-window findings: E1 stale prose ref, W2 stale prose ref, W3 multi-surface incompleteness defensible) and PR #214 (0 findings, backfilled, /validate-pr was skipped at the time in favour of going straight to /validate; recorded as backfill entry).
+- [`.working/improvement-log.md`](../improvement-log.md): two new rows, PR #215 retrospective (signal stage observation of "single PR refreshes parallel surfaces and misses some lines on each" pattern; second occurrence after PR #190's findings) and PR #214 retrospective (also misses TODO.md:13; pinned to PR #215 since that's where the refresh was substantive).
 
 ### Discipline observation
 
@@ -3033,7 +3058,7 @@ The chat-surfacing discipline added in PR #190 worked exactly as designed on thi
 
 ## 2026-06-22, Library Version 2026.06.194, PR #215
 
-Working-state housekeeping for local project: Sweep 18 iter 1 recording (clean bill — 0 in-window, 0 out-of-window across all three subagents A/B/C on the post-PR-#214 HEAD covering PRs #186-#214). Sweep-history row appended to [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (Version `2.0.10 → 2.0.11`); TODO resume-state cursor refreshed (sweep 17→18, library 192→193, pack 1.45.0→1.45.1, README 1.9.63→1.9.64). No detail file (zero-finding sweep).
+Working-state housekeeping for local project: Sweep 18 iter 1 recording (clean bill, 0 in-window, 0 out-of-window across all three subagents A/B/C on the post-PR-#214 HEAD covering PRs #186-#214). Sweep-history row appended to [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (Version `2.0.10 → 2.0.11`); TODO resume-state cursor refreshed (sweep 17→18, library 192→193, pack 1.45.0→1.45.1, README 1.9.63→1.9.64). No detail file (zero-finding sweep).
 
 ### Verification
 
@@ -3058,8 +3083,8 @@ Morning-processing PR for the overnight session that ended at PR #213. Routed th
 
 ### Added
 
-- New entry in [`.working/design-decisions.md`](../design-decisions.md) § Decisions explicitly dropped: **FR-104 — Decision-tree per-regulation context not pursued**. Rationale: the decision-tree's audience is already navigating toward a specific regulation; per-regulation descriptors live in each annex and would inflate the section without changing navigation outcome.
-- New entry in [`.working/design-decisions.md`](../design-decisions.md) § Decisions explicitly dropped: **FR-130 — Decision-tree portal entry-point reorder not pursued**. Rationale: README is the canonical first-encounter surface; portal at item 8 reflects discovery sequencing (read README, then explore via portal). PR #200 explicitly preserved the existing pattern when closing the adjacent FR-132.
+- New entry in [`.working/design-decisions.md`](../design-decisions.md) § Decisions explicitly dropped: **FR-104, Decision-tree per-regulation context not pursued**. Rationale: the decision-tree's audience is already navigating toward a specific regulation; per-regulation descriptors live in each annex and would inflate the section without changing navigation outcome.
+- New entry in [`.working/design-decisions.md`](../design-decisions.md) § Decisions explicitly dropped: **FR-130, Decision-tree portal entry-point reorder not pursued**. Rationale: README is the canonical first-encounter surface; portal at item 8 reflects discovery sequencing (read README, then explore via portal). PR #200 explicitly preserved the existing pattern when closing the adjacent FR-132.
 - New row in [`.working/validate-pr/history.md`](../validate-pr/history.md): PR #213 validate-pr sweep, 1 in-window finding (the stale forward-ref fixed in this PR), 0 out-of-window.
 - New row in [`.working/improvement-log.md`](../improvement-log.md): PR #213 meta-self-application of `/retro` to its own introducing PR, with pattern observation #1 (new-skill drafting checklist) and proposed improvement (worker-brief template addition; candidate for a follow-up PR).
 - Three new entries in [`.working/DONE.md`](../DONE.md): PR #214 (this PR), FR-104 (decided no), FR-130 (decided keep).
@@ -3193,7 +3218,7 @@ Closes **FR-119** (medium) and **fully closes Convergent Finding C1** (Risk Owne
 
 ### Convergent Finding C1 status
 
-- **Fully closed**: FR-115 (PR #197 register row), FR-116 (PR #198 cadence), FR-117 (PR #199 evidence map), FR-119 (this PR — unification).
+- **Fully closed**: FR-115 (PR #197 register row), FR-116 (PR #198 cadence), FR-117 (PR #199 evidence map), FR-119 (this PR, unification).
 
 ### Changed
 
@@ -3223,14 +3248,14 @@ Closes the **Privacy Officer rename portion of FR-46** per maintainer "decision 
 
 **Evidence**:
 - [`governance/register-role-authority.md`](../../governance/register-role-authority.md):39 has only **one** privacy-governance role (Chief Privacy Officer); no separate DPO entry exists.
-- [`ai/charter-ai-governance-council.md`](../../ai/charter-ai-governance-council.md):62 writes `Chief Privacy Officer (or Data Protection Officer)` — explicit synonym treatment.
+- [`ai/charter-ai-governance-council.md`](../../ai/charter-ai-governance-council.md):62 writes `Chief Privacy Officer (or Data Protection Officer)`, explicit synonym treatment.
 - [`docs/portal.md`](../../docs/portal.md):411 writes the same.
-- 8+ corpus locations use `Privacy Officer / DPO` slash pattern (e.g., `ai/procedure-ai-evaluation.md`:39, `privacy/charter-privacy-management-programme.md`:40, `security/sop-incident-escalation-matrix.md`:56,67) — synonym treatment.
-- Jurisdiction annexes (Brazil, India, Kenya, Malaysia, Nigeria, Philippines, Thailand, Turkey) use "DPO" as the regulatory-mandated privacy lead role — the same accountability the corpus assigns to its Chief Privacy Officer.
-- [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md):40-54 uses "CIO (acting DPO)" as the interim privacy lead until formal appointment — treats DPO as a single role.
+- 8+ corpus locations use `Privacy Officer / DPO` slash pattern (e.g., `ai/procedure-ai-evaluation.md`:39, `privacy/charter-privacy-management-programme.md`:40, `security/sop-incident-escalation-matrix.md`:56,67), synonym treatment.
+- Jurisdiction annexes (Brazil, India, Kenya, Malaysia, Nigeria, Philippines, Thailand, Turkey) use "DPO" as the regulatory-mandated privacy lead role, the same accountability the corpus assigns to its Chief Privacy Officer.
+- [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md):40-54 uses "CIO (acting DPO)" as the interim privacy lead until formal appointment, treats DPO as a single role.
 
 **One outlier**:
-- [`supply-chain/procedure-supplier-onboarding-security-review.md`](../../supply-chain/procedure-supplier-onboarding-security-review.md):135 escalation chain says "DPO → CISO → Chief Privacy Officer" — treats DPO as operationally junior to CPO. This is 1 occurrence against ~10 equivalence statements; likely a drafting error.
+- [`supply-chain/procedure-supplier-onboarding-security-review.md`](../../supply-chain/procedure-supplier-onboarding-security-review.md):135 escalation chain says "DPO → CISO → Chief Privacy Officer", treats DPO as operationally junior to CPO. This is 1 occurrence against ~10 equivalence statements; likely a drafting error.
 
 **Assessment conclusion**: **DPO and Chief Privacy Officer are the same role** (~90% confidence based on evidence). The corpus's inconsistent naming is itself a documentation defect.
 
@@ -3280,7 +3305,7 @@ The fitness review noted "Annual and upon material..." vs "Annual or upon signif
 
 ### Discipline observation
 
-FR-52 was a 2-file sweep — the narrowest of the editorial-decision cluster. The semantic interpretation matters: the AND form is what auditors would expect (both calendar triggers AND event-driven triggers are required); the OR form would allow skipping the annual review if no material change occurred, which weakens the discipline. Maintainer's AND decision is the conservative, audit-defensible choice.
+FR-52 was a 2-file sweep, the narrowest of the editorial-decision cluster. The semantic interpretation matters: the AND form is what auditors would expect (both calendar triggers AND event-driven triggers are required); the OR form would allow skipping the annual review if no material change occurred, which weakens the discipline. Maintainer's AND decision is the conservative, audit-defensible choice.
 
 ## 2026-06-22, Library Version 2026.06.187, PR #208
 
@@ -3315,7 +3340,7 @@ Closes **FR-51** (medium). Corpus-wide ISO 27001 Annex-form sweep per maintainer
 
 ### Discipline observation
 
-The narrower scope of FR-51 (vs FR-50) — 12 files vs 50 — is a direct consequence of the tighter regex anchor (`27001` is rarer than `Rev`). The sweep validates the principle that anchoring on a specific standard ID (rather than a generic version marker) keeps the substitution safe. The 5 pack SKILL.md files were touched because they cite ISO 27001 in their framework-alignment tables; pack-README bump covers them without requiring per-SKILL-file metadata, which the pack convention doesn't use.
+The narrower scope of FR-51 (vs FR-50), 12 files vs 50, is a direct consequence of the tighter regex anchor (`27001` is rarer than `Rev`). The sweep validates the principle that anchoring on a specific standard ID (rather than a generic version marker) keeps the substitution safe. The 5 pack SKILL.md files were touched because they cite ISO 27001 in their framework-alignment tables; pack-README bump covers them without requiring per-SKILL-file metadata, which the pack convention doesn't use.
 
 ## 2026-06-22, Library Version 2026.06.186, PR #207
 
@@ -3327,13 +3352,13 @@ Closes **FR-50** (medium). Corpus-wide NIST citation format sweep per maintainer
 - **91 occurrences** converted from `Rev N` → `Rev. N`.
 - Pattern matched: `\bRev [0-9]` (word-boundary `Rev ` followed by digit).
 - All matches verified to be NIST SP / FedRAMP / IMO version references (no false positives in corpus content).
-- `CHANGELOG.md` historical entries explicitly EXCLUDED — they describe past corpus state in their original form; rewriting them would be retroactive editing (anti-pattern per artefact-and-branch-discipline).
+- `CHANGELOG.md` historical entries explicitly EXCLUDED, they describe past corpus state in their original form; rewriting them would be retroactive editing (anti-pattern per artefact-and-branch-discipline).
 - `.working/` files excluded (frozen archives).
 
 ### Fixed
 
 - 50 corpus files have `Rev N` → `Rev. N` substitution applied, per-doc Version patch-bumped, per-doc Date refreshed to `2026-06-22`.
-- [`compliance/register-compliance-obligations-template.md`](../../compliance/register-compliance-obligations-template.md):56 example reworded from "NIST SP 800-53 Rev. 4 → Rev. 5" to generic "for example, a NIST SP publishes a new revision" — the standards-currency gate (gate 27) correctly flagged "Rev. 4" as superseded after the sweep; the example was illustrative-of-drift, not an actual stale citation; rewording preserves the illustrative intent without triggering the gate.
+- [`compliance/register-compliance-obligations-template.md`](../../compliance/register-compliance-obligations-template.md):56 example reworded from "NIST SP 800-53 Rev. 4 → Rev. 5" to generic "for example, a NIST SP publishes a new revision", the standards-currency gate (gate 27) correctly flagged "Rev. 4" as superseded after the sweep; the example was illustrative-of-drift, not an actual stale citation; rewording preserves the illustrative intent without triggering the gate.
 
 ### Linter behaviour observation
 
@@ -3360,11 +3385,11 @@ The standards-currency gate catch on the template's `Rev. 4 → Rev. 5` example 
 
 Closes **FR-87** and **FR-88** (maintainer-approved per "decision 2"). Both findings are in the security-content-refinement cluster from r1; both required pack-rule and corpus standard edits.
 
-### Fixed (FR-87 — SSRF range list)
+### Fixed (FR-87: SSRF range list)
 
 - [`dev-security/claude-rules/core/owasp.md`](../../dev-security/claude-rules/core/owasp.md):145: SSRF guidance updated to enumerate canonical IPv4 and IPv6 internal/reserved ranges in CIDR notation with RFC citations. The previous list (`10.x.x.x, 172.16.x.x, 192.168.x.x, 169.254.x.x, 127.x.x.x`) had two defects: (a) it missed IPv6 entirely (no `::1`, `fc00::/7`, `fe80::/10`), and (b) `172.16.x.x` notation suggested only /16 (256 addresses) when the canonical RFC 1918 range is /12 (172.16.0.0 through 172.31.255.255, spanning 1M+ addresses). Added: CGNAT `100.64.0.0/10` (RFC 6598); IPv6 loopback `::1/128`, ULA `fc00::/7`, link-local `fe80::/10` (covers AWS IMDS IPv6 `fd00:ec2::254` and Azure/GCP link-local variants).
 
-### Fixed (FR-88 — cipher suite enumeration)
+### Fixed (FR-88: cipher suite enumeration)
 
 - [`dev-security/standard-api-security.md`](../../dev-security/standard-api-security.md):110: cipher row no longer says "Strong cipher suites only" without enumeration. Now lists the three TLS 1.3 AEAD cipher suites per NIST SP 800-52 Rev. 2 §3.3.1:
   - `TLS_AES_256_GCM_SHA384` (recommended)
@@ -3433,7 +3458,7 @@ Pass-1 verification of the 2026-06-22 fitness review (r2). Twelfth PR in the day
 - [`.working/fitness-reviews/2026-06-22-r1.md`](../fitness-reviews/2026-06-22-r1.md):
   - New §9 (Pass-1 Verification Results) added between former §8 (Remediation Backlog) and former §9 (Final Assessment, now renumbered §10).
   - Three sub-sections in §9: (a) batch-tags for 9 findings already closed in PRs #193-#203 (FR-113/115/116/117/127/128/129/132/133, all ✅), (b) maintainer decisions for 3 findings (FR-119, FR-130, FR-14/FR-114), (c) 11 active Pass-1 verdicts for the remaining open r2 findings.
-  - §3 introductory note updated: "Pass-1 verification completed in PR #204 — see §9 for verdict tags per finding."
+  - §3 introductory note updated: "Pass-1 verification completed in PR #204, see §9 for verdict tags per finding."
   - §10 (Final Assessment) updated to reference the Pass-1 completion.
 - [`.working/fitness-reviews/history.md`](../fitness-reviews/history.md):
   - r1 row's Summary cell extended with Pass-1 status.
@@ -3445,7 +3470,7 @@ Pass-1 verification of the 2026-06-22 fitness review (r2). Twelfth PR in the day
 ### Pass-1 verdict summary
 
 - **✅ confirmed-as-stated (active verification):** 10 (FR-112, FR-114, FR-120, FR-121, FR-122, FR-123, FR-124, FR-125, FR-126, FR-131).
-- **⚠️ confirmed-with-modification:** 1 (FR-118 — divergence broader than originally framed; ERM standard §6 (4 options) and §7 register table (6 options) are themselves inconsistent in addition to the cross-doc divergence with the procedure (different 6 options)).
+- **⚠️ confirmed-with-modification:** 1 (FR-118, divergence broader than originally framed; ERM standard §6 (4 options) and §7 register table (6 options) are themselves inconsistent in addition to the cross-doc divergence with the procedure (different 6 options)).
 - **❌ rejected:** 0.
 - **🤔 ambiguous-needs-maintainer:** 0.
 - **✅ batch-tagged (already closed):** 9 (FR-113/115/116/117/127/128/129/132/133).
@@ -3458,9 +3483,9 @@ Pass-1 verification of the 2026-06-22 fitness review (r2). Twelfth PR in the day
 ### Scope expansion flagged
 
 **FR-118.** The original two-doc framing (ERM standard §6 vs procedure "Select Treatment") understated the divergence. Pass-1 finds three vocabularies across two documents:
-- Standard §6 (lines 128-135): 4 options (Avoid/Mitigate/Transfer/Accept — negative-risk core).
-- Standard §7 register table (line 163): 6 options (Avoid/Mitigate/Transfer/Accept/Exploit/Enhance — adds positive-risk per ISO 31000).
-- Procedure (line 34): 6 options (Mitigate/Avoid/Transfer/Accept/Monitor/Further-Analysis — different two additions).
+- Standard §6 (lines 128-135): 4 options (Avoid/Mitigate/Transfer/Accept, negative-risk core).
+- Standard §7 register table (line 163): 6 options (Avoid/Mitigate/Transfer/Accept/Exploit/Enhance, adds positive-risk per ISO 31000).
+- Procedure (line 34): 6 options (Mitigate/Avoid/Transfer/Accept/Monitor/Further-Analysis, different two additions).
 
 The standard is internally inconsistent. The procedure's "Monitor" and "Further-Analysis" arguably belong as workflow states rather than treatment options.
 
@@ -3474,7 +3499,7 @@ Recommendation: reconcile to a single canonical treatment list per ISO 31000 (Av
 
 This is the first Pass-1 verification completed in the project. The protocol worked as designed: the subagent's deep-read produced structured verdict evidence, the orchestrator authored the verdict prose in the report file, and the report's §3 / §10 introductory notes were updated to reference the Pass-1 milestone.
 
-Two non-trivial outputs surfaced beyond simple ✅ tags: (1) FR-124's severity escalation (Medium → High based on the 12-month exposure window), and (2) FR-118's scope expansion (three-vocabulary divergence rather than two-doc divergence). These are the kinds of insights Pass-1 is designed to surface — they would have shaped Pass-2 triage even without maintainer decisions, and they will shape the eventual remediation PRs (the FR-118 remediation, when scheduled, will need to address §6 / §7 internal inconsistency, not just the procedure cross-doc divergence).
+Two non-trivial outputs surfaced beyond simple ✅ tags: (1) FR-124's severity escalation (Medium → High based on the 12-month exposure window), and (2) FR-118's scope expansion (three-vocabulary divergence rather than two-doc divergence). These are the kinds of insights Pass-1 is designed to surface, they would have shaped Pass-2 triage even without maintainer decisions, and they will shape the eventual remediation PRs (the FR-118 remediation, when scheduled, will need to address §6 / §7 internal inconsistency, not just the procedure cross-doc divergence).
 
 ## 2026-06-22, Library Version 2026.06.182, PR #203
 
@@ -3532,8 +3557,8 @@ Overnight session wrap-up. Updates the overnight-pr.md file with final progress 
 ### Overnight session summary
 
 - **9 PRs shipped (PR #193 - #201)**.
-- **8 full FR closures + 1 partial**: FR-127, FR-128, FR-129, FR-113, FR-115, FR-116, FR-117, FR-132 (full); FR-81 (partial — pack CLAUDE.md surface deferred).
-- **Convergent Finding C1 (Risk Owner role insufficiency)**: 3 of 4 closed (FR-115/116/117; FR-119 deferred — needs decision).
+- **8 full FR closures + 1 partial**: FR-127, FR-128, FR-129, FR-113, FR-115, FR-116, FR-117, FR-132 (full); FR-81 (partial, pack CLAUDE.md surface deferred).
+- **Convergent Finding C1 (Risk Owner role insufficiency)**: 3 of 4 closed (FR-115/116/117; FR-119 deferred, needs decision).
 - **Convergent Finding C3 (retention chain breaks)**: fully closed (FR-128 + FR-129).
 - **/validate-pr cycle**: each PR's /validate-pr returned 0 or 1 in-window finding; findings bundled into next PR per the batching rule (PR #192). The discipline converged cleanly throughout the session.
 - **Quality discipline observed**: 5 candidate FRs deferred mid-session because the fix would have required a decision (FR-46 Privacy Officer per-occurrence, FR-50 NIST citation register-ambiguity, FR-51 ISO Annex form pick, FR-52 and/or semantics, FR-87/88 pack-rule edits). All deferrals are documented in the overnight file's open-ambiguities section for maintainer pickup.
@@ -4011,8 +4036,8 @@ The three threads bundle naturally because they all attach to the same chronolog
 
 - `tools/run_all_audits.sh` exits 0 on all 46 gates against the committed state at each commit boundary (the version-bump discipline's question 3 was checked after every commit).
 - `tools/run-pr-time-checks.sh` exits 0 (D1 CHANGELOG-on-PR, D2 per-PR version-bump, gate 45 TODO staleness) against the merge base.
-- `tools/lint-language.py` (gate 2) initially failed on "harmonised" (-ise spelling) — fixed to "harmonized" per the Canadian-first / -ize orthography convention.
-- Gate 18 (intra-document section references) initially failed on TODO.md's "r2 §4" and "r2 §6" cross-doc references — fixed by naming the document explicitly and removing the §N syntax.
+- `tools/lint-language.py` (gate 2) initially failed on "harmonised" (-ise spelling), fixed to "harmonized" per the Canadian-first / -ize orthography convention.
+- Gate 18 (intra-document section references) initially failed on TODO.md's "r2 §4" and "r2 §6" cross-doc references, fixed by naming the document explicitly and removing the §N syntax.
 
 ### Discipline observations
 
@@ -4023,7 +4048,7 @@ The three threads bundle naturally because they all attach to the same chronolog
 
 ## 2026-06-22, Library Version 2026.06.166, PR #187
 
-Codified the **no orchestrator-side skip discretion** discipline after a maintainer-flagged policy deviation. The orchestrator skipped `/validate-pr` on PRs #185 and #186 on its own judgment ("circular", "redundant"); the maintainer rejected this — the discipline is mandatory and the orchestrator does not have unilateral discretion.
+Codified the **no orchestrator-side skip discretion** discipline after a maintainer-flagged policy deviation. The orchestrator skipped `/validate-pr` on PRs #185 and #186 on its own judgment ("circular", "redundant"); the maintainer rejected this, the discipline is mandatory and the orchestrator does not have unilateral discretion.
 
 ### Motivation
 
@@ -4081,11 +4106,11 @@ All three subagents (A, B, C) dispatched per Rule 5.6 dispatch-declaration disci
 ### Findings (synthesised)
 
 - **A1** (`stale-prose-references:dev-security/claude-rules/skills/validation-sweep-pr-scoped/SKILL.md:151`): the new `/validate-pr` skill's "See Also" section referenced "/retro queued for PR #185" when PR #185 became the housekeeping recording PR. The /retro skill is queued for PR #186 per PR #185's commit message; the SKILL.md was not updated to match. **Warning level**, in-window (introduced by PR #183 as a forward-reference; rendered stale by PR #185's renumbering).
-- **C1** (`gate-44-incomplete-pair-registry:tools/lint-paired-skill-step-parity.py:47`): gate 44 (paired-skill step-parity) hardcodes a `PAIRS` registry; PR #183 added the new `validation-sweep-pr-scoped` skill + `/validate-pr` slash command but did NOT add the pair to the registry. Gate 44 was therefore not validating step-parity on the new skill — a real defect that would have allowed silent step-drift between the SKILL and the slash-command files. **Error level**, in-window.
+- **C1** (`gate-44-incomplete-pair-registry:tools/lint-paired-skill-step-parity.py:47`): gate 44 (paired-skill step-parity) hardcodes a `PAIRS` registry; PR #183 added the new `validation-sweep-pr-scoped` skill + `/validate-pr` slash command but did NOT add the pair to the registry. Gate 44 was therefore not validating step-parity on the new skill, a real defect that would have allowed silent step-drift between the SKILL and the slash-command files. **Error level**, in-window.
 
 ### Failure-mode class
 
-A1 is C-1 stale-prose-reference (and C-4 inferred-as-verified — PR #185's commit message clarified the renumbering but the orchestrator did not propagate it). C1 is **a new pattern**: registry-incompleteness when adding a paired surface. Not in the catalogued C-1 through C-8 set but conceptually a sibling of multi-surface incompleteness — the orchestrator added two surfaces (SKILL + slash command) but missed registering them with the gate that's supposed to enforce parity between them.
+A1 is C-1 stale-prose-reference (and C-4 inferred-as-verified, PR #185's commit message clarified the renumbering but the orchestrator did not propagate it). C1 is **a new pattern**: registry-incompleteness when adding a paired surface. Not in the catalogued C-1 through C-8 set but conceptually a sibling of multi-surface incompleteness, the orchestrator added two surfaces (SKILL + slash command) but missed registering them with the gate that's supposed to enforce parity between them.
 
 ### Severity adjudication
 
@@ -4093,7 +4118,7 @@ Both `should-fix-this-PR`. C1 is structurally more important (it's a discipline 
 
 ### Worker-brief template implication
 
-This sweep surfaces a NEW failure class not previously in the template's guard rails: "when shipping a new skill + slash command pair, add to gate 44's PAIRS registry." Per the hallucination-assessment update protocol (PR #184's discipline), this becomes a new orchestrator-side check item (not a worker-brief instruction — workers don't ship gate registrations). Captured below as a discipline observation; the worker-brief template itself does not need a new rail.
+This sweep surfaces a NEW failure class not previously in the template's guard rails: "when shipping a new skill + slash command pair, add to gate 44's PAIRS registry." Per the hallucination-assessment update protocol (PR #184's discipline), this becomes a new orchestrator-side check item (not a worker-brief instruction, workers don't ship gate registrations). Captured below as a discipline observation; the worker-brief template itself does not need a new rail.
 
 ### Changed
 
@@ -4123,7 +4148,7 @@ Two patterns surfaced in this sweep that feed into the hallucination-assessment 
 1. **Forward-references go stale across PR renumbering**: when a PR's prose references "queued for PR #N", and a housekeeping PR slips into that slot before #N actually ships, the reference is stale. **Orchestrator-side check**: when renumbering, search the corpus for forward-references and update them. Add to orchestrator-side checklist (not worker-brief, since workers don't typically draft forward-references to PR numbers).
 2. **Adding a paired surface requires registering with the parity gate**: PR #183 added a new skill+slash-command pair but missed gate 44's `PAIRS` registry. **Orchestrator-side check**: when shipping a new skill that includes a slash command, add to `tools/lint-paired-skill-step-parity.py` `PAIRS`. Add to orchestrator-side checklist (this is a meta-PR pattern; workers don't ship skill+slash-command pairs).
 
-Both checklist items belong in a "meta-PR shipping checklist" — distinct from worker-brief guard rails (worker-side) and distinct from per-PR orchestrator verification (which the existing workflow disciplines cover). The /retro skill (queued PR #186) is the natural home for these accumulated orchestrator-side checklist items; the retrospective surfaces them as proposed improvements that get rolled into a queued "orchestrator-side meta-PR checklist" file. This sweep's findings are the first entries in that future log.
+Both checklist items belong in a "meta-PR shipping checklist", distinct from worker-brief guard rails (worker-side) and distinct from per-PR orchestrator verification (which the existing workflow disciplines cover). The /retro skill (queued PR #186) is the natural home for these accumulated orchestrator-side checklist items; the retrospective surfaces them as proposed improvements that get rolled into a queued "orchestrator-side meta-PR checklist" file. This sweep's findings are the first entries in that future log.
 
 ## 2026-06-21, Library Version 2026.06.164, PR #185
 
@@ -4201,7 +4226,7 @@ The corpus-wide `/validate` sweep runs every 10 merges (or maintainer-triggered)
 
 This PR demonstrates the "always split when in doubt" discipline by shipping `/validate-pr` as a standalone PR (rather than bundling with `/retro` skill or the worker-brief template). Each of those upcoming skill additions is conceptually distinct and would muddy the audit trail if bundled.
 
-The skill's existence does NOT change the workflow for PR #183 itself (this PR ships the skill but doesn't exercise it — the first real `/validate-pr` invocation will be against PR #186, which is the next FR PR shipped under the new discipline). PR #183's own merge is observed but `/validate-pr` against PR #183 is run post-merge per the new workflow step 5a; the history row for PR #183 itself is the activity bootstrap.
+The skill's existence does NOT change the workflow for PR #183 itself (this PR ships the skill but doesn't exercise it, the first real `/validate-pr` invocation will be against PR #186, which is the next FR PR shipped under the new discipline). PR #183's own merge is observed but `/validate-pr` against PR #183 is run post-merge per the new workflow step 5a; the history row for PR #183 itself is the activity bootstrap.
 
 ### Future-PR check
 
@@ -4262,7 +4287,7 @@ This PR validates the maintainer's count-genericization principle (introduced du
 
 ## 2026-06-21, Library Version 2026.06.160, PR #181
 
-Sweep 16 iteration 1 close-out. First `/validate` sweep since Sweep 15 (PR #167), covering 13 intervening PRs (#168 through #180) — well past the original "every 5 PRs" cadence and tracking 4× the original cadence rule. The maintainer flagged the gap during the PR #179 close-out and directed a sweep before the next FR (FR-33 P1.4b).
+Sweep 16 iteration 1 close-out. First `/validate` sweep since Sweep 15 (PR #167), covering 13 intervening PRs (#168 through #180), well past the original "every 5 PRs" cadence and tracking 4× the original cadence rule. The maintainer flagged the gap during the PR #179 close-out and directed a sweep before the next FR (FR-33 P1.4b).
 
 ### Subagents dispatched
 
@@ -4277,7 +4302,7 @@ All three subagents (A, B, C) dispatched per the validation-sweep skill's Rule 5
 Both findings are the **C-3 multi-surface incompleteness** failure-mode class (catalogued in the SKILL.md step 3 inventory). Pattern: an orchestrator updates a primary surface but misses paired narrative prose elsewhere. Both are R (real, not inferred), both in-window, both `should-fix-this-PR` severity.
 
 - **Finding A1** (`stale-prose-references:TODO.md:22`): TODO.md line 22's Queued-sequence narrative said "PRs #142-#176 have closed 34 findings to date" when current HEAD includes PRs #177, #178, #179, and #180. The session-resume snapshot at line 13 was correctly refreshed in PR #180 ("synced after PR #180 merge"; library `2026.06.159`); the narrative prose below it was not. Adjacent inconsistency: the line cites "34 findings" while the Backlog totals section (line ~140) says "42 closed across PRs #142-#179". The fix refreshes the narrative to current state (#180; 42 findings) and extends the recent-PRs list to name #177-#180.
-- **Finding B1** (`stale-skill-parent-count:dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md:26`): the skill-authoring skill's Process step 2 said "every pack skill derives from one of the seven governance rules" when PR #176 added the eighth rule (`ai-assistant-workflow-disciplines.md`). PR #176 updated the pack README inventory, the directory tree comment, the available-rules table, and the rollout-history paragraph, but missed this paired narrative reference inside the skill text. **Fix applied as a genericization, not a re-count**: per the maintainer's direction during this sweep, rewriting the line as "one of the governance rules under `dev-security/claude-rules/governance/`" removes the count entirely. The count was the bug — citing a count in narrative prose where the directory itself is the canonical authority creates a drift-prone paraphrase that has to be updated every time the directory grows. The generic phrasing makes the rule self-maintaining.
+- **Finding B1** (`stale-skill-parent-count:dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md:26`): the skill-authoring skill's Process step 2 said "every pack skill derives from one of the seven governance rules" when PR #176 added the eighth rule (`ai-assistant-workflow-disciplines.md`). PR #176 updated the pack README inventory, the directory tree comment, the available-rules table, and the rollout-history paragraph, but missed this paired narrative reference inside the skill text. **Fix applied as a genericization, not a re-count**: per the maintainer's direction during this sweep, rewriting the line as "one of the governance rules under `dev-security/claude-rules/governance/`" removes the count entirely. The count was the bug, citing a count in narrative prose where the directory itself is the canonical authority creates a drift-prone paraphrase that has to be updated every time the directory grows. The generic phrasing makes the rule self-maintaining.
 
 ### Changed
 
@@ -4301,7 +4326,7 @@ Both findings reflect the same orchestrator-side pattern: when adding/updating a
 
 **Future-gate candidate**: a corpus-wide "narrative-vs-current-state" cross-reference audit could catch this class mechanically. The cost is high (the gate needs to know the actual "current state" of various counts); the benefit is moderate (the class recurs ~once per 10-PR window). Surfaced to the operator as a maintenance signal rather than actioned this sweep.
 
-**Better alternative (maintainer-directed during this sweep)**: rather than building a gate that tracks counts, **genericize counts-in-prose** wherever the directory or table is the canonical authority. The fix to finding B1 demonstrates the pattern: "one of the seven governance rules" → "one of the governance rules under `<directory>`". Queued as a follow-up: a corpus-wide search for "N <item-class>" patterns in prose, with a classification per occurrence — keep (the count is informative and stable) or genericize (the count is drift-prone and the directory/table is the canonical authority).
+**Better alternative (maintainer-directed during this sweep)**: rather than building a gate that tracks counts, **genericize counts-in-prose** wherever the directory or table is the canonical authority. The fix to finding B1 demonstrates the pattern: "one of the seven governance rules" → "one of the governance rules under `<directory>`". Queued as a follow-up: a corpus-wide search for "N <item-class>" patterns in prose, with a classification per occurrence, keep (the count is informative and stable) or genericize (the count is drift-prone and the directory/table is the canonical authority).
 
 **Worker-brief / orchestrator-checklist implication**: this is exactly the failure mode the maintainer's proposed worker-brief template + hallucination-assessment discipline (queued as PR #183) is designed to address. The post-fix orchestrator-side checklist item would be: "when updating any inventory or count, search the corpus for narrative paraphrases of that count and update in lock-step".
 
@@ -4340,14 +4365,14 @@ The two-step pattern that PR #179's gate-31 fix used (commit 1: body + Version; 
 
 ## 2026-06-21, Library Version 2026.06.158, PR #179
 
-Phase 1 P1.4a velocity bundle: six unrelated medium-tier fitness findings shipped as one PR. The originally-planned P1.4 bundle covered seven findings; FR-33 (high[critical], GDPR Article 36 prior-consultation pathway) was split into its own PR (queued as P1.4b) per the "always split when in doubt" discipline shipped in PR #176 — different severity tier and larger scope warranted dedicated treatment.
+Phase 1 P1.4a velocity bundle: six unrelated medium-tier fitness findings shipped as one PR. The originally-planned P1.4 bundle covered seven findings; FR-33 (high[critical], GDPR Article 36 prior-consultation pathway) was split into its own PR (queued as P1.4b) per the "always split when in doubt" discipline shipped in PR #176, different severity tier and larger scope warranted dedicated treatment.
 
 ### Closed findings
 
 - **FR-18** (medium): the 180-day exception initial-term baseline in [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md) §3.1 was not directly traceable to any of the policy's cited normative references. NIST SP 800-37 Rev 2 ATOs are 3-year with continuous monitoring; ISO/IEC 27001 A.5.36 mandates exception policy without specifying duration; CSA CCM v4.1 GRC-12 is mute on a numeric default. The §3.7 rationale paragraph already explained 540-day `max_duration` as 3×180; this PR adds §3.7.1 acknowledging that the 180-day base is a library convention aligned with NIST SP 800-53 Rev 5 CA-6 ongoing-authorisation maintenance and ISO/IEC 27001:2022 Clause 9.2 internal-audit semi-annual review cycles. Adopters whose monitoring cadence differs may tune the base term.
 - **FR-25** (medium): [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md) §3.3 set control-testing evidence retention at 5 years; the corresponding row in [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md) line 87 also said 5 years. Both sat below Sarbanes-Oxley §103 audit-evidence retention (7 years) and below the records-retention standard's 7-year Corporate Governance / Financial / Legal-and-Compliance default. Both lines now read 7 years; the procedure adds an explicit cross-reference to [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md) so future drift cannot recur without contradicting the canonical source.
 - **FR-79** (medium): [`resilience/template-tabletop-exercise.md`](../../resilience/template-tabletop-exercise.md) inject-schedule table at lines 104 and 107 used the vendor product name "Slack" as the delivery channel for two injects. Other channels in the same table used generic phrasing (Email, Phone), so Slack was the only outlier. The library's sanitisation convention (per [`specification-ingestion.md`](../../specification-ingestion.md) Appendix A) maps vendor product names to generic equivalents. Both rows now use "Chat / collaboration platform".
-- **FR-105** (medium): [`security/policy-information-security.md`](../../security/policy-information-security.md) Purpose section at line 23 cited "NIST Cybersecurity Framework 2.0" by its expanded title, while the Framework Alignment table header at line 134 and §8.4 prose at line 116 used the abbreviated form "NIST CSF 2.0". The same framework appeared under two naming conventions in the same document. Line 23 normalised to "NIST CSF 2.0" — the abbreviated form is now used uniformly.
+- **FR-105** (medium): [`security/policy-information-security.md`](../../security/policy-information-security.md) Purpose section at line 23 cited "NIST Cybersecurity Framework 2.0" by its expanded title, while the Framework Alignment table header at line 134 and §8.4 prose at line 116 used the abbreviated form "NIST CSF 2.0". The same framework appeared under two naming conventions in the same document. Line 23 normalised to "NIST CSF 2.0", the abbreviated form is now used uniformly.
 - **FR-106** (medium): [`README.md`](../../README.md) Repository Structure block at line 109 listed seven trade-programme acronyms (CTPAT, BASC, PIP, AEO, AEO-S, WCO SAFE, ISO 28000) in a single parenthetical with no inline expansion. A newcomer not in logistics or supply-chain compliance read seven opaque tokens and could not tell whether to engage. The line now expands each acronym at first occurrence and carries a "(logistics-specific; skip if not applicable)" marker so non-logistics readers know to bypass.
 - **FR-110** (medium): [`docs/decision-tree.md`](../../docs/decision-tree.md) §2.2 line 119 described the document index as "the master navigation register", which contradicted PR #156 (FR-2) and PR #165 (FR-56)'s declaration of [`docs/portal.md`](../../docs/portal.md) as the canonical adopter entry point. The line now reframes the index as "comprehensive machine-readable register" with explicit redirect to the portal as the canonical navigation point.
 
@@ -4373,7 +4398,7 @@ Phase 1 P1.4a velocity bundle: six unrelated medium-tier fitness findings shippe
 
 ### Discipline observation
 
-This PR exercises the "always split when in doubt" discipline (PR #176 §4) by separating FR-33 (high[critical]) from the otherwise-medium velocity bundle. The original worker draft proposed shipping all seven findings together, including FR-33. The orchestrator made the split decision per the discipline (different severity tier; FR-33's scope is substantively larger — new §Step 5 with Article 36 verbatim references, cross-jurisdiction notes, and step renumbering). The maintainer's prior session-level direction ("don't pause for confirmation") let the orchestrator make the split call and proceed without re-asking.
+This PR exercises the "always split when in doubt" discipline (PR #176 §4) by separating FR-33 (high[critical]) from the otherwise-medium velocity bundle. The original worker draft proposed shipping all seven findings together, including FR-33. The orchestrator made the split decision per the discipline (different severity tier; FR-33's scope is substantively larger, new §Step 5 with Article 36 verbatim references, cross-jurisdiction notes, and step renumbering). The maintainer's prior session-level direction ("don't pause for confirmation") let the orchestrator make the split call and proceed without re-asking.
 
 This is also the second substantive PR shipped under the documented research-assistant discipline. Pre-verification of worker quotes (line 76, line 87, line 100, line 104, line 107, line 109, line 119, line 23, line 134) all verified accurate against current file state during the PR #178 CI wait. Apply-time corrections this round: version-drift only.
 
@@ -4383,8 +4408,8 @@ Phase 1 velocity bundle P1.2. Two ERM-standard findings from the Pass-1 fitness 
 
 ### Closed findings
 
-- **FR-11** (medium): §3 governance table did not define Risk Owner as a distinct role. The §7.1 standard-fields table already used the term (`Risk Owner | Accountable individual (role title)`), but §3 governance defined Chief Risk Officer (framework), Chief Information Officer (technology integration), Chief Information Security Officer (information security risk integration), Enterprise Risk Committee, Risk Manager / Compliance Officer (administration), Process and System Owners (identification and execution), and Internal Audit (assurance) — Risk Owner was absent. A reader of §3 alone could not tell whether Risk Owner mapped to Process/System Owners, to CRO, or to a separate role. Cross-references in [`risk/procedure-risk-assessment-methodology.md`](../../risk/procedure-risk-assessment-methodology.md) (`Risk Owners | Conduct risk assessments for their domain; own risk treatment decisions.`) and [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md) (`Operational Risk Owners | Manage day-to-day risk identification, control execution, and residual exposure reporting.`) confirm the role exists across the corpus; the standard's §3 was the gap. [`governance/register-role-authority.md`](../../governance/register-role-authority.md) does not carry the role either — promoting Risk Owner into the role authority register is a separate follow-up decision.
-- **FR-12** (medium, within-document scope): the standard used three different surfaces for the treatment-option vocabulary. §5.2 line 119 said "Treat and monitor" (informal "Treat" verb) where §5.2 line 120 and §6 use the canonical "Mitigate". §6 listed six options as five rows (Exploit and Enhance combined into one row). §7.1 line 161 enumerated five options (Enhance dropped). Within-document harmonisation closed here; cross-document harmonisation against [`risk/procedure-risk-register.md`](../../risk/procedure-risk-register.md) (which uses `Mitigate, avoid, transfer, accept, monitor, or perform further analysis` — a different six-option set with Monitor and Further Analysis instead of Exploit and Enhance) deferred to a follow-up.
+- **FR-11** (medium): §3 governance table did not define Risk Owner as a distinct role. The §7.1 standard-fields table already used the term (`Risk Owner | Accountable individual (role title)`), but §3 governance defined Chief Risk Officer (framework), Chief Information Officer (technology integration), Chief Information Security Officer (information security risk integration), Enterprise Risk Committee, Risk Manager / Compliance Officer (administration), Process and System Owners (identification and execution), and Internal Audit (assurance), Risk Owner was absent. A reader of §3 alone could not tell whether Risk Owner mapped to Process/System Owners, to CRO, or to a separate role. Cross-references in [`risk/procedure-risk-assessment-methodology.md`](../../risk/procedure-risk-assessment-methodology.md) (`Risk Owners | Conduct risk assessments for their domain; own risk treatment decisions.`) and [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md) (`Operational Risk Owners | Manage day-to-day risk identification, control execution, and residual exposure reporting.`) confirm the role exists across the corpus; the standard's §3 was the gap. [`governance/register-role-authority.md`](../../governance/register-role-authority.md) does not carry the role either, promoting Risk Owner into the role authority register is a separate follow-up decision.
+- **FR-12** (medium, within-document scope): the standard used three different surfaces for the treatment-option vocabulary. §5.2 line 119 said "Treat and monitor" (informal "Treat" verb) where §5.2 line 120 and §6 use the canonical "Mitigate". §6 listed six options as five rows (Exploit and Enhance combined into one row). §7.1 line 161 enumerated five options (Enhance dropped). Within-document harmonisation closed here; cross-document harmonisation against [`risk/procedure-risk-register.md`](../../risk/procedure-risk-register.md) (which uses `Mitigate, avoid, transfer, accept, monitor, or perform further analysis`, a different six-option set with Monitor and Further Analysis instead of Exploit and Enhance) deferred to a follow-up.
 
 ### Changed
 
@@ -4396,16 +4421,16 @@ Phase 1 velocity bundle P1.2. Two ERM-standard findings from the Pass-1 fitness 
   - Per-doc Version `1.3.4 → 1.4.0` (minor: structural role definition; vocabulary harmonisations ride along).
 - [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated to absorb the per-doc Version bump per the generated-artefact discipline.
 - [`README.md`](../../README.md): library `2026.06.156 → 2026.06.157`; README `1.9.27 → 1.9.28`.
-- [`TODO.md`](../../TODO.md): FR-11 and FR-12 removed from the Medium tier "ERM standard" bullet (the cluster is now closed); Medium-tier count `48 → 46`; immediate-priority total `63 → 61`; total-open `77 → 75`; closed PRs range extended to `#142-#178`. P1.2 entry removed from the Phase 1 plan in the Queued-sequence section. New FR-12 cross-document follow-up bullet added under the Medium tier (vocabulary alignment between `standard-enterprise-risk-management.md` §6 and `procedure-risk-register.md` "Select Treatment" — pending maintainer decision on canonical authority).
+- [`TODO.md`](../../TODO.md): FR-11 and FR-12 removed from the Medium tier "ERM standard" bullet (the cluster is now closed); Medium-tier count `48 → 46`; immediate-priority total `63 → 61`; total-open `77 → 75`; closed PRs range extended to `#142-#178`. P1.2 entry removed from the Phase 1 plan in the Queued-sequence section. New FR-12 cross-document follow-up bullet added under the Medium tier (vocabulary alignment between `standard-enterprise-risk-management.md` §6 and `procedure-risk-register.md` "Select Treatment", pending maintainer decision on canonical authority).
 - [`.working/DONE.md`](../DONE.md): PR #178 entry added (terse form per the convention).
 - [`.working/hallucination-metrics.md`](../hallucination-metrics.md): apply-time-catches log updated with the version-drift corrections from this PR (worker drafted against library `2026.06.150` / library-bump-target `2026.06.151` / backlog `85 → 83`; current state required library `2026.06.156 → 2026.06.157` and backlog `77 → 75`).
 
 ### Not changed (intentional)
 
-- §7.1 Status enum (`Open / Mitigated / Accepted / Closed`) uses past-tense "Mitigated" — left as-is because Status is a state-of-the-record field where past-tense reads naturally, and Avoided / Transferred / Exploited / Enhanced are not natural Status values (a risk that has been Avoided is Closed; a risk that has been Transferred has new residual exposure on the transfer counterparty). Treatment Option and Status are different semantic surfaces and are correctly different vocabularies.
-- §1 Purpose generic verb "treatment" — left as-is because it is the abstract noun form, not a specific treatment-category vocabulary token.
-- [`governance/register-role-authority.md`](../../governance/register-role-authority.md) — not edited. Promoting Risk Owner into the role authority register is a separate decision (whether Risk Owner belongs there as a cross-domain canonical role, or stays in the ERM standard as a domain-specific role, is a maintainer call). Surfaced as a candidate follow-up rather than included here.
-- [`risk/procedure-risk-register.md`](../../risk/procedure-risk-register.md) and [`risk/template-enterprise-risk-register.md`](../../risk/template-enterprise-risk-register.md) — not edited. Cross-document treatment-vocabulary harmonisation deferred per FR-12 scope note.
+- §7.1 Status enum (`Open / Mitigated / Accepted / Closed`) uses past-tense "Mitigated", left as-is because Status is a state-of-the-record field where past-tense reads naturally, and Avoided / Transferred / Exploited / Enhanced are not natural Status values (a risk that has been Avoided is Closed; a risk that has been Transferred has new residual exposure on the transfer counterparty). Treatment Option and Status are different semantic surfaces and are correctly different vocabularies.
+- §1 Purpose generic verb "treatment", left as-is because it is the abstract noun form, not a specific treatment-category vocabulary token.
+- [`governance/register-role-authority.md`](../../governance/register-role-authority.md), not edited. Promoting Risk Owner into the role authority register is a separate decision (whether Risk Owner belongs there as a cross-domain canonical role, or stays in the ERM standard as a domain-specific role, is a maintainer call). Surfaced as a candidate follow-up rather than included here.
+- [`risk/procedure-risk-register.md`](../../risk/procedure-risk-register.md) and [`risk/template-enterprise-risk-register.md`](../../risk/template-enterprise-risk-register.md), not edited. Cross-document treatment-vocabulary harmonisation deferred per FR-12 scope note.
 
 ### Verification
 
@@ -4418,7 +4443,7 @@ Phase 1 velocity bundle P1.2. Two ERM-standard findings from the Pass-1 fitness 
 
 This PR is the first substantive (non-meta) PR shipped under the documented research-assistant + apply-time-correction discipline (PR #176). The worker's file-state quotes were verified accurate during the PR #176 CI wait per discipline #5 (background work during CI waits), so apply-time corrections were limited to version-drift: the worker drafted against library `2026.06.150` and backlog `85 → 83`, both of which had advanced (current library `2026.06.156` pre-this-PR; current backlog `77` pre-this-PR). The corrected values shipped: library `2026.06.156 → 2026.06.157`, backlog `77 → 75`. Two apply-time catches logged in [`.working/hallucination-metrics.md`](../hallucination-metrics.md); zero shipped escapes. The worker-drafted FR-12 within-document scope split (with cross-document deferred) was preserved; the worker's per-doc bump recommendation (`1.3.4 → 1.4.0`, minor for the structural role definition) was accepted as-drafted.
 
-This PR closes the second ERM-standard cluster from the fitness review (PR #143 closed FR-9 + FR-10 — CRO ownership; this PR closes FR-11 + FR-12 — Risk Owner role definition and within-document treatment vocabulary). The ERM standard's per-doc version sequence in this fitness cycle is now `1.3.3 → 1.3.4` (FR-9 + FR-10) `→ 1.4.0` (FR-11 + FR-12), with the minor bump reflecting that §3 governance gains a fully-new role row.
+This PR closes the second ERM-standard cluster from the fitness review (PR #143 closed FR-9 + FR-10, CRO ownership; this PR closes FR-11 + FR-12, Risk Owner role definition and within-document treatment vocabulary). The ERM standard's per-doc version sequence in this fitness cycle is now `1.3.3 → 1.3.4` (FR-9 + FR-10) `→ 1.4.0` (FR-11 + FR-12), with the minor bump reflecting that §3 governance gains a fully-new role row.
 
 ## 2026-06-21, Library Version 2026.06.156, PR #177
 
@@ -4481,7 +4506,7 @@ This PR documents the discipline it was authored under. The orchestrator dispatc
 
 ## 2026-06-21, Library Version 2026.06.154, PR #174
 
-Retired the `Changelog: skip` opt-out path from the change-tracking discipline in favour of a terse-entry convention. The shift: every PR carries an entry, even if terse. Two sanctioned entry shapes — substantive (the existing structured-section form) and terse (date-and-version header plus a single sentence on what was accomplished) — replace the prior "entry-or-skip-trailer" binary. The motivation surfaced during the post-merge debrief of PRs #170 and #171, where the original `Changelog: skip` trailers left a visible jump in the audit trail (CHANGELOG went #169 → #172). The maintainer rejected the gap and updated the discipline: every PR carries an entry, with `.claude/`-only changes (and other ancillary surfaces) permitted to use a terse one-liner.
+Retired the `Changelog: skip` opt-out path from the change-tracking discipline in favour of a terse-entry convention. The shift: every PR carries an entry, even if terse. Two sanctioned entry shapes, substantive (the existing structured-section form) and terse (date-and-version header plus a single sentence on what was accomplished), replace the prior "entry-or-skip-trailer" binary. The motivation surfaced during the post-merge debrief of PRs #170 and #171, where the original `Changelog: skip` trailers left a visible jump in the audit trail (CHANGELOG went #169 → #172). The maintainer rejected the gap and updated the discipline: every PR carries an entry, with `.claude/`-only changes (and other ancillary surfaces) permitted to use a terse one-liner.
 
 The DONE-ledger guidance is also revised in the same pass. Previously the rule called for "one paragraph" per DONE entry, which in practice drifted toward CHANGELOG-replica detail (multi-sentence prose with file links, version bumps, rationale). The maintainer's framing makes the intent explicit: DONE is **scrolling battle-text**, the `tail -f` view of shipped work. The new guidance: 1-2 sentences per entry, no file links, no version bumps, just what was accomplished. The narrative job belongs to CHANGELOG; the at-a-glance index job belongs to DONE. The two complement, do not duplicate.
 
@@ -4589,7 +4614,7 @@ Phase 1 velocity bundle: five medium README polish findings shipped together. Th
 
 ### Discipline observation
 
-This bundle exercises the Phase 1 velocity-bundle pattern: clustered low-severity polish findings against a single artefact ship as one PR rather than five. The cost saving is the per-PR overhead (review cycle, CI, CHANGELOG entries) collapsing from 5× to 1×; the cost paid is that the diff is larger and a future reader looking up "when did FR-7 close?" sees a multi-FR header rather than a single-FR header. The DONE heading-format harmonisation that shipped in PR #163 explicitly anticipated this case: the `### PR #N — FR-X (sev) + FR-Y (sev) + ...: title (date)` shape is the documented multi-FR convention. The cluster also illustrates Rec-6 as designed: the original review proposed a single bundle for FR-1 through FR-8 (the README cluster); Phase 0 separated out the three High findings (FR-1, FR-2, FR-3) into their own PRs because severity warranted dedicated treatment, leaving the five medium findings to ship as this PR. The Phase 1 velocity-bundle is therefore the residual of Rec-6, not a deviation from it.
+This bundle exercises the Phase 1 velocity-bundle pattern: clustered low-severity polish findings against a single artefact ship as one PR rather than five. The cost saving is the per-PR overhead (review cycle, CI, CHANGELOG entries) collapsing from 5× to 1×; the cost paid is that the diff is larger and a future reader looking up "when did FR-7 close?" sees a multi-FR header rather than a single-FR header. The DONE heading-format harmonisation that shipped in PR #163 explicitly anticipated this case: the `### PR #N: FR-X (sev) + FR-Y (sev) + ...: title (date)` shape is the documented multi-FR convention. The cluster also illustrates Rec-6 as designed: the original review proposed a single bundle for FR-1 through FR-8 (the README cluster); Phase 0 separated out the three High findings (FR-1, FR-2, FR-3) into their own PRs because severity warranted dedicated treatment, leaving the five medium findings to ship as this PR. The Phase 1 velocity-bundle is therefore the residual of Rec-6, not a deviation from it.
 
 This PR is also the first Phase 1 bundle authored under the research-assistant discipline (worker produces research file; orchestrator authors all final prose after independently reading the target files). The worker draft proposed the substantive structure of each FR fix; the orchestrator verified each quoted line against the live README, cross-checked the FR-1/2/3 PR cross-references against [`.working/DONE.md`](../DONE.md) (the worker had FR-3 as PR #158; the actual closing PR is #147; corrected in the final entry), and confirmed the metadata-block exemption before applying the FR-8 reorder. Two corrections to the worker draft were applied: (1) the PR cross-reference, (2) the version numbers (worker drafted against `2026.06.150` / `1.9.21`; current is `2026.06.152` / `1.9.23`).
 
@@ -4618,7 +4643,7 @@ Phase 1 velocity bundle. Three medium-tier access-control polish findings closed
 
 ### Discipline observation
 
-This is the third application of the 1-2-3-ordinal-ceiling pattern (CAPA §6.3.1, exception renewal §3.5, access-control §1.2.1-1.2.4) — the threshold the don't-generalise-until-third-use principle was waiting for. Codifying the pattern as a corpus-management convention is now warranted; surfaced for future consideration.
+This is the third application of the 1-2-3-ordinal-ceiling pattern (CAPA §6.3.1, exception renewal §3.5, access-control §1.2.1-1.2.4), the threshold the don't-generalise-until-third-use principle was waiting for. Codifying the pattern as a corpus-management convention is now warranted; surfaced for future consideration.
 
 ---
 
@@ -4628,7 +4653,7 @@ Sweep 15 follow-up. Closes the out-of-window BASC 3-vs-5 classification finding 
 
 ### Closed findings
 
-- **BASC information-security policy 3-level classification** (Sweep 15 Subagent A out-of-window finding): `compliance/logistics/policy-basc-information-security.md:99,190` enumerated 3 classification levels (Confidential / Internal / Public) instead of the canonical 5. Maintainer chose to expand to 5-level on the grounds that the canonical scheme is a superset of any sector-mandated 3-level scheme — the 3 BASC levels map onto 3 of the 5 canonical levels, and using all 5 cannot be worse than using 3.
+- **BASC information-security policy 3-level classification** (Sweep 15 Subagent A out-of-window finding): `compliance/logistics/policy-basc-information-security.md:99,190` enumerated 3 classification levels (Confidential / Internal / Public) instead of the canonical 5. Maintainer chose to expand to 5-level on the grounds that the canonical scheme is a superset of any sector-mandated 3-level scheme, the 3 BASC levels map onto 3 of the 5 canonical levels, and using all 5 cannot be worse than using 3.
 
 ### Changed
 
@@ -4647,7 +4672,7 @@ Sweep 15 follow-up. Closes the out-of-window BASC 3-vs-5 classification finding 
 
 ### Discipline observation
 
-This is a fast turnaround from Sweep 15's surface-to-operator finding (Sweep 15 closed in PR #167; the BASC fix shipped as PR #168 within minutes of the operator decision). The validate-sweep "surface as question" pattern works: questions get surfaced with named options, the maintainer picks one, the next PR closes the loop. The pattern also produced the right outcome here — expanding to 5-level matches the canonical-standard preamble PR #164 (FR-43-reshape) wrote: "subordinate documents that handle data must enumerate or reference the same five levels."
+This is a fast turnaround from Sweep 15's surface-to-operator finding (Sweep 15 closed in PR #167; the BASC fix shipped as PR #168 within minutes of the operator decision). The validate-sweep "surface as question" pattern works: questions get surfaced with named options, the maintainer picks one, the next PR closes the loop. The pattern also produced the right outcome here, expanding to 5-level matches the canonical-standard preamble PR #164 (FR-43-reshape) wrote: "subordinate documents that handle data must enumerate or reference the same five levels."
 
 ---
 
@@ -4657,7 +4682,7 @@ Sweep 15 iteration 1 close-out. Four findings (3 in-window, 1 out-of-window). Su
 
 ### Closed findings (in-window)
 
-- **`docs/template-implementation-roadmap.md:12` Review Frequency stale after FR-57 rename** (medium, A): metadata still referenced "quickstart-template module catalogue" — the module catalogue lives in `template-startup-roadmap.md` after PR #166 renamed the file. Fix updates the field to "startup-roadmap-template module catalogue".
+- **`docs/template-implementation-roadmap.md:12` Review Frequency stale after FR-57 rename** (medium, A): metadata still referenced "quickstart-template module catalogue", the module catalogue lives in `template-startup-roadmap.md` after PR #166 renamed the file. Fix updates the field to "startup-roadmap-template module catalogue".
 - **`privacy/template-dpia.md:197` ISO/IEC 29134:2023 unverified** (medium, A): citation introduced by PR #162 (FR-29 DPIA template) without verification against the canonical-citations register (`governance/register-canonical-citations.md` does not list 29134). The publicly verifiable edition of ISO/IEC 29134 is the 2017 publication; no 2023 republication is recorded. The year was likely a hallucination in the FR-29 worker-draft. Corrected to ISO/IEC 29134:2017 in both the template and the document-index row mirroring the citation.
 - **`TODO.md:22` stale "Queued sequence" narrative** (warning, B): said "PRs #142-#159 have closed 21 findings to date (most recently PR #155 FR-1, PR #156 FR-2, PR #157 FR-16, PR #158 FR-80, PR #159 FR-44)". Refreshed to reflect the current state ("PRs #142-#166 have closed 26 findings to date; most recently PR #161 FR-17, PR #162 FR-29, PR #164 FR-43-reshape, PR #165 FR-56, PR #166 FR-57"). Also reframed to mention the 1-8 PR cadence from the amended validate-cadence rule rather than the original strict "5 at a time" phrasing.
 
@@ -4667,7 +4692,7 @@ Sweep 15 iteration 1 close-out. Four findings (3 in-window, 1 out-of-window). Su
   - Line 12 Review Frequency: "Annual, and on material change to the quickstart-template module catalogue" → "Annual, and on material change to the startup-roadmap-template module catalogue".
   - Per-doc version `1.0.3 → 1.0.4`.
 - [`privacy/template-dpia.md`](../../privacy/template-dpia.md):
-  - Framework alignment table (line 197): `ISO/IEC 29134:2023` → `ISO/IEC 29134:2017`. The 2017 edition is "Information technology — Security techniques — Guidelines for privacy impact assessment", the publicly available current edition.
+  - Framework alignment table (line 197): `ISO/IEC 29134:2023` → `ISO/IEC 29134:2017`. The 2017 edition is "Information technology, Security techniques, Guidelines for privacy impact assessment", the publicly available current edition.
   - Per-doc version `1.0.0 → 1.0.1`.
 - [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md):
   - Privacy Template row (line 125): same citation correction.
@@ -4702,7 +4727,7 @@ Also notable: PR #162's worker-draft for FR-29 introduced the unverified citatio
 
 ## 2026-06-21, Library Version 2026.06.148, PR #166
 
-Closes FR-57 (high). The "quickstart" at `docs/template-quickstart.md` was 319 lines covering 5 dimensions × 23 modules — a composition workbook, not a quickstart. A real quickstart is a 10-minute on-ramp; the existing content's value is preserved by renaming, and a new short quickstart ships at the original path.
+Closes FR-57 (high). The "quickstart" at `docs/template-quickstart.md` was 319 lines covering 5 dimensions × 23 modules, a composition workbook, not a quickstart. A real quickstart is a 10-minute on-ramp; the existing content's value is preserved by renaming, and a new short quickstart ships at the original path.
 
 ### Closed findings
 
@@ -4722,7 +4747,7 @@ Closes FR-57 (high). The "quickstart" at `docs/template-quickstart.md` was 319 l
 
 - [`docs/template-implementation-roadmap.md`](../../docs/template-implementation-roadmap.md):
   - Related Documents: added `template-startup-roadmap.md` (existing template-quickstart link remains, pointing at the new short doc).
-  - §Purpose body line 21: "modules selected via [`docs/template-quickstart.md`]" → "modules selected via [`docs/template-startup-roadmap.md`]" — the roadmap follows the composition workbook, not the new short quickstart.
+  - §Purpose body line 21: "modules selected via [`docs/template-quickstart.md`]" → "modules selected via [`docs/template-startup-roadmap.md`]", the roadmap follows the composition workbook, not the new short quickstart.
   - §"How to use" step 1: "Complete the quickstart composition first... Run through [`docs/template-quickstart.md`]" → "Complete the startup-roadmap composition first... Run through [`docs/template-startup-roadmap.md`]".
   - Per-doc version `1.0.2 → 1.0.3`.
 - [`docs/template-maturity-self-assessment.md`](../../docs/template-maturity-self-assessment.md):
@@ -4732,8 +4757,8 @@ Closes FR-57 (high). The "quickstart" at `docs/template-quickstart.md` was 319 l
   - `PORTAL_METADATA_VERSION` bumped `1.1.0 → 1.2.0` (generator schema; emits a new portal table row).
   - The Day-1 row split into two: quickstart now answers "What do I copy on Day 1?" with the new short content description; startup-roadmap row answers "And what do I add later?" with the long-form composition description. Adopters can pick the right depth from the table without reading both documents.
 - [`docs/portal.md`](../../docs/portal.md): regenerated (read-only artefact).
-- [`README.md`](../../README.md): library `2026.06.147 → 2026.06.148`; README per-doc `1.9.18 → 1.9.19`. README line 27 "Adopter setting up a programme: start with adopter-guide and template-quickstart" is unchanged — the new short quickstart at the same path is exactly what a "setting up a programme" reader wants.
-- [`TODO.md`](../../TODO.md): FR-57 rotated out of High tier; backlog counters updated (10 + 5 + 56 = 71 immediate; 14 deferred; 85 open). New "Backlog-listing process: effort-sizing labels" section added per maintainer direction — captures the XS/S/M/L/XL effort-label convention as a post-FR-backlog meta-improvement that will retrofit the fitness-review and validation-sweep skill files plus future TODO entries.
+- [`README.md`](../../README.md): library `2026.06.147 → 2026.06.148`; README per-doc `1.9.18 → 1.9.19`. README line 27 "Adopter setting up a programme: start with adopter-guide and template-quickstart" is unchanged, the new short quickstart at the same path is exactly what a "setting up a programme" reader wants.
+- [`TODO.md`](../../TODO.md): FR-57 rotated out of High tier; backlog counters updated (10 + 5 + 56 = 71 immediate; 14 deferred; 85 open). New "Backlog-listing process: effort-sizing labels" section added per maintainer direction, captures the XS/S/M/L/XL effort-label convention as a post-FR-backlog meta-improvement that will retrofit the fitness-review and validation-sweep skill files plus future TODO entries.
 - [`.working/DONE.md`](../DONE.md): PR #166 entry added.
 
 ### Not changed (intentional)
@@ -4751,7 +4776,7 @@ Closes FR-57 (high). The "quickstart" at `docs/template-quickstart.md` was 319 l
 
 ### Discipline observation
 
-This is the first file-rename PR in the fitness backlog. The git mv preserves blame history; the new short doc is a write-new operation. The version sequence at the path uses a major bump (`2.0.2 → 3.0.0`) because the file at that path is materially redefined for a different audience — adopters who land on the new short doc get a different experience than adopters who landed on the prior long doc. The prior v2.x content continues at the renamed path with a minor bump (`2.0.2 → 2.1.0`) because its shape and audience are unchanged.
+This is the first file-rename PR in the fitness backlog. The git mv preserves blame history; the new short doc is a write-new operation. The version sequence at the path uses a major bump (`2.0.2 → 3.0.0`) because the file at that path is materially redefined for a different audience, adopters who land on the new short doc get a different experience than adopters who landed on the prior long doc. The prior v2.x content continues at the renamed path with a minor bump (`2.0.2 → 2.1.0`) because its shape and audience are unchanged.
 
 The decision to split the portal's Day-1 row into two rows (quickstart + startup-roadmap) is a small but useful adopter-UX win: a reader who wanted the modules-workbook had to first land on the quickstart to discover it existed, even though the workbook content was what they actually wanted. Two rows surfaces both options directly.
 
@@ -4769,12 +4794,12 @@ Closes FR-56 (high, adopter entry-point reconciliation). The corpus had six dist
 
 ### Reconciliation chosen
 
-**Option A** (least-invasive): declare `docs/portal.md` the canonical front door and document the other sequences as audience-specific paths that branch off it. Considered alternatives Option B (collapse some sequences) — rejected as too invasive (each of the five adopter-facing sequences has a genuinely distinct purpose) — and Option C (add a new "Choose your path" document) — rejected as adding a seventh entry-point document, increasing rather than reducing fragmentation.
+**Option A** (least-invasive): declare `docs/portal.md` the canonical front door and document the other sequences as audience-specific paths that branch off it. Considered alternatives Option B (collapse some sequences), rejected as too invasive (each of the five adopter-facing sequences has a genuinely distinct purpose), and Option C (add a new "Choose your path" document), rejected as adding a seventh entry-point document, increasing rather than reducing fragmentation.
 
 ### Changed
 
 - [`tools/build-portal.py`](../../tools/build-portal.py):
-  - `PORTAL_METADATA_VERSION` bumped `1.0.0 → 1.1.0` (generator schema constant; minor — emits a new portal section).
+  - `PORTAL_METADATA_VERSION` bumped `1.0.0 → 1.1.0` (generator schema constant; minor, emits a new portal section).
   - Overview prose extended with one sentence naming the portal as the canonical front door and pointing at the new "Other entry points" section.
   - New "Other entry points and when to use them" section emitted immediately after Overview. Contains a 5-row table that picks the entry point by question (role / adopt principles / Day 1 copy / reading order / calendar phasing). Each row points at the corresponding adopter-facing document with a one-line "what it gives you" description.
 - [`docs/portal.md`](../../docs/portal.md): regenerated from the updated generator (lines 24-49 are the new prose + section). Read-only generated artefact per the generator-output discipline; not hand-edited.
@@ -4790,7 +4815,7 @@ Closes FR-56 (high, adopter entry-point reconciliation). The corpus had six dist
 
 ### Out of scope (intentional)
 
-- **FR-57** (`docs/template-quickstart.md` is 319 lines — not a real quickstart): separate finding tracked in the High tier. The portal block cross-references the quickstart by its current shape; FR-57 will rewrite the quickstart in a separate PR.
+- **FR-57** (`docs/template-quickstart.md` is 319 lines, not a real quickstart): separate finding tracked in the High tier. The portal block cross-references the quickstart by its current shape; FR-57 will rewrite the quickstart in a separate PR.
 - **Renaming `template-quickstart.md` to `framework-adoption-composition.md`**: FR-57 territory.
 - **Maintainer-facing fitness-review path**: documented in `.working/fitness-reviews/README.md` as maintainer working state. Not surfaced in the adopter-facing portal block because it is not an adopter entry point.
 
@@ -4811,7 +4836,7 @@ The maintainer also surfaced a content expansion request for [`security/policy-b
 
 ## 2026-06-21, Library Version 2026.06.146, PR #164
 
-Closes FR-43 (high[critical], reshape) — data-classification level reconciliation. The canonical standard at `security/standard-data-classification-and-handling.md` defines five levels (Public / Controlled / Internal / Confidential / Restricted); six subordinate documents enumerated only four (Controlled omitted) and one prose line in the remote-working standard explicitly said "four classification tiers", directly contradicting the canonical standard. Reconciled via Option A — propagate the 5-level scheme.
+Closes FR-43 (high[critical], reshape), data-classification level reconciliation. The canonical standard at `security/standard-data-classification-and-handling.md` defines five levels (Public / Controlled / Internal / Confidential / Restricted); six subordinate documents enumerated only four (Controlled omitted) and one prose line in the remote-working standard explicitly said "four classification tiers", directly contradicting the canonical standard. Reconciled via Option A, propagate the 5-level scheme.
 
 ### Closed findings
 
@@ -4827,7 +4852,7 @@ Closes FR-43 (high[critical], reshape) — data-classification level reconciliat
   - §7.1.1 prose corrected from "four classification tiers" to "five classification levels".
   - Per-doc version `1.0.2 → 1.0.3`.
 - [`security/policy-byod.md`](../../security/policy-byod.md):
-  - Line 80 clarifying parenthetical added — "(Public, Controlled, and Internal per the [Data Classification and Handling Standard](standard-data-classification-and-handling.md))" — making the meaning of "Internal and lower" explicit rather than implicit.
+  - Line 80 clarifying parenthetical added, "(Public, Controlled, and Internal per the [Data Classification and Handling Standard](standard-data-classification-and-handling.md))", making the meaning of "Internal and lower" explicit rather than implicit.
   - Per-doc version `1.0.0 → 1.0.1`.
 - [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md):
   - §2 inline enumeration at line 76 extended from "Public, Internal, Confidential, and Restricted" to "Public, Controlled, Internal, Confidential, and Restricted" with explicit cross-reference to the canonical standard.
@@ -4880,7 +4905,7 @@ The maintainer observed that the DONE file did not use the same format as the TO
   - "How items get here" § rewritten to document the five canonical heading shapes (single-FR PR, multi-FR PR, sweep close-out, non-FR PR, FR-N cross-reference) with severity values mirroring the TODO backlog tiers (`high[critical]`, `high`, `medium`, `low`). The Pass-1 ⚠️ confirmed-with-modification flag is informational and stays in the body, not the heading.
   - 22 historical PR headings retrofitted to surface `FR-N (severity)` at the heading level: PRs #142, #143, #144, #145, #146, #147, #149, #150, #151, #152 (multi-FR), #153, #155, #156, #157, #158, #159, #161, #162. Sweep close-out PRs (#148, #154, #160) unchanged (no single FR anchor).
   - 7 FR-only cross-reference entries retrofitted with severity tags: FR-9, FR-10, FR-13, FR-21, FR-54, FR-55, FR-103.
-  - Pre-fitness historical entries (PRs #141 and earlier) left in their original form — those entries pre-date the FR backlog and don't share TODO's tier-grouped scannability problem.
+  - Pre-fitness historical entries (PRs #141 and earlier) left in their original form, those entries pre-date the FR backlog and don't share TODO's tier-grouped scannability problem.
 - [`README.md`](../../README.md): library `2026.06.144 → 2026.06.145`; README per-doc `1.9.15 → 1.9.16`.
 - [`TODO.md`](../../TODO.md): session-resume snapshot updated. No backlog counter change (this PR doesn't close an FR item).
 
@@ -4937,7 +4962,7 @@ Closes FR-29 (high[critical]). The Privacy Impact and Cross-Border Transfer Proc
 
 ### Discipline observation
 
-This is the first new-artefact PR in the FR backlog stream (the prior remediation PRs touched existing documents; PR #138 was the closest equivalent — rotation work, not a new artefact). The new artefact carries the canonical metadata block, registers itself in the document index, is cross-referenced bidirectionally from the operative procedure, and lists its applicable framework alignments in the same table-shape used by other templates. The pattern is now in evidence for the remaining new-artefact items in the FR backlog (FR-30 DPA template, FR-31 Privacy-by-Design framework, FR-32 Legitimate Interest Assessment, FR-34 Transfer Impact Assessment).
+This is the first new-artefact PR in the FR backlog stream (the prior remediation PRs touched existing documents; PR #138 was the closest equivalent, rotation work, not a new artefact). The new artefact carries the canonical metadata block, registers itself in the document index, is cross-referenced bidirectionally from the operative procedure, and lists its applicable framework alignments in the same table-shape used by other templates. The pattern is now in evidence for the remaining new-artefact items in the FR backlog (FR-30 DPA template, FR-31 Privacy-by-Design framework, FR-32 Legitimate Interest Assessment, FR-34 Transfer Impact Assessment).
 
 The DPIA template explicitly does not cover Transfer Impact Assessments (FR-34 / FR-74). The scope discipline is recorded in the template's §Limitations and in the §Scope paragraph that points at the operative procedure's Step 4 as the controller for TIAs until the TIA template ships.
 
@@ -4982,10 +5007,10 @@ Sweep 14 iteration 1 close-out. Four in-window findings caught by Subagents A an
 
 ### Closed findings
 
-- **`specification-master-project.md:126`** (multi-surface-incompleteness, warning, in-window): "No directory shall contain non-canonical document types." — PR #159 (FR-44) added §6.1 Requirement-language register to this very same file at line 277, reserving "shall" for external-standard quotations or legacy content. Line 126 is internal normative prose, not a quotation; the spec contradicts the rule it defines. Subagents A and B independently surfaced this finding; deduplicated to one entry.
-- **`governance/policy-exception-and-risk-acceptance-management.md:88`** (multi-surface-incompleteness, warning, in-window): "A 4th renewal may not be granted by any authority." — PR #157 (FR-16) authored this prohibition the same day PR #159 (FR-44) introduced §6.1 rule 3 ("Do not use 'may not' as a prohibition... Where the intent is a prohibition, write 'must not'."). The verb-register convention and the new prohibition contradict each other.
-- **`governance/policy-exception-and-risk-acceptance-management.md:94`** (multi-surface-incompleteness, warning, in-window): "Re-baselining may not be used to bypass the ceiling" — same class as the line 88 finding.
-- **`TODO.md:22`** (stale-pr-reference, note, in-window): "Next, PR #N: First fitness-remediation PR (maintainer-directed)... No remediation begins until the maintainer directs." — 21 fitness-remediation PRs have shipped under maintainer direction since this text was written. Subagent B surfaced this.
+- **`specification-master-project.md:126`** (multi-surface-incompleteness, warning, in-window): "No directory shall contain non-canonical document types.", PR #159 (FR-44) added §6.1 Requirement-language register to this very same file at line 277, reserving "shall" for external-standard quotations or legacy content. Line 126 is internal normative prose, not a quotation; the spec contradicts the rule it defines. Subagents A and B independently surfaced this finding; deduplicated to one entry.
+- **`governance/policy-exception-and-risk-acceptance-management.md:88`** (multi-surface-incompleteness, warning, in-window): "A 4th renewal may not be granted by any authority.", PR #157 (FR-16) authored this prohibition the same day PR #159 (FR-44) introduced §6.1 rule 3 ("Do not use 'may not' as a prohibition... Where the intent is a prohibition, write 'must not'."). The verb-register convention and the new prohibition contradict each other.
+- **`governance/policy-exception-and-risk-acceptance-management.md:94`** (multi-surface-incompleteness, warning, in-window): "Re-baselining may not be used to bypass the ceiling", same class as the line 88 finding.
+- **`TODO.md:22`** (stale-pr-reference, note, in-window): "Next, PR #N: First fitness-remediation PR (maintainer-directed)... No remediation begins until the maintainer directs.", 21 fitness-remediation PRs have shipped under maintainer direction since this text was written. Subagent B surfaced this.
 
 ### Changed
 
@@ -5006,14 +5031,14 @@ Sweep 14 iteration 1 close-out. Four in-window findings caught by Subagents A an
 
 - `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
 - `tools/run-pr-time-checks.sh` exits 0 (D1 + D2 + gate 45).
-- Contradiction grep for "shall" in `specification-master-project.md`: 3 remaining occurrences, all in §6.1 itself describing the convention (lines 277-280) — meta-references, not normative uses. Master spec is now consistent with its own §6.1.
+- Contradiction grep for "shall" in `specification-master-project.md`: 3 remaining occurrences, all in §6.1 itself describing the convention (lines 277-280), meta-references, not normative uses. Master spec is now consistent with its own §6.1.
 - Contradiction grep for "may not" used as prohibition in `governance/policy-exception-and-risk-acceptance-management.md`: zero occurrences post-edit.
 
 ### Discipline observation
 
 This Sweep 14 iteration surfaced a recurring failure mode: **same-day same-batch convention-self-violation**. PR #157 authored new prohibitions in §3.5 / §3.6 of the exception policy on 2026-06-21; PR #159 authored the §6.1 verb register prohibiting that exact construct, also on 2026-06-21. The two PRs were prepared in parallel by the worker-drafts pipeline (FR-16 worker did not see FR-44 worker's draft and vice versa); the maintainer applied them serially with passing CI on each, but the CI did not check cross-PR coherence because the convention rule it would have violated was not yet committed at the time PR #157's pre-commit ran.
 
-A future audit-gate candidate to address this class: a "convention-introduction batch-coherence" check that, when a PR adds a new convention rule, scans the same PR's diff (and ideally adjacent PRs in the same /validate batch) for violations of that rule. Not in scope for this PR; surfaced for future consideration. The current /validate sweep at end-of-batch is the existing safety net for this class — and it worked: Subagents A and B both caught the contradiction independently.
+A future audit-gate candidate to address this class: a "convention-introduction batch-coherence" check that, when a PR adds a new convention rule, scans the same PR's diff (and ideally adjacent PRs in the same /validate batch) for violations of that rule. Not in scope for this PR; surfaced for future consideration. The current /validate sweep at end-of-batch is the existing safety net for this class, and it worked: Subagents A and B both caught the contradiction independently.
 
 The Subagent C future-gate candidates (ordinal-ceiling pattern; numerical-coherence retention-period extension) are recorded in this entry for traceability but not actioned.
 
@@ -5025,7 +5050,7 @@ Closes FR-44 (high, requirement-language register drift). The library had a de f
 
 ### Closed findings
 
-- **FR-44** (high, multiple documents): Requirement-language register drift — "must" vs "shall" used inconsistently across the corpus with no documented convention. The fitness review confirmed the corpus is predominantly "must" (e.g., 24 "must" vs 1 "shall" in `security/standard-remote-working-security.md`) but the project had never declared this as policy. PR #150 (FR-45) and PR #154 implicitly settled on "must" / "must not" for prohibitions; this PR documents the convention as library-wide.
+- **FR-44** (high, multiple documents): Requirement-language register drift, "must" vs "shall" used inconsistently across the corpus with no documented convention. The fitness review confirmed the corpus is predominantly "must" (e.g., 24 "must" vs 1 "shall" in `security/standard-remote-working-security.md`) but the project had never declared this as policy. PR #150 (FR-45) and PR #154 implicitly settled on "must" / "must not" for prohibitions; this PR documents the convention as library-wide.
 
 ### Changed
 
@@ -5041,7 +5066,7 @@ Closes FR-44 (high, requirement-language register drift). The library had a de f
 
 - `tools/run_all_audits.sh` exits 0 on all 46 gates post-commit.
 - `tools/run-pr-time-checks.sh` exits 0 (D1 + D2 + gate 45).
-- Manual readback: §6.1 cross-references resolve (`compliance/procedure-capa.md` §6.3.1 mentioned in the rationale but not as a hard link, intentional — the rule does not bind that procedure, only states a parallel cadence); RFC 2119 / RFC 8174 cited with authors (Bradner / Leiba) and years for traceability.
+- Manual readback: §6.1 cross-references resolve (`compliance/procedure-capa.md` §6.3.1 mentioned in the rationale but not as a hard link, intentional, the rule does not bind that procedure, only states a parallel cadence); RFC 2119 / RFC 8174 cited with authors (Bradner / Leiba) and years for traceability.
 
 ### Discipline observation
 
@@ -5079,7 +5104,7 @@ Closes FR-80 (high[critical], SIEM / cloud-activity-log retention contradiction)
 
 ### Discipline observation
 
-This is a class of cross-document defect (two documents naming the same numeric threshold from different layers of a pipeline without the relationship documented) that the mechanical numerical-coherence audit could have caught — `tools/lint-cross-doc-numbers.py` already detects same-term divergence and would have flagged this pair if the regex had pattern-matched "SIEM" or "cloud activity log" against an hours/days value. The current pattern set is narrowly scoped to high-confidence cases (GDPR breach-notification hours, P1/P2/P3 acknowledgement times). Expanding the pattern set to cover retention periods is a candidate audit-programme enhancement; surfaced as a future consideration. Not in scope for this PR.
+This is a class of cross-document defect (two documents naming the same numeric threshold from different layers of a pipeline without the relationship documented) that the mechanical numerical-coherence audit could have caught, `tools/lint-cross-doc-numbers.py` already detects same-term divergence and would have flagged this pair if the regex had pattern-matched "SIEM" or "cloud activity log" against an hours/days value. The current pattern set is narrowly scoped to high-confidence cases (GDPR breach-notification hours, P1/P2/P3 acknowledgement times). Expanding the pattern set to cover retention periods is a candidate audit-programme enhancement; surfaced as a future consideration. Not in scope for this PR.
 
 ---
 
@@ -5175,7 +5200,7 @@ Closes FR-1 (high, README "What this repository is" framing). The previous "two 
 
 ### Discipline observation
 
-The original "two coordinated halves" framing was likely written when the pack was newer and more attention-grabbing than the corpus. As the corpus has matured (300+ documents, 11 domains, 46 audit gates), the framing has drifted out of accurate proportion. This is a class of finding (framing-drift over time) that audit gates cannot catch — only periodic editorial review or fitness-style external reads will surface it. Surfaced as a candidate generalisation for the corpus-management discipline (TODO P4.6): when a project's primary deliverable matures faster than its surrounding methodology, the framing of the methodology may need periodic re-grounding.
+The original "two coordinated halves" framing was likely written when the pack was newer and more attention-grabbing than the corpus. As the corpus has matured (300+ documents, 11 domains, 46 audit gates), the framing has drifted out of accurate proportion. This is a class of finding (framing-drift over time) that audit gates cannot catch, only periodic editorial review or fitness-style external reads will surface it. Surfaced as a candidate generalisation for the corpus-management discipline (TODO P4.6): when a project's primary deliverable matures faster than its surrounding methodology, the framing of the methodology may need periodic re-grounding.
 
 ---
 
@@ -5300,7 +5325,7 @@ Two findings bundled in one PR because both live in the same file; the audit pro
 
 ## 2026-06-21, Library Version 2026.06.133, PR #151
 
-Closes FR-35 (high, ✅ confirmed-as-stated, privacy breach-response). The privacy breach-response procedure mentioned the contractual 24-hour supplier notification window in three places but never anchored its clock-start to processor awareness — the GDPR Article 33(2) trigger. Adopters reading the procedure in isolation could reasonably interpret the 24-hour window as starting at controller notification (inverting Article 33(2)) or at some later containment/assessment milestone. This PR makes the asymmetry explicit and ties it directly to Article 33(2).
+Closes FR-35 (high, ✅ confirmed-as-stated, privacy breach-response). The privacy breach-response procedure mentioned the contractual 24-hour supplier notification window in three places but never anchored its clock-start to processor awareness, the GDPR Article 33(2) trigger. Adopters reading the procedure in isolation could reasonably interpret the 24-hour window as starting at controller notification (inverting Article 33(2)) or at some later containment/assessment milestone. This PR makes the asymmetry explicit and ties it directly to Article 33(2).
 
 ### Closed findings
 
@@ -5397,7 +5422,7 @@ Sweep 12 iteration 1 close-out. The first validation sweep since Sweep 11 iter 1
 
 ### Sweep findings (3 in-window, all fixed)
 
-- **(H) cross-doc-stale-cio-erm** (Subagents A and B, dedupe-confirmed): [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md) still named "Chief Information Officer" as Owner and as accountable for the enterprise risk management framework in §3 governance table. PR #143 had updated the companion standard `risk/standard-enterprise-risk-management.md` to CRO but did not touch the policy. Fix: Owner field CIO → CRO; new CRO row added to §3 governance table positioned after AI Governance Council and before Chief Information Officer; CIO row reshaped from "Accountable for the enterprise risk management framework" to "Provides executive support to the ERM programme on technology-risk integration; ensures that IT-strategy risk is reflected in the enterprise risk register" — mirrors the parallel reshape PR #143 made in the standard. Per-doc `1.4.1 → 1.4.2`; Date `2026-05-28 → 2026-06-21`.
+- **(H) cross-doc-stale-cio-erm** (Subagents A and B, dedupe-confirmed): [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md) still named "Chief Information Officer" as Owner and as accountable for the enterprise risk management framework in §3 governance table. PR #143 had updated the companion standard `risk/standard-enterprise-risk-management.md` to CRO but did not touch the policy. Fix: Owner field CIO → CRO; new CRO row added to §3 governance table positioned after AI Governance Council and before Chief Information Officer; CIO row reshaped from "Accountable for the enterprise risk management framework" to "Provides executive support to the ERM programme on technology-risk integration; ensures that IT-strategy risk is reflected in the enterprise risk register", mirrors the parallel reshape PR #143 made in the standard. Per-doc `1.4.1 → 1.4.2`; Date `2026-05-28 → 2026-06-21`.
 
 - **(M) missing-sampling-justification-link** (Subagent B): [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md) §2.2 defined the three-tier sample-size methodology (High 25-40, Medium 15-25, Low 5-15) but did not point at the new "Sampling justification" field added to [`compliance/template-audit-evidence-package.md`](../../compliance/template-audit-evidence-package.md) in PR #144. Auditors reading the procedure had no pathway to discover the template's required field. Fix: paragraph added immediately after the sample-size bullet list, naming the template's §"Operating evidence" per-test field set and explaining that the audit-evidence-package surface is where the chosen sample size and selection method appear to external auditors. Per-doc `1.0.0 → 1.0.1`; Date `2026-05-27 → 2026-06-21`.
 
@@ -5457,7 +5482,7 @@ Closes FR-3 (high, newcomer-onboarding). The README gains a "New to GRC? Start h
 
 ### Discipline observation
 
-This PR's value is asymmetric: small structural change in the README, large impact on newcomer onboarding. The §Purpose paragraph remains in place unchanged — the new section sits above it as an explicit on-ramp. Adopters who already know GRC can skim past this section; adopters new to the discipline now have the entry point that was missing.
+This PR's value is asymmetric: small structural change in the README, large impact on newcomer onboarding. The §Purpose paragraph remains in place unchanged, the new section sits above it as an explicit on-ramp. Adopters who already know GRC can skim past this section; adopters new to the discipline now have the entry point that was missing.
 
 The section also addresses an adjacent finding category (acronyms-without-expansion) at the most-visible surface: by expanding GRC and naming the sibling domains explicitly, several downstream "what does this term mean" questions are resolved before the reader hits them in subordinate docs.
 
@@ -5537,7 +5562,7 @@ Closes FR-22 (high). The audit-evidence template gains a mandatory sampling-just
 
 ### Discipline observation
 
-This is the second steady-state fitness-remediation PR (single FR-N, single-file edit, small focused PR). The amendment adds a mandatory field rather than restructuring the template — the template's existing per-control structure remains intact; only the field set per-test grows by one. Adopters using the template prior to this change continue to satisfy the new field by adding it during their next regular cycle; no migration is required.
+This is the second steady-state fitness-remediation PR (single FR-N, single-file edit, small focused PR). The amendment adds a mandatory field rather than restructuring the template, the template's existing per-control structure remains intact; only the field set per-test grows by one. Adopters using the template prior to this change continue to satisfy the new field by adding it during their next regular cycle; no migration is required.
 
 ---
 
@@ -5636,7 +5661,7 @@ Zero findings removed; both ❌ rejections led to reshape rather than removal.
   - §8.5 Pass-1 summary by bucket: count line corrected to `91` and `16`.
   - New §8.6 "Pass-2 Maintainer-Interactive Outcomes" appended after §8.5 documenting the bucket decisions, FR-14 propagation plan, FR-110 promotion, FR-43 reshape framing, FR-53 reshape + downgrade.
 - [`TODO.md`](../../TODO.md):
-  - "Next" PR item updated: previously "Fitness backlog Pass-2"; now "First fitness-remediation PR (maintainer-directed)" — maintainer reviews the backlog and selects work; no remediation begins until directed.
+  - "Next" PR item updated: previously "Fitness backlog Pass-2"; now "First fitness-remediation PR (maintainer-directed)", maintainer reviews the backlog and selects work; no remediation begins until directed.
   - Session resume metadata refreshed (`2026.06.122 → 2026.06.123`).
 - [`README.md`](../../README.md): library version `2026.06.122 → 2026.06.123`; README version `1.8.78 → 1.8.79`.
 - [`.working/DONE.md`](../DONE.md): PR #141 entry added at top of "Closed items".
@@ -5674,9 +5699,9 @@ Applies Pass-1 verification (introduced in PR #139) retroactively against the ex
 | ✅ confirmed-as-stated | 93 | majority across all severity tiers |
 | ⚠️ confirmed-with-modification | 14 | FR-8, FR-17, FR-23, FR-45, FR-51, FR-65, FR-68, FR-75, FR-76, FR-86, FR-96, FR-99, FR-101, FR-104, FR-109, FR-111 |
 | 🤔 ambiguous-needs-maintainer | 2 | FR-14 (which maturity-ladder model), FR-110 (subjective "forbidding for newcomers") |
-| ❌ rejected | 2 | FR-43 (inter-policy classification mismatch as framed — both policies use the same 4-level subset), FR-53 ("every document" claim — actually only 1 of ~410) |
+| ❌ rejected | 2 | FR-43 (inter-policy classification mismatch as framed, both policies use the same 4-level subset), FR-53 ("every document" claim, actually only 1 of ~410) |
 
-The two rejected findings illustrate the failure mode this PR's discipline catches: FR-43's claim was framed as an inter-policy mismatch where both policies actually agree on a 4-level subset (the 5-vs-4 mismatch is between the 5-level *standard* and the 4-level *subset* used in subordinate docs — a real issue but not the policy-vs-policy mismatch the finding claimed); FR-53's "every document carries both" claim was false on direct inspection (only 1 of ~410 documents matches the pattern). Both findings would have produced misdirected remediation work absent verification.
+The two rejected findings illustrate the failure mode this PR's discipline catches: FR-43's claim was framed as an inter-policy mismatch where both policies actually agree on a 4-level subset (the 5-vs-4 mismatch is between the 5-level *standard* and the 4-level *subset* used in subordinate docs, a real issue but not the policy-vs-policy mismatch the finding claimed); FR-53's "every document carries both" claim was false on direct inspection (only 1 of ~410 documents matches the pattern). Both findings would have produced misdirected remediation work absent verification.
 
 ### Changed
 
@@ -5741,7 +5766,7 @@ The next PR runs Pass-1 against the existing 111 findings in `2026-06-21-r1.md`.
 
 ## 2026-06-21, Library Version 2026.06.120, PR #138
 
-Rotates the five shipped Priority 4 items (P4.1 through P4.5) from [`TODO.md`](../../TODO.md) into [`.working/DONE.md`](../DONE.md). Maintainer-surfaced during PR #131's work: TODO's P4.1 through P4.5 sections all carried `Shipped 2026-06-20 as ...` framing — they were completed work entries, not forward-looking backlog. The rotation finishes the TODO-content cleanup that began with the decisions-log migration in PR #135.
+Rotates the five shipped Priority 4 items (P4.1 through P4.5) from [`TODO.md`](../../TODO.md) into [`.working/DONE.md`](../DONE.md). Maintainer-surfaced during PR #131's work: TODO's P4.1 through P4.5 sections all carried `Shipped 2026-06-20 as ...` framing, they were completed work entries, not forward-looking backlog. The rotation finishes the TODO-content cleanup that began with the decisions-log migration in PR #135.
 
 ### Changed
 
@@ -5751,7 +5776,7 @@ Rotates the five shipped Priority 4 items (P4.1 through P4.5) from [`TODO.md`](.
   - Sweep 4 follow-up historical note (`The Sweep 4 follow-up (classification-convention documentation) resolved within its own close-out ... and is no longer tracked here.`) removed from "Open follow-ups from validation sweeps". The note was already documenting that the item was resolved and not tracked; the meta-note about no-longer-tracking is itself stale and the section is clearer without it.
   - Queued-sequence "Shipped Priority 4 items rotation" item rotated out (this PR closes it). Fitness skill amendment becomes the new "Next".
   - Session resume metadata refreshed (`2026.06.119 → 2026.06.120`; sync after PR #138).
-- [`.working/DONE.md`](../DONE.md): Six new entries at the top of "Closed items" — PR #138 (this PR) plus `### TODO P4.1` through `### TODO P4.5`, each carrying the same paragraph the TODO file used to carry but reframed as a closed-item entry under its original P-X.Y identifier. The reframing demonstrates the rotation discipline: closed items keep their original backlog ID for cross-reference while moving to the appropriate home.
+- [`.working/DONE.md`](../DONE.md): Six new entries at the top of "Closed items", PR #138 (this PR) plus `### TODO P4.1` through `### TODO P4.5`, each carrying the same paragraph the TODO file used to carry but reframed as a closed-item entry under its original P-X.Y identifier. The reframing demonstrates the rotation discipline: closed items keep their original backlog ID for cross-reference while moving to the appropriate home.
 - [`README.md`](../../README.md): library version `2026.06.119 → 2026.06.120`; README version `1.8.75 → 1.8.76`.
 
 ### Verification
@@ -5762,7 +5787,7 @@ Rotates the five shipped Priority 4 items (P4.1 through P4.5) from [`TODO.md`](.
 
 ### Discipline observation
 
-This is the second steady-state application of the TODO/DONE rotation discipline (the first being the AUTHORS update in PR #132). It also demonstrates the cross-reference convention: closed items rotated to DONE can carry their original backlog identifier (`P4.1`, `P4.2`, etc.) as the entry header, separately from the PR-number-keyed entry that closed them. The two-key convention (`### PR #N — ...` for the PR-level entry, `### TODO P-X.Y — ...` for the original backlog item) lets a future reader search by either dimension.
+This is the second steady-state application of the TODO/DONE rotation discipline (the first being the AUTHORS update in PR #132). It also demonstrates the cross-reference convention: closed items rotated to DONE can carry their original backlog identifier (`P4.1`, `P4.2`, etc.) as the entry header, separately from the PR-number-keyed entry that closed them. The two-key convention (`### PR #N: ...` for the PR-level entry, `### TODO P-X.Y — ...` for the original backlog item) lets a future reader search by either dimension.
 
 The pattern of multi-PR TODO cleanup (PR #131 created DONE infrastructure, PR #135 restructured design-decisions, PR #138 rotates the shipped P4 items) is the natural shape: each PR has its own focused scope, but the cumulative effect is a TODO that holds only forward-looking content. Future maintainers performing similar restructuring on adopter forks can use these three PRs as worked examples.
 
@@ -5804,7 +5829,7 @@ Implements the maintainer-confirmed overnight-work protocol. The protocol provid
 
 ### Discipline observation
 
-The three-state design (rather than the binary stub-vs-non-stub that the user's original proposal sketched and I initially advocated) was the resolution of a tension I surfaced before building: a pure binary gate would have blocked overnight PRs from landing through CI, breaking the overnight workflow itself. The three-state Status field threads the needle — the gate provides the morning-processing pressure exactly when needed (after session end) while letting overnight PRs land cleanly while the session is in flight.
+The three-state design (rather than the binary stub-vs-non-stub that the user's original proposal sketched and I initially advocated) was the resolution of a tension I surfaced before building: a pure binary gate would have blocked overnight PRs from landing through CI, breaking the overnight workflow itself. The three-state Status field threads the needle, the gate provides the morning-processing pressure exactly when needed (after session end) while letting overnight PRs land cleanly while the session is in flight.
 
 The maintainer's pattern of surfacing a structural standard ("add this gate") and the assistant's pattern of building it with attention to workflow constraints ("this design tension exists; here's the resolution") is itself one of the patterns that the future corpus-management-discipline shareable skill (TODO P4.6) will want to capture.
 
@@ -5907,7 +5932,7 @@ Documents the project's language convention as **Canadian English first, Commonw
 - [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) Conventions section: new "Language convention" subsection after the existing Conventions bullets. Names the convention as Canadian-first; explains the orthographic relationship with American English; restates the em-dash / en-dash prohibition for completeness.
 - [`CONTRIBUTING.md`](../../CONTRIBUTING.md) Style requirements section:
   - New leading bullet stating the convention: `**Language convention: Canadian English first, Commonwealth (UK / Australian) second, other dialects last.**` followed by the same orthographic explanation.
-  - Original `Use Oxford English with -ize forms` bullet rewritten to `Use -ize forms (e.g. organize, prioritize, recognize) per the Canadian-orthography rule above.` This avoids the dual misattribution (the prior text said "Oxford English" which is a UK-publishing-house convention; the actual Canadian rule is "Canadian English shares the Oxford `-ize` convention with American English" — different rationale).
+  - Original `Use Oxford English with -ize forms` bullet rewritten to `Use -ize forms (e.g. organize, prioritize, recognize) per the Canadian-orthography rule above.` This avoids the dual misattribution (the prior text said "Oxford English" which is a UK-publishing-house convention; the actual Canadian rule is "Canadian English shares the Oxford `-ize` convention with American English", different rationale).
   - Em-dash prohibition extended from `No em dashes or en dashes` to `No em dashes or en dashes; use commas, colons, or parentheses` (explicit replacement guidance; matches the linter's `replace with hyphen, colon, or parentheses` framing).
   - `capitalised` (Commonwealth `-ised` form) replaced with `capitalized` in two places, applying the Canadian-orthography rule to the document itself.
   - Per-document version `1.1.0 → 1.2.0`; Date `2026-06-19 → 2026-06-21`.
@@ -5944,7 +5969,7 @@ Adds [Ryk Edelstein](https://github.com/fedelst) to the Acknowledged contributor
 - [`AUTHORS.md`](../../AUTHORS.md): Acknowledged contributors list extended with one new entry: `- **Ryk Edelstein** ([@fedelst](https://github.com/fedelst))`. Per-document version `1.1.0 → 1.1.1`; Date `2026-06-19 → 2026-06-21`.
 - [`README.md`](../../README.md): library version `2026.06.114 → 2026.06.115`; README version `1.8.70 → 1.8.71`.
 - [`TODO.md`](../../TODO.md): "AUTHORS.md" item removed from Queued sequence (rotated to DONE); language-convention item now the new "Next" PR (queued by the maintainer during the same chat thread); Session resume metadata refreshed (`2026.06.114 → 2026.06.115`; branch synced after PR #132).
-- [`.working/DONE.md`](../DONE.md): two new entries at the top of the "Closed items" section — PR #132 (this PR) and PR #131 (the bootstrap correction noted above).
+- [`.working/DONE.md`](../DONE.md): two new entries at the top of the "Closed items" section, PR #132 (this PR) and PR #131 (the bootstrap correction noted above).
 
 ### Discipline observation
 
@@ -5957,7 +5982,7 @@ This PR is the first steady-state application of the rotation discipline establi
 
 The bootstrap correction is a one-time event: PR #131 ships the DONE.md file, so PR #131 cannot add its own entry in the same commit (chicken-and-egg). PR #132 corrects this retroactively. From PR #132 onward every PR adds its own entry.
 
-The language-convention item (Canadian-first spelling) is now queued as the next PR. It surfaced during this PR's work when the maintainer clarified that the project's `-ized` form is Canadian (which shares with American) rather than American-only — the [`tools/lint-language.py`](../../tools/lint-language.py) module docstring's framing of the rule as `"British -ise endings (use -ize / -ization)"` mis-attributes the convention's origin. The fix is doc-only (the linter's behaviour is correct); scope captured in the TODO entry.
+The language-convention item (Canadian-first spelling) is now queued as the next PR. It surfaced during this PR's work when the maintainer clarified that the project's `-ized` form is Canadian (which shares with American) rather than American-only, the [`tools/lint-language.py`](../../tools/lint-language.py) module docstring's framing of the rule as `"British -ise endings (use -ize / -ization)"` mis-attributes the convention's origin. The fix is doc-only (the linter's behaviour is correct); scope captured in the TODO entry.
 
 ---
 
@@ -5974,7 +5999,7 @@ Introduces [`.working/DONE.md`](../DONE.md), the closed-TODO ledger; refactors [
 - [`TODO.md`](../../TODO.md):
   - Top-of-file blurb updated to reflect that completed items move to DONE rather than vanishing into the CHANGELOG diff: `Completed work is recorded in CHANGELOG.md; this file holds only pending and queued items` → `Completed items move to .working/DONE.md (closed-TODO ledger); historical change detail lives in CHANGELOG.md. This file holds only pending and queued items.`
   - Section restructure:
-    - "Active session work (resume here next session) — 2026-06-21" wrapper section removed; its contents either rotated to DONE or kept as their own top-level sections.
+    - "Active session work (resume here next session), 2026-06-21" wrapper section removed; its contents either rotated to DONE or kept as their own top-level sections.
     - "Session state at pause" renamed to "Session resume metadata"; library/pack/README versions refreshed to current `2026.06.114 / 1.32.0 / 1.8.70`; PR-cursor updated to "after PR #131 merge".
     - "PRs completed in this session" (entire subsection with 19 PR entries) **rotated to DONE** and removed from TODO.
     - "Key design decisions made this session" (entire subsection with 11 numbered decisions) **rotated to DONE** and removed from TODO.
@@ -5999,7 +6024,7 @@ Introduces [`.working/DONE.md`](../DONE.md), the closed-TODO ledger; refactors [
 
 - Local audit: `tools/run_all_audits.sh` exits 0 on all gates after the edits.
 - Local PR-time checks: `tools/run-pr-time-checks.sh` exits 0.
-- Manual contradiction-search: grep TODO.md for "PRs completed in this session", "Key design decisions made this session" — returns no matches (the subsections were rotated out cleanly).
+- Manual contradiction-search: grep TODO.md for "PRs completed in this session", "Key design decisions made this session", returns no matches (the subsections were rotated out cleanly).
 - Manual cross-reference check: every PR # mentioned in the rotated DONE entries is real and present in the git log; every link in DONE.md resolves (the file is under `.working/` so the broken-link audit doesn't scan it, but a manual review confirms link integrity).
 - Pack sync: `tools/lint-claude-rules-sync.py` (gate 37) confirms the local copy at `.claude/rules/governance/change-tracking.md` matches the pack source.
 
@@ -6049,7 +6074,7 @@ Removes decorative gate-count narrations from prose throughout the corpus and to
 ### Not changed (deliberately)
 
 - The §6 inventory table itself in `specification-audit-programme.md` carries explicit row numbers (1 through 45 at the time of this PR). Those are structural: §6 IS the canonical list and the numbers are how readers locate individual gates ("gate 35", "gate 45"). Not decoration.
-- Comments in [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) of the form "Generator-output drift gates (2 gates)", "Self-parity gate (1 gate)", "Linter regression test suite (1 gate)" — these describe a one- or two-gate sub-group within the runner and are sized-and-stable; not brittle.
+- Comments in [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) of the form "Generator-output drift gates (2 gates)", "Self-parity gate (1 gate)", "Linter regression test suite (1 gate)", these describe a one- or two-gate sub-group within the runner and are sized-and-stable; not brittle.
 - Gate 39's docstring patterns (`"N-gate"`, `"gates 1-N"`, etc.) are pattern documentation (the gate's regexes), not claims about the count.
 - Gate 39 itself is not retired or modified. It remains the defence against new decorations creeping back in. After this PR most prose has no number for the gate to match against, but if a future PR re-introduces a decorative `"the 47-gate audit programme"` narration, gate 39 will catch it on the very next run.
 
@@ -6075,12 +6100,12 @@ Same lesson applies to other corpus-shape state: pack rule count, pack skill cou
 
 ## 2026-06-21, Library Version 2026.06.112, PR #129
 
-Post-PR-#128 catch-up. Gate 45 (just added in PR #128) correctly flagged `TODO.md` line 47 ("Next — PR #128: Gate 45 (TODO staleness audit).") on the post-merge `main` `push`-event run, because PR #128 had now merged. PR #128's own PR-event run was green because at PR-time the merge had not yet happened; the failure surfaced one event-cycle later. The fix is the standard "rotate PR from queued to completed" TODO maintenance.
+Post-PR-#128 catch-up. Gate 45 (just added in PR #128) correctly flagged `TODO.md` line 47 ("Next, PR #128: Gate 45 (TODO staleness audit).") on the post-merge `main` `push`-event run, because PR #128 had now merged. PR #128's own PR-event run was green because at PR-time the merge had not yet happened; the failure surfaced one event-cycle later. The fix is the standard "rotate PR from queued to completed" TODO maintenance.
 
 ### Fixed
 
-- [`TODO.md`](../../TODO.md) lines 22-49 (PRs-completed list + Queued sequence): PR #128 moved from "Queued sequence" (where it appeared as "Next — PR #128: Gate 45 ...") into the PRs-completed list with its summary. Queued sequence rebased to start with the fitness-skill amendment (formerly "PR #129"; now framed generically as "Next, PR #N" since the actual PR number depends on whatever lands next). Two new follow-up design proposals captured in a paragraph at the bottom of the Queued sequence section: (a) `.working/DONE.md` as a closed-TODO ledger; (b) decorative-gate-count cleanup (P3 candidate).
-- [`TODO.md`](../../TODO.md) lines 17-20 (Session state at pause): version snapshot `2026.06.109 → 2026.06.111`; README `1.8.65 → 1.8.67`; branch synced-after marker `PR #126 → PR #128`; gate-count line replaced with "all gates passing" (per the maintainer's just-surfaced "remove decorative gate-count narrations" proposal — applied here ahead of the formal P3 PR because the line was being edited anyway).
+- [`TODO.md`](../../TODO.md) lines 22-49 (PRs-completed list + Queued sequence): PR #128 moved from "Queued sequence" (where it appeared as "Next, PR #128: Gate 45 ...") into the PRs-completed list with its summary. Queued sequence rebased to start with the fitness-skill amendment (formerly "PR #129"; now framed generically as "Next, PR #N" since the actual PR number depends on whatever lands next). Two new follow-up design proposals captured in a paragraph at the bottom of the Queued sequence section: (a) `.working/DONE.md` as a closed-TODO ledger; (b) decorative-gate-count cleanup (P3 candidate).
+- [`TODO.md`](../../TODO.md) lines 17-20 (Session state at pause): version snapshot `2026.06.109 → 2026.06.111`; README `1.8.65 → 1.8.67`; branch synced-after marker `PR #126 → PR #128`; gate-count line replaced with "all gates passing" (per the maintainer's just-surfaced "remove decorative gate-count narrations" proposal, applied here ahead of the formal P3 PR because the line was being edited anyway).
 
 ### Changed
 
@@ -6102,7 +6127,7 @@ This PR is gate 45's own first catch in production. The cycle that triggered it:
 4. The post-merge `push`-event run on `main` executed gate 45 again. The same `TODO.md` line that passed at PR-time now matched the queued-PR-already-merged pattern (because `merged_prs()` returned `{128}` for the first time). Gate failed.
 5. The maintainer received a CI-failure email and surfaced it; this PR's catch-up edits resolve the lingering state.
 
-The pattern (gate's own first finding is the PR that added the gate) is unusual but logically consistent: the discipline the gate enforces wasn't yet operational when PR #128 itself was being drafted. Going forward, every PR's pre-merge checklist should include "move this PR from 'Queued' to 'PRs completed'" — which the maintainer also surfaced as the broader proposal (DONE.md or rotate-at-PR-finalization).
+The pattern (gate's own first finding is the PR that added the gate) is unusual but logically consistent: the discipline the gate enforces wasn't yet operational when PR #128 itself was being drafted. Going forward, every PR's pre-merge checklist should include "move this PR from 'Queued' to 'PRs completed'", which the maintainer also surfaced as the broader proposal (DONE.md or rotate-at-PR-finalization).
 
 The wider lesson aligns with the user's proposal received just before this catch-up began: a PR-finalization step that compares the PR's content against TODO and rotates entries is exactly the discipline that would have prevented this failure mode. Recorded as a queued follow-up under the Queued sequence section. The structural fix is real; the manual workaround in this PR is one-time.
 
@@ -6116,7 +6141,7 @@ New audit gate 45 (TODO staleness audit) plus a PR-time-checks wrapper script. G
 
 - [`tools/lint-todo-staleness.py`](../../tools/lint-todo-staleness.py) (new, ~210 lines, stdlib-only): scans `TODO.md` for two drift patterns. Pattern 1 (queued-PR-already-merged): regex `\b(?:next|queued|pending|upcoming)\b[^\n]{0,80}PR\s*#(\d+)` matches lines marking a PR as queued; if `git log --format=%s --all` shows a "Merge pull request #N" subject for that PR, the line is stale. Pattern 2 (sweep-cursor-behind-history): regex `\bLast\s+validation\s+sweep[:\s]+Sweep\s+(\d+)\s+iter(?:ation)?\s+(\d+)` matches the sweep cursor in TODO; if `.working/validate-sweeps/history.md` contains a more recent `(sweep_n, iter_m)` tuple, the cursor is stale. Both patterns produce explicit findings with file path + line number + suggested fix. Exit codes: 0 clean, 1 stale, 2 environment error.
 - [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh) (new, executable): wrapper that invokes D1 (CHANGELOG-on-PR), D2 (per-PR version-bump), and gate 45 against `${BASE_REF:-origin/main}..${HEAD_REF:-HEAD}`. Reuses each script's positional `base head` argument convention so the same code path works locally and in CI. Exit code: first failing rc, or 0 on all-pass.
-- [`tests/test_linters.py`](../../tests/test_linters.py): `TodoStalenessTests` class with five tests — smoke-test against corpus HEAD, queued-PR-already-merged positive case, queued-PR-not-yet-merged negative case, sweep-cursor-behind-history positive case, sweep-cursor-current negative case. Tests use module-loading pattern (importlib spec_from_file_location) to call `check_file` directly with synthetic inputs, mirroring `PairedSkillStepParityTests`.
+- [`tests/test_linters.py`](../../tests/test_linters.py): `TodoStalenessTests` class with five tests, smoke-test against corpus HEAD, queued-PR-already-merged positive case, queued-PR-not-yet-merged negative case, sweep-cursor-behind-history positive case, sweep-cursor-current negative case. Tests use module-loading pattern (importlib spec_from_file_location) to call `check_file` directly with synthetic inputs, mirroring `PairedSkillStepParityTests`.
 
 ### Changed
 
@@ -6157,7 +6182,7 @@ Sweep 11 iteration 1 close-out. Eight in-window findings actioned: corrected the
 - [`.working/fitness-reviews/2026-06-21-r1.md`](../fitness-reviews/2026-06-21-r1.md) §1 + §8: claimed "95 unique findings / 18 H[critical] / 22 H / 31 M / 24 L". Mechanical tabulation of FR-1 through FR-111 (verified by orchestrator with explicit Python tally) yields **111 unique findings / 17 H[critical] / 20 H / 57 M / 17 L**. §1 corrected with explanatory note documenting the discrepancy and the Sweep 11 iter 1 correction; §8 backlog summary corrected to authoritative mechanical counts. (Subagent A finding A11-1; High; corroborated by orchestrator re-tabulation.)
 - [`.working/fitness-reviews/history.md`](../fitness-reviews/history.md) Findings column for r1 row: updated to `111 (17 H[critical], 20 H, 57 M, 17 L)` with note `counts corrected from PR #124's "95/18/22/31/24" approximation in Sweep 11 iter 1`.
 - [`governance/specification-audit-programme.md:144`](../../governance/specification-audit-programme.md): D1 description was stale post-PR-#125. Said "fails when CHANGELOG.md is not in the diff"; now correctly says "BOTH the root CHANGELOG.md AND the detailed mirror at `.working/changelog-details/CHANGELOG-detailed.md` must be in the diff (lock-step); modifying one without the other fails the gate". Spec version `1.12.0 → 1.12.1`; Date `2026-06-20 → 2026-06-21`. (Subagent A finding A11-2; Medium.)
-- [`TODO.md`](../../TODO.md): four findings (B-1 through B-4) — version snapshot stale (2026.06.107 vs canonical 2026.06.109), PRs-completed list ends at #121 (missing #122-#126), sweep cursor stale (Sweep 10 iter 2 vs current Sweep 11 iter 1), "Next — PR #122" framed as queued despite #122 having merged. All four resolved via PRs-completed list extension (now includes #122-#127) and Queued-sequence section rewrite. Plus a convention amendment: the "Session state at pause" preamble now explicitly frames the version-snapshot field as "as-of-last-refresh", not "at HEAD", with explanatory note about expected drift. This addresses the four-consecutive-sweep recurring pattern at its source. (Subagent B findings B-1 through B-4; Medium + 3 Low.)
+- [`TODO.md`](../../TODO.md): four findings (B-1 through B-4), version snapshot stale (2026.06.107 vs canonical 2026.06.109), PRs-completed list ends at #121 (missing #122-#126), sweep cursor stale (Sweep 10 iter 2 vs current Sweep 11 iter 1), "Next, PR #122" framed as queued despite #122 having merged. All four resolved via PRs-completed list extension (now includes #122-#127) and Queued-sequence section rewrite. Plus a convention amendment: the "Session state at pause" preamble now explicitly frames the version-snapshot field as "as-of-last-refresh", not "at HEAD", with explanatory note about expected drift. This addresses the four-consecutive-sweep recurring pattern at its source. (Subagent B findings B-1 through B-4; Medium + 3 Low.)
 - [`dev-security/claude-rules/governance/change-tracking.md:147-151`](../../dev-security/claude-rules/governance/change-tracking.md): "Two-file split workflow" subsection lists steps 1 and 2 as if sequential (write detailed first, then root). Softened to "Authorship order within the commit is the author's choice; the gate only checks the diff." Mirrored to [`.claude/rules/governance/change-tracking.md`](../../.claude/rules/governance/change-tracking.md). (Subagent A finding A11-3; Low.)
 - [`.working/README.md:31`](../README.md): "Created by" column heading renamed to "Origin" for clarity (rows are PR refs, not authorship). "To add a new activity" instruction updated to match. (Subagent A finding A11-4; Low.)
 
@@ -6239,7 +6264,7 @@ This PR ships the report and the remediation backlog ONLY. No corpus content is 
 
 1. **Maturity ladder fragmentation** (FR-14): three conflicting models across [`governance/framework-governance-performance-and-improvement.md`](governance/framework-governance-performance-and-improvement.md), [`docs/template-maturity-self-assessment.md`](docs/template-maturity-self-assessment.md), [`governance/register-digital-trust-and-assurance-metrics.md`](governance/register-digital-trust-and-assurance-metrics.md).
 2. **Data classification fragmentation** (FR-43): 4-level vs 5-level split across foundational docs.
-3. **DPO operational template gaps** (FR-29 through FR-34): DPIA, DPA Article 28, Privacy by Design (Art 25), LIA, Article 36 prior consultation, TIA — all referenced as required but no templates exist.
+3. **DPO operational template gaps** (FR-29 through FR-34): DPIA, DPA Article 28, Privacy by Design (Art 25), LIA, Article 36 prior consultation, TIA, all referenced as required but no templates exist.
 4. **Audit-discipline ceilings absent** (FR-16, FR-19, FR-21): exception register no max-duration; CAPA extensions no governance ceiling; obligations register accepts low-precision citations.
 5. **ERM standard owner category error** (FR-9): owned by CIO; should be CRO or Board for enterprise risk.
 6. **Coverage gaps** (FR-70 through FR-73): crypto-asset / blockchain governance; M&A due diligence; sanctions/OFAC; AI ethics review process.
@@ -6278,7 +6303,7 @@ Sweep 10 iteration 3 close-out: one in-window Medium finding actioned. Convergen
 
 Full A/B/C subagent fan-out per Rule 5.6. Subagent A returned zero findings. Subagent C returned zero findings (steady state confirmed: 44/44 gates pass, zero parity-surface drift, preflight exemption hash-verified). Subagent B caught one drift: [`TODO.md:16`](TODO.md) "Library version at HEAD" said `2026.06.105 / README 1.8.61` but post-PR-#121 HEAD is `2026.06.106 / 1.8.62`. Subagent A had classified this as as-of-session-pause and not a finding; Subagent B noted the line literally reads "at HEAD" (a current-state claim). Per Rule 5.3 pick-higher debate adjudication: B's classification holds.
 
-This is the same drift pattern iter 2 caught (TODO snapshot one PR behind the version bump performed in the same close-out PR). This PR breaks the recurrence by writing the TODO snapshot using POST-PR-#123-bump values (`.107 / .63`) — the snapshot is now current as of this PR's merge, not one PR behind.
+This is the same drift pattern iter 2 caught (TODO snapshot one PR behind the version bump performed in the same close-out PR). This PR breaks the recurrence by writing the TODO snapshot using POST-PR-#123-bump values (`.107 / .63`), the snapshot is now current as of this PR's merge, not one PR behind.
 
 ### Fixed
 
@@ -6308,7 +6333,7 @@ Full A/B/C subagent fan-out per Rule 5.6. Subagent A surfaced eleven findings (o
 ### Fixed
 
 - [`tools/sweep-preflight-exemptions.json`](tools/sweep-preflight-exemptions.json): re-added the pre-flight scanner exemption for [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md) line 121 ("Six rules, no ceremony"; the synthesis-rubric sub-rules 5.1-5.6 reference, not a governance-rule count). The previous exemption (line_hash `eca081c59b46035c`) was removed in PR #117 when the line text changed from "Four rules" to "Six rules"; PR #117 did not re-add a fresh exemption for the new line content, so every subsequent sweep re-surfaced the candidate. New line_hash: `2ae34a0ce24f10c3` (computed via SHA-256 prefix of the stripped line). (Subagent A High; Subagent C advisory corroborating.)
-- [`TODO.md`](TODO.md): "Active session work" section refreshed. Resume-state version snapshot updated (library `2026.06.104 -> 2026.06.105`, pack `1.29.0 -> 1.30.0`, README `1.8.60 -> 1.8.61` — Subagent B M); last-validation-sweep cursor updated to reflect Sweep 10 iter 2 (Subagent B L); two stale "7 personas" references corrected to "10 personas" with the three-persona expansion noted (Subagent B M x 2); PRs completed list extended to include #119, #120, #121.
+- [`TODO.md`](TODO.md): "Active session work" section refreshed. Resume-state version snapshot updated (library `2026.06.104 -> 2026.06.105`, pack `1.29.0 -> 1.30.0`, README `1.8.60 -> 1.8.61`, Subagent B M); last-validation-sweep cursor updated to reflect Sweep 10 iter 2 (Subagent B L); two stale "7 personas" references corrected to "10 personas" with the three-persona expansion noted (Subagent B M x 2); PRs completed list extended to include #119, #120, #121.
 - [`CHANGELOG.md`](CHANGELOG.md): PR #120 entry's "(new, version 1.0.0)" claim for the SKILL.md was incorrect; pack skills do not carry frontmatter version numbers (verified against [`dev-security/claude-rules/skills/validation-sweep/SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md) and other pack skills). Corrected to "(new)" with a note that pack-level versioning in the pack README's version-history table tracks skill additions. (Subagent A Low.)
 - [`.working/overnight-pr.md`](.working/overnight-pr.md): "Status (live): in progress, building skill files" was sanctioned per `.working/` frozen-state convention but misleading after PR #120 merged. Updated to reflect post-merge state. "Notes for morning review" section populated with: review checklist, recommendations for next session, files touched, corpus-boundary confirmation. (Subagent A Low.)
 
@@ -6327,7 +6352,7 @@ All 44 audit gates pass standalone post-commit. Pre-flight scanner now returns 0
 
 ### Pattern observation
 
-This iteration's finding pattern is exactly the validation-sweep's intended catch: post-PR prose drift that the mechanical gates cannot detect. The preflight-exemption finding is a specific recurring shape (rotate-line-hash-when-content-changes); the TODO drift is an unavoidable consequence of capturing resume-state at session-pause when subsequent PRs land before resume. Both are healthy — the sweep caught them and the close-out actioned them.
+This iteration's finding pattern is exactly the validation-sweep's intended catch: post-PR prose drift that the mechanical gates cannot detect. The preflight-exemption finding is a specific recurring shape (rotate-line-hash-when-content-changes); the TODO drift is an unavoidable consequence of capturing resume-state at session-pause when subsequent PRs land before resume. Both are healthy, the sweep caught them and the close-out actioned them.
 
 ---
 
@@ -6340,8 +6365,8 @@ Adds a new `library-fitness-review` skill to the `dev-security/claude-rules/` pa
 - [`dev-security/claude-rules/skills/library-fitness-review/SKILL.md`](dev-security/claude-rules/skills/library-fitness-review/SKILL.md) (new): the skill following [`skill-authoring-discipline`](dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md)'s eight-section structural template. Pack skills do not carry frontmatter version numbers; pack-level versioning in the pack README's version-history table tracks skill additions and revisions. Frontmatter `derives_from` points at [`evidence-grounded-completion`](dev-security/claude-rules/governance/evidence-grounded-completion.md) (the same parent as `validation-sweep`); the discipline this skill operationalises is fresh-reader review at corpus scope across ten persona lenses.
 - [`.claude/commands/fitness.md`](.claude/commands/fitness.md) (new): slash-command wrapping the skill. Nine-step process matching the SKILL.md's Process section.
 - [`.working/fitness-reviews/`](.working/fitness-reviews/) (new activity directory, canonical `.working/<activity>/` layout per PR #118):
-  - [`.working/fitness-reviews/README.md`](.working/fitness-reviews/README.md) — static convention info: per-run file format spec (8 H2 sections), ten-persona catalogue with scope and focus questions per persona, severity model (SARIF-lite + `[critical]` flag inside High), output flow, audit-gate exemption, adopter guidance, framework alignment.
-  - [`.working/fitness-reviews/history.md`](.working/fitness-reviews/history.md) — empty cumulative table with column headers (Date / Run / Personas / Findings / Resulting PR / Detail / Summary) and an empty Open remediation backlog table.
+  - [`.working/fitness-reviews/README.md`](.working/fitness-reviews/README.md), static convention info: per-run file format spec (8 H2 sections), ten-persona catalogue with scope and focus questions per persona, severity model (SARIF-lite + `[critical]` flag inside High), output flow, audit-gate exemption, adopter guidance, framework alignment.
+  - [`.working/fitness-reviews/history.md`](.working/fitness-reviews/history.md), empty cumulative table with column headers (Date / Run / Personas / Findings / Resulting PR / Detail / Summary) and an empty Open remediation backlog table.
 
 ### Changed
 
@@ -6481,7 +6506,7 @@ All 44 audit gates pass standalone post-commit. Gate 43 (follow-up ageing) conti
 
 ### Renamed
 
-- [`.claude/commands/validate.md`](.claude/commands/validate.md) — renamed from [`.claude/commands/validation-sweep.md`](.claude/commands/validation-sweep.md) (old path, no longer present). Short ergonomic slash command; the underlying skill name remains `validation-sweep` (descriptive identifier for the workflow's purpose). Slash commands and skills are independent identifiers; the command file wraps the skill invocation, the skill is the underlying workflow.
+- [`.claude/commands/validate.md`](.claude/commands/validate.md), renamed from [`.claude/commands/validation-sweep.md`](.claude/commands/validation-sweep.md) (old path, no longer present). Short ergonomic slash command; the underlying skill name remains `validation-sweep` (descriptive identifier for the workflow's purpose). Slash commands and skills are independent identifiers; the command file wraps the skill invocation, the skill is the underlying workflow.
 
 ### Added
 
@@ -6537,12 +6562,12 @@ All 44 audit gates pass standalone post-change. The new `.working/` directory co
 
 Sweep 9 iteration 3 close-out: three documentation findings from Subagent A's deep-review of PR #112 actioned.
 
-The iteration 3 re-baseline ran the full A/B/C subagent fan-out (per Rule 5.6 unconditional dispatch). Subagent B (corpus-wide stale-reference sweep) and Subagent C (audit-programme integrity reviewer) both returned zero findings; Subagent A (PR #112 deep review) returned one High, one Medium, and one Low finding — all within PR #112's own newly-written prose, all surfacing post-hoc inconsistencies that the mechanical gates do not detect.
+The iteration 3 re-baseline ran the full A/B/C subagent fan-out (per Rule 5.6 unconditional dispatch). Subagent B (corpus-wide stale-reference sweep) and Subagent C (audit-programme integrity reviewer) both returned zero findings; Subagent A (PR #112 deep review) returned one High, one Medium, and one Low finding, all within PR #112's own newly-written prose, all surfacing post-hoc inconsistencies that the mechanical gates do not detect.
 
 ### Fixed
 
-- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): version `1.12.0 -> 1.12.1`. Line 181 Sweep value paragraph said the iteration-2 finding's `# N <word> gates` shape was one "that P6 caught (the file was scanned)" — self-contradictory, because P6 in fact missed that shape (P7 was added in PR #112 to close exactly that gap). Corrected to "P6 missed (P6 required `\s+gates?` immediately after the digit; the intervening `corpus` defeated the regex). P7 was added in this PR to close that gap." (Subagent A High finding.)
-- [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md): the 7th-rule reference attributed the rule's origin to the "orchestrator-skip cascade where an inferred 'no parity-surface changes' premise drove a subagent-skip" — but that trigger was already addressed by Rule 5.6 in PR #111. The actual immediate trigger for the 7th rule (consistent with the dev-security pack CLAUDE.md description, the CHANGELOG entry for PR #112, and the pack rule's own "Why this rule exists" section) was the fix-completeness inference (PR #111's close-out inferring fix-completeness from one occurrence) that Sweep 9 iteration 2 caught. Description updated to list the three recurring inference triggers and name the immediate one. (Subagent A Medium finding.)
+- [`governance/register-sweep-history.md`](governance/register-sweep-history.md): version `1.12.0 -> 1.12.1`. Line 181 Sweep value paragraph said the iteration-2 finding's `# N <word> gates` shape was one "that P6 caught (the file was scanned)", self-contradictory, because P6 in fact missed that shape (P7 was added in PR #112 to close exactly that gap). Corrected to "P6 missed (P6 required `\s+gates?` immediately after the digit; the intervening `corpus` defeated the regex). P7 was added in this PR to close that gap." (Subagent A High finding.)
+- [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md): the 7th-rule reference attributed the rule's origin to the "orchestrator-skip cascade where an inferred 'no parity-surface changes' premise drove a subagent-skip", but that trigger was already addressed by Rule 5.6 in PR #111. The actual immediate trigger for the 7th rule (consistent with the dev-security pack CLAUDE.md description, the CHANGELOG entry for PR #112, and the pack rule's own "Why this rule exists" section) was the fix-completeness inference (PR #111's close-out inferring fix-completeness from one occurrence) that Sweep 9 iteration 2 caught. Description updated to list the three recurring inference triggers and name the immediate one. (Subagent A Medium finding.)
 - [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.27.0 -> 1.27.1`. Directory-tree section's `governance/` line said "initial rollout complete at pack 1.11.0; extended at 1.21.0" without mentioning the 1.27.0 extension that added the 7th rule. Other pack surfaces (version-history table, "When to use each rule" table, both CLAUDE.md files) were updated in PR #112; this one comment was missed. Corrected to "extended at 1.21.0 and 1.27.0". (Subagent A Low finding.)
 
 ### Changed
@@ -6552,7 +6577,7 @@ The iteration 3 re-baseline ran the full A/B/C subagent fan-out (per Rule 5.6 un
 
 ### Discipline observation
 
-The three iteration-3 findings were not regressions in the corpus — they were in PR #112's own newly-written prose, surfacing within hours of being committed. The evidence-grounded-completion discipline (re-read what you wrote, contradiction-search across surfaces) would have caught all three if applied to the new register entry, the new [`.claude/CLAUDE.md`](.claude/CLAUDE.md) reference, and the new directory-tree comment before PR #112 was committed. The lesson is not "add another rule" but "apply the existing rules to authoring, not just to verification". The new 7th rule and Rule 5.6 are upstream of this gap; this iteration's findings are about *applying* the discipline, not about the discipline being incomplete.
+The three iteration-3 findings were not regressions in the corpus, they were in PR #112's own newly-written prose, surfacing within hours of being committed. The evidence-grounded-completion discipline (re-read what you wrote, contradiction-search across surfaces) would have caught all three if applied to the new register entry, the new [`.claude/CLAUDE.md`](.claude/CLAUDE.md) reference, and the new directory-tree comment before PR #112 was committed. The lesson is not "add another rule" but "apply the existing rules to authoring, not just to verification". The new 7th rule and Rule 5.6 are upstream of this gap; this iteration's findings are about *applying* the discipline, not about the discipline being incomplete.
 
 ### Verification
 
@@ -6564,12 +6589,12 @@ All 44 audit gates pass standalone post-fix. The three corrections are internall
 
 Sweep 9 iteration 2 closure + seventh governance rule ([`validate-inference-before-action.md`](dev-security/claude-rules/governance/validate-inference-before-action.md)).
 
-PR #111's close-out claimed completion after fixing the one `42 corpus gates` occurrence Subagent C surfaced (in [`tools/run_all_audits.sh`](tools/run_all_audits.sh):65). That claim was inferred-complete on the basis of a single occurrence rather than a corpus-wide search for parallel ones. Sweep 9 iteration 2 re-baselined and Subagent B found the parallel occurrence in [`tools/check-changelog-on-pr.py`](tools/check-changelog-on-pr.py):5 — same shape, same drift, missed because the previous PR's close-out inferred rather than validated. The discipline failure is at the close-out, not at gate 39's regex; the structural fix is a new pack rule that fires at the inference-driven-action surface as the action-side counterpart of `evidence-grounded-completion`.
+PR #111's close-out claimed completion after fixing the one `42 corpus gates` occurrence Subagent C surfaced (in [`tools/run_all_audits.sh`](tools/run_all_audits.sh):65). That claim was inferred-complete on the basis of a single occurrence rather than a corpus-wide search for parallel ones. Sweep 9 iteration 2 re-baselined and Subagent B found the parallel occurrence in [`tools/check-changelog-on-pr.py`](tools/check-changelog-on-pr.py):5, same shape, same drift, missed because the previous PR's close-out inferred rather than validated. The discipline failure is at the close-out, not at gate 39's regex; the structural fix is a new pack rule that fires at the inference-driven-action surface as the action-side counterpart of `evidence-grounded-completion`.
 
 ### Added
 
 - [`dev-security/claude-rules/governance/validate-inference-before-action.md`](dev-security/claude-rules/governance/validate-inference-before-action.md) (new, version 1.0.0): the seventh pack governance rule. Discipline: when the next action depends on an inferred premise (a state claim not directly observed in the current turn), validate the premise via a tool call before taking the action. Trigger surface: clauses of the form `since / because / given X, [action]` where X is a state claim that has not been observed in the current turn. The protocol is four steps: identify the inference, cost the validation, validate, act on the validated observation. The rule's worked example is this PR's cascade: Sweep 9 iter 1 → PR #111 inferred fix-completeness → Sweep 9 iter 2 surfaced the missed parallel occurrence. Mirrored to [`.claude/rules/governance/validate-inference-before-action.md`](.claude/rules/governance/validate-inference-before-action.md) for in-project session loading.
-- [`tools/lint-gate-count-consistency.py`](tools/lint-gate-count-consistency.py): pattern P7 added — `\b(\d{2,})\s+[a-z]{2,12}\s+gates?(?![-\w])` — closes the `N <word> gates` shape that P6 missed (P6 required `\s+gates?` immediately after the digit; P7 allows one intervening word like `corpus` or `mandatory`). Added [`governance/register-sweep-history.md`](governance/register-sweep-history.md) to `EXEMPT_FILES` because the register's historical "State:" snapshots legitimately quote past gate counts (e.g. `44 corpus gates`) and would otherwise false-positive on every sweep entry as the count grows.
+- [`tools/lint-gate-count-consistency.py`](tools/lint-gate-count-consistency.py): pattern P7 added, `\b(\d{2,})\s+[a-z]{2,12}\s+gates?(?![-\w])`, closes the `N <word> gates` shape that P6 missed (P6 required `\s+gates?` immediately after the digit; P7 allows one intervening word like `corpus` or `mandatory`). Added [`governance/register-sweep-history.md`](governance/register-sweep-history.md) to `EXEMPT_FILES` because the register's historical "State:" snapshots legitimately quote past gate counts (e.g. `44 corpus gates`) and would otherwise false-positive on every sweep entry as the count grows.
 
 ### Changed
 
@@ -6584,7 +6609,7 @@ PR #111's close-out claimed completion after fixing the one `42 corpus gates` oc
 
 ### Discipline gap and the fix
 
-The failure mode: PR #111's close-out fixed the C-2 finding (`tools/run_all_audits.sh:65`) and inferred that the fix was complete. The inference was wrong — a parallel occurrence existed in [`tools/check-changelog-on-pr.py`](tools/check-changelog-on-pr.py):5 with the same `42 corpus gates` shape — and the cascade propagated into the next iteration's surface area. The structural defence is the new pack rule: at any decision boundary where an action depends on an inferred premise, the premise must be validated via tool call before the action proceeds. For "fix is complete after one occurrence", the validation is one `grep` over the corpus for the pattern; the cost is bounded, the cascade prevented is unbounded.
+The failure mode: PR #111's close-out fixed the C-2 finding (`tools/run_all_audits.sh:65`) and inferred that the fix was complete. The inference was wrong, a parallel occurrence existed in [`tools/check-changelog-on-pr.py`](tools/check-changelog-on-pr.py):5 with the same `42 corpus gates` shape, and the cascade propagated into the next iteration's surface area. The structural defence is the new pack rule: at any decision boundary where an action depends on an inferred premise, the premise must be validated via tool call before the action proceeds. For "fix is complete after one occurrence", the validation is one `grep` over the corpus for the pattern; the cost is bounded, the cascade prevented is unbounded.
 
 ### Verification
 
@@ -6596,7 +6621,7 @@ All 44 audit gates pass standalone post-fix. The extended gate 39 pattern (P7) c
 
 Sweep 9 closure: Subagent C findings actioned + structural prevention of unauthorised subagent skips.
 
-The post-P4.5 validation sweep initially dispatched only Subagents A and B; Subagent C was skipped on the orchestrator's incorrect "no parity-surface changes" justification (gate 39 source was just changed in PR #110 — that IS a parity surface). The maintainer flagged the skip as a discipline failure. Subagent C was then dispatched and returned two findings.
+The post-P4.5 validation sweep initially dispatched only Subagents A and B; Subagent C was skipped on the orchestrator's incorrect "no parity-surface changes" justification (gate 39 source was just changed in PR #110, that IS a parity surface). The maintainer flagged the skip as a discipline failure. Subagent C was then dispatched and returned two findings.
 
 ### Changed
 
@@ -6610,7 +6635,7 @@ The post-P4.5 validation sweep initially dispatched only Subagents A and B; Suba
 
 ### Discipline gap and the fix
 
-The failure mode: the orchestrator inferred "no parity-surface changes since prior sweep" and skipped C, but gate 39's source was just changed in PR #110 — that IS a parity surface. The orchestrator's inference cascade went un-checked because the SKILL did not require a positive dispatch declaration. Silent absence cannot be reconstructed; the only point to enforce is the moment the orchestrator dispatches (or fails to dispatch) the subagent.
+The failure mode: the orchestrator inferred "no parity-surface changes since prior sweep" and skipped C, but gate 39's source was just changed in PR #110, that IS a parity surface. The orchestrator's inference cascade went un-checked because the SKILL did not require a positive dispatch declaration. Silent absence cannot be reconstructed; the only point to enforce is the moment the orchestrator dispatches (or fails to dispatch) the subagent.
 
 Rule 5.6's mechanism: every sweep entry in the register declares which subagents ran. The maintainer (or any reader) can verify three names appear; if fewer than three, the entry must include the maintainer authorisation. Mechanical enforcement could come later via a lint that scans register entries for the declaration; this PR ships the discipline first and the lint follows if drift recurs.
 
@@ -7018,7 +7043,7 @@ Research basis: SARIF v2.1.0 specification minimum-viable result structure (requ
 
 ### Scope decision
 
-The research explicitly recommended "no parser" — the value is in the field shape, not wire-format compliance. The block format is markdown-friendly, grep-able, and uniform across subagents; the parent does dedupe via string-match on the deterministic fingerprint rather than semantic comparison.
+The research explicitly recommended "no parser", the value is in the field shape, not wire-format compliance. The block format is markdown-friendly, grep-able, and uniform across subagents; the parent does dedupe via string-match on the deterministic fingerprint rather than semantic comparison.
 
 ### Changed
 
@@ -7228,7 +7253,7 @@ Validation-sweep enhancement 3 of 4 from the process-assessment review: determin
 
 ### Added
 
-- [`tools/sweep-preflight-scanner.py`](tools/sweep-preflight-scanner.py): new exploratory tool. Runs BEFORE subagent fan-out in the validation-sweep cycle. Deterministic regex-based pass with seed patterns for stale skill counts, stale governance-rule counts, and prose-form number drift (one through twenty). Exits 0 always — informational, not a gate. High-recall by design; the subagent triage is the precision layer. Extensible via the `CANONICAL_COLLECTIONS` list and seed patterns.
+- [`tools/sweep-preflight-scanner.py`](tools/sweep-preflight-scanner.py): new exploratory tool. Runs BEFORE subagent fan-out in the validation-sweep cycle. Deterministic regex-based pass with seed patterns for stale skill counts, stale governance-rule counts, and prose-form number drift (one through twenty). Exits 0 always, informational, not a gate. High-recall by design; the subagent triage is the precision layer. Extensible via the `CANONICAL_COLLECTIONS` list and seed patterns.
 
 ### Changed
 
@@ -7287,7 +7312,7 @@ Pack version `1.26.0 → 1.26.1` (patch: discipline-self-violation cleanup). Lib
 
 ### Verification
 
-Full audit programme passes standalone on the final state. The validation-sweep's first run on the new skills caught its own pack's discipline violations — exactly the failure mode the skill-authoring-discipline skill was authored to prevent. The recursive self-test worked. This entry records that the cleanup pass landed; subsequent invocations of `/validation-sweep` should now confirm no remaining sibling defects on the new skills.
+Full audit programme passes standalone on the final state. The validation-sweep's first run on the new skills caught its own pack's discipline violations, exactly the failure mode the skill-authoring-discipline skill was authored to prevent. The recursive self-test worked. This entry records that the cleanup pass landed; subsequent invocations of `/validation-sweep` should now confirm no remaining sibling defects on the new skills.
 
 ---
 
@@ -7326,7 +7351,7 @@ Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_al
 
 ## 2026-06-20, Library Version 2026.06.60, PR #74
 
-Layer 3 of the validation programme — invocation-pattern documentation. The validation-sweep skill (shipped in PR #62) is now discoverable via a project slash command and cross-referenced bidirectionally from related skills.
+Layer 3 of the validation programme, invocation-pattern documentation. The validation-sweep skill (shipped in PR #62) is now discoverable via a project slash command and cross-referenced bidirectionally from related skills.
 
 ### Added
 
@@ -7352,7 +7377,7 @@ Wire the collection-candidate detector (shipped in PR #72) to run automatically 
 
 Implementation: a new step in [`.github/workflows/quality.yml`](.github/workflows/quality.yml) named "Detect collection candidates on pack PRs (informational)" runs on `pull_request` events. The step uses `git diff --name-only` between the PR base and head to detect whether any file under `dev-security/claude-rules/` changed; if so, it invokes [`tools/detect-collection-candidates.py`](tools/detect-collection-candidates.py) and surfaces output to the workflow log. If no pack changes, the step prints a skip message naming the on-demand invocation. The step uses environment variables (`BASE_SHA`, `HEAD_SHA`) for the SHA values rather than direct `${{ ... }}` interpolation, following the tikitribe github-actions injection-prevention rule.
 
-**Informational, not a gate**: the step exits 0 always — the detector surfaces candidates rather than failing. It is exempted from the gate-name parity audit via the new entry in [`tools/lint-audit-gate-parity.py`](tools/lint-audit-gate-parity.py)'s `WORKFLOW_DELTA_GATE_STEPS` set.
+**Informational, not a gate**: the step exits 0 always, the detector surfaces candidates rather than failing. It is exempted from the gate-name parity audit via the new entry in [`tools/lint-audit-gate-parity.py`](tools/lint-audit-gate-parity.py)'s `WORKFLOW_DELTA_GATE_STEPS` set.
 
 Library version `2026.06.58 → 2026.06.59`; README version `1.8.14 → 1.8.15`.
 
@@ -7367,7 +7392,7 @@ Library version `2026.06.58 → 2026.06.59`; README version `1.8.14 → 1.8.15`.
 
 ### Verification
 
-Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0). All 42 corpus gates pass; the new informational step is workflow-only and does not participate in the corpus runner. Gate 35 (Gate-name parity audit) confirms parity intact across all four surfaces at 42 gates. The new step will be exercised by THIS PR's own CI run — the PR touches files under `dev-security/claude-rules/` (CHANGELOG narrative references the path, but the diff itself does not touch pack files; expected behaviour: the step runs and prints the no-pack-changes skip message).
+Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0). All 42 corpus gates pass; the new informational step is workflow-only and does not participate in the corpus runner. Gate 35 (Gate-name parity audit) confirms parity intact across all four surfaces at 42 gates. The new step will be exercised by THIS PR's own CI run, the PR touches files under `dev-security/claude-rules/` (CHANGELOG narrative references the path, but the diff itself does not touch pack files; expected behaviour: the step runs and prints the no-pack-changes skip message).
 
 ---
 
@@ -7447,7 +7472,7 @@ Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_al
 
 ## 2026-06-20, Library Version 2026.06.55, PR #69
 
-Add gate 41 (**Collection-enumeration consistency audit**) — Layer 2 / 3 of 3 in the validation programme. The linter walks a hard-coded configuration of "collections" (currently: pack governance rules and pack skills), each declaring a canonical source-of-truth directory and one or more enumeration locations elsewhere in the corpus. For each collection, the linter compares the canonical set against each enumeration set and flags missing-or-extra items.
+Add gate 41 (**Collection-enumeration consistency audit**), Layer 2 / 3 of 3 in the validation programme. The linter walks a hard-coded configuration of "collections" (currently: pack governance rules and pack skills), each declaring a canonical source-of-truth directory and one or more enumeration locations elsewhere in the corpus. For each collection, the linter compares the canonical set against each enumeration set and flags missing-or-extra items.
 
 **Initial coverage**:
 - **pack-governance-rules**: canonical at the [`governance/`](dev-security/claude-rules/governance/) directory's `*.md` listing; enumerated in the pack README directory tree, the pack CLAUDE.md Development-governance section, and the project CLAUDE.md Security-and-governance section.
@@ -7457,7 +7482,7 @@ A companion detector tool (Layer 2 / 3 Phase 2, separate follow-up PR) will surf
 
 **Real drift caught on first invocation**: gate 41's first standalone run flagged the `validation-sweep` skill (added in PR #62) as missing from the pack README's skills tree section. Same pattern as gates 39 and 40: a gate's first invocation finds real pre-existing drift. The missing tree entry is added in this PR.
 
-Audit-programme spec `1.8.0 → 1.9.0` (minor: new gate added). Pack version `1.25.3 → 1.25.4` (patch: validation-sweep skill entry added to pack README's skills tree, caught by gate 41 itself on its first invocation, then caught by gate 40 post-commit when the README body changed without a Version bump — the post-commit-audit discipline from PR #68 surfaced this immediately). Library version `2026.06.54 → 2026.06.55`; README version `1.8.10 → 1.8.11`. Four governance documents carry patch bumps for their `40-gate → 41-gate` prose updates.
+Audit-programme spec `1.8.0 → 1.9.0` (minor: new gate added). Pack version `1.25.3 → 1.25.4` (patch: validation-sweep skill entry added to pack README's skills tree, caught by gate 41 itself on its first invocation, then caught by gate 40 post-commit when the README body changed without a Version bump, the post-commit-audit discipline from PR #68 surfaced this immediately). Library version `2026.06.54 → 2026.06.55`; README version `1.8.10 → 1.8.11`. Four governance documents carry patch bumps for their `40-gate → 41-gate` prose updates.
 
 ### Added
 
@@ -7468,7 +7493,7 @@ Audit-programme spec `1.8.0 → 1.9.0` (minor: new gate added). Pack version `1.
 ### Changed
 
 - [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md): §2.1 corpus count `40 → 41`; §5 category 5 gate list extended with gate 41 (Programme and index integrity: gate 41 audits the consistency of enumerated indexes, same family as gates 35 / 39); §6 inventory row 41 appended; §6 added a paragraph describing gate 41's mechanism and the relationship to the forthcoming detector tool; §6.1 corpus count `40-gate → 41-gate`. Version `1.8.0 → 1.9.0`.
-- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): added validation-sweep skill line to the skills tree section. This was the drift gate 41's first invocation surfaced — the skill was added in PR #62 but never enumerated in the pack README tree.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): added validation-sweep skill line to the skills tree section. This was the drift gate 41's first invocation surfaced, the skill was added in PR #62 but never enumerated in the pack README tree.
 - Four governance documents bumped patch versions for `40-gate → 41-gate` prose: [`procedure-library-quality-and-review-cadence.md`](governance/procedure-library-quality-and-review-cadence.md) (1.0.7 → 1.0.8); [`register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (1.27.13 → 1.27.14); [`register-coverage-gaps.md`](governance/register-coverage-gaps.md) (1.1.7 → 1.1.8); [`register-main-branch-protection.md`](governance/register-main-branch-protection.md) (1.0.7 → 1.0.8).
 - [`tools/check-changelog-on-pr.py`](tools/check-changelog-on-pr.py), [`tools/check-version-bump-on-pr.py`](tools/check-version-bump-on-pr.py), [`tools/lint-audit-gate-parity.py`](tools/lint-audit-gate-parity.py), [`tools/run_all_audits.sh`](tools/run_all_audits.sh), [`tools/README.md`](tools/README.md): docstring / comment references to `40-gate` and `40 corpus gates` updated to `41-gate` and `41 corpus gates`.
 - [`README.md`](README.md): library version `2026.06.54 → 2026.06.55`; README version `1.8.10 → 1.8.11`.
@@ -7504,7 +7529,7 @@ Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_al
 
 ### Sweep findings not actioned (declined this round)
 
-- **Refine gate 40 + D2 to exempt metadata-only edits** (lines 1–30 only). The maintainer declined this option in the triage. The strict reading remains: any touch to a versioned document requires a Version bump, including metadata-only fixes. This means future Date / Owner / Reviewer corrections will continue to require Version bumps. Documented here so the strictness is on record.
+- **Refine gate 40 + D2 to exempt metadata-only edits** (lines 1-30 only). The maintainer declined this option in the triage. The strict reading remains: any touch to a versioned document requires a Version bump, including metadata-only fixes. This means future Date / Owner / Reviewer corrections will continue to require Version bumps. Documented here so the strictness is on record.
 
 ---
 
@@ -7514,7 +7539,7 @@ Add a new audit gate (#40): **Corpus version-bump-recency audit**. Layer 2 deliv
 
 Together D2 + gate 40 close the per-document version-bump-omission defect class. D2 catches it at PR time (the typical path); gate 40 catches it at HEAD via git-log heuristics, covering squash-merge, direct-push, and batch-cosmetic-commit paths.
 
-**Retroactive bumps (24 documents)**: gate 40's first invocation flagged 24 documents whose bodies had been touched by historical batch cosmetic commits (`Hyperlink unlinked file references across the corpus` and three other batches) without per-document Version bumps. Per the maintainer's discipline ruling — every sweep finding gets actioned regardless of when the gap was introduced — all 24 are bumped by patch in the first commit of this PR. The bumps and gate-wiring ship as two commits in the same PR so the gate's strict mode lands with the corpus already in compliance.
+**Retroactive bumps (24 documents)**: gate 40's first invocation flagged 24 documents whose bodies had been touched by historical batch cosmetic commits (`Hyperlink unlinked file references across the corpus` and three other batches) without per-document Version bumps. Per the maintainer's discipline ruling, every sweep finding gets actioned regardless of when the gap was introduced, all 24 are bumped by patch in the first commit of this PR. The bumps and gate-wiring ship as two commits in the same PR so the gate's strict mode lands with the corpus already in compliance.
 
 Audit-programme spec `1.7.2 → 1.8.0` (minor: new gate added). Library version `2026.06.52 → 2026.06.53`; README version `1.8.8 → 1.8.9`. Four governance documents carry patch bumps for their `39-gate → 40-gate` prose updates. Twenty-four other documents carry patch bumps as the retroactive recognition described above.
 
@@ -7560,7 +7585,7 @@ Audit-programme spec `1.7.1 → 1.7.2` (patch: §5 categorisation completed for 
 
 ### Correction to PR #64 CHANGELOG entry
 
-The CHANGELOG entry for PR #64 (line 49) claimed `§5 category 1 gate list extended with gate 39 (Metadata integrity sense: the spec also adds gate 39 to category 5 Programme and index integrity...)`. The leading claim is wrong: PR #64 added gate 39 to category 5 only, not to category 1. Category 1's gate list at [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) line 66 reads `(gates 1, 7, 8, 13, 14, 15, 16, 19, 38)` and is correct as-of-shipped — gate 38 is in category 1 (the Metadata-integrity slot confirmed with the maintainer in PR #61), and gate 39 is in category 5 (Programme and index integrity, the audit-programme-meta-gate slot decided unilaterally in PR #64). The PR #64 entry's parenthetical hedge "Metadata integrity sense" was confused authorial drafting at the time, not a real edit; the spec was edited correctly. Per the [change-tracking rule](dev-security/claude-rules/governance/change-tracking.md), PR #64's CHANGELOG entry is left as it originally shipped; this correction is documented forward here rather than retroactively edited into the original entry.
+The CHANGELOG entry for PR #64 (line 49) claimed `§5 category 1 gate list extended with gate 39 (Metadata integrity sense: the spec also adds gate 39 to category 5 Programme and index integrity...)`. The leading claim is wrong: PR #64 added gate 39 to category 5 only, not to category 1. Category 1's gate list at [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) line 66 reads `(gates 1, 7, 8, 13, 14, 15, 16, 19, 38)` and is correct as-of-shipped, gate 38 is in category 1 (the Metadata-integrity slot confirmed with the maintainer in PR #61), and gate 39 is in category 5 (Programme and index integrity, the audit-programme-meta-gate slot decided unilaterally in PR #64). The PR #64 entry's parenthetical hedge "Metadata integrity sense" was confused authorial drafting at the time, not a real edit; the spec was edited correctly. Per the [change-tracking rule](dev-security/claude-rules/governance/change-tracking.md), PR #64's CHANGELOG entry is left as it originally shipped; this correction is documented forward here rather than retroactively edited into the original entry.
 
 ### Sweep findings not actioned (Low / FYI)
 
@@ -7589,7 +7614,7 @@ Audit-programme spec `1.7.0 → 1.7.1` (patch: new §6.1 delta gate documented; 
 
 - [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md): §6.1 delta-gates table extended with row `D2` for the new gate, plus a paragraph describing what D2 enforces and why it sits in §6.1 rather than §6 (requires PR refs unavailable in the corpus runners). Version `1.7.0 → 1.7.1`.
 - [`tools/lint-audit-gate-parity.py`](tools/lint-audit-gate-parity.py): `WORKFLOW_DELTA_GATE_STEPS` set extended with `"Per-PR version-bump check"` so the parity audit correctly excludes the new delta gate from its 39-gate corpus check.
-- [`tools/check-changelog-on-pr.py`](tools/check-changelog-on-pr.py): stale-reference fix — docstring line 5 said `The 32 corpus gates check repository state at HEAD`, which had drifted through the gate-count bumps from 32 to 39; updated to `The 39 corpus gates check repository state at HEAD`. The gate 39 linter (cross-file gate-count consistency) did not catch this because its regex set targets `\b(\d+)-gate\b` and `\b(\d+) audit gates\b` idioms; `(\d+) corpus gates` is a new phrasing variant. A future Layer 2 extension can broaden the regex set; for this PR the fix is in-place.
+- [`tools/check-changelog-on-pr.py`](tools/check-changelog-on-pr.py): stale-reference fix, docstring line 5 said `The 32 corpus gates check repository state at HEAD`, which had drifted through the gate-count bumps from 32 to 39; updated to `The 39 corpus gates check repository state at HEAD`. The gate 39 linter (cross-file gate-count consistency) did not catch this because its regex set targets `\b(\d+)-gate\b` and `\b(\d+) audit gates\b` idioms; `(\d+) corpus gates` is a new phrasing variant. A future Layer 2 extension can broaden the regex set; for this PR the fix is in-place.
 - [`README.md`](README.md): library version `2026.06.50 → 2026.06.51`; README version `1.8.6 → 1.8.7`.
 
 ### Verification
@@ -7667,11 +7692,11 @@ Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_al
 
 ## 2026-06-20, Library Version 2026.06.48, PR #62
 
-Add the `validation-sweep` skill to the [`dev-security/claude-rules/`](dev-security/claude-rules/) pack: a corpus-wide regression sweep designed to run as a follow-up after any issue is identified and corrected, to confirm no sibling issue remains anywhere in the repository. The skill operationalises the worked example added to `evidence-grounded-completion` in PR #60 (and corrected in PR #61) at corpus scope: combines the mechanical audit suite ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) — the canonical 38-gate full-audit invocation) with a structured semantic fan-out across parallel subagents (recent-PR deep review, corpus-wide stale-reference sweep, audit-programme integrity check), and loops until the cycle returns clean.
+Add the `validation-sweep` skill to the [`dev-security/claude-rules/`](dev-security/claude-rules/) pack: a corpus-wide regression sweep designed to run as a follow-up after any issue is identified and corrected, to confirm no sibling issue remains anywhere in the repository. The skill operationalises the worked example added to `evidence-grounded-completion` in PR #60 (and corrected in PR #61) at corpus scope: combines the mechanical audit suite ([`tools/run_all_audits.sh`](tools/run_all_audits.sh), the canonical 38-gate full-audit invocation) with a structured semantic fan-out across parallel subagents (recent-PR deep review, corpus-wide stale-reference sweep, audit-programme integrity check), and loops until the cycle returns clean.
 
 The trigger pattern is the maintainer's stated use case: after any issue is identified, corrected, and then this is performed as a follow-up to ensure that there is nothing anywhere left that is wrong. The skill's fixed-point semantics catch the sibling-defect failure mode (same author, same session, same blind spot, multiple instances of the same shape of defect across the corpus) that this morning's three-PR sequence (PRs #59, #60, #61) demonstrated in practice.
 
-This is Layer 1 of a three-layer validation programme. Layer 2 (new mechanical audit gates for the failure-mode classes the existing 38 gates do not cover — cross-file gate-count consistency, per-PR version-bump audit, and the maintainer-flagged collection-enumeration-consistency rule) will follow in subsequent PRs. Layer 3 (invocation-pattern documentation, including a project slash command pointing at this skill) closes the loop.
+This is Layer 1 of a three-layer validation programme. Layer 2 (new mechanical audit gates for the failure-mode classes the existing 38 gates do not cover, cross-file gate-count consistency, per-PR version-bump audit, and the maintainer-flagged collection-enumeration-consistency rule) will follow in subsequent PRs. Layer 3 (invocation-pattern documentation, including a project slash command pointing at this skill) closes the loop.
 
 Pack version `1.24.3 → 1.25.0` (minor: new skill added, matching the precedent of pack 1.22.0 adding two skills). Library version `2026.06.47 → 2026.06.48`; README version `1.8.3 → 1.8.4` (patch: library-version-only bump).
 
@@ -7681,7 +7706,7 @@ Pack version `1.24.3 → 1.25.0` (minor: new skill added, matching the precedent
 
 ### Changed
 
-- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.24.3 → 1.25.0`. Version-history table extended with a row for pack 1.25.0 / library 2026.06.48 / 2026-06-20 / "Added `skills/validation-sweep` — corpus-wide regression sweep as a follow-up after any issue identified and corrected; derives from `evidence-grounded-completion` and operationalises its worked example at corpus scope".
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.24.3 → 1.25.0`. Version-history table extended with a row for pack 1.25.0 / library 2026.06.48 / 2026-06-20 / "Added `skills/validation-sweep`, corpus-wide regression sweep as a follow-up after any issue identified and corrected; derives from `evidence-grounded-completion` and operationalises its worked example at corpus scope".
 - [`README.md`](README.md): library version `2026.06.47 → 2026.06.48`; README version `1.8.3 → 1.8.4`.
 
 ### Verification
@@ -7692,13 +7717,13 @@ Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_al
 
 ## 2026-06-20, Library Version 2026.06.47, PR #61
 
-Cleanup pass after PR #59 and PR #60, surfaced by a recursive consistency review the maintainer requested before resuming Phase A work. Two failure shapes were found: (1) PR #60's worked example for `evidence-grounded-completion` mis-attributed the citing rule (claimed "step 4 of the verification protocol: when in doubt, re-run the verification standalone" — but step 4 is "Proactively search for contradictions", and the "when in doubt" phrasing is from the user-level Claude Code memory file's Rule 1.4 (outside this repository), not from the pack rule); (2) PR #59 added gate 38 to the §6 inventory and the four parity surfaces but missed seven downstream prose references in five files that still said "37 gates", and the spec's §5 categorisation was left without a slot for gate 38. The irony is that PR #60 shipped a worked example about exactly this multi-surface-omission failure mode and itself committed the mis-attribution variant of it.
+Cleanup pass after PR #59 and PR #60, surfaced by a recursive consistency review the maintainer requested before resuming Phase A work. Two failure shapes were found: (1) PR #60's worked example for `evidence-grounded-completion` mis-attributed the citing rule (claimed "step 4 of the verification protocol: when in doubt, re-run the verification standalone", but step 4 is "Proactively search for contradictions", and the "when in doubt" phrasing is from the user-level Claude Code memory file's Rule 1.4 (outside this repository), not from the pack rule); (2) PR #59 added gate 38 to the §6 inventory and the four parity surfaces but missed seven downstream prose references in five files that still said "37 gates", and the spec's §5 categorisation was left without a slot for gate 38. The irony is that PR #60 shipped a worked example about exactly this multi-surface-omission failure mode and itself committed the mis-attribution variant of it.
 
 Pack version `1.24.2 → 1.24.3` (patch: citation correction in the worked example; no behavioural change). Audit-programme spec `1.6.0 → 1.6.1` (patch: prose cleanup; §5 gate-38 categorisation, §6 partition narrative, §6.1 corpus count). Three governance registers carry patch bumps. Library version `2026.06.46 → 2026.06.47`; README version `1.8.2 → 1.8.3`.
 
 ### Fixed
 
-- [`dev-security/claude-rules/governance/evidence-grounded-completion.md`](dev-security/claude-rules/governance/evidence-grounded-completion.md) (pack source) and [`.claude/rules/governance/evidence-grounded-completion.md`](.claude/rules/governance/evidence-grounded-completion.md) (mirror): the worked example's discipline-lesson paragraph re-cited to the pack rule's actual "Relying on prior runs" anti-pattern, replacing the incorrect "step 4 of the verification protocol — when in doubt, re-run the verification standalone" phrasing. The substantive lesson is unchanged; only the citation is corrected. Both files re-synced and verified byte-identical by gate 37.
+- [`dev-security/claude-rules/governance/evidence-grounded-completion.md`](dev-security/claude-rules/governance/evidence-grounded-completion.md) (pack source) and [`.claude/rules/governance/evidence-grounded-completion.md`](.claude/rules/governance/evidence-grounded-completion.md) (mirror): the worked example's discipline-lesson paragraph re-cited to the pack rule's actual "Relying on prior runs" anti-pattern, replacing the incorrect "step 4 of the verification protocol, when in doubt, re-run the verification standalone" phrasing. The substantive lesson is unchanged; only the citation is corrected. Both files re-synced and verified byte-identical by gate 37.
 - [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md): §5 category 1 "Metadata integrity" gate list extended from `(gates 1, 7, 8, 13, 14, 15, 16, 19)` to `(gates 1, 7, 8, 13, 14, 15, 16, 19, 38)`; the prose enumeration for that category extended to include "section placement conventions (orientation sections in the top three `##` sections, Licence and Version-history sections in the bottom three)" before "version monotonicity". §6 partition narrative updated from "Gates 1 through 32 are pure read-only linters" to "Gates 1 through 32 and gate 38 are pure read-only linters", correctly grouping gate 38 with the other pure-linter gates rather than with the special-purpose meta-gates (33-37). §6.1 corpus count updated from `37-gate` to `38-gate`. Version `1.6.0 → 1.6.1`.
 - [`tools/run_all_audits.sh`](tools/run_all_audits.sh): top-of-file comment "The current sweep is 37 gates" updated to "38 gates".
 - [`tools/lint-audit-gate-parity.py`](tools/lint-audit-gate-parity.py): comment "of the 37-gate corpus inventory in §6" updated to "38-gate". This is the comment block explaining why the workflow's delta-gate steps are excluded from the parity audit's scope.
@@ -7724,13 +7749,13 @@ The three subagent-driven sweeps (PR #59 + #60 deep review, corpus-wide stale-re
 
 ## 2026-06-20, Library Version 2026.06.46, PR #60
 
-Memorialise the multi-surface gate-parity failure mode as a worked example in the `evidence-grounded-completion` governance rule. The rule already names the abstract failure (claiming a gate suite passes from inference rather than from running it on the final state); the worked example grounds the abstraction in the concrete shape it took in practice — a session wiring a new gate into N–1 of N parallel surfaces and prepping the work for the next operator without re-running the audit, with the gate-name-parity gate catching the omission when the next session ran the full audit. The lesson generalises beyond audit gates to any work that touches parallel surfaces (mirror-sync, generator-output drift, polyglot lockfiles, cross-package version registers).
+Memorialise the multi-surface gate-parity failure mode as a worked example in the `evidence-grounded-completion` governance rule. The rule already names the abstract failure (claiming a gate suite passes from inference rather than from running it on the final state); the worked example grounds the abstraction in the concrete shape it took in practice, a session wiring a new gate into N, 1 of N parallel surfaces and prepping the work for the next operator without re-running the audit, with the gate-name-parity gate catching the omission when the next session ran the full audit. The lesson generalises beyond audit gates to any work that touches parallel surfaces (mirror-sync, generator-output drift, polyglot lockfiles, cross-package version registers).
 
 Pack version `1.24.1 → 1.24.2` (patch: illustrative additive content in an existing rule; no behavioural change to the protocol). Library version `2026.06.45 → 2026.06.46`; README version `1.8.1 → 1.8.2` (patch: library-version-only bump).
 
 ### Changed
 
-- [`dev-security/claude-rules/governance/evidence-grounded-completion.md`](dev-security/claude-rules/governance/evidence-grounded-completion.md): added a new `## Worked example: the multi-surface gate-name parity case` section between `## Framework alignment` and `## Why this rule exists`. The example describes the failure shape (omitted one of N parallel surfaces), the recovery (full audit on the final state catches it, one-block fix closes the loop), the discipline lesson (step 4 of the verification protocol — "when in doubt, re-run the verification standalone" — fires exactly when the session is not in doubt), and the wider generalisation to any multi-surface work. No edits to existing sections. Pack source.
+- [`dev-security/claude-rules/governance/evidence-grounded-completion.md`](dev-security/claude-rules/governance/evidence-grounded-completion.md): added a new `## Worked example: the multi-surface gate-name parity case` section between `## Framework alignment` and `## Why this rule exists`. The example describes the failure shape (omitted one of N parallel surfaces), the recovery (full audit on the final state catches it, one-block fix closes the loop), the discipline lesson (step 4 of the verification protocol, "when in doubt, re-run the verification standalone", fires exactly when the session is not in doubt), and the wider generalisation to any multi-surface work. No edits to existing sections. Pack source.
 - [`.claude/rules/governance/evidence-grounded-completion.md`](.claude/rules/governance/evidence-grounded-completion.md): mirror-synced from the pack source; identical body. The Claude-rules local-copy sync audit (gate 37) confirms parity with the pack source.
 - [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md): pack version `1.24.1 → 1.24.2`; Date `2026-06-19 → 2026-06-20`. No structural changes; pack version-history table not amended (patch versions are aggregated; the table's row for the 1.24.x line stands at 1.24.0).
 - [`README.md`](README.md): library version `2026.06.45 → 2026.06.46`; README version `1.8.1 → 1.8.2`.
@@ -7743,7 +7768,7 @@ Full audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_al
 
 ## 2026-06-20, Library Version 2026.06.45, PR #59
 
-Add a new audit gate (#38) — the Section placement audit — that codifies two placement conventions a corpus-wide section-ordering survey found universally observed: orientation sections (Purpose, Scope, Overview, Applicability, Introduction, Executive Summary) must appear in the top three `##` sections, and Licence and Version-history sections must appear in the bottom three. The gate catches future drift mechanically without requiring per-doctype canonical-order codification. Library version `2026.06.44 → 2026.06.45`; audit-programme specification version `1.5.0 → 1.6.0` (minor bump: new gate added); README version `1.8.0 → 1.8.1` (patch: library-version-only bump).
+Add a new audit gate (#38), the Section placement audit, that codifies two placement conventions a corpus-wide section-ordering survey found universally observed: orientation sections (Purpose, Scope, Overview, Applicability, Introduction, Executive Summary) must appear in the top three `##` sections, and Licence and Version-history sections must appear in the bottom three. The gate catches future drift mechanically without requiring per-doctype canonical-order codification. Library version `2026.06.44 → 2026.06.45`; audit-programme specification version `1.5.0 → 1.6.0` (minor bump: new gate added); README version `1.8.0 → 1.8.1` (patch: library-version-only bump).
 
 ### Added
 
@@ -7891,7 +7916,7 @@ Full 37-gate audit programme passes standalone ([`tools/run_all_audits.sh`](tool
 
 ## 2026-06-19, Library Version 2026.06.38, PR #52
 
-Add a sixth governance rule to the `dev-security/claude-rules/` pack: [`governance/action-before-explanation-of-inaction.md`](dev-security/claude-rules/governance/action-before-explanation-of-inaction.md), the pack-distributable form of the user-level Rule 8 added on 2026-06-19. The discipline: never explain why an external action cannot or will not proceed without first attempting it (when the action is safe and reversible) or naming it and asking (when it is destructive). The phased governance rollout announced at pack version 1.6.0 completed at 1.11.0 with the first five rules; this entry extends the set post-rollout after a recurring AI-coding-assistant failure mode was observed in production sessions (narrating a reason to wait — "the PR is blocked because it needs a reviewer" — instead of attempting the cheap, reversible action that would have produced a real result).
+Add a sixth governance rule to the `dev-security/claude-rules/` pack: [`governance/action-before-explanation-of-inaction.md`](dev-security/claude-rules/governance/action-before-explanation-of-inaction.md), the pack-distributable form of the user-level Rule 8 added on 2026-06-19. The discipline: never explain why an external action cannot or will not proceed without first attempting it (when the action is safe and reversible) or naming it and asking (when it is destructive). The phased governance rollout announced at pack version 1.6.0 completed at 1.11.0 with the first five rules; this entry extends the set post-rollout after a recurring AI-coding-assistant failure mode was observed in production sessions (narrating a reason to wait, "the PR is blocked because it needs a reviewer", instead of attempting the cheap, reversible action that would have produced a real result).
 
 The rule ships alongside a Claude Code Skill mirror at [`dev-security/claude-rules/skills/action-before-explanation-of-inaction/SKILL.md`](dev-security/claude-rules/skills/action-before-explanation-of-inaction/SKILL.md), following the Phase S.3 pattern where each workflow-shaped governance rule has both a normative pack-rule statement and an invocable skill wrapper. The skill carries the reversibility-gate protocol as Process steps with the canonical rule named as the source of truth via the `derives_from` frontmatter; the Skill derives-from reference audit ([`tools/lint-skill-derives-from.py`](tools/lint-skill-derives-from.py)) verifies the pointer.
 
@@ -8044,7 +8069,7 @@ The change is deliberately scoped to the rule and its consumers; it does not att
 ### Added
 
 - New section **"Beyond completion: claims about artefact state"** in [`dev-security/claude-rules/governance/evidence-grounded-completion.md`](dev-security/claude-rules/governance/evidence-grounded-completion.md), placed between "What counts as a completion claim" and "The verification protocol". It defines a state assertion (a claim about what an artefact contains, lacks, or requires), states that such a claim requires a read rather than an inference, and gives the four-point discipline: read before characterising; label hypotheses explicitly; separate findings from hypotheses in analysis; own a caught inference plainly.
-- New bullet in the rule's "Prohibited anti-patterns" section: **"Characterising an artefact you have not opened"** — asserting contents, gaps, or requirements by inference rather than by reading, explicitly noting the anti-pattern fires in analysis and assessment, not only at completion.
+- New bullet in the rule's "Prohibited anti-patterns" section: **"Characterising an artefact you have not opened"**, asserting contents, gaps, or requirements by inference rather than by reading, explicitly noting the anti-pattern fires in analysis and assessment, not only at completion.
 - New "When to Use" trigger and a description-line addition in [`dev-security/claude-rules/skills/evidence-grounded-completion/SKILL.md`](dev-security/claude-rules/skills/evidence-grounded-completion/SKILL.md) so the skill surfaces for state assertions in research, assessment, planning, or review, not only for completion claims.
 
 ### Changed
@@ -8069,16 +8094,16 @@ Full 37-gate audit programme passes standalone ([`tools/run_all_audits.sh`](tool
 
 ## 2026-06-19, Library Version 2026.06.31, PR #44
 
-New audit gate (gate 37), **Claude-rules local-copy sync audit**, closing the systemic drift class the regression audit identified. The project keeps copies of a subset of the [`dev-security/claude-rules/`](dev-security/claude-rules/) pack under `.claude/rules/` so a Claude Code session loads them as context. Both trees are exempt from the corpus linters, so until now nothing caught a local copy drifting from its pack source — the exact gap that let the evidence-grounded-completion local copy fall out of sync (fixed manually in PR #41) and would have re-opened on the next pack edit. This gate makes that drift class mechanically detectable.
+New audit gate (gate 37), **Claude-rules local-copy sync audit**, closing the systemic drift class the regression audit identified. The project keeps copies of a subset of the [`dev-security/claude-rules/`](dev-security/claude-rules/) pack under `.claude/rules/` so a Claude Code session loads them as context. Both trees are exempt from the corpus linters, so until now nothing caught a local copy drifting from its pack source, the exact gap that let the evidence-grounded-completion local copy fall out of sync (fixed manually in PR #41) and would have re-opened on the next pack edit. This gate makes that drift class mechanically detectable.
 
 ### Added
 
-- New audit gate 37, **Claude-rules local-copy sync audit**, implemented by [`tools/lint-claude-rules-sync.py`](tools/lint-claude-rules-sync.py). For each declared (local copy, pack source) pair it compares the two files' bodies after stripping the local copy's by-design additions — a leading YAML frontmatter block (the path-scoping `paths:` block on the path-scoped copies) and a leading HTML provenance comment — and fails on any body divergence. It additionally enforces a **completeness check**: every markdown file under `.claude/rules/` other than the local-only `external/` overlay must appear in the linter's source mapping, so a future un-mapped mirror fails the gate rather than going silently unchecked. This is the property that prevents the drift class recurring one level up. The audit accepts a `--root` override for the regression suite. Exit codes: 0 pass, 1 findings (body drift or unmapped file), 2 internal error (a mapped file is missing).
+- New audit gate 37, **Claude-rules local-copy sync audit**, implemented by [`tools/lint-claude-rules-sync.py`](tools/lint-claude-rules-sync.py). For each declared (local copy, pack source) pair it compares the two files' bodies after stripping the local copy's by-design additions, a leading YAML frontmatter block (the path-scoping `paths:` block on the path-scoped copies) and a leading HTML provenance comment, and fails on any body divergence. It additionally enforces a **completeness check**: every markdown file under `.claude/rules/` other than the local-only `external/` overlay must appear in the linter's source mapping, so a future un-mapped mirror fails the gate rather than going silently unchecked. This is the property that prevents the drift class recurring one level up. The audit accepts a `--root` override for the regression suite. Exit codes: 0 pass, 1 findings (body drift or unmapped file), 2 internal error (a mapped file is missing).
 - New regression test class `ClaudeRulesSyncTests` in [`tests/test_linters.py`](tests/test_linters.py): the live in-sync state passes (subprocess); an in-sync pair carrying a local provenance comment passes; genuine body drift between copy and source is flagged; and an unmapped local rule file fails the completeness check. The drift and completeness tests drive the linter in-process with a patched mapping against a synthetic root so the detection logic is exercised without perturbing the real tree.
 
 ### Changed
 
-- Audit programme grows from 36 to 37 gates. The new gate is **appended** as gate 37 (not inserted), so no existing gate renumbers — gate 35 (parity) and gate 36 (regression suite) keep their numbers, and the inline `gate-36 regression test suite` references in the linter sources and [`tests/README.md`](tests/README.md) are untouched. This deliberately avoids the renumber churn that, in this session's earlier work, was the dominant source of stale gate-number references. The gate is logically a drift check akin to the generator-output in-sync gates (33, 34) but is placed last for that reason; the §6 narrative documents the rationale.
+- Audit programme grows from 36 to 37 gates. The new gate is **appended** as gate 37 (not inserted), so no existing gate renumbers, gate 35 (parity) and gate 36 (regression suite) keep their numbers, and the inline `gate-36 regression test suite` references in the linter sources and [`tests/README.md`](tests/README.md) are untouched. This deliberately avoids the renumber churn that, in this session's earlier work, was the dominant source of stale gate-number references. The gate is logically a drift check akin to the generator-output in-sync gates (33, 34) but is placed last for that reason; the §6 narrative documents the rationale.
 - All four CI surfaces wired to invoke the new gate after the regression suite: [`.github/workflows/quality.yml`](.github/workflows/quality.yml) (new step); [`tools/run_all_audits.sh`](tools/run_all_audits.sh) (new `run_gate`; header sweep count `36 → 37`); [`.pre-commit-config.yaml`](.pre-commit-config.yaml) (new hook `lint-claude-rules-sync`); [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) §6 (new row 37). The gate-name parity audit (gate 35) confirms the four surfaces agree on the 37-gate set.
 - [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md): version `1.4.0 → 1.5.0`; date stays `2026-06-19`. Minor (material): §5 category 5 extended to include gate 37, §6 inventory grew a row, §6 post-table narrative gained a paragraph for gate 37, §6.1 corpus-count `36 → 37` (the parity gate reference stays gate 35).
 - Gate-count text `36 → 37` updated in the four governance documents that cite it, each with a per-document version bump: [`governance/procedure-library-quality-and-review-cadence.md`](governance/procedure-library-quality-and-review-cadence.md) (`1.0.3 → 1.0.4`); [`governance/register-main-branch-protection.md`](governance/register-main-branch-protection.md) (`1.0.3 → 1.0.4`, including the `gates 1-36 → 1-37` run-range); [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md) (`1.1.3 → 1.1.4`, audit-coverage list gains "claude-rules local-copy sync"); [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) (`1.27.9 → 1.27.10`). The docstring count in [`tools/lint-audit-gate-parity.py`](tools/lint-audit-gate-parity.py) updated `36 → 37`.
@@ -8113,7 +8138,7 @@ Security fix: harden the gate-21 (Secret pattern audit) private-key detection re
 
 ### Changed
 
-- [`dev-security/claude-rules/core/secrets.md`](dev-security/claude-rules/core/secrets.md) and its project-local copy [`.claude/rules/secrets.md`](.claude/rules/secrets.md): the "Prohibited patterns" example `private_key` marker converged to the key-type-agnostic PKCS#8 form (the bare `PRIVATE KEY` label in the standard dash-fenced envelope). The source previously showed the RSA-specific form (which teaches that private keys are RSA — they are not); the local copy previously showed a truncated marker (vague). Both now show the generic PKCS#8 form, which is the most common modern serialization and the exact form the old regex missed. This also resolves a source-vs-local body divergence the regression audit flagged (the two copies' bodies are now identical modulo the local copy's provenance comment). Both files are exempt from gate 21 by basename, so the example does not self-trip the scanner.
+- [`dev-security/claude-rules/core/secrets.md`](dev-security/claude-rules/core/secrets.md) and its project-local copy [`.claude/rules/secrets.md`](.claude/rules/secrets.md): the "Prohibited patterns" example `private_key` marker converged to the key-type-agnostic PKCS#8 form (the bare `PRIVATE KEY` label in the standard dash-fenced envelope). The source previously showed the RSA-specific form (which teaches that private keys are RSA, they are not); the local copy previously showed a truncated marker (vague). Both now show the generic PKCS#8 form, which is the most common modern serialization and the exact form the old regex missed. This also resolves a source-vs-local body divergence the regression audit flagged (the two copies' bodies are now identical modulo the local copy's provenance comment). Both files are exempt from gate 21 by basename, so the example does not self-trip the scanner.
 - [`README.md`](README.md): library version `2026.06.29 → 2026.06.30`; README version `1.7.167 → 1.7.168`.
 
 ### Why anchor on `PRIVATE KEY` rather than enumerate algorithms
@@ -8122,7 +8147,7 @@ Future-proofing and precision both argue for the same anchor. Future private-key
 
 ### A note on this entry not tripping the gate it documents
 
-CHANGELOG.md is NOT on gate 21's exemption list (only the canonical [`.claude/rules/secrets.md`](.claude/rules/secrets.md) / [`dev-security/claude-rules/core/secrets.md`](dev-security/claude-rules/core/secrets.md), the linter itself, and the test file are exempt). An earlier draft of this entry reproduced the full dash-fenced header strings and correctly tripped the hardened gate. Rather than exempt CHANGELOG.md (which would weaken the gate to make content pass — a gate-discipline violation), the entry was rewritten to name each header by its PEM label without the dash-fenced envelope. This is the same discipline the canonical secrets.md relies on its exemption for: documentation that must describe a secret pattern either lives in an exempt file or describes the pattern without reproducing a detectable instance.
+CHANGELOG.md is NOT on gate 21's exemption list (only the canonical [`.claude/rules/secrets.md`](.claude/rules/secrets.md) / [`dev-security/claude-rules/core/secrets.md`](dev-security/claude-rules/core/secrets.md), the linter itself, and the test file are exempt). An earlier draft of this entry reproduced the full dash-fenced header strings and correctly tripped the hardened gate. Rather than exempt CHANGELOG.md (which would weaken the gate to make content pass, a gate-discipline violation), the entry was rewritten to name each header by its PEM label without the dash-fenced envelope. This is the same discipline the canonical secrets.md relies on its exemption for: documentation that must describe a secret pattern either lives in an exempt file or describes the pattern without reproducing a detectable instance.
 
 ### Verification
 
@@ -8198,7 +8223,7 @@ Regression-audit fix: correct stale gate-number and pack-version references in [
 
 ### Why name-not-number
 
-This is the same lesson the PR #38 "No decorative external links" subsection encodes on a different axis: a reference that looks stable (a gate number) is not stable when the thing it points at can be renumbered. Prose outside the canonical inventory should reference gates by name; the inventory is the single place numbers are maintained. [`TODO.md`](TODO.md) is informational and not gate-enforced (no metadata block; exempt from the corpus audits), so nothing mechanically caught the drift — the regression audit did.
+This is the same lesson the PR #38 "No decorative external links" subsection encodes on a different axis: a reference that looks stable (a gate number) is not stable when the thing it points at can be renumbered. Prose outside the canonical inventory should reference gates by name; the inventory is the single place numbers are maintained. [`TODO.md`](TODO.md) is informational and not gate-enforced (no metadata block; exempt from the corpus audits), so nothing mechanically caught the drift, the regression audit did.
 
 ### Verification
 
@@ -8230,7 +8255,7 @@ The pack-rule extension is a documentation discipline change; the audit-gate add
 
 ### Verification
 
-Full 36-gate audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. Gate 31 (Document Date staleness audit), now in force, passes — the only files this PR edits with a `Date` metadata field are [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) (which is under the pack-rule prefix the audit exempts) and [`README.md`](README.md) (committed today, fresh Date). The pack rule [`governance/evidence-grounded-completion.md`](dev-security/claude-rules/governance/evidence-grounded-completion.md) itself is under `dev-security/claude-rules/` and not subject to the corpus metadata audits (no `Date` field on individual rule files; the pack README carries the pack version). The version-monotonicity audit (gate 13) confirms `2026.06.24 → 2026.06.25` and the pack-README's `1.20.0 → 1.20.1` are strictly increasing. The version-date consistency audit (gate 29) confirms `2026.06.25` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
+Full 36-gate audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. Gate 31 (Document Date staleness audit), now in force, passes, the only files this PR edits with a `Date` metadata field are [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) (which is under the pack-rule prefix the audit exempts) and [`README.md`](README.md) (committed today, fresh Date). The pack rule [`governance/evidence-grounded-completion.md`](dev-security/claude-rules/governance/evidence-grounded-completion.md) itself is under `dev-security/claude-rules/` and not subject to the corpus metadata audits (no `Date` field on individual rule files; the pack README carries the pack version). The version-monotonicity audit (gate 13) confirms `2026.06.24 → 2026.06.25` and the pack-README's `1.20.0 → 1.20.1` are strictly increasing. The version-date consistency audit (gate 29) confirms `2026.06.25` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
 
 ### Self-disclosure of the failure mode this PR documents
 
@@ -8257,7 +8282,7 @@ Option B from the S.4 follow-up: close the audit-coverage gap that allowed the S
 - [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md): version `1.1.2 → 1.1.3`; date stays `2026-06-19`. Patch: 35-gate → 36-gate and added "document Date staleness against git commit date" to the audit-programme coverage list.
 - [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md): version `1.27.8 → 1.27.9`; date stays `2026-06-19`. Patch: 35-gate → 36-gate in the audit-programme spec's index-row purpose column.
 - [`security/README.md`](security/README.md): version `1.2.0 → 1.2.1`; date `2026-05-28 → 2026-06-19`. Patch backfill: the S.2 PR (library version `2026.06.19`, shipped 2026-06-19) added the Threat Modelling Standard to this README's listed-standards table without bumping per-document metadata. The new audit gate identified the omission during its initial run; the backfill keeps the audit's first commit clean.
-- [`governance/register-canonical-citations.md`](governance/register-canonical-citations.md): version `1.4.21 → 1.4.22`; date `2026-05-31 → 2026-06-19`. Patch backfill: same root cause as [`security/README.md`](security/README.md) above — the S.2 PR added STRIDE and LINDDUN citation rows without bumping per-document metadata. Identified by the new audit gate's initial run.
+- [`governance/register-canonical-citations.md`](governance/register-canonical-citations.md): version `1.4.21 → 1.4.22`; date `2026-05-31 → 2026-06-19`. Patch backfill: same root cause as [`security/README.md`](security/README.md) above, the S.2 PR added STRIDE and LINDDUN citation rows without bumping per-document metadata. Identified by the new audit gate's initial run.
 - Auto-generated artefacts regenerated to reflect the new source metadata: [`taxonomy.yml`](taxonomy.yml) and [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md).
 - [`README.md`](README.md): library version `2026.06.23 → 2026.06.24`; README version `1.7.161 → 1.7.162`.
 
@@ -8271,7 +8296,7 @@ The audit's initial run identified two files that the S.2 PR (library version `2
 
 ### Verification
 
-Full 36-gate audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. New gate 31 (Document Date staleness audit) reports the in-scope files (those with commit dates at or after baseline 2026-06-19) and finds no findings after the two S.2 backfills. New regression test class `DocumentDateStalenessTests` passes all three tests (stale-flagged, fresh-passes, pre-baseline-grandfathered) — verified standalone via `python3 -m unittest tests.test_linters.DocumentDateStalenessTests` and via gate 36 (Linter regression test suite). The gate-name parity audit (now gate 35) confirms all four surfaces agree on the 36-gate name set and order. The version-date consistency audit (gate 29) confirms `2026.06.24` matches `2026-06`. The library-version-monotonicity audit (gate 13) confirms `2026.06.23 → 2026.06.24` and the seven per-document version bumps are all strictly increasing. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
+Full 36-gate audit programme passes standalone ([`tools/run_all_audits.sh`](tools/run_all_audits.sh) exit code 0) immediately before commit. New gate 31 (Document Date staleness audit) reports the in-scope files (those with commit dates at or after baseline 2026-06-19) and finds no findings after the two S.2 backfills. New regression test class `DocumentDateStalenessTests` passes all three tests (stale-flagged, fresh-passes, pre-baseline-grandfathered), verified standalone via `python3 -m unittest tests.test_linters.DocumentDateStalenessTests` and via gate 36 (Linter regression test suite). The gate-name parity audit (now gate 35) confirms all four surfaces agree on the 36-gate name set and order. The version-date consistency audit (gate 29) confirms `2026.06.24` matches `2026-06`. The library-version-monotonicity audit (gate 13) confirms `2026.06.23 → 2026.06.24` and the seven per-document version bumps are all strictly increasing. The D1 CHANGELOG-on-PR delta gate is satisfied by this entry.
 
 ### Why this gate, this design, this baseline
 
@@ -8318,7 +8343,7 @@ S.4 follow-up: move the speculative "fourth skill" narrative out of the merged S
 
 ### Added
 
-- New section "Pack and tooling extension" in [`TODO.md`](TODO.md) with a single item, "Post-S.3 evaluation of the Claude Code Skills format", placed between Priority 6 and Investigation / blocked. The item records: decision trigger (next pack version bump, refactor of an existing skill, or annual tooling review — whichever comes first); empirical evidence to weigh (Skill-tool discovery behaviour, semantic-drift judgement, format-stability evidence, subjective maintainer judgement); candidate rules ([`change-tracking.md`](dev-security/claude-rules/governance/change-tracking.md) → `change-tracking-write-entry`; [`artefact-and-branch-discipline.md`](dev-security/claude-rules/governance/artefact-and-branch-discipline.md) → `artefact-discipline-check`); selection criterion (failure-frequency observation, workflow-shape clarity, concrete misstep evidence); possible outcomes (add one, add both, add neither, defer).
+- New section "Pack and tooling extension" in [`TODO.md`](TODO.md) with a single item, "Post-S.3 evaluation of the Claude Code Skills format", placed between Priority 6 and Investigation / blocked. The item records: decision trigger (next pack version bump, refactor of an existing skill, or annual tooling review, whichever comes first); empirical evidence to weigh (Skill-tool discovery behaviour, semantic-drift judgement, format-stability evidence, subjective maintainer judgement); candidate rules ([`change-tracking.md`](dev-security/claude-rules/governance/change-tracking.md) → `change-tracking-write-entry`; [`artefact-and-branch-discipline.md`](dev-security/claude-rules/governance/artefact-and-branch-discipline.md) → `artefact-discipline-check`); selection criterion (failure-frequency observation, workflow-shape clarity, concrete misstep evidence); possible outcomes (add one, add both, add neither, defer).
 
 ### Changed
 
@@ -8328,7 +8353,7 @@ S.4 follow-up: move the speculative "fourth skill" narrative out of the merged S
 
 ### Why this cleanup
 
-Keep a Changelog is strictly retrospective — entries describe what changed, not what might change. The S.3 and S.4 CHANGELOG entries each carried a forward-looking sentence that recorded a speculative future skill (`change-tracking-write-entry`) without defining what "proven their format in practice" meant and without acknowledging the alternative candidate. That made the speculation neither a real plan (no criteria, no trigger, no decision date) nor a clean historical record (forward-looking content in a retrospective document). The right home for forward-looking content is [`TODO.md`](TODO.md), where the project's other planned-but-not-yet-actioned enhancements are tracked. This PR closes the gap by moving the content to its proper home and recasting it as a plan with the criteria a reader can act on.
+Keep a Changelog is strictly retrospective, entries describe what changed, not what might change. The S.3 and S.4 CHANGELOG entries each carried a forward-looking sentence that recorded a speculative future skill (`change-tracking-write-entry`) without defining what "proven their format in practice" meant and without acknowledging the alternative candidate. That made the speculation neither a real plan (no criteria, no trigger, no decision date) nor a clean historical record (forward-looking content in a retrospective document). The right home for forward-looking content is [`TODO.md`](TODO.md), where the project's other planned-but-not-yet-actioned enhancements are tracked. This PR closes the gap by moving the content to its proper home and recasting it as a plan with the criteria a reader can act on.
 
 ### Verification
 
@@ -8501,7 +8526,7 @@ Phase D.1 of the follow-up plan: give five previously-exempt repo-root meta file
 
 ### Verification
 
-Full 34-gate audit programme passes standalone immediately before commit. The metadata audit (gate 1) now actively validates all five newly-headered files; previously it ignored them via `EXEMPT` / `EXEMPT_PREFIXES`. The filename-title-alignment audit (gate 7) accepts the repo-root basenames via the extended `PREFIX_EXEMPT_BASENAMES`. The metadata-block line-break audit (gate 30, shipped earlier today) ran clean on the five files — each new block's non-last lines carry the trailing `\` hard-break marker. The version-monotonicity audit (gate 13) confirms NOTICE's per-document `1.2.0 → 1.3.0` is an increase. The version-date consistency audit (gate 29) confirms `2026.06.16` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate passes.
+Full 34-gate audit programme passes standalone immediately before commit. The metadata audit (gate 1) now actively validates all five newly-headered files; previously it ignored them via `EXEMPT` / `EXEMPT_PREFIXES`. The filename-title-alignment audit (gate 7) accepts the repo-root basenames via the extended `PREFIX_EXEMPT_BASENAMES`. The metadata-block line-break audit (gate 30, shipped earlier today) ran clean on the five files, each new block's non-last lines carry the trailing `\` hard-break marker. The version-monotonicity audit (gate 13) confirms NOTICE's per-document `1.2.0 → 1.3.0` is an increase. The version-date consistency audit (gate 29) confirms `2026.06.16` matches `2026-06`. The D1 CHANGELOG-on-PR delta gate passes.
 
 ### Phased follow-up context
 
@@ -8515,7 +8540,7 @@ Phase C.1 of the follow-up plan: document the `main` branch-protection configura
 
 ### Added
 
-- [`governance/register-main-branch-protection.md`](governance/register-main-branch-protection.md) — new register documenting the configured GitHub ruleset on the `main` branch as of `2026-06-02`. Records each enabled rule, each rule explicitly left off (with rationale), the bypass-actor list state, adjacent settings (the repo's "Automatically delete head branches" toggle), the drift-detection procedure, and the load-bearing dependency between the required `Lint markdown corpus` status check and the 34-gate audit programme.
+- [`governance/register-main-branch-protection.md`](governance/register-main-branch-protection.md), new register documenting the configured GitHub ruleset on the `main` branch as of `2026-06-02`. Records each enabled rule, each rule explicitly left off (with rationale), the bypass-actor list state, adjacent settings (the repo's "Automatically delete head branches" toggle), the drift-detection procedure, and the load-bearing dependency between the required `Lint markdown corpus` status check and the 34-gate audit programme.
 
 ### Changed
 
@@ -8548,7 +8573,7 @@ Phase B.1 of the follow-up plan: promote the metadata-line-breaks scanner method
 
 ### Added
 
-- [`tools/lint-metadata-line-breaks.py`](tools/lint-metadata-line-breaks.py) — new audit gate 30 (Metadata-block line-break audit). Finds runs of 2+ consecutive `**Field:**` lines and confirms each non-last line ends with either `\` or two-or-more trailing spaces (both are valid Markdown hard-break markers). Skips fenced code blocks via `iter_non_code_lines` so templates demonstrating metadata format are not false-positives. Last line in each run is exempt because the next line is conventionally a blank line or `---` separator.
+- [`tools/lint-metadata-line-breaks.py`](tools/lint-metadata-line-breaks.py), new audit gate 30 (Metadata-block line-break audit). Finds runs of 2+ consecutive `**Field:**` lines and confirms each non-last line ends with either `\` or two-or-more trailing spaces (both are valid Markdown hard-break markers). Skips fenced code blocks via `iter_non_code_lines` so templates demonstrating metadata format are not false-positives. Last line in each run is exempt because the next line is conventionally a blank line or `---` separator.
 - [`tests/test_linters.py`](tests/test_linters.py) gains `MetadataLineBreaksTests` with two cases: (a) a metadata block outside any code fence whose non-last lines lack hard-break markers (must be flagged), and (b) the same block inside a code fence (must NOT be flagged).
 
 ### Changed
@@ -8560,7 +8585,7 @@ Phase B.1 of the follow-up plan: promote the metadata-line-breaks scanner method
 
 ### Why this matters
 
-We've seen the soft-wrap rendering bug bite 6 files across the corpus during today's session: the pack [`README.md`](dev-security/claude-rules/README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`docs/worked-example.md`](docs/worked-example.md), and three [`compliance/logistics/`](compliance/logistics/) registers. Each was found by an ad-hoc Python scanner — a one-off discovery that doesn't run in CI. With the gate in place, any future PR that introduces or reintroduces the same bug fails CI before merge. The implementation reuses the methodology proven in those rendering-fix PRs, including the fenced-code-block skip that prevents false-positives on metadata-format-demonstration templates.
+We've seen the soft-wrap rendering bug bite 6 files across the corpus during today's session: the pack [`README.md`](dev-security/claude-rules/README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`docs/worked-example.md`](docs/worked-example.md), and three [`compliance/logistics/`](compliance/logistics/) registers. Each was found by an ad-hoc Python scanner, a one-off discovery that doesn't run in CI. With the gate in place, any future PR that introduces or reintroduces the same bug fails CI before merge. The implementation reuses the methodology proven in those rendering-fix PRs, including the fenced-code-block skip that prevents false-positives on metadata-format-demonstration templates.
 
 ### Verification
 
@@ -8590,7 +8615,7 @@ Phase A.1 of the follow-up plan: fix the underlying defect in the version-monoto
 
 ### Why this matters
 
-Phase 0 (`2026.06.2`) bulk-bumped `0.0.1 → 1.0.1` across 54 files using a sed pattern that matched any line starting with `**Version:** 0.0.1`. It inadvertently matched a template metadata block inside [`CONTRIBUTING.md`](CONTRIBUTING.md)'s fenced code region. PR #24 (`2026.06.11`) tried to revert that template's Version to `0.0.1`, but the monotonicity audit (gate 13) refused because it saw the in-fence value as a per-document regression `1.0.1 → 0.0.1`. The fallback was to use a non-semver placeholder `X.Y.Z` instead — a workable solution but not the cleanest. With this PR's fix, future bulk sweeps and template reverts can use the natural `0.0.1` value without tripping the audit.
+Phase 0 (`2026.06.2`) bulk-bumped `0.0.1 → 1.0.1` across 54 files using a sed pattern that matched any line starting with `**Version:** 0.0.1`. It inadvertently matched a template metadata block inside [`CONTRIBUTING.md`](CONTRIBUTING.md)'s fenced code region. PR #24 (`2026.06.11`) tried to revert that template's Version to `0.0.1`, but the monotonicity audit (gate 13) refused because it saw the in-fence value as a per-document regression `1.0.1 → 0.0.1`. The fallback was to use a non-semver placeholder `X.Y.Z` instead, a workable solution but not the cleanest. With this PR's fix, future bulk sweeps and template reverts can use the natural `0.0.1` value without tripping the audit.
 
 ### Verification
 
@@ -8617,9 +8642,9 @@ The tightened scanner used for this PR checks every `**Field:**` run in the file
 
 ### Fixed
 
-- [`compliance/logistics/register-ctpat-united-states-it-controls.md`](compliance/logistics/register-ctpat-united-states-it-controls.md) — one inline-attribute block at lines 23-25 (Programme authority, UK parallel programme, Mutual recognition). Two trailing backslashes added to lines 23 and 24; line 25 is the last in the block.
-- [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](compliance/logistics/register-ctpat-united-states-msc-controls.md) — two blocks: one at lines 23-26 (Programme authority, UK equivalent, Canada equivalent, Mutual recognition) and one at lines 34-38 (Organisation entity type, membership number, current tier, last validation, next profile update due). Seven trailing backslashes added across the two blocks.
-- [`compliance/logistics/register-pip-canada-controls.md`](compliance/logistics/register-pip-canada-controls.md) — one block at lines 23-26 (Programme authority, UK parallel programme, US parallel programme, Mutual recognition). Three trailing backslashes added to lines 23-25; line 26 is the last in the block.
+- [`compliance/logistics/register-ctpat-united-states-it-controls.md`](compliance/logistics/register-ctpat-united-states-it-controls.md), one inline-attribute block at lines 23-25 (Programme authority, UK parallel programme, Mutual recognition). Two trailing backslashes added to lines 23 and 24; line 25 is the last in the block.
+- [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](compliance/logistics/register-ctpat-united-states-msc-controls.md), two blocks: one at lines 23-26 (Programme authority, UK equivalent, Canada equivalent, Mutual recognition) and one at lines 34-38 (Organisation entity type, membership number, current tier, last validation, next profile update due). Seven trailing backslashes added across the two blocks.
+- [`compliance/logistics/register-pip-canada-controls.md`](compliance/logistics/register-pip-canada-controls.md), one block at lines 23-26 (Programme authority, UK parallel programme, US parallel programme, Mutual recognition). Three trailing backslashes added to lines 23-25; line 26 is the last in the block.
 
 These blocks are not metadata in the document-header sense; they are labelled facts at the start of each register's Purpose section (programme authority, parallel programmes in other jurisdictions, mutual-recognition arrangements). They are meant to render as a vertical list of attributes; under the previous formatting they soft-wrapped into a paragraph.
 
@@ -8648,8 +8673,8 @@ Third and final file from the metadata-rendering scan: [`CONTRIBUTING.md`](CONTR
 
 ### Fixed
 
-- [`CONTRIBUTING.md`](CONTRIBUTING.md) — 12 metadata lines (79-90) gain the trailing `\`. The block itself is a TEMPLATE inside a fenced code region (lines 76-92) demonstrating to new contributors what a metadata block should look like; it is not the file's own metadata. With backslashes now in place, contributors who copy the template into their new document will get a properly-rendering block by default.
-- [`CONTRIBUTING.md`](CONTRIBUTING.md) `**Version:**` field in the template changed from the post-Phase-0 value `1.0.1` to the explicit non-semver placeholder `X.Y.Z`. Rationale: a "starter values" template should show contributors the placeholder shape, not a misleading concrete version number. `X.Y.Z` is unambiguous as a placeholder and (deliberately) does not match the version-monotonicity audit's `SEMVER_RE` regex — which means the template is no longer subject to the same misinterpretation that caused Phase 0's bulk sweep to inadvertently change it from `0.0.1` to `1.0.1` in the first place.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md), 12 metadata lines (79-90) gain the trailing `\`. The block itself is a TEMPLATE inside a fenced code region (lines 76-92) demonstrating to new contributors what a metadata block should look like; it is not the file's own metadata. With backslashes now in place, contributors who copy the template into their new document will get a properly-rendering block by default.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) `**Version:**` field in the template changed from the post-Phase-0 value `1.0.1` to the explicit non-semver placeholder `X.Y.Z`. Rationale: a "starter values" template should show contributors the placeholder shape, not a misleading concrete version number. `X.Y.Z` is unambiguous as a placeholder and (deliberately) does not match the version-monotonicity audit's `SEMVER_RE` regex, which means the template is no longer subject to the same misinterpretation that caused Phase 0's bulk sweep to inadvertently change it from `0.0.1` to `1.0.1` in the first place.
 
 ### Underlying gap (noted, not fixed in this PR)
 
@@ -8673,8 +8698,8 @@ Fix metadata-rendering bug in two files where consecutive metadata lines lacked 
 
 ### Fixed
 
-- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) — 12 metadata lines (lines 3-14) gain the trailing `\` that the rest of the corpus uses. The `**License:** CC BY-SA 4.0` line at the bottom of the block correctly remains without a backslash because the next line is the `---` separator (paragraph break already implied). While in the file, the `**Date:**` field is also bumped `2026-06-01 → 2026-06-02` to reflect that today's seven mobile-app-security commits (Phases 2-7) substantively changed the file. The pack version `1.17.0` is unchanged because this is a presentation fix, not a content change to the pack's distributable rule files.
-- [`docs/worked-example.md`](docs/worked-example.md) — same `\` fix to lines 57-68. The metadata block here is INSIDE a worked-example region that demonstrates "this is what a proper metadata block looks like" to a reader following the adopter walkthrough; the rendering bug therefore taught the wrong lesson, which is doubly bad in an example. The illustrative field values (Document Title "Quarterly Privileged Access Review Procedure" etc.) are unchanged.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md), 12 metadata lines (lines 3-14) gain the trailing `\` that the rest of the corpus uses. The `**License:** CC BY-SA 4.0` line at the bottom of the block correctly remains without a backslash because the next line is the `---` separator (paragraph break already implied). While in the file, the `**Date:**` field is also bumped `2026-06-01 → 2026-06-02` to reflect that today's seven mobile-app-security commits (Phases 2-7) substantively changed the file. The pack version `1.17.0` is unchanged because this is a presentation fix, not a content change to the pack's distributable rule files.
+- [`docs/worked-example.md`](docs/worked-example.md), same `\` fix to lines 57-68. The metadata block here is INSIDE a worked-example region that demonstrates "this is what a proper metadata block looks like" to a reader following the adopter walkthrough; the rendering bug therefore taught the wrong lesson, which is doubly bad in an example. The illustrative field values (Document Title "Quarterly Privileged Access Review Procedure" etc.) are unchanged.
 
 ### Changed
 
@@ -8692,7 +8717,7 @@ Mobile-app security work, Phase 7 of 8 (final): Capacitor / Ionic pack rule file
 
 ### Added
 
-- [`dev-security/claude-rules/languages/capacitor-ionic.md`](dev-security/claude-rules/languages/capacitor-ionic.md) — new pack rule file for Capacitor (modern Cordova successor) and Ionic Framework mobile applications. Notes that Cordova-only apps should migrate (per Apache's published maintenance-mode status). Covers secure-storage delegation (`capacitor-secure-storage-plugin` over `@capacitor/preferences`, `localStorage`, IndexedDB, Ionic Storage default), Content Security Policy inside the wrapped WebView (explicit allow-listed origins, no `unsafe-inline` or `unsafe-eval`), JS bridge / plugin trust boundary (narrow validated plugin APIs with Kotlin examples; treat every plugin call as untrusted), network (HTTPS-only; pinning at native layer via `CapacitorHttp`; `allowMixedContent` prohibited), backend attestation (App Attest / Play Integrity via native plugin code), deep links via App Links / Universal Links, permissions narrow scope, debug-tooling exclusion (`webContentsDebuggingEnabled: false` in release), OTA updates (Ionic Appflow / Capacitor Live Updates with signed payloads, no native code or new permissions), in-app purchases (`cordova-plugin-purchase`, `@capacitor-community/in-app-purchases` with backend verification of platform receipt or `purchaseToken`), and the carryover web-stack XSS rules because the WebView IS the application UI.
+- [`dev-security/claude-rules/languages/capacitor-ionic.md`](dev-security/claude-rules/languages/capacitor-ionic.md), new pack rule file for Capacitor (modern Cordova successor) and Ionic Framework mobile applications. Notes that Cordova-only apps should migrate (per Apache's published maintenance-mode status). Covers secure-storage delegation (`capacitor-secure-storage-plugin` over `@capacitor/preferences`, `localStorage`, IndexedDB, Ionic Storage default), Content Security Policy inside the wrapped WebView (explicit allow-listed origins, no `unsafe-inline` or `unsafe-eval`), JS bridge / plugin trust boundary (narrow validated plugin APIs with Kotlin examples; treat every plugin call as untrusted), network (HTTPS-only; pinning at native layer via `CapacitorHttp`; `allowMixedContent` prohibited), backend attestation (App Attest / Play Integrity via native plugin code), deep links via App Links / Universal Links, permissions narrow scope, debug-tooling exclusion (`webContentsDebuggingEnabled: false` in release), OTA updates (Ionic Appflow / Capacitor Live Updates with signed payloads, no native code or new permissions), in-app purchases (`cordova-plugin-purchase`, `@capacitor-community/in-app-purchases` with backend verification of platform receipt or `purchaseToken`), and the carryover web-stack XSS rules because the WebView IS the application UI.
 
 ### Changed
 
@@ -8725,7 +8750,7 @@ Mobile-app security work, Phase 6 of 8: .NET MAUI pack rule file.
 
 ### Added
 
-- [`dev-security/claude-rules/languages/dotnet-maui.md`](dev-security/claude-rules/languages/dotnet-maui.md) — new pack rule file for .NET MAUI applications (including Blazor Hybrid). The existing [`languages/csharp.md`](dev-security/claude-rules/languages/csharp.md) remains the server-side C# rule file. Covers secure-storage delegation (`SecureStorage` and encrypted SQLite over `Preferences` and unencrypted SQLite), cross-platform handlers and dependency-service trust boundary (narrow validated APIs; Blazor Hybrid `IJSRuntime` interop boundary), network (certificate pinning via custom `RemoteCertificateValidationCallback`), backend attestation through platform-conditional `IAttestationService` implementations, build hardening and release configuration (csproj `PropertyGroup` settings for iOS / Android release; ProGuard / R8 enable; trimming review; hot-reload kept to debug), deep links via MAUI Shell with App Links / Universal Links, permissions (`Permissions.RequestAsync<>` with narrow scope), in-app purchases (`Plugin.InAppBilling` / `Xamarin.Essentials.InAppPurchase` with backend verification of platform receipt / `purchaseToken`), logging and crash-reporter redaction, and Blazor Hybrid WebView specifics (`MarkupString` hazards, CSP delivery via host page).
+- [`dev-security/claude-rules/languages/dotnet-maui.md`](dev-security/claude-rules/languages/dotnet-maui.md), new pack rule file for .NET MAUI applications (including Blazor Hybrid). The existing [`languages/csharp.md`](dev-security/claude-rules/languages/csharp.md) remains the server-side C# rule file. Covers secure-storage delegation (`SecureStorage` and encrypted SQLite over `Preferences` and unencrypted SQLite), cross-platform handlers and dependency-service trust boundary (narrow validated APIs; Blazor Hybrid `IJSRuntime` interop boundary), network (certificate pinning via custom `RemoteCertificateValidationCallback`), backend attestation through platform-conditional `IAttestationService` implementations, build hardening and release configuration (csproj `PropertyGroup` settings for iOS / Android release; ProGuard / R8 enable; trimming review; hot-reload kept to debug), deep links via MAUI Shell with App Links / Universal Links, permissions (`Permissions.RequestAsync<>` with narrow scope), in-app purchases (`Plugin.InAppBilling` / `Xamarin.Essentials.InAppPurchase` with backend verification of platform receipt / `purchaseToken`), logging and crash-reporter redaction, and Blazor Hybrid WebView specifics (`MarkupString` hazards, CSP delivery via host page).
 
 ### Changed
 
@@ -8748,7 +8773,7 @@ Mobile-app security work, Phase 5 of 8: Flutter pack rule file.
 
 ### Added
 
-- [`dev-security/claude-rules/languages/flutter.md`](dev-security/claude-rules/languages/flutter.md) — new pack rule file for Flutter applications written in Dart. Covers secure-storage delegation (`flutter_secure_storage` + `sqflite_sqlcipher` over `shared_preferences` and unencrypted sqflite), platform channels and FFI as trust boundaries (with Kotlin native-side validation examples), network (`http_certificate_pinning` for Tier 1 / Tier 2), backend attestation forwarded through a Flutter package, debug-tooling exclusion (`kReleaseMode` gating, `--obfuscate --split-debug-info` for release builds, Dart DevTools restricted to debug / profile), OTA updates (Shorebird as the signed-payload option; raw code-OTA prohibited by Apple / Google store terms by default), deep links (App Links / Universal Links over custom schemes), permissions (narrow scope via `permission_handler`), in-app purchases (`in_app_purchase` plugin with backend verification of `serverVerificationData`), and logging / crash-reporter redaction.
+- [`dev-security/claude-rules/languages/flutter.md`](dev-security/claude-rules/languages/flutter.md), new pack rule file for Flutter applications written in Dart. Covers secure-storage delegation (`flutter_secure_storage` + `sqflite_sqlcipher` over `shared_preferences` and unencrypted sqflite), platform channels and FFI as trust boundaries (with Kotlin native-side validation examples), network (`http_certificate_pinning` for Tier 1 / Tier 2), backend attestation forwarded through a Flutter package, debug-tooling exclusion (`kReleaseMode` gating, `--obfuscate --split-debug-info` for release builds, Dart DevTools restricted to debug / profile), OTA updates (Shorebird as the signed-payload option; raw code-OTA prohibited by Apple / Google store terms by default), deep links (App Links / Universal Links over custom schemes), permissions (narrow scope via `permission_handler`), in-app purchases (`in_app_purchase` plugin with backend verification of `serverVerificationData`), and logging / crash-reporter redaction.
 
 ### Changed
 
@@ -8771,7 +8796,7 @@ Mobile-app security work, Phase 4 of 8: React Native pack rule file.
 
 ### Added
 
-- [`dev-security/claude-rules/languages/react-native.md`](dev-security/claude-rules/languages/react-native.md) — new pack rule file for React Native applications (with or without Expo). Implements Section 13 (hybrid frameworks) of [`standard-mobile-application-security.md`](dev-security/standard-mobile-application-security.md) plus the native-layer sections as they apply through the JS bridge. Covers secure-storage delegation (`react-native-keychain` and encrypted MMKV over `AsyncStorage` and the unencrypted MMKV constructor), JS bridge as a trust boundary (legacy bridge and JSI / TurboModule), network with certificate pinning (`react-native-ssl-pinning`), backend attestation forwarded through a thin native module, debug-tooling exclusion (`__DEV__` dead-code elimination; Flipper / Reactotron / react-native-debugger guarded), over-the-air updates (CodePush, EAS Update, Shorebird) with signed payloads and no-new-permissions rule, deep links (Universal Links / App Links over custom schemes), permissions (rationale must match actual data flow), in-app purchases (`react-native-iap`, `expo-in-app-purchases`, RevenueCat — backend verification of `transactionReceipt` / `purchaseToken` required regardless), and crash-reporter PII redaction. Closing section covers Expo-specific notes (`expo-secure-store`, EAS Build signing, EAS Update channels).
+- [`dev-security/claude-rules/languages/react-native.md`](dev-security/claude-rules/languages/react-native.md), new pack rule file for React Native applications (with or without Expo). Implements Section 13 (hybrid frameworks) of [`standard-mobile-application-security.md`](dev-security/standard-mobile-application-security.md) plus the native-layer sections as they apply through the JS bridge. Covers secure-storage delegation (`react-native-keychain` and encrypted MMKV over `AsyncStorage` and the unencrypted MMKV constructor), JS bridge as a trust boundary (legacy bridge and JSI / TurboModule), network with certificate pinning (`react-native-ssl-pinning`), backend attestation forwarded through a thin native module, debug-tooling exclusion (`__DEV__` dead-code elimination; Flipper / Reactotron / react-native-debugger guarded), over-the-air updates (CodePush, EAS Update, Shorebird) with signed payloads and no-new-permissions rule, deep links (Universal Links / App Links over custom schemes), permissions (rationale must match actual data flow), in-app purchases (`react-native-iap`, `expo-in-app-purchases`, RevenueCat, backend verification of `transactionReceipt` / `purchaseToken` required regardless), and crash-reporter PII redaction. Closing section covers Expo-specific notes (`expo-secure-store`, EAS Build signing, EAS Update channels).
 
 ### Changed
 
@@ -8794,7 +8819,7 @@ Mobile-app security work, Phase 3 of 8: Android pack rule file.
 
 ### Added
 
-- [`dev-security/claude-rules/languages/kotlin.md`](dev-security/claude-rules/languages/kotlin.md) — new pack rule file for Android applications written in Kotlin or Java. Covers secure storage (`EncryptedSharedPreferences`, `EncryptedFile`, manifest backup posture), cryptography (Android Keystore with StrongBox for Tier 1, AES-GCM, `SecureRandom`), authentication and local biometrics (`BiometricPrompt` with `CryptoObject` binding, `setInvalidatedByBiometricEnrollment`, Custom Tabs for OAuth), network and Network Security Configuration (cleartext denied, user-CA trust off, OkHttp `CertificatePinner` and `<pin-set>`), backend attestation (Play Integrity with backend verification), platform interaction (App Links over custom schemes, explicit intents for cross-app data, logging redaction), `WebView` hardening (origin allow-list, narrow `addJavascriptInterface`, file-access flags off), permissions and privacy (narrow scope, Photo Picker preference), distribution and signing (Play App Signing, ProGuard / R8, R8 mapping file preservation), in-app billing (`purchaseToken` server-side verification, acknowledgement gating), and reverse-engineering resistance (root detection as signal, R8 obfuscation, Frida / Xposed hook detection for Tier 1). Every section cross-references the implementing section of [`standard-mobile-application-security.md`](dev-security/standard-mobile-application-security.md). The opening note clarifies that [`languages/java.md`](dev-security/claude-rules/languages/java.md) remains the server-side Java rule file and is distinct from the Android-Java patterns documented here.
+- [`dev-security/claude-rules/languages/kotlin.md`](dev-security/claude-rules/languages/kotlin.md), new pack rule file for Android applications written in Kotlin or Java. Covers secure storage (`EncryptedSharedPreferences`, `EncryptedFile`, manifest backup posture), cryptography (Android Keystore with StrongBox for Tier 1, AES-GCM, `SecureRandom`), authentication and local biometrics (`BiometricPrompt` with `CryptoObject` binding, `setInvalidatedByBiometricEnrollment`, Custom Tabs for OAuth), network and Network Security Configuration (cleartext denied, user-CA trust off, OkHttp `CertificatePinner` and `<pin-set>`), backend attestation (Play Integrity with backend verification), platform interaction (App Links over custom schemes, explicit intents for cross-app data, logging redaction), `WebView` hardening (origin allow-list, narrow `addJavascriptInterface`, file-access flags off), permissions and privacy (narrow scope, Photo Picker preference), distribution and signing (Play App Signing, ProGuard / R8, R8 mapping file preservation), in-app billing (`purchaseToken` server-side verification, acknowledgement gating), and reverse-engineering resistance (root detection as signal, R8 obfuscation, Frida / Xposed hook detection for Tier 1). Every section cross-references the implementing section of [`standard-mobile-application-security.md`](dev-security/standard-mobile-application-security.md). The opening note clarifies that [`languages/java.md`](dev-security/claude-rules/languages/java.md) remains the server-side Java rule file and is distinct from the Android-Java patterns documented here.
 
 ### Changed
 
@@ -8817,7 +8842,7 @@ Mobile-app security work, Phase 2 of 8: first per-language pack rule file for mo
 
 ### Added
 
-- [`dev-security/claude-rules/languages/swift.md`](dev-security/claude-rules/languages/swift.md) — new pack rule file for iOS applications written in Swift or Objective-C. Covers secure storage (Keychain accessibility classes, Data Protection classes, backup exclusion), cryptography (CryptoKit, Secure Enclave, `SecRandomCopyBytes`), authentication and local biometrics (biometry as step-up not sole credential, `ASWebAuthenticationSession`, biometry-current-set binding), network and ATS (scoped exceptions, certificate pinning via `URLSessionDelegate`), backend attestation (App Attest with backend verification), platform interaction (Universal Links over custom schemes, OSLog privacy markers), `WKWebView` hardening (origin allow-list, restricted bridges), App Tracking Transparency (honest prompts), code signing and distribution, in-app purchases (server-side `jwsRepresentation` verification per the new Section 14), and reverse-engineering resistance (jailbreak detection as a signal, compiler hardening defaults). Every section cross-references the implementing section of [`standard-mobile-application-security.md`](dev-security/standard-mobile-application-security.md).
+- [`dev-security/claude-rules/languages/swift.md`](dev-security/claude-rules/languages/swift.md), new pack rule file for iOS applications written in Swift or Objective-C. Covers secure storage (Keychain accessibility classes, Data Protection classes, backup exclusion), cryptography (CryptoKit, Secure Enclave, `SecRandomCopyBytes`), authentication and local biometrics (biometry as step-up not sole credential, `ASWebAuthenticationSession`, biometry-current-set binding), network and ATS (scoped exceptions, certificate pinning via `URLSessionDelegate`), backend attestation (App Attest with backend verification), platform interaction (Universal Links over custom schemes, OSLog privacy markers), `WKWebView` hardening (origin allow-list, restricted bridges), App Tracking Transparency (honest prompts), code signing and distribution, in-app purchases (server-side `jwsRepresentation` verification per the new Section 14), and reverse-engineering resistance (jailbreak detection as a signal, compiler hardening defaults). Every section cross-references the implementing section of [`standard-mobile-application-security.md`](dev-security/standard-mobile-application-security.md).
 
 ### Changed
 
@@ -8936,8 +8961,8 @@ Phase 6 (final) of the dev-security pack scope expansion: fifth and last governa
 
 ### Added
 
-- [`dev-security/claude-rules/governance/artefact-and-branch-discipline.md`](dev-security/claude-rules/governance/artefact-and-branch-discipline.md) — new pack rule codifying two related disciplines that protect a project's audit trail: (1) generated artefacts are read-only (never hand-edit; always regenerate from the source; commit source plus generated output together; CI verifies via `--check` mode); (2) protected branches are append-only (no direct push; no force-push; PR-only merges). The rule defines what counts as a generated artefact (build outputs, schema dumps, taxonomies, doc portals, lockfiles, generated tests), what counts as a protected branch (default branch, release branches, long-lived integration branches), the required workflows for each, prohibited anti-patterns (hand-editing generated files to skip a regeneration round-trip, regenerating in CI to bypass the drift check, stripping `--check` jobs, direct push to protected branches, force-push that drops version-bearing commits, merging without going through the PR mechanism), the version-monotonicity contract that binds branch protection as the primary defence and the version-monotonicity audit as the backstop, tool-specific guidance (CI invocation patterns, branch-protection settings checklist, lockfile updates, long-lived integration branches), exception-handling protocols for both generated-artefact and branch-protection exceptions (governance-authority approval, tracked-issue link, preservation of pre-rewrite refs under `refs/preservation/`, post-rewrite re-audit), and framework alignment (NIST SSDF PO.5/PW.4/PS.1/RV.1; CSA CCM CCC-01-04/AIS-04/LOG-02/LOG-08; ISO 27001 A.5.4/A.8.15/A.8.32; SLSA Level 2-3). Pack-distributable form of this project's `## Boundaries` rules on generated files and direct pushes to `main`; generalises into a project-agnostic discipline.
-- [`.claude/rules/governance/artefact-and-branch-discipline.md`](.claude/rules/governance/artefact-and-branch-discipline.md) — project consumption copy.
+- [`dev-security/claude-rules/governance/artefact-and-branch-discipline.md`](dev-security/claude-rules/governance/artefact-and-branch-discipline.md), new pack rule codifying two related disciplines that protect a project's audit trail: (1) generated artefacts are read-only (never hand-edit; always regenerate from the source; commit source plus generated output together; CI verifies via `--check` mode); (2) protected branches are append-only (no direct push; no force-push; PR-only merges). The rule defines what counts as a generated artefact (build outputs, schema dumps, taxonomies, doc portals, lockfiles, generated tests), what counts as a protected branch (default branch, release branches, long-lived integration branches), the required workflows for each, prohibited anti-patterns (hand-editing generated files to skip a regeneration round-trip, regenerating in CI to bypass the drift check, stripping `--check` jobs, direct push to protected branches, force-push that drops version-bearing commits, merging without going through the PR mechanism), the version-monotonicity contract that binds branch protection as the primary defence and the version-monotonicity audit as the backstop, tool-specific guidance (CI invocation patterns, branch-protection settings checklist, lockfile updates, long-lived integration branches), exception-handling protocols for both generated-artefact and branch-protection exceptions (governance-authority approval, tracked-issue link, preservation of pre-rewrite refs under `refs/preservation/`, post-rewrite re-audit), and framework alignment (NIST SSDF PO.5/PW.4/PS.1/RV.1; CSA CCM CCC-01-04/AIS-04/LOG-02/LOG-08; ISO 27001 A.5.4/A.8.15/A.8.32; SLSA Level 2-3). Pack-distributable form of this project's `## Boundaries` rules on generated files and direct pushes to `main`; generalises into a project-agnostic discipline.
+- [`.claude/rules/governance/artefact-and-branch-discipline.md`](.claude/rules/governance/artefact-and-branch-discipline.md), project consumption copy.
 
 ### Changed
 
@@ -8962,8 +8987,8 @@ Phase 5 of the dev-security pack scope expansion: fourth governance rule lands.
 
 ### Added
 
-- [`dev-security/claude-rules/governance/clarify-before-acting.md`](dev-security/claude-rules/governance/clarify-before-acting.md) — new pack rule codifying "when a request has more than one reasonable interpretation, or an external value the request does not pin down is required to proceed, surface the ambiguity in one sentence and ask before acting." The rule defines five ambiguity-detection categories (multi-interpretation requests, missing external values, project-convention choices, trade-offs, unclear world state), distinguishes when to ask versus when to use sensible defaults (ask when a wrong choice produces unwindable work or has consequences beyond this PR; default when a convention exists and the wrong-guess cost is bounded), specifies how to ask (one sentence, named alternatives, recommended option labelled and listed first, consequence stated), enumerates prohibited anti-patterns (silently picking, asking after acting, asking trivia, hiding ambiguity in narration, treating prior authorisation as durable when scope changed, leading-recommendation theatre, questions that require scrolling), gives tool-specific guidance for AI coding assistants (structured-question primitives, plan mode, investigation-first when state is unclear, scope-creep surfacing), enumerates exception cases (pre-authorised durable instructions like a project CLAUDE.md memory file, emergency response, reversible exploration), and provides framework alignment (NIST SSDF PO.1/PO.5/RV.1/RV.2, CSA CCM GRC-01/GRC-04/IAM-09/TVM-01/CCC-01-03, ISO 27001 A.5.1/A.5.4/A.5.15/A.5.18/A.5.27/A.8.16/A.8.32). Pack-distributable form of this project's `## Behavioral rule: clarify before acting` section; generalises that rule into a project-agnostic discipline.
-- [`.claude/rules/governance/clarify-before-acting.md`](.claude/rules/governance/clarify-before-acting.md) — project consumption copy of the same rule.
+- [`dev-security/claude-rules/governance/clarify-before-acting.md`](dev-security/claude-rules/governance/clarify-before-acting.md), new pack rule codifying "when a request has more than one reasonable interpretation, or an external value the request does not pin down is required to proceed, surface the ambiguity in one sentence and ask before acting." The rule defines five ambiguity-detection categories (multi-interpretation requests, missing external values, project-convention choices, trade-offs, unclear world state), distinguishes when to ask versus when to use sensible defaults (ask when a wrong choice produces unwindable work or has consequences beyond this PR; default when a convention exists and the wrong-guess cost is bounded), specifies how to ask (one sentence, named alternatives, recommended option labelled and listed first, consequence stated), enumerates prohibited anti-patterns (silently picking, asking after acting, asking trivia, hiding ambiguity in narration, treating prior authorisation as durable when scope changed, leading-recommendation theatre, questions that require scrolling), gives tool-specific guidance for AI coding assistants (structured-question primitives, plan mode, investigation-first when state is unclear, scope-creep surfacing), enumerates exception cases (pre-authorised durable instructions like a project CLAUDE.md memory file, emergency response, reversible exploration), and provides framework alignment (NIST SSDF PO.1/PO.5/RV.1/RV.2, CSA CCM GRC-01/GRC-04/IAM-09/TVM-01/CCC-01-03, ISO 27001 A.5.1/A.5.4/A.5.15/A.5.18/A.5.27/A.8.16/A.8.32). Pack-distributable form of this project's `## Behavioral rule: clarify before acting` section; generalises that rule into a project-agnostic discipline.
+- [`.claude/rules/governance/clarify-before-acting.md`](.claude/rules/governance/clarify-before-acting.md), project consumption copy of the same rule.
 
 ### Changed
 
@@ -8988,8 +9013,8 @@ Phase 4 of the dev-security pack scope expansion: third governance rule lands.
 
 ### Added
 
-- [`dev-security/claude-rules/governance/evidence-grounded-completion.md`](dev-security/claude-rules/governance/evidence-grounded-completion.md) — new pack rule codifying "never declare work done, fixed, ready, shipped, or any synonym without evidence." The rule defines what counts as a completion claim (state assertions a reader will rely on, including "good catch" used to acknowledge a user-reported issue), enumerates the synonym vocabulary that triggers the protocol, specifies the six-step verification protocol (enumerate files in scope, re-read each in full, quote supporting lines with path-and-line-number citations, proactively search for contradictions, distinguish mechanical gate verification from semantic verification, state unverified items explicitly), enumerates prohibited anti-patterns (declaring victory in the response that carries failing evidence, treating user silence as confirmation, relying on prior runs, premature "good catch", pipe-masked exit codes, conflating "I edited the file" with "the file is correct"), gives tool-specific guidance for AI coding assistants (reading tool results before composing summaries, waiting for async work, `set -o pipefail` and `${PIPESTATUS[@]}` for pipe-masked exit codes, stop hooks, self-honesty in summaries), the exception-handling protocol for impractical re-reads, and framework alignment (NIST SSDF RV.1/RV.2/PO.5/PS.1, CSA CCM GRC-04/GRC-05/LOG-02/LOG-08, ISO 27001 A.5.4/A.5.36/A.8.15, OWASP ASVS V1.1/V14.1). Pack-distributable form of the user-level Rule 6 added 2026-05-31 in the maintainer's private global Claude Code memory file; generalises that rule into a portable, project-agnostic discipline.
-- [`.claude/rules/governance/evidence-grounded-completion.md`](.claude/rules/governance/evidence-grounded-completion.md) — project consumption copy of the same rule.
+- [`dev-security/claude-rules/governance/evidence-grounded-completion.md`](dev-security/claude-rules/governance/evidence-grounded-completion.md), new pack rule codifying "never declare work done, fixed, ready, shipped, or any synonym without evidence." The rule defines what counts as a completion claim (state assertions a reader will rely on, including "good catch" used to acknowledge a user-reported issue), enumerates the synonym vocabulary that triggers the protocol, specifies the six-step verification protocol (enumerate files in scope, re-read each in full, quote supporting lines with path-and-line-number citations, proactively search for contradictions, distinguish mechanical gate verification from semantic verification, state unverified items explicitly), enumerates prohibited anti-patterns (declaring victory in the response that carries failing evidence, treating user silence as confirmation, relying on prior runs, premature "good catch", pipe-masked exit codes, conflating "I edited the file" with "the file is correct"), gives tool-specific guidance for AI coding assistants (reading tool results before composing summaries, waiting for async work, `set -o pipefail` and `${PIPESTATUS[@]}` for pipe-masked exit codes, stop hooks, self-honesty in summaries), the exception-handling protocol for impractical re-reads, and framework alignment (NIST SSDF RV.1/RV.2/PO.5/PS.1, CSA CCM GRC-04/GRC-05/LOG-02/LOG-08, ISO 27001 A.5.4/A.5.36/A.8.15, OWASP ASVS V1.1/V14.1). Pack-distributable form of the user-level Rule 6 added 2026-05-31 in the maintainer's private global Claude Code memory file; generalises that rule into a portable, project-agnostic discipline.
+- [`.claude/rules/governance/evidence-grounded-completion.md`](.claude/rules/governance/evidence-grounded-completion.md), project consumption copy of the same rule.
 
 ### Changed
 
@@ -9014,8 +9039,8 @@ Phase 3 of the dev-security pack scope expansion: second governance rule lands.
 
 ### Added
 
-- [`dev-security/claude-rules/governance/change-tracking.md`](dev-security/claude-rules/governance/change-tracking.md) — new pack rule codifying "every change to user-visible content carries a CHANGELOG entry by default." The rule specifies what an entry must contain (date and version header, structured sections following Keep a Changelog, linked file references, the "why" not only the "what", verification evidence, phase context for multi-PR rollouts), the sanctioned opt-out path (a `Changelog: skip (reason: ...)` trailer in the commit or PR description, reviewer-approved), prohibited anti-patterns (silent changes, vague entries, batched-up entries, retroactive entries, entries with unlinked file references, misclassified breaking changes, verbatim commit-message copy, gate bypass via `--no-verify`), the three mechanical CI gates that enforce the discipline (delta gate, link-coverage gate, version-monotonicity gate), tool-specific guidance (git trailers, monorepo coordination, generated CHANGELOGs, document corpora), an exception-handling protocol consistent with the gate-discipline rule, and framework alignment (NIST SSDF PO.5/PS.1/RV.1/RV.2, CSA CCM CCC-01-04/LOG-02/LOG-08, ISO 27001 A.5.4/A.8.15/A.8.27/A.8.32). Generalises this project's D1 CHANGELOG-on-PR delta gate, the CHANGELOG link-coverage audit, and the version-monotonicity audit into a portable, pack-distributable discipline applicable to any project with a CHANGELOG.
-- [`.claude/rules/governance/change-tracking.md`](.claude/rules/governance/change-tracking.md) — project consumption copy of the same rule. The pack file is canonical; this copy is what Claude Code loads at session start when working on this project.
+- [`dev-security/claude-rules/governance/change-tracking.md`](dev-security/claude-rules/governance/change-tracking.md), new pack rule codifying "every change to user-visible content carries a CHANGELOG entry by default." The rule specifies what an entry must contain (date and version header, structured sections following Keep a Changelog, linked file references, the "why" not only the "what", verification evidence, phase context for multi-PR rollouts), the sanctioned opt-out path (a `Changelog: skip (reason: ...)` trailer in the commit or PR description, reviewer-approved), prohibited anti-patterns (silent changes, vague entries, batched-up entries, retroactive entries, entries with unlinked file references, misclassified breaking changes, verbatim commit-message copy, gate bypass via `--no-verify`), the three mechanical CI gates that enforce the discipline (delta gate, link-coverage gate, version-monotonicity gate), tool-specific guidance (git trailers, monorepo coordination, generated CHANGELOGs, document corpora), an exception-handling protocol consistent with the gate-discipline rule, and framework alignment (NIST SSDF PO.5/PS.1/RV.1/RV.2, CSA CCM CCC-01-04/LOG-02/LOG-08, ISO 27001 A.5.4/A.8.15/A.8.27/A.8.32). Generalises this project's D1 CHANGELOG-on-PR delta gate, the CHANGELOG link-coverage audit, and the version-monotonicity audit into a portable, pack-distributable discipline applicable to any project with a CHANGELOG.
+- [`.claude/rules/governance/change-tracking.md`](.claude/rules/governance/change-tracking.md), project consumption copy of the same rule. The pack file is canonical; this copy is what Claude Code loads at session start when working on this project.
 
 ### Changed
 
@@ -9040,8 +9065,8 @@ Phase 2 of the dev-security pack scope expansion: first governance rule lands.
 
 ### Added
 
-- [`dev-security/claude-rules/governance/gate-discipline.md`](dev-security/claude-rules/governance/gate-discipline.md) — new pack rule codifying "never weaken or delete a gate to silence a failure; fix the artefact." The rule enumerates prohibited responses to a failing gate (`--no-verify`, severity-threshold lowering, exemption-list dumping, blanket suppressions, assertion-to-logging downgrades, marking real gates non-required, exit-code swallowing, flake-normalisation), correct responses in order of preference (fix the artefact; fix the gate if it is wrong; documented temporary exception; environmental re-run), tool-specific anti-patterns (git, lint, type-check, tests, CI/CD config, generator-output drift), an exception-handling protocol that the rule is consistent with, and framework alignment (OWASP ASVS, NIST SSDF, CSA CCM, ISO 27001). Generalises the project's `## Boundaries` rule ("Never weaken or delete an audit gate to make a document pass; fix the document") into a portable, pack-distributable form applicable to any project with CI gates, audit programmes, or branch protections.
-- [`.claude/rules/governance/gate-discipline.md`](.claude/rules/governance/gate-discipline.md) — project consumption copy of the same rule. The pack file is canonical; this copy is what Claude Code loads at session start when working on this project.
+- [`dev-security/claude-rules/governance/gate-discipline.md`](dev-security/claude-rules/governance/gate-discipline.md), new pack rule codifying "never weaken or delete a gate to silence a failure; fix the artefact." The rule enumerates prohibited responses to a failing gate (`--no-verify`, severity-threshold lowering, exemption-list dumping, blanket suppressions, assertion-to-logging downgrades, marking real gates non-required, exit-code swallowing, flake-normalisation), correct responses in order of preference (fix the artefact; fix the gate if it is wrong; documented temporary exception; environmental re-run), tool-specific anti-patterns (git, lint, type-check, tests, CI/CD config, generator-output drift), an exception-handling protocol that the rule is consistent with, and framework alignment (OWASP ASVS, NIST SSDF, CSA CCM, ISO 27001). Generalises the project's `## Boundaries` rule ("Never weaken or delete an audit gate to make a document pass; fix the document") into a portable, pack-distributable form applicable to any project with CI gates, audit programmes, or branch protections.
+- [`.claude/rules/governance/gate-discipline.md`](.claude/rules/governance/gate-discipline.md), project consumption copy of the same rule. The pack file is canonical; this copy is what Claude Code loads at session start when working on this project.
 
 ### Changed
 
@@ -9066,7 +9091,7 @@ Phase 1 of the dev-security pack scope expansion: announce broadened contract fr
 
 ### Changed
 
-- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) bumped to pack version 1.6.0 (2026-06-01). The opening "What are these files?" section now describes the pack as carrying "security and development-governance context" rather than security context alone. A new "Pack scope" section near the top of the README articulates the two scope families (security/compliance under `core/`, `ai/`, `pipeline/`, `languages/`; development-governance discipline under a new `governance/` subdirectory) and the reason the pack directory name remains `dev-security/` (developer discoverability — developers shop for "security rules," not for "GRC rules" or "development discipline"). The directory-structure ASCII tree now includes the `governance/` subdirectory as an announced-but-unpopulated entry; the tree is the directory layout contract for the phased rollout.
+- [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) bumped to pack version 1.6.0 (2026-06-01). The opening "What are these files?" section now describes the pack as carrying "security and development-governance context" rather than security context alone. A new "Pack scope" section near the top of the README articulates the two scope families (security/compliance under `core/`, `ai/`, `pipeline/`, `languages/`; development-governance discipline under a new `governance/` subdirectory) and the reason the pack directory name remains `dev-security/` (developer discoverability, developers shop for "security rules," not for "GRC rules" or "development discipline"). The directory-structure ASCII tree now includes the `governance/` subdirectory as an announced-but-unpopulated entry; the tree is the directory layout contract for the phased rollout.
 - [[`.claude/CLAUDE.md`](.claude/CLAUDE.md)](.claude/CLAUDE.md) `## Security requirements` heading renamed to `## Security and governance requirements`; a new paragraph below the existing rule-file bullets announces the pack's broader contract and clarifies that this project's loaded rules are unchanged in Phase 1 (this project's own governance discipline is already encoded in the existing `## Boundaries` and `## Behavioral rule` sections plus the 32-gate audit programme).
 
 ### Phased rollout context

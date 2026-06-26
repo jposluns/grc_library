@@ -1,4 +1,4 @@
-# `.working/validate-sweeps/` — Maintainer Working State
+# `.working/validate-sweeps/`: Maintainer Working State
 
 This subdirectory holds project-specific working state for the `validation-sweep` discipline. The discipline itself (failure-mode taxonomy, maintenance protocol, accept-list rules, dispatch-declaration discipline) is template content and lives in the [`validation-sweep` skill](../../dev-security/claude-rules/skills/validation-sweep/SKILL.md) in the dev-security claude-rules pack; the files here are *our* log of *our* sweeps performed against THIS library.
 

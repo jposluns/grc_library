@@ -1,4 +1,4 @@
-# `.working/changelog-details/` — Maintainer Detailed Changelog
+# `.working/changelog-details/`: Maintainer Detailed Changelog
 
 This subdirectory holds the verbose, structured-section changelog entries that the project's change-tracking discipline produces. The root `CHANGELOG.md` carries only the lead paragraph of each entry (the public-facing summary); the full structured entries (Added / Changed / Removed / Fixed / Security / Verification / Discipline observation sections) live here.
 
@@ -57,7 +57,7 @@ If you fork this library:
 
 ## Convention version
 
-- 1.0.0 (2026-06-21, PR #125) — initial split. Historical content (all 112 prior entries) copied verbatim from pre-trim root CHANGELOG; root then trimmed to lead paragraphs.
+- 1.0.0 (2026-06-21, PR #125), initial split. Historical content (all 112 prior entries) copied verbatim from pre-trim root CHANGELOG; root then trimmed to lead paragraphs.
 
 ## Relationship to the change-tracking governance rule
 

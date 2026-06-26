@@ -62,7 +62,7 @@ resolved before sleep (so the run would not stall on them):
   due-diligence; OFAC/sanctions/export-control).
 - **FR-70 crypto-asset / blockchain domain (XL)**: deferred to a dedicated session
   (domain-level shaping is the maintainer's; not a fit for unattended work).
-- **Cross-document value conflicts**: resolve **stricter-is-safer + evidence** — toward the
+- **Cross-document value conflicts**: resolve **stricter-is-safer + evidence**, toward the
   more conservative value where one is clearly safer, and toward the external-standard- or
   already-canonical-internal-source-supported value where one governs; document each choice;
   skip any pick lacking both bases to morning. (Consistent with the locked-criticals pattern:
@@ -71,14 +71,14 @@ resolved before sleep (so the run would not stall on them):
   Officer` (supplier-onboarding-security-review:139) becomes **`DPO → CISO → CRO`** (CRO is the
   terminal risk authority in the same matrix's Tier-1 row, so internally consistent).
 - **FR-140 adopter starter-set**: **strict nesting with the quickstart 6-artefact "core baseline
-  floor" canonical** — Tier-1 (15) ⊇ the 6 (incl. IAM + acceptable-use, which Tier 1 currently
+  floor" canonical**, Tier-1 (15) ⊇ the 6 (incl. IAM + acceptable-use, which Tier 1 currently
   omits); decision-tree (23) ⊇ 15; README core-reference (~37) ⊇ 23; reconcile the quickstart vs
   startup-roadmap 6th-artefact naming to the quickstart's.
-- **FR-73 AI ethics**: introduce a **standing independent AI Ethics Panel** — a subcommittee
+- **FR-73 AI ethics**: introduce a **standing independent AI Ethics Panel**, a subcommittee
   operationally independent of the AI Governance Council's risk/compliance function, with a
   documented challenge mechanism and the ability to escalate dissent.
-- **FR-144 breach individual-notification clock**: add an internal floor — "without undue delay,
-  and in any event within 72 hours of the high-risk determination" — mirroring the GDPR authority
+- **FR-144 breach individual-notification clock**: add an internal floor, "without undue delay,
+  and in any event within 72 hours of the high-risk determination", mirroring the GDPR authority
   clock (stricter rule; resolved without a separate maintainer decision).
 - **FR-58 inheritance vocabulary**: skipped to morning 2026-06-23 as a taxonomy-design task;
   **resolved 2026-06-25** (maintainer, during the continued overnight run) to apply the canonical
@@ -104,9 +104,9 @@ Maintainer working state: not corpus content; not for adopter consumption; exemp
 
 Each subdirectory contains:
 
-- `README.md` — static convention info (what the activity is, file format spec, taxonomies, protocols, framework alignment, fork guidance)
-- `history.md` — reverse-chronological table (new rows on top); columns: Date | Sweep/Run | Subagents | Findings | Resulting PR | Detail | Summary
-- `YYYY-MM-DD-<run-id>.md` — per-run detail file, **only created when findings exist**
+- `README.md`, static convention info (what the activity is, file format spec, taxonomies, protocols, framework alignment, fork guidance)
+- `history.md`, reverse-chronological table (new rows on top); columns: Date | Sweep/Run | Subagents | Findings | Resulting PR | Detail | Summary
+- `YYYY-MM-DD-<run-id>.md`, per-run detail file, **only created when findings exist**
 - `Subagents` column declares dispatch (Rule 5.6) for every row including zero-finding runs
 
 ### Template content vs project-application (decided PR #116)
@@ -210,7 +210,7 @@ Deliberate scope boundaries documenting what the skill is NOT:
 
 ### Trust-recovery findings routing: severity-tiered, not all-to-top-priority (decided 2026-06-22, maintainer direction; implementation queued)
 
-The `trust-recovery-escalation.md` rule (pack 1.47.0, signed off 2026-06-22) originally routed **every confirmed finding to the backlog's top-priority tier regardless of severity**. Maintainer revised this 2026-06-22 (this session): trust-recovery findings route **tiered by severity — High[critical] and High to the top-priority tier, Medium and Low to the next-priority tier (this project: P1 and P2 respectively)** — while keeping the core principle (nothing the assistant judges trivial is silently *dropped*; it is routed at the severity-appropriate tier) and the maintainer-sign-off termination. Scope (maintainer: "routing flag only"): the routing **convention** changes across the canonical surface list (kept in lock-step with the TODO codification item) — the `trust-recovery-escalation.md` rule **and its `.claude/rules/` mirror**; the `deep-qa-review` SKILL + `/full-qa` command; the `library-fitness-review` SKILL + `/fitness` command; the pack `CLAUDE.md` + project `.claude/CLAUDE.md` rule-description bullets; and the pack README (check/update); the **general TODO P1/P2/P3 structure is unchanged**. Implementation note: the pack rule/SKILLs stay project-agnostic ("top-priority tier" / "next-priority tier"); the project-specific P1/P2 mapping lives in `.claude/CLAUDE.md` + TODO. Queued as the next substantive PR (the 8-surface revision); the `/fitness` routing-flag amendment (TODO trust-recovery codification item) folds into it.
+The `trust-recovery-escalation.md` rule (pack 1.47.0, signed off 2026-06-22) originally routed **every confirmed finding to the backlog's top-priority tier regardless of severity**. Maintainer revised this 2026-06-22 (this session): trust-recovery findings route **tiered by severity, High[critical] and High to the top-priority tier, Medium and Low to the next-priority tier (this project: P1 and P2 respectively)**, while keeping the core principle (nothing the assistant judges trivial is silently *dropped*; it is routed at the severity-appropriate tier) and the maintainer-sign-off termination. Scope (maintainer: "routing flag only"): the routing **convention** changes across the canonical surface list (kept in lock-step with the TODO codification item), the `trust-recovery-escalation.md` rule **and its `.claude/rules/` mirror**; the `deep-qa-review` SKILL + `/full-qa` command; the `library-fitness-review` SKILL + `/fitness` command; the pack `CLAUDE.md` + project `.claude/CLAUDE.md` rule-description bullets; and the pack README (check/update); the **general TODO P1/P2/P3 structure is unchanged**. Implementation note: the pack rule/SKILLs stay project-agnostic ("top-priority tier" / "next-priority tier"); the project-specific P1/P2 mapping lives in `.claude/CLAUDE.md` + TODO. Queued as the next substantive PR (the 8-surface revision); the `/fitness` routing-flag amendment (TODO trust-recovery codification item) folds into it.
 
 ---
 
@@ -317,13 +317,13 @@ When the AI Security Tooling Landscape Register was created, it asserted capabil
 
 Decision: verification covers metadata (existence, version, publication date, supersedence, ID format) and integrity anchors (commit SHA, Wayback snapshot URL). It does NOT verify that the library's prose interpretation of a project's capabilities is accurate. That would require the library to engage in interpretation disputes with project authors; the methodology stays at the citation-metadata layer.
 
-### FR-104 — Decision-tree per-regulation context not pursued (decided 2026-06-22)
+### FR-104: Decision-tree per-regulation context not pursued (decided 2026-06-22)
 
 Fitness review 2026-06-22 r1 surfaced FR-104 (medium severity): the decision-tree in [`docs/decision-tree.md`](../docs/decision-tree.md) §1.4 lists seven regulations as bullet-list choices without per-regulation context describing what each covers. The finding proposed adding a one-line descriptor per regulation so a newcomer choosing among them has framing.
 
 Decision: not pursued. The decision tree's audience is a reader who is already navigating toward a specific regulation; the descriptor-per-regulation would inflate the section without changing the navigation outcome (the reader still chooses the regulation that applies to them). The per-regulation framing lives in each regulation's dedicated annex, which is where a newcomer who needs the context will land regardless.
 
-### FR-130 — Decision-tree portal entry-point reorder not pursued (decided 2026-06-22)
+### FR-130: Decision-tree portal entry-point reorder not pursued (decided 2026-06-22)
 
 Fitness review 2026-06-22 r1 surfaced FR-130 (medium severity): [`docs/decision-tree.md`](../docs/decision-tree.md) lines 107-120 list the README as the first entry point and the portal as item 8 of 8, which one persona felt delayed encounter with the portal navigational surface. The finding proposed moving the portal to item 1.
 
