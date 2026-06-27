@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #408: B2 (low): add five EDPB / WP29 soft-law citations to the canonical-citations register (2026-06-27)
+
+Added WP216 (Opinion 05/2014 anonymisation), WP248 rev.01 (DPIA), EDPB Guidelines 07/2020 (controller/processor), Guidelines 3/2018 (territorial scope), and Opinion 28/2024 (AI models) to the soft-law section of `register-canonical-citations.md`, each verified against the freshly-ingested `grc_library_scratch/ref/publications/` extracts. Unblocked by the two 2026-06-27 EDPB maintainer drops; closes the long-deferred-on-egress B2.
+
 ### PR #405: FR-30: GDPR Article 28 Data Processing Agreement template (2026-06-27)
 
 Shipped `privacy/template-dpa-article-28.md`, the controller-to-processor DPA template consolidating the eight Article 28(3)(a) to (h) clauses + sub-processor (28(2)/(4)) and written-form (28(9)) requirements into one populatable instrument; wired into the matrix, document index, and privacy README. Closes the H[critical] FR-30 (no DPA template previously existed).

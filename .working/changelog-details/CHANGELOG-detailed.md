@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.387, PR #408
+
+**B2: add five EDPB / Article 29 Working Party soft-law citations to the canonical-citations register.** Closes the long-deferred B2 (previously blocked on web egress to edpb.europa.eu), now unblocked by the two 2026-06-27 EDPB maintainer drops ingested to the scratch reference base.
+
+### Added
+- Five rows to the `## Soft-law supervisory guidance` table of [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md): WP216 (Article 29 WP Opinion 05/2014 on anonymisation techniques, 2014-04); WP248 rev.01 (Guidelines on DPIA, GDPR Article 35, rev.01 adopted 4 October 2017, superseding the 4 April 2017 first adoption); EDPB Guidelines 07/2020 (controller and processor concepts, Version 2.1, 2021-07); EDPB Guidelines 3/2018 (territorial scope, Article 3, Version 2.1, 2019-11); EDPB Opinion 28/2024 (data protection aspects of AI models, adopted 17 December 2024).
+
+### Verification
+- Every title, version marker, issuing body, and adoption date was read from the corresponding `grc_library_scratch/ref/publications/` full-text extract (the freshly-ingested EDPB/WP29 set), not from memory. This confirmed two B2 corrections: "Guidelines 28/2024" is in fact **Opinion 28/2024**, and WP216 / WP248 are **Article 29 Working Party** (not EDPB) instruments. Conservative on unverified prior-version markers (Superseded left `-` where a prior version string was not confirmed in the extract; WP248's first-adoption supersession was confirmed).
+- [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) 54/54 green post-commit; [`tools/lint-standards-currency.py`](../../tools/lint-standards-currency.py) and [`tools/lint-citations.py`](../../tools/lint-citations.py) parse the register cleanly with the added rows; [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) clean; PR-time delta/history checks green. Register `1.5.2` to `1.5.3`.
+
+### Changed (.working/, working-state)
+- B2 rotated from [`TODO.md`](../../TODO.md) (P3) to [`.working/DONE.md`](../DONE.md).
+- Batched the prior PR's QA records per recursion-avoidance: the #407 `/validate-pr` (0 findings) row into [`.working/validate-pr/history.md`](../validate-pr/history.md) (ledger `1.2.193` to `1.2.194`) and the #407 `/retro` row into [`.working/improvement-log.md`](../improvement-log.md) (ledger `1.0.147` to `1.0.148`).
+
+Library `2026.06.386` to `2026.06.387`; README `1.9.257` to `1.9.258`.
+
 ## 2026-06-27, Library Version 2026.06.386, PR #407
 
 `.working/` and [`TODO.md`](../../TODO.md) working-state for local project: **scratch reference-library review, backlog capture.** First substantive PR of the 2026-06-27 scratch-review session. Captures, in [`TODO.md`](../../TODO.md), the actionable findings (S-1 to S-12) from a read-only assessment of the `grc_library_scratch/ref/` reference base (now holding standards, frameworks, legislation, programs, templates, screened publications, and books) against the corpus's citation / coverage / matrix-fit infrastructure. No corpus-document body changed.
