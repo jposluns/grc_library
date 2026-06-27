@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.393, PR #414
+
+**FR-172 + FR-186 + FR-187: retention-schedule reconciliation (+ #413 in-window fixes).** Third trust-recovery-remediation batch (retention cluster). Three documents whose retention statements diverged from the canonical [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md) were reconciled to it (the register is the canonical source and was NOT edited). Also fixes the two in-window findings #413's `/validate-pr` surfaced.
+
+### Fixed
+- **FR-172** ([`privacy/template-record-of-processing-activities.md`](../../privacy/template-record-of-processing-activities.md), Version `1.0.6` to `1.0.7`): Operating-expectations item 4 "retained for at least three years after the last related processing activity ends" reconciled to "the processing activity's active life plus five years after it ends (Active + 5 years)", per the schedule's Processing-records (Article 30 ROPA) row, with a cross-reference; stricter-safe (5 > 3).
+- **FR-186** ([`privacy/framework-consent-management.md`](../../privacy/framework-consent-management.md), Version `1.0.5` to `1.0.6`): item 4's vague "lifetime of the processing plus the period in which a claim ... could be brought" reconciled to "the duration of the processing plus three years" per the schedule's Consent-records (GDPR Article 7) row, with a cross-reference (the prior claim-period phrasing retained as the rationale).
+- **FR-187** ([`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md), Version `1.4.5` to `1.4.6`): the Compliance-Manager/Records-Officer role row gained a reconciling clause: the RRS register ([`register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md)) is owned (accountable) by the Data Protection Officer and approved by the CIO per its metadata, with this role maintaining it operationally under that ownership. Resolves the apparent ownership conflict (register Owner = DPO vs the standard naming the Records Officer as maintainer) as an accountable-vs-operational split.
+- **#413 in-window finding A-1** ([`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md), Version `1.16.13` to `1.16.14`): §6 (gate-45 narrative) and §5 (functional summary) updated so the sweep-cursor check is described as scanning [`.working/session-handoff.md`](../session-handoff.md) (the relocated resume cursor), not TODO.md; the queued-PR check still scans TODO.md. This was the parallel surface #413's gate-45 re-point missed.
+- **#413 in-window finding A-2** ([`.working/design-decisions.md`](../design-decisions.md)): the "Session-state snapshot" decision note updated to reflect the PR #413 relocation (the resume cursor now lives in the session-handoff file; gate 45's sweep-cursor check re-pointed there) instead of asserting the subsection is "frozen in TODO".
+
+### Changed (generated artefacts)
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) for the four per-document Version/Date bumps; [`docs/portal.md`](../../docs/portal.md) correctly unchanged.
+
+### Verification
+- The reconciled retention values were read out of the canonical schedule before editing (ROPA = Active + 5 years at the Processing-records row; consent = duration of processing + 3 years at the Consent-records row). The GDPR Article 30 / Article 7 characterizations cited in the reconciled prose were spot-checked against the scratch reference base's GDPR full text (Article 30 = "records of processing activities"; Article 7 = "conditions for consent") per the maintainer's use-the-references directive.
+- [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) 54/54 green post-commit; [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh) all-pass; [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) clean before the first commit.
+
+### Changed (.working/, working-state)
+- FR-172, FR-186, FR-187 rotated from [`TODO.md`](../../TODO.md) to [`.working/DONE.md`](../DONE.md).
+- Batched per recursion-avoidance: the #413 `/validate-pr` (2 in-window findings, both fixed in this PR) row into [`.working/validate-pr/history.md`](../validate-pr/history.md) (ledger `1.2.199` to `1.2.200`, with the detail file [`validate-pr/2026-06-27-PR-413.md`](../validate-pr/2026-06-27-PR-413.md)) and the #413 `/retro` row into [`.working/improvement-log.md`](../improvement-log.md) (ledger `1.0.151` to `1.0.152`).
+
+Library `2026.06.392` to `2026.06.393`; README `1.9.263` to `1.9.264`.
+
 ## 2026-06-27, Library Version 2026.06.392, PR #413
 
 `.working/`, [`TODO.md`](../../TODO.md), and tooling housekeeping for local project: **TODO-hygiene pass** (maintainer-flagged: shipped/historical content had accreted in TODO instead of rotating out). Three changes plus the batched prior-PR QA rows.
