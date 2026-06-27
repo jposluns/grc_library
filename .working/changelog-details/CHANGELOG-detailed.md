@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.362, PR #383
+
+FR-167 batch 7 (compliance domain): the [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) Compliance section expanded from 5 rows to 30 (25 net-new), giving the compliance domain comprehensive coverage across the 8 framework columns (CSA CCM v4.1, ISO 27001:2022, NIST CSF 2.0, CTPAT, PIP, BASC v6, WCO SAFE, AEO/AEO-S). Authored via the research-assistant discipline: 5 verified-disjoint research workers over the 25 net-new compliance source documents; the orchestrator independently re-validated every CCM and NIST CSF code against [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py) and [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py), re-read each document's own framework-alignment table to ground the trade-column cells, and authored every cell; gates 48 and 49 confirm CCM, ISO Annex A, and NIST CSF 2.0 validity.
+
+### Added
+
+- [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md): 25 net-new Compliance-domain rows (the section grows from 5 to 30). Groups: the compliance core (legal-and-regulatory-compliance policy, internal-audit standard, audit-planning, CAPA, and control-testing procedures); registers and templates (compliance-obligations register, audit-evidence package, regulator-interaction); the NIS 2 implementation annex; sector annexes (DORA, financial-services, SOX ITGC, energy-and-utilities, healthcare, FedRAMP, public-sector, telecommunications); and the logistics or customs documents (BASC programme overview, logistics sector requirements, BASC information-security policy, UK AEO IT self-assessment, US CTPAT IT-controls register, US CTPAT full-MSC register, Canada PIP controls register, trade-compliance gap-assessment template). Matrix Version `1.6.0` to `1.7.0`, Date `2026-06-27`.
+
+### Changed
+
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the matrix Version bump (taxonomy first, then portal and scorecard).
+- [`.working/overnight-pr.md`](../overnight-pr.md): transitioned `stub` to `in-flight` for the 2026-06-27 maintainer-authorized overnight run (FR-167 batches, smallest-first; green-CI = merge; stricter-is-safer; authorial decisions deferred to [`.working/pending-decisions.md`](../pending-decisions.md) for the morning).
+- [`README.md`](../../README.md): Library `2026.06.361` to `2026.06.362`, README Version `1.9.232` to `1.9.233`, Date `2026-06-27`.
+- [`TODO.md`](../../TODO.md): FR-167 batch-progress note updated (batch 7 compliance shipped; next batch governance); validation-sweep cursor advanced to Sweep 58.
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): Sweep 58 clean `/validate` row added (Version `2.0.50` to `2.0.51`).
+
+### Discipline observations
+
+- Apply-time corrections to the worker drafts: (1) the CTPAT full-MSC register personnel-screening ISO code corrected from `A.7.2` (physical entry) to `A.6.1` (screening); (2) inferred ISO and CSF cells on the four trade registers (which carry no in-document ISO or CSF column) trimmed to the strongest control-subject-grounded codes; (3) BASC chapter cells left `N/A` where the source document cites no BASC chapter, rather than fabricating a clause; (4) trade columns populated only where the document's own framework table or body grounds the mapping, `N/A` otherwise. The orchestrator re-validated all 52 distinct CCM and CSF codes against the reference modules before authoring; the ISO column (no reference module exists) is validated by gate 49 against the 2022 Annex A membership list.
+
+### Verification
+
+- Gates 48 (CCM/AICM citation accuracy) and 49 (matrix control-code validity) pass. `tools/run_all_audits.sh` reports 54/54 green on the working tree. Generators in sync (`--check` clean for taxonomy and portal/scorecard). Sweep 58 (full A/B/C subagent dispatch, the #382 handoff loop-break control) returned 0 findings.
+
 ## 2026-06-26, Library Version 2026.06.361, PR #382
 
 `.working/` session-close housekeeping: **session-closing handoff PR** for the 2026-06-26 FR-167-batch-6 + §5.3-migration session (resumed from handoff #379). Lands working-state on `main` as a green merge so the next session's `/resume` rebuilds from `main`. Per the handoff-PR loop-break (CLAUDE.md PR-workflow step 5a) this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide **Sweep 58** the next `/resume` runs first (over the #380/#381/#382 deltas), cross-checked against this handoff's asserted-expectations. No corpus-document change.
