@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.368, PR #389
+
+`.working/` session-close housekeeping: **session-closing handoff PR** for the 2026-06-27 three-directive-tasks interlude (resumed from handoff #386; shipped #387 scratch-ref durability + `/resume` reference-loading + persist-to-`main` codification, and #388 orchestrator-token TODO section 4.19 + feasibility finding, after the clean Sweep 59). Per the handoff-PR loop-break (CLAUDE.md PR-workflow step 5a) this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide **Sweep 60** the next `/resume` runs first (over the #387/#388/#389 deltas), cross-checked against this handoff's asserted-expectations. No corpus-document change. The overnight FR-167 run CONTINUES next session (overnight-pr `in-flight`, batch 10 ai next).
+
+### Changed
+
+- [`.working/session-handoff.md`](../session-handoff.md): refreshed to the post-#388 snapshot (this-session directive-tasks narrative, the Sweep-60-next cadence over #387/#388/#389, the State-snapshot current-truth block green-at-`17651ab` 54/54 / library `2026.06.367` to `.368` / matrix `1.9.0` unchanged, this session's asserted-expectations block, the next queue still led by FR-167 batch 10 ai).
+- [`.working/session-metrics.md`](../session-metrics.md): the 2026-06-27 (resume-from-#386) row (~1h00m measured elapsed, 5 subagents, 1,285,895 measured subagent tokens all QA; orchestrator tokens not instrumented). Version `1.0.7` to `1.0.8`.
+- [`.working/overnight-pr.md`](../overnight-pr.md): a directive-tasks-interlude build-progress note; stays `Status: in-flight` (FR-167 batch 10 still next).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): the #388 `/validate-pr` row (0 findings) + the #389 handoff-exemption row. Version `1.2.177` to `1.2.179`.
+- [`.working/improvement-log.md`](../improvement-log.md): the #388 `/retro` row. Version `1.0.135` to `1.0.136`.
+- [`README.md`](../../README.md): Library `2026.06.367` to `2026.06.368`, README Version `1.9.238` to `1.9.239`.
+
+### Verification
+
+- Sweep 59 (this session's loop-break) was clean (full A/B/C, 0 findings); #387 and #388 each `/validate-pr` 0. `tools/run_all_audits.sh` 54/54 green on the post-commit state and `tools/run-pr-time-checks.sh` all-pass verified before push; added CHANGELOG lines dash-free and path-linked ([`tools/preflight-changelog.py`](../../tools/preflight-changelog.py)). This handoff PR skips its own `/validate-pr` + `/retro` per the loop-break; Sweep 60 at the next `/resume` is the compensating control.
+
 ## 2026-06-27, Library Version 2026.06.367, PR #388
 
 `.working/` + TODO: add the orchestrator-token-instrumentation backlog item (the maintainer's third pre-resume directive, after the feasibility investigation) and batch the #387 post-merge QA rows. This is the last of the three pre-resume directive tasks. No corpus-document change.
