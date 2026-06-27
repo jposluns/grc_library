@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.379, PR #400
+
+Scoped the **#376 paired-surface mechanical-check** design and recorded the resolution; build deferred to fresh context (gate-logic precision is degradation-sensitive). This is the "smaller item" of the post-#399 re-assessment boundary.
+
+### Changed
+
+- [`.working/design-decisions.md`](../design-decisions.md): added the "#376 paired-surface mechanical check" subsection under Audit programme architecture. The "update-one-of-a-pair" class splits by mechanizability: the mechanizable half (a metadata `Version` bumped without its paired `## Version history` row, the #372 miss) becomes **gate 50 check 4** in [`tools/lint-bookkeeping-parity.py`](../../tools/lint-bookkeeping-parity.py) (the same presence-of-a-paired-record family as gate 50's checks 1-2), so no new numbered gate and no count-bump or four-surface ripple (the gate-48 two-checks-to-four precedent); the non-mechanizable semantic half (a coded-value migration leaving stale description prose, #371/#374) stays the close-out-checklist convention plus worker-brief DO rail 8. Resolves the #376-retro "extend gate 50 vs new gate" fork toward extend.
+- [`TODO.md`](../../TODO.md): §4.6 (QA-cadence / bookkeeping-parity gate family) gains a bullet recording the scoped gate-50-check-4 design and pointing at the design-decisions entry; build flagged buildable as a straight implementation on fresh context.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) and [`.working/improvement-log.md`](../improvement-log.md): the batched #399 `/validate-pr` (0 findings) row and `/retro` row (recursion-avoidance).
+
+### Verification
+
+- `tools/run_all_audits.sh` all 54 gates pass on the committed state; `tools/run-pr-time-checks.sh` all pass. No corpus-document change; the only versioned surfaces are README plus the `.working/` ledgers (validate-pr/history, improvement-log), each Version-bumped. design-decisions.md is exempt from version-tracking per the `.working/` convention.
+
+No corpus-document change. Library `2026.06.378` to `2026.06.379`; README `1.9.249` to `1.9.250`.
+
 ## 2026-06-27, Library Version 2026.06.378, PR #399
 
 Built **PR B of [`TODO.md`](../../TODO.md) §4.20**: the [`matrix-fit`](../../dev-security/claude-rules/skills/matrix-fit/SKILL.md) skill (slash command `/matrix-fit`), the cadenced semantic-fit audit of the compliance matrix and per-document framework-alignment tables, completing the two-part §4.20 instrument (PR A, the advisory triage tool, shipped in #394).
