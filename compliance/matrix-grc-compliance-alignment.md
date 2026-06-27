@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.10.0\
+**Version:** 1.11.0\
 **Date:** 2026-06-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -255,8 +255,48 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 | Domain | Document Title | Path | CSA CCM v4.1 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Privacy | Policy: Privacy and Data Governance | [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) | DSP-01, DSP-02, DSP-03, DSP-04 | A.5.34, A.8.11, A.8.12 | GV.PO, PR.DS | N/A | Data protection | §8.4 | N/A | Documentation security |
-| Privacy | Procedure: Privacy Impact and Cross-Border Transfer | [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | DSP-03, DSP-04, DSP-06 | A.5.34 | GV.PO, PR.DS, ID.RA | N/A | Data protection | §8.4 | N/A | Documentation security |
+| Privacy | Policy: Privacy and Data Governance | [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) | DSP-01, DSP-02, DSP-03, DSP-04 | A.5.34, A.8.11, A.8.12 | GV.PO, PR.DS | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Procedure: Privacy Impact and Cross-Border Transfer | [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | DSP-04, DSP-09, DSP-10 | A.5.34 | GV.PO, PR.DS, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Privacy Management Programme Charter | [`privacy/charter-privacy-management-programme.md`](../privacy/charter-privacy-management-programme.md) | GRC-01, DSP-01, GRC-06 | A.5.34, A.5.31, §5.3 | GV.PO, GV.RR, GV.OC | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Children's Data Framework | [`privacy/framework-childrens-data.md`](../privacy/framework-childrens-data.md) | DSP-17, DSP-07, DSP-04 | A.5.34, A.8.12 | GV.PO, PR.DS, GV.OC | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Consent Management Framework | [`privacy/framework-consent-management.md`](../privacy/framework-consent-management.md) | DSP-12, DSP-01, GRC-01 | A.5.34 | GV.PO, PR.DS | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Pseudonymisation and Anonymisation Standard | [`privacy/standard-pseudonymisation-and-anonymisation.md`](../privacy/standard-pseudonymisation-and-anonymisation.md) | DSP-07, DSP-17, DSP-10 | A.8.11, A.5.34 | PR.DS, GV.PO | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Automated Decision-Making and Profiling Register | [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md) | DSP-03, GRC-02, DSP-12 | A.5.34 | GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Cookie and Tracker Register | [`privacy/register-cookie-and-tracker.md`](../privacy/register-cookie-and-tracker.md) | DSP-03, DSP-12, DSP-01 | A.5.34 | GV.PO, ID.AM | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Cross-Border Data Flow Register | [`privacy/register-cross-border-data-flow.md`](../privacy/register-cross-border-data-flow.md) | DSP-10, DSP-19, DSP-03 | A.5.34, A.5.31 | GV.OC, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Privacy Jurisdiction Index | [`privacy/annex-privacy-jurisdiction-index.md`](../privacy/annex-privacy-jurisdiction-index.md) | GRC-01, DSP-19, GRC-03 | A.5.31, A.5.34 | GV.OC, GV.PO | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Data Protection and Privacy Breach Response Procedure | [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) | SEF-08, SEF-03, SEF-06 | A.5.34, A.5.26, A.6.8 | RS.MA, RS.CO, RC.RP | N/A | N/A | Trade-data breach response | N/A | N/A |
+| Privacy | Data Subject Rights Management Procedure | [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md) | DSP-11, DSP-01, DSP-06 | A.5.34, A.5.33 | GV.PO, PR.DS, ID.AM | N/A | N/A | N/A | N/A | N/A |
+| Privacy | DPIA (Data Protection Impact Assessment) Template | [`privacy/template-dpia.md`](../privacy/template-dpia.md) | DSP-07, DSP-08, DSP-01 | A.5.34, §6.1 | ID.RA, GV.PO, PR.DS | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Data Subject Access Request Workflow Template | [`privacy/template-dsar-workflow.md`](../privacy/template-dsar-workflow.md) | DSP-11, DSP-01, DSP-06 | A.5.34, A.5.33 | GV.PO, PR.DS, ID.AM | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Joint Controller Arrangement Template | [`privacy/template-joint-controller-arrangement.md`](../privacy/template-joint-controller-arrangement.md) | DSP-13, DSP-06, DSP-01 | A.5.34, A.5.19 | GV.OC, GV.PO, PR.DS | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Privacy Notice Template | [`privacy/template-privacy-notice.md`](../privacy/template-privacy-notice.md) | DSP-01, DSP-08, DSP-05 | A.5.34, §7.4 | GV.PO, ID.AM | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Record of Processing Activities Template | [`privacy/template-record-of-processing-activities.md`](../privacy/template-record-of-processing-activities.md) | DSP-03, DSP-05, DSP-06 | A.5.34, A.5.33, §7.5 | ID.AM, GV.PO, PR.DS | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Australia Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-australia.md`](../privacy/jurisdictions/annex-privacy-australia.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Brazil Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-brazil.md`](../privacy/jurisdictions/annex-privacy-brazil.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Canada Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-canada.md`](../privacy/jurisdictions/annex-privacy-canada.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | China Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-china.md`](../privacy/jurisdictions/annex-privacy-china.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | European Union Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-european-union.md`](../privacy/jurisdictions/annex-privacy-european-union.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | India Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-india.md`](../privacy/jurisdictions/annex-privacy-india.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Indonesia Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-indonesia.md`](../privacy/jurisdictions/annex-privacy-indonesia.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Japan Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-japan.md`](../privacy/jurisdictions/annex-privacy-japan.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Kenya Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-kenya.md`](../privacy/jurisdictions/annex-privacy-kenya.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Latin America Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-latin-america.md`](../privacy/jurisdictions/annex-privacy-latin-america.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Malaysia Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-malaysia.md`](../privacy/jurisdictions/annex-privacy-malaysia.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | New Zealand Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-new-zealand.md`](../privacy/jurisdictions/annex-privacy-new-zealand.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Nigeria Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-nigeria.md`](../privacy/jurisdictions/annex-privacy-nigeria.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Philippines Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-philippines.md`](../privacy/jurisdictions/annex-privacy-philippines.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Saudi Arabia Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-saudi-arabia.md`](../privacy/jurisdictions/annex-privacy-saudi-arabia.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Singapore Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-singapore.md`](../privacy/jurisdictions/annex-privacy-singapore.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | South Africa Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-south-africa.md`](../privacy/jurisdictions/annex-privacy-south-africa.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | South Korea Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-south-korea.md`](../privacy/jurisdictions/annex-privacy-south-korea.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Switzerland Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-switzerland.md`](../privacy/jurisdictions/annex-privacy-switzerland.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Thailand Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-thailand.md`](../privacy/jurisdictions/annex-privacy-thailand.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Turkey Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-turkey.md`](../privacy/jurisdictions/annex-privacy-turkey.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | United Arab Emirates Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-uae.md`](../privacy/jurisdictions/annex-privacy-uae.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | United Kingdom Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-united-kingdom.md`](../privacy/jurisdictions/annex-privacy-united-kingdom.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | United States Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-united-states.md`](../privacy/jurisdictions/annex-privacy-united-states.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Vietnam Privacy Regulatory Requirements | [`privacy/jurisdictions/annex-privacy-vietnam.md`](../privacy/jurisdictions/annex-privacy-vietnam.md) | DSP-01, DSP-10, DSP-17 | A.5.34, A.5.31 | GV.OC, GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
 
 ---
 
