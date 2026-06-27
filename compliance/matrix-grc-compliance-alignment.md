@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.7.0\
+**Version:** 1.8.0\
 **Date:** 2026-06-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -51,6 +51,21 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Governance | Policy: Exception and Risk Acceptance Management | [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) | GRC-04, GRC-05 | §6.1.3, §8.2 | GV.RM, ID.RA | N/A | N/A | §6.1, §10 | N/A | Risk management |
 | Governance | Standard: Records Retention and Destruction | [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) | DSP-07, DSP-08 | A.5.33, A.8.10 | PR.DS | Documentation and record-keeping | Record retention | §7.5 | Pillar II (Customs-to-Business) | Documentation security; Trade records retention |
 | Governance | Register: Document Index and Classification | [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md) | GRC-01 | §7.5 | GV.OC | N/A | N/A | §7.5 | N/A | Documentation security |
+| Governance | Framework: Continuous Assurance and Improvement | [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md) | A&A-01, A&A-05, A&A-02 | §9.1, §9.2, §10.1 | ID.IM, GV.OV, DE.CM | N/A | N/A | N/A | N/A | N/A |
+| Governance | Framework: Document Architecture and Interrelationship | [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md) | GRC-01, GRC-03 | §7.5, A.5.1 | GV.OC, GV.PO | N/A | N/A | N/A | N/A | N/A |
+| Governance | Framework: Governance Performance and Improvement | [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md) | GRC-06, A&A-03, GRC-03 | §9.1, §9.3, §10.1 | GV.OV, ID.IM, GV.RM | N/A | N/A | N/A | N/A | N/A |
+| Governance | Framework: Human Capital and Ethical Conduct | [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md) | HRS-09, HRS-11, HRS-13 | A.6.3, A.5.4 | PR.AT, GV.RR, GV.PO | N/A | N/A | N/A | N/A | N/A |
+| Governance | Framework: Metrics, Monitoring and Performance Reporting | [`governance/framework-metrics-monitoring-and-performance-reporting.md`](../governance/framework-metrics-monitoring-and-performance-reporting.md) | A&A-03, GRC-02, LOG-03 | §9.1, A.5.35 | ID.IM, DE.CM, GV.OV | N/A | N/A | N/A | N/A | N/A |
+| Governance | Framework: Sustainability and Responsible Technology | [`governance/framework-sustainability-and-responsible-technology.md`](../governance/framework-sustainability-and-responsible-technology.md) | GRC-01, GRC-02, STA-01 | §5.1, §6.1, A.5.19 | GV.OC, GV.RM, GV.SC | N/A | N/A | N/A | N/A | N/A |
+| Governance | Guideline: ESG and AI Ethics Disclosure | [`governance/guideline-esg-and-ai-ethics-disclosure.md`](../governance/guideline-esg-and-ai-ethics-disclosure.md) | GRC-01, GRC-06, A&A-01 | §7.4, §9.1 | GV.OC, GV.OV | N/A | N/A | N/A | N/A | N/A |
+| Governance | Guideline: Minimum Viable Governance Structure | [`governance/guideline-minimum-viable-governance-structure.md`](../governance/guideline-minimum-viable-governance-structure.md) | GRC-01, GRC-06 | §5.1, §5.3, A.5.2 | GV.OC, GV.RR | N/A | N/A | N/A | N/A | N/A |
+| Governance | Policy: Digital Twin and Simulation Governance | [`governance/policy-digital-twin-and-simulation-governance.md`](../governance/policy-digital-twin-and-simulation-governance.md) | GRC-01, DSP-05, IAM-01, LOG-01 | §8.1, A.5.15, A.8.15, A.8.24 | GV.OC, PR.AA, PR.DS, DE.CM | N/A | N/A | N/A | N/A | N/A |
+| Governance | Procedure: Continuous Improvement Register | [`governance/procedure-continuous-improvement-register.md`](../governance/procedure-continuous-improvement-register.md) | A&A-06, GRC-02 | §10.1, §10.2, §9.3 | ID.IM, GV.OV | N/A | N/A | N/A | N/A | N/A |
+| Governance | Procedure: GRC Programme Management and Annual Review | [`governance/procedure-grc-programme-management-and-annual-review.md`](../governance/procedure-grc-programme-management-and-annual-review.md) | GRC-01, GRC-03, A&A-05 | §9.3, §10.2 | GV.OC, GV.RM, ID.IM | N/A | N/A | N/A | N/A | N/A |
+| Governance | Procedure: Whistleblower and Incident Reporting | [`governance/procedure-whistleblower-and-incident-reporting.md`](../governance/procedure-whistleblower-and-incident-reporting.md) | SEF-01, SEF-03, SEF-08 | A.6.8, A.5.24, A.5.28 | RS.MA, RS.CO, GV.OC | N/A | N/A | N/A | N/A | N/A |
+| Governance | Register: Data Retention Schedule | [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md) | DSP-16, DSP-02 | A.5.33, A.8.10 | PR.DS, GV.OC | N/A | N/A | N/A | N/A | N/A |
+| Governance | Register: Digital Trust and Assurance Metrics | [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md) | A&A-02, A&A-03, GRC-02 | §9.1, A.5.35 | GV.OV, ID.IM, GV.RM | N/A | N/A | N/A | N/A | N/A |
+| Governance | Register: Role Authority | [`governance/register-role-authority.md`](../governance/register-role-authority.md) | GRC-06, HRS-09, IAM-04 | A.5.2, A.5.3, §5.3 | GV.RR, GV.OC | N/A | N/A | N/A | N/A | N/A |
 
 ---
 
@@ -90,7 +105,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Compliance | Procedure: Audit Planning | [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md) | A&A-01, A&A-02 | §9.2 | ID.IM | N/A | N/A | §9.2 | N/A | IT controls review and testing |
 | Compliance | Procedure: Corrective and Preventive Action (CAPA) | [`compliance/procedure-capa.md`](procedure-capa.md) | A&A-06 | §10.1, §10.2 | ID.IM | N/A | N/A | §10 | N/A | N/A |
 | Compliance | Procedure: Control Testing | [`compliance/procedure-control-testing.md`](procedure-control-testing.md) | A&A-02, A&A-05 | §9.1 | DE.CM, ID.IM | N/A | N/A | N/A | N/A | N/A |
-| Compliance | Template: Compliance Obligations Register | [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md) | GRC-01, GRC-06 | §4.1, §4.2, A.5.31 | GV.OC, GV.RM | N/A | N/A | N/A | N/A | N/A |
+| Compliance | Register: Compliance Obligations Template | [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md) | GRC-01, GRC-06 | §4.1, §4.2, A.5.31 | GV.OC, GV.RM | N/A | N/A | N/A | N/A | N/A |
 | Compliance | Template: Audit Evidence Package | [`compliance/template-audit-evidence-package.md`](template-audit-evidence-package.md) | A&A-01, A&A-02, GRC-06 | §9.2, A.5.35 | GV.OV, ID.IM | N/A | N/A | N/A | N/A | N/A |
 | Compliance | Template: Regulator Interaction | [`compliance/template-regulator-interaction.md`](template-regulator-interaction.md) | GRC-06, SEF-03 | A.5.5, A.5.24 | RS.CO, GV.OC | N/A | N/A | N/A | N/A | N/A |
 | Compliance | Annex: NIS 2 Implementation | [`compliance/annex-nis-2-implementation.md`](annex-nis-2-implementation.md) | GRC-06, STA-01, SEF-01 | §6.1, A.5.19, A.5.24 | GV.OC, ID.RA, GV.SC | N/A | N/A | N/A | N/A | N/A |
