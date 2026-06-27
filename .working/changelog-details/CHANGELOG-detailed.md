@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.369, PR #390
+
+Audit-tooling hardening: close a CCM/AICM catalogue-confusion hole in gate 49 (compliance-matrix control-code validity). The matrix's "CSA CCM v4.1" column was previously deferred entirely to the corpus-wide CSA citation gate (gate 48), which validates a matrix CCM-column token against the AICM-wins union (`ALL_TITLES`) and therefore passes an AICM-only code (e.g. an `MDS-` Model Security code, an AICM v1.1 domain absent from CCM v4.1) in a column labelled CCM v4.1. This was surfaced during the FR-167 batch-10 (ai) apply-time validation, when a cross-check of the validation crib against the scratch repo's `ref/standards/` source extracts showed the in-repo module's blended `VALID_DOMAINS` carried the AICM-only `MDS` domain. Maintainer-directed (2026-06-27): tighten the gate, and codify CCM/AICM separation mechanically.
+
+### Changed
+
+- [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py): split the blended domain set into per-catalogue `CCM_DOMAINS` (17) and `AICM_DOMAINS` (18, the extra being the AI-only `MDS` Model Security domain) via a parameterized `_domains_of(catalogue)` helper; `VALID_DOMAINS` is retained as the union (`_domains_of(ALL_TITLES)`, unchanged at 18 members) for the corpus-wide citation gate. Added `is_ccm_v41(code)`, `is_aicm(code)`, and `is_aicm_only(code)` helpers so a caller can enforce catalogue discipline instead of relying on the union.
+- [`tools/lint-matrix-control-codes.py`](../../tools/lint-matrix-control-codes.py) (gate 49): added a `check_ccm_token` validator and wired it into `scan_matrix` (capturing the `CSA CCM v4.1` column index alongside ISO and NIST). A CCM-column token must be a CCM v4.1.0 code; an AICM-only code is flagged `ccm-aicm-confusion`, a code-shaped non-CCM token `ccm-unknown`, a non-code token `ccm-malformed`. Updated the module docstring (CCM column moved from "out of scope" to a catalogue-membership check complementary to gate 48's title check) and the OK/FAIL messages.
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md): section 5 (functional categories) and section 6 (gate-49 narrative) updated to describe the new CCM-column catalogue-membership check and its complementarity with gate 48. Version `1.16.12` to `1.16.13`, Date to 2026-06-27.
+- [`tests/test_linters.py`](../../tests/test_linters.py): `MatrixControlCodeTests` gained `test_ccm_aicm_only_code_flagged` (MDS-01 to `ccm-aicm-confusion`), `test_ccm_invalid_code_flagged` (GOV-99 to `ccm-unknown`), and `test_ccm_valid_code_and_na_not_flagged` (false-positive guard), replacing the prior `test_ccm_column_not_policed_here` which encoded the pre-tightening scope (documented inline; this is a by-design behaviour change, not a weakened gate).
+
+### Verification
+
+- Gate 49 standalone: OK on the live matrix (the current CCM column carries no AICM-only codes); a negative test injecting `MDS-01` into a CCM cell fails with `ccm-aicm-confusion`.
+- `MatrixControlCodeTests` 13/13 pass via unittest; gate 48 (CSA citations) still exits 0 on the corpus (the `VALID_DOMAINS` union is unchanged).
+- Crib cross-validated against the scratch repo's `ref/standards/` ground truth (read-only): the `CCM_V41` keyset is byte-identical to the CSA CCM v4.1.0 catalogue CSV extract (207 codes, 17 domains, zero set difference both directions); `nist_csf_reference.CSF_CATEGORIES` is byte-identical to the 22 categories in the NIST CSWP-29 CSF 2.0 full-text extract.
+- Post-commit `tools/run_all_audits.sh` 54/54 and pre-push `tools/run-pr-time-checks.sh` to be confirmed green before push.
+
+### Notes
+
+- No new gate number (this is a scope tightening of existing gate 49); four-surface parity is unchanged at 54 numbered gates.
+- Batches the clean **Sweep 60** `/validate` history row (the #389 loop-break compensating control over the #387/#388/#389 deltas; 0 findings across Subagents A/B/C; no asserted-expectations contradiction).
+
 ## 2026-06-27, Library Version 2026.06.368, PR #389
 
 `.working/` session-close housekeeping: **session-closing handoff PR** for the 2026-06-27 three-directive-tasks interlude (resumed from handoff #386; shipped #387 scratch-ref durability + `/resume` reference-loading + persist-to-`main` codification, and #388 orchestrator-token TODO section 4.19 + feasibility finding, after the clean Sweep 59). Per the handoff-PR loop-break (CLAUDE.md PR-workflow step 5a) this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide **Sweep 60** the next `/resume` runs first (over the #387/#388/#389 deltas), cross-checked against this handoff's asserted-expectations. No corpus-document change. The overnight FR-167 run CONTINUES next session (overnight-pr `in-flight`, batch 10 ai next).

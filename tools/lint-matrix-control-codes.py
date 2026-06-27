@@ -35,12 +35,22 @@ Scope (deliberately bounded):
     ``ID.BE``, etc.) is flagged with a relocation note pointing at where
     the content went in 2.0.
 
-Out of scope (by design):
+  * **CSA CCM v4.1 column** -- every token is validated for *catalogue
+    membership*: it must be a CSA CCM v4.1.0 control identifier
+    (``ccm_aicm_reference.CCM_V41``). A token that is a valid AICM v1.1.0
+    identifier but NOT a CCM v4.1.0 one (the AICM-only ``MDS`` domain is the
+    canonical case) is flagged: the column is labelled "CSA CCM v4.1", so an
+    AICM code does not belong in it even though it is a real CSA control.
+    This is a *catalogue-discipline* check (CCM-vs-AICM separation) that the
+    corpus-wide CSA citation gate (``lint-ccm-aicm-citations.py``) does not
+    enforce here, because that gate validates a matrix code against the
+    AICM-wins *union* and so passes an AICM-only code in the CCM column. The
+    two gates are complementary: the citation gate checks title accuracy
+    against whichever catalogue the context names; this gate enforces that
+    the v4.1-labelled column carries only v4.1 codes. Title accuracy of CCM
+    codes stays the citation gate's job; this gate does not re-check titles.
 
-  * **CSA CCM v4.1 column** -- already validated corpus-wide (including
-    this matrix) by ``lint-ccm-aicm-citations.py`` (the CSA citation gate),
-    which uses the authoritative ``ccm_aicm_reference.py`` index. This gate
-    does not re-validate CCM codes; doing so would duplicate that gate.
+Out of scope (by design):
 
   * **CTPAT / PIP / BASC v6 / WCO SAFE / AEO/AEO-S columns** -- these
     frameworks express their requirements as free-text headings and
@@ -66,6 +76,7 @@ import sys
 from collections import namedtuple
 from pathlib import Path
 
+from ccm_aicm_reference import is_aicm_only, is_ccm_v41
 from lint_common import REPO_ROOT, read_text_safe
 from nist_csf_reference import is_valid_category, relocation_note
 
@@ -84,10 +95,15 @@ NIST_FUNCTIONS = frozenset({"GV", "ID", "PR", "DE", "RS", "RC"})
 
 ISO_HEADER = "ISO 27001:2022"
 NIST_HEADER = "NIST CSF 2.0"
+CCM_HEADER = "CSA CCM v4.1"
 
 ISO_ANNEX_RE = re.compile(r"^A\.(\d+)\.(\d+)$")
 ISO_CLAUSE_RE = re.compile(r"^§(\d+)(?:\.\d+)*$")
 NIST_RE = re.compile(r"^([A-Z]{2})\.([A-Z]{2,})$")
+# A CCM/AICM control-identifier shape: DOMAIN-NN (domain prefix, two-digit
+# number). Used only to give a sharper message when a CCM-column token looks
+# like a control code but is not a valid CCM v4.1 one.
+CCM_CODE_RE = re.compile(r"^[A-Z&]{2,4}-[0-9]{2}$")
 
 Finding = namedtuple("Finding", "line rule message")
 
@@ -191,27 +207,67 @@ def check_nist_token(tok: str) -> tuple[str, str] | None:
     return None
 
 
+def check_ccm_token(tok: str) -> tuple[str, str] | None:
+    """Return ``(rule, message)`` if ``tok`` is not a valid CCM v4.1 token, else None.
+
+    The column is labelled "CSA CCM v4.1", so a token must be a CCM v4.1.0
+    control identifier. An AICM-only identifier (a real CSA control, but from
+    the AI Controls Matrix, not CCM v4.1) is the specific confusion this check
+    catches; the canonical case is the AICM ``MDS`` (Model Security) domain.
+    """
+    if tok == "N/A":
+        return None
+    if is_ccm_v41(tok):
+        return None
+    if is_aicm_only(tok):
+        return (
+            "ccm-aicm-confusion",
+            f"'{tok}' is an AICM v1.1.0 code, not a CSA CCM v4.1.0 code; it "
+            f"does not belong in the 'CSA CCM v4.1' column (CCM/AICM "
+            f"catalogue confusion). Use the CCM v4.1 control, or map AICM "
+            f"codes in an AICM-labelled surface.",
+        )
+    if CCM_CODE_RE.match(tok):
+        return (
+            "ccm-unknown",
+            f"'{tok}' is not a valid CSA CCM v4.1.0 control identifier "
+            f"(not in the authoritative CCM v4.1.0 catalogue).",
+        )
+    return (
+        "ccm-malformed",
+        f"unrecognized CSA CCM v4.1 token '{tok}' "
+        f"(expected a control identifier 'DOMAIN-NN' or 'N/A').",
+    )
+
+
 def scan_matrix(path: Path) -> list[Finding]:
-    """Validate the ISO and NIST framework columns of the matrix file."""
+    """Validate the CSA CCM v4.1, ISO and NIST framework columns of the matrix."""
     text = read_text_safe(path)
     if text is None:
         return []
     findings: list[Finding] = []
     iso_idx: int | None = None
     nist_idx: int | None = None
+    ccm_idx: int | None = None
     for lineno, line in enumerate(text.splitlines(), start=1):
         if not line.lstrip().startswith("|"):
-            iso_idx = nist_idx = None  # left a table block
+            iso_idx = nist_idx = ccm_idx = None  # left a table block
             continue
         cells = split_row(line)
         if ISO_HEADER in cells and NIST_HEADER in cells:
             iso_idx = cells.index(ISO_HEADER)
             nist_idx = cells.index(NIST_HEADER)
+            ccm_idx = cells.index(CCM_HEADER) if CCM_HEADER in cells else None
             continue
         if is_separator_row(cells):
             continue
         if iso_idx is None:
             continue  # a table without the framework columns
+        if ccm_idx is not None and len(cells) > ccm_idx:
+            for tok in tokenize_cell(cells[ccm_idx]):
+                result = check_ccm_token(tok)
+                if result:
+                    findings.append(Finding(lineno, result[0], result[1]))
         if len(cells) > iso_idx:
             for tok in tokenize_cell(cells[iso_idx]):
                 result = check_iso_token(tok)
@@ -235,19 +291,21 @@ def main(argv: list[str]) -> int:
     if not findings:
         print(
             f"OK: matrix framework-control codes valid in {rel} "
-            f"(ISO 27001:2022 Annex A membership + clause format; "
+            f"(CSA CCM v4.1 column membership, no AICM-only codes; "
+            f"ISO 27001:2022 Annex A membership + clause format; "
             f"NIST CSF 2.0 well-formedness + Category membership; "
-            f"CCM/AICM covered by the CSA citation gate)."
+            f"CCM/AICM title accuracy covered by the CSA citation gate)."
         )
         return 0
     print(f"=== {rel} ===")
     for f in findings:
         print(f"  L{f.line} [{f.rule}] {f.message}")
     print(
-        f"\nFAIL: {len(findings)} matrix control-code issue(s). ISO codes are "
-        f"validated against the ISO/IEC 27001:2022 Annex A control set and "
-        f"clause range; NIST tokens against the CSF 2.0 Core Function prefixes "
-        f"and the authoritative 22-Category set.",
+        f"\nFAIL: {len(findings)} matrix control-code issue(s). CSA CCM v4.1 "
+        f"column tokens are validated for CCM v4.1.0 catalogue membership "
+        f"(AICM-only codes rejected); ISO codes against the ISO/IEC 27001:2022 "
+        f"Annex A control set and clause range; NIST tokens against the CSF 2.0 "
+        f"Core Function prefixes and the authoritative 22-Category set.",
         file=sys.stderr,
     )
     return 1
