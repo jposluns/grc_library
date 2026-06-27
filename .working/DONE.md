@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #399: P-4.20 PR B: the /matrix-fit semantic-fit audit skill + command + cadence (2026-06-27)
+
+Shipped PR B of §4.20, completing the cadenced semantic-fit instrument for the gate-blind "valid code, wrong control" class: the `matrix-fit` skill (sixteenth pack skill) + `/matrix-fit` command judge each cited control code against the source TITLE over the PR-A worklist; cadence wired into CLAUDE.md and the worker-brief (after each FR-167 batch, at completion, ad-hoc). §4.20 fully closed (PR A was #394).
+
 ### PR #397: FR-140-followup (low): README Core-reference-set catalogue label corrected (2026-06-27)
 
 Fixed the README:277 catalogue row for the enterprise governance-and-risk policy: title corrected to "Enterprise Governance and Risk Management Policy" and the domain label moved Governance to Risk (the row relocated into the Risk block), matching the artefact's home domain (maintainer-confirmed).
