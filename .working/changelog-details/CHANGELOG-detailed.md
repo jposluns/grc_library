@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.382, PR #403
+
+**Session-closing handoff PR** for the 2026-06-27 FR-167-batch-10-ai session (it shipped #402, the AI-domain compliance-matrix section, 34 rows, and ran the first `/matrix-fit` firing). Lands working-state on `main` as a green merge so the next session's `/resume` rebuilds from `main`.
+
+### Changed
+
+- [`.working/session-handoff.md`](../session-handoff.md): refreshed (new This-session block for the batch-10 session; state snapshot post-#402; this session's `## Asserted expectations` block; green-at-`f9220eb` 54/54; Sweep-65-next over the #402/#403 deltas; next-priority queue FR-167 batch 11 privacy + the routed §N-codification / FR-167-worker-brief-rail / #376-gate-50-check-4 items).
+
+### Added
+
+- [`.working/matrix-fit/history.md`](matrix-fit/history.md): NEW file (first `/matrix-fit` firing). Records the batch-10 ai run: 12 of 34 rows worklisted overlap-0, 1 judge subagent, **0 mismatches** (4 all-fit + 8 loose-supporting); one optional refinement noted (row 337 `DSP-13`->`DSP-04`, not changed).
+- [`.working/session-metrics.md`](../session-metrics.md): this session's row (measured subagent tokens 2,346,843 across 10 subagents: Sweep 64 A/B/C 536,270; batch-10 research W1-W5 1,368,301; `/validate-pr` #402 A 144,833; `/matrix-fit` judge 297,439; orchestrator main-loop not instrumented).
+
+### Notes
+
+- Batches the #402 `/validate-pr` (0 findings) row into [`.working/validate-pr/history.md`](validate-pr/history.md) and the #402 `/retro` row into [`.working/improvement-log.md`](improvement-log.md) per recursion-avoidance.
+- Per the handoff-PR loop-break (PR-workflow step 5a) this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide **Sweep 65** the next `/resume` runs first (exemption row inline in [`.working/validate-pr/history.md`](validate-pr/history.md)).
+- No corpus-document change. Library `2026.06.381` to `2026.06.382`; README `1.9.252` to `1.9.253`.
+
 ## 2026-06-27, Library Version 2026.06.381, PR #402
 
 FR-167 batch 10: comprehensive compliance-matrix coverage of the **AI domain**, the tenth of the eleven domain batches (architecture, risk, dev-security, supply-chain, resilience, operations, compliance, governance, security shipped; privacy batch 11 and the matrix's partial sections remain).
