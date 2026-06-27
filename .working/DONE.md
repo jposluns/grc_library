@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #397: FR-140-followup (low): README Core-reference-set catalogue label corrected (2026-06-27)
+
+Fixed the README:277 catalogue row for the enterprise governance-and-risk policy: title corrected to "Enterprise Governance and Risk Management Policy" and the domain label moved Governance to Risk (the row relocated into the Risk block), matching the artefact's home domain (maintainer-confirmed).
+
 ### PR #392: Trust-recovery /full-qa remediation: matrix + source-doc control-code semantic-fit fixes (2026-06-27)
 
 A maintainer-invoked `/full-qa` over the FR-167 matrix found 9 "valid code, wrong control" and structural defects (all Medium/Low); all fixed: 8 matrix cells, the detailed-CHANGELOG-mirror header repair (F-1), and the 7 source documents whose own framework tables carried the same class (closing the Source-doc framework-table control-code corrections item). Also populated 3 governance trade cells (maintainer redirect) and ended overnight mode.
