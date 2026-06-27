@@ -6,6 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.363, PR #384
+
+FR-167 batch 8 (governance domain): the [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) Governance section expanded from 4 rows to 19 (15 net-new) across all 8 framework columns. A scoping pass classified all 32 governance documents (15 INCLUDE, 11 EXCLUDE-meta, 2 EXCLUDE-glossary, 4 already-in-matrix) against the matrix coverage-summary exclusions before authoring. Authored via the research-assistant discipline: 3 verified-disjoint research workers; the orchestrator re-validated every CCM and NIST CSF code against [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py) and [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py); gates 48 and 49 confirm validity.
+
+### Added
+
+- [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md): 15 net-new Governance-domain rows (section grows 4 to 19): 6 frameworks (continuous-assurance, document-architecture, governance-performance, human-capital-and-ethical-conduct, metrics-and-monitoring, sustainability), 2 guidelines (ESG-and-AI-ethics-disclosure, minimum-viable-governance-structure), 1 policy (digital-twin-and-simulation-governance), 3 procedures (continuous-improvement-register, GRC-programme-management, whistleblower-and-incident-reporting), 3 registers (data-retention-schedule, digital-trust-and-assurance-metrics, role-authority). Matrix Version `1.7.0` to `1.8.0`.
+
+### Fixed
+
+- [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md): the `register-compliance-obligations-template` row Document-Title cell corrected from "Template: Compliance Obligations Register" to "Register: Compliance Obligations Template" (the `/validate-pr` #383 note: the Type word tracks the source `Document Type` field, which is "Register").
+
+### Changed
+
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the matrix Version bump.
+- [`.working/overnight-pr.md`](../overnight-pr.md): build-progress update (batch 8 shipped; next batch 9 = security); batch-8 judgment calls recorded for the maintainer's morning.
+- [`README.md`](../../README.md): Library `2026.06.362` to `2026.06.363`, README Version `1.9.233` to `1.9.234`.
+- [`TODO.md`](../../TODO.md): FR-167 batch-progress note (batch 8 governance shipped; next batch security).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) + [`.working/validate-pr/2026-06-27-PR-383.md`](../validate-pr/2026-06-27-PR-383.md): the #383 `/validate-pr` row + record (1 note, fixed here). [`.working/improvement-log.md`](../improvement-log.md): the #383 `/retro` row.
+
+### Discipline observations
+
+- Apply-time correction: the human-capital-and-ethical-conduct framework self-cites `SEF-01` mislabeled as "Security and Ethics Framework"; `SEF-01` is in fact Security Incident Management (the doc-self-cited-code-may-be-mislabeled guard rail), so the CCM cell uses HRS-09/HRS-11/HRS-13 instead. The governance domain's high density of library-infrastructure/meta documents required a dedicated scoping pass; trade columns are N/A across all 15 (the three documents with incidental BASC/WCO content, continuous-assurance, metrics, data-retention, are flagged in [`overnight-pr.md`](../overnight-pr.md) for maintainer review rather than risk a fabricated BASC chapter). The `framework-document-architecture-and-interrelationship` INCLUDE call is borderline (library-document-architecture vs adopter-reusable-architecture; decided INCLUDE on its Purpose line 24) and flagged for morning confirmation.
+
+### Verification
+
+- Gates 48 and 49 pass; `tools/run_all_audits.sh` 54/54 green on the working tree; generators in sync. All batch-8 CCM and CSF codes re-validated against the reference modules; ISO Annex A membership confirmed by gate 49.
+
 ## 2026-06-27, Library Version 2026.06.362, PR #383
 
 FR-167 batch 7 (compliance domain): the [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) Compliance section expanded from 5 rows to 30 (25 net-new), giving the compliance domain comprehensive coverage across the 8 framework columns (CSA CCM v4.1, ISO 27001:2022, NIST CSF 2.0, CTPAT, PIP, BASC v6, WCO SAFE, AEO/AEO-S). Authored via the research-assistant discipline: 5 verified-disjoint research workers over the 25 net-new compliance source documents; the orchestrator independently re-validated every CCM and NIST CSF code against [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py) and [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py), re-read each document's own framework-alignment table to ground the trade-column cells, and authored every cell; gates 48 and 49 confirm CCM, ISO Annex A, and NIST CSF 2.0 validity.
