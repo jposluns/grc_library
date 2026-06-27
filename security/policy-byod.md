@@ -2,8 +2,8 @@
 
 **Document Title:** Bring Your Own Device (BYOD) Policy\
 **Document Type:** Policy\
-**Version:** 1.1.0\
-**Date:** 2026-06-23\
+**Version:** 1.1.1\
+**Date:** 2026-06-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-remote-working-security.md`](standard-remote-working-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md)\
@@ -130,9 +130,9 @@ Exceptions to this policy require CISO approval, documented business justificati
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 27001:2022 | A.6.2, Teleworking; A.8.1, User Endpoint Devices | BYOD controls, endpoint security requirements |
+| ISO/IEC 27001:2022 | A.6.7, Remote working; A.8.1, User Endpoint Devices | BYOD controls, endpoint security requirements |
 | NIST SP 800-124r2 | Guidelines for Managing the Security of Mobile Devices in the Enterprise | MDM and MAM architectures, mobile security controls |
-| CSA CCM v4.1 | UEM-03, UEM-06: Mobile Device Management and BYOD | Mobile endpoint management, BYOD access controls |
+| CSA CCM v4.1 | UEM-01 Endpoint Devices; UEM-03 Compatibility; UEM-13 Remote Wipe; IAM-13 Strong Authentication | Mobile endpoint management, BYOD access controls |
 | NIST SP 800-63B | Digital Identity Guidelines: Authentication | MFA and conditional access requirements |
 
 ---

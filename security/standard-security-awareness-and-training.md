@@ -2,8 +2,8 @@
 
 **Document Title:** Security Awareness and Training Standard\
 **Document Type:** Standard\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-06-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)\
@@ -95,8 +95,8 @@ The CISO reviews programme effectiveness annually using: training completion rat
 
 | Control | ISO/IEC 27001 | NIST SP 800-53 | CSA CCM v4.1 | Trade Compliance |
 | --- | --- | --- | --- | --- |
-| Security awareness | A.6.3 | AT-2 | HRS-06 | CTPAT, Canada PIP |
-| Role-based training | A.6.3 | AT-3 | HRS-07 | BASC v6 §7.2 |
+| Security awareness | A.6.3 | AT-2 | HRS-11 | CTPAT, Canada PIP |
+| Role-based training | A.6.3 | AT-3 | HRS-12 | BASC v6 §7.2 |
 | Training governance | Clause 7.2 | AT-1 | N/A |: |
 
 

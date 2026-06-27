@@ -272,6 +272,13 @@ The XS "Working-state relocation" item to move `tools/sweep-preflight-exemptions
 
 The library uses **Canadian English first, Commonwealth (UK / Australian) English second, other dialects last**. Canadian English shares the `-ize` / `-ization` orthography with American English (the Oxford convention adopted in Canadian usage), so the [`../tools/lint-language.py`](../tools/lint-language.py) `-ize` rule is the Canadian-orthography manifestation of the convention, not a generic American mandate. Where Canadian English has no opinion, Commonwealth forms are preferred; where neither has an opinion, other dialects' usage is acceptable. Em-dashes (`—`) and en-dashes (`–`) are forbidden in prose regardless of dialect; use commas, colons, or parentheses.
 
+### FR-167 compliance-matrix authoring conventions (2026-06-27, routed from the overnight run)
+
+The compliance-alignment matrix ([`../compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md)) is authored against the trusted scratch `ref/standards/` source extracts. Two conventions emerged across the FR-167 batches and the 2026-06-27 trust-recovery pass:
+
+- **The trade-column (CTPAT / PIP / BASC v6 / WCO SAFE / AEO-S) convention varies by matrix section.** Governance-domain rows are mostly N/A across the five customs and trade columns; Security-domain rows populate them via the ICT-security and AEO-S requirement-area lens. Before authoring a domain's trade columns, read that domain's existing rows and follow their convention rather than defaulting to N/A. The 2026-06-27 maintainer redirect populated three governance rows that carry incidental BASC and WCO content (continuous-assurance, metrics-monitoring, data-retention-schedule), so "governance is always N/A" is a default, not a rule; populate where the document's own body or alignment table grounds the mapping (no fabricated chapter or clause numbers).
+- **Validate every code's semantic fit against the source control TITLE, not just its existence.** The "valid code, wrong control" class (a real catalogue code that is the wrong control for the row) is gate-blind: gates 48, 49, and 54 check existence and catalogue membership, never semantic fit. The 2026-06-27 trust-recovery `/full-qa` found eight such defects in the matrix and seven source documents whose own framework tables carried the same class. The durable guard is the worker-brief standards-validation rails (9 and 10) plus apply-time title-checking against the source extracts, not a mechanical gate (semantic fit is impractical to gate).
+
 ---
 
 ## Decisions explicitly dropped

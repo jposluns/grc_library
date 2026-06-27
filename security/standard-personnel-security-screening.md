@@ -2,8 +2,8 @@
 
 **Document Title:** Personnel Security Screening Standard\
 **Document Type:** Standard\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-06-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md)\
@@ -105,9 +105,9 @@ Screening records, adverse finding decisions, and conditional access approvals a
 | Requirement Area | ISO/IEC 27001:2022 | NIST SP 800-53 | CSA CCM v4.1 | CTPAT / PIP / BASC |
 | --- | --- | --- | --- | --- |
 | Pre-employment screening | A.6.1 | PS-3 | HRS-01, HRS-02 | CTPAT Personnel Security; Canada PIP: Personnel and Staffing; BASC v6 §8.3 |
-| Contractor screening | A.6.6 | PS-7 | HRS-06 | CTPAT Personnel Security |
+| Contractor screening | A.6.6 | PS-7 | HRS-01 | CTPAT Personnel Security |
 | Role-based access consideration | A.5.15 | AC-2 | IAM-02 | N/A |
-| Records and accountability | A.5.33 | PS-3(1) | HRS-04 | N/A |
+| Records and accountability | A.5.33 | PS-3(1) | HRS-09 | N/A |
 
 ---
 
