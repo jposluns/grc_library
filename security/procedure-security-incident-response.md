@@ -2,8 +2,8 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.11\
-**Date:** 2026-06-24\
+**Version:** 1.3.12\
+**Date:** 2026-06-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md)\
@@ -45,7 +45,7 @@ This procedure applies to:
 | Role | Responsibilities |
 | --- | --- |
 | **Incident Commander** | Assumes overall command and decision-making authority for P1 and P2 incidents. Approves containment actions, isolation decisions, and external communications. No system shall be isolated or reimaged without the Incident Commander's direction. |
-| **Chief Information Security Officer (CISO)** | Accountable for the incident response programme. Notified immediately for all P1 incidents and within 4 hours for P2. Authorizes IR partner engagement. Oversees regulatory notification decisions. |
+| **Chief Information Security Officer (CISO)** | Accountable for the incident response programme. Notified immediately for all P1 incidents and within 1 hour for P2. Authorizes IR partner engagement. Oversees regulatory notification decisions. |
 | **Chief Information Officer (CIO)** | Notified immediately for P1 incidents. Provides executive oversight and approves communications to affected customers, partners, and regulators. |
 | **Security Operations Centre (SOC)** | Operates SIEM and endpoint monitoring. Performs initial triage, severity classification, and evidence preservation. Executes containment and eradication steps under Incident Commander direction. Maintains timestamped logs of all IR actions. |
 | **IT Operations** | Supports containment and recovery activities. Executes technical remediation steps as directed by the Incident Commander. |

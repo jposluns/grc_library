@@ -2,8 +2,8 @@
 
 **Document Title:** Security Incident Reporting and Escalation Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-06-27\
 **Owner:** Security Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](../security/sop-security-ticket-reporting-scheme.md)\
@@ -91,6 +91,8 @@ Close only when the event is determined not to be an incident or after transfer 
 | Evidence Preserved | Evidence classes captured. |
 | Immediate Actions | Containment or investigation actions. |
 | Status | Open, transferred, false positive, closed. |
+
+**Severity crosswalk.** This procedure uses a plain-language intake scale (Low, moderate, high, critical, or pending) suited to first-report capture. Where an adopter aligns it to the P1 to P4 scale used in [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) and [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md), critical maps to P1, high maps to P2, moderate maps to P3, and Low maps to P4; "pending" denotes an event not yet classified (it has no P-scale equivalent).
 
 ---
 
