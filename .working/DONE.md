@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #405: FR-30: GDPR Article 28 Data Processing Agreement template (2026-06-27)
+
+Shipped `privacy/template-dpa-article-28.md`, the controller-to-processor DPA template consolidating the eight Article 28(3)(a) to (h) clauses + sub-processor (28(2)/(4)) and written-form (28(9)) requirements into one populatable instrument; wired into the matrix, document index, and privacy README. Closes the H[critical] FR-30 (no DPA template previously existed).
+
 ### PR #399: P-4.20 PR B: the /matrix-fit semantic-fit audit skill + command + cadence (2026-06-27)
 
 Shipped PR B of §4.20, completing the cadenced semantic-fit instrument for the gate-blind "valid code, wrong control" class: the `matrix-fit` skill (sixteenth pack skill) + `/matrix-fit` command judge each cited control code against the source TITLE over the PR-A worklist; cadence wired into CLAUDE.md and the worker-brief (after each FR-167 batch, at completion, ad-hoc). §4.20 fully closed (PR A was #394).
