@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.381, PR #402
+
+FR-167 batch 10: comprehensive compliance-matrix coverage of the **AI domain**, the tenth of the eleven domain batches (architecture, risk, dev-security, supply-chain, resilience, operations, compliance, governance, security shipped; privacy batch 11 and the matrix's partial sections remain).
+
+### Added
+
+- [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md): a new `## AI domain` section (placed after `## Dev-security domain`, before `## Framework coverage summary`, mirroring the two most recent structural additions, the matrix is not alphabetical) mapping **34 `ai/` documents** to CSA CCM v4.1, ISO/IEC 27001:2022 (Annex A + clauses), and NIST CSF 2.0. The five customs/trade columns (CTPAT, PIP, BASC v6, WCO SAFE, AEO/AEO-S) are `N/A` for every row (AI is IT/data-internal, not customs/trade), following the Governance-domain pattern. Scope = the domain's full substantive set; **excluded** [`ai/README.md`](../../ai/README.md) (domain README) and [`ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md`](../../ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md) (a framework-crosswalk, out of scope per the matrix coverage-summary's library-infrastructure exclusion).
+
+### Changed
+
+- [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) metadata `Version` `1.9.1` to `1.10.0`, `Date` `2026-06-27`. The `## Framework coverage summary` is deliberately count-free ("a living document rather than a fixed-size snapshot") and already lists the `AIS` family under CSA CCM, so it required no edit.
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated (taxonomy first, then portal/scorecard) to reflect the matrix Version bump.
+
+### Verification
+
+- **Apply-time control-code re-validation (orchestrator, not worker-trusted):** every proposed CCM code re-checked `is_ccm_v41() and not is_aicm_only()` and every NIST code `is_valid_category()` against the in-repo reference modules ([`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py), [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py)); 0 invalid, 0 AICM-only-in-CCM-column, 0 CSF-1.1 carriers. All 34 Document-Title cells re-verified against each source file's `**Document Title:**` metadata (exact match).
+- Gate 48 (CSA CCM/AICM citation accuracy) and gate 49 (matrix control-code validity, incl. CCM-v4.1 column membership / ISO 27001:2022 Annex A membership + clause format / NIST CSF 2.0 Category membership) both pass on the new section.
+- `tools/run_all_audits.sh` all 54 gates pass on the committed state; `tools/run-pr-time-checks.sh` all pass.
+
+### Discipline observations
+
+- **Apply-time worker corrections** (research-assistant discipline §3): worker-proposed cells were trimmed and corrected before authoring, (1) several standards rows proposed 5 to 8 CCM codes; trimmed to the 3 to 4 strongest to match the matrix's per-cell density; (2) worker 1's `STA-09`/`AIS-04`/`ID.IM` low-confidence picks for the governance/transparency frameworks replaced with the worker-recommended `STA-01`/`GRC-07`/`GV.OC`; (3) worker 2's borderline `DCS-17` on the cost-governance standard dropped in favour of `GRC-02`/`BCR-01`/`LOG-03`/`STA-11`.
+- **AICM-vs-CCM-v4.1 column convention** (matrix-wide, surfaced by 4 of 5 workers): the tightest semantic fits for many AI documents are AICM-only controls (`MDS-*`, `GRC-09..15`, `DSP-20..24`, `AIS-09+`), which the literal "CSA CCM v4.1" column header excludes (`is_aicm_only=True`). Resolved stricter-is-safer: keep the column CCM-v4.1-only (the existing convention; admitting AICM codes would require a matrix-wide new column across ~250 rows, out of batch scope). The AICM-column idea is routed to [`TODO.md`](../../TODO.md) as a future maintainer decision.
+- **ISO cells** are semantic proposals (no ISO reference module exists); gate 49 confirms Annex A membership + clause format, and the follow-on `/matrix-fit` pass is the semantic check.
+
 ## 2026-06-27, Library Version 2026.06.380, PR #401
 
 **Session-closing handoff PR** for the 2026-06-27 matrix-fit-PR-B + #376-design-scope + scratch-ref-directive session (it shipped #399, the matrix-fit skill of §4.20 PR B, and #400, the #376 design scope). Lands working-state on `main` as a green merge so the next session's `/resume` rebuilds from `main`.
