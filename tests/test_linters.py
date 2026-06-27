@@ -2954,18 +2954,43 @@ class MatrixControlCodeTests(LinterTestCase):
         result = run_linter("tools/lint-matrix-control-codes.py", fixture)
         self.assertLinterFails(result, "nist-category")
 
-    def test_ccm_column_not_policed_here(self) -> None:
-        # CCM codes are validated by gate 48, not this gate; an invalid CCM
-        # code in the matrix's CCM column must NOT be flagged by this linter.
+    def test_ccm_aicm_only_code_flagged(self) -> None:
+        # CCM/AICM catalogue confusion: MDS-01 is a real AICM v1.1.0 code (the
+        # AI-only Model Security domain) but NOT a CCM v4.1.0 code, so it must
+        # be flagged in the "CSA CCM v4.1" column. This is the matrix-scoped
+        # catalogue-discipline check the corpus-wide CSA citation gate (which
+        # validates against the AICM-wins union) does not enforce. (Added when
+        # gate 49 was tightened to police the CCM column; supersedes the prior
+        # "CCM not policed here" test, which encoded the pre-tightening scope.)
         fixture = self.make_fixture(
-            "fake-matrix-ccm-skip.md",
+            "fake-matrix-ccm-aicm.md",
+            self._matrix("MDS-01", "A.5.1", "GV.OC"),
+        )
+        result = run_linter("tools/lint-matrix-control-codes.py", fixture)
+        self.assertLinterFails(result, "ccm-aicm-confusion")
+
+    def test_ccm_invalid_code_flagged(self) -> None:
+        # A code-shaped token that is neither a CCM v4.1 nor an AICM code
+        # (GOV-99: GOV is a non-existent domain) is flagged as an unknown CCM
+        # code.
+        fixture = self.make_fixture(
+            "fake-matrix-ccm-unknown.md",
             self._matrix("GOV-99", "A.5.1", "GV.OC"),
+        )
+        result = run_linter("tools/lint-matrix-control-codes.py", fixture)
+        self.assertLinterFails(result, "ccm-unknown")
+
+    def test_ccm_valid_code_and_na_not_flagged(self) -> None:
+        # False-positive guard: a valid CCM v4.1 code and an N/A cell both pass.
+        fixture = self.make_fixture(
+            "fake-matrix-ccm-valid.md",
+            self._matrix("GRC-01, AIS-04", "A.5.1", "GV.OC"),
         )
         result = run_linter("tools/lint-matrix-control-codes.py", fixture)
         self.assertEqual(
             result.returncode, 0,
-            f"the CCM column is gate 48's responsibility; this gate must not "
-            f"flag CCM codes.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            f"valid CCM v4.1 codes must not be flagged.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
 

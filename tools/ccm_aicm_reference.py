@@ -528,15 +528,50 @@ AICM_V11 = {
 # where AICM re-states a CCM control (titles are identical for the shared base).
 ALL_TITLES = {**CCM_V41, **AICM_V11}
 
-# Valid domain code -> highest control number, across both matrices (union).
-def _domains():
+# Valid domain code -> highest control number, for a given catalogue.
+def _domains_of(catalogue):
     dom = {}
-    for code in ALL_TITLES:
+    for code in catalogue:
         prefix, num = code.rsplit("-", 1)
         dom[prefix] = max(dom.get(prefix, 0), int(num))
     return dom
 
-VALID_DOMAINS = _domains()
+
+# Domains by catalogue. CCM v4.1.0 has 17 domains; AICM v1.1.0 adds the
+# AI-specific MDS (Model Security) domain, so AICM has 18. Keeping the two
+# sets distinct (rather than only the blended union) lets a caller enforce
+# catalogue discipline: a code in a column or section labelled "CSA CCM v4.1"
+# must be a CCM v4.1 code, not an AICM-only one (e.g. an ``MDS-`` code).
+CCM_DOMAINS = _domains_of(CCM_V41)
+AICM_DOMAINS = _domains_of(AICM_V11)
+
+# Valid domain code -> highest control number, across both matrices (union).
+# Retained for the corpus-wide CSA citation gate, which validates a token
+# against whichever catalogue its section/context names (CCM, AICM, or the
+# union when unscoped).
+VALID_DOMAINS = _domains_of(ALL_TITLES)
+
+
+def is_ccm_v41(code: str) -> bool:
+    """True if ``code`` is a real CSA CCM v4.1.0 control identifier."""
+    return code in CCM_V41
+
+
+def is_aicm(code: str) -> bool:
+    """True if ``code`` is a real CSA AICM v1.1.0 control identifier."""
+    return code in AICM_V11
+
+
+def is_aicm_only(code: str) -> bool:
+    """True if ``code`` exists in AICM v1.1.0 but NOT in CCM v4.1.0.
+
+    These are the codes that must never appear in a column or section
+    labelled "CSA CCM v4.1": they are valid AICM identifiers (so a bare
+    existence check against the blended union passes them), but they are
+    not CCM v4.1 controls. The canonical example is the AICM ``MDS``
+    (Model Security) domain, which CCM v4.1 does not have.
+    """
+    return code in AICM_V11 and code not in CCM_V41
 
 # Superseded / non-existent domain codes seen historically in the corpus, mapped
 # to the correct current code, so the linter can emit an actionable message.
