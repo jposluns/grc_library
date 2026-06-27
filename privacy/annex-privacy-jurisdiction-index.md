@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.6\
-**Date:** 2026-06-24\
+**Version:** 1.0.7\
+**Date:** 2026-06-27\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -134,7 +134,7 @@ The following material regulatory developments occurred or were anticipated betw
 - **Brazil LGPD:** ANPD continued to develop sector-specific AI guidance; administrative enforcement matured with increasing fine activity.
 - **Australia Privacy Act:** Privacy and Other Legislation Amendment Act 2024 reforms took effect; statutory tort for serious invasions of privacy became actionable.
 - **APEC CBPR 2.0:** Additional economies joined the Global CBPR Forum; interoperability with GDPR SCCs was under active negotiation.
-- **India DPDPA:** Digital Personal Data Protection Rules 2025 published February 2025 and entered into force April 2025; the Data Protection Board of India commenced operations.
+- **India DPDPA:** Digital Personal Data Protection Rules 2025 (draft published January 2025) were notified by MeitY on 13 November 2025 with a phased commencement: Data Protection Board of India provisions took effect on notification, consent-manager provisions commence around November 2026, and the remaining substantive obligations commence around May 2027.
 - **Southeast Asia expansion:** Indonesia published implementing regulations under UU PDP; Malaysia's 2024 PDPA amendments entered into force; Vietnam Decree 13/2023 enforcement matured.
 - **South Korea PIPA:** 2023 amendments operationalized, including automated decision explanation rights and enhanced penalty framework.
 - **Nigeria NDPA:** The Nigeria Data Protection Commission established as an independent body and commenced regulatory activity.

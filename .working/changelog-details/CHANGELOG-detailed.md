@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.395, PR #416
+
+**FR-175: India DPDPA in-force-date reconciliation.** Closes the last remaining trust-recovery High (the fifth and final decided/verified-value reconciliation of this resume). The conflict: the privacy jurisdiction index asserted an India DPDP in-force date that contradicted the dedicated India annex and the canonical citations register. The maintainer authorised attempting the external verification in-session (via the wind-down decision framework) rather than deferring to a fresh session.
+
+### Fixed
+- **FR-175** (India DPDPA in-force conflict): [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md) (Version `1.0.6` to `1.0.7`), the "2026 Update summary" India bullet (:137). Old text: "Digital Personal Data Protection Rules 2025 published February 2025 and entered into force April 2025; the Data Protection Board of India commenced operations." This was an early-2025 projection that never materialized and contradicted [`privacy/jurisdictions/annex-privacy-india.md`](../../privacy/jurisdictions/annex-privacy-india.md):28 (notified 13 November 2025, phased commencement) and the canonical [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md):147 (which already recorded the correct fact). Reconciled to: "Digital Personal Data Protection Rules 2025 (draft published January 2025) were notified by MeitY on 13 November 2025 with a phased commencement: Data Protection Board of India provisions took effect on notification, consent-manager provisions commence around November 2026, and the remaining substantive obligations commence around May 2027." The index now matches the annex and the register on all three surfaces.
+
+### Verification
+- **External-source verification at fix time** (per the finding's own instruction; India is absent from the scratch `ref/legislation/` base, so web verification was the only ground-truth path). `WebSearch` + `WebFetch` confirmed against two independent legal-firm sources: the final Rules were notified by MeitY via Gazette Notification **G.S.R. 846(E) dated 13 November 2025** (gazette publication 14 November 2025); the draft Rules were published 3 January 2025 for consultation; the three-phase commencement is Phase 1 (procedural, definitions, DPBI establishment) on notification, Phase 2 (consent managers) at 12 months (around November 2026), Phase 3 (substantive obligations: processing grounds, notices, consent, breach reporting) at 18 months (around May 2027). This matches the annex:28 phased timeline exactly.
+- **Parallel-occurrence search** (validate-inference-before-action): a corpus-wide grep for "April 2025" / "February 2025" near India/DPDP returned only the one index:137 bullet (now fixed); the index's India table row (:118) carries no date claim and was unchanged; the `.working/` references to the conflict (fitness-review record, prior CHANGELOG/DONE/handoff entries) are frozen-state archives describing the as-of-write state and were not rewritten.
+- **Generated artefacts**: [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated; the only diff is the index's `1.0.6`/`2026-06-24` to `1.0.7`/`2026-06-27` bump. [`docs/portal.md`](../../docs/portal.md) carries no Version/Date so it did not change.
+- Post-commit `tools/run_all_audits.sh` and pre-push `tools/run-pr-time-checks.sh` green (recorded at push).
+
+### Discipline observation
+The fix-completeness was validated by search, not inference: rather than fixing the one named index line and assuming completeness, a corpus-wide contradiction grep confirmed no parallel stale occurrence. The reconcile direction (index to annex/register, not the reverse) was chosen because two independent canonical surfaces (the dedicated annex and the citations register) already agreed with the externally-verified fact; only the index summary bullet was the outlier.
+
+### Batched (recursion-avoidance)
+- The #415 `/validate-pr` history row (0 in-window / 0 out-of-window findings; 1 sub-threshold style advisory recorded, not routed) and the #415 `/retro` improvement-log row.
+
 ## 2026-06-27, Library Version 2026.06.394, PR #415
 
 **FR-174 + FR-179 + FR-180: incident-response reconciliation.** Fourth trust-recovery-remediation batch (incident-response cluster). Researched via a fan-out research worker (per the maintainer's use-fan-out direction); every edit re-verified at apply-time against the live files.
