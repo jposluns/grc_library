@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.380, PR #401
+
+**Session-closing handoff PR** for the 2026-06-27 matrix-fit-PR-B + #376-design-scope + scratch-ref-directive session (it shipped #399, the matrix-fit skill of §4.20 PR B, and #400, the #376 design scope). Lands working-state on `main` as a green merge so the next session's `/resume` rebuilds from `main`.
+
+### Changed
+
+- [`.claude/commands/resume.md`](../../.claude/commands/resume.md) and [`.working/multi-session-orchestration.md`](../multi-session-orchestration.md) section 6: codified the maintainer-directed scratch reference-base update (2026-06-27). The runbook §6 trust-bucket list gains `ref/legislation/` (trusted but version-sensitive, jurisdiction-organized with a `REGISTER.md`); both surfaces record the ingestion status (`ref/standards/` and `ref/legislation/` COMPLETE, `ref/publications/` in progress) and the standing instruction that all future sessions reference relevant scratch `ref/` material for EVERY task (not only the recurring citation / control-code / FR-167-matrix cases). Grounded against the verified scratch tree (`standards/`: NIST/CSA/ISO/MITRE/OWASP; `legislation/`: jurisdiction dirs + `REGISTER.md`; `publications/`: populated, screen-before-use).
+- [`.working/session-handoff.md`](../session-handoff.md): refreshed (post-#400 state snapshot, this session's `## Asserted expectations` block, green-at-`e1d8d72` 54/54, Sweep-64-next over the #399/#400/#401 deltas, the FR-167-batch-10 next-priority queue).
+- [`.working/session-metrics.md`](../session-metrics.md): this session's measured row (1,110,493 captured subagent tokens across 5 captured subagents plus one uncaptured PR-B Explore mapping pass; orchestrator tokens `not instrumented`).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) and [`.working/improvement-log.md`](../improvement-log.md): the batched #400 `/validate-pr` (1 finding, fixed) row and `/retro` row; plus this handoff PR's own validate-pr exemption row (loop-break).
+- [`TODO.md`](../../TODO.md): the #400 `/validate-pr` finding fix (the §4.6 gate-50-check-4 bullet's `#399`-to-`#400` wrong-PR-ref correction).
+
+### Verification
+
+- `tools/run_all_audits.sh` all 54 gates pass on the committed state; `tools/run-pr-time-checks.sh` all pass. No corpus-document change; the only versioned surfaces are README plus the `.working/` ledgers, each Version-bumped. Per the handoff-PR loop-break this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide Sweep 64 at the next `/resume`. The scratch-ref codification (a substantive `/resume`-command + runbook edit) is folded in per the maintainer's "as part of the handoff" direction and is covered by Sweep 64.
+
+No corpus-document change. Library `2026.06.379` to `2026.06.380`; README `1.9.250` to `1.9.251`.
+
 ## 2026-06-27, Library Version 2026.06.379, PR #400
 
 Scoped the **#376 paired-surface mechanical-check** design and recorded the resolution; build deferred to fresh context (gate-logic precision is degradation-sensitive). This is the "smaller item" of the post-#399 re-assessment boundary.
