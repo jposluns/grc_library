@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.397, PR #418
+
+**FR-176 + FR-183 + FR-184: security cross-reference and Wi-Fi floor cluster.** First batch of the P2 trust-recovery-finding remediation (the security floor/cross-reference cluster), researched via a verified-disjoint fan-out worker and applied with apply-time verification. The three findings are co-located in the `security/` domain and share the encryption policy file, so they are bundled as one coherent PR.
+
+### Changed
+- [`security/framework-cryptographic-key-lifecycle.md`](../../security/framework-cryptographic-key-lifecycle.md) (`1.0.1` to `1.0.2`): FR-176, appended a crosswalk sentence to the Rotation row linking the key-type cadence to the policy's data-classification cadence.
+- [`security/policy-encryption-and-key-management.md`](../../security/policy-encryption-and-key-management.md) (`1.3.4` to `1.3.5`): FR-176, appended the reciprocal crosswalk sentence to §2.4 key rotation.
+- [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md) (`1.0.3` to `1.0.4`): FR-183, the password Storage row now cites the Encryption and Key Management Policy's Password-based encryption entry as the governing algorithm and parameter floor, replacing the looser unparameterized "bcrypt, Argon2, or equivalent" wording.
+- [`security/standard-remote-working-security.md`](../../security/standard-remote-working-security.md) (`1.0.4` to `1.0.5`): FR-184, §5.4 home-network requirement raised to WPA3 (WPA2 fallback removed) with a carve-out (separate SSID and VLAN, or an isolated guest network) for untrusted IoT that cannot support WPA3; the §5.4.1 "encouraged" header and §5.4.2 "does not mandate home router configuration" sentence reconciled to the new requirement.
+- [`README.md`](../../README.md): library CalVer `2026.06.396` to `2026.06.397`, README Version `1.9.267` to `1.9.268`.
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (`2.0.60` to `2.0.61`): Sweep 68 row (clean, batched per recursion-avoidance).
+- [`.working/session-handoff.md`](../session-handoff.md): resume cursor advanced to Sweep 68 iter 1.
+- [`TODO.md`](../../TODO.md) and [`.working/DONE.md`](../DONE.md): FR-176, FR-183, FR-184 rotated TODO to DONE.
+
+### Verification
+- `tools/run_all_audits.sh`: 54/54 on the committed state.
+- `tools/run-pr-time-checks.sh`: D1 to D4 delta gates plus the history-aware corpus gates (45, 40, 31) pass against the merge base.
+- [`tools/lint-language.py`](../../tools/lint-language.py) run on the new prose before the first commit (no em or en dashes; `-ize` orthography); [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) clean.
+- **Sweep 68** (loop-break corpus-wide `/validate`, #411..#417): full A/B/C dispatch, 0 findings, no asserted-expectations contradiction; the clean history row is batched here.
+
+### Discipline observation
+- The FR-184 framing reconciliation (the §5.4.1 "encouraged" header and the §5.4.2 "does not mandate" sentence) was beyond the finding's literal one-line scope. The research worker surfaced the conflict; it was applied as the stricter-safe, internally-consistent consequence of the maintainer's WPA3-for-home decision, rather than leaving an "encouraged" list that contains one mandatory item and a "does not mandate" sentence with an unstated exception.
+
 ## 2026-06-27, Library Version 2026.06.396, PR #417
 
 **Session-closing handoff (trust-recovery High-tier remediation session).** Working-state close-out PR; no corpus-document body change. The session it closes resumed from handoff #410 and cleared the entire trust-recovery High set FR-168..175 across #411..#416 (High-first, every value ground-truth-verified before applying, every PR a full `/validate-pr` + `/retro`, all CI-green; the resume-mandated loop-break Sweep 67 ran first, clean).

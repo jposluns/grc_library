@@ -2,8 +2,8 @@
 
 **Document Title:** Authentication and Password Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.3\
-**Date:** 2026-06-22\
+**Version:** 1.0.4\
+**Date:** 2026-06-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)\
@@ -51,7 +51,7 @@ To establish consistent, risk-proportionate authentication controls that reduce 
 | Prohibited passwords | Banned via enterprise password protection service (common passwords, company name variants, sequential patterns). Dictionary words as sole content are prohibited. |
 | Password reuse | The last 12 passwords must not be reused. |
 | Maximum age | No mandatory periodic expiry per NIST SP 800-63B Rev. 4 §5.1.1 Memorized Secrets (the recommendation is not conditioned on MFA presence; Rev. 4 finalized 2025-07 reaffirms this and prohibits arbitrary rotation absent evidence of compromise). Passwords must be changed immediately upon suspected compromise. |
-| Storage | Passwords must never be stored in plaintext. All systems must use salted cryptographic hashing (bcrypt, Argon2, or equivalent). Stored secrets are managed by the secrets management service. |
+| Storage | Passwords must never be stored in plaintext. All systems must use salted cryptographic hashing; the governing algorithm and parameter floor is the Password-based encryption entry in the Encryption and Key Management Policy (Argon2id preferred at the parameters stated there, with PBKDF2-HMAC as the alternative). Stored secrets are managed by the secrets management service. |
 
 ---
 

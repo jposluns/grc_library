@@ -2,8 +2,8 @@
 
 **Document Title:** Cryptographic Key Lifecycle Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-06-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md)\
@@ -36,7 +36,7 @@ Applies to all enterprise systems, databases, applications, network devices, and
 | **Registration** | Record metadata in the Key Lifecycle Register (KLR) for audit. | Assign unique ID, owner, usage scope, and validity period. |
 | **Distribution** | Deliver keys securely to authorized endpoints or systems. | Use PKI or encrypted APIs (TLS 1.3+); enforce MFA and RBAC. |
 | **Activation** | Enable keys for cryptographic operations. | Integration with encryption libraries and system credentials. |
-| **Rotation** | Periodically replace active keys to reduce risk of compromise. | Rotate symmetric keys every 90 days; asymmetric every 12 months. |
+| **Rotation** | Periodically replace active keys to reduce risk of compromise. | Rotate symmetric keys every 90 days; asymmetric every 12 months. This key-type cadence corresponds to the data-classification cadence in the Encryption and Key Management Policy: Restricted-data keys follow the 90-day cycle, other-category keys the 12-month cycle. |
 | **Revocation** | Immediately invalidate compromised or expired keys. | Update CRL or OCSP; remove from all dependent systems. |
 | **Destruction** | Securely destroy obsolete or retired keys. | Perform cryptographic erasure; document certificate of destruction. |
 
