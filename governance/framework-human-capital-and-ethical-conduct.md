@@ -2,8 +2,8 @@
 
 **Document Title:** Human Capital and Ethical Conduct Framework\
 **Document Type:** Framework\
-**Version:** 1.0.3\
-**Date:** 2026-06-22\
+**Version:** 1.0.4\
+**Date:** 2026-06-27\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](../security/procedure-onboarding-and-offboarding.md), [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md)\
@@ -20,7 +20,7 @@
 
 This framework defines the organisation's approach to ethical conduct, workforce integrity, and responsible innovation. It integrates human resource governance, ethical behaviour standards, and professional conduct expectations for all employees and affiliates.
 
-It consolidates the HR Security Policy, Security Awareness and Training Policy, Corporate Culture Framework, Whistleblower Procedure, and Anti-Bribery and Corruption Policy into a unified governance model. Aligned with ISO 37001:2025, ISO 37301, OECD AI Principles, ISO/PAS 8800, and CSA CCM v4.1 SEF-01.
+It consolidates the HR Security Policy, Security Awareness and Training Policy, Corporate Culture Framework, Whistleblower Procedure, and Anti-Bribery and Corruption Policy into a unified governance model. Aligned with ISO 37001:2025, ISO 37301, OECD AI Principles, ISO/PAS 8800, and CSA CCM v4.1 HRS-09, HRS-11, and HRS-13.
 
 ---
 
@@ -111,7 +111,7 @@ Training completion is tracked and reported annually to the ERC and relevant com
 | ISO/PAS 8800:2023 | Responsible Innovation Management | Ethical AI and responsible innovation |
 | OECD AI Principles (2019, updated 2024) | Human-centric, fair, accountable AI | Responsible AI training |
 | COBIT 2019 | APO07: Manage Human Resources | HR governance and competency |
-| CSA CCM v4.1 | SEF-01: Security and Ethics Framework | Ethics and conduct framework |
+| CSA CCM v4.1 | HRS-09 Personnel Roles and Responsibilities; HRS-11 Security Awareness Training; HRS-13 Compliance User Responsibility | Workforce conduct, awareness, and compliance responsibility |
 
 ---
 
