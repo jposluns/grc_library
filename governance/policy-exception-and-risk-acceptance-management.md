@@ -2,8 +2,8 @@
 
 **Document Title:** Exception and Risk Acceptance Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.4\
-**Date:** 2026-06-24\
+**Version:** 1.3.5\
+**Date:** 2026-06-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md)\
@@ -20,7 +20,7 @@
 
 This policy defines the organisation-wide process for managing security, risk, compliance, and operational exceptions. It consolidates the former Exception Process, Risk Acceptance Memo Procedure, Temporary Waiver Procedure, and Exception Tracking Log into one cohesive governance artefact.
 
-Its purpose is to ensure that all deviations from policy, control, or standard requirements are risk assessed, time bound, approved at the appropriate authority level, and tracked to closure. The policy aligns with **ISO/IEC 27001:2022 Annex A.5.36 Policy on Exceptions**, **COBIT 2019 APO12.06 Respond to Risk**, **Cloud Security Alliance (CSA)** guidance (CCM v4.1 GRC-12 Exception Management), and **NIST SP 800-37 Revision 2 RMF Step 6 Authorize the System**.
+Its purpose is to ensure that all deviations from policy, control, or standard requirements are risk assessed, time bound, approved at the appropriate authority level, and tracked to closure. The policy aligns with **ISO/IEC 27001:2022 Annex A.5.36 Policy on Exceptions**, **COBIT 2019 APO12.06 Respond to Risk**, **Cloud Security Alliance (CSA)** guidance (CCM v4.1 GRC-04 Policy Exception Process), and **NIST SP 800-37 Revision 2 RMF Step 6 Authorize the System**.
 
 ## Scope
 
@@ -114,7 +114,7 @@ The renewal number and the approving authority shall be recorded on the exceptio
 6.2 Internal Audit, the CISO, and the CCO must validate closure before record archival. 
 
 ### 7. Machine-readable exception registry (recommended where automation is practical)
-7.1 Organisations may implement a machine-readable, API-enabled exception registry aligned with CSA CCM v4.1 GRC-12. This is a recommended practice rather than a mandatory requirement; it is appropriate where the exception volume and integration with risk dashboards justify the automation investment.
+7.1 Organisations may implement a machine-readable, API-enabled exception registry aligned with CSA CCM v4.1 GRC-04. This is a recommended practice rather than a mandatory requirement; it is appropriate where the exception volume and integration with risk dashboards justify the automation investment.
 7.2 Where implemented, automated expiry alerts, metadata tagging, and integration with risk dashboards support near real-time oversight.
 
 ### 8. Continual improvement
@@ -128,7 +128,7 @@ The renewal number and the approving authority shall be recorded on the exceptio
 - **ISO/IEC 27001:2022** Annex A.5.36 Policy on Exceptions 
 - **ISO 31000:2018** Risk Management 
 - **COBIT 2019** APO12.06 Respond to Risk; APO12.03 Assess Risk; MEA01 Monitor Evaluate and Assess 
-- **Cloud Security Alliance (CSA)** guidance including CCM v4.1 GRC-12 Exception Management 
+- **Cloud Security Alliance (CSA)** guidance including CCM v4.1 GRC-04 Policy Exception Process 
 - **NIST SP 800-37 Rev. 2** RMF Step 6 Authorize the System; **NIST SP 800-53 Rev. 5** CA-6 Authorization 
 - **NIST AI RMF 1.0** Govern Function (with the AI 600-1 Generative AI Profile)
 - **OECD AI Principles** Accountability and Transparency 
@@ -140,12 +140,12 @@ The renewal number and the approving authority shall be recorded on the exceptio
 
 | Control Area | ISO/IEC 27001 | COBIT 2019 | CSA | NIST | Legal and Regulatory | Trade and Supply Chain Programs |
 |---------------|----------------|-------------|-----|------|----------------------|---------------------------------|
-| Governance and oversight | Annex A.5.36 | APO12.06 | CCM GRC-12 | SP 800-37 Step 6 | SOX, GDPR Article 32 Accountability | WCO SAFE equivalence |
+| Governance and oversight | Annex A.5.36 | APO12.06 | CCM GRC-04 | SP 800-37 Step 6 | SOX, GDPR Article 32 Accountability | WCO SAFE equivalence |
 | Risk assessment and approval | Clause 6 and ISO 31000 | APO12.03 | CCM GRC-02 | SP 800-30, SP 800-37 Step 3 | PIPEDA, AIDA | WCO SAFE equivalence |
-| Time-bound authorization | Annex A.5.36 | APO12.06 | CCM GRC-12 | SP 800-37 Step 6 | Contractual risk governance | WCO SAFE equivalence |
-| Exception tracking and reporting | Annex A.5.36 | MEA01 | CCM GRC-12 | SP 800-53 CA-6 | Audit transparency | WCO SAFE equivalence |
-| Closure and validation | Annex A.5.36 | DSS04 | CCM GRC-12 | SP 800-37 Step 6 | Regulatory evidence requirements | WCO SAFE equivalence |
-| Machine-readable registry (recommended) | Annex A.5.36 (extension) | APO12.06 | CCM GRC-12 | SP 800-53 CA-6 (extension) | Future automation compliance | WCO SAFE equivalence |
+| Time-bound authorization | Annex A.5.36 | APO12.06 | CCM GRC-04 | SP 800-37 Step 6 | Contractual risk governance | WCO SAFE equivalence |
+| Exception tracking and reporting | Annex A.5.36 | MEA01 | CCM GRC-04 | SP 800-53 CA-6 | Audit transparency | WCO SAFE equivalence |
+| Closure and validation | Annex A.5.36 | DSS04 | CCM GRC-04 | SP 800-37 Step 6 | Regulatory evidence requirements | WCO SAFE equivalence |
+| Machine-readable registry (recommended) | Annex A.5.36 (extension) | APO12.06 | CCM GRC-04 | SP 800-53 CA-6 (extension) | Future automation compliance | WCO SAFE equivalence |
 
 
 
