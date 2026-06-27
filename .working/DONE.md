@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #411: FR-168 (high) + FR-170 (high) + FR-173 (high): cheap-certain trust-recovery High remediation batch (2026-06-27)
+
+First remediation of the trust-recovery routed backlog (High-first, fix-issues-before-new-content): FR-168 corrected the policy-exception policy's eight `GRC-12` citations (an AICM-only code) to the real CCM v4.1 `GRC-04` "Policy Exception Process"; FR-170 repointed the risk-register template's 5×5-matrix reference from the methodology procedure (which holds only the scales and thresholds) to the canonical grid in the ERM standard §5.2; FR-173 repaired three broken section cross-references in the onboarding/offboarding procedure (Section 9→10 privileged-access timeline, two Section 10→11 deprovisioning-checklist refs). Also batches the clean Sweep 67 history row.
+
 ### PR #408: B2 (low): add five EDPB / WP29 soft-law citations to the canonical-citations register (2026-06-27)
 
 Added WP216 (Opinion 05/2014 anonymisation), WP248 rev.01 (DPIA), EDPB Guidelines 07/2020 (controller/processor), Guidelines 3/2018 (territorial scope), and Opinion 28/2024 (AI models) to the soft-law section of `register-canonical-citations.md`, each verified against the freshly-ingested `grc_library_scratch/ref/publications/` extracts. Unblocked by the two 2026-06-27 EDPB maintainer drops; closes the long-deferred-on-egress B2.
