@@ -6,9 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
-## 2026-06-27, Library Version 2026.06.365, PR #386
+## 2026-06-27, Library Version 2026.06.366, PR #387
 
-`.working/` session-close housekeeping: **session-closing handoff PR** for the 2026-06-27 overnight FR-167 batches-7-9 session (resumed from handoff #382). Per the handoff-PR loop-break (CLAUDE.md PR-workflow step 5a) this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide **Sweep 59** the next `/resume` runs first (over the #383/#384/#385/#386 deltas), cross-checked against this handoff's asserted-expectations. No corpus-document change.
+`.claude/` + `.working/` reference-base durability: make the scratch reference base durable on scratch `main` and consumed at resume; codify the persist-to-`main` discipline; log the scratch-write resolution; batch the clean Sweep 59 history row. This is the first of the maintainer's three pre-resume directive tasks (the other two: the orchestrator-token instrumentation item, and this scratch-merge whose grc_library-side codification lands here). No corpus-document change.
+
+### Changed
+
+- [`.claude/commands/resume.md`](../../.claude/commands/resume.md): added a standing "Reference knowledge base" step directing the orchestrator to consult the scratch repo's trusted standards extracts (CSA CCM v4.1 / AICM v1.1 / CAIQ + NIST CSF 2.0) for citation and control-code work instead of re-uploading binaries or relying on memory, complementing (not replacing) the in-repo validator modules ([`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py), [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py)) that gates 48/49/54 enforce.
+- [`.working/multi-session-orchestration.md`](../multi-session-orchestration.md): runbook section 6 records that the reference extracts and originals are seeded on scratch `main`, and adds the persist-scratch-changes-to-`main` discipline (merge a persist-worthy scratch change via a GitHub MCP pull request, since the local git proxy 403s direct scratch pushes; scratch has no CI so the PR is a clean fast-forward). Version `1.0.1` to `1.0.2`.
+- [`.working/third-party-issues.md`](../third-party-issues.md): new 2026-06-27 entry recording the git-proxy 403 recurrence on the scratch `main` push, the MCP-PR transport as the workaround, and the now-seeded binaries (closing the 2026-06-25 entry's pending-binaries impact). Version `1.0.3` to `1.0.4`.
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): the clean Sweep 59 row (the `/resume` loop-break compensating control over the #383/#384/#385/#386 deltas; 0 findings across Subagents A/B/C; no asserted-expectations contradiction). Version `2.0.51` to `2.0.52`.
+- [`TODO.md`](../../TODO.md): advanced the Last-validation-sweep cursor to Sweep 59 (demoting Sweep 58 to prior).
+- [`README.md`](../../README.md): Library `2026.06.365` to `2026.06.366`, README Version `1.9.236` to `1.9.237`.
+
+### Verification
+
+- Sweep 59 ran full A/B/C dispatch (no abbreviation), 0 findings; the single Subagent-A note corroborates the known TODO-P3 source-doc-code item (not routed). [`tools/lint-language.py`](../../tools/lint-language.py) clean on the new `/resume` prose. Scratch `ref/standards` confirmed present on scratch `main` (34 entries incl. 6 originals) after MCP PR #1 merged. [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) 54/54 green on the post-commit state and [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh) all-pass verified before push; added CHANGELOG lines dash-free and path-linked ([`tools/preflight-changelog.py`](../../tools/preflight-changelog.py)).
 
 ### Changed
 
