@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.394, PR #415
+
+**FR-174 + FR-179 + FR-180: incident-response reconciliation.** Fourth trust-recovery-remediation batch (incident-response cluster). Researched via a fan-out research worker (per the maintainer's use-fan-out direction); every edit re-verified at apply-time against the live files.
+
+### Fixed
+- **FR-174** (P2 CISO-notification timing, canonical 1 hour, maintainer-chosen): [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) (Version `1.3.11` to `1.3.12`) CISO-role line "within 4 hours for P2" to "within 1 hour for P2", which resolves the intra-document conflict with the severity-table line that already read "CISO notified within 1 hour"; [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md) (Version `1.2.3` to `1.2.4`) P2 row "CISO: within 2 hours" to "CISO: within 1 hour". The CIO "within 2 hours" on the same matrix row was retained (a CISO-first escalation ladder, not a conflict); the P1 timings (CISO/CIO 30 minutes; CEO/ELT 1 hour) and the distinct response/MTTI/MTTC SLAs were left untouched (different events/severities, verified non-conflicting).
+- **FR-179** (superseded NIST SP 800-61 title): three citers ([`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md):95, [`security/sop-security-ticket-reporting-scheme.md`](../../security/sop-security-ticket-reporting-scheme.md):94 Version `1.1.0` to `1.1.1`, [`operations/framework-it-service-management.md`](../../operations/framework-it-service-management.md):98 Version `1.0.1` to `1.0.2`) had the Rev.2 title "Computer Security Incident Handling Guide" paired with the `800-61r3` ID; corrected to the Rev.3 title "Incident Response Recommendations and Considerations for Cybersecurity Risk Management (CSF 2.0 Community Profile)" that [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md):92 carries. The title was matched against the register and three existing correct in-corpus uses (e.g. `security/standard-soc-operating-model.md:205`); the scratch reference base does NOT hold the SP 800-61 Rev.3 primary source (only the ISO/IEC 27035-3 bibliography's Rev.2 title), so this aligns to the established in-corpus canonical rather than a fresh primary-source extract. The compact `800-61r3` ID form was left unchanged (ID-format normalization is a separate non-partitionable sweep, logged).
+- **FR-180** (incident severity-vocabulary divergence): [`resilience/procedure-security-incident-reporting-and-escalation.md`](../../resilience/procedure-security-incident-reporting-and-escalation.md) (Version `1.0.1` to `1.0.2`) gained a "Severity crosswalk" note after the minimum-record-fields table, mapping its plain-language Low/moderate/high/critical intake scale to the P1-P4 scale used in the security incident-response procedure and escalation matrix (critical=P1, high=P2, moderate=P3, Low=P4), noting "pending" has no P-scale equivalent. Crosswalk rather than flattening: the resilience procedure is a deliberately generic, adopter-facing intake baseline whose plain-language scale (and "pending" intake state) serve a different audience; the two referenced security docs are already in its Related Documents.
+
+### Changed (generated artefacts)
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) for the five per-document Version/Date bumps; [`docs/portal.md`](../../docs/portal.md) correctly unchanged.
+
+### Verification
+- Each of the three findings was re-verified at apply-time against the live target files (the research worker's quotes confirmed). Contradiction search: no residual old NIST title in the corpus (the only remaining hit was the FR-179 TODO bullet, rotated out here), and no residual P2 CISO 2h/4h timing in the two security docs. FR-174's distinct-SLA preservation (P1 timings, response/MTTx metrics, CIO 2h) confirmed by reading the surrounding tables in full.
+- [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) 54/54 green post-commit; [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh) all-pass; [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) clean before the first commit.
+
+### Changed (.working/, working-state)
+- FR-174, FR-179, FR-180 rotated from [`TODO.md`](../../TODO.md) to [`.working/DONE.md`](../DONE.md).
+- Batched per recursion-avoidance: the #414 `/validate-pr` (0 findings) row into [`.working/validate-pr/history.md`](../validate-pr/history.md) (ledger `1.2.200` to `1.2.201`) and the #414 `/retro` row into [`.working/improvement-log.md`](../improvement-log.md) (ledger `1.0.152` to `1.0.153`).
+
+Library `2026.06.393` to `2026.06.394`; README `1.9.264` to `1.9.265`.
+
 ## 2026-06-27, Library Version 2026.06.393, PR #414
 
 **FR-172 + FR-186 + FR-187: retention-schedule reconciliation (+ #413 in-window fixes).** Third trust-recovery-remediation batch (retention cluster). Three documents whose retention statements diverged from the canonical [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md) were reconciled to it (the register is the canonical source and was NOT edited). Also fixes the two in-window findings #413's `/validate-pr` surfaced.

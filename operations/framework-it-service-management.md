@@ -2,8 +2,8 @@
 
 **Document Title:** IT Service Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.1\
-**Date:** 2026-06-24\
+**Version:** 1.0.2\
+**Date:** 2026-06-27\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md)\
@@ -95,7 +95,7 @@ ITIL 4 continual improvement cycles are adopted. Service improvement plans are d
 | COBIT 2019 | DSS03: Manage Problems | Problem management |
 | EU NIS 2 Directive | Incident Reporting and Business Continuity | Cybersecurity incident notification |
 | CSA CCM v4.1 | SEF and GRC Domains | Service and governance controls |
-| NIST SP 800-61r3 | Computer Security Incident Handling Guide | Incident handling integration |
+| NIST SP 800-61r3 | Incident Response Recommendations and Considerations for Cybersecurity Risk Management (CSF 2.0 Community Profile) | Incident handling integration |
 
 ---
 
