@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #414: FR-172 (high) + FR-186 (low) + FR-187 (low): retention-schedule reconciliation (2026-06-27)
+
+Third trust-recovery-remediation batch (the retention cluster, all reconciled to the canonical data-retention-schedule register): FR-172 reconciled the ROPA template's "at least three years" retention to the schedule's "Active + 5 years" (Article 30 ROPA, stricter-safe); FR-186 replaced the consent-management framework's vague consent-record retention with the schedule's "duration of processing + 3 years" (GDPR Article 7) + cross-reference; FR-187 added a reconciling clause to the records-retention standard clarifying the RRS register is DPO-owned / CIO-approved with the Compliance Manager/Records Officer maintaining it operationally. Also fixed the two in-window findings #413's `/validate-pr` surfaced (the audit-programme §5/§6 gate-45 sweep-cursor description + the design-decisions stale "frozen in TODO" claim, both stale after #413's gate-45 re-point) and batched the #413 `/validate-pr` (2, fixed here) + `/retro` rows.
+
 ### PR #413: TODO hygiene: relocate resume-metadata to session-handoff + rotate FR-167 batches (2026-06-27)
 
 TODO-hygiene pass (maintainer-flagged): moved the `## Session resume metadata` sweep-history block out of TODO into [`session-handoff.md`](session-handoff.md) (a machine-readable "Resume cursor" section) so TODO stays purely forward-looking, and re-pointed gate 45's sweep-cursor check to read the cursor there (queued-PR check still scans TODO); rotated the FR-167 inline shipped-batch ledger to DONE and trimmed the FR-167 bullet to its forward-looking remainder. Queued the deferred broader TODO-hygiene pass as §4.23.
