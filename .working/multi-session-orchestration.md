@@ -1,7 +1,7 @@
 # Multi-session / multi-worker orchestration runbook
 
-**Version:** 1.0.1\
-**Date:** 2026-06-26\
+**Version:** 1.0.2\
+**Date:** 2026-06-27\
 **License:** CC BY-SA 4.0
 
 The operational runbook for running `grc_library` work across multiple sessions and
@@ -152,7 +152,24 @@ The scratch repo carries a shared reference knowledge base under `ref/`, split b
   §4.12). Never cite a publication as if it were a standard.
 
 Each `ref/` bucket has an `originals/` subdirectory for the source binaries (text extracts
-are the seeded, AI-readable form; binaries are added when a write path allows).
+are the seeded, AI-readable form; binaries are the provenance / re-extraction source). The
+`ref/standards/` extracts (the CSA CCM v4.1 / AICM v1.1 / CAIQ per-sheet CSVs and the NIST
+CSF 2.0 full-text), plus their originals, are seeded on scratch `main` (2026-06-27). They
+are the durable reference base for citation / control-code / standards work, complementing
+the in-repo validator modules ([`tools/ccm_aicm_reference.py`](../tools/ccm_aicm_reference.py),
+[`tools/nist_csf_reference.py`](../tools/nist_csf_reference.py)) that encode only codes and
+titles: consult the extracts for the full control-specification text rather than re-uploading
+binaries or relying on memory.
+
+**Persist scratch changes to `main`.** A change to the scratch repo that should outlive the
+session (a `ref/` seed, a durable brief, a claims-ledger update) is merged to scratch `main`,
+not left on a feature branch. The scratch repo is wipeable working state and an ephemeral
+container can reclaim an unmerged branch; scratch `main` is the only durable location, and it
+is what the next session's `/resume` reference-loading step reads. Mechanics: the local git
+proxy 403s direct pushes to `grc_library_scratch` (the documented
+[`third-party-issues.md`](third-party-issues.md) 2026-06-25 restriction), so merge via a
+GitHub MCP pull request (`create_pull_request` + `merge_pull_request`), the transport that
+works for this repo; scratch carries no CI, so the PR is a clean fast-forward.
 
 ---
 

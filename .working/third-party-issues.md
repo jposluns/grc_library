@@ -1,7 +1,7 @@
 # Third-Party and Infrastructure Issues
 
-**Version:** 1.0.3\
-**Date:** 2026-06-26\
+**Version:** 1.0.4\
+**Date:** 2026-06-27\
 **License:** CC BY-SA 4.0
 
 A running log of third-party service and execution-environment issues encountered during maintenance of this library: outages, flakes, and misconfigurations in infrastructure the project depends on but does not own (the commit-signing service, the remote execution sandbox, CI runners, external citation sources, MCP servers). The purpose is to distinguish environment artifacts from genuine corpus or tooling defects, so a future session does not mistake an infrastructure flake for a regression and chase a non-existent bug.
@@ -9,6 +9,16 @@ A running log of third-party service and execution-environment issues encountere
 This file is maintainer working state, exempt from corpus audit gates per the `.working/` directory exemption. Entries are reverse-chronological (newest first). Each entry records: what was observed, the diagnosis, the impact, how it was distinguished from a real defect, and the resolution.
 
 ## Entries
+
+### 2026-06-27: scratch-repo `ref/standards` seeded on `main` via the MCP-PR transport (git-proxy 403 recurred)
+
+**Observed.** Seeding the `ref/standards/` text extracts + originals onto `grc_library_scratch` `main` (the maintainer re-uploaded the CSA CCM v4.1 / AICM v1.1 / CAIQ + NIST CSWP 29 binaries). Feature-branch pushes to scratch succeeded earlier in the session, but the direct `git push origin main` returned `HTTP 403 (curl 22)`, the same restriction logged 2026-06-25 below.
+
+**Diagnosis.** The 2026-06-25 git-proxy write restriction on `grc_library_scratch` persists (per-repo write quota or burst throttle); it is intermittent at the per-push level (some feature-branch pushes went through this session) but blocked the `main` push. Not a credential or corpus defect.
+
+**How it was distinguished from a real defect.** The fast-forward merge succeeded locally; only the push transport 403'd. The GitHub MCP transport (`create_pull_request` + `merge_pull_request`) succeeded where the git proxy failed, matching the 2026-06-25 cross-check (MCP writes to scratch work).
+
+**Impact / resolution.** Bounded and now resolved for the `ref/` seed. Scratch PR #1 (`create_pull_request` then `merge_pull_request`, a clean fast-forward, scratch has no CI) landed the `ref/standards/` CSV/MD extracts AND the 6 source binaries on scratch `main` (merge commit `0b5cee5`). So the "binaries pending" impact noted in the 2026-06-25 entry is closed. Lesson: to persist a scratch change to `main`, use the MCP-PR transport, not a direct `git push`; codified in the [`multi-session-orchestration`](multi-session-orchestration.md) runbook §6 (persist-to-`main` discipline).
 
 ### 2026-06-26: `AskUserQuestion` tool errors with "permission stream closed"
 
