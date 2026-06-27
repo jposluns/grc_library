@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.385, PR #406
+
+`.working/` session-close housekeeping for local project: **session-closing handoff PR** for the 2026-06-27 FR-167-batch-11-privacy + FR-30 session. Lands working-state on `main` as a green merge so the next session's `/resume` rebuilds from `main`. Refreshes [`.working/session-handoff.md`](../../.working/session-handoff.md) (This-session block, post-#405 snapshot, asserted expectations, green-at-`6455ef8` 54/54, Sweep-66-next over #404/#405/#406, next-priority the matrix partial sections); writes the [`.working/session-metrics.md`](../../.working/session-metrics.md) row (12 subagents, 2,542,082 measured subagent tokens, orchestrator main-loop not instrumented); batches the #405 `/validate-pr` (0 findings) and `/retro` rows. Per the handoff-PR loop-break (CLAUDE.md PR-workflow step 5a) this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide **Sweep 66** the next `/resume` runs first, cross-checked against this handoff's asserted expectations. No corpus-document change. Library `2026.06.384` to `2026.06.385`; README `1.9.255` to `1.9.256`.
+
 ## 2026-06-27, Library Version 2026.06.384, PR #405
 
 FR-30: ship the GDPR Article 28 Data Processing Agreement (DPA) template, the controller-to-processor counterpart to the existing joint-controller (Article 26) template. The "one more" PR of the post-batch-11 wind-down re-assessment (maintainer chose a privacy P1 template over handoff).
