@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.374, PR #395
+
+`.working/` session-close housekeeping for local project: **session-closing handoff PR** for the 2026-06-27 semantic-fit-matrix-audit PR-A session. Batches the #394 `/validate-pr` (0 findings) row into [`.working/validate-pr/history.md`](../validate-pr/history.md) and the #394 `/retro` row into [`.working/improvement-log.md`](../improvement-log.md); writes the [`.working/session-metrics.md`](../session-metrics.md) row; refreshes [`.working/session-handoff.md`](../session-handoff.md) (post-#394 snapshot, this session's asserted expectations, green-at-`aa3be45` 54/54, Sweep-62-next over the #394 + #395 deltas, PR B queued as the immediate next priority) and the [`TODO.md`](../../TODO.md) sweep cursor. Per the handoff-PR loop-break this PR skips its own trailing `/validate-pr` + `/retro` (its exemption row is recorded inline in [`.working/validate-pr/history.md`](../validate-pr/history.md)); the compensating control is the corpus-wide **Sweep 62** the next `/resume` runs first. No corpus-document change. Library `2026.06.373` to `2026.06.374`; README `1.9.244` to `1.9.245`.
+
 ## 2026-06-27, Library Version 2026.06.373, PR #394
 
 Added an advisory semantic-fit triage tool, [`tools/audit-matrix-semantic-fit.py`](../../tools/audit-matrix-semantic-fit.py), for the gate-blind "valid code, wrong control" class (a control code that exists in its catalogue, so gates 48/49/54 pass it, but is the wrong control for the row's document). First half of the cadenced-semantic-fit-audit capability ([`TODO.md`](../../TODO.md) section 4.20); the `/matrix-fit` skill and cadence wiring follow in PR B. Also batches the clean Sweep 61 records.
