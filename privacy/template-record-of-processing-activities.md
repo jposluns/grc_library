@@ -2,8 +2,8 @@
 
 **Document Title:** Record of Processing Activities Template\
 **Document Type:** Template\
-**Version:** 1.0.6\
-**Date:** 2026-06-24\
+**Version:** 1.0.7\
+**Date:** 2026-06-27\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md)\
@@ -91,7 +91,7 @@ This template applies to every processing activity carried out by the organisati
 1. ROPA entries are added when a new processing activity is launched and removed (or marked decommissioned) when the activity ends.
 2. Material changes to an activity (new purpose, new lawful basis, new third-country transfer, new sub-processor) require a ROPA update within the same review cycle.
 3. The ROPA is reviewed at minimum annually and at every supervisory authority request.
-4. The populated ROPA is retained for at least three years after the last related processing activity ends, or longer where regulatory or contractual rules apply.
+4. The populated ROPA is retained for the processing activity's active life plus five years after it ends (Active + 5 years), per the canonical [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md) (Processing records, Article 30 ROPA), or longer where regulatory or contractual rules apply.
 5. Supervisory authorities may request the populated ROPA; the Data Protection Officer owns submission within the authority's requested window.
 
 ---

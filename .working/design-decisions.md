@@ -230,7 +230,7 @@ The PR-time delta gate `check-changelog-on-pr.py` requires BOTH the root CHANGEL
 
 ### Session-state snapshot as-of-last-refresh (decided PR #127, mechanically enforced via gate 45 in PR #128)
 
-The "Session resume metadata" subsection in [`../TODO.md`](../TODO.md) is intentionally frozen at session-pause time. The version snapshot and the sweep-cursor each drift forward as the project advances; that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches the harder shapes (queued PR already merged; sweep cursor behind history) mechanically; other drift is informational.
+The resume snapshot (the version snapshot and the sweep cursor) is intentionally frozen at session-pause time. (It was originally the "Session resume metadata" subsection of [`../TODO.md`](../TODO.md); relocated to the "Resume cursor" section of [`session-handoff.md`](session-handoff.md) in PR #413 so `TODO.md` stays purely forward-looking, with gate 45's sweep-cursor check re-pointed to read the cursor from the handoff.) The version snapshot and the sweep-cursor each drift forward as the project advances; that drift is expected and not a defect. Gate 45 (TODO staleness audit) catches the harder shapes (a queued PR already merged, checked in `TODO.md`; a sweep cursor behind history, checked in `session-handoff.md`) mechanically; other drift is informational.
 
 ### TODO/DONE rotation discipline (decided PR #131)
 

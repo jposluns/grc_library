@@ -2,8 +2,8 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.5\
-**Date:** 2026-06-24\
+**Version:** 1.4.6\
+**Date:** 2026-06-27\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -37,7 +37,7 @@ This standard establishes controls, retention schedules, destruction methods, an
 |---|---|
 | **Chief Information Officer (CIO)** | Provides executive oversight of information lifecycle management and ensures that resources for compliance. |
 | **Chief Information Security Officer (CISO)** | Enforces technical and security controls for data retention, backup, and secure destruction. |
-| **Compliance Manager / Records Officer** | Maintains the Records Retention Schedule (RRS), tracks retention obligations, and coordinates audits. |
+| **Compliance Manager / Records Officer** | Maintains the Records Retention Schedule (RRS) register operationally, tracks retention obligations, and coordinates audits. The RRS register ([`governance/register-data-retention-schedule.md`](register-data-retention-schedule.md)) is owned (accountable) by the Data Protection Officer and approved by the CIO per its metadata; this operational-maintenance role sits under that ownership. |
 | **Department Heads / Data Owners** | Classify and manage records according to business and regulatory requirements. |
 | **Legal Counsel** | Validates retention periods based on jurisdictional and contractual obligations. |
 | **AI Governance Council (AIGC)** | Defines retention and destruction controls for AI datasets, model versions, and audit logs. |
