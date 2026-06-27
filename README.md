@@ -4,8 +4,8 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.06.375 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.9.246 (semantic per-document version for this file)
+**Library Version:** 2026.06.376 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.9.247 (semantic per-document version for this file)
 
 ---
 
@@ -274,13 +274,13 @@ This core reference set is the curated catalogue of the library's foundational a
 | --- | --- |
 | Governance | Governance Library Charter |
 | Governance | Document Architecture and Interrelationship Framework |
-| Governance | Governance and Risk Management Policy |
 | Governance | Exception and Risk Acceptance Management Policy |
 | Governance | Cross-Framework Alignment Matrix |
 | Governance | Document Index and Classification Register |
 | Governance | Key Terms and Definitions Register |
 | Governance | Role Authority Register |
 | Governance | Metrics, Monitoring and Performance Reporting Framework |
+| Risk | Enterprise Governance and Risk Management Policy |
 | Risk | Enterprise Risk Management Standard |
 | Risk | Risk Register Procedure |
 | Risk | Risk Acceptance Procedure |
