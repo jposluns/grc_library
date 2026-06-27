@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.371, PR #392
+
+Trust-recovery remediation: a maintainer-invoked `/full-qa` forensic pass over the FR-167 compliance-matrix window (hallucinations reported at the last run) found nine control-code semantic-fit and structural defects, all Medium or Low, and this PR remediates all of them. Eight "valid code, wrong control" matrix fixes, the detailed-CHANGELOG-mirror header repair (F-1), the seven source documents whose own framework tables carried the same class, the maintainer-directed three-governance-row trade-cell populate, and end-of-overnight-mode morning processing.
+
+### Fixed
+
+- [`../../compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) (`1.9.0` to `1.9.1`): eight "valid code, wrong control" cells corrected, each verified against the CCM v4.1 source control title. Row 52 (Records Retention) DSP-07/DSP-08 ("by Design and Default") to DSP-16/DSP-02 (Retention and Deletion / Secure Disposal); row 142 (Authentication) IAM-03/IAM-08 (Identity Inventory / Access Review) to IAM-13/IAM-14 (Strong Authentication / Credentials Management); row 98 (Compliance/Audit/CAPA policy) GRC-08 (Special Interest Groups) to A&A-05 (Audit Management Process); row 101 (BASC IT Compliance KPIs) GRC-04/GRC-08 to A&A-04/GRC-07; row 163 (Penetration Testing) STA-05 (SSRM Control Ownership) to A&A-02 (Independent Assessments); row 140 (Data Classification) adds the absent bullseye DSP-04; row 165 (Disciplinary Process) drops the wrong SEF-08 (Security Breach Notification).
+- Seven source documents whose own framework-alignment tables carried the same code-mislabel class are corrected to match the matrix (each with a Version and Date bump): [`../../governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md) (SEF-01 to HRS-09/HRS-11/HRS-13, table and prose); [`../../security/standard-remote-working-security.md`](../../security/standard-remote-working-security.md) (HRS-09 to HRS-04); [`../../security/policy-acceptance-into-service.md`](../../security/policy-acceptance-into-service.md) (AIS-01 to CCC-01/CCC-02/CCC-05, table and three prose echoes); [`../../security/standard-data-loss-prevention.md`](../../security/standard-data-loss-prevention.md) (DSP-04 to UEM-11; ISO 27002 §8.10 to 8.11 to §8.12); [`../../security/standard-security-awareness-and-training.md`](../../security/standard-security-awareness-and-training.md) (HRS-06/HRS-07 to HRS-11/HRS-12); [`../../security/standard-personnel-security-screening.md`](../../security/standard-personnel-security-screening.md) (contractor HRS-06 to HRS-01; records HRS-04 to HRS-09, the maintainer-chosen disposition); [`../../security/policy-byod.md`](../../security/policy-byod.md) (ISO A.6.2 to A.6.7; CCM UEM-06 dropped to UEM-01/UEM-03/UEM-13/IAM-13).
+- This detailed mirror: restored the standalone `## ... PR #386` and `## ... PR #387` headers that PR #388's commit had overwritten in place (finding F-1), so the detailed mirror's per-PR header set again matches the root [`../../CHANGELOG.md`](../../CHANGELOG.md).
+
+### Changed
+
+- [`../../compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md): populated the five trade columns on three governance rows (continuous-assurance, metrics-monitoring, data-retention-schedule) per the maintainer redirect, with grounded WCO "Pillar II (Customs-to-Business)" and requirement-area phrasing; the data-retention row cites BASC `§3` (Document Retention), the only chapter the document itself cites. Taxonomy and scorecard regenerated for the metadata bump.
+- Ended overnight mode (morning processing): [`../overnight-pr.md`](../overnight-pr.md) reset to `Status: stub`; the FR-167 trade-column-convention design decision routed to [`../design-decisions.md`](../design-decisions.md); the source-doc-code follow-up closed to [`../DONE.md`](../DONE.md); the [`../../TODO.md`](../../TODO.md) source-doc item replaced by the F-1 CHANGELOG-mirror-parity-check follow-up.
+- Batched the PR #391 `/validate-pr` (0 findings) row into [`../validate-pr/history.md`](../validate-pr/history.md) and the PR #391 `/retro` row into [`../improvement-log.md`](../improvement-log.md).
+- [`../../README.md`](../../README.md): Library `2026.06.370` to `2026.06.371`, README Version `1.9.241` to `1.9.242`.
+
+### Verification
+
+- The trust-recovery `/full-qa` was the full six-lens forensic suite: the code-forensic (Subagent D) run exhaustively across the whole matrix via six workers, plus A (recent-PR), B (corpus stale-reference), C (audit-programme integrity), E (generated-artefact), F (discipline-violation). A/B/C/E returned clean; the code-forensic found the eight matrix defects; F found F-1. Every routed finding was apply-time-verified against the CCM v4.1 source CSV before remediation, and the maintainer signed off on the finding set (declining the optional `/fitness` second lens). Run record: [`../full-qa/2026-06-27-iter1.md`](../full-qa/2026-06-27-iter1.md).
+- Discipline observation: the source-doc cleanup was researched by one worker and apply-time-verified by the orchestrator; the worker corrected two brief premises (Doc 6 personnel-screening had the errors on its contractor and records sub-rows, not the primary row; Doc 7 BYOD had an additional CCM error beyond the flagged ISO one), both surfaced and confirmed before apply.
+- `tools/run_all_audits.sh` 54/54 green after each commit; gate 48 (CCM/AICM citation accuracy) clean across 378 files; `tools/run-pr-time-checks.sh` all-pass before push; added CHANGELOG lines dash-free and path-linked ([`../../tools/preflight-changelog.py`](../../tools/preflight-changelog.py)).
+
 ## 2026-06-27, Library Version 2026.06.370, PR #391
 
 Standards-validation discipline: codify how the scratch `ref/standards/` reference base is validated when it informs corpus work, and add a mechanical parity aid plus worker-brief guard rails. Maintainer-directed (2026-06-27) follow-up to #390: the CCM/AICM-confusion hole #390 closed, and the separate class of worker semantic mislabels surfaced in the paused FR-167 batch-10 research, both went uncaught by the gates because the gates validate the derived in-repo modules, not the source text. This PR codifies the discipline that catches both.
@@ -89,6 +112,10 @@ Audit-tooling hardening: close a CCM/AICM catalogue-confusion hole in gate 49 (c
 
 - `tools/run_all_audits.sh` 54/54 green on the post-commit state; `tools/run-pr-time-checks.sh` all-pass before push; CHANGELOG added lines dash-free and path-linked ([`tools/preflight-changelog.py`](../../tools/preflight-changelog.py)). The feasibility claims in section 4.19 are grounded in this session's direct on-disk inspection (no main-session `usage` JSONL found in the project dir or `~/.claude/sessions/`).
 
+## 2026-06-27, Library Version 2026.06.366, PR #387
+
+`.claude/` + `.working/` reference-base durability: make the multi-session scratch repo's trusted-standards reference base (CSA CCM v4.1 / AICM v1.1 / CAIQ plus NIST CSF 2.0 extracts and their source binaries) durable on scratch `main` and consumed at `/resume`, and codify the persist-scratch-changes-to-`main` discipline. No corpus-document change. (Standalone detailed-mirror header restored in the trust-recovery remediation PR: PR #388 had overwritten it in place, orphaning this body; `/full-qa` finding F-1.)
+
 ### Changed
 
 - [`.claude/commands/resume.md`](../../.claude/commands/resume.md): added a standing "Reference knowledge base" step directing the orchestrator to consult the scratch repo's trusted standards extracts (CSA CCM v4.1 / AICM v1.1 / CAIQ + NIST CSF 2.0) for citation and control-code work instead of re-uploading binaries or relying on memory, complementing (not replacing) the in-repo validator modules ([`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py), [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py)) that gates 48/49/54 enforce.
@@ -101,6 +128,10 @@ Audit-tooling hardening: close a CCM/AICM catalogue-confusion hole in gate 49 (c
 ### Verification
 
 - Sweep 59 ran full A/B/C dispatch (no abbreviation), 0 findings; the single Subagent-A note corroborates the known TODO-P3 source-doc-code item (not routed). [`tools/lint-language.py`](../../tools/lint-language.py) clean on the new `/resume` prose. Scratch `ref/standards` confirmed present on scratch `main` (34 entries incl. 6 originals) after MCP PR #1 merged. [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) 54/54 green on the post-commit state and [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh) all-pass verified before push; added CHANGELOG lines dash-free and path-linked ([`tools/preflight-changelog.py`](../../tools/preflight-changelog.py)).
+
+## 2026-06-27, Library Version 2026.06.365, PR #386
+
+`.working/` session-close housekeeping: **session-closing handoff PR** for the 2026-06-27 overnight FR-167 batches-7-9 session (resumed from handoff #382), landing working-state on `main` as a green merge. Batches the #385 `/validate-pr` (0 findings) + `/retro` rows and the session-metrics row; refreshes the handoff and overnight-pr; adds the source-doc-code TODO follow-up. Per the handoff-PR loop-break it skips its own trailing `/validate-pr` + `/retro`. No corpus-document change. (Standalone detailed-mirror header restored in the trust-recovery remediation PR; `/full-qa` finding F-1.)
 
 ### Changed
 
