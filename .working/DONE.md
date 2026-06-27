@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #418: FR-176 (medium) + FR-183 (low) + FR-184 (low): security cross-reference and Wi-Fi floor cluster (2026-06-27)
+
+First P2 trust-recovery-finding batch (security floor/cross-reference cluster, fan-out research): FR-176 added a crosswalk note linking the encryption policy's data-classification key-rotation cadence to the key-lifecycle framework's key-type cadence (no value change); FR-183 pointed the authentication standard's password-Storage row to the Encryption and Key Management Policy as the governing hashing-parameter floor; FR-184 (maintainer decision) raised home-network Wi-Fi to WPA3 with an IoT carve-out and reconciled the surrounding "encouraged"/"does not mandate" framing. Batches the clean Sweep 68 loop-break `/validate` row.
+
 ### PR #416: FR-175 (high): India DPDPA in-force-date reconciliation (2026-06-27)
 
 Last remaining trust-recovery High closed: the privacy jurisdiction index said the India DPDP Rules 2025 were "published February 2025 and entered into force April 2025", contradicting the India annex (notified 13 Nov 2025, phased commencement). Web-verified the MeitY notification (Gazette G.S.R. 846(E), 13 Nov 2025; draft published 3 Jan 2025) against two independent legal sources, then reconciled the index entry to the annex and the already-correct canonical citations register. Clears the entire decided-value + verified High set (FR-168..175).

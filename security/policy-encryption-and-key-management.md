@@ -2,8 +2,8 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.4\
-**Date:** 2026-06-23\
+**Version:** 1.3.5\
+**Date:** 2026-06-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -74,7 +74,7 @@ Keys stored in dedicated Hardware Security Modules (HSMs) or a cloud key managem
 
 ### 2.4 Key rotation
 
-Encryption keys rotated at least every 90 days for Restricted data and annually for other categories. Immediate rotation required after personnel changes or suspected compromise.
+Encryption keys rotated at least every 90 days for Restricted data and annually for other categories. Immediate rotation required after personnel changes or suspected compromise. This classification-based cadence corresponds to the key-type cadence in the Cryptographic Key Lifecycle Management Framework: the 90-day Restricted cycle aligns with symmetric keys, and the annual other-category cycle with asymmetric keys.
 
 ### 2.5 Key destruction
 

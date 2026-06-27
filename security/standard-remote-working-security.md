@@ -2,7 +2,7 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-06-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -115,14 +115,12 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ### 5.4 Home router security
 
-5.4.1 Remote workers are encouraged to apply the following baseline home network security practices:
+5.4.1 Home networks used for remote work must use WPA3 wireless encryption. Where untrusted IoT devices cannot support WPA3, place them on a separate SSID and VLAN, or on an isolated guest network, so they do not share the WPA3 network used for organisational work. Remote workers are also expected to apply the following baseline home network security practices:
 
 - Change the router's default administrator credentials
-- Enable WPA3 (or WPA2 at minimum) wireless encryption
 - Keep router firmware current
-- Segment IoT devices onto a separate guest network where the router supports this capability
 
-5.4.2 The organisation does not mandate home router configuration, but notes that a compromised home network increases the risk of credential interception. The VPN provides the primary compensating control for home network risks.
+5.4.2 Apart from the WPA3 requirement in 5.4.1, the organisation does not mandate home router configuration, but notes that a compromised home network increases the risk of credential interception. The VPN provides the primary compensating control for home network risks.
 
 ---
 
