@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.9.1\
+**Version:** 1.10.0\
 **Date:** 2026-06-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -296,6 +296,47 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Dev-security | Security Quick Reference | [`dev-security/standard-security-quick-reference.md`](../dev-security/standard-security-quick-reference.md) | IAM-01, CEK-03, DSP-01, TVM-01, CCC-01, AIS-05 | A.5.15, A.5.12, A.8.24, A.8.8, A.8.32 | PR.AA, PR.DS, PR.PS | N/A | N/A | N/A | N/A | N/A |
 | Dev-security | Software Composition Analysis Standard | [`dev-security/standard-software-composition-analysis.md`](../dev-security/standard-software-composition-analysis.md) | STA-09, TVM-06, TVM-08, TVM-03 | A.8.30, A.8.31, A.5.21 | ID.AM, GV.SC, ID.RA | N/A | N/A | N/A | N/A | N/A |
 | Dev-security | Software Evaluation, Acceptance and Lifecycle Management Standard | [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) | STA-01, AIS-06, CCC-05, TVM-08, STA-13 | A.8.30, A.8.29, A.8.31, A.8.32 | GV.SC, PR.PS, ID.AM | N/A | N/A | N/A | N/A | N/A |
+
+---
+
+## AI domain
+
+| Domain | Document Title | Path | CSA CCM v4.1 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| AI | AI Governance Council Charter | [`ai/charter-ai-governance-council.md`](../ai/charter-ai-governance-council.md) | GRC-01, GRC-06, A&A-02 | §5.1, §5.3, A.5.2 | GV.RR, GV.OV, GV.OC | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Algorithmic Compliance Checklist | [`ai/checklist-ai-algorithmic-compliance.md`](../ai/checklist-ai-algorithmic-compliance.md) | GRC-02, A&A-02, AIS-05 | A.5.36, A.8.29, A.8.34 | GV.RM, ID.RA, DE.CM | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Governance and Risk Framework | [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md) | GRC-02, DSP-05, STA-01 | §6.1, A.5.9, A.5.19 | GV.RM, ID.RA, GV.SC | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Model Documentation and Transparency Framework | [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md) | GRC-01, DSP-03, GRC-07 | §7.5, A.5.37, A.5.34 | ID.AM, GV.OV, GV.OC | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Model Risk Framework | [`ai/framework-ai-model-risk.md`](../ai/framework-ai-model-risk.md) | GRC-02, DSP-05, TVM-01 | §6.1, §8.2, A.8.29 | ID.RA, DE.CM, GV.RM | N/A | N/A | N/A | N/A | N/A |
+| AI | AI System Audit and Certification Framework | [`ai/framework-ai-system-audit-certification.md`](../ai/framework-ai-system-audit-certification.md) | A&A-01, A&A-02, A&A-05 | §9.2, §9.3, A.5.35 | GV.OV, ID.IM, DE.CM | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Adversarial Test Reference | [`ai/guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md) | TVM-07, AIS-05, TVM-04 | A.8.29, A.8.8, A.8.34 | ID.RA, ID.IM, DE.AE | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Security Technical Implementation Guide | [`ai/guide-ai-security-technical-implementation.md`](../ai/guide-ai-security-technical-implementation.md) | AIS-04, AIS-05, LOG-03 | A.8.25, A.8.28, A.8.16 | PR.PS, DE.CM, PR.DS | N/A | N/A | N/A | N/A | N/A |
+| AI | Adversarial Evaluation Suite Development Guideline | [`ai/guideline-adversarial-evaluation-suite-development.md`](../ai/guideline-adversarial-evaluation-suite-development.md) | AIS-05, TVM-04, TVM-07 | A.8.29, A.8.8, A.5.36 | ID.RA, DE.AE, ID.IM | N/A | N/A | N/A | N/A | N/A |
+| AI | Ethical AI Use Guideline | [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md) | GRC-01, HRS-09, DSP-07 | A.5.1, A.6.3, A.5.34 | GV.PO, PR.AT, GV.RR | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Incident Response Plan | [`ai/plan-ai-incident-response.md`](../ai/plan-ai-incident-response.md) | SEF-03, SEF-07, SEF-06 | A.5.24, A.5.26, A.5.27 | RS.MA, RS.AN, RC.RP | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Compliance Policy | [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md) | GRC-07, GRC-01, SEF-03 | A.5.31, §5.2, A.5.24 | GV.PO, GV.OC, RS.MA | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Audit Procedure | [`ai/procedure-ai-audit.md`](../ai/procedure-ai-audit.md) | A&A-01, A&A-05, A&A-02 | §9.2, §10.1, A.5.35 | GV.OV, ID.IM, DE.CM | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Evaluation Procedure | [`ai/procedure-ai-evaluation.md`](../ai/procedure-ai-evaluation.md) | AIS-05, CCC-02, A&A-02 | §8.1, A.8.29, A.5.35 | ID.RA, DE.CM, GV.OV | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Model Lifecycle Management Procedure | [`ai/procedure-ai-model-lifecycle-management.md`](../ai/procedure-ai-model-lifecycle-management.md) | CCC-01, DSP-03, LOG-03 | §8.1, A.8.32, A.8.16 | ID.AM, DE.CM, ID.IM | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Model Risk Assessment Procedure | [`ai/procedure-ai-model-risk-assessment.md`](../ai/procedure-ai-model-risk-assessment.md) | GRC-02, TVM-04, DSP-05 | §6.1.2, §8.2, A.5.7 | ID.RA, GV.RM, DE.CM | N/A | N/A | N/A | N/A | N/A |
+| AI | AI System Impact Assessment Procedure | [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md) | DSP-09, GRC-02, DSP-05 | A.5.34, §6.1.2, A.5.7 | ID.RA, GV.RM, PR.DS | N/A | N/A | N/A | N/A | N/A |
+| AI | Foundation Model Lifecycle Procedure | [`ai/procedure-foundation-model-lifecycle.md`](../ai/procedure-foundation-model-lifecycle.md) | STA-01, STA-10, CCC-01 | A.5.19, A.5.21, A.8.32 | GV.SC, ID.RA, DE.CM | N/A | N/A | N/A | N/A | N/A |
+| AI | Training Data Governance Procedure | [`ai/procedure-training-data-governance.md`](../ai/procedure-training-data-governance.md) | DSP-03, DSP-05, DSP-16 | A.5.34, A.5.33, A.8.10 | PR.DS, GV.OC, ID.AM | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Risk Register | [`ai/register-ai-risk.md`](../ai/register-ai-risk.md) | GRC-02, A&A-02, GRC-01 | §6.1.2, §6.1.3, §8.2 | ID.RA, GV.RM, GV.OV | N/A | N/A | N/A | N/A | N/A |
+| AI | Model Context Protocol Server Register | [`ai/register-mcp-server.md`](../ai/register-mcp-server.md) | STA-08, AIS-08, IAM-15 | A.5.19, A.8.9, A.8.15 | GV.SC, ID.AM, PR.AA | N/A | N/A | N/A | N/A | N/A |
+| AI | Model Registry | [`ai/register-model-registry.md`](../ai/register-model-registry.md) | DSP-03, GRC-02, STA-08 | §8.1, A.5.9, A.8.32 | ID.AM, GV.OC, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Access and Agent Permissions Standard | [`ai/standard-ai-access-and-agent-permissions.md`](../ai/standard-ai-access-and-agent-permissions.md) | IAM-01, IAM-09, IAM-15, AIS-08 | A.5.15, A.5.16, A.5.18, A.8.3 | PR.AA, GV.RR, DE.CM | N/A | N/A | N/A | N/A | N/A |
+| AI | AI and Agentic Development Security Standard | [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) | AIS-04, AIS-05, TVM-04, STA-09 | A.8.25, A.8.28, A.8.29, A.8.16 | PR.PS, ID.RA, DE.AE | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Inference Cost Governance Standard | [`ai/standard-ai-inference-cost-governance.md`](../ai/standard-ai-inference-cost-governance.md) | GRC-02, BCR-01, LOG-03, STA-11 | A.5.30, A.8.6, A.5.20 | GV.RM, ID.AM, DE.AE | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Model Risk Standard | [`ai/standard-ai-model-risk.md`](../ai/standard-ai-model-risk.md) | GRC-02, TVM-04, A&A-02, DSP-03 | A.5.9, A.8.16, A.5.7, A.5.36 | ID.RA, GV.OV, DE.AE | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Security and Risk Standard | [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) | GRC-05, IAM-01, TVM-04, STA-10 | A.5.1, A.8.16, A.5.15, A.5.19 | GV.OC, ID.RA, PR.AA, DE.CM | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Testing, Validation and Documentation Standard | [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md) | AIS-05, CCC-02, A&A-02, DSP-09 | A.8.29, A.8.33, A.5.36, A.8.16 | ID.RA, GV.OV, DE.CM | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Red Team Report Template | [`ai/template-ai-red-team-report.md`](../ai/template-ai-red-team-report.md) | TVM-07, AIS-05, TVM-04 | A.8.29, A.8.8, §9.1 | ID.RA, ID.IM, DE.CM | N/A | N/A | N/A | N/A | N/A |
+| AI | AI System Register Template | [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md) | DSP-03, GRC-02, GRC-07 | A.5.9, §6.1.2, A.5.19 | ID.AM, ID.RA, GV.OC | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Vendor Security Questionnaire Template | [`ai/template-ai-vendor-security-questionnaire.md`](../ai/template-ai-vendor-security-questionnaire.md) | STA-01, STA-10, STA-09 | A.5.19, A.5.20, A.5.21 | GV.SC, ID.RA, GV.OC | N/A | N/A | N/A | N/A | N/A |
+| AI | Dataset Datasheet Template | [`ai/template-dataset-datasheet.md`](../ai/template-dataset-datasheet.md) | DSP-03, DSP-06, DSP-13 | A.5.9, A.8.10, §8.4 | ID.AM, PR.DS, GV.OC | N/A | N/A | N/A | N/A | N/A |
+| AI | Model Card Template | [`ai/template-model-card.md`](../ai/template-model-card.md) | DSP-03, GRC-02, AIS-05 | §8.4, A.5.9, §9.1 | ID.IM, GV.OC, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| AI | System Card Template | [`ai/template-system-card.md`](../ai/template-system-card.md) | DSP-03, GRC-02, IAM-15 | §8.4, A.5.15, §9.1 | ID.IM, GV.OC, PR.AA | N/A | N/A | N/A | N/A | N/A |
 
 ---
 
