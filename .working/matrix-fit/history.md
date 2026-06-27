@@ -1,0 +1,17 @@
+# Matrix Semantic-Fit Audit History
+
+**Version:** 1.0.0\
+**Date:** 2026-06-27\
+**License:** CC BY-SA 4.0
+
+Reverse-chronological table of every `/matrix-fit` invocation against this library. New rows on top. Each row summarises one cadenced semantic-fit audit of the compliance matrix (and per-document framework-alignment tables); detail for findings-producing runs lives in a per-run file `YYYY-MM-DD-<scope>.md` linked from the **Detail** column. A zero-mismatch run gets a history row with `Detail` = `none`.
+
+`/matrix-fit` judges the gate-blind "valid code, wrong control" class (a control identifier that exists in its catalogue, so gates 48/49/54 pass it, but is the wrong control for the row's document). It is the semantic layer on top of the existence gates, not a substitute for them. See the [`matrix-fit` SKILL](../../dev-security/claude-rules/skills/matrix-fit/SKILL.md) for the six-step process and the [`/matrix-fit`](../../.claude/commands/matrix-fit.md) slash command. Cadence: after each FR-167 matrix-expansion batch, once at matrix completion, and ad-hoc.
+
+This file is maintainer working state, exempt from corpus audit gates.
+
+## Run entries
+
+| Date | Scope | Worklist | Judge | Mismatches | Resulting PR | Detail | Summary |
+|---|---|---|---|---|---|---|---|
+| 2026-06-27 | AI domain section (FR-167 batch 10, `compliance/matrix-grc-compliance-alignment.md` lines 302-339, 34 rows) | 12 of 34 rows flagged overlap-0 by [`audit-matrix-semantic-fit.py`](../../tools/audit-matrix-semantic-fit.py) `--matrix-only` (lines 307/309/315/319/326/327/330/334/336/337/338/339) | 1 semantic-fit judge subagent over the 12 worklisted rows, reading each source doc in full and judging every cited code against its source control TITLE | **0 mismatches (clean)** | next PR (session-closing handoff #403, batched) | none | **First real `/matrix-fit` firing** (the per-batch cadence's primary case, FR-167 batch 10 ai). Mechanical baseline 54/54 at `f9220eb`/#402; reference base confirmed (in-repo modules + scratch `ref/standards/`). The recall-oriented pre-filter worklisted 12 rows for overlap-0 (no lexical anchor between doc subject and cited control titles, expected: GRC control titles routinely share no vocabulary with AI doc subjects). Judge verdicts: **4 rows all-fit** (307 checklist, 315 ethical-AI guideline, 319 evaluation procedure, 326 MCP-server register); **8 rows loose-supporting only, no mismatch** (309, 327, 330, 334, 336, 337, 338, 339); **0 rows with any mismatch**. Every cited code has a material or defensible anchor in its source document (judge quoted source titles + doc subject evidence per code). The gate-blind "valid code, wrong control" class did not surface in this batch. One optional refinement noted (not a finding, not changed): row 337 (`template-dataset-datasheet.md`) carries `DSP-13` "Personal Data Sub-processing" with a thin-but-real anchor (supplier-acquired datasets, cross-border transfer, rights cascade); `DSP-04` "Data Classification" would fit the datasheet's heavy classification content (identifiability tier, special-category, children's data) more squarely. Loose-supporting per the skill is noted, not routed; surfaced for the maintainer's optional second look. Also recurring-and-routine: `GV.OC` "Organizational Context" is loose-supporting across 6 documentation/inventory rows (a broad governance category these doc types touch lightly), a pattern not a defect. Single advisory pass; zero-mismatch run, history row only, no detail file. |
