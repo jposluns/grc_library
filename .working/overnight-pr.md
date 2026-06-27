@@ -18,9 +18,16 @@ A maintainer-authorized autonomous overnight session is in flight (started 2026-
 ## Build progress
 
 - Sweep 58: complete, clean (history row batched into the batch-7 PR #383).
-- FR-167 batch 7 (compliance, 25 net-new rows, section 5 to 30): shipped in PR #383 (merged); `/validate-pr` 1 cosmetic note (row-93 Type word), `/retro` done.
-- FR-167 batch 8 (governance, 15 net-new rows, section 4 to 19; the governance domain's many library-infrastructure/meta docs excluded per the coverage summary after a scoping pass): authored; gates 48/49 + full audit 54/54 green; shipped in PR #384. The #383 row-93 note fix bundled in.
-- Next: FR-167 batch 9 (security, 34 docs).
+- FR-167 batch 7 (compliance, 25 net-new rows, section 5 to 30): shipped #383 (merged); `/validate-pr` 1 cosmetic note (row-93 Type word, fixed in #384), `/retro` done.
+- FR-167 batch 8 (governance, 15 net-new rows, section 4 to 19; library-infrastructure/meta docs excluded per the coverage summary after a scoping pass): shipped #384 (merged); `/validate-pr` 0 findings, `/retro` done.
+- FR-167 batch 9 (security, 25 net-new rows, section 10 to 35): shipped #385 (merged); `/validate-pr` 0 findings, `/retro` done. Trade columns populated by grounded analogy to the Security-section convention (see learnings below); six source-doc framework-table code mislabels corrected in the matrix and flagged as a TODO follow-up.
+- Session-closing handoff PR #386 lands this session's close-out (the #385 `/validate-pr`+`/retro` rows, session-metrics row, this overnight-pr update, the session-handoff refresh); it skips its own trailing `/validate-pr`+`/retro` per the loop-break.
+- **Next: FR-167 batch 10 (ai, ~34 docs)**, then batch 11 (privacy, ~42), then the matrix's partial sections. The overnight run CONTINUES in the fresh session the maintainer is starting (the maintainer was reachable mid-overnight and offered a clean session refresh to clear heavy context); this file stays `in-flight`.
+
+## Batch-9 learnings (carry into batch 10+)
+
+- **The trade-column convention VARIES by matrix section.** Governance docs (batch 8) are N/A across the 5 customs/trade columns; Security docs (batch 9) POPULATE them via the ICT-security / AEO-S requirement-area lens (all 10 pre-existing Security rows do). Before authoring a domain's trade columns, READ that domain's existing matrix rows and follow their convention rather than defaulting N/A. For ai and privacy: check the existing ai/privacy rows; likely mostly N/A (not customs domains) but verify.
+- **Source docs mis-cite their own control codes.** Batches 7-9 surfaced ~7 docs whose framework-alignment tables carry wrong CCM/ISO codes (SEF-01-as-ethics, HRS-09-for-remote-working, AIS-01-as-acceptance, DSP-04-as-DLP, HRS-06/07-for-training, A.6.2-for-teleworking). The matrix carries corrected codes; a follow-up TODO item tracks fixing the source docs. Workers must validate the doc's OWN self-cited codes against the reference modules, never propagate.
 
 ## Batch-8 judgment calls (for the maintainer's morning, proceeded with stricter-safe defaults; confirm or redirect)
 

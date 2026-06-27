@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.365, PR #386
+
+`.working/` session-close housekeeping: **session-closing handoff PR** for the 2026-06-27 overnight FR-167 batches-7-9 session (resumed from handoff #382). Per the handoff-PR loop-break (CLAUDE.md PR-workflow step 5a) this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide **Sweep 59** the next `/resume` runs first (over the #383/#384/#385/#386 deltas), cross-checked against this handoff's asserted-expectations. No corpus-document change.
+
+### Changed
+
+- [`.working/session-handoff.md`](../session-handoff.md): refreshed to the post-#385 overnight snapshot (this-session narrative for batches 7-9, Sweep-59-next cadence, the State snapshot current-truth block green-at-`c41f235` 54/54 / matrix `1.9.0`, this session's asserted-expectations block, the next-queue led by FR-167 batch 10 ai with the trade-column-convention-varies-by-section lesson).
+- [`.working/overnight-pr.md`](../overnight-pr.md): build progress for batches 7-9 + the batch-9 learnings (trade-column convention varies by section; source docs mis-cite their own codes); stays `Status: in-flight` (the overnight run continues next session).
+- [`.working/session-metrics.md`](../session-metrics.md): the 2026-06-27 row (~1h25m measured elapsed, 3 PRs merged, 20 subagents, 4,619,368 measured subagent tokens; orchestrator tokens not instrumented).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): the #385 `/validate-pr` row (0 findings) + the #386 handoff-exemption row. [`.working/improvement-log.md`](../improvement-log.md): the #385 `/retro` row.
+- [`TODO.md`](../../TODO.md): a P3 follow-up for the ~7 source-doc framework-table control-code errors surfaced by FR-167 batches 7-9.
+- [`README.md`](../../README.md): Library `2026.06.364` to `2026.06.365`, README Version `1.9.235` to `1.9.236`.
+
+### Verification
+
+- `tools/run_all_audits.sh` 54/54 green and `tools/run-pr-time-checks.sh` all-pass on the handoff state before push. No corpus-document change, so no artefact regen. The handoff PR's QA is the next session's Sweep 59 (loop-break compensating control).
+
 ## 2026-06-27, Library Version 2026.06.364, PR #385
 
 FR-167 batch 9 (security domain): the [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) Security section expanded from 10 rows to 35 (25 net-new) across all 8 framework columns. Authored via the research-assistant discipline: 5 verified-disjoint research workers; the orchestrator re-validated every CCM and NIST CSF code against [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py) and [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py); gates 48 and 49 confirm validity.
