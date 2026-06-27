@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #416: FR-175 (high): India DPDPA in-force-date reconciliation (2026-06-27)
+
+Last remaining trust-recovery High closed: the privacy jurisdiction index said the India DPDP Rules 2025 were "published February 2025 and entered into force April 2025", contradicting the India annex (notified 13 Nov 2025, phased commencement). Web-verified the MeitY notification (Gazette G.S.R. 846(E), 13 Nov 2025; draft published 3 Jan 2025) against two independent legal sources, then reconciled the index entry to the annex and the already-correct canonical citations register. Clears the entire decided-value + verified High set (FR-168..175).
+
 ### PR #415: FR-174 (high) + FR-179 (medium) + FR-180 (medium): incident-response reconciliation (2026-06-27)
 
 Fourth trust-recovery-remediation batch (the incident-response cluster, researched via a fan-out worker): FR-174 reconciled the P2 CISO-notification timing to 1 hour (maintainer-chosen, strictest) across the incident-response procedure (:48 4h to 1h, resolving the intra-doc conflict with the already-canonical :79) and the escalation matrix (:41 2h to 1h; CIO stays 2h as an escalation ladder); FR-179 corrected the superseded NIST SP 800-61 Rev.2 title at three citers to the register's verified Rev.3 title ("Incident Response Recommendations and Considerations for Cybersecurity Risk Management (CSF 2.0 Community Profile)"); FR-180 added a severity crosswalk to the resilience intake procedure mapping its Low/moderate/high/critical scale to P1-P4 (crosswalk, not flatten, retaining "pending"). The last remaining High finding is FR-175 (India DPDPA, deferred to a fresh session for external-source verification). Batches the #414 `/validate-pr` (0) + `/retro` rows.
