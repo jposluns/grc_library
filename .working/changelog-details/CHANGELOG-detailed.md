@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.388, PR #409
+
+`.working/` and [`TODO.md`](../../TODO.md) session-close housekeeping for local project: **session-closing handoff PR** for the 2026-06-27 scratch-review + EDPB-ingest + B2 session. Lands working-state on `main` as a green merge so the next session's `/resume` rebuilds from `main`. Refreshes [`.working/session-handoff.md`](../../.working/session-handoff.md) (This-session block, post-#408 state snapshot, this session's asserted expectations, green-at-`9bd9917` 54/54, Sweep-67-next over the #407/#408/#409 deltas, next-priority the matrix partial sections); writes the [`.working/session-metrics.md`](../../.working/session-metrics.md) row (5 measured subagents, 1,279,490 measured subagent tokens, orchestrator main-loop not instrumented; the EDPB ingest was scripted, no subagents); scrubs the stale post-close B2 mentions from [`TODO.md`](../../TODO.md):75 and :345; batches the #408 `/validate-pr` (0 findings) and `/retro` rows. Per the handoff-PR loop-break (CLAUDE.md PR-workflow step 5a) this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide **Sweep 67** the next `/resume` runs first, cross-checked against this handoff's asserted expectations. No corpus-document change. Library `2026.06.387` to `2026.06.388`; README `1.9.258` to `1.9.259`.
+
 ## 2026-06-27, Library Version 2026.06.387, PR #408
 
 **B2: add five EDPB / Article 29 Working Party soft-law citations to the canonical-citations register.** Closes the long-deferred B2 (previously blocked on web egress to edpb.europa.eu), now unblocked by the two 2026-06-27 EDPB maintainer drops ingested to the scratch reference base.

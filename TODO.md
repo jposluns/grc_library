@@ -72,7 +72,7 @@ Individual documents or focused multi-doc improvements. The deferred-decision it
 
 ## Priority 3 — Low-priority cleanup (Low severity / FYI)
 
-Deferred to a routine cleanup batch when convenient. The Low/FYI trust-recovery findings, the decided low-severity deferred decision DD-10, and the now-decided B2 register addition are integrated here. (DD-12, the corpus-wide CSF-1.1 migration, closed in PR 2 of the gate-49-extension track.)
+Deferred to a routine cleanup batch when convenient. The Low/FYI trust-recovery findings and the decided low-severity deferred decision DD-10 are integrated here. (B2, the EDPB/WP29 soft-law citations, closed in #408; DD-12, the corpus-wide CSF-1.1 migration, closed in PR 2 of the gate-49-extension track.)
 
 - **ERC acronym expansion inconsistency (Low, M) — surfaced 2026-06-23 (PR-H authoring); effort recalibrated 2026-06-27 (#397 `/retro`)**: "ERC" is expanded as both "Enterprise Risk Committee" and "Executive Risk Committee" across the corpus (re-counted 2026-06-27: ~44 vs ~16 occurrences across ~26 distinct documents, several carrying BOTH expansions; the original "×12 / ×10" estimate and the `S` effort tag understated it). **Verify-before-reconcile**: confirm the two expansions denote the SAME governance body before any blanket replacement (do not silently merge what may be two distinct committees). If they are the same, pick one canonical expansion (recommend "Enterprise Risk Committee", matching [`risk/policy-enterprise-governance-and-risk-management.md`](risk/policy-enterprise-governance-and-risk-management.md):39) and reconcile the other surfaces, bumping Version + Date on each touched versioned doc. Effort is `M` not `S` (the ~26-doc fan-out + the semantic verification). Candidate for a cross-doc consistency PR.
 - **DD-10 (L, S)**: Reconcile the addyosmani upstream skill-count wording — [`README.md`](README.md) ("5 in full + 18 spot-scanned" = 23) vs [`dev-security/claude-rules/setup-generator-prompt.md`](dev-security/claude-rules/setup-generator-prompt.md):230 ("24 … 5 fully vetted, 18 spot-scanned"). Verify the upstream repo's count via web fetch, then align both surfaces. (Needs network egress; surface and defer if blocked.)
@@ -342,7 +342,7 @@ Approximate active counts after the 2026-06-23 restructure (the priority section
 
 - **P1 (urgent quality)**: ~18 items (8 H[critical] + 10 H).
 - **P2 (substantive improvements)**: ~36 items (Medium fitness findings + the former Phase 2 clusters + DD-2/3/4/5/8/11 + relocations + loop-break-generalize).
-- **P3 (low-priority cleanup)**: ~20 items (Low/FYI findings + DD-10 + B2 + routine cleanup; DD-12 closed in PR 2 of the gate-49-extension track).
+- **P3 (low-priority cleanup)**: ~19 items (Low/FYI findings + DD-10 + routine cleanup; B2 closed in #408; DD-12 closed in PR 2 of the gate-49-extension track).
 - **P4 (adopter experience)**: 9 subsections (4.1-4.8, 4.10; 4.9 closed in PR #295).
 - **P5 (content expansion)**: 8 subsections (5.1-5.8).
 - **P6 (domain-level)**: 5 items (6.1-6.5).
