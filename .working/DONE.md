@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #412: FR-169 (high) + FR-171 (high) + FR-177 (medium) + FR-185 (low): risk scoring & acceptance-authority reconciliation (2026-06-27)
+
+Second trust-recovery-remediation batch, the risk-domain reconciliation: FR-169 reconciled the ERM standard's likelihood scale to the canonical threat-precedent anchors in the risk-assessment methodology (maintainer-chosen over the standard's time-frequency anchors); FR-171 aligned the risk-acceptance procedure and risk-appetite template to the single canonical High/critical acceptance authority (Executive Committee or Board Risk Committee, per the exception/risk-acceptance policy §2.2), replacing the divergent "Executive Management" and "CRO" values; FR-177 aligned the ERM standard's Low-band action verb to the methodology ("Accept; monitor annually"); FR-185 narrowed the ERM §5.2 three-document-match over-claim (the register references the scale rather than independently defining it). Batches the #411 `/validate-pr` (0) + `/retro` rows.
+
 ### PR #411: FR-168 (high) + FR-170 (high) + FR-173 (high): cheap-certain trust-recovery High remediation batch (2026-06-27)
 
 First remediation of the trust-recovery routed backlog (High-first, fix-issues-before-new-content): FR-168 corrected the policy-exception policy's eight `GRC-12` citations (an AICM-only code) to the real CCM v4.1 `GRC-04` "Policy Exception Process"; FR-170 repointed the risk-register template's 5×5-matrix reference from the methodology procedure (which holds only the scales and thresholds) to the canonical grid in the ERM standard §5.2; FR-173 repaired three broken section cross-references in the onboarding/offboarding procedure (Section 9→10 privileged-access timeline, two Section 10→11 deprovisioning-checklist refs). Also batches the clean Sweep 67 history row.
