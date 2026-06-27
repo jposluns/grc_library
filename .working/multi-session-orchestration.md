@@ -1,6 +1,6 @@
 # Multi-session / multi-worker orchestration runbook
 
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-06-27\
 **License:** CC BY-SA 4.0
 
@@ -170,6 +170,41 @@ proxy 403s direct pushes to `grc_library_scratch` (the documented
 [`third-party-issues.md`](third-party-issues.md) 2026-06-25 restriction), so merge via a
 GitHub MCP pull request (`create_pull_request` + `merge_pull_request`), the transport that
 works for this repo; scratch carries no CI, so the PR is a clean fast-forward.
+
+**Standards-validation discipline (validate against the source, not only the derived
+encoding).** When `ref/standards/` content informs corpus work (citations, control-code
+mappings, the FR-167 matrix batches are the recurring case), the source extracts are the
+ground truth and the in-repo validator modules
+([`tools/ccm_aicm_reference.py`](../tools/ccm_aicm_reference.py),
+[`tools/nist_csf_reference.py`](../tools/nist_csf_reference.py)) are a *derived encoding* of
+codes and titles. Two obligations follow, because the gates (48, 49, 54) enforce only the
+derived encoding:
+
+1. **Code-set parity (mechanical).** Run
+   [`tools/verify-reference-modules.py`](../tools/verify-reference-modules.py) when doing
+   standards work or when the scratch base is refreshed: it confirms the modules' code sets
+   match the source CSV / text extracts in both directions (CCM v4.1.0, AICM v1.1.0, NIST
+   CSF 2.0). It is a dev-aid, not a CI gate (the scratch source is not present in CI), and
+   it skips cleanly when the scratch base is absent. A drift means the modules (and so the
+   gates that trust them) have diverged from the source; reconcile the module to the source.
+2. **Semantic-fit against the source title, not the code number (judgment).** A code that
+   *exists* (gate-valid) is not necessarily the *right* code: validate a mapping against the
+   source control's TITLE and specification text (the `Control Title` / `Control
+   Specification` columns of the CSA CSVs; the category name in the CSF text), not by
+   inferring meaning from the code number. The recurring failure this prevents: a worker
+   reads `SEF-02` and assumes "incident response" when the source title is "Service
+   Management Policy and Procedures", or `LOG-08` as "log retention" when it is "Audit Logs
+   Sanitization". Code-existence validation is necessary but not sufficient; the source
+   title is the semantic check.
+3. **CCM and AICM are distinct catalogues; never confuse them.** The CSA CCM v4.1.0 column
+   of any mapping takes CCM v4.1 codes only; an AICM v1.1.0 code (the AI-only `MDS` domain
+   is the canonical case) does not belong in a CCM-labelled column even though it is a real
+   CSA control. Gate 49 enforces this mechanically for the central matrix's CCM column (an
+   AICM-only code flags `ccm-aicm-confusion`); the discipline holds for every CCM/AICM
+   surface, including per-document framework tables the gate does not yet cover.
+
+The trust split above still governs: `ref/standards/` is trusted ground truth for these
+checks; `ref/publications/` is screened-not-trusted and is never a standards source.
 
 ---
 

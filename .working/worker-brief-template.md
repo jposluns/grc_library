@@ -1,7 +1,7 @@
 # Worker Brief Template
 
-**Version:** 1.2.2\
-**Date:** 2026-06-26\
+**Version:** 1.3.0\
+**Date:** 2026-06-27\
 **License:** CC BY-SA 4.0
 
 Project-local template the orchestrator uses when dispatching research-assistant (worker) subagents per the research-assistant discipline in [`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`](../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md) §1.
@@ -46,6 +46,10 @@ Each guard rail is enumerated below. Workers must satisfy each rail before submi
 7. **Flag every newly-introduced acronym for a same-PR glossary entry**. If your research introduces an acronym not already defined in the corpus glossary, surface it explicitly so the orchestrator adds the glossary entry in the same PR. Do not assume an acronym is already defined. (Caught repeatedly, CIIO/HKDF/AEAD at Sweep 20, well past the three-occurrence threshold by PR #229.)
 
 8. **The code cell and its description cell are a paired surface.** When you propose or revise a framework-mapping / crosswalk row, the description must describe the proposed code's actual function, not a different or superseded one; if you change the code, re-read the description in the same row for echoes of the OLD code's function or meaning. (Caught at PR #371/#374: the corpus DD-12 migration changed `RC.IM` (Recovery: Improvements) to `ID.IM` (Identify: Improvement) but left the word "recovery" in the description, mismatched against the Identify function. Gate-blind: gate 54 validates control-code validity only, not the prose half, so the description-vs-function drift is the orchestrator's and worker's to catch by re-reading the paired cell.)
+
+9. **Validate a control code's semantic fit against the source control TITLE, not the code number.** A code that *exists* (passes `tools/ccm_aicm_reference.py` / `tools/nist_csf_reference.py` and so gates 48/49/54) is not necessarily the *right* code for the document. Before proposing a mapping, confirm the code's actual title/meaning against the authoritative source: the `Control Title` / `Control Specification` columns of the CSA CCM/AICM catalogue CSVs and the Category names in the NIST CSF text, available read-only in the scratch repo's `ref/standards/` (per the multi-session-orchestration runbook section 6's standards-validation discipline). Do NOT infer a code's meaning from its number. (Caught at PR #390 / FR-167 batch 10: workers proposed valid-but-wrong codes by guessing titles from numbers, `SEF-02` ("Service Management Policy and Procedures") read as incident response, `LOG-08` ("Audit Logs Sanitization") read as log retention, `HRS-03` ("Clean Desk") read as acceptable-use, `DSP-19` ("Data Location") read as data minimization. These are gate-blind: the codes exist, so gates 48/49/54 pass them; only the source title catches the mismatch.)
+
+10. **CSA CCM and AICM are distinct catalogues; never put an AICM code in a CCM column.** The "CSA CCM v4.1" matrix column (and any CCM-labelled surface) takes CCM v4.1.0 codes only. An AICM v1.1.0 code (the AI-only `MDS` Model Security domain is the canonical case) is a real CSA control but does NOT belong in a CCM column. Gate 49 flags an AICM-only code in the matrix CCM column as `ccm-aicm-confusion`, but the discipline holds for every CCM/AICM surface, including per-document framework tables the gate does not yet cover. When in doubt which catalogue a code belongs to, check `is_ccm_v41` / `is_aicm` in `tools/ccm_aicm_reference.py`. (Caught at PR #390: the in-repo module's blended domain set carried the AICM-only `MDS` domain, and the matrix CCM column was validated only against the AICM-wins union, so an AICM code would have passed.)
 ```
 
 ---

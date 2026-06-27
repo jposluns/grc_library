@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.370, PR #391
+
+Standards-validation discipline: codify how the scratch `ref/standards/` reference base is validated when it informs corpus work, and add a mechanical parity aid plus worker-brief guard rails. Maintainer-directed (2026-06-27) follow-up to #390: the CCM/AICM-confusion hole #390 closed, and the separate class of worker semantic mislabels surfaced in the paused FR-167 batch-10 research, both went uncaught by the gates because the gates validate the derived in-repo modules, not the source text. This PR codifies the discipline that catches both.
+
+### Added
+
+- [`tools/verify-reference-modules.py`](../../tools/verify-reference-modules.py): a maintainer dev-aid (not a CI gate; named `verify-*` not `lint-*` so the four-surface parity gate 35 and the regression suite gate 36 do not auto-discover it; not wired into `run_all_audits.sh`). It confirms the in-repo control-reference modules match the scratch `ref/standards/` source extracts in both directions: `CCM_V41` (207) against `CSA-CCM-v4.1.0-catalogue__CCM.csv`, `AICM_V11` (247) against `CSA-AICM-v1.1.0-catalogue__AICM.csv`, and `CSF_CATEGORIES` (22) against the CSWP-29 full-text extract. It locates the scratch base via CLI arg, `GRC_SCRATCH_REF_STANDARDS`, or two default paths, and SKIPS cleanly (exit 0) when the base is absent (CI and most adopter environments). Exit 1 on drift, 2 on a present-but-unreadable source.
+
+### Changed
+
+- [`.working/multi-session-orchestration.md`](../multi-session-orchestration.md) section 6: added the **standards-validation discipline** (code-set parity via the new aid; semantic-fit-against-source-title, not code-number; CCM-vs-AICM separation). Version `1.0.2` to `1.0.3`.
+- [`.working/worker-brief-template.md`](../worker-brief-template.md): added DO rail 9 (validate a code's semantic fit against the source control TITLE, not the number; cites the #390 SEF-02/LOG-08/HRS-03/DSP-19 mislabels) and DO rail 10 (CCM and AICM are distinct catalogues; never put an AICM code in a CCM column; cites #390). Version `1.2.2` to `1.3.0`.
+- [`.working/changelog-details/CHANGELOG-detailed.md`](CHANGELOG-detailed.md): corrected the #390 entry's verification line (the `/validate-pr` #390 cosmetic note, a future-tense "to be confirmed green before push" placeholder that survived into the merged record) to the confirmed post-merge state.
+
+### Verification
+
+- [`tools/verify-reference-modules.py`](../../tools/verify-reference-modules.py) exits 0 against the live scratch base (CCM 207, AICM 247, CSF 22 all match); the skip path is exercised (absent-source returns 0 with a notice).
+- Batches the #390 `/validate-pr` record [`.working/validate-pr/2026-06-27-PR-390.md`](../validate-pr/2026-06-27-PR-390.md) + history row (`1.2.179` to `1.2.180`) and the #390 `/retro` row in [`.working/improvement-log.md`](../improvement-log.md) (`1.0.136` to `1.0.137`).
+- Post-commit `tools/run_all_audits.sh` 54/54 and pre-push `tools/run-pr-time-checks.sh` all-pass, confirmed green before push.
+
+### Notes
+
+- No new gate, no corpus-document change; all changes are tooling + `.working/` working-state. The aid complements the gates (which stay the enforcement layer); it does not replace them.
+- This closes the maintainer's two 2026-06-27 directives (codify scratch-content validation; ensure CCM/AICM codes are not confused) in two PRs: #390 (the mechanical gate-49 CCM/AICM guard) and this PR (the discipline + parity aid + worker rails).
+
 ## 2026-06-27, Library Version 2026.06.369, PR #390
 
 Audit-tooling hardening: close a CCM/AICM catalogue-confusion hole in gate 49 (compliance-matrix control-code validity). The matrix's "CSA CCM v4.1" column was previously deferred entirely to the corpus-wide CSA citation gate (gate 48), which validates a matrix CCM-column token against the AICM-wins union (`ALL_TITLES`) and therefore passes an AICM-only code (e.g. an `MDS-` Model Security code, an AICM v1.1 domain absent from CCM v4.1) in a column labelled CCM v4.1. This was surfaced during the FR-167 batch-10 (ai) apply-time validation, when a cross-check of the validation crib against the scratch repo's `ref/standards/` source extracts showed the in-repo module's blended `VALID_DOMAINS` carried the AICM-only `MDS` domain. Maintainer-directed (2026-06-27): tighten the gate, and codify CCM/AICM separation mechanically.
@@ -22,7 +47,7 @@ Audit-tooling hardening: close a CCM/AICM catalogue-confusion hole in gate 49 (c
 - Gate 49 standalone: OK on the live matrix (the current CCM column carries no AICM-only codes); a negative test injecting `MDS-01` into a CCM cell fails with `ccm-aicm-confusion`.
 - `MatrixControlCodeTests` 13/13 pass via unittest; gate 48 (CSA citations) still exits 0 on the corpus (the `VALID_DOMAINS` union is unchanged).
 - Crib cross-validated against the scratch repo's `ref/standards/` ground truth (read-only): the `CCM_V41` keyset is byte-identical to the CSA CCM v4.1.0 catalogue CSV extract (207 codes, 17 domains, zero set difference both directions); `nist_csf_reference.CSF_CATEGORIES` is byte-identical to the 22 categories in the NIST CSWP-29 CSF 2.0 full-text extract.
-- Post-commit `tools/run_all_audits.sh` 54/54 and pre-push `tools/run-pr-time-checks.sh` to be confirmed green before push.
+- Post-commit `tools/run_all_audits.sh` 54/54 and pre-push `tools/run-pr-time-checks.sh` all-pass, confirmed green before push (and re-confirmed post-merge by the #390 `/validate-pr`).
 
 ### Notes
 
