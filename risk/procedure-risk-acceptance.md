@@ -2,8 +2,8 @@
 
 **Document Title:** Risk Acceptance Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
-**Date:** 2026-06-21\
+**Version:** 1.0.2\
+**Date:** 2026-06-27\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Executive Management\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md)\
@@ -38,12 +38,14 @@ This procedure defines how residual risk is formally accepted, reviewed, monitor
 
 ## Approval guidance
 
+The High and critical acceptance authorities below align with the canonical approval-authority chain in [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) §2.2 (High or critical: Executive Committee or Board Risk Committee); adopters tune the named bodies to local governance structure there, and this table follows.
+
 | Residual Risk Level | Typical Approval Authority |
 | --- | --- |
 | Low | Process Owner or Control Owner. |
 | Moderate | Domain Executive or delegated risk owner. |
-| High | Executive Management with risk, security, privacy, compliance, or legal consultation where applicable. |
-| Critical | Governing Body or formally delegated executive risk authority. |
+| High | Executive Committee or Board Risk Committee, with risk, security, privacy, compliance, or legal consultation where applicable. |
+| Critical | Executive Committee or Board Risk Committee (the governing body), or its formally delegated executive risk authority. |
 
 ---
 

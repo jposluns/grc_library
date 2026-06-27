@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.7.1\
-**Date:** 2026-06-24\
+**Version:** 1.7.2\
+**Date:** 2026-06-27\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -80,17 +80,17 @@ Each material risk assessment must record:
 
 ### 5.2 Scoring matrix
 
-Risk scores are calculated as **Likelihood (1 to 5) × Impact (1 to 5) = Risk Score (1 to 25)**. The likelihood labels and the score-to-rating thresholds below match those in the risk-assessment methodology [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md) Section 4 to Section 5 and the [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md) scoring fields, so a given score yields the same rating, review cadence, and escalation across all three documents.
+Risk scores are calculated as **Likelihood (1 to 5) × Impact (1 to 5) = Risk Score (1 to 25)**. The likelihood labels and descriptions and the score-to-rating thresholds below match the canonical scale defined in the risk-assessment methodology [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md) Section 4 to Section 5; the [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md) scoring fields reference this scale rather than defining their own, so a given score yields the same Low / Medium / High / Critical rating in this standard and the methodology.
 
 #### Likelihood scale
 
 | Score | Label | Description |
 |---|---|---|
-| 1 | Very Low | May occur only in exceptional circumstances (less than once in 10 years) |
-| 2 | Low | Could occur at some time (once in 5 to 10 years) |
-| 3 | Medium | Might occur at some time (once in 2 to 5 years) |
-| 4 | High | Will probably occur in most circumstances (once in 1 to 2 years) |
-| 5 | Very High | Expected to occur in most circumstances (more than once per year) |
+| 1 | Very Low | Unlikely; no known precedent in the industry |
+| 2 | Low | Possible; known to occur occasionally |
+| 3 | Medium | Likely; occurs periodically across the industry |
+| 4 | High | Expected; known active threat, frequently observed |
+| 5 | Very High | Near-certain; active exploitation confirmed |
 
 #### Impact scale
 
@@ -116,7 +116,7 @@ Risk scores are calculated as **Likelihood (1 to 5) × Impact (1 to 5) = Risk Sc
 
 | Score Range | Rating | Required Response |
 |---|---|---|
-| 1 to 4 | Low | Monitor only; review annually |
+| 1 to 4 | Low | Accept; monitor annually |
 | 5 to 9 | Medium | Mitigate and monitor; review quarterly |
 | 10 to 16 | High | Mitigate or transfer; assign owner; review monthly |
 | 17 to 25 | Critical | Immediate action required; ERC oversight; escalate to executive leadership |
