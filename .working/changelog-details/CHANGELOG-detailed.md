@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.391, PR #412
+
+**FR-169 + FR-171 + FR-177 + FR-185: risk scoring and acceptance-authority reconciliation.** Second trust-recovery-remediation batch, the risk-domain group (responding to the maintainer's mid-session direction to bundle coherent groups rather than ship single-change PRs). Reconciles four cross-document conflicts among the risk-scoring and risk-acceptance documents to single canonical surfaces. The methodology procedure and the exception/risk-acceptance policy are the canonical sources and were NOT edited; the divergent surfaces were brought into agreement with them.
+
+### Fixed
+- **FR-169** ([`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), Version `1.7.1` to `1.7.2`): the §5.2 likelihood scale used time-frequency anchors ("less than once in 10 years" / "once in 5 to 10 years" / ... / "more than once per year") while the canonical [`risk/procedure-risk-assessment-methodology.md`](../../risk/procedure-risk-assessment-methodology.md) §4 uses threat-precedent anchors. Per the maintainer's resume decision (threat-precedent is canonical), the standard's five likelihood Description cells were reconciled to the methodology's wording ("Unlikely; no known precedent in the industry" through "Near-certain; active exploitation confirmed"); the labels (Very Low..Very High) and score-to-rating thresholds already matched.
+- **FR-171** ([`risk/procedure-risk-acceptance.md`](../../risk/procedure-risk-acceptance.md), Version `1.0.1` to `1.0.2`; [`risk/template-risk-appetite-statement.md`](../../risk/template-risk-appetite-statement.md), Version `1.0.0` to `1.0.1`): three documents named three authorities for accepting a High residual risk (`template-risk-appetite-statement.md:68` CRO; `procedure-risk-acceptance.md:45` Executive Management; `governance/policy-exception-and-risk-acceptance-management.md:70` Executive Committee or Board Risk Committee). Per the maintainer's resume decision the governance policy §2.2 is canonical; the risk-acceptance procedure's High and Critical rows and the risk-appetite template's mandatory-acceptance-authority boundary were changed to "Executive Committee or Board Risk Committee", each now cross-referencing the canonical chain in [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md) §2.2 (which carries the adopter-substitution clause). The procedure's metadata `Approving Authority: Executive Management` field (line 8) is the document's own approval authority, a different concept, and was left untouched.
+- **FR-177** ([`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), same bump): the §5.2 threshold table's Low-band action "Monitor only; review annually" aligned to the methodology's "Accept; monitor annually" (consistent with the §6 treatment-option taxonomy, where "Accept" is a named treatment and "Monitor only" is not). The "annually" cadence §8.1 quotes verbatim is preserved.
+- **FR-185** ([`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), same bump): the §5.2 line-83 claim ("a given score yields the same rating, review cadence, and escalation across all three documents") over-stated, treating the referential register template as a co-equal defining source and asserting cadence/escalation parity the response tables do not have. Narrowed to: the labels/descriptions and thresholds match the canonical methodology scale, and the register template references the scale rather than defining its own.
+
+### Changed (generated artefacts)
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) for the three per-document Version/Date bumps; [`docs/portal.md`](../../docs/portal.md) correctly unchanged.
+
+### Verification
+- FR-169: the methodology's threat-precedent descriptions copied verbatim from [`risk/procedure-risk-assessment-methodology.md`](../../risk/procedure-risk-assessment-methodology.md):91-95 (read in full before editing); contradiction search confirmed no residual time-frequency anchor ("once in" / "per year") remains in the standard.
+- FR-171: corpus-wide check confirmed no other document asserts a conflicting High-residual-risk acceptance authority; the risk-appetite template carries no residual "CRO acceptance", the risk-acceptance procedure's only remaining "Executive Management" is the metadata field at :8 (out of scope).
+- [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) 54/54 green post-commit; [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh) all-pass; [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) clean before the first commit.
+
+### Changed (.working/, working-state)
+- FR-169, FR-171, FR-177, FR-185 rotated from [`TODO.md`](../../TODO.md) (P1 and P2) to [`.working/DONE.md`](../DONE.md).
+- Batched per recursion-avoidance: the #411 `/validate-pr` (0 findings) row into [`.working/validate-pr/history.md`](../validate-pr/history.md) (ledger `1.2.197` to `1.2.198`) and the #411 `/retro` row into [`.working/improvement-log.md`](../improvement-log.md) (ledger `1.0.149` to `1.0.150`).
+
+Library `2026.06.390` to `2026.06.391`; README `1.9.261` to `1.9.262`.
+
 ## 2026-06-27, Library Version 2026.06.390, PR #411
 
 **FR-168 + FR-170 + FR-173: cheap-certain trust-recovery High remediation batch.** First remediation PR of the trust-recovery routed backlog (High-first), per the maintainer's fix-issues-before-new-content standing directive and the resume clarification batch (attended-autonomous, batched). Opens the FR-168 to FR-175 Priority 1 set with the three cheapest-and-most-certain fixes.
